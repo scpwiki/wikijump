@@ -1,0 +1,381 @@
+resource_type	value	reference	context
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Acrophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Alethophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Anthropophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Aquaphobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Athazagoraphobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Atychiphobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Automotophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Autophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Basophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Diagraphephobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Eisoptrophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Ergophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Eschatophobia2.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Frigophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Hedonophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/INTRO.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Kenophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Masklophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Mnemophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Nucleomituphobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Nyctophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Ommetaphobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Onuxophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Phobophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Photophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Pistanthrophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Prosophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Pyrophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Scopophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Selenophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Submechanophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Tokophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Traumatophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/decidophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/erotophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/necrophobia.mp3	root	from-audio-player-include
+audio_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/thalassophobia.mp3	root	from-audio-player-include
+child_page	dr-frueh-s-proposal	parent=scp-anthology-2024	title=DarkStuff's Proposal
+child_page	fragment:scp-anthology-2024-earthworm	parent=scp-anthology-2024	title=SCP Anthology 2024 / Earthworm
+child_page	scp-3246	parent=scp-anthology-2024	title=SCP-3246
+child_page	scp-8084	parent=scp-anthology-2024	title=SCP-8084
+child_page	scp-8091	parent=scp-anthology-2024	title=SCP-8091
+child_page	scp-8109	parent=scp-anthology-2024	title=SCP-8109
+child_page	scp-8123	parent=scp-anthology-2024	title=SCP-8123
+child_page	scp-8160	parent=scp-anthology-2024	title=SCP-8160
+child_page	scp-8201	parent=scp-anthology-2024	title=SCP-8201
+child_page	scp-8217	parent=scp-anthology-2024	title=SCP-8217
+child_page	scp-8339	parent=scp-anthology-2024	title=SCP-8339
+child_page	scp-8356	parent=scp-anthology-2024	title=SCP-8356
+child_page	scp-8380	parent=scp-anthology-2024	title=SCP-8380
+child_page	scp-8430	parent=scp-anthology-2024	title=SCP-8430
+child_page	scp-8465	parent=scp-anthology-2024	title=SCP-8465
+child_page	scp-8480	parent=scp-anthology-2024	title=SCP-8480
+child_page	scp-8490	parent=scp-anthology-2024	title=SCP-8490
+child_page	scp-8520	parent=scp-anthology-2024	title=SCP-8520
+child_page	scp-8558	parent=scp-anthology-2024	title=SCP-8558
+child_page	scp-8596	parent=scp-anthology-2024	title=SCP-8596
+child_page	scp-8607	parent=scp-anthology-2024	title=SCP-8607
+child_page	scp-8654	parent=scp-anthology-2024	title=SCP-8654
+child_page	scp-8724	parent=scp-anthology-2024	title=SCP-8724
+child_page	scp-8770	parent=scp-anthology-2024	title=SCP-8770
+child_page	scp-8822	parent=scp-anthology-2024	title=SCP-8822
+child_page	scp-8876	parent=scp-anthology-2024	title=SCP-8876
+child_page	scp-8894	parent=scp-anthology-2024	title=SCP-8894
+child_page	scp-8906	parent=scp-anthology-2024	title=SCP-8906
+child_page	scp-8934	parent=scp-anthology-2024	title=SCP-8934
+child_page	scp-8935	parent=scp-anthology-2024	title=SCP-8935
+child_page	scp-8976	parent=scp-anthology-2024	title=SCP-8976
+child_page	scp-8980	parent=scp-anthology-2024	title=SCP-8980
+child_page	scp-8986	parent=scp-anthology-2024	title=SCP-8986
+child_page	scp-9426	parent=scp-anthology-2024	title=SCP-9426
+child_page	scp-9940	parent=scp-anthology-2024	title=SCP-9940
+external_url	https://boudewijnhuijgens.getarchive.net/amp/media/a-role-players-thigh-is-transformed-to-an-open-wound-b34516	root	scp-anthology-2024
+external_url	https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/TT2020StyleD-Italic.woff2	root	scp-anthology-2024
+external_url	https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/TT2020StyleD-Regular.woff2	root	scp-anthology-2024
+external_url	https://commons.m.wikimedia.org/wiki/File:D%C3%BClmen,_Kirchspiel,_ehem._Munitionslager_Visbeck,_Bunker_--_2019_--_6432_(bw	root	scp-anthology-2024
+external_url	https://commons.m.wikimedia.org/wiki/File:Gaping_hole_of_cistern.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Ancient_Greece_Bronze_Statue_Head_of_Antikythera_Philosopher,_c._230_BC_%2827884130133%29.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:BCBGMAXAZRIA_mannequins.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Carri%C3%A8re_-_Elise_riant_Les_yeux_noirs,_NUM_Mfilm_347_(02,_456	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Cia_Gould_2015_(Unsplash	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Colossal_head_of_Zeus_at_the_National_Archaeological_Museum_of_Athens_on_1_July_2018.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Dune_footprints_at_Great_Sand_Dunes_National_Park.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Ektoplasma.gif	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Horror_in_Prater.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:London_-_Smithfield_Market_-_3663.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Mature_Cystic_Teratoma_of_the_Ovary_%285560431170%29.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Pencil_Drawing_-_Study_Hand.JPG	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:President_Lyndon_Baines_Johnson_and_Mayor_Richard_Daley_of_Chicago.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Slovakia,_Kom%C3%A1rno,_hospital,_abandoned_building_3,_8.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Standing_statue_of_Merti%27s_wife_MET_26.2.3.jpeg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Sun_shining_on_a_brick_wall,_Harvard_Yard,_Cambridge,_Massachusetts,_US_(PPL2-Enhanced	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:The_Veiled_Nun_(Giuseppe_Croff	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Twin_Project.JPG	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Victor_Herbert_Orchestra_-_07_-_1909_-_Venetian_Love_Song.ogg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Wc_yellow_house_child_drawing.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Wereschtschagin2.jpg	root	scp-anthology-2024
+external_url	https://commons.wikimedia.org/wiki/File:Zamie%C4%87.jpg	root	scp-anthology-2024
+external_url	https://en.wikipedia.org/wiki/File:Epikouros_BM_1843.jpg	root	scp-anthology-2024
+external_url	https://en.wikipedia.org/wiki/File:Madonna_Advocata.png	root	scp-anthology-2024
+external_url	https://en.wikipedia.org/wiki/File:Newborn_baby_%28May_7,_2005%29.jpg	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Aitua/Carnaval_des_Animaux/Aitua_-_06_Camille_Saint_Saens_-_Carnaval_des_animaux_-_IV_Tortues/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Andrew_Bisset/Works_by_Andrew_Bissett/Andrew_Bisset_-_Cultural_Dis-Ease_1299/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Anonymous_Choir/Giovanni_Croces_Cantato_Domino	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Jahzzar/Viikinsaari/Runaway/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Jahzzar/handmade/SeeUSoon	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Kevin_Hartnell/CC_BY-SA_40/Kevin_Hartnell_-_CC_BY-SA_40_-_17_The_Crypt/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Kevin_Hartnell/CC_BY-SA_40/Kevin_Hartnell_-_CC_BY-SA_40_-_19_The_Dream_Sequence/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Moore_and_Davis/Antique_Phonograph_Music_Program_09232008/Moore_and_David_-_The_Last_Rose_of_Summermp3_1366/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Skidmore_College_Orchestra/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Skidmore_College_Orchestra/Mussorgskys_Pictures_at_an_Exhibition/IV_Bydlo_Sempre_moderato_pesante/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/Spectacular_Sound_Productions/Beauty_1695/Beauty_1301/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/The_United_States_Army_Old_Guard_Fife_and_Drum_Corps/Celebrating_50_Years/02_1942/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/holiznacc0/background-music/dangerous-voyage-music-box	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/holiznacc0/horseless-headman-halloween-beats/halloween-soundscape/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/holiznacc0/scores/ukraine/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/holiznacc0/the-beautiful-brain-of-a-robot/death/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/holiznacc0/the-beautiful-brain-of-a-robot/midlife/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/holiznacc0/the-beautiful-brain-of-a-robot/oldage/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/kira-daly/single/teaglach-kiramp3/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/koi-discovery/ante-chrysalide/thrusly-marylinmp3/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/lisa-hammer/soundtrack-series-campy-sci-fi-and-horror/voyager-lisa-hammermp3/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/lisa-hammer/soundtrack-series-horror-and-dread/string-dread-lisa-hammermp3/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/pablo-perez/single/auras-5/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/pablo-perez/single/death-scene/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/stripedgazelle/david-joseph-stith-ricercari	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/universfield/horror-music/black-dawn-music-box/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/universfield/sad-music/last-time/	root	scp-anthology-2024
+external_url	https://freemusicarchive.org/music/yn__GMC/Popolus_Ajeno/yn_GMC_-_06_-_/	root	scp-anthology-2024
+external_url	https://freepd.com/epic.php	root	scp-anthology-2024
+external_url	https://freepd.com/horror.php	root	scp-anthology-2024
+external_url	https://freepd.com/scoring.php	root	scp-anthology-2024
+external_url	https://freerangestock.com/photos/169170/hands-pressing-against-frosted-glass.html	root	scp-anthology-2024
+external_url	https://freesound	root	scp-anthology-2024
+external_url	https://garystockbridge617.getarchive.net/amp/media/x-ray-1896-nouvelle-iconographie-de-salpetriere-469d30	root	scp-anthology-2024
+external_url	https://jenikirbyhistory.getarchive.net/media/male-couple-holding-hands-41106-16-92a665	root	scp-anthology-2024
+external_url	https://openclipart.org/detail/291622/heart-of-hearts	root	scp-anthology-2024
+external_url	https://openclipart.org/detail/327695/with-drops-of-blood#google_vignette	root	scp-anthology-2024
+external_url	https://openverse.org/audio/00dabf9c-6a0f-4c49-bece-3206a7197b7c?q=phone+intercom+noise	root	scp-anthology-2024
+external_url	https://picryl.com/media/common-raven-on-seedskadee-national-wildlife-refuge-16741673188-25d98a	root	scp-anthology-2024
+external_url	https://picryl.com/media/eye-pupil-vision-health-medical-2af347	root	scp-anthology-2024
+external_url	https://pixabay.com/fi/photos/kuu-luna-y%C3%B6-tilaa-taivas-325083/	root	scp-anthology-2024
+external_url	https://pixabay.com/fi/photos/symbolinen-putoavat-pilvi%C3%A4-2036456/	root	scp-anthology-2024
+external_url	https://pixabay.com/ko/photos/%EB%A7%9D%EC%B9%98-%EB%85%B8%EB%8F%99%EC%9E%90-%ED%95%98%EC%96%80%EC%83%89-%EA%B3%84%EC%82%B0%EB%B2%95-1008971/	root	scp-anthology-2024
+external_url	https://polyhaven.com/a/marble_tiles	root	scp-anthology-2024
+external_url	https://pxhere.com/en/photo/951930	root	scp-anthology-2024
+external_url	https://stocksnap.io/photo/rural-road-RLJZG8QQBC	root	scp-anthology-2024
+external_url	https://upload.wikimedia.org/wikipedia/commons/1/16/Cave_in_Winter.jpg	root	scp-anthology-2024
+external_url	https://www.deviantart.com/bananadopt/art/broken-glass-texture1-71925599	root	scp-anthology-2024
+external_url	https://www.deviantart.com/pkgam/art/Crumpled-Paper-Texture-429242491	root	scp-anthology-2024
+external_url	https://www.deviantart.com/timothylinnomme/art/Disturbing-Eyes-Vision-326941095	root	scp-anthology-2024
+external_url	https://www.facebook.com/100064841826649/posts/949440107227375/?mibextid=rS40aB7S9Ucbxw6v	root	scp-anthology-2024
+external_url	https://www.facebook.com/photo?fbid=951060617065324&set=a.459617946209596	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/33254102@N04/3415909302	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/34409164@N06/4820456037	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/aloha75/4605051691	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/b1ll/15811893103	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/clearlyambiguous/40277322	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/docsearls/26542123648	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/jmv/2858690234	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/natura_pagana/4128299686	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/russ2020/16469404633	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/sagamiono/4023111814	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/stefan-w/5355424756	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/stevensnodgrass/3421398650	root	scp-anthology-2024
+external_url	https://www.flickr.com/photos/x1brett/8474720435	root	scp-anthology-2024
+external_url	https://www.needpix.com/photo/227019/baby-eyes-newborn-blue-eye-beautiful-child-cute-emotion-expression	root	scp-anthology-2024
+external_url	https://www.rawpixel.com/image/5914719/image-paper-texture-public-domain	root	scp-anthology-2024
+external_url	https://www.rawpixel.com/image/5924692/free-frost-image-public-domain-winter-cc0-photo	root	scp-anthology-2024
+external_url	https://www.rawpixel.com/image/6152496/metal-scratch-texture-background-surface-design	root	scp-anthology-2024
+external_url	https://www.researchgate.net/figure/a-The-uterus-isthmus-contained-a-2151cm-3-mass-at-the-right-side-of-the-cesarean_fig1_383047286	root	scp-anthology-2024
+external_url	https://x.com/PeterJohnDorian/status/1848540262559039837	root	scp-anthology-2024
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8084-0	scp-8084	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8084-1	scp-8084	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8724-0	scp-8724	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8724-1	scp-8724	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8724-2	scp-8724	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8724-3	scp-8724	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8724-4	scp-8724	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8724-5	scp-8724	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8980-1	scp-8980	fragment-page-link
+fragment_reference	https://scp-wiki.wikidot.com/fragment:scp-8980-2	scp-8980	fragment-page-link
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Acrophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Acrophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#4486f6 |icons-color=#4486f6 |player-color=#4486f6 |progress-color=#4486f6 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Alethophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Alethophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#92866c |icons-color=#92866c |player-color=#92866c |progress-color=#92866c 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Alethophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Mnemophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#92866c |icons-color=#92866c |player-color=#92866c |progress-color=#92866c 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Anthropophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Anthropophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#8b332f |icons-color=#8b332f |player-color=#8b332f |progress-color=#8b332f 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Aquaphobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Aquaphobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#17aabc |icons-color=#17aabc |player-color=#17aabc |progress-color=#17aabc 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Athazagoraphobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Athazagoraphobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#6679bc |icons-color=#6679bc |player-color=#6679bc |progress-color=#6679bc 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Atychiphobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Atychiphobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#866631 |icons-color=#866631 |player-color=#866631 |progress-color=#866631 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Automotophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Automotophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#969eb5 |icons-color=#969eb5 |player-color=#969eb5 |progress-color=#969eb5 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Autophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Autophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#ad2a9b |icons-color=#ad2a9b |player-color=#ad2a9b |progress-color=#ad2a9b 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Basophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Basophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#ab6116 |icons-color=#ab6116 |player-color=#ab6116 |progress-color=#ab6116 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Decidophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/decidophobia.mp3 |background-color=#0e0f0f|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#7F00FF |icons-color=#7F00FF |player-color=#7F00FF |progress-color=#7F00FF 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Diagraphephobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Diagraphephobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#ec393a |icons-color=#ec393a |player-color=#ec393a |progress-color=#ec393a 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Eisoptrophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Eisoptrophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#434242 |icons-color=#434242 |player-color=#434242 |progress-color=#434242 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Ergophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Ergophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#0a460a |icons-color=#0a460a |player-color=#0a460a |progress-color=#0a460a 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Erotophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/erotophobia.mp3 |background-color=#FFFFFF|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#0e0f0f |icons-color=#0e0f0f |player-color=#0e0f0f |progress-color=#0e0f0f 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Erotophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/erotophobia.mp3 |background-color=#FFFFFF|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#FFFFFF |icons-color=#FFFFFF |player-color=#FFFFFF |progress-color=#FFFFFF 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Eschatophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Eschatophobia2.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#8d3226 |icons-color=#8d3226 |player-color=#8d3226 |progress-color=#8d3226 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Frigophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Frigophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#aba8ff |icons-color=#aba8ff |player-color=#aba8ff |progress-color=#aba8ff 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Hedonophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Hedonophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#9c6d6d |icons-color=#9c6d6d |player-color=#9c6d6d |progress-color=#9c6d6d 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=INTRO |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/INTRO.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#eb3a3a |icons-color=#eb3a3a |player-color=#eb3a3a |progress-color=#eb3a3a 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Kenophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Kenophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#81779b |icons-color=#81779b |player-color=#81779b |progress-color=#81779b 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Masklophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Masklophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#c99a00 |icons-color=#c99a00 |player-color=#c99a00 |progress-color=#c99a00 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Necrophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/necrophobia.mp3 |background-color=#880808|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#7F00FF |icons-color=#7F00FF |player-color=#7F00FF |progress-color=#7F00FF 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Nucleomituphobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Nucleomituphobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#ff2e1d |icons-color=#ff2e1d |player-color=#ff2e1d |progress-color=#ff2e1d 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Nyctophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Nyctophobia.mp3 |background-color=#0e0f0f|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#0e0f0f |icons-color=rgb(255 246 246) |player-color=rgb(255 246 246) |progress-color=rgb(255 246 246) 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Ommetaphobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Ommetaphobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#806f67 |icons-color=#806f67 |player-color=#806f67 |progress-color=#806f67 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Onuxophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Onuxophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#a51844 |icons-color=#a51844 |player-color=#a51844 |progress-color=#a51844 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Phobophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Phobophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#0a5cf7 |icons-color=#0a5cf7 |player-color=#0a5cf7 |progress-color=#0a5cf7 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Photophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Photophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#fffcda |icons-color=#fffcda |player-color=#fffcda |progress-color=#fffcda 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Pistanthrophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Pistanthrophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#FFD1DC |icons-color=#FFD1DC |player-color=#FFD1DC |progress-color=#FFD1DC 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Prosophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Prosophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#FFD700 |icons-color=#FFD700 |player-color=#FFD700 |progress-color=#FFD700 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Pyrophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Pyrophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#fb6212 |icons-color=#fb6212 |player-color=#fb6212 |progress-color=#fb6212 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Scopophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Scopophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#eb3a3a |icons-color=#eb3a3a |player-color=#eb3a3a |progress-color=#eb3a3a 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Selenophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Selenophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#ced6a9 |icons-color=#ced6a9 |player-color=#ced6a9 |progress-color=#ced6a9 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Submechanophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Submechanophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#8748d0 |icons-color=#8748d0 |player-color=#8748d0 |progress-color=#8748d0 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Tokophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Tokophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#ef3584 |icons-color=#ef3584 |player-color=#ef3584 |progress-color=#ef3584 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=Traumatophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/Traumatophobia.mp3 |background-color=rgb(27 24 25)|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#e00000 |icons-color=#e00000 |player-color=#e00000 |progress-color=#e00000 	root	scp-anthology-2024
+include_audio	 :scp-wiki:component:audio-player-woed-source |unique-name=thalassophobia |audio-file=https://scp-sandbox-3.wdfiles.com/local--files/test544/thalassophobia.mp3 |background-color=#0e0f0f|border-radius=0rem|dropshadow-color=rgb(12 12 12/0)|text-color=rgb(255 246 246) |border-color=#0e0f0f |icons-color=rgb(255 246 246) |player-color=rgb(255 246 246) |progress-color=rgb(255 246 246) 	root	scp-anthology-2024
+include_component	 :scp-wiki:component:license-box	root	scp-anthology-2024
+include_component	 :scp-wiki:component:license-box-end	root	scp-anthology-2024
+include_other	 component:preview text=Collected here for your consideration, your introspection, are tales of woe. Tales of madness. Tragedies whose concerns are the foibles of man; they are depictions of his agony. Each file represents a different fear. A unique phobia.	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color= #0a5cf7|cover-img= https://scp-sandbox-3.wdfiles.com/local--files/test544/phobophobia.png |slug=scp-8066 |author=MontagueETC |phobia=Phobophobia|title=The Only Thing to **Fear** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color= #fb6212 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/pyrophobia.gif |slug=SCP-8091 |author=Cathy Autumn |phobia=Pyrophobia|title=**Burn** With Me 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#050a30 |cover-img=https://scp-wiki.wdfiles.com/local--files/scp-anthology-2024/thalassophobia.jpg |slug=scp-8523 |author=local lesbian commie |phobia=Thalassophobia|title=Diver Down 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#0a460a|cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/ergophobia.png |slug=scp-8980 |author=Yossipossi |phobia=Ergophobia|title=**Without** Regards 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#0e0f0f|cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/nyctophobia.png |slug=scp-3246 |author=Henzoid |phobia=Nyctophobia|title=Blind Rapture 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#17aabc |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/aquaphobia.png |slug=scp-8380 |author=TroutMaskReplica |phobia=Aquaphobia|title=**S**u**r**f**a**c**e** T**e**n**s**i**o**n 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#434242 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/eisoptrophobia.png |slug=scp-8465 |author=PoufyPoufson |phobia=Eisoptrophobia|title=Blackd**o**t 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#4486f6 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/acrophobia.png |slug=scp-8654 |author=LizardWizard |phobia=Acrophobia|title=**Up** is **Down** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#6679bc|cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/Athazagoraphobia.png |slug=scp-8160 |author=IndustryStandard |phobia=Athazagoraphobia|title=**And the Earth Keeps Spinning**. 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#7F00FF |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/decidophobia.png |slug=scp-8356 |author=Kothardarastrix |phobia=Decidophobia|title=The Wrong Way 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#806f67 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/Ommetaphobia6.png |slug=scp-8934 |author=Karathh |phobia=目恐怖症 (Ommetaphobia)|title= き/Ki is for 刻/Kizami 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#81779b |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/Kenophobia.png |slug=scp-8724 |author=Fishish |phobia=Kenophobia|title=bad vibes forever 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#866631 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/atychiphobia.png |slug=dr-frueh-s-proposal |author=DarkStuff's Proposal |phobia=Atychiphobia|title=Family Life 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#8748d0 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/submechanophobia.png |slug=scp-8770 |author=Dino—Draws |phobia=Submechanophobia|title=I **Miss** You 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#880808 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/necrophobia.gif |slug=scp-8490 |author=S D Locke |phobia=Necrophobia|title=Charnel 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#8b332f |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/anthropophobia.png |slug=scp-8876 |author=J Dune |phobia=Anthropophobia|title=**Killing** Floor 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#8d3226 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/eschatophobia.jpg |slug=scp-8201 |author=daveyoufool |phobia=Eschatophobia|title=The **Only** Way Out 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#92866c |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/alethophobia.jpg |slug=scp-8822 |author=Croquembouche |phobia=phobia|title=Headcanon 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#969eb5 |cover-img= https://scp-sandbox-3.wdfiles.com/local--files/test544/automotonophobia.jpg |slug=scp-8986 |author=PeppersGhost |phobia=Automatonophobia|title=False **Positive** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#9c6d6d|cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/hedonophobia.png |slug=scp-8558 |author=OriTiefling |phobia=Hedonophobia|title=Carnal **Rotting** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#FFD1DC |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/pistanthrophobia.png |slug=scp-8607 |author=Uncannyon |phobia=Pistanthrophobia|title=**Lucy's** House 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#FFD700 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/prosophobia.png |slug=scp-8430 |author=bigslothonmyface |phobia=Prosophobia|title=**Fulfillment** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#FFFFFF |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/dittophobia.jpg |slug=scp-9426 |author=whenwerewe |phobia=Dittophobia|title=Dittophobia: Dittophobia	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#FFFFFF |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/erotophobia.png |slug=scp-9940 |author=KatyaStrangelove |phobia=Erotophobia|title=May the Emptiness Leave Me	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#a51844 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/Onuxophobia.png |slug=scp-8480 |author=Queerious |phobia=Onuxophobia|title=Maladaptive **Autocannibalism** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#ab6116 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/basophobia0.png |slug=scp-8894 |author=cubeflix |phobia=Basophobia|title=**Leap of Faith** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#aba8ff |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/frigophobia.png |slug=scp-8109 |author=Dr Clef |phobia=Frigophobia|title=A Dish Best Served **Cold** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#ad2a9b |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/autophobia4.png |slug=scp-8123 |author=Sonderance |phobia=Autophobia|title=**String Section** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#c99a00 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/masklophobia2.png |slug=scp-8906 |author=Sound Chaser |phobia=Masklophobia|title=A **Murder** Onstage 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#ced6a9 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/selenophobia.png |slug=scp-8520 |author=AriadnesThread |phobia=Selenophobia|title=An **Empty** Reflection 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#e00000 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/traumatophobia.jpg |slug=scp-8217 |author=habaniah |phobia=Traumatophobia|title=Better **Them** Than **Us** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#eb3a3a |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/scopophobia.gif |slug=scp-8596 |author=PlaguePJP |phobia=Scopophobia|title=The Employee of the Month 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#ec393a|cover-img=https://scp-wiki.wdfiles.com/local--files/scp-8976/10.png |slug=scp-8976 |author=ROUNDERHOUSE |phobia=Diagraphephobia|title=fragmentation 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#ef3584 |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/tokophobia.png |slug=scp-8935 |author=djkaktus |phobia=Tokophobia|title=The Virgin **Birth** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#ff2e1d |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/nucleomituphobia.jpg |slug=scp-8084 |author=basirskipreader and FLOORBOARDS |phobia=Nucleomituphobia|title=Complete Cultural **Victory** 	root	scp-anthology-2024
+include_paella	 :smlt:odule:paella |status=active |color=#fffcda |cover-img=https://scp-sandbox-3.wdfiles.com/local--files/test544/photophobia.jpg |slug=scp-8339 |author=Ecronak |phobia=Photophobia|title=L**i**ve **i**n the Dark. Die **i**n the L**i**ght. 	root	scp-anthology-2024
+include_theme	 :scp-wiki:theme:sunside	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Acrophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Alethophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Anthropophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Aquaphobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Athazagoraphobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Athazagoraphobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Atychiphobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Automotophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Autophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Basophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Diagraphephobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Eisoptrophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Ergophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Eschatophobia2.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Frigophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Hedonophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/INTRO.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Kenophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Kenophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Masklophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Mnemophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Nucleomituphobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Nyctophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Ommetaphobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Ommetaphobia6.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Onuxophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Onuxophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Phobophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Photophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Pistanthrophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Prosophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Pyrophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Scopophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Selenophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Submechanophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Tokophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/Traumatophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/acrophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/alethophobia.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/alethophobia2.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/alethophobia3.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/alethophobia4.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/anthropophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/aquaphobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/atychiphobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/automotonophobia.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/autophobia4.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/basophobia0.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/decidophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/decidophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/dittophobia.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/eisoptrophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/ergophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/erotophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/erotophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/eschatophobia.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/frigophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/hedonophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/masklophobia2.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/necrophobia.gif	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/necrophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/nucleomituphobia.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/nyctophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/phobophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/photophobia.jpg	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/pistanthrophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/prosophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/pyrophobia.gif	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/scopophobia.gif	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/selenophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/submechanophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/thalassophobia.mp3	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/tokophobia.png	root	scp-anthology-2024
+local_file	https://scp-sandbox-3.wdfiles.com/local--files/test544/traumatophobia.jpg	root	scp-anthology-2024
+local_file	https://scp-wiki.wdfiles.com/local--files/scp-8976/10.png	root	scp-anthology-2024
+local_file	https://scp-wiki.wdfiles.com/local--files/scp-anthology-2024/thalassophobia.jpg	root	scp-anthology-2024
+local_file	https://smlt.wdfiles.com/local--files/odule%3Acrab/ant24.jpg	root	scp-anthology-2024
+local_file	https://smlt.wdfiles.com/local--files/odule%3Acrab/ant24fig.png	root	scp-anthology-2024
+local_file	https://smlt.wdfiles.com/local--files/odule%3Acrab/brick.jpg	root	scp-anthology-2024
+local_file	https://smlt.wdfiles.com/local--files/odule%3Acrab/tilebg.png	root	scp-anthology-2024
+nav_link	hub-url = scp-anthology-2024	scp-8980	hub-url
+nav_link	next-url = scp-8894	scp-8980	next-url
+nav_link	previous-url = scp-8380	scp-8980	previous-url
+paella_slug	SCP-8091	root	from-paella-include
+paella_slug	dr-frueh-s-proposal	root	from-paella-include
+paella_slug	scp-3246	root	from-paella-include
+paella_slug	scp-8066	root	from-paella-include
+paella_slug	scp-8084	root	from-paella-include
+paella_slug	scp-8109	root	from-paella-include
+paella_slug	scp-8123	root	from-paella-include
+paella_slug	scp-8160	root	from-paella-include
+paella_slug	scp-8201	root	from-paella-include
+paella_slug	scp-8217	root	from-paella-include
+paella_slug	scp-8339	root	from-paella-include
+paella_slug	scp-8356	root	from-paella-include
+paella_slug	scp-8380	root	from-paella-include
+paella_slug	scp-8430	root	from-paella-include
+paella_slug	scp-8465	root	from-paella-include
+paella_slug	scp-8480	root	from-paella-include
+paella_slug	scp-8490	root	from-paella-include
+paella_slug	scp-8520	root	from-paella-include
+paella_slug	scp-8523	root	from-paella-include
+paella_slug	scp-8558	root	from-paella-include
+paella_slug	scp-8596	root	from-paella-include
+paella_slug	scp-8607	root	from-paella-include
+paella_slug	scp-8654	root	from-paella-include
+paella_slug	scp-8724	root	from-paella-include
+paella_slug	scp-8770	root	from-paella-include
+paella_slug	scp-8822	root	from-paella-include
+paella_slug	scp-8876	root	from-paella-include
+paella_slug	scp-8894	root	from-paella-include
+paella_slug	scp-8906	root	from-paella-include
+paella_slug	scp-8934	root	from-paella-include
+paella_slug	scp-8935	root	from-paella-include
+paella_slug	scp-8976	root	from-paella-include
+paella_slug	scp-8980	root	from-paella-include
+paella_slug	scp-8986	root	from-paella-include
+paella_slug	scp-9426	root	from-paella-include
+paella_slug	scp-9940	root	from-paella-include
