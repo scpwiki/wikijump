@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "target_site": "scpaiueouiuiuiui",
+  "target_slug": "corpus:scp-9506-draft",
+  "source_url": "https://scp-wiki.wikidot.com/scp-9506",
+  "source_slug": "scp-9506",
+  "source_title": "National Fog Safety Initiative",
+  "import_kind": "fixture-smoke",
+  "seed_wikitext": "deepwell/seeder/issue56-scp9506-local-corpus-draft.ftml",
+  "seed_registry": "deepwell/seeder/pages.json",
+  "provenance_fields": [
+    "source_url",
+    "source_slug",
+    "source_title",
+    "import_kind",
+    "target_site"
+  ],
+  "expected_absent_from_sites": [
+    "scp-wiki",
+    "scp-jp"
+  ]
+}

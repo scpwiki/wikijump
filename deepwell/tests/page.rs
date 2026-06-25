@@ -1144,6 +1144,154 @@ async fn issue5_editable_corpus_pages_do_not_leak_to_mirror_sites() {
 }
 
 #[tokio::test]
+async fn issue56_seeded_local_corpus_import_is_editable_and_isolated() {
+    const IMPORT_SLUG: &str = "corpus:scp-9506-draft";
+
+    let mut runner = TestRunner::setup().await;
+    let (editable_site_id, scp_jp_site_id) = ensure_issue5_sites(&mut runner).await;
+
+    let scp_wiki_output = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded scp-wiki site not found");
+
+    let import_page_params = || {
+        common::make_params(json!({
+            "site_id": editable_site_id,
+            "page": IMPORT_SLUG,
+            "details": {
+                "wikitext": true,
+                "compiled": true
+            },
+        }))
+    };
+
+    let imported_page =
+        match deepwell::endpoints::all::page_get(runner.context(), import_page_params())
+            .await
+        {
+            Ok(Some(page)) => page,
+            Ok(None) => {
+                let source_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("seeder/issue56-scp9506-local-corpus-draft.ftml");
+                let source = std::fs::read_to_string(&source_path)
+                    .expect("issue56 seed fixture file should be readable");
+
+                let create_output = run_endpoint!(
+                    runner,
+                    page_create,
+                    json!({
+                        "site_id": editable_site_id,
+                        "wikitext": source,
+                        "title": "National Fog Safety Initiative draft import fixture",
+                        "alt_title": null,
+                        "slug": IMPORT_SLUG,
+                        "layout": null,
+                        "revision_comments": "seed local corpus import fixture",
+                        "user_id": ADMIN_USER_ID,
+                        "ip_address": common::IP_ADDRESS,
+                    }),
+                );
+                assert_eq!(create_output.slug, IMPORT_SLUG);
+
+                deepwell::endpoints::all::page_get(runner.context(), import_page_params())
+                    .await
+                    .expect("local corpus fallback page_get should succeed")
+                    .expect("local corpus fallback page_get should return page data")
+            }
+            Err(error) => {
+                panic!("initial local corpus page_get failed unexpectedly: {error}")
+            }
+        };
+
+    assert_eq!(imported_page.site_id, editable_site_id);
+    assert_eq!(imported_page.slug, IMPORT_SLUG);
+    assert_eq!(
+        imported_page.title,
+        "National Fog Safety Initiative draft import fixture"
+    );
+
+    let wikitext = imported_page
+        .wikitext
+        .as_deref()
+        .expect("wikitext details should be present");
+    for expected in [
+        "source_url: https://scp-wiki.wikidot.com/scp-9506",
+        "source_slug: scp-9506",
+        "source_title: National Fog Safety Initiative",
+        "import_kind: fixture-smoke",
+        "target_site: scpaiueouiuiuiui",
+    ] {
+        assert!(
+            wikitext.contains(expected),
+            "local corpus import fixture missing provenance field {expected:?}"
+        );
+    }
+
+    let scp_jp_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": scp_jp_site_id,
+            "page": IMPORT_SLUG,
+        }),
+    );
+    assert!(
+        scp_jp_page.is_none(),
+        "Local corpus import unexpectedly appeared in scp-jp"
+    );
+
+    let scp_wiki_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": scp_wiki_output.site.site_id,
+            "page": IMPORT_SLUG,
+        }),
+    );
+    assert!(
+        scp_wiki_page.is_none(),
+        "Local corpus import unexpectedly appeared in scp-wiki"
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(editable_site_id),
+        page_reference: Some(Reference::Slug(IMPORT_SLUG.into())),
+    });
+
+    let output = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": editable_site_id,
+            "page": IMPORT_SLUG,
+            "last_revision_id": imported_page.revision_id,
+            "revision_comments": "edit local corpus import fixture",
+            "user_id": ADMIN_USER_ID,
+            "wikitext": format!("{}\nEdited through local corpus import lane.\n", wikitext),
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("No revision created for local corpus import edit");
+    assert_eq!(output.revision_number, imported_page.revision_number + 1);
+
+    let updated_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": editable_site_id,
+            "page": IMPORT_SLUG,
+        }),
+    )
+    .expect("Edited local corpus import fixture missing");
+    assert_eq!(
+        updated_page.revision_number,
+        imported_page.revision_number + 1
+    );
+    assert_eq!(updated_page.revision_user_id, ADMIN_USER_ID);
+}
+
+#[tokio::test]
 async fn issue5_same_slug_does_not_mix_between_editable_corpus_and_scp_jp() {
     let mut runner = TestRunner::setup().await;
     let (editable_site_id, scp_site_id) = ensure_issue5_sites(&mut runner).await;

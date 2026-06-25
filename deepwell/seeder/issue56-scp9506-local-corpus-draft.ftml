@@ -1,0 +1,13 @@
+= National Fog Safety Initiative draft import fixture
+
+Local translation corpus import fixture for scpaiueouiuiuiui.
+
+== Provenance
+
+* source_url: https://scp-wiki.wikidot.com/scp-9506
+* source_slug: scp-9506
+* source_title: National Fog Safety Initiative
+* import_kind: fixture-smoke
+* target_site: scpaiueouiuiuiui
+
+This page is intentionally seeded only into the editable local corpus site. It must not appear in scp-wiki or scp-jp unless a separate mirror import explicitly creates it there.

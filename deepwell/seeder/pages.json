@@ -103,6 +103,11 @@
             "slug": "boundary-check",
             "title": "Boundary Check: Local Translation Corpus",
             "wikitext": "issue50-editable-corpus-boundary"
+        },
+        {
+            "slug": "corpus:scp-9506-draft",
+            "title": "National Fog Safety Initiative draft import fixture",
+            "wikitext": "issue56-scp9506-local-corpus-draft"
         }
     ],
     "scp-jp": [
