@@ -1,5 +1,6 @@
 [package]
 name = "deepwell"
+default-run = "deepwell"
 description = "DEEPWELL - Wikijump API provider and database manager"
 repository = "https://github.com/scpwiki/wikijump/tree/develop/deepwell"
 readme = "README.md"

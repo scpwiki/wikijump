@@ -20,6 +20,7 @@
 
 use super::impls::*;
 use super::prelude::*;
+use sea_orm::Statement;
 
 #[derive(Debug)]
 pub struct ScoreService;
@@ -34,10 +35,19 @@ impl ScoreService {
             )
         };
 
-        let condition = Self::build_condition(page_id);
+        let imported_rating = Self::imported_rating(ctx, page_id)
+            .await
+            .or_raise(make_error)?;
+        let condition = Self::build_condition(page_id, imported_rating.is_some());
         let scorer = Self::get_scorer(ctx, page_id).await.or_raise(make_error)?;
-        let score = scorer.score(txn, condition).await.or_raise(make_error)?;
-        Ok(score)
+        let local_score = scorer.score(txn, condition).await.or_raise(make_error)?;
+
+        match imported_rating {
+            Some(imported_rating) => {
+                Self::combine_imported_rating(imported_rating, local_score)
+            }
+            None => Ok(local_score),
+        }
     }
 
     /// Gets the correct `Scorer` implementation for this page.
@@ -96,10 +106,89 @@ impl ScoreService {
         Ok(map)
     }
 
-    fn build_condition(page_id: i64) -> Condition {
-        Condition::all()
+    async fn imported_rating(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<Option<i64>> {
+        #[derive(FromQueryResult, Debug)]
+        struct TableExistsRow {
+            exists: bool,
+        }
+
+        #[derive(FromQueryResult, Debug)]
+        struct ImportedRatingRow {
+            imported_rating: i64,
+        }
+
+        let txn = ctx.transaction();
+        let table_exists_statement = Statement::from_string(
+            txn.get_database_backend(),
+            "SELECT to_regclass('wikidot_page_snapshot') IS NOT NULL AS exists",
+        );
+        let table_exists = TableExistsRow::find_by_statement(table_exists_statement)
+            .one(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to check imported page rating table",
+                    ErrorType::PageVote,
+                )
+            })?
+            .map(|row| row.exists)
+            .unwrap_or(false);
+
+        if !table_exists {
+            return Ok(None);
+        }
+
+        let statement = Statement::from_string(
+            txn.get_database_backend(),
+            format!(
+                "SELECT imported_rating FROM wikidot_page_snapshot WHERE page_id = {}",
+                page_id,
+            ),
+        );
+
+        let row = ImportedRatingRow::find_by_statement(statement)
+            .one(txn)
+            .await
+            .or_raise(|| {
+                Error::new("failed to load imported page rating", ErrorType::PageVote)
+            })?;
+
+        Ok(row.map(|row| row.imported_rating))
+    }
+
+    fn combine_imported_rating(
+        imported_rating: i64,
+        local_score: ScoreValue,
+    ) -> Result<ScoreValue> {
+        match local_score {
+            ScoreValue::Integer(value) => {
+                let combined = imported_rating.checked_add(value).ok_or_else(|| {
+                    Error::new(
+                        "imported page rating overflowed while combining local votes",
+                        ErrorType::PageVote,
+                    )
+                })?;
+                Ok(ScoreValue::Integer(combined))
+            }
+            ScoreValue::Float(value) => {
+                Ok(ScoreValue::Float(imported_rating as f64 + value))
+            }
+        }
+    }
+
+    fn build_condition(page_id: i64, local_votes_only: bool) -> Condition {
+        let mut condition = Condition::all()
             .add(page_vote::Column::PageId.eq(page_id))
             .add(page_vote::Column::DeletedAt.is_null())
-            .add(page_vote::Column::DisabledAt.is_null())
+            .add(page_vote::Column::DisabledAt.is_null());
+
+        if local_votes_only {
+            condition = condition.add(page_vote::Column::FromWikidot.eq(false));
+        }
+
+        condition
     }
 }

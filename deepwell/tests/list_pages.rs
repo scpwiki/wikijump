@@ -224,3 +224,215 @@ After"#;
         "missing exact-name ListPages should render zero rows without leaking metadata or raw module markup:\n{html}",
     );
 }
+
+async fn execute_sql(runner: &TestRunner, sql: &str) {
+    let transaction = runner.context().transaction();
+    let statement =
+        Statement::from_string(transaction.get_database_backend(), sql.to_owned());
+    transaction
+        .execute(statement)
+        .await
+        .expect("failed to execute test SQL");
+}
+
+async fn ensure_wikidot_import_snapshot_tables(runner: &TestRunner) {
+    execute_sql(
+        runner,
+        r#"
+        CREATE TABLE IF NOT EXISTS wikidot_corpus_import_run (
+            import_run_id BIGSERIAL PRIMARY KEY,
+            site_id BIGINT NOT NULL REFERENCES site(site_id),
+            source_branch TEXT NOT NULL,
+            source_site TEXT NOT NULL,
+            manifest_sha256 BYTEA NOT NULL CHECK (octet_length(manifest_sha256) = 32),
+            manifest_row_count BIGINT NOT NULL CHECK (manifest_row_count >= 0),
+            complete_inventory BOOLEAN NOT NULL,
+            state TEXT NOT NULL CHECK (state IN ('planning', 'running', 'metadata_done', 'rendering', 'done', 'failed')),
+            started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            finished_at TIMESTAMPTZ,
+            summary JSONB NOT NULL DEFAULT '{}'::JSONB
+        )
+        "#,
+    )
+    .await;
+    execute_sql(
+        runner,
+        r#"
+        CREATE TABLE IF NOT EXISTS wikidot_page_snapshot (
+            page_id BIGINT PRIMARY KEY REFERENCES page(page_id) ON DELETE CASCADE,
+            source_branch TEXT NOT NULL,
+            source_site TEXT NOT NULL,
+            source_entity_id UUID NOT NULL,
+            source_fullname TEXT NOT NULL,
+            source_created_at TIMESTAMPTZ NOT NULL,
+            source_updated_at TIMESTAMPTZ NOT NULL,
+            source_revision_count INTEGER NOT NULL CHECK (source_revision_count >= 0),
+            imported_rating BIGINT NOT NULL,
+            created_by_name TEXT,
+            updated_by_name TEXT,
+            title_shown TEXT,
+            parent_fullname TEXT,
+            comments INTEGER NOT NULL CHECK (comments >= 0),
+            commented_at TIMESTAMPTZ,
+            commented_by_name TEXT,
+            source_sha256 BYTEA NOT NULL CHECK (octet_length(source_sha256) = 32),
+            meta_sha256 BYTEA NOT NULL CHECK (octet_length(meta_sha256) = 32),
+            meta_json JSONB NOT NULL,
+            last_import_run_id BIGINT NOT NULL REFERENCES wikidot_corpus_import_run(import_run_id),
+            imported_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE(source_site, source_entity_id),
+            UNIQUE(source_site, source_fullname)
+        )
+        "#,
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn imported_rating_baseline_adds_only_local_votes() {
+    const TARGET_SLUG: &str = "scp-173-imported-rating-smoke";
+    const IMPORT_RUN_ID: i64 = 7_700_001;
+
+    let mut runner = TestRunner::setup().await;
+    ensure_wikidot_import_snapshot_tables(&runner).await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(TARGET_SLUG.into())),
+    });
+    let target = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "Imported rating target",
+            "title": "Imported Rating Target",
+            "alt_title": null,
+            "slug": TARGET_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "target for imported rating smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    execute_sql(
+        &runner,
+        &format!(
+            r#"
+            INSERT INTO wikidot_corpus_import_run (
+                import_run_id,
+                site_id,
+                source_branch,
+                source_site,
+                manifest_sha256,
+                manifest_row_count,
+                complete_inventory,
+                state,
+                summary
+            ) VALUES (
+                {IMPORT_RUN_ID},
+                {site_id},
+                'en',
+                'scp-wiki',
+                decode(repeat('00', 32), 'hex'),
+                1,
+                false,
+                'metadata_done',
+                '{{}}'::jsonb
+            )
+            "#,
+        ),
+    )
+    .await;
+    execute_sql(
+        &runner,
+        &format!(
+            r#"
+            INSERT INTO wikidot_page_snapshot (
+                page_id,
+                source_branch,
+                source_site,
+                source_entity_id,
+                source_fullname,
+                source_created_at,
+                source_updated_at,
+                source_revision_count,
+                imported_rating,
+                created_by_name,
+                updated_by_name,
+                title_shown,
+                parent_fullname,
+                comments,
+                commented_at,
+                commented_by_name,
+                source_sha256,
+                meta_sha256,
+                meta_json,
+                last_import_run_id
+            ) VALUES (
+                {},
+                'en',
+                'scp-wiki',
+                '11111111-1111-4111-8111-111111111111',
+                '{TARGET_SLUG}',
+                TIMESTAMPTZ '2008-07-25T20:49:21Z',
+                TIMESTAMPTZ '2025-04-02T12:17:27Z',
+                57,
+                10634,
+                NULL,
+                'ParallelPotatoes',
+                'SCP-173',
+                NULL,
+                2026,
+                TIMESTAMPTZ '2026-04-13T11:29:27Z',
+                'Ekaterina Komisch',
+                decode(repeat('11', 32), 'hex'),
+                decode(repeat('22', 32), 'hex'),
+                '{{"fullname":"scp-173"}}'::jsonb,
+                {IMPORT_RUN_ID}
+            )
+            "#,
+            target.page_id,
+        ),
+    )
+    .await;
+
+    let baseline = run_endpoint!(
+        runner,
+        page_get_score,
+        json!({"site_id": site_id, "page": TARGET_SLUG}),
+    );
+    assert_eq!(
+        baseline.score,
+        deepwell::services::score::ScoreValue::Integer(10634)
+    );
+
+    let vote = run_endpoint!(
+        runner,
+        vote_set,
+        json!({
+            "page_id": target.page_id,
+            "user_id": ADMIN_USER_ID,
+            "value": 1,
+        }),
+    )
+    .expect("local vote should be accepted");
+    assert_eq!(vote.value, 1);
+
+    let score = run_endpoint!(
+        runner,
+        page_get_score,
+        json!({"site_id": site_id, "page": TARGET_SLUG}),
+    );
+    assert_eq!(
+        score.score,
+        deepwell::services::score::ScoreValue::Integer(10635)
+    );
+}
