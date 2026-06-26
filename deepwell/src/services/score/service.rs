@@ -42,13 +42,13 @@ impl ScoreService {
 
     /// Gets the correct `Scorer` implementation for this page.
     ///
-    /// Currently stubbed, will be implemented when relevant settings are added.
+    /// Site-level score settings are not implemented yet, so use Wikidot's
+    /// ordinary signed-vote sum as the deterministic default.
     pub async fn get_scorer(
         _ctx: &ServiceContext<'_>,
         _page_id: i64,
     ) -> Result<impl Scorer> {
-        // TODO
-        Ok(TestScorer)
+        Ok(SumScorer)
     }
 
     /// Helper method for retrieving a `VoteMap` for a page.

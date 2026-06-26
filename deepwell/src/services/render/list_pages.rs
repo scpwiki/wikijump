@@ -19,34 +19,38 @@
  */
 
 use super::prelude::*;
+use crate::models::page::{self, Entity as Page};
 use crate::services::page_query::{
     CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageTypeSelector,
     PaginationSelector, RangeSelector, TagCondition,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
-use crate::services::{PageQueryService, PageRevisionService};
+use crate::services::score::ScoreValue;
+use crate::services::{PageQueryService, PageRevisionService, ScoreService};
 use crate::types::{Action, PageId, Permission, Resource};
 use regex::Regex;
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
-use time::OffsetDateTime;
+use time::{Month, OffsetDateTime};
+use wikidot_normalize::normalize;
 
-// This intentionally recognizes only the SCP-8980 proof shape. Generic ListPages
-// parsing and URL-derived offsets remain separate follow-up work.
+// This intentionally recognizes only bounded, proven ListPages shapes. Generic
+// ListPages parsing remains follow-up work; unsupported complete modules are
+// preserved for now so existing pages keep their current behavior.
 const CONTENT_VARIABLE: &str = "%%content%%";
+const CREATED_AT_VARIABLE: &str = "created_at";
+const RATING_VARIABLE: &str = "rating";
 const FRAGMENT_CATEGORY: &str = "fragment";
-
-static LIST_PAGES_BLOCK: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?s)\[\[module[ \t]+ListPages(?P<attributes>[^\]]*)\]\](?P<body>.*?)\[\[/module\]\]"#,
-    )
-    .expect("ListPages block regular expression should compile")
-});
+const MAX_LIST_PAGES_MODULES: usize = 256;
+const MAX_LIST_PAGES_ATTRIBUTES_BYTES: usize = 8 * 1024;
+const MAX_LIST_PAGES_BODY_BYTES: usize = 64 * 1024;
+const MODULE_OPEN: &str = "[[module";
+const MODULE_CLOSE: &str = "[[/module]]";
 
 static MODULE_ATTRIBUTE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?P<name>[A-Za-z_][A-Za-z0-9_-]*)[ \t]*=[ \t]*"(?P<value>[^"]*)""#)
+    Regex::new(r#"(?P<name>[A-Za-z_][A-Za-z0-9_-]*)[ \t]*=[ \t]*\"(?P<value>[^\"]*)\""#)
         .expect("module attribute regular expression should compile")
 });
 
@@ -58,9 +62,23 @@ struct ListPagesOccurrence {
 }
 
 #[derive(Debug)]
-struct SupportedListPages {
-    body_template: String,
-    offset: u32,
+enum SupportedListPages {
+    FragmentChildContent {
+        body_template: String,
+        offset: u32,
+    },
+    NamedPageMetadata {
+        body_template: String,
+        requested_name: String,
+        normalized_slug: String,
+    },
+}
+
+#[derive(Debug)]
+struct NamedPageMetadata {
+    page_id: i64,
+    created_at: OffsetDateTime,
+    score: ScoreValue,
 }
 
 pub(super) async fn expand_list_pages(
@@ -68,18 +86,23 @@ pub(super) async fn expand_list_pages(
     wikitext: String,
     page_id: &PageId,
 ) -> Result<String> {
-    if !wikitext.contains("[[module ListPages") {
+    if !wikitext.contains(MODULE_OPEN) {
         return Ok(wikitext);
     }
 
-    let occurrences = find_occurrences(&wikitext);
+    let occurrences = find_occurrences(&wikitext)?;
     if occurrences.is_empty() {
-        warn!(
-            "Page ID {} contains ListPages text, but no complete block was recognized",
-            page_id.page_id,
-        );
+        if wikitext.contains("ListPages") {
+            warn!(
+                "Page ID {} contains ListPages text, but no complete block was recognized",
+                page_id.page_id,
+            );
+        }
         return Ok(wikitext);
     }
+
+    let named_slugs = collect_named_slugs(&occurrences);
+    let named_pages = resolve_named_pages(ctx, page_id.site_id, &named_slugs).await?;
 
     let mut expanded = String::with_capacity(wikitext.len());
     let mut cursor = 0;
@@ -93,16 +116,33 @@ pub(super) async fn expand_list_pages(
         expanded.push_str(&wikitext[cursor..start]);
 
         match specification {
-            Some(specification) => {
-                let selected =
-                    select_fragment(ctx, page_id, specification.offset).await?;
+            Some(SupportedListPages::FragmentChildContent {
+                body_template,
+                offset,
+            }) => {
+                let selected = select_fragment(ctx, page_id, offset).await?;
                 let content = selected.as_deref().unwrap_or("");
-                expanded.push_str(
-                    &specification
-                        .body_template
-                        .replace(CONTENT_VARIABLE, content),
-                );
+                expanded.push_str(&body_template.replace(CONTENT_VARIABLE, content));
             }
+            Some(SupportedListPages::NamedPageMetadata {
+                body_template,
+                requested_name,
+                normalized_slug,
+            }) => match named_pages.get(&normalized_slug) {
+                Some(metadata) => {
+                    debug!(
+                        "ListPages exact-name '{}' selected page ID {} for page ID {}",
+                        requested_name, metadata.page_id, page_id.page_id,
+                    );
+                    expanded.push_str(&render_named_body(&body_template, metadata)?);
+                }
+                None => {
+                    debug!(
+                        "ListPages exact-name '{}' found no visible page in site ID {} for page ID {}",
+                        requested_name, page_id.site_id, page_id.page_id,
+                    );
+                }
+            },
             None => {
                 warn!(
                     "Leaving unsupported ListPages block unchanged on page ID {}",
@@ -119,54 +159,171 @@ pub(super) async fn expand_list_pages(
     Ok(expanded)
 }
 
-fn find_occurrences(wikitext: &str) -> Vec<ListPagesOccurrence> {
-    LIST_PAGES_BLOCK
-        .captures_iter(wikitext)
-        .map(|captures| {
-            let full_match = captures
-                .get(0)
-                .expect("ListPages capture should contain the full match");
-            let attributes = captures
-                .name("attributes")
-                .expect("ListPages capture should contain attributes")
-                .as_str();
-            let body = captures
-                .name("body")
-                .expect("ListPages capture should contain a body")
-                .as_str();
+fn collect_named_slugs(occurrences: &[ListPagesOccurrence]) -> Vec<String> {
+    let mut seen = HashSet::new();
+    let mut slugs = Vec::new();
 
-            ListPagesOccurrence {
-                start: full_match.start(),
-                end: full_match.end(),
-                specification: parse_supported_specification(attributes, body),
+    for occurrence in occurrences {
+        if let Some(SupportedListPages::NamedPageMetadata {
+            normalized_slug, ..
+        }) = &occurrence.specification
+            && seen.insert(normalized_slug.clone())
+        {
+            slugs.push(normalized_slug.clone());
+        }
+    }
+
+    slugs
+}
+
+fn find_occurrences(wikitext: &str) -> Result<Vec<ListPagesOccurrence>> {
+    let mut occurrences = Vec::new();
+    let mut cursor = 0;
+
+    while let Some(relative_start) = wikitext[cursor..].find(MODULE_OPEN) {
+        let start = cursor + relative_start;
+        let Some(opening_end) = wikitext[start..].find("]]").map(|offset| start + offset)
+        else {
+            return Err(render_error("Unclosed module opening in ListPages scan").into());
+        };
+
+        let opening_source = &wikitext[start + MODULE_OPEN.len()..opening_end];
+        let (module_name, attributes) = split_module_opening(opening_source);
+        if module_name != "ListPages" {
+            cursor = opening_end + 2;
+            continue;
+        }
+
+        if occurrences.len() >= MAX_LIST_PAGES_MODULES {
+            return Err(render_error(format!(
+                "ListPages module count exceeds limit of {}",
+                MAX_LIST_PAGES_MODULES,
+            ))
+            .into());
+        }
+        if attributes.len() > MAX_LIST_PAGES_ATTRIBUTES_BYTES {
+            return Err(render_error(format!(
+                "ListPages attributes exceed {} bytes",
+                MAX_LIST_PAGES_ATTRIBUTES_BYTES,
+            ))
+            .into());
+        }
+
+        let body_start = opening_end + 2;
+        let (closing_start, end) = find_matching_module_close(wikitext, body_start)?;
+        let body = &wikitext[body_start..closing_start];
+        if body.len() > MAX_LIST_PAGES_BODY_BYTES {
+            return Err(render_error(format!(
+                "ListPages body exceeds {} bytes",
+                MAX_LIST_PAGES_BODY_BYTES,
+            ))
+            .into());
+        }
+
+        occurrences.push(ListPagesOccurrence {
+            start,
+            end,
+            specification: parse_supported_specification(attributes, body)?,
+        });
+        cursor = end;
+    }
+
+    Ok(occurrences)
+}
+
+fn split_module_opening(source: &str) -> (&str, &str) {
+    let trimmed = source.trim();
+    let Some(split_at) = trimmed.find(char::is_whitespace) else {
+        return (trimmed, "");
+    };
+
+    let module_name = &trimmed[..split_at];
+    let attributes = trimmed[split_at..].trim();
+    (module_name, attributes)
+}
+
+fn find_matching_module_close(
+    wikitext: &str,
+    mut cursor: usize,
+) -> Result<(usize, usize)> {
+    let mut depth = 1usize;
+
+    loop {
+        let next_open = wikitext[cursor..]
+            .find(MODULE_OPEN)
+            .map(|offset| cursor + offset);
+        let next_close = wikitext[cursor..]
+            .find(MODULE_CLOSE)
+            .map(|offset| cursor + offset);
+
+        match (next_open, next_close) {
+            (_, None) => return Err(render_error("Unclosed ListPages module").into()),
+            (Some(open), Some(close)) if open < close => {
+                let Some(opening_end) =
+                    wikitext[open..].find("]]").map(|offset| open + offset)
+                else {
+                    return Err(render_error(
+                        "Unclosed nested module opening in ListPages body",
+                    )
+                    .into());
+                };
+                depth += 1;
+                cursor = opening_end + 2;
             }
-        })
-        .collect()
+            (_, Some(close)) => {
+                depth -= 1;
+                let end = close + MODULE_CLOSE.len();
+                if depth == 0 {
+                    return Ok((close, end));
+                }
+                cursor = end;
+            }
+        }
+    }
 }
 
 fn parse_supported_specification(
     attribute_source: &str,
     body: &str,
-) -> Option<SupportedListPages> {
-    let attributes = parse_attributes(attribute_source)?;
+) -> Result<Option<SupportedListPages>> {
+    let Some(attributes) = parse_attributes(attribute_source) else {
+        return Ok(None);
+    };
 
-    if attributes.len() != 5
-        || attributes.get("parent") != Some(&".")
-        || attributes.get("category") != Some(&FRAGMENT_CATEGORY)
-        || attributes.get("order") != Some(&"created_at")
-        || attributes.get("limit") != Some(&"1")
-        || attributes.get("offset") != Some(&"@URL|0")
-        || body.trim() != CONTENT_VARIABLE
+    if attributes.len() == 5
+        && attributes.get("parent") == Some(&".")
+        && attributes.get("category") == Some(&FRAGMENT_CATEGORY)
+        && attributes.get("order") == Some(&"created_at")
+        && attributes.get("limit") == Some(&"1")
+        && attributes.get("offset") == Some(&"@URL|0")
+        && body.trim() == CONTENT_VARIABLE
     {
-        return None;
+        // A page render has no request URL query in this layer, so @URL|0 uses
+        // its declared fallback. Parsing a supplied URL offset is intentionally
+        // unsupported.
+        return Ok(Some(SupportedListPages::FragmentChildContent {
+            body_template: body.to_owned(),
+            offset: 0,
+        }));
     }
 
-    // A page render has no request URL query in this layer, so @URL|0 uses its
-    // declared fallback. Parsing a supplied URL offset is intentionally unsupported.
-    Some(SupportedListPages {
-        body_template: body.to_owned(),
-        offset: 0,
-    })
+    if attributes.len() == 1
+        && let Some(requested_name) = attributes.get("name")
+    {
+        let mut normalized_slug = (*requested_name).to_owned();
+        normalize(&mut normalized_slug);
+        if normalized_slug.is_empty() {
+            return Ok(None);
+        }
+        ensure_named_body_variables_are_supported(body)?;
+        return Ok(Some(SupportedListPages::NamedPageMetadata {
+            body_template: body.to_owned(),
+            requested_name: (*requested_name).to_owned(),
+            normalized_slug,
+        }));
+    }
+
+    Ok(None)
 }
 
 fn parse_attributes(source: &str) -> Option<HashMap<&str, &str>> {
@@ -203,6 +360,137 @@ fn parse_attributes(source: &str) -> Option<HashMap<&str, &str>> {
     }
 
     Some(attributes)
+}
+
+fn ensure_named_body_variables_are_supported(body: &str) -> Result<()> {
+    let mut cursor = 0;
+    while let Some(start_relative) = body[cursor..].find("%%") {
+        let start = cursor + start_relative;
+        let variable_start = start + 2;
+        let Some(end_relative) = body[variable_start..].find("%%") else {
+            return Err(
+                render_error("Unclosed ListPages variable in exact-name body").into(),
+            );
+        };
+        let end = variable_start + end_relative;
+        let variable = &body[variable_start..end];
+        if variable != CREATED_AT_VARIABLE && variable != RATING_VARIABLE {
+            return Err(render_error(format!(
+                "Unsupported ListPages exact-name variable: {}",
+                variable,
+            ))
+            .into());
+        }
+        cursor = end + 2;
+    }
+
+    Ok(())
+}
+
+async fn resolve_named_pages(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    normalized_slugs: &[String],
+) -> Result<HashMap<String, NamedPageMetadata>> {
+    if normalized_slugs.is_empty() {
+        return Ok(HashMap::new());
+    }
+
+    let txn = ctx.transaction();
+    let make_error = || {
+        Error::new(
+            "failed to resolve ListPages exact-name pages",
+            ErrorType::Render,
+        )
+    };
+    let pages = Page::find()
+        .filter(page::Column::SiteId.eq(site_id))
+        .filter(page::Column::DeletedAt.is_null())
+        .filter(page::Column::Slug.is_in(normalized_slugs.iter().cloned()))
+        .all(txn)
+        .await
+        .or_raise(make_error)?;
+
+    let mut resolved = HashMap::new();
+    for page in pages {
+        let anonymously_viewable = PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id: None,
+                site_id: page.site_id,
+                page_reference: Some(Reference::Id(page.page_id)),
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(page.page_category_id)),
+                action: Action::View,
+            },
+        )
+        .await?;
+
+        if !anonymously_viewable {
+            debug!(
+                "Skipping ListPages exact-name page ID {} because it is not safe to cache for anonymous viewers",
+                page.page_id,
+            );
+            continue;
+        }
+
+        let score = ScoreService::score(ctx, page.page_id).await?;
+        resolved.insert(
+            page.slug.clone(),
+            NamedPageMetadata {
+                page_id: page.page_id,
+                created_at: page.created_at,
+                score,
+            },
+        );
+    }
+
+    Ok(resolved)
+}
+
+fn render_named_body(body: &str, page: &NamedPageMetadata) -> Result<String> {
+    ensure_named_body_variables_are_supported(body)?;
+    Ok(body
+        .replace(
+            "%%created_at%%",
+            &format_created_at_wikidot(page.created_at),
+        )
+        .replace("%%rating%%", &format_score(&page.score)))
+}
+
+fn format_created_at_wikidot(value: OffsetDateTime) -> String {
+    let month = match value.month() {
+        Month::January => "Jan",
+        Month::February => "Feb",
+        Month::March => "Mar",
+        Month::April => "Apr",
+        Month::May => "May",
+        Month::June => "Jun",
+        Month::July => "Jul",
+        Month::August => "Aug",
+        Month::September => "Sep",
+        Month::October => "Oct",
+        Month::November => "Nov",
+        Month::December => "Dec",
+    };
+
+    format!(
+        "{:02} {} {:04} {:02}:{:02}",
+        value.day(),
+        month,
+        value.year(),
+        value.hour(),
+        value.minute(),
+    )
+}
+
+fn format_score(score: &ScoreValue) -> String {
+    match score {
+        ScoreValue::Integer(value) => value.to_string(),
+        ScoreValue::Float(value) => value.to_string(),
+    }
 }
 
 async fn select_fragment(
@@ -320,4 +608,8 @@ async fn select_fragment(
     .await?;
 
     Ok(Some(wikitext))
+}
+
+fn render_error(message: impl Into<String>) -> Error {
+    Error::new(message.into(), ErrorType::Render)
 }
