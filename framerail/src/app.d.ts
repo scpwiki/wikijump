@@ -21,8 +21,10 @@ declare global {
         tagline: string | null
         locale: string
         default_page: string | null
+        top_bar_page: string | null
+        side_bar_page: string | null
         preferred_domain: string | null
-        layout: Layout
+        layout: Layout | null
         license: string
         [anySite: any]: unknown
       }
@@ -82,6 +84,7 @@ declare global {
         site_id: number
         page_category_id: number
         page_category_slug: string
+        from_wikidot: boolean
         discussion_thread_id: number | null
         revision_id: number
         revision_type: any
@@ -99,7 +102,7 @@ declare global {
         slug: string
         tags: string[]
         rating: any
-        layout: Layout
+        layout: Layout | null
         [anyPage: any]: unknown
       }
       /** Page options as booleans. */
@@ -129,6 +132,8 @@ declare global {
       internationalization?: Locales
       /** Compiled HTML */
       compiled_body_html?: string
+      compiled_top_bar_html?: string | null
+      compiled_side_bar_html?: string | null
       /** Page revision */
       page_revision?: {
         revision_id: number

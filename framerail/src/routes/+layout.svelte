@@ -7,6 +7,7 @@
   import { page } from "$app/state"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
+  import { resolveShellLayout } from "$lib/wikidot-shell"
   import { resolve } from "$app/paths"
 
   let { children } = $props()
@@ -19,17 +20,21 @@
     }
   }
 
-  function setLayout() {
+  function resolveCurrentLayout() {
     if (page.route.id?.startsWith("/[x+2d]/")) {
       // this is a special page, use Wikijump layout
-      pageLayoutState.current = Layout.WIKIJUMP
-    } else {
-      pageLayoutState.current =
-        page.data?.page?.layout ?? page.data?.site?.layout ?? Layout.WIKIJUMP
+      return Layout.WIKIJUMP
     }
+
+    return resolveShellLayout(page.error ?? page.data)
   }
+
+  const currentLayout = $derived.by(resolveCurrentLayout)
+
+  // Keep existing child components synchronized after hydration while the
+  // top-level shell decision is available during SSR through currentLayout.
   $effect(() => {
-    setLayout()
+    pageLayoutState.current = currentLayout
   })
 </script>
 
@@ -41,7 +46,7 @@
   <title>{page.data.site?.name}</title>
 </svelte:head>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if currentLayout === Layout.WIKIDOT}
   <style global>
     /* Use Sigma 10 as default Wikidot theme for now */
     @import url("https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/css/style.css");
