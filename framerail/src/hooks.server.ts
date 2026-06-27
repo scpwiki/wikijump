@@ -59,6 +59,7 @@ function applySecurityHeaders(response: Response, pathname: string) {
   }
 
   if (allowsLocalWikidotInterwikiFrame(pathname)) {
+    response.headers.delete("content-security-policy")
     response.headers.delete("x-frame-options")
   }
 }
