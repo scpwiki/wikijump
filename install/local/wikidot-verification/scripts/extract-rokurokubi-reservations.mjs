@@ -12,24 +12,44 @@ function parseArgs(argv) {
     mirrorHost: DEFAULT_CANONICAL_MIRROR_HOST,
     sourceLabel: null
   };
+  const optionTokens = new Set([
+    "--source",
+    "--output",
+    "--manifest",
+    "--mirror-host",
+    "--source-label",
+    "--help",
+    "-h"
+  ]);
+
+  const nextValue = (arg, index) => {
+    let value = argv[index + 1];
+    if (value === "--") {
+      argv.splice(index + 1, 1);
+      value = argv[index + 1];
+    }
+    if (!value || optionTokens.has(value) || value.startsWith("--")) {
+      throw new Error(`${arg} requires a value`);
+    }
+    return value;
+  };
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    const next = argv[i + 1];
     if (arg === "--source") {
-      args.source = next;
+      args.source = nextValue(arg, i);
       i += 1;
     } else if (arg === "--output") {
-      args.output = next;
+      args.output = nextValue(arg, i);
       i += 1;
     } else if (arg === "--manifest") {
-      args.manifest = next;
+      args.manifest = nextValue(arg, i);
       i += 1;
     } else if (arg === "--mirror-host") {
-      args.mirrorHost = next;
+      args.mirrorHost = nextValue(arg, i);
       i += 1;
     } else if (arg === "--source-label") {
-      args.sourceLabel = next;
+      args.sourceLabel = nextValue(arg, i);
       i += 1;
     } else if (arg === "--help" || arg === "-h") {
       args.help = true;
@@ -74,10 +94,22 @@ async function main() {
   await writeEnsuringParent(args.output, formatCsv(rows));
   await writeEnsuringParent(args.manifest, `${JSON.stringify(enrichedManifest, null, 2)}\n`);
 
-  console.log(`wrote ${rows.length} rokurokubi reservation rows to ${args.output}`);
+  console.log(
+    JSON.stringify(
+      {
+        output: args.output,
+        manifest: args.manifest,
+        rokurokubi_row_count: manifest.rokurokubi_row_count,
+        mapped_scp_wiki_count: manifest.mapped_scp_wiki_count,
+        unmapped_count: manifest.unmapped_count
+      },
+      null,
+      2
+    )
+  );
 }
 
 main().catch((error) => {
   console.error(error.message);
-  process.exitCode = 1;
+  process.exit(1);
 });

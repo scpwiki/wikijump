@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
   import { Layout } from "$lib/types"
   import { resolve } from "$app/paths"
   import { superForm } from "sveltekit-superforms"
@@ -9,6 +10,7 @@
   import type { PageProps } from "./$types"
 
   let { data, params }: PageProps = $props()
+  const pageLayoutContext = getPageLayoutContext()
 
   function cancelEdit() {
     const options: string[] = Object.entries({
@@ -61,7 +63,7 @@
   $form.comments = untrack(() => data.page_revision?.comments ?? "")
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <h1 class="page-edit-header">
     {data.internationalization?.["wiki-page-edit"]}
   </h1>
@@ -100,7 +102,7 @@
     class="editor-comments"
     placeholder={data.internationalization?.["wiki-page-revision-comments"]}
     bind:value={$form.comments}></textarea>
-  {#if pageLayoutState.current === Layout.WIKIDOT}
+  {#if pageLayoutContext.current === Layout.WIKIDOT}
     <div class="buttons alignleft">
       <input
         name="cancel"

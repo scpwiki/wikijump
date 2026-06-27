@@ -9,9 +9,10 @@ const DEFAULT_DB_CONTAINER = 'local-database-1';
 const DEFAULT_SITE_ID = 6000005;
 const DEFAULT_USER_ID = -1;
 const DEFAULT_IP_ADDRESS = '127.0.0.1';
-const SHELL_COMPILED_GENERATOR = 'corpus shell import';
+const SHELL_COMPILED_GENERATOR = 'corpus db import';
 const SHELL_IMPORT_MARKER = 'corpus-shell-import';
 const SHELL_IMPORT_MESSAGE = 'Content not rendered yet for local Wikidot corpus snapshot import';
+const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 
 function parseArgs(argv) {
   const args = {
@@ -144,7 +145,7 @@ function sqlTextArray(values) {
 function runPsql(args, sql, { capture = false } = {}) {
   const result = spawnSync(
     'docker',
-    ['exec', '-i', '-e', 'PGPASSWORD=wikijump', args.dbContainer, 'psql', '-h', 'localhost', '-U', 'wikijump', '-d', 'wikijump', '-v', 'ON_ERROR_STOP=1', '-q', '-t', '-A'],
+    ['exec', '-i', '-e', 'PGPASSWORD=wikijump', args.dbContainer, 'psql', '-h', 'localhost', '-U', 'wikijump', '-d', 'wikijump', '-1', '-v', 'ON_ERROR_STOP=1', '-q', '-t', '-A'],
     { input: sql, encoding: 'utf8' },
   );
   if (result.status !== 0) {
@@ -217,12 +218,27 @@ function fallbackTitle(row) {
   return row.title || row.title_shown || row.fullname;
 }
 
+function readManifestFile(row, pathKey, shaKey) {
+  const filePath = row[pathKey];
+  const expectedSha = String(row[shaKey]).toLowerCase();
+  const contents = fs.readFileSync(filePath);
+  const actualSha = crypto.createHash('sha256').update(contents).digest('hex');
+  if (actualSha !== expectedSha) {
+    throw new Error(`${pathKey} hash mismatch for ${row.fullname}: expected ${expectedSha}, got ${actualSha}`);
+  }
+  try {
+    return FATAL_UTF8_DECODER.decode(contents);
+  } catch (error) {
+    throw new Error(`${pathKey} invalid UTF-8 for ${row.fullname}: ${error.message}`);
+  }
+}
+
 function sourceText(row) {
-  return fs.readFileSync(row.source_path, 'utf8');
+  return readManifestFile(row, 'source_path', 'source_sha256');
 }
 
 function metaJsonText(row) {
-  return fs.readFileSync(row.meta_path, 'utf8');
+  return readManifestFile(row, 'meta_path', 'meta_sha256');
 }
 
 function ensureImportRun(args, manifestText, manifestRows, selectedRows, completeInventory) {
@@ -295,28 +311,52 @@ function shellCreatePage(args, row) {
   const bodyHash = textHashHex(args, bodyHtml);
   const title = fallbackTitle(row);
   const category = categoryName(row.fullname);
-  const pageSql = `
-INSERT INTO text (hash, contents)
-VALUES (${sqlTextHash(wikitextHash)}, ${sqlTextFromBase64(wikitext)})
-ON CONFLICT (hash) DO NOTHING;
+  const sql = `
+CREATE TEMP TABLE corpus_shell_import_result (
+  page_id BIGINT NOT NULL,
+  page_category_id BIGINT NOT NULL,
+  latest_revision_id BIGINT,
+  existed BOOLEAN NOT NULL,
+  created_page BOOLEAN NOT NULL,
+  created_revision BOOLEAN NOT NULL DEFAULT false
+) ON COMMIT DROP;
 
-INSERT INTO text (hash, contents)
-VALUES (${sqlTextHash(bodyHash)}, ${sqlTextFromBase64(bodyHtml)})
-ON CONFLICT (hash) DO NOTHING;
-
-WITH category AS (
+WITH inserted_wikitext AS (
+  INSERT INTO text (hash, contents)
+  VALUES (${sqlTextHash(wikitextHash)}, ${sqlTextFromBase64(wikitext)})
+  ON CONFLICT (hash) DO NOTHING
+  RETURNING 1
+), inserted_body AS (
+  INSERT INTO text (hash, contents)
+  VALUES (${sqlTextHash(bodyHash)}, ${sqlTextFromBase64(bodyHtml)})
+  ON CONFLICT (hash) DO NOTHING
+  RETURNING 1
+), category AS (
   INSERT INTO page_category (site_id, slug)
   VALUES (${sqlInt(args.siteId)}, ${sqlQuote(category)})
   ON CONFLICT (site_id, slug) DO UPDATE SET slug = EXCLUDED.slug
   RETURNING category_id
 ), target_page AS (
-  SELECT page_id, page_category_id, latest_revision_id, true AS existed
-  FROM page
-  WHERE site_id = ${sqlInt(args.siteId)}
-    AND slug = ${sqlQuote(row.fullname)}
-    AND deleted_at IS NULL
-  ORDER BY page_id
+  SELECT
+    p.page_id,
+    p.page_category_id,
+    COALESCE(p.latest_revision_id, latest_revision.revision_id) AS latest_revision_id,
+    true AS existed
+  FROM page p
+  LEFT JOIN LATERAL (
+    SELECT revision_id
+    FROM page_revision pr
+    WHERE pr.page_id = p.page_id
+    ORDER BY pr.revision_number DESC, pr.revision_id DESC
+    LIMIT 1
+  ) latest_revision ON true
+  WHERE p.site_id = ${sqlInt(args.siteId)}
+    AND p.slug = ${sqlQuote(row.fullname)}
+    AND p.deleted_at IS NULL
+    AND ${args.adoptExisting ? 'TRUE' : 'FALSE'}
+  ORDER BY p.page_id
   LIMIT 1
+  FOR UPDATE OF p
 ), inserted_page AS (
   INSERT INTO page (created_at, updated_at, from_wikidot, site_id, page_category_id, slug)
   SELECT ${sqlTimestamp(row.created_at)}, ${sqlTimestamp(row.updated_at)}, true, ${sqlInt(args.siteId)}, category_id, ${sqlQuote(row.fullname)}
@@ -324,28 +364,16 @@ WITH category AS (
   WHERE NOT EXISTS (SELECT 1 FROM target_page)
   RETURNING page_id, page_category_id, latest_revision_id, false AS existed
 ), page_row AS (
-  SELECT page_id, page_category_id, latest_revision_id, existed FROM target_page
+  SELECT page_id, page_category_id, latest_revision_id, existed
+  FROM target_page
   UNION ALL
-  SELECT page_id, page_category_id, latest_revision_id, existed FROM inserted_page
-  LIMIT 1
+  SELECT page_id, page_category_id, latest_revision_id, existed
+  FROM inserted_page
 )
-SELECT page_id || '|' || page_category_id || '|' || COALESCE(latest_revision_id::text, '') || '|' || existed::text FROM page_row;
-`;
-  const pageOutput = runPsql(args, pageSql, { capture: true });
-  const [pageIdText, categoryIdText, existingRevisionIdText = '', pageExistedText = ''] = pageOutput.split('|');
-  const pageId = Number.parseInt(pageIdText, 10);
-  const categoryId = Number.parseInt(categoryIdText, 10);
-  const existingRevisionId = existingRevisionIdText === '' ? null : Number.parseInt(existingRevisionIdText, 10);
-  const pageExisted = pageExistedText === 'true';
-  if (!Number.isInteger(pageId) || !Number.isInteger(categoryId) || (existingRevisionId !== null && !Number.isInteger(existingRevisionId)) || !['true', 'false'].includes(pageExistedText)) {
-    throw new Error(`invalid DB page import output: ${pageOutput}`);
-  }
+INSERT INTO corpus_shell_import_result (page_id, page_category_id, latest_revision_id, existed, created_page)
+SELECT page_id, page_category_id, latest_revision_id, existed, NOT existed
+FROM page_row;
 
-  if (existingRevisionId !== null) {
-    return { page_id: pageId, page_category_id: categoryId, revision_id: existingRevisionId, created_page: false, created_revision: false };
-  }
-
-  const revisionSql = `
 WITH new_revision AS (
   INSERT INTO page_revision (
     revision_type,
@@ -368,11 +396,12 @@ WITH new_revision AS (
     alt_title,
     slug,
     tags
-  ) VALUES (
+  )
+  SELECT
     'create',
     ${sqlTimestamp(row.updated_at)},
     0,
-    ${sqlInt(pageId)},
+    page_id,
     ${sqlInt(args.siteId)},
     ${sqlInt(args.userId)},
     true,
@@ -382,34 +411,53 @@ WITH new_revision AS (
     NULL,
     NULL,
     NOW(),
-    'corpus db import',
+    ${sqlQuote(SHELL_COMPILED_GENERATOR)},
     'local scp-wiki mirror DB import from scp-wiki-translation corpus',
     ARRAY[]::text[],
     ${sqlQuote(title)},
     NULL,
     ${sqlQuote(row.fullname)},
     ${sqlTextArray(row.tags)}
-  )
+  FROM corpus_shell_import_result
+  WHERE latest_revision_id IS NULL
   RETURNING revision_id
 ), updated_page AS (
   UPDATE page
   SET
-    latest_revision_id = (SELECT revision_id FROM new_revision),
+    latest_revision_id = COALESCE((SELECT revision_id FROM new_revision), corpus_shell_import_result.latest_revision_id),
     created_at = ${sqlTimestamp(row.created_at)},
     updated_at = ${sqlTimestamp(row.updated_at)},
     from_wikidot = true,
-    page_category_id = ${sqlInt(categoryId)}
-  WHERE page_id = ${sqlInt(pageId)}
-  RETURNING page_id, page_category_id, latest_revision_id
+    page_category_id = corpus_shell_import_result.page_category_id
+  FROM corpus_shell_import_result
+  WHERE page.page_id = corpus_shell_import_result.page_id
+  RETURNING page.page_id, page.page_category_id, page.latest_revision_id,
+    (SELECT revision_id FROM new_revision) IS NOT NULL AS created_revision
 )
-SELECT page_id || '|' || page_category_id || '|' || latest_revision_id FROM updated_page;
+UPDATE corpus_shell_import_result
+SET
+  latest_revision_id = updated_page.latest_revision_id,
+  created_revision = updated_page.created_revision
+FROM updated_page
+WHERE corpus_shell_import_result.page_id = updated_page.page_id;
+
+SELECT page_id || '|' || page_category_id || '|' || COALESCE(latest_revision_id::text, '') || '|' || existed::text || '|' || created_revision::text
+FROM corpus_shell_import_result;
 `;
-  const revisionOutput = runPsql(args, revisionSql, { capture: true });
-  const [updatedPageId, updatedCategoryId, revisionId] = revisionOutput.split('|').map((value) => Number.parseInt(value, 10));
-  if (![updatedPageId, updatedCategoryId, revisionId].every(Number.isInteger)) {
-    throw new Error(`invalid DB revision import output: ${revisionOutput}`);
+  const output = runPsql(args, sql, { capture: true });
+  const [pageIdText, categoryIdText, revisionIdText = '', pageExistedText = '', createdRevisionText = ''] = output.split('|');
+  const pageId = Number.parseInt(pageIdText, 10);
+  const categoryId = Number.parseInt(categoryIdText, 10);
+  const revisionId = revisionIdText === '' ? null : Number.parseInt(revisionIdText, 10);
+  const pageExisted = pageExistedText === 'true';
+  const createdRevision = createdRevisionText === 'true';
+  if (!Number.isInteger(pageId) || !Number.isInteger(categoryId) || (revisionId !== null && !Number.isInteger(revisionId)) || !['true', 'false'].includes(pageExistedText) || !['true', 'false'].includes(createdRevisionText)) {
+    throw new Error(`invalid DB shell import output: ${output}`);
   }
-  return { page_id: updatedPageId, page_category_id: updatedCategoryId, revision_id: revisionId, created_page: !pageExisted, created_revision: true };
+  if (revisionId === null) {
+    throw new Error(`DB shell import did not create or find a latest revision: ${output}`);
+  }
+  return { page_id: pageId, page_category_id: categoryId, revision_id: revisionId, created_page: !pageExisted, created_revision: createdRevision };
 }
 
 async function rerenderPage(args, pageId, categoryId) {
@@ -509,18 +557,22 @@ ON CONFLICT (page_id) DO UPDATE SET
 function existingSnapshotPageStatus(args, row) {
   const sql = `
 WITH matching_snapshot AS (
-  SELECT page_id
-  FROM wikidot_page_snapshot
-  WHERE source_site = ${sqlQuote(row.source_site)}
-    AND source_entity_id = ${sqlQuote(row.source_entity_id)}
-    AND encode(source_sha256, 'hex') = ${sqlQuote(row.source_sha256)}
-    AND encode(meta_sha256, 'hex') = ${sqlQuote(row.meta_sha256)}
+  SELECT snapshot.page_id
+  FROM wikidot_page_snapshot snapshot
+  JOIN page p ON p.page_id = snapshot.page_id
+  WHERE snapshot.source_branch = ${sqlQuote(row.source_branch)}
+    AND snapshot.source_site = ${sqlQuote(row.source_site)}
+    AND snapshot.source_entity_id = ${sqlQuote(row.source_entity_id)}
+    AND snapshot.source_fullname = ${sqlQuote(row.fullname)}
+    AND encode(snapshot.source_sha256, 'hex') = ${sqlQuote(row.source_sha256)}
+    AND encode(snapshot.meta_sha256, 'hex') = ${sqlQuote(row.meta_sha256)}
+    AND p.site_id = ${sqlInt(args.siteId)}
+    AND p.deleted_at IS NULL
   LIMIT 1
 ), active_page AS (
   SELECT p.page_id, p.page_category_id
   FROM page p
   JOIN matching_snapshot snapshot ON snapshot.page_id = p.page_id
-  WHERE p.deleted_at IS NULL
   LIMIT 1
 ), latest_revision AS (
   SELECT
@@ -562,13 +614,44 @@ FROM active_page p;
 
 function existingActivePage(args, slug) {
   const sql = `
+WITH target_page AS (
+  SELECT
+    p.page_id,
+    p.page_category_id,
+    p.latest_revision_id,
+    latest_revision.revision_id AS latest_revision_id_by_history
+  FROM page p
+  LEFT JOIN LATERAL (
+    SELECT revision_id
+    FROM page_revision pr
+    WHERE pr.page_id = p.page_id
+    ORDER BY pr.revision_number DESC, pr.revision_id DESC
+    LIMIT 1
+  ) latest_revision ON true
+  WHERE p.site_id = ${sqlInt(args.siteId)}
+    AND p.slug = ${sqlQuote(slug)}
+    AND p.deleted_at IS NULL
+  ORDER BY p.page_id
+  LIMIT 1
+  FOR UPDATE OF p
+), repaired_page AS (
+  UPDATE page
+  SET latest_revision_id = target_page.latest_revision_id_by_history
+  FROM target_page
+  WHERE page.page_id = target_page.page_id
+    AND ${args.dryRun ? 'FALSE' : 'TRUE'}
+    AND page.latest_revision_id IS NULL
+    AND target_page.latest_revision_id IS NULL
+    AND target_page.latest_revision_id_by_history IS NOT NULL
+  RETURNING page.page_id, page.page_category_id, page.latest_revision_id
+)
 SELECT page_id || '|' || page_category_id || '|' || COALESCE(latest_revision_id::text, '')
-FROM page
-WHERE site_id = ${sqlInt(args.siteId)}
-  AND slug = ${sqlQuote(slug)}
-  AND deleted_at IS NULL
-ORDER BY page_id
-LIMIT 1;
+FROM repaired_page
+UNION ALL
+SELECT
+  page_id || '|' || page_category_id || '|' || COALESCE(COALESCE(latest_revision_id, latest_revision_id_by_history)::text, '')
+FROM target_page
+WHERE NOT EXISTS (SELECT 1 FROM repaired_page);
 `;
   const output = runPsql(args, sql, { capture: true });
   if (!output) return null;
@@ -709,7 +792,13 @@ async function importRow(args, row, importRunId) {
     return { slug: row.fullname, action: `${action}_snapshot_ready`, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length };
   }
 
-  await rerenderPage(args, pageId, categoryId);
+  runPsql(args, recordItemSql(row, pageId, importRunId, 'render_pending'));
+  try {
+    await rerenderPage(args, pageId, categoryId);
+  } catch (error) {
+    runPsql(args, recordItemSql(row, pageId, importRunId, 'render_failed', { message: error.message }));
+    return { slug: row.fullname, action: 'render_failed', page_id: pageId, revision_id: revisionId, error: error.message };
+  }
   runPsql(args, recordItemSql(row, pageId, importRunId, 'done'));
   return { slug: row.fullname, action, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length };
 }
@@ -746,6 +835,7 @@ async function main() {
         const result = await importRow(args, row, importRunId);
         results.push(result);
         summary[result.action] = (summary[result.action] ?? 0) + 1;
+        if (result.action === 'render_failed') summary.failed += 1;
         console.log(JSON.stringify(result));
       } catch (error) {
         summary.failed += 1;
@@ -758,6 +848,7 @@ async function main() {
     finishRun(args, importRunId, summary, finalState);
   }
   console.log(JSON.stringify({ summary }, null, 2));
+  if (finalState === 'failed') process.exitCode = 1;
 }
 
 main().catch((error) => {

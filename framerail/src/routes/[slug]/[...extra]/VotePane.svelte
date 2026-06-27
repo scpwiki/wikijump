@@ -1,6 +1,7 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
   import { Layout } from "$lib/types"
   import { SvelteMap } from "svelte/reactivity"
 
@@ -9,6 +10,8 @@
   import type { PageScore } from "$lib/server/deepwell/page"
 
   let { data }: PageProps = $props()
+
+  const pageLayoutContext = getPageLayoutContext()
 
   let showVoteList = $state<boolean>(false)
   let voteMap = new SvelteMap<number, PageVoteModel>()
@@ -120,7 +123,7 @@
   })
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <h1 class="page-vote-header">
     {data.internationalization["wiki-page-vote"]}
   </h1>

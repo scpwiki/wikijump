@@ -310,15 +310,25 @@ export async function pageDeleteAction({
   }
 
   const { slug } = params
-  const { siteSlug } = loadSiteInfo(request.headers)
+  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
   const ipAddress = getClientAddress()
 
-  const session = await authGetSession(sessionToken)
-  const userId = resolvePageMutationUserId(session?.user_id, siteSlug)
-
   try {
+    const session = sessionToken ? await authGetSession(sessionToken) : undefined
     const { siteId, pageId, lastRevisionId, option, comments } = form.data
+    const userId = resolvePageMutationUserId(
+      session?.user_id,
+      siteSlug,
+      requestSiteId,
+      siteId
+    )
+    if (userId === undefined) {
+      return fail(403, {
+        form,
+        message: "Permission denied."
+      })
+    }
     if (option === DeleteOptions.Move) {
       const { newSlug } = form.data
       const res = await pageMove(
@@ -397,14 +407,12 @@ export async function pageEditAction({
   }
 
   const { slug } = params
-  const { siteSlug } = loadSiteInfo(request.headers)
+  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
   const ipAddress = getClientAddress()
 
-  const session = await authGetSession(sessionToken)
-  const userId = resolvePageMutationUserId(session?.user_id, siteSlug)
-
   try {
+    const session = sessionToken ? await authGetSession(sessionToken) : undefined
     const {
       siteId,
       pageId,
@@ -416,6 +424,18 @@ export async function pageEditAction({
       tags: tagsStr,
       layout
     } = form.data
+    const userId = resolvePageMutationUserId(
+      session?.user_id,
+      siteSlug,
+      requestSiteId,
+      siteId
+    )
+    if (userId === undefined) {
+      return fail(403, {
+        form,
+        message: "Permission denied."
+      })
+    }
     const tags = tagsStr.split(" ").filter((tag) => tag.length)
     const res = await pageEdit(
       siteId,
@@ -638,25 +658,43 @@ const pageFileMoveSchema = object({
 })
 
 /* ----- Page File Restore ----- */
-export async function pageFileRestoreAction({ request, cookies }: RequestEvent) {
+export async function pageFileRestoreAction({
+  request,
+  cookies,
+  getClientAddress
+}: RequestEvent) {
   const form = await superValidate(request, valibot(pageFileRestoreSchema))
   if (!form.valid) {
     return fail(400, { form })
   }
 
+  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
 
   try {
+    const session = sessionToken ? await authGetSession(sessionToken) : undefined
     const { siteId, pageId, fileId, newPage, newName, comments } = form.data
+    const userId = resolvePageMutationUserId(
+      session?.user_id,
+      siteSlug,
+      requestSiteId,
+      siteId
+    )
+    if (userId === undefined) {
+      return fail(403, {
+        form,
+        message: "Permission denied."
+      })
+    }
     const res = await pageFileRestore(
       siteId,
       pageId,
-      session?.user_id,
+      userId,
       fileId,
       newPage === "" ? undefined : newPage,
       newName === "" ? undefined : newName,
-      comments
+      comments,
+      getClientAddress()
     )
 
     return { form, res }
@@ -706,10 +744,11 @@ export async function pageFileHistoryAction({ request }: RequestEvent) {
 
 /* ----- Page File Rollback ----- */
 export async function pageFileRollbackAction({ request, cookies }: RequestEvent) {
+  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
 
   try {
+    const session = sessionToken ? await authGetSession(sessionToken) : undefined
     const requestData: {
       siteId: number
       pageId: number
@@ -721,10 +760,21 @@ export async function pageFileRollbackAction({ request, cookies }: RequestEvent)
 
     const { siteId, pageId, fileId, revisionNumber, lastRevisionId, comments } =
       requestData
+    const userId = resolvePageMutationUserId(
+      session?.user_id,
+      siteSlug,
+      requestSiteId,
+      siteId
+    )
+    if (userId === undefined) {
+      return fail(403, {
+        message: "Permission denied."
+      })
+    }
     const res = await pageFileRollback(
       siteId,
       pageId,
-      session?.user_id,
+      userId,
       fileId,
       lastRevisionId,
       revisionNumber,

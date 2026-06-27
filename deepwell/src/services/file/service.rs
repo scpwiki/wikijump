@@ -485,6 +485,8 @@ impl FileService {
             file_id,
             user_id,
             revision_comments,
+            bypass_filter,
+            ip_address,
         }: RestoreFile<'_>,
     ) -> Result<RestoreFileOutput> {
         let txn = ctx.transaction();
@@ -507,7 +509,8 @@ impl FileService {
                 .await
                 .or_raise(make_error)?;
 
-        let new_name = new_name.unwrap_or(file.name);
+        let mut new_name = new_name.unwrap_or(file.name);
+        check_file_name(&mut new_name).or_raise(make_error)?;
 
         // Do page checks:
         // - Page is correct
@@ -536,9 +539,15 @@ impl FileService {
             ));
         }
 
-        Self::check_conflicts(ctx, page_id, &new_name, "restore")
+        Self::check_conflicts(ctx, new_page_id, &new_name, "restore")
             .await
             .or_raise(make_error)?;
+
+        if !bypass_filter {
+            Self::run_filter(ctx, site_id, Some(file_id), Some(&new_name), ip_address)
+                .await
+                .or_raise(make_error)?;
+        }
 
         let last_revision =
             FileRevisionService::get_latest(ctx, site_id, page_id, file_id)
@@ -566,13 +575,15 @@ impl FileService {
         // Set deletion flag
         let model = file::ActiveModel {
             file_id: Set(file_id),
+            page_id: Set(new_page_id),
+            name: Set(new_name.clone()),
             deleted_at: Set(None),
             ..Default::default()
         };
         model.update(txn).await.or_raise(make_error)?;
 
         Ok(RestoreFileOutput {
-            page_id,
+            page_id: new_page_id,
             file_id,
             name: new_name,
             file_revision_id: output.file_revision_id,

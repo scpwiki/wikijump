@@ -315,7 +315,17 @@ fn parse_supported_specification(
         if normalized_slug.is_empty() {
             return Ok(None);
         }
-        ensure_named_body_variables_are_supported(body)?;
+        match ensure_named_body_variables_are_supported(body) {
+            Ok(()) => {}
+            Err(error)
+                if error
+                    .to_string()
+                    .contains("Unsupported ListPages exact-name variable") =>
+            {
+                return Ok(None);
+            }
+            Err(error) => return Err(error),
+        }
         return Ok(Some(SupportedListPages::NamedPageMetadata {
             body_template: body.to_owned(),
             requested_name: (*requested_name).to_owned(),

@@ -181,7 +181,9 @@ export async function pageFileRestore(
   fileId: number,
   newPage: Optional<string | number>,
   newName: Optional<string>,
-  revisionComments: string
+  revisionComments: string,
+  ipAddress: string,
+  bypassFilter = false
 ): Promise<PageFileRestore> {
   return client.request("file_restore", {
     site_id: siteId,
@@ -190,7 +192,9 @@ export async function pageFileRestore(
     file_id: fileId,
     new_page: newPage,
     new_name: newName,
-    revision_comments: revisionComments
+    revision_comments: revisionComments,
+    ip_address: ipAddress,
+    bypass_filter: bypassFilter
   })
 }
 

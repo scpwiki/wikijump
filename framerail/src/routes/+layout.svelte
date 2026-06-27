@@ -5,8 +5,13 @@
   import ErrorPopup from "$lib/popup/error.svelte"
 
   import { page } from "$app/state"
+  import { setContext } from "svelte"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
+  import {
+    PAGE_LAYOUT_CONTEXT_KEY,
+    type PageLayoutContext
+  } from "$lib/page-layout-context"
   import { resolveShellLayout } from "$lib/wikidot-shell"
   import { resolve } from "$app/paths"
 
@@ -30,10 +35,16 @@
   }
 
   const currentLayout = $derived.by(resolveCurrentLayout)
+  const pageLayoutContext = $state<PageLayoutContext>({
+    current: resolveCurrentLayout()
+  })
+
+  setContext(PAGE_LAYOUT_CONTEXT_KEY, pageLayoutContext)
 
   // Keep existing child components synchronized after hydration while the
-  // top-level shell decision is available during SSR through currentLayout.
-  $effect(() => {
+  // top-level shell decision is available during SSR through request-local context.
+  $effect.pre(() => {
+    pageLayoutContext.current = currentLayout
     pageLayoutState.current = currentLayout
   })
 </script>

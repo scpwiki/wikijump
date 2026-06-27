@@ -1346,18 +1346,23 @@ impl PageRevisionService {
         };
 
         let txn = ctx.transaction();
-        let revisions = PageRevision::find()
-            .filter(
-                Condition::all()
-                    .add(page_revision::Column::SiteId.eq(site_id))
-                    .add(page_revision::Column::PageId.eq(page_id))
-                    .add(revision_condition),
-            )
-            .order_by_asc(page_revision::Column::RevisionNumber)
-            .limit(limit)
-            .all(txn)
-            .await
-            .or_raise(make_error)?;
+        let mut query = PageRevision::find().filter(
+            Condition::all()
+                .add(page_revision::Column::SiteId.eq(site_id))
+                .add(page_revision::Column::PageId.eq(page_id))
+                .add(revision_condition),
+        );
+
+        query = match revision_direction {
+            FetchDirection::Before => {
+                query.order_by_desc(page_revision::Column::RevisionNumber)
+            }
+            FetchDirection::After => {
+                query.order_by_asc(page_revision::Column::RevisionNumber)
+            }
+        };
+
+        let revisions = query.limit(limit).all(txn).await.or_raise(make_error)?;
 
         Ok(revisions)
     }

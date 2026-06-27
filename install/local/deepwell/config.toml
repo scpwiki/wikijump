@@ -46,8 +46,8 @@ lift-expired-punishments-secs = 86400  # 1 day
 path = "/opt/locales"
 
 [ftml]
-render-timeout-ms = 2000
-preprocess-timeout-ms = 500
+render-timeout-ms = 300000
+preprocess-timeout-ms = 30000
 rerender-skip = [
     { job-depth = 3, last-update-ms = 100 },
     { job-depth = 10, last-update-ms = 1500 },

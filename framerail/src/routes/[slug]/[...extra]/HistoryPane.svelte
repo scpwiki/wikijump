@@ -1,7 +1,9 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
+
   import { Layout } from "$lib/types"
   import { SvelteMap } from "svelte/reactivity"
 
@@ -18,6 +20,8 @@
   }
 
   let { setShowRevision, setRevision, data }: Props = $props()
+
+  const pageLayoutContext = getPageLayoutContext()
 
   let revisionMap = new SvelteMap<number, PageRevisionModelFiltered>()
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
@@ -140,7 +144,7 @@
   })
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <h1 class="page-revision-header">
     {data.internationalization?.["wiki-page-revision-history"]}
   </h1>

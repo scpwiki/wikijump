@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
   import { Layout, PagePane } from "$lib/types"
   import { resolve } from "$app/paths"
   import { superForm } from "sveltekit-superforms"
@@ -10,6 +11,8 @@
 
   let { pagePaneState = $bindable(), data }: PageProps & { pagePaneState: PagePane } =
     $props()
+
+  const pageLayoutContext = getPageLayoutContext()
 
   const { form, enhance } = superForm(
     untrack(() => data.forms.pageMoveForm),
@@ -44,7 +47,7 @@
   )
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <h1 class="page-move-header">
     {data.internationalization?.["wiki-page-move"]}
   </h1>
@@ -67,7 +70,7 @@
     class="page-move-comments"
     placeholder={data.internationalization?.["wiki-page-revision-comments"]}
     bind:value={$form.comments}></textarea>
-  {#if pageLayoutState.current === Layout.WIKIDOT}
+  {#if pageLayoutContext.current === Layout.WIKIDOT}
     <div class="buttons">
       <input
         class="btn btn-danger"

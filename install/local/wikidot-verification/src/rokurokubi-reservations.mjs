@@ -71,7 +71,7 @@ export function parseCsv(text) {
     rows.push(row);
   }
 
-  return rows.filter((candidate) => candidate.some((value) => value !== ""));
+  return rows;
 }
 
 export function formatCsv(rows, headers = OUTPUT_HEADERS) {
@@ -111,7 +111,12 @@ export function mapWikidotUrl(sourceUrl, mirrorHost = DEFAULT_CANONICAL_MIRROR_H
     return { slug: "", mirrorUrl: "", status: "unmapped_invalid_url" };
   }
 
-  const slug = decodeURIComponent(parsed.pathname.replace(/^\/+|\/+$/gu, ""));
+  let slug;
+  try {
+    slug = decodeURIComponent(parsed.pathname.replace(/^\/+|\/+$/gu, ""));
+  } catch {
+    return { slug: "", mirrorUrl: "", status: "unmapped_invalid_slug_encoding" };
+  }
   if (!slug) {
     return { slug: "", mirrorUrl: "", status: "unmapped_missing_slug" };
   }
@@ -134,11 +139,21 @@ export function extractRokurokubiReservations(csvText, options = {}) {
     throw new Error("CSV is empty");
   }
 
-  const headers = rows[0];
+  const hasContent = (row) => row.some((value) => value.trim() !== "");
+  const headerRowIndex = rows.findIndex(hasContent);
+  if (headerRowIndex === -1) {
+    throw new Error("CSV is empty");
+  }
+
+  const headers = rows[headerRowIndex];
   const index = headerIndex(headers);
   const outputRows = [];
 
-  rows.slice(1).forEach((row, offset) => {
+  rows.slice(headerRowIndex + 1).forEach((row, offset) => {
+    if (!hasContent(row)) {
+      return;
+    }
+
     const translator = getValue(row, index, "翻訳者名");
     if (translator.toLowerCase() !== "rokurokubi") {
       return;
@@ -147,7 +162,7 @@ export function extractRokurokubiReservations(csvText, options = {}) {
     const sourceUrl = getValue(row, index, "記事のURL");
     const { mirrorUrl, status } = mapWikidotUrl(sourceUrl, mirrorHost);
     outputRows.push({
-      source_row: String(offset + 2),
+      source_row: String(headerRowIndex + offset + 2),
       timestamp: getValue(row, index, "タイムスタンプ"),
       translator,
       source_url: sourceUrl,
@@ -163,7 +178,7 @@ export function extractRokurokubiReservations(csvText, options = {}) {
   const manifest = {
     schema_version: 1,
     source_csv_sha256: sha256Hex(csvText),
-    source_row_count_excluding_header: rows.length - 1,
+    source_row_count_excluding_header: rows.length - headerRowIndex - 1,
     rokurokubi_row_count: outputRows.length,
     mapped_scp_wiki_count: outputRows.filter((row) => row.mirror_url_status === "mapped_scp-wiki").length,
     unmapped_count: outputRows.filter((row) => !row.mirror_url_status.startsWith("mapped_")).length,

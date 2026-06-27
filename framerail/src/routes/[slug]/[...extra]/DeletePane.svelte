@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto, invalidateAll } from "$app/navigation"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
   import { DeleteOptions, Layout, PagePane } from "$lib/types"
   import { resolve } from "$app/paths"
   import { superForm } from "sveltekit-superforms"
@@ -10,6 +11,8 @@
 
   let { pagePaneState = $bindable(), data }: PageProps & { pagePaneState: PagePane } =
     $props()
+
+  const pageLayoutContext = getPageLayoutContext()
 
   const { form, enhance } = superForm(
     untrack(() => data.forms.pageDeleteForm),
@@ -54,7 +57,7 @@
   }
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <h1 class="page-delete-header">
     {data.internationalization?.["wiki-page-delete"]}
   </h1>
@@ -90,7 +93,7 @@
     </label>
   </div>
 
-  {#if pageLayoutState.current === Layout.WIKIDOT}
+  {#if pageLayoutContext.current === Layout.WIKIDOT}
     {#if $form.option === DeleteOptions.Move}
       <input
         name="new-slug"

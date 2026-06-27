@@ -175,6 +175,10 @@ pub struct RestoreFile<'a> {
     pub page_id: i64,
     pub file_id: i64,
     pub user_id: i64,
+
+    #[serde(default)]
+    pub bypass_filter: bool,
+    pub ip_address: IpAddr,
 }
 
 #[derive(Serialize, Debug, Clone)]

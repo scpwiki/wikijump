@@ -26,6 +26,106 @@ use sea_orm::Statement;
 pub struct ScoreService;
 
 impl ScoreService {
+    pub async fn scores_bulk(
+        ctx: &ServiceContext<'_>,
+        page_ids: &[i64],
+    ) -> Result<Vec<(i64, ScoreValue)>> {
+        if page_ids.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        for &page_id in page_ids {
+            let scorer = Self::get_scorer(ctx, page_id).await?;
+            if scorer.score_type() != ScoreType::Sum {
+                return Self::scores_sequential(ctx, page_ids).await;
+            }
+        }
+
+        #[derive(FromQueryResult, Debug)]
+        struct BulkScoreRow {
+            page_id: i64,
+            imported_rating: Option<i64>,
+            local_score: Option<i64>,
+        }
+
+        let txn = ctx.transaction();
+        let values = page_ids
+            .iter()
+            .enumerate()
+            .map(|(index, page_id)| format!("({}, {})", page_id, index))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let statement = if Self::imported_rating_table_exists(ctx).await? {
+            Statement::from_string(
+                txn.get_database_backend(),
+                format!(
+                    "WITH input(page_id, ordinal) AS (VALUES {values}) \
+                     SELECT input.page_id, snapshot.imported_rating, COALESCE(SUM(vote.value), 0) AS local_score \
+                     FROM input \
+                     LEFT JOIN wikidot_page_snapshot snapshot ON snapshot.page_id = input.page_id \
+                     LEFT JOIN page_vote vote ON vote.page_id = input.page_id \
+                       AND vote.deleted_at IS NULL \
+                       AND vote.disabled_at IS NULL \
+                       AND (snapshot.imported_rating IS NULL OR vote.from_wikidot = false) \
+                     GROUP BY input.page_id, input.ordinal, snapshot.imported_rating \
+                     ORDER BY input.ordinal",
+                ),
+            )
+        } else {
+            Statement::from_string(
+                txn.get_database_backend(),
+                format!(
+                    "WITH input(page_id, ordinal) AS (VALUES {values}) \
+                     SELECT input.page_id, NULL::BIGINT AS imported_rating, COALESCE(SUM(vote.value), 0) AS local_score \
+                     FROM input \
+                     LEFT JOIN page_vote vote ON vote.page_id = input.page_id \
+                       AND vote.deleted_at IS NULL \
+                       AND vote.disabled_at IS NULL \
+                     GROUP BY input.page_id, input.ordinal \
+                     ORDER BY input.ordinal",
+                ),
+            )
+        };
+
+        let rows = BulkScoreRow::find_by_statement(statement)
+            .all(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to evaluate page scores in bulk",
+                    ErrorType::PageVote,
+                )
+            })?;
+        let mut scores = Vec::with_capacity(rows.len());
+        for BulkScoreRow {
+            page_id,
+            imported_rating,
+            local_score,
+        } in rows
+        {
+            let local_score = ScoreValue::Integer(local_score.unwrap_or(0));
+            let score = match imported_rating {
+                Some(imported_rating) => {
+                    Self::combine_imported_rating(imported_rating, local_score)?
+                }
+                None => local_score,
+            };
+            scores.push((page_id, score));
+        }
+        Ok(scores)
+    }
+
+    async fn scores_sequential(
+        ctx: &ServiceContext<'_>,
+        page_ids: &[i64],
+    ) -> Result<Vec<(i64, ScoreValue)>> {
+        let mut scores = Vec::with_capacity(page_ids.len());
+        for &page_id in page_ids {
+            scores.push((page_id, Self::score(ctx, page_id).await?));
+        }
+        Ok(scores)
+    }
+
     pub async fn score(ctx: &ServiceContext<'_>, page_id: i64) -> Result<ScoreValue> {
         let txn = ctx.transaction();
         let make_error = || {
@@ -111,33 +211,12 @@ impl ScoreService {
         page_id: i64,
     ) -> Result<Option<i64>> {
         #[derive(FromQueryResult, Debug)]
-        struct TableExistsRow {
-            exists: bool,
-        }
-
-        #[derive(FromQueryResult, Debug)]
         struct ImportedRatingRow {
             imported_rating: i64,
         }
 
         let txn = ctx.transaction();
-        let table_exists_statement = Statement::from_string(
-            txn.get_database_backend(),
-            "SELECT to_regclass('wikidot_page_snapshot') IS NOT NULL AS exists",
-        );
-        let table_exists = TableExistsRow::find_by_statement(table_exists_statement)
-            .one(txn)
-            .await
-            .or_raise(|| {
-                Error::new(
-                    "failed to check imported page rating table",
-                    ErrorType::PageVote,
-                )
-            })?
-            .map(|row| row.exists)
-            .unwrap_or(false);
-
-        if !table_exists {
+        if !Self::imported_rating_table_exists(ctx).await? {
             return Ok(None);
         }
 
@@ -157,6 +236,30 @@ impl ScoreService {
             })?;
 
         Ok(row.map(|row| row.imported_rating))
+    }
+
+    async fn imported_rating_table_exists(ctx: &ServiceContext<'_>) -> Result<bool> {
+        #[derive(FromQueryResult, Debug)]
+        struct TableExistsRow {
+            exists: bool,
+        }
+
+        let txn = ctx.transaction();
+        let table_exists_statement = Statement::from_string(
+            txn.get_database_backend(),
+            "SELECT to_regclass('wikidot_page_snapshot') IS NOT NULL AS exists",
+        );
+        Ok(TableExistsRow::find_by_statement(table_exists_statement)
+            .one(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to check imported page rating table",
+                    ErrorType::PageVote,
+                )
+            })?
+            .map(|row| row.exists)
+            .unwrap_or(false))
     }
 
     fn combine_imported_rating(

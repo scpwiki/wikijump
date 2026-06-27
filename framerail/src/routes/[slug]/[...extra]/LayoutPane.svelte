@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getPageLayoutContext } from "$lib/page-layout-context"
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
   import { superForm } from "sveltekit-superforms"
@@ -8,6 +9,8 @@
 
   let { pagePaneState = $bindable(), data }: PageProps & { pagePaneState: PagePane } =
     $props()
+
+  const pageLayoutContext = getPageLayoutContext()
 
   const { form, enhance } = superForm(
     untrack(() => data.forms.layoutForm),
@@ -24,6 +27,7 @@
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
           pagePaneState = PagePane.None
+          pageLayoutContext.current = result.data.layout
           pageLayoutState.current = result.data.layout
           cancel()
           window.location.reload()
@@ -42,7 +46,7 @@
   $form.layout = untrack(() => data.page?.layout ?? null)
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <h1 class="page-layout-header">
     {data.internationalization?.["wiki-page-layout"]}
   </h1>
@@ -63,7 +67,7 @@
       </option>
     {/each}
   </select>
-  {#if pageLayoutState.current === Layout.WIKIDOT}
+  {#if pageLayoutContext.current === Layout.WIKIDOT}
     <div class="buttons">
       <input
         class="btn btn-danger"

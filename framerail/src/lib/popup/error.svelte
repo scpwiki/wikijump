@@ -1,12 +1,15 @@
 <script lang="ts">
   import { page } from "$app/state"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
+  import { errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
 
   interface Props {
     exitPrompt: () => void
   }
   let { exitPrompt }: Props = $props()
+
+  const pageLayoutContext = getPageLayoutContext()
 
   function containerExitPrompt(event: MouseEvent) {
     event.preventDefault()
@@ -29,7 +32,7 @@
   })
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <div
     id="odialog-shader"
     class="odialog-shader"

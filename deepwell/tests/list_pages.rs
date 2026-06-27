@@ -22,7 +22,7 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::ADMIN_USER_ID;
+use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use deepwell::services::RequestContext;
 use deepwell::types::Reference;
 use sea_orm::{ConnectionTrait, Statement};
@@ -90,7 +90,7 @@ async fn exact_name_listpages_expands_created_at_and_rating() {
     assert_eq!(vote.value, 1135);
 
     let source = r#"Before
-[[module ListPages name="great-hippo-exact-name-target-3034"]]
+[[module ListPages name="Great Hippo Exact Name Target 3034"]]
 %%created_at%% +%%rating%%
 **[##grey|%%created_at%%##] [##green|+%%rating%%##]**
 [[/module]]
@@ -398,6 +398,17 @@ async fn imported_rating_baseline_adds_only_local_votes() {
                 '{{"fullname":"scp-173"}}'::jsonb,
                 {IMPORT_RUN_ID}
             )
+            "#,
+            target.page_id,
+        ),
+    )
+    .await;
+    execute_sql(
+        &runner,
+        &format!(
+            r#"
+            INSERT INTO page_vote (from_wikidot, page_id, user_id, value)
+            VALUES (true, {}, {SYSTEM_USER_ID}, 9999)
             "#,
             target.page_id,
         ),

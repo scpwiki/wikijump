@@ -26,8 +26,12 @@ use crate::models::page_category::{self, Entity as PageCategory};
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_parent::{self, Entity as PageParent};
 use crate::models::{page_revision, text};
-use crate::services::{PageService, ParentService};
-use sea_query::{Expr, Query};
+use crate::services::score::ScoreValue;
+use crate::services::{PageService, ParentService, ScoreService};
+use sea_query::extension::postgres::PgBinOper;
+use sea_query::{Expr, Query, SimpleExpr};
+use std::cmp::Ordering;
+use std::collections::BTreeMap;
 
 #[derive(Debug)]
 pub struct PageQueryService;
@@ -84,12 +88,11 @@ impl PageQueryService {
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
         debug!("Selecting pages from site ID: {queried_site_id}");
 
-        condition = condition.add(page::Column::DeletedAt.is_null());
-        debug!("Excluding deleted pages from ListPages query results");
-
         // Page Type
-        // TODO track https://github.com/SeaQL/sea-orm/issues/1746
-        let hidden_condition = page::Column::Slug.starts_with("_");
+        let hidden_condition = Expr::cust_with_expr(
+            r#"$1 LIKE '\_%' ESCAPE '\'"#,
+            Expr::col((Page, page::Column::Slug)),
+        );
         match page_type {
             PageTypeSelector::Hidden => {
                 // Hidden pages are any which have slugs that start with '_'.
@@ -120,20 +123,17 @@ impl PageQueryService {
             IncludedCategories::All => {
                 debug!("Selecting all categories with exclusions");
 
-                let mut query = Query::select();
-                query
-                    .column(page_category::Column::CategoryId)
-                    .from(PageCategory)
-                    .and_where(page_category::Column::SiteId.eq(queried_site_id));
-
-                if !excluded_categories.is_empty() {
-                    query.and_where(
-                        page_category::Column::Slug
-                            .is_not_in(cat_slugs!(excluded_categories)),
-                    );
-                }
-
-                page::Column::PageCategoryId.in_subquery(query.to_owned())
+                page::Column::PageCategoryId.in_subquery(
+                    Query::select()
+                        .column(page_category::Column::CategoryId)
+                        .from(PageCategory)
+                        .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                        .and_where(
+                            page_category::Column::Slug
+                                .is_not_in(cat_slugs!(excluded_categories)),
+                        )
+                        .to_owned(),
+                )
             }
 
             // If a specific list of categories is provided, filter by site_id, inclusion in the
@@ -146,24 +146,21 @@ impl PageQueryService {
             IncludedCategories::List(included_categories) => {
                 debug!("Selecting included categories only");
 
-                let mut query = Query::select();
-                query
-                    .column(page_category::Column::CategoryId)
-                    .from(PageCategory)
-                    .and_where(page_category::Column::SiteId.eq(queried_site_id))
-                    .and_where(
-                        page_category::Column::Slug
-                            .is_in(cat_slugs!(included_categories)),
-                    );
-
-                if !excluded_categories.is_empty() {
-                    query.and_where(
-                        page_category::Column::Slug
-                            .is_not_in(cat_slugs!(excluded_categories)),
-                    );
-                }
-
-                page::Column::PageCategoryId.in_subquery(query.to_owned())
+                page::Column::PageCategoryId.in_subquery(
+                    Query::select()
+                        .column(page_category::Column::CategoryId)
+                        .from(PageCategory)
+                        .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                        .and_where(
+                            page_category::Column::Slug
+                                .is_in(cat_slugs!(included_categories)),
+                        )
+                        .and_where(
+                            page_category::Column::Slug
+                                .is_not_in(cat_slugs!(excluded_categories)),
+                        )
+                        .to_owned(),
+                )
             }
         };
         condition = condition.add(page_category_condition);
@@ -202,17 +199,21 @@ impl PageQueryService {
         }
 
         let page_parent_condition = match page_parent {
+            PageParentSelector::All => None,
+
             // Pages with no parents.
             // This means that there should be no rows in `page_parent`
             // where they are the child page.
             PageParentSelector::NoParent => {
                 debug!("Selecting pages with no parents");
 
-                page::Column::PageId.not_in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .to_owned(),
+                Some(
+                    page::Column::PageId.not_in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .to_owned(),
+                    ),
                 )
             }
 
@@ -221,14 +222,16 @@ impl PageQueryService {
             PageParentSelector::SameParents => {
                 debug!("Selecting pages are siblings under the given parents");
 
-                page::Column::PageId.in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .and_where(
-                            page_parent::Column::ParentPageId.is_in(get_parents!()),
-                        )
-                        .to_owned(),
+                Some(
+                    page::Column::PageId.in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .and_where(
+                                page_parent::Column::ParentPageId.is_in(get_parents!()),
+                            )
+                            .to_owned(),
+                    ),
                 )
             }
 
@@ -237,24 +240,16 @@ impl PageQueryService {
             PageParentSelector::DifferentParents => {
                 debug!("Selecting pages which are not siblings under the given parents");
 
-                let parents = ParentService::get_parents(
-                    ctx,
-                    current_site_id,
-                    Reference::Id(current_page_id),
-                )
-                .await
-                .or_raise(make_error)?
-                .into_iter()
-                .map(|parent| parent.parent_page_id);
-
-                page::Column::PageId.in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .and_where(
-                            page_parent::Column::ParentPageId.is_not_in(get_parents!()),
-                        )
-                        .to_owned(),
+                Some(
+                    page::Column::PageId.not_in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .and_where(
+                                page_parent::Column::ParentPageId.is_in(get_parents!()),
+                            )
+                            .to_owned(),
+                    ),
                 )
             }
 
@@ -262,12 +257,16 @@ impl PageQueryService {
             PageParentSelector::ChildOf => {
                 debug!("Selecting pages which are children of the current page");
 
-                page::Column::PageId.in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .and_where(page_parent::Column::ParentPageId.eq(current_page_id))
-                        .to_owned(),
+                Some(
+                    page::Column::PageId.in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .and_where(
+                                page_parent::Column::ParentPageId.eq(current_page_id),
+                            )
+                            .to_owned(),
+                    ),
                 )
             }
 
@@ -283,16 +282,22 @@ impl PageQueryService {
                     .into_iter()
                     .map(|page| page.page_id);
 
-                page::Column::PageId.in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .and_where(page_parent::Column::ParentPageId.is_in(parent_ids))
-                        .to_owned(),
+                Some(
+                    page::Column::PageId.in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .and_where(
+                                page_parent::Column::ParentPageId.is_in(parent_ids),
+                            )
+                            .to_owned(),
+                    ),
                 )
             }
         };
-        condition = condition.add(page_parent_condition);
+        if let Some(page_parent_condition) = page_parent_condition {
+            condition = condition.add(page_parent_condition);
+        }
 
         // Slug
         if let Some(slug) = slug {
@@ -301,10 +306,35 @@ impl PageQueryService {
             condition = condition.add(page::Column::Slug.eq(slug));
         }
 
+        // Initial page author. ListPages' created_by selector refers to the
+        // earliest available revision, not necessarily revision 0. Imported or
+        // repaired pages can lack revision 0 while still having a deterministic
+        // creation author.
+        if !author.is_empty() {
+            let author_ids = author
+                .iter()
+                .filter_map(|author| author.as_ref().parse::<i64>().ok())
+                .collect::<Vec<_>>();
+            if author_ids.is_empty() {
+                condition = condition.add(SimpleExpr::Custom("FALSE".into()));
+            } else {
+                let author_ids = author_ids
+                    .into_iter()
+                    .map(|author_id| author_id.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                condition = condition.add(SimpleExpr::Custom(format!(
+                    "EXISTS (SELECT 1 FROM page_revision pr WHERE pr.page_id = page.page_id AND pr.user_id IN ({author_ids}) AND pr.revision_id = (SELECT pr2.revision_id FROM page_revision pr2 WHERE pr2.page_id = page.page_id ORDER BY pr2.revision_number ASC, pr2.revision_id ASC LIMIT 1))"
+                )));
+            }
+        }
+
         // Contains-link
         //
         // Selects pages that have an outgoing link (`from_page_id`)
-        // to a specified page (`to_page_id`).
+        // to a specified page (`to_page_id`). An empty selector means
+        // no link constraint; adding an empty subquery here makes every
+        // ordinary ListPages query return no rows.
         if !contains_outgoing_links.is_empty() {
             condition = condition.add(
                 page::Column::PageId.in_subquery(
@@ -329,26 +359,72 @@ impl PageQueryService {
             );
         }
 
-        // Tag filtering
-        // TODO requires joining with most recent revision
-
         // Build the final query
-        let mut query = Page::find().filter(condition);
+        let mut query = Page::find()
+            .filter(page::Column::DeletedAt.is_null())
+            .filter(condition);
+        let order = order.unwrap_or_default();
+        let needs_tag_filter =
+            !all_tags.is_empty() || !any_tags.is_empty() || !no_tags.is_empty();
+        let needs_revision_join = needs_tag_filter
+            || matches!(
+                order.property,
+                OrderProperty::Title | OrderProperty::AltTitle | OrderProperty::Size
+            );
+        if needs_tag_filter {
+            query = query.join(JoinType::Join, page::Relation::PageRevision.def());
+        } else if needs_revision_join {
+            query = query.join(JoinType::LeftJoin, page::Relation::PageRevision.def());
+        }
 
         // Add necessary joins
-        macro_rules! join_revision {
-            () => {
-                query = query.join(JoinType::Join, page::Relation::PageRevision.def());
-            };
-        }
         macro_rules! join_text {
             () => {
-                query = query.join(JoinType::Join, page_revision::Relation::Text1.def());
+                query = query.join(
+                    if needs_tag_filter {
+                        JoinType::Join
+                    } else {
+                        JoinType::LeftJoin
+                    },
+                    page_revision::Relation::Text1.def(),
+                );
             };
         }
         // TODO other joins
 
+        // Tag filtering. Tags live on the current page revision, so this joins through
+        // page.latest_revision_id -> page_revision.revision_id before applying array predicates.
+        for tag in all_tags {
+            query = query.filter(
+                Expr::col(page_revision::Column::Tags)
+                    .binary(PgBinOper::Contains, Expr::val(vec![tag.to_string()])),
+            );
+        }
+
+        if !any_tags.is_empty() {
+            query = query.filter(
+                Expr::col(page_revision::Column::Tags).binary(
+                    PgBinOper::Overlap,
+                    Expr::val(
+                        any_tags
+                            .iter()
+                            .map(|tag| tag.to_string())
+                            .collect::<Vec<_>>(),
+                    ),
+                ),
+            );
+        }
+
+        for tag in no_tags {
+            query = query.filter(
+                Expr::col(page_revision::Column::Tags)
+                    .binary(PgBinOper::Contains, Expr::val(vec![tag.to_string()]))
+                    .not(),
+            );
+        }
+
         // Add on at the query-level (ORDER BY, LIMIT)
+        let score_order = matches!(order.property, OrderProperty::Score);
         {
             use sea_orm::query::Order;
             use sea_query::SimpleExpr;
@@ -357,37 +433,41 @@ impl PageQueryService {
             let OrderBySelector {
                 property,
                 ascending,
-            } = order.unwrap_or_default();
+            } = order;
 
             debug!("Ordering ListPages using {property:?} (ascending: {ascending})");
 
             let order = if ascending { Order::Asc } else { Order::Desc };
 
-            // TODO: implement missing properties. these require subqueries or joins or something
             match property {
                 OrderProperty::PageSlug => {
-                    // idk how to do this, we need to strip off the category part somehow
-                    // PgExpr::matches?
-                    error!("Ordering by page slug (no category), not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page slug (no category)");
+                    let expr = Expr::cust_with_expr(
+                        "regexp_replace($1, '^.*:', '')",
+                        Expr::col((Page, page::Column::Slug)),
+                    );
+                    query = query
+                        .order_by(expr, order.clone())
+                        .order_by(Expr::col((Page, page::Column::Slug)), order);
                 }
                 OrderProperty::FullSlug => {
-                    debug!("Ordering by page slug (with category");
+                    debug!("Ordering by page slug (with category)");
                     query = query.order_by(page::Column::Slug, order);
                 }
                 OrderProperty::Title => {
-                    error!("Ordering by title, not yet implemented");
-                    join_revision!();
+                    debug!("Ordering by title");
                     query = query.order_by(page_revision::Column::Title, order);
                 }
                 OrderProperty::AltTitle => {
-                    error!("Ordering by alt title, not yet implemented");
-                    join_revision!();
+                    debug!("Ordering by alt title");
                     query = query.order_by(page_revision::Column::AltTitle, order);
                 }
                 OrderProperty::CreatedBy => {
-                    error!("Ordering by author, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by initial page author");
+                    let expr = SimpleExpr::Custom(
+                        "(SELECT pr.user_id FROM page_revision pr WHERE pr.page_id = page.page_id ORDER BY pr.revision_number ASC, pr.revision_id ASC LIMIT 1)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::CreatedAt => {
                     debug!("Ordering by page creation timestamp");
@@ -398,28 +478,35 @@ impl PageQueryService {
                     query = query.order_by(page::Column::UpdatedAt, order);
                 }
                 OrderProperty::Size => {
-                    error!("Ordering by page size, not yet implemented");
-                    join_revision!();
+                    debug!("Ordering by page size");
                     join_text!();
                     let col = Expr::col(text::Column::Contents);
                     let expr = SimpleExpr::FunctionCall(Func::char_length(col));
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Score => {
-                    error!("Ordering by score, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page score after ScoreService evaluation");
                 }
                 OrderProperty::Votes => {
-                    error!("Ordering by vote count, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page vote count");
+                    let expr = SimpleExpr::Custom(
+                        "COALESCE((SELECT COUNT(*) FROM page_vote pv WHERE pv.page_id = page.page_id AND pv.deleted_at IS NULL AND pv.disabled_at IS NULL), 0)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Revisions => {
-                    error!("Ordering by revision count, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by page revision count");
+                    let expr = SimpleExpr::Custom(
+                        "COALESCE((SELECT COUNT(*) FROM page_revision pr WHERE pr.page_id = page.page_id), 0)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Comments => {
-                    error!("Ordering by comment count, not yet implemented");
-                    todo!() // TODO
+                    debug!("Ordering by forum comment count");
+                    let expr = SimpleExpr::Custom(
+                        "COALESCE((SELECT COUNT(*) FROM forum_post fp JOIN forum_thread ft ON fp.forum_thread_id = ft.forum_thread_id WHERE ft.page_id = page.page_id AND fp.deleted_at IS NULL AND ft.deleted_at IS NULL), 0)".into(),
+                    );
+                    query = query.order_by(expr, order);
                 }
                 OrderProperty::Random => {
                     debug!("Ordering by random value");
@@ -427,20 +514,28 @@ impl PageQueryService {
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::DataFormFieldName => {
-                    error!("Ordering by data form field, not yet implemented");
-                    todo!() // TODO
+                    debug!("Rejecting unsupported data form field ordering");
+                    return Err(Error::new(
+                        "ListPages data form field ordering is not implemented",
+                        ErrorType::PageQuery,
+                    )
+                    .into());
                 }
             };
+            if !matches!(property, OrderProperty::Random | OrderProperty::Score) {
+                query = query.order_by(page::Column::PageId, Order::Asc);
+            }
         }
 
-        if let Some(limit) = pagination.limit {
-            debug!("Limiting ListPages to a maximum of {limit} pages total");
-            query = query.limit(limit);
-        }
-
-        if offset > 0 {
-            debug!("Skipping the first {offset} ListPages results");
-            query = query.offset(u64::from(offset));
+        if !score_order {
+            if offset > 0 {
+                debug!("Offsetting ListPages by {offset} pages");
+                query = query.offset(u64::from(offset));
+            }
+            if let Some(limit) = pagination.limit {
+                debug!("Limiting ListPages to a maximum of {limit} pages total");
+                query = query.limit(limit);
+            }
         }
 
         // TODO pagination
@@ -456,48 +551,171 @@ impl PageQueryService {
         //      3. [14, 13, 12, 11, 10]
 
         // Execute it!
-        let pages = query.all(txn).await.or_raise(make_error)?;
+        let mut pages = query.all(txn).await.or_raise(make_error)?;
 
         debug!("Query returned {} pages, building FoundPages", pages.len());
 
+        let mut page_ids = pages.iter().map(|page| page.page_id).collect::<Vec<_>>();
+        let score_by_page_id: BTreeMap<i64, f32> =
+            if (fields.score || score_order) && !page_ids.is_empty() {
+                ScoreService::scores_bulk(ctx, &page_ids)
+                    .await
+                    .or_raise(make_error)?
+                    .into_iter()
+                    .map(|(page_id, score)| (page_id, score_to_f32(score)))
+                    .collect()
+            } else {
+                BTreeMap::new()
+            };
+
+        if score_order {
+            pages.sort_by(|left, right| {
+                let left_score =
+                    score_by_page_id.get(&left.page_id).copied().unwrap_or(0.0);
+                let right_score =
+                    score_by_page_id.get(&right.page_id).copied().unwrap_or(0.0);
+                let ordering = left_score
+                    .partial_cmp(&right_score)
+                    .unwrap_or(Ordering::Equal);
+                let ordering = if order.ascending {
+                    ordering
+                } else {
+                    ordering.reverse()
+                };
+                ordering
+                    .then_with(|| left.slug.cmp(&right.slug))
+                    .then_with(|| left.page_id.cmp(&right.page_id))
+            });
+            if offset > 0 {
+                let skip = (offset as usize).min(pages.len());
+                pages.drain(..skip);
+            }
+            if let Some(limit) = pagination.limit {
+                pages.truncate(limit.min(usize::MAX as u64) as usize);
+            }
+            page_ids = pages.iter().map(|page| page.page_id).collect();
+        }
+
+        let revision_fields_requested =
+            fields.title || fields.alt_title || fields.tags || fields.updated_by;
+        let revisions_by_id: BTreeMap<i64, page_revision::Model> =
+            if revision_fields_requested {
+                let revision_ids = pages
+                    .iter()
+                    .filter_map(|page| page.latest_revision_id)
+                    .collect::<Vec<_>>();
+
+                if revision_ids.is_empty() {
+                    BTreeMap::new()
+                } else {
+                    page_revision::Entity::find()
+                        .filter(page_revision::Column::RevisionId.is_in(revision_ids))
+                        .all(txn)
+                        .await
+                        .or_raise(make_error)?
+                        .into_iter()
+                        .map(|revision| (revision.revision_id, revision))
+                        .collect()
+                }
+            } else {
+                BTreeMap::new()
+            };
+
+        let created_by_by_page_id: BTreeMap<i64, i64> =
+            if fields.created_by && !page_ids.is_empty() {
+                let mut created_by_by_page_id = BTreeMap::new();
+                for (page_id, user_id) in page_revision::Entity::find()
+                    .select_only()
+                    .column(page_revision::Column::PageId)
+                    .column(page_revision::Column::UserId)
+                    .filter(page_revision::Column::PageId.is_in(page_ids.clone()))
+                    .order_by_asc(page_revision::Column::PageId)
+                    .order_by_asc(page_revision::Column::RevisionNumber)
+                    .order_by_asc(page_revision::Column::RevisionId)
+                    .into_tuple::<(i64, i64)>()
+                    .all(txn)
+                    .await
+                    .or_raise(make_error)?
+                {
+                    created_by_by_page_id.entry(page_id).or_insert(user_id);
+                }
+                created_by_by_page_id
+            } else {
+                BTreeMap::new()
+            };
+
         let rows = pages
             .into_iter()
-            .map(|page| FoundPageRow {
-                page_id: page.page_id,
-                site_id: page.site_id,
-                slug: if fields.slug { Some(page.slug) } else { None },
-                page_category_id: if fields.page_category_id {
-                    Some(page.page_category_id)
-                } else {
-                    None
-                },
-                page_revision_id: if fields.page_revision_id {
-                    page.latest_revision_id
-                } else {
-                    None
-                },
-                created_at: if fields.created_at {
-                    Some(page.created_at)
-                } else {
-                    None
-                },
-                updated_at: if fields.updated_at {
-                    page.updated_at
-                } else {
-                    None
-                },
-                // Fields that require a revision join are not
-                // yet populated from the query. These will be
-                // implemented when the revision join is added.
-                title: None,      // TODO: requires revision join
-                alt_title: None,  // TODO: requires revision join
-                tags: None,       // TODO: requires revision join
-                created_by: None, // TODO: requires revision join
-                updated_by: None, // TODO: requires revision join
-                score: None,      // TODO: requires vote join
+            .map(|page| {
+                let revision = page
+                    .latest_revision_id
+                    .and_then(|revision_id| revisions_by_id.get(&revision_id));
+
+                FoundPageRow {
+                    page_id: page.page_id,
+                    site_id: page.site_id,
+                    slug: if fields.slug { Some(page.slug) } else { None },
+                    page_category_id: if fields.page_category_id {
+                        Some(page.page_category_id)
+                    } else {
+                        None
+                    },
+                    page_revision_id: if fields.page_revision_id {
+                        page.latest_revision_id
+                    } else {
+                        None
+                    },
+                    created_at: if fields.created_at {
+                        Some(page.created_at)
+                    } else {
+                        None
+                    },
+                    updated_at: if fields.updated_at {
+                        page.updated_at
+                    } else {
+                        None
+                    },
+                    title: if fields.title {
+                        revision.map(|revision| revision.title.clone())
+                    } else {
+                        None
+                    },
+                    alt_title: if fields.alt_title {
+                        revision.and_then(|revision| revision.alt_title.clone())
+                    } else {
+                        None
+                    },
+                    tags: if fields.tags {
+                        revision.map(|revision| revision.tags.clone())
+                    } else {
+                        None
+                    },
+                    created_by: if fields.created_by {
+                        created_by_by_page_id.get(&page.page_id).copied()
+                    } else {
+                        None
+                    },
+                    updated_by: if fields.updated_by {
+                        revision.map(|revision| revision.user_id)
+                    } else {
+                        None
+                    },
+                    score: if fields.score {
+                        score_by_page_id.get(&page.page_id).copied().or(Some(0.0))
+                    } else {
+                        None
+                    },
+                }
             })
             .collect();
 
         Ok(FoundPages { pages: rows })
+    }
+}
+
+fn score_to_f32(score: ScoreValue) -> f32 {
+    match score {
+        ScoreValue::Integer(value) => value as f32,
+        ScoreValue::Float(value) => value as f32,
     }
 }

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
   import { Layout, PagePane } from "$lib/types"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
@@ -12,6 +13,8 @@
 
   let { pagePaneState = $bindable(), data }: PageProps & { pagePaneState: PagePane } =
     $props()
+
+  const pageLayoutContext = getPageLayoutContext()
 
   const { form, enhance } = superForm(
     untrack(() => data.forms.pageParentForm),
@@ -82,7 +85,7 @@
   })
 </script>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   <h1 class="page-parent-header">
     {data.internationalization?.["wiki-page-parent"]}
   </h1>
@@ -99,7 +102,7 @@
     type="text"
     bind:value={$form.parents}
   />
-  {#if pageLayoutState.current === Layout.WIKIDOT}
+  {#if pageLayoutContext.current === Layout.WIKIDOT}
     <div class="buttons">
       <input
         class="btn btn-danger"

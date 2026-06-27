@@ -718,17 +718,22 @@ impl FileRevisionService {
         };
 
         let txn = ctx.transaction();
-        let revisions = FileRevision::find()
-            .filter(
-                Condition::all()
-                    .add(file_revision::Column::FileId.eq(file_id))
-                    .add(revision_condition),
-            )
-            .order_by_asc(file_revision::Column::RevisionNumber)
-            .limit(limit)
-            .all(txn)
-            .await
-            .or_raise(make_error)?;
+        let mut query = FileRevision::find().filter(
+            Condition::all()
+                .add(file_revision::Column::FileId.eq(file_id))
+                .add(revision_condition),
+        );
+
+        query = match revision_direction {
+            FetchDirection::Before => {
+                query.order_by_desc(file_revision::Column::RevisionNumber)
+            }
+            FetchDirection::After => {
+                query.order_by_asc(file_revision::Column::RevisionNumber)
+            }
+        };
+
+        let revisions = query.limit(limit).all(txn).await.or_raise(make_error)?;
 
         Ok(revisions)
     }

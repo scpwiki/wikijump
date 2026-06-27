@@ -4,7 +4,8 @@
   import { resolve } from "$app/paths"
   import { goto, invalidateAll } from "$app/navigation"
   import { Layout } from "$lib/types"
-  import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 
@@ -12,6 +13,8 @@
   import type { PageDeletedGet } from "$lib/server/deepwell/page"
 
   let errorData: PageData | null = $derived(page.error as unknown as PageData)
+
+  const pageLayoutContext = getPageLayoutContext()
 
   let showRestoreAction = $state<boolean>(false)
   let deletedPages = $state<PageDeletedGet[]>([])
@@ -112,7 +115,7 @@
   UNTRANSLATED:Page not found
 
   {#if errorData.options?.edit}
-    {#if pageLayoutState.current === Layout.WIKIDOT}
+    {#if pageLayoutContext.current === Layout.WIKIDOT}
       <h1 class="page-create-header">
         {errorData.internationalization?.["wiki-page-create"]}
       </h1>
@@ -161,7 +164,7 @@
         class="editor-comments"
         placeholder={errorData.internationalization?.["wiki-page-revision-comments"]}
         bind:value={$editForm.comments}></textarea>
-      {#if pageLayoutState.current === Layout.WIKIDOT}
+      {#if pageLayoutContext.current === Layout.WIKIDOT}
         <div class="buttons">
           <input
             class="btn btn-danger"
@@ -195,7 +198,7 @@
       {@html errorData.compiled_body_html}
     </div>
 
-    {#if pageLayoutState.current === Layout.WIKIDOT}
+    {#if pageLayoutContext.current === Layout.WIKIDOT}
       <div id="page-options-container">
         <div id="page-options-bottom" class="page-options-bottom">
           <!-- svelte-ignore a11y_invalid_attribute -->
@@ -223,7 +226,7 @@
     {/if}
 
     {#if showRestoreAction}
-      {#if pageLayoutState.current === Layout.WIKIDOT}
+      {#if pageLayoutContext.current === Layout.WIKIDOT}
         <div id="action-area">
           <h1 class="page-restore-header">
             {errorData.internationalization?.["wiki-page-restore"]}

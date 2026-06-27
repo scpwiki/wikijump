@@ -634,9 +634,19 @@ async fn count_connections(
         None => site_id,
         Some(slug) => {
             let reference = Reference::Slug(cow!(slug));
-            let SiteModel { site_id, .. } = SiteService::get(ctx, reference)
-                .await
-                .or_raise(make_error)?;
+            let Some(SiteModel { site_id, .. }) =
+                SiteService::get_optional(ctx, reference)
+                    .await
+                    .or_raise(make_error)?
+            else {
+                let missing_slug =
+                    format!("\u{1f}wikijump-cross-site\u{1f}{slug}\u{1f}{page_slug}");
+                let entry = connections_missing
+                    .entry((site_id, missing_slug, connection_type))
+                    .or_insert(0);
+                *entry += 1;
+                return Ok(());
+            };
 
             site_id
         }

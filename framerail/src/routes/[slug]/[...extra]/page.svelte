@@ -1,7 +1,8 @@
 <script lang="ts">
   import { page } from "$app/state"
   import { goto } from "$app/navigation"
-  import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/page-layout-context"
+  import { errorPopupState } from "$lib/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
   import {
     EditorPane,
@@ -22,6 +23,7 @@
 
   let props: PageProps = $props()
   let { data } = $derived(props)
+  const pageLayoutContext = getPageLayoutContext()
 
   let showSource = $state<boolean>(false)
   let showPageOptions = $state<boolean>(false)
@@ -95,7 +97,7 @@
   <title>{data.page_revision?.title} | {data.site.name}</title>
 </svelte:head>
 
-{#if pageLayoutState.current === Layout.WIKIDOT}
+{#if pageLayoutContext.current === Layout.WIKIDOT}
   {#if data.options?.debug}
     <h2>UNTRANSLATED:Debug Response</h2>
   {:else if showRevision}

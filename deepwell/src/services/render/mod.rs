@@ -31,6 +31,7 @@ mod prelude {
     pub use ftml::{self};
 }
 
+#[allow(dead_code)]
 mod list_pages;
 mod service;
 mod structs;
