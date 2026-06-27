@@ -148,7 +148,10 @@ impl UserService {
 
         if let Some(found_user) = result {
             error!("User with conflicting name or slug already exists, cannot create");
-            error!("Checked name '{name}', slug '{slug}', found {found_user:#?}");
+            error!(
+                "Checked name '{name}', slug '{slug}', found existing user ID {} with slug '{}'",
+                found_user.user_id, found_user.slug,
+            );
             bail!(Error::new(
                 format!(
                     "cannot create user, another with a conflicting name or slug already exists. checked name '{}', slug '{}', found user '{}' (ID {})",
@@ -182,7 +185,10 @@ impl UserService {
 
             if let Some(found_user) = result {
                 error!("User with conflicting email already exists, cannot create");
-                error!("Checked email '{email}' found {found_user:#?}");
+                error!(
+                    "Email conflict detected, found existing user ID {} with slug '{}'",
+                    found_user.user_id, found_user.slug,
+                );
                 // *don't* return the colliding user, as emails are non-public information
                 // and should not be shared
                 bail!(Error::new(
