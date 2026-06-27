@@ -135,6 +135,9 @@ services:
     build:
       context: ../..
       dockerfile: install/local/caddy/Dockerfile
+    volumes:
+      - local-caddy-data:/data
+      - local-caddy-config:/config
     ports:
       - "80:80"
       - "443:443"
@@ -145,3 +148,9 @@ services:
       interval: 30s
       timeout: 2s
       retries: 3
+
+volumes:
+  local-caddy-data:
+    name: local-caddy-data
+  local-caddy-config:
+    name: local-caddy-config

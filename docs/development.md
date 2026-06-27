@@ -53,7 +53,7 @@ The "action" corresponds to actions that `docker-compose` can do. Some common ac
 * `stop` &mdash; Stop currently-running containers for Wikijump.
 * `down` &mdash; Stop **and delete** any containers for Wikijump.
 
-Note that in `docker-compose.yaml`, there are configuration options for the domains to use. For development purposes, these are set to `wikijump.localhost`. This is the domain you will be connecting to, e.g. `https://www.wikijump.localhost`. The TLD `.localhost` is just like the usual `localhost` domain. Even when running locally, HTTPS is used. Because this certificate is self-signed, you will need to dismiss the certificate warning.
+Note that in `docker-compose.yaml`, there are configuration options for the domains to use. For development purposes, these are set to `wikijump.localhost`. This is the domain you will be connecting to, e.g. `https://www.wikijump.localhost`. The TLD `.localhost` is just like the usual `localhost` domain. Even when running locally, HTTPS is used. The local Caddy certificate authority is persisted in Docker volumes; see `install/local/README.md` for trust-store setup if your browser does not already trust it.
 
 **Thus, you can run the following to start a local instance:**
 
@@ -130,7 +130,7 @@ Sometimes when starting a container locally, it will report being "unhealthy" an
 Once you have a local instance of Wikijump running, you may wish to make `curl` requests against it to test various pieces of its functionality. However there are a few considerations to be had given the deployment situation:
 
 1. **Wikijump is host-sensitive.** Hitting the same web route with two different domains will result in different content (e.g. `scp-sandbox-3.wikidot.com` and `scp-jp.wikidot.com` are different sites).
-2. **Caddy local serves self-signed certificates.** Naturally, as this is not deployed on the open web, there are no "real" TLS certificates, but nonetheless Wikijump is designed to be HTTPS-only so we must use even locally.
+2. **Caddy local serves certificates from its local CA.** Naturally, as this is not deployed on the open web, there are no "real" TLS certificates, but nonetheless Wikijump is designed to be HTTPS-only so we must use even locally. See `install/local/README.md` for installing the local Caddy root into your trust store.
 3. **Svelte does not assume any accepted content types.** Any framerail calls need this, but wjfiles does not.
 
 Thus, the "standard" curl request for a web page would look something like the following:
