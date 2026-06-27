@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::models::known_user::{self, Model as KnownUserModel};
+use crate::models::known_user::{self, Entity as KnownUser, Model as KnownUserModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::services::alias::CreateAlias;
 use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
@@ -51,6 +51,20 @@ pub struct UserService;
 impl UserService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
+        input: CreateUser,
+    ) -> Result<CreateUserOutput> {
+        Self::create_internal(ctx, input, false).await
+    }
+
+    pub async fn import_wikidot(
+        ctx: &ServiceContext<'_>,
+        input: CreateUser,
+    ) -> Result<CreateUserOutput> {
+        Self::create_internal(ctx, input, true).await
+    }
+
+    async fn create_internal(
+        ctx: &ServiceContext<'_>,
         CreateUser {
             user_type,
             mut name,
@@ -62,6 +76,7 @@ impl UserService {
             override_user_id,
             ip_address,
         }: CreateUser,
+        reuse_existing_known_user: bool,
     ) -> Result<CreateUserOutput> {
         let txn = ctx.transaction();
         let slug = get_user_slug(&name, user_type);
@@ -89,15 +104,34 @@ impl UserService {
             Some(user_id) => {
                 info!("Attempting to create user '{name}' ('{slug}', ID {user_id})");
 
-                // Insert user ID into known_user for foreign key
-                known_user::ActiveModel {
-                    user_id: ActiveValue::Set(user_id),
-                }
-                .insert(txn)
-                .await
-                .or_raise(make_error)?;
+                let known_user_exists = KnownUser::find_by_id(user_id)
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?
+                    .is_some();
 
-                debug!("Inserted foreign key entry into known_user for ID {user_id}");
+                if known_user_exists {
+                    if reuse_existing_known_user {
+                        debug!("Reusing existing known_user entry for ID {user_id}");
+                    } else {
+                        bail!(Error::new(
+                            format!(
+                                "cannot create user with ID {user_id}, known_user entry already exists",
+                            ),
+                            ErrorType::BadRequest,
+                        ));
+                    }
+                } else {
+                    // Insert user ID into known_user for foreign key.
+                    known_user::ActiveModel {
+                        user_id: ActiveValue::Set(user_id),
+                    }
+                    .insert(txn)
+                    .await
+                    .or_raise(make_error)?;
+
+                    debug!("Inserted foreign key entry into known_user for ID {user_id}");
+                }
                 user_id
             }
             None => {
@@ -307,7 +341,7 @@ impl UserService {
         Ok(CreateUserOutput { user_id, slug })
     }
 
-    // TODO import() method, which is for reclaiming Wikidot-imported accounts
+    // TODO complete ownership verification for reclaiming Wikidot-imported accounts
     //
     //      if the user is already present in the database, then this verifies their ownership and
     //      updates the user so it now belongs to them (e.g. email, password, etc)
