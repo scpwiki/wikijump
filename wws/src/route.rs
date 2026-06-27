@@ -78,8 +78,9 @@ pub fn build_router(state: ServerState) -> Router {
         .route("/-/basic-error/{error_code}", get(handle_basic_error))
         .route("/-/basic-error/{error_code}", any(handle_invalid_method))
         // General routes
-        .route("/robots.txt", get(handle_robots_txt)) // TODO
-        .route("/.well-known", any(handle_well_known)) // TODO
+        .route("/robots.txt", get(handle_robots_txt))
+        .route("/.well-known", any(handle_well_known))
+        .route("/.well-known/{*path}", any(handle_well_known))
         .fallback(redirect_to_main)
         // Middleware
         .layer(TraceLayer::new_for_http())
