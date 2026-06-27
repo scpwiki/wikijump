@@ -13,6 +13,8 @@ pub struct Model {
     pub page_id: i64,
     #[sea_orm(primary_key, auto_increment = false)]
     pub block_index: i16,
+    #[sea_orm(column_type = "Text", unique)]
+    pub s3_filename: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub block_name: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
