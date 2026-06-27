@@ -31,8 +31,9 @@ jobs:
       - name: Install dependencies
         run: cd framerail && pnpm install
 
-      - name: Build
-        run: cd framerail && pnpm build
+      - parallel:
+          - name: Build
+            run: cd framerail && pnpm build
 
-      - name: Lint
-        run: cd framerail && pnpm lint
+          - name: Lint
+            run: cd framerail && pnpm lint
