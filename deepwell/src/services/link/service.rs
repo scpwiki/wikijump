@@ -28,6 +28,7 @@ use crate::services::{PageService, SiteService};
 use crate::types::ConnectionType;
 use ftml::data::{Backlinks, PageRef};
 use sea_orm::NotSet;
+use sea_orm::sea_query::OnConflict;
 use std::collections::HashMap;
 
 /// Forms an optional `Condition` from a list of connection types.
@@ -424,6 +425,7 @@ async fn update_connections(
     }
 
     // Insert new connections
+    let updated_at = Some(now());
     let to_insert = counts
         .iter()
         .map(
@@ -432,7 +434,7 @@ async fn update_connections(
                 to_page_id: Set(to_page_id),
                 connection_type: Set(connection_type),
                 created_at: NotSet,
-                updated_at: NotSet,
+                updated_at: Set(updated_at),
                 count: Set(*count),
             },
         )
@@ -440,6 +442,18 @@ async fn update_connections(
 
     if !to_insert.is_empty() {
         PageConnection::insert_many(to_insert)
+            .on_conflict(
+                OnConflict::columns([
+                    page_connection::Column::FromPageId,
+                    page_connection::Column::ToPageId,
+                    page_connection::Column::ConnectionType,
+                ])
+                .update_columns([
+                    page_connection::Column::Count,
+                    page_connection::Column::UpdatedAt,
+                ])
+                .to_owned(),
+            )
             .exec(txn)
             .await
             .or_raise(make_error)?;
@@ -506,6 +520,7 @@ async fn update_connections_missing(
     }
 
     // Insert new connections
+    let updated_at = Some(now());
     let to_insert = counts
         .iter()
         .map(
@@ -516,7 +531,7 @@ async fn update_connections_missing(
                     to_page_slug: Set(str!(to_page_slug)),
                     connection_type: Set(connection_type),
                     created_at: NotSet,
-                    updated_at: NotSet,
+                    updated_at: Set(updated_at),
                     count: Set(*count),
                 }
             },
@@ -525,6 +540,19 @@ async fn update_connections_missing(
 
     if !to_insert.is_empty() {
         PageConnectionMissing::insert_many(to_insert)
+            .on_conflict(
+                OnConflict::columns([
+                    page_connection_missing::Column::FromPageId,
+                    page_connection_missing::Column::ToSiteId,
+                    page_connection_missing::Column::ToPageSlug,
+                    page_connection_missing::Column::ConnectionType,
+                ])
+                .update_columns([
+                    page_connection_missing::Column::Count,
+                    page_connection_missing::Column::UpdatedAt,
+                ])
+                .to_owned(),
+            )
             .exec(txn)
             .await
             .or_raise(make_error)?;
@@ -581,19 +609,28 @@ async fn update_external_links(
     }
 
     // Insert new links
+    let updated_at = Some(now());
     let to_insert = counts
         .iter()
         .map(|(ref url, count)| page_link::ActiveModel {
             page_id: Set(from_page_id),
             url: Set(str!(url)),
             created_at: NotSet,
-            updated_at: NotSet,
+            updated_at: Set(updated_at),
             count: Set(*count),
         })
         .collect::<Vec<_>>();
 
     if !to_insert.is_empty() {
         PageLink::insert_many(to_insert)
+            .on_conflict(
+                OnConflict::columns([page_link::Column::PageId, page_link::Column::Url])
+                    .update_columns([
+                        page_link::Column::Count,
+                        page_link::Column::UpdatedAt,
+                    ])
+                    .to_owned(),
+            )
             .exec(txn)
             .await
             .or_raise(make_error)?;
