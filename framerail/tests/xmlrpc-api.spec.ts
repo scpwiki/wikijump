@@ -1362,6 +1362,38 @@ test("XML-RPC endpoint rejects parameters for system.listMethods", async ({
   expect(body).toContain("<name>faultCode</name><value><int>-32602</int></value>")
 })
 
+test("XML-RPC endpoint rejects duplicate struct members", async ({ request }) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>site</name><value><string>other-site</string></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`,
+    headers: {
+      authorization: basicAuth,
+      "content-type": "text/xml"
+    }
+  })
+
+  expect(response.status()).toBe(200)
+  expect(response.headers()["content-type"]).toContain("text/xml")
+
+  const body = await response.text()
+  expect(body).toContain("<methodResponse>")
+  expect(body).toContain("<fault>")
+  expect(body).toContain("<name>faultCode</name><value><int>-32602</int></value>")
+  expect(body).toContain("Duplicate XML-RPC struct member: site")
+})
+
 test("XML-RPC endpoint rejects skipped child content in containers", async ({
   request
 }) => {
