@@ -26,7 +26,8 @@ use crate::services::page_revision::{
     GetPageRevision, GetPageRevisionDetails, GetPageRevisionRangeDetails,
     PageRevisionCountOutput, PageRevisionModelFiltered, UpdatePageRevisionDetails,
 };
-use crate::types::PageDetails;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::types::{Action, PageDetails, Permission, Reference, Resource};
 
 pub async fn page_revision_count(
     ctx: &ServiceContext<'_>,
@@ -42,7 +43,7 @@ pub async fn page_revision_count(
     let make_error =
         || Error::new("failed to get page revision count", ErrorType::PageRevision);
 
-    let page_id = PageService::get_id(ctx, site_id, reference)
+    let page_id = ensure_page_view_permission(ctx, site_id, reference)
         .await
         .or_raise(make_error)?;
 
@@ -78,6 +79,10 @@ pub async fn page_revision_get(
 
     let make_error =
         || Error::new("failed to get a page revision", ErrorType::PageRevision);
+
+    ensure_page_view_permission(ctx, site_id, Reference::Id(page_id))
+        .await
+        .or_raise(make_error)?;
 
     let revision =
         PageRevisionService::get_optional(ctx, site_id, page_id, revision_number)
@@ -135,6 +140,10 @@ pub async fn page_revision_range(
         )
     };
 
+    ensure_page_view_permission(ctx, input.site_id, Reference::Id(input.page_id))
+        .await
+        .or_raise(make_error)?;
+
     let revisions = PageRevisionService::get_range(ctx, input)
         .await
         .or_raise(make_error)?;
@@ -145,6 +154,49 @@ pub async fn page_revision_range(
 }
 
 // Helper functions
+
+async fn ensure_page_view_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_reference: Reference<'_>,
+) -> Result<i64> {
+    let make_error = || {
+        Error::new(
+            "failed to check page view permission",
+            ErrorType::Permission,
+        )
+    };
+
+    let page = PageService::get(ctx, site_id, page_reference)
+        .await
+        .or_raise(make_error)?;
+
+    let can_view = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: ctx.request().user_id,
+            site_id,
+            page_reference: Some(Reference::Id(page.page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(page.page_category_id)),
+            action: Action::View,
+        },
+    )
+    .await
+    .or_raise(make_error)?;
+
+    if can_view {
+        Ok(page.page_id)
+    } else {
+        Err(Error::new(
+            "user does not have permission to view this page",
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
+}
 
 async fn filter_and_populate_revision(
     ctx: &ServiceContext<'_>,

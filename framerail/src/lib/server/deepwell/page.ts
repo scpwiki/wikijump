@@ -116,15 +116,20 @@ export async function pageHistory(
   siteId: number,
   pageId: Optional<number>,
   revisionNumber: Optional<number>,
-  limit: Optional<number>
+  limit: Optional<number>,
+  requestContext: RequestContext = {}
 ): Promise<PageRevisionModelFiltered[]> {
-  return client.request("page_revision_range", {
-    site_id: siteId,
-    page_id: pageId,
-    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
-    revision_direction: "before",
-    limit: limit ?? defaults.page.history.limit
-  })
+  return client.request(
+    "page_revision_range",
+    {
+      site_id: siteId,
+      page_id: pageId,
+      revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
+      revision_direction: "before",
+      limit: limit ?? defaults.page.history.limit
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Move ----- */
@@ -162,17 +167,22 @@ export async function pageRevision(
   pageId: Optional<number>,
   revisionNumber: Optional<number>,
   compiledHtml?: boolean,
-  wikitext?: boolean
+  wikitext?: boolean,
+  requestContext: RequestContext = {}
 ): Promise<Nullable<PageRevisionModelFiltered>> {
-  return client.request("page_revision_get", {
-    site_id: siteId,
-    page_id: pageId,
-    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
-    details: {
-      compiled_html: compiledHtml ?? false,
-      wikitext: wikitext ?? false
-    }
-  })
+  return client.request(
+    "page_revision_get",
+    {
+      site_id: siteId,
+      page_id: pageId,
+      revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
+      details: {
+        compiled_html: compiledHtml ?? false,
+        wikitext: wikitext ?? false
+      }
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Rollback ----- */
