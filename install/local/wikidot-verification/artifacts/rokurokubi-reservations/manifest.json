@@ -1,11 +1,48 @@
 {
-  "schema_version": 1,
-  "source_csv_sha256": "36c3eda4055ac51d4f625c626e12f0c50e54dc45565608343b3d303da6e4081b",
-  "source_row_count_excluding_header": 500,
-  "rokurokubi_row_count": 2,
-  "mapped_scp_wiki_count": 2,
-  "unmapped_count": 0,
-  "canonical_mirror_host": "scp-wiki.wikijump.localhost:18443",
-  "source_sheet": "https://docs.google.com/spreadsheets/d/1_J_rte3pfZ8uEbq8r1xqJycU89XkO5Z6yhW-2SkeNak/edit?gid=1325361212#gid=1325361212",
-  "output_csv": "install/local/wikidot-verification/artifacts/rokurokubi-reservations/rokurokubi-reservations-with-wikijump-mirror.csv"
+  "schema_version": 2,
+  "workbook": {
+    "title": "翻訳予約リスト",
+    "file_id": "1_J_rte3pfZ8uEbq8r1xqJycU89XkO5Z6yhW-2SkeNak",
+    "url": "https://docs.google.com/spreadsheets/d/1_J_rte3pfZ8uEbq8r1xqJycU89XkO5Z6yhW-2SkeNak/edit?gid=1325361212#gid=1325361212",
+    "modified_time": "2026-06-04T23:01:54.566Z"
+  },
+  "source_sheets": [
+    {
+      "role": "active",
+      "name": "Main",
+      "gid": "1325361212",
+      "xlsx_sheet_id": "1",
+      "range": "A1:G502",
+      "source_row_count_excluding_header": 501,
+      "rokurokubi_row_count": 2,
+      "mapped_scp_wiki_count": 2,
+      "unmapped_count": 0
+    },
+    {
+      "role": "expired",
+      "name": "期限切れ削除済",
+      "gid": "unknown",
+      "xlsx_sheet_id": "2",
+      "range": "A1:G2964",
+      "source_row_count_excluding_header": 2963,
+      "rokurokubi_row_count": 25,
+      "mapped_scp_wiki_count": 24,
+      "unmapped_count": 1,
+      "gid_discovery_status": "The workbook export exposed the tab name and XLSX sheetId but not the Google Sheets gid."
+    }
+  ],
+  "source_row_count_excluding_header": 3464,
+  "rokurokubi_row_count_before_deduplication": 27,
+  "rokurokubi_row_count": 27,
+  "target_en_row_count": 26,
+  "mapped_scp_wiki_count": 26,
+  "unmapped_count": 1,
+  "canonical_mirror_origin": "https://scp-wiki.wikijump.localhost",
+  "output_csv": "install/local/wikidot-verification/artifacts/rokurokubi-reservations/rokurokubi-reservations-with-wikijump-mirror.csv",
+  "ledger_csv_sha256": "e07c3118d5014a12c4836f40f43422dbac389dff824f8224cb3780bb5baaab69",
+  "notes": [
+    "This ledger records target inventory only; it does not assert that local mirror pages exist or render successfully.",
+    "The EN mirror target set is the 26 mapped SCP Wiki rows where branch_codes contains EN.",
+    "The CN row is preserved as provenance but is not part of the EN mirror-open gate."
+  ]
 }

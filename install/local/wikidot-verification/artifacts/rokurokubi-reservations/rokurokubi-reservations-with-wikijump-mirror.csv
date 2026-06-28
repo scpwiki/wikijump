@@ -1,3 +1,28 @@
-source_row,timestamp,translator,source_url,title,deadline,branch_code,notes,wikijump_mirror_url,mirror_url_status
-43,2026/04/30 18:49:37,rokurokubi,https://scp-wiki.wikidot.com/scp-3922,SCP-3922,2026/06/30,EN,,http://scp-wiki.wikijump.localhost:18443/scp-3922,mapped_scp-wiki
-55,2026/04/24 23:25:50,rokurokubi,https://scp-wiki.wikidot.com/scp-9506,National Fog Safety Initiative,2026/06/24,EN,,http://scp-wiki.wikijump.localhost:18443/scp-9506,mapped_scp-wiki
+sheet_roles,sheet_names,sheet_gids,source_rows,timestamps,translators,source_url,title,deadlines,branch_codes,notes,normalized_path,wikijump_mirror_url,mirror_url_status,provenance_count
+active,Main,1325361212,43,2026-04-30 18:49:37,rokurokubi,https://scp-wiki.wikidot.com/scp-3922,SCP-3922,2026-06-30,EN,,scp-3922,https://scp-wiki.wikijump.localhost/scp-3922,mapped_scp-wiki,1
+active,Main,1325361212,55,2026-04-24 23:25:50,rokurokubi,https://scp-wiki.wikidot.com/scp-9506,National Fog Safety Initiative,2026-06-24,EN,,scp-9506,https://scp-wiki.wikijump.localhost/scp-9506,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1749,2024-05-18 02:01:24,rokurokubi,https://scp-wiki.wikidot.com/scp-6670,SCP-6670,2024-07-18,EN,,scp-6670,https://scp-wiki.wikijump.localhost/scp-6670,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1750,2024-05-20 10:43:43,Rokurokubi,https://scp-wiki.wikidot.com/scuttle,SCUTTLE,2024-07-20,EN,,scuttle,https://scp-wiki.wikijump.localhost/scuttle,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1774,2024-06-12 15:54:33,Rokurokubi,https://scp-wiki.wikidot.com/taboo-j,[REDACTED DUE TO LACK OF NUMBER],2024-08-12,EN,,taboo-j,https://scp-wiki.wikijump.localhost/taboo-j,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1801,2024-07-07 18:22:28,Rokurokubi,https://scp-wiki.wikidot.com/scp-3091,SCP-3091,2024-09-07,EN,,scp-3091,https://scp-wiki.wikijump.localhost/scp-3091,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1802,2024-07-07 18:31:54,Rokurokubi,https://scp-wiki.wikidot.com/scp-5920,SCP-5920,2024-09-07,EN,,scp-5920,https://scp-wiki.wikijump.localhost/scp-5920,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1803,2024-07-07 18:35:06,Rokurokubi,https://scp-wiki.wikidot.com/scp-7558,SCP-7558,2024-09-07,EN,,scp-7558,https://scp-wiki.wikijump.localhost/scp-7558,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1804,2024-07-07 18:42:10,Rokurokubi,http://scp-wiki.wikidot.com/welcome-to-delta-t,Temporal Site-01 (RCT-Δt Hub),2024-09-07,EN,,welcome-to-delta-t,https://scp-wiki.wikijump.localhost/welcome-to-delta-t,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1805,2024-07-07 18:24:39,Rokurokubi,https://scp-wiki.wikidot.com/decom-dept-hub,Decommissioning Department Hub,2024-09-07,EN,,decom-dept-hub,https://scp-wiki.wikijump.localhost/decom-dept-hub,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1806,2024-07-07 18:25:50,Rokurokubi,https://scp-wiki.wikidot.com/redtape,REDTAPE HUB,2024-09-07,EN,,redtape,https://scp-wiki.wikijump.localhost/redtape,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1807,2024-07-07 18:40:40,Rokurokubi,https://scp-wiki.wikidot.com/scp-4583,SCP-4583,2024-09-07,EN,,scp-4583,https://scp-wiki.wikijump.localhost/scp-4583,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1819,2024-07-01 20:48:57,Rokurokubi,https://scp-wiki.wikidot.com/scp-8008,SCP-8008,2024-09-01,EN,,scp-8008,https://scp-wiki.wikijump.localhost/scp-8008,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1832,2024-07-07 18:27:37,Rokurokubi,https://scp-wiki.wikidot.com/scp-6090,SCP-6090,2024-09-07,EN,,scp-6090,https://scp-wiki.wikijump.localhost/scp-6090,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1833,2024-07-07 18:36:46,Rokurokubi,https://scp-wiki.wikidot.com/a-faerie-tale-of-twin-queens,A Faerie Tale Of Twin Queens,2024-09-07,EN,,a-faerie-tale-of-twin-queens,https://scp-wiki.wikijump.localhost/a-faerie-tale-of-twin-queens,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1834,2024-07-07 18:38:26,Rokurokubi,https://scp-wiki.wikidot.com/scp-6172,SCP-6172,2024-09-07,EN,,scp-6172,https://scp-wiki.wikijump.localhost/scp-6172,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1835,2024-07-07 18:39:42,Rokurokubi,https://scp-wiki.wikidot.com/scp-6836,SCP-6836,2024-09-07,EN,,scp-6836,https://scp-wiki.wikijump.localhost/scp-6836,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1840,2024-07-09 03:01:08,Rokurokubi,https://scp-wiki.wikidot.com/gentle-wings-flutter-quietly-in-the-dark,Gentle Wings Flutter Quietly In The Dark,2024-09-09,EN,,gentle-wings-flutter-quietly-in-the-dark,https://scp-wiki.wikijump.localhost/gentle-wings-flutter-quietly-in-the-dark,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,1881,2024-08-18 13:28:48,rokurokubi,https://scp-wiki-cn.wikidot.com/scp-cn-3999,SCP-CN-3999,2024-10-18,CN,,scp-cn-3999,,unmapped_scp-wiki-cn.wikidot.com,1
+expired,期限切れ削除済,unknown,1891,2024-08-22 05:29:15,rokurokubi,https://scp-wiki.wikidot.com/scp-8668,SCP-8668,2024-10-22,EN,,scp-8668,https://scp-wiki.wikijump.localhost/scp-8668,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,2130,2024-12-22 22:57:21,rokurokubi,https://scp-wiki.wikidot.com/taking-the-reinz,Taking The Reinz,2025-02-22,EN,,taking-the-reinz,https://scp-wiki.wikijump.localhost/taking-the-reinz,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,2144,2025-01-02 22:00:01,rokurokubi,https://scp-wiki.wikidot.com/scp-8980,SCP-8980,2025-03-02,EN,,scp-8980,https://scp-wiki.wikijump.localhost/scp-8980,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,2163,2025-01-15 01:24:48,rokurokubi,https://scp-wiki.wikidot.com/scp-8596,SCP-8596,2025-03-15,EN,,scp-8596,https://scp-wiki.wikijump.localhost/scp-8596,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,2164,2025-01-15 01:25:36,rokurokubi,https://scp-wiki.wikidot.com/scp-8822,SCP-8822,2025-03-15,EN,,scp-8822,https://scp-wiki.wikijump.localhost/scp-8822,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,2180,2025-01-27 16:38:20,rokurokubi,https://scp-wiki.wikidot.com/scp-8566,SCP-8566,2025-03-27,EN,,scp-8566,https://scp-wiki.wikijump.localhost/scp-8566,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,2211,2025-02-23 21:29:39,rokurokubi,https://scp-wiki.wikidot.com/the-great-hippo,Great Hippo's Great Skippos,2025-04-23,EN,,the-great-hippo,https://scp-wiki.wikijump.localhost/the-great-hippo,mapped_scp-wiki,1
+expired,期限切れ削除済,unknown,2467,2025-07-12 22:27:15,rokurokubi,https://scp-wiki.wikidot.com/scp-anthology-2024,SCP Anthology 2024,2025-09-12,EN,,scp-anthology-2024,https://scp-wiki.wikijump.localhost/scp-anthology-2024,mapped_scp-wiki,1
