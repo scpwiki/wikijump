@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto"
+
 import { expect, test } from "@playwright/test"
 
 import { parseXmlRpcCall, serializeMethodResponse } from "../src/lib/server/xmlrpc"
@@ -211,6 +213,68 @@ const xmlRpcPagesGetMetaMissingSiteEmptyPagesRequest = `<?xml version="1.0"?>
     </param>
   </params>
 </methodCall>`
+
+function xmlRpcPagesSaveOneRequest({
+  page,
+  title,
+  content,
+  tags,
+  parentFullname,
+  saveMode,
+  renameAs,
+  revisionComment
+}: {
+  page: string
+  title?: string
+  content?: string
+  tags?: string[]
+  parentFullname?: string
+  saveMode?: string
+  renameAs?: string
+  revisionComment?: string
+}): string {
+  const optionalMembers = [
+    title !== undefined
+      ? `<member><name>title</name><value><string>${title}</string></value></member>`
+      : "",
+    content !== undefined
+      ? `<member><name>content</name><value><string>${content}</string></value></member>`
+      : "",
+    tags !== undefined
+      ? `<member><name>tags</name><value><array><data>${tags
+          .map((tag) => `<value><string>${tag}</string></value>`)
+          .join("")}</data></array></value></member>`
+      : "",
+    parentFullname !== undefined
+      ? `<member><name>parent_fullname</name><value><string>${parentFullname}</string></value></member>`
+      : "",
+    saveMode !== undefined
+      ? `<member><name>save_mode</name><value><string>${saveMode}</string></value></member>`
+      : "",
+    renameAs !== undefined
+      ? `<member><name>rename_as</name><value><string>${renameAs}</string></value></member>`
+      : "",
+    revisionComment !== undefined
+      ? `<member><name>revision_comment</name><value><string>${revisionComment}</string></value></member>`
+      : ""
+  ].join("")
+
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.save_one</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>page</name><value><string>${page}</string></value></member>
+          ${optionalMembers}
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
 
 function xmlRpcPagesSelectWithFilterCount(
   filterName: "categories" | "tags_any" | "tags_all" | "tags_none",
@@ -692,6 +756,135 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
   })
 })
 
+test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename", async ({
+  request
+}) => {
+  const slug = `fixture-xmlrpc-save-${randomUUID()}`
+  const renamedSlug = `${slug}-renamed`
+
+  const createResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSaveOneRequest({
+      page: slug,
+      title: "XML-RPC Save Proof",
+      content: "XML-RPC save proof initial content.",
+      tags: ["verification", "xmlrpc-save"],
+      parentFullname: "main",
+      saveMode: "create",
+      revisionComment: "xmlrpc save create proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(createResponse.status()).toBe(200)
+
+  const createBody = await createResponse.text()
+  expect(createBody).toContain(
+    `<name>fullname</name><value><string>${slug}</string></value>`
+  )
+  expect(createBody).toContain(
+    "<name>title</name><value><string>XML-RPC Save Proof</string></value>"
+  )
+  expect(createBody).toContain(
+    "<name>content</name><value><string>XML-RPC save proof initial content.</string></value>"
+  )
+  expect(createBody).toContain(
+    "<name>parent_fullname</name><value><string>main</string></value>"
+  )
+  expect(createBody).toContain("<value><string>xmlrpc-save</string></value>")
+
+  const updateResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSaveOneRequest({
+      page: slug,
+      title: "XML-RPC Save Proof Updated",
+      content: "XML-RPC save proof updated content.",
+      tags: ["verification", "xmlrpc-save-updated"],
+      parentFullname: "-",
+      saveMode: "update",
+      revisionComment: "xmlrpc save update proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(updateResponse.status()).toBe(200)
+
+  const updateBody = await updateResponse.text()
+  expect(updateBody).toContain(
+    "<name>title</name><value><string>XML-RPC Save Proof Updated</string></value>"
+  )
+  expect(updateBody).toContain(
+    "<name>content</name><value><string>XML-RPC save proof updated content.</string></value>"
+  )
+  expect(updateBody).toContain("<name>parent_fullname</name><value><nil /></value>")
+  expect(updateBody).toContain("<value><string>xmlrpc-save-updated</string></value>")
+  expect(updateBody).not.toContain("<value><string>xmlrpc-save</string></value>")
+
+  const renameResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSaveOneRequest({
+      page: slug,
+      title: "XML-RPC Save Proof Renamed",
+      content: "XML-RPC save proof renamed content.",
+      tags: ["verification", "xmlrpc-save-renamed"],
+      parentFullname: "main",
+      saveMode: "update",
+      renameAs: renamedSlug,
+      revisionComment: "xmlrpc save rename proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(renameResponse.status()).toBe(200)
+
+  const renameBody = await renameResponse.text()
+  expect(renameBody).toContain(
+    `<name>fullname</name><value><string>${renamedSlug}</string></value>`
+  )
+  expect(renameBody).toContain(
+    "<name>title</name><value><string>XML-RPC Save Proof Renamed</string></value>"
+  )
+  expect(renameBody).toContain(
+    "<name>content</name><value><string>XML-RPC save proof renamed content.</string></value>"
+  )
+  expect(renameBody).toContain(
+    "<name>parent_fullname</name><value><string>main</string></value>"
+  )
+  expect(renameBody).toContain("<value><string>xmlrpc-save-renamed</string></value>")
+
+  const writeRequests = await request.get(
+    "http://127.0.0.1:42747/last-page-write-requests"
+  )
+  expect(writeRequests.status()).toBe(200)
+  const writeLog = await writeRequests.json()
+  expect(writeLog.login).toHaveLength(3)
+  expect(writeLog.sessionGet).toHaveLength(3)
+  expect(writeLog.pageCreate).toHaveLength(1)
+  expect(writeLog.pageEdit).toHaveLength(3)
+  expect(writeLog.parentGetAll).toHaveLength(3)
+  expect(writeLog.parentUpdate).toHaveLength(3)
+  expect(writeLog.pageMove).toHaveLength(1)
+  expect(writeLog.pageCreate[0].params).toMatchObject({
+    revision_comments: "xmlrpc save create proof",
+    title: "XML-RPC Save Proof",
+    user_id: 123,
+    wikitext: "XML-RPC save proof initial content."
+  })
+  expect(writeLog.pageCreate[0].headers).toMatchObject({
+    page: slug,
+    sessionToken: "fixture-session-token",
+    siteId: "6000005"
+  })
+  expect(writeLog.parentGetAll[0].headers).toMatchObject({
+    page: slug,
+    sessionToken: "fixture-session-token",
+    siteId: "6000005"
+  })
+  expect(writeLog.pageEdit[0].params).toMatchObject({
+    tags: ["verification", "xmlrpc-save"],
+    user_id: 123
+  })
+  expect(writeLog.pageMove[0].params).toMatchObject({
+    new_slug: renamedSlug,
+    page: slug,
+    user_id: 123
+  })
+})
+
 test("XML-RPC endpoint bounds tags.select page filters", async ({ request }) => {
   const response = await request.post("/xml-rpc-api.php", {
     data: xmlRpcTagsSelectWithFilterCount("pages", 101),
@@ -754,7 +947,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   request
 }) => {
   const response = await request.post("/xml-rpc-api.php", {
-    data: xmlRpcAdvertisedUnimplementedRequest.replace("pages.select", "pages.save_one"),
+    data: xmlRpcAdvertisedUnimplementedRequest.replace("pages.select", "files.save_one"),
     headers: xmlRpcHeaders
   })
 
@@ -764,7 +957,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   const body = await response.text()
   expect(body).toContain("<methodResponse>")
   expect(body).toContain("<name>faultCode</name><value><int>-32601</int></value>")
-  expect(body).toContain("XML-RPC method is not implemented yet: pages.save_one")
+  expect(body).toContain("XML-RPC method is not implemented yet: files.save_one")
 })
 
 test("XML-RPC endpoint accepts Basic auth scheme case-insensitively", async ({

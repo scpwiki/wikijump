@@ -38,6 +38,7 @@ interface DeepwellSite {
 
 interface DeepwellPage {
   page_id?: number
+  revision_id: number
   page_created_at: string
   page_updated_at: string | null
   page_revision_count: number
@@ -56,8 +57,35 @@ interface DeepwellPageRevision {
   user_id: number
 }
 
+interface DeepwellLoginOutput {
+  session_token: string
+}
+
+interface DeepwellSession {
+  user_id: number
+}
+
 interface DeepwellParentRelationship {
   parent_page_id: number
+}
+
+interface XmlRpcDispatchOptions {
+  allowMulticall: boolean
+  requestIp: string
+}
+
+interface DeepwellRequestContext {
+  sessionToken?: string
+  siteId?: number
+  page?: string
+}
+
+interface XmlRpcWriteContext extends DeepwellRequestContext {
+  sessionToken: string
+  siteId: number
+  page: string
+  userId: number
+  ipAddress: string
 }
 
 type DeepwellStringParams = Record<string, string | string[] | undefined>
@@ -73,6 +101,9 @@ const MAX_XML_RPC_MULTICALLS = 100
 const MAX_XML_RPC_FILTER_VALUES = 100
 const PAGE_SELECT_DECIMAL_RATING_PATTERN =
   /^[+-]?(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:[eE][+-]?\d+)?$/
+const XML_RPC_DEFAULT_REQUEST_IP = "127.0.0.1"
+const XML_RPC_WRITE_USERNAME = process.env.XML_RPC_WRITE_USERNAME
+const XML_RPC_WRITE_PASSWORD = process.env.XML_RPC_WRITE_PASSWORD
 const XML_WHITESPACE = "[ \\t\\r\\n]"
 const METHOD_DEFINITIONS: Record<string, MethodDefinition> = {
   "system.listMethods": {
@@ -159,7 +190,10 @@ class XmlRpcFault extends Error {
   }
 }
 
-export async function handleXmlRpcRequest(request: Request): Promise<Response> {
+export async function handleXmlRpcRequest(
+  request: Request,
+  requestIp = XML_RPC_DEFAULT_REQUEST_IP
+): Promise<Response> {
   if (request.method !== "POST") {
     return faultResponse(
       new XmlRpcFault(405, "XML-RPC endpoint requires POST", 405, {
@@ -180,7 +214,10 @@ export async function handleXmlRpcRequest(request: Request): Promise<Response> {
   try {
     const body = await readXmlRpcBody(request)
     const call = parseXmlRpcCall(body)
-    const result = await dispatchXmlRpcCall(call)
+    const result = await dispatchXmlRpcCall(call, {
+      allowMulticall: true,
+      requestIp
+    })
     return xmlResponse(serializeMethodResponse(result))
   } catch (error) {
     if (error instanceof XmlRpcFault) {
@@ -241,7 +278,7 @@ async function readXmlRpcBody(request: Request): Promise<string> {
 
 async function dispatchXmlRpcCall(
   call: XmlRpcCall,
-  options = { allowMulticall: true }
+  options: XmlRpcDispatchOptions
 ): Promise<XmlRpcValue> {
   switch (call.methodName) {
     case "system.listMethods":
@@ -258,7 +295,7 @@ async function dispatchXmlRpcCall(
         throw new XmlRpcFault(-32600, "Nested system.multicall calls are not supported")
       }
       expectParamCount(call, 1)
-      return dispatchMulticall(call)
+      return dispatchMulticall(call, options.requestIp)
     case "categories.select":
       expectParamCount(call, 1)
       return selectCategories(call)
@@ -274,6 +311,9 @@ async function dispatchXmlRpcCall(
     case "pages.get_one":
       expectParamCount(call, 1)
       return getPageOne(call)
+    case "pages.save_one":
+      expectParamCount(call, 1)
+      return savePageOne(call, options.requestIp)
     default:
       if (hasMethodDefinition(call.methodName)) {
         throw new XmlRpcFault(
@@ -285,7 +325,10 @@ async function dispatchXmlRpcCall(
   }
 }
 
-async function dispatchMulticall(call: XmlRpcCall): Promise<XmlRpcValue[]> {
+async function dispatchMulticall(
+  call: XmlRpcCall,
+  requestIp: string
+): Promise<XmlRpcValue[]> {
   const calls = getArrayParam(call, 0, "calls")
   if (calls.length > MAX_XML_RPC_MULTICALLS) {
     throw new XmlRpcFault(
@@ -313,7 +356,7 @@ async function dispatchMulticall(call: XmlRpcCall): Promise<XmlRpcValue[]> {
 
       const value = await dispatchXmlRpcCall(
         { methodName, params },
-        { allowMulticall: false }
+        { allowMulticall: false, requestIp }
       )
       results.push([value])
     } catch (error) {
@@ -492,6 +535,141 @@ async function getPageOne(call: XmlRpcCall): Promise<Record<string, XmlRpcValue>
   const site = getRequiredStructString(params, "site")
   const pageReference = getRequiredStructString(params, "page")
   const siteId = await getDeepwellSiteId(site)
+
+  return buildXmlRpcPage(site, siteId, pageReference)
+}
+
+async function savePageOne(
+  call: XmlRpcCall,
+  requestIp: string
+): Promise<Record<string, XmlRpcValue>> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const pageReference = getRequiredStructString(params, "page")
+  const title = getOptionalStructString(params, "title")
+  const content = getOptionalStructString(params, "content")
+  const tags = getOptionalStructStringArray(params, "tags")
+  const parentFullname = getOptionalStructString(params, "parent_fullname")
+  const saveMode = getOptionalStructString(params, "save_mode") ?? "create_or_update"
+  const renameAs = getOptionalStructString(params, "rename_as")
+  const revisionComment =
+    getOptionalStructString(params, "revision_comment") ?? "XML-RPC page save"
+
+  if (!["create", "update", "create_or_update"].includes(saveMode)) {
+    throw new XmlRpcFault(-32602, `Unsupported pages.save_one save_mode: ${saveMode}`)
+  }
+
+  const siteId = await getDeepwellSiteId(site)
+  let page = await getDeepwellPage(siteId, pageReference, true)
+
+  if (saveMode === "create" && page) {
+    throw new XmlRpcFault(409, "Argument page invalid: page already exists")
+  }
+  if (saveMode === "update" && !page) {
+    throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
+  }
+
+  const currentPageReference = page?.slug ?? pageReference
+  if (parentFullname !== null && parentFullname !== "-") {
+    const parentPage = await getDeepwellPage(siteId, parentFullname, false)
+    if (!parentPage) {
+      throw new XmlRpcFault(
+        406,
+        "Argument parent_fullname invalid: parent page does not exist"
+      )
+    }
+  }
+  if (renameAs !== null && renameAs !== currentPageReference) {
+    const targetPage = await getDeepwellPage(siteId, renameAs, false)
+    if (targetPage) {
+      throw new XmlRpcFault(409, "Argument rename_as invalid: page already exists")
+    }
+  }
+
+  const writeContext = await getXmlRpcWriteContext(
+    siteId,
+    currentPageReference,
+    requestIp
+  )
+
+  const createdPage = !page
+  if (!page) {
+    await requestDeepwell(
+      "page_create",
+      {
+        site_id: siteId,
+        wikitext: content ?? "",
+        title: title ?? pageReference,
+        alt_title: null,
+        slug: pageReference,
+        layout: "wikidot",
+        revision_comments: revisionComment,
+        user_id: writeContext.userId,
+        ip_address: writeContext.ipAddress
+      },
+      writeContext
+    )
+    page = await requireDeepwellPage(siteId, pageReference, true)
+  }
+
+  const editBody: { wikitext?: string; title?: string; tags?: string[] } = {}
+  if (!createdPage && content !== null) {
+    editBody.wikitext = content
+  }
+  if (!createdPage && title !== null) {
+    editBody.title = title
+  }
+  if (tags !== null) {
+    editBody.tags = tags
+  }
+
+  if (Object.keys(editBody).length > 0) {
+    await requestDeepwell(
+      "page_edit",
+      {
+        site_id: siteId,
+        page: page.slug,
+        last_revision_id: page.revision_id,
+        revision_comments: revisionComment,
+        user_id: writeContext.userId,
+        ip_address: writeContext.ipAddress,
+        ...editBody
+      },
+      { ...writeContext, page: page.slug }
+    )
+    page = await requireDeepwellPage(siteId, page.slug, true)
+  }
+
+  if (parentFullname !== null) {
+    await replaceDeepwellParents(siteId, page.slug, parentFullname, writeContext)
+  }
+
+  let finalPageReference = page.slug
+  if (renameAs !== null && renameAs !== page.slug) {
+    await requestDeepwell(
+      "page_move",
+      {
+        site_id: siteId,
+        page: page.slug,
+        last_revision_id: page.revision_id,
+        new_slug: renameAs,
+        revision_comments: revisionComment,
+        user_id: writeContext.userId,
+        ip_address: writeContext.ipAddress
+      },
+      { ...writeContext, page: page.slug }
+    )
+    finalPageReference = renameAs
+  }
+
+  return buildXmlRpcPage(site, siteId, finalPageReference)
+}
+
+async function buildXmlRpcPage(
+  site: string,
+  siteId: number,
+  pageReference: string
+): Promise<Record<string, XmlRpcValue>> {
   const page = await getDeepwellPage(siteId, pageReference, true)
   if (!page) {
     throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
@@ -518,6 +696,49 @@ async function getPageOne(call: XmlRpcCall): Promise<Record<string, XmlRpcValue>
     comments: 0,
     commented_at: null,
     commented_by: null
+  }
+}
+
+async function getXmlRpcWriteContext(
+  siteId: number,
+  page: string,
+  requestIp: string
+): Promise<XmlRpcWriteContext> {
+  if (!XML_RPC_WRITE_USERNAME || !XML_RPC_WRITE_PASSWORD) {
+    throw new XmlRpcFault(
+      403,
+      "XML-RPC write actor authentication is not configured",
+      403
+    )
+  }
+
+  let login: DeepwellLoginOutput
+  try {
+    login = (await client.request("login", {
+      name_or_email: XML_RPC_WRITE_USERNAME,
+      password: XML_RPC_WRITE_PASSWORD,
+      ip_address: requestIp,
+      user_agent: "wikijump-xmlrpc-api/0.1"
+    })) as DeepwellLoginOutput
+  } catch {
+    throw new XmlRpcFault(403, "Invalid XML-RPC write actor authentication", 403)
+  }
+
+  if (!isDeepwellLoginOutput(login)) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: login")
+  }
+
+  const session = await requestDeepwell("session_get", [login.session_token])
+  if (!isDeepwellSession(session)) {
+    throw new XmlRpcFault(-32603, "XML-RPC login did not return a usable session")
+  }
+
+  return {
+    sessionToken: login.session_token,
+    siteId,
+    page,
+    userId: session.user_id,
+    ipAddress: requestIp
   }
 }
 
@@ -560,6 +781,18 @@ async function getDeepwellPage(
   return deepwellPage
 }
 
+async function requireDeepwellPage(
+  siteId: number,
+  page: string,
+  includeBody: boolean
+): Promise<DeepwellPage> {
+  const deepwellPage = await getDeepwellPage(siteId, page, includeBody)
+  if (!deepwellPage) {
+    throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
+  }
+  return deepwellPage
+}
+
 async function getDeepwellDirectParentPage(
   siteId: number,
   page: string
@@ -596,6 +829,54 @@ async function getDeepwellDirectParentPage(
   return parentPage
 }
 
+async function getDeepwellParentFullnames(
+  siteId: number,
+  page: string,
+  context: DeepwellRequestContext
+): Promise<string[]> {
+  return expectDeepwellStringArray(
+    await requestDeepwell(
+      "parent_get_all",
+      {
+        site_id: siteId,
+        page
+      },
+      { ...context, page }
+    ),
+    "parent_get_all"
+  )
+}
+
+async function replaceDeepwellParents(
+  siteId: number,
+  page: string,
+  parentFullname: string,
+  context: XmlRpcWriteContext
+): Promise<void> {
+  const parents = await getDeepwellParentFullnames(siteId, page, context)
+  const remove =
+    parentFullname === "-"
+      ? parents
+      : parents.filter((parent) => parent !== parentFullname)
+  const add =
+    parentFullname === "-" || parents.includes(parentFullname) ? [] : [parentFullname]
+
+  if (add.length === 0 && remove.length === 0) {
+    return
+  }
+
+  await requestDeepwell(
+    "parent_update",
+    {
+      site_id: siteId,
+      child: page,
+      add: add.length > 0 ? add : undefined,
+      remove: remove.length > 0 ? remove : undefined
+    },
+    { ...context, page }
+  )
+}
+
 async function getDeepwellPageCreatorUserId(
   siteId: number,
   page: DeepwellPage
@@ -623,6 +904,8 @@ async function getDeepwellPageCreatorUserId(
 function isDeepwellPage(value: unknown, includeBody: boolean): value is DeepwellPage {
   return (
     isXmlRpcStruct(value) &&
+    typeof value.revision_id === "number" &&
+    Number.isInteger(value.revision_id) &&
     typeof value.page_created_at === "string" &&
     (typeof value.page_updated_at === "string" || value.page_updated_at === null) &&
     typeof value.page_revision_count === "number" &&
@@ -640,6 +923,22 @@ function isDeepwellPage(value: unknown, includeBody: boolean): value is Deepwell
       ((typeof value.wikitext === "string" || value.wikitext === null) &&
         (typeof value.compiled_body_html === "string" ||
           value.compiled_body_html === null)))
+  )
+}
+
+function isDeepwellLoginOutput(value: unknown): value is DeepwellLoginOutput {
+  return (
+    isXmlRpcStruct(value) &&
+    typeof value.session_token === "string" &&
+    value.session_token.length > 0
+  )
+}
+
+function isDeepwellSession(value: unknown): value is DeepwellSession {
+  return (
+    isXmlRpcStruct(value) &&
+    typeof value.user_id === "number" &&
+    Number.isInteger(value.user_id)
   )
 }
 
@@ -700,10 +999,11 @@ function buildXmlRpcPageMeta(
 
 async function requestDeepwell(
   method: string,
-  params: Record<string, XmlRpcValue>
+  params: unknown,
+  context?: DeepwellRequestContext
 ): Promise<unknown> {
   try {
-    return await client.request(method, params)
+    return await client.request(method, params, context)
   } catch (error) {
     console.error(`Unexpected Deepwell XML-RPC bridge error for ${method}`, error)
     throw new XmlRpcFault(-32603, `XML-RPC Deepwell request failed: ${method}`)
