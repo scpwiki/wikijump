@@ -32,6 +32,10 @@ interface DeepwellCategory {
   slug: string
 }
 
+type DeepwellStringParams = {
+  [key: string]: string | string[] | undefined
+}
+
 const XML_RPC_HEADERS = {
   "content-type": "text/xml; charset=utf-8"
 }
@@ -41,6 +45,8 @@ const XML_RPC_INT_MAX = 2_147_483_647
 const MAX_XML_RPC_BODY_BYTES = 1_048_576
 const MAX_XML_RPC_MULTICALLS = 100
 const MAX_XML_RPC_FILTER_VALUES = 100
+const PAGE_SELECT_DECIMAL_RATING_PATTERN =
+  /^[+-]?(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:[eE][+-]?\d+)?$/
 const XML_WHITESPACE = "[ \\t\\r\\n]"
 const METHOD_DEFINITIONS: Record<string, MethodDefinition> = {
   "system.listMethods": {
@@ -233,6 +239,9 @@ async function dispatchXmlRpcCall(
     case "tags.select":
       expectParamCount(call, 1)
       return selectTags(call)
+    case "pages.select":
+      expectParamCount(call, 1)
+      return selectPages(call)
     default:
       if (hasMethodDefinition(call.methodName)) {
         throw new XmlRpcFault(
@@ -367,6 +376,53 @@ async function selectTags(call: XmlRpcCall): Promise<string[]> {
   )
 }
 
+async function selectPages(call: XmlRpcCall): Promise<string[]> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const deepwellParams: DeepwellStringParams & {
+    site: string
+    pagetype?: string
+    categories?: string[]
+    tags_any?: string[]
+    tags_all?: string[]
+    tags_none?: string[]
+    parent?: string
+    created_by?: string
+    rating?: string
+    order?: string
+  } = { site }
+
+  addOptionalValidatedStringField(
+    deepwellParams,
+    params,
+    "pagetype",
+    validatePageSelectType
+  )
+  addOptionalStringArrayField(deepwellParams, params, "categories", "pages.select")
+  addOptionalStringArrayField(deepwellParams, params, "tags_any", "pages.select")
+  addOptionalStringArrayField(deepwellParams, params, "tags_all", "pages.select")
+  addOptionalStringArrayField(deepwellParams, params, "tags_none", "pages.select")
+  addOptionalStringField(deepwellParams, params, "parent")
+  addOptionalStringField(deepwellParams, params, "created_by")
+  addOptionalValidatedStringField(
+    deepwellParams,
+    params,
+    "rating",
+    validatePageSelectRating
+  )
+  addOptionalValidatedStringField(
+    deepwellParams,
+    params,
+    "order",
+    validatePageSelectOrder
+  )
+
+  return expectDeepwellStringArray(
+    await requestDeepwell("page_select", deepwellParams),
+    "page_select"
+  )
+}
+
 async function requestDeepwell(
   method: string,
   params: Record<string, XmlRpcValue>
@@ -439,6 +495,136 @@ function getOptionalStructStringArray(
     throw new XmlRpcFault(-32602, `Expected string array field: ${name}`)
   }
   return value
+}
+
+function getOptionalStructString(
+  params: Record<string, XmlRpcValue>,
+  name: string
+): string | null {
+  const value = params[name]
+  if (value === undefined || value === null) {
+    return null
+  }
+  if (typeof value !== "string") {
+    throw new XmlRpcFault(-32602, `Expected string field: ${name}`)
+  }
+  return value
+}
+
+function addOptionalStringField(
+  target: DeepwellStringParams,
+  params: Record<string, XmlRpcValue>,
+  name: string
+): void {
+  const value = getOptionalStructString(params, name)
+  if (value !== null) {
+    target[name] = value
+  }
+}
+
+function addOptionalValidatedStringField(
+  target: DeepwellStringParams,
+  params: Record<string, XmlRpcValue>,
+  name: string,
+  validate: (value: string) => void
+): void {
+  const value = getOptionalStructString(params, name)
+  if (value !== null) {
+    validate(value)
+    target[name] = value
+  }
+}
+
+function addOptionalStringArrayField(
+  target: DeepwellStringParams,
+  params: Record<string, XmlRpcValue>,
+  name: string,
+  methodName: string
+): void {
+  const value = getOptionalStructStringArray(params, name)
+  if (value !== null) {
+    if (value.length > MAX_XML_RPC_FILTER_VALUES) {
+      throw new XmlRpcFault(
+        -32602,
+        `${methodName} ${name} is limited to ${MAX_XML_RPC_FILTER_VALUES} entries`
+      )
+    }
+    target[name] = value
+  }
+}
+
+function validatePageSelectType(value: string): void {
+  switch (value.trim().toLowerCase()) {
+    case "":
+    case "*":
+    case "all":
+    case "normal":
+    case "page":
+    case "pages":
+    case "hidden":
+      return
+    default:
+      throw new XmlRpcFault(-32602, `Unsupported pages.select pagetype: ${value}`)
+  }
+}
+
+function validatePageSelectRating(value: string): void {
+  const trimmed = value.trim()
+  if (trimmed === "") {
+    return
+  }
+  const number = trimmed.replace(/^(>=|<=|!=|==|>|<|=)/, "").trim()
+  if (
+    number === "" ||
+    !PAGE_SELECT_DECIMAL_RATING_PATTERN.test(number) ||
+    !Number.isFinite(Number(number))
+  ) {
+    throw new XmlRpcFault(-32602, `Invalid pages.select rating filter: ${value}`)
+  }
+}
+
+function validatePageSelectOrder(value: string): void {
+  const trimmed = value.trim()
+  if (trimmed === "") {
+    return
+  }
+
+  const parts = trimmed.split(/\s+/)
+  if (parts.length > 2) {
+    throw new XmlRpcFault(-32602, `Invalid pages.select order expression: ${value}`)
+  }
+
+  const field = parts[0]?.toLowerCase()
+  switch (field) {
+    case "created_at":
+    case "created":
+    case "updated_at":
+    case "updated":
+    case "fullname":
+    case "full_name":
+    case "slug":
+    case "name":
+    case "title":
+    case "rating":
+    case "score":
+      break
+    default:
+      throw new XmlRpcFault(-32602, `Unsupported pages.select order field: ${field}`)
+  }
+
+  const direction = parts[1]?.toLowerCase()
+  if (
+    direction !== undefined &&
+    direction !== "asc" &&
+    direction !== "ascending" &&
+    direction !== "desc" &&
+    direction !== "descending"
+  ) {
+    throw new XmlRpcFault(
+      -32602,
+      `Unsupported pages.select order direction: ${direction}`
+    )
+  }
 }
 
 function getArrayParam(call: XmlRpcCall, index: number, name: string): XmlRpcValue[] {

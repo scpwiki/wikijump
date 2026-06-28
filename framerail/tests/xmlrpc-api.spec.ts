@@ -118,6 +118,67 @@ const xmlRpcTagsSelectRequest = `<?xml version="1.0"?>
   </params>
 </methodCall>`
 
+const xmlRpcPagesSelectRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>pagetype</name><value><string>normal</string></value></member>
+          <member><name>categories</name><value><array><data><value><string>_default</string></value></data></array></value></member>
+          <member><name>created_by</name><value><string>-1</string></value></member>
+          <member><name>rating</name><value><string>&gt;=0</string></value></member>
+          <member><name>order</name><value><string>created_at desc</string></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+
+function xmlRpcPagesSelectWithFilterCount(
+  filterName: "categories" | "tags_any" | "tags_all" | "tags_none",
+  count: number
+): string {
+  const filterValues = Array.from(
+    { length: count },
+    (_, index) => `<value><string>${filterName}-${index}</string></value>`
+  ).join("")
+
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>${filterName}</name><value><array><data>${filterValues}</data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
+function xmlRpcPagesSelectWithScalarFilter(name: string, value: string): string {
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>${name}</name><value><string>${value}</string></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
 function xmlRpcTagsSelectWithFilterCount(
   filterName: "categories" | "pages",
   count: number
@@ -328,6 +389,73 @@ test("XML-RPC endpoint selects local tags", async ({ request }) => {
   })
 })
 
+test("XML-RPC endpoint selects pages with documented filters and ordering", async ({
+  request
+}) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSelectRequest,
+    headers: xmlRpcHeaders
+  })
+
+  expect(response.status()).toBe(200)
+  const body = await response.text()
+  expect(body).toContain("<string>scp-173</string>")
+  expect(body).toContain("<string>scp-anthology-2024</string>")
+  expect(body).toContain("<string>scp-8566</string>")
+  expect(body.indexOf("scp-173")).toBeLessThan(body.indexOf("scp-anthology-2024"))
+  expect(body.indexOf("scp-anthology-2024")).toBeLessThan(body.indexOf("scp-8566"))
+
+  const deepwellRequest = await request.get(
+    "http://127.0.0.1:42747/last-page-select-request"
+  )
+  expect(deepwellRequest.status()).toBe(200)
+  expect(await deepwellRequest.json()).toEqual({
+    categories: ["_default"],
+    created_by: "-1",
+    order: "created_at desc",
+    pagetype: "normal",
+    rating: ">=0",
+    site: "scp-wiki"
+  })
+})
+
+test("XML-RPC endpoint bounds pages.select filters", async ({ request }) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSelectWithFilterCount("tags_all", 101),
+    headers: xmlRpcHeaders
+  })
+
+  expect(response.status()).toBe(200)
+  const body = await response.text()
+  expect(body).toContain("<methodResponse>")
+  expect(body).toContain("<name>faultCode</name><value><int>-32602</int></value>")
+  expect(body).toContain("pages.select tags_all is limited to 100 entries")
+})
+
+test("XML-RPC endpoint rejects invalid pages.select scalar filters", async ({
+  request
+}) => {
+  for (const [name, value, message] of [
+    ["pagetype", "forum", "Unsupported pages.select pagetype: forum"],
+    ["rating", ">=not-a-number", "Invalid pages.select rating filter: &gt;=not-a-number"],
+    ["rating", "NaN", "Invalid pages.select rating filter: NaN"],
+    ["rating", "0x10", "Invalid pages.select rating filter: 0x10"],
+    ["order", "created_at sideways", "Unsupported pages.select order direction: sideways"]
+  ]) {
+    const response = await request.post("/xml-rpc-api.php", {
+      data: xmlRpcPagesSelectWithScalarFilter(name, value),
+      headers: xmlRpcHeaders
+    })
+
+    expect(response.status()).toBe(200)
+    const body = await response.text()
+    expect(body).toContain("<methodResponse>")
+    expect(body).toContain("<name>faultCode</name><value><int>-32602</int></value>")
+    expect(body).toContain(message)
+    expect(body).not.toContain("XML-RPC Deepwell request failed")
+  }
+})
+
 test("XML-RPC endpoint bounds tags.select page filters", async ({ request }) => {
   const response = await request.post("/xml-rpc-api.php", {
     data: xmlRpcTagsSelectWithFilterCount("pages", 101),
@@ -390,7 +518,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   request
 }) => {
   const response = await request.post("/xml-rpc-api.php", {
-    data: xmlRpcAdvertisedUnimplementedRequest,
+    data: xmlRpcAdvertisedUnimplementedRequest.replace("pages.select", "pages.get_one"),
     headers: xmlRpcHeaders
   })
 
@@ -400,7 +528,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   const body = await response.text()
   expect(body).toContain("<methodResponse>")
   expect(body).toContain("<name>faultCode</name><value><int>-32601</int></value>")
-  expect(body).toContain("XML-RPC method is not implemented yet: pages.select")
+  expect(body).toContain("XML-RPC method is not implemented yet: pages.get_one")
 })
 
 test("XML-RPC endpoint accepts Basic auth scheme case-insensitively", async ({

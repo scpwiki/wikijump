@@ -32,16 +32,23 @@ use crate::services::page::{
     PageEditPermissionOutput, RestorePage, RestorePageOutput, RollbackPage,
     SetPageLayout,
 };
+use crate::services::page_query::{
+    CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
+    OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
+    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+};
 use crate::services::page_revision::RerenderType;
 use crate::services::permission::CheckPermissionContext;
 use crate::types::{
-    Action, Bytes, FileOrder, PageDetails, PageId, Reference, RerenderDepth,
+    Action, AliasType, Bytes, FileOrder, PageDetails, PageId, Reference, RerenderDepth,
 };
 use futures::future::try_join_all;
 use sea_orm::{
     ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait,
 };
+use std::borrow::Cow;
 use std::collections::BTreeSet;
+use time::OffsetDateTime;
 
 pub async fn page_create(
     ctx: &ServiceContext<'_>,
@@ -300,6 +307,336 @@ pub async fn page_tags_select(
         .collect();
 
     Ok(tags)
+}
+
+pub async fn page_select(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<String>> {
+    const MAX_FILTER_VALUES: usize = 100;
+
+    #[derive(Deserialize, Debug)]
+    struct Input<'a> {
+        site: Reference<'a>,
+        pagetype: Option<String>,
+        categories: Option<Vec<String>>,
+        tags_any: Option<Vec<String>>,
+        tags_all: Option<Vec<String>>,
+        tags_none: Option<Vec<String>>,
+        parent: Option<String>,
+        created_by: Option<String>,
+        rating: Option<String>,
+        order: Option<String>,
+    }
+
+    let Input {
+        site,
+        pagetype,
+        categories,
+        tags_any,
+        tags_all,
+        tags_none,
+        parent,
+        created_by,
+        rating,
+        order,
+    } = parse!(params, Page);
+
+    for (name, values) in [
+        ("categories", categories.as_ref()),
+        ("tags_any", tags_any.as_ref()),
+        ("tags_all", tags_all.as_ref()),
+        ("tags_none", tags_none.as_ref()),
+    ] {
+        if values.is_some_and(|values| values.len() > MAX_FILTER_VALUES) {
+            return Err(Error::new(
+                format!("page selection filter {name} may contain at most {MAX_FILTER_VALUES} values"),
+                ErrorType::Request,
+            )
+            .into());
+        }
+    }
+
+    if matches!(categories, Some(ref values) if values.is_empty())
+        || matches!(tags_any, Some(ref values) if values.is_empty())
+    {
+        return Ok(Vec::new());
+    }
+    let tags_all = tags_all.filter(|values| !values.is_empty());
+    let tags_none = tags_none.filter(|values| !values.is_empty());
+
+    let make_error = || Error::new("failed to select pages", ErrorType::Page);
+    let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
+    info!("Selecting XML-RPC page list in site ID {site_id}");
+
+    let normalize_optional = |value: Option<String>| {
+        value.and_then(|value| {
+            let value = value.trim();
+            (!value.is_empty()).then(|| value.to_owned())
+        })
+    };
+    let parent = normalize_optional(parent);
+    let created_by = normalize_optional(created_by);
+    let rating = normalize_optional(rating);
+
+    let page_type = parse_page_select_type(pagetype.as_deref())?;
+    let order = parse_page_select_order(order.as_deref())?;
+    let rating_filter = match rating {
+        Some(rating) => Some(parse_page_select_rating(&rating)?),
+        None => None,
+    };
+
+    let created_by = match created_by {
+        None => Vec::new(),
+        Some(created_by) => {
+            let user_id = resolve_page_select_created_by(ctx, &created_by).await?;
+            match user_id {
+                Some(user_id) => vec![Cow::Owned(user_id.to_string())],
+                None => return Ok(Vec::new()),
+            }
+        }
+    };
+
+    let categories = categories
+        .unwrap_or_default()
+        .into_iter()
+        .map(Cow::Owned)
+        .collect::<Vec<_>>();
+    let tags_any = tags_any
+        .unwrap_or_default()
+        .into_iter()
+        .map(Cow::Owned)
+        .collect::<Vec<_>>();
+    let tags_all = tags_all
+        .unwrap_or_default()
+        .into_iter()
+        .map(Cow::Owned)
+        .collect::<Vec<_>>();
+    let tags_none = tags_none
+        .unwrap_or_default()
+        .into_iter()
+        .map(Cow::Owned)
+        .collect::<Vec<_>>();
+
+    let parent_reference;
+    let parent_references;
+    let page_parent = match parent.as_deref() {
+        None => PageParentSelector::All,
+        Some("-") => PageParentSelector::NoParent,
+        Some(parent) => {
+            parent_reference = Reference::Slug(Cow::Borrowed(parent));
+            parent_references = [parent_reference];
+            PageParentSelector::HasParents(&parent_references)
+        }
+    };
+
+    let found = PageQueryService::find(
+        ctx,
+        PageQuery {
+            current_page_id: 0,
+            current_site_id: site_id,
+            queried_site_id: Some(site_id),
+            page_type,
+            categories: CategoriesSelector {
+                included_categories: if categories.is_empty() {
+                    IncludedCategories::All
+                } else {
+                    IncludedCategories::List(&categories)
+                },
+                excluded_categories: &[],
+            },
+            tags: TagCondition {
+                any_present: &tags_any,
+                all_present: &tags_all,
+                none_present: &tags_none,
+            },
+            page_parent,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            author: &created_by,
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            data_form_fields: &[],
+            order: Some(order),
+            pagination: PaginationSelector::default(),
+            variables: &[],
+            fields: FoundPageFields {
+                slug: true,
+                score: rating_filter.is_some(),
+                ..FoundPageFields::default()
+            },
+        },
+    )
+    .await
+    .or_raise(make_error)?;
+
+    let pages = found
+        .pages
+        .into_iter()
+        .filter(|page| {
+            rating_filter
+                .as_ref()
+                .is_none_or(|filter| filter.matches(page.score.unwrap_or(0.0)))
+        })
+        .filter_map(|page| page.slug)
+        .collect();
+
+    Ok(pages)
+}
+
+async fn resolve_page_select_created_by(
+    ctx: &ServiceContext<'_>,
+    created_by: &str,
+) -> Result<Option<i64>> {
+    if let Ok(user_id) = created_by.parse() {
+        return Ok(Some(user_id));
+    }
+
+    let make_error = || Error::new("failed to resolve page creator", ErrorType::Page);
+    Ok(AliasService::get_optional(ctx, AliasType::User, created_by)
+        .await
+        .or_raise(make_error)?
+        .map(|alias| alias.target_id))
+}
+
+#[derive(Debug, Copy, Clone)]
+enum PageSelectComparison {
+    GreaterThan,
+    GreaterOrEqual,
+    LessThan,
+    LessOrEqual,
+    Equal,
+    NotEqual,
+}
+
+#[derive(Debug, Copy, Clone)]
+struct PageSelectRatingFilter {
+    comparison: PageSelectComparison,
+    value: f32,
+}
+
+impl PageSelectRatingFilter {
+    fn matches(self, rating: f32) -> bool {
+        match self.comparison {
+            PageSelectComparison::GreaterThan => rating > self.value,
+            PageSelectComparison::GreaterOrEqual => rating >= self.value,
+            PageSelectComparison::LessThan => rating < self.value,
+            PageSelectComparison::LessOrEqual => rating <= self.value,
+            PageSelectComparison::Equal => (rating - self.value).abs() < f32::EPSILON,
+            PageSelectComparison::NotEqual => (rating - self.value).abs() >= f32::EPSILON,
+        }
+    }
+}
+
+fn parse_page_select_type(value: Option<&str>) -> Result<PageTypeSelector> {
+    match value.unwrap_or("*").trim().to_ascii_lowercase().as_str() {
+        "" | "*" | "all" => Ok(PageTypeSelector::All),
+        "normal" | "page" | "pages" => Ok(PageTypeSelector::Normal),
+        "hidden" => Ok(PageTypeSelector::Hidden),
+        other => Err(Error::new(
+            format!("unsupported pages.select pagetype: {other}"),
+            ErrorType::Page,
+        )
+        .into()),
+    }
+}
+
+fn parse_page_select_rating(value: &str) -> Result<PageSelectRatingFilter> {
+    let value = value.trim();
+    let (comparison, number) = if let Some(number) = value.strip_prefix(">=") {
+        (PageSelectComparison::GreaterOrEqual, number)
+    } else if let Some(number) = value.strip_prefix("<=") {
+        (PageSelectComparison::LessOrEqual, number)
+    } else if let Some(number) = value.strip_prefix("!=") {
+        (PageSelectComparison::NotEqual, number)
+    } else if let Some(number) = value.strip_prefix("==") {
+        (PageSelectComparison::Equal, number)
+    } else if let Some(number) = value.strip_prefix('>') {
+        (PageSelectComparison::GreaterThan, number)
+    } else if let Some(number) = value.strip_prefix('<') {
+        (PageSelectComparison::LessThan, number)
+    } else if let Some(number) = value.strip_prefix('=') {
+        (PageSelectComparison::Equal, number)
+    } else {
+        (PageSelectComparison::Equal, value)
+    };
+
+    let value = number.trim().parse::<f32>().map_err(|_| {
+        Error::new(
+            format!("invalid pages.select rating filter: {value}"),
+            ErrorType::Page,
+        )
+    })?;
+    if !value.is_finite() {
+        return Err(Error::new(
+            format!("invalid pages.select rating filter: {value}"),
+            ErrorType::Page,
+        )
+        .into());
+    }
+
+    Ok(PageSelectRatingFilter { comparison, value })
+}
+
+fn parse_page_select_order(value: Option<&str>) -> Result<OrderBySelector> {
+    let value = match value.map(str::trim) {
+        None | Some("") => "created_at desc",
+        Some(value) => value,
+    };
+
+    let parts = value.split_whitespace().collect::<Vec<_>>();
+    let (field, direction) = match parts.as_slice() {
+        [field] => (*field, "asc"),
+        [field, direction] => (*field, *direction),
+        _ => {
+            return Err(Error::new(
+                format!("invalid pages.select order expression: {value}"),
+                ErrorType::Page,
+            )
+            .into());
+        }
+    };
+
+    let property = match field.to_ascii_lowercase().as_str() {
+        "created_at" | "created" => OrderProperty::CreatedAt,
+        "updated_at" | "updated" => OrderProperty::UpdatedAt,
+        "fullname" | "full_name" | "slug" | "name" => OrderProperty::FullSlug,
+        "title" => OrderProperty::Title,
+        "rating" | "score" => OrderProperty::Score,
+        other => {
+            return Err(Error::new(
+                format!("unsupported pages.select order field: {other}"),
+                ErrorType::Page,
+            )
+            .into());
+        }
+    };
+
+    let ascending = match direction.to_ascii_lowercase().as_str() {
+        "asc" | "ascending" => true,
+        "desc" | "descending" => false,
+        other => {
+            return Err(Error::new(
+                format!("unsupported pages.select order direction: {other}"),
+                ErrorType::Page,
+            )
+            .into());
+        }
+    };
+
+    Ok(OrderBySelector {
+        property,
+        ascending,
+    })
 }
 
 pub async fn page_edit(
