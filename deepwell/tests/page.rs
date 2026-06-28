@@ -24,11 +24,13 @@ mod common;
 use self::common::TestRunner;
 use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use deepwell::error::prelude::*;
+use deepwell::models::file;
 use deepwell::models::page::{self, Entity as PageTable};
 use deepwell::models::page_category::{self, Entity as PageCategoryTable};
 use deepwell::models::page_revision::Entity as PageRevisionTable;
-use deepwell::services::RequestContext;
+use deepwell::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use deepwell::services::category::CategoryService;
+use deepwell::services::file_revision::CreateFirstFileRevision;
 use deepwell::services::page_query::{
     CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
@@ -38,6 +40,7 @@ use deepwell::services::permission::PermissionService;
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
+use deepwell::services::{FileRevisionService, RequestContext};
 use deepwell::types::{Action, PageRevisionType, Permission, Reference, Resource};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
@@ -1072,6 +1075,169 @@ async fn page_revision_reads_require_page_view_permission() {
         }),
     );
     assert_eq!(count.revision_count.get(), 1);
+}
+
+#[tokio::test]
+async fn file_get_requires_parent_page_view_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PAGE_SLUG: &str = "fixture-private-file-read";
+    const PUBLIC_PAGE_SLUG: &str = "fixture-public-file-read";
+    const PRIVATE_CATEGORY: &str = "fixture-file-read-private-view";
+    const FILE_NAME: &str = "private-attachment.txt";
+    const PUBLIC_FILE_NAME: &str = "public-attachment.txt";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private file parent page",
+            "title": "Private File Read",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private file read fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+    set_listpages_test_category_slug(&runner, site_id, PAGE_SLUG, PRIVATE_CATEGORY).await;
+
+    let file_id =
+        create_empty_file_fixture(&runner, site_id, page.page_id, FILE_NAME).await;
+
+    let public_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "public file parent page",
+            "title": "Public File Read",
+            "alt_title": null,
+            "slug": PUBLIC_PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create public file read fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(public_page.parser_errors.is_empty());
+    let public_file_id = create_empty_file_fixture(
+        &runner,
+        site_id,
+        public_page.page_id,
+        PUBLIC_FILE_NAME,
+    )
+    .await;
+
+    runner.set_request_context(RequestContext::default());
+
+    let public_output = run_endpoint!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": public_page.page_id,
+            "file": PUBLIC_FILE_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    )
+    .expect("anonymous user should be allowed to view public page file");
+    assert_eq!(public_output.file_id, public_file_id);
+    assert_eq!(public_output.name, PUBLIC_FILE_NAME);
+
+    let error = run_endpoint_err!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+
+    let output = run_endpoint!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    )
+    .expect("admin should be allowed to view private page file");
+
+    assert_eq!(output.file_id, file_id);
+    assert_eq!(output.name, FILE_NAME);
+    assert_eq!(output.mime, EMPTY_BLOB_MIME);
+    assert_eq!(output.s3_hash.as_ref(), &EMPTY_BLOB_HASH);
+    assert!(output.data.is_none());
+}
+
+async fn create_empty_file_fixture(
+    runner: &TestRunner,
+    site_id: i64,
+    page_id: i64,
+    name: &str,
+) -> i64 {
+    let file = file::ActiveModel {
+        name: Set(name.to_owned()),
+        site_id: Set(site_id),
+        page_id: Set(page_id),
+        ..Default::default()
+    }
+    .insert(runner.context().transaction())
+    .await
+    .expect("file fixture should be inserted");
+    FileRevisionService::create_first(
+        runner.context(),
+        CreateFirstFileRevision {
+            site_id,
+            page_id,
+            file_id: file.file_id,
+            user_id: ADMIN_USER_ID,
+            name: name.to_owned(),
+            s3_hash: EMPTY_BLOB_HASH,
+            size: 0,
+            mime: EMPTY_BLOB_MIME.to_owned(),
+            blob_created: false,
+            revision_comments: "create file fixture".to_owned(),
+        },
+    )
+    .await
+    .expect("file revision fixture should be created");
+
+    file.file_id
 }
 
 async fn make_listpages_test_category_admin_only(
