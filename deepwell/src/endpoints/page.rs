@@ -20,7 +20,9 @@
 
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
-use crate::models::page::Model as PageModel;
+use crate::models::page::{self, Entity as Page, Model as PageModel};
+use crate::models::page_category::{self, Entity as PageCategory};
+use crate::models::page_revision;
 use crate::services::TextService;
 use crate::services::file::{GetFileOutput, GetPageFiles};
 use crate::services::page::{
@@ -36,6 +38,10 @@ use crate::types::{
     Action, Bytes, FileOrder, PageDetails, PageId, Reference, RerenderDepth,
 };
 use futures::future::try_join_all;
+use sea_orm::{
+    ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait,
+};
+use std::collections::BTreeSet;
 
 pub async fn page_create(
     ctx: &ServiceContext<'_>,
@@ -198,6 +204,102 @@ pub async fn page_get_files(
         .collect();
 
     Ok(result)
+}
+
+pub async fn page_tags_select(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<String>> {
+    const MAX_FILTER_VALUES: usize = 100;
+
+    #[derive(Deserialize, Debug)]
+    struct Input<'a> {
+        site: Reference<'a>,
+        categories: Option<Vec<String>>,
+        pages: Option<Vec<String>>,
+    }
+
+    let Input {
+        site,
+        categories,
+        pages,
+    } = parse!(params, Page);
+
+    if categories
+        .as_ref()
+        .is_some_and(|values| values.len() > MAX_FILTER_VALUES)
+        || pages
+            .as_ref()
+            .is_some_and(|values| values.len() > MAX_FILTER_VALUES)
+    {
+        return Err(Error::new(
+            format!("page tag filters may contain at most {MAX_FILTER_VALUES} values"),
+            ErrorType::Request,
+        )
+        .into());
+    }
+
+    let make_error = || Error::new("failed to select page tags", ErrorType::Page);
+    let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
+    info!("Selecting page tags in site ID {site_id}");
+
+    if matches!(categories, Some(ref categories) if categories.is_empty())
+        || matches!(pages, Some(ref pages) if pages.is_empty())
+    {
+        return Ok(Vec::new());
+    }
+
+    let category_ids = match categories {
+        None => None,
+        Some(categories) => {
+            let selected_categories = categories.into_iter().collect::<BTreeSet<_>>();
+            let category_ids = PageCategory::find()
+                .filter(page_category::Column::SiteId.eq(site_id))
+                .filter(page_category::Column::Slug.is_in(selected_categories))
+                .select_only()
+                .column(page_category::Column::CategoryId)
+                .into_tuple::<i64>()
+                .all(ctx.transaction())
+                .await
+                .or_raise(make_error)?
+                .into_iter()
+                .collect::<Vec<_>>();
+
+            if category_ids.is_empty() {
+                return Ok(Vec::new());
+            }
+
+            Some(category_ids)
+        }
+    };
+
+    let txn = ctx.transaction();
+    let mut page_query = Page::find()
+        .filter(page::Column::SiteId.eq(site_id))
+        .filter(page::Column::DeletedAt.is_null());
+
+    if let Some(category_ids) = category_ids {
+        page_query = page_query.filter(page::Column::PageCategoryId.is_in(category_ids));
+    }
+    if let Some(pages) = pages {
+        page_query = page_query.filter(page::Column::Slug.is_in(pages));
+    }
+
+    let tags = page_query
+        .join(JoinType::Join, page::Relation::PageRevision.def())
+        .select_only()
+        .column(page_revision::Column::Tags)
+        .into_tuple::<Vec<String>>()
+        .all(txn)
+        .await
+        .or_raise(make_error)?
+        .into_iter()
+        .flatten()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+
+    Ok(tags)
 }
 
 pub async fn page_edit(

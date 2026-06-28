@@ -345,6 +345,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("page_get_deleted", page_get_deleted);
     register!("page_get_score", page_get_score);
     register!("page_get_files", page_get_files);
+    register!("page_tags_select", page_tags_select);
     register!("page_edit", page_edit);
     register!("page_edit_permission", page_edit_permission);
     register!("page_delete", page_delete);

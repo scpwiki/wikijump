@@ -44,6 +44,7 @@ use sea_orm::{
 };
 use serde_json::json;
 use std::borrow::Cow;
+use std::collections::BTreeSet;
 use time::{Duration, OffsetDateTime};
 
 #[tokio::test]
@@ -1009,6 +1010,106 @@ async fn create_listpages_test_page(
     output.revision_id
 }
 
+#[tokio::test]
+async fn page_tags_select_filters_latest_page_tags() {
+    const DEFAULT_SLUG: &str = "xmlrpc-tags-default-source";
+    const NAV_SLUG: &str = "xmlrpc-tags-nav-source";
+    const MISSING_SLUG: &str = "xmlrpc-tags-missing-source";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let default_revision = create_listpages_test_page(
+        &runner,
+        site_id,
+        DEFAULT_SLUG,
+        "XML-RPC Default Tag Source",
+        "Default tag source",
+    )
+    .await;
+    let default_revision = set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        DEFAULT_SLUG,
+        default_revision,
+        &["stale-default", "stale-shared"],
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        DEFAULT_SLUG,
+        default_revision,
+        &["xmlrpc-default", "shared-tag"],
+    )
+    .await;
+
+    let nav_revision = create_listpages_test_page(
+        &runner,
+        site_id,
+        NAV_SLUG,
+        "XML-RPC Nav Tag Source",
+        "Nav tag source",
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, NAV_SLUG, "nav").await;
+    let nav_revision = set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        NAV_SLUG,
+        nav_revision,
+        &["stale-nav", "stale-shared"],
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        NAV_SLUG,
+        nav_revision,
+        &["xmlrpc-nav", "shared-tag"],
+    )
+    .await;
+
+    let nav_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "categories": ["nav"],
+            "pages": [DEFAULT_SLUG, NAV_SLUG],
+        }),
+    );
+    assert_eq!(
+        nav_tags.into_iter().collect::<BTreeSet<_>>(),
+        BTreeSet::from(["shared-tag".to_owned(), "xmlrpc-nav".to_owned()])
+    );
+
+    let page_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "pages": [DEFAULT_SLUG],
+        }),
+    );
+    assert_eq!(
+        page_tags.into_iter().collect::<BTreeSet<_>>(),
+        BTreeSet::from(["shared-tag".to_owned(), "xmlrpc-default".to_owned()])
+    );
+
+    let empty_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "pages": [MISSING_SLUG],
+        }),
+    );
+    assert!(empty_tags.is_empty());
+}
+
 async fn set_listpages_test_category_slug(
     runner: &TestRunner,
     site_id: i64,
@@ -1049,7 +1150,7 @@ async fn set_listpages_test_tags(
     slug: &str,
     last_revision_id: i64,
     tags: &[&str],
-) {
+) -> i64 {
     runner.set_request_context(RequestContext {
         session: None,
         user_id: Some(ADMIN_USER_ID),
@@ -1075,6 +1176,7 @@ async fn set_listpages_test_tags(
         .parser_errors
         .expect("tag edit should return parser errors");
     assert!(parser_errors.is_empty());
+    output.revision_id
 }
 
 async fn set_listpages_test_parent(

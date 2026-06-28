@@ -94,6 +94,55 @@ const xmlRpcAdvertisedUnimplementedRequest = `<?xml version="1.0"?>
   </params>
 </methodCall>`
 
+const xmlRpcCategoriesSelectRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>categories.select</methodName>
+  <params>
+    <param><value><struct><member><name>site</name><value><string>scp-wiki</string></value></member></struct></value></param>
+  </params>
+</methodCall>`
+
+const xmlRpcTagsSelectRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>tags.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>categories</name><value><array><data><value><string>_default</string></value></data></array></value></member>
+          <member><name>pages</name><value><array><data><value><string>the-great-hippo</string></value></data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+
+function xmlRpcTagsSelectWithFilterCount(
+  filterName: "categories" | "pages",
+  count: number
+): string {
+  const filterValues = Array.from(
+    { length: count },
+    (_, index) => `<value><string>${filterName}-${index}</string></value>`
+  ).join("")
+
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>tags.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>${filterName}</name><value><array><data>${filterValues}</data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
 function xmlRpcMulticallWithChildCount(count: number): string {
   const childCall = `<value><struct><member><name>methodName</name><value><string>system.listMethods</string></value></member><member><name>params</name><value><array><data /></array></value></member></struct></value>`
 
@@ -244,6 +293,97 @@ test("XML-RPC endpoint bounds system.multicall child call count", async ({ reque
   expect(body).toContain("<fault>")
   expect(body).toContain("<name>faultCode</name><value><int>-32602</int></value>")
   expect(body).toContain("system.multicall accepts at most 100 calls")
+})
+
+test("XML-RPC endpoint selects local categories", async ({ request }) => {
+  const categoriesResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcCategoriesSelectRequest,
+    headers: xmlRpcHeaders
+  })
+  expect(categoriesResponse.status()).toBe(200)
+  const categoriesBody = await categoriesResponse.text()
+  expect(categoriesBody).toContain("<string>_default</string>")
+  expect(categoriesBody).toContain("<string>nav</string>")
+})
+
+test("XML-RPC endpoint selects local tags", async ({ request }) => {
+  const tagsResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcTagsSelectRequest,
+    headers: xmlRpcHeaders
+  })
+
+  expect(tagsResponse.status()).toBe(200)
+  const tagsBody = await tagsResponse.text()
+  expect(tagsBody).toContain("<string>_cc</string>")
+  expect(tagsBody).toContain("<string>tale</string>")
+
+  const deepwellRequest = await request.get(
+    "http://127.0.0.1:42747/last-page-tags-request"
+  )
+  expect(deepwellRequest.status()).toBe(200)
+  expect(await deepwellRequest.json()).toEqual({
+    categories: ["_default"],
+    pages: ["the-great-hippo"],
+    site: "scp-wiki"
+  })
+})
+
+test("XML-RPC endpoint bounds tags.select page filters", async ({ request }) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcTagsSelectWithFilterCount("pages", 101),
+    headers: xmlRpcHeaders
+  })
+
+  expect(response.status()).toBe(200)
+  const body = await response.text()
+  expect(body).toContain("<methodResponse>")
+  expect(body).toContain("<name>faultCode</name><value><int>-32602</int></value>")
+  expect(body).toContain("tags.select pages is limited to 100 entries")
+})
+
+test("XML-RPC endpoint accepts tags.select page filters at the cap", async ({
+  request
+}) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcTagsSelectWithFilterCount("pages", 100),
+    headers: xmlRpcHeaders
+  })
+
+  expect(response.status()).toBe(200)
+  const body = await response.text()
+  expect(body).toContain("<methodResponse>")
+  expect(body).not.toContain("<fault>")
+  expect(body).toContain("<string>_cc</string>")
+  expect(body).toContain("<string>tale</string>")
+})
+
+test("XML-RPC endpoint bounds tags.select category filters", async ({ request }) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcTagsSelectWithFilterCount("categories", 101),
+    headers: xmlRpcHeaders
+  })
+
+  expect(response.status()).toBe(200)
+  const body = await response.text()
+  expect(body).toContain("<methodResponse>")
+  expect(body).toContain("<name>faultCode</name><value><int>-32602</int></value>")
+  expect(body).toContain("tags.select categories is limited to 100 entries")
+})
+
+test("XML-RPC endpoint accepts tags.select category filters at the cap", async ({
+  request
+}) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcTagsSelectWithFilterCount("categories", 100),
+    headers: xmlRpcHeaders
+  })
+
+  expect(response.status()).toBe(200)
+  const body = await response.text()
+  expect(body).toContain("<methodResponse>")
+  expect(body).not.toContain("<fault>")
+  expect(body).toContain("<string>_cc</string>")
+  expect(body).toContain("<string>tale</string>")
 })
 
 test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
