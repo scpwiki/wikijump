@@ -1110,6 +1110,153 @@ async fn page_tags_select_filters_latest_page_tags() {
     assert!(empty_tags.is_empty());
 }
 
+#[tokio::test]
+async fn page_select_filters_pages_with_page_query_semantics() {
+    const TAG: &str = "xmlrpc-page-select-target";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title, category, vote) in [
+        (
+            "xmlrpc-page-select-high",
+            "XML-RPC Page Select High",
+            "_default",
+            5,
+        ),
+        (
+            "xmlrpc-page-select-zero",
+            "XML-RPC Page Select Zero",
+            "_default",
+            0,
+        ),
+        (
+            "xmlrpc-page-select-low",
+            "XML-RPC Page Select Low",
+            "_default",
+            -2,
+        ),
+        (
+            "xmlrpc-page-select-nav",
+            "XML-RPC Page Select Nav",
+            "nav",
+            5,
+        ),
+    ] {
+        let output = run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": "XML-RPC page selection target.",
+                "title": title,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "create XML-RPC page selection test page",
+                "user_id": ADMIN_USER_ID,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+        if category != "_default" {
+            set_listpages_test_category_slug(&runner, site_id, slug, category).await;
+        }
+        set_listpages_test_tags(&mut runner, site_id, slug, output.revision_id, &[TAG])
+            .await;
+        if vote != 0 {
+            run_endpoint!(
+                runner,
+                vote_set,
+                json!({
+                    "page_id": output.page_id,
+                    "user_id": ADMIN_USER_ID,
+                    "value": vote,
+                }),
+            );
+        }
+    }
+
+    let selected = run_endpoint!(
+        runner,
+        page_select,
+        json!({
+            "site": "scp-wiki",
+            "pagetype": "normal",
+            "categories": ["_default"],
+            "tags_all": [TAG],
+            "created_by": ADMIN_USER_ID.to_string(),
+            "rating": ">=0",
+            "order": "rating desc",
+        }),
+    );
+
+    assert_eq!(
+        selected,
+        [
+            "xmlrpc-page-select-high".to_owned(),
+            "xmlrpc-page-select-zero".to_owned(),
+        ],
+        "pages.select should apply category, tag, creator, rating, and score ordering filters",
+    );
+}
+
+#[tokio::test]
+async fn page_select_treats_blank_optional_filters_as_absent() {
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let slug = "xmlrpc-page-select-blank-optionals";
+
+    create_listpages_test_page(
+        &runner,
+        site_id,
+        slug,
+        "XML-RPC Page Select Blank Optionals",
+        "XML-RPC blank optional filter target.",
+    )
+    .await;
+
+    let selected = run_endpoint!(
+        runner,
+        page_select,
+        json!({
+            "site": "scp-wiki",
+            "categories": ["_default"],
+            "tags_all": [],
+            "tags_none": [],
+            "parent": "   ",
+            "created_by": "",
+            "rating": "",
+            "order": "",
+        }),
+    );
+
+    assert!(
+        selected.iter().any(|selected_slug| selected_slug == slug),
+        "blank optional pages.select filters should behave as absent instead of filtering out the page",
+    );
+}
+
+#[tokio::test]
+async fn page_select_rejects_non_finite_rating_filters() {
+    let runner = TestRunner::setup().await;
+
+    for rating in ["NaN", "inf", "-infinity"] {
+        let error = run_endpoint_err!(
+            runner,
+            page_select,
+            json!({
+                "site": "scp-wiki",
+                "rating": rating,
+            }),
+        );
+        assert_contains_error!(error, ErrorType::Page);
+    }
+}
+
 async fn set_listpages_test_category_slug(
     runner: &TestRunner,
     site_id: i64,

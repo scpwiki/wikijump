@@ -2,12 +2,19 @@ import { createServer } from "node:http"
 
 const PORT = 42747
 let lastPageTagsSelectParams = null
+let lastPageSelectParams = null
 
 const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/last-page-tags-request") {
     response
       .writeHead(200, { "content-type": "application/json" })
       .end(JSON.stringify(lastPageTagsSelectParams))
+    return
+  }
+  if (request.method === "GET" && request.url === "/last-page-select-request") {
+    response
+      .writeHead(200, { "content-type": "application/json" })
+      .end(JSON.stringify(lastPageSelectParams))
     return
   }
 
@@ -83,6 +90,19 @@ const server = createServer((request, response) => {
     ) {
       lastPageTagsSelectParams = rpcRequest.params
       result = ["_cc", "tale"]
+    } else if (
+      rpcRequest.method === "page_select" &&
+      rpcRequest.params?.site === "scp-wiki" &&
+      rpcRequest.params?.pagetype === "normal" &&
+      Array.isArray(rpcRequest.params.categories) &&
+      rpcRequest.params.categories.length === 1 &&
+      rpcRequest.params.categories[0] === "_default" &&
+      rpcRequest.params?.created_by === "-1" &&
+      rpcRequest.params?.rating === ">=0" &&
+      rpcRequest.params?.order === "created_at desc"
+    ) {
+      lastPageSelectParams = rpcRequest.params
+      result = ["scp-173", "scp-anthology-2024", "scp-8566"]
     } else {
       response.writeHead(200, { "content-type": "application/json" }).end(
         JSON.stringify({
