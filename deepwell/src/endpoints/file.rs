@@ -26,8 +26,9 @@ use crate::services::file::{
     GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
     RestoreFileOutput, RollbackFile,
 };
+use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{BlobService, FileRevisionService};
-use crate::types::{Bytes, FileDetails};
+use crate::types::{Action, Bytes, FileDetails, Permission, Reference, Resource};
 
 pub async fn file_get(
     ctx: &ServiceContext<'_>,
@@ -41,6 +42,10 @@ pub async fn file_get(
     );
 
     let make_error = || Error::new("failed to get file", ErrorType::File);
+
+    ensure_parent_page_view_permission(ctx, input.site_id, input.page_id)
+        .await
+        .or_raise(make_error)?;
 
     // We cannot use get_id() because we need File for build_file_response().
     let file = FileService::get_optional(ctx, input)
@@ -162,6 +167,49 @@ pub async fn file_rollback(
     FileService::rollback(ctx, input)
         .await
         .or_raise(|| Error::new("failed to rollback file", ErrorType::File))
+}
+
+async fn ensure_parent_page_view_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_id: i64,
+) -> Result<()> {
+    let make_error = || {
+        Error::new(
+            "failed to check parent page view permission",
+            ErrorType::Permission,
+        )
+    };
+
+    let page = PageService::get(ctx, site_id, Reference::Id(page_id))
+        .await
+        .or_raise(make_error)?;
+
+    let can_view = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: ctx.request().user_id,
+            site_id,
+            page_reference: Some(Reference::Id(page.page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(page.page_category_id)),
+            action: Action::View,
+        },
+    )
+    .await
+    .or_raise(make_error)?;
+
+    if can_view {
+        Ok(())
+    } else {
+        Err(Error::new(
+            "user does not have permission to view this file's parent page",
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
 }
 
 async fn build_file_response(
