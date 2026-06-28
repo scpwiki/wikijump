@@ -55,6 +55,16 @@ import type { Optional, TranslateKeys } from "$lib/types"
 import type { Cookies, RequestEvent } from "@sveltejs/kit"
 import { getRequestContext } from "./request-ctx"
 
+const DEEPWELL_PERMISSION_DENIED = 3106
+
+function failForDeepwellError(error: DeepwellError) {
+  return fail(error.code === DEEPWELL_PERMISSION_DENIED ? 403 : 500, {
+    message: error.message,
+    code: error.code,
+    data: error.data
+  })
+}
+
 export async function loadPage(
   slug: Optional<string>,
   extra: Optional<string>,
@@ -386,11 +396,7 @@ export async function pageEditPermissionAction({ locals }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -487,11 +493,7 @@ export async function pageFileListAction({ request }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -793,7 +795,7 @@ export async function pageFileRollbackAction({ request, cookies }: RequestEvent)
 }
 
 /* ----- Page History ----- */
-export async function pageHistoryAction({ request }: RequestEvent) {
+export async function pageHistoryAction({ request, locals }: RequestEvent) {
   try {
     const requestData: {
       siteId: number
@@ -804,7 +806,13 @@ export async function pageHistoryAction({ request }: RequestEvent) {
 
     const { siteId, pageId, revisionNumber, limit } = requestData
 
-    const res = await pageHistory(siteId, pageId, revisionNumber, limit)
+    const res = await pageHistory(
+      siteId,
+      pageId,
+      revisionNumber,
+      limit,
+      getRequestContext(locals)
+    )
     return { res }
   } catch (e) {
     const error = e as DeepwellError
@@ -817,7 +825,7 @@ export async function pageHistoryAction({ request }: RequestEvent) {
 }
 
 /* ----- Page Revision ----- */
-export async function pageRevisionAction({ request }: RequestEvent) {
+export async function pageRevisionAction({ request, locals }: RequestEvent) {
   try {
     const requestData: {
       siteId: number
@@ -834,7 +842,8 @@ export async function pageRevisionAction({ request }: RequestEvent) {
       pageId,
       revisionNumber,
       compiledHtml ?? true,
-      wikitext ?? true
+      wikitext ?? true,
+      getRequestContext(locals)
     )
     return { res }
   } catch (e) {

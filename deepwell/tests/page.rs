@@ -929,6 +929,151 @@ async fn listpages_content_body_supports_bounded_ordered_child_results() {
     }
 }
 
+#[tokio::test]
+async fn page_revision_reads_require_page_view_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PAGE_SLUG: &str = "fixture-private-revision-read";
+    const PRIVATE_CATEGORY: &str = "fixture-revision-read-private-view";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private revision body marker",
+            "title": "Private Revision Read",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private revision read fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(created.parser_errors.is_empty());
+    set_listpages_test_category_slug(&runner, site_id, PAGE_SLUG, PRIVATE_CATEGORY).await;
+
+    runner.set_request_context(RequestContext::default());
+
+    let error = run_endpoint_err!(
+        runner,
+        page_revision_get,
+        json!({
+            "site_id": site_id,
+            "page_id": created.page_id,
+            "revision_number": 0,
+            "details": {
+                "wikitext": true,
+                "compiled_html": true
+            },
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let error = run_endpoint_err!(
+        runner,
+        page_revision_range,
+        json!({
+            "site_id": site_id,
+            "page_id": created.page_id,
+            "revision_number": 0,
+            "revision_direction": "before",
+            "limit": 1,
+            "details": {
+                "wikitext": true,
+                "compiled_html": true
+            },
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let error = run_endpoint_err!(
+        runner,
+        page_revision_count,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+
+    let revision = run_endpoint!(
+        runner,
+        page_revision_get,
+        json!({
+            "site_id": site_id,
+            "page_id": created.page_id,
+            "revision_number": 0,
+            "details": {
+                "wikitext": true,
+                "compiled_html": true
+            },
+        }),
+    )
+    .expect("admin should be allowed to view private page revision");
+    assert_eq!(
+        revision.wikitext.as_deref(),
+        Some("private revision body marker")
+    );
+    assert!(
+        revision
+            .compiled_body_html
+            .as_deref()
+            .is_some_and(|html| html.contains("private revision body marker")),
+    );
+
+    let revisions = run_endpoint!(
+        runner,
+        page_revision_range,
+        json!({
+            "site_id": site_id,
+            "page_id": created.page_id,
+            "revision_number": 0,
+            "revision_direction": "before",
+            "limit": 1,
+            "details": {
+                "wikitext": true,
+                "compiled_html": true
+            },
+        }),
+    );
+    assert_eq!(revisions.len(), 1);
+    assert_eq!(
+        revisions[0].wikitext.as_deref(),
+        Some("private revision body marker")
+    );
+
+    let count = run_endpoint!(
+        runner,
+        page_revision_count,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    );
+    assert_eq!(count.revision_count.get(), 1);
+}
+
 async fn make_listpages_test_category_admin_only(
     runner: &TestRunner,
     site_id: i64,
