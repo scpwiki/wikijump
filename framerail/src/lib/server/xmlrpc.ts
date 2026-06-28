@@ -1,6 +1,8 @@
 import { Buffer } from "node:buffer"
 import { timingSafeEqual } from "node:crypto"
 
+import { client } from "$lib/server/deepwell"
+
 type XmlRpcScalar = string | number | boolean | null
 export type XmlRpcValue = XmlRpcScalar | XmlRpcValue[] | Record<string, XmlRpcValue>
 
@@ -26,6 +28,10 @@ interface MethodDefinition {
   signatures: string[][]
 }
 
+interface DeepwellCategory {
+  slug: string
+}
+
 const XML_RPC_HEADERS = {
   "content-type": "text/xml; charset=utf-8"
 }
@@ -34,6 +40,7 @@ const XML_RPC_INT_MIN = -2_147_483_648
 const XML_RPC_INT_MAX = 2_147_483_647
 const MAX_XML_RPC_BODY_BYTES = 1_048_576
 const MAX_XML_RPC_MULTICALLS = 100
+const MAX_XML_RPC_FILTER_VALUES = 100
 const XML_WHITESPACE = "[ \\t\\r\\n]"
 const METHOD_DEFINITIONS: Record<string, MethodDefinition> = {
   "system.listMethods": {
@@ -220,6 +227,12 @@ async function dispatchXmlRpcCall(
       }
       expectParamCount(call, 1)
       return dispatchMulticall(call)
+    case "categories.select":
+      expectParamCount(call, 1)
+      return selectCategories(call)
+    case "tags.select":
+      expectParamCount(call, 1)
+      return selectTags(call)
     default:
       if (hasMethodDefinition(call.methodName)) {
         throw new XmlRpcFault(
@@ -280,6 +293,92 @@ async function dispatchMulticall(call: XmlRpcCall): Promise<XmlRpcValue[]> {
   return results
 }
 
+async function selectCategories(call: XmlRpcCall): Promise<string[]> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const categories = expectDeepwellCategories(
+    await requestDeepwell("category_get_all", {
+      site
+    }),
+    "category_get_all"
+  )
+
+  return categories.map((category) => category.slug)
+}
+
+function expectDeepwellCategories(value: unknown, method: string): DeepwellCategory[] {
+  if (
+    !Array.isArray(value) ||
+    value.some(
+      (category) =>
+        !isXmlRpcStruct(category) ||
+        typeof category.slug !== "string" ||
+        category.slug.length === 0
+    )
+  ) {
+    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
+  }
+
+  return value as DeepwellCategory[]
+}
+
+function expectDeepwellStringArray(value: unknown, method: string): string[] {
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
+  }
+
+  return value
+}
+
+async function selectTags(call: XmlRpcCall): Promise<string[]> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const categories = getOptionalStructStringArray(params, "categories")
+  const pages = getOptionalStructStringArray(params, "pages")
+
+  if (categories && categories.length > MAX_XML_RPC_FILTER_VALUES) {
+    throw new XmlRpcFault(
+      -32602,
+      `tags.select categories is limited to ${MAX_XML_RPC_FILTER_VALUES} entries`
+    )
+  }
+  if (pages && pages.length > MAX_XML_RPC_FILTER_VALUES) {
+    throw new XmlRpcFault(
+      -32602,
+      `tags.select pages is limited to ${MAX_XML_RPC_FILTER_VALUES} entries`
+    )
+  }
+
+  const deepwellParams: {
+    site: string
+    categories?: string[]
+    pages?: string[]
+  } = { site }
+  if (categories) {
+    deepwellParams.categories = categories
+  }
+  if (pages) {
+    deepwellParams.pages = pages
+  }
+
+  return expectDeepwellStringArray(
+    await requestDeepwell("page_tags_select", deepwellParams),
+    "page_tags_select"
+  )
+}
+
+async function requestDeepwell(
+  method: string,
+  params: Record<string, XmlRpcValue>
+): Promise<unknown> {
+  try {
+    return await client.request(method, params)
+  } catch (error) {
+    console.error(`Unexpected Deepwell XML-RPC bridge error for ${method}`, error)
+    throw new XmlRpcFault(-32603, `XML-RPC Deepwell request failed: ${method}`)
+  }
+}
+
 function expectParamCount(call: XmlRpcCall, expectedCount: number): void {
   if (call.params.length !== expectedCount) {
     throw new XmlRpcFault(
@@ -301,6 +400,43 @@ function getStringParam(call: XmlRpcCall, index: number, name: string): string {
   const value = call.params[index]
   if (typeof value !== "string") {
     throw new XmlRpcFault(-32602, `Expected string parameter: ${name}`)
+  }
+  return value
+}
+
+function getStructParam(
+  call: XmlRpcCall,
+  index: number,
+  name: string
+): Record<string, XmlRpcValue> {
+  const value = call.params[index]
+  if (!isXmlRpcStruct(value)) {
+    throw new XmlRpcFault(-32602, `Expected struct parameter: ${name}`)
+  }
+  return value
+}
+
+function getRequiredStructString(
+  params: Record<string, XmlRpcValue>,
+  name: string
+): string {
+  const value = params[name]
+  if (typeof value !== "string" || value.length === 0) {
+    throw new XmlRpcFault(-32602, `Expected string field: ${name}`)
+  }
+  return value
+}
+
+function getOptionalStructStringArray(
+  params: Record<string, XmlRpcValue>,
+  name: string
+): string[] | null {
+  const value = params[name]
+  if (value === undefined || value === null) {
+    return null
+  }
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    throw new XmlRpcFault(-32602, `Expected string array field: ${name}`)
   }
   return value
 }
