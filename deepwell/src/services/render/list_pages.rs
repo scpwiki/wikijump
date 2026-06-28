@@ -519,7 +519,7 @@ async fn select_fragment(
             current_page_id: page_id.page_id,
             current_site_id: page_id.site_id,
             queried_site_id: None,
-            page_type: PageTypeSelector::All,
+            page_type: PageTypeSelector::Normal,
             categories: CategoriesSelector {
                 included_categories: IncludedCategories::List(&included_categories),
                 excluded_categories: &[],

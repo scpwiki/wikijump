@@ -25,6 +25,7 @@ use self::common::TestRunner;
 use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::prelude::*;
 use deepwell::models::page::{self, Entity as PageTable};
+use deepwell::models::page_category::{self, Entity as PageCategoryTable};
 use deepwell::models::page_revision::Entity as PageRevisionTable;
 use deepwell::services::RequestContext;
 use deepwell::services::page_query::{
@@ -618,6 +619,146 @@ async fn included_author_tool_coauthored_branch_renders_named_page_box() {
     }
 }
 
+#[tokio::test]
+async fn listpages_fragment_content_skips_hidden_pages_by_default() {
+    const INDEX_SLUG: &str = "fixture-listpages-fragment-default-index";
+    const HIDDEN_SLUG: &str = "_fixture-listpages-fragment-hidden";
+    const VISIBLE_SLUG: &str = "fixture-listpages-fragment-visible";
+    const HIDDEN_MARKER: &str = "Hidden fragment content must not render.";
+    const VISIBLE_MARKER: &str = "Visible fragment content should render.";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let index_revision = create_listpages_test_page(
+        &runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Fragment Default Index",
+        concat!(
+            "Before fragment ListPages.\n\n",
+            "[[module ListPages parent=\".\" category=\"fragment\" order=\"created_at\" limit=\"1\" offset=\"0\"]]\n",
+            "%%content%%\n",
+            "[[/module]]\n\n",
+            "After fragment ListPages."
+        ),
+    )
+    .await;
+
+    create_listpages_test_page(
+        &runner,
+        site_id,
+        "fragment:fixture-listpages-fragment-category-primer",
+        "Fixture Fragment Category Primer",
+        "Fixture fragment category primer.",
+    )
+    .await;
+
+    let hidden_revision = create_listpages_test_page(
+        &runner,
+        site_id,
+        HIDDEN_SLUG,
+        "Fixture Hidden Fragment",
+        HIDDEN_MARKER,
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, HIDDEN_SLUG, "fragment").await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        HIDDEN_SLUG,
+        hidden_revision,
+        &["verification", "verification-fragment-default"],
+    )
+    .await;
+    set_listpages_test_created_at(
+        &runner,
+        site_id,
+        HIDDEN_SLUG,
+        OffsetDateTime::UNIX_EPOCH + Duration::seconds(1),
+    )
+    .await;
+    set_listpages_test_parent(&runner, site_id, HIDDEN_SLUG, INDEX_SLUG).await;
+
+    let visible_revision = create_listpages_test_page(
+        &runner,
+        site_id,
+        VISIBLE_SLUG,
+        "Fixture Visible Fragment",
+        VISIBLE_MARKER,
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, VISIBLE_SLUG, "fragment").await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        VISIBLE_SLUG,
+        visible_revision,
+        &["verification", "verification-fragment-default"],
+    )
+    .await;
+    set_listpages_test_created_at(
+        &runner,
+        site_id,
+        VISIBLE_SLUG,
+        OffsetDateTime::UNIX_EPOCH + Duration::seconds(2),
+    )
+    .await;
+    set_listpages_test_parent(&runner, site_id, VISIBLE_SLUG, INDEX_SLUG).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(INDEX_SLUG))),
+    });
+    let rerender = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "last_revision_id": index_revision,
+            "revision_comments": "rerender after attaching ListPages fragments",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(
+        rerender.is_none(),
+        "relationship-only rerender should not create a page revision",
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("fragment ListPages index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains(VISIBLE_MARKER),
+        "fragment ListPages should render the first normal fragment:\n{html}"
+    );
+    for forbidden in [HIDDEN_MARKER, "%%content%%", "[[module ListPages"] {
+        assert!(
+            !html.contains(forbidden),
+            "fragment ListPages should not contain {forbidden:?}:\n{html}"
+        );
+    }
+}
+
 async fn create_listpages_test_page(
     runner: &TestRunner,
     site_id: i64,
@@ -641,6 +782,40 @@ async fn create_listpages_test_page(
         }),
     );
     output.revision_id
+}
+
+async fn set_listpages_test_category_slug(
+    runner: &TestRunner,
+    site_id: i64,
+    slug: &str,
+    category_slug: &str,
+) {
+    let category = PageCategoryTable::find()
+        .filter(
+            sea_orm::Condition::all()
+                .add(page_category::Column::SiteId.eq(site_id))
+                .add(page_category::Column::Slug.eq(category_slug)),
+        )
+        .one(runner.context().transaction())
+        .await
+        .expect("category test lookup should not fail")
+        .expect("category test category should exist");
+    let page = PageTable::find()
+        .filter(
+            sea_orm::Condition::all()
+                .add(page::Column::SiteId.eq(site_id))
+                .add(page::Column::Slug.eq(slug)),
+        )
+        .one(runner.context().transaction())
+        .await
+        .expect("category test page lookup should not fail")
+        .expect("category test page should exist");
+    let mut model = page.into_active_model();
+    model.page_category_id = Set(category.category_id);
+    model
+        .update(runner.context().transaction())
+        .await
+        .expect("category test page update should not fail");
 }
 
 async fn set_listpages_test_tags(
