@@ -31,7 +31,6 @@
 //! periodically.
 
 use super::prelude::*;
-use crate::models::known_user;
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
 use crate::utils::assert_is_csprng;
@@ -130,12 +129,21 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         session_token: &str,
     ) -> Result<Option<SessionModel>> {
+        Self::get_optional_matching_restricted(ctx, session_token, false).await
+    }
+
+    async fn get_optional_matching_restricted(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+        restricted: bool,
+    ) -> Result<Option<SessionModel>> {
         let txn = ctx.transaction();
         let session = Session::find()
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.eq(session_token))
-                    .add(session::Column::ExpiresAt.gt(now())),
+                    .add(session::Column::ExpiresAt.gt(now()))
+                    .add(session::Column::Restricted.eq(restricted)),
             )
             .one(txn)
             .await
@@ -148,7 +156,7 @@ impl SessionService {
 
     /// Gets the associated `UserModel` from an active session.
     ///
-    /// Performs a join rather than two separate fetches.
+    /// Fetches the session first, then loads the associated user by `user_id`.
     /// Yields an error if the given session token does not exist or is expired.
     ///
     /// The `restricted` status must match the argument passed.
@@ -166,16 +174,22 @@ impl SessionService {
             )
         };
 
-        let txn = ctx.transaction();
-        let user_opt = User::find()
-            .join(JoinType::Join, known_user::Relation::Session.def())
-            .filter(
-                Condition::all()
-                    .add(session::Column::SessionToken.eq(session_token))
-                    .add(session::Column::ExpiresAt.gt(now()))
-                    .add(session::Column::Restricted.eq(restricted)),
-            )
-            .one(txn)
+        let session =
+            Self::get_optional_matching_restricted(ctx, session_token, restricted)
+                .await
+                .or_raise(make_error)?;
+        let session = match session {
+            Some(session) => session,
+            None => {
+                bail!(Error::new(
+                    "cannot get user associated with session token, session does not exist",
+                    ErrorType::InvalidSessionToken,
+                ));
+            }
+        };
+
+        let user_opt = User::find_by_id(session.user_id)
+            .one(ctx.transaction())
             .await
             .or_raise(make_error)?;
 
@@ -265,7 +279,19 @@ impl SessionService {
     /// # Returns
     /// The new session token.
     /// After this point, the previous session token will be invalid.
-    pub async fn renew(
+    pub async fn renew(ctx: &ServiceContext<'_>, input: RenewSession) -> Result<String> {
+        Self::renew_matching_restricted(ctx, input, false).await
+    }
+
+    /// Renews a restricted MFA-in-progress session after MFA verification.
+    pub async fn renew_restricted(
+        ctx: &ServiceContext<'_>,
+        input: RenewSession,
+    ) -> Result<String> {
+        Self::renew_matching_restricted(ctx, input, true).await
+    }
+
+    async fn renew_matching_restricted(
         ctx: &ServiceContext<'_>,
         RenewSession {
             old_session_token,
@@ -273,6 +299,7 @@ impl SessionService {
             ip_address,
             user_agent,
         }: RenewSession,
+        restricted: bool,
     ) -> Result<String> {
         info!("Renewing session ID {old_session_token}");
 
@@ -284,9 +311,16 @@ impl SessionService {
         };
 
         // Get existing session to ensure the token matches the passed user ID.
-        let old_session = Self::get(ctx, &old_session_token)
-            .await
-            .or_raise(make_error)?;
+        let old_session =
+            Self::get_optional_matching_restricted(ctx, &old_session_token, restricted)
+                .await
+                .or_raise(make_error)?
+                .ok_or_else(|| {
+                    Error::new(
+                        "failed to look up session by token",
+                        ErrorType::InvalidSessionToken,
+                    )
+                })?;
 
         if old_session.user_id != user_id {
             error!(

@@ -222,7 +222,7 @@ pub async fn auth_mfa_verify(
     .await
     .or_raise(make_error)?;
 
-    SessionService::renew(
+    SessionService::renew_restricted(
         ctx,
         RenewSession {
             old_session_token: session_token,

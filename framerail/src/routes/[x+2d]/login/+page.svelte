@@ -9,13 +9,22 @@
   let { data }: PageProps = $props()
 
   let isLoggedIn = $derived<boolean>(data.isLoggedIn)
+  let mfaSessionToken = $state<string | undefined>()
+  let totpOrCode = $state("")
 
   const { form, enhance } = superForm(
     untrack(() => data.loginForm),
     {
       onResult: async ({ result }) => {
         if (result.type === "success" && result.data) {
-          isLoggedIn = true
+          if (result.data.needsMfa && result.data.session_token) {
+            mfaSessionToken = result.data.session_token
+            isLoggedIn = false
+            return
+          }
+
+          mfaSessionToken = undefined
+          isLoggedIn = result.data.isLoggedIn
           await invalidateAll()
           return
         }
@@ -34,6 +43,23 @@
 
 {#if isLoggedIn}
   {data.internationalization?.["login.toast"]}
+{:else if mfaSessionToken}
+  <form id="login-mfa" class="login-form" method="POST" use:enhance>
+    <input name="mfaSessionToken" type="hidden" value={mfaSessionToken} />
+    <input
+      name="totpOrCode"
+      class="auth-mfa-code"
+      autocomplete="one-time-code"
+      placeholder="MFA code"
+      type="text"
+      bind:value={totpOrCode}
+    />
+    <div class="action-row auth-actions">
+      <button class="action-button auth-button button-login clickable" type="submit">
+        {data.internationalization?.login}
+      </button>
+    </div>
+  </form>
 {:else}
   <form id="login" class="login-form" method="POST" use:enhance>
     <input
