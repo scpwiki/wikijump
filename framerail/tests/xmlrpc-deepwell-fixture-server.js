@@ -43,6 +43,17 @@ import { createServer } from "node:http"
  *
  *
  * @typedef {{
+ *   content: string
+ *   created_at: string
+ *   created_by: string
+ *   html: string
+ *   id: number
+ *   reply_to: number | null
+ *   title: string
+ * }} FixtureForumPost
+ *
+ *
+ * @typedef {{
  *   headers: Record<string, string | string[] | undefined>
  *   params: unknown
  * }} RecordedRpcRequest
@@ -55,6 +66,7 @@ let lastPageTagsSelectParams = null
 let lastPageSelectParams = null
 /** @type {Record<string, unknown[]>} */
 const pageReadRequests = {
+  forumPostPageSummary: [],
   pageGet: [],
   pageGetDirect: [],
   pageRevisionGet: [],
@@ -84,6 +96,18 @@ const fileRequests = {
 const pendingUploads = {}
 /** @type {Record<number, Record<string, FixtureFile>>} */
 const filesByPageId = {}
+
+const MIN_I64 = -(1n << 63n)
+const MAX_I64 = (1n << 63n) - 1n
+
+/** @type {(value: string) => boolean} */
+const isSignedI64String = (value) => {
+  if (!/^-?\d+$/.test(value)) {
+    return false
+  }
+  const parsed = BigInt(value)
+  return parsed >= MIN_I64 && parsed <= MAX_I64
+}
 
 /** @type {Record<string, FixturePage>} */
 const pages = {
@@ -134,7 +158,37 @@ const pages = {
     rating: 1,
     wikitext: "Parent",
     compiled_body_html: "<p>Parent</p>"
+  },
+  "xmlrpc-post-page": {
+    page_id: 3000300,
+    revision_id: 9000300,
+    page_created_at: "2026-06-20T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-06-20T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "XML-RPC Post Page",
+    slug: "xmlrpc-post-page",
+    tags: ["fixture"],
+    rating: 5,
+    wikitext: "XML-RPC post fixture page.",
+    compiled_body_html: "<p>XML-RPC post fixture page.</p>"
   }
+}
+/** @type {Record<string, FixtureForumPost[]>} */
+const forumPostsByPage = {
+  "xmlrpc-post-page": [
+    {
+      id: 7000300,
+      reply_to: null,
+      title: "XML-RPC comment proof",
+      content: "XML-RPC page comment proof body.",
+      html: "<p>XML-RPC page comment proof body.</p>",
+      created_by: "administrator",
+      created_at: "2026-06-21T00:00:00Z"
+    }
+  ]
 }
 /** @type {Record<string, string>} */
 const parentBySlug = {
@@ -398,6 +452,20 @@ const server = createServer((request, response) => {
             ]
           : []
     } else if (
+      rpcRequest.method === "forum_post_page_summary" &&
+      hasExactKeys(rpcRequest.params, ["page", "site_id"]) &&
+      rpcRequest.params.site_id === 6000005 &&
+      typeof rpcRequest.params.page === "string"
+    ) {
+      pageReadRequests.forumPostPageSummary.push(rpcRequest.params)
+      const posts = forumPostsByPage[rpcRequest.params.page] ?? []
+      const latest = posts.at(-1)
+      result = {
+        comments: posts.length,
+        commented_at: latest?.created_at ?? null,
+        commented_by: latest?.created_by ?? null
+      }
+    } else if (
       rpcRequest.method === "page_select" &&
       hasExactKeys(rpcRequest.params, ["parent", "site"]) &&
       rpcRequest.params.site === "scp-wiki" &&
@@ -448,6 +516,89 @@ const server = createServer((request, response) => {
     ) {
       lastPageSelectParams = rpcRequest.params
       result = ["scp-173", "scp-anthology-2024", "scp-8566"]
+    } else if (
+      rpcRequest.method === "forum_post_select" &&
+      rpcRequest.params?.site_id === 6000005 &&
+      (rpcRequest.params.page === undefined ||
+        typeof rpcRequest.params.page === "string") &&
+      (rpcRequest.params.reply_to === undefined ||
+        typeof rpcRequest.params.reply_to === "string") &&
+      (rpcRequest.params.created_by === undefined ||
+        typeof rpcRequest.params.created_by === "string")
+    ) {
+      if (
+        rpcRequest.params.reply_to !== undefined &&
+        rpcRequest.params.reply_to !== "-" &&
+        !isSignedI64String(rpcRequest.params.reply_to)
+      ) {
+        response.writeHead(200, { "content-type": "application/json" }).end(
+          JSON.stringify({
+            error: {
+              code: -32602,
+              message: "Unexpected fixture forum_post_select params"
+            },
+            id: rpcRequest.id,
+            jsonrpc: "2.0"
+          })
+        )
+        return
+      }
+
+      const posts =
+        rpcRequest.params.page === undefined
+          ? Object.values(forumPostsByPage).flat()
+          : (forumPostsByPage[rpcRequest.params.page] ?? [])
+      result = posts
+        .filter((post) => {
+          if (rpcRequest.params.reply_to === undefined) {
+            return true
+          }
+          if (rpcRequest.params.reply_to === "-") {
+            return post.reply_to === null
+          }
+          return String(post.reply_to) === rpcRequest.params.reply_to
+        })
+        .filter(
+          (post) =>
+            rpcRequest.params.created_by === undefined ||
+            post.created_by === rpcRequest.params.created_by
+        )
+        .map((post) => post.id)
+    } else if (
+      rpcRequest.method === "forum_post_get" &&
+      rpcRequest.params?.site_id === 6000005 &&
+      Array.isArray(rpcRequest.params.posts) &&
+      rpcRequest.params.posts.every(
+        /** @param {unknown} post */
+        (post) => typeof post === "string"
+      )
+    ) {
+      if (
+        rpcRequest.params.posts.length > 10 ||
+        rpcRequest.params.posts.some((post) => !isSignedI64String(post))
+      ) {
+        response.writeHead(200, { "content-type": "application/json" }).end(
+          JSON.stringify({
+            error: {
+              code: -32602,
+              message: "Unexpected fixture forum_post_get params"
+            },
+            id: rpcRequest.id,
+            jsonrpc: "2.0"
+          })
+        )
+        return
+      }
+
+      const postsById = new Map(
+        Object.entries(forumPostsByPage).flatMap(([page, posts]) =>
+          posts.map((post) => [String(post.id), { ...post, fullname: page }])
+        )
+      )
+      result = rpcRequest.params.posts.flatMap((post) => {
+        const fixturePost = postsById.get(post)
+        return fixturePost === undefined ? [] : [fixturePost]
+      })
     } else if (
       rpcRequest.method === "page_create" &&
       hasExactKeys(rpcRequest.params, [

@@ -171,6 +171,23 @@ const xmlRpcPagesGetOneRequest = `<?xml version="1.0"?>
   </params>
 </methodCall>`
 
+function xmlRpcPagesGetOneForPageRequest(page: string): string {
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.get_one</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>page</name><value><string>${xmlEscape(page)}</string></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
 const xmlRpcPagesGetMetaTooManyRequest = `<?xml version="1.0"?>
 <methodCall>
   <methodName>pages.get_meta</methodName>
@@ -381,6 +398,63 @@ function xmlRpcFilesSaveOneRequest({
           <member><name>file</name><value><string>${xmlEscape(file)}</string></value></member>
           <member><name>content</name><value><string>${xmlEscape(content)}</string></value></member>
           ${optionalMembers}
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
+function xmlRpcPostsSelectRequest(page?: string, replyTo?: string | number): string {
+  const pageMember =
+    page !== undefined
+      ? `<member><name>page</name><value><string>${xmlEscape(page)}</string></value></member>`
+      : ""
+  const replyToMember =
+    replyTo !== undefined
+      ? `<member><name>reply_to</name><value>${
+          typeof replyTo === "number"
+            ? `<int>${replyTo}</int>`
+            : `<string>${xmlEscape(replyTo)}</string>`
+        }</value></member>`
+      : ""
+
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>posts.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          ${pageMember}
+          ${replyToMember}
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
+function xmlRpcPostsGetRequest(
+  posts: string[],
+  valueType: "string" | "int" = "string"
+): string {
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>posts.get</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>posts</name><value><array><data>${posts
+            .map((post) =>
+              valueType === "int"
+                ? `<value><int>${post}</int></value>`
+                : `<value><string>${xmlEscape(post)}</string></value>`
+            )
+            .join("")}</data></array></value></member>
         </struct>
       </value>
     </param>
@@ -801,6 +875,16 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
   )
   expect(deepwellRequests.status()).toBe(200)
   expect(await deepwellRequests.json()).toEqual({
+    forumPostPageSummary: [
+      {
+        page: "scp-173",
+        site_id: 6000005
+      },
+      {
+        page: "scp-173",
+        site_id: 6000005
+      }
+    ],
     pageGet: [
       {
         details: { compiled_html: false, wikitext: false },
@@ -866,6 +950,115 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
       { site: "missing-site" }
     ]
   })
+})
+
+test("XML-RPC endpoint returns page comment summaries and forum posts", async ({
+  request
+}) => {
+  const pageOneResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetOneForPageRequest("xmlrpc-post-page"),
+    headers: xmlRpcHeaders
+  })
+  expect(pageOneResponse.status()).toBe(200)
+  const pageOneBody = await pageOneResponse.text()
+  expect(pageOneBody).toContain("<name>comments</name><value><int>1</int></value>")
+  expect(pageOneBody).toContain(
+    "<name>commented_at</name><value><string>2026-06-21T00:00:00Z</string></value>"
+  )
+  expect(pageOneBody).toContain(
+    "<name>commented_by</name><value><string>administrator</string></value>"
+  )
+
+  const selectResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsSelectRequest("xmlrpc-post-page"),
+    headers: xmlRpcHeaders
+  })
+  expect(selectResponse.status()).toBe(200)
+  expect(await selectResponse.text()).toContain("<value><int>7000300</int></value>")
+
+  const siteWideSelectResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsSelectRequest(),
+    headers: xmlRpcHeaders
+  })
+  expect(siteWideSelectResponse.status()).toBe(200)
+  expect(await siteWideSelectResponse.text()).toContain(
+    "<value><int>7000300</int></value>"
+  )
+
+  const topLevelResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsSelectRequest("xmlrpc-post-page", "-"),
+    headers: xmlRpcHeaders
+  })
+  expect(topLevelResponse.status()).toBe(200)
+  expect(await topLevelResponse.text()).toContain("<value><int>7000300</int></value>")
+
+  const directReplyResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsSelectRequest("xmlrpc-post-page", 7000300),
+    headers: xmlRpcHeaders
+  })
+  expect(directReplyResponse.status()).toBe(200)
+  expect(await directReplyResponse.text()).toContain("<array><data></data></array>")
+
+  const invalidReplyToResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsSelectRequest("xmlrpc-post-page", "9223372036854775808"),
+    headers: xmlRpcHeaders
+  })
+  expect(invalidReplyToResponse.status()).toBe(200)
+  const invalidReplyToBody = await invalidReplyToResponse.text()
+  expect(invalidReplyToBody).toContain("<fault>")
+  expect(invalidReplyToBody).toContain(
+    "<name>faultCode</name><value><int>-32603</int></value>"
+  )
+
+  const postsGetResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsGetRequest(["7000300"], "int"),
+    headers: xmlRpcHeaders
+  })
+  expect(postsGetResponse.status()).toBe(200)
+  const postsGetBody = await postsGetResponse.text()
+  expect(postsGetBody).toContain("<name>7000300</name>")
+  expect(postsGetBody).toContain("<name>id</name><value><int>7000300</int></value>")
+  expect(postsGetBody).toContain(
+    "<name>fullname</name><value><string>xmlrpc-post-page</string></value>"
+  )
+  expect(postsGetBody).toContain("<name>reply_to</name><value><nil /></value>")
+  expect(postsGetBody).toContain(
+    "<name>title</name><value><string>XML-RPC comment proof</string></value>"
+  )
+  expect(postsGetBody).toContain(
+    "<name>content</name><value><string>XML-RPC page comment proof body.</string></value>"
+  )
+  expect(postsGetBody).toContain(
+    "<name>html</name><value><string>&lt;p&gt;XML-RPC page comment proof body.&lt;/p&gt;</string></value>"
+  )
+  expect(postsGetBody).toContain(
+    "<name>created_by</name><value><string>administrator</string></value>"
+  )
+  expect(postsGetBody).toContain(
+    "<name>created_at</name><value><string>2026-06-21T00:00:00Z</string></value>"
+  )
+
+  const unsafeNumericPostResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsGetRequest(["9007199254740992"], "int"),
+    headers: xmlRpcHeaders
+  })
+  expect(unsafeNumericPostResponse.status()).toBe(200)
+  const unsafeNumericPostBody = await unsafeNumericPostResponse.text()
+  expect(unsafeNumericPostBody).toContain("<fault>")
+  expect(unsafeNumericPostBody).toContain(
+    "<name>faultCode</name><value><int>-32602</int></value>"
+  )
+
+  const outOfRangeStringPostResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPostsGetRequest(["9223372036854775808"]),
+    headers: xmlRpcHeaders
+  })
+  expect(outOfRangeStringPostResponse.status()).toBe(200)
+  const outOfRangeStringPostBody = await outOfRangeStringPostResponse.text()
+  expect(outOfRangeStringPostBody).toContain("<fault>")
+  expect(outOfRangeStringPostBody).toContain(
+    "<name>faultCode</name><value><int>-32603</int></value>"
+  )
 })
 
 test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename", async ({

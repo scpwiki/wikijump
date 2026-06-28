@@ -86,6 +86,23 @@ interface DeepwellFile {
   revision_comments: string
 }
 
+interface DeepwellForumPostSummary {
+  comments: number
+  commented_at: string | null
+  commented_by: string | null
+}
+
+interface DeepwellForumPost {
+  id: number
+  fullname: string
+  reply_to: number | null
+  title: string
+  content: string
+  html: string
+  created_by: string
+  created_at: string
+}
+
 interface DeepwellParentRelationship {
   parent_page_id: number
 }
@@ -347,6 +364,12 @@ async function dispatchXmlRpcCall(
     case "files.save_one":
       expectParamCount(call, 1)
       return saveFileOne(call, options.requestIp)
+    case "posts.select":
+      expectParamCount(call, 1)
+      return selectPosts(call)
+    case "posts.get":
+      expectParamCount(call, 1)
+      return getPosts(call)
     default:
       if (hasMethodDefinition(call.methodName)) {
         throw new XmlRpcFault(
@@ -552,11 +575,14 @@ async function getPagesMeta(call: XmlRpcCall): Promise<Record<string, XmlRpcValu
       continue
     }
 
-    const parentPage = await getDeepwellDirectParentPage(siteId, page.slug)
-    const creatorUserId = await getDeepwellPageCreatorUserId(siteId, page)
+    const [parentPage, creatorUserId, postSummary] = await Promise.all([
+      getDeepwellDirectParentPage(siteId, page.slug),
+      getDeepwellPageCreatorUserId(siteId, page),
+      getDeepwellForumPostSummary(siteId, page.slug)
+    ])
     entries.push([
       page.slug,
-      buildXmlRpcPageMeta(page, parentPage?.slug ?? null, creatorUserId)
+      buildXmlRpcPageMeta(page, parentPage?.slug ?? null, creatorUserId, postSummary)
     ])
   }
 
@@ -831,6 +857,65 @@ async function saveFileOne(
   return buildXmlRpcFileMeta(site, page.slug, saved)
 }
 
+async function selectPosts(call: XmlRpcCall): Promise<number[]> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const page = getOptionalStructString(params, "page")
+  const replyTo = getOptionalStructStringOrInt(params, "reply_to")
+  const createdBy = getOptionalStructString(params, "created_by")
+  const siteId = await getDeepwellSiteId(site)
+
+  const posts = await requestDeepwell("forum_post_select", {
+    site_id: siteId,
+    page: page ?? undefined,
+    reply_to: replyTo ?? undefined,
+    created_by: createdBy ?? undefined
+  })
+  if (
+    !Array.isArray(posts) ||
+    posts.some((post) => typeof post !== "number" || !Number.isInteger(post))
+  ) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: forum_post_select")
+  }
+
+  return posts
+}
+
+async function getPosts(call: XmlRpcCall): Promise<Record<string, XmlRpcValue>> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const posts = getRequiredStructStringOrIntArray(params, "posts")
+
+  if (posts.length > 10) {
+    throw new XmlRpcFault(-32602, "posts.get posts is limited to 10 entries")
+  }
+
+  const siteId = await getDeepwellSiteId(site)
+  const result = expectDeepwellForumPosts(
+    await requestDeepwell("forum_post_get", {
+      site_id: siteId,
+      posts
+    }),
+    "forum_post_get"
+  )
+
+  return Object.fromEntries(
+    result.map((post) => [
+      String(post.id),
+      {
+        id: post.id,
+        fullname: post.fullname,
+        reply_to: post.reply_to,
+        title: post.title,
+        content: post.content,
+        html: post.html,
+        created_by: post.created_by,
+        created_at: post.created_at
+      }
+    ])
+  )
+}
+
 function decodeXmlRpcBase64(content: string): Buffer {
   const normalized = content.replace(/\s+/g, "")
   if (
@@ -952,8 +1037,11 @@ async function buildXmlRpcPage(
     throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
   }
 
-  const parentPage = await getDeepwellDirectParentPage(siteId, page.slug)
-  const creatorUserId = await getDeepwellPageCreatorUserId(siteId, page)
+  const [parentPage, creatorUserId, postSummary] = await Promise.all([
+    getDeepwellDirectParentPage(siteId, page.slug),
+    getDeepwellPageCreatorUserId(siteId, page),
+    getDeepwellForumPostSummary(siteId, page.slug)
+  ])
   const parentFullname = parentPage?.slug ?? null
   const parentTitle = parentPage?.title ?? null
   const children = expectDeepwellStringArray(
@@ -965,14 +1053,11 @@ async function buildXmlRpcPage(
   )
 
   return {
-    ...buildXmlRpcPageMeta(page, parentFullname, creatorUserId),
+    ...buildXmlRpcPageMeta(page, parentFullname, creatorUserId, postSummary),
     parent_title: parentTitle,
     children: children.length,
     content: page.wikitext ?? "",
-    html: page.compiled_body_html ?? "",
-    comments: 0,
-    commented_at: null,
-    commented_by: null
+    html: page.compiled_body_html ?? ""
   }
 }
 
@@ -1151,6 +1236,21 @@ async function getDeepwellDirectParentPage(
   return parentPage
 }
 
+async function getDeepwellForumPostSummary(
+  siteId: number,
+  page: string
+): Promise<DeepwellForumPostSummary> {
+  const summary = await requestDeepwell("forum_post_page_summary", {
+    site_id: siteId,
+    page
+  })
+  if (!isDeepwellForumPostSummary(summary)) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: forum_post_page_summary")
+  }
+
+  return summary
+}
+
 async function getDeepwellParentFullnames(
   siteId: number,
   page: string,
@@ -1303,6 +1403,32 @@ function isDeepwellFile(value: unknown, includeData: boolean): value is Deepwell
   )
 }
 
+function isDeepwellForumPostSummary(value: unknown): value is DeepwellForumPostSummary {
+  return (
+    isXmlRpcStruct(value) &&
+    typeof value.comments === "number" &&
+    Number.isInteger(value.comments) &&
+    (typeof value.commented_at === "string" || value.commented_at === null) &&
+    (typeof value.commented_by === "string" || value.commented_by === null)
+  )
+}
+
+function isDeepwellForumPost(value: unknown): value is DeepwellForumPost {
+  return (
+    isXmlRpcStruct(value) &&
+    typeof value.id === "number" &&
+    Number.isInteger(value.id) &&
+    typeof value.fullname === "string" &&
+    ((typeof value.reply_to === "number" && Number.isInteger(value.reply_to)) ||
+      value.reply_to === null) &&
+    typeof value.title === "string" &&
+    typeof value.content === "string" &&
+    typeof value.html === "string" &&
+    typeof value.created_by === "string" &&
+    typeof value.created_at === "string"
+  )
+}
+
 function isDeepwellPageRevision(value: unknown): value is DeepwellPageRevision {
   return (
     isXmlRpcStruct(value) &&
@@ -1320,6 +1446,14 @@ function expectDeepwellFiles(
   includeData: boolean
 ): DeepwellFile[] {
   if (!Array.isArray(value) || value.some((file) => !isDeepwellFile(file, includeData))) {
+    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
+  }
+
+  return value
+}
+
+function expectDeepwellForumPosts(value: unknown, method: string): DeepwellForumPost[] {
+  if (!Array.isArray(value) || value.some((post) => !isDeepwellForumPost(post))) {
     throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
   }
 
@@ -1348,7 +1482,8 @@ function expectDeepwellParentRelationships(
 function buildXmlRpcPageMeta(
   page: DeepwellPage,
   parentFullname: string | null,
-  creatorUserId: number
+  creatorUserId: number,
+  postSummary: DeepwellForumPostSummary
 ): Record<string, XmlRpcValue> {
   const creatorId = String(creatorUserId)
   const updaterId = String(page.revision_user_id)
@@ -1364,9 +1499,9 @@ function buildXmlRpcPageMeta(
     tags: page.tags,
     rating: Math.round(page.rating),
     revisions: page.page_revision_count,
-    comments: 0,
-    commented_at: null,
-    commented_by: null
+    comments: postSummary.comments,
+    commented_at: postSummary.commented_at,
+    commented_by: postSummary.commented_by
   }
 }
 
@@ -1468,6 +1603,25 @@ function getRequiredStructStringArray(
   return value
 }
 
+function getRequiredStructStringOrIntArray(
+  params: Record<string, XmlRpcValue>,
+  name: string
+): string[] {
+  const value = params[name]
+  if (!Array.isArray(value)) {
+    throw new XmlRpcFault(-32602, `Expected string or integer array field: ${name}`)
+  }
+  return value.map((entry) => {
+    if (typeof entry === "string") {
+      return entry
+    }
+    if (typeof entry === "number" && Number.isSafeInteger(entry)) {
+      return String(entry)
+    }
+    throw new XmlRpcFault(-32602, `Expected string or integer array field: ${name}`)
+  })
+}
+
 function getOptionalStructStringArray(
   params: Record<string, XmlRpcValue>,
   name: string
@@ -1494,6 +1648,23 @@ function getOptionalStructString(
     throw new XmlRpcFault(-32602, `Expected string field: ${name}`)
   }
   return value
+}
+
+function getOptionalStructStringOrInt(
+  params: Record<string, XmlRpcValue>,
+  name: string
+): string | null {
+  const value = params[name]
+  if (value === undefined || value === null) {
+    return null
+  }
+  if (typeof value === "string") {
+    return value
+  }
+  if (typeof value === "number" && Number.isSafeInteger(value)) {
+    return String(value)
+  }
+  throw new XmlRpcFault(-32602, `Expected string or integer field: ${name}`)
 }
 
 function addOptionalStringField(
