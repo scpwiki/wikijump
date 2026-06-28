@@ -60,6 +60,8 @@ const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
 const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
+const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
+const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const LONG_NATIVE_LIST_RENDER_MIN_ITEMS: usize = 8;
 const MAX_FTML_COMPAT_PARSE_BYTES: usize = 768_000;
 const MAX_FTML_COMPAT_DENSE_PARSE_SCORE: usize = 180_000;
@@ -1898,11 +1900,18 @@ impl RenderService {
         for captures in LISTPAGES_MODULE_REGEX.captures_iter(&wikitext) {
             let mtch = captures.get(0).unwrap();
             expanded.push_str(&wikitext[cursor..mtch.start()]);
+            let head = captures.name("head").unwrap().as_str();
             let body = captures.name("body").unwrap().as_str();
 
-            let Some(arguments) =
-                parse_list_pages_arguments(captures.name("head").unwrap().as_str())
-            else {
+            if list_pages_has_unsupported_parent_selector(head)
+                || list_pages_has_unsupported_page_type_selector(head)
+            {
+                expanded.push_str(mtch.as_str());
+                cursor = mtch.end();
+                continue;
+            }
+
+            let Some(arguments) = parse_list_pages_arguments(head) else {
                 expanded
                     .push_str(&unsupported_list_pages_replacement(mtch.as_str(), body));
                 cursor = mtch.end();
@@ -3039,6 +3048,8 @@ impl RenderService {
             order,
             limit,
             offset,
+            page_type,
+            page_parent,
             slug,
             prepend_line,
         } = arguments;
@@ -3068,6 +3079,9 @@ impl RenderService {
         } else {
             categories
         };
+        let requested_limit = limit
+            .unwrap_or(DEFAULT_LISTPAGES_RENDER_LIMIT)
+            .min(MAX_LISTPAGES_RENDER_LIMIT);
         let included_categories = if category_all {
             IncludedCategories::All
         } else {
@@ -3100,7 +3114,7 @@ impl RenderService {
             current_page_id,
             current_site_id,
             queried_site_id: None,
-            page_type: PageTypeSelector::Normal,
+            page_type,
             categories: CategoriesSelector {
                 included_categories,
                 excluded_categories: &excluded_categories,
@@ -3110,7 +3124,7 @@ impl RenderService {
                 all_present: &all_tags,
                 none_present: &no_tags,
             },
-            page_parent: PageParentSelector::All,
+            page_parent,
             contains_outgoing_links: &[],
             creation_date: DateSelector::FromPresent {
                 start: time::OffsetDateTime::UNIX_EPOCH,
@@ -3121,18 +3135,14 @@ impl RenderService {
             author: &author_ids,
             score: &[],
             votes: &[],
-            offset,
+            offset: 0,
             range: RangeSelector::Current,
             name: None,
             slug,
             data_form_fields: &[],
             order,
             pagination: PaginationSelector {
-                limit: Some(
-                    limit
-                        .unwrap_or(DEFAULT_LISTPAGES_RENDER_LIMIT)
-                        .min(MAX_LISTPAGES_RENDER_LIMIT),
-                ),
+                limit: Some(MAX_LISTPAGES_RENDER_LIMIT),
                 per_page: PaginationSelector::default().per_page,
                 reversed: false,
             },
@@ -3165,9 +3175,19 @@ impl RenderService {
         } else if current_page_only {
             FoundPages { pages: Vec::new() }
         } else {
-            PageQueryService::find(ctx, query).await?
+            Self::find_viewable_list_pages_rows(
+                ctx,
+                query,
+                offset as usize + requested_limit as usize,
+            )
+            .await?
         };
-        let pages = Self::filter_viewable_list_pages_rows(ctx, pages.pages).await?;
+        let pages = pages
+            .pages
+            .into_iter()
+            .skip(offset as usize)
+            .take(requested_limit as usize)
+            .collect::<Vec<_>>();
         let total = pages.len();
         let user_displays = if wants_created_by || wants_updated_by {
             Self::load_wikidot_user_displays(ctx, &pages).await?
@@ -3239,6 +3259,37 @@ impl RenderService {
         }
 
         Ok(viewable)
+    }
+
+    async fn find_viewable_list_pages_rows(
+        ctx: &ServiceContext<'_>,
+        query: PageQuery<'_>,
+        target_count: usize,
+    ) -> Result<FoundPages> {
+        let mut pages = Vec::new();
+        let mut raw_offset = 0;
+
+        while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
+            let mut query = query.clone();
+            query.offset = raw_offset;
+            query.pagination.limit = Some(
+                MAX_LISTPAGES_RENDER_LIMIT
+                    .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS - raw_offset)),
+            );
+
+            let found = PageQueryService::find(ctx, query).await?;
+            let raw_count = found.pages.len();
+            if raw_count == 0 {
+                break;
+            }
+            pages.extend(Self::filter_viewable_list_pages_rows(ctx, found.pages).await?);
+            if raw_count < MAX_LISTPAGES_RENDER_LIMIT as usize {
+                break;
+            }
+            raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
+        }
+
+        Ok(FoundPages { pages })
     }
 
     async fn current_page_list_pages_row(
@@ -3517,6 +3568,8 @@ struct ListPagesArguments {
     order: Option<OrderBySelector>,
     limit: Option<u64>,
     offset: u32,
+    page_type: PageTypeSelector,
+    page_parent: PageParentSelector<'static>,
     slug: Option<Cow<'static, str>>,
     prepend_line: Option<String>,
 }
@@ -3539,6 +3592,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut order = None;
     let mut limit = None;
     let mut offset = 0;
+    let mut page_type = PageTypeSelector::Normal;
+    let mut page_parent = PageParentSelector::All;
     let mut slug = None;
     let mut prepend_line = None;
 
@@ -3610,8 +3665,23 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 limit = Some(parse_list_pages_numeric_argument(value)?);
             }
             "offset" => {
-                offset =
-                    parse_list_pages_numeric_argument(value)?.min(u32::MAX as u64) as u32;
+                let parsed = parse_list_pages_numeric_argument(value)?;
+                if parsed > u64::from(MAX_LISTPAGES_RENDER_OFFSET) {
+                    return None;
+                }
+                offset = parsed as u32;
+            }
+            "pagetype" | "page_type" | "page-type" => {
+                page_type = parse_list_pages_page_type(value)?;
+            }
+            "parent" => {
+                let value = list_pages_url_fallback(value).unwrap_or(value);
+                match value {
+                    "." => page_parent = PageParentSelector::ChildOf,
+                    "*" | "" => page_parent = PageParentSelector::All,
+                    _ if is_dynamic_list_pages_value(value) => return None,
+                    _ => return None,
+                }
             }
             "prependline" | "prepend_line" => {
                 prepend_line = Some(value.to_owned());
@@ -3661,7 +3731,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     limit = Some(1);
                 }
             }
-            "rating" | "score" | "votes" | "form" | "parent" | "link_to" | "linkto"
+            "rating" | "score" | "votes" | "form" | "link_to" | "linkto"
             | "urlattrprefix" | "wrapper" | "created_at" | "createdat" | "updated_at"
             | "updatedat" => {
                 // These filters need Wikidot-specific query semantics that are not
@@ -3686,6 +3756,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         order,
         limit,
         offset,
+        page_type,
+        page_parent,
         slug,
         prepend_line,
     })
@@ -3718,6 +3790,50 @@ fn list_pages_url_fallback(value: &str) -> Option<&str> {
     value.split_once('|').and_then(|(selector, fallback)| {
         selector.eq_ignore_ascii_case("@url").then_some(fallback)
     })
+}
+
+fn list_pages_has_unsupported_parent_selector(head: &str) -> bool {
+    LISTPAGES_ARGUMENT_REGEX
+        .captures_iter(head)
+        .any(|captures| {
+            if !captures["key"].eq_ignore_ascii_case("parent") {
+                return false;
+            }
+
+            let value = captures
+                .name("double")
+                .or_else(|| captures.name("single"))
+                .or_else(|| captures.name("bare"))
+                .map(|matched| matched.as_str().trim())
+                .unwrap_or_default();
+            let value = list_pages_url_fallback(value).unwrap_or(value);
+            !matches!(value, "." | "*" | "")
+        })
+}
+
+fn list_pages_has_unsupported_page_type_selector(head: &str) -> bool {
+    LISTPAGES_ARGUMENT_REGEX
+        .captures_iter(head)
+        .any(|captures| {
+            if !matches!(
+                captures["key"].to_ascii_lowercase().as_str(),
+                "pagetype" | "page_type" | "page-type"
+            ) {
+                return false;
+            }
+
+            let value = captures
+                .name("double")
+                .or_else(|| captures.name("single"))
+                .or_else(|| captures.name("bare"))
+                .map(|matched| matched.as_str().trim())
+                .unwrap_or_default();
+            let value = list_pages_url_fallback(value).unwrap_or(value);
+            !matches!(
+                value.to_ascii_lowercase().as_str(),
+                "all" | "*" | "hidden" | "normal" | ""
+            )
+        })
 }
 
 fn wikidot_list_pages_name_slug(value: &str) -> String {
@@ -3768,6 +3884,15 @@ fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
         property,
         ascending,
     })
+}
+
+fn parse_list_pages_page_type(value: &str) -> Option<PageTypeSelector> {
+    match value.to_ascii_lowercase().as_str() {
+        "all" | "*" => Some(PageTypeSelector::All),
+        "hidden" => Some(PageTypeSelector::Hidden),
+        "normal" | "" => Some(PageTypeSelector::Normal),
+        _ => None,
+    }
 }
 
 fn list_pages_body_variables_supported(body: &str) -> bool {
@@ -4852,7 +4977,9 @@ mod tests {
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, RenderContext, RenderService,
         WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
         WikidotUserDisplay, include_error, list_pages_body_uses_content_variable,
-        list_pages_body_variables_supported, parse_list_pages_arguments,
+        list_pages_body_variables_supported,
+        list_pages_has_unsupported_page_type_selector,
+        list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
         render_list_pages_numbered_rows, render_list_pages_table_rows,
         render_members_module_placeholder, render_new_page_module, render_tag_cloud_box,
         should_render_current_page_list_pages_row, substitute_list_pages_variables,
@@ -5020,7 +5147,7 @@ mod tests {
         assert_eq!(arguments.offset, 5);
 
         let arguments = parse_list_pages_arguments(
-            r#" separate="no" category="@URL|*" tags="@URL" created_at="@URL" updated_at="@URL" created_by="@URL" rating="@URL" votes="@URL" link_to="@URL" offset="@URL|0" name="@URL" limit="@URL|0" perPage="@URL|20" parent="@URL" order="@URL|created_at desc" wrapper="no""#,
+            r#" separate="no" category="@URL|*" tags="@URL" created_at="@URL" updated_at="@URL" created_by="@URL" rating="@URL" votes="@URL" link_to="@URL" offset="@URL|0" name="@URL" limit="@URL|0" perPage="@URL|20" parent="*" order="@URL|created_at desc" wrapper="no""#,
         )
         .expect("tag-search ListPages arguments should parse");
 
@@ -5028,6 +5155,30 @@ mod tests {
         assert_eq!(arguments.limit, Some(20));
         assert_eq!(arguments.offset, 0);
         assert!(arguments.slug.is_none());
+
+        assert!(
+            parse_list_pages_arguments(r#" parent="@URL""#).is_none(),
+            "dynamic parent selectors should remain unsupported rather than widening to all parents"
+        );
+        assert!(list_pages_has_unsupported_parent_selector(
+            r#" parent="@URL""#
+        ));
+        assert!(list_pages_has_unsupported_parent_selector(
+            r#" parent="other-page""#
+        ));
+        assert!(!list_pages_has_unsupported_parent_selector(
+            r#" parent="@URL|.""#
+        ));
+        assert!(
+            parse_list_pages_arguments(r#" offset="1001""#).is_none(),
+            "large offsets should remain unsupported during render"
+        );
+        assert!(list_pages_has_unsupported_page_type_selector(
+            r#" pagetype="draft""#
+        ));
+        assert!(!list_pages_has_unsupported_page_type_selector(
+            r#" pagetype="@URL|normal""#
+        ));
     }
 
     #[test]

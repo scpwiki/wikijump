@@ -41,8 +41,13 @@ use wikidot_normalize::normalize;
 // preserved for now so existing pages keep their current behavior.
 const CONTENT_VARIABLE: &str = "%%content%%";
 const CREATED_AT_VARIABLE: &str = "created_at";
+const DEFAULT_CATEGORY: &str = "*";
+const DEFAULT_LIMIT: u64 = 20;
 const RATING_VARIABLE: &str = "rating";
 const FRAGMENT_CATEGORY: &str = "fragment";
+const MAX_CHILD_CONTENT_EXPANSIONS: usize = 512;
+const MAX_SUPPORTED_LIMIT: u64 = 50;
+const MAX_SUPPORTED_OFFSET: u32 = 1_000;
 const MAX_LIST_PAGES_MODULES: usize = 256;
 const MAX_LIST_PAGES_ATTRIBUTES_BYTES: usize = 8 * 1024;
 const MAX_LIST_PAGES_BODY_BYTES: usize = 64 * 1024;
@@ -50,7 +55,7 @@ const MODULE_OPEN: &str = "[[module";
 const MODULE_CLOSE: &str = "[[/module]]";
 
 static MODULE_ATTRIBUTE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?P<name>[A-Za-z_][A-Za-z0-9_-]*)[ \t]*=[ \t]*\"(?P<value>[^\"]*)\""#)
+    Regex::new(r#"(?P<name>[A-Za-z_][A-Za-z0-9_-]*)[ \t]*=[ \t]*"(?P<value>[^"]*)""#)
         .expect("module attribute regular expression should compile")
 });
 
@@ -63,9 +68,13 @@ struct ListPagesOccurrence {
 
 #[derive(Debug)]
 enum SupportedListPages {
-    FragmentChildContent {
+    GeneralChildContent {
         body_template: String,
+        category: String,
         offset: u32,
+        limit: u64,
+        order: OrderBySelector,
+        page_type: PageTypeSelector,
     },
     NamedPageMetadata {
         body_template: String,
@@ -103,6 +112,7 @@ pub(super) async fn expand_list_pages(
 
     let named_slugs = collect_named_slugs(&occurrences);
     let named_pages = resolve_named_pages(ctx, page_id.site_id, &named_slugs).await?;
+    let mut remaining_child_content = MAX_CHILD_CONTENT_EXPANSIONS;
 
     let mut expanded = String::with_capacity(wikitext.len());
     let mut cursor = 0;
@@ -116,13 +126,31 @@ pub(super) async fn expand_list_pages(
         expanded.push_str(&wikitext[cursor..start]);
 
         match specification {
-            Some(SupportedListPages::FragmentChildContent {
+            Some(SupportedListPages::GeneralChildContent {
                 body_template,
+                category,
                 offset,
+                limit,
+                order,
+                page_type,
             }) => {
-                let selected = select_fragment(ctx, page_id, offset).await?;
-                let content = selected.as_deref().unwrap_or("");
-                expanded.push_str(&body_template.replace(CONTENT_VARIABLE, content));
+                if remaining_child_content == 0 {
+                    warn!(
+                        "Skipping ListPages child-content block on page ID {} because the per-page expansion budget is exhausted",
+                        page_id.page_id,
+                    );
+                    cursor = end;
+                    continue;
+                }
+                let limit = limit.min(remaining_child_content as u64);
+                for content in select_child_content_pages(
+                    ctx, page_id, &category, offset, limit, order, page_type,
+                )
+                .await?
+                {
+                    remaining_child_content -= 1;
+                    expanded.push_str(&body_template.replace(CONTENT_VARIABLE, &content));
+                }
             }
             Some(SupportedListPages::NamedPageMetadata {
                 body_template,
@@ -290,20 +318,43 @@ fn parse_supported_specification(
         return Ok(None);
     };
 
-    if attributes.len() == 5
-        && attributes.get("parent") == Some(&".")
-        && attributes.get("category") == Some(&FRAGMENT_CATEGORY)
-        && attributes.get("order") == Some(&"created_at")
-        && attributes.get("limit") == Some(&"1")
-        && attributes.get("offset") == Some(&"@URL|0")
-        && body.trim() == CONTENT_VARIABLE
+    if attributes.keys().all(|name| {
+        matches!(
+            *name,
+            "category" | "limit" | "offset" | "order" | "pagetype" | "parent"
+        )
+    }) && attributes.get("parent").copied() == Some(".")
+        && body.contains(CONTENT_VARIABLE)
+        && child_content_body_variables_supported(body)?
     {
-        // A page render has no request URL query in this layer, so @URL|0 uses
-        // its declared fallback. Parsing a supplied URL offset is intentionally
-        // unsupported.
-        return Ok(Some(SupportedListPages::FragmentChildContent {
+        let Some(offset) = parse_offset(attributes.get("offset").copied()) else {
+            return Ok(None);
+        };
+        let Some(limit) = parse_limit(attributes.get("limit").copied()) else {
+            return Ok(None);
+        };
+        let Some(order) =
+            parse_order(attributes.get("order").copied().unwrap_or("created_at"))
+        else {
+            return Ok(None);
+        };
+        let Some(page_type) =
+            parse_page_type(attributes.get("pagetype").copied().unwrap_or("normal"))
+        else {
+            return Ok(None);
+        };
+
+        return Ok(Some(SupportedListPages::GeneralChildContent {
             body_template: body.to_owned(),
-            offset: 0,
+            category: attributes
+                .get("category")
+                .copied()
+                .unwrap_or(DEFAULT_CATEGORY)
+                .to_owned(),
+            offset,
+            limit,
+            order,
+            page_type,
         }));
     }
 
@@ -334,6 +385,53 @@ fn parse_supported_specification(
     }
 
     Ok(None)
+}
+
+fn parse_limit(value: Option<&str>) -> Option<u64> {
+    let limit = match value {
+        Some(value) => value.parse().ok()?,
+        None => DEFAULT_LIMIT,
+    };
+    (1..=MAX_SUPPORTED_LIMIT).contains(&limit).then_some(limit)
+}
+
+fn parse_offset(value: Option<&str>) -> Option<u32> {
+    let value = value.unwrap_or("0");
+    let fallback = value.strip_prefix("@URL|").unwrap_or(value);
+    let offset = fallback.parse().ok()?;
+    (offset <= MAX_SUPPORTED_OFFSET).then_some(offset)
+}
+
+fn parse_order(value: &str) -> Option<OrderBySelector> {
+    let mut parts = value.split_whitespace();
+    let property = match parts.next()? {
+        "created_at" => OrderProperty::CreatedAt,
+        "updated_at" => OrderProperty::UpdatedAt,
+        "name" | "fullname" | "slug" => OrderProperty::FullSlug,
+        "random" => OrderProperty::Random,
+        _ => return None,
+    };
+    let ascending = match parts.next() {
+        None | Some("asc") => true,
+        Some("desc") => false,
+        Some(_) => return None,
+    };
+    if parts.next().is_some() {
+        return None;
+    }
+    Some(OrderBySelector {
+        property,
+        ascending,
+    })
+}
+
+fn parse_page_type(value: &str) -> Option<PageTypeSelector> {
+    match value {
+        "all" => Some(PageTypeSelector::All),
+        "hidden" => Some(PageTypeSelector::Hidden),
+        "normal" => Some(PageTypeSelector::Normal),
+        _ => None,
+    }
 }
 
 fn parse_attributes(source: &str) -> Option<HashMap<&str, &str>> {
@@ -395,6 +493,24 @@ fn ensure_named_body_variables_are_supported(body: &str) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn child_content_body_variables_supported(body: &str) -> Result<bool> {
+    let mut cursor = 0;
+    while let Some(start_relative) = body[cursor..].find("%%") {
+        let start = cursor + start_relative;
+        let variable_start = start + 2;
+        let Some(end_relative) = body[variable_start..].find("%%") else {
+            return Ok(false);
+        };
+        let end = variable_start + end_relative;
+        if &body[variable_start..end] != "content" {
+            return Ok(false);
+        }
+        cursor = end + 2;
+    }
+
+    Ok(true)
 }
 
 async fn resolve_named_pages(
@@ -503,12 +619,21 @@ fn format_score(score: &ScoreValue) -> String {
     }
 }
 
-async fn select_fragment(
+async fn select_child_content_pages(
     ctx: &ServiceContext<'_>,
     page_id: &PageId,
+    category: &str,
     offset: u32,
-) -> Result<Option<String>> {
-    let included_categories = [Cow::Borrowed(FRAGMENT_CATEGORY)];
+    limit: u64,
+    order: OrderBySelector,
+    page_type: PageTypeSelector,
+) -> Result<Vec<String>> {
+    let included_categories = [Cow::Borrowed(category)];
+    let included_categories = if category == DEFAULT_CATEGORY {
+        IncludedCategories::All
+    } else {
+        IncludedCategories::List(&included_categories)
+    };
     let unbounded_date = DateSelector::FromPresent {
         start: OffsetDateTime::UNIX_EPOCH,
     };
@@ -519,9 +644,9 @@ async fn select_fragment(
             current_page_id: page_id.page_id,
             current_site_id: page_id.site_id,
             queried_site_id: None,
-            page_type: PageTypeSelector::Normal,
+            page_type,
             categories: CategoriesSelector {
-                included_categories: IncludedCategories::List(&included_categories),
+                included_categories,
                 excluded_categories: &[],
             },
             tags: TagCondition {
@@ -541,13 +666,12 @@ async fn select_fragment(
             name: None,
             slug: None,
             data_form_fields: &[],
-            order: Some(OrderBySelector {
-                property: OrderProperty::CreatedAt,
-                ascending: true,
-            }),
+            order: Some(order),
             pagination: PaginationSelector {
-                limit: Some(1),
-                per_page: 1,
+                limit: Some(limit),
+                per_page: limit
+                    .try_into()
+                    .expect("supported ListPages limit should fit in u8"),
                 reversed: false,
             },
             variables: &[],
@@ -559,67 +683,191 @@ async fn select_fragment(
     )
     .await?;
 
-    let Some(selected) = found.pages.into_iter().next() else {
+    if found.pages.is_empty() {
         debug!(
-            "ListPages found no fragment child for page ID {}",
+            "ListPages found no child page for page ID {}",
             page_id.page_id,
         );
-        return Ok(None);
-    };
-
-    if selected.site_id != page_id.site_id {
-        error!(
-            "ListPages selected child page ID {} from site ID {}, but parent page ID {} is in site ID {}",
-            selected.page_id, selected.site_id, page_id.page_id, page_id.site_id,
-        );
-        return Err(Error::new(
-            "ListPages selected a child page from the wrong site",
-            ErrorType::Render,
-        )
-        .into());
+        return Ok(Vec::new());
     }
 
-    let page_category_id = selected
-        .page_category_id
-        .expect("ListPages query requested selected page category IDs");
-    let anonymously_viewable = PermissionService::check_user_can(
-        ctx,
-        &CheckPermissionContext {
-            user_id: None,
-            site_id: selected.site_id,
-            page_reference: Some(Reference::Id(selected.page_id)),
-        },
-        Permission {
-            resource_type: Resource::Page,
-            resource_category: Some(Reference::Id(page_category_id)),
-            action: Action::View,
-        },
-    )
-    .await?;
+    let mut selected_wikitext = Vec::with_capacity(found.pages.len());
+    for selected in found.pages {
+        if selected.site_id != page_id.site_id {
+            error!(
+                "ListPages selected child page ID {} from site ID {}, but parent page ID {} is in site ID {}",
+                selected.page_id, selected.site_id, page_id.page_id, page_id.site_id,
+            );
+            return Err(Error::new(
+                "ListPages selected a child page from the wrong site",
+                ErrorType::Render,
+            )
+            .into());
+        }
 
-    if !anonymously_viewable {
-        warn!(
-            "Skipping ListPages child page ID {} for page ID {} because it is not safe to cache for anonymous viewers",
+        let page_category_id = selected
+            .page_category_id
+            .expect("ListPages query requested selected page category IDs");
+        let anonymously_viewable = PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id: None,
+                site_id: selected.site_id,
+                page_reference: Some(Reference::Id(selected.page_id)),
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(page_category_id)),
+                action: Action::View,
+            },
+        )
+        .await?;
+
+        if !anonymously_viewable {
+            warn!(
+                "Skipping ListPages child page ID {} for page ID {} because it is not safe to cache for anonymous viewers",
+                selected.page_id, page_id.page_id,
+            );
+            continue;
+        }
+
+        debug!(
+            "ListPages selected child page ID {} for page ID {}",
             selected.page_id, page_id.page_id,
         );
-        return Ok(None);
+
+        selected_wikitext.push(
+            PageRevisionService::get_wikitext(
+                ctx,
+                selected.site_id,
+                Reference::Id(selected.page_id),
+            )
+            .await?,
+        );
     }
 
-    debug!(
-        "ListPages selected child page ID {} for page ID {}",
-        selected.page_id, page_id.page_id,
-    );
-
-    let wikitext = PageRevisionService::get_wikitext(
-        ctx,
-        selected.site_id,
-        Reference::Id(selected.page_id),
-    )
-    .await?;
-
-    Ok(Some(wikitext))
+    Ok(selected_wikitext)
 }
 
 fn render_error(message: impl Into<String>) -> Error {
     Error::new(message.into(), ErrorType::Render)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_existing_scp8980_shape() {
+        let specification = parse_supported_specification(
+            r#" parent="." category="fragment" order="created_at" limit="1" offset="@URL|0""#,
+            CONTENT_VARIABLE,
+        )
+        .expect("existing SCP-8980 ListPages shape should not error")
+        .expect("existing SCP-8980 ListPages shape should remain supported");
+
+        let SupportedListPages::GeneralChildContent {
+            body_template,
+            category,
+            offset,
+            limit,
+            order,
+            page_type,
+        } = specification
+        else {
+            panic!("SCP-8980 ListPages shape should parse as child content");
+        };
+
+        assert_eq!(category, "fragment");
+        assert_eq!(offset, 0);
+        assert_eq!(limit, 1);
+        assert_eq!(order.property, OrderProperty::CreatedAt);
+        assert!(order.ascending);
+        assert_eq!(page_type, PageTypeSelector::Normal);
+        assert_eq!(body_template, CONTENT_VARIABLE);
+    }
+
+    #[test]
+    fn parses_wrapped_content_with_safe_query_attributes() {
+        let specification = parse_supported_specification(
+            r#" parent="." category="fragment" order="updated_at desc" limit="2" offset="@URL|1" pagetype="all""#,
+            "before %%content%% after",
+        )
+        .expect("wrapped content with safe attributes should not error")
+        .expect("wrapped content with safe attributes should be supported");
+
+        let SupportedListPages::GeneralChildContent {
+            body_template,
+            category,
+            offset,
+            limit,
+            order,
+            page_type,
+        } = specification
+        else {
+            panic!("wrapped content should parse as child content");
+        };
+
+        assert_eq!(category, "fragment");
+        assert_eq!(offset, 1);
+        assert_eq!(limit, 2);
+        assert_eq!(order.property, OrderProperty::UpdatedAt);
+        assert!(!order.ascending);
+        assert_eq!(page_type, PageTypeSelector::All);
+        assert_eq!(body_template, "before %%content%% after");
+    }
+
+    #[test]
+    fn rejects_unknown_or_unsafe_content_attributes() {
+        for (attributes, body) in [
+            (r#" category="fragment""#, CONTENT_VARIABLE),
+            (r#" parent="other" category="fragment""#, CONTENT_VARIABLE),
+            (
+                r#" parent="." category="fragment" unknown="x""#,
+                CONTENT_VARIABLE,
+            ),
+            (
+                r#" parent="." category="fragment" limit="51""#,
+                CONTENT_VARIABLE,
+            ),
+            (
+                r#" parent="." category="fragment" order="title""#,
+                CONTENT_VARIABLE,
+            ),
+            (
+                r#" parent="." category="fragment" offset="1001""#,
+                CONTENT_VARIABLE,
+            ),
+            (r#" parent="." category="fragment""#, "no content variable"),
+            (
+                r#" parent="." category="fragment""#,
+                "%%title%% :: %%content%%",
+            ),
+            (
+                r#" parent="." category="fragment""#,
+                "before %%content after",
+            ),
+        ] {
+            assert!(
+                parse_supported_specification(attributes, body)
+                    .expect("unsupported attributes should not be fatal")
+                    .is_none()
+            );
+        }
+    }
+
+    #[test]
+    fn keeps_named_metadata_shape_available() {
+        let specification = parse_supported_specification(
+            r#" name="scp-173""#,
+            "Created %%created_at%% with rating %%rating%%",
+        )
+        .expect("named metadata shape should not error")
+        .expect("named metadata shape should be supported");
+
+        assert!(matches!(
+            specification,
+            SupportedListPages::NamedPageMetadata { .. }
+        ));
+    }
 }

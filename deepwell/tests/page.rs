@@ -22,18 +22,23 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::ADMIN_USER_ID;
+use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use deepwell::error::prelude::*;
 use deepwell::models::page::{self, Entity as PageTable};
 use deepwell::models::page_category::{self, Entity as PageCategoryTable};
 use deepwell::models::page_revision::Entity as PageRevisionTable;
 use deepwell::services::RequestContext;
+use deepwell::services::category::CategoryService;
 use deepwell::services::page_query::{
     CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
     PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
-use deepwell::types::{PageRevisionType, Reference};
+use deepwell::services::permission::PermissionService;
+use deepwell::services::role::{
+    GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
+};
+use deepwell::types::{Action, PageRevisionType, Permission, Reference, Resource};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
 };
@@ -757,6 +762,226 @@ async fn listpages_fragment_content_skips_hidden_pages_by_default() {
             "fragment ListPages should not contain {forbidden:?}:\n{html}"
         );
     }
+}
+
+#[tokio::test]
+async fn listpages_content_body_supports_bounded_ordered_child_results() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    const INDEX_SLUG: &str = "fixture-listpages-content-body-index";
+
+    let index_revision = create_listpages_test_page(
+        &runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Content Body Index",
+        concat!(
+            "Before content ListPages.\n\n",
+            "[[module ListPages parent=\".\" order=\"created_at desc\" limit=\"2\" offset=\"0\" pagetype=\"normal\"]]\n",
+            "content-body-start %%content%% content-body-end\n",
+            "[[/module]]\n\n",
+            "After content ListPages."
+        ),
+    )
+    .await;
+
+    for (index, slug, title, source) in [
+        (
+            0,
+            "fixture-listpages-content-body-target-a",
+            "Fixture ListPages Target Alpha",
+            "Fixture ListPages Target Alpha marker.",
+        ),
+        (
+            1,
+            "fixture-listpages-content-body-target-b",
+            "Fixture ListPages Target Beta",
+            "Fixture ListPages Target Beta marker.",
+        ),
+        (
+            2,
+            "fixture-listpages-content-body-target-c",
+            "Fixture ListPages Target Gamma",
+            "Fixture ListPages Target Gamma marker.",
+        ),
+    ] {
+        create_listpages_test_page(&runner, site_id, slug, title, source).await;
+        set_listpages_test_created_at(
+            &runner,
+            site_id,
+            slug,
+            OffsetDateTime::UNIX_EPOCH + Duration::seconds(index + 1),
+        )
+        .await;
+        set_listpages_test_parent(&runner, site_id, slug, INDEX_SLUG).await;
+    }
+
+    let excluded_slug = "fixture-listpages-content-body-excluded";
+    create_listpages_test_page(
+        &runner,
+        site_id,
+        excluded_slug,
+        "Fixture ListPages Excluded",
+        "Fixture ListPages Excluded marker.",
+    )
+    .await;
+
+    let private_category = "fixture-listpages-private-view";
+    make_listpages_test_category_admin_only(&runner, site_id, private_category).await;
+    let private_slug = "fixture-listpages-content-body-private";
+    create_listpages_test_page(
+        &runner,
+        site_id,
+        private_slug,
+        "Fixture ListPages Private",
+        "Fixture ListPages Private marker.",
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, private_slug, private_category)
+        .await;
+    set_listpages_test_created_at(
+        &runner,
+        site_id,
+        private_slug,
+        OffsetDateTime::UNIX_EPOCH + Duration::seconds(4),
+    )
+    .await;
+    set_listpages_test_parent(&runner, site_id, private_slug, INDEX_SLUG).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(INDEX_SLUG))),
+    });
+    let rerender = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "last_revision_id": index_revision,
+            "revision_comments": "rerender after attaching content ListPages children",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(
+        rerender.is_none(),
+        "relationship-only rerender should not create a page revision",
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("content ListPages index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let target_c = html.find("Fixture ListPages Target Gamma marker.");
+    let target_b = html.find("Fixture ListPages Target Beta marker.");
+    assert!(
+        target_c.is_some() && target_b.is_some(),
+        "created_at desc content ListPages should render target C and B content:\n{html}",
+    );
+    let target_c = target_c.expect("checked target C exists");
+    let target_b = target_b.expect("checked target B exists");
+    assert!(
+        target_c < target_b,
+        "created_at desc content ListPages should render target C before target B:\n{html}",
+    );
+
+    for expected in [
+        "content-body-start",
+        "content-body-end",
+        "Fixture ListPages Target Gamma marker.",
+        "Fixture ListPages Target Beta marker.",
+    ] {
+        assert!(
+            html.contains(expected),
+            "content ListPages fixture should contain {expected:?}:\n{html}"
+        );
+    }
+
+    for forbidden in [
+        "Fixture ListPages Target Alpha marker.",
+        "Fixture ListPages Excluded marker.",
+        "Fixture ListPages Private marker.",
+        "%%content%%",
+        "[[module ListPages",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "content ListPages fixture should not contain {forbidden:?}:\n{html}"
+        );
+    }
+}
+
+async fn make_listpages_test_category_admin_only(
+    runner: &TestRunner,
+    site_id: i64,
+    category_slug: &str,
+) {
+    let category_id =
+        CategoryService::get_or_create(runner.context(), site_id, category_slug)
+            .await
+            .expect("private ListPages category should be created")
+            .category_id;
+    let role = RoleService::create(
+        runner.context(),
+        InternalCreateRoleInput {
+            site_id,
+            name: format!("{category_slug}-viewer"),
+            description: None,
+            is_virtual: false,
+            parent_role_id: None,
+            creating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("private ListPages role should be created");
+    PermissionService::update_permissions_for_role(
+        runner.context(),
+        UpdateRolePermissionsInput {
+            site_id,
+            role_reference: Reference::Id(role.role_id),
+            new_permissions: vec![Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(category_id)),
+                action: Action::View,
+            }],
+            cascade_removals: false,
+            updating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("private ListPages role permissions should be updated");
+    RoleService::grant_role_to_user(
+        runner.context(),
+        GrantUserRoleInput {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            role_id: role.role_id,
+            assigning_user_id: SYSTEM_USER_ID,
+            expires_at: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("admin should receive private ListPages role");
 }
 
 async fn create_listpages_test_page(
