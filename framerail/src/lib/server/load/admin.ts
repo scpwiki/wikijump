@@ -111,6 +111,13 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
 
   try {
     if (form.data.action === "edit") {
+      if (!sessionToken || !session) {
+        return fail(401, {
+          form,
+          message: "user does not have permission to edit this site"
+        })
+      }
+
       const { name, slug, tagline, description, defaultPage, locale, layout, siteId } =
         form.data
 
@@ -124,7 +131,8 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
         description,
         defaultPage,
         locale,
-        layout
+        layout,
+        { sessionToken, siteId }
       )
 
       return { form, res }

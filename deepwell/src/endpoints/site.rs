@@ -20,10 +20,11 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::site::{
     CreateSite, CreateSiteOutput, GetSite, GetSiteOutput, UpdateSite,
 };
-use crate::types::AliasType;
+use crate::types::{Action, AliasType, Permission, Reference, Resource};
 
 pub async fn site_create(
     ctx: &ServiceContext<'_>,
@@ -74,13 +75,55 @@ pub async fn site_update(
     let UpdateSite {
         site,
         body,
-        user_id,
+        user_id: _submitted_user_id,
         ip_address,
     } = parse!(params, Site);
 
     info!("Updating site {site:?}");
 
-    SiteService::update(ctx, site, body, user_id, ip_address)
+    let actor_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            "user does not have permission to edit this site",
+            ErrorType::PermissionDenied,
+        )
+    })?;
+
+    let site_id = match site {
+        Reference::Id(site_id) => site_id,
+        Reference::Slug(_) => {
+            return Err(Error::new(
+                "site_update requires a numeric site ID",
+                ErrorType::BadRequest,
+            )
+            .into());
+        }
+    };
+
+    let can_edit = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: Some(actor_user_id),
+            site_id,
+            page_reference: None,
+        },
+        Permission {
+            resource_type: Resource::Site,
+            resource_category: None,
+            action: Action::Edit,
+        },
+    )
+    .await
+    .or_raise(|| Error::new("failed to check site edit permission", ErrorType::Site))?;
+
+    if !can_edit {
+        return Err(Error::new(
+            "user does not have permission to edit this site",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
+    SiteService::update(ctx, Reference::Id(site_id), body, actor_user_id, ip_address)
         .await
         .or_raise(|| Error::new("failed to update site data", ErrorType::Site))
 }
