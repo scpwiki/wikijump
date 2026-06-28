@@ -13,6 +13,10 @@ on:
       - develop
       - prod
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   binary_build_and_test:
     name: Build, Test and Coverage
