@@ -32,9 +32,35 @@ interface DeepwellCategory {
   slug: string
 }
 
-type DeepwellStringParams = {
-  [key: string]: string | string[] | undefined
+interface DeepwellSite {
+  site_id: number
 }
+
+interface DeepwellPage {
+  page_id?: number
+  page_created_at: string
+  page_updated_at: string | null
+  page_revision_count: number
+  revision_created_at: string
+  revision_user_id: number
+  title: string
+  slug: string
+  tags: string[]
+  rating: number
+  wikitext?: string | null
+  compiled_body_html?: string | null
+}
+
+interface DeepwellPageRevision {
+  revision_number: number
+  user_id: number
+}
+
+interface DeepwellParentRelationship {
+  parent_page_id: number
+}
+
+type DeepwellStringParams = Record<string, string | string[] | undefined>
 
 const XML_RPC_HEADERS = {
   "content-type": "text/xml; charset=utf-8"
@@ -242,6 +268,12 @@ async function dispatchXmlRpcCall(
     case "pages.select":
       expectParamCount(call, 1)
       return selectPages(call)
+    case "pages.get_meta":
+      expectParamCount(call, 1)
+      return getPagesMeta(call)
+    case "pages.get_one":
+      expectParamCount(call, 1)
+      return getPageOne(call)
     default:
       if (hasMethodDefinition(call.methodName)) {
         throw new XmlRpcFault(
@@ -423,6 +455,249 @@ async function selectPages(call: XmlRpcCall): Promise<string[]> {
   )
 }
 
+async function getPagesMeta(call: XmlRpcCall): Promise<Record<string, XmlRpcValue>> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const pages = getRequiredStructStringArray(params, "pages")
+
+  if (pages.length > 10) {
+    throw new XmlRpcFault(-32602, "pages.get_meta pages is limited to 10 entries")
+  }
+
+  const siteId = await getDeepwellSiteId(site)
+  if (pages.length === 0) {
+    return {}
+  }
+
+  const entries: [string, XmlRpcValue][] = []
+  for (const pageReference of pages) {
+    const page = await getDeepwellPage(siteId, pageReference, false)
+    if (!page) {
+      continue
+    }
+
+    const parentPage = await getDeepwellDirectParentPage(siteId, page.slug)
+    const creatorUserId = await getDeepwellPageCreatorUserId(siteId, page)
+    entries.push([
+      page.slug,
+      buildXmlRpcPageMeta(page, parentPage?.slug ?? null, creatorUserId)
+    ])
+  }
+
+  return Object.fromEntries(entries)
+}
+
+async function getPageOne(call: XmlRpcCall): Promise<Record<string, XmlRpcValue>> {
+  const params = getStructParam(call, 0, "params")
+  const site = getRequiredStructString(params, "site")
+  const pageReference = getRequiredStructString(params, "page")
+  const siteId = await getDeepwellSiteId(site)
+  const page = await getDeepwellPage(siteId, pageReference, true)
+  if (!page) {
+    throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
+  }
+
+  const parentPage = await getDeepwellDirectParentPage(siteId, page.slug)
+  const creatorUserId = await getDeepwellPageCreatorUserId(siteId, page)
+  const parentFullname = parentPage?.slug ?? null
+  const parentTitle = parentPage?.title ?? null
+  const children = expectDeepwellStringArray(
+    await requestDeepwell("page_select", {
+      site,
+      parent: page.slug
+    }),
+    "page_select"
+  )
+
+  return {
+    ...buildXmlRpcPageMeta(page, parentFullname, creatorUserId),
+    parent_title: parentTitle,
+    children: children.length,
+    content: page.wikitext ?? "",
+    html: page.compiled_body_html ?? "",
+    comments: 0,
+    commented_at: null,
+    commented_by: null
+  }
+}
+
+async function getDeepwellSiteId(site: string): Promise<number> {
+  const deepwellSite = await requestDeepwell("site_get", { site })
+  if (deepwellSite === null) {
+    throw new XmlRpcFault(406, "Argument site invalid: site does not exist")
+  }
+  if (
+    !isXmlRpcStruct(deepwellSite) ||
+    typeof deepwellSite.site_id !== "number" ||
+    !Number.isInteger(deepwellSite.site_id)
+  ) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: site_get")
+  }
+
+  return (deepwellSite as unknown as DeepwellSite).site_id
+}
+
+async function getDeepwellPage(
+  siteId: number,
+  page: string,
+  includeBody: boolean
+): Promise<DeepwellPage | null> {
+  const deepwellPage = await requestDeepwell("page_get", {
+    site_id: siteId,
+    page,
+    details: {
+      wikitext: includeBody,
+      compiled_html: includeBody
+    }
+  })
+  if (deepwellPage === null) {
+    return null
+  }
+  if (!isDeepwellPage(deepwellPage, includeBody)) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: page_get")
+  }
+
+  return deepwellPage
+}
+
+async function getDeepwellDirectParentPage(
+  siteId: number,
+  page: string
+): Promise<DeepwellPage | null> {
+  const relationships = expectDeepwellParentRelationships(
+    await requestDeepwell("parent_relationships_get", {
+      site_id: siteId,
+      page,
+      relationship_type: "parents"
+    }),
+    "parent_relationships_get"
+  )
+  const parentPageId = relationships[0]?.parent_page_id
+  if (parentPageId === undefined) {
+    return null
+  }
+
+  const parentPage = await requestDeepwell("page_get_direct", {
+    site_id: siteId,
+    page_id: parentPageId,
+    allow_deleted: false,
+    details: {
+      wikitext: false,
+      compiled_html: false
+    }
+  })
+  if (parentPage === null) {
+    return null
+  }
+  if (!isDeepwellPage(parentPage, false)) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: page_get_direct")
+  }
+
+  return parentPage
+}
+
+async function getDeepwellPageCreatorUserId(
+  siteId: number,
+  page: DeepwellPage
+): Promise<number> {
+  if (typeof page.page_id !== "number" || !Number.isInteger(page.page_id)) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: page_get")
+  }
+
+  const firstRevision = await requestDeepwell("page_revision_get", {
+    site_id: siteId,
+    page_id: page.page_id,
+    revision_number: 0,
+    details: {
+      wikitext: false,
+      compiled_html: false
+    }
+  })
+  if (!isDeepwellPageRevision(firstRevision)) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: page_revision_get")
+  }
+
+  return firstRevision.user_id
+}
+
+function isDeepwellPage(value: unknown, includeBody: boolean): value is DeepwellPage {
+  return (
+    isXmlRpcStruct(value) &&
+    typeof value.page_created_at === "string" &&
+    (typeof value.page_updated_at === "string" || value.page_updated_at === null) &&
+    typeof value.page_revision_count === "number" &&
+    Number.isInteger(value.page_revision_count) &&
+    typeof value.revision_created_at === "string" &&
+    typeof value.revision_user_id === "number" &&
+    Number.isInteger(value.revision_user_id) &&
+    typeof value.title === "string" &&
+    typeof value.slug === "string" &&
+    Array.isArray(value.tags) &&
+    value.tags.every((tag) => typeof tag === "string") &&
+    typeof value.rating === "number" &&
+    Number.isFinite(value.rating) &&
+    (!includeBody ||
+      ((typeof value.wikitext === "string" || value.wikitext === null) &&
+        (typeof value.compiled_body_html === "string" ||
+          value.compiled_body_html === null)))
+  )
+}
+
+function isDeepwellPageRevision(value: unknown): value is DeepwellPageRevision {
+  return (
+    isXmlRpcStruct(value) &&
+    typeof value.revision_number === "number" &&
+    Number.isInteger(value.revision_number) &&
+    value.revision_number === 0 &&
+    typeof value.user_id === "number" &&
+    Number.isInteger(value.user_id)
+  )
+}
+
+function expectDeepwellParentRelationships(
+  value: unknown,
+  method: string
+): DeepwellParentRelationship[] {
+  if (
+    !Array.isArray(value) ||
+    value.some(
+      (relationship) =>
+        !isXmlRpcStruct(relationship) ||
+        typeof relationship.parent_page_id !== "number" ||
+        !Number.isInteger(relationship.parent_page_id)
+    )
+  ) {
+    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
+  }
+
+  return value as DeepwellParentRelationship[]
+}
+
+function buildXmlRpcPageMeta(
+  page: DeepwellPage,
+  parentFullname: string | null,
+  creatorUserId: number
+): Record<string, XmlRpcValue> {
+  const creatorId = String(creatorUserId)
+  const updaterId = String(page.revision_user_id)
+
+  return {
+    fullname: page.slug,
+    title: page.title,
+    created_at: page.page_created_at,
+    created_by: creatorId,
+    updated_at: page.page_updated_at ?? page.revision_created_at ?? page.page_created_at,
+    updated_by: updaterId,
+    parent_fullname: parentFullname,
+    tags: page.tags,
+    rating: Math.round(page.rating),
+    revisions: page.page_revision_count,
+    comments: 0,
+    commented_at: null,
+    commented_by: null
+  }
+}
+
 async function requestDeepwell(
   method: string,
   params: Record<string, XmlRpcValue>
@@ -479,6 +754,17 @@ function getRequiredStructString(
   const value = params[name]
   if (typeof value !== "string" || value.length === 0) {
     throw new XmlRpcFault(-32602, `Expected string field: ${name}`)
+  }
+  return value
+}
+
+function getRequiredStructStringArray(
+  params: Record<string, XmlRpcValue>,
+  name: string
+): string[] {
+  const value = getOptionalStructStringArray(params, name)
+  if (value === null) {
+    throw new XmlRpcFault(-32602, `Expected string array field: ${name}`)
   }
   return value
 }
@@ -635,7 +921,7 @@ function getArrayParam(call: XmlRpcCall, index: number, name: string): XmlRpcVal
   return value
 }
 
-function isXmlRpcStruct(value: XmlRpcValue): value is Record<string, XmlRpcValue> {
+function isXmlRpcStruct(value: unknown): value is Record<string, XmlRpcValue> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 

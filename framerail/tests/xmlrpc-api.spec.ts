@@ -137,6 +137,81 @@ const xmlRpcPagesSelectRequest = `<?xml version="1.0"?>
   </params>
 </methodCall>`
 
+const xmlRpcPagesGetMetaRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.get_meta</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>pages</name><value><array><data><value><string>scp-173</string></value><value><string>missing-page</string></value></data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+
+const xmlRpcPagesGetOneRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.get_one</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>page</name><value><string>scp-173</string></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+
+const xmlRpcPagesGetMetaTooManyRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.get_meta</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>pages</name><value><array><data><value><string>page-01</string></value><value><string>page-02</string></value><value><string>page-03</string></value><value><string>page-04</string></value><value><string>page-05</string></value><value><string>page-06</string></value><value><string>page-07</string></value><value><string>page-08</string></value><value><string>page-09</string></value><value><string>page-10</string></value><value><string>page-11</string></value></data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+
+const xmlRpcPagesGetMetaMissingSiteRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.get_meta</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>missing-site</string></value></member>
+          <member><name>pages</name><value><array><data><value><string>scp-173</string></value></data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+
+const xmlRpcPagesGetMetaMissingSiteEmptyPagesRequest = `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.get_meta</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>missing-site</string></value></member>
+          <member><name>pages</name><value><array><data /></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+
 function xmlRpcPagesSelectWithFilterCount(
   filterName: "categories" | "tags_any" | "tags_all" | "tags_none",
   count: number
@@ -456,6 +531,167 @@ test("XML-RPC endpoint rejects invalid pages.select scalar filters", async ({
   }
 })
 
+test("XML-RPC endpoint returns page metadata and bodies for corpus clients", async ({
+  request
+}) => {
+  const metaResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetMetaRequest,
+    headers: xmlRpcHeaders
+  })
+  expect(metaResponse.status()).toBe(200)
+
+  const metaBody = await metaResponse.text()
+  expect(metaBody).toContain("<methodResponse>")
+  expect(metaBody).toContain("<name>scp-173</name>")
+  expect(metaBody).not.toContain("<name>missing-page</name>")
+  expect(metaBody).toContain(
+    "<name>fullname</name><value><string>scp-173</string></value>"
+  )
+  expect(metaBody).toContain("<name>title</name><value><string>SCP-173</string></value>")
+  expect(metaBody).toContain(
+    "<name>parent_fullname</name><value><string>scp-173-parent</string></value>"
+  )
+  expect(metaBody).toContain("<name>created_by</name><value><string>123</string></value>")
+  expect(metaBody).toContain("<name>updated_by</name><value><string>456</string></value>")
+  expect(metaBody).toContain("<name>tags</name><value><array><data>")
+  expect(metaBody).toContain("<name>rating</name><value><int>173</int></value>")
+  expect(metaBody).toContain("<name>revisions</name><value><int>3</int></value>")
+  expect(metaBody).not.toContain("Item #:")
+
+  const oneResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetOneRequest,
+    headers: xmlRpcHeaders
+  })
+  expect(oneResponse.status()).toBe(200)
+
+  const oneBody = await oneResponse.text()
+  expect(oneBody).toContain("<methodResponse>")
+  expect(oneBody).toContain(
+    "<name>fullname</name><value><string>scp-173</string></value>"
+  )
+  expect(oneBody).toContain("<name>created_by</name><value><string>123</string></value>")
+  expect(oneBody).toContain("<name>updated_by</name><value><string>456</string></value>")
+  expect(oneBody).toContain("<name>content</name><value><string>")
+  expect(oneBody).toContain("**Item #:** SCP-173")
+  expect(oneBody).toContain("<name>html</name><value><string>")
+  expect(oneBody).toContain("&lt;strong&gt;Item #:&lt;/strong&gt; SCP-173")
+  expect(oneBody).toContain(
+    "<name>parent_title</name><value><string>SCP Foundation</string></value>"
+  )
+  expect(oneBody).toContain("<name>children</name><value><int>2</int></value>")
+  expect(oneBody).toContain("<name>comments</name><value><int>0</int></value>")
+  expect(oneBody).toContain("<name>commented_at</name><value><nil /></value>")
+  expect(oneBody).toContain("<name>commented_by</name><value><nil /></value>")
+
+  const tooManyResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetMetaTooManyRequest,
+    headers: xmlRpcHeaders
+  })
+  expect(tooManyResponse.status()).toBe(200)
+
+  const tooManyBody = await tooManyResponse.text()
+  expect(tooManyBody).toContain("<fault>")
+  expect(tooManyBody).toContain("<name>faultCode</name><value><int>-32602</int></value>")
+  expect(tooManyBody).toContain("pages.get_meta pages is limited to 10 entries")
+
+  const missingSiteResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetMetaMissingSiteRequest,
+    headers: xmlRpcHeaders
+  })
+  expect(missingSiteResponse.status()).toBe(200)
+
+  const missingSiteBody = await missingSiteResponse.text()
+  expect(missingSiteBody).toContain("<fault>")
+  expect(missingSiteBody).toContain("<name>faultCode</name><value><int>406</int></value>")
+  expect(missingSiteBody).toContain("Argument site invalid: site does not exist")
+
+  const missingSiteEmptyPagesResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetMetaMissingSiteEmptyPagesRequest,
+    headers: xmlRpcHeaders
+  })
+  expect(missingSiteEmptyPagesResponse.status()).toBe(200)
+
+  const missingSiteEmptyPagesBody = await missingSiteEmptyPagesResponse.text()
+  expect(missingSiteEmptyPagesBody).toContain("<fault>")
+  expect(missingSiteEmptyPagesBody).toContain(
+    "<name>faultCode</name><value><int>406</int></value>"
+  )
+  expect(missingSiteEmptyPagesBody).toContain(
+    "Argument site invalid: site does not exist"
+  )
+
+  const deepwellRequests = await request.get(
+    "http://127.0.0.1:42747/last-page-read-requests"
+  )
+  expect(deepwellRequests.status()).toBe(200)
+  expect(await deepwellRequests.json()).toEqual({
+    pageGet: [
+      {
+        details: { compiled_html: false, wikitext: false },
+        page: "scp-173",
+        site_id: 6000005
+      },
+      {
+        details: { compiled_html: false, wikitext: false },
+        page: "missing-page",
+        site_id: 6000005
+      },
+      {
+        details: { compiled_html: true, wikitext: true },
+        page: "scp-173",
+        site_id: 6000005
+      }
+    ],
+    pageGetDirect: [
+      {
+        allow_deleted: false,
+        details: { compiled_html: false, wikitext: false },
+        page_id: 3000172,
+        site_id: 6000005
+      },
+      {
+        allow_deleted: false,
+        details: { compiled_html: false, wikitext: false },
+        page_id: 3000172,
+        site_id: 6000005
+      }
+    ],
+    pageRevisionGet: [
+      {
+        details: { compiled_html: false, wikitext: false },
+        page_id: 3000173,
+        revision_number: 0,
+        site_id: 6000005
+      },
+      {
+        details: { compiled_html: false, wikitext: false },
+        page_id: 3000173,
+        revision_number: 0,
+        site_id: 6000005
+      }
+    ],
+    pageSelect: [{ parent: "scp-173", site: "scp-wiki" }],
+    parentRelationshipsGet: [
+      {
+        page: "scp-173",
+        relationship_type: "parents",
+        site_id: 6000005
+      },
+      {
+        page: "scp-173",
+        relationship_type: "parents",
+        site_id: 6000005
+      }
+    ],
+    siteGet: [
+      { site: "scp-wiki" },
+      { site: "scp-wiki" },
+      { site: "missing-site" },
+      { site: "missing-site" }
+    ]
+  })
+})
+
 test("XML-RPC endpoint bounds tags.select page filters", async ({ request }) => {
   const response = await request.post("/xml-rpc-api.php", {
     data: xmlRpcTagsSelectWithFilterCount("pages", 101),
@@ -518,7 +754,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   request
 }) => {
   const response = await request.post("/xml-rpc-api.php", {
-    data: xmlRpcAdvertisedUnimplementedRequest.replace("pages.select", "pages.get_one"),
+    data: xmlRpcAdvertisedUnimplementedRequest.replace("pages.select", "pages.save_one"),
     headers: xmlRpcHeaders
   })
 
@@ -528,7 +764,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   const body = await response.text()
   expect(body).toContain("<methodResponse>")
   expect(body).toContain("<name>faultCode</name><value><int>-32601</int></value>")
-  expect(body).toContain("XML-RPC method is not implemented yet: pages.get_one")
+  expect(body).toContain("XML-RPC method is not implemented yet: pages.save_one")
 })
 
 test("XML-RPC endpoint accepts Basic auth scheme case-insensitively", async ({
