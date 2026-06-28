@@ -1430,7 +1430,7 @@ function parseXmlRpcValue(valueContent: string): XmlRpcValue {
 
   const structElement = extractFirstDirectElement(text, "struct")
   if (structElement) {
-    const values: Record<string, XmlRpcValue> = {}
+    const values: Record<string, XmlRpcValue> = Object.create(null)
     let offset = 0
     while (true) {
       const member = extractOptionalElement(structElement.content, "member", offset)
@@ -1442,6 +1442,9 @@ function parseXmlRpcValue(valueContent: string): XmlRpcValue {
       const nameElement = extractRequiredElement(member.content, "name")
       rejectSkippedXmlContent(member.content, 0, nameElement.start, "member")
       const name = decodeXmlText(nameElement.content)
+      if (Object.prototype.hasOwnProperty.call(values, name)) {
+        throw new XmlRpcFault(-32602, `Duplicate XML-RPC struct member: ${name}`)
+      }
       const value = extractRequiredElement(member.content, "value", nameElement.end)
       rejectSkippedXmlContent(member.content, nameElement.end, value.start, "member")
       rejectSkippedXmlContent(member.content, value.end, member.content.length, "member")
