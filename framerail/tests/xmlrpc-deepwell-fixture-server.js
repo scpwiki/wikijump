@@ -476,7 +476,10 @@ const server = createServer((request, response) => {
       rpcRequest.method === "parent_get_all" &&
       hasExactKeys(rpcRequest.params, ["page", "site_id"]) &&
       rpcRequest.params.site_id === 6000005 &&
-      typeof rpcRequest.params.page === "string"
+      typeof rpcRequest.params.page === "string" &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005" &&
+      request.headers["x-deepwell-page"] === rpcRequest.params.page
     ) {
       pageWriteRequests.parentGetAll.push({
         headers: requestContextHeaders(request),

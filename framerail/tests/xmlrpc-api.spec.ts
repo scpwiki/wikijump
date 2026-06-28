@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto"
+
 import { expect, test } from "@playwright/test"
 
 import { parseXmlRpcCall, serializeMethodResponse } from "../src/lib/server/xmlrpc"
@@ -757,7 +759,7 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
 test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename", async ({
   request
 }) => {
-  const slug = `fixture-xmlrpc-save-${Date.now()}`
+  const slug = `fixture-xmlrpc-save-${randomUUID()}`
   const renamedSlug = `${slug}-renamed`
 
   const createResponse = await request.post("/xml-rpc-api.php", {
@@ -863,6 +865,11 @@ test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename
     wikitext: "XML-RPC save proof initial content."
   })
   expect(writeLog.pageCreate[0].headers).toMatchObject({
+    page: slug,
+    sessionToken: "fixture-session-token",
+    siteId: "6000005"
+  })
+  expect(writeLog.parentGetAll[0].headers).toMatchObject({
     page: slug,
     sessionToken: "fixture-session-token",
     siteId: "6000005"

@@ -6,7 +6,9 @@ const config: PlaywrightTestConfig = {
       "sh -c 'node tests/xmlrpc-deepwell-fixture-server.js & fixture=$!; trap \"kill $fixture\" EXIT INT TERM; pnpm build && DEEPWELL_HOST=127.0.0.1 DEEPWELL_PORT=42747 pnpm preview'",
     env: {
       XML_RPC_PASSWORD: "test-key",
-      XML_RPC_USERNAME: "test-app"
+      XML_RPC_USERNAME: "test-app",
+      XML_RPC_WRITE_PASSWORD: "wikijumpadmin1",
+      XML_RPC_WRITE_USERNAME: "admin@wikijump"
     },
     port: 4173
   }

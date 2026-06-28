@@ -102,8 +102,8 @@ const MAX_XML_RPC_FILTER_VALUES = 100
 const PAGE_SELECT_DECIMAL_RATING_PATTERN =
   /^[+-]?(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:[eE][+-]?\d+)?$/
 const XML_RPC_DEFAULT_REQUEST_IP = "127.0.0.1"
-const XML_RPC_WRITE_USERNAME = process.env.XML_RPC_WRITE_USERNAME ?? "admin@wikijump"
-const XML_RPC_WRITE_PASSWORD = process.env.XML_RPC_WRITE_PASSWORD ?? "wikijumpadmin1"
+const XML_RPC_WRITE_USERNAME = process.env.XML_RPC_WRITE_USERNAME
+const XML_RPC_WRITE_PASSWORD = process.env.XML_RPC_WRITE_PASSWORD
 const XML_WHITESPACE = "[ \\t\\r\\n]"
 const METHOD_DEFINITIONS: Record<string, MethodDefinition> = {
   "system.listMethods": {
@@ -561,11 +561,6 @@ async function savePageOne(
 
   const siteId = await getDeepwellSiteId(site)
   let page = await getDeepwellPage(siteId, pageReference, true)
-  const writeContext = await getXmlRpcWriteContext(
-    siteId,
-    page?.slug ?? pageReference,
-    requestIp
-  )
 
   if (saveMode === "create" && page) {
     throw new XmlRpcFault(409, "Argument page invalid: page already exists")
@@ -573,6 +568,29 @@ async function savePageOne(
   if (saveMode === "update" && !page) {
     throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
   }
+
+  const currentPageReference = page?.slug ?? pageReference
+  if (parentFullname !== null && parentFullname !== "-") {
+    const parentPage = await getDeepwellPage(siteId, parentFullname, false)
+    if (!parentPage) {
+      throw new XmlRpcFault(
+        406,
+        "Argument parent_fullname invalid: parent page does not exist"
+      )
+    }
+  }
+  if (renameAs !== null && renameAs !== currentPageReference) {
+    const targetPage = await getDeepwellPage(siteId, renameAs, false)
+    if (targetPage) {
+      throw new XmlRpcFault(409, "Argument rename_as invalid: page already exists")
+    }
+  }
+
+  const writeContext = await getXmlRpcWriteContext(
+    siteId,
+    currentPageReference,
+    requestIp
+  )
 
   const createdPage = !page
   if (!page) {
@@ -686,6 +704,14 @@ async function getXmlRpcWriteContext(
   page: string,
   requestIp: string
 ): Promise<XmlRpcWriteContext> {
+  if (!XML_RPC_WRITE_USERNAME || !XML_RPC_WRITE_PASSWORD) {
+    throw new XmlRpcFault(
+      403,
+      "XML-RPC write actor authentication is not configured",
+      403
+    )
+  }
+
   let login: DeepwellLoginOutput
   try {
     login = (await client.request("login", {
@@ -805,13 +831,18 @@ async function getDeepwellDirectParentPage(
 
 async function getDeepwellParentFullnames(
   siteId: number,
-  page: string
+  page: string,
+  context: DeepwellRequestContext
 ): Promise<string[]> {
   return expectDeepwellStringArray(
-    await requestDeepwell("parent_get_all", {
-      site_id: siteId,
-      page
-    }),
+    await requestDeepwell(
+      "parent_get_all",
+      {
+        site_id: siteId,
+        page
+      },
+      { ...context, page }
+    ),
     "parent_get_all"
   )
 }
@@ -822,7 +853,7 @@ async function replaceDeepwellParents(
   parentFullname: string,
   context: XmlRpcWriteContext
 ): Promise<void> {
-  const parents = await getDeepwellParentFullnames(siteId, page)
+  const parents = await getDeepwellParentFullnames(siteId, page, context)
   const remove =
     parentFullname === "-"
       ? parents
