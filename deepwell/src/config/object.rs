@@ -297,7 +297,7 @@ impl Config {
             localization_path: PathBuf::from("../locales"),
             authentication_fail_delay: StdDuration::from_millis(1),
             session_token_prefix: str!("wj:"),
-            session_token_length: 16,
+            session_token_length: 64,
             normal_session_duration: time::Duration::minutes(30),
             restricted_session_duration: time::Duration::minutes(5),
             recovery_code_count: 4,
