@@ -83,8 +83,6 @@ jobs:
         run: apt update && apt install libmagic-dev
 
       - name: Start MinIO
-        id: start-minio
-        background: true
         run: |
           curl -fsSLo /usr/local/bin/minio https://dl.min.io/server/minio/release/linux-amd64/archive/minio.RELEASE.2025-09-07T16-13-09Z
           echo "7c5bd8512c6e966455b1d198209358b2d191c77a83ab377c4073281065fb855f /usr/local/bin/minio" | sha256sum -c -
@@ -124,9 +122,6 @@ jobs:
 
       - name: Build (all features)
         run: cd deepwell && cargo build --all-features
-
-      - name: Wait for MinIO
-        wait: start-minio
 
       - name: Check Configuration
         run: cd deepwell && cargo run --all-features -- config.example.toml ../install/local/deepwell/config.toml ../install/dev/deepwell/config.toml ../install/prod/deepwell/config.toml
@@ -180,10 +175,11 @@ jobs:
       - name: System Dependencies
         run: sudo apt update && sudo apt install libmagic-dev
 
+      - name: Install cargo-machete
+        run: cargo install cargo-machete --version 0.9.1 --locked
+
       - name: Machete
-        uses: bnjbvr/cargo-machete@main
-        with:
-          args: 'deepwell'
+        run: cargo machete deepwell
 
       - name: Rustfmt
         run: cd deepwell && cargo fmt --all -- --check

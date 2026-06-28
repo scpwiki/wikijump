@@ -81,10 +81,11 @@ jobs:
             wws/target
           key: ${{ runner.os }}-wws-lint-${{ hashFiles('wws/**/Cargo.toml') }}
 
+      - name: Install cargo-machete
+        run: cargo install cargo-machete --version 0.9.1 --locked
+
       - name: Machete
-        uses: bnjbvr/cargo-machete@main
-        with:
-          args: 'wws'
+        run: cargo machete wws
 
       - name: Rustfmt
         run: cd wws && cargo fmt --all -- --check
