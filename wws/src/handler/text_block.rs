@@ -19,9 +19,10 @@
  */
 
 use super::get_site_id;
-use crate::deepwell::{TextBlockIndex, TextBlockType};
+use crate::deepwell::{TextBlockId, TextBlockIndex, TextBlockType};
 use crate::error::{
-    BasicError, FallbackError, TextBlockErrorReason, build_basic_error_response,
+    BasicError, Error as WwsError, FallbackError, TextBlockErrorReason,
+    build_basic_error_response,
 };
 use crate::state::ServerState;
 use axum::body::Body;
@@ -29,8 +30,8 @@ use axum::extract::{Path, State};
 use axum::http::header::{self, HeaderMap};
 use axum::http::status::StatusCode;
 use axum::response::{IntoResponse, Response};
+use jsonrpsee::core::ClientError;
 use std::collections::HashMap;
-use std::num::NonZeroU16;
 
 pub async fn handle_html_block(
     State(state): State<ServerState>,
@@ -84,14 +85,47 @@ async fn handle_text_block(
 ) -> Response {
     let site_id = get_site_id(headers);
     let page_id = try_response!(state.get_page_or_response(headers, site_id, page_slug));
+    let session_token = get_session_token(headers);
 
     let (index, s3_filename) = match block_id {
         // Parse the index value if numeric
         BlockId::Index(value) => match value.parse() {
-            Ok(index) => {
-                let s3_filename = format_filename(block_type, page_id, index);
-                (index, s3_filename)
-            }
+            Ok(index) => match get_text_block_info(
+                state,
+                headers,
+                TextBlockLookup {
+                    site_id,
+                    page_id,
+                    block_type,
+                    block_id: TextBlockId::Index(index),
+                    session_token,
+                    display_index: &value,
+                },
+            )
+            .await
+            {
+                Ok(Some(TextBlockIndex { index, s3_filename })) => (index, s3_filename),
+                Ok(None) => {
+                    error!(
+                        page_id = page_id,
+                        block_type = block_type.value(),
+                        index = value,
+                        "No text block found with given index",
+                    );
+                    return build_basic_error_response(
+                        state,
+                        headers,
+                        BasicError::TextBlock {
+                            site_id,
+                            index: &value,
+                            block_type,
+                            reason: TextBlockErrorReason::Missing,
+                        },
+                    )
+                    .await;
+                }
+                Err(response) => return response,
+            },
             Err(_) => {
                 error!(
                     index = value,
@@ -113,10 +147,19 @@ async fn handle_text_block(
         },
         // Retrieve the index from DEEPWELL
         BlockId::Name(name) => {
-            match state
-                .deepwell
-                .get_text_block_index(page_id, block_type, &name)
-                .await
+            match get_text_block_info(
+                state,
+                headers,
+                TextBlockLookup {
+                    site_id,
+                    page_id,
+                    block_type,
+                    block_id: TextBlockId::Name(&name),
+                    session_token,
+                    display_index: &name,
+                },
+            )
+            .await
             {
                 Ok(Some(TextBlockIndex { index, s3_filename })) => (index, s3_filename),
                 Ok(None) => {
@@ -138,24 +181,7 @@ async fn handle_text_block(
                     )
                     .await;
                 }
-                Err(error) => {
-                    error!(
-                        page_id = page_id,
-                        block_type = block_type.value(),
-                        "Unable to retrieve S3 filename for text block from DEEPWELL: {error}",
-                    );
-                    return build_basic_error_response(
-                        state,
-                        headers,
-                        BasicError::TextBlock {
-                            site_id,
-                            index: &name,
-                            block_type,
-                            reason: TextBlockErrorReason::Fetch,
-                        },
-                    )
-                    .await;
-                }
+                Err(response) => return response,
             }
         }
     };
@@ -218,6 +244,71 @@ async fn handle_text_block(
     }
 }
 
+async fn get_text_block_info(
+    state: &ServerState,
+    headers: &HeaderMap,
+    lookup: TextBlockLookup<'_>,
+) -> Result<Option<TextBlockIndex>, Response> {
+    let TextBlockLookup {
+        site_id,
+        page_id,
+        block_type,
+        block_id,
+        session_token,
+        display_index,
+    } = lookup;
+
+    match state
+        .deepwell
+        .get_text_block_index(site_id, page_id, block_type, block_id, session_token)
+        .await
+    {
+        Ok(block_info) => Ok(block_info),
+        Err(error) => {
+            let reason = if is_deepwell_permission_denied(&error) {
+                TextBlockErrorReason::Missing
+            } else {
+                TextBlockErrorReason::Fetch
+            };
+            error!(
+                page_id = page_id,
+                block_type = block_type.value(),
+                "Unable to retrieve S3 filename for text block from DEEPWELL: {error}",
+            );
+            Err(build_basic_error_response(
+                state,
+                headers,
+                BasicError::TextBlock {
+                    site_id,
+                    index: display_index,
+                    block_type,
+                    reason,
+                },
+            )
+            .await)
+        }
+    }
+}
+
+fn is_deepwell_permission_denied(error: &WwsError) -> bool {
+    const DEEPWELL_PERMISSION_DENIED_CODE: i32 = 3106;
+
+    matches!(
+        error,
+        WwsError::Deepwell(ClientError::Call(rpc_error))
+            if rpc_error.code() == DEEPWELL_PERMISSION_DENIED_CODE
+    )
+}
+
+struct TextBlockLookup<'a> {
+    site_id: i64,
+    page_id: i64,
+    block_type: TextBlockType,
+    block_id: TextBlockId<'a>,
+    session_token: Option<&'a str>,
+    display_index: &'a str,
+}
+
 #[derive(Debug)]
 enum BlockId {
     Index(String),
@@ -228,14 +319,6 @@ enum BlockId {
 struct Headers {
     content_type: String,
     etag: String,
-}
-
-/// Formats the S3 filename for a hosted text block.
-/// See `service/text_block/service.rs` for how this value is formatted.
-#[inline]
-fn format_filename(block_type: TextBlockType, page_id: i64, index: NonZeroU16) -> String {
-    let block_type = block_type.value();
-    format!("{page_id}_{block_type}_{index}")
 }
 
 // Since this thing isn't returning a case-insensitive map...
@@ -255,4 +338,24 @@ fn get_headers(headers: HashMap<String, String>) -> Headers {
         content_type: content_type.expect("No Content-Type header in S3 response"),
         etag: etag.expect("No ETag header in S3 response"),
     }
+}
+
+fn get_session_token(headers: &HeaderMap) -> Option<&str> {
+    for value in headers.get_all(header::COOKIE) {
+        let Ok(cookie_header) = value.to_str() else {
+            continue;
+        };
+
+        for cookie in cookie_header.split(';') {
+            let Some((name, value)) = cookie.trim().split_once('=') else {
+                continue;
+            };
+
+            if name == "wikijump_token" && !value.is_empty() {
+                return Some(value);
+            }
+        }
+    }
+
+    None
 }

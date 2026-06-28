@@ -116,14 +116,23 @@ impl Deepwell {
 
     pub async fn get_text_block_index(
         &self,
+        site_id: i64,
         page_id: i64,
         block_type: TextBlockType,
-        name: &str,
+        block_id: TextBlockId<'_>,
+        session_token: Option<&str>,
     ) -> Result<Option<TextBlockIndex>> {
+        let (index, name) = match block_id {
+            TextBlockId::Index(index) => (Some(index.get()), None),
+            TextBlockId::Name(name) => (None, Some(name)),
+        };
         let params = rpc_object! {
+            "site_id" => site_id,
             "page_id" => page_id,
             "block_type" => block_type.value(),
+            "index" => index,
             "name" => name,
+            "session_token" => session_token,
         };
 
         let block_info: Option<TextBlockIndex> =
@@ -322,6 +331,12 @@ pub struct BasicErrorHtml {
 pub enum TextBlockType {
     Code,
     Html,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum TextBlockId<'a> {
+    Index(NonZeroU16),
+    Name(&'a str),
 }
 
 impl TextBlockType {
