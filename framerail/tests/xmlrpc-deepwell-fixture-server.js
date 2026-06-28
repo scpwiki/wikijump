@@ -28,6 +28,21 @@ import { createServer } from "node:http"
  *
  *
  * @typedef {{
+ *   content: Buffer
+ *   file_created_at: string
+ *   file_id: number
+ *   file_updated_at: string | null
+ *   mime: string
+ *   name: string
+ *   revision_comments: string
+ *   revision_created_at: string
+ *   revision_id: number
+ *   revision_user_id: number
+ *   size: number
+ * }} FixtureFile
+ *
+ *
+ * @typedef {{
  *   headers: Record<string, string | string[] | undefined>
  *   params: unknown
  * }} RecordedRpcRequest
@@ -57,6 +72,18 @@ const pageWriteRequests = {
   parentUpdate: [],
   sessionGet: []
 }
+/** @type {Record<string, RecordedRpcRequest[]>} */
+const fileRequests = {
+  blobUpload: [],
+  fileCreate: [],
+  fileEdit: [],
+  fileGet: [],
+  pageGetFiles: []
+}
+/** @type {Record<string, Buffer>} */
+const pendingUploads = {}
+/** @type {Record<number, Record<string, FixtureFile>>} */
+const filesByPageId = {}
 
 /** @type {Record<string, FixturePage>} */
 const pages = {
@@ -115,6 +142,8 @@ const parentBySlug = {
 }
 let nextPageId = 4000000
 let nextRevisionId = 9100000
+let nextFileId = 5000000
+let nextPendingBlobId = 1
 
 /**
  * @param {FixturePage | null} page
@@ -152,6 +181,23 @@ const toPageResult = (page, details) => {
 }
 
 const server = createServer((request, response) => {
+  if (request.method === "PUT" && request.url?.startsWith("/upload/")) {
+    const pendingBlobId = decodeURIComponent(request.url.slice("/upload/".length))
+    const chunks = []
+    request.on("data", (chunk) => {
+      chunks.push(Buffer.from(chunk))
+    })
+    request.on("end", () => {
+      if (request.headers.host !== "files:42747") {
+        response.writeHead(400).end("Unexpected signed upload Host")
+        return
+      }
+      pendingUploads[pendingBlobId] = Buffer.concat(chunks)
+      response.writeHead(200).end()
+    })
+    return
+  }
+
   if (request.method === "GET" && request.url === "/last-page-tags-request") {
     response
       .writeHead(200, { "content-type": "application/json" })
@@ -175,6 +221,14 @@ const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/last-page-write-requests") {
     const snapshot = structuredClone(pageWriteRequests)
     resetPageWriteRequests()
+    response
+      .writeHead(200, { "content-type": "application/json" })
+      .end(JSON.stringify(snapshot))
+    return
+  }
+  if (request.method === "GET" && request.url === "/last-file-requests") {
+    const snapshot = structuredClone(fileRequests)
+    resetFileRequests()
     response
       .writeHead(200, { "content-type": "application/json" })
       .end(JSON.stringify(snapshot))
@@ -536,6 +590,173 @@ const server = createServer((request, response) => {
         delete parentBySlug[rpcRequest.params.page]
       }
       result = { new_slug: page.slug, old_slug: rpcRequest.params.page }
+    } else if (
+      rpcRequest.method === "page_get_files" &&
+      hasExactKeys(rpcRequest.params, ["deleted", "page_id", "site_id"]) &&
+      rpcRequest.params.site_id === 6000005 &&
+      typeof rpcRequest.params.page_id === "number" &&
+      rpcRequest.params.deleted === false
+    ) {
+      fileRequests.pageGetFiles.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      result = Object.values(filesByPageId[rpcRequest.params.page_id] ?? {}).map(
+        toFileResultWithoutData
+      )
+    } else if (
+      rpcRequest.method === "file_get" &&
+      hasExactKeys(rpcRequest.params, ["details", "file", "page_id", "site_id"]) &&
+      rpcRequest.params.site_id === 6000005 &&
+      typeof rpcRequest.params.page_id === "number" &&
+      typeof rpcRequest.params.file === "string" &&
+      hasExactKeys(rpcRequest.params.details, ["data"]) &&
+      typeof rpcRequest.params.details.data === "boolean"
+    ) {
+      fileRequests.fileGet.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      const file =
+        filesByPageId[rpcRequest.params.page_id]?.[rpcRequest.params.file] ?? null
+      result = file ? toFileResult(file, Boolean(rpcRequest.params.details.data)) : null
+    } else if (
+      rpcRequest.method === "blob_upload" &&
+      hasExactKeys(rpcRequest.params, ["blob_size", "user_id"]) &&
+      rpcRequest.params.user_id === 123 &&
+      typeof rpcRequest.params.blob_size === "number" &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005"
+    ) {
+      fileRequests.blobUpload.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      const pendingBlobId = `fixture-blob-${nextPendingBlobId++}`
+      result = {
+        pending_blob_id: pendingBlobId,
+        presign_url: `http://files:42747/upload/${encodeURIComponent(pendingBlobId)}`
+      }
+    } else if (
+      rpcRequest.method === "file_create" &&
+      hasExactKeys(rpcRequest.params, [
+        "bypass_filter",
+        "ip_address",
+        "name",
+        "page_id",
+        "revision_comments",
+        "site_id",
+        "uploaded_blob_id",
+        "user_id"
+      ]) &&
+      rpcRequest.params.site_id === 6000005 &&
+      typeof rpcRequest.params.page_id === "number" &&
+      pageById(rpcRequest.params.page_id) &&
+      typeof rpcRequest.params.name === "string" &&
+      typeof rpcRequest.params.uploaded_blob_id === "string" &&
+      pendingUploads[rpcRequest.params.uploaded_blob_id] &&
+      typeof rpcRequest.params.revision_comments === "string" &&
+      rpcRequest.params.user_id === 123 &&
+      typeof rpcRequest.params.ip_address === "string" &&
+      rpcRequest.params.bypass_filter === true &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005" &&
+      request.headers["x-deepwell-page"] === pageById(rpcRequest.params.page_id)?.slug
+    ) {
+      fileRequests.fileCreate.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      const pageFiles = (filesByPageId[rpcRequest.params.page_id] ??= {})
+      if (pageFiles[rpcRequest.params.name]) {
+        response.writeHead(200, { "content-type": "application/json" }).end(
+          JSON.stringify({
+            error: {
+              code: -32602,
+              message: "Unexpected fixture duplicate file_create target"
+            },
+            id: rpcRequest.id,
+            jsonrpc: "2.0"
+          })
+        )
+        return
+      }
+      const content = pendingUploads[rpcRequest.params.uploaded_blob_id]
+      delete pendingUploads[rpcRequest.params.uploaded_blob_id]
+      const file = createFixtureFile(
+        rpcRequest.params.name,
+        content,
+        rpcRequest.params.revision_comments,
+        rpcRequest.params.user_id,
+        false
+      )
+      pageFiles[file.name] = file
+      result = {
+        file_id: file.file_id,
+        revision_id: file.revision_id
+      }
+    } else if (
+      rpcRequest.method === "file_edit" &&
+      hasExactKeys(rpcRequest.params, [
+        "bypass_filter",
+        "file_id",
+        "ip_address",
+        "last_revision_id",
+        "page_id",
+        "revision_comments",
+        "site_id",
+        "uploaded_blob_id",
+        "user_id"
+      ]) &&
+      rpcRequest.params.site_id === 6000005 &&
+      typeof rpcRequest.params.page_id === "number" &&
+      typeof rpcRequest.params.file_id === "number" &&
+      typeof rpcRequest.params.last_revision_id === "number" &&
+      typeof rpcRequest.params.uploaded_blob_id === "string" &&
+      pendingUploads[rpcRequest.params.uploaded_blob_id] &&
+      typeof rpcRequest.params.revision_comments === "string" &&
+      rpcRequest.params.user_id === 123 &&
+      typeof rpcRequest.params.ip_address === "string" &&
+      rpcRequest.params.bypass_filter === true &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005" &&
+      request.headers["x-deepwell-page"] === pageById(rpcRequest.params.page_id)?.slug
+    ) {
+      const pageFiles = filesByPageId[rpcRequest.params.page_id] ?? {}
+      const existing = Object.values(pageFiles).find(
+        (file) =>
+          file.file_id === rpcRequest.params.file_id &&
+          file.revision_id === rpcRequest.params.last_revision_id
+      )
+      if (!existing) {
+        response.writeHead(200, { "content-type": "application/json" }).end(
+          JSON.stringify({
+            error: {
+              code: -32602,
+              message: "Unexpected fixture file_edit target"
+            },
+            id: rpcRequest.id,
+            jsonrpc: "2.0"
+          })
+        )
+        return
+      }
+      fileRequests.fileEdit.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      const content = pendingUploads[rpcRequest.params.uploaded_blob_id]
+      delete pendingUploads[rpcRequest.params.uploaded_blob_id]
+      updateFixtureFile(
+        existing,
+        content,
+        rpcRequest.params.revision_comments,
+        rpcRequest.params.user_id
+      )
+      result = {
+        file_id: existing.file_id,
+        revision_id: existing.revision_id
+      }
     } else {
       response.writeHead(200, { "content-type": "application/json" }).end(
         JSON.stringify({
@@ -576,6 +797,75 @@ const hasExactKeys = (value, keys) => {
 const pageById = (pageId) =>
   Object.values(pages).find((page) => page.page_id === pageId) ?? null
 
+/**
+ * @param {FixtureFile} file
+ * @returns {Record<string, unknown>}
+ */
+const toFileResultWithoutData = (file) => toFileResult(file, false)
+
+/**
+ * @param {FixtureFile} file
+ * @param {boolean} includeData
+ * @returns {Record<string, unknown>}
+ */
+const toFileResult = (file, includeData) => {
+  /** @type {Record<string, unknown>} */
+  const result = {
+    file_id: file.file_id,
+    file_created_at: file.file_created_at,
+    file_updated_at: file.file_updated_at,
+    revision_id: file.revision_id,
+    revision_created_at: file.revision_created_at,
+    revision_user_id: file.revision_user_id,
+    name: file.name,
+    mime: file.mime,
+    size: file.size,
+    revision_comments: file.revision_comments
+  }
+  if (includeData) {
+    result.data = Array.from(file.content)
+  }
+  return result
+}
+
+/**
+ * @param {string} name
+ * @param {Buffer} content
+ * @param {string} revisionComments
+ * @param {number} userId
+ * @param {boolean} updated
+ * @returns {FixtureFile}
+ */
+const createFixtureFile = (name, content, revisionComments, userId, updated) => ({
+  file_id: nextFileId++,
+  file_created_at: "2026-06-29T00:02:00Z",
+  file_updated_at: updated ? "2026-06-29T00:03:00Z" : null,
+  revision_id: nextRevisionId++,
+  revision_created_at: updated ? "2026-06-29T00:03:00Z" : "2026-06-29T00:02:00Z",
+  revision_user_id: userId,
+  name,
+  content,
+  mime: "text/plain",
+  size: content.length,
+  revision_comments: revisionComments
+})
+
+/**
+ * @param {FixtureFile} file
+ * @param {Buffer} content
+ * @param {string} revisionComments
+ * @param {number} userId
+ */
+const updateFixtureFile = (file, content, revisionComments, userId) => {
+  file.content = content
+  file.file_updated_at = "2026-06-29T00:03:00Z"
+  file.revision_id = nextRevisionId++
+  file.revision_created_at = "2026-06-29T00:03:00Z"
+  file.revision_user_id = userId
+  file.size = content.length
+  file.revision_comments = revisionComments
+}
+
 /** @param {import("node:http").IncomingMessage} request */
 const requestContextHeaders = (request) => ({
   page: request.headers["x-deepwell-page"],
@@ -591,6 +881,12 @@ const resetPageReadRequests = () => {
 
 const resetPageWriteRequests = () => {
   for (const requests of Object.values(pageWriteRequests)) {
+    requests.length = 0
+  }
+}
+
+const resetFileRequests = () => {
+  for (const requests of Object.values(fileRequests)) {
     requests.length = 0
   }
 }

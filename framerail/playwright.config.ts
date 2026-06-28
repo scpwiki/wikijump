@@ -8,7 +8,8 @@ const config: PlaywrightTestConfig = {
       XML_RPC_PASSWORD: "test-key",
       XML_RPC_USERNAME: "test-app",
       XML_RPC_WRITE_PASSWORD: "wikijumpadmin1",
-      XML_RPC_WRITE_USERNAME: "admin@wikijump"
+      XML_RPC_WRITE_USERNAME: "admin@wikijump",
+      WIKIJUMP_XMLRPC_LOCAL_FILE_UPLOAD: "1"
     },
     port: 4173
   }

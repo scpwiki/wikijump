@@ -4,6 +4,8 @@ import { expect, test } from "@playwright/test"
 
 import { parseXmlRpcCall, serializeMethodResponse } from "../src/lib/server/xmlrpc"
 
+test.describe.configure({ mode: "serial" })
+
 const xmlRpcListMethodsRequest = `<?xml version="1.0"?>
 <methodCall>
   <methodName>system.listMethods</methodName>
@@ -268,6 +270,116 @@ function xmlRpcPagesSaveOneRequest({
         <struct>
           <member><name>site</name><value><string>scp-wiki</string></value></member>
           <member><name>page</name><value><string>${page}</string></value></member>
+          ${optionalMembers}
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
+function xmlEscape(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;")
+}
+
+function xmlRpcFilesSelectRequest(page: string): string {
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>files.select</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>page</name><value><string>${xmlEscape(page)}</string></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
+function xmlRpcFilesGetMetaRequest(page: string, files: string[]): string {
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>files.get_meta</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>page</name><value><string>${xmlEscape(page)}</string></value></member>
+          <member><name>files</name><value><array><data>${files
+            .map((file) => `<value><string>${xmlEscape(file)}</string></value>`)
+            .join("")}</data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
+function xmlRpcFilesGetOneRequest(page: string, file: string): string {
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>files.get_one</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>page</name><value><string>${xmlEscape(page)}</string></value></member>
+          <member><name>file</name><value><string>${xmlEscape(file)}</string></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
+function xmlRpcFilesSaveOneRequest({
+  page,
+  file,
+  content,
+  comment,
+  saveMode,
+  revisionComment
+}: {
+  page: string
+  file: string
+  content: string
+  comment?: string
+  saveMode?: string
+  revisionComment?: string
+}): string {
+  const optionalMembers = [
+    comment !== undefined
+      ? `<member><name>comment</name><value><string>${xmlEscape(comment)}</string></value></member>`
+      : "",
+    saveMode !== undefined
+      ? `<member><name>save_mode</name><value><string>${xmlEscape(saveMode)}</string></value></member>`
+      : "",
+    revisionComment !== undefined
+      ? `<member><name>revision_comment</name><value><string>${xmlEscape(revisionComment)}</string></value></member>`
+      : ""
+  ].join("")
+
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>files.save_one</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>page</name><value><string>${xmlEscape(page)}</string></value></member>
+          <member><name>file</name><value><string>${xmlEscape(file)}</string></value></member>
+          <member><name>content</name><value><string>${xmlEscape(content)}</string></value></member>
           ${optionalMembers}
         </struct>
       </value>
@@ -885,6 +997,140 @@ test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename
   })
 })
 
+test("XML-RPC endpoint saves and reads small page attachments", async ({ request }) => {
+  const pageSlug = `fixture-xmlrpc-file-${randomUUID()}`
+  const fileName = "proof.txt"
+  const initialText = "XML-RPC file proof initial content."
+  const updatedText = "XML-RPC file proof updated content with extra bytes."
+  const initialContent = Buffer.from(initialText).toString("base64")
+  const updatedContent = Buffer.from(updatedText).toString("base64")
+
+  const pageResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSaveOneRequest({
+      page: pageSlug,
+      title: "XML-RPC File Proof",
+      content: "Page for XML-RPC file proof.",
+      tags: ["verification", "xmlrpc-file"],
+      saveMode: "create",
+      revisionComment: "xmlrpc file page create proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(pageResponse.status()).toBe(200)
+  expect(await pageResponse.text()).toContain(
+    `<name>fullname</name><value><string>${pageSlug}</string></value>`
+  )
+
+  const saveResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcFilesSaveOneRequest({
+      page: pageSlug,
+      file: fileName,
+      content: initialContent,
+      comment: "initial file proof",
+      saveMode: "create",
+      revisionComment: "xmlrpc file create proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(saveResponse.status()).toBe(200)
+
+  const saveBody = await saveResponse.text()
+  expect(saveBody).toContain("<methodResponse>")
+  expect(saveBody).toContain("<name>size</name><value><int>35</int></value>")
+  expect(saveBody).toContain(
+    "<name>comment</name><value><string>xmlrpc file create proof</string></value>"
+  )
+  expect(saveBody).toContain("<name>mime_type</name><value><string>text/plain")
+
+  const selectResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcFilesSelectRequest(pageSlug),
+    headers: xmlRpcHeaders
+  })
+  expect(selectResponse.status()).toBe(200)
+  expect(await selectResponse.text()).toContain("<string>proof.txt</string>")
+
+  const metaResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcFilesGetMetaRequest(pageSlug, [fileName]),
+    headers: xmlRpcHeaders
+  })
+  expect(metaResponse.status()).toBe(200)
+  const metaBody = await metaResponse.text()
+  expect(metaBody).toContain("<name>proof.txt</name>")
+  expect(metaBody).toContain("<name>size</name><value><int>35</int></value>")
+  expect(metaBody).toContain(
+    "<name>comment</name><value><string>xmlrpc file create proof</string></value>"
+  )
+  expect(metaBody).not.toContain(initialContent)
+
+  const oneResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcFilesGetOneRequest(pageSlug, fileName),
+    headers: xmlRpcHeaders
+  })
+  expect(oneResponse.status()).toBe(200)
+  const oneBody = await oneResponse.text()
+  expect(oneBody).toContain(
+    `<name>content</name><value><string>${initialContent}</string></value>`
+  )
+
+  const updateResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcFilesSaveOneRequest({
+      page: pageSlug,
+      file: fileName,
+      content: updatedContent,
+      comment: "updated file proof",
+      saveMode: "update",
+      revisionComment: "xmlrpc file update proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(updateResponse.status()).toBe(200)
+  const updateBody = await updateResponse.text()
+  expect(updateBody).toContain("<name>size</name><value><int>52</int></value>")
+  expect(updateBody).toContain(
+    "<name>comment</name><value><string>xmlrpc file update proof</string></value>"
+  )
+
+  const updatedOneResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcFilesGetOneRequest(pageSlug, fileName),
+    headers: xmlRpcHeaders
+  })
+  expect(updatedOneResponse.status()).toBe(200)
+  const updatedOneBody = await updatedOneResponse.text()
+  expect(updatedOneBody).toContain(
+    `<name>content</name><value><string>${updatedContent}</string></value>`
+  )
+  expect(updatedOneBody).not.toContain(initialContent)
+
+  const fileLogResponse = await request.get("http://127.0.0.1:42747/last-file-requests")
+  expect(fileLogResponse.status()).toBe(200)
+  const fileLog = await fileLogResponse.json()
+  expect(fileLog.blobUpload).toHaveLength(2)
+  expect(fileLog.fileCreate).toHaveLength(1)
+  expect(fileLog.fileEdit).toHaveLength(1)
+  expect(fileLog.pageGetFiles).toHaveLength(1)
+  expect(fileLog.fileCreate[0].params).toMatchObject({
+    bypass_filter: true,
+    name: fileName,
+    revision_comments: "xmlrpc file create proof",
+    user_id: 123
+  })
+  expect(fileLog.fileCreate[0].headers).toMatchObject({
+    page: pageSlug,
+    sessionToken: "fixture-session-token",
+    siteId: "6000005"
+  })
+  expect(fileLog.fileEdit[0].params).toMatchObject({
+    bypass_filter: true,
+    revision_comments: "xmlrpc file update proof",
+    user_id: 123
+  })
+  expect(fileLog.fileEdit[0].headers).toMatchObject({
+    page: pageSlug,
+    sessionToken: "fixture-session-token",
+    siteId: "6000005"
+  })
+})
+
 test("XML-RPC endpoint bounds tags.select page filters", async ({ request }) => {
   const response = await request.post("/xml-rpc-api.php", {
     data: xmlRpcTagsSelectWithFilterCount("pages", 101),
@@ -947,7 +1193,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   request
 }) => {
   const response = await request.post("/xml-rpc-api.php", {
-    data: xmlRpcAdvertisedUnimplementedRequest.replace("pages.select", "files.save_one"),
+    data: xmlRpcAdvertisedUnimplementedRequest.replace("pages.select", "users.get_me"),
     headers: xmlRpcHeaders
   })
 
@@ -957,7 +1203,7 @@ test("XML-RPC endpoint reports advertised but unimplemented methods", async ({
   const body = await response.text()
   expect(body).toContain("<methodResponse>")
   expect(body).toContain("<name>faultCode</name><value><int>-32601</int></value>")
-  expect(body).toContain("XML-RPC method is not implemented yet: files.save_one")
+  expect(body).toContain("XML-RPC method is not implemented yet: users.get_me")
 })
 
 test("XML-RPC endpoint accepts Basic auth scheme case-insensitively", async ({
