@@ -25,16 +25,21 @@ export async function pageDelete(
   userIpAddr: string,
   slug: string,
   lastRevisionId: number,
-  revisionComments: Optional<string>
+  revisionComments: Optional<string>,
+  requestContext: RequestContext
 ): Promise<PageDelete> {
-  return client.request("page_delete", {
-    site_id: siteId,
-    page: pageId ?? slug,
-    user_id: userId,
-    ip_address: userIpAddr,
-    last_revision_id: lastRevisionId,
-    revision_comments: revisionComments
-  })
+  return client.request(
+    "page_delete",
+    {
+      site_id: siteId,
+      page: pageId ?? slug,
+      user_id: userId,
+      ip_address: userIpAddr,
+      last_revision_id: lastRevisionId,
+      revision_comments: revisionComments
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Edit ----- */
@@ -56,7 +61,7 @@ export async function pageEdit(
   altTitle: Optional<string>,
   tags: string[],
   layout: Optional<Nullable<Layout>>,
-  requestContext: RequestContext = {}
+  requestContext: RequestContext
 ): Promise<CreatePageRevisionOutput> {
   return client.request(
     pageId ? "page_edit" : "page_create",
@@ -148,17 +153,22 @@ export async function pageMove(
   slug: string,
   lastRevisionId: number,
   newSlug: string,
-  revisionComments: Optional<string>
+  revisionComments: Optional<string>,
+  requestContext: RequestContext
 ): Promise<PageMove> {
-  return client.request("page_move", {
-    site_id: siteId,
-    page: pageId ?? slug,
-    new_slug: newSlug,
-    user_id: userId,
-    ip_address: userIpAddr,
-    last_revision_id: lastRevisionId,
-    revision_comments: revisionComments
-  })
+  return client.request(
+    "page_move",
+    {
+      site_id: siteId,
+      page: pageId ?? slug,
+      new_slug: newSlug,
+      user_id: userId,
+      ip_address: userIpAddr,
+      last_revision_id: lastRevisionId,
+      revision_comments: revisionComments
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Revision ----- */
@@ -194,17 +204,22 @@ export async function pageRollback(
   slug: string,
   lastRevisionId: number,
   revisionNumber: Optional<number>,
-  revisionComments: Optional<string>
+  revisionComments: Optional<string>,
+  requestContext: RequestContext
 ): Promise<Nullable<CreatePageRevisionOutput>> {
-  return client.request("page_rollback", {
-    site_id: siteId,
-    page: pageId ?? slug,
-    user_id: userId,
-    ip_address: userIpAddr,
-    last_revision_id: lastRevisionId,
-    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
-    revision_comments: revisionComments
-  })
+  return client.request(
+    "page_rollback",
+    {
+      site_id: siteId,
+      page: pageId ?? slug,
+      user_id: userId,
+      ip_address: userIpAddr,
+      last_revision_id: lastRevisionId,
+      revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
+      revision_comments: revisionComments
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Vote List ----- */
@@ -263,15 +278,20 @@ export async function pageLayout(
   pageId: number,
   userId: number,
   userIpAddr: string,
-  layout: Optional<Nullable<Layout>>
+  layout: Optional<Nullable<Layout>>,
+  requestContext: RequestContext
 ): Promise<void> {
-  return client.request("page_set_layout", {
-    site_id: siteId,
-    page_id: pageId,
-    user_id: userId,
-    ip_address: userIpAddr,
-    layout: Layout[layout?.toUpperCase() as keyof typeof Layout] ?? null
-  })
+  return client.request(
+    "page_set_layout",
+    {
+      site_id: siteId,
+      page_id: pageId,
+      user_id: userId,
+      ip_address: userIpAddr,
+      layout: Layout[layout?.toUpperCase() as keyof typeof Layout] ?? null
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Parent Update ----- */
@@ -284,15 +304,20 @@ export async function pageParentUpdate(
   pageId: number,
   userId: number,
   add: Optional<string[]>,
-  remove: Optional<string[]>
+  remove: Optional<string[]>,
+  requestContext: RequestContext
 ): Promise<PageParentUpdate> {
-  return client.request("parent_update", {
-    site_id: siteId,
-    child: pageId,
-    user_id: userId,
-    add,
-    remove
-  })
+  return client.request(
+    "parent_update",
+    {
+      site_id: siteId,
+      child: pageId,
+      user_id: userId,
+      add,
+      remove
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Parent Get ----- */
@@ -345,15 +370,20 @@ export async function pageRestore(
   pageId: number,
   userId: number,
   userIpAddr: string,
-  revisionComments: Optional<string>
+  revisionComments: Optional<string>,
+  requestContext: RequestContext
 ): Promise<PageRestore> {
-  return client.request("page_restore", {
-    site_id: siteId,
-    page_id: pageId,
-    user_id: userId,
-    ip_address: userIpAddr,
-    revision_comments: revisionComments
-  })
+  return client.request(
+    "page_restore",
+    {
+      site_id: siteId,
+      page_id: pageId,
+      user_id: userId,
+      ip_address: userIpAddr,
+      revision_comments: revisionComments
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Score ----- */

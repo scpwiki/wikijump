@@ -114,17 +114,24 @@ impl PermissionFixture {
         )
         .await;
 
-        // RoleB: page:edit scoped to test-category only
+        // RoleB: page:create + page:edit scoped to test-category only
         let role_b = create_role(ctx, site_id, "RoleB", None).await;
         add_perms_to_role(
             ctx,
             site_id,
             role_b,
-            vec![Permission {
-                resource_type: Resource::Page,
-                resource_category: Some(Reference::Id(category_id)),
-                action: Action::Edit,
-            }],
+            vec![
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(category_id)),
+                    action: Action::Create,
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(category_id)),
+                    action: Action::Edit,
+                },
+            ],
         )
         .await;
 
@@ -466,6 +473,14 @@ async fn check_permission_endpoint() {
     let mut runner = TestRunner::setup().await;
     let f = PermissionFixture::setup(&runner).await;
 
+    runner.set_request_context(RequestContext {
+        user_id: Some(f.user_b),
+        site_id: Some(f.site_id),
+        page_reference: Some(Reference::Slug(std::borrow::Cow::Borrowed(
+            "test-category:test-page",
+        ))),
+        ..Default::default()
+    });
     let page = run_endpoint!(
         runner,
         page_create,
@@ -477,7 +492,7 @@ async fn check_permission_endpoint() {
             "slug": "test-category:test-page",
             "layout": null,
             "revision_comments": "",
-            "user_id": SYSTEM_USER_ID,
+            "user_id": f.user_b,
             "ip_address": common::IP_ADDRESS,
         }),
     );
@@ -506,28 +521,28 @@ async fn check_permission_endpoint() {
         "user_b should have edit permission for page in test-category"
     );
 
-    // Check permissions for user_a via the endpoint, should deny due to category-scoped permission
+    // Check permissions for user_c via the endpoint, should deny due to no page permissions
     runner.set_request_context(RequestContext {
-        user_id: Some(f.user_a),
+        user_id: Some(f.user_c),
         site_id: Some(f.site_id),
         page_reference: Some(Reference::Id(page.page_id)),
         ..Default::default()
     });
     assert!(
         !run_endpoint!(runner, page_edit_permission).can_edit,
-        "user_a should NOT have edit permission for page in test-category"
+        "user_c should NOT have edit permission for page in test-category"
     );
 
     // Same test but with slug instead of page_id, should still work
     runner.set_request_context(RequestContext {
-        user_id: Some(f.user_a),
+        user_id: Some(f.user_c),
         site_id: Some(f.site_id),
         page_reference: Some(Reference::Slug(std::borrow::Cow::Owned(page.slug.clone()))),
         ..Default::default()
     });
     assert!(
         !run_endpoint!(runner, page_edit_permission).can_edit,
-        "user_a should NOT have edit permission for page in test-category"
+        "user_c should NOT have edit permission for page in test-category"
     );
 }
 

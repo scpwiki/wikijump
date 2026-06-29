@@ -84,6 +84,21 @@ pub async fn file_create(
         input.page_id, input.site_id,
     );
 
+    let actor_user_id = require_authenticated_file_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate file create actor", ErrorType::File)
+        })?;
+    ensure_parent_page_permission(
+        ctx,
+        input.site_id,
+        input.page_id,
+        Some(actor_user_id),
+        Action::Edit,
+        "edit this file's parent page",
+    )
+    .await
+    .or_raise(|| Error::new("failed to check file create permission", ErrorType::File))?;
+
     FileService::create(ctx, input)
         .await
         .or_raise(|| Error::new("failed to create file", ErrorType::File))
@@ -99,6 +114,21 @@ pub async fn file_edit(
         "Editing file ID {} in page ID {} in site ID {}",
         input.file_id, input.page_id, input.site_id,
     );
+
+    let actor_user_id = require_authenticated_file_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate file edit actor", ErrorType::File)
+        })?;
+    ensure_parent_page_permission(
+        ctx,
+        input.site_id,
+        input.page_id,
+        Some(actor_user_id),
+        Action::Edit,
+        "edit this file's parent page",
+    )
+    .await
+    .or_raise(|| Error::new("failed to check file edit permission", ErrorType::File))?;
 
     FileService::edit(ctx, input)
         .await
@@ -116,6 +146,21 @@ pub async fn file_delete(
         input.file, input.page_id, input.site_id,
     );
 
+    let actor_user_id = require_authenticated_file_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate file delete actor", ErrorType::File)
+        })?;
+    ensure_parent_page_permission(
+        ctx,
+        input.site_id,
+        input.page_id,
+        Some(actor_user_id),
+        Action::Edit,
+        "edit this file's parent page",
+    )
+    .await
+    .or_raise(|| Error::new("failed to check file delete permission", ErrorType::File))?;
+
     FileService::delete(ctx, input)
         .await
         .or_raise(|| Error::new("failed to delete file", ErrorType::File))
@@ -131,6 +176,50 @@ pub async fn file_move(
         "Moving file ID {} from page ID {} to page {:?} in site ID {}",
         input.file_id, input.current_page_id, input.destination_page, input.site_id,
     );
+
+    let actor_user_id = require_authenticated_file_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate file move actor", ErrorType::File)
+        })?;
+    ensure_parent_page_permission(
+        ctx,
+        input.site_id,
+        input.current_page_id,
+        Some(actor_user_id),
+        Action::Edit,
+        "edit this file's current parent page",
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to check file current-page move permission",
+            ErrorType::File,
+        )
+    })?;
+    let destination =
+        PageService::get(ctx, input.site_id, input.destination_page.clone())
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to load file destination page for move permission check",
+                    ErrorType::File,
+                )
+            })?;
+    ensure_parent_page_permission(
+        ctx,
+        input.site_id,
+        destination.page_id,
+        Some(actor_user_id),
+        Action::Edit,
+        "edit this file's destination page",
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to check file destination-page move permission",
+            ErrorType::File,
+        )
+    })?;
 
     FileService::r#move(ctx, input)
         .await
@@ -148,6 +237,48 @@ pub async fn file_restore(
         input.file_id, input.page_id, input.site_id,
     );
 
+    let actor_user_id = require_authenticated_file_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate file restore actor", ErrorType::File)
+        })?;
+    ensure_parent_page_permission(
+        ctx,
+        input.site_id,
+        input.page_id,
+        Some(actor_user_id),
+        Action::Edit,
+        "edit this file's parent page",
+    )
+    .await
+    .or_raise(|| {
+        Error::new("failed to check file restore permission", ErrorType::File)
+    })?;
+    if let Some(ref new_page) = input.new_page {
+        let destination = PageService::get(ctx, input.site_id, new_page.clone())
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to load file restore destination page for permission check",
+                    ErrorType::File,
+                )
+            })?;
+        ensure_parent_page_permission(
+            ctx,
+            input.site_id,
+            destination.page_id,
+            Some(actor_user_id),
+            Action::Edit,
+            "edit this file's restore destination page",
+        )
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to check file restore destination-page permission",
+                ErrorType::File,
+            )
+        })?;
+    }
+
     FileService::restore(ctx, input)
         .await
         .or_raise(|| Error::new("failed to restore file", ErrorType::File))
@@ -164,9 +295,51 @@ pub async fn file_rollback(
         input.file, input.page_id, input.site_id, input.revision_number,
     );
 
+    let actor_user_id = require_authenticated_file_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new(
+                "failed to authenticate file rollback actor",
+                ErrorType::File,
+            )
+        })?;
+    ensure_parent_page_permission(
+        ctx,
+        input.site_id,
+        input.page_id,
+        Some(actor_user_id),
+        Action::Edit,
+        "edit this file's parent page",
+    )
+    .await
+    .or_raise(|| {
+        Error::new("failed to check file rollback permission", ErrorType::File)
+    })?;
+
     FileService::rollback(ctx, input)
         .await
         .or_raise(|| Error::new("failed to rollback file", ErrorType::File))
+}
+
+fn require_authenticated_file_mutation_actor(
+    ctx: &ServiceContext<'_>,
+    attribution_user_id: i64,
+) -> Result<i64> {
+    let request_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            "file mutation requires an authenticated request context",
+            ErrorType::PermissionDenied,
+        )
+    })?;
+
+    if request_user_id == attribution_user_id {
+        Ok(request_user_id)
+    } else {
+        Err(Error::new(
+            "file mutation user does not match authenticated request user",
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
 }
 
 async fn ensure_parent_page_view_permission(
@@ -174,9 +347,28 @@ async fn ensure_parent_page_view_permission(
     site_id: i64,
     page_id: i64,
 ) -> Result<()> {
+    ensure_parent_page_permission(
+        ctx,
+        site_id,
+        page_id,
+        ctx.request().user_id,
+        Action::View,
+        "view this file's parent page",
+    )
+    .await
+}
+
+async fn ensure_parent_page_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_id: i64,
+    user_id: Option<i64>,
+    action: Action,
+    action_name: &str,
+) -> Result<()> {
     let make_error = || {
         Error::new(
-            "failed to check parent page view permission",
+            "failed to check parent page permission",
             ErrorType::Permission,
         )
     };
@@ -185,27 +377,27 @@ async fn ensure_parent_page_view_permission(
         .await
         .or_raise(make_error)?;
 
-    let can_view = PermissionService::check_user_can(
+    let can_access = PermissionService::check_user_can(
         ctx,
         &CheckPermissionContext {
-            user_id: ctx.request().user_id,
+            user_id,
             site_id,
             page_reference: Some(Reference::Id(page.page_id)),
         },
         Permission {
             resource_type: Resource::Page,
             resource_category: Some(Reference::Id(page.page_category_id)),
-            action: Action::View,
+            action,
         },
     )
     .await
     .or_raise(make_error)?;
 
-    if can_view {
+    if can_access {
         Ok(())
     } else {
         Err(Error::new(
-            "user does not have permission to view this file's parent page",
+            format!("user does not have permission to {action_name}"),
             ErrorType::PermissionDenied,
         )
         .into())

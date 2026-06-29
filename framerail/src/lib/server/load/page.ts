@@ -57,8 +57,9 @@ import { getRequestContext } from "./request-ctx"
 
 const DEEPWELL_PERMISSION_DENIED = 3106
 
-function failForDeepwellError(error: DeepwellError) {
+function failForDeepwellError(error: DeepwellError, body: Record<string, unknown> = {}) {
   return fail(error.code === DEEPWELL_PERMISSION_DENIED ? 403 : 500, {
+    ...body,
     message: error.message,
     code: error.code,
     data: error.data
@@ -349,7 +350,8 @@ export async function pageDeleteAction({
         slug,
         lastRevisionId,
         newSlug,
-        comments
+        comments,
+        { sessionToken, siteId, page: pageId ?? slug }
       )
       return { form, res, option: DeleteOptions.Move }
     } else {
@@ -360,18 +362,14 @@ export async function pageDeleteAction({
         ipAddress,
         slug,
         lastRevisionId,
-        comments
+        comments,
+        { sessionToken, siteId, page: pageId ?? slug }
       )
       return { form, res, option: DeleteOptions.Delete }
     }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -462,12 +460,7 @@ export async function pageEditAction({
     return { form, res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -515,18 +508,14 @@ export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
       session?.user_id,
       name === "" ? undefined : name,
       file,
-      comments
+      comments,
+      { sessionToken, siteId, page: pageId }
     )
 
     return withFiles({ form, res })
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -559,16 +548,13 @@ export async function pageFileDeleteAction({ request, cookies }: RequestEvent) {
       session?.user_id,
       fileId,
       lastRevisionId,
-      comments ?? ""
+      comments ?? "",
+      { sessionToken, siteId, page: pageId }
     )
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -592,18 +578,14 @@ export async function pageFileEditAction({ request, cookies }: RequestEvent) {
       name === "" ? undefined : name,
       file,
       lastRevisionId,
-      comments
+      comments,
+      { sessionToken, siteId, page: pageId }
     )
 
     return withFiles({ form, res })
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -636,18 +618,14 @@ export async function pageFileMoveAction({ request, cookies }: RequestEvent) {
       fileId,
       lastRevisionId,
       name === "" ? undefined : name,
-      comments
+      comments,
+      { sessionToken, siteId, page: pageId }
     )
 
     return { form, res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -696,18 +674,14 @@ export async function pageFileRestoreAction({
       newPage === "" ? undefined : newPage,
       newName === "" ? undefined : newName,
       comments,
-      getClientAddress()
+      getClientAddress(),
+      { sessionToken, siteId, page: pageId }
     )
 
     return { form, res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -736,11 +710,7 @@ export async function pageFileHistoryAction({ request }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -781,16 +751,13 @@ export async function pageFileRollbackAction({ request, cookies }: RequestEvent)
       lastRevisionId,
       revisionNumber,
       comments,
+      { sessionToken, siteId, page: pageId },
       false
     )
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -816,11 +783,7 @@ export async function pageHistoryAction({ request, locals }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -848,11 +811,7 @@ export async function pageRevisionAction({ request, locals }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -887,16 +846,13 @@ export async function pageRollbackAction({
       slug,
       lastRevisionId,
       revisionNumber,
-      comments ?? ""
+      comments ?? "",
+      { sessionToken, siteId, page: pageId ?? slug }
     )
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -913,17 +869,16 @@ export async function layoutAction({ request, cookies, getClientAddress }: Reque
 
   try {
     const { siteId, pageId, layout } = form.data
-    await pageLayout(siteId, pageId, session?.user_id, ipAddress, layout)
+    await pageLayout(siteId, pageId, session?.user_id, ipAddress, layout, {
+      sessionToken,
+      siteId,
+      page: pageId
+    })
 
     return { form }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -958,17 +913,13 @@ export async function pageMoveAction({
       slug,
       lastRevisionId,
       newSlug,
-      comments
+      comments,
+      { sessionToken, siteId, page: pageId ?? slug }
     )
     return { form, res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -995,17 +946,13 @@ export async function pageParentSetAction({ request, cookies }: RequestEvent) {
       pageId,
       session?.user_id,
       addParents,
-      removeParents
+      removeParents,
+      { sessionToken, siteId, page: pageId }
     )
     return { form, res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 
@@ -1029,11 +976,7 @@ export async function pageParentGetAction({ request }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -1049,11 +992,7 @@ export async function pageVoteGetAction({ request }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -1073,11 +1012,7 @@ export async function pageVoteCastAction({ request, cookies }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -1096,11 +1031,7 @@ export async function pageVoteCancelAction({ request, cookies }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -1118,11 +1049,7 @@ export async function pageScoreAction({ request, params }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -1138,11 +1065,7 @@ export async function pageDeletedGetAction({ request }: RequestEvent) {
     return { res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error)
   }
 }
 
@@ -1163,16 +1086,15 @@ export async function pageRestoreAction({
 
   try {
     const { siteId, pageId, comments } = form.data
-    const res = await pageRestore(siteId, pageId, session?.user_id, ipAddress, comments)
+    const res = await pageRestore(siteId, pageId, session?.user_id, ipAddress, comments, {
+      sessionToken,
+      siteId,
+      page: pageId
+    })
     return { form, res }
   } catch (e) {
     const error = e as DeepwellError
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForDeepwellError(error, { form })
   }
 }
 

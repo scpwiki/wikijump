@@ -38,10 +38,12 @@ use crate::services::page_query::{
     PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
 use crate::services::page_revision::RerenderType;
-use crate::services::permission::CheckPermissionContext;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::types::{
-    Action, AliasType, Bytes, FileOrder, PageDetails, PageId, Reference, RerenderDepth,
+    Action, AliasType, Bytes, FileOrder, PageDetails, PageId, Permission, Reference,
+    RerenderDepth, Resource,
 };
+use crate::utils::get_category_name;
 use futures::future::try_join_all;
 use sea_orm::{
     ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait,
@@ -56,6 +58,17 @@ pub async fn page_create(
 ) -> Result<CreatePageOutput> {
     let input: CreatePage = parse!(params, Page);
     info!("Creating new page in site ID {}", input.site_id);
+
+    let actor_user_id = require_authenticated_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate page create actor", ErrorType::Page)
+        })?;
+    ensure_page_create_permission(ctx, input.site_id, &input.slug, actor_user_id)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page create permission", ErrorType::Page)
+        })?;
+
     PageService::create(ctx, input)
         .await
         .or_raise(|| Error::new("failed to create page", ErrorType::Page))
@@ -646,25 +659,14 @@ pub async fn page_edit(
     let input: EditPage = parse!(params, Page);
     info!("Editing page {:?} in site ID {}", input.page, input.site_id);
 
-    let can_edit = PageService::check_user_permission(
-        ctx,
-        &CheckPermissionContext {
-            user_id: Some(input.user_id),
-            site_id: input.site_id,
-            page_reference: Some(input.page.clone()),
-        },
-        Action::Edit,
-    )
-    .await
-    .or_raise(|| Error::new("failed to check edit permission", ErrorType::Page))?;
+    let actor_user_id = require_authenticated_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate page edit actor", ErrorType::Page)
+        })?;
+    ensure_page_edit_permission(ctx, input.site_id, input.page.clone(), actor_user_id)
+        .await
+        .or_raise(|| Error::new("failed to check edit permission", ErrorType::Page))?;
 
-    if !can_edit {
-        return Err(Error::new(
-            "user does not have permission to edit this page",
-            ErrorType::PermissionDenied,
-        )
-        .into());
-    }
     PageService::edit(ctx, input)
         .await
         .or_raise(|| Error::new("failed to edit page", ErrorType::Page))
@@ -700,6 +702,17 @@ pub async fn page_delete(
         "Deleting page {:?} in site ID {}",
         input.page, input.site_id,
     );
+
+    let actor_user_id = require_authenticated_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate page delete actor", ErrorType::Page)
+        })?;
+    ensure_page_edit_permission(ctx, input.site_id, input.page.clone(), actor_user_id)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page delete permission", ErrorType::Page)
+        })?;
+
     PageService::delete(ctx, input)
         .await
         .or_raise(|| Error::new("failed to delete page", ErrorType::Page))
@@ -714,6 +727,25 @@ pub async fn page_move(
         "Moving page {:?} in site ID {} to {}",
         input.page, input.site_id, input.new_slug,
     );
+
+    let actor_user_id = require_authenticated_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate page move actor", ErrorType::Page)
+        })?;
+    ensure_page_edit_permission(ctx, input.site_id, input.page.clone(), actor_user_id)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page move permission", ErrorType::Page)
+        })?;
+    ensure_page_create_permission(ctx, input.site_id, &input.new_slug, actor_user_id)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to check page move destination permission",
+                ErrorType::Page,
+            )
+        })?;
+
     PageService::r#move(ctx, input)
         .await
         .or_raise(|| Error::new("failed to move page", ErrorType::Page))
@@ -749,6 +781,48 @@ pub async fn page_restore(
         input.site_id, input.page_id,
     );
 
+    let actor_user_id = require_authenticated_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate page restore actor", ErrorType::Page)
+        })?;
+    let original_category_id = ensure_deleted_page_edit_permission(
+        ctx,
+        input.site_id,
+        input.page_id,
+        actor_user_id,
+    )
+    .await
+    .or_raise(|| {
+        Error::new("failed to check page restore permission", ErrorType::Page)
+    })?;
+    if let Some(ref slug) = input.slug {
+        ensure_page_create_permission(ctx, input.site_id, slug, actor_user_id)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to check page restore destination permission",
+                    ErrorType::Page,
+                )
+            })?;
+    } else {
+        ensure_page_permission(
+            ctx,
+            input.site_id,
+            None,
+            Some(Reference::Id(original_category_id)),
+            actor_user_id,
+            Action::Create,
+            "restore",
+        )
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to check page restore destination permission",
+                ErrorType::Page,
+            )
+        })?;
+    }
+
     PageService::restore(ctx, input)
         .await
         .or_raise(|| Error::new("failed to restore (undelete) page", ErrorType::Page))
@@ -764,6 +838,19 @@ pub async fn page_rollback(
         "Rolling back page {:?} in site ID {} to revision number {}",
         input.page, input.site_id, input.revision_number,
     );
+
+    let actor_user_id = require_authenticated_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new(
+                "failed to authenticate page rollback actor",
+                ErrorType::Page,
+            )
+        })?;
+    ensure_page_edit_permission(ctx, input.site_id, input.page.clone(), actor_user_id)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page rollback permission", ErrorType::Page)
+        })?;
 
     PageService::rollback(ctx, input)
         .await
@@ -787,9 +874,177 @@ pub async fn page_set_layout(
         input.user_id,
     );
 
+    let actor_user_id = require_authenticated_mutation_actor(ctx, input.user_id)
+        .or_raise(|| {
+            Error::new("failed to authenticate page layout actor", ErrorType::Page)
+        })?;
+    ensure_page_edit_permission(
+        ctx,
+        input.site_id,
+        Reference::Id(input.page_id),
+        actor_user_id,
+    )
+    .await
+    .or_raise(|| Error::new("failed to check page layout permission", ErrorType::Page))?;
+
     PageService::set_layout(ctx, input)
         .await
         .or_raise(|| Error::new("failed to set layout for page", ErrorType::Page))
+}
+
+fn require_authenticated_mutation_actor(
+    ctx: &ServiceContext<'_>,
+    attribution_user_id: i64,
+) -> Result<i64> {
+    let request_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            "page mutation requires an authenticated request context",
+            ErrorType::PermissionDenied,
+        )
+    })?;
+
+    if request_user_id == attribution_user_id {
+        Ok(request_user_id)
+    } else {
+        Err(Error::new(
+            "page mutation user does not match authenticated request user",
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
+}
+
+async fn ensure_page_create_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    slug: &str,
+    user_id: i64,
+) -> Result<()> {
+    let category_slug = get_category_name(slug);
+    let category = CategoryService::get_optional(
+        ctx,
+        site_id,
+        Reference::Slug(Cow::Borrowed(category_slug)),
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to load page category for create permission check",
+            ErrorType::Permission,
+        )
+    })?;
+
+    let resource_category = category.map(|category| Reference::Id(category.category_id));
+    ensure_page_permission(
+        ctx,
+        site_id,
+        None,
+        resource_category,
+        user_id,
+        Action::Create,
+        "create",
+    )
+    .await
+}
+
+async fn ensure_page_edit_permission<'a>(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_reference: Reference<'a>,
+    user_id: i64,
+) -> Result<()> {
+    let page = PageService::get(ctx, site_id, page_reference.clone())
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to load page for edit permission check",
+                ErrorType::Permission,
+            )
+        })?;
+
+    ensure_page_permission(
+        ctx,
+        site_id,
+        Some(Reference::Id(page.page_id)),
+        Some(Reference::Id(page.page_category_id)),
+        user_id,
+        Action::Edit,
+        "edit",
+    )
+    .await
+}
+
+async fn ensure_deleted_page_edit_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_id: i64,
+    user_id: i64,
+) -> Result<i64> {
+    let page = PageService::get_direct(ctx, page_id, true)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to load deleted page for edit permission check",
+                ErrorType::Permission,
+            )
+        })?;
+
+    if page.site_id != site_id {
+        return Err(Error::new(
+            "deleted page is not in the requested site",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
+    ensure_page_permission(
+        ctx,
+        site_id,
+        Some(Reference::Id(page.page_id)),
+        Some(Reference::Id(page.page_category_id)),
+        user_id,
+        Action::Edit,
+        "edit",
+    )
+    .await?;
+
+    Ok(page.page_category_id)
+}
+
+async fn ensure_page_permission<'a>(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_reference: Option<Reference<'a>>,
+    resource_category: Option<Reference<'a>>,
+    user_id: i64,
+    action: Action,
+    action_name: &str,
+) -> Result<()> {
+    let can_mutate = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: Some(user_id),
+            site_id,
+            page_reference,
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category,
+            action,
+        },
+    )
+    .await
+    .or_raise(|| Error::new("failed to check page permission", ErrorType::Permission))?;
+
+    if can_mutate {
+        Ok(())
+    } else {
+        Err(Error::new(
+            format!("user does not have permission to {action_name} this page"),
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
 }
 
 async fn build_page_output(
