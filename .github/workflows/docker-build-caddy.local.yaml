@@ -1,10 +1,14 @@
 name: '[backend] Docker build Caddy (local)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'install/local/caddy/*'
       - '.github/workflows/docker-build-caddy.local.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:

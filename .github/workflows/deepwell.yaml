@@ -2,28 +2,40 @@ name: '[deepwell] Rust'
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
     paths:
       - 'deepwell/Cargo.toml'
       - 'deepwell/Cargo.lock'
       - 'deepwell/src/**'
+      - 'deepwell/tests/**'
+      - 'deepwell/migrations/**'
+      - 'deepwell/seeder/**'
       - '.github/workflows/deepwell.yaml'
       - '.github/codecov.yml'
       - 'deepwell/config.example.toml'
-      - 'install/local/api/deepwell.toml'
-      - 'install/dev/api/deepwell.toml'
-      - 'install/prod/api/deepwell.toml'
+      - 'install/local/deepwell/config.toml'
+      - 'install/dev/deepwell/config.toml'
+      - 'install/prod/deepwell/config.toml'
   push:
     branches:
       - develop
       - prod
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && (github.event.action != 'labeled' || github.event.label.name == 'full-ci') }}
 
 jobs:
   test_and_coverage:
     name: Build, Test and Coverage
+    if: ${{ github.event_name != 'pull_request' || (contains(github.event.pull_request.labels.*.name, 'full-ci') && (github.event.action != 'labeled' || github.event.label.name == 'full-ci')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -156,6 +168,7 @@ jobs:
 
   clippy_lint:
     name: Lint
+    if: ${{ github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'full-ci' }}
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings

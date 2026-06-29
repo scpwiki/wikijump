@@ -2,24 +2,34 @@ name: '[wws] Rust'
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
     paths:
       - 'wws/Cargo.toml'
       - 'wws/Cargo.lock'
       - 'wws/src/**'
+      - 'wws/tests/**'
       - '.github/workflows/wws.yaml'
       - '.github/codecov.yml'
   push:
     branches:
       - develop
       - prod
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && (github.event.action != 'labeled' || github.event.label.name == 'full-ci') }}
 
 jobs:
   binary_build_and_test:
     name: Build, Test and Coverage
+    if: ${{ github.event_name != 'pull_request' || (contains(github.event.pull_request.labels.*.name, 'full-ci') && (github.event.action != 'labeled' || github.event.label.name == 'full-ci')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -65,6 +75,7 @@ jobs:
 
   clippy_lint:
     name: Lint
+    if: ${{ github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'full-ci' }}
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings

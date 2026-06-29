@@ -1,11 +1,15 @@
 name: '[backend] Docker build WWS (prod)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'wws/**'
       - 'install/prod/wws/Dockerfile'
       - '.github/workflows/docker-build-wws.prod.yaml'
+      - '.github/workflows/docker-build-template.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:

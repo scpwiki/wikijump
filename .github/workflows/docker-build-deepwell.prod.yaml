@@ -1,11 +1,15 @@
 name: '[backend] Docker build DEEPWELL (prod)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'deepwell/**'
       - 'install/prod/deepwell/Dockerfile'
       - '.github/workflows/docker-build-deepwell.prod.yaml'
+      - '.github/workflows/docker-build-template.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:
