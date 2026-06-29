@@ -7,6 +7,9 @@ on:
       - 'install/local/deepwell/Dockerfile'
       - '.github/workflows/docker-build-deepwell.local.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

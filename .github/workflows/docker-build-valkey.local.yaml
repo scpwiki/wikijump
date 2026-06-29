@@ -7,6 +7,9 @@ on:
       - 'install/local/valkey/*'
       - '.github/workflows/docker-build-valkey.local.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -9,6 +9,9 @@ on:
       - 'install/local/postgres/Dockerfile'
       - '.github/workflows/docker-build-postgres.local.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

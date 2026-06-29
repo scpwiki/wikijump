@@ -7,6 +7,9 @@ on:
       - 'install/local/caddy/*'
       - '.github/workflows/docker-build-caddy.local.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

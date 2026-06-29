@@ -29,7 +29,7 @@ concurrency:
 jobs:
   binary_build_and_test:
     name: Build, Test and Coverage
-    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
+    if: ${{ github.event_name != 'pull_request' || (contains(github.event.pull_request.labels.*.name, 'full-ci') && (github.event.action != 'labeled' || github.event.label.name == 'full-ci')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

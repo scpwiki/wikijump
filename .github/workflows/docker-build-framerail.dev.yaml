@@ -6,6 +6,10 @@ on:
     paths:
       - 'install/dev/framerail/Dockerfile'
       - '.github/workflows/docker-build-framerail.dev.yaml'
+      - '.github/workflows/docker-build-template.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:

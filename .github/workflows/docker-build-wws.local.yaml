@@ -7,6 +7,9 @@ on:
       - 'install/local/wws/Dockerfile'
       - '.github/workflows/docker-build-wws.local.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -6,6 +6,10 @@ on:
     paths:
       - 'install/dev/caddy/*'
       - '.github/workflows/docker-build-caddy.dev.yaml'
+      - '.github/workflows/docker-build-template.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:
