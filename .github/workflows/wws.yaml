@@ -24,7 +24,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && (github.event.action != 'labeled' || github.event.label.name == 'full-ci') }}
 
 jobs:
   binary_build_and_test:
@@ -75,6 +75,7 @@ jobs:
 
   clippy_lint:
     name: Lint
+    if: ${{ github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'full-ci' }}
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings
