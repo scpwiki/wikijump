@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::constants::SYSTEM_USER_ID;
+use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::hash::slice_to_blob_hash;
 use crate::models::blob_blacklist::{
     self, Entity as BlobBlacklist, Model as BlobBlacklistModel,
@@ -614,8 +614,11 @@ impl BlobService {
     /// This method does not mutate any data.
     pub async fn hard_delete_preview(
         ctx: &ServiceContext<'_>,
-        s3_hash: BlobHash,
+        s3_hash: &[u8],
     ) -> Result<HardDeleteOutput> {
+        Self::require_platform_staff(ctx, "preview blob hard deletion")?;
+        let s3_hash = slice_to_blob_hash(s3_hash);
+
         Self::hard_delete_inner(ctx, HardDeleteInner::DryRun { s3_hash })
             .await
             .or_raise(|| Error::new("failed to preview hard deletion", ErrorType::Blob))
@@ -634,8 +637,9 @@ impl BlobService {
     /// as severe copyright violations, abuse content, or comply with court orders.
     pub async fn hard_delete_all(
         ctx: &ServiceContext<'_>,
-        HardDelete { s3_hash, user_id }: HardDelete,
+        HardDelete { s3_hash }: HardDelete,
     ) -> Result<HardDeleteOutput> {
+        let user_id = Self::require_platform_staff(ctx, "confirm blob hard deletion")?;
         let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
 
         Self::hard_delete_inner(ctx, HardDeleteInner::Commit { s3_hash, user_id })
@@ -647,6 +651,24 @@ impl BlobService {
                 ),
                 ErrorType::Blob,
             ))
+    }
+
+    fn require_platform_staff(ctx: &ServiceContext<'_>, action: &str) -> Result<i64> {
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new(
+                format!("{action} requires an admin request context"),
+                ErrorType::PermissionDenied,
+            )
+        })?;
+
+        if user_id != ADMIN_USER_ID {
+            bail!(Error::new(
+                format!("{action} requires an admin request context"),
+                ErrorType::PermissionDenied,
+            ));
+        }
+
+        Ok(user_id)
     }
 
     /// Inner implementation, which runs the hard deletion procedure but may not actually delete.

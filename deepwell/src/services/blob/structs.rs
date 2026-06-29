@@ -55,7 +55,6 @@ pub struct FinalizeBlobUploadOutput {
 #[derive(Deserialize, Debug, Clone)]
 pub struct HardDelete {
     pub s3_hash: Bytes<'static>,
-    pub user_id: i64,
 }
 
 #[derive(Serialize, Debug, Clone)]

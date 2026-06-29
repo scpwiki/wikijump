@@ -177,9 +177,8 @@ pub async fn blob_hard_delete_preview(
     }
 
     let HardDeletePreview { s3_hash } = parse!(params, Blob);
-    let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
 
-    BlobService::hard_delete_preview(ctx, s3_hash)
+    BlobService::hard_delete_preview(ctx, s3_hash.as_ref())
         .await
         .or_raise(|| {
             Error::new("failed to preview a blob hard deletion", ErrorType::Blob)
