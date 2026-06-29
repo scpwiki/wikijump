@@ -319,6 +319,9 @@ async fn role_mutations_require_request_actor_with_role_edit_permission() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
     let root_role = create_role(&runner, f.site_id, "Root", None).await;
+    let other_root = create_role(&runner, f.site_id, "OtherRoot", None).await;
+    let child_role =
+        create_role(&runner, f.site_id, "Child", Some(root_role.role_id)).await;
 
     runner.set_request_context(RequestContext::default());
     let err = run_endpoint_err!(
@@ -356,12 +359,58 @@ async fn role_mutations_require_request_actor_with_role_edit_permission() {
     );
     assert_contains_error!(err, ErrorType::PermissionDenied);
 
+    let err = run_endpoint_err!(
+        runner,
+        role_update_permissions,
+        json!({
+            "site_id": f.site_id,
+            "role_reference": root_role.role_id,
+            "new_permissions": [
+                { "resource_type": "page", "resource_category": null, "action": "view" },
+            ],
+            "cascade_removals": false,
+            "updating_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let err = run_endpoint_err!(
+        runner,
+        role_reparent,
+        json!({
+            "site_id": f.site_id,
+            "role_id": child_role.role_id,
+            "new_parent_id": other_root.role_id,
+            "reparenting_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let err = run_endpoint_err!(
+        runner,
+        role_delete,
+        json!({
+            "site_id": f.site_id,
+            "role_id": child_role.role_id,
+            "deleting_user_id": SYSTEM_USER_ID,
+            "reparent_children": false,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
     let roles = run_endpoint!(runner, list_site_roles, json!({ "site_id": f.site_id }));
     assert!(
         roles
             .iter()
             .all(|role| role.name != "UnauthorizedModerator"),
         "Unauthorized role_create should not insert a role"
+    );
+    assert!(
+        roles.iter().any(|role| role.role_id == child_role.role_id),
+        "Unauthorized role_delete should not delete the child role"
     );
 }
 
@@ -658,7 +707,7 @@ async fn role_assignment_and_membership_require_role_assign() {
         json!({
             "site_id": f.site_id,
             "user_id": f.target_user_id,
-            "metadata": membership_metadata,
+            "metadata": membership_metadata.clone(),
             "created_by": SYSTEM_USER_ID,
         }),
     );
@@ -673,6 +722,68 @@ async fn role_assignment_and_membership_require_role_assign() {
     )
     .expect("site membership should have been created");
     assert_eq!(membership.created_by, f.user_id);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(unauthorized_user_id),
+        ..Default::default()
+    });
+
+    let err = run_endpoint_err!(
+        runner,
+        revoke_role_from_user,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "role_id": role.role_id,
+            "revoking_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let err = run_endpoint_err!(
+        runner,
+        membership_remove,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "removed_by": SYSTEM_USER_ID,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let user_roles = run_endpoint!(
+        runner,
+        get_user_roles,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+        }),
+    );
+    assert!(
+        user_roles
+            .iter()
+            .any(|user_role| user_role.role_id == role.role_id),
+        "Unauthorized revoke_role_from_user should not revoke the role"
+    );
+
+    let membership = run_endpoint!(
+        runner,
+        membership_get,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+        }),
+    );
+    assert!(
+        membership.is_some(),
+        "Unauthorized membership_remove should not remove membership"
+    );
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(f.user_id),
+        ..Default::default()
+    });
 
     let removed = run_endpoint!(
         runner,
