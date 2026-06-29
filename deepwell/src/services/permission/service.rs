@@ -30,6 +30,7 @@ use crate::services::permission::resolvers::resolve_category_slug;
 use crate::services::permission::{
     CheckPermissionContext, PermissionCache, resolve_category_reference,
 };
+use crate::services::relation::{GetSiteBan, RelationService};
 use crate::services::role::{
     GetRolePermissionsInput, GetUserRolesInput, RoleService, UpdateRolePermissionsInput,
 };
@@ -457,8 +458,12 @@ impl PermissionService {
             user_id, site_id, resource, resource_category, action,
         );
 
-        // Check if this permission is cacheable
-        let cacheable = PermissionCache::is_cacheable(resource, action);
+        // Active bans are time-dependent and may lapse without a write, so
+        // cached view decisions must be bypassed while a ban is active.
+        let cacheable = PermissionCache::is_cacheable(resource, action)
+            && !Self::active_site_ban_suppresses_cache(ctx, site_id, user_id)
+                .await
+                .or_raise(make_error)?;
 
         // Resolve category reference to ID for permission checking
         let resource_category_id = match &resource_category {
@@ -539,6 +544,19 @@ impl PermissionService {
         }
 
         Ok(has_permission)
+    }
+
+    async fn active_site_ban_suppresses_cache(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        user_id: Option<i64>,
+    ) -> Result<bool> {
+        if let Some(user_id) = user_id {
+            RelationService::active_site_ban_exists(ctx, GetSiteBan { site_id, user_id })
+                .await
+        } else {
+            Ok(false)
+        }
     }
 
     /// Fetches permissions for `role_id`.

@@ -40,6 +40,37 @@ impl_relation!(
 
 impl RelationService {
     #[allow(dead_code)] // TEMP
+    pub async fn active_site_ban_exists(
+        ctx: &ServiceContext<'_>,
+        body: GetSiteBan,
+    ) -> Result<bool> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to check active ban of user ID {} in site ID {}",
+                    body.user_id, body.site_id,
+                ),
+                ErrorType::SiteBanRelation,
+            )
+        };
+
+        let Some(relation) = Self::get_optional_site_ban(ctx, body)
+            .await
+            .or_raise(make_error)?
+        else {
+            return Ok(false);
+        };
+
+        let metadata: SiteBanData =
+            serde_json::from_value(relation.metadata).or_raise(make_error)?;
+
+        Ok(match metadata.banned_until {
+            Some(banned_until) => banned_until >= now().date(),
+            None => true,
+        })
+    }
+
+    #[allow(dead_code)] // TEMP
     pub async fn create_site_ban(
         ctx: &ServiceContext<'_>,
         CreateSiteBan {
@@ -95,7 +126,7 @@ impl RelationService {
             )
         };
 
-        if Self::site_ban_exists(ctx, body)
+        if Self::active_site_ban_exists(ctx, body)
             .await
             .or_raise(make_error)?
         {

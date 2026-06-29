@@ -453,7 +453,14 @@ impl RoleService {
             )
         };
 
+        let is_banned = Self::site_ban_exists_for_input(ctx, &input)
+            .await
+            .or_raise(make_error)?;
+
         let mut roles = match input.user_id {
+            // A site ban suppresses explicit site role grants. Virtual roles still
+            // describe the user's logged-in and banned state below.
+            Some(_) if is_banned => Vec::new(),
             Some(id) => Role::find()
                 .join(JoinType::InnerJoin, role::Relation::UserRole.def())
                 .filter(
@@ -474,9 +481,10 @@ impl RoleService {
             None => Vec::new(),
         };
 
-        let virtual_roles = Self::get_virtual_roles_for_user(ctx, &input)
-            .await
-            .or_raise(make_error)?;
+        let virtual_roles =
+            Self::get_virtual_roles_for_user_with_ban_state(ctx, &input, is_banned)
+                .await
+                .or_raise(make_error)?;
 
         roles.extend(virtual_roles);
 
@@ -719,6 +727,37 @@ impl RoleService {
         ctx: &ServiceContext<'_>,
         input: &GetUserRolesInput<'_>,
     ) -> Result<Vec<RoleModel>> {
+        let make_error = || Error::new("failed to apply virtual roles", ErrorType::Role);
+        let is_banned = Self::site_ban_exists_for_input(ctx, input)
+            .await
+            .or_raise(make_error)?;
+
+        Self::get_virtual_roles_for_user_with_ban_state(ctx, input, is_banned).await
+    }
+
+    async fn site_ban_exists_for_input(
+        ctx: &ServiceContext<'_>,
+        input: &GetUserRolesInput<'_>,
+    ) -> Result<bool> {
+        if let Some(user_id) = input.user_id {
+            RelationService::active_site_ban_exists(
+                ctx,
+                GetSiteBan {
+                    site_id: input.site_id,
+                    user_id,
+                },
+            )
+            .await
+        } else {
+            Ok(false)
+        }
+    }
+
+    async fn get_virtual_roles_for_user_with_ban_state(
+        ctx: &ServiceContext<'_>,
+        input: &GetUserRolesInput<'_>,
+        is_banned: bool,
+    ) -> Result<Vec<RoleModel>> {
         let txn = ctx.transaction();
 
         let make_error = || Error::new("failed to apply virtual roles", ErrorType::Role);
@@ -771,20 +810,6 @@ impl RoleService {
         } else {
             false
         };
-        let is_banned = if is_logged_in {
-            RelationService::site_ban_exists(
-                ctx,
-                GetSiteBan {
-                    site_id: input.site_id,
-                    user_id: input.user_id.unwrap(),
-                },
-            )
-            .await
-            .or_raise(make_error)?
-        } else {
-            false
-        };
-
         // Collect virtual roles to apply based on flags
         let mut applied_virtual_roles = Vec::with_capacity(4); // At most 4 virtual roles at a time
         if is_logged_in {

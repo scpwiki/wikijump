@@ -26,10 +26,15 @@ use deepwell::constants::SYSTEM_USER_ID;
 use deepwell::license::License;
 use deepwell::services::category::CategoryService;
 use deepwell::services::permission::{
-    CheckPermissionContext, DecoratedPermission, PermissionService,
+    CheckPermissionContext, DecoratedPermission, PermissionCache, PermissionService,
+};
+use deepwell::services::relation::{
+    CreateSiteBan, CreateSiteMember, RelationService, SiteBanData, SiteMemberAccepted,
+    SiteMemberData,
 };
 use deepwell::services::role::{
-    GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
+    GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput, RoleService,
+    UpdateRolePermissionsInput,
 };
 use deepwell::services::site::{CreateSite, SiteService};
 use deepwell::services::user::{CreateUser, UserService};
@@ -38,6 +43,7 @@ use deepwell::types::{Action, Permission, Reference, Resource, UserType};
 use serde_json::json;
 use std::sync::atomic::{AtomicU64, Ordering};
 use str_macro::str;
+use time::{Date, Month};
 
 static FIXTURE_COUNTER: AtomicU64 = AtomicU64::new(0);
 const TEST_CATEGORY_NAME: &str = "test-category";
@@ -216,6 +222,48 @@ async fn grant_role(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64, role_i
     .expect("Failed to grant role to user");
 }
 
+async fn create_site_member(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64) {
+    RelationService::create_site_member(
+        ctx,
+        CreateSiteMember {
+            site_id,
+            user_id,
+            metadata: SiteMemberData {
+                accepted: SiteMemberAccepted::Accepted(SYSTEM_USER_ID),
+            },
+            created_by: SYSTEM_USER_ID,
+        },
+    )
+    .await
+    .expect("Failed to create site member");
+}
+
+async fn ban_site_user(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64) {
+    ban_site_user_until(ctx, site_id, user_id, None).await;
+}
+
+async fn ban_site_user_until(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    user_id: i64,
+    banned_until: Option<Date>,
+) {
+    RelationService::create_site_ban(
+        ctx,
+        CreateSiteBan {
+            site_id,
+            user_id,
+            metadata: SiteBanData {
+                banned_until,
+                reason: str!("test ban"),
+            },
+            created_by: SYSTEM_USER_ID,
+        },
+    )
+    .await
+    .expect("Failed to create site ban");
+}
+
 async fn create_user(ctx: &ServiceContext<'_>, fixture_n: u64, label: &str) -> i64 {
     UserService::create(
         ctx,
@@ -358,6 +406,271 @@ async fn check_user_can() {
     assert!(
         !check(&runner, a, f.site_id, Resource::Page, cat, Action::Edit).await,
         "user_a: should fail page:edit check in test-category"
+    );
+}
+
+#[tokio::test]
+async fn banned_user_does_not_retain_explicit_role_permissions() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "precondition: user_a should initially have RoleA page:view"
+    );
+    assert_eq!(
+        PermissionCache::check_user_permission(
+            ctx,
+            Some(f.site_id),
+            Some(f.user_a),
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await
+        .expect("Failed to read permission cache"),
+        Some(true),
+        "precondition: page:view should be cached before banning user_a"
+    );
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::Edit,
+        )
+        .await,
+        "precondition: user_a should initially have RoleA page:edit"
+    );
+
+    create_site_member(ctx, f.site_id, f.user_a).await;
+    ban_site_user(ctx, f.site_id, f.user_a).await;
+
+    assert_eq!(
+        PermissionCache::check_user_permission(
+            ctx,
+            Some(f.site_id),
+            Some(f.user_a),
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await
+        .expect("Failed to read permission cache"),
+        Some(true),
+        "direct cache entry can remain, but active site bans must bypass it"
+    );
+
+    assert!(
+        !check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "banned user should not retain page:view from cached explicit RoleA"
+    );
+    assert_eq!(
+        PermissionCache::check_user_permission(
+            ctx,
+            Some(f.site_id),
+            Some(f.user_a),
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await
+        .expect("Failed to read permission cache"),
+        Some(true),
+        "active site ban should not overwrite cached page:view with a denial"
+    );
+
+    assert!(
+        !check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::Edit,
+        )
+        .await,
+        "banned user should not retain page:edit from explicit RoleA"
+    );
+
+    let roles = RoleService::get_all_roles_for_user_and_site(
+        ctx,
+        GetUserRolesInput {
+            user_id: Some(f.user_a),
+            site_id: f.site_id,
+            page_reference: None,
+        },
+    )
+    .await
+    .expect("Failed to get roles for banned user");
+
+    assert!(
+        roles.iter().all(|role| role.name != "RoleA"),
+        "banned user should not retain explicit RoleA in effective roles: {:?}",
+        roles.iter().map(|role| &role.name).collect::<Vec<_>>()
+    );
+}
+
+#[tokio::test]
+async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "precondition: user_a should initially have RoleA page:view"
+    );
+    assert_eq!(
+        PermissionCache::check_user_permission(
+            ctx,
+            Some(f.site_id),
+            Some(f.user_a),
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await
+        .expect("Failed to read permission cache"),
+        Some(true),
+        "precondition: page:view should be cached before the timed ban"
+    );
+
+    create_site_member(ctx, f.site_id, f.user_a).await;
+    ban_site_user_until(
+        ctx,
+        f.site_id,
+        f.user_a,
+        Some(Date::from_calendar_date(9999, Month::January, 1).unwrap()),
+    )
+    .await;
+
+    assert_eq!(
+        PermissionCache::check_user_permission(
+            ctx,
+            Some(f.site_id),
+            Some(f.user_a),
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await
+        .expect("Failed to read permission cache"),
+        Some(true),
+        "direct cache entry can remain, but active timed bans must bypass it"
+    );
+    assert!(
+        !check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "active timed site ban should deny page:view"
+    );
+    assert_eq!(
+        PermissionCache::check_user_permission(
+            ctx,
+            Some(f.site_id),
+            Some(f.user_a),
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await
+        .expect("Failed to read permission cache"),
+        Some(true),
+        "active timed site ban should not overwrite cached page:view with a denial"
+    );
+}
+
+#[tokio::test]
+async fn expired_site_ban_does_not_suppress_explicit_role_permissions() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    create_site_member(ctx, f.site_id, f.user_a).await;
+    ban_site_user_until(
+        ctx,
+        f.site_id,
+        f.user_a,
+        Some(Date::from_calendar_date(2000, Month::January, 1).unwrap()),
+    )
+    .await;
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "expired site ban should not suppress explicit RoleA page:view"
+    );
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::Edit,
+        )
+        .await,
+        "expired site ban should not suppress explicit RoleA page:edit"
+    );
+
+    let roles = RoleService::get_all_roles_for_user_and_site(
+        ctx,
+        GetUserRolesInput {
+            user_id: Some(f.user_a),
+            site_id: f.site_id,
+            page_reference: None,
+        },
+    )
+    .await
+    .expect("Failed to get roles for previously banned user");
+
+    assert!(
+        roles.iter().any(|role| role.name == "RoleA"),
+        "expired site ban should not suppress explicit RoleA in effective roles: {:?}",
+        roles.iter().map(|role| &role.name).collect::<Vec<_>>()
     );
 }
 

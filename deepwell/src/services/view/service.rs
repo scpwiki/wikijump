@@ -305,7 +305,7 @@ impl ViewService {
                     warn!("User doesn't have page access, returning permission page");
 
                     let user_is_banned = match user_session {
-                        Some(ref session) => RelationService::site_ban_exists(
+                        Some(ref session) => RelationService::active_site_ban_exists(
                             ctx,
                             GetSiteBan {
                                 site_id,
