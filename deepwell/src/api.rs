@@ -197,7 +197,7 @@ pub async fn build_server(app_state: ServerState) -> Result<ServerHandle> {
 }
 
 async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> {
-    use crate::error::{exn_error_to_rpc_error, unwrap_transaction_error};
+    use crate::error::exn_error_to_rpc_error;
 
     let mut module = RpcModule::new(app_state);
 
@@ -217,37 +217,70 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
                 // Extract raw headers inserted by the tower middleware layer.
                 let headers = extensions.get::<RequestContextHeaders>().cloned();
 
-                // Wrap each call in a transaction, which commits or rolls back
-                // automatically based on whether the Result is Ok or Err.
-                //
-                // At this level, we take the database-or-RPC error and make it just an RPC error.
+                // Wrap each call in a transaction, committing only after the
+                // endpoint succeeds and running queued side effects only after
+                // commit has completed.
                 let db_state = Arc::clone(&state);
-                db_state
+                async move {
+                    let txn = db_state
                     .database
-                    .transaction(move |txn| {
-                        Box::pin(async move {
-                            let ctx = ServiceContext::new(&state, &txn);
-                            let make_error = || Error::new(
-                                format!("method '{}' failed", $name),
-                                ErrorType::Request,
-                            );
-
-                            // Build request context from headers and store it in the context
-                            let req_ctx = match headers {
-                                Some(ref h) => build_request(&ctx, h).await.or_raise(make_error)?,
-                                None => RequestContext::default(),
-                            };
-                            let ctx = ctx.with_request(req_ctx);
-
-                            // Run the endpoint's implementation, and convert from
-                            // the crate's error type to an RPC error.
-                            $method(&ctx, params)
-                                .await
-                                .or_raise(make_error)
-                        })
-                    })
+                    .begin()
                     .await
-                    .map_err(unwrap_transaction_error)
+                    .or_raise(|| Error::new(
+                        format!("method '{}' failed to begin transaction", $name),
+                        ErrorType::Request,
+                    ))?;
+
+                    let make_error = || Error::new(
+                        format!("method '{}' failed", $name),
+                        ErrorType::Request,
+                    );
+
+                    let endpoint_result = async {
+                        let ctx = ServiceContext::new(&state, &txn);
+
+                        // Build request context from headers and store it in the context
+                        let req_ctx = match headers {
+                            Some(ref h) => build_request(&ctx, h).await.or_raise(make_error)?,
+                            None => RequestContext::default(),
+                        };
+                        let ctx = ctx.with_request(req_ctx);
+
+                        // Run the endpoint's implementation, and convert from
+                        // the crate's error type to an RPC error.
+                        let output = $method(&ctx, params).await.or_raise(make_error)?;
+                        let post_commit_actions = ctx
+                            .drain_post_commit_actions()
+                            .or_raise(make_error)?;
+
+                        Ok((output, post_commit_actions))
+                    }
+                    .await;
+
+                    let (output, post_commit_actions) = match endpoint_result {
+                        Ok(result) => result,
+                        Err(error) => {
+                            txn.rollback().await.or_raise(make_error)?;
+                            return Err(error);
+                        }
+                    };
+
+                    txn.commit().await.or_raise(make_error)?;
+                    if let Err(error) = ServiceContext::run_post_commit_actions_for_state(
+                        &state,
+                        post_commit_actions,
+                    )
+                    .await
+                    {
+                        error!(
+                            "JSONRPC method {} committed but post-commit actions failed: {}",
+                            $name, error,
+                        );
+                    }
+
+                    Ok(output)
+                }
+                    .await
                     .inspect_err(|error| error!("JSONRPC method {} failed: {}", $name, error))
                     .map_err(exn_error_to_rpc_error)
             })

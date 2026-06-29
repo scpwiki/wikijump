@@ -26,20 +26,23 @@ use deepwell::constants::SYSTEM_USER_ID;
 use deepwell::license::License;
 use deepwell::services::category::CategoryService;
 use deepwell::services::permission::{
-    CheckPermissionContext, DecoratedPermission, PermissionCache, PermissionService,
+    CheckPermissionContext, DecoratedPermission, PERMISSION_CACHE_FENCE_TTL_SECONDS,
+    PERMISSION_CACHE_TTL_SECONDS, PermissionCache, PermissionService,
+    SetUserPermissionInput,
 };
 use deepwell::services::relation::{
-    CreateSiteBan, CreateSiteMember, RelationService, SiteBanData, SiteMemberAccepted,
-    SiteMemberData,
+    CreateSiteBan, CreateSiteMember, RelationService, RemoveSiteMember, SiteBanData,
+    SiteMemberAccepted, SiteMemberData,
 };
 use deepwell::services::role::{
-    GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput, RoleService,
-    UpdateRolePermissionsInput,
+    GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput, RevokeUserRoleInput,
+    RoleService, UpdateRolePermissionsInput,
 };
 use deepwell::services::site::{CreateSite, SiteService};
 use deepwell::services::user::{CreateUser, UserService};
 use deepwell::services::{RequestContext, ServiceContext};
 use deepwell::types::{Action, Permission, Reference, Resource, UserType};
+use redis::AsyncCommands;
 use serde_json::json;
 use std::sync::atomic::{AtomicU64, Ordering};
 use str_macro::str;
@@ -57,6 +60,7 @@ struct PermissionFixture {
     // A page category to use for testing category-scoped permissions
     category_id: i64,
     other_category_id: i64,
+    role_a: i64,
     user_a: i64,
     user_b: i64,
     user_c: i64,
@@ -153,6 +157,7 @@ impl PermissionFixture {
             site_id,
             category_id,
             other_category_id,
+            role_a,
             user_a,
             user_b,
             user_c,
@@ -222,6 +227,85 @@ async fn grant_role(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64, role_i
     .expect("Failed to grant role to user");
 }
 
+async fn revoke_role(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64, role_id: i64) {
+    RoleService::revoke_role_from_user(
+        ctx,
+        RevokeUserRoleInput {
+            site_id,
+            user_id,
+            role_id,
+            revoking_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("Failed to revoke role from user");
+}
+
+async fn cached_page_view(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    user_id: i64,
+) -> Option<bool> {
+    let fence = PermissionCache::cache_fence(ctx, site_id, Some(user_id))
+        .await
+        .expect("Failed to read permission cache fence");
+    PermissionCache::check_user_permission(
+        ctx,
+        Some(site_id),
+        Some(user_id),
+        Resource::Page,
+        None,
+        Action::View,
+        &fence,
+    )
+    .await
+    .expect("Failed to read permission cache")
+}
+
+async fn permission_cache_key(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    user_id: i64,
+    resource: Resource,
+    category_id: Option<i64>,
+    action: Action,
+) -> String {
+    let category = category_id
+        .map(|id| id.to_string())
+        .unwrap_or_else(|| "_default".to_owned());
+    let pattern = format!(
+        "permission:site:{site_id}:user:{user_id}:*:permission:{resource}:{category}:{action}"
+    );
+    let mut redis = ctx.redis();
+    let keys: Vec<String> = redis
+        .keys(&pattern)
+        .await
+        .expect("Failed to list permission cache keys");
+    assert_eq!(
+        keys.len(),
+        1,
+        "expected one permission cache key for pattern {pattern}, got {keys:?}"
+    );
+    keys.into_iter()
+        .next()
+        .expect("permission cache key should exist")
+}
+
+async fn page_view_permission_cache_key(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    user_id: i64,
+) -> String {
+    permission_cache_key(ctx, site_id, user_id, Resource::Page, None, Action::View).await
+}
+
+async fn run_queued_cache_invalidations(ctx: &ServiceContext<'_>) {
+    ctx.run_post_commit_actions()
+        .await
+        .expect("Failed to run queued post-commit actions");
+}
+
 async fn create_site_member(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64) {
     RelationService::create_site_member(
         ctx,
@@ -236,6 +320,19 @@ async fn create_site_member(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64
     )
     .await
     .expect("Failed to create site member");
+}
+
+async fn remove_site_member(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64) {
+    RelationService::remove_site_member(
+        ctx,
+        RemoveSiteMember {
+            site_id,
+            user_id,
+            removed_by: SYSTEM_USER_ID,
+        },
+    )
+    .await
+    .expect("Failed to remove site member");
 }
 
 async fn ban_site_user(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64) {
@@ -410,6 +507,460 @@ async fn check_user_can() {
 }
 
 #[tokio::test]
+async fn cached_view_permissions_have_ttl() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "precondition: user_a should initially have RoleA page:view"
+    );
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        Some(true),
+        "precondition: page:view should be cached"
+    );
+
+    let mut redis = ctx.redis();
+    let ttl: i64 = redis
+        .ttl(page_view_permission_cache_key(ctx, f.site_id, f.user_a).await)
+        .await
+        .expect("Failed to read permission cache TTL");
+
+    assert!(
+        (1..=PERMISSION_CACHE_TTL_SECONDS).contains(&ttl),
+        "permission cache key TTL should be between 1 and {PERMISSION_CACHE_TTL_SECONDS} seconds, but was {ttl}"
+    );
+}
+
+#[tokio::test]
+async fn writing_one_cached_permission_does_not_extend_unrelated_permission_ttl() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    PermissionCache::set_user_permission(
+        ctx,
+        Some(f.site_id),
+        Some(f.user_a),
+        Resource::Page,
+        None,
+        Action::View,
+        true,
+    )
+    .await
+    .expect("Failed to seed page:view permission cache");
+
+    let view_key = page_view_permission_cache_key(ctx, f.site_id, f.user_a).await;
+    let mut redis = ctx.redis();
+    let expire_set: bool = redis
+        .expire(&view_key, 1)
+        .await
+        .expect("Failed to shorten page:view permission cache TTL");
+    assert!(expire_set, "precondition: page:view cache key should exist");
+
+    PermissionCache::set_user_permission(
+        ctx,
+        Some(f.site_id),
+        Some(f.user_a),
+        Resource::Page,
+        None,
+        Action::Edit,
+        true,
+    )
+    .await
+    .expect("Failed to write page:edit permission cache");
+
+    let edit_key = permission_cache_key(
+        ctx,
+        f.site_id,
+        f.user_a,
+        Resource::Page,
+        None,
+        Action::Edit,
+    )
+    .await;
+    let view_ttl: i64 = redis
+        .ttl(&view_key)
+        .await
+        .expect("Failed to read page:view permission cache TTL");
+    let edit_ttl: i64 = redis
+        .ttl(&edit_key)
+        .await
+        .expect("Failed to read page:edit permission cache TTL");
+
+    assert!(
+        view_ttl == -2 || (0..=1).contains(&view_ttl),
+        "writing page:edit must not refresh page:view TTL, but page:view TTL was {view_ttl}"
+    );
+    assert!(
+        (1..=PERMISSION_CACHE_TTL_SECONDS).contains(&edit_ttl),
+        "page:edit should have its own fresh TTL, but was {edit_ttl}"
+    );
+}
+
+#[tokio::test]
+async fn stale_user_permission_fence_does_not_write_cache() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    let stale_fence = PermissionCache::cache_fence(ctx, f.site_id, Some(f.user_a))
+        .await
+        .expect("Failed to read permission cache fence");
+
+    PermissionCache::invalidate_user(ctx, f.site_id, f.user_a)
+        .await
+        .expect("Failed to invalidate permission cache for user");
+
+    let wrote = PermissionCache::set_user_permission_if_fence_current(
+        ctx,
+        SetUserPermissionInput {
+            site_id: Some(f.site_id),
+            user_id: Some(f.user_a),
+            resource_type: Resource::Page,
+            resource_category_id: None,
+            action: Action::View,
+            has_permission: true,
+        },
+        &stale_fence,
+    )
+    .await
+    .expect("Failed to attempt fenced permission cache write");
+
+    assert!(
+        !wrote,
+        "stale user fence must not write permission cache after invalidation"
+    );
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "stale fenced write must not recreate page:view cache"
+    );
+}
+
+#[tokio::test]
+async fn stale_user_permission_fence_does_not_read_old_cache_key() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    PermissionCache::set_user_permission(
+        ctx,
+        Some(f.site_id),
+        Some(f.user_a),
+        Resource::Page,
+        None,
+        Action::View,
+        true,
+    )
+    .await
+    .expect("Failed to seed page:view permission cache");
+
+    let old_key = page_view_permission_cache_key(ctx, f.site_id, f.user_a).await;
+    let mut redis = ctx.redis();
+    let _: i64 = redis
+        .incr(
+            format!("permission:site:{}:user:{}:version", f.site_id, f.user_a),
+            1,
+        )
+        .await
+        .expect("Failed to bump permission cache user fence");
+    let old_key_exists: bool = redis
+        .exists(&old_key)
+        .await
+        .expect("Failed to check old permission cache key");
+    assert!(
+        old_key_exists,
+        "precondition: old permission cache key should remain during cleanup window"
+    );
+
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "permission cache reads must ignore keys written under stale fences"
+    );
+}
+
+#[tokio::test]
+async fn stale_site_permission_fence_does_not_write_cache() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    let stale_fence = PermissionCache::cache_fence(ctx, f.site_id, Some(f.user_a))
+        .await
+        .expect("Failed to read permission cache fence");
+
+    PermissionCache::invalidate_site(ctx, f.site_id)
+        .await
+        .expect("Failed to invalidate permission cache for site");
+
+    let wrote = PermissionCache::set_user_permission_if_fence_current(
+        ctx,
+        SetUserPermissionInput {
+            site_id: Some(f.site_id),
+            user_id: Some(f.user_a),
+            resource_type: Resource::Page,
+            resource_category_id: None,
+            action: Action::View,
+            has_permission: true,
+        },
+        &stale_fence,
+    )
+    .await
+    .expect("Failed to attempt fenced permission cache write");
+
+    assert!(
+        !wrote,
+        "stale site fence must not write permission cache after invalidation"
+    );
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "stale site fenced write must not recreate page:view cache"
+    );
+}
+
+#[tokio::test]
+async fn permission_cache_version_keys_expire_after_invalidation() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    PermissionCache::invalidate_user(ctx, f.site_id, f.user_a)
+        .await
+        .expect("Failed to invalidate permission cache for user");
+    PermissionCache::invalidate_site(ctx, f.site_id)
+        .await
+        .expect("Failed to invalidate permission cache for site");
+
+    let mut redis = ctx.redis();
+    let user_ttl: i64 = redis
+        .ttl(format!(
+            "permission:site:{}:user:{}:version",
+            f.site_id, f.user_a
+        ))
+        .await
+        .expect("Failed to read user permission fence TTL");
+    let site_ttl: i64 = redis
+        .ttl(format!("permission:site:{}:version", f.site_id))
+        .await
+        .expect("Failed to read site permission fence TTL");
+
+    assert!(
+        (1..=PERMISSION_CACHE_FENCE_TTL_SECONDS).contains(&user_ttl),
+        "user permission fence TTL should be bounded, but was {user_ttl}"
+    );
+    assert!(
+        (1..=PERMISSION_CACHE_FENCE_TTL_SECONDS).contains(&site_ttl),
+        "site permission fence TTL should be bounded, but was {site_ttl}"
+    );
+}
+
+#[tokio::test]
+async fn role_permission_updates_invalidate_cached_view_permissions() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "precondition: user_a should initially have RoleA page:view"
+    );
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        Some(true),
+        "precondition: page:view should be cached before role permission update"
+    );
+
+    add_perms_to_role(
+        ctx,
+        f.site_id,
+        f.role_a,
+        vec![Permission {
+            resource_type: Resource::Page,
+            resource_category: None,
+            action: Action::Edit,
+        }],
+    )
+    .await;
+
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        Some(true),
+        "role permission update should queue invalidation until post-commit actions run"
+    );
+
+    run_queued_cache_invalidations(ctx).await;
+
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "role permission update should invalidate stale page:view cache"
+    );
+    assert!(
+        !check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "user_a should lose page:view after RoleA no longer grants it"
+    );
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::Edit,
+        )
+        .await,
+        "user_a should retain legitimate RoleA page:edit"
+    );
+}
+
+#[tokio::test]
+async fn role_revocation_invalidates_cached_view_permissions() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "precondition: user_a should initially have RoleA page:view"
+    );
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        Some(true),
+        "precondition: page:view should be cached before role revocation"
+    );
+
+    revoke_role(ctx, f.site_id, f.user_a, f.role_a).await;
+    run_queued_cache_invalidations(ctx).await;
+
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "role revocation should invalidate stale page:view cache"
+    );
+    assert!(
+        !check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "user_a should lose page:view after RoleA is revoked"
+    );
+}
+
+#[tokio::test]
+async fn site_membership_changes_invalidate_cached_view_permissions() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "precondition: user_a should initially have explicit RoleA page:view"
+    );
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        Some(true),
+        "precondition: explicit page:view should be cached before membership change"
+    );
+
+    create_site_member(ctx, f.site_id, f.user_a).await;
+    run_queued_cache_invalidations(ctx).await;
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "site membership creation should invalidate stale page:view cache"
+    );
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "explicit RoleA page:view should remain valid after membership creation"
+    );
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        Some(true),
+        "explicit page:view should be cached again before membership removal"
+    );
+
+    remove_site_member(ctx, f.site_id, f.user_a).await;
+    run_queued_cache_invalidations(ctx).await;
+    assert_eq!(
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "site membership removal should invalidate stale page:view cache"
+    );
+
+    assert!(
+        check(
+            &runner,
+            Some(f.user_a),
+            f.site_id,
+            Resource::Page,
+            None,
+            Action::View,
+        )
+        .await,
+        "explicit RoleA page:view should remain valid after membership removal"
+    );
+}
+
+#[tokio::test]
 async fn banned_user_does_not_retain_explicit_role_permissions() {
     let runner = TestRunner::setup().await;
     let f = PermissionFixture::setup(&runner).await;
@@ -428,16 +979,7 @@ async fn banned_user_does_not_retain_explicit_role_permissions() {
         "precondition: user_a should initially have RoleA page:view"
     );
     assert_eq!(
-        PermissionCache::check_user_permission(
-            ctx,
-            Some(f.site_id),
-            Some(f.user_a),
-            Resource::Page,
-            None,
-            Action::View,
-        )
-        .await
-        .expect("Failed to read permission cache"),
+        cached_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: page:view should be cached before banning user_a"
     );
@@ -457,20 +999,12 @@ async fn banned_user_does_not_retain_explicit_role_permissions() {
 
     create_site_member(ctx, f.site_id, f.user_a).await;
     ban_site_user(ctx, f.site_id, f.user_a).await;
+    run_queued_cache_invalidations(ctx).await;
 
     assert_eq!(
-        PermissionCache::check_user_permission(
-            ctx,
-            Some(f.site_id),
-            Some(f.user_a),
-            Resource::Page,
-            None,
-            Action::View,
-        )
-        .await
-        .expect("Failed to read permission cache"),
-        Some(true),
-        "direct cache entry can remain, but active site bans must bypass it"
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "site ban creation should invalidate stale page:view cache"
     );
 
     assert!(
@@ -486,18 +1020,9 @@ async fn banned_user_does_not_retain_explicit_role_permissions() {
         "banned user should not retain page:view from cached explicit RoleA"
     );
     assert_eq!(
-        PermissionCache::check_user_permission(
-            ctx,
-            Some(f.site_id),
-            Some(f.user_a),
-            Resource::Page,
-            None,
-            Action::View,
-        )
-        .await
-        .expect("Failed to read permission cache"),
-        Some(true),
-        "active site ban should not overwrite cached page:view with a denial"
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "active site ban should not recreate page:view cache with a denial"
     );
 
     assert!(
@@ -550,16 +1075,7 @@ async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
         "precondition: user_a should initially have RoleA page:view"
     );
     assert_eq!(
-        PermissionCache::check_user_permission(
-            ctx,
-            Some(f.site_id),
-            Some(f.user_a),
-            Resource::Page,
-            None,
-            Action::View,
-        )
-        .await
-        .expect("Failed to read permission cache"),
+        cached_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: page:view should be cached before the timed ban"
     );
@@ -572,20 +1088,12 @@ async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
         Some(Date::from_calendar_date(9999, Month::January, 1).unwrap()),
     )
     .await;
+    run_queued_cache_invalidations(ctx).await;
 
     assert_eq!(
-        PermissionCache::check_user_permission(
-            ctx,
-            Some(f.site_id),
-            Some(f.user_a),
-            Resource::Page,
-            None,
-            Action::View,
-        )
-        .await
-        .expect("Failed to read permission cache"),
-        Some(true),
-        "direct cache entry can remain, but active timed bans must bypass it"
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "timed site ban creation should invalidate stale page:view cache"
     );
     assert!(
         !check(
@@ -600,18 +1108,9 @@ async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
         "active timed site ban should deny page:view"
     );
     assert_eq!(
-        PermissionCache::check_user_permission(
-            ctx,
-            Some(f.site_id),
-            Some(f.user_a),
-            Resource::Page,
-            None,
-            Action::View,
-        )
-        .await
-        .expect("Failed to read permission cache"),
-        Some(true),
-        "active timed site ban should not overwrite cached page:view with a denial"
+        cached_page_view(ctx, f.site_id, f.user_a).await,
+        None,
+        "active timed site ban should not recreate page:view cache with a denial"
     );
 }
 

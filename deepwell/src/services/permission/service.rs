@@ -28,7 +28,8 @@ use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::resolvers::resolve_category_slug;
 use crate::services::permission::{
-    CheckPermissionContext, PermissionCache, resolve_category_reference,
+    CheckPermissionContext, PermissionCache, SetUserPermissionInput,
+    resolve_category_reference,
 };
 use crate::services::relation::{GetSiteBan, RelationService};
 use crate::services::role::{
@@ -217,6 +218,7 @@ impl PermissionService {
         )
         .await
         .or_raise(make_error)?;
+        PermissionCache::defer_invalidate_site(ctx, site_id).or_raise(make_error)?;
 
         Ok(())
     }
@@ -473,7 +475,17 @@ impl PermissionService {
             None => None,
         };
 
-        if cacheable {
+        let cache_fence = if cacheable {
+            Some(
+                PermissionCache::cache_fence(ctx, site_id, user_id)
+                    .await
+                    .or_raise(make_error)?,
+            )
+        } else {
+            None
+        };
+
+        if let Some(cache_fence) = &cache_fence {
             // Check if this permission has been cached
             let has_permission = PermissionCache::check_user_permission(
                 ctx,
@@ -482,6 +494,7 @@ impl PermissionService {
                 resource,
                 resource_category_id,
                 action,
+                cache_fence,
             )
             .await
             .or_raise(make_error)?;
@@ -529,15 +542,18 @@ impl PermissionService {
         };
 
         // Cache result if cacheable
-        if cacheable {
-            PermissionCache::set_user_permission(
+        if let Some(cache_fence) = cache_fence {
+            PermissionCache::set_user_permission_if_fence_current(
                 ctx,
-                Some(site_id),
-                user_id,
-                resource,
-                resource_category_id,
-                action,
-                has_permission,
+                SetUserPermissionInput {
+                    site_id: Some(site_id),
+                    user_id,
+                    resource_type: resource,
+                    resource_category_id,
+                    action,
+                    has_permission,
+                },
+                &cache_fence,
             )
             .await
             .or_raise(make_error)?;

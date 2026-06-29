@@ -68,6 +68,7 @@ pub use self::user_follow::*;
 
 use super::prelude::*;
 use crate::models::relation::{self, Entity as Relation, Model as RelationModel};
+use crate::services::permission::PermissionCache;
 use crate::types::{RelationObjectType, RelationType};
 use serde::Serialize;
 
@@ -157,6 +158,9 @@ impl RelationService {
         };
 
         let relation = model.insert(txn).await.or_raise(make_error)?;
+        Self::invalidate_permission_cache_for_relation(ctx, &relation)
+            .await
+            .or_raise(make_error)?;
         Ok(relation)
     }
 
@@ -190,7 +194,32 @@ impl RelationService {
         };
 
         let output = model.update(txn).await.or_raise(make_error)?;
+        Self::invalidate_permission_cache_for_relation(ctx, &output)
+            .await
+            .or_raise(make_error)?;
         Ok(output)
+    }
+
+    async fn invalidate_permission_cache_for_relation(
+        ctx: &ServiceContext<'_>,
+        relation: &RelationModel,
+    ) -> Result<()> {
+        match (
+            relation.relation_type,
+            relation.dest_type,
+            relation.from_type,
+        ) {
+            (
+                RelationType::SiteBan | RelationType::SiteMember,
+                RelationObjectType::Site,
+                RelationObjectType::User,
+            ) => PermissionCache::defer_invalidate_user(
+                ctx,
+                relation.dest_id,
+                relation.from_id,
+            ),
+            _ => Ok(()),
+        }
     }
 
     pub async fn get_optional(

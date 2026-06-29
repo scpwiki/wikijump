@@ -24,14 +24,15 @@ use crate::error::prelude::*;
 use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
 use crate::services::blob::MimeAnalyzer;
-use crate::services::permission::PermissionService;
+use crate::services::permission::{PermissionCache, PermissionService};
 use crate::types::{Permission, Reference};
+use exn::ErrorExt;
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::Rsmq;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
 use std::collections::HashSet;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tokio::sync::OnceCell;
 
 /// Per-request context derived from HTTP headers by the middleware layer.
@@ -85,6 +86,13 @@ pub struct ServiceContext<'txn> {
     transaction: &'txn DatabaseTransaction,
     request_ctx: RequestContext,
     user_permissions: OnceCell<HashSet<Permission<'static>>>,
+    post_commit_actions: Mutex<Vec<PostCommitAction>>,
+}
+
+#[derive(Debug)]
+pub(crate) enum PostCommitAction {
+    InvalidatePermissionUser { site_id: i64, user_id: i64 },
+    InvalidatePermissionSite { site_id: i64 },
 }
 
 impl<'txn> ServiceContext<'txn> {
@@ -98,6 +106,7 @@ impl<'txn> ServiceContext<'txn> {
             transaction,
             request_ctx: RequestContext::default(),
             user_permissions: OnceCell::new(),
+            post_commit_actions: Mutex::new(Vec::new()),
         }
     }
 
@@ -162,6 +171,69 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn transaction(&self) -> &'txn DatabaseTransaction {
         self.transaction
+    }
+
+    pub fn defer_permission_cache_invalidate_user(
+        &self,
+        site_id: i64,
+        user_id: i64,
+    ) -> Result<()> {
+        let mut actions = self.post_commit_actions.lock().map_err(|_| {
+            Error::new(
+                "failed to queue permission cache invalidation",
+                ErrorType::Permission,
+            )
+            .raise()
+        })?;
+        actions.push(PostCommitAction::InvalidatePermissionUser { site_id, user_id });
+        Ok(())
+    }
+
+    pub fn defer_permission_cache_invalidate_site(&self, site_id: i64) -> Result<()> {
+        let mut actions = self.post_commit_actions.lock().map_err(|_| {
+            Error::new(
+                "failed to queue permission cache invalidation",
+                ErrorType::Permission,
+            )
+            .raise()
+        })?;
+        actions.push(PostCommitAction::InvalidatePermissionSite { site_id });
+        Ok(())
+    }
+
+    pub(crate) fn drain_post_commit_actions(&self) -> Result<Vec<PostCommitAction>> {
+        let mut actions = self.post_commit_actions.lock().map_err(|_| {
+            Error::new(
+                "failed to drain queued post-commit actions",
+                ErrorType::Permission,
+            )
+            .raise()
+        })?;
+        Ok(std::mem::take(&mut *actions))
+    }
+
+    pub(crate) async fn run_post_commit_actions_for_state(
+        state: &ServerState,
+        actions: Vec<PostCommitAction>,
+    ) -> Result<()> {
+        for action in actions {
+            match action {
+                PostCommitAction::InvalidatePermissionUser { site_id, user_id } => {
+                    PermissionCache::invalidate_user_for_state(state, site_id, user_id)
+                        .await?;
+                }
+                PostCommitAction::InvalidatePermissionSite { site_id } => {
+                    PermissionCache::invalidate_site_for_state(state, site_id).await?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    pub async fn run_post_commit_actions(&self) -> Result<()> {
+        let actions = self.drain_post_commit_actions()?;
+        Self::run_post_commit_actions_for_state(&self.state, actions).await
     }
 
     #[inline]
