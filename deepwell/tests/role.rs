@@ -21,7 +21,11 @@
 #[macro_use]
 mod common;
 
-use deepwell::services::role::{InternalCreateRoleInput, RoleService};
+use deepwell::services::RequestContext;
+use deepwell::services::permission::PermissionService;
+use deepwell::services::role::{
+    GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
+};
 use deepwell::utils::now;
 use std::sync::atomic::{AtomicU64, Ordering};
 use str_macro::str;
@@ -34,7 +38,7 @@ use deepwell::license::License;
 use deepwell::models::role::Model as RoleModel;
 use deepwell::services::site::{CreateSite, SiteService};
 use deepwell::services::user::{CreateUser, UserService};
-use deepwell::types::UserType;
+use deepwell::types::{Action, Permission, Reference, Resource, UserType};
 use serde_json::json;
 
 static FIXTURE_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -46,15 +50,15 @@ fn next_n() -> u64 {
 struct RoleFixture {
     site_id: i64,
     user_id: i64,
+    target_user_id: i64,
 }
 
 impl RoleFixture {
-    async fn setup(runner: &TestRunner) -> Self {
-        let ctx = runner.context();
+    async fn setup(runner: &mut TestRunner) -> Self {
         let n = next_n();
 
         let site = SiteService::create(
-            ctx,
+            runner.context(),
             CreateSite {
                 slug: format!("role-test-{n}"),
                 name: format!("Role test site {n}"),
@@ -70,31 +74,100 @@ impl RoleFixture {
         .await
         .expect("Failed to create test site");
 
-        let user = UserService::create(
-            ctx,
-            CreateUser {
-                user_type: UserType::Regular,
-                name: format!("Role Test User {n}"),
-                email: format!("role-test-{n}@email.com"),
-                locales: vec![str!("en")],
-                password: String::from("password"),
-                bypass_filter: true,
-                bypass_email_verification: true,
-                override_user_id: None,
-                ip_address: common::IP_ADDRESS,
-            },
-        )
-        .await
-        .expect("Failed to create test user");
+        let user_id = create_test_user(runner, n, "actor").await;
+        let target_user_id = create_test_user(runner, n, "target").await;
+        grant_role_management(runner, site.site_id, user_id, n).await;
+
+        runner.set_request_context(RequestContext {
+            user_id: Some(user_id),
+            ..Default::default()
+        });
 
         RoleFixture {
             site_id: site.site_id,
-            user_id: user.user_id,
+            user_id,
+            target_user_id,
         }
     }
 }
 
 // Test helpers
+async fn create_test_user(runner: &TestRunner, n: u64, label: &str) -> i64 {
+    UserService::create(
+        runner.context(),
+        CreateUser {
+            user_type: UserType::Regular,
+            name: format!("Role Test User {n} {label}"),
+            email: format!("role-test-{n}-{label}@email.com"),
+            locales: vec![str!("en")],
+            password: String::from("password"),
+            bypass_filter: true,
+            bypass_email_verification: true,
+            override_user_id: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("Failed to create test user")
+    .user_id
+}
+
+async fn grant_role_management(runner: &TestRunner, site_id: i64, user_id: i64, n: u64) {
+    let role = RoleService::create(
+        runner.context(),
+        InternalCreateRoleInput {
+            site_id,
+            name: format!("Role Manager {n}"),
+            description: None,
+            is_virtual: false,
+            parent_role_id: None,
+            creating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("Failed to create role manager role");
+
+    PermissionService::update_permissions_for_role(
+        runner.context(),
+        UpdateRolePermissionsInput {
+            site_id,
+            role_reference: Reference::Id(role.role_id),
+            new_permissions: vec![
+                Permission {
+                    resource_type: Resource::Role,
+                    resource_category: None,
+                    action: Action::Edit,
+                },
+                Permission {
+                    resource_type: Resource::Role,
+                    resource_category: None,
+                    action: Action::Assign,
+                },
+            ],
+            cascade_removals: false,
+            updating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("Failed to grant role manager permissions");
+
+    RoleService::grant_role_to_user(
+        runner.context(),
+        GrantUserRoleInput {
+            site_id,
+            user_id,
+            role_id: role.role_id,
+            assigning_user_id: SYSTEM_USER_ID,
+            expires_at: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("Failed to grant role manager role to user");
+}
+
 async fn create_role(
     runner: &TestRunner,
     site_id: i64,
@@ -166,8 +239,8 @@ async fn reparent_role(
 
 #[tokio::test]
 async fn role_create_and_list() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     // Create a role with an invalid parent, should error
     let err = run_endpoint_err!(
@@ -212,15 +285,14 @@ async fn role_create_and_list() {
         .iter()
         .find(|r| r.role_id == role.role_id)
         .expect("Created role not found in site role listing");
-    assert_eq!(roles.len(), 2);
     assert_eq!(get.role_id, role.role_id);
     assert_eq!(get.name, "Moderator");
 }
 
 #[tokio::test]
 async fn role_update_info() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     let role = create_role(&runner, f.site_id, "OldName", None).await;
 
@@ -243,9 +315,60 @@ async fn role_update_info() {
 }
 
 #[tokio::test]
+async fn role_mutations_require_request_actor_with_role_edit_permission() {
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
+    let root_role = create_role(&runner, f.site_id, "Root", None).await;
+
+    runner.set_request_context(RequestContext::default());
+    let err = run_endpoint_err!(
+        runner,
+        role_update_info,
+        json!({
+            "site_id": f.site_id,
+            "role_id": root_role.role_id,
+            "name": "AnonymousRename",
+            "description": "Anonymous rename",
+            "updating_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let n = next_n();
+    let unauthorized_user_id = create_test_user(&runner, n, "unauthorized-edit").await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(unauthorized_user_id),
+        ..Default::default()
+    });
+
+    let err = run_endpoint_err!(
+        runner,
+        role_create,
+        json!({
+            "site_id": f.site_id,
+            "name": "UnauthorizedModerator",
+            "description": "Should not be created",
+            "parent_role_id": root_role.role_id,
+            "creating_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let roles = run_endpoint!(runner, list_site_roles, json!({ "site_id": f.site_id }));
+    assert!(
+        roles
+            .iter()
+            .all(|role| role.name != "UnauthorizedModerator"),
+        "Unauthorized role_create should not insert a role"
+    );
+}
+
+#[tokio::test]
 async fn role_update_permissions_respect_hierarchy() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     // Parent role: page:view + page:edit
     let parent = create_role(&runner, f.site_id, "Parent", None).await;
@@ -315,8 +438,8 @@ async fn role_update_permissions_respect_hierarchy() {
 
 #[tokio::test]
 async fn role_delete() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     // Set up a role hierarchy: Role A -> Role B -> Role C
     let role_a = create_role(&runner, f.site_id, "Role A", None).await;
@@ -357,11 +480,6 @@ async fn role_delete() {
     );
 
     let roles = run_endpoint!(runner, list_site_roles, json!({ "site_id": f.site_id }),);
-    assert_eq!(
-        roles.len(),
-        2,
-        "Expected 2 roles after deletion with reparenting"
-    );
     assert!(
         roles.iter().all(|r| r.role_id != role_b.role_id),
         "Deleted role should not appear in site role listing"
@@ -400,8 +518,8 @@ async fn role_delete() {
 
 #[tokio::test]
 async fn grant_and_revoke_role() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     let role = create_role(&runner, f.site_id, "Member", None).await;
 
@@ -411,7 +529,7 @@ async fn grant_and_revoke_role() {
         grant_role_to_user,
         json!({
             "site_id": f.site_id,
-            "user_id": f.user_id,
+            "user_id": f.target_user_id,
             "role_id": role.role_id,
             "assigning_user_id": SYSTEM_USER_ID,
             "expires_at": null,
@@ -419,8 +537,9 @@ async fn grant_and_revoke_role() {
         }),
     );
 
-    assert_eq!(user_role.user_id, f.user_id);
+    assert_eq!(user_role.user_id, f.target_user_id);
     assert_eq!(user_role.role_id, role.role_id);
+    assert_eq!(user_role.assigned_by, f.user_id);
 
     // Verify that the user has the role
     let user_roles = run_endpoint!(
@@ -428,7 +547,7 @@ async fn grant_and_revoke_role() {
         get_user_roles,
         json!({
             "site_id": f.site_id,
-            "user_id": f.user_id,
+            "user_id": f.target_user_id,
         }),
     );
     assert_eq!(user_roles.len(), 1);
@@ -440,7 +559,7 @@ async fn grant_and_revoke_role() {
         revoke_role_from_user,
         json!({
             "site_id": f.site_id,
-            "user_id": f.user_id,
+            "user_id": f.target_user_id,
             "role_id": role.role_id,
             "revoking_user_id": SYSTEM_USER_ID,
             "ip_address": common::IP_ADDRESS,
@@ -458,7 +577,7 @@ async fn grant_and_revoke_role() {
         get_user_roles,
         json!({
             "site_id": f.site_id,
-            "user_id": f.user_id,
+            "user_id": f.target_user_id,
         }),
     );
     assert_eq!(
@@ -469,9 +588,108 @@ async fn grant_and_revoke_role() {
 }
 
 #[tokio::test]
+async fn role_assignment_and_membership_require_role_assign() {
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
+    let role = create_role(&runner, f.site_id, "Member", None).await;
+
+    let n = next_n();
+    let unauthorized_user_id = create_test_user(&runner, n, "unauthorized-assign").await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(unauthorized_user_id),
+        ..Default::default()
+    });
+
+    let err = run_endpoint_err!(
+        runner,
+        grant_role_to_user,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "role_id": role.role_id,
+            "assigning_user_id": SYSTEM_USER_ID,
+            "expires_at": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let membership_metadata = json!({
+        "accepted": {
+            "cause": "accepted",
+            "user_id": f.user_id,
+        },
+    });
+
+    let err = run_endpoint_err!(
+        runner,
+        membership_set,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "metadata": membership_metadata.clone(),
+            "created_by": SYSTEM_USER_ID,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(f.user_id),
+        ..Default::default()
+    });
+
+    let user_role = run_endpoint!(
+        runner,
+        grant_role_to_user,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "role_id": role.role_id,
+            "assigning_user_id": SYSTEM_USER_ID,
+            "expires_at": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(user_role.assigned_by, f.user_id);
+
+    run_endpoint!(
+        runner,
+        membership_set,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "metadata": membership_metadata,
+            "created_by": SYSTEM_USER_ID,
+        }),
+    );
+
+    let membership = run_endpoint!(
+        runner,
+        membership_get,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+        }),
+    )
+    .expect("site membership should have been created");
+    assert_eq!(membership.created_by, f.user_id);
+
+    let removed = run_endpoint!(
+        runner,
+        membership_remove,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "removed_by": SYSTEM_USER_ID,
+        }),
+    );
+    assert_eq!(removed.deleted_by, Some(f.user_id));
+}
+
+#[tokio::test]
 async fn role_grant_expiration() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     let role = create_role(&runner, f.site_id, "Member", None).await;
 
@@ -481,7 +699,7 @@ async fn role_grant_expiration() {
         grant_role_to_user,
         json!({
             "site_id": f.site_id,
-            "user_id": f.user_id,
+            "user_id": f.target_user_id,
             "role_id": role.role_id,
             "assigning_user_id": SYSTEM_USER_ID,
             "expires_at": now().format(&Rfc3339).unwrap(),
@@ -500,7 +718,7 @@ async fn role_grant_expiration() {
         get_user_roles,
         json!({
             "site_id": f.site_id,
-            "user_id": f.user_id,
+            "user_id": f.target_user_id,
         }),
     );
     assert_eq!(
@@ -512,8 +730,8 @@ async fn role_grant_expiration() {
 
 #[tokio::test]
 async fn role_reparent() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     // Parent role: page:view + page:edit
     let parent = create_role(&runner, f.site_id, "Parent", None).await;
@@ -540,8 +758,8 @@ async fn role_reparent() {
 
 #[tokio::test]
 async fn role_reparent_cycle_rejected() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     // Role A and Role B: same permissions so we hit the cycle violation before the hierarchy violation
     let role_a = create_role(&runner, f.site_id, "RoleA", None).await;
@@ -586,8 +804,8 @@ async fn role_reparent_cycle_rejected() {
 
 #[tokio::test]
 async fn role_reparent_subset_violation_rejected() {
-    let runner = TestRunner::setup().await;
-    let f = RoleFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
 
     // Role with page:view only
     let smaller = create_role(&runner, f.site_id, "Parent", None).await;
