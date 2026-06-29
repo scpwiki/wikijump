@@ -82,7 +82,8 @@ const pageWriteRequests = {
   pageMove: [],
   parentGetAll: [],
   parentUpdate: [],
-  sessionGet: []
+  sessionGet: [],
+  userGet: []
 }
 /** @type {Record<string, RecordedRpcRequest[]>} */
 const fileRequests = {
@@ -368,6 +369,23 @@ const server = createServer((request, response) => {
         params: rpcRequest.params
       })
       result = { user_id: 123 }
+    } else if (
+      rpcRequest.method === "user_get" &&
+      hasExactKeys(rpcRequest.params, ["user"]) &&
+      ((rpcRequest.params.user === 123 &&
+        request.headers["x-deepwell-session-token"] === "fixture-session-token") ||
+        rpcRequest.params.user === "rokurokubi")
+    ) {
+      pageWriteRequests.userGet.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      result = {
+        aliases: [],
+        user_id: 123,
+        name: "Rokurokubi",
+        slug: "rokurokubi"
+      }
     } else if (
       rpcRequest.method === "category_get_all" &&
       rpcRequest.params?.site === "scp-wiki"

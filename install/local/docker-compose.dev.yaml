@@ -38,6 +38,14 @@ services:
         read_only: true
 
   framerail:
+    environment:
+      - "WIKIDOT_APP_NAME"
+      - "WIKIDOT_API_KEY"
+      - "WIKIDOT_XMLRPC_OWNER_USERNAME"
+      - "XML_RPC_USERNAME"
+      - "XML_RPC_PASSWORD"
+      - "XML_RPC_WRITE_USERNAME"
+      - "XML_RPC_WRITE_PASSWORD"
     volumes:
       # Typescript/Svelte files
       - type: bind
