@@ -1,9 +1,9 @@
-name: '[backend] Docker build DEEWELL (dev)'
+name: '[backend] Docker build DEEPWELL (dev)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'deepwell/**'
       - 'install/dev/deepwell/Dockerfile'
       - '.github/workflows/docker-build-deepwell.dev.yaml'
 

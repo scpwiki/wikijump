@@ -1,6 +1,7 @@
 name: '[backend] Docker build Caddy (prod)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'install/prod/caddy/*'

@@ -1,6 +1,7 @@
 name: '[backend] Docker build Minio (local)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'install/local/minio/*'

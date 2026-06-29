@@ -1,6 +1,7 @@
 name: '[backend] Docker build PostgreSQL (local)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'web/database/**'

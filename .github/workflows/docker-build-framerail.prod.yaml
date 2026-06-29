@@ -1,9 +1,9 @@
 name: '[backend] Docker build Framerail (prod)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'framerail/**'
       - 'install/prod/framerail/Dockerfile'
       - '.github/workflows/docker-build-framerail.prod.yaml'
 

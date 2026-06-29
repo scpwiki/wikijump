@@ -2,10 +2,18 @@ name: '[deepwell] Rust'
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
     paths:
       - 'deepwell/Cargo.toml'
       - 'deepwell/Cargo.lock'
       - 'deepwell/src/**'
+      - 'deepwell/tests/**'
+      - 'deepwell/migrations/**'
+      - 'deepwell/seeder/**'
       - '.github/workflows/deepwell.yaml'
       - '.github/codecov.yml'
       - 'deepwell/config.example.toml'
@@ -16,6 +24,9 @@ on:
     branches:
       - develop
       - prod
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -24,6 +35,7 @@ concurrency:
 jobs:
   test_and_coverage:
     name: Build, Test and Coverage
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

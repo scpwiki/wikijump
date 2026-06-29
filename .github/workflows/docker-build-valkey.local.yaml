@@ -1,6 +1,7 @@
 name: '[backend] Docker build Valkey (local)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'install/local/valkey/*'
