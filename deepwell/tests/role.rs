@@ -750,6 +750,32 @@ async fn role_assignment_and_membership_require_role_assign() {
     .expect("site membership should have been created");
     assert_eq!(membership.created_by, f.user_id);
 
+    runner.set_request_context(RequestContext::default());
+
+    let err = run_endpoint_err!(
+        runner,
+        revoke_role_from_user,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "role_id": role.role_id,
+            "revoking_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let err = run_endpoint_err!(
+        runner,
+        membership_remove,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "removed_by": SYSTEM_USER_ID,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
     runner.set_request_context(RequestContext {
         user_id: Some(unauthorized_user_id),
         ..Default::default()
