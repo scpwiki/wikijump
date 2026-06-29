@@ -12,6 +12,7 @@
             "page:delete",
             "page:rename",
             "role:view",
+            "role:edit",
             "role:assign"
         ]
     },
@@ -29,6 +30,7 @@
             "page:delete",
             "page:rename",
             "role:view",
+            "role:edit",
             "role:assign",
             "site:edit"
         ]

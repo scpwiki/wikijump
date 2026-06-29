@@ -391,7 +391,7 @@ impl RoleService {
         RevokeUserRoleInput {
             user_id,
             role_id,
-            site_id: _,
+            site_id,
             revoking_user_id,
             ip_address,
         }: RevokeUserRoleInput,
@@ -408,9 +408,13 @@ impl RoleService {
             )
         };
 
+        let role = Self::get(ctx, site_id, role_id.into())
+            .await
+            .or_raise(make_error)?;
+
         let deleted_user_role = user_role::ActiveModel {
             user_id: Set(user_id),
-            role_id: Set(role_id),
+            role_id: Set(role.role_id),
             deleted_at: Set(Some(now())),
             ..Default::default()
         }
@@ -507,6 +511,10 @@ impl RoleService {
                 ErrorType::Role,
             )
         };
+
+        Self::assert_exists(ctx, site_id, role_id.into())
+            .await
+            .or_raise(make_error)?;
 
         // Perform validations
         if let Some(parent_id) = new_parent_id {

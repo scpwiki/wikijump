@@ -20,7 +20,52 @@
 
 use super::prelude::*;
 use crate::models::relation::Model as RelationModel;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::relation::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
+use crate::types::{Action, Permission, Resource};
+
+async fn require_role_assign_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+) -> Result<i64> {
+    let actor_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            "user does not have permission to manage site membership",
+            ErrorType::PermissionDenied,
+        )
+    })?;
+
+    let can_assign = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: Some(actor_user_id),
+            site_id,
+            page_reference: None,
+        },
+        Permission {
+            resource_type: Resource::Role,
+            resource_category: None,
+            action: Action::Assign,
+        },
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to check site membership permission",
+            ErrorType::SiteMembership,
+        )
+    })?;
+
+    if !can_assign {
+        return Err(Error::new(
+            "user does not have permission to manage site membership",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
+    Ok(actor_user_id)
+}
 
 pub async fn membership_get(
     ctx: &ServiceContext<'_>,
@@ -47,9 +92,10 @@ pub async fn membership_set(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let input: CreateSiteMember = parse!(params, SiteMembership);
+    let mut input: CreateSiteMember = parse!(params, SiteMembership);
     let user_id = input.user_id;
     let site_id = input.site_id;
+    input.created_by = require_role_assign_permission(ctx, site_id).await?;
 
     RelationService::create_site_member(ctx, input)
         .await
@@ -68,9 +114,10 @@ pub async fn membership_remove(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<RelationModel> {
-    let input: RemoveSiteMember = parse!(params, SiteMembership);
+    let mut input: RemoveSiteMember = parse!(params, SiteMembership);
     let user_id = input.user_id;
     let site_id = input.site_id;
+    input.removed_by = require_role_assign_permission(ctx, site_id).await?;
 
     RelationService::remove_site_member(ctx, input)
         .await

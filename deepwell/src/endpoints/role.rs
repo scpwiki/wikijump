@@ -21,14 +21,55 @@
 use super::prelude::*;
 use crate::models::role::Model as RoleModel;
 use crate::models::user_role;
-use crate::services::permission::{DecoratedPermission, PermissionService};
+use crate::services::permission::{
+    CheckPermissionContext, DecoratedPermission, PermissionService,
+};
 use crate::services::role::{
     CreateRoleInput, DeleteRoleInput, GetRoleInput, GetRolePermissionsInput,
     GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput,
     InternalReparentRoleInput, ListSiteRolesInput, ReparentRoleInput,
     RevokeUserRoleInput, RoleService, UpdateRoleInput, UpdateRolePermissionsInput,
 };
-use crate::types::Permission;
+use crate::types::{Action, Permission, Resource};
+
+async fn require_role_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    action: Action,
+) -> Result<i64> {
+    let actor_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            "user does not have permission to manage roles",
+            ErrorType::PermissionDenied,
+        )
+    })?;
+
+    let can_manage = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: Some(actor_user_id),
+            site_id,
+            page_reference: None,
+        },
+        Permission {
+            resource_type: Resource::Role,
+            resource_category: None,
+            action,
+        },
+    )
+    .await
+    .or_raise(|| Error::new("failed to check role permission", ErrorType::Role))?;
+
+    if !can_manage {
+        return Err(Error::new(
+            "user does not have permission to manage roles",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
+    Ok(actor_user_id)
+}
 
 pub async fn list_site_roles(
     ctx: &ServiceContext<'_>,
@@ -47,6 +88,7 @@ pub async fn role_create(
     params: Params<'static>,
 ) -> Result<RoleModel> {
     let input: CreateRoleInput = parse!(params, Role);
+    let actor_user_id = require_role_permission(ctx, input.site_id, Action::Edit).await?;
 
     info!(
         "Creating role '{}' in site ID {}",
@@ -60,7 +102,7 @@ pub async fn role_create(
         description: input.description,
         is_virtual: false,
         parent_role_id: Some(input.parent_role_id),
-        creating_user_id: input.creating_user_id,
+        creating_user_id: actor_user_id,
         ip_address: input.ip_address,
     };
 
@@ -73,7 +115,10 @@ pub async fn role_delete(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<RoleModel> {
-    let input: DeleteRoleInput = parse!(params, Role);
+    let mut input: DeleteRoleInput = parse!(params, Role);
+    input.deleting_user_id =
+        require_role_permission(ctx, input.site_id, Action::Edit).await?;
+
     info!(
         "Deleting role ID {} in site ID {}",
         input.role_id, input.site_id
@@ -104,6 +149,8 @@ pub async fn role_reparent(
     params: Params<'static>,
 ) -> Result<()> {
     let input: ReparentRoleInput = parse!(params, Role);
+    let actor_user_id = require_role_permission(ctx, input.site_id, Action::Edit).await?;
+
     info!(
         "Reparenting role ID {} to new parent {} in site ID {}",
         input.role_id, input.new_parent_id, input.site_id
@@ -114,7 +161,7 @@ pub async fn role_reparent(
         site_id: input.site_id,
         role_id: input.role_id,
         new_parent_id: Some(input.new_parent_id),
-        reparenting_user_id: input.reparenting_user_id,
+        reparenting_user_id: actor_user_id,
         ip_address: input.ip_address,
     };
 
@@ -127,7 +174,10 @@ pub async fn role_update_info(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<RoleModel> {
-    let input: UpdateRoleInput = parse!(params, Role);
+    let mut input: UpdateRoleInput = parse!(params, Role);
+    input.updating_user_id =
+        require_role_permission(ctx, input.site_id, Action::Edit).await?;
+
     info!(
         "Updating role {:?} in site ID {}",
         input.role_id, input.site_id
@@ -142,7 +192,10 @@ pub async fn role_update_permissions(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let input: UpdateRolePermissionsInput = parse!(params, Role);
+    let mut input: UpdateRolePermissionsInput = parse!(params, Role);
+    input.updating_user_id =
+        require_role_permission(ctx, input.site_id, Action::Edit).await?;
+
     info!(
         "Updating permissions for role {:?} in site ID {}",
         input.role_reference, input.site_id
@@ -187,7 +240,10 @@ pub async fn grant_role_to_user(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<user_role::Model> {
-    let input: GrantUserRoleInput = parse!(params, Role);
+    let mut input: GrantUserRoleInput = parse!(params, Role);
+    input.assigning_user_id =
+        require_role_permission(ctx, input.site_id, Action::Assign).await?;
+
     info!(
         "Granting role ID {} to user ID {} in site ID {}",
         input.role_id, input.user_id, input.site_id
@@ -217,7 +273,10 @@ pub async fn revoke_role_from_user(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<user_role::Model> {
-    let input: RevokeUserRoleInput = parse!(params, Role);
+    let mut input: RevokeUserRoleInput = parse!(params, Role);
+    input.revoking_user_id =
+        require_role_permission(ctx, input.site_id, Action::Assign).await?;
+
     info!(
         "Revoking role ID {} from user ID {} in site ID {}",
         input.role_id, input.user_id, input.site_id
