@@ -798,6 +798,81 @@ async fn role_assignment_and_membership_require_role_assign() {
 }
 
 #[tokio::test]
+async fn role_reparent_and_revoke_validate_role_site() {
+    let mut runner = TestRunner::setup().await;
+    let site_a = RoleFixture::setup(&mut runner).await;
+    let site_a_role = create_role(&runner, site_a.site_id, "Site A Role", None).await;
+
+    let granted = run_endpoint!(
+        runner,
+        grant_role_to_user,
+        json!({
+            "site_id": site_a.site_id,
+            "user_id": site_a.target_user_id,
+            "role_id": site_a_role.role_id,
+            "assigning_user_id": SYSTEM_USER_ID,
+            "expires_at": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(granted.assigned_by, site_a.user_id);
+
+    let site_b = RoleFixture::setup(&mut runner).await;
+    let site_b_parent = create_role(&runner, site_b.site_id, "Site B Parent", None).await;
+
+    let err = run_endpoint_err!(
+        runner,
+        role_reparent,
+        json!({
+            "site_id": site_b.site_id,
+            "role_id": site_a_role.role_id,
+            "new_parent_id": site_b_parent.role_id,
+            "reparenting_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::Role);
+
+    let unchanged = run_endpoint!(
+        runner,
+        role_get,
+        json!({
+            "site_id": site_a.site_id,
+            "role_reference": site_a_role.role_id,
+        }),
+    );
+    assert_eq!(unchanged.parent_role_id, None);
+
+    let err = run_endpoint_err!(
+        runner,
+        revoke_role_from_user,
+        json!({
+            "site_id": site_b.site_id,
+            "user_id": site_a.target_user_id,
+            "role_id": site_a_role.role_id,
+            "revoking_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::RevokeUserRole);
+
+    let user_roles = run_endpoint!(
+        runner,
+        get_user_roles,
+        json!({
+            "site_id": site_a.site_id,
+            "user_id": site_a.target_user_id,
+        }),
+    );
+    assert!(
+        user_roles
+            .iter()
+            .any(|user_role| user_role.role_id == site_a_role.role_id),
+        "Cross-site revoke_role_from_user should not revoke the role"
+    );
+}
+
+#[tokio::test]
 async fn role_grant_expiration() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
