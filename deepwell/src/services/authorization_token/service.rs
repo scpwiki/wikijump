@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::constants::ADMIN_USER_ID;
 use crate::models::authorization_token::{
     self, Entity as AuthorizationToken, Model as AuthorizationTokenModel,
 };
@@ -39,10 +40,10 @@ impl AuthorizationTokenService {
         CreateAuthorizationToken {
             r#type: object_type,
             description,
-            creating_user_id,
             ip_address,
         }: CreateAuthorizationToken,
     ) -> Result<String> {
+        let creating_user_id = Self::require_platform_staff(ctx)?;
         let token = Self::generate(object_type);
         assert_eq!(token.len(), AUTHORIZATION_TOKEN_LENGTH);
 
@@ -82,6 +83,24 @@ impl AuthorizationTokenService {
             .or_raise(make_error)?;
 
         Ok(token)
+    }
+
+    fn require_platform_staff(ctx: &ServiceContext<'_>) -> Result<i64> {
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new(
+                "issuing authorization tokens requires an admin request context",
+                ErrorType::PermissionDenied,
+            )
+        })?;
+
+        if user_id != ADMIN_USER_ID {
+            bail!(Error::new(
+                "issuing authorization tokens requires an admin request context",
+                ErrorType::PermissionDenied,
+            ));
+        }
+
+        Ok(user_id)
     }
 
     fn generate(object_type: AuthorizedObject) -> String {

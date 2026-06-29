@@ -22,11 +22,17 @@
 mod common;
 
 use self::common::TestRunner;
+use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::prelude::*;
+use deepwell::models::audit_log::{Column as AuditLogColumn, Entity as AuditLogTable};
+use deepwell::models::authorization_token::{
+    Column as AuthorizationTokenColumn, Entity as AuthorizationTokenTable,
+};
+use deepwell::services::RequestContext;
 use deepwell::services::password::PasswordService;
 use deepwell::services::user::{CreateUser, UserService};
 use deepwell::types::UserType;
-use sea_orm::ActiveValue;
+use sea_orm::{ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
 use serde_json::json;
 use std::sync::atomic::{AtomicU64, Ordering};
 use str_macro::str;
@@ -175,4 +181,95 @@ async fn unrestricted_sessions_still_get_and_renew_normally() {
     let renewed_session = run_endpoint!(runner, auth_session_get, json!([renewed]))
         .expect("renewed normal session should be returned by session_get");
     assert!(!renewed_session.restricted);
+}
+
+#[tokio::test]
+async fn authorization_token_issue_requires_admin_request_context() {
+    let mut runner = TestRunner::setup().await;
+
+    let anonymous_error = run_endpoint_err!(
+        runner,
+        auth_token_issue,
+        json!({
+            "type": "bot-user",
+            "description": "anonymous bot authorization token",
+            "creating_user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(anonymous_error, ErrorType::PermissionDenied);
+
+    let n = next_n();
+    let (_, user_id) = create_auth_test_user(&runner, n, false).await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(user_id),
+        ..Default::default()
+    });
+
+    let non_admin_error = run_endpoint_err!(
+        runner,
+        auth_token_issue,
+        json!({
+            "type": "bot-user",
+            "description": "non-admin bot authorization token",
+            "creating_user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(non_admin_error, ErrorType::PermissionDenied);
+
+    let issued_count = AuthorizationTokenTable::find()
+        .filter(AuthorizationTokenColumn::Description.is_in([
+            "anonymous bot authorization token",
+            "non-admin bot authorization token",
+        ]))
+        .count(runner.context().transaction())
+        .await
+        .expect("authorization token count should succeed");
+    assert_eq!(issued_count, 0);
+}
+
+#[tokio::test]
+async fn authorization_token_issue_uses_admin_request_actor() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    let token = run_endpoint!(
+        runner,
+        auth_token_issue,
+        json!({
+            "type": "bot-user",
+            "description": "authorized bot token from request actor",
+            "creating_user_id": 12345,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(token.starts_with("B-"));
+
+    let token_record = AuthorizationTokenTable::find()
+        .filter(AuthorizationTokenColumn::TokenValue.eq(&token))
+        .one(runner.context().transaction())
+        .await
+        .expect("authorization token lookup should succeed")
+        .expect("authorization token should be persisted");
+    assert_eq!(token_record.created_by, ADMIN_USER_ID);
+
+    let audit_record = AuditLogTable::find()
+        .filter(AuditLogColumn::EventType.eq("authorization_token.create"))
+        .one(runner.context().transaction())
+        .await
+        .expect("authorization token audit lookup should succeed")
+        .expect("authorization token issue should be audited");
+    assert_eq!(audit_record.user_id, Some(ADMIN_USER_ID));
+    assert_eq!(audit_record.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(audit_record.extra_string_1.as_deref(), Some("bot-user"));
+    assert!(
+        audit_record.extra_string_2.as_deref().is_some_and(
+            |metadata| metadata.contains("authorized bot token from request actor")
+        ),
+        "audit metadata should include the submitted description",
+    );
 }
