@@ -642,6 +642,40 @@ async fn role_assignment_and_membership_require_role_assign() {
     let f = RoleFixture::setup(&mut runner).await;
     let role = create_role(&runner, f.site_id, "Member", None).await;
 
+    let membership_metadata = json!({
+        "accepted": {
+            "cause": "accepted",
+            "user_id": f.user_id,
+        },
+    });
+
+    runner.set_request_context(RequestContext::default());
+    let err = run_endpoint_err!(
+        runner,
+        grant_role_to_user,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "role_id": role.role_id,
+            "assigning_user_id": SYSTEM_USER_ID,
+            "expires_at": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
+    let err = run_endpoint_err!(
+        runner,
+        membership_set,
+        json!({
+            "site_id": f.site_id,
+            "user_id": f.target_user_id,
+            "metadata": membership_metadata.clone(),
+            "created_by": SYSTEM_USER_ID,
+        }),
+    );
+    assert_contains_error!(err, ErrorType::PermissionDenied);
+
     let n = next_n();
     let unauthorized_user_id = create_test_user(&runner, n, "unauthorized-assign").await;
     runner.set_request_context(RequestContext {
@@ -662,13 +696,6 @@ async fn role_assignment_and_membership_require_role_assign() {
         }),
     );
     assert_contains_error!(err, ErrorType::PermissionDenied);
-
-    let membership_metadata = json!({
-        "accepted": {
-            "cause": "accepted",
-            "user_id": f.user_id,
-        },
-    });
 
     let err = run_endpoint_err!(
         runner,
