@@ -2930,14 +2930,8 @@ impl RenderService {
             output.push_str(&Self::render_wikidot_compat_inline_text_segment(before));
             if let Some(end) = after_start.find('>') {
                 let (tag, after_tag) = after_start.split_at(end + 1);
-                if tag.starts_with("<span ")
-                    || tag == "</span>"
-                    || tag.starts_with("<a ")
-                    || tag == "</a>"
-                    || tag.starts_with("<img ")
-                    || tag == "<br>"
-                {
-                    output.push_str(tag);
+                if let Some(tag) = sanitize_wikidot_compat_inline_tag(tag) {
+                    output.push_str(&tag);
                 } else {
                     output.push_str(&escape_list_pages_html_text(tag));
                 }
@@ -4339,14 +4333,8 @@ fn push_list_pages_table_inline_segment(output: &mut String, value: &str) {
         output.push_str(&escape_list_pages_html_text(before));
         if let Some(end) = after_start.find('>') {
             let (tag, after_tag) = after_start.split_at(end + 1);
-            if tag.starts_with("<span ")
-                || tag == "</span>"
-                || tag.starts_with("<a ")
-                || tag == "</a>"
-                || tag.starts_with("<img ")
-                || tag == "<br>"
-            {
-                output.push_str(tag);
+            if let Some(tag) = sanitize_wikidot_compat_inline_tag(tag) {
+                output.push_str(&tag);
             } else {
                 output.push_str(&escape_list_pages_html_text(tag));
             }
@@ -4429,6 +4417,172 @@ fn escape_list_pages_html_text(value: &str) -> String {
 
 fn escape_list_pages_html_attr(value: &str) -> String {
     escape_list_pages_html_text(value).replace('"', "&quot;")
+}
+
+fn sanitize_wikidot_compat_inline_tag(tag: &str) -> Option<String> {
+    match tag {
+        "</span>" | "</a>" => return Some(tag.to_owned()),
+        "<br>" | "<br/>" | "<br />" => return Some("<br>".to_owned()),
+        _ => {}
+    }
+
+    let inner = tag.strip_prefix('<')?.strip_suffix('>')?.trim();
+    let inner = inner.strip_suffix('/').map_or(inner, str::trim_end);
+    let name_end = inner
+        .find(|character: char| character.is_ascii_whitespace())
+        .unwrap_or(inner.len());
+    let name = inner[..name_end].to_ascii_lowercase();
+    if !matches!(name.as_str(), "span" | "a" | "img") {
+        return None;
+    }
+
+    let mut output = String::new();
+    output.push('<');
+    output.push_str(&name);
+
+    let mut rest = &inner[name_end..];
+    while let Some((attr_name, attr_value, after_attr)) =
+        parse_wikidot_compat_html_attr(rest)
+    {
+        rest = after_attr;
+        let Some(value) = sanitize_wikidot_compat_inline_attr(
+            name.as_str(),
+            attr_name.as_str(),
+            attr_value.as_str(),
+        ) else {
+            continue;
+        };
+        output.push(' ');
+        output.push_str(&attr_name.to_ascii_lowercase());
+        output.push_str(r#"=""#);
+        output.push_str(&escape_list_pages_html_attr(&value));
+        output.push('"');
+    }
+
+    output.push('>');
+    Some(output)
+}
+
+fn parse_wikidot_compat_html_attr(input: &str) -> Option<(String, String, &str)> {
+    let rest = input.trim_start();
+    if rest.is_empty() || rest.starts_with('/') {
+        return None;
+    }
+
+    let name_end = rest.find(|character: char| {
+        character.is_ascii_whitespace() || matches!(character, '=' | '/' | '>')
+    })?;
+    if name_end == 0 {
+        return None;
+    }
+    let name = &rest[..name_end];
+    if !name.chars().all(|character| {
+        character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | ':')
+    }) {
+        return None;
+    }
+
+    let rest = rest[name_end..].trim_start();
+    let rest = rest.strip_prefix('=')?.trim_start();
+    let mut chars = rest.chars();
+    let quote = chars.next()?;
+    if matches!(quote, '"' | '\'') {
+        let value_start = quote.len_utf8();
+        let value_rest = &rest[value_start..];
+        let value_end = value_rest.find(quote)?;
+        let value = &value_rest[..value_end];
+        let after = &value_rest[value_end + quote.len_utf8()..];
+        return Some((name.to_owned(), value.to_owned(), after));
+    }
+
+    let value_end = rest
+        .find(|character: char| {
+            character.is_ascii_whitespace() || matches!(character, '/' | '>')
+        })
+        .unwrap_or(rest.len());
+    if value_end == 0 {
+        return None;
+    }
+    Some((
+        name.to_owned(),
+        rest[..value_end].to_owned(),
+        &rest[value_end..],
+    ))
+}
+
+fn sanitize_wikidot_compat_inline_attr(
+    tag_name: &str,
+    attr_name: &str,
+    value: &str,
+) -> Option<String> {
+    let attr_name = attr_name.to_ascii_lowercase();
+    if attr_name.starts_with("on") {
+        return None;
+    }
+
+    match (tag_name, attr_name.as_str()) {
+        ("span", "class") | ("a", "class") | ("img", "class") => Some(value.to_owned()),
+        ("span", "title") | ("a", "title") | ("img", "title") | ("img", "alt") => {
+            Some(value.to_owned())
+        }
+        ("span", "style") | ("img", "style") => {
+            wikidot_compat_safe_inline_style(value).then(|| value.to_owned())
+        }
+        ("a", "href") => {
+            wikidot_compat_safe_inline_url(value, true).then(|| value.to_owned())
+        }
+        ("a", "rel") => Some(value.to_owned()),
+        ("a", "target") if matches!(value, "_blank" | "_self" | "_parent" | "_top") => {
+            Some(value.to_owned())
+        }
+        ("img", "src") => {
+            wikidot_compat_safe_inline_url(value, false).then(|| value.to_owned())
+        }
+        ("img", "width") | ("img", "height") => value
+            .chars()
+            .all(|character| character.is_ascii_digit() || character == '%')
+            .then(|| value.to_owned()),
+        _ => None,
+    }
+}
+
+fn wikidot_compat_safe_inline_url(value: &str, allow_mailto: bool) -> bool {
+    let value =
+        value.trim_start_matches(|character: char| character.is_ascii_whitespace());
+    if value.is_empty()
+        || value
+            .chars()
+            .any(|character| matches!(character, '\0'..='\u{1f}' | '\u{7f}'))
+    {
+        return false;
+    }
+
+    let lower = value.to_ascii_lowercase();
+    if lower.starts_with("http://")
+        || lower.starts_with("https://")
+        || lower.starts_with('/')
+        || lower.starts_with('#')
+        || (allow_mailto && lower.starts_with("mailto:"))
+    {
+        return true;
+    }
+
+    !lower.contains(':')
+}
+
+fn wikidot_compat_safe_inline_style(value: &str) -> bool {
+    let lower = value.to_ascii_lowercase();
+    !lower.contains("javascript:")
+        && !lower.contains("expression")
+        && !lower.contains("url(")
+        && !lower.contains("behavior")
+        && !lower.contains("-moz-binding")
+        && !value.chars().any(|character| {
+            matches!(
+                character,
+                '<' | '>' | '"' | '\'' | '\0'..='\u{1f}' | '\u{7f}'
+            )
+        })
 }
 
 fn format_list_pages_rating(score: Option<f32>) -> String {
@@ -6068,10 +6222,56 @@ mod tests {
         assert!(html.contains(r#"<div class="list-pages-box">"#));
         assert!(html.contains(r#"<div class="list-pages-item">"#));
         assert!(html.contains("<strong>"));
+        assert!(html.contains(
+            r#"<span class="odate time_123 format_%25e%20%25b%20%25Y%20%25H%3A%25M">"#
+        ));
+        assert!(html.contains(r#"<span style="color: green">+3034</span>"#));
         assert!(html.contains("9 Aug 2017 13:06"));
         assert!(html.contains("+3034"));
         assert!(!html.contains("[[div"));
         assert!(!html.contains("[[/div]]"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_sanitizes_preserved_inline_tags() {
+        let source = concat!(
+            "[[collapsible show=\"+ open\" hide=\"- close\"]]\n",
+            "**<span class=\"safe\" onclick=\"alert(1)\">safe</span>**\n",
+            "**<a href=\"javascript:alert(1)\" title=\"kept\" onmouseover=\"alert(2)\">bad link</a>**\n",
+            "**<img src=\"https://example.com/image.png\" alt=\"kept\" onerror=\"alert(3)\">**\n",
+            "**<img src=\"data:text/html,<script>alert(4)</script>\">**\n",
+            "[[/collapsible]]\n",
+        );
+
+        let html =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(source);
+
+        assert!(html.contains(r#"<span class="safe">safe</span>"#));
+        assert!(html.contains(r#"<a title="kept">bad link</a>"#));
+        assert!(html.contains(r#"<img src="https://example.com/image.png" alt="kept">"#));
+        assert!(html.contains("<img>"));
+        assert!(!html.contains("onclick"));
+        assert!(!html.contains("onmouseover"));
+        assert!(!html.contains("onerror"));
+        assert!(!html.contains("javascript:alert"));
+        assert!(!html.contains("data:text/html"));
+        assert!(!html.contains("<script>"));
+    }
+
+    #[test]
+    fn list_pages_inline_tag_preservation_sanitizes_attributes() {
+        let html = super::render_list_pages_table_inline_html(concat!(
+            r#"<span class="safe" onclick="alert(1)">ok</span> "#,
+            r#"<a href="/safe" onclick="alert(2)">link</a> "#,
+            r#"<img src="javascript:alert(3)" onerror="alert(4)">"#,
+        ));
+
+        assert!(html.contains(r#"<span class="safe">ok</span>"#));
+        assert!(html.contains(r#"<a href="/safe">link</a>"#));
+        assert!(html.contains("<img>"));
+        assert!(!html.contains("onclick"));
+        assert!(!html.contains("onerror"));
+        assert!(!html.contains("javascript:"));
     }
 
     #[test]
