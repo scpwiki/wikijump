@@ -1,11 +1,14 @@
 name: '[backend] Docker build DEEPWELL (local)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'deepwell/**'
       - 'install/local/deepwell/Dockerfile'
       - '.github/workflows/docker-build-deepwell.local.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:

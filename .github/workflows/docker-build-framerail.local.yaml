@@ -1,11 +1,14 @@
 name: '[backend] Docker build Framerail (local)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'framerail/**'
       - 'install/local/framerail/Dockerfile'
       - '.github/workflows/docker-build-framerail.local.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:

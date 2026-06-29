@@ -1,10 +1,14 @@
 name: '[backend] Docker build Minio (local)'
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'install/local/minio/*'
       - '.github/workflows/docker-build-minio.local.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   build:

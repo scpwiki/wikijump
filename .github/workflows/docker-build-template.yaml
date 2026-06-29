@@ -26,6 +26,9 @@ on:
       aws-secret-key:
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   build_image:
     runs-on: ubuntu-latest
