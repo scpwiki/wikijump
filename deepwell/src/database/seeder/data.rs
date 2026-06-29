@@ -266,3 +266,31 @@ pub struct Role {
 const fn default_true() -> bool {
     true
 }
+
+#[cfg(test)]
+mod tests {
+    use super::SeedData;
+    use std::path::Path;
+
+    #[test]
+    fn loads_reserved_scp_wiki_mirror_pages() {
+        let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
+        let seed = SeedData::load(&seeder_path).expect("seed data should load");
+        let pages = seed.pages.get("scp-wiki").expect("scp-wiki pages");
+
+        let scp_3922 = pages
+            .iter()
+            .find(|page| page.slug == "scp-3922")
+            .expect("scp-3922 seed page");
+        assert_eq!(scp_3922.title, "SCP-3922");
+        assert!(scp_3922.wikitext.contains("**Item #:** SCP-3922"));
+
+        let scp_9506 = pages
+            .iter()
+            .find(|page| page.slug == "scp-9506")
+            .expect("scp-9506 seed page");
+        assert_eq!(scp_9506.title, "National Fog Safety Initiative");
+        assert!(scp_9506.wikitext.contains("National Fog Safety Initiative"));
+        assert!(scp_9506.wikitext.contains("local--files/scp-9506/NFSI.png"));
+    }
+}

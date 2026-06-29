@@ -1,0 +1,850 @@
+[[image NFSI.png class="crom-thumbnail" style="display: none"]]
+=====
+[[include component:preview text=Official United States Fog Preparedness and Safety Information Hub.]]
+=====
+
+
+[[include :scp-wiki:theme:basalt | wide=a | hidetitle=a]]
+
+[[module css]]
+:root {
+    --logo: url('http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png');
+    --header-title: "NFSI";
+    --header-subtitle: "National Fog Safety Initiative";
+    --basalt-bright-element-color: 35, 122, 148;
+    --basalt-dark-element-color: 21, 83, 102;
+
+}
+
+.name {
+  font-size: 10rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 0px;
+  margin-top: -150px;
+}
+
+.name img {
+  width: 35%;
+  margin-top: -75px;
+}
+
+.navigation {
+  font-weight: bold;
+  font-size: 1.5em;
+  text-align: center;
+  background-color: rgb(240, 240, 244);
+  border: solid 0.15rem rgb(var(--general-border-color));
+  border-radius: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+.navigation a {
+  color: black;
+  margin-left: 2.5rem;
+  margin-right: 2.5rem;
+  transition: all 0.2s ease;
+}
+:has(#u-target-1:target) .navigation a[href="#u-target-1"],
+:has(#u-target-2:target) .navigation a[href="#u-target-2"],
+:has(#u-target-3:target) .navigation a[href="#u-target-3"],
+:has(#u-target-4:target) .navigation a[href="#u-target-4"],
+:has(#u-target-5:target) .navigation a[href="#u-target-5"] {
+  color: rgb(35, 122, 148);
+  text-decoration: none;
+  background-color: rgba(35, 122, 148, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+}
+.navigation p {
+  margin: 0;
+}
+
+.navigation a:hover {
+  color: rgb(35, 122, 148);
+}
+.home {
+  color: rgb(35, 122, 148);
+  text-decoration: none;
+  background-color: rgba(35, 122, 148, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+}
+.navigation .home {
+  color: rgb(35, 122, 148);
+}
+:has(*:target) .home {
+  color: black;
+  background-color: transparent;
+  box-shadow: none;
+}
+.navigation a.home {
+  color: rgb(35, 122, 148);
+  text-decoration: none;
+  background-color: rgba(35, 122, 148, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+}
+:has(*:target) .navigation a.home {
+  color: black;
+  background-color: transparent;
+  box-shadow: none;
+}
+.navigation a:hover {
+  color: rgb(35, 122, 148);
+  text-decoration: underline;
+}
+.navigation a.home:hover {
+  color: rgb(35, 122, 148);
+  text-decoration: underline;
+}
+.backtop {
+  font-weight: bold;
+  font-size: 1.5em;
+  text-align: center;
+  background-color: rgb(240, 240, 244);
+  border: solid 0.15rem rgb(var(--general-border-color));
+  border-radius: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  display: inline-block;
+}
+
+.backtop a {
+  color: black;
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+.backtop p {
+  margin: 0;
+}
+
+.backtop a:hover {
+  color: rgb(35, 122, 148);
+}
+
+.block-2 img {
+  border: solid rgb(var(--general-border-color));
+  width: 75%;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .navigation a {
+  display: block;
+  }
+  .name {
+  font-size: 6rem;
+  margin-top: 0px;
+  }
+  .name img {
+  width: 80%;
+  margin-top: -50px;
+  } 
+  .block-2 img {
+  width: 100%;
+  }
+}
+
+.footer-wikiwalk-nav a {
+  color: rgb(35, 122, 148);
+}
+
+.start img {
+  border: solid rgb(var(--general-border-color));
+}
+
+.big {
+  font-size:1.25rem;
+}
+.more {
+  color: rgb(35, 122, 148);
+  cursor:pointer;
+}
+.more:hover {
+  text-decoration:underline;
+}
+
+html { 
+  scroll-behavior: smooth; 
+}
+
+:has(*:target) .start {
+    display: none;
+}
+
+#page-content div[id] {
+    scroll-margin-top: 15em;
+    position: relative;
+    top:0;
+    left:0;
+}
+
+:has(#u-target-1:target) .block-1,
+:has(#u-target-2:target) .block-2,
+:has(#u-target-3:target) .block-3,
+:has(#u-target-4:target) .block-4,
+:has(#u-target-5:target) .block-5 {
+    display: block;
+}
+
+.display {
+   display: none;
+}
+
+.content {
+   width: 100%;
+   margin: auto;
+   text-align: left;
+}
+
+.tag {
+  text-align: right; 
+  margin-top: -20px;
+}
+
+.article{
+display:flex;
+flex-direction:row;
+width:100%;
+padding-bottom:30px;
+}
+.picture{
+flex:1 1 0%;
+margin-right:19px;
+max-width:300px;
+}
+.words{
+flex:1 1 0%;
+width:100%;
+}
+.heading{
+font-size:14px;
+font-weight:bold;
+color: rgb(35, 122, 148);
+cursor:pointer;
+}
+.heading:hover{
+color:black;
+}
+.heading2{
+font-size:14px;
+font-weight:bold;
+color: rgb(35, 122, 148);
+cursor:pointer;
+margin-bottom:8px;
+height:18px;
+display:none;
+}
+.coolheading{
+font-size:22px;
+font-weight:bold;
+line-height:1.4;
+color:black;
+cursor:pointer;
+}
+.coolheading:hover{
+color: rgb(35, 122, 148);
+text-decoration:underline;
+}
+.normalcy{
+font-size:17px;
+line-height:1.7;
+}
+.giant{
+font-family:"rammetto one";
+}
+@media only screen and (max-width:600px){
+.article{
+flex-direction:column;
+min-height:150px;
+}
+.picture{
+width:100%;
+max-width:100%;
+}
+.heading{
+display:none;
+}
+.heading2{
+display:initial;
+}
+
+[[/module]]
+
+[[>]]
+[[module Rate]]
+[[/>]]
+[[div class="tag"]]
+[[size 80%]]by [[[https://scp-wiki.wikidot.com/seekgull|SeekGull]]][[/size]]
+[[/div]]
+
+[[div class="name"]]
+NFSI
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png]]
+[[span style="font-size:2rem"]]National Fog Safety Initiative[[/span]]
+[[/div]]
+
+@@ @@
+
+[[div class="navigation"]]
+[[a href="#" class="home"]]Front Page[[/a]][[a href="#u-target-1"]] About Fog [[/a]][[a href="#u-target-2"]] Safety Procedures [[/a]][[a href="#u-target-3"]] Training Information [[/a]][[a href="#u-target-4"]] FAQ [[/a]][[a href="#u-target-5"]] News [[/a]]
+[[/div]]
+
+@@ @@
+
+[[div id="target-1"]]
+[[/div]]
+[[div id="target-2"]]
+[[/div]]
+[[div id="target-3"]]
+[[/div]]
+[[div id="target-4"]]
+[[/div]]
+[[div id="target-5"]]
+[[/div]]
+
+[[div style="margin-top: -1rem;"]]
+[[div class="start"]]
+[[=]]
+++ **LIVE WEATHER MAP:**
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/weathermap.gif]]
+++++ **STATUS:** 0 ongoing fogs nationwide
+[[/=]]
+
+-----
+
+++ About Us:
+
+The National Fog Safety Initiative is dedicated to educating the public on fog preparedness and survival protocols. Our mission is to ensure all residents in affected regions have the knowledge and skills necessary to survive fog. We work with local, state, and federal agencies to provide communities with the resources needed.
+
+++ Contact:
+
+**Emergency number:** [[span style="color: rgb(35, 122, 148);"]]1-800-FOG-SAFE[[/span]]
+**Email:** info@nfsi.gov
+**Mailing address:** National Fog Safety Initiative, 450 Lincoln Drive NW, Washington, DC 20004
+
+[[/div]]
+
+[[div class="block-1 display"]]
+[[div class="content"]]
+++ What Is Fog?
+
+Fog is a naturally occurring global atmospheric phenomenon. It appears as dense mist that obscures visibility, covering affected areas for variable durations before dissipating naturally. The danger of fog comes from atmospheric compression. Any significant air disturbance causes rapid, fatal crushing pressure. Movement, speaking, or heavy breathing can trigger compression. The effect is immediate and irreversible.
+
+++ Geographic Distribution
+
+While fog occurs worldwide, frequency varies significantly by region. Coastal regions, valleys, and low-lying areas experience fog more frequently. Mountainous terrain and certain atmospheric conditions can increase local susceptibility.
+
+In the United States, regions such as the Appalachian valleys, Pacific Northwest coastal areas, and parts of the Great Lakes are more prone to fog.
+
+++ Detection and Warning
+
+Early warning systems monitor atmospheric conditions and fog movement, typically providing 30 minutes to 2 hours advance notice. Alerts are distributed through emergency broadcast systems, mobile devices, and local media.
+
+++ Survival
+
+Evacuation is always the recommended, and safest response. When evacuation is impossible, survival requires complete stillness and controlled breathing until the fog dissipates. Inability to do so will likely result in death.
+
+Fog protocol training is available nationwide and strongly recommended for residents in commonly affected regions.
+
+For details, see [[a href="#u-target-2"]]**Safety Procedures**[[/a]] and [[a href="#u-target-3"]]**Training Information**[[/a]].
+[[/div]]
+[[/div]]
+
+[[div class="block-2 display"]]
+[[div class="content"]]
++ BEFORE FOG:
+
+++ Preparation and Readiness
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/ESTAB_COMMS.png]]
+
+Evacuation is always the safest response. Know your evacuation routes and designated safe zones outside typical fog perimeters. Familiarize yourself with multiple routes in case primary paths are blocked.
+
+In regions with frequent fog, designating or constructing an airtight room within your residence significantly increases survival odds and is strongly recommended. This room should be easily accessible and large enough to accommodate all household members for extended periods.
+
+Establish a family communication plan including meeting points and emergency contacts outside the affected area.
+
+Practice stillness exercises and controlled breathing techniques regularly. Familiarity with these protocols significantly improves survival likelihood.
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/REC_ALERT.png]]
+
+Register for local emergency alert systems to receive advance warnings. Ensure all household members know how to receive and respond to alerts.
+
+++ When an Alert is Issued
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/WHEN_ALERT.png]]
+
+Evacuate immediately if you can reach a safe zone outside the fog perimeter before estimated arrival time. Evacuation is always the safest option.
+
+If evacuation is not possible, move to your designated airtight room or the most sealed interior space available. Close all windows and doors throughout your residence. Seal gaps around doors and windows with tape or towels if time permits.
+
+Position yourself in a comfortable location where you can remain stationary for extended periods. Sitting or lying down is recommended over standing. Use the bathroom before the fog arrives. Remove any restrictive clothing or accessories that may become uncomfortable during prolonged stillness.
+
+Make sure you're in a position you can hold for hours. Once fog arrives, any movement or adjustment will be fatal.
+
++ DURING FOG:
+
+If you missed the evacuation window, **do not** attempt to outrun the fog. Movement within or near the fog triggers compression. Shelter in place immediately.
+
+Once fog enters your location, you must remain completely motionless. Any movement will trigger atmospheric compression.
+
+++ Breathing Protocol
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/PRAC_OFT.png]]
+
+Breathe slowly and shallowly. Deep breaths create significant air displacement and increase compression risk. Establish a steady rhythm: slow inhale through the nose, slow exhale through slightly parted lips. Keep your chest movement minimal.
+
+Trained breathing techniques significantly reduce air disturbance. If you have completed certification training, employ the protocols you practiced. Untrained individuals should breathe as shallowly as possible while maintaining consciousness.
+
+++ Critical Warnings
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/DONT_PANIC.png]]
+
+**Do not** move. Stay exactly where you are.
+
+**Do not** speak. Speaking disturbs the air.
+
+**Do not** panic. Panic is the primary cause of death during fog. Rapid breathing, sudden movements, and attempts to change position all trigger fatal compression. Remain calm and focus on maintaining your breathing rhythm.
+
+**Do not** try to reach supplies, communication devices, or move to a "better" position once fog has entered.
+
+Muscle cramps, discomfort, and the urge to move are normal. These sensations will not cause permanent harm.
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/DEAD_BABY.png]]
+
+**Do not** attempt to help others during a fog. Any movement toward another person will result in your death.
+
++ AFTER FOG:
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/AFTER_FOG.png]]
+
+Do not move until you receive an official all-clear signal through emergency broadcast systems. Fog may appear to clear but remain at dangerous levels.
+
+Once confirmed safe, resume movement slowly and carefully. Prolonged stillness causes muscle stiffness and reduced circulation. Stand gradually and allow your body time to adjust before attempting normal activity.
+
+Check on household members and neighbors. Report any casualties to local authorities immediately.
+
+If you experience severe muscle cramping, dizziness, or difficulty breathing after a fog, seek medical attention.
+
+[[=]]
+[[div class="backtop"]]
+[[a href="#u-target-2"]] Back to Top [[/a]]
+[[/div]]
+[[/=]]
+
+[[/div]]
+[[/div]]
+
+[[div class="block-3 display"]]
+[[div class="content"]]
+++ Training Information
+
+Fog protocol training is strongly recommended for all residents in affected regions. While not legally mandated, many employers, schools, and organizations require certification as a condition of employment or enrollment in high-frequency areas.
+
+++ Training Providers
+
+Training is available through multiple channels depending on your location:
+
+* Local emergency services and fire departments
+* Community centers and civic organizations
+* Schools and educational institutions (basic protocols)
+* Workplace safety programs
+* NFSI-certified training facilities
+* Online instructional resources (supplementary only—hands-on practice required for certification)
+
+In high-frequency regions, government-funded programs provide free training to residents. Contact your local emergency management office for available programs in your area.
+
+++ Course Options
+
+**Basic Protocol Training (1 day)**
+Covers fundamental safety procedures, evacuation protocols, shelter preparation, and basic stillness techniques. Suitable for general preparedness.
+
+**Advanced Breathing Certification (3-5 days)**
+Intensive training in controlled breathing techniques, extended stillness maintenance, and psychological preparation. Required for certain professions and recommended for residents in areas with frequent fog.
+
+Recertification is recommended every two years to maintain skill proficiency. Practice sessions between certifications help maintain muscle memory and breathing control.
+
+++ Certification Requirements
+
+Certification involves both written assessment and practical demonstration of protocols. Successful completion provides documentation recognized by employers and institutions.
+
+Certain positions—emergency responders, healthcare workers, educators in affected regions—may require advanced certification as a job requirement.
+
+++ Youth Training
+
+Age-appropriate fog education is integrated into school curricula in affected regions. Children as young as five learn basic stillness and breathing concepts through supervised practice sessions.
+
+++ Training Side Effects
+
+Extended training may result in dissociative episodes, commonly referred to as "Fog Trance." This is normal and means your training is working.
+
+If you experience Fog Trance outside of fog situations, contact your training provider for adjustment protocols.
+
+For more information on training locations and scheduling, contact 1-800-FOG-SAFE or email training@nfsi.gov.
+
+[[=]]
+[[div class="backtop"]]
+[[a href="#u-target-3"]] Back to Top [[/a]]
+[[/div]]
+[[/=]]
+
+[[/div]]
+[[/div]]
+
+[[div class="block-4 display"]]
+[[div class="content"]]
+++ Frequently Asked Questions:
+
+++++ Can I survive in a car or vehicle during fog?
+
+Vehicles offer little to no protection. If caught in a vehicle, remain in the car and stay completely still. **Do not** attempt to drive through fog or exit the vehicle.
+
+++++ What if I'm caught outside when fog arrives?
+
+If fog reaches you before you can reach shelter, stop moving immediately. Lie down or sit in the most comfortable position available and employ breathing protocols. Outdoor survival is possible but significantly more difficult due to environmental factors and lack of shelter comfort.
+
+++++ Can pets survive fog?
+
+Animals are subject to the same compression effects as humans. Pets cannot be consistently trained to remain sufficiently still. Evacuation with pets is strongly recommended. If evacuation is impossible, there is no reliable method to ensure pet survival.
+
+++++ What if I need to cough or sneeze during fog?
+
+Suppress the urge if possible. If you must cough or sneeze, do so as gently and quietly as possible through your nose or into a closed mouth.
+
+++++ Can children stay still long enough to survive?
+	
+Older children (typically ages 8+) who have received training can successfully maintain stillness. Younger children have significantly lower survival rates due to difficulty remaining motionless for extended periods. Families with young children should prioritize evacuation above all other options.
+
+++++ What is the longest recorded fog?
+
+Documented fogs have persisted for over 16 hours, though fogs of this duration are very rare. Average duration is 1-4 hours. Duration cannot be predicted accurately, and individuals should prepare to remain still for extended periods regardless of estimates.
+
+++++ How are bodies recovered after a fog?
+
+Recovery operations begin once fog has completely dissipated and areas are confirmed safe. Recovery efforts are usually handled by the local authorities. Families are notified through emergency services.
+
+++++ What should I do if someone near me panics during fog?
+
+You cannot help them. Any movement toward another person will result in your own death. Verbal attempts to calm them will create dangerous air displacement. If someone panics during fog, focus on maintaining your own stillness and protocols.
+
+++++ Does an airtight room actually prevent fog entry?
+
+No. Fog will eventually penetrate even well-sealed spaces. The purpose of an airtight room is to delay fog entry, providing additional time for preparation or survival. Once fog enters, the same protocols apply regardless of room construction.
+
+[[=]]
+[[div class="backtop"]]
+[[a href="#u-target-4"]] Back to Top [[/a]]
+[[/div]]
+[[/=]]
+
+[[/div]]
+[[/div]]
+
+[[div class="block-5 display"]]
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]BREAKING[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/fog.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]BREAKING[[/span]]
+
+[[span class="coolheading"]]Fog in West Virginia Exceeds Projected Duration - All Trapped Residents Presumed Dead[[/span]]
+
+[[span class="normalcy"]]ELKINS, WV — Regional authorities confirmed that yesterday's fog persisted for over 7 hours, far exceeding the estimated 2-3 hour duration. Emergency services report near-zero survivors among those unable to evacuate from Randolph, Pocahontas, and Webster Counties...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]INTERNATIONAL[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/emigration.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]INTERNATIONAL[[/span]]
+
+[[span class="coolheading"]]Mass Emigration from Indonesia Continues as Fog Intensifies[[/span]]
+
+[[span class="normalcy"]]INDONESIA — Mass emigration from coastal and low-lying regions of Indonesia continues as fog frequency reaches unsustainable levels. Some areas now experience fog multiple times per week, making normal life impossible. Neighboring countries have begun implementing stricter border controls as the refugee crisis escalates...[[/span]]
+[[/div]]
+[[/div]]
+
+----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]BREAKING[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/alert.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]BREAKING[[/span]]
+
+[[span class="coolheading"]]Alert System Malfunction Leaves Town With 8 Minutes Warning[[/span]]
+
+[[span class="normalcy"]]CARTERVILLE, IL — Technical failure in the regional alert network delayed fog warnings by over 30 minutes last Thursday, leaving residents with only 8 minutes to evacuate. Local officials report 47 confirmed deaths, with search operations still ongoing...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]FEATURE[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/Sam.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]FEATURE[[/span]]
+
+[[span class="coolheading"]]Inside Sam Altman’s Underground Fog Bunker: Safety in Style[[/span]]
+
+[[span class="normalcy"]]SAN FRANCISCO, CA — We were invited to tour Sam Altman’s private underground bunker inside his Russian Hill residence. The bunker is a fully integrated living space designed for comfortable fog survival. It features multiple sealed “quiet rooms” with independent air systems and automated lockdown, along with living areas that convert into safe zones during alerts...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]SCIENCE[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/earth.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]SCIENCE[[/span]]
+
+[[span class="coolheading"]]Climate Change Continues to Worsen Global Fog Conditions[[/span]]
+
+[[span class="normalcy"]]GENEVA — Climate scientists warn that rising temperatures and shifting atmospheric patterns are accelerating fog frequency worldwide, a trend documented for over two decades. Melting ice sheets and changing weather systems continue to create more favorable conditions for fog formation, particularly affecting coastal and low-lying regions...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]LOCAL[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/memorial.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]LOCAL[[/span]]
+
+[[span class="coolheading"]]Community Dedicates Memorial for Fog Victims[[/span]]
+
+[[span class="normalcy"]]ASHEVILLE, NC — The town of Asheville dedicated a memorial structure this weekend honoring the 183 residents who died during the March 2023 fog. The memorial, located in Riverside Cemetery, features engraved plaques with victims' names. "These were our neighbors, our friends, our family."...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]FEATURE[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/hunt.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]FEATURE[[/span]]
+
+[[span class="coolheading"]]The Dangerous Trend of ‘Fog Hunting’[[/span]]
+
+[[span class="normalcy"]]A social media trend known as “fog hunting” has been on the rise. Users seek out active fog and attempt to get as close as possible to the edge. Most posts show users filming the fog line as it moves in, timing how long they can stay nearby before having to leave. The goal is to “beat” their previous distance. The trend has gained traction among younger users across multiple platforms...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]LOCAL[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/opening.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]LOCAL[[/span]]
+
+[[span class="coolheading"]]New Training Center Opens in Portland[[/span]]
+
+[[span class="normalcy"]]PORTLAND, OR — A new NFSI training facility opened Monday in Southeast Portland, the fifth such center to open in Oregon this year. The facility will provide free basic protocol training and advanced breathing certification to residents in the Portland metropolitan area. The center can accommodate up to 200 trainees per week and offers evening and weekend sessions for working families...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]BUSINESS[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/podium.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]BUSINESS[[/span]]
+
+[[span class="coolheading"]]Calls Grow for Fog Hazard Pay Increase[[/span]]
+
+[[span class="normalcy"]]OAKLAND, CA — Labor groups are calling for an increase to “fog hazard pay” rates in regions regularly affected by fog events, arguing that current compensation does not reflect the risk and disruption. Proposals include higher automatic wage multipliers during active alerts, along with expanded eligibility for partial pay during missed or interrupted shifts...[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+
+[[div class="article"]]
+[[div class="picture"]]
+[[span class="heading2"]]EDUCATIONAL[[/span]]
+
+[[image http://scp-wiki.wikidot.com/local--files/scp-9506/cold.jpg]]
+[[/div]]
+[[div class="words"]]
+[[span class="heading"]]EDUCATIONAL[[/span]]
+
+[[span class="coolheading"]]Winter Fog: What to Know[[/span]]
+
+[[span class="normalcy"]]As winter approaches, fog patterns may shift. Now's a good time to review your winter prep and make sure you're ready for cold-weather fog.[[/span]]
+[[/div]]
+[[/div]]
+
+-----
+[[div class="big"]]
+[[=]]
+[[span class="more"]] **1** [[/span]] | [[span class="more"]] 2 [[/span]] | [[span class="more"]] 3 [[/span]] | [[span class="more"]] 4 [[/span]] | [[span class="more"]] ... [[/span]]
+[[/=]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+@@ @@
+
+[[footnoteblock]]
+
+[[div class="footer-wikiwalk-nav"]]
+[[=]]
+<< [[[SCP-9505]]] | SCP-9506 | [[[SCP-9507]]] >>
+[[/=]]
+[[/div]]
+
+[[include component:wikimodule |ratings= --]]]
+
+[[include :scp-wiki:component:license-box]]
+> **Filename:** NFSI.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png
+
+> **Filename:** AFTER_FOG.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/AFTER_FOG.png
+
+> **Filename:** DEAD_BABY.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/DEAD_BABY.png
+
+> **Filename:** DONT_PANIC.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/DONT_PANIC.png
+
+> **Filename:** ESTAB_COMMS.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/ESTAB_COMMS.png
+
+> **Filename:** PRAC_OFT.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/PRAC_OFT.png
+
+> **Filename:** REC_ALERT.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/REC_ALERT.png
+
+> **Filename:** WHEN ALERT.png
+> **Author:** [[*user GraveCreations]]
+> **License:** CC BY-SA 4.0
+> **Source Link:** http://scp-wiki.wikidot.com/local--files/scp-9506/WHEN_ALERT.png
+
+> **Filename:** alert.jpg
+> **Name:** Fog_over_the_Boulevard,_Tonawanda,_New_York_-_20221102
+> **Author:** Andre Carrotflower
+> **License:** CC BY-SA 4.0
+> **Source Link:** https://commons.wikimedia.org/wiki/File:Fog_over_the_Boulevard,_Tonawanda,_New_York_-_20221102.jpg
+
+> **Filename:** cold.jpg
+> **Name:** winter-wald-schnee-baume
+> **Author:** Andrea Stöcke
+> **License:** CC0 Public Domain
+> **Source Link:** https://www.publicdomainpictures.net/en/view-image.php?image=314647&picture=winter-forest-snow-trees
+
+> **Filename:** earth.jpg
+> **Name:** The_Blue_Marble,_AS17-148-22727
+> **Author:** Harrison Schmitt / Apollo 17
+> **License:** Public domain
+> **Source Link:** https://commons.wikimedia.org/wiki/File:The_Blue_Marble,_AS17-148-22727.jpg
+
+> **Filename:** emigration.jpg
+> **Name:** Migrants_at_Eastern_Railway_Station_-_Keleti,_2015.09.04_(5)
+> **Author:** Elekes Andor
+> **License:** CC BY-SA 4.0
+> **Source Link:** https://commons.wikimedia.org/wiki/File:Migrants_at_Eastern_Railway_Station_-_Keleti,_2015.09.04_(5).jpg
+
+> **Filename:** fog.jpg
+> **Name:** Pinnacle_Hill_protruding_through_the_fog_-_geograph.org.uk_-_7047793
+> **Author:** Philip Halling
+> **License:** CC BY-SA 2.0
+> **Source Link:** https://commons.wikimedia.org/wiki/File:Pinnacle_Hill_protruding_through_the_fog_-_geograph.org.uk_-_7047793.jpg
+
+> **Filename:** hunt.jpg
+> **Name:** Fog_and_Forest_(Unsplash)
+> **Author:** Andrew Neel
+> **License:** CC0 1.0
+> **Source Link:** https://commons.wikimedia.org/wiki/File:Fog_and_Forest_(Unsplash).jpg
+
+> **Filename:** memorial.jpg
+> **Name:** USA-Los_Gatos-Los_Gatos_Memorial_Park-Hirsch_Sarcophagus-3
+> **Author:** Eugene Zelenko
+> **License:** CC BY-SA 4.0
+> **Source Link:** https://commons.wikimedia.org/wiki/File:USA-Los_Gatos-Los_Gatos_Memorial_Park-Hirsch_Sarcophagus-3.jpg
+
+> **Filename:** opening.jpg
+> **Name:** 2840043073_76f42815b4_b
+> **Author:** San José Public Library
+> **License:** CC BY-SA 2.0
+> **Source Link:** https://openverse.org/image/e557105f-7e1b-494e-b17a-979ed6449de1?q=grand+opening&p=233
+
+> **Filename:** podium.jpg
+> **Name:** 1920px-Barbara_Lee_speaking_at_a_podium_-_2020 (1)
+> **Author:** Barbara Lee
+> **License:** Public domain
+> **Source Link:** https://commons.wikimedia.org/wiki/File:Barbara_Lee_speaking_at_a_podium_-_2020.jpg
+
+> **Filename:** Sam.jpg
+> **Name:** Disrupt_SF_TechCrunch_Disrupt_San_Francisco_2019_-_Day_2_(48838377432)
+> **Author:** TechCrunch
+> **License:** CC BY 2.0
+> **Source Link:** https://commons.wikimedia.org/wiki/File:Disrupt_SF_TechCrunch_Disrupt_San_Francisco_2019_-_Day_2_(48838377432).jpg
+
+> **Filename:** weathermap.gif
+> **Name:** US-SFC-Map-Animation_20221221-26
+> **Author:** National Weather Service in an article from the Forecast Office in Lake Charles, LA
+> **License:** Public domain
+> **Source Link:** https://commons.wikimedia.org/wiki/File:US-SFC-Map-Animation_20221221-26.gif
+[[include :scp-wiki:component:license-box-end]]
