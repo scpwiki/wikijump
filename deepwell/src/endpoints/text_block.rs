@@ -19,14 +19,18 @@
  */
 
 use super::prelude::*;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::text_block::TextBlockIndex;
-use crate::types::TextBlockType;
+use crate::types::{Action, Permission, Reference, Resource, TextBlockType};
 
 #[derive(Deserialize, Debug, Clone)]
 struct GetIndexInput {
+    site_id: i64,
     page_id: i64,
     block_type: TextBlockType,
-    name: String,
+    index: Option<i16>,
+    name: Option<String>,
+    session_token: Option<String>,
 }
 
 pub async fn text_block_get_index(
@@ -34,20 +38,100 @@ pub async fn text_block_get_index(
     params: Params<'static>,
 ) -> Result<Option<TextBlockIndex>> {
     let GetIndexInput {
+        site_id,
         page_id,
         block_type,
+        index,
         name,
+        session_token,
     } = parse!(params);
 
-    TextBlockService::get_block_index(ctx, page_id, block_type, &name)
+    ensure_parent_page_view_permission(ctx, site_id, page_id, session_token.as_deref())
+        .await?;
+
+    match (index, name) {
+        (Some(index), None) if index > 0 => {
+            TextBlockService::get_block_by_index(ctx, page_id, block_type, index)
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        format!(
+                            "failed to get text block {:?} index {} for page ID {}",
+                            block_type, index, page_id,
+                        ),
+                        ErrorType::Request,
+                    )
+                })
+        }
+        (None, Some(name)) => {
+            TextBlockService::get_block_index(ctx, page_id, block_type, &name)
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        format!(
+                            "failed to get text block {:?} '{}' for page ID {}",
+                            block_type, name, page_id,
+                        ),
+                        ErrorType::Request,
+                    )
+                })
+        }
+        _ => Err(Error::new(
+            "text block lookup must provide exactly one positive index or name",
+            ErrorType::Request,
+        )
+        .into()),
+    }
+}
+
+async fn ensure_parent_page_view_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_id: i64,
+    session_token: Option<&str>,
+) -> Result<()> {
+    let make_error = || {
+        Error::new(
+            "failed to check parent page view permission for text block",
+            ErrorType::Permission,
+        )
+    };
+
+    let user_id = match session_token {
+        Some("") | None => None,
+        Some(token) => SessionService::get_optional(ctx, token)
+            .await
+            .or_raise(make_error)?
+            .map(|session| session.user_id),
+    };
+
+    let page = PageService::get(ctx, site_id, Reference::Id(page_id))
         .await
-        .or_raise(|| {
-            Error::new(
-                format!(
-                    "failed to get text block {:?} '{}' for page ID {}",
-                    block_type, name, page_id,
-                ),
-                ErrorType::Request,
-            )
-        })
+        .or_raise(make_error)?;
+
+    let can_view = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id,
+            site_id,
+            page_reference: Some(Reference::Id(page.page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(page.page_category_id)),
+            action: Action::View,
+        },
+    )
+    .await
+    .or_raise(make_error)?;
+
+    if can_view {
+        Ok(())
+    } else {
+        Err(Error::new(
+            "user does not have permission to view this text block's parent page",
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
 }

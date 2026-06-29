@@ -28,6 +28,7 @@ use deepwell::models::file;
 use deepwell::models::page::{self, Entity as PageTable};
 use deepwell::models::page_category::{self, Entity as PageCategoryTable};
 use deepwell::models::page_revision::Entity as PageRevisionTable;
+use deepwell::models::text_block;
 use deepwell::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use deepwell::services::category::CategoryService;
 use deepwell::services::file_revision::CreateFirstFileRevision;
@@ -40,8 +41,11 @@ use deepwell::services::permission::PermissionService;
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
-use deepwell::services::{FileRevisionService, RequestContext};
-use deepwell::types::{Action, PageRevisionType, Permission, Reference, Resource};
+use deepwell::services::session::CreateSession;
+use deepwell::services::{FileRevisionService, RequestContext, SessionService};
+use deepwell::types::{
+    Action, PageRevisionType, Permission, Reference, Resource, TextBlockType,
+};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
 };
@@ -1204,6 +1208,174 @@ async fn file_get_requires_parent_page_view_permission() {
     assert!(output.data.is_none());
 }
 
+#[tokio::test]
+async fn text_block_get_index_requires_parent_page_view_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PAGE_SLUG: &str = "fixture-private-text-block-read";
+    const PUBLIC_PAGE_SLUG: &str = "fixture-public-text-block-read";
+    const PRIVATE_CATEGORY: &str = "fixture-text-block-read-private-view";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private hosted text block parent page",
+            "title": "Private Text Block Read",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private text block fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+    set_listpages_test_category_slug(&runner, site_id, PAGE_SLUG, PRIVATE_CATEGORY).await;
+    create_text_block_fixture(
+        &runner,
+        page.page_id,
+        TextBlockType::Html,
+        1,
+        None,
+        "sentinel-private-html-block",
+    )
+    .await;
+    create_text_block_fixture(
+        &runner,
+        page.page_id,
+        TextBlockType::Code,
+        2,
+        Some("secret-code"),
+        "sentinel-private-code-block",
+    )
+    .await;
+
+    let public_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "public hosted text block parent page",
+            "title": "Public Text Block Read",
+            "alt_title": null,
+            "slug": PUBLIC_PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create public text block fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(public_page.parser_errors.is_empty());
+    create_text_block_fixture(
+        &runner,
+        public_page.page_id,
+        TextBlockType::Html,
+        1,
+        None,
+        &format!("{}_html_1", public_page.page_id),
+    )
+    .await;
+
+    runner.set_request_context(RequestContext::default());
+
+    let public_block = run_endpoint!(
+        runner,
+        text_block_get_index,
+        json!({
+            "site_id": site_id,
+            "page_id": public_page.page_id,
+            "block_type": "html",
+            "index": 1,
+        }),
+    )
+    .expect("public text block should exist");
+    assert_eq!(public_block.index, 1);
+    assert_eq!(
+        public_block.s3_filename,
+        format!("{}_html_1", public_page.page_id)
+    );
+
+    let error = run_endpoint_err!(
+        runner,
+        text_block_get_index,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "block_type": "html",
+            "index": 1,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let error = run_endpoint_err!(
+        runner,
+        text_block_get_index,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "block_type": "code",
+            "name": "secret-code",
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let admin_session_token = SessionService::create(
+        runner.context(),
+        CreateSession {
+            user_id: ADMIN_USER_ID,
+            ip_address: common::IP_ADDRESS,
+            user_agent: "deepwell text block test".to_owned(),
+            restricted: false,
+        },
+    )
+    .await
+    .expect("admin session should be created");
+
+    let private_html = run_endpoint!(
+        runner,
+        text_block_get_index,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "block_type": "html",
+            "index": 1,
+            "session_token": admin_session_token,
+        }),
+    )
+    .expect("private HTML block should exist");
+    assert_eq!(private_html.index, 1);
+    assert_eq!(private_html.s3_filename, "sentinel-private-html-block");
+
+    let private_code = run_endpoint!(
+        runner,
+        text_block_get_index,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "block_type": "code",
+            "name": "secret-code",
+            "session_token": admin_session_token,
+        }),
+    )
+    .expect("private named code block should exist");
+    assert_eq!(private_code.index, 2);
+    assert_eq!(private_code.s3_filename, "sentinel-private-code-block");
+}
+
 async fn create_empty_file_fixture(
     runner: &TestRunner,
     site_id: i64,
@@ -1238,6 +1410,27 @@ async fn create_empty_file_fixture(
     .expect("file revision fixture should be created");
 
     file.file_id
+}
+
+async fn create_text_block_fixture(
+    runner: &TestRunner,
+    page_id: i64,
+    block_type: TextBlockType,
+    block_index: i16,
+    block_name: Option<&str>,
+    s3_filename: &str,
+) {
+    text_block::ActiveModel {
+        block_type: Set(block_type),
+        page_id: Set(page_id),
+        block_index: Set(block_index),
+        s3_filename: Set(s3_filename.to_owned()),
+        block_name: Set(block_name.map(str::to_owned)),
+        text_type: Set(None),
+    }
+    .insert(runner.context().transaction())
+    .await
+    .expect("text block fixture should be inserted");
 }
 
 async fn make_listpages_test_category_admin_only(
