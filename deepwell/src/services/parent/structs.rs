@@ -33,6 +33,8 @@ pub struct ParentDescription<'a> {
 pub struct UpdateParents<'a> {
     pub site_id: i64,
     pub child: Reference<'a>,
+    #[serde(default)]
+    pub user_id: Option<i64>,
     pub add: Option<Vec<Reference<'a>>>,
     pub remove: Option<Vec<Reference<'a>>>,
 }

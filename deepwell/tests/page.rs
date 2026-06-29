@@ -22,7 +22,9 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
+use deepwell::constants::{
+    ADMIN_USER_ID, ANONYMOUS_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID, UNKNOWN_USER_ID,
+};
 use deepwell::error::prelude::*;
 use deepwell::models::file;
 use deepwell::models::page::{self, Entity as PageTable};
@@ -53,6 +55,20 @@ use serde_json::json;
 use std::borrow::Cow;
 use std::collections::BTreeSet;
 use time::{Duration, OffsetDateTime};
+
+fn set_mutation_request_context(
+    runner: &mut TestRunner,
+    user_id: i64,
+    site_id: i64,
+    page_reference: Reference<'static>,
+) {
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(user_id),
+        site_id: Some(site_id),
+        page_reference: Some(page_reference),
+    });
+}
 
 #[tokio::test]
 async fn basic_edit() {
@@ -208,10 +224,16 @@ async fn basic_edit() {
 
 #[tokio::test]
 async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_include() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
 
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed("theme:codex-include-fallback")),
+    );
     run_endpoint!(
         runner,
         page_create,
@@ -228,6 +250,12 @@ async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_incl
         }),
     );
 
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed("include-consumer")),
+    );
     run_endpoint!(
         runner,
         page_create,
@@ -282,7 +310,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     let site_id = site.site.site_id;
 
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-parent-root",
         "Fixture Parent Root",
@@ -291,7 +319,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     .await;
 
     let target_a_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-target-a",
         "Fixture ListPages Target Alpha",
@@ -307,7 +335,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     )
     .await;
     set_listpages_test_parent(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-target-a",
         "fixture-listpages-unit-parent-root",
@@ -315,7 +343,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     .await;
 
     let target_b_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-target-b",
         "Fixture ListPages Target Beta",
@@ -331,7 +359,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     )
     .await;
     set_listpages_test_parent(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-target-b",
         "fixture-listpages-unit-parent-root",
@@ -339,7 +367,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     .await;
 
     let target_c_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-target-c",
         "Fixture ListPages Target Gamma",
@@ -355,7 +383,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     )
     .await;
     set_listpages_test_parent(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-target-c",
         "fixture-listpages-unit-parent-root",
@@ -363,7 +391,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     .await;
 
     let excluded_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-excluded",
         "Fixture ListPages Excluded",
@@ -380,7 +408,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     .await;
 
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-listpages-unit-index",
         "Fixture ListPages Index",
@@ -450,11 +478,19 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
 
 #[tokio::test]
 async fn first_revision_current_page_listpages_uses_render_page_info() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
 
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(
+            "fixture-first-revision-current-page-listpages",
+        )),
+    );
     run_endpoint!(
         runner,
         page_create,
@@ -521,7 +557,7 @@ async fn included_author_tool_coauthored_branch_renders_named_page_box() {
     let site_id = site.site.site_id;
 
     let target_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-coauthored-target",
         "Fixture Coauthored Target",
@@ -538,7 +574,7 @@ async fn included_author_tool_coauthored_branch_renders_named_page_box() {
     .await;
 
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "component:coauthored-listpages-emitter",
         "Fixture Author Tool Component",
@@ -571,7 +607,7 @@ async fn included_author_tool_coauthored_branch_renders_named_page_box() {
     .await;
 
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fixture-coauthored-index",
         "Fixture Coauthored Index",
@@ -646,7 +682,7 @@ async fn listpages_fragment_content_skips_hidden_pages_by_default() {
     let site_id = site.site.site_id;
 
     let index_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         INDEX_SLUG,
         "Fixture ListPages Fragment Default Index",
@@ -661,7 +697,7 @@ async fn listpages_fragment_content_skips_hidden_pages_by_default() {
     .await;
 
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         "fragment:fixture-listpages-fragment-category-primer",
         "Fixture Fragment Category Primer",
@@ -670,7 +706,7 @@ async fn listpages_fragment_content_skips_hidden_pages_by_default() {
     .await;
 
     let hidden_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         HIDDEN_SLUG,
         "Fixture Hidden Fragment",
@@ -693,10 +729,10 @@ async fn listpages_fragment_content_skips_hidden_pages_by_default() {
         OffsetDateTime::UNIX_EPOCH + Duration::seconds(1),
     )
     .await;
-    set_listpages_test_parent(&runner, site_id, HIDDEN_SLUG, INDEX_SLUG).await;
+    set_listpages_test_parent(&mut runner, site_id, HIDDEN_SLUG, INDEX_SLUG).await;
 
     let visible_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         VISIBLE_SLUG,
         "Fixture Visible Fragment",
@@ -719,7 +755,7 @@ async fn listpages_fragment_content_skips_hidden_pages_by_default() {
         OffsetDateTime::UNIX_EPOCH + Duration::seconds(2),
     )
     .await;
-    set_listpages_test_parent(&runner, site_id, VISIBLE_SLUG, INDEX_SLUG).await;
+    set_listpages_test_parent(&mut runner, site_id, VISIBLE_SLUG, INDEX_SLUG).await;
 
     runner.set_request_context(RequestContext {
         session: None,
@@ -781,7 +817,7 @@ async fn listpages_content_body_supports_bounded_ordered_child_results() {
     const INDEX_SLUG: &str = "fixture-listpages-content-body-index";
 
     let index_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         INDEX_SLUG,
         "Fixture ListPages Content Body Index",
@@ -815,7 +851,7 @@ async fn listpages_content_body_supports_bounded_ordered_child_results() {
             "Fixture ListPages Target Gamma marker.",
         ),
     ] {
-        create_listpages_test_page(&runner, site_id, slug, title, source).await;
+        create_listpages_test_page(&mut runner, site_id, slug, title, source).await;
         set_listpages_test_created_at(
             &runner,
             site_id,
@@ -823,12 +859,12 @@ async fn listpages_content_body_supports_bounded_ordered_child_results() {
             OffsetDateTime::UNIX_EPOCH + Duration::seconds(index + 1),
         )
         .await;
-        set_listpages_test_parent(&runner, site_id, slug, INDEX_SLUG).await;
+        set_listpages_test_parent(&mut runner, site_id, slug, INDEX_SLUG).await;
     }
 
     let excluded_slug = "fixture-listpages-content-body-excluded";
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         excluded_slug,
         "Fixture ListPages Excluded",
@@ -840,7 +876,7 @@ async fn listpages_content_body_supports_bounded_ordered_child_results() {
     make_listpages_test_category_admin_only(&runner, site_id, private_category).await;
     let private_slug = "fixture-listpages-content-body-private";
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         private_slug,
         "Fixture ListPages Private",
@@ -856,7 +892,7 @@ async fn listpages_content_body_supports_bounded_ordered_child_results() {
         OffsetDateTime::UNIX_EPOCH + Duration::seconds(4),
     )
     .await;
-    set_listpages_test_parent(&runner, site_id, private_slug, INDEX_SLUG).await;
+    set_listpages_test_parent(&mut runner, site_id, private_slug, INDEX_SLUG).await;
 
     runner.set_request_context(RequestContext {
         session: None,
@@ -1209,6 +1245,1180 @@ async fn file_get_requires_parent_page_view_permission() {
 }
 
 #[tokio::test]
+async fn page_mutations_require_page_permissions() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PRIVATE_CATEGORY: &str = "fixture-page-mutation-private";
+    const PAGE_SLUG: &str = "fixture-page-mutation-private:target";
+    const BLOCKED_SLUG: &str = "fixture-page-mutation-private:blocked";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        PRIVATE_CATEGORY,
+        SAMPLE_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "sample-mutator",
+    )
+    .await;
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(BLOCKED_SLUG)),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "blocked private page create",
+            "title": "Blocked Private Page",
+            "alt_title": null,
+            "slug": BLOCKED_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "blocked create",
+            "user_id": UNKNOWN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(PAGE_SLUG)),
+    );
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private page mutation target",
+            "title": "Private Page Mutation Target",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private mutation target",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "last_revision_id": page.revision_id,
+            "revision_comments": "blocked edit",
+            "user_id": UNKNOWN_USER_ID,
+            "title": "Unauthorized Edit",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let edit = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "last_revision_id": page.revision_id,
+            "revision_comments": "authorized edit",
+            "user_id": SAMPLE_USER_ID,
+            "title": "Authorized Edit",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("admin page edit should create a revision");
+    assert!(edit.revision_id > page.revision_id);
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        page_rollback,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "last_revision_id": edit.revision_id,
+            "revision_number": 0,
+            "revision_comments": "blocked rollback",
+            "user_id": UNKNOWN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let rollback = run_endpoint!(
+        runner,
+        page_rollback,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "last_revision_id": edit.revision_id,
+            "revision_number": 0,
+            "revision_comments": "authorized rollback",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("authorized page rollback should create a revision");
+    assert!(rollback.revision_id > edit.revision_id);
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        page_set_layout,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "layout": "wikidot",
+            "user_id": UNKNOWN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    run_endpoint!(
+        runner,
+        page_set_layout,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "layout": "wikidot",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        page_delete,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "last_revision_id": rollback.revision_id,
+            "revision_comments": "blocked delete",
+            "user_id": UNKNOWN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let _deleted = run_endpoint!(
+        runner,
+        page_delete,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "last_revision_id": rollback.revision_id,
+            "revision_comments": "authorized delete",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+}
+
+#[tokio::test]
+async fn page_move_requires_destination_create_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const SOURCE_CATEGORY: &str = "fixture-page-move-source-private";
+    const DESTINATION_CATEGORY: &str = "fixture-page-move-destination-private";
+    const PAGE_SLUG: &str = "fixture-page-move-source-private:target";
+    const BLOCKED_DESTINATION_SLUG: &str = "fixture-page-move-destination-private:target";
+    const ALLOWED_DESTINATION_SLUG: &str = "fixture-page-move-source-private:moved";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        SOURCE_CATEGORY,
+        SAMPLE_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "sample-mutator",
+    )
+    .await;
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        DESTINATION_CATEGORY,
+        ADMIN_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "admin-mutator",
+    )
+    .await;
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(PAGE_SLUG)),
+    );
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private page move target",
+            "title": "Private Page Move Target",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private move target",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        page_move,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "new_slug": BLOCKED_DESTINATION_SLUG,
+            "last_revision_id": page.revision_id,
+            "revision_comments": "blocked cross-category move",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let moved = run_endpoint!(
+        runner,
+        page_move,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "new_slug": ALLOWED_DESTINATION_SLUG,
+            "last_revision_id": page.revision_id,
+            "revision_comments": "authorized same-category move",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(moved.revision_id > page.revision_id);
+}
+
+#[tokio::test]
+async fn page_restore_default_slug_requires_destination_create_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PRIVATE_CATEGORY: &str = "fixture-page-restore-private";
+    const DESTINATION_CATEGORY: &str = "fixture-page-restore-destination-private";
+    const PAGE_SLUG: &str = "fixture-page-restore-private:target";
+    const EXPLICIT_PAGE_SLUG: &str = "fixture-page-restore-private:explicit";
+    const EXPLICIT_DESTINATION_SLUG: &str =
+        "fixture-page-restore-destination-private:explicit";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        PRIVATE_CATEGORY,
+        ADMIN_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "admin-mutator",
+    )
+    .await;
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        PRIVATE_CATEGORY,
+        SAMPLE_USER_ID,
+        &[Action::View, Action::Edit],
+        "sample-editor",
+    )
+    .await;
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        DESTINATION_CATEGORY,
+        ADMIN_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "admin-mutator",
+    )
+    .await;
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(PAGE_SLUG)),
+    );
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private page restore target",
+            "title": "Private Page Restore Target",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private restore target",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let _deleted = run_endpoint!(
+        runner,
+        page_delete,
+        json!({
+            "site_id": site_id,
+            "page": page.page_id,
+            "last_revision_id": page.revision_id,
+            "revision_comments": "sample delete before restore",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let error = run_endpoint_err!(
+        runner,
+        page_restore,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "revision_comments": "blocked default restore",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let _restored = run_endpoint!(
+        runner,
+        page_restore,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "revision_comments": "authorized default restore",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(EXPLICIT_PAGE_SLUG)),
+    );
+    let explicit_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private explicit page restore target",
+            "title": "Private Explicit Page Restore Target",
+            "alt_title": null,
+            "slug": EXPLICIT_PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private explicit restore target",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(explicit_page.parser_errors.is_empty());
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(explicit_page.page_id),
+    );
+    let _deleted = run_endpoint!(
+        runner,
+        page_delete,
+        json!({
+            "site_id": site_id,
+            "page": explicit_page.page_id,
+            "last_revision_id": explicit_page.revision_id,
+            "revision_comments": "sample delete before explicit restore",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let error = run_endpoint_err!(
+        runner,
+        page_restore,
+        json!({
+            "site_id": site_id,
+            "page_id": explicit_page.page_id,
+            "slug": EXPLICIT_DESTINATION_SLUG,
+            "revision_comments": "blocked explicit restore",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Id(explicit_page.page_id),
+    );
+    let _restored = run_endpoint!(
+        runner,
+        page_restore,
+        json!({
+            "site_id": site_id,
+            "page_id": explicit_page.page_id,
+            "slug": EXPLICIT_DESTINATION_SLUG,
+            "revision_comments": "authorized explicit restore",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+}
+
+#[tokio::test]
+async fn file_mutations_require_parent_page_edit_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PRIVATE_CATEGORY: &str = "fixture-file-mutation-private";
+    const BLOCKED_DESTINATION_CATEGORY: &str =
+        "fixture-file-mutation-destination-private";
+    const PAGE_SLUG: &str = "fixture-file-mutation-private:target";
+    const DESTINATION_PAGE_SLUG: &str = "fixture-file-mutation-private:destination";
+    const BLOCKED_DESTINATION_PAGE_SLUG: &str =
+        "fixture-file-mutation-destination-private:blocked";
+    const FILE_EDIT_NAME: &str = "private-edit.txt";
+    const FILE_MOVE_NAME: &str = "private-move.txt";
+    const FILE_DELETE_NAME: &str = "private-delete.txt";
+    const FILE_RESTORE_NAME: &str = "private-restore.txt";
+    const FILE_ROLLBACK_NAME: &str = "private-rollback.txt";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        PRIVATE_CATEGORY,
+        SAMPLE_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "sample-mutator",
+    )
+    .await;
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        BLOCKED_DESTINATION_CATEGORY,
+        ADMIN_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "admin-mutator",
+    )
+    .await;
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(PAGE_SLUG)),
+    );
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private file mutation parent page",
+            "title": "Private File Mutation",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private file mutation fixture",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(DESTINATION_PAGE_SLUG)),
+    );
+    let destination_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private file mutation destination page",
+            "title": "Private File Mutation Destination",
+            "alt_title": null,
+            "slug": DESTINATION_PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private file mutation destination",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(destination_page.parser_errors.is_empty());
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(BLOCKED_DESTINATION_PAGE_SLUG)),
+    );
+    let blocked_destination_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private file mutation blocked destination page",
+            "title": "Private File Mutation Blocked Destination",
+            "alt_title": null,
+            "slug": BLOCKED_DESTINATION_PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private file mutation blocked destination",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(blocked_destination_page.parser_errors.is_empty());
+
+    let edit_file_id =
+        create_empty_file_fixture(&runner, site_id, page.page_id, FILE_EDIT_NAME).await;
+    let move_file_id =
+        create_empty_file_fixture(&runner, site_id, page.page_id, FILE_MOVE_NAME).await;
+    let delete_file_id =
+        create_empty_file_fixture(&runner, site_id, page.page_id, FILE_DELETE_NAME).await;
+    let restore_file_id =
+        create_empty_file_fixture(&runner, site_id, page.page_id, FILE_RESTORE_NAME)
+            .await;
+    let rollback_file_id =
+        create_empty_file_fixture(&runner, site_id, page.page_id, FILE_ROLLBACK_NAME)
+            .await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(SAMPLE_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Id(page.page_id)),
+    });
+    let file = run_endpoint!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_DELETE_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    )
+    .expect("admin should be allowed to view private file mutation fixture");
+    assert_eq!(file.file_id, delete_file_id);
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_create,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "name": "blocked-create.txt",
+            "uploaded_blob_id": "not-used-before-permission-denial",
+            "revision_comments": "blocked file create",
+            "user_id": UNKNOWN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let edit_file = run_endpoint!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_EDIT_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    )
+    .expect("edit file fixture should be visible to the authorized user");
+    assert_eq!(edit_file.file_id, edit_file_id);
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_edit,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file_id": edit_file.file_id,
+            "last_revision_id": edit_file.revision_id,
+            "revision_comments": "blocked file edit",
+            "user_id": UNKNOWN_USER_ID,
+            "name": "blocked-edit.txt",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let edited = run_endpoint!(
+        runner,
+        file_edit,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file_id": edit_file.file_id,
+            "last_revision_id": edit_file.revision_id,
+            "revision_comments": "authorized file edit",
+            "user_id": SAMPLE_USER_ID,
+            "name": "authorized-edit.txt",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("authorized file edit should create a revision");
+    assert!(edited.file_revision_id > edit_file.revision_id);
+
+    let move_file = run_endpoint!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_MOVE_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    )
+    .expect("move file fixture should be visible to the authorized user");
+    assert_eq!(move_file.file_id, move_file_id);
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_move,
+        json!({
+            "site_id": site_id,
+            "file_id": move_file.file_id,
+            "current_page_id": page.page_id,
+            "destination_page": destination_page.page_id,
+            "last_revision_id": move_file.revision_id,
+            "revision_comments": "blocked file move",
+            "user_id": UNKNOWN_USER_ID,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_move,
+        json!({
+            "site_id": site_id,
+            "file_id": move_file.file_id,
+            "current_page_id": page.page_id,
+            "destination_page": blocked_destination_page.page_id,
+            "last_revision_id": move_file.revision_id,
+            "revision_comments": "blocked file move destination",
+            "user_id": SAMPLE_USER_ID,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let moved = run_endpoint!(
+        runner,
+        file_move,
+        json!({
+            "site_id": site_id,
+            "file_id": move_file.file_id,
+            "current_page_id": page.page_id,
+            "destination_page": destination_page.page_id,
+            "last_revision_id": move_file.revision_id,
+            "revision_comments": "authorized file move",
+            "user_id": SAMPLE_USER_ID,
+        }),
+    )
+    .expect("authorized file move should create a revision");
+    assert!(moved.file_revision_id > move_file.revision_id);
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_delete,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_DELETE_NAME,
+            "last_revision_id": file.revision_id,
+            "revision_comments": "blocked file delete",
+            "user_id": UNKNOWN_USER_ID,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let deleted = run_endpoint!(
+        runner,
+        file_delete,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_DELETE_NAME,
+            "last_revision_id": file.revision_id,
+            "revision_comments": "authorized file delete",
+            "user_id": SAMPLE_USER_ID,
+        }),
+    );
+    assert_eq!(deleted.file_id, delete_file_id);
+    assert!(deleted.file_revision_id > file.revision_id);
+
+    let restore_file = run_endpoint!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_RESTORE_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    )
+    .expect("restore file fixture should be visible to the authorized user");
+    assert_eq!(restore_file.file_id, restore_file_id);
+    let deleted_restore = run_endpoint!(
+        runner,
+        file_delete,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_RESTORE_NAME,
+            "last_revision_id": restore_file.revision_id,
+            "revision_comments": "prepare file restore",
+            "user_id": SAMPLE_USER_ID,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_restore,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file_id": restore_file.file_id,
+            "revision_comments": "blocked file restore",
+            "user_id": UNKNOWN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_restore,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file_id": restore_file.file_id,
+            "new_page": blocked_destination_page.page_id,
+            "revision_comments": "blocked file restore destination",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let restored = run_endpoint!(
+        runner,
+        file_restore,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file_id": restore_file.file_id,
+            "revision_comments": "authorized file restore",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(restored.file_id, restore_file_id);
+    assert!(restored.file_revision_id > deleted_restore.file_revision_id);
+
+    let rollback_file = run_endpoint!(
+        runner,
+        file_get,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": FILE_ROLLBACK_NAME,
+            "details": {
+                "data": false
+            },
+        }),
+    )
+    .expect("rollback file fixture should be visible to the authorized user");
+    assert_eq!(rollback_file.file_id, rollback_file_id);
+    let edited_for_rollback = run_endpoint!(
+        runner,
+        file_edit,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file_id": rollback_file.file_id,
+            "last_revision_id": rollback_file.revision_id,
+            "revision_comments": "prepare file rollback",
+            "user_id": SAMPLE_USER_ID,
+            "name": "rollback-new-name.txt",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("authorized file edit should prepare a rollback target");
+
+    set_mutation_request_context(
+        &mut runner,
+        UNKNOWN_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let error = run_endpoint_err!(
+        runner,
+        file_rollback,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": "rollback-new-name.txt",
+            "last_revision_id": edited_for_rollback.file_revision_id,
+            "revision_number": 0,
+            "revision_comments": "blocked file rollback",
+            "user_id": UNKNOWN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    set_mutation_request_context(
+        &mut runner,
+        SAMPLE_USER_ID,
+        site_id,
+        Reference::Id(page.page_id),
+    );
+    let rolled_back = run_endpoint!(
+        runner,
+        file_rollback,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "file": "rollback-new-name.txt",
+            "last_revision_id": edited_for_rollback.file_revision_id,
+            "revision_number": 0,
+            "revision_comments": "authorized file rollback",
+            "user_id": SAMPLE_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("authorized file rollback should create a revision");
+    assert!(rolled_back.file_revision_id > edited_for_rollback.file_revision_id);
+}
+
+#[tokio::test]
+async fn parent_mutations_require_child_page_edit_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PRIVATE_CATEGORY: &str = "fixture-parent-mutation-private";
+    const CHILD_SLUG: &str = "fixture-parent-mutation-private:child";
+    const PARENT_SLUG: &str = "fixture-parent-mutation-private:parent";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        PRIVATE_CATEGORY,
+        SAMPLE_USER_ID,
+        &[Action::View, Action::Create, Action::Edit],
+        "sample-mutator",
+    )
+    .await;
+
+    for (slug, title) in [
+        (CHILD_SLUG, "Private Child Page"),
+        (PARENT_SLUG, "Private Parent Page"),
+    ] {
+        set_mutation_request_context(
+            &mut runner,
+            SAMPLE_USER_ID,
+            site_id,
+            Reference::Slug(Cow::Borrowed(slug)),
+        );
+        let page = run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": title,
+                "title": title,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "create parent mutation fixture",
+                "user_id": SAMPLE_USER_ID,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+        assert!(page.parser_errors.is_empty());
+    }
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ANONYMOUS_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(CHILD_SLUG))),
+    });
+    let error = run_endpoint_err!(
+        runner,
+        parent_set,
+        json!({
+            "site_id": site_id,
+            "parent": PARENT_SLUG,
+            "child": CHILD_SLUG,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(SAMPLE_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(CHILD_SLUG))),
+    });
+    let created = run_endpoint!(
+        runner,
+        parent_set,
+        json!({
+            "site_id": site_id,
+            "parent": PARENT_SLUG,
+            "child": CHILD_SLUG,
+        }),
+    );
+    assert!(created.is_some());
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ANONYMOUS_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(CHILD_SLUG))),
+    });
+    let error = run_endpoint_err!(
+        runner,
+        parent_remove,
+        json!({
+            "site_id": site_id,
+            "parent": PARENT_SLUG,
+            "child": CHILD_SLUG,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(SAMPLE_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(CHILD_SLUG))),
+    });
+    let removed = run_endpoint!(
+        runner,
+        parent_remove,
+        json!({
+            "site_id": site_id,
+            "parent": PARENT_SLUG,
+            "child": CHILD_SLUG,
+        }),
+    );
+    assert!(removed.was_deleted);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ANONYMOUS_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(CHILD_SLUG))),
+    });
+    let error = run_endpoint_err!(
+        runner,
+        parent_update,
+        json!({
+            "site_id": site_id,
+            "child": CHILD_SLUG,
+            "user_id": SAMPLE_USER_ID,
+            "add": [PARENT_SLUG],
+            "remove": null,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(SAMPLE_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(CHILD_SLUG))),
+    });
+    let updated = run_endpoint!(
+        runner,
+        parent_update,
+        json!({
+            "site_id": site_id,
+            "child": CHILD_SLUG,
+            "user_id": ANONYMOUS_USER_ID,
+            "add": [PARENT_SLUG],
+            "remove": null,
+        }),
+    );
+    assert_eq!(updated.added.as_ref().map(Vec::len), Some(1));
+}
+
+#[tokio::test]
 async fn text_block_get_index_requires_parent_page_view_permission() {
     let mut runner = TestRunner::setup().await;
     const SITE_SLUG: &str = "scp-wiki";
@@ -1489,13 +2699,82 @@ async fn make_listpages_test_category_admin_only(
     .expect("admin should receive private ListPages role");
 }
 
-async fn create_listpages_test_page(
+async fn make_page_mutation_test_category_for_user(
     runner: &TestRunner,
+    site_id: i64,
+    category_slug: &str,
+    user_id: i64,
+    actions: &[Action],
+    role_suffix: &str,
+) {
+    let category_id =
+        CategoryService::get_or_create(runner.context(), site_id, category_slug)
+            .await
+            .expect("private mutation category should be created")
+            .category_id;
+    let role = RoleService::create(
+        runner.context(),
+        InternalCreateRoleInput {
+            site_id,
+            name: format!("{category_slug}-{role_suffix}"),
+            description: None,
+            is_virtual: false,
+            parent_role_id: None,
+            creating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("private mutation role should be created");
+    PermissionService::update_permissions_for_role(
+        runner.context(),
+        UpdateRolePermissionsInput {
+            site_id,
+            role_reference: Reference::Id(role.role_id),
+            new_permissions: actions
+                .iter()
+                .copied()
+                .map(|action| Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(category_id)),
+                    action,
+                })
+                .collect(),
+            cascade_removals: false,
+            updating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("private mutation role permissions should be updated");
+    RoleService::grant_role_to_user(
+        runner.context(),
+        GrantUserRoleInput {
+            site_id,
+            user_id,
+            role_id: role.role_id,
+            assigning_user_id: SYSTEM_USER_ID,
+            expires_at: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("user should receive private mutation role");
+}
+
+async fn create_listpages_test_page(
+    runner: &mut TestRunner,
     site_id: i64,
     slug: &str,
     title: &str,
     wikitext: &str,
 ) -> i64 {
+    set_mutation_request_context(
+        runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Owned(slug.to_owned())),
+    );
     let output = run_endpoint!(
         runner,
         page_create,
@@ -1526,7 +2805,7 @@ async fn page_tags_select_filters_latest_page_tags() {
     let site_id = site.site.site_id;
 
     let default_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         DEFAULT_SLUG,
         "XML-RPC Default Tag Source",
@@ -1551,7 +2830,7 @@ async fn page_tags_select_filters_latest_page_tags() {
     .await;
 
     let nav_revision = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         NAV_SLUG,
         "XML-RPC Nav Tag Source",
@@ -1649,6 +2928,12 @@ async fn page_select_filters_pages_with_page_query_semantics() {
             5,
         ),
     ] {
+        set_mutation_request_context(
+            &mut runner,
+            ADMIN_USER_ID,
+            site_id,
+            Reference::Slug(Cow::Borrowed(slug)),
+        );
         let output = run_endpoint!(
             runner,
             page_create,
@@ -1708,14 +2993,14 @@ async fn page_select_filters_pages_with_page_query_semantics() {
 
 #[tokio::test]
 async fn page_select_treats_blank_optional_filters_as_absent() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
     let slug = "xmlrpc-page-select-blank-optionals";
 
     create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         slug,
         "XML-RPC Page Select Blank Optionals",
@@ -1831,17 +3116,25 @@ async fn set_listpages_test_tags(
 }
 
 async fn set_listpages_test_parent(
-    runner: &TestRunner,
+    runner: &mut TestRunner,
     site_id: i64,
     slug: &str,
     parent: &str,
 ) {
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Owned(slug.to_owned()))),
+    });
+
     run_endpoint!(
         runner,
         parent_update,
         json!({
             "site_id": site_id,
             "child": slug,
+            "user_id": ADMIN_USER_ID,
             "add": [parent],
             "remove": null,
         }),
@@ -2144,7 +3437,7 @@ async fn page_query_orders_by_page_slug_without_category_prefix() {
         ("mcategory:gamma", "Page slug order gamma"),
     ] {
         let revision = create_listpages_test_page(
-            &runner,
+            &mut runner,
             site_id,
             slug,
             title,
@@ -2228,7 +3521,7 @@ async fn page_query_created_by_uses_earliest_available_revision() {
     let slug = "fixture-page-query-created-by-earliest";
 
     let revision_id = create_listpages_test_page(
-        &runner,
+        &mut runner,
         site_id,
         slug,
         "Fixture PageQuery CreatedBy Earliest",
@@ -2374,6 +3667,12 @@ async fn page_query_score_order_returns_results() {
         ("fixture-score-order-low", "Score Order Low", -2),
         ("fixture-score-order-zero", "Score Order Zero", 0),
     ] {
+        set_mutation_request_context(
+            &mut runner,
+            ADMIN_USER_ID,
+            site_id,
+            Reference::Slug(Cow::Borrowed(slug)),
+        );
         let output = run_endpoint!(
             runner,
             page_create,

@@ -25,7 +25,8 @@ use crate::services::parent::{
     GetParentRelationships, ParentDescription, RemoveParentOutput, UpdateParents,
     UpdateParentsOutput,
 };
-use crate::types::Reference;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::types::{Action, Permission, Reference, Resource};
 use futures::future::try_join_all;
 
 pub async fn parent_relationships_get(
@@ -85,6 +86,20 @@ pub async fn parent_set(
         input.parent, input.child, input.site_id,
     );
 
+    ensure_child_page_edit_permission(
+        ctx,
+        input.site_id,
+        input.child.clone(),
+        ctx.request().user_id,
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to check page parent create permission",
+            ErrorType::PageParent,
+        )
+    })?;
+
     ParentService::create(ctx, input).await.or_raise(|| {
         Error::new(
             "failed to create page parent relationship",
@@ -103,6 +118,20 @@ pub async fn parent_remove(
         "Removing parental relationship {:?} -> {:?} in site ID {}",
         input.parent, input.child, input.site_id,
     );
+
+    ensure_child_page_edit_permission(
+        ctx,
+        input.site_id,
+        input.child.clone(),
+        ctx.request().user_id,
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to check page parent remove permission",
+            ErrorType::PageParent,
+        )
+    })?;
 
     ParentService::remove(ctx, input).await.or_raise(|| {
         Error::new(
@@ -149,6 +178,7 @@ pub async fn parent_update(
     params: Params<'static>,
 ) -> Result<UpdateParentsOutput> {
     let input: UpdateParents = parse!(params, PageParent);
+    let permission_user_id = ctx.request().user_id;
 
     info!(
         "Updating multiple parental relationships for child {:?} in site ID {}",
@@ -161,6 +191,15 @@ pub async fn parent_update(
             ErrorType::PageParent,
         )
     };
+
+    ensure_child_page_edit_permission(
+        ctx,
+        input.site_id,
+        input.child.clone(),
+        permission_user_id,
+    )
+    .await
+    .or_raise(make_error)?;
 
     let creation = match input.add {
         Some(parents) => {
@@ -215,4 +254,48 @@ pub async fn parent_update(
         added: creation,
         removed: removal,
     })
+}
+
+async fn ensure_child_page_edit_permission<'a>(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    child: Reference<'a>,
+    user_id: Option<i64>,
+) -> Result<()> {
+    let make_error = || {
+        Error::new(
+            "failed to check child page edit permission",
+            ErrorType::Permission,
+        )
+    };
+
+    let page = PageService::get(ctx, site_id, child)
+        .await
+        .or_raise(make_error)?;
+
+    let can_edit = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id,
+            site_id,
+            page_reference: Some(Reference::Id(page.page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(page.page_category_id)),
+            action: Action::Edit,
+        },
+    )
+    .await
+    .or_raise(make_error)?;
+
+    if can_edit {
+        Ok(())
+    } else {
+        Err(Error::new(
+            "user does not have permission to edit this child page",
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
 }
