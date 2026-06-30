@@ -29,7 +29,7 @@ use crate::services::page_query::{
     CategoriesSelector, DataFormSelector, DateSelector, FoundPageFields, FoundPageRow,
     FoundPages, IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector,
     PageQuery, PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
-    parse_static_wikidot_data_form_values,
+    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
@@ -3549,14 +3549,27 @@ impl RenderService {
         let pages = if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
-            Self::current_page_list_pages_row(
+            let pages = Self::current_page_list_pages_row(
                 ctx,
                 current_site_id,
                 current_page_id,
                 page_info,
                 &query.fields,
             )
-            .await?
+            .await?;
+            if data_form_fields.is_empty()
+                || Self::current_page_matches_data_form_fields(
+                    ctx,
+                    current_site_id,
+                    current_page_id,
+                    &data_form_fields,
+                )
+                .await?
+            {
+                pages
+            } else {
+                FoundPages { pages: Vec::new() }
+            }
         } else if current_page_only {
             FoundPages { pages: Vec::new() }
         } else {
@@ -3988,6 +4001,26 @@ impl RenderService {
         })
     }
 
+    async fn current_page_matches_data_form_fields(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+        data_form_fields: &[DataFormSelector<'_>],
+    ) -> Result<bool> {
+        let Some(wikitext) = PageRevisionService::get_wikitext_optional(
+            ctx,
+            current_site_id,
+            Reference::Id(current_page_id),
+        )
+        .await?
+        else {
+            return Ok(false);
+        };
+
+        let values = parse_static_wikidot_data_form_values(&wikitext);
+        Ok(static_wikidot_data_form_matches(&values, data_form_fields))
+    }
+
     async fn load_wikidot_user_displays(
         ctx: &ServiceContext<'_>,
         pages: &[FoundPageRow],
@@ -4228,7 +4261,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut unsupported_count_pages_filter = false;
 
     for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
-        let key = captures["key"].to_ascii_lowercase();
+        let raw_key = &captures["key"];
+        let key = raw_key.to_ascii_lowercase();
         let value = captures
             .name("double")
             .or_else(|| captures.name("single"))
@@ -4422,17 +4456,16 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 // out of FTML's generic module path, which otherwise panics on
                 // ListPages bodies that start with numbered-list markers.
             }
-            _ if key.starts_with('_') => {
-                let Some(value) = static_list_pages_selector(
+            _ if raw_key.starts_with('_') => {
+                let value = static_list_pages_selector(
                     value,
                     &mut unsupported_count_pages_filter,
-                ) else {
-                    continue;
-                };
-                let field = key.trim_start_matches('_');
+                )?;
+                let field = raw_key
+                    .strip_prefix('_')
+                    .expect("data form selector should start with an underscore");
                 if field.is_empty() || is_dynamic_list_pages_value(value) {
-                    unsupported_count_pages_filter = true;
-                    continue;
+                    return None;
                 }
                 data_form_fields.push(DataFormSelector {
                     field: Cow::Owned(field.to_owned()),
@@ -4683,49 +4716,20 @@ fn parse_list_pages_page_type(value: &str) -> Option<PageTypeSelector> {
 fn list_pages_body_variables_supported(body: &str) -> bool {
     LISTPAGES_VARIABLE_REGEX
         .captures_iter(body)
-        .all(|captures| {
-            matches!(
-                captures["name"].to_ascii_lowercase().as_str(),
-                "title_linked"
-                    | "linked_title"
-                    | "title"
-                    | "name"
-                    | "slug"
-                    | "page_unix_name"
-                    | "fullname"
-                    | "full_slug"
-                    | "link"
-                    | "created_by"
-                    | "createdby"
-                    | "created_by_linked"
-                    | "createdbylinked"
-                    | "author"
-                    | "created_at"
-                    | "createdat"
-                    | "date"
-                    | "updated_by"
-                    | "updatedby"
-                    | "updated_at"
-                    | "updatedat"
-                    | "commented_at"
-                    | "commentedat"
-                    | "commented_by"
-                    | "commentedby"
-                    | "rating"
-                    | "rating_votes"
-                    | "ratingvotes"
-                    | "comments"
-                    | "tags"
-                    | "tags_linked"
-                    | "tagslinked"
-                    | "form_data"
-                    | "form_raw"
-                    | "content"
-                    | "index"
-                    | "total"
-                    | "limit"
-            )
-        })
+        .all(
+            |captures| match captures["name"].to_ascii_lowercase().as_str() {
+                "title_linked" | "linked_title" | "title" | "name" | "slug"
+                | "page_unix_name" | "fullname" | "full_slug" | "link" | "created_by"
+                | "createdby" | "created_by_linked" | "createdbylinked" | "author"
+                | "created_at" | "createdat" | "date" | "updated_by" | "updatedby"
+                | "updated_at" | "updatedat" | "commented_at" | "commentedat"
+                | "commented_by" | "commentedby" | "rating" | "rating_votes"
+                | "ratingvotes" | "comments" | "tags" | "tags_linked" | "tagslinked"
+                | "content" | "index" | "total" | "limit" => true,
+                "form_data" | "form_raw" => captures.name("argument").is_some(),
+                _ => false,
+            },
+        )
 }
 
 fn unsupported_list_pages_replacement(module_source: &str, body: &str) -> String {
@@ -5974,6 +5978,7 @@ mod tests {
     use crate::models::site::Model as SiteModel;
     use crate::services::page_query::{
         DataFormSelector, FoundPageRow, parse_static_wikidot_data_form_values,
+        static_wikidot_data_form_matches,
     };
     use crate::types::License;
     use crate::utils::now;
@@ -6206,7 +6211,7 @@ mod tests {
     #[test]
     fn parses_static_data_form_selectors() {
         let arguments = parse_list_pages_arguments(
-            r#" category="codexdftdft01" _codexkind="alpha" _codexflag!="missing" order="titleAsc" limit="20" separate="false""#,
+            r#" category="codexdftdft01" _codexkind="alpha" _codexflag!="missing" _Status="open" __private="yes" order="titleAsc" limit="20" separate="false""#,
         )
         .expect("static data-form selectors should parse");
 
@@ -6223,7 +6228,21 @@ mod tests {
                     value: Cow::Borrowed("missing"),
                     negated: true,
                 },
+                DataFormSelector {
+                    field: Cow::Borrowed("Status"),
+                    value: Cow::Borrowed("open"),
+                    negated: false,
+                },
+                DataFormSelector {
+                    field: Cow::Borrowed("_private"),
+                    value: Cow::Borrowed("yes"),
+                    negated: false,
+                },
             ],
+        );
+        assert!(
+            parse_list_pages_arguments(r#" _status="@URL""#).is_none(),
+            "dynamic data-form selectors should remain unsupported instead of being dropped"
         );
     }
 
@@ -6545,6 +6564,32 @@ mod tests {
         assert_eq!(values.get("status").map(String::as_str), Some("published"));
         assert_eq!(values.get("owner").map(String::as_str), Some("codex"));
         assert!(!values.contains_key("ignored"));
+
+        assert!(!static_wikidot_data_form_matches(
+            &values,
+            &[DataFormSelector {
+                field: Cow::Borrowed("missing"),
+                value: Cow::Borrowed(""),
+                negated: false,
+            }],
+        ));
+        assert!(!static_wikidot_data_form_matches(
+            &values,
+            &[DataFormSelector {
+                field: Cow::Borrowed("missing"),
+                value: Cow::Borrowed("closed"),
+                negated: true,
+            }],
+        ));
+    }
+
+    #[test]
+    fn form_list_pages_variables_require_field_arguments() {
+        assert!(list_pages_body_variables_supported(
+            "%%form_raw{codexkind}%% %%form_data{codexflag}%%"
+        ));
+        assert!(!list_pages_body_variables_supported("%%form_raw%%"));
+        assert!(!list_pages_body_variables_supported("%%form_data%%"));
     }
 
     #[test]

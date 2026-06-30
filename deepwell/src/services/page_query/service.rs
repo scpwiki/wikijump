@@ -784,14 +784,7 @@ async fn filter_pages_by_data_form_fields(
                 .map(|wikitext| parse_static_wikidot_data_form_values(wikitext))
                 .unwrap_or_default();
 
-            selectors.iter().all(|selector| {
-                let actual = values
-                    .get(selector.field.as_ref())
-                    .map(String::as_str)
-                    .unwrap_or_default();
-                let matches = actual == selector.value.as_ref();
-                matches != selector.negated
-            })
+            static_wikidot_data_form_matches(&values, selectors)
         })
         .collect())
 }

@@ -181,6 +181,19 @@ pub fn parse_static_wikidot_data_form_values(wikitext: &str) -> BTreeMap<String,
     values
 }
 
+pub fn static_wikidot_data_form_matches(
+    values: &BTreeMap<String, String>,
+    selectors: &[DataFormSelector<'_>],
+) -> bool {
+    selectors.iter().all(|selector| {
+        let Some(actual) = values.get(selector.field.as_ref()).map(String::as_str) else {
+            return false;
+        };
+        let matches = actual == selector.value.as_ref();
+        matches != selector.negated
+    })
+}
+
 fn unquote_static_wikidot_data_form_value(value: &str) -> &str {
     if value.len() >= 2 {
         let first = value.as_bytes()[0];
