@@ -22,8 +22,6 @@ on:
         type: number
 
 permissions:
-  # Required to read commit metadata used when resolving head arrival time.
-  contents: read
   # Required to read PR metadata and review records.
   pull-requests: read
   # Required to read PR issue comments used as review markers.
@@ -264,7 +262,7 @@ jobs:
               return markers;
             }
 
-            function resolveHeadArrivalTime(timeline, statuses, headSha, headCommit) {
+            function resolveHeadArrivalTime(timeline, statuses, headSha) {
               const candidateTimes = [];
               for (let index = 0; index < timeline.length; index += 1) {
                 const event = timeline[index];
@@ -295,12 +293,6 @@ jobs:
               if (parsedTimes.length > 0) {
                 return new Date(Math.max(...parsedTimes.map((value) => value.getTime())));
               }
-              const commitTime = parseTimestamp(
-                headCommit?.commit?.committer?.date || headCommit?.commit?.author?.date,
-              );
-              if (commitTime !== null) {
-                return new Date(commitTime);
-              }
               const statusTimes = statuses
                 .filter((status) => status.context !== gateContext)
                 .map((status) => new Date(status.created_at))
@@ -318,7 +310,7 @@ jobs:
                 pull_number: pullNumber,
               });
               const headSha = pull.head.sha;
-              const [reviews, comments, statuses, timeline, headCommit] = await Promise.all([
+              const [reviews, comments, statuses, timeline] = await Promise.all([
                 github.paginate(github.rest.pulls.listReviews, {
                   owner,
                   repo,
@@ -343,11 +335,6 @@ jobs:
                   issue_number: pullNumber,
                   per_page: 100,
                 }),
-                github.rest.repos.getCommit({
-                  owner,
-                  repo,
-                  ref: headSha,
-                }).then((response) => response.data),
               ]);
 
               await Promise.all(
@@ -363,7 +350,7 @@ jobs:
                 reviews,
                 comments,
                 statuses,
-                headArrivedAt: resolveHeadArrivalTime(timeline, statuses, headSha, headCommit),
+                headArrivedAt: resolveHeadArrivalTime(timeline, statuses, headSha),
               };
             }
 
@@ -485,27 +472,9 @@ jobs:
               const latestActionableEvidence = headEvidence
                 .filter((evidence) => evidence.actionableCount !== null)
                 .at(-1);
-              const pendingStatusAt =
-                coderabbitStatus?.state === "pending"
-                  ? parseTimestamp(coderabbitStatus.created_at)
-                  : null;
-              const latestActionableAt = latestActionableEvidence
-                ? parseTimestamp(latestActionableEvidence.submittedAt)
-                : null;
-              const newerPendingReview =
-                pendingStatusAt !== null &&
-                (latestActionableAt === null || latestActionableAt < pendingStatusAt);
-              if ((latestActionableEvidence?.actionableCount || 0) > 0 && !newerPendingReview) {
-                return {
-                  ready: false,
-                  terminal: true,
-                  message: `CodeRabbit posted ${latestActionableEvidence.actionableCount} actionable comment(s) for latest head ${shortHead}; push fixes and wait for a clean review.`,
-                };
-              }
-
               const description = coderabbitStatus?.description || "";
               const statusCreatedAt = coderabbitStatus
-                ? new Date(coderabbitStatus.created_at).getTime()
+                ? parseTimestamp(coderabbitStatus.created_at)
                 : null;
               const relatedRateLimitComments = comments
                 .filter((comment) => coderabbitLogins.has(comment.user?.login))
@@ -517,11 +486,41 @@ jobs:
                   if (statusCreatedAt === null) {
                     return false;
                   }
-                  return new Date(comment.created_at).getTime() >= statusCreatedAt - 60 * 1000;
+                  const commentAt = parseTimestamp(comment.created_at);
+                  return commentAt !== null && commentAt >= statusCreatedAt - 60 * 1000;
                 });
               const rateLimited =
                 rateLimitPattern.test(description) ||
                 relatedRateLimitComments.some((comment) => rateLimitPattern.test(comment.body || ""));
+              const latestActionableAt = latestActionableEvidence
+                ? parseTimestamp(latestActionableEvidence.submittedAt)
+                : null;
+              const statusNewerThanActionable =
+                statusCreatedAt !== null &&
+                (latestActionableAt === null || latestActionableAt < statusCreatedAt);
+              const newerPendingReview =
+                (latestActionableEvidence?.actionableCount || 0) > 0 &&
+                coderabbitStatus?.state === "pending" &&
+                statusNewerThanActionable &&
+                !rateLimited;
+              const newerSuccessfulReviewNeedsSummary =
+                (latestActionableEvidence?.actionableCount || 0) > 0 &&
+                coderabbitStatus?.state === "success" &&
+                statusNewerThanActionable;
+              if (newerSuccessfulReviewNeedsSummary) {
+                return {
+                  ready: false,
+                  terminal: false,
+                  message: `Waiting for CodeRabbit review summary for latest head ${shortHead}.`,
+                };
+              }
+              if ((latestActionableEvidence?.actionableCount || 0) > 0 && !newerPendingReview) {
+                return {
+                  ready: false,
+                  terminal: true,
+                  message: `CodeRabbit posted ${latestActionableEvidence.actionableCount} actionable comment(s) for latest head ${shortHead}; push fixes and wait for a clean review.`,
+                };
+              }
 
               if (!coderabbitStatus) {
                 if (latestActionableEvidence?.actionableCount === 0) {
