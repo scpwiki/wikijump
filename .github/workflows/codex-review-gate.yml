@@ -694,7 +694,7 @@ jobs:
                 return { ok: true };
               }
 
-              const deadline = Date.now() + maxWaitMs;
+              let deadline = Date.now() + maxWaitMs;
               let lastMessage = "";
               while (true) {
                 const { pull, reviews, comments, statuses, headArrival } =
@@ -712,6 +712,7 @@ jobs:
                 }
                 if (gateSha !== headSha) {
                   gateSha = headSha;
+                  deadline = Date.now() + maxWaitMs;
                   if (waitForReviews) {
                     await setGateStatus("pending", "Waiting for automated reviews");
                   }
