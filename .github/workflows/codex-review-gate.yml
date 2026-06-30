@@ -207,7 +207,7 @@ jobs:
               return Number.isNaN(timestamp) ? null : timestamp;
             }
 
-            function collectCodexReviewMarkers(reviews, comments, headSha, headArrivedAt) {
+            function collectCodexReviewMarkers(reviews, comments, headSha, headArrival) {
               const markers = reviews
                 .filter((review) => codexLogins.has(review.user?.login))
                 .filter((review) => review.state !== "DISMISSED")
@@ -233,9 +233,14 @@ jobs:
                 if (!/@codex\s+review\b/i.test(comment.body || "")) {
                   continue;
                 }
-                const requestAt = parseTimestamp(comment.updated_at || comment.created_at);
-                const headAt = parseTimestamp(headArrivedAt);
-                if (headAt === null || requestAt === null || requestAt < headAt) {
+                const requestAt = parseTimestamp(comment.created_at);
+                const headAt = parseTimestamp(headArrival?.time);
+                const fallbackGraceMs = headArrival?.source === "status" ? 2 * 60 * 1000 : 0;
+                const requestMayReferToHead =
+                  headAt !== null &&
+                  requestAt !== null &&
+                  requestAt >= headAt - fallbackGraceMs;
+                if (!requestMayReferToHead) {
                   continue;
                 }
                 const reactions = comment._reactions || [];
@@ -294,14 +299,20 @@ jobs:
                 .map((value) => new Date(value))
                 .filter((value) => !Number.isNaN(value.getTime()));
               if (parsedTimes.length > 0) {
-                return new Date(Math.max(...parsedTimes.map((value) => value.getTime())));
+                return {
+                  source: "timeline",
+                  time: new Date(Math.max(...parsedTimes.map((value) => value.getTime()))),
+                };
               }
               const statusTimes = statuses
                 .filter((status) => status.context !== gateContext)
                 .map((status) => new Date(status.created_at))
                 .filter((value) => !Number.isNaN(value.getTime()));
               if (statusTimes.length > 0) {
-                return new Date(Math.min(...statusTimes.map((value) => value.getTime())));
+                return {
+                  source: "status",
+                  time: new Date(Math.min(...statusTimes.map((value) => value.getTime()))),
+                };
               }
               return null;
             }
@@ -353,7 +364,7 @@ jobs:
                 reviews,
                 comments,
                 statuses,
-                headArrivedAt: resolveHeadArrivalTime(timeline, statuses, headSha),
+                headArrival: resolveHeadArrivalTime(timeline, statuses, headSha),
               };
             }
 
@@ -502,6 +513,10 @@ jobs:
               const statusNewerThanActionable =
                 statusCreatedAt !== null &&
                 (latestActionableAt === null || latestActionableAt < statusCreatedAt);
+              const actionableNearStatus =
+                statusCreatedAt !== null &&
+                latestActionableAt !== null &&
+                Math.abs(statusCreatedAt - latestActionableAt) <= 2 * 60 * 1000;
               const newerPendingReview =
                 hasActionableFindings &&
                 coderabbitStatus?.state === "pending" &&
@@ -510,7 +525,8 @@ jobs:
               const newerSuccessfulReviewNeedsSummary =
                 hasActionableFindings &&
                 coderabbitStatus?.state === "success" &&
-                statusNewerThanActionable;
+                statusNewerThanActionable &&
+                !actionableNearStatus;
               if (newerSuccessfulReviewNeedsSummary) {
                 return {
                   ready: false,
@@ -594,12 +610,12 @@ jobs:
               };
             }
 
-            function evaluateCodex(reviews, comments, headSha, shortHead, headArrivedAt) {
+            function evaluateCodex(reviews, comments, headSha, shortHead, headArrival) {
               const codexMarkers = collectCodexReviewMarkers(
                 reviews,
                 comments,
                 headSha,
-                headArrivedAt,
+                headArrival,
               );
               const headCodexMarkers = codexMarkers.filter((marker) =>
                 matchesHead(headSha, marker.reviewedSha),
@@ -644,7 +660,7 @@ jobs:
               const deadline = Date.now() + maxWaitMs;
               let lastMessage = "";
               while (true) {
-                const { pull, reviews, comments, statuses, headArrivedAt } =
+                const { pull, reviews, comments, statuses, headArrival } =
                   await fetchPullState(eventPull.number);
                 const headSha = pull.head.sha;
                 const shortHead = headSha.slice(0, 10);
@@ -667,7 +683,7 @@ jobs:
                   comments,
                   headSha,
                   shortHead,
-                  headArrivedAt,
+                  headArrival,
                 );
                 const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
 
