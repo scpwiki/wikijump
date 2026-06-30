@@ -186,7 +186,29 @@ jobs:
                   direction: "desc",
                   per_page: 100,
                 });
-                return pulls;
+                const pullsNeedingRefresh = [];
+                for (const pull of pulls) {
+                  if (pull.draft) {
+                    continue;
+                  }
+                  const statuses = await github.paginate(github.rest.repos.listCommitStatusesForRef, {
+                    owner,
+                    repo,
+                    ref: pull.head.sha,
+                    per_page: 100,
+                  });
+                  const latestGateStatus = statuses
+                    .filter((status) => status.context === gateContext)
+                    .sort((left, right) => new Date(right.created_at) - new Date(left.created_at))[0];
+                  if (
+                    latestGateStatus?.state === "success" &&
+                    latestGateStatus?.description === "Automated reviews completed"
+                  ) {
+                    continue;
+                  }
+                  pullsNeedingRefresh.push(pull);
+                }
+                return pullsNeedingRefresh;
               }
 
               return [];
@@ -233,14 +255,20 @@ jobs:
                 if (!/@codex\s+review\b/i.test(comment.body || "")) {
                   continue;
                 }
-                const requestAt = parseTimestamp(comment.created_at);
+                const createdAt = parseTimestamp(comment.created_at);
+                const updatedAt = parseTimestamp(comment.updated_at);
                 const headAt = parseTimestamp(headArrival?.time);
                 const fallbackGraceMs = headArrival?.source === "status" ? 2 * 60 * 1000 : 0;
-                const requestMayReferToHead =
+                const createdAfterHead =
+                  createdAt !== null && headAt !== null && createdAt >= headAt - fallbackGraceMs;
+                const editedAfterHead =
+                  updatedAt !== null &&
+                  createdAt !== null &&
+                  updatedAt > createdAt &&
                   headAt !== null &&
-                  requestAt !== null &&
-                  requestAt >= headAt - fallbackGraceMs;
-                if (!requestMayReferToHead) {
+                  updatedAt >= headAt - fallbackGraceMs;
+                const requestAt = createdAfterHead ? createdAt : editedAfterHead ? updatedAt : null;
+                if (requestAt === null) {
                   continue;
                 }
                 const reactions = comment._reactions || [];
