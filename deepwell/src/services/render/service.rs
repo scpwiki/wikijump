@@ -26,9 +26,10 @@ use crate::models::site::Model as SiteModel;
 use crate::models::user::{self, Entity as UserTable};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::page_query::{
-    CategoriesSelector, DateSelector, FoundPageFields, FoundPageRow, FoundPages,
-    IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    CategoriesSelector, DataFormSelector, DateSelector, FoundPageFields, FoundPageRow,
+    FoundPages, IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector,
+    PageQuery, PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    parse_static_wikidot_data_form_values,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
@@ -116,12 +117,12 @@ static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     .unwrap()
 });
 static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)(?P<key>[A-Za-z][A-Za-z0-9_\-]*)\s*=\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
+    Regex::new(r#"(?is)(?P<key>[A-Za-z_][A-Za-z0-9_\-]*)\s*(?P<op>!?=)\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
         .unwrap()
 });
 static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r"%%(?P<name>[A-Za-z0-9_]+)(?:\{(?P<section>[0-9]+)\})?(?:\|(?P<format>.*?))?%%",
+        r"%%(?P<name>[A-Za-z0-9_]+)(?:\{(?P<argument>[A-Za-z0-9_-]+)\})?(?:\|(?P<format>.*?))?%%",
     )
     .unwrap()
 });
@@ -3427,6 +3428,7 @@ impl RenderService {
             page_type,
             page_parent,
             slug,
+            data_form_fields,
             prepend_line,
             unsupported_count_pages_filter: _,
         } = arguments;
@@ -3517,7 +3519,7 @@ impl RenderService {
             range: RangeSelector::Current,
             name: None,
             slug,
-            data_form_fields: &[],
+            data_form_fields: &data_form_fields,
             order,
             pagination: PaginationSelector {
                 limit: Some(MAX_LISTPAGES_RENDER_LIMIT),
@@ -3582,9 +3584,11 @@ impl RenderService {
         }
 
         let wants_content = list_pages_body_uses_content_variable(body);
+        let wants_data_form_values = list_pages_body_uses_variable(body, "form_data")
+            || list_pages_body_uses_variable(body, "form_raw");
         for (index, page) in pages.iter().enumerate() {
             output.push_str("[[div class=\"list-pages-item\"]]\n");
-            let page_wikitext = if wants_content {
+            let page_wikitext = if wants_content || wants_data_form_values {
                 PageRevisionService::get_wikitext_optional(
                     ctx,
                     page.site_id,
@@ -3594,6 +3598,14 @@ impl RenderService {
             } else {
                 None
             };
+            let data_form_values = if wants_data_form_values {
+                page_wikitext
+                    .as_deref()
+                    .map(parse_static_wikidot_data_form_values)
+                    .unwrap_or_default()
+            } else {
+                BTreeMap::new()
+            };
             let body = substitute_list_pages_variables(
                 body,
                 page,
@@ -3602,6 +3614,7 @@ impl RenderService {
                 requested_limit as usize,
                 &user_displays,
                 page_wikitext.as_deref(),
+                &data_form_values,
             );
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
@@ -3643,6 +3656,7 @@ impl RenderService {
             page_parent,
             slug,
             prepend_line: _,
+            data_form_fields,
             unsupported_count_pages_filter: _,
         } = arguments;
         any_tags.extend(default_tags);
@@ -3718,7 +3732,7 @@ impl RenderService {
             range: RangeSelector::Current,
             name: None,
             slug,
-            data_form_fields: &[],
+            data_form_fields: &data_form_fields,
             order,
             pagination: PaginationSelector {
                 limit: Some(
@@ -4167,6 +4181,7 @@ struct ListPagesArguments {
     page_type: PageTypeSelector,
     page_parent: PageParentSelector<'static>,
     slug: Option<Cow<'static, str>>,
+    data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
     unsupported_count_pages_filter: bool,
 }
@@ -4195,6 +4210,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut page_type = PageTypeSelector::Normal;
     let mut page_parent = PageParentSelector::All;
     let mut slug = None;
+    let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
     let mut unsupported_count_pages_filter = false;
 
@@ -4207,6 +4223,11 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
             .unwrap()
             .as_str()
             .trim();
+        if captures.name("op").map_or("=", |matched| matched.as_str()) != "="
+            && !key.starts_with('_')
+        {
+            return None;
+        }
 
         match key.as_str() {
             "tags" => {
@@ -4388,6 +4409,24 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 // out of FTML's generic module path, which otherwise panics on
                 // ListPages bodies that start with numbered-list markers.
             }
+            _ if key.starts_with('_') => {
+                let Some(value) = static_list_pages_selector(
+                    value,
+                    &mut unsupported_count_pages_filter,
+                ) else {
+                    continue;
+                };
+                let field = key.trim_start_matches('_');
+                if field.is_empty() || is_dynamic_list_pages_value(value) {
+                    unsupported_count_pages_filter = true;
+                    continue;
+                }
+                data_form_fields.push(DataFormSelector {
+                    field: Cow::Owned(field.to_owned()),
+                    value: Cow::Owned(value.to_owned()),
+                    negated: &captures["op"] == "!=",
+                });
+            }
             _ => return None,
         }
     }
@@ -4411,6 +4450,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         page_type,
         page_parent,
         slug,
+        data_form_fields,
         prepend_line,
         unsupported_count_pages_filter,
     })
@@ -4441,6 +4481,7 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
                 || !arguments.no_tags.is_empty()
                 || !arguments.authors.is_empty()
                 || !arguments.excluded_categories.is_empty()
+                || !arguments.data_form_fields.is_empty()
                 || arguments.slug.is_some()))
 }
 
@@ -4453,6 +4494,7 @@ fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
         || arguments.page_type != PageTypeSelector::Normal
         || arguments.page_parent != PageParentSelector::All
         || arguments.slug.is_some()
+        || !arguments.data_form_fields.is_empty()
 }
 
 fn should_render_current_page_list_pages_row(
@@ -4663,6 +4705,8 @@ fn list_pages_body_variables_supported(body: &str) -> bool {
                     | "tags"
                     | "tags_linked"
                     | "tagslinked"
+                    | "form_data"
+                    | "form_raw"
                     | "content"
                     | "index"
                     | "total"
@@ -4733,6 +4777,7 @@ fn substitute_list_pages_variables(
     rendered_limit: usize,
     user_displays: &BTreeMap<i64, WikidotUserDisplay>,
     page_wikitext: Option<&str>,
+    data_form_values: &BTreeMap<String, String>,
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
     let title = page.title.as_deref().unwrap_or(slug);
@@ -4801,12 +4846,17 @@ fn substitute_list_pages_variables(
                 "comments" => String::new(),
                 "tags" => tags_text.clone(),
                 "tags_linked" | "tagslinked" => tags_linked.clone(),
+                "form_data" | "form_raw" => captures
+                    .name("argument")
+                    .and_then(|matched| data_form_values.get(matched.as_str()))
+                    .cloned()
+                    .unwrap_or_default(),
                 "content" => page_wikitext
                     .map(|wikitext| {
                         wikidot_content_section(
                             wikitext,
                             captures
-                                .name("section")
+                                .name("argument")
                                 .and_then(|matched| matched.as_str().parse().ok()),
                         )
                     })
@@ -5902,7 +5952,9 @@ mod tests {
     use crate::config::Config;
     use crate::constants::ADMIN_USER_ID;
     use crate::models::site::Model as SiteModel;
-    use crate::services::page_query::FoundPageRow;
+    use crate::services::page_query::{
+        DataFormSelector, FoundPageRow, parse_static_wikidot_data_form_values,
+    };
     use crate::types::License;
     use crate::utils::now;
     use ftml::data::PageRef;
@@ -6118,6 +6170,30 @@ mod tests {
     }
 
     #[test]
+    fn parses_static_data_form_selectors() {
+        let arguments = parse_list_pages_arguments(
+            r#" category="codexdftdft01" _codexkind="alpha" _codexflag!="missing" order="titleAsc" limit="20" separate="false""#,
+        )
+        .expect("static data-form selectors should parse");
+
+        assert_eq!(
+            arguments.data_form_fields,
+            vec![
+                DataFormSelector {
+                    field: Cow::Borrowed("codexkind"),
+                    value: Cow::Borrowed("alpha"),
+                    negated: false,
+                },
+                DataFormSelector {
+                    field: Cow::Borrowed("codexflag"),
+                    value: Cow::Borrowed("missing"),
+                    negated: true,
+                },
+            ],
+        );
+    }
+
+    #[test]
     fn parses_corpus_list_pages_created_by_argument() {
         let source = r#"[[module ListPages created_by="[Congy]" separate="no"]]%%title_linked%%[[/module]]"#;
         let captures = LISTPAGES_MODULE_REGEX
@@ -6314,6 +6390,7 @@ mod tests {
             20,
             &BTreeMap::new(),
             None,
+            &BTreeMap::new(),
         );
 
         assert_eq!(
@@ -6373,9 +6450,49 @@ mod tests {
             20,
             &BTreeMap::new(),
             Some(wikitext),
+            &BTreeMap::new(),
         );
 
         assert_eq!(rendered, "**SCP-2693 -- Hidden title text**");
+    }
+
+    #[test]
+    fn substitutes_static_wikidot_data_form_variables() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Codex data form fixture".to_owned()),
+            alt_title: None,
+            slug: Some("codex-data-form-fixture".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let values = parse_static_wikidot_data_form_values(
+            "codexkind: alpha\ncodexflag: 'df-red'\ncodex-hyphen: ok\n",
+        );
+
+        assert!(list_pages_body_variables_supported(
+            "%%title%% %%form_raw{codexkind}%% %%form_data{codexflag}%% %%form_raw{codex-hyphen}%%"
+        ));
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%title%% %%form_raw{codexkind}%% %%form_data{codexflag}%% %%form_raw{codex-hyphen}%%",
+                &page,
+                1,
+                1,
+                20,
+                &BTreeMap::new(),
+                None,
+                &values,
+            ),
+            "Codex data form fixture alpha df-red ok",
+        );
     }
 
     #[test]
@@ -6556,6 +6673,7 @@ mod tests {
             20,
             &users,
             None,
+            &BTreeMap::new(),
         );
 
         assert!(rendered.contains("Codex virtual Wikidot DOM 001"));
@@ -6576,6 +6694,7 @@ mod tests {
             20,
             &users,
             None,
+            &BTreeMap::new(),
         );
         assert!(
             rendered.contains(r#"class="odate time_1782003564 format_%25r%7Cagohover""#)
@@ -6589,11 +6708,20 @@ mod tests {
             20,
             &users,
             None,
+            &BTreeMap::new(),
         );
         assert_eq!(rendered, "[/dom-001 Codex virtual Wikidot DOM 001]");
 
-        let rendered =
-            substitute_list_pages_variables("%%author%%", &page, 1, 1, 20, &users, None);
+        let rendered = substitute_list_pages_variables(
+            "%%author%%",
+            &page,
+            1,
+            1,
+            20,
+            &users,
+            None,
+            &BTreeMap::new(),
+        );
         assert!(rendered.contains("printuser avatarhover"));
         assert!(rendered.contains("user:info/scpaiueouiuiuiui"));
 
@@ -6609,6 +6737,7 @@ mod tests {
             20,
             &BTreeMap::new(),
             None,
+            &BTreeMap::new(),
         );
         assert_eq!(rendered, ADMIN_USER_ID.to_string());
         assert!(!rendered.contains("wikidot.com/user:info"));
@@ -6635,6 +6764,7 @@ mod tests {
             20,
             &local_users,
             None,
+            &BTreeMap::new(),
         );
         assert_eq!(rendered, "SeekGull / SeekGull");
         assert!(!rendered.contains("wikidot.com/user:info"));
@@ -6669,6 +6799,7 @@ mod tests {
                 20,
                 &BTreeMap::new(),
                 None,
+                &BTreeMap::new(),
             ),
             "2/7 limit=20 Codex fixture",
         );
@@ -6715,8 +6846,16 @@ mod tests {
         );
         assert!(list_pages_body_variables_supported(body));
 
-        let rendered =
-            substitute_list_pages_variables(body, &page, 1, 1, 20, &users, None);
+        let rendered = substitute_list_pages_variables(
+            body,
+            &page,
+            1,
+            1,
+            20,
+            &users,
+            None,
+            &BTreeMap::new(),
+        );
 
         assert!(rendered.contains("[/scp-2693 SCP-2693]"));
         assert!(rendered.contains("**Rating:** +42"));
