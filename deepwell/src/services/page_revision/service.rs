@@ -1107,6 +1107,7 @@ impl PageRevisionService {
                         .and_where(page_revision::Column::SiteId.eq(site_id))
                         .and_where(page_condition)
                         .order_by(page_revision::Column::RevisionNumber, Order::Desc)
+                        .limit(1)
                         .to_owned(),
                 ),
             )
