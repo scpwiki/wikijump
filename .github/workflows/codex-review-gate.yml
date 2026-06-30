@@ -495,16 +495,17 @@ jobs:
               const latestActionableAt = latestActionableEvidence
                 ? parseTimestamp(latestActionableEvidence.submittedAt)
                 : null;
+              const hasActionableFindings = (latestActionableEvidence?.actionableCount || 0) > 0;
               const statusNewerThanActionable =
                 statusCreatedAt !== null &&
                 (latestActionableAt === null || latestActionableAt < statusCreatedAt);
               const newerPendingReview =
-                (latestActionableEvidence?.actionableCount || 0) > 0 &&
+                hasActionableFindings &&
                 coderabbitStatus?.state === "pending" &&
                 statusNewerThanActionable &&
                 !rateLimited;
               const newerSuccessfulReviewNeedsSummary =
-                (latestActionableEvidence?.actionableCount || 0) > 0 &&
+                hasActionableFindings &&
                 coderabbitStatus?.state === "success" &&
                 statusNewerThanActionable;
               if (newerSuccessfulReviewNeedsSummary) {
@@ -514,7 +515,7 @@ jobs:
                   message: `Waiting for CodeRabbit review summary for latest head ${shortHead}.`,
                 };
               }
-              if ((latestActionableEvidence?.actionableCount || 0) > 0 && !newerPendingReview) {
+              if (hasActionableFindings && !newerPendingReview) {
                 return {
                   ready: false,
                   terminal: true,
@@ -530,7 +531,7 @@ jobs:
                     message: `CodeRabbit clean review evidence found for latest head ${shortHead}.`,
                   };
                 }
-                if (rateLimited) {
+                if (rateLimited && !hasActionableFindings) {
                   return {
                     ready: true,
                     terminal: false,
@@ -545,7 +546,7 @@ jobs:
               }
 
               if (coderabbitStatus.state === "pending") {
-                if (rateLimited) {
+                if (rateLimited && !hasActionableFindings) {
                   return {
                     ready: true,
                     terminal: false,
@@ -560,7 +561,7 @@ jobs:
               }
 
               if (coderabbitStatus.state !== "success") {
-                if (rateLimited) {
+                if (rateLimited && !hasActionableFindings) {
                   return {
                     ready: true,
                     terminal: false,
