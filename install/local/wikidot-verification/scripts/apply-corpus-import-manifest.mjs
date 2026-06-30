@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
+
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
 const DEFAULT_SITE_ID = 6000005;
@@ -324,7 +326,7 @@ function shellCreatePage(args, row, { replaceExistingRevision = false } = {}) {
   const bodyHash = textHashHex(args, bodyHtml);
   const title = fallbackTitle(row);
   const category = categoryName(row.fullname);
-  const canUseExisting = args.adoptExisting || replaceExistingRevision;
+  const canUseExisting = canReuseExistingPageForDbImport(args, { replaceExistingRevision });
   const sql = `
 CREATE TEMP TABLE corpus_shell_import_result (
   page_id BIGINT NOT NULL,
