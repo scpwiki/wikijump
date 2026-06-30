@@ -12,6 +12,8 @@ on:
   issue_comment:
     types: [created, edited, deleted]
   status:
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       pull_number:
@@ -54,6 +56,7 @@ jobs:
             const rateLimitPattern =
               /(review limit reached|prepaid credits|credits exhausted|usage credits|usage-based reviews|rate limit|next review available)/i;
             const reviewedCommitPattern = /Reviewed commit:\*\*\s*`([0-9a-f]{7,40})`/i;
+            const waitForReviews = context.eventName !== "schedule";
             const maxWaitMs = 15 * 60 * 1000;
             const pollMs = 30 * 1000;
             const gateContext = "automated-review-gate";
@@ -66,28 +69,80 @@ jobs:
               if (!gateSha) {
                 return false;
               }
-              try {
-                await github.rest.repos.createCommitStatus({
-                  owner,
-                  repo,
-                  sha: gateSha,
-                  state,
-                  context: gateContext,
-                  description: description.slice(0, 140),
-                  target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
-                });
-                return true;
-              } catch (error) {
-                if (error.status === 403) {
-                  throw new Error(`Unable to write ${gateContext} status for ${gateSha}: ${error.message}`);
+              for (let attempt = 1; attempt <= 3; attempt += 1) {
+                try {
+                  await github.rest.repos.createCommitStatus({
+                    owner,
+                    repo,
+                    sha: gateSha,
+                    state,
+                    context: gateContext,
+                    description: description.slice(0, 140),
+                    target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+                  });
+                  return true;
+                } catch (error) {
+                  if (error.status === 403) {
+                    throw new Error(`Unable to write ${gateContext} status for ${gateSha}: ${error.message}`);
+                  }
+                  const retryable = [500, 502, 503, 504].includes(error.status);
+                  if (!retryable || attempt === 3) {
+                    throw error;
+                  }
+                  core.warning(`Retrying ${gateContext} status write after GitHub API error: ${error.message}`);
+                  await sleep(1000 * attempt);
                 }
-                throw error;
               }
+              return false;
             }
 
-            async function resolvePullRequest() {
+            async function graphqlWithRetry(query, variables) {
+              for (let attempt = 1; attempt <= 3; attempt += 1) {
+                try {
+                  return await github.graphql(query, variables);
+                } catch (error) {
+                  const retryable =
+                    [500, 502, 503, 504].includes(error.status) ||
+                    /something went wrong/i.test(error.message || "");
+                  if (!retryable || attempt === 3) {
+                    throw error;
+                  }
+                  core.warning(`Retrying GraphQL request after GitHub API error: ${error.message}`);
+                  await sleep(1000 * attempt);
+                }
+              }
+              throw new Error("GraphQL request retry loop exhausted.");
+            }
+
+            async function listIssueCommentReactions(commentId) {
+              for (let attempt = 1; attempt <= 3; attempt += 1) {
+                try {
+                  return await github.paginate(
+                    github.rest.reactions.listForIssueComment,
+                    {
+                      owner,
+                      repo,
+                      comment_id: commentId,
+                      per_page: 100,
+                    },
+                  );
+                } catch (error) {
+                  const retryable =
+                    [500, 502, 503, 504].includes(error.status) ||
+                    /unexpected end of json|something went wrong/i.test(error.message || "");
+                  if (!retryable || attempt === 3) {
+                    throw error;
+                  }
+                  core.warning(`Retrying reaction read after GitHub API error: ${error.message}`);
+                  await sleep(1000 * attempt);
+                }
+              }
+              return [];
+            }
+
+            async function resolvePullRequests() {
               if (context.payload.pull_request) {
-                return context.payload.pull_request;
+                return [context.payload.pull_request];
               }
 
               if (context.payload.issue?.pull_request) {
@@ -96,7 +151,7 @@ jobs:
                   repo,
                   pull_number: context.payload.issue.number,
                 });
-                return pull;
+                return [pull];
               }
 
               if (context.eventName === "workflow_dispatch" && context.payload.inputs?.pull_number) {
@@ -105,7 +160,7 @@ jobs:
                   repo,
                   pull_number: Number(context.payload.inputs.pull_number),
                 });
-                return pull;
+                return [pull];
               }
 
               if (context.eventName === "status") {
@@ -118,13 +173,25 @@ jobs:
                     headers: { accept: "application/vnd.github+json" },
                   },
                 );
-                return (
+                const pull =
                   pulls.find((pull) => pull.state === "open" && pull.head.sha === context.payload.sha) ||
-                  null
-                );
+                  null;
+                return pull ? [pull] : [];
               }
 
-              return null;
+              if (context.eventName === "schedule") {
+                const pulls = await github.paginate(github.rest.pulls.list, {
+                  owner,
+                  repo,
+                  state: "open",
+                  sort: "updated",
+                  direction: "desc",
+                  per_page: 100,
+                });
+                return pulls;
+              }
+
+              return [];
             }
 
             function matchesHead(headSha, candidateSha) {
@@ -134,12 +201,18 @@ jobs:
               );
             }
 
+            function parseTimestamp(value) {
+              const timestamp = new Date(value || 0).getTime();
+              return Number.isNaN(timestamp) ? null : timestamp;
+            }
+
             function collectCodexReviewMarkers(reviews, comments, headSha, headArrivedAt) {
               const markers = reviews
                 .filter((review) => codexLogins.has(review.user?.login))
                 .filter((review) => review.state !== "DISMISSED")
                 .map((review) => ({
                   source: "review",
+                  state: review.state,
                   submittedAt: review.submitted_at,
                   reviewedSha:
                     review.commit_id || (review.body || "").match(reviewedCommitPattern)?.[1] || null,
@@ -159,14 +232,23 @@ jobs:
                 if (!/@codex\s+review\b/i.test(comment.body || "")) {
                   continue;
                 }
+                const requestAt = parseTimestamp(comment.updated_at || comment.created_at);
+                const headAt = parseTimestamp(headArrivedAt);
+                if (headAt === null || requestAt === null || requestAt < headAt) {
+                  continue;
+                }
                 const reactions = comment._reactions || [];
                 const cleanCodexReaction = reactions
-                  .filter(
-                    (reaction) =>
+                  .filter((reaction) => {
+                    const reactionAt = parseTimestamp(reaction.created_at);
+                    return (
                       reaction.content === "+1" &&
                       codexLogins.has(reaction.user?.login) &&
-                      new Date(reaction.created_at) >= headArrivedAt,
-                  )
+                      reactionAt !== null &&
+                      reactionAt >= headAt &&
+                      reactionAt >= requestAt
+                    );
+                  })
                   .sort((left, right) => new Date(left.created_at) - new Date(right.created_at))
                   .at(-1);
                 if (cleanCodexReaction) {
@@ -182,47 +264,51 @@ jobs:
               return markers;
             }
 
-            function resolveHeadArrivalTime(timeline, headSha, pull, commit) {
-              const candidateTimes = timeline
-                .map((event) => {
-                  if (
-                    event.event === "head_ref_force_pushed" &&
-                    event.created_at &&
-                    matchesHead(headSha, event.commit_id)
-                  ) {
-                    return event.created_at;
+            function resolveHeadArrivalTime(timeline, statuses, headSha, headCommit) {
+              const candidateTimes = [];
+              for (let index = 0; index < timeline.length; index += 1) {
+                const event = timeline[index];
+                if (
+                  event.event === "head_ref_force_pushed" &&
+                  event.created_at &&
+                  matchesHead(headSha, event.commit_id)
+                ) {
+                  candidateTimes.push(event.created_at);
+                }
+                if (event.event === "committed" && matchesHead(headSha, event.sha)) {
+                  if (event.created_at || event.verification?.verified_at) {
+                    candidateTimes.push(event.created_at || event.verification.verified_at);
+                    continue;
                   }
-                  if (event.event === "committed" && matchesHead(headSha, event.sha)) {
-                    return (
-                      event.created_at ||
-                      event.verification?.verified_at ||
-                      event.committer?.date ||
-                      event.author?.date ||
-                      null
-                    );
+                  const nextTimestampedEvent = timeline
+                    .slice(index + 1)
+                    .find((candidate) => candidate.created_at);
+                  if (nextTimestampedEvent) {
+                    candidateTimes.push(nextTimestampedEvent.created_at);
                   }
-                  return null;
-                })
+                }
+              }
+              const parsedTimes = candidateTimes
                 .filter(Boolean)
                 .map((value) => new Date(value))
                 .filter((value) => !Number.isNaN(value.getTime()));
-              if (candidateTimes.length > 0) {
-                return new Date(Math.max(...candidateTimes.map((value) => value.getTime())));
+              if (parsedTimes.length > 0) {
+                return new Date(Math.max(...parsedTimes.map((value) => value.getTime())));
               }
-
-              const fallbackTimes = [
-                pull.created_at,
-                commit.commit?.committer?.date,
-                commit.commit?.author?.date,
-              ]
-                .filter(Boolean)
-                .map((value) => new Date(value))
+              const commitTime = parseTimestamp(
+                headCommit?.commit?.committer?.date || headCommit?.commit?.author?.date,
+              );
+              if (commitTime !== null) {
+                return new Date(commitTime);
+              }
+              const statusTimes = statuses
+                .filter((status) => status.context !== gateContext)
+                .map((status) => new Date(status.created_at))
                 .filter((value) => !Number.isNaN(value.getTime()));
-              if (fallbackTimes.length > 0) {
-                return new Date(Math.max(...fallbackTimes.map((value) => value.getTime())));
+              if (statusTimes.length > 0) {
+                return new Date(Math.min(...statusTimes.map((value) => value.getTime())));
               }
-
-              return new Date(0);
+              return null;
             }
 
             async function fetchPullState(pullNumber) {
@@ -232,7 +318,7 @@ jobs:
                 pull_number: pullNumber,
               });
               const headSha = pull.head.sha;
-              const [reviews, comments, statuses, commit, timeline] = await Promise.all([
+              const [reviews, comments, statuses, timeline, headCommit] = await Promise.all([
                 github.paginate(github.rest.pulls.listReviews, {
                   owner,
                   repo,
@@ -251,32 +337,24 @@ jobs:
                   ref: headSha,
                   per_page: 100,
                 }),
-                github.rest.repos.getCommit({
-                  owner,
-                  repo,
-                  ref: headSha,
-                }),
                 github.paginate(github.rest.issues.listEventsForTimeline, {
                   owner,
                   repo,
                   issue_number: pullNumber,
                   per_page: 100,
                 }),
+                github.rest.repos.getCommit({
+                  owner,
+                  repo,
+                  ref: headSha,
+                }).then((response) => response.data),
               ]);
 
               await Promise.all(
                 comments
                   .filter((comment) => /@codex\s+review\b/i.test(comment.body || ""))
                   .map(async (comment) => {
-                    comment._reactions = await github.paginate(
-                      github.rest.reactions.listForIssueComment,
-                      {
-                        owner,
-                        repo,
-                        comment_id: comment.id,
-                        per_page: 100,
-                      },
-                    );
+                    comment._reactions = await listIssueCommentReactions(comment.id);
                   }),
               );
 
@@ -285,8 +363,81 @@ jobs:
                 reviews,
                 comments,
                 statuses,
-                headArrivedAt: resolveHeadArrivalTime(timeline, headSha, pull, commit.data),
+                headArrivedAt: resolveHeadArrivalTime(timeline, statuses, headSha, headCommit),
               };
+            }
+
+            async function reviewThreadHasCodexComment(thread) {
+              if (thread.comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
+                return true;
+              }
+
+              let commentCursor = thread.comments.pageInfo.hasNextPage
+                ? thread.comments.pageInfo.endCursor
+                : null;
+              while (commentCursor) {
+                const result = await graphqlWithRetry(
+                  `query($threadId: ID!, $cursor: String) {
+                    node(id: $threadId) {
+                      ... on PullRequestReviewThread {
+                        comments(first: 100, after: $cursor) {
+                          pageInfo { hasNextPage endCursor }
+                          nodes {
+                            author { login }
+                          }
+                        }
+                      }
+                    }
+                  }`,
+                  { threadId: thread.id, cursor: commentCursor },
+                );
+                const comments = result.node.comments;
+                if (comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
+                  return true;
+                }
+                commentCursor = comments.pageInfo.hasNextPage ? comments.pageInfo.endCursor : null;
+              }
+              return false;
+            }
+
+            async function collectUnresolvedCodexThreads(pullNumber) {
+              const unresolvedCodexThreads = [];
+              let cursor = null;
+              do {
+                const result = await graphqlWithRetry(
+                  `query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
+                    repository(owner: $owner, name: $repo) {
+                      pullRequest(number: $number) {
+                        reviewThreads(first: 100, after: $cursor) {
+                          pageInfo { hasNextPage endCursor }
+                          nodes {
+                            id
+                            isResolved
+                            path
+                            line
+                            comments(first: 100) {
+                              pageInfo { hasNextPage endCursor }
+                              nodes {
+                                author { login }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }`,
+                  { owner, repo, number: pullNumber, cursor },
+                );
+                const threads = result.repository.pullRequest.reviewThreads;
+                for (const thread of threads.nodes) {
+                  if (thread.isResolved) continue;
+                  if (await reviewThreadHasCodexComment(thread)) {
+                    unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
+                  }
+                }
+                cursor = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
+              } while (cursor);
+              return unresolvedCodexThreads;
             }
 
             function parseActionableCount(body) {
@@ -334,7 +485,17 @@ jobs:
               const latestActionableEvidence = headEvidence
                 .filter((evidence) => evidence.actionableCount !== null)
                 .at(-1);
-              if ((latestActionableEvidence?.actionableCount || 0) > 0) {
+              const pendingStatusAt =
+                coderabbitStatus?.state === "pending"
+                  ? parseTimestamp(coderabbitStatus.created_at)
+                  : null;
+              const latestActionableAt = latestActionableEvidence
+                ? parseTimestamp(latestActionableEvidence.submittedAt)
+                : null;
+              const newerPendingReview =
+                pendingStatusAt !== null &&
+                (latestActionableAt === null || latestActionableAt < pendingStatusAt);
+              if ((latestActionableEvidence?.actionableCount || 0) > 0 && !newerPendingReview) {
                 return {
                   ready: false,
                   terminal: true,
@@ -385,6 +546,13 @@ jobs:
               }
 
               if (coderabbitStatus.state === "pending") {
+                if (rateLimited) {
+                  return {
+                    ready: true,
+                    terminal: false,
+                    message: `Ignoring CodeRabbit availability limit: ${description || "rate-limited"}.`,
+                  };
+                }
                 return {
                   ready: false,
                   terminal: false,
@@ -417,9 +585,9 @@ jobs:
               }
 
               return {
-                ready: true,
+                ready: false,
                 terminal: false,
-                message: `CodeRabbit status succeeded for latest head ${shortHead}.`,
+                message: `Waiting for CodeRabbit review summary for latest head ${shortHead}.`,
               };
             }
 
@@ -440,38 +608,41 @@ jobs:
                   : "none";
                 return {
                   ready: false,
+                  terminal: false,
                   message: `Waiting for chatgpt-codex-connector[bot] to review latest head ${shortHead}; latest Codex review: ${latestText}.`,
                 };
               }
 
               const latestHeadReview = headCodexMarkers.at(-1);
+              if (latestHeadReview.source === "review" && latestHeadReview.state === "CHANGES_REQUESTED") {
+                return {
+                  ready: false,
+                  terminal: true,
+                  message: `Codex requested changes for latest head ${shortHead}; push fixes and wait for a clean review.`,
+                };
+              }
               return {
                 ready: true,
+                terminal: false,
                 message: `Latest head ${shortHead} was reviewed by Codex via ${latestHeadReview.source} at ${latestHeadReview.submittedAt}.`,
               };
             }
 
-            try {
-              const eventPull = await resolvePullRequest();
-              if (!eventPull) {
-                core.info("No open pull request is associated with this event.");
-                return;
-              }
+            async function evaluatePullRequest(eventPull) {
               gateSha = eventPull.head.sha;
               await setGateStatus("pending", "Waiting for automated reviews");
 
               if (eventPull.draft) {
                 await setGateStatus("success", "Draft PR; merge is already blocked by GitHub");
                 core.info("Draft pull request; GitHub already blocks draft merges.");
-                return;
+                return { ok: true };
               }
 
               const deadline = Date.now() + maxWaitMs;
               let lastMessage = "";
               while (true) {
-                const { pull, reviews, comments, statuses } = await fetchPullState(
-                  eventPull.number,
-                );
+                const { pull, reviews, comments, statuses, headArrivedAt } =
+                  await fetchPullState(eventPull.number);
                 const headSha = pull.head.sha;
                 const shortHead = headSha.slice(0, 10);
                 if (context.eventName === "status" && headSha !== context.payload.sha) {
@@ -481,32 +652,71 @@ jobs:
                       10,
                     )}; current head is ${shortHead}.`,
                   );
-                  return;
+                  return { ok: true };
                 }
                 if (gateSha !== headSha) {
                   gateSha = headSha;
                   await setGateStatus("pending", "Waiting for automated reviews");
                 }
                 const coderabbit = evaluateCodeRabbit(reviews, comments, statuses, headSha, shortHead);
+                const codex = evaluateCodex(
+                  reviews,
+                  comments,
+                  headSha,
+                  shortHead,
+                  headArrivedAt,
+                );
+                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
 
                 if (coderabbit.terminal) {
                   await setGateStatus("failure", coderabbit.message);
-                  core.setFailed(coderabbit.message);
-                  return;
+                  return { ok: false, message: coderabbit.message };
                 }
 
-                if (coderabbit.ready) {
-                  await setGateStatus("success", "CodeRabbit gate completed");
+                if (codex.terminal) {
+                  await setGateStatus("failure", codex.message);
+                  return { ok: false, message: codex.message };
+                }
+
+                if (unresolvedCodexThreads.length > 0) {
+                  const unresolvedMessage = `Unresolved Codex review thread(s): ${unresolvedCodexThreads
+                    .slice(0, 5)
+                    .join(", ")}${unresolvedCodexThreads.length > 5 ? ", ..." : ""}`;
+                  if (!waitForReviews || Date.now() >= deadline) {
+                    await setGateStatus("failure", unresolvedMessage);
+                    return { ok: false, message: unresolvedMessage };
+                  }
+                  await setGateStatus("pending", unresolvedMessage);
+                  if (unresolvedMessage !== lastMessage) {
+                    core.info(unresolvedMessage);
+                    lastMessage = unresolvedMessage;
+                  }
+                  await sleep(pollMs);
+                  continue;
+                }
+
+                if (coderabbit.ready && codex.ready) {
+                  await setGateStatus("success", "Automated reviews completed");
+                  core.info(codex.message);
                   core.info(coderabbit.message);
-                  return;
+                  return { ok: true };
                 }
 
-                const message = coderabbit.message;
+                const message = [
+                  codex.ready ? null : codex.message,
+                  coderabbit.ready ? null : coderabbit.message,
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+                if (!waitForReviews) {
+                  await setGateStatus("pending", message);
+                  core.info(message);
+                  return { ok: true, pending: true };
+                }
                 if (Date.now() >= deadline) {
-                  const timeoutMessage = `Timed out waiting for CodeRabbit. ${message}`;
+                  const timeoutMessage = `Timed out waiting for automated reviews. ${message}`;
                   await setGateStatus("failure", timeoutMessage);
-                  core.setFailed(timeoutMessage);
-                  return;
+                  return { ok: false, message: timeoutMessage };
                 }
 
                 if (message !== lastMessage) {
@@ -514,6 +724,27 @@ jobs:
                   lastMessage = message;
                 }
                 await sleep(pollMs);
+              }
+            }
+
+            try {
+              const eventPulls = await resolvePullRequests();
+              if (eventPulls.length === 0) {
+                core.info("No open pull request is associated with this event.");
+                return;
+              }
+
+              const results = [];
+              for (const eventPull of eventPulls) {
+                results.push(await evaluatePullRequest(eventPull));
+              }
+              const failures = results.filter((result) => !result.ok);
+              if (failures.length > 0) {
+                core.setFailed(
+                  failures
+                    .map((result) => result.message || "Automated review gate failed.")
+                    .join("\n"),
+                );
               }
             } catch (error) {
               try {
