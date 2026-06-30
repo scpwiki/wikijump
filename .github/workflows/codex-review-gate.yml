@@ -290,18 +290,12 @@ jobs:
                 if (event.event === "committed" && matchesHead(headSha, event.sha)) {
                   const committedAt =
                     event.created_at ||
+                    event.verification?.verified_at ||
                     event.committer?.date ||
-                    event.author?.date ||
-                    event.verification?.verified_at;
+                    event.author?.date;
                   if (committedAt) {
                     candidateTimes.push(committedAt);
                     continue;
-                  }
-                  const nextTimestampedEvent = timeline
-                    .slice(index + 1)
-                    .find((candidate) => candidate.created_at);
-                  if (nextTimestampedEvent) {
-                    candidateTimes.push(nextTimestampedEvent.created_at);
                   }
                 }
               }
@@ -383,11 +377,22 @@ jobs:
               return codexLogins.has(comment.author?.login);
             }
 
-            async function reviewThreadHasCodexComment(thread) {
-              if (thread.isOutdated) {
+            function parseCodexSeverity(comment) {
+              const body = comment.body || "";
+              const match = body.match(/!\[P([0-4]) Badge\]/i);
+              return match ? Number(match[1]) : null;
+            }
+
+            function isBlockingCodexThreadComment(comment) {
+              if (!isCodexThreadComment(comment)) {
                 return false;
               }
-              if (thread.comments.nodes.some((comment) => isCodexThreadComment(comment))) {
+              const severity = parseCodexSeverity(comment);
+              return severity === null || severity <= 2;
+            }
+
+            async function reviewThreadHasBlockingCodexComment(thread) {
+              if (thread.comments.nodes.some((comment) => isBlockingCodexThreadComment(comment))) {
                 return true;
               }
 
@@ -403,6 +408,7 @@ jobs:
                           pageInfo { hasNextPage endCursor }
                           nodes {
                             author { login }
+                            body
                           }
                         }
                       }
@@ -411,7 +417,7 @@ jobs:
                   { threadId: thread.id, cursor: commentCursor },
                 );
                 const comments = result.node.comments;
-                if (comments.nodes.some((comment) => isCodexThreadComment(comment))) {
+                if (comments.nodes.some((comment) => isBlockingCodexThreadComment(comment))) {
                   return true;
                 }
                 commentCursor = comments.pageInfo.hasNextPage ? comments.pageInfo.endCursor : null;
@@ -419,8 +425,8 @@ jobs:
               return false;
             }
 
-            async function collectUnresolvedCodexThreads(pullNumber) {
-              const unresolvedCodexThreads = [];
+            async function collectUnresolvedBlockingCodexThreads(pullNumber) {
+              const unresolvedBlockingCodexThreads = [];
               let cursor = null;
               do {
                 const result = await graphqlWithRetry(
@@ -439,6 +445,7 @@ jobs:
                               pageInfo { hasNextPage endCursor }
                               nodes {
                                 author { login }
+                                body
                               }
                             }
                           }
@@ -451,14 +458,15 @@ jobs:
                 const threads = result.repository.pullRequest.reviewThreads;
                 for (const thread of threads.nodes) {
                   if (thread.isResolved) continue;
+                  // P3/P4 Codex findings are advisory; unknown severity stays fail-closed.
                   if (thread.isOutdated) continue;
-                  if (await reviewThreadHasCodexComment(thread)) {
-                    unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
+                  if (await reviewThreadHasBlockingCodexComment(thread)) {
+                    unresolvedBlockingCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
                   }
                 }
                 cursor = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
               } while (cursor);
-              return unresolvedCodexThreads;
+              return unresolvedBlockingCodexThreads;
             }
 
             function parseActionableCount(body) {
@@ -514,11 +522,23 @@ jobs:
                 .filter((comment) => coderabbitLogins.has(comment.user?.login))
                 .filter((comment) => {
                   const body = comment.body || "";
-                  const commentAt = parseTimestamp(comment.created_at);
-                  if (statusCreatedAt === null) {
-                    return body.includes(headSha) || body.includes(shortHead);
+                  const createdAt = parseTimestamp(comment.created_at);
+                  const updatedAt = parseTimestamp(comment.updated_at || comment.created_at);
+                  const referencesHead = body.includes(headSha) || body.includes(shortHead);
+                  if (referencesHead) {
+                    return (
+                      statusCreatedAt === null ||
+                      coderabbitStatus?.state !== "pending" ||
+                      (updatedAt !== null && updatedAt >= statusCreatedAt)
+                    );
                   }
-                  return commentAt !== null && commentAt >= statusCreatedAt - 60 * 1000;
+                  if (statusCreatedAt === null) {
+                    return false;
+                  }
+                  const commentAt = createdAt;
+                  const nearStatus =
+                    commentAt !== null && Math.abs(commentAt - statusCreatedAt) <= 60 * 1000;
+                  return nearStatus && rateLimitPattern.test(body);
                 });
               const rateLimited =
                 rateLimitPattern.test(description) ||
@@ -725,7 +745,8 @@ jobs:
                   shortHead,
                   headArrival,
                 );
-                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
+                const unresolvedBlockingCodexThreads =
+                  await collectUnresolvedBlockingCodexThreads(pull.number);
 
                 if (coderabbit.terminal) {
                   await setGateStatusForEvaluation("failure", coderabbit.message, statuses);
@@ -737,10 +758,10 @@ jobs:
                   return { ok: false, message: codex.message };
                 }
 
-                if (unresolvedCodexThreads.length > 0) {
-                  const unresolvedMessage = `Unresolved Codex review thread(s): ${unresolvedCodexThreads
+                if (unresolvedBlockingCodexThreads.length > 0) {
+                  const unresolvedMessage = `Unresolved blocking Codex review thread(s): ${unresolvedBlockingCodexThreads
                     .slice(0, 5)
-                    .join(", ")}${unresolvedCodexThreads.length > 5 ? ", ..." : ""}`;
+                    .join(", ")}${unresolvedBlockingCodexThreads.length > 5 ? ", ..." : ""}`;
                   if (!waitForReviews || Date.now() >= deadline) {
                     await setGateStatusForEvaluation("failure", unresolvedMessage, statuses);
                     return { ok: false, message: unresolvedMessage };
@@ -768,6 +789,17 @@ jobs:
                   .filter(Boolean)
                   .join(" ");
                 if (!waitForReviews) {
+                  const latestGateStatus = statuses
+                    .filter((status) => status.context === gateContext)
+                    .sort((left, right) => new Date(right.created_at) - new Date(left.created_at))[0];
+                  if (["error", "failure"].includes(latestGateStatus?.state)) {
+                    core.info(
+                      `Leaving existing terminal ${gateContext} status in place: ${
+                        latestGateStatus.description || message
+                      }`,
+                    );
+                    return { ok: true, pending: true };
+                  }
                   await setGateStatusForEvaluation("pending", message, statuses);
                   core.info(message);
                   return { ok: true, pending: true };
