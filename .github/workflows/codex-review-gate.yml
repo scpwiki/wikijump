@@ -3,26 +3,43 @@ name: Codex Review Gate
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
   pull_request_review:
     types: [submitted, edited, dismissed]
   pull_request_review_comment:
     types: [created, edited, deleted]
   issue_comment:
     types: [created, edited, deleted]
+  status:
   workflow_dispatch:
+    inputs:
+      pull_number:
+        description: Pull request number to evaluate.
+        required: true
+        type: number
 
 permissions:
-  # Required to read PR metadata, review records, PR issue comments, and comment reactions.
+  # Required to read commit metadata used when resolving head arrival time.
   contents: read
+  # Required to read PR metadata and review records.
   pull-requests: read
+  # Required to read PR issue comments used as review markers.
   issues: read
+  # Required to publish the protected automated-review-gate commit status.
+  statuses: write
 
 concurrency:
-  group: codex-review-gate-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
+  group: automated-review-gate-${{ github.event.pull_request.number || github.event.issue.number || github.event.sha || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  codex-review-gate:
+  automated-review-gate-runner:
+    name: Automated review gate runner
+    if: >-
+      (github.event_name != 'status' || github.event.context == 'CodeRabbit') &&
+      (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && github.event.pull_request.user.login != 'dependabot[bot]')) &&
+      (github.event_name != 'pull_request_target' || (github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name || github.event.pull_request.user.login == 'dependabot[bot]'))
     runs-on: ubuntu-latest
     steps:
       - name: Verify latest automated reviews
@@ -33,9 +50,40 @@ jobs:
               "chatgpt-codex-connector",
               "chatgpt-codex-connector[bot]",
             ]);
-            const trustedAssociations = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+            const coderabbitLogins = new Set(["coderabbitai", "coderabbitai[bot]"]);
+            const rateLimitPattern =
+              /(review limit reached|prepaid credits|credits exhausted|usage credits|usage-based reviews|rate limit|next review available)/i;
             const reviewedCommitPattern = /Reviewed commit:\*\*\s*`([0-9a-f]{7,40})`/i;
+            const maxWaitMs = 15 * 60 * 1000;
+            const pollMs = 30 * 1000;
+            const gateContext = "automated-review-gate";
             const { owner, repo } = context.repo;
+            let gateSha = null;
+
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+            async function setGateStatus(state, description) {
+              if (!gateSha) {
+                return false;
+              }
+              try {
+                await github.rest.repos.createCommitStatus({
+                  owner,
+                  repo,
+                  sha: gateSha,
+                  state,
+                  context: gateContext,
+                  description: description.slice(0, 140),
+                  target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+                });
+                return true;
+              } catch (error) {
+                if (error.status === 403) {
+                  throw new Error(`Unable to write ${gateContext} status for ${gateSha}: ${error.message}`);
+                }
+                throw error;
+              }
+            }
 
             async function resolvePullRequest() {
               if (context.payload.pull_request) {
@@ -51,6 +99,31 @@ jobs:
                 return pull;
               }
 
+              if (context.eventName === "workflow_dispatch" && context.payload.inputs?.pull_number) {
+                const { data: pull } = await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: Number(context.payload.inputs.pull_number),
+                });
+                return pull;
+              }
+
+              if (context.eventName === "status") {
+                const { data: pulls } = await github.request(
+                  "GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls",
+                  {
+                    owner,
+                    repo,
+                    commit_sha: context.payload.sha,
+                    headers: { accept: "application/vnd.github+json" },
+                  },
+                );
+                return (
+                  pulls.find((pull) => pull.state === "open" && pull.head.sha === context.payload.sha) ||
+                  null
+                );
+              }
+
               return null;
             }
 
@@ -61,60 +134,7 @@ jobs:
               );
             }
 
-            async function fetchPullState(pullNumber) {
-              const { data: pull } = await github.rest.pulls.get({
-                owner,
-                repo,
-                pull_number: pullNumber,
-              });
-              const headSha = pull.head.sha;
-              const [reviews, comments, commit] = await Promise.all([
-                github.paginate(github.rest.pulls.listReviews, {
-                  owner,
-                  repo,
-                  pull_number: pullNumber,
-                  per_page: 100,
-                }),
-                github.paginate(github.rest.issues.listComments, {
-                  owner,
-                  repo,
-                  issue_number: pullNumber,
-                  per_page: 100,
-                }),
-                github.rest.repos.getCommit({
-                  owner,
-                  repo,
-                  ref: headSha,
-                }),
-              ]);
-
-              await Promise.all(
-                comments
-                  .filter((comment) => /@codex\s+review\b/i.test(comment.body || ""))
-                  .map(async (comment) => {
-                    comment._reactions = await github.paginate(
-                      github.rest.reactions.listForIssueComment,
-                      {
-                        owner,
-                        repo,
-                        comment_id: comment.id,
-                        per_page: 100,
-                      },
-                    );
-                  }),
-              );
-
-              return {
-                pull,
-                reviews,
-                comments,
-                headCommitDate: new Date(
-                  commit.data.commit.committer?.date || commit.data.commit.author?.date || pull.created_at,
-                ),
-              };
-            }
-
-            function collectCodexReviewMarkers(reviews, comments, headSha, headCommitDate) {
+            function collectCodexReviewMarkers(reviews, comments, headSha, headArrivedAt) {
               const markers = reviews
                 .filter((review) => codexLogins.has(review.user?.login))
                 .filter((review) => review.state !== "DISMISSED")
@@ -139,16 +159,20 @@ jobs:
                 if (!/@codex\s+review\b/i.test(comment.body || "")) {
                   continue;
                 }
-                if (new Date(comment.created_at) < headCommitDate) {
-                  continue;
-                }
-                const hasCleanCodexReaction = (comment._reactions || []).some(
-                  (reaction) => reaction.content === "+1" && codexLogins.has(reaction.user?.login),
-                );
-                if (hasCleanCodexReaction) {
+                const reactions = comment._reactions || [];
+                const cleanCodexReaction = reactions
+                  .filter(
+                    (reaction) =>
+                      reaction.content === "+1" &&
+                      codexLogins.has(reaction.user?.login) &&
+                      new Date(reaction.created_at) >= headArrivedAt,
+                  )
+                  .sort((left, right) => new Date(left.created_at) - new Date(right.created_at))
+                  .at(-1);
+                if (cleanCodexReaction) {
                   markers.push({
-                    source: "thumbs-up reaction",
-                    submittedAt: comment.updated_at || comment.created_at,
+                    source: "post-head thumbs-up reaction",
+                    submittedAt: cleanCodexReaction.created_at,
                     reviewedSha: headSha,
                   });
                 }
@@ -158,141 +182,344 @@ jobs:
               return markers;
             }
 
-            function collectClawpatchMarkers(comments, headSha, shortHead) {
-              return comments
-                .filter((comment) => trustedAssociations.has(comment.author_association))
-                .filter((comment) => {
-                  const body = comment.body || "";
+            function resolveHeadArrivalTime(timeline, headSha, pull, commit) {
+              const candidateTimes = timeline
+                .map((event) => {
+                  if (
+                    event.event === "head_ref_force_pushed" &&
+                    event.created_at &&
+                    matchesHead(headSha, event.commit_id)
+                  ) {
+                    return event.created_at;
+                  }
+                  if (event.event === "committed" && matchesHead(headSha, event.sha)) {
+                    return (
+                      event.created_at ||
+                      event.verification?.verified_at ||
+                      event.committer?.date ||
+                      event.author?.date ||
+                      null
+                    );
+                  }
+                  return null;
+                })
+                .filter(Boolean)
+                .map((value) => new Date(value))
+                .filter((value) => !Number.isNaN(value.getTime()));
+              if (candidateTimes.length > 0) {
+                return new Date(Math.max(...candidateTimes.map((value) => value.getTime())));
+              }
+
+              const fallbackTimes = [
+                pull.created_at,
+                commit.commit?.committer?.date,
+                commit.commit?.author?.date,
+              ]
+                .filter(Boolean)
+                .map((value) => new Date(value))
+                .filter((value) => !Number.isNaN(value.getTime()));
+              if (fallbackTimes.length > 0) {
+                return new Date(Math.max(...fallbackTimes.map((value) => value.getTime())));
+              }
+
+              return new Date(0);
+            }
+
+            async function fetchPullState(pullNumber) {
+              const { data: pull } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: pullNumber,
+              });
+              const headSha = pull.head.sha;
+              const [reviews, comments, statuses, commit, timeline] = await Promise.all([
+                github.paginate(github.rest.pulls.listReviews, {
+                  owner,
+                  repo,
+                  pull_number: pullNumber,
+                  per_page: 100,
+                }),
+                github.paginate(github.rest.issues.listComments, {
+                  owner,
+                  repo,
+                  issue_number: pullNumber,
+                  per_page: 100,
+                }),
+                github.paginate(github.rest.repos.listCommitStatusesForRef, {
+                  owner,
+                  repo,
+                  ref: headSha,
+                  per_page: 100,
+                }),
+                github.rest.repos.getCommit({
+                  owner,
+                  repo,
+                  ref: headSha,
+                }),
+                github.paginate(github.rest.issues.listEventsForTimeline, {
+                  owner,
+                  repo,
+                  issue_number: pullNumber,
+                  per_page: 100,
+                }),
+              ]);
+
+              await Promise.all(
+                comments
+                  .filter((comment) => /@codex\s+review\b/i.test(comment.body || ""))
+                  .map(async (comment) => {
+                    comment._reactions = await github.paginate(
+                      github.rest.reactions.listForIssueComment,
+                      {
+                        owner,
+                        repo,
+                        comment_id: comment.id,
+                        per_page: 100,
+                      },
+                    );
+                  }),
+              );
+
+              return {
+                pull,
+                reviews,
+                comments,
+                statuses,
+                headArrivedAt: resolveHeadArrivalTime(timeline, headSha, pull, commit.data),
+              };
+            }
+
+            function parseActionableCount(body) {
+              const match = (body || "").match(/Actionable comments posted:\s*([0-9]+)/i);
+              return match ? Number(match[1]) : null;
+            }
+
+            function evaluateCodeRabbit(reviews, comments, statuses, headSha, shortHead) {
+              const coderabbitStatus = statuses
+                .filter((status) => status.context === "CodeRabbit")
+                .sort((left, right) => new Date(right.created_at) - new Date(left.created_at))[0];
+              const coderabbitHeadReviews = reviews
+                .filter((review) => {
+                  if (!coderabbitLogins.has(review.user?.login) || review.state === "DISMISSED") {
+                    return false;
+                  }
+                  const body = review.body || "";
                   return (
-                    /clawpatch/i.test(body) &&
-                    (body.includes(headSha) || body.includes(shortHead)) &&
-                    /openFindings\s*=\s*0/i.test(body) &&
-                    /activeLocks\s*=\s*0/i.test(body)
+                    matchesHead(headSha, review.commit_id) ||
+                    body.includes(headSha) ||
+                    body.includes(shortHead)
                   );
                 })
+                .map((review) => ({
+                  source: "review",
+                  submittedAt: review.submitted_at,
+                  body: review.body || "",
+                  actionableCount: parseActionableCount(review.body || ""),
+                }));
+              const coderabbitHeadComments = comments
+                .filter((comment) => coderabbitLogins.has(comment.user?.login))
+                .filter((comment) => {
+                  const body = comment.body || "";
+                  return body.includes(headSha) || body.includes(shortHead);
+                })
                 .map((comment) => ({
-                  source: "Clawpatch issue comment",
-                  submittedAt: comment.created_at,
-                }))
+                  source: "issue comment",
+                  submittedAt: comment.updated_at || comment.created_at,
+                  body: comment.body || "",
+                  actionableCount: parseActionableCount(comment.body || ""),
+                }));
+              const headEvidence = coderabbitHeadReviews
+                .concat(coderabbitHeadComments)
                 .sort((left, right) => new Date(left.submittedAt) - new Date(right.submittedAt));
-            }
-
-            async function reviewThreadHasCodexComment(thread) {
-              if (thread.comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
-                return true;
+              const latestActionableEvidence = headEvidence
+                .filter((evidence) => evidence.actionableCount !== null)
+                .at(-1);
+              if ((latestActionableEvidence?.actionableCount || 0) > 0) {
+                return {
+                  ready: false,
+                  terminal: true,
+                  message: `CodeRabbit posted ${latestActionableEvidence.actionableCount} actionable comment(s) for latest head ${shortHead}; push fixes and wait for a clean review.`,
+                };
               }
 
-              let commentCursor = thread.comments.pageInfo.hasNextPage
-                ? thread.comments.pageInfo.endCursor
+              const description = coderabbitStatus?.description || "";
+              const statusCreatedAt = coderabbitStatus
+                ? new Date(coderabbitStatus.created_at).getTime()
                 : null;
-              while (commentCursor) {
-                const result = await github.graphql(
-                  `query($threadId: ID!, $cursor: String) {
-                    node(id: $threadId) {
-                      ... on PullRequestReviewThread {
-                        comments(first: 100, after: $cursor) {
-                          pageInfo { hasNextPage endCursor }
-                          nodes {
-                            author { login }
-                          }
-                        }
-                      }
-                    }
-                  }`,
-                  { threadId: thread.id, cursor: commentCursor },
-                );
-                const comments = result.node.comments;
-                if (comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
-                  return true;
-                }
-                commentCursor = comments.pageInfo.hasNextPage ? comments.pageInfo.endCursor : null;
-              }
-              return false;
-            }
-
-            async function collectUnresolvedCodexThreads(pullNumber) {
-              const unresolvedCodexThreads = [];
-              let cursor = null;
-              do {
-                const result = await github.graphql(
-                  `query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
-                    repository(owner: $owner, name: $repo) {
-                      pullRequest(number: $number) {
-                        reviewThreads(first: 100, after: $cursor) {
-                          pageInfo { hasNextPage endCursor }
-                          nodes {
-                            id
-                            isResolved
-                            path
-                            line
-                            comments(first: 100) {
-                              pageInfo { hasNextPage endCursor }
-                              nodes {
-                                author { login }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }`,
-                  { owner, repo, number: pullNumber, cursor },
-                );
-                const threads = result.repository.pullRequest.reviewThreads;
-                for (const thread of threads.nodes) {
-                  if (thread.isResolved) continue;
-                  if (await reviewThreadHasCodexComment(thread)) {
-                    unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
+              const relatedRateLimitComments = comments
+                .filter((comment) => coderabbitLogins.has(comment.user?.login))
+                .filter((comment) => {
+                  const body = comment.body || "";
+                  if (body.includes(headSha) || body.includes(shortHead)) {
+                    return true;
                   }
+                  if (statusCreatedAt === null) {
+                    return false;
+                  }
+                  return new Date(comment.created_at).getTime() >= statusCreatedAt - 60 * 1000;
+                });
+              const rateLimited =
+                rateLimitPattern.test(description) ||
+                relatedRateLimitComments.some((comment) => rateLimitPattern.test(comment.body || ""));
+
+              if (!coderabbitStatus) {
+                if (latestActionableEvidence?.actionableCount === 0) {
+                  return {
+                    ready: true,
+                    terminal: false,
+                    message: `CodeRabbit clean review evidence found for latest head ${shortHead}.`,
+                  };
                 }
-                cursor = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
-              } while (cursor);
-              return unresolvedCodexThreads;
+                if (rateLimited) {
+                  return {
+                    ready: true,
+                    terminal: false,
+                    message: "Ignoring CodeRabbit availability limit from PR comments.",
+                  };
+                }
+                return {
+                  ready: false,
+                  terminal: false,
+                  message: `Waiting for CodeRabbit to start reviewing latest head ${shortHead}.`,
+                };
+              }
+
+              if (coderabbitStatus.state === "pending") {
+                return {
+                  ready: false,
+                  terminal: false,
+                  message: `Waiting for CodeRabbit to finish reviewing latest head ${shortHead}.`,
+                };
+              }
+
+              if (coderabbitStatus.state !== "success") {
+                if (rateLimited) {
+                  return {
+                    ready: true,
+                    terminal: false,
+                    message: `Ignoring CodeRabbit availability limit: ${description || "rate-limited"}.`,
+                  };
+                }
+                return {
+                  ready: false,
+                  terminal: true,
+                  message:
+                    `CodeRabbit did not complete successfully for latest head ${shortHead}: ${coderabbitStatus.state} ${description}`.trim(),
+                };
+              }
+
+              if (latestActionableEvidence?.actionableCount === 0) {
+                return {
+                  ready: true,
+                  terminal: false,
+                  message: `CodeRabbit completed cleanly for latest head ${shortHead}.`,
+                };
+              }
+
+              return {
+                ready: true,
+                terminal: false,
+                message: `CodeRabbit status succeeded for latest head ${shortHead}.`,
+              };
             }
 
-            const eventPull = await resolvePullRequest();
-            if (!eventPull) {
-              core.info("No open pull request is associated with this event.");
-              return;
-            }
-            if (eventPull.draft) {
-              core.info("Draft pull request; GitHub already blocks draft merges.");
-              return;
-            }
-
-            const { pull, reviews, comments, headCommitDate } = await fetchPullState(eventPull.number);
-            const headSha = pull.head.sha;
-            const shortHead = headSha.slice(0, 10);
-            const codexMarkers = collectCodexReviewMarkers(reviews, comments, headSha, headCommitDate);
-            const headCodexMarkers = codexMarkers.filter((marker) =>
-              matchesHead(headSha, marker.reviewedSha),
-            );
-            const headClawpatchMarkers = collectClawpatchMarkers(comments, headSha, shortHead);
-
-            if (headCodexMarkers.length === 0 && headClawpatchMarkers.length === 0) {
-              const latest = codexMarkers.at(-1);
-              const latestText = latest
-                ? `${latest.reviewedSha.slice(0, 10)} via ${latest.source} at ${latest.submittedAt}`
-                : "none";
-              core.setFailed(
-                `Waiting for latest head ${shortHead} to have a Codex review or trusted Clawpatch evidence comment with openFindings=0 and activeLocks=0; latest Codex review: ${latestText}.`,
+            function evaluateCodex(reviews, comments, headSha, shortHead, headArrivedAt) {
+              const codexMarkers = collectCodexReviewMarkers(
+                reviews,
+                comments,
+                headSha,
+                headArrivedAt,
               );
-              return;
-            }
-
-            const unresolvedCodexThreads = await collectUnresolvedCodexThreads(eventPull.number);
-            if (unresolvedCodexThreads.length > 0) {
-              core.setFailed(
-                `Resolve Codex review threads before merge: ${unresolvedCodexThreads.join(", ")}`,
+              const headCodexMarkers = codexMarkers.filter((marker) =>
+                matchesHead(headSha, marker.reviewedSha),
               );
-              return;
+              if (headCodexMarkers.length === 0) {
+                const latest = codexMarkers.at(-1);
+                const latestText = latest
+                  ? `${latest.reviewedSha.slice(0, 10)} via ${latest.source} at ${latest.submittedAt}`
+                  : "none";
+                return {
+                  ready: false,
+                  message: `Waiting for chatgpt-codex-connector[bot] to review latest head ${shortHead}; latest Codex review: ${latestText}.`,
+                };
+              }
+
+              const latestHeadReview = headCodexMarkers.at(-1);
+              return {
+                ready: true,
+                message: `Latest head ${shortHead} was reviewed by Codex via ${latestHeadReview.source} at ${latestHeadReview.submittedAt}.`,
+              };
             }
 
-            if (headClawpatchMarkers.length > 0) {
-              const latest = headClawpatchMarkers.at(-1);
-              core.info(`Latest head ${shortHead} has trusted Clawpatch evidence at ${latest.submittedAt}.`);
-            }
-            if (headCodexMarkers.length > 0) {
-              const latest = headCodexMarkers.at(-1);
-              core.info(`Latest head ${shortHead} was reviewed by Codex via ${latest.source} at ${latest.submittedAt}.`);
+            try {
+              const eventPull = await resolvePullRequest();
+              if (!eventPull) {
+                core.info("No open pull request is associated with this event.");
+                return;
+              }
+              gateSha = eventPull.head.sha;
+              await setGateStatus("pending", "Waiting for automated reviews");
+
+              if (eventPull.draft) {
+                await setGateStatus("success", "Draft PR; merge is already blocked by GitHub");
+                core.info("Draft pull request; GitHub already blocks draft merges.");
+                return;
+              }
+
+              const deadline = Date.now() + maxWaitMs;
+              let lastMessage = "";
+              while (true) {
+                const { pull, reviews, comments, statuses } = await fetchPullState(
+                  eventPull.number,
+                );
+                const headSha = pull.head.sha;
+                const shortHead = headSha.slice(0, 10);
+                if (context.eventName === "status" && headSha !== context.payload.sha) {
+                  core.info(
+                    `Ignoring stale CodeRabbit status for ${context.payload.sha.slice(
+                      0,
+                      10,
+                    )}; current head is ${shortHead}.`,
+                  );
+                  return;
+                }
+                if (gateSha !== headSha) {
+                  gateSha = headSha;
+                  await setGateStatus("pending", "Waiting for automated reviews");
+                }
+                const coderabbit = evaluateCodeRabbit(reviews, comments, statuses, headSha, shortHead);
+
+                if (coderabbit.terminal) {
+                  await setGateStatus("failure", coderabbit.message);
+                  core.setFailed(coderabbit.message);
+                  return;
+                }
+
+                if (coderabbit.ready) {
+                  await setGateStatus("success", "CodeRabbit gate completed");
+                  core.info(coderabbit.message);
+                  return;
+                }
+
+                const message = coderabbit.message;
+                if (Date.now() >= deadline) {
+                  const timeoutMessage = `Timed out waiting for CodeRabbit. ${message}`;
+                  await setGateStatus("failure", timeoutMessage);
+                  core.setFailed(timeoutMessage);
+                  return;
+                }
+
+                if (message !== lastMessage) {
+                  core.info(message);
+                  lastMessage = message;
+                }
+                await sleep(pollMs);
+              }
+            } catch (error) {
+              try {
+                await setGateStatus("failure", `Automated review gate error: ${error.message}`);
+              } catch (statusError) {
+                core.warning(`Unable to publish automated review gate failure: ${statusError.message}`);
+              }
+              throw error;
             }
