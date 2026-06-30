@@ -3599,6 +3599,7 @@ impl RenderService {
                 page,
                 index + 1,
                 total,
+                requested_limit as usize,
                 &user_displays,
                 page_wikitext.as_deref(),
             );
@@ -3720,12 +3721,16 @@ impl RenderService {
             data_form_fields: &[],
             order,
             pagination: PaginationSelector {
-                limit: limit.map(|limit| {
+                limit: Some(
                     limit
-                        .saturating_add(u64::from(offset))
-                        .saturating_add(u64::from(exclude_current_page))
-                        .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
-                }),
+                        .map(|limit| {
+                            limit
+                                .saturating_add(u64::from(offset))
+                                .saturating_add(u64::from(exclude_current_page))
+                        })
+                        .unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
+                        .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS)),
+                ),
                 per_page: PaginationSelector::default().per_page,
                 reversed: false,
             },
@@ -4413,7 +4418,9 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
 
 fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
     arguments.unsupported_count_pages_filter
-        || (arguments.limit.is_none() && !arguments.current_page_only)
+        || (arguments.limit.is_none()
+            && !arguments.current_page_only
+            && !count_pages_has_static_filter(arguments))
         || arguments.limit.is_some_and(|limit| {
             limit
                 .saturating_add(u64::from(arguments.offset))
@@ -4422,7 +4429,8 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
         })
         || (arguments.category_selector_present
             && arguments.category_all
-            && arguments.limit.is_none())
+            && arguments.limit.is_none()
+            && !count_pages_has_static_filter(arguments))
         || (arguments.current_page_only
             && (arguments.category_selector_present
                 || arguments.page_type != PageTypeSelector::Normal
@@ -4434,6 +4442,17 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
                 || !arguments.authors.is_empty()
                 || !arguments.excluded_categories.is_empty()
                 || arguments.slug.is_some()))
+}
+
+fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
+    !arguments.categories.is_empty()
+        || !arguments.default_tags.is_empty()
+        || !arguments.any_tags.is_empty()
+        || !arguments.all_tags.is_empty()
+        || !arguments.authors.is_empty()
+        || arguments.page_type != PageTypeSelector::Normal
+        || arguments.page_parent != PageParentSelector::All
+        || arguments.slug.is_some()
 }
 
 fn should_render_current_page_list_pages_row(
@@ -4559,7 +4578,7 @@ fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
         }
         None => match value.strip_prefix('-') {
             Some(value) => (value, false),
-            None => (value, true),
+            None => parse_wikidot_camel_case_order(value).unwrap_or((value, true)),
         },
     };
 
@@ -4579,6 +4598,22 @@ fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
         property,
         ascending,
     })
+}
+
+fn parse_wikidot_camel_case_order(value: &str) -> Option<(&str, bool)> {
+    let lower = value.to_ascii_lowercase();
+    for (suffix, ascending) in [
+        ("ascending", true),
+        ("descending", false),
+        ("asc", true),
+        ("desc", false),
+    ] {
+        if lower.ends_with(suffix) && value.len() > suffix.len() {
+            return Some((&value[..value.len() - suffix.len()], ascending));
+        }
+    }
+
+    None
 }
 
 fn parse_list_pages_page_type(value: &str) -> Option<PageTypeSelector> {
@@ -4631,6 +4666,7 @@ fn list_pages_body_variables_supported(body: &str) -> bool {
                     | "content"
                     | "index"
                     | "total"
+                    | "limit"
             )
         })
 }
@@ -4694,6 +4730,7 @@ fn substitute_list_pages_variables(
     page: &FoundPageRow,
     index: usize,
     total: usize,
+    rendered_limit: usize,
     user_displays: &BTreeMap<i64, WikidotUserDisplay>,
     page_wikitext: Option<&str>,
 ) -> String {
@@ -4734,6 +4771,7 @@ fn substitute_list_pages_variables(
     let rating = format_list_pages_rating(page.score);
     let index = index.to_string();
     let total = total.to_string();
+    let rendered_limit = rendered_limit.to_string();
 
     LISTPAGES_VARIABLE_REGEX
         .replace_all(template, |captures: &regex::Captures<'_>| {
@@ -4775,6 +4813,7 @@ fn substitute_list_pages_variables(
                     .unwrap_or_default(),
                 "index" => index.clone(),
                 "total" => total.clone(),
+                "limit" => rendered_limit.clone(),
                 _ => captures
                     .get(0)
                     .map_or("", |matched| matched.as_str())
@@ -5847,10 +5886,11 @@ mod tests {
     use super::{
         CollectingIncluder, LISTPAGES_MODULE_REGEX, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, RenderContext, RenderService,
-        WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
-        WikidotUserDisplay, include_error, list_pages_body_uses_content_variable,
-        list_pages_body_variables_supported,
+        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
+        RenderContext, RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
+        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WikidotUserDisplay,
+        count_pages_should_remain_literal, include_error,
+        list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
         render_list_pages_numbered_rows, render_list_pages_table_rows,
@@ -6120,6 +6160,48 @@ mod tests {
     }
 
     #[test]
+    fn parses_wikidot_camel_case_list_pages_order_argument() {
+        let ascending = parse_list_pages_arguments(
+            r#" category="*" tags="codex" order="titleAsc" limit="20" wrapper="no""#,
+        )
+        .expect("Wikidot camel-case order should parse");
+        assert_eq!(
+            ascending.order,
+            Some(OrderBySelector {
+                property: OrderProperty::Title,
+                ascending: true,
+            }),
+        );
+
+        let descending = parse_list_pages_arguments(
+            r#" category="*" tags="codex" order="createdAtDesc" limit="20""#,
+        )
+        .expect("Wikidot camel-case descending order should parse");
+        assert_eq!(
+            descending.order,
+            Some(OrderBySelector {
+                property: OrderProperty::CreatedAt,
+                ascending: false,
+            }),
+        );
+    }
+
+    #[test]
+    fn keeps_unbounded_count_pages_literal_unless_statically_filtered() {
+        let tagged = parse_list_pages_arguments(r#" category="*" tags="codex" "#)
+            .expect("static tag CountPages selector should parse");
+        assert!(!count_pages_should_remain_literal(&tagged));
+
+        let broad = parse_list_pages_arguments(r#" category="*" "#)
+            .expect("broad CountPages selector should parse");
+        assert!(count_pages_should_remain_literal(&broad));
+
+        let exclusion_only = parse_list_pages_arguments(r#" category="* -deleted" "#)
+            .expect("exclusion-only CountPages selector should parse");
+        assert!(count_pages_should_remain_literal(&exclusion_only));
+    }
+
+    #[test]
     fn renders_wikidot_tag_cloud_box_links() {
         let html = render_tag_cloud_box(&[
             ("scp".to_owned(), 10),
@@ -6229,6 +6311,7 @@ mod tests {
             },
             1,
             1,
+            20,
             &BTreeMap::new(),
             None,
         );
@@ -6287,6 +6370,7 @@ mod tests {
             &page,
             1,
             1,
+            20,
             &BTreeMap::new(),
             Some(wikitext),
         );
@@ -6469,6 +6553,7 @@ mod tests {
             &page,
             1,
             1,
+            20,
             &users,
             None,
         );
@@ -6488,6 +6573,7 @@ mod tests {
             &page,
             1,
             1,
+            20,
             &users,
             None,
         );
@@ -6500,13 +6586,14 @@ mod tests {
             &page,
             1,
             1,
+            20,
             &users,
             None,
         );
         assert_eq!(rendered, "[/dom-001 Codex virtual Wikidot DOM 001]");
 
         let rendered =
-            substitute_list_pages_variables("%%author%%", &page, 1, 1, &users, None);
+            substitute_list_pages_variables("%%author%%", &page, 1, 1, 20, &users, None);
         assert!(rendered.contains("printuser avatarhover"));
         assert!(rendered.contains("user:info/scpaiueouiuiuiui"));
 
@@ -6519,6 +6606,7 @@ mod tests {
             &local_author,
             1,
             1,
+            20,
             &BTreeMap::new(),
             None,
         );
@@ -6544,11 +6632,46 @@ mod tests {
             &local_mirror_author,
             1,
             1,
+            20,
             &local_users,
             None,
         );
         assert_eq!(rendered, "SeekGull / SeekGull");
         assert!(!rendered.contains("wikidot.com/user:info"));
+    }
+
+    #[test]
+    fn substitutes_wikidot_list_pages_limit_variable() {
+        let body = "%%index%%/%%total%% limit=%%limit%% %%title%%";
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Codex fixture".to_owned()),
+            alt_title: None,
+            slug: Some("codex-fixture".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+
+        assert!(list_pages_body_variables_supported(body));
+        assert_eq!(
+            substitute_list_pages_variables(
+                body,
+                &page,
+                2,
+                7,
+                20,
+                &BTreeMap::new(),
+                None,
+            ),
+            "2/7 limit=20 Codex fixture",
+        );
     }
 
     #[test]
@@ -6592,7 +6715,8 @@ mod tests {
         );
         assert!(list_pages_body_variables_supported(body));
 
-        let rendered = substitute_list_pages_variables(body, &page, 1, 1, &users, None);
+        let rendered =
+            substitute_list_pages_variables(body, &page, 1, 1, 20, &users, None);
 
         assert!(rendered.contains("[/scp-2693 SCP-2693]"));
         assert!(rendered.contains("**Rating:** +42"));
