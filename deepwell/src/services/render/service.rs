@@ -112,7 +112,7 @@ static CSS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table">.*?</table>|<ul data-wikijump-compat-list="1">.*?</ul>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
+        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
     )
     .unwrap()
 });
@@ -2490,6 +2490,8 @@ impl RenderService {
         }
 
         let mut fragments = Vec::new();
+        *wikitext =
+            Self::protect_generated_wikidot_compat_lists(wikitext, &mut fragments);
         let protected = GENERATED_COMPAT_TABLE_REGEX
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
                 let marker =
@@ -2505,6 +2507,35 @@ impl RenderService {
             .into_owned();
         *wikitext = protected;
         fragments
+    }
+
+    fn protect_generated_wikidot_compat_lists(
+        wikitext: &str,
+        fragments: &mut Vec<String>,
+    ) -> String {
+        let mut output = String::with_capacity(wikitext.len());
+        let mut rest = wikitext;
+        let list_start = r#"<ul data-wikijump-compat-list="1">"#;
+
+        while let Some(start) = rest.find(list_start) {
+            let (before, from_start) = rest.split_at(start);
+            output.push_str(before);
+
+            if let Some(end) = find_balanced_ul_end(from_start) {
+                let fragment = &from_start[..end];
+                let marker =
+                    format!("{WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX}{}X", fragments.len());
+                fragments.push(fragment.replace(r#" data-wikijump-compat-list="1""#, ""));
+                output.push_str(&marker);
+                rest = &from_start[end..];
+            } else {
+                output.push_str(list_start);
+                rest = &from_start[list_start.len()..];
+            }
+        }
+
+        output.push_str(rest);
+        output
     }
 
     fn restore_protected_generated_wikidot_compat_html(
@@ -2555,21 +2586,12 @@ impl RenderService {
 
         while index < lines.len() {
             let mut end = index;
-            while end < lines.len() && native_bullet_list_content(lines[end]).is_some() {
+            while end < lines.len() && native_bullet_list_item(lines[end]).is_some() {
                 end += 1;
             }
 
             if end - index >= LONG_NATIVE_LIST_RENDER_MIN_ITEMS {
-                output.push_str(r#"<ul data-wikijump-compat-list="1">"#);
-                output.push('\n');
-                for line in &lines[index..end] {
-                    if let Some(content) = native_bullet_list_content(line) {
-                        output.push_str("<li>");
-                        output.push_str(&render_native_list_inline_html(content));
-                        output.push_str("</li>\n");
-                    }
-                }
-                output.push_str("</ul>\n");
+                output.push_str(&render_native_bullet_list(&lines[index..end]));
                 index = end;
             } else {
                 output.push_str(lines[index]);
@@ -5052,11 +5074,116 @@ fn percent_encode_list_pages_class(value: &str) -> String {
         .collect()
 }
 
-fn native_bullet_list_content(line: &str) -> Option<&str> {
-    let trimmed = line.trim_start_matches(' ');
-    trimmed
+fn render_native_bullet_list(lines: &[&str]) -> String {
+    let items: Vec<_> = lines
+        .iter()
+        .filter_map(|line| native_bullet_list_item(line))
+        .collect();
+    let base_depth = items.iter().map(|(depth, _)| *depth).min().unwrap_or(0);
+    let mut output = String::new();
+    let mut current_depth = 0usize;
+    let mut open_li = false;
+
+    output.push_str(r#"<ul data-wikijump-compat-list="1">"#);
+    output.push('\n');
+
+    for (index, &(raw_depth, content)) in items.iter().enumerate() {
+        let depth = raw_depth.saturating_sub(base_depth);
+        let has_children = items
+            .get(index + 1)
+            .is_some_and(|(next_depth, _)| next_depth.saturating_sub(base_depth) > depth);
+
+        if depth > current_depth {
+            while current_depth < depth {
+                output.push_str("<ul>\n");
+                current_depth += 1;
+            }
+        } else if depth < current_depth {
+            if open_li {
+                output.push_str("</li>\n");
+            }
+
+            while current_depth > depth {
+                output.push_str("</ul>\n</li>\n");
+                current_depth -= 1;
+            }
+        } else if open_li {
+            output.push_str("</li>\n");
+        }
+
+        output.push_str("<li>");
+        output.push_str(&render_native_list_item_content(content, has_children));
+        open_li = true;
+    }
+
+    if open_li {
+        output.push_str("</li>\n");
+    }
+
+    while current_depth > 0 {
+        output.push_str("</ul>\n</li>\n");
+        current_depth -= 1;
+    }
+
+    output.push_str("</ul>\n");
+    output
+}
+
+fn render_native_list_item_content(content: &str, has_children: bool) -> String {
+    let rendered = render_native_list_inline_html(content);
+    if has_children && !rendered.contains("<a ") {
+        format!(
+            r#"<a href="javascript:;">{rendered}
+</a>"#
+        )
+    } else {
+        rendered
+    }
+}
+
+fn find_balanced_ul_end(html: &str) -> Option<usize> {
+    let mut depth = 0usize;
+    let mut cursor = 0usize;
+
+    loop {
+        let next_open = html[cursor..].find("<ul").map(|offset| cursor + offset);
+        let next_close = html[cursor..].find("</ul>").map(|offset| cursor + offset);
+
+        match (next_open, next_close) {
+            (Some(open), Some(close)) if open < close => {
+                depth += 1;
+                cursor = open + 3;
+            }
+            (Some(open), None) => {
+                depth += 1;
+                cursor = open + 3;
+            }
+            (_, Some(close)) => {
+                if depth == 0 {
+                    return None;
+                }
+
+                depth -= 1;
+                cursor = close + "</ul>".len();
+                if depth == 0 {
+                    return Some(cursor);
+                }
+            }
+            (None, None) => return None,
+        }
+    }
+}
+
+fn native_bullet_list_item(line: &str) -> Option<(usize, &str)> {
+    let trimmed_end = line.trim_end_matches(['\r', '\n']);
+    let depth = trimmed_end
+        .as_bytes()
+        .iter()
+        .take_while(|&&byte| byte == b' ')
+        .count();
+    trimmed_end[depth..]
         .strip_prefix("* ")
-        .map(|content| content.trim_end_matches(['\r', '\n']))
+        .map(|content| (depth, content))
 }
 
 fn native_numbered_list_content(line: &str) -> Option<&str> {
@@ -5217,12 +5344,70 @@ fn render_native_list_inline_html(value: &str) -> String {
 }
 
 fn render_native_list_page_link(target: &str, label: Option<&str>) -> String {
-    let label = label.filter(|label| !label.is_empty()).unwrap_or(target);
+    let target = target.trim();
+    let label = label
+        .map(str::trim)
+        .filter(|label| !label.is_empty())
+        .map(str::to_owned)
+        .unwrap_or_else(|| native_list_page_link_default_label(target));
+    let href = native_list_page_link_href(target);
     format!(
-        r#"<a href="/{target}">{label}</a>"#,
-        target = escape_list_pages_html_attr(target),
+        r#"<a href="{href}">{label}</a>"#,
+        href = escape_list_pages_html_attr(&href),
         label = label,
     )
+}
+
+fn native_list_page_link_href(target: &str) -> String {
+    if target.starts_with("http://") || target.starts_with("https://") {
+        return target.to_owned();
+    }
+
+    let mut slug = String::with_capacity(target.len());
+    let mut previous_dash = false;
+    for character in target.trim().chars() {
+        if character.is_whitespace() || character == '_' {
+            if !previous_dash {
+                slug.push('-');
+                previous_dash = true;
+            }
+        } else {
+            for lowercase in character.to_lowercase() {
+                slug.push(lowercase);
+            }
+            previous_dash = character == '-';
+        }
+    }
+
+    format!("/{}", slug.trim_matches('-'))
+}
+
+fn native_list_page_link_default_label(target: &str) -> String {
+    if target.starts_with("http://") || target.starts_with("https://") {
+        return target.to_owned();
+    }
+    if target.contains(char::is_whitespace) {
+        return target.to_owned();
+    }
+
+    target
+        .split('-')
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => {
+                    let mut word = String::new();
+                    for uppercase in first.to_uppercase() {
+                        word.push(uppercase);
+                    }
+                    word.push_str(chars.as_str());
+                    word
+                }
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn render_native_list_wikidot_user(name: &str) -> String {
@@ -6664,7 +6849,7 @@ mod tests {
             rendered
                 .contains(r#"<a href="http://scp-jp.wikidot.com/example">Example</a>"#)
         );
-        assert!(rendered.contains(r#"<a href="/empty-label">empty-label</a>"#));
+        assert!(rendered.contains(r#"<a href="/empty-label">Empty Label</a>"#));
         assert!(!rendered.contains("[[*user"));
 
         let mut protected = rendered.clone();
@@ -6679,6 +6864,79 @@ mod tests {
         );
         assert!(restored.starts_with("<ul>"));
         assert!(!restored.contains("data-wikijump-compat-list"));
+    }
+
+    #[test]
+    fn renders_nested_native_list_runs_before_ftml_parsing() {
+        let source = [
+            "* About\n",
+            " * [[[about-the-scp-foundation|About Us]]]\n",
+            " * [[[Site Rules]]]\n",
+            " * [[[FAQ]]]\n",
+            "* Community\n",
+            " * [[[news|Site News]]]\n",
+            " * [[[chat-guide|IRC Chat]]]\n",
+            " * [[[artist-directory|]]]\n",
+            " * [[[http://05command.wikidot.com/staff-list | Staff List]]]\n",
+            "* [[[contact-staff | Contact Us]]]\n",
+        ]
+        .join("");
+
+        let rendered = RenderService::render_long_native_list_runs(source);
+
+        assert!(rendered.contains(
+            "<li><a href=\"javascript:;\">About\n</a><ul>\n<li><a href=\"/about-the-scp-foundation\">About Us</a></li>"
+        ));
+        assert!(rendered.contains(
+            "</ul>\n</li>\n<li><a href=\"javascript:;\">Community\n</a><ul>\n<li><a href=\"/news\">Site News</a></li>"
+        ));
+        assert!(rendered.contains(
+            "</ul>\n</li>\n<li><a href=\"/contact-staff\">Contact Us</a></li>"
+        ));
+        assert!(rendered.contains(r#"<a href="/site-rules">Site Rules</a>"#));
+        assert!(rendered.contains(r#"<a href="/faq">FAQ</a>"#));
+        assert!(rendered.contains(r#"<a href="/artist-directory">Artist Directory</a>"#));
+        assert!(rendered.contains(
+            r#"<a href="http://05command.wikidot.com/staff-list">Staff List</a>"#
+        ));
+
+        let mut protected = rendered.clone();
+        let fragments = RenderService::protect_generated_wikidot_compat_html(
+            &mut protected,
+            &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+        );
+        assert_eq!(fragments.len(), 1);
+        assert!(protected.starts_with(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+        assert!(!protected.contains("</ul>"));
+
+        let restored = RenderService::restore_protected_generated_wikidot_compat_html(
+            protected, &fragments,
+        );
+        assert!(restored.starts_with("<ul>"));
+        assert!(restored.contains("<li><a href=\"javascript:;\">About\n</a><ul>"));
+        assert!(!restored.contains("data-wikijump-compat-list"));
+    }
+
+    #[test]
+    fn normalizes_leading_indentation_for_native_list_runs() {
+        let source = [
+            " * Parent\n",
+            "  * Child\n",
+            "  * Another child\n",
+            " * Sibling\n",
+            " * Item 3\n",
+            " * Item 4\n",
+            " * Item 5\n",
+            " * Item 6\n",
+        ]
+        .join("");
+
+        let rendered = RenderService::render_long_native_list_runs(source);
+
+        assert!(rendered.starts_with(r#"<ul data-wikijump-compat-list="1">"#));
+        assert!(rendered.contains("<li><a href=\"javascript:;\">Parent\n</a><ul>"));
+        assert!(!rendered.contains("<ul data-wikijump-compat-list=\"1\">\n<ul>"));
+        assert!(!rendered.contains("</ul>\n</li>\n</li>"));
     }
 
     #[test]
