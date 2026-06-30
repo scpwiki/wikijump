@@ -288,13 +288,8 @@ jobs:
                   candidateTimes.push(event.created_at);
                 }
                 if (event.event === "committed" && matchesHead(headSha, event.sha)) {
-                  const committedAt =
-                    event.created_at ||
-                    event.committer?.date ||
-                    event.author?.date ||
-                    event.verification?.verified_at;
-                  if (committedAt) {
-                    candidateTimes.push(committedAt);
+                  if (event.created_at) {
+                    candidateTimes.push(event.created_at);
                     continue;
                   }
                   const nextTimestampedEvent = timeline
@@ -384,9 +379,6 @@ jobs:
             }
 
             async function reviewThreadHasCodexComment(thread) {
-              if (thread.isOutdated) {
-                return false;
-              }
               if (thread.comments.nodes.some((comment) => isCodexThreadComment(comment))) {
                 return true;
               }
@@ -451,6 +443,7 @@ jobs:
                 const threads = result.repository.pullRequest.reviewThreads;
                 for (const thread of threads.nodes) {
                   if (thread.isResolved) continue;
+                  // Branch protection requires conversation resolution; this gate tracks current-diff Codex threads.
                   if (thread.isOutdated) continue;
                   if (await reviewThreadHasCodexComment(thread)) {
                     unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
@@ -514,11 +507,17 @@ jobs:
                 .filter((comment) => coderabbitLogins.has(comment.user?.login))
                 .filter((comment) => {
                   const body = comment.body || "";
-                  const commentAt = parseTimestamp(comment.created_at);
+                  const commentAt = parseTimestamp(comment.updated_at || comment.created_at);
+                  const referencesHead = body.includes(headSha) || body.includes(shortHead);
                   if (statusCreatedAt === null) {
-                    return body.includes(headSha) || body.includes(shortHead);
+                    return referencesHead;
                   }
-                  return commentAt !== null && commentAt >= statusCreatedAt - 60 * 1000;
+                  const nearStatus =
+                    commentAt !== null && commentAt >= statusCreatedAt - 60 * 1000;
+                  if (referencesHead) {
+                    return nearStatus;
+                  }
+                  return coderabbitStatus?.state !== "pending" && nearStatus;
                 });
               const rateLimited =
                 rateLimitPattern.test(description) ||
@@ -768,6 +767,17 @@ jobs:
                   .filter(Boolean)
                   .join(" ");
                 if (!waitForReviews) {
+                  const latestGateStatus = statuses
+                    .filter((status) => status.context === gateContext)
+                    .sort((left, right) => new Date(right.created_at) - new Date(left.created_at))[0];
+                  if (["error", "failure"].includes(latestGateStatus?.state)) {
+                    core.info(
+                      `Leaving existing terminal ${gateContext} status in place: ${
+                        latestGateStatus.description || message
+                      }`,
+                    );
+                    return { ok: true, pending: true };
+                  }
                   await setGateStatusForEvaluation("pending", message, statuses);
                   core.info(message);
                   return { ok: true, pending: true };
