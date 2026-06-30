@@ -11,6 +11,7 @@ import {
 function parseArgs(argv) {
   const args = {
     corpusRoot: null,
+    sourceBundle: null,
     branch: 'en',
     sourceSite: null,
     sourceBranch: null,
@@ -28,34 +29,41 @@ function parseArgs(argv) {
       return argv[index];
     };
     if (arg === '--corpus-root') args.corpusRoot = next();
+    else if (arg === '--source-bundle') args.sourceBundle = next();
     else if (arg === '--branch') args.branch = next();
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--output') args.output = next();
     else if (arg === '--summary') args.summary = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: build-corpus-import-manifest.mjs --corpus-root <path> [--branch en] --output <manifest.jsonl> --summary <summary.json>');
+      console.log('Usage: build-corpus-import-manifest.mjs (--corpus-root <path> [--branch en] | --source-bundle <path>) [--source-site site] [--source-branch branch] --output <manifest.jsonl> --summary <summary.json>');
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
     }
   }
 
-  if (!args.corpusRoot) throw new Error('--corpus-root is required');
+  if ((args.corpusRoot === null) === (args.sourceBundle === null)) {
+    throw new Error('exactly one of --corpus-root or --source-bundle is required');
+  }
   if (!args.output) throw new Error('--output is required');
   if (!args.summary) throw new Error('--summary is required');
-  args.sourceSite ??= args.branch;
-  args.sourceBranch ??= args.branch;
+  if (args.corpusRoot !== null) {
+    args.sourceSite ??= args.branch;
+    args.sourceBranch ??= args.branch;
+  }
   return args;
 }
 
 const args = parseArgs(process.argv.slice(2));
-const rows = buildCorpusImportManifest({
-  corpusRoot: path.resolve(args.corpusRoot),
+const manifestInput = {
+  corpusRoot: args.corpusRoot === null ? null : path.resolve(args.corpusRoot),
+  sourceBundleRoot: args.sourceBundle === null ? null : path.resolve(args.sourceBundle),
   branch: args.branch,
   sourceSite: args.sourceSite,
-  sourceBranch: args.sourceBranch,
-});
+};
+if (args.sourceBranch !== null) manifestInput.sourceBranch = args.sourceBranch;
+const rows = buildCorpusImportManifest(manifestInput);
 const jsonl = formatJsonl(rows);
 const summary = buildManifestSummary(rows, jsonl);
 fs.mkdirSync(path.dirname(path.resolve(args.output)), { recursive: true });
