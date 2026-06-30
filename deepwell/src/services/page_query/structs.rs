@@ -25,6 +25,7 @@ use super::prelude::*;
 use crate::services::score::ScoreValue;
 use sea_orm::prelude::TimeDateTimeWithTimeZone;
 use std::borrow::Cow;
+use std::collections::BTreeMap;
 use time::OffsetDateTime;
 
 /// What kinds of pages (hidden or not) to select from.
@@ -146,6 +147,63 @@ pub enum RangeSelector {
 pub struct DataFormSelector<'a> {
     pub field: Cow<'a, str>,
     pub value: Cow<'a, str>,
+    pub negated: bool,
+}
+
+pub fn parse_static_wikidot_data_form_values(wikitext: &str) -> BTreeMap<String, String> {
+    let mut values = BTreeMap::new();
+    let mut started = false;
+
+    for line in wikitext.lines() {
+        let Some((field, value)) = line.split_once(':') else {
+            if started || !line.trim().is_empty() {
+                break;
+            }
+            continue;
+        };
+        let field = field.trim();
+        if field.is_empty()
+            || !field.chars().all(|character| {
+                character.is_ascii_alphanumeric() || matches!(character, '_' | '-')
+            })
+        {
+            if started || !line.trim().is_empty() {
+                break;
+            }
+            continue;
+        }
+
+        started = true;
+        let value = unquote_static_wikidot_data_form_value(value.trim());
+        values.insert(field.to_owned(), value.to_owned());
+    }
+
+    values
+}
+
+pub fn static_wikidot_data_form_matches(
+    values: &BTreeMap<String, String>,
+    selectors: &[DataFormSelector<'_>],
+) -> bool {
+    selectors.iter().all(|selector| {
+        let Some(actual) = values.get(selector.field.as_ref()).map(String::as_str) else {
+            return false;
+        };
+        let matches = actual == selector.value.as_ref();
+        matches != selector.negated
+    })
+}
+
+fn unquote_static_wikidot_data_form_value(value: &str) -> &str {
+    if value.len() >= 2 {
+        let first = value.as_bytes()[0];
+        let last = value.as_bytes()[value.len() - 1];
+        if matches!((first, last), (b'\'', b'\'') | (b'"', b'"')) {
+            return &value[1..value.len() - 1];
+        }
+    }
+
+    value
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -279,6 +337,7 @@ pub struct PageQuery<'a> {
     pub slug: Option<Cow<'a, str>>,
     pub data_form_fields: &'a [DataFormSelector<'a>],
     pub order: Option<OrderBySelector>,
+    pub candidate_limit: Option<u64>,
     pub pagination: PaginationSelector,
     pub variables: &'a [PageQueryVariables<'a>],
     pub fields: FoundPageFields,

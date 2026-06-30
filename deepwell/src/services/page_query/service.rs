@@ -68,6 +68,7 @@ impl PageQueryService {
             slug,
             data_form_fields,
             order,
+            candidate_limit,
             pagination,
             variables,
             fields,
@@ -90,7 +91,7 @@ impl PageQueryService {
 
         // Page Type
         let hidden_condition = Expr::cust_with_expr(
-            r#"$1 LIKE '\_%' ESCAPE '\'"#,
+            r#"regexp_replace($1, '^.*:', '') LIKE '\_%' ESCAPE '\'"#,
             Expr::col((Page, page::Column::Slug)),
         );
         match page_type {
@@ -527,7 +528,8 @@ impl PageQueryService {
             }
         }
 
-        if !score_order {
+        let defer_offset_limit = score_order || !data_form_fields.is_empty();
+        if !defer_offset_limit {
             if offset > 0 {
                 debug!("Offsetting ListPages by {offset} pages");
                 query = query.offset(u64::from(offset));
@@ -536,6 +538,13 @@ impl PageQueryService {
                 debug!("Limiting ListPages to a maximum of {limit} pages total");
                 query = query.limit(limit);
             }
+        } else if !data_form_fields.is_empty()
+            && let Some(candidate_limit) = candidate_limit
+        {
+            debug!(
+                "Limiting ListPages data form candidate scan to {candidate_limit} pages"
+            );
+            query = query.limit(candidate_limit);
         }
 
         // TODO pagination
@@ -552,6 +561,11 @@ impl PageQueryService {
 
         // Execute it!
         let mut pages = query.all(txn).await.or_raise(make_error)?;
+        if !data_form_fields.is_empty() {
+            pages = filter_pages_by_data_form_fields(ctx, pages, data_form_fields)
+                .await
+                .or_raise(make_error)?;
+        }
 
         debug!("Query returned {} pages, building FoundPages", pages.len());
 
@@ -568,24 +582,26 @@ impl PageQueryService {
                 BTreeMap::new()
             };
 
-        if score_order {
-            pages.sort_by(|left, right| {
-                let left_score =
-                    score_by_page_id.get(&left.page_id).copied().unwrap_or(0.0);
-                let right_score =
-                    score_by_page_id.get(&right.page_id).copied().unwrap_or(0.0);
-                let ordering = left_score
-                    .partial_cmp(&right_score)
-                    .unwrap_or(Ordering::Equal);
-                let ordering = if order.ascending {
+        if defer_offset_limit {
+            if score_order {
+                pages.sort_by(|left, right| {
+                    let left_score =
+                        score_by_page_id.get(&left.page_id).copied().unwrap_or(0.0);
+                    let right_score =
+                        score_by_page_id.get(&right.page_id).copied().unwrap_or(0.0);
+                    let ordering = left_score
+                        .partial_cmp(&right_score)
+                        .unwrap_or(Ordering::Equal);
+                    let ordering = if order.ascending {
+                        ordering
+                    } else {
+                        ordering.reverse()
+                    };
                     ordering
-                } else {
-                    ordering.reverse()
-                };
-                ordering
-                    .then_with(|| left.slug.cmp(&right.slug))
-                    .then_with(|| left.page_id.cmp(&right.page_id))
-            });
+                        .then_with(|| left.slug.cmp(&right.slug))
+                        .then_with(|| left.page_id.cmp(&right.page_id))
+                });
+            }
             if offset > 0 {
                 let skip = (offset as usize).min(pages.len());
                 pages.drain(..skip);
@@ -718,4 +734,57 @@ fn score_to_f32(score: ScoreValue) -> f32 {
         ScoreValue::Integer(value) => value as f32,
         ScoreValue::Float(value) => value as f32,
     }
+}
+
+async fn filter_pages_by_data_form_fields(
+    ctx: &ServiceContext<'_>,
+    pages: Vec<page::Model>,
+    selectors: &[DataFormSelector<'_>],
+) -> Result<Vec<page::Model>> {
+    let make_error = || {
+        Error::new(
+            "failed to filter ListPages data form selectors",
+            ErrorType::PageQuery,
+        )
+    };
+    let revision_ids = pages
+        .iter()
+        .filter_map(|page| page.latest_revision_id)
+        .collect::<Vec<_>>();
+    if revision_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let revisions_by_id = page_revision::Entity::find()
+        .filter(page_revision::Column::RevisionId.is_in(revision_ids))
+        .all(ctx.transaction())
+        .await
+        .or_raise(make_error)?
+        .into_iter()
+        .map(|revision| (revision.revision_id, revision.wikitext_hash))
+        .collect::<BTreeMap<_, _>>();
+
+    let hashes = revisions_by_id.values().cloned().collect::<Vec<_>>();
+    let text_by_hash = text::Entity::find()
+        .filter(text::Column::Hash.is_in(hashes))
+        .all(ctx.transaction())
+        .await
+        .or_raise(make_error)?
+        .into_iter()
+        .map(|text| (text.hash, text.contents))
+        .collect::<BTreeMap<_, _>>();
+
+    Ok(pages
+        .into_iter()
+        .filter(|page| {
+            let values = page
+                .latest_revision_id
+                .and_then(|revision_id| revisions_by_id.get(&revision_id))
+                .and_then(|hash| text_by_hash.get(hash))
+                .map(|wikitext| parse_static_wikidot_data_form_values(wikitext))
+                .unwrap_or_default();
+
+            static_wikidot_data_form_matches(&values, selectors)
+        })
+        .collect())
 }

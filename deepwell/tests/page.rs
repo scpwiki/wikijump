@@ -4853,6 +4853,7 @@ async fn page_query_orders_by_page_slug_without_category_prefix() {
                 property: OrderProperty::PageSlug,
                 ascending: true,
             }),
+            candidate_limit: None,
             pagination: PaginationSelector {
                 limit: Some(10),
                 ..Default::default()
@@ -4937,6 +4938,7 @@ async fn page_query_created_by_uses_earliest_available_revision() {
                 property: OrderProperty::PageSlug,
                 ascending: true,
             }),
+            candidate_limit: None,
             pagination: PaginationSelector {
                 limit: Some(10),
                 ..Default::default()
@@ -5000,6 +5002,7 @@ async fn page_query_created_by_uses_earliest_available_revision() {
                 property: OrderProperty::PageSlug,
                 ascending: true,
             }),
+            candidate_limit: None,
             pagination: PaginationSelector {
                 limit: Some(10),
                 ..Default::default()
@@ -5107,6 +5110,7 @@ async fn page_query_score_order_returns_results() {
             property: OrderProperty::Score,
             ascending: true,
         }),
+        candidate_limit: None,
         pagination: PaginationSelector::default(),
         variables: &[],
         fields: FoundPageFields {
