@@ -98,6 +98,48 @@
             "wikitext": "page-tags"
         }
     ],
+    "sandbox-for-codex": [
+        {
+            "slug": "start",
+            "title": "Sandbox for Codex",
+            "wikitext": "sandbox-for-codex-start"
+        },
+        {
+            "slug": "nav:side",
+            "title": "Sidebar",
+            "wikitext": "sidebar"
+        },
+        {
+            "slug": "nav:top",
+            "title": "Topbar",
+            "wikitext": "topbar"
+        },
+        {
+            "slug": "_admin",
+            "title": "Admin Panel",
+            "wikitext": "_admin"
+        },
+        {
+            "slug": "system:join",
+            "title": "Join this site",
+            "wikitext": "join"
+        },
+        {
+            "slug": "system:members",
+            "title": "Site Members",
+            "wikitext": "members"
+        },
+        {
+            "slug": "system:recent-changes",
+            "title": "Recent Changes",
+            "wikitext": "recent-changes"
+        },
+        {
+            "slug": "system:page-tags",
+            "title": "Page Tags",
+            "wikitext": "page-tags"
+        }
+    ],
     "scpaiueouiuiuiui": [
         {
             "slug": "boundary-check",
@@ -166,24 +208,96 @@
             "wikitext": "scp-main"
         },
         {
+            "slug": "component:image-block-base",
+            "title": "Image Block Base",
+            "tags": ["component"],
+            "wikitext": "component-image-block-base"
+        },
+        {
+            "slug": "component:image-block",
+            "title": "Standard Image Block",
+            "tags": ["component"],
+            "wikitext": "component-image-block"
+        },
+        {
+            "slug": "component:preview",
+            "title": "Page Preview Component",
+            "tags": ["component"],
+            "wikitext": "component-preview"
+        },
+        {
+            "slug": "component:interwiki-style",
+            "title": "Interwiki Style",
+            "tags": ["component"],
+            "wikitext": "component-interwiki-style"
+        },
+        {
+            "slug": "component:betterfootnotes",
+            "title": "BetterFootnotes",
+            "tags": ["component"],
+            "wikitext": "component-betterfootnotes"
+        },
+        {
+            "slug": "component:acs-animation",
+            "title": "ACS Animation",
+            "tags": ["component"],
+            "wikitext": "component-acs-animation"
+        },
+        {
+            "slug": "component:wikimodule",
+            "title": "Wikimodule Component",
+            "tags": ["component"],
+            "wikitext": "component-wikimodule"
+        },
+        {
+            "slug": "component:license-box-backend",
+            "title": "License Box Backend",
+            "tags": ["component"],
+            "wikitext": "component-license-box-backend"
+        },
+        {
+            "slug": "component:license-box-end",
+            "title": "License Box End",
+            "tags": ["component"],
+            "wikitext": "component-license-box-end"
+        },
+        {
+            "slug": "component:license-box",
+            "title": "License Box",
+            "tags": ["component"],
+            "wikitext": "component-license-box"
+        },
+        {
+            "slug": "theme:basalt",
+            "title": "Basalt Theme",
+            "tags": ["theme"],
+            "wikitext": "theme-basalt"
+        },
+        {
             "slug": "scp-002",
             "title": "SCP-002",
             "alt-title": "The Living Room",
+            "tags": ["scp"],
             "wikitext": "scp-002"
         },
         {
             "slug": "scp-3352",
             "title": "SCP-3352",
+            "tags": ["scp"],
             "wikitext": "scp-3352"
         },
         {
             "slug": "scp-3922",
             "title": "SCP-3922",
+            "tags": ["scp"],
+            "created-by": -21,
             "wikitext": "scp-3922"
         },
         {
             "slug": "scp-9506",
             "title": "National Fog Safety Initiative",
+            "tags": ["scp"],
+            "created-by": -20,
             "wikitext": "scp-9506"
         },
         {

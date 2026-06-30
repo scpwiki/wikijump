@@ -206,6 +206,12 @@ pub struct Page {
     #[serde(default)]
     pub alt_title: Option<String>,
 
+    #[serde(default)]
+    pub tags: Vec<String>,
+
+    #[serde(default)]
+    pub created_by: Option<i64>,
+
     #[serde(skip)]
     pub wikitext: String,
 
@@ -283,6 +289,7 @@ mod tests {
             .find(|page| page.slug == "scp-3922")
             .expect("scp-3922 seed page");
         assert_eq!(scp_3922.title, "SCP-3922");
+        assert_eq!(scp_3922.tags, ["scp"]);
         assert!(scp_3922.wikitext.contains("**Item #:** SCP-3922"));
 
         let scp_9506 = pages
@@ -290,7 +297,58 @@ mod tests {
             .find(|page| page.slug == "scp-9506")
             .expect("scp-9506 seed page");
         assert_eq!(scp_9506.title, "National Fog Safety Initiative");
+        assert_eq!(scp_9506.tags, ["scp"]);
         assert!(scp_9506.wikitext.contains("National Fog Safety Initiative"));
         assert!(scp_9506.wikitext.contains("local--files/scp-9506/NFSI.png"));
+
+        let files = seed.files.get("scp-wiki").expect("scp-wiki files");
+        let scp_3922_files = files.get("scp-3922").expect("scp-3922 files");
+        assert!(scp_3922_files.iter().any(|file| file.name == "theend.jpg"
+            && file.path == Path::new("scp-3922--theend.jpg")));
+
+        let basalt_files = files.get("theme:basalt").expect("theme:basalt files");
+        assert!(
+            basalt_files
+                .iter()
+                .any(|file| file.name == "basalt_scp_logo-for_lightmode.svg")
+        );
+        assert!(
+            basalt_files
+                .iter()
+                .any(|file| file.name == "O5_DARKLOGO.png")
+        );
+
+        let theme_basalt = pages
+            .iter()
+            .find(|page| page.slug == "theme:basalt")
+            .expect("theme:basalt seed page");
+        assert_eq!(theme_basalt.tags, ["theme"]);
+
+        let component_betterfootnotes = pages
+            .iter()
+            .find(|page| page.slug == "component:betterfootnotes")
+            .expect("component:betterfootnotes seed page");
+        assert_eq!(component_betterfootnotes.tags, ["component"]);
+
+        let page_index = |slug: &str| {
+            pages
+                .iter()
+                .position(|page| page.slug == slug)
+                .unwrap_or_else(|| panic!("missing seeded page {slug}"))
+        };
+        assert!(
+            page_index("component:image-block-base")
+                < page_index("component:image-block")
+        );
+        assert!(page_index("component:interwiki-style") < page_index("theme:basalt"));
+        assert!(page_index("component:betterfootnotes") < page_index("theme:basalt"));
+        assert!(page_index("component:acs-animation") < page_index("theme:basalt"));
+        assert!(
+            page_index("component:license-box-backend")
+                < page_index("component:license-box")
+        );
+        assert!(
+            page_index("component:license-box-end") < page_index("component:license-box")
+        );
     }
 }

@@ -1,0 +1,512 @@
+[[module CSS]]
+
+:root {
+    --wm-bg: var(--white-monochrome);
+    --wm-accent: var(--bright-accent);
+    --wm-border: var(--black-monochrome);
+}
+
+.collection {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.collection .articlecolumn .list-pages-item,
+.collection .articlecolumn .list-pages-item > div,
+.collection .articlecolumn .list-pages-item > p {
+  display: inline;
+}
+
+.collection .articlecolumn .list-pages-item p {
+    margin: 0;
+}
+.collection .collapsible-block {
+    display: block;
+    text-align: center;
+    padding: 0.15em;
+    background-color: rgb(var(--wm-bg));
+    border: 1px solid rgb(var(--wm-border));
+}
+
+.collection .collapsible-block-unfolded-link a , .collection .collapsible-block-folded a {
+  display: block;
+  color: rgb(var(--wm-accent));
+  font-weight: bold;
+  background-color: rgba(var(--wm-accent), 0.25);
+  margin: auto;
+  border: 2px solid rgb(var(--wm-bg));
+}
+
+.collection > .collapsible-block .collapsible-block-content {
+    text-align: left;
+}
+
+.titlecolumn {
+  width: 15%;
+  border: 1px solid rgb(var(--wm-bg));
+  background-color: rgba(var(--wm-accent), 0.25);
+  text-align: right;
+  padding: 6px;
+}
+
+.articlecolumn {
+  width: 85%;
+  background-color: rgb(var(--wm-bg));
+  padding: 3px;
+  font-weight: normal;
+  font-size: 85%;
+}
+
+.namerow {
+  color: rgb(var(--wm-border));
+  font-weight: bold;
+  background-color: rgba(var(--wm-accent), 0.25);
+  margin: 0 auto;
+  border: 2px solid rgb(var(--wm-bg));
+  text-align: center;
+}
+
+.namerow a {
+  color: rgb(var(--wm-accent));
+}
+
+.namerow p {
+    margin: 0;
+}
+
+.collectiondot {
+  padding: 0 4px;
+}
+
+.articlecolumn .list-pages-item:last-child .collectiondot {
+  display: none;
+}
+[[/module]]
+
+[[iftags +component]]
+[[module CSS]]
+@import url("https://nu-scptheme.github.io/Black-Highlighter/stable/styles/normalize.min.css");
+@import url("https://nu-scptheme.github.io/Black-Highlighter/stable/styles/black-highlighter.min.css");
+[[/module]]
+[[>]]
+[[module Rate]]
+[[/>]]
+
+Hi, I'm [[*user ROUNDERHOUSE]] and this is a component you can plug in at the bottom of your articles (but above the Wikiwalk footer and Licensebox). It will display 15 SCPs and 15 tales randomly pulled from your body of work, as well as your author page and art pages should you have them. The design of it is modelled after Wikipedia/MediaWiki's collections module, which is [https://en.wikipedia.org/wiki/Wikipedia:Text_of_Creative_Commons_Attribution-ShareAlike_3.0_Unported_License available with the rest of Wikipedia]'s design and layout under CC BY SA 3.0. This component was designed with BHL design philosophies and aesthetics in mind, but it works perfectly fine on base Sigma-9. Double credit to [[*user smlt]] for helping me with troubleshooting some issues!
+----
+++ How to Include:
+Stick the appropriate include onto the bottom of your page, above the licensebox and wikiwalk footers. That's mandatory. I suggest you put it below anything else you may have at the bottom, such as footnote blocks. That's just my advice.
+----
+Clean Version:
+> @@[[include component:wikimodule |normal= --]]]@@
+[[div class="collection"]]
+[[collapsible show="More From This Author" hide="More From This Author"]]
+[[table style="1px solid black; width: 100%;"]]
+[[row]]
+[[hcell class="namerow" colspan="2"]]
+[[module ListPages range="."]]
+%%created_by%%'s Works
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+SCPs
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="scp" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Tales/GoI Formats
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="tale goi-format" perPage="15" limit="15" order="random" range="others" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Other
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="author artwork" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[/table]]
+[[/collapsible]]
+[[/div]]
+
+----
+
+Rating Version:
+> @@[[include component:wikimodule |ratings= --]]]@@
+[[div class="collection"]]
+[[collapsible show="More From This Author" hide="More From This Author"]]
+[[table style="1px solid black; width: 100%;"]]
+[[row]]
+[[hcell class="namerow" colspan="2"]]
+[[module ListPages range="."]]
+%%created_by%%'s Works
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+SCPs
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="scp" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Tales/GoI Formats
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="tale goi-format" perPage="15" limit="15" order="random" range="others" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Other
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="author artwork" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[/table]]
+[[/collapsible]]
+[[/div]]
+----
++ How to Customize for Themes
+This module uses three variables, that you can set to your liking to customize the appearance of the module. Be sure to put the CSS module for these **after** the module include.
+[[code type="css"]]
+
+:root {
+--wm-bg: /* Accepts an RGB value; determines the background color of the module (white by default) */;
+--wm-border: /* Accepts an RGB value; determines the border color of the module (black by default) */;
+--wm-accent: /* Accepts an RGB value; determines the accent color of the module (red by default) */;
+}
+[[/code]]
+
+----
++ FAQ
+
+**Q:** Will it work on collabs?
+
+**A:** No, it will only show the pages for the person who actually //created// the page that it's on.
+
+**Q:** Can it show my ratings?
+
+**A:** There is both a clean and a rating version. You can use either.
+
+**Q:** Will it work with themes?
+
+**A:** It depends. The colors are variables, so it really just depends on how the creator of the theme decides to color their variables. I haven't tested it any, so go figure. If it's ugly on a theme, you can always restyle it to the best of your abilities.
+
+**Q:** Will it work on other sites?
+
+**A:** This module, and any that uses Listpages to automatically grab articles, will only display pages from the site that the module is on. i.e you can use it on a sandbox, but it will only display your sandbox pages tagged 'scp' and 'tale' - so probably none. Also, to use on other sites, you will have to prepend ':scp-wiki:` `to component:wikimodule`.
+
+**Q:** I just refreshed my page, why are the articles still the same?
+
+**A:** The cache takes 60 seconds between refreshes to reset. Give it a minute.
+
+**Q:** ROUNDERHOUSE, why are you so cool?
+
+**A:** It's genetic.
+
+
+
+[[collapsible show="+ Show Code"]]
+[[code type="css"]]
+[[module CSS]]
+:root {
+    --wm-bg: var(--white-monochrome);
+    --wm-accent: var(--bright-accent);
+    --wm-border: var(--black-monochrome);
+}
+
+.collection {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.collection .articlecolumn .list-pages-item,
+.collection .articlecolumn .list-pages-item > div,
+.collection .articlecolumn .list-pages-item > p {
+  display: inline;
+}
+
+.collection .articlecolumn .list-pages-item p {
+    margin: 0;
+}
+.collection .collapsible-block {
+    display: block;
+    text-align: center;
+    padding: 0.15em;
+    background-color: rgb(var(--wm-bg));
+    border: 1px solid rgb(var(--wm-border));
+}
+
+.collection .collapsible-block-unfolded-link a , .collection .collapsible-block-folded a {
+  display: block;
+  color: rgb(var(--wm-accent));
+  font-weight: bold;
+  background-color: rgba(var(--wm-accent), 0.25);
+  margin: auto;
+  border: 2px solid rgb(var(--wm-bg));
+}
+
+.collection > .collapsible-block .collapsible-block-content {
+    text-align: left;
+}
+
+.titlecolumn {
+  width: 15%;
+  border: 1px solid rgb(var(--wm-bg));
+  background-color: rgba(var(--wm-accent), 0.25);
+  text-align: right;
+  padding: 6px;
+}
+
+.articlecolumn {
+  width: 85%;
+  background-color: rgb(var(--wm-bg));
+  padding: 3px;
+  font-weight: normal;
+  font-size: 85%;
+}
+
+.namerow {
+  color: rgb(var(--wm-border));
+  font-weight: bold;
+  background-color: rgba(var(--wm-accent), 0.25);
+  margin: 0 auto;
+  border: 2px solid rgb(var(--wm-bg));
+  text-align: center;
+}
+
+.namerow a {
+  color: rgb(var(--wm-accent));
+}
+
+.namerow p {
+    margin: 0;
+}
+
+.collectiondot {
+  padding: 0 4px;
+}
+
+.articlecolumn .list-pages-item:last-child .collectiondot {
+  display: none;
+}
+[[/module]]
+
+[!-- {$normal}
+[[div class="collection"]]
+[[collapsible show="More From This Author" hide="More From This Author"]]
+[[table style="1px solid black; width: 100%;"]]
+[[row]]
+[[hcell class="namerow" colspan="2"]]
+[[module ListPages range="."]]
+%%created_by%%'s Works
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+SCPs
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="scp" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Tales/GoI Formats
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="tale goi-format" perPage="15" limit="15" order="random" range="others" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Other
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="author artwork" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[/table]]
+[[/collapsible]]
+[[/div]]
+[!----]
+
+[!-- {$ratings}
+[[div class="collection"]]
+[[collapsible show="More From This Author" hide="More From This Author"]]
+[[table style="1px solid black; width: 100%;"]]
+[[row]]
+[[hcell class="namerow" colspan="2"]]
+[[module ListPages range="."]]
+%%created_by%%'s Works
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+SCPs
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="scp" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Tales/GoI Formats
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="tale goi-format" perPage="15" limit="15" order="random" range="others" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Other
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="author artwork" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[/table]]
+[[/collapsible]]
+[[/div]]
+[!----]
+[[/code]]
+[[/collapsible]]
+[[/iftags]]
+
+
+
+
+
+
+
+
+[!-- {$normal}
+[[div class="collection"]]
+[[collapsible show="More From This Author" hide="More From This Author"]]
+[[table style="1px solid black; width: 100%;"]]
+[[row]]
+[[hcell class="namerow" colspan="2"]]
+[[module ListPages range="."]]
+%%created_by%%'s Works
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+SCPs
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="scp" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Tales/GoI Formats
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="tale goi-format" perPage="15" limit="15" order="random" range="others" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Other
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="author artwork" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%%[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[/table]]
+[[/collapsible]]
+[[/div]]
+[!----]
+
+[!-- {$ratings}
+[[div class="collection"]]
+[[collapsible show="More From This Author" hide="More From This Author"]]
+[[table style="1px solid black; width: 100%;"]]
+[[row]]
+[[hcell class="namerow" colspan="2"]]
+[[module ListPages range="."]]
+%%created_by%%'s Works
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+SCPs
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="scp" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Tales/GoI Formats
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="tale goi-format" perPage="15" limit="15" order="random" range="others" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[row]]
+[[hcell class="titlecolumn"]]
+Other
+[[/hcell]]
+[[hcell class="articlecolumn"]]
+[[module ListPages category="*" created_by="=" tags="author artwork" perPage="15" limit="15" order="random" range="others"]]
+%%title_linked%% //(+%%rating%%)//[[span class="collectiondot"]] •[[/span]]
+[[/module]]
+[[/hcell]]
+[[/row]]
+[[/table]]
+[[/collapsible]]
+[[/div]]
+[!----]

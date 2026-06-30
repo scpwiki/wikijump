@@ -26,6 +26,16 @@
         "locale": "en"
     },
     {
+        "slug": "sandbox-for-codex",
+        "name": "Sandbox for Codex",
+        "tagline": "Local Wikidot behavior sandbox",
+        "description": "Local counterpart for sandbox-for-codex.wikidot.com behavior probes and XML-RPC parity tests.",
+        "default-page": "start",
+        "layout": "wikidot",
+        "license": "cc-by-sa-3.0",
+        "locale": "en"
+    },
+    {
         "slug": "scpaiueouiuiuiui",
         "name": "Local Translation Corpus",
         "tagline": "Editable local translation corpus",

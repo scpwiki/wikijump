@@ -1,0 +1,33 @@
+[!--
+Styling component for the EN Interwiki, based on the CN Interwiki by 7happy7 and Sekai-s.
+
+Interwiki: https://scpwiki.com/interwiki
+Source: https://github.com/scpwiki/interwiki
+
+See also: https://scpwiki.com/how-to-create-a-branch-of-the-scp-foundation
+
+Usage:
+
+On the page that intends to restyle the Interwiki:
+
+ [[include :scp-wiki:component:interwiki-style
+| priority=X
+| theme=<link to CSS stylesheet>
+| css=<URI-encoded CSS>
+]]
+
+The `priority` value must be set to a number that is 1 greater than the priority of the theme that this theme is extending.
+
+Examples:
+- The base theme of the site (for the SCP Wiki, this is Sigma-9) has a priority of 0.
+- A CSS theme designed to be used on pages that are already styled with Sigma-9 (i.e. a theme that extends Sigma-9) would have a priority of 1.
+- The Black Market theme extends the Black Highlighter theme, which has a priority of 2; therefore the Black Market theme would have a priority of 3.
+
+The `theme` value is optional, and can be a URL to a CSS stylesheet e.g. a CSS theme.
+
+The `css` value is optional, and can be URI-encoded CSS to apply directly to the Interwiki. To URI-encode CSS, see https://meyerweb.com/eric/tools/dencoder
+--]
+
+[[embed]]
+<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority={$priority}&theme={$theme}&css={$css}" style="display: none"></iframe>
+[[/embed]]

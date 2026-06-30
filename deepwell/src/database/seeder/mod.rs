@@ -32,6 +32,7 @@ use crate::services::file::{
 };
 use crate::services::filter::{CreateFilter, FilterService};
 use crate::services::page::{CreatePage, PageService};
+use crate::services::page_revision::{PageRevisionService, RerenderType};
 use crate::services::permission::PermissionService;
 use crate::services::relation::{
     PageAttributionEntry, PageAttributionKind, PageAttributionMetadata, RelationService,
@@ -42,7 +43,9 @@ use crate::services::role::{
 };
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService, UpdateSiteBody};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
-use crate::types::{Action, AliasType, Maybe, Permission, Reference, Resource};
+use crate::types::{
+    Action, AliasType, Maybe, PageId, Permission, Reference, RerenderDepth, Resource,
+};
 use crate::utils::now;
 use arrayvec::ArrayVec;
 use sea_orm::{
@@ -304,6 +307,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
     // Seed page data
     let mut page_ids = HashMap::new();
+    let mut seeded_page_ids = Vec::new();
     for (site_slug, pages) in pages {
         info!("Creating pages in site {site_slug}");
         let site_id = site_ids[&site_slug];
@@ -313,6 +317,8 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
         for page in pages {
             info!("Creating page '{}' (slug {})", page.title, page.slug);
+            let page_created_by = page.created_by.unwrap_or(SYSTEM_USER_ID);
+            let page_attribution_user_id = page.created_by.unwrap_or(site_user_id);
 
             let model = PageService::create(
                 &ctx,
@@ -321,10 +327,11 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                     wikitext: page.wikitext,
                     title: page.title,
                     alt_title: page.alt_title,
+                    tags: page.tags,
                     slug: page.slug,
                     layout: None,
                     revision_comments: str!(),
-                    user_id: SYSTEM_USER_ID,
+                    user_id: page_created_by,
                     bypass_filter: true,
                     ip_address: SEED_IP_ADDRESS,
                 },
@@ -339,7 +346,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                     page: Reference::Id(model.page_id),
                     updated_by: SYSTEM_USER_ID,
                     attributions: vec![PageAttributionEntry {
-                        user_id: site_user_id,
+                        user_id: page_attribution_user_id,
                         metadata: PageAttributionMetadata {
                             attribution_type: PageAttributionKind::Author,
                             attribution_date: now().date(),
@@ -351,6 +358,11 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             .or_raise(make_error)?;
 
             page_ids.insert((site_id, model.slug), model.page_id);
+            let page_model =
+                PageService::get(&ctx, site_id, Reference::Id(model.page_id))
+                    .await
+                    .or_raise(make_error)?;
+            seeded_page_ids.push(PageId::from_page_model(&page_model));
         }
     }
 
@@ -378,7 +390,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             buffer.push(file_path);
 
             let file_path = &buffer;
-            let stat = fs::metadata(file_path).or_raise(make_error)?;
+            let stat = fs::symlink_metadata(file_path).or_raise(make_error)?;
 
             assert!(
                 stat.file_type().is_file(),
@@ -540,7 +552,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     }
 
     // Seed roles (done after pages/categories are seeded)
-    for (_site_slug, site_id) in site_ids {
+    for &site_id in site_ids.values() {
         info!("Creating roles for site '{}'", site_id);
 
         for role_template in &roles {
@@ -637,6 +649,26 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                 .or_raise(make_error)?;
             }
         }
+    }
+
+    // Fresh pages are first compiled while later pages/files/roles may still be absent.
+    // Recompile once after dependencies and virtual role permissions exist.
+    //
+    // Role and permission mutations normally defer permission-cache invalidation
+    // until the API wrapper commits. The seeder owns the transaction manually, so
+    // drain those Redis-side invalidations before rerendering with the final role
+    // graph.
+    ctx.run_post_commit_actions().await.or_raise(make_error)?;
+
+    for page_id in seeded_page_ids {
+        PageRevisionService::rerender(
+            &ctx,
+            page_id,
+            RerenderDepth::default(),
+            RerenderType::Full,
+        )
+        .await
+        .or_raise(make_error)?;
     }
 
     txn.commit().await.or_raise(make_error)?;

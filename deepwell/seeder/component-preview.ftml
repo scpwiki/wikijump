@@ -1,0 +1,41 @@
+[[div class="preview"]]
+{$text}
+[[/div]]
+[[module CSS]]
+div.preview { display: none; }
+[[/module]]
+
+[[iftags +component]]
+To add a preview to your article,  copy the following onto the top of your page and replace "preview" with your own text:
+[[div class="code"]]
+@@=====@@
+@@[[include component:preview@@
+@@| text=preview]]@@
+@@=====@@
+[[/div]]
+
+This text can then be queried and shown on other pages. This short blurb may be any text which accurately or usefully describes an article at a glance or in summary. However, there are limitations to ensure standardization and avoid issues with site technical policy. See the [[[Technical Content Policy]]] for a full and up-to-date outline of the requirements.
+
+* Blurbs must be primarily composed of plain text.
+* Syntax blocks (e.g. {{[[div]]}}), custom CSS (inline or through modules), and use of components are prohibited.
+* Use of inline formatting are restricted to the following:
+ * **bold** (@@**bold**@@)
+ * //italic// (@@//italic//@@)
+ * __underline__ (@@__underline__@@)
+ * --strikethrough-- (@@--strikethrough--@@)
+ * {{teletype}} (@@{{teletype}}@@)
+ * Escaping with @@
+ * Inline center text (= at the start of a new line.)
+* Use of the component is limited to pages in the default category.
+* Blurbs must be at least one sentence or equivalent in length.
+* Blurbs should describe, summarize, or provide a hook for the article they reference. Off-topic or inappropriate blurbs may be subject to edits at the discretion of the Curation Team.
+* Blurbs should not be disruptive, such as containing excessively many paragraphs. This is determined at staff discretion.
+* Blurbs may contain links when appropriate, e.g. to a series it's a part of, or to a sequel/prequel article.
+
+The Tech Team reserves the right to edit blurbs as necessary if deemed too disruptive or deleterious to accessibility and legibility. Determination of violation is subject to the Technical Team's discretion.
+
+++ Images in Previews
+[https://crom.avn.sh/docs/crom-for-authors#thumbnail-image See here for documentation on how to add an image thumbnail to your article's preview].
+
+Note that image thumbnails are a Crom feature, not a Wikidot feature. As such, they will only appear in certain Crom embeds (e.g. Crom discord bot search results or SCP Wiki search results) and will not appear in other contexts (e.g. ListPages previews). You also //do not need// to include the Preview Component in your article for an image thumbnail to appear, or vice-versa -- both features function entirely independently of one another.
+[[/iftags]]

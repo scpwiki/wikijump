@@ -59,6 +59,182 @@
                 "name": "SCP.txt",
                 "path": "scp-main.ftml",
                 "overwrite": "scp-002.ftml"
+            },
+            {
+                "name": "800px-SCP002-new.jpg",
+                "path": "scp-002--800px-SCP002-new.jpg"
+            }
+        ],
+        "scp-3352": [
+            {
+                "name": "steel.png",
+                "path": "scp-3352--steel.png"
+            },
+            {
+                "name": "steel1.png",
+                "path": "scp-3352--steel1.png"
+            },
+            {
+                "name": "steel2.png",
+                "path": "scp-3352--steel2.png"
+            },
+            {
+                "name": "steel3.png",
+                "path": "scp-3352--steel3.png"
+            }
+        ],
+        "scp-3922": [
+            {
+                "name": "theend.jpg",
+                "path": "scp-3922--theend.jpg"
+            }
+        ],
+        "scp-9506": [
+            {
+                "name": "AFTER_FOG.png",
+                "path": "scp-9506--AFTER_FOG.png"
+            },
+            {
+                "name": "DEAD_BABY.png",
+                "path": "scp-9506--DEAD_BABY.png"
+            },
+            {
+                "name": "DONT_PANIC.png",
+                "path": "scp-9506--DONT_PANIC.png"
+            },
+            {
+                "name": "ESTAB_COMMS.png",
+                "path": "scp-9506--ESTAB_COMMS.png"
+            },
+            {
+                "name": "NFSI.png",
+                "path": "scp-9506--NFSI.png"
+            },
+            {
+                "name": "PRAC_OFT.png",
+                "path": "scp-9506--PRAC_OFT.png"
+            },
+            {
+                "name": "REC_ALERT.png",
+                "path": "scp-9506--REC_ALERT.png"
+            },
+            {
+                "name": "Sam.jpg",
+                "path": "scp-9506--Sam.jpg"
+            },
+            {
+                "name": "WHEN_ALERT.png",
+                "path": "scp-9506--WHEN_ALERT.png"
+            },
+            {
+                "name": "alert.jpg",
+                "path": "scp-9506--alert.jpg"
+            },
+            {
+                "name": "cold.jpg",
+                "path": "scp-9506--cold.jpg"
+            },
+            {
+                "name": "earth.jpg",
+                "path": "scp-9506--earth.jpg"
+            },
+            {
+                "name": "emigration.jpg",
+                "path": "scp-9506--emigration.jpg"
+            },
+            {
+                "name": "fog.jpg",
+                "path": "scp-9506--fog.jpg"
+            },
+            {
+                "name": "hunt.jpg",
+                "path": "scp-9506--hunt.jpg"
+            },
+            {
+                "name": "memorial.jpg",
+                "path": "scp-9506--memorial.jpg"
+            },
+            {
+                "name": "opening.jpg",
+                "path": "scp-9506--opening.jpg"
+            },
+            {
+                "name": "podium.jpg",
+                "path": "scp-9506--podium.jpg"
+            },
+            {
+                "name": "weathermap.gif",
+                "path": "scp-9506--weathermap.gif"
+            }
+        ],
+        "theme:basalt": [
+            {
+                "name": "basalt_scp_logo-for_lightmode.svg",
+                "path": "theme-basalt--basalt_scp_logo-for_lightmode.svg"
+            },
+            {
+                "name": "basalt_scp_logo-for_darkmode.svg",
+                "path": "theme-basalt--basalt_scp_logo-for_darkmode.svg"
+            },
+            {
+                "name": "basalt-theme-logo.svg",
+                "path": "theme-basalt--basalt-theme-logo.svg"
+            },
+            {
+                "name": "RAISA_LIGHTLOGO.png",
+                "path": "theme-basalt--RAISA_LIGHTLOGO.png"
+            },
+            {
+                "name": "CLASSIFICATION_LIGHTLOGO.png",
+                "path": "theme-basalt--CLASSIFICATION_LIGHTLOGO.png"
+            },
+            {
+                "name": "ETTRA_LIGHTLOGO.png",
+                "path": "theme-basalt--ETTRA_LIGHTLOGO.png"
+            },
+            {
+                "name": "ETHICS_LIGHTLOGO.png",
+                "path": "theme-basalt--ETHICS_LIGHTLOGO.png"
+            },
+            {
+                "name": "DELTA_T_LIGHTLOGO.png",
+                "path": "theme-basalt--DELTA_T_LIGHTLOGO.png"
+            },
+            {
+                "name": "O5_LIGHTLOGO.png",
+                "path": "theme-basalt--O5_LIGHTLOGO.png"
+            },
+            {
+                "name": "MISCOMM_LIGHTLOGO.png",
+                "path": "theme-basalt--MISCOMM_LIGHTLOGO.png"
+            },
+            {
+                "name": "RAISA_DARKLOGO.png",
+                "path": "theme-basalt--RAISA_DARKLOGO.png"
+            },
+            {
+                "name": "CLASSIFICATION_DARKLOGO.png",
+                "path": "theme-basalt--CLASSIFICATION_DARKLOGO.png"
+            },
+            {
+                "name": "ETTRA_DARKLOGO.png",
+                "path": "theme-basalt--ETTRA_DARKLOGO.png"
+            },
+            {
+                "name": "ETHICS_DARKLOGO.png",
+                "path": "theme-basalt--ETHICS_DARKLOGO.png"
+            },
+            {
+                "name": "DELTA_T_DARKLOGO.png",
+                "path": "theme-basalt--DELTA_T_DARKLOGO.png"
+            },
+            {
+                "name": "O5_DARKLOGO.png",
+                "path": "theme-basalt--O5_DARKLOGO.png"
+            },
+            {
+                "name": "MISCOMM_DARKLOGO.png",
+                "path": "theme-basalt--MISCOMM_DARKLOGO.png"
             }
         ]
     }

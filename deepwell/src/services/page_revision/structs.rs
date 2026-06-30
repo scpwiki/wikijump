@@ -52,6 +52,10 @@ pub struct CreateFirstPageRevision {
     pub wikitext: String,
     pub title: String,
     pub alt_title: Option<String>,
+
+    #[serde(default)]
+    pub tags: Vec<String>,
+
     pub slug: String,
     pub layout: Option<Layout>,
 }

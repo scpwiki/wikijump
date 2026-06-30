@@ -27,7 +27,7 @@ pub async fn site_get_domain(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
-    let site_id: i64 = parse!(params, SiteSettings);
+    let site_id: i64 = parse_one!(params, SiteSettings);
     let config = ctx.config();
 
     let site = SiteService::get(ctx, Reference::Id(site_id))

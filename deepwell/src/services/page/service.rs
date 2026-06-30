@@ -27,7 +27,7 @@ use crate::services::filter::{FilterClass, FilterType};
 use crate::services::page_revision::{
     CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
-    CreateTombstonePageRevision,
+    CreateTombstonePageRevision, RerenderType,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{
@@ -35,7 +35,8 @@ use crate::services::{
     TextService,
 };
 use crate::types::{
-    Action, PageId, PageOrder, PageRevisionType, Permission, Reference, Resource,
+    Action, PageId, PageOrder, PageRevisionType, Permission, Reference, RerenderDepth,
+    Resource,
 };
 use crate::utils::{get_category_name, trim_default};
 use ftml::layout::Layout;
@@ -55,6 +56,7 @@ impl PageService {
             wikitext,
             title,
             alt_title,
+            tags,
             mut slug,
             layout,
             revision_comments: comments,
@@ -112,6 +114,8 @@ impl PageService {
             ..Default::default()
         };
         let PageModel { page_id, .. } = model.insert(txn).await.or_raise(make_error)?;
+        let rerender_after_latest_revision =
+            needs_latest_revision_for_first_render(&wikitext);
 
         // Commit first revision
         let revision_input = CreateFirstPageRevision {
@@ -120,6 +124,7 @@ impl PageService {
             wikitext,
             title,
             alt_title,
+            tags,
             slug: slug.clone(),
             layout,
         };
@@ -147,6 +152,20 @@ impl PageService {
         };
         let page = model.update(txn).await.or_raise(make_error)?;
         assert_latest_revision(&page);
+        if rerender_after_latest_revision {
+            PageRevisionService::rerender(
+                ctx,
+                PageId {
+                    site_id,
+                    category_id,
+                    page_id,
+                },
+                RerenderDepth::default(),
+                RerenderType::Full,
+            )
+            .await
+            .or_raise(make_error)?;
+        }
 
         // Audit log
         AuditService::log(
@@ -1285,6 +1304,14 @@ impl PageService {
         .await
         .or_raise(make_error)
     }
+}
+
+fn needs_latest_revision_for_first_render(wikitext: &str) -> bool {
+    let lower = wikitext.to_ascii_lowercase();
+    lower.contains("[[module countpages")
+        || lower.contains("[[module listpages")
+        || lower.contains("[[module tagcloud")
+        || lower.contains("[[include")
 }
 
 /// Verifies that a `last_revision_id` passed into this function is actually the latest.

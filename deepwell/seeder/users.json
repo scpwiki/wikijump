@@ -121,5 +121,39 @@
         "user_page": null,
         "aliases": [
         ]
+    },
+    {
+        "id": -20,
+        "type": "system",
+        "name": "SeekGull",
+        "slug": "seekgull",
+        "email": "",
+        "password": null,
+        "locales": [],
+        "real_name": "SeekGull",
+        "gender": null,
+        "birthday": null,
+        "location": null,
+        "biography": "Seeded mirror author for SCP Wiki rendering fixtures",
+        "user_page": null,
+        "aliases": [
+        ]
+    },
+    {
+        "id": -21,
+        "type": "system",
+        "name": "daveyoufool",
+        "slug": "daveyoufool",
+        "email": "",
+        "password": null,
+        "locales": [],
+        "real_name": "daveyoufool",
+        "gender": null,
+        "birthday": null,
+        "location": null,
+        "biography": "Seeded mirror author for SCP Wiki rendering fixtures",
+        "user_page": null,
+        "aliases": [
+        ]
     }
 ]
