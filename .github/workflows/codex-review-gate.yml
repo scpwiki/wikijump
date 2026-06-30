@@ -523,17 +523,16 @@ jobs:
                 .filter((comment) => {
                   const body = comment.body || "";
                   const createdAt = parseTimestamp(comment.created_at);
-                  const updatedAt = parseTimestamp(comment.updated_at || comment.created_at);
                   const referencesHead = body.includes(headSha) || body.includes(shortHead);
-                  if (statusCreatedAt === null) {
-                    return referencesHead;
+                  if (referencesHead) {
+                    return true;
                   }
-                  const commentAt = referencesHead ? updatedAt : createdAt;
+                  if (statusCreatedAt === null) {
+                    return false;
+                  }
+                  const commentAt = createdAt;
                   const nearStatus =
                     commentAt !== null && Math.abs(commentAt - statusCreatedAt) <= 60 * 1000;
-                  if (referencesHead) {
-                    return nearStatus;
-                  }
                   return nearStatus && rateLimitPattern.test(body);
                 });
               const rateLimited =
