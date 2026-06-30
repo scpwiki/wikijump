@@ -469,8 +469,9 @@ jobs:
               const deadline = Date.now() + maxWaitMs;
               let lastMessage = "";
               while (true) {
-                const { pull, reviews, comments, statuses, headArrivedAt } =
-                  await fetchPullState(eventPull.number);
+                const { pull, reviews, comments, statuses } = await fetchPullState(
+                  eventPull.number,
+                );
                 const headSha = pull.head.sha;
                 const shortHead = headSha.slice(0, 10);
                 if (context.eventName === "status" && headSha !== context.payload.sha) {
@@ -487,13 +488,6 @@ jobs:
                   await setGateStatus("pending", "Waiting for automated reviews");
                 }
                 const coderabbit = evaluateCodeRabbit(reviews, comments, statuses, headSha, shortHead);
-                const codex = evaluateCodex(
-                  reviews,
-                  comments,
-                  headSha,
-                  shortHead,
-                  headArrivedAt,
-                );
 
                 if (coderabbit.terminal) {
                   await setGateStatus("failure", coderabbit.message);
@@ -501,21 +495,15 @@ jobs:
                   return;
                 }
 
-                if (coderabbit.ready && codex.ready) {
-                  await setGateStatus("success", "Automated reviews completed");
-                  core.info(codex.message);
+                if (coderabbit.ready) {
+                  await setGateStatus("success", "CodeRabbit gate completed");
                   core.info(coderabbit.message);
                   return;
                 }
 
-                const message = [
-                  codex.ready ? null : codex.message,
-                  coderabbit.ready ? null : coderabbit.message,
-                ]
-                  .filter(Boolean)
-                  .join(" ");
+                const message = coderabbit.message;
                 if (Date.now() >= deadline) {
-                  const timeoutMessage = `Timed out waiting for automated reviews. ${message}`;
+                  const timeoutMessage = `Timed out waiting for CodeRabbit. ${message}`;
                   await setGateStatus("failure", timeoutMessage);
                   core.setFailed(timeoutMessage);
                   return;
