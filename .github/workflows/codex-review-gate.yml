@@ -523,9 +523,14 @@ jobs:
                 .filter((comment) => {
                   const body = comment.body || "";
                   const createdAt = parseTimestamp(comment.created_at);
+                  const updatedAt = parseTimestamp(comment.updated_at || comment.created_at);
                   const referencesHead = body.includes(headSha) || body.includes(shortHead);
                   if (referencesHead) {
-                    return true;
+                    return (
+                      statusCreatedAt === null ||
+                      coderabbitStatus?.state !== "pending" ||
+                      (updatedAt !== null && updatedAt >= statusCreatedAt)
+                    );
                   }
                   if (statusCreatedAt === null) {
                     return false;
