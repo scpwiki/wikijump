@@ -236,6 +236,7 @@ jobs:
                 const createdAt = parseTimestamp(comment.created_at);
                 const updatedAt = parseTimestamp(comment.updated_at);
                 const headAt = parseTimestamp(headArrival?.time);
+                const statusFallbackGraceMs = headArrival?.source === "status" ? 2 * 60 * 1000 : 0;
                 const createdAfterHead =
                   createdAt !== null && headAt !== null && createdAt >= headAt;
                 const editedAfterHead =
@@ -243,8 +244,10 @@ jobs:
                   createdAt !== null &&
                   updatedAt > createdAt &&
                   headAt !== null &&
-                  updatedAt >= headAt;
+                  updatedAt >= headAt - statusFallbackGraceMs;
                 const requestAt = createdAfterHead ? createdAt : editedAfterHead ? updatedAt : null;
+                const requestUsedStatusGrace =
+                  !createdAfterHead && editedAfterHead && headAt !== null && requestAt < headAt;
                 if (requestAt === null) {
                   continue;
                 }
@@ -257,8 +260,8 @@ jobs:
                       codexLogins.has(reaction.user?.login) &&
                       reactionAt !== null &&
                       headAt !== null &&
-                      reactionAt >= headAt &&
-                      reactionAt >= requestAt
+                      reactionAt >= requestAt &&
+                      (reactionAt >= headAt || requestUsedStatusGrace)
                     );
                   })
                   .sort((left, right) => new Date(left.created_at) - new Date(right.created_at))
@@ -507,13 +510,15 @@ jobs:
                 .filter((comment) => coderabbitLogins.has(comment.user?.login))
                 .filter((comment) => {
                   const body = comment.body || "";
-                  const commentAt = parseTimestamp(comment.updated_at || comment.created_at);
+                  const createdAt = parseTimestamp(comment.created_at);
+                  const updatedAt = parseTimestamp(comment.updated_at || comment.created_at);
                   const referencesHead = body.includes(headSha) || body.includes(shortHead);
                   if (statusCreatedAt === null) {
                     return referencesHead;
                   }
+                  const commentAt = referencesHead ? updatedAt : createdAt;
                   const nearStatus =
-                    commentAt !== null && commentAt >= statusCreatedAt - 60 * 1000;
+                    commentAt !== null && Math.abs(commentAt - statusCreatedAt) <= 60 * 1000;
                   if (referencesHead) {
                     return nearStatus;
                   }
