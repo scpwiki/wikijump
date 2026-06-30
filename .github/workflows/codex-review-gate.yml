@@ -518,7 +518,7 @@ jobs:
                   if (referencesHead) {
                     return nearStatus;
                   }
-                  return coderabbitStatus?.state !== "pending" && nearStatus;
+                  return nearStatus && rateLimitPattern.test(body);
                 });
               const rateLimited =
                 rateLimitPattern.test(description) ||
