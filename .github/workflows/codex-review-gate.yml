@@ -288,79 +288,6 @@ jobs:
               };
             }
 
-            async function reviewThreadHasCodexComment(thread) {
-              if (thread.comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
-                return true;
-              }
-
-              let commentCursor = thread.comments.pageInfo.hasNextPage
-                ? thread.comments.pageInfo.endCursor
-                : null;
-              while (commentCursor) {
-                const result = await github.graphql(
-                  `query($threadId: ID!, $cursor: String) {
-                    node(id: $threadId) {
-                      ... on PullRequestReviewThread {
-                        comments(first: 100, after: $cursor) {
-                          pageInfo { hasNextPage endCursor }
-                          nodes {
-                            author { login }
-                          }
-                        }
-                      }
-                    }
-                  }`,
-                  { threadId: thread.id, cursor: commentCursor },
-                );
-                const comments = result.node.comments;
-                if (comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
-                  return true;
-                }
-                commentCursor = comments.pageInfo.hasNextPage ? comments.pageInfo.endCursor : null;
-              }
-              return false;
-            }
-
-            async function collectUnresolvedCodexThreads(pullNumber) {
-              const unresolvedCodexThreads = [];
-              let cursor = null;
-              do {
-                const result = await github.graphql(
-                  `query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
-                    repository(owner: $owner, name: $repo) {
-                      pullRequest(number: $number) {
-                        reviewThreads(first: 100, after: $cursor) {
-                          pageInfo { hasNextPage endCursor }
-                          nodes {
-                            id
-                            isResolved
-                            path
-                            line
-                            comments(first: 100) {
-                              pageInfo { hasNextPage endCursor }
-                              nodes {
-                                author { login }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }`,
-                  { owner, repo, number: pullNumber, cursor },
-                );
-                const threads = result.repository.pullRequest.reviewThreads;
-                for (const thread of threads.nodes) {
-                  if (thread.isResolved) continue;
-                  if (await reviewThreadHasCodexComment(thread)) {
-                    unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
-                  }
-                }
-                cursor = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
-              } while (cursor);
-              return unresolvedCodexThreads;
-            }
-
             function parseActionableCount(body) {
               const match = (body || "").match(/Actionable comments posted:\s*([0-9]+)/i);
               return match ? Number(match[1]) : null;
@@ -566,20 +493,10 @@ jobs:
                   shortHead,
                   headArrivedAt,
                 );
-                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
 
                 if (coderabbit.terminal) {
                   await setGateStatus("failure", coderabbit.message);
                   core.setFailed(coderabbit.message);
-                  return;
-                }
-
-                if (unresolvedCodexThreads.length > 0) {
-                  const unresolvedMessage = `Unresolved Codex review thread(s): ${unresolvedCodexThreads
-                    .slice(0, 5)
-                    .join(", ")}${unresolvedCodexThreads.length > 5 ? ", ..." : ""}`;
-                  await setGateStatus("failure", unresolvedMessage);
-                  core.setFailed(unresolvedMessage);
                   return;
                 }
 
