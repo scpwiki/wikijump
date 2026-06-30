@@ -186,29 +186,7 @@ jobs:
                   direction: "desc",
                   per_page: 100,
                 });
-                const pullsNeedingRefresh = [];
-                for (const pull of pulls) {
-                  if (pull.draft) {
-                    continue;
-                  }
-                  const statuses = await github.paginate(github.rest.repos.listCommitStatusesForRef, {
-                    owner,
-                    repo,
-                    ref: pull.head.sha,
-                    per_page: 100,
-                  });
-                  const latestGateStatus = statuses
-                    .filter((status) => status.context === gateContext)
-                    .sort((left, right) => new Date(right.created_at) - new Date(left.created_at))[0];
-                  if (
-                    latestGateStatus?.state === "success" &&
-                    latestGateStatus?.description === "Automated reviews completed"
-                  ) {
-                    continue;
-                  }
-                  pullsNeedingRefresh.push(pull);
-                }
-                return pullsNeedingRefresh;
+                return pulls.filter((pull) => !pull.draft);
               }
 
               return [];
@@ -258,15 +236,14 @@ jobs:
                 const createdAt = parseTimestamp(comment.created_at);
                 const updatedAt = parseTimestamp(comment.updated_at);
                 const headAt = parseTimestamp(headArrival?.time);
-                const fallbackGraceMs = headArrival?.source === "status" ? 2 * 60 * 1000 : 0;
                 const createdAfterHead =
-                  createdAt !== null && headAt !== null && createdAt >= headAt - fallbackGraceMs;
+                  createdAt !== null && headAt !== null && createdAt >= headAt;
                 const editedAfterHead =
                   updatedAt !== null &&
                   createdAt !== null &&
                   updatedAt > createdAt &&
                   headAt !== null &&
-                  updatedAt >= headAt - fallbackGraceMs;
+                  updatedAt >= headAt;
                 const requestAt = createdAfterHead ? createdAt : editedAfterHead ? updatedAt : null;
                 if (requestAt === null) {
                   continue;
@@ -280,7 +257,7 @@ jobs:
                       codexLogins.has(reaction.user?.login) &&
                       reactionAt !== null &&
                       headAt !== null &&
-                      reactionAt >= headAt - fallbackGraceMs &&
+                      reactionAt >= headAt &&
                       reactionAt >= requestAt
                     );
                   })
@@ -311,8 +288,13 @@ jobs:
                   candidateTimes.push(event.created_at);
                 }
                 if (event.event === "committed" && matchesHead(headSha, event.sha)) {
-                  if (event.created_at || event.verification?.verified_at) {
-                    candidateTimes.push(event.created_at || event.verification.verified_at);
+                  const committedAt =
+                    event.created_at ||
+                    event.committer?.date ||
+                    event.author?.date ||
+                    event.verification?.verified_at;
+                  if (committedAt) {
+                    candidateTimes.push(committedAt);
                     continue;
                   }
                   const nextTimestampedEvent = timeline
@@ -397,23 +379,15 @@ jobs:
               };
             }
 
-            function codexThreadCommentMatchesHead(comment, headSha) {
-              if (!codexLogins.has(comment.author?.login)) {
-                return false;
-              }
-              const reviewCommit = comment.pullRequestReview?.commit?.oid || null;
-              return !reviewCommit || matchesHead(headSha, reviewCommit);
+            function isCodexThreadComment(comment) {
+              return codexLogins.has(comment.author?.login);
             }
 
-            async function reviewThreadHasCurrentHeadCodexComment(thread, headSha) {
+            async function reviewThreadHasCodexComment(thread) {
               if (thread.isOutdated) {
                 return false;
               }
-              if (
-                thread.comments.nodes.some((comment) =>
-                  codexThreadCommentMatchesHead(comment, headSha),
-                )
-              ) {
+              if (thread.comments.nodes.some((comment) => isCodexThreadComment(comment))) {
                 return true;
               }
 
@@ -429,9 +403,6 @@ jobs:
                           pageInfo { hasNextPage endCursor }
                           nodes {
                             author { login }
-                            pullRequestReview {
-                              commit { oid }
-                            }
                           }
                         }
                       }
@@ -440,11 +411,7 @@ jobs:
                   { threadId: thread.id, cursor: commentCursor },
                 );
                 const comments = result.node.comments;
-                if (
-                  comments.nodes.some((comment) =>
-                    codexThreadCommentMatchesHead(comment, headSha),
-                  )
-                ) {
+                if (comments.nodes.some((comment) => isCodexThreadComment(comment))) {
                   return true;
                 }
                 commentCursor = comments.pageInfo.hasNextPage ? comments.pageInfo.endCursor : null;
@@ -452,7 +419,7 @@ jobs:
               return false;
             }
 
-            async function collectUnresolvedCodexThreads(pullNumber, headSha) {
+            async function collectUnresolvedCodexThreads(pullNumber) {
               const unresolvedCodexThreads = [];
               let cursor = null;
               do {
@@ -472,9 +439,6 @@ jobs:
                               pageInfo { hasNextPage endCursor }
                               nodes {
                                 author { login }
-                                pullRequestReview {
-                                  commit { oid }
-                                }
                               }
                             }
                           }
@@ -488,7 +452,7 @@ jobs:
                 for (const thread of threads.nodes) {
                   if (thread.isResolved) continue;
                   if (thread.isOutdated) continue;
-                  if (await reviewThreadHasCurrentHeadCodexComment(thread, headSha)) {
+                  if (await reviewThreadHasCodexComment(thread)) {
                     unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
                   }
                 }
@@ -760,10 +724,7 @@ jobs:
                   shortHead,
                   headArrival,
                 );
-                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(
-                  pull.number,
-                  headSha,
-                );
+                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
 
                 if (coderabbit.terminal) {
                   await setGateStatusForEvaluation("failure", coderabbit.message, statuses);
