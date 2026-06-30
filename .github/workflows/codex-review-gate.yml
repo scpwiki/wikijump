@@ -1,0 +1,131 @@
+name: Codex Review Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  pull_request_review_thread:
+    types: [resolved, unresolved]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: codex-review-gate-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  codex-review-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify latest Codex review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const codexLogins = new Set([
+              "chatgpt-codex-connector",
+              "chatgpt-codex-connector[bot]",
+            ]);
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request?.number;
+            if (!pull_number) {
+              core.setFailed("This workflow must run from a pull request event.");
+              return;
+            }
+
+            const { data: pull } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number,
+            });
+            if (pull.draft) {
+              core.info("Draft pull request; GitHub already blocks draft merges.");
+              return;
+            }
+
+            const headSha = pull.head.sha;
+            const shortHead = headSha.slice(0, 10);
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number,
+              per_page: 100,
+            });
+            const codexReviews = reviews
+              .filter((review) => codexLogins.has(review.user?.login))
+              .filter((review) => review.state !== "DISMISSED")
+              .map((review) => {
+                const bodySha =
+                  (review.body || "").match(/Reviewed commit:\*\*\s*`([0-9a-f]{7,40})`/i)?.[1] ||
+                  null;
+                return {
+                  ...review,
+                  reviewedSha: review.commit_id || bodySha,
+                };
+              })
+              .filter((review) => review.reviewedSha);
+            const headReviews = codexReviews.filter(
+              (review) =>
+                headSha.startsWith(review.reviewedSha) ||
+                review.reviewedSha.startsWith(headSha),
+            );
+            if (headReviews.length === 0) {
+              const latest = codexReviews.at(-1);
+              const latestText = latest
+                ? `${latest.reviewedSha.slice(0, 10)} at ${latest.submitted_at}`
+                : "none";
+              core.setFailed(
+                `Waiting for chatgpt-codex-connector[bot] to review latest head ${shortHead}; latest Codex review: ${latestText}.`,
+              );
+              return;
+            }
+
+            const unresolvedCodexThreads = [];
+            let cursor = null;
+            do {
+              const result = await github.graphql(
+                `query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequest(number: $number) {
+                      reviewThreads(first: 100, after: $cursor) {
+                        pageInfo { hasNextPage endCursor }
+                        nodes {
+                          isResolved
+                          path
+                          line
+                          comments(first: 50) {
+                            nodes {
+                              author { login }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }`,
+                { owner, repo, number: pull_number, cursor },
+              );
+              const threads = result.repository.pullRequest.reviewThreads;
+              for (const thread of threads.nodes) {
+                if (thread.isResolved) continue;
+                const hasCodexComment = thread.comments.nodes.some((comment) =>
+                  codexLogins.has(comment.author?.login),
+                );
+                if (hasCodexComment) {
+                  unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
+                }
+              }
+              cursor = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
+            } while (cursor);
+
+            if (unresolvedCodexThreads.length > 0) {
+              core.setFailed(
+                `Resolve Codex review threads before merge: ${unresolvedCodexThreads.join(", ")}`,
+              );
+              return;
+            }
+
+            const latestHeadReview = headReviews.at(-1);
+            core.info(`Latest head ${shortHead} was reviewed by Codex at ${latestHeadReview.submitted_at}.`);
