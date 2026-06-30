@@ -379,7 +379,7 @@ jobs:
 
             function parseCodexSeverity(comment) {
               const body = comment.body || "";
-              const match = body.match(/!\[P([0-4]) Badge\]/i) || body.match(/\bP([0-4])\b/i);
+              const match = body.match(/!\[P([0-4]) Badge\]/i);
               return match ? Number(match[1]) : null;
             }
 
