@@ -3606,15 +3606,18 @@ impl RenderService {
             } else {
                 BTreeMap::new()
             };
+            let substitution_context = ListPagesSubstitutionContext {
+                rendered_limit: requested_limit as usize,
+                user_displays: &user_displays,
+                page_wikitext: page_wikitext.as_deref(),
+                data_form_values: &data_form_values,
+            };
             let body = substitute_list_pages_variables(
                 body,
                 page,
                 index + 1,
                 total,
-                requested_limit as usize,
-                &user_displays,
-                page_wikitext.as_deref(),
-                &data_form_values,
+                &substitution_context,
             );
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
@@ -4769,15 +4772,19 @@ fn wikidot_content_section(wikitext: &str, section: Option<usize>) -> String {
         .unwrap_or_default()
 }
 
+struct ListPagesSubstitutionContext<'a> {
+    rendered_limit: usize,
+    user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
+    page_wikitext: Option<&'a str>,
+    data_form_values: &'a BTreeMap<String, String>,
+}
+
 fn substitute_list_pages_variables(
     template: &str,
     page: &FoundPageRow,
     index: usize,
     total: usize,
-    rendered_limit: usize,
-    user_displays: &BTreeMap<i64, WikidotUserDisplay>,
-    page_wikitext: Option<&str>,
-    data_form_values: &BTreeMap<String, String>,
+    context: &ListPagesSubstitutionContext<'_>,
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
     let title = page.title.as_deref().unwrap_or(slug);
@@ -4789,7 +4796,8 @@ fn substitute_list_pages_variables(
     let created_by = page
         .created_by
         .map(|user_id| {
-            user_displays
+            context
+                .user_displays
                 .get(&user_id)
                 .map(|user| user.name.clone())
                 .unwrap_or_else(|| user_id.to_string())
@@ -4798,13 +4806,14 @@ fn substitute_list_pages_variables(
     let created_by_linked = page
         .created_by
         .map(|user_id| {
-            render_list_pages_wikidot_user(user_id, user_displays.get(&user_id))
+            render_list_pages_wikidot_user(user_id, context.user_displays.get(&user_id))
         })
         .unwrap_or_default();
     let updated_by = page
         .updated_by
         .map(|user_id| {
-            user_displays
+            context
+                .user_displays
                 .get(&user_id)
                 .map(|user| user.name.clone())
                 .unwrap_or_else(|| user_id.to_string())
@@ -4816,7 +4825,7 @@ fn substitute_list_pages_variables(
     let rating = format_list_pages_rating(page.score);
     let index = index.to_string();
     let total = total.to_string();
-    let rendered_limit = rendered_limit.to_string();
+    let rendered_limit = context.rendered_limit.to_string();
 
     LISTPAGES_VARIABLE_REGEX
         .replace_all(template, |captures: &regex::Captures<'_>| {
@@ -4848,10 +4857,11 @@ fn substitute_list_pages_variables(
                 "tags_linked" | "tagslinked" => tags_linked.clone(),
                 "form_data" | "form_raw" => captures
                     .name("argument")
-                    .and_then(|matched| data_form_values.get(matched.as_str()))
+                    .and_then(|matched| context.data_form_values.get(matched.as_str()))
                     .cloned()
                     .unwrap_or_default(),
-                "content" => page_wikitext
+                "content" => context
+                    .page_wikitext
                     .map(|wikitext| {
                         wikidot_content_section(
                             wikitext,
@@ -5934,12 +5944,12 @@ fn rendered_wikidot_mailform_attribute(head: &str, name: &str) -> Option<String>
 #[cfg(test)]
 mod tests {
     use super::{
-        CollectingIncluder, LISTPAGES_MODULE_REGEX, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
-        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
-        RenderContext, RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
-        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WikidotUserDisplay,
-        count_pages_should_remain_literal, include_error,
+        CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSubstitutionContext,
+        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
+        MAX_FTML_COMPAT_PARSE_BYTES, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
+        OrderBySelector, OrderProperty, RenderContext, RenderService,
+        WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
+        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
@@ -5965,6 +5975,20 @@ mod tests {
     use std::borrow::Cow;
     use std::collections::BTreeMap;
     use std::time::Duration;
+
+    fn list_pages_substitution_context<'a>(
+        rendered_limit: usize,
+        user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
+        page_wikitext: Option<&'a str>,
+        data_form_values: &'a BTreeMap<String, String>,
+    ) -> ListPagesSubstitutionContext<'a> {
+        ListPagesSubstitutionContext {
+            rendered_limit,
+            user_displays,
+            page_wikitext,
+            data_form_values,
+        }
+    }
 
     fn fallback_test_page_info(
         page: &'static str,
@@ -6387,10 +6411,12 @@ mod tests {
             },
             1,
             1,
-            20,
-            &BTreeMap::new(),
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(
+                20,
+                &BTreeMap::new(),
+                None,
+                &BTreeMap::new(),
+            ),
         );
 
         assert_eq!(
@@ -6447,10 +6473,12 @@ mod tests {
             &page,
             1,
             1,
-            20,
-            &BTreeMap::new(),
-            Some(wikitext),
-            &BTreeMap::new(),
+            &list_pages_substitution_context(
+                20,
+                &BTreeMap::new(),
+                Some(wikitext),
+                &BTreeMap::new(),
+            ),
         );
 
         assert_eq!(rendered, "**SCP-2693 -- Hidden title text**");
@@ -6486,10 +6514,7 @@ mod tests {
                 &page,
                 1,
                 1,
-                20,
-                &BTreeMap::new(),
-                None,
-                &values,
+                &list_pages_substitution_context(20, &BTreeMap::new(), None, &values),
             ),
             "Codex data form fixture alpha df-red ok",
         );
@@ -6670,10 +6695,7 @@ mod tests {
             &page,
             1,
             1,
-            20,
-            &users,
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
         );
 
         assert!(rendered.contains("Codex virtual Wikidot DOM 001"));
@@ -6691,10 +6713,7 @@ mod tests {
             &page,
             1,
             1,
-            20,
-            &users,
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
         );
         assert!(
             rendered.contains(r#"class="odate time_1782003564 format_%25r%7Cagohover""#)
@@ -6705,10 +6724,7 @@ mod tests {
             &page,
             1,
             1,
-            20,
-            &users,
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
         );
         assert_eq!(rendered, "[/dom-001 Codex virtual Wikidot DOM 001]");
 
@@ -6717,10 +6733,7 @@ mod tests {
             &page,
             1,
             1,
-            20,
-            &users,
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
         );
         assert!(rendered.contains("printuser avatarhover"));
         assert!(rendered.contains("user:info/scpaiueouiuiuiui"));
@@ -6734,10 +6747,12 @@ mod tests {
             &local_author,
             1,
             1,
-            20,
-            &BTreeMap::new(),
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(
+                20,
+                &BTreeMap::new(),
+                None,
+                &BTreeMap::new(),
+            ),
         );
         assert_eq!(rendered, ADMIN_USER_ID.to_string());
         assert!(!rendered.contains("wikidot.com/user:info"));
@@ -6761,10 +6776,7 @@ mod tests {
             &local_mirror_author,
             1,
             1,
-            20,
-            &local_users,
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(20, &local_users, None, &BTreeMap::new()),
         );
         assert_eq!(rendered, "SeekGull / SeekGull");
         assert!(!rendered.contains("wikidot.com/user:info"));
@@ -6796,10 +6808,12 @@ mod tests {
                 &page,
                 2,
                 7,
-                20,
-                &BTreeMap::new(),
-                None,
-                &BTreeMap::new(),
+                &list_pages_substitution_context(
+                    20,
+                    &BTreeMap::new(),
+                    None,
+                    &BTreeMap::new()
+                ),
             ),
             "2/7 limit=20 Codex fixture",
         );
@@ -6851,10 +6865,7 @@ mod tests {
             &page,
             1,
             1,
-            20,
-            &users,
-            None,
-            &BTreeMap::new(),
+            &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
         );
 
         assert!(rendered.contains("[/scp-2693 SCP-2693]"));
