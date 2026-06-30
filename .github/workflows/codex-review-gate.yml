@@ -200,7 +200,10 @@ jobs:
             }
 
             function parseTimestamp(value) {
-              const timestamp = new Date(value || 0).getTime();
+              if (!value) {
+                return null;
+              }
+              const timestamp = new Date(value).getTime();
               return Number.isNaN(timestamp) ? null : timestamp;
             }
 
