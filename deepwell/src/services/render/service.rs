@@ -4504,9 +4504,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
 
 fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
     arguments.unsupported_count_pages_filter
-        || (arguments.limit.is_none()
-            && !arguments.current_page_only
-            && !count_pages_has_static_filter(arguments))
+        || (arguments.limit.is_none() && !arguments.current_page_only)
         || arguments.limit.is_some_and(|limit| {
             limit
                 .saturating_add(u64::from(arguments.offset))
@@ -6316,10 +6314,10 @@ mod tests {
     }
 
     #[test]
-    fn keeps_unbounded_count_pages_literal_unless_statically_filtered() {
+    fn keeps_unbounded_count_pages_literal_even_with_static_filters() {
         let tagged = parse_list_pages_arguments(r#" category="*" tags="codex" "#)
             .expect("static tag CountPages selector should parse");
-        assert!(!count_pages_should_remain_literal(&tagged));
+        assert!(count_pages_should_remain_literal(&tagged));
 
         let broad = parse_list_pages_arguments(r#" category="*" "#)
             .expect("broad CountPages selector should parse");
