@@ -288,8 +288,13 @@ jobs:
                   candidateTimes.push(event.created_at);
                 }
                 if (event.event === "committed" && matchesHead(headSha, event.sha)) {
-                  if (event.created_at) {
-                    candidateTimes.push(event.created_at);
+                  const committedAt =
+                    event.created_at ||
+                    event.verification?.verified_at ||
+                    event.committer?.date ||
+                    event.author?.date;
+                  if (committedAt) {
+                    candidateTimes.push(committedAt);
                     continue;
                   }
                 }
