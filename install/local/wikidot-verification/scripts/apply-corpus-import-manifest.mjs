@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
+
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
 const DEFAULT_SITE_ID = 6000005;
@@ -33,6 +35,7 @@ function parseArgs(argv) {
     skipExistingDone: false,
     skipRerender: false,
     rerenderAfterDbCreate: false,
+    replaceExisting: false,
     createMode: 'rpc',
     dryRun: false,
     sourceSite: 'scp-wiki',
@@ -63,6 +66,7 @@ function parseArgs(argv) {
     else if (arg === '--skip-existing-done') args.skipExistingDone = true;
     else if (arg === '--skip-rerender') args.skipRerender = true;
     else if (arg === '--rerender-after-db-create') args.rerenderAfterDbCreate = true;
+    else if (arg === '--replace-existing') args.replaceExisting = true;
     else if (arg === '--create-mode') {
       args.createMode = next();
     }
@@ -70,7 +74,7 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--dry-run]
 
 Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags.`);
       process.exit(0);
@@ -93,6 +97,9 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   if (args.createMode === 'db' && !args.rerenderAfterDbCreate) args.skipRerender = true;
   if (args.createMode === 'db' && !args.dryRun && !args.textHashCommand) {
     throw new Error('--create-mode db requires --text-hash-command or DEEPWELL_TEXT_HASH_COMMAND');
+  }
+  if (args.replaceExisting && args.createMode !== 'db') {
+    throw new Error('--replace-existing requires --create-mode db');
   }
   if (args.limit !== null && (!Number.isInteger(args.limit) || args.limit < 0)) {
     throw new Error('--limit must be a non-negative integer');
@@ -312,13 +319,14 @@ function categoryName(slug) {
   return index === -1 ? '_default' : slug.slice(0, index);
 }
 
-function shellCreatePage(args, row) {
+function shellCreatePage(args, row, { replaceExistingRevision = false } = {}) {
   const wikitext = sourceText(row);
   const bodyHtml = `<div class="wj-proof-stub ${SHELL_IMPORT_MARKER}">${SHELL_IMPORT_MESSAGE}.</div>`;
   const wikitextHash = textHashHex(args, wikitext);
   const bodyHash = textHashHex(args, bodyHtml);
   const title = fallbackTitle(row);
   const category = categoryName(row.fullname);
+  const canUseExisting = canReuseExistingPageForDbImport(args, { replaceExistingRevision });
   const sql = `
 CREATE TEMP TABLE corpus_shell_import_result (
   page_id BIGINT NOT NULL,
@@ -361,7 +369,7 @@ WITH inserted_wikitext AS (
   WHERE p.site_id = ${sqlInt(args.siteId)}
     AND p.slug = ${sqlQuote(row.fullname)}
     AND p.deleted_at IS NULL
-    AND ${args.adoptExisting ? 'TRUE' : 'FALSE'}
+    AND ${canUseExisting ? 'TRUE' : 'FALSE'}
   ORDER BY p.page_id
   LIMIT 1
   FOR UPDATE OF p
@@ -406,9 +414,19 @@ WITH new_revision AS (
     tags
   )
   SELECT
-    'create',
+    CASE
+      WHEN latest_revision_id IS NULL THEN 'create'
+      ELSE 'regular'
+    END,
     ${sqlTimestamp(row.updated_at)},
-    0,
+    CASE
+      WHEN latest_revision_id IS NULL THEN 0
+      ELSE COALESCE((
+        SELECT MAX(pr.revision_number) + 1
+        FROM page_revision pr
+        WHERE pr.page_id = corpus_shell_import_result.page_id
+      ), 0)
+    END,
     page_id,
     ${sqlInt(args.siteId)},
     ${sqlInt(args.userId)},
@@ -428,6 +446,7 @@ WITH new_revision AS (
     ${sqlTextArray(row.tags)}
   FROM corpus_shell_import_result
   WHERE latest_revision_id IS NULL
+     OR (${replaceExistingRevision ? 'TRUE' : 'FALSE'} AND existed)
   RETURNING revision_id
 ), updated_page AS (
   UPDATE page
@@ -686,6 +705,22 @@ LIMIT 1;
   return sourceSha === row.source_sha256 && metaSha === row.meta_sha256 ? 'matching' : 'mismatched';
 }
 
+function existingPageSourceStatus(args, row, revisionId) {
+  if (revisionId === null) return 'missing_revision';
+  const sql = `
+SELECT CASE
+  WHEN text.contents = ${sqlTextFromBase64(sourceText(row))} THEN 'matching'
+  ELSE 'mismatched'
+END
+FROM page_revision revision
+LEFT JOIN text ON text.hash = revision.wikitext_hash
+WHERE revision.revision_id = ${sqlInt(revisionId)}
+LIMIT 1;
+`;
+  const output = runPsql(args, sql, { capture: true });
+  return output === 'matching' ? 'matching' : 'mismatched';
+}
+
 function recordItemSql(row, pageId, importRunId, state, error = null) {
   return `
 INSERT INTO wikidot_corpus_import_item (
@@ -751,33 +786,44 @@ async function importRow(args, row, importRunId) {
 
   if (args.createMode === 'db') {
     const existing = existingActivePage(args, row.fullname);
+    let replaceExistingRevision = false;
     if (existing !== null) {
       const existingSnapshotStatus = pageSnapshotStatus(args, row, existing.page_id);
-      if (existingSnapshotStatus === 'absent' && !args.adoptExisting) {
-        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_requires_adopt' }));
-        return { slug: row.fullname, action: 'collision_existing_page', page_id: existing.page_id };
+      const existingSourceStatus = existingPageSourceStatus(args, row, existing.revision_id);
+      const contentMatches = existingSourceStatus === 'matching';
+      const needsReplacement = existingSnapshotStatus !== 'matching' || !contentMatches;
+
+      if (needsReplacement && args.replaceExisting) {
+        replaceExistingRevision = true;
+      } else if (existingSnapshotStatus === 'absent' && !args.adoptExisting) {
+        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_requires_adopt_or_replace', source_status: existingSourceStatus }));
+        return { slug: row.fullname, action: 'collision_existing_page', page_id: existing.page_id, source_status: existingSourceStatus };
+      } else if (existingSnapshotStatus === 'mismatched') {
+        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_requires_replace', source_status: existingSourceStatus }));
+        return { slug: row.fullname, action: 'collision_existing_snapshot_mismatch', page_id: existing.page_id, source_status: existingSourceStatus };
+      } else if (!contentMatches) {
+        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_content_mismatch_requires_replace', snapshot_status: existingSnapshotStatus }));
+        return { slug: row.fullname, action: 'collision_existing_content_mismatch', page_id: existing.page_id, snapshot_status: existingSnapshotStatus };
       }
-      if (existingSnapshotStatus === 'mismatched') {
-        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_update_not_implemented' }));
-        return { slug: row.fullname, action: 'collision_existing_snapshot_mismatch', page_id: existing.page_id };
+      if (args.dryRun) {
+        return { slug: row.fullname, action: replaceExistingRevision ? 'would_replace_existing' : 'would_adopt', page_id: existing.page_id, snapshot_status: existingSnapshotStatus, source_status: existingSourceStatus };
       }
-      if (args.dryRun) return { slug: row.fullname, action: 'would_adopt', page_id: existing.page_id };
     }
     if (args.dryRun) return { slug: row.fullname, action: 'would_db_create' };
-    const created = shellCreatePage(args, row);
+    const created = shellCreatePage(args, row, { replaceExistingRevision });
     pageId = created.page_id;
     revisionId = created.revision_id;
     categoryId = created.page_category_id;
     const snapshotStatus = pageSnapshotStatus(args, row, pageId);
-    if (!created.created_page && snapshotStatus === 'absent' && !args.adoptExisting) {
-      runPsql(args, recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_requires_adopt' }));
+    if (!created.created_page && snapshotStatus === 'absent' && !args.adoptExisting && !replaceExistingRevision) {
+      runPsql(args, recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_requires_adopt_or_replace' }));
       return { slug: row.fullname, action: 'collision_existing_page', page_id: pageId };
     }
-    if (snapshotStatus === 'mismatched') {
-      runPsql(args, recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_update_not_implemented' }));
+    if (snapshotStatus === 'mismatched' && !replaceExistingRevision) {
+      runPsql(args, recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_requires_replace' }));
       return { slug: row.fullname, action: 'collision_existing_snapshot_mismatch', page_id: pageId };
     }
-    action = created.created_page || created.created_revision ? 'created_db' : 'adopted';
+    action = created.created_page ? 'created_db' : created.created_revision ? 'replaced_db' : 'adopted';
   } else {
     const existing = await getPage(args, row.fullname);
 

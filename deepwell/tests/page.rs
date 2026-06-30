@@ -45,6 +45,7 @@ use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
 use deepwell::services::session::CreateSession;
+use deepwell::services::view::GetPageViewOutput;
 use deepwell::services::{
     FileRevisionService, RenderService, RequestContext, SessionService,
 };
@@ -227,6 +228,92 @@ async fn basic_edit() {
     assert_eq!(page.revision_type, PageRevisionType::Regular);
     assert_eq!(page.revision_user_id, ADMIN_USER_ID);
     assert_eq!(page.page_category_slug, "_default");
+}
+
+#[tokio::test]
+async fn rerender_uses_latest_navigation_page_revision() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+
+    let nav_top = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "nav:top",
+        }),
+    )
+    .expect("seeded nav:top should exist");
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Id(nav_top.page_id),
+    );
+    run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": nav_top.page_id,
+            "last_revision_id": nav_top.revision_id,
+            "revision_comments": "replace navigation fixture",
+            "user_id": ADMIN_USER_ID,
+            "wikitext": "* latest navigation marker",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("editing nav:top should create a revision");
+
+    let home = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "home",
+        }),
+    )
+    .expect("seeded home page should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": home.page_category_id,
+            "page_id": home.page_id,
+        }),
+    );
+
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {
+                "slug": "home",
+                "extra": "",
+            },
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let top_bar = match view {
+        GetPageViewOutput::Found {
+            compiled_top_bar_html,
+            ..
+        } => compiled_top_bar_html.expect("top bar should be compiled"),
+        other => panic!("expected found page view, got {other:?}"),
+    };
+    assert!(
+        top_bar.contains("latest navigation marker"),
+        "rerender should use the latest nav:top revision:\n{top_bar}"
+    );
+    assert!(
+        !top_bar.contains("Wikijump Blog"),
+        "rerender reused stale nav:top wikitext:\n{top_bar}"
+    );
 }
 
 #[tokio::test]
