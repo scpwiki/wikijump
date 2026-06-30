@@ -377,8 +377,22 @@ jobs:
               return codexLogins.has(comment.author?.login);
             }
 
-            async function reviewThreadHasCodexComment(thread) {
-              if (thread.comments.nodes.some((comment) => isCodexThreadComment(comment))) {
+            function parseCodexSeverity(comment) {
+              const body = comment.body || "";
+              const match = body.match(/!\[P([0-4]) Badge\]/i) || body.match(/\bP([0-4])\b/i);
+              return match ? Number(match[1]) : null;
+            }
+
+            function isBlockingCodexThreadComment(comment) {
+              if (!isCodexThreadComment(comment)) {
+                return false;
+              }
+              const severity = parseCodexSeverity(comment);
+              return severity === null || severity <= 2;
+            }
+
+            async function reviewThreadHasBlockingCodexComment(thread) {
+              if (thread.comments.nodes.some((comment) => isBlockingCodexThreadComment(comment))) {
                 return true;
               }
 
@@ -394,6 +408,7 @@ jobs:
                           pageInfo { hasNextPage endCursor }
                           nodes {
                             author { login }
+                            body
                           }
                         }
                       }
@@ -402,7 +417,7 @@ jobs:
                   { threadId: thread.id, cursor: commentCursor },
                 );
                 const comments = result.node.comments;
-                if (comments.nodes.some((comment) => isCodexThreadComment(comment))) {
+                if (comments.nodes.some((comment) => isBlockingCodexThreadComment(comment))) {
                   return true;
                 }
                 commentCursor = comments.pageInfo.hasNextPage ? comments.pageInfo.endCursor : null;
@@ -410,8 +425,8 @@ jobs:
               return false;
             }
 
-            async function collectUnresolvedCodexThreads(pullNumber) {
-              const unresolvedCodexThreads = [];
+            async function collectUnresolvedBlockingCodexThreads(pullNumber) {
+              const unresolvedBlockingCodexThreads = [];
               let cursor = null;
               do {
                 const result = await graphqlWithRetry(
@@ -430,6 +445,7 @@ jobs:
                               pageInfo { hasNextPage endCursor }
                               nodes {
                                 author { login }
+                                body
                               }
                             }
                           }
@@ -442,15 +458,15 @@ jobs:
                 const threads = result.repository.pullRequest.reviewThreads;
                 for (const thread of threads.nodes) {
                   if (thread.isResolved) continue;
-                  // Branch protection requires conversation resolution; this gate tracks current-diff Codex threads.
+                  // P3/P4 Codex findings are advisory; unknown severity stays fail-closed.
                   if (thread.isOutdated) continue;
-                  if (await reviewThreadHasCodexComment(thread)) {
-                    unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
+                  if (await reviewThreadHasBlockingCodexComment(thread)) {
+                    unresolvedBlockingCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
                   }
                 }
                 cursor = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
               } while (cursor);
-              return unresolvedCodexThreads;
+              return unresolvedBlockingCodexThreads;
             }
 
             function parseActionableCount(body) {
@@ -725,7 +741,8 @@ jobs:
                   shortHead,
                   headArrival,
                 );
-                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
+                const unresolvedBlockingCodexThreads =
+                  await collectUnresolvedBlockingCodexThreads(pull.number);
 
                 if (coderabbit.terminal) {
                   await setGateStatusForEvaluation("failure", coderabbit.message, statuses);
@@ -737,10 +754,10 @@ jobs:
                   return { ok: false, message: codex.message };
                 }
 
-                if (unresolvedCodexThreads.length > 0) {
-                  const unresolvedMessage = `Unresolved Codex review thread(s): ${unresolvedCodexThreads
+                if (unresolvedBlockingCodexThreads.length > 0) {
+                  const unresolvedMessage = `Unresolved blocking Codex review thread(s): ${unresolvedBlockingCodexThreads
                     .slice(0, 5)
-                    .join(", ")}${unresolvedCodexThreads.length > 5 ? ", ..." : ""}`;
+                    .join(", ")}${unresolvedBlockingCodexThreads.length > 5 ? ", ..." : ""}`;
                   if (!waitForReviews || Date.now() >= deadline) {
                     await setGateStatusForEvaluation("failure", unresolvedMessage, statuses);
                     return { ok: false, message: unresolvedMessage };
