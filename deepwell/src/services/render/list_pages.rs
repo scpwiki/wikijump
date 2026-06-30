@@ -667,6 +667,7 @@ async fn select_child_content_pages(
             slug: None,
             data_form_fields: &[],
             order: Some(order),
+            candidate_limit: None,
             pagination: PaginationSelector {
                 limit: Some(limit),
                 per_page: limit

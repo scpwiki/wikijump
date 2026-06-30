@@ -480,6 +480,7 @@ pub async fn page_select(
             slug: None,
             data_form_fields: &[],
             order: Some(order),
+            candidate_limit: None,
             pagination: PaginationSelector::default(),
             variables: &[],
             fields: FoundPageFields {

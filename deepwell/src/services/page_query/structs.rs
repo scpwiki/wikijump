@@ -152,9 +152,13 @@ pub struct DataFormSelector<'a> {
 
 pub fn parse_static_wikidot_data_form_values(wikitext: &str) -> BTreeMap<String, String> {
     let mut values = BTreeMap::new();
+    let mut started = false;
 
     for line in wikitext.lines() {
         let Some((field, value)) = line.split_once(':') else {
+            if started || !line.trim().is_empty() {
+                break;
+            }
             continue;
         };
         let field = field.trim();
@@ -163,9 +167,13 @@ pub fn parse_static_wikidot_data_form_values(wikitext: &str) -> BTreeMap<String,
                 character.is_ascii_alphanumeric() || matches!(character, '_' | '-')
             })
         {
+            if started || !line.trim().is_empty() {
+                break;
+            }
             continue;
         }
 
+        started = true;
         let value = unquote_static_wikidot_data_form_value(value.trim());
         values.insert(field.to_owned(), value.to_owned());
     }
@@ -316,6 +324,7 @@ pub struct PageQuery<'a> {
     pub slug: Option<Cow<'a, str>>,
     pub data_form_fields: &'a [DataFormSelector<'a>],
     pub order: Option<OrderBySelector>,
+    pub candidate_limit: Option<u64>,
     pub pagination: PaginationSelector,
     pub variables: &'a [PageQueryVariables<'a>],
     pub fields: FoundPageFields,

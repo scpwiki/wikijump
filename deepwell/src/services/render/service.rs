@@ -3521,6 +3521,11 @@ impl RenderService {
             slug,
             data_form_fields: &data_form_fields,
             order,
+            candidate_limit: if data_form_fields.is_empty() {
+                None
+            } else {
+                Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
+            },
             pagination: PaginationSelector {
                 limit: Some(MAX_LISTPAGES_RENDER_LIMIT),
                 per_page: PaginationSelector::default().per_page,
@@ -3737,6 +3742,11 @@ impl RenderService {
             slug,
             data_form_fields: &data_form_fields,
             order,
+            candidate_limit: if data_form_fields.is_empty() {
+                None
+            } else {
+                Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
+            },
             pagination: PaginationSelector {
                 limit: Some(
                     limit
@@ -6518,6 +6528,23 @@ mod tests {
             ),
             "Codex data form fixture alpha df-red ok",
         );
+    }
+
+    #[test]
+    fn static_wikidot_data_form_values_do_not_scan_ordinary_body_text() {
+        let values = parse_static_wikidot_data_form_values(
+            "This is regular page text.\nstatus: published\nowner: codex\n",
+        );
+
+        assert!(values.is_empty());
+
+        let values = parse_static_wikidot_data_form_values(
+            "\nstatus: published\nowner: codex\nBody text starts here.\nignored: yes\n",
+        );
+
+        assert_eq!(values.get("status").map(String::as_str), Some("published"));
+        assert_eq!(values.get("owner").map(String::as_str), Some("codex"));
+        assert!(!values.contains_key("ignored"));
     }
 
     #[test]
