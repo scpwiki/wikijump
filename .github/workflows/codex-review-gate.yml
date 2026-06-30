@@ -236,7 +236,6 @@ jobs:
                 const createdAt = parseTimestamp(comment.created_at);
                 const updatedAt = parseTimestamp(comment.updated_at);
                 const headAt = parseTimestamp(headArrival?.time);
-                const statusFallbackGraceMs = headArrival?.source === "status" ? 2 * 60 * 1000 : 0;
                 const createdAfterHead =
                   createdAt !== null && headAt !== null && createdAt >= headAt;
                 const editedAfterHead =
@@ -244,10 +243,8 @@ jobs:
                   createdAt !== null &&
                   updatedAt > createdAt &&
                   headAt !== null &&
-                  updatedAt >= headAt - statusFallbackGraceMs;
+                  updatedAt >= headAt;
                 const requestAt = createdAfterHead ? createdAt : editedAfterHead ? updatedAt : null;
-                const requestUsedStatusGrace =
-                  !createdAfterHead && editedAfterHead && headAt !== null && requestAt < headAt;
                 if (requestAt === null) {
                   continue;
                 }
@@ -260,8 +257,8 @@ jobs:
                       codexLogins.has(reaction.user?.login) &&
                       reactionAt !== null &&
                       headAt !== null &&
-                      reactionAt >= requestAt &&
-                      (reactionAt >= headAt || requestUsedStatusGrace)
+                      reactionAt >= headAt &&
+                      reactionAt >= requestAt
                     );
                   })
                   .sort((left, right) => new Date(left.created_at) - new Date(right.created_at))
@@ -294,12 +291,6 @@ jobs:
                   if (event.created_at) {
                     candidateTimes.push(event.created_at);
                     continue;
-                  }
-                  const nextTimestampedEvent = timeline
-                    .slice(index + 1)
-                    .find((candidate) => candidate.created_at);
-                  if (nextTimestampedEvent) {
-                    candidateTimes.push(nextTimestampedEvent.created_at);
                   }
                 }
               }
