@@ -20,6 +20,8 @@ on:
         type: number
 
 permissions:
+  # Required to read commit metadata used when resolving head arrival time.
+  contents: read
   # Required to read PR metadata and review records.
   pull-requests: read
   # Required to read PR issue comments used as review markers.
@@ -77,8 +79,7 @@ jobs:
                 return true;
               } catch (error) {
                 if (error.status === 403) {
-                  core.warning(`Unable to write ${gateContext} status for ${gateSha}: ${error.message}`);
-                  return false;
+                  throw new Error(`Unable to write ${gateContext} status for ${gateSha}: ${error.message}`);
                 }
                 throw error;
               }
