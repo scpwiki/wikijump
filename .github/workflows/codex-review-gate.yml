@@ -522,13 +522,10 @@ jobs:
                 .filter((comment) => coderabbitLogins.has(comment.user?.login))
                 .filter((comment) => {
                   const body = comment.body || "";
-                  if (body.includes(headSha) || body.includes(shortHead)) {
-                    return true;
-                  }
-                  if (statusCreatedAt === null) {
-                    return false;
-                  }
                   const commentAt = parseTimestamp(comment.created_at);
+                  if (statusCreatedAt === null) {
+                    return body.includes(headSha) || body.includes(shortHead);
+                  }
                   return commentAt !== null && commentAt >= statusCreatedAt - 60 * 1000;
                 });
               const rateLimited =
@@ -593,13 +590,6 @@ jobs:
               }
 
               if (coderabbitStatus.state === "pending") {
-                if (rateLimited && !hasActionableFindings) {
-                  return {
-                    ready: true,
-                    terminal: false,
-                    message: `Ignoring CodeRabbit availability limit: ${description || "rate-limited"}.`,
-                  };
-                }
                 return {
                   ready: false,
                   terminal: false,
