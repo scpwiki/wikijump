@@ -315,8 +315,8 @@ impl Config {
             job_prune_text: StdDuration::from_secs(60),
             job_name_change_refill: StdDuration::from_secs(60),
             job_lift_expired_punishments: StdDuration::from_secs(60),
-            preprocess_timeout: StdDuration::from_millis(500),
-            render_timeout: StdDuration::from_millis(1000),
+            preprocess_timeout: StdDuration::from_millis(1_000),
+            render_timeout: StdDuration::from_millis(9_000),
             rerender_skip: vec![
                 (1, Some(time::Duration::milliseconds(100))),
                 (5, Some(time::Duration::milliseconds(500))),
