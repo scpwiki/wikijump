@@ -279,7 +279,8 @@ jobs:
                       reaction.content === "+1" &&
                       codexLogins.has(reaction.user?.login) &&
                       reactionAt !== null &&
-                      reactionAt >= headAt &&
+                      headAt !== null &&
+                      reactionAt >= headAt - fallbackGraceMs &&
                       reactionAt >= requestAt
                     );
                   })
@@ -396,8 +397,23 @@ jobs:
               };
             }
 
-            async function reviewThreadHasCodexComment(thread) {
-              if (thread.comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
+            function codexThreadCommentMatchesHead(comment, headSha) {
+              if (!codexLogins.has(comment.author?.login)) {
+                return false;
+              }
+              const reviewCommit = comment.pullRequestReview?.commit?.oid || null;
+              return !reviewCommit || matchesHead(headSha, reviewCommit);
+            }
+
+            async function reviewThreadHasCurrentHeadCodexComment(thread, headSha) {
+              if (thread.isOutdated) {
+                return false;
+              }
+              if (
+                thread.comments.nodes.some((comment) =>
+                  codexThreadCommentMatchesHead(comment, headSha),
+                )
+              ) {
                 return true;
               }
 
@@ -413,6 +429,9 @@ jobs:
                           pageInfo { hasNextPage endCursor }
                           nodes {
                             author { login }
+                            pullRequestReview {
+                              commit { oid }
+                            }
                           }
                         }
                       }
@@ -421,7 +440,11 @@ jobs:
                   { threadId: thread.id, cursor: commentCursor },
                 );
                 const comments = result.node.comments;
-                if (comments.nodes.some((comment) => codexLogins.has(comment.author?.login))) {
+                if (
+                  comments.nodes.some((comment) =>
+                    codexThreadCommentMatchesHead(comment, headSha),
+                  )
+                ) {
                   return true;
                 }
                 commentCursor = comments.pageInfo.hasNextPage ? comments.pageInfo.endCursor : null;
@@ -429,7 +452,7 @@ jobs:
               return false;
             }
 
-            async function collectUnresolvedCodexThreads(pullNumber) {
+            async function collectUnresolvedCodexThreads(pullNumber, headSha) {
               const unresolvedCodexThreads = [];
               let cursor = null;
               do {
@@ -442,12 +465,16 @@ jobs:
                           nodes {
                             id
                             isResolved
+                            isOutdated
                             path
                             line
                             comments(first: 100) {
                               pageInfo { hasNextPage endCursor }
                               nodes {
                                 author { login }
+                                pullRequestReview {
+                                  commit { oid }
+                                }
                               }
                             }
                           }
@@ -460,7 +487,8 @@ jobs:
                 const threads = result.repository.pullRequest.reviewThreads;
                 for (const thread of threads.nodes) {
                   if (thread.isResolved) continue;
-                  if (await reviewThreadHasCodexComment(thread)) {
+                  if (thread.isOutdated) continue;
+                  if (await reviewThreadHasCurrentHeadCodexComment(thread, headSha)) {
                     unresolvedCodexThreads.push(`${thread.path}:${thread.line || "file"}`);
                   }
                 }
@@ -590,6 +618,13 @@ jobs:
               }
 
               if (coderabbitStatus.state === "pending") {
+                if (rateLimited && !hasActionableFindings) {
+                  return {
+                    ready: true,
+                    terminal: false,
+                    message: `Ignoring CodeRabbit availability limit: ${description || "rate-limited"}.`,
+                  };
+                }
                 return {
                   ready: false,
                   terminal: false,
@@ -725,7 +760,10 @@ jobs:
                   shortHead,
                   headArrival,
                 );
-                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
+                const unresolvedCodexThreads = await collectUnresolvedCodexThreads(
+                  pull.number,
+                  headSha,
+                );
 
                 if (coderabbit.terminal) {
                   await setGateStatusForEvaluation("failure", coderabbit.message, statuses);
