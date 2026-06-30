@@ -7,6 +7,8 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
   pull_request_review:
     types: [submitted, edited, dismissed]
+  pull_request_review_thread:
+    types: [resolved, unresolved]
   pull_request_review_comment:
     types: [created, edited, deleted]
   issue_comment:
@@ -37,9 +39,7 @@ jobs:
     if: >-
       (github.event_name != 'status' || github.event.context == 'CodeRabbit') &&
       (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && github.event.pull_request.user.login != 'dependabot[bot]')) &&
-      (github.event_name != 'pull_request_target' || (github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name || github.event.pull_request.user.login == 'dependabot[bot]')) &&
-      (github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name) &&
-      (github.event_name != 'pull_request_review_comment' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name)
+      (github.event_name != 'pull_request_target' || (github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name || github.event.pull_request.user.login == 'dependabot[bot]'))
     runs-on: ubuntu-latest
     steps:
       - name: Verify latest automated reviews
@@ -51,7 +51,6 @@ jobs:
               "chatgpt-codex-connector[bot]",
             ]);
             const coderabbitLogins = new Set(["coderabbitai", "coderabbitai[bot]"]);
-            const trustedAssociations = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
             const rateLimitPattern =
               /(review limit reached|prepaid credits|credits exhausted|usage credits|usage-based reviews|rate limit|next review available)/i;
             const reviewedCommitPattern = /Reviewed commit:\*\*\s*`([0-9a-f]{7,40})`/i;
@@ -136,20 +135,7 @@ jobs:
               );
             }
 
-            function resolveReactionMarkerCutoff(eventPull) {
-              if (context.payload.comment?.created_at) {
-                return new Date(context.payload.comment.created_at);
-              }
-              if (
-                (context.eventName === "pull_request" || context.eventName === "pull_request_target") &&
-                eventPull.updated_at
-              ) {
-                return new Date(eventPull.updated_at);
-              }
-              return new Date();
-            }
-
-            function collectCodexReviewMarkers(reviews, comments, headSha, reactionMarkerCutoff) {
+            function collectCodexReviewMarkers(reviews, comments, headSha, headArrivedAt) {
               const markers = reviews
                 .filter((review) => codexLogins.has(review.user?.login))
                 .filter((review) => review.state !== "DISMISSED")
@@ -174,17 +160,20 @@ jobs:
                 if (!/@codex\s+review\b/i.test(comment.body || "")) {
                   continue;
                 }
-                if (new Date(comment.created_at) < reactionMarkerCutoff) {
-                  continue;
-                }
                 const reactions = comment._reactions || [];
-                const hasCleanCodexReaction = reactions.some(
-                  (reaction) => reaction.content === "+1" && codexLogins.has(reaction.user?.login),
-                );
-                if (hasCleanCodexReaction) {
+                const cleanCodexReaction = reactions
+                  .filter(
+                    (reaction) =>
+                      reaction.content === "+1" &&
+                      codexLogins.has(reaction.user?.login) &&
+                      new Date(reaction.created_at) >= headArrivedAt,
+                  )
+                  .sort((left, right) => new Date(left.created_at) - new Date(right.created_at))
+                  .at(-1);
+                if (cleanCodexReaction) {
                   markers.push({
-                    source: "fresh thumbs-up reaction",
-                    submittedAt: comment.updated_at || comment.created_at,
+                    source: "post-head thumbs-up reaction",
+                    submittedAt: cleanCodexReaction.created_at,
                     reviewedSha: headSha,
                   });
                 }
@@ -194,33 +183,57 @@ jobs:
               return markers;
             }
 
-            function collectClawpatchMarkers(comments, headSha, shortHead) {
-              return comments
-                .filter((comment) => trustedAssociations.has(comment.author_association))
-                .filter((comment) => {
-                  const body = comment.body || "";
-                  return (
-                    /clawpatch/i.test(body) &&
-                    (body.includes(headSha) || body.includes(shortHead)) &&
-                    /openFindings\s*=\s*0/i.test(body) &&
-                    /activeLocks\s*=\s*0/i.test(body)
-                  );
+            function resolveHeadArrivalTime(timeline, headSha, pull, commit) {
+              const candidateTimes = timeline
+                .map((event) => {
+                  if (
+                    event.event === "head_ref_force_pushed" &&
+                    event.created_at &&
+                    matchesHead(headSha, event.commit_id)
+                  ) {
+                    return event.created_at;
+                  }
+                  if (event.event === "committed" && matchesHead(headSha, event.sha)) {
+                    return (
+                      event.created_at ||
+                      event.verification?.verified_at ||
+                      event.committer?.date ||
+                      event.author?.date ||
+                      null
+                    );
+                  }
+                  return null;
                 })
-                .map((comment) => ({
-                  source: "Clawpatch issue comment",
-                  submittedAt: comment.created_at,
-                }))
-                .sort((left, right) => new Date(left.submittedAt) - new Date(right.submittedAt));
+                .filter(Boolean)
+                .map((value) => new Date(value))
+                .filter((value) => !Number.isNaN(value.getTime()));
+              if (candidateTimes.length > 0) {
+                return new Date(Math.max(...candidateTimes.map((value) => value.getTime())));
+              }
+
+              const fallbackTimes = [
+                pull.created_at,
+                commit.commit?.committer?.date,
+                commit.commit?.author?.date,
+              ]
+                .filter(Boolean)
+                .map((value) => new Date(value))
+                .filter((value) => !Number.isNaN(value.getTime()));
+              if (fallbackTimes.length > 0) {
+                return new Date(Math.max(...fallbackTimes.map((value) => value.getTime())));
+              }
+
+              return new Date(0);
             }
 
-            async function fetchPullState(pullNumber, reactionMarkerCutoff) {
+            async function fetchPullState(pullNumber) {
               const { data: pull } = await github.rest.pulls.get({
                 owner,
                 repo,
                 pull_number: pullNumber,
               });
               const headSha = pull.head.sha;
-              const [reviews, comments, statuses] = await Promise.all([
+              const [reviews, comments, statuses, commit, timeline] = await Promise.all([
                 github.paginate(github.rest.pulls.listReviews, {
                   owner,
                   repo,
@@ -239,12 +252,22 @@ jobs:
                   ref: headSha,
                   per_page: 100,
                 }),
+                github.rest.repos.getCommit({
+                  owner,
+                  repo,
+                  ref: headSha,
+                }),
+                github.paginate(github.rest.issues.listEventsForTimeline, {
+                  owner,
+                  repo,
+                  issue_number: pullNumber,
+                  per_page: 100,
+                }),
               ]);
 
               await Promise.all(
                 comments
                   .filter((comment) => /@codex\s+review\b/i.test(comment.body || ""))
-                  .filter((comment) => new Date(comment.created_at) >= reactionMarkerCutoff)
                   .map(async (comment) => {
                     comment._reactions = await github.paginate(
                       github.rest.reactions.listForIssueComment,
@@ -263,6 +286,7 @@ jobs:
                 reviews,
                 comments,
                 statuses,
+                headArrivedAt: resolveHeadArrivalTime(timeline, headSha, pull, commit.data),
               };
             }
 
@@ -374,7 +398,7 @@ jobs:
                 })
                 .map((comment) => ({
                   source: "issue comment",
-                  submittedAt: comment.created_at,
+                  submittedAt: comment.updated_at || comment.created_at,
                   body: comment.body || "",
                   actionableCount: parseActionableCount(comment.body || ""),
                 }));
@@ -467,31 +491,22 @@ jobs:
               }
 
               return {
-                ready: false,
+                ready: true,
                 terminal: false,
-                message: `Waiting for CodeRabbit review summary for latest head ${shortHead}.`,
+                message: `CodeRabbit status succeeded for latest head ${shortHead}.`,
               };
             }
 
-            function evaluateCodex(reviews, comments, headSha, shortHead, reactionMarkerCutoff) {
+            function evaluateCodex(reviews, comments, headSha, shortHead, headArrivedAt) {
               const codexMarkers = collectCodexReviewMarkers(
                 reviews,
                 comments,
                 headSha,
-                reactionMarkerCutoff,
+                headArrivedAt,
               );
               const headCodexMarkers = codexMarkers.filter((marker) =>
                 matchesHead(headSha, marker.reviewedSha),
               );
-              const clawpatchMarkers = collectClawpatchMarkers(comments, headSha, shortHead);
-              if (clawpatchMarkers.length > 0) {
-                const latestClawpatchMarker = clawpatchMarkers.at(-1);
-                return {
-                  ready: true,
-                  message: `Latest head ${shortHead} has clean Clawpatch evidence from ${latestClawpatchMarker.submittedAt}.`,
-                };
-              }
-
               if (headCodexMarkers.length === 0) {
                 const latest = codexMarkers.at(-1);
                 const latestText = latest
@@ -526,13 +541,10 @@ jobs:
               }
 
               const deadline = Date.now() + maxWaitMs;
-              const reactionMarkerCutoff = resolveReactionMarkerCutoff(eventPull);
               let lastMessage = "";
               while (true) {
-                const { pull, reviews, comments, statuses } = await fetchPullState(
-                  eventPull.number,
-                  reactionMarkerCutoff,
-                );
+                const { pull, reviews, comments, statuses, headArrivedAt } =
+                  await fetchPullState(eventPull.number);
                 const headSha = pull.head.sha;
                 const shortHead = headSha.slice(0, 10);
                 if (context.eventName === "status" && headSha !== context.payload.sha) {
@@ -554,7 +566,7 @@ jobs:
                   comments,
                   headSha,
                   shortHead,
-                  reactionMarkerCutoff,
+                  headArrivedAt,
                 );
                 const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
 
