@@ -647,12 +647,32 @@ jobs:
               };
             }
 
+            async function setGateStatusForEvaluation(state, description, statuses) {
+              const normalizedDescription = description.slice(0, 140);
+              if (!waitForReviews && statuses) {
+                const latestGateStatus = statuses
+                  .filter((status) => status.context === gateContext)
+                  .sort((left, right) => new Date(right.created_at) - new Date(left.created_at))[0];
+                if (
+                  latestGateStatus?.state === state &&
+                  latestGateStatus?.description === normalizedDescription
+                ) {
+                  return true;
+                }
+              }
+              return setGateStatus(state, normalizedDescription);
+            }
+
             async function evaluatePullRequest(eventPull) {
               gateSha = eventPull.head.sha;
-              await setGateStatus("pending", "Waiting for automated reviews");
+              if (waitForReviews) {
+                await setGateStatus("pending", "Waiting for automated reviews");
+              }
 
               if (eventPull.draft) {
-                await setGateStatus("success", "Draft PR; merge is already blocked by GitHub");
+                if (waitForReviews) {
+                  await setGateStatus("success", "Draft PR; merge is already blocked by GitHub");
+                }
                 core.info("Draft pull request; GitHub already blocks draft merges.");
                 return { ok: true };
               }
@@ -675,7 +695,9 @@ jobs:
                 }
                 if (gateSha !== headSha) {
                   gateSha = headSha;
-                  await setGateStatus("pending", "Waiting for automated reviews");
+                  if (waitForReviews) {
+                    await setGateStatus("pending", "Waiting for automated reviews");
+                  }
                 }
                 const coderabbit = evaluateCodeRabbit(reviews, comments, statuses, headSha, shortHead);
                 const codex = evaluateCodex(
@@ -688,12 +710,12 @@ jobs:
                 const unresolvedCodexThreads = await collectUnresolvedCodexThreads(pull.number);
 
                 if (coderabbit.terminal) {
-                  await setGateStatus("failure", coderabbit.message);
+                  await setGateStatusForEvaluation("failure", coderabbit.message, statuses);
                   return { ok: false, message: coderabbit.message };
                 }
 
                 if (codex.terminal) {
-                  await setGateStatus("failure", codex.message);
+                  await setGateStatusForEvaluation("failure", codex.message, statuses);
                   return { ok: false, message: codex.message };
                 }
 
@@ -702,10 +724,10 @@ jobs:
                     .slice(0, 5)
                     .join(", ")}${unresolvedCodexThreads.length > 5 ? ", ..." : ""}`;
                   if (!waitForReviews || Date.now() >= deadline) {
-                    await setGateStatus("failure", unresolvedMessage);
+                    await setGateStatusForEvaluation("failure", unresolvedMessage, statuses);
                     return { ok: false, message: unresolvedMessage };
                   }
-                  await setGateStatus("pending", unresolvedMessage);
+                  await setGateStatusForEvaluation("pending", unresolvedMessage, statuses);
                   if (unresolvedMessage !== lastMessage) {
                     core.info(unresolvedMessage);
                     lastMessage = unresolvedMessage;
@@ -715,7 +737,7 @@ jobs:
                 }
 
                 if (coderabbit.ready && codex.ready) {
-                  await setGateStatus("success", "Automated reviews completed");
+                  await setGateStatusForEvaluation("success", "Automated reviews completed", statuses);
                   core.info(codex.message);
                   core.info(coderabbit.message);
                   return { ok: true };
@@ -728,13 +750,13 @@ jobs:
                   .filter(Boolean)
                   .join(" ");
                 if (!waitForReviews) {
-                  await setGateStatus("pending", message);
+                  await setGateStatusForEvaluation("pending", message, statuses);
                   core.info(message);
                   return { ok: true, pending: true };
                 }
                 if (Date.now() >= deadline) {
                   const timeoutMessage = `Timed out waiting for automated reviews. ${message}`;
-                  await setGateStatus("failure", timeoutMessage);
+                  await setGateStatusForEvaluation("failure", timeoutMessage, statuses);
                   return { ok: false, message: timeoutMessage };
                 }
 
