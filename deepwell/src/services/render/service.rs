@@ -5797,7 +5797,7 @@ fn push_list_pages_table_inline_segment(output: &mut String, value: &str) {
 }
 
 fn render_native_list_inline_html(value: &str) -> String {
-    let escaped = escape_list_pages_html_text(value);
+    let escaped = render_native_list_inline_wikidot_spans(value);
     let with_quadruple_links = WIKIDOT_QUADRUPLE_LINK_REGEX
         .replace_all(&escaped, |captures: &regex::Captures<'_>| {
             render_native_list_page_link(&captures["target"], None)
@@ -5833,6 +5833,69 @@ fn render_native_list_inline_html(value: &str) -> String {
             )
         })
         .into_owned()
+}
+
+fn render_native_list_inline_wikidot_spans(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(start) = rest.find("[[span") {
+        let (before, marker_start) = rest.split_at(start);
+        output.push_str(&escape_list_pages_html_text(before));
+
+        let Some(marker_end) = marker_start.find("]]") else {
+            output.push_str(&escape_list_pages_html_text(marker_start));
+            return output;
+        };
+        let marker = &marker_start[..marker_end + 2];
+        let after_marker = &marker_start[marker_end + 2..];
+
+        let Some(close_start) = after_marker.find("[[/span]]") else {
+            output.push_str(&escape_list_pages_html_text(marker));
+            rest = after_marker;
+            continue;
+        };
+
+        if let Some(open_tag) = wikidot_inline_span_marker_open(marker) {
+            output.push_str(&open_tag);
+            output.push_str(&render_native_list_inline_wikidot_spans(
+                &after_marker[..close_start],
+            ));
+            output.push_str("</span>");
+            rest = &after_marker[close_start + "[[/span]]".len()..];
+        } else {
+            output.push_str(&escape_list_pages_html_text(marker));
+            rest = after_marker;
+        }
+    }
+
+    output.push_str(&escape_list_pages_html_text(rest));
+    output
+}
+
+fn wikidot_inline_span_marker_open(marker: &str) -> Option<String> {
+    let marker = marker.trim();
+    if !marker.ends_with("]]") {
+        return None;
+    }
+
+    let inner = marker.strip_prefix("[[")?.strip_suffix("]]")?.trim();
+    if inner.len() < "span".len() || !inner[.."span".len()].eq_ignore_ascii_case("span") {
+        return None;
+    }
+    if inner.len() > "span".len()
+        && !inner
+            .as_bytes()
+            .get("span".len())
+            .is_some_and(u8::is_ascii_whitespace)
+    {
+        return None;
+    }
+    if inner.contains(['<', '>']) {
+        return None;
+    }
+
+    sanitize_wikidot_compat_inline_tag(&format!("<{inner}>"))
 }
 
 fn render_native_list_page_link(target: &str, label: Option<&str>) -> String {
@@ -9288,6 +9351,35 @@ mod tests {
             "style=\"background-image: url(&#39;https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg&#39;);\""
         ));
         assert!(!rendered.contains("[[div_"));
+    }
+
+    #[test]
+    fn renders_inline_wikidot_spans_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Safe [[span class=\"safe\" onclick=\"alert(1)\"]]span[[/span]]\n",
+            "* The Logistics Branch must maintain supply lines for transport of non-existent",
+            "[[span class=\"fnnum\"]].[[/span]]",
+            "[[span class=\"fncon\"]]For clarity: payloads will be absent.[[/span]]",
+            " effluence to Site-43;\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(r#"<li>The Logistics Branch"#));
+        assert!(rendered.contains(r#"<span class="safe">span</span>"#));
+        assert!(rendered.contains(r#"<span class="fnnum">.</span>"#));
+        assert!(rendered.contains(
+            r#"<span class="fncon">For clarity: payloads will be absent.</span>"#
+        ));
+        assert!(!rendered.contains("onclick"));
+        assert!(!rendered.contains("[[span"));
     }
 
     #[test]
