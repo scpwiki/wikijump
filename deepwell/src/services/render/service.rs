@@ -116,6 +116,12 @@ static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
+static WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?is)<p>\s*(?:(?P<open>\[\[div[^\]]*\]\])|(?P<close>\[\[/div\]\]))\s*</p>"#,
+    )
+    .unwrap()
+});
 static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)(?P<key>[A-Za-z_][A-Za-z0-9_\-]*)\s*(?P<op>!?=)\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
         .unwrap()
@@ -736,6 +742,7 @@ impl RenderService {
         let html = Self::restore_wikidot_tabview_dom_compatibility(&html);
         let html = Self::resolve_residual_wikidot_simple_if_fragments(&html);
         let html = Self::restore_wikidot_mailform_compatibility(&html);
+        let html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
         let html = Self::remove_residual_wikidot_iftags_fragments(&html);
         let html = Self::remove_wikijump_table_body_wrappers(&html);
         let html = Self::remove_wikidot_compat_style_blocks(&html);
@@ -822,6 +829,35 @@ impl RenderService {
             "</wj-tabs>",
             &format!("</div>{WIKIDOT_TABVIEW_INIT_SCRIPT}"),
         )
+    }
+
+    fn restore_residual_wikidot_div_paragraph_markers(html: &str) -> String {
+        let mut restored_open_count = 0usize;
+
+        WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX
+            .replace_all(html, |captures: &regex::Captures<'_>| {
+                if let Some(marker) = captures.name("open") {
+                    let marker = marker
+                        .as_str()
+                        .replace("&quot;", "\"")
+                        .replace("&#34;", "\"");
+                    if let Some(attributes) = Self::wikidot_compat_div_attributes(&marker)
+                    {
+                        restored_open_count += 1;
+                        return format!("<div{attributes}>");
+                    }
+
+                    return captures.get(0).unwrap().as_str().to_owned();
+                }
+
+                if restored_open_count == 0 {
+                    return captures.get(0).unwrap().as_str().to_owned();
+                }
+
+                restored_open_count -= 1;
+                "</div>".to_owned()
+            })
+            .into_owned()
     }
 
     fn remove_residual_wikidot_iftags_fragments(html: &str) -> String {
@@ -8677,6 +8713,39 @@ mod tests {
         assert!(!restored.contains("wj-tabs"));
         assert!(!restored.contains("aria-selected"));
         assert!(!restored.contains("role=\"tab\""));
+    }
+
+    #[test]
+    fn restores_residual_wikidot_div_markers_around_tabview() {
+        let html = concat!(
+            r#"<p>[[div class=&quot;m-wrapper standalone series&quot;]]</p>"#,
+            r#"<div class="yui-navset"><div class="yui-content">"#,
+            r#"<div><p>Order by Date of Creation</p></div>"#,
+            r#"<div><p>[[/div]]</p></div>"#,
+            r#"</div></div>"#,
+        );
+
+        let restored =
+            RenderService::restore_residual_wikidot_div_paragraph_markers(html);
+
+        assert!(restored.contains(r#"<div class="m-wrapper standalone series">"#));
+        assert!(restored.contains(r#"<div class="yui-navset">"#));
+        assert!(!restored.contains("[[div"));
+        assert!(!restored.contains("[[/div]]"));
+    }
+
+    #[test]
+    fn leaves_residual_wikidot_div_closer_without_restored_opener() {
+        let html = concat!(
+            r#"<p>[[div id=&quot;unsupported&quot;]]</p>"#,
+            r#"<span>Body</span>"#,
+            r#"<p>[[/div]]</p>"#,
+        );
+
+        let restored =
+            RenderService::restore_residual_wikidot_div_paragraph_markers(html);
+
+        assert_eq!(restored, html);
     }
 
     #[test]
