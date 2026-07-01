@@ -132,6 +132,9 @@ static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
+static WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?is)\[\[#ifexpr\s+(?P<test>-?[0-9]+(?:\.[0-9]+)?)\s*>\s*-1\s*\|\s*\+\s*\|\s*-\s*\]\]\s*\[\[#expr\s+abs\(\s*(?P<abs>-?[0-9]+(?:\.[0-9]+)?)\s*\)\s*\]\]").unwrap()
+});
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
 static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -3695,6 +3698,7 @@ impl RenderService {
                 user_displays: &user_displays,
                 page_wikitext: page_wikitext.as_deref(),
                 data_form_values: &data_form_values,
+                render_generated_html: list_pages_body_has_table_rows(body),
             };
             let body = substitute_list_pages_variables(
                 body,
@@ -4873,6 +4877,7 @@ struct ListPagesSubstitutionContext<'a> {
     user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
     page_wikitext: Option<&'a str>,
     data_form_values: &'a BTreeMap<String, String>,
+    render_generated_html: bool,
 }
 
 fn substitute_list_pages_variables(
@@ -4917,13 +4922,12 @@ fn substitute_list_pages_variables(
         .unwrap_or_default();
     let tags = page.tags.as_deref().unwrap_or(&[]);
     let tags_text = tags.join(" ");
-    let tags_linked = render_list_pages_tags(tags);
     let rating = format_list_pages_rating(page.score);
     let index = index.to_string();
     let total = total.to_string();
     let rendered_limit = context.rendered_limit.to_string();
 
-    LISTPAGES_VARIABLE_REGEX
+    let substituted = LISTPAGES_VARIABLE_REGEX
         .replace_all(template, |captures: &regex::Captures<'_>| {
             match captures["name"].to_ascii_lowercase().as_str() {
                 "title_linked" => title_linked.clone(),
@@ -4938,11 +4942,13 @@ fn substitute_list_pages_variables(
                 "created_at" | "createdat" | "date" => format_list_pages_created_at(
                     page.created_at,
                     captures.name("format").map(|matched| matched.as_str()),
+                    context.render_generated_html,
                 ),
                 "updated_by" | "updatedby" => updated_by.clone(),
                 "updated_at" | "updatedat" => format_list_pages_created_at(
                     page.updated_at,
                     captures.name("format").map(|matched| matched.as_str()),
+                    context.render_generated_html,
                 ),
                 "commented_by" | "commentedby" => String::new(),
                 "commented_at" | "commentedat" => String::new(),
@@ -4950,7 +4956,11 @@ fn substitute_list_pages_variables(
                 "rating_votes" | "ratingvotes" => String::new(),
                 "comments" => String::new(),
                 "tags" => tags_text.clone(),
-                "tags_linked" | "tagslinked" => tags_linked.clone(),
+                "tags_linked" | "tagslinked" => render_list_pages_tags(
+                    tags,
+                    captures.name("format").map(|matched| matched.as_str()),
+                    context.render_generated_html,
+                ),
                 "form_data" | "form_raw" => captures
                     .name("argument")
                     .and_then(|matched| context.data_form_values.get(matched.as_str()))
@@ -4976,7 +4986,9 @@ fn substitute_list_pages_variables(
                     .to_owned(),
             }
         })
-        .into_owned()
+        .into_owned();
+
+    resolve_list_pages_signed_abs_expressions(&substituted)
 }
 
 fn substitute_count_pages_variables(template: &str, total: usize) -> String {
@@ -4994,17 +5006,42 @@ fn substitute_count_pages_variables(template: &str, total: usize) -> String {
         .into_owned()
 }
 
-fn render_list_pages_tags(tags: &[String]) -> String {
+fn render_list_pages_tags(
+    tags: &[String],
+    path_prefix: Option<&str>,
+    render_as_html: bool,
+) -> String {
+    let path_prefix = path_prefix
+        .filter(|prefix| !prefix.trim().is_empty())
+        .unwrap_or("/system:page-tags/tag/");
     tags.iter()
         .map(|tag| {
-            format!(
-                r#"<a href="/system:page-tags/tag/{tag_attr}">{tag_text}</a>"#,
-                tag_attr = escape_list_pages_html_attr(tag),
-                tag_text = escape_list_pages_html_text(tag),
-            )
+            let href = list_pages_tag_link_href(path_prefix, tag);
+            if render_as_html {
+                format!(
+                    r#"<a href="{href}">{tag}</a>"#,
+                    href = escape_list_pages_html_attr(&href),
+                    tag = escape_list_pages_html_text(tag),
+                )
+            } else {
+                format!("[{href} {tag}]", tag = escape_wikidot_link_text(tag))
+            }
         })
         .collect::<Vec<_>>()
         .join(" ")
+}
+
+fn list_pages_tag_link_href(path_prefix: &str, tag: &str) -> String {
+    let path_prefix = path_prefix.trim();
+    let tag = tag.trim();
+    if path_prefix.starts_with("http://")
+        || path_prefix.starts_with("https://")
+        || path_prefix.starts_with('/')
+    {
+        format!("{path_prefix}{tag}")
+    } else {
+        format!("/{path_prefix}{tag}")
+    }
 }
 
 fn render_tag_cloud_box(tags: &[(String, usize)]) -> String {
@@ -5076,19 +5113,63 @@ fn render_list_pages_wikidot_user(
 fn format_list_pages_created_at(
     created_at: Option<time::OffsetDateTime>,
     format: Option<&str>,
+    render_as_html: bool,
 ) -> String {
     let Some(created_at) = created_at else {
         return String::new();
     };
     let format = format.unwrap_or("%e %b %Y %H:%M");
-    let text = format_wikidot_list_pages_date(created_at, format);
+    let display_format = format.split('|').next().unwrap_or(format);
+    let text = format_wikidot_list_pages_date(created_at, display_format);
     let encoded_format = percent_encode_list_pages_class(format);
-    format!(
-        r#"<span class="odate time_{} format_{}">{}</span>"#,
-        created_at.unix_timestamp(),
-        encoded_format,
-        escape_list_pages_html_text(&text),
-    )
+    if render_as_html {
+        format!(
+            r#"<span class="odate time_{} format_{}">{}</span>"#,
+            created_at.unix_timestamp(),
+            encoded_format,
+            escape_list_pages_html_text(&text),
+        )
+    } else {
+        format!(
+            r#"[[span class="odate time_{} format_{}"]]{}[[/span]]"#,
+            created_at.unix_timestamp(),
+            encoded_format,
+            text,
+        )
+    }
+}
+
+fn resolve_list_pages_signed_abs_expressions(value: &str) -> String {
+    WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX
+        .replace_all(value, |captures: &regex::Captures<'_>| {
+            let original = captures.get(0).map_or("", |matched| matched.as_str());
+            let Some(test_value) = captures
+                .name("test")
+                .and_then(|matched| matched.as_str().parse::<f64>().ok())
+            else {
+                return original.to_owned();
+            };
+            let Some(abs_value) = captures
+                .name("abs")
+                .and_then(|matched| matched.as_str().parse::<f64>().ok())
+            else {
+                return original.to_owned();
+            };
+            if (test_value - abs_value).abs() > f64::EPSILON
+                && (test_value.abs() - abs_value).abs() > f64::EPSILON
+            {
+                return original.to_owned();
+            }
+
+            let sign = if test_value > -1.0 { "+" } else { "-" };
+            let magnitude = format_list_pages_rating(Some(test_value.abs() as f32));
+            format!("{sign}{magnitude}")
+        })
+        .into_owned()
+}
+
+fn escape_wikidot_link_text(value: &str) -> String {
+    value.replace(']', r"\]")
 }
 
 fn format_wikidot_list_pages_date(
@@ -5287,17 +5368,15 @@ fn render_list_pages_numbered_rows(value: &str) -> String {
 }
 
 fn render_list_pages_table_rows(value: &str) -> Option<String> {
+    if !list_pages_body_has_table_rows(value) {
+        return None;
+    }
+
     let mut rows = Vec::new();
     for line in value.lines().filter(|line| !line.trim().is_empty()) {
         let trimmed = line.trim();
-        if !trimmed.starts_with("||") || !trimmed.ends_with("||") {
-            return None;
-        }
         let center = trimmed.starts_with("||=");
         let header = trimmed.starts_with("||~");
-        if !center && !header {
-            return None;
-        }
         let cell = trimmed
             .trim_start_matches("||=")
             .trim_start_matches("||~")
@@ -5327,6 +5406,21 @@ fn render_list_pages_table_rows(value: &str) -> Option<String> {
     }
     output.push_str("</table>");
     Some(output)
+}
+
+fn list_pages_body_has_table_rows(value: &str) -> bool {
+    let mut any = false;
+    for line in value.lines().filter(|line| !line.trim().is_empty()) {
+        any = true;
+        let trimmed = line.trim();
+        if !trimmed.starts_with("||") || !trimmed.ends_with("||") {
+            return false;
+        }
+        if !trimmed.starts_with("||=") && !trimmed.starts_with("||~") {
+            return false;
+        }
+    }
+    any
 }
 
 fn render_list_pages_table_inline_html(value: &str) -> String {
@@ -6218,6 +6312,7 @@ mod tests {
         render_list_pages_numbered_rows, render_list_pages_table_rows,
         render_members_module_placeholder, render_new_page_module,
         render_read_only_rate_module, render_tag_cloud_box,
+        resolve_list_pages_signed_abs_expressions,
         should_render_current_page_list_pages_row, substitute_list_pages_variables,
         unsupported_list_pages_replacement, wikidot_content_section,
         wikidot_module_argument,
@@ -6246,11 +6341,28 @@ mod tests {
         page_wikitext: Option<&'a str>,
         data_form_values: &'a BTreeMap<String, String>,
     ) -> ListPagesSubstitutionContext<'a> {
+        list_pages_substitution_context_with_mode(
+            rendered_limit,
+            user_displays,
+            page_wikitext,
+            data_form_values,
+            false,
+        )
+    }
+
+    fn list_pages_substitution_context_with_mode<'a>(
+        rendered_limit: usize,
+        user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
+        page_wikitext: Option<&'a str>,
+        data_form_values: &'a BTreeMap<String, String>,
+        render_generated_html: bool,
+    ) -> ListPagesSubstitutionContext<'a> {
         ListPagesSubstitutionContext {
             rendered_limit,
             user_displays,
             page_wikitext,
             data_form_values,
+            render_generated_html,
         }
     }
 
@@ -7111,11 +7223,9 @@ mod tests {
         assert!(rendered.contains("user:info/scpaiueouiuiuiui"));
         assert!(rendered.contains("WIKIDOT.page.listeners.userInfo(8955132)"));
         assert!(!rendered.contains("userkarma.php"));
-        assert!(
-            rendered
-                .contains(r#"class="odate time_1782003564 format_%25d%20%25b%20%25Y""#)
-        );
-        assert!(rendered.contains(">21 Jun 2026<"));
+        assert!(rendered.contains(
+            r#"[[span class="odate time_1782003564 format_%25d%20%25b%20%25Y"]]21 Jun 2026[[/span]]"#
+        ));
 
         let rendered = substitute_list_pages_variables(
             "%%date|%r|agohover%%",
@@ -7127,6 +7237,7 @@ mod tests {
         assert!(
             rendered.contains(r#"class="odate time_1782003564 format_%25r%7Cagohover""#)
         );
+        assert!(!rendered.contains("agohover[[/span]]"));
 
         let rendered = substitute_list_pages_variables(
             "%%linked_title%%",
@@ -7280,12 +7391,150 @@ mod tests {
         assert!(rendered.contains("[/scp-2693 SCP-2693]"));
         assert!(rendered.contains("**Rating:** +42"));
         assert!(rendered.contains("**Last Edit:** Calibold"));
-        assert!(rendered.contains(r#"class="odate time_1782005400"#));
-        assert!(rendered.contains(r#"<a href="/system:page-tags/tag/scp">scp</a>"#));
-        assert!(rendered.contains(r#"<a href="/system:page-tags/tag/safe">safe</a>"#));
+        assert!(rendered.contains(r#"[[span class="odate time_1782005400"#));
+        assert!(rendered.contains("[/system:page-tags/tag/scp scp]"));
+        assert!(rendered.contains("[/system:page-tags/tag/safe safe]"));
         assert!(rendered.ends_with("scp-2693"));
         assert!(!rendered.contains("%%updated_by%%"));
         assert!(!rendered.contains("%%tags_linked%%"));
+    }
+
+    #[test]
+    fn substitutes_wikidot_list_pages_table_body_generated_variables_as_html() {
+        let created_at = time::OffsetDateTime::from_unix_timestamp(1_782_003_564)
+            .expect("fixture timestamp should be valid");
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Codex virtual Wikidot DOM 001".to_owned()),
+            alt_title: None,
+            slug: Some("dom-001".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: Some(vec!["scp".to_owned(), "safe".to_owned()]),
+            created_at: Some(created_at),
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let body = concat!(
+            "||~ Published on %%created_at|%d %b %Y%% ||\n",
+            "||= %%tags_linked%% ||",
+        );
+
+        let substituted = substitute_list_pages_variables(
+            body,
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context_with_mode(
+                20,
+                &BTreeMap::new(),
+                None,
+                &BTreeMap::new(),
+                true,
+            ),
+        );
+
+        assert!(substituted.contains(
+            r#"<span class="odate time_1782003564 format_%25d%20%25b%20%25Y">21 Jun 2026</span>"#
+        ));
+        assert!(substituted.contains(r#"<a href="/system:page-tags/tag/scp">scp</a>"#));
+        assert!(!substituted.contains("[[span"));
+        assert!(!substituted.contains("[/system:page-tags/tag/scp scp]"));
+
+        let rendered = render_list_pages_table_rows(&substituted)
+            .expect("table-shaped ListPages body should render as raw table HTML");
+
+        assert!(rendered.contains("<table class=\"wiki-content-table\">"));
+        assert!(rendered.contains(r#"<span class="odate time_1782003564"#));
+        assert!(rendered.contains(r#"<a href="/system:page-tags/tag/scp">scp</a>"#));
+        assert!(!rendered.contains("&lt;span"));
+        assert!(!rendered.contains("&lt;a href"));
+    }
+
+    #[test]
+    fn substitutes_artwork_hub_listpages_body_without_visible_html_or_parser_functions() {
+        let created_at = time::OffsetDateTime::from_unix_timestamp(1_781_900_521)
+            .expect("fixture timestamp should be valid");
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Aspenq Pride Art 2026".to_owned()),
+            alt_title: None,
+            slug: Some("aspenq-pride-art-2026".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: Some(vec![
+                "artwork".to_owned(),
+                "colored-pencil".to_owned(),
+                "pridefest2026".to_owned(),
+            ]),
+            created_at: Some(created_at),
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: Some(28.0),
+        };
+        let body = concat!(
+            "[[div class=\"tale-block %%tags%%\"]]\n",
+            "[[div_ class=\"title\"]]%%linked_title%%[[/div]]\n",
+            "[[div_ class=\"date\"]]%%created_at|%Y %b %e|agohover%%[[/div]]\n",
+            "[[span class=\"tag-list\"]]%%tags_linked|artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,%%[[/span]]\n",
+            "[[span class=\"rating\"]][[#ifexpr %%rating%% > -1 | + | - ]][[#expr abs(%%rating%%)]][[/span]]\n",
+            "[[/div]]",
+        );
+
+        let rendered = substitute_list_pages_variables(
+            body,
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context(
+                20,
+                &BTreeMap::new(),
+                None,
+                &BTreeMap::new(),
+            ),
+        );
+
+        assert!(rendered.contains(
+            "[[div class=\"tale-block artwork colored-pencil pridefest2026\"]]"
+        ));
+        assert!(rendered.contains("[/aspenq-pride-art-2026 Aspenq Pride Art 2026]"));
+        assert!(rendered.contains(r#"[[span class="odate time_1781900521 format_%25Y%20%25b%20%25e%7Cagohover"]]2026 Jun 19[[/span]]"#));
+        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,artwork artwork]"));
+        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,colored-pencil colored-pencil]"));
+        assert!(rendered.contains(r#"[[span class="rating"]]+28[[/span]]"#));
+        assert!(!rendered.contains("<span"));
+        assert!(!rendered.contains("<a href"));
+        assert!(!rendered.contains("&lt;span"));
+        assert!(!rendered.contains("[[#ifexpr"));
+        assert!(!rendered.contains("[[#expr"));
+        assert!(!rendered.contains("agohover[[/span]]"));
+    }
+
+    #[test]
+    fn resolves_wikidot_signed_abs_rating_expressions() {
+        assert_eq!(
+            resolve_list_pages_signed_abs_expressions(
+                "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]",
+            ),
+            "-3",
+        );
+        assert_eq!(
+            resolve_list_pages_signed_abs_expressions(
+                "[[#ifexpr 4.5 > -1 | + | - ]][[#expr abs(4.5)]]",
+            ),
+            "+4.5",
+        );
+        assert_eq!(
+            resolve_list_pages_signed_abs_expressions(
+                "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(4)]]",
+            ),
+            "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(4)]]",
+        );
     }
 
     #[test]
