@@ -30,6 +30,7 @@
   let showRevision = $state<boolean>(false)
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
   let pagePaneState = $state<PagePane>(PagePane.None)
+  let wikidotPageActions = $derived(data.wikidot_page_actions)
 
   async function navigateEdit() {
     // Check edit permission first
@@ -189,8 +190,23 @@
           }}
           type="button"
         >
-          {data.internationalization?.vote}
+          {wikidotPageActions?.rate ?? data.internationalization?.vote}
         </a>
+        {#if wikidotPageActions}
+          <!-- svelte-ignore a11y_invalid_attribute -->
+          <a id="tags-button" class="btn btn-default" href="javascript:;" type="button">
+            Tags
+          </a>
+          <!-- svelte-ignore a11y_invalid_attribute -->
+          <a
+            id="discuss-button"
+            class="btn btn-default"
+            href="javascript:;"
+            type="button"
+          >
+            {wikidotPageActions.discuss}
+          </a>
+        {/if}
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
           id="history-button"
@@ -217,6 +233,21 @@
         >
           {data.internationalization?.files}
         </a>
+        {#if wikidotPageActions}
+          <!-- svelte-ignore a11y_invalid_attribute -->
+          <a id="print-button" class="btn btn-default" href="javascript:;" type="button">
+            Print
+          </a>
+          <!-- svelte-ignore a11y_invalid_attribute -->
+          <a
+            id="site-tools-button"
+            class="btn btn-default"
+            href="javascript:;"
+            type="button"
+          >
+            Site tools
+          </a>
+        {/if}
 
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a

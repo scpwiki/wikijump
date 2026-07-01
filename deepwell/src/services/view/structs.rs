@@ -110,6 +110,9 @@ pub struct WikidotPageSnapshotView {
 
     #[serde(with = "time::serde::rfc3339")]
     pub source_updated_at: OffsetDateTime,
+
+    pub imported_rating: Option<i64>,
+    pub comments: Option<i32>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

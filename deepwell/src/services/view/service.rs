@@ -481,13 +481,15 @@ impl ViewService {
         struct WikidotSnapshotRow {
             source_revision_count: Option<i32>,
             source_updated_at: Option<OffsetDateTime>,
+            imported_rating: Option<i64>,
+            comments: Option<i32>,
         }
 
         let txn = ctx.transaction();
         let statement = Statement::from_string(
             txn.get_database_backend(),
             format!(
-                "SELECT source_revision_count, source_updated_at FROM wikidot_page_snapshot WHERE page_id = {}",
+                "SELECT source_revision_count, source_updated_at, imported_rating, comments FROM wikidot_page_snapshot WHERE page_id = {}",
                 page_id,
             ),
         );
@@ -506,10 +508,14 @@ impl ViewService {
             |WikidotSnapshotRow {
                  source_revision_count,
                  source_updated_at,
+                 imported_rating,
+                 comments,
              }| {
                 Some(WikidotPageSnapshotView {
                     source_revision_count: source_revision_count?,
                     source_updated_at: source_updated_at?,
+                    imported_rating,
+                    comments,
                 })
             },
         ))
