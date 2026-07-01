@@ -79,6 +79,7 @@ const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTEMBEDIFRAME";
 const WIKIDOT_CSS_MODULE_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCSSMODULE";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
+const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 const WIKIDOT_TABVIEW_SCRIPT: &str = r#"<script src="http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/yahooui/tabview-min.js" type="text/javascript"></script>"#;
 const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
@@ -150,6 +151,10 @@ static WIKIDOT_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static WIKIDOT_EXTERNAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\*?(?P<url>https?://[^\s\]]+)\s+(?P<label>[^\]]+)\]").unwrap()
+});
+static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\[wikipedia:(?P<target>[^\s\]\n]+)(?:\s+(?P<label>[^\]\n]+))?\]")
+        .unwrap()
 });
 static WIKIDOT_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"##(?P<color>[A-Za-z0-9_-]+)\|(?P<body>.*?)##").unwrap()
@@ -579,6 +584,8 @@ impl RenderService {
         let render_task = task::spawn_blocking(move || {
             let wikidot_css_modules =
                 Self::protect_wikidot_css_modules(&mut wikitext, &render_settings);
+            let wikidot_wikipedia_links =
+                Self::protect_wikidot_wikipedia_links(&mut wikitext, &render_settings);
             let wikidot_compat_html = Self::protect_generated_wikidot_compat_html(
                 &mut wikitext,
                 &render_settings,
@@ -603,6 +610,10 @@ impl RenderService {
             html_output.body = Self::restore_protected_generated_wikidot_compat_html(
                 html_output.body,
                 &wikidot_compat_html,
+            );
+            html_output.body = Self::restore_protected_wikidot_wikipedia_links(
+                html_output.body,
+                &wikidot_wikipedia_links,
             );
             html_output.body = Self::restore_wikidot_render_compatibility(
                 &html_output.body,
@@ -1813,6 +1824,66 @@ impl RenderService {
         for (index, iframe) in iframes.iter().enumerate() {
             let marker = format!("{WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX}{index}X");
             html = html.replace(&marker, iframe);
+        }
+        html
+    }
+
+    fn protect_wikidot_wikipedia_links(
+        wikitext: &mut String,
+        settings: &WikitextSettings,
+    ) -> Vec<String> {
+        if !settings.enable_page_syntax {
+            return Vec::new();
+        }
+
+        let source = wikitext.clone();
+        let mut links = Vec::new();
+        let mut output = String::with_capacity(source.len());
+        let mut last = 0;
+
+        for captures in WIKIDOT_WIKIPEDIA_LINK_REGEX.captures_iter(&source) {
+            let Some(link_match) = captures.get(0) else {
+                continue;
+            };
+
+            output.push_str(&source[last..link_match.start()]);
+            last = link_match.end();
+
+            let Some(target) = captures.name("target").map(|matched| matched.as_str())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+
+            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let label = captures.name("label").map(|matched| matched.as_str());
+            let anchor = render_wikidot_wikipedia_link(target, label);
+            let marker =
+                format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{}X", links.len());
+            links.push(anchor);
+            output.push_str(&marker);
+        }
+
+        if links.is_empty() {
+            return links;
+        }
+
+        output.push_str(&source[last..]);
+        *wikitext = output;
+        links
+    }
+
+    fn restore_protected_wikidot_wikipedia_links(
+        mut html: String,
+        links: &[String],
+    ) -> String {
+        for (index, anchor) in links.iter().enumerate() {
+            let marker = format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{index}X");
+            html = html.replace(&marker, anchor);
         }
         html
     }
@@ -5508,6 +5579,34 @@ fn escape_wikidot_link_text(value: &str) -> String {
     value.replace(']', r"\]")
 }
 
+fn render_wikidot_wikipedia_link(target: &str, label: Option<&str>) -> String {
+    let (language, page) = wikidot_wikipedia_target(target);
+    let label = label
+        .filter(|value| !value.is_empty())
+        .map(Cow::Borrowed)
+        .unwrap_or_else(|| Cow::Owned(page.replace('_', " ")));
+    format!(
+        r#"<a href="http://{language}.wikipedia.org/wiki/{page}" onclick="window.open(this.href, '_blank'); return false;">{label}</a>"#,
+        language = escape_list_pages_html_attr(language),
+        page = escape_list_pages_html_attr(page),
+        label = escape_list_pages_html_text(&label),
+    )
+}
+
+fn wikidot_wikipedia_target(target: &str) -> (&str, &str) {
+    if let Some((language, page)) = target.split_once(':')
+        && !page.is_empty()
+        && (2..=3).contains(&language.len())
+        && language
+            .chars()
+            .all(|character| character.is_ascii_alphabetic())
+    {
+        return (language, page);
+    }
+
+    ("en", target)
+}
+
 fn format_wikidot_list_pages_date(
     created_at: time::OffsetDateTime,
     format: &str,
@@ -6750,8 +6849,8 @@ mod tests {
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
         RenderContext, RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
-        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WikidotUserDisplay,
-        count_pages_should_remain_literal, include_error,
+        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX,
+        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
@@ -9397,6 +9496,70 @@ mod tests {
             "style=\"background-image: url(&#39;https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg&#39;);\""
         ));
         assert!(!rendered.contains("[[div_"));
+    }
+
+    #[test]
+    fn protects_wikidot_wikipedia_links_before_ftml_parsing() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "\"Our Foundation\" of ",
+            "[wikipedia:Canonical_bundle Canonical Bundle]",
+            " DW17 Timeline Delta-Blue",
+        )
+        .to_owned();
+
+        let links =
+            RenderService::protect_wikidot_wikipedia_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 1);
+        assert!(wikitext.contains(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX));
+        assert!(!wikitext.contains("[wikipedia:Canonical_bundle"));
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        let restored =
+            RenderService::restore_protected_wikidot_wikipedia_links(rendered, &links);
+
+        assert!(restored.contains(r#"<a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a>"#));
+        assert!(!restored.contains("[wikipedia:Canonical_bundle"));
+    }
+
+    #[test]
+    fn renders_wikidot_wikipedia_links_with_language_and_default_label() {
+        assert_eq!(
+            super::render_wikidot_wikipedia_link("it:Albert_Einstein", Some("Albert")),
+            r#"<a href="http://it.wikipedia.org/wiki/Albert_Einstein" onclick="window.open(this.href, '_blank'); return false;">Albert</a>"#,
+        );
+        assert_eq!(
+            super::render_wikidot_wikipedia_link("Canonical_bundle", None),
+            r#"<a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical bundle</a>"#,
+        );
+    }
+
+    #[test]
+    fn leaves_wikidot_wikipedia_links_inside_literal_regions_unchanged() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut escaped = "@@[wikipedia:Canonical_bundle Canonical Bundle]@@".to_owned();
+        let links =
+            RenderService::protect_wikidot_wikipedia_links(&mut escaped, &settings);
+
+        assert!(links.is_empty());
+        assert_eq!(escaped, "@@[wikipedia:Canonical_bundle Canonical Bundle]@@",);
+
+        let mut code = concat!(
+            "[[code]]\n",
+            "[wikipedia:Canonical_bundle Canonical Bundle]\n",
+            "[[/code]]\n",
+        )
+        .to_owned();
+        let links = RenderService::protect_wikidot_wikipedia_links(&mut code, &settings);
+
+        assert!(links.is_empty());
+        assert!(code.contains("[wikipedia:Canonical_bundle Canonical Bundle]"));
     }
 
     #[test]
