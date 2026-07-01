@@ -9,6 +9,12 @@
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
   import {
+    WIKIDOT_FOOTER_LINKS,
+    WIKIDOT_POWERED_BY,
+    buildWikidotLicenseHtml,
+    isImportedWikidotView
+  } from "$lib/wikidot-footer"
+  import {
     PAGE_LAYOUT_CONTEXT_KEY,
     type PageLayoutContext
   } from "$lib/page-layout-context"
@@ -35,6 +41,13 @@
   }
 
   const currentLayout = $derived.by(resolveCurrentLayout)
+  const isImportedWikidotLayout = $derived(isImportedWikidotView(page.data ?? page.error))
+  const wikidotLicenseHtml = $derived(
+    buildWikidotLicenseHtml({
+      licenseName: page.data?.license_name ?? page.error?.license_name,
+      licenseUrl: page.data?.license_url ?? page.error?.license_url
+    })
+  )
   const pageLayoutContext = $state<PageLayoutContext>({
     current: resolveCurrentLayout()
   })
@@ -103,35 +116,49 @@
     {/snippet}
 
     {#snippet footer()}
-      <div class="options">
-        <a href={resolve("/", {})}
-          >{page.data?.internationalization?.docs ??
-            page.error?.internationalization?.docs}</a
-        >
-        |
-        <a href={resolve("/", {})}
-          >{page.data?.internationalization?.["terms-conditions"] ??
-            page.error?.internationalization?.["terms-conditions"]}</a
-        >
-        |
-        <a href={resolve("/", {})}
-          >{page.data?.internationalization?.privacy ??
-            page.error?.internationalization?.privacy}</a
-        >
-        |
-        <a href={resolve("/", {})}
-          >{page.data?.internationalization?.security ??
-            page.error?.internationalization?.security}</a
-        >
-      </div>
-      <div class="footer-powered-by">
-        {page.data?.internationalization?.["footer-powered-by"] ??
-          page.error?.internationalization?.["footer-powered-by"]}
-      </div>
+      {#if isImportedWikidotLayout}
+        <div class="options">
+          {#each WIKIDOT_FOOTER_LINKS as link, index (link.label)}
+            <a href={resolve(link.href, {})}>{link.label}</a
+            >{#if index < WIKIDOT_FOOTER_LINKS.length - 1}{" | "}{/if}
+          {/each}
+        </div>
+        <div class="footer-powered-by">{WIKIDOT_POWERED_BY}</div>
+      {:else}
+        <div class="options">
+          <a href={resolve("/", {})}
+            >{page.data?.internationalization?.docs ??
+              page.error?.internationalization?.docs}</a
+          >
+          |
+          <a href={resolve("/", {})}
+            >{page.data?.internationalization?.["terms-conditions"] ??
+              page.error?.internationalization?.["terms-conditions"]}</a
+          >
+          |
+          <a href={resolve("/", {})}
+            >{page.data?.internationalization?.privacy ??
+              page.error?.internationalization?.privacy}</a
+          >
+          |
+          <a href={resolve("/", {})}
+            >{page.data?.internationalization?.security ??
+              page.error?.internationalization?.security}</a
+          >
+        </div>
+        <div class="footer-powered-by">
+          {page.data?.internationalization?.["footer-powered-by"] ??
+            page.error?.internationalization?.["footer-powered-by"]}
+        </div>
+      {/if}
     {/snippet}
     {#snippet license()}
-      {@html page.data?.internationalization?.["footer-license-unless"] ??
-        page.error?.internationalization?.["footer-license-unless"]}
+      {#if isImportedWikidotLayout}
+        {@html wikidotLicenseHtml}
+      {:else}
+        {@html page.data?.internationalization?.["footer-license-unless"] ??
+          page.error?.internationalization?.["footer-license-unless"]}
+      {/if}
     {/snippet}
   </Wikidot>
 {:else}

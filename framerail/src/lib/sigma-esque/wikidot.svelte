@@ -74,6 +74,10 @@
     display: none;
   }
 
+  details.collapsible-block:not([open]) .collapsible-block-unfolded-link {
+    display: none;
+  }
+
   @media (prefers-color-scheme: light) {
     :root {
       /* Fallback colors */
