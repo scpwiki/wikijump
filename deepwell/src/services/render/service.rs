@@ -5624,6 +5624,9 @@ fn render_read_only_rate_module(score: ftml::data::ScoreValue) -> String {
             "[[span class=\"rateup btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"I like it\"]]+[[/a]]",
             "[[/span]]",
+            "[[span class=\"ratedown btn btn-default\"]]",
+            "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"I don't like it\"]]–[[/a]]",
+            "[[/span]]",
             "[[span class=\"cancel btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"Cancel my vote\"]]x[[/a]]",
             "[[/span]]",
@@ -6151,7 +6154,8 @@ mod tests {
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
         render_list_pages_numbered_rows, render_list_pages_table_rows,
-        render_members_module_placeholder, render_new_page_module, render_tag_cloud_box,
+        render_members_module_placeholder, render_new_page_module,
+        render_read_only_rate_module, render_tag_cloud_box,
         should_render_current_page_list_pages_row, substitute_list_pages_variables,
         unsupported_list_pages_replacement, wikidot_content_section,
         wikidot_module_argument,
@@ -6526,6 +6530,21 @@ mod tests {
         assert!(html.contains("needs&lt;escape"));
         assert!(!html.contains("[[module TagCloud"));
         assert!(!html.contains("<a class="));
+    }
+
+    #[test]
+    fn renders_wikidot_read_only_rate_module_with_downvote() {
+        let rendered = render_read_only_rate_module(ftml::data::ScoreValue::Integer(19));
+
+        assert!(rendered.contains(r#"[[span class="rate-points"]]rating: "#));
+        assert!(rendered.contains(r#"[[span class="number prw54353"]]+19[[/span]]"#));
+        assert!(rendered.contains(r#"[[span class="rateup btn btn-default"]]"#));
+        assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
+        assert!(rendered.contains(r#"[[span class="ratedown btn btn-default"]]"#));
+        assert!(rendered.contains(r#"listeners.rate(event, -1)"#));
+        assert!(rendered.contains(r#"title="I don't like it"]]–[[/a]]"#));
+        assert!(rendered.contains(r#"[[span class="cancel btn btn-default"]]"#));
+        assert!(rendered.contains(r#"listeners.cancelVote(event)"#));
     }
 
     #[test]
