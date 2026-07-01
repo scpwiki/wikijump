@@ -60,6 +60,12 @@ use tokio::time::timeout;
 #[derive(Debug)]
 pub struct RenderService;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ProtectedWikidotWikipediaLink {
+    anchor: String,
+    href: String,
+}
+
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
@@ -613,6 +619,10 @@ impl RenderService {
             );
             html_output.body = Self::restore_protected_wikidot_wikipedia_links(
                 html_output.body,
+                &wikidot_wikipedia_links,
+            );
+            Self::record_protected_wikidot_wikipedia_backlinks(
+                &mut html_output.backlinks,
                 &wikidot_wikipedia_links,
             );
             html_output.body = Self::restore_wikidot_render_compatibility(
@@ -1831,7 +1841,7 @@ impl RenderService {
     fn protect_wikidot_wikipedia_links(
         wikitext: &mut String,
         settings: &WikitextSettings,
-    ) -> Vec<String> {
+    ) -> Vec<ProtectedWikidotWikipediaLink> {
         if !settings.enable_page_syntax {
             return Vec::new();
         }
@@ -1861,10 +1871,10 @@ impl RenderService {
             }
 
             let label = captures.name("label").map(|matched| matched.as_str());
-            let anchor = render_wikidot_wikipedia_link(target, label);
+            let link = build_wikidot_wikipedia_link(target, label);
             let marker =
                 format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{}X", links.len());
-            links.push(anchor);
+            links.push(link);
             output.push_str(&marker);
         }
 
@@ -1879,13 +1889,22 @@ impl RenderService {
 
     fn restore_protected_wikidot_wikipedia_links(
         mut html: String,
-        links: &[String],
+        links: &[ProtectedWikidotWikipediaLink],
     ) -> String {
-        for (index, anchor) in links.iter().enumerate() {
+        for (index, link) in links.iter().enumerate() {
             let marker = format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{index}X");
-            html = html.replace(&marker, anchor);
+            html = html.replace(&marker, &link.anchor);
         }
         html
+    }
+
+    fn record_protected_wikidot_wikipedia_backlinks(
+        backlinks: &mut ftml::data::Backlinks<'_>,
+        links: &[ProtectedWikidotWikipediaLink],
+    ) {
+        backlinks
+            .external_links
+            .extend(links.iter().map(|link| Cow::Owned(link.href.clone())));
     }
 
     fn restore_wikidot_rendered_embed_iframes(html: &str) -> String {
@@ -5580,17 +5599,29 @@ fn escape_wikidot_link_text(value: &str) -> String {
 }
 
 fn render_wikidot_wikipedia_link(target: &str, label: Option<&str>) -> String {
+    build_wikidot_wikipedia_link(target, label).anchor
+}
+
+fn build_wikidot_wikipedia_link(
+    target: &str,
+    label: Option<&str>,
+) -> ProtectedWikidotWikipediaLink {
     let (language, page) = wikidot_wikipedia_target(target);
+    let href = wikidot_wikipedia_href(language, page);
     let label = label
         .filter(|value| !value.is_empty())
         .map(Cow::Borrowed)
         .unwrap_or_else(|| Cow::Owned(page.replace('_', " ")));
-    format!(
-        r#"<a href="http://{language}.wikipedia.org/wiki/{page}" onclick="window.open(this.href, '_blank'); return false;">{label}</a>"#,
-        language = escape_list_pages_html_attr(language),
-        page = escape_list_pages_html_attr(page),
+    let anchor = format!(
+        r#"<a href="{href}" onclick="window.open(this.href, '_blank'); return false;">{label}</a>"#,
+        href = escape_list_pages_html_attr(&href),
         label = escape_list_pages_html_text(&label),
-    )
+    );
+    ProtectedWikidotWikipediaLink { anchor, href }
+}
+
+fn wikidot_wikipedia_href(language: &str, page: &str) -> String {
+    format!("http://{language}.wikipedia.org/wiki/{page}")
 }
 
 fn wikidot_wikipedia_target(target: &str) -> (&str, &str) {
@@ -5922,9 +5953,17 @@ fn render_native_list_inline_html(value: &str) -> String {
             render_native_list_wikidot_user(&captures["name"])
         })
         .into_owned();
+    let with_wikipedia_links = WIKIDOT_WIKIPEDIA_LINK_REGEX
+        .replace_all(&with_user_links, |captures: &regex::Captures<'_>| {
+            render_wikidot_wikipedia_link(
+                &captures["target"],
+                captures.name("label").map(|matched| matched.as_str()),
+            )
+        })
+        .into_owned();
 
     WIKIDOT_EXTERNAL_LINK_REGEX
-        .replace_all(&with_user_links, |captures: &regex::Captures<'_>| {
+        .replace_all(&with_wikipedia_links, |captures: &regex::Captures<'_>| {
             format!(
                 r#"<a href="{url}">{label}</a>"#,
                 url = escape_list_pages_html_attr(&captures["url"]),
@@ -9520,12 +9559,24 @@ mod tests {
         let tokens = ftml::tokenize(&wikitext);
         let result = ftml::parse(&tokens, &page_info, &settings);
         let (tree, _) = result.into();
-        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
-        let restored =
-            RenderService::restore_protected_wikidot_wikipedia_links(rendered, &links);
+        let mut html_output = HtmlRender.render(&tree, &page_info, &settings);
+        html_output.body = RenderService::restore_protected_wikidot_wikipedia_links(
+            html_output.body,
+            &links,
+        );
+        RenderService::record_protected_wikidot_wikipedia_backlinks(
+            &mut html_output.backlinks,
+            &links,
+        );
 
-        assert!(restored.contains(r#"<a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a>"#));
-        assert!(!restored.contains("[wikipedia:Canonical_bundle"));
+        assert!(html_output.body.contains(r#"<a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a>"#));
+        assert!(!html_output.body.contains("[wikipedia:Canonical_bundle"));
+        assert_eq!(
+            html_output.backlinks.external_links,
+            vec![Cow::Borrowed(
+                "http://en.wikipedia.org/wiki/Canonical_bundle"
+            )],
+        );
     }
 
     #[test]
@@ -9589,6 +9640,26 @@ mod tests {
         ));
         assert!(!rendered.contains("onclick"));
         assert!(!rendered.contains("[[span"));
+    }
+
+    #[test]
+    fn renders_wikidot_wikipedia_links_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Source [wikipedia:Canonical_bundle Canonical Bundle]\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(r#"<li>Source <a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a></li>"#));
+        assert!(!rendered.contains("[wikipedia:Canonical_bundle"));
     }
 
     #[test]
