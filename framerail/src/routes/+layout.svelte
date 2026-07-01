@@ -78,6 +78,20 @@
       {@html page.data?.compiled_top_bar_html ?? page.error?.compiled_top_bar_html ?? ""}
     {/snippet}
 
+    {#snippet loginStatus()}
+      {#if !(page.data?.user_session ?? page.error?.user_session)}
+        <div id="login-status">
+          <a class="login-status-create-account btn" href={resolve("/-/register", {})}
+            >Create account</a
+          >
+          <span>or</span>
+          <a class="login-status-sign-in btn btn-primary" href={resolve("/-/login", {})}
+            >Sign in</a
+          >
+        </div>
+      {/if}
+    {/snippet}
+
     {#snippet sideBar()}
       {@html page.data?.compiled_side_bar_html ??
         page.error?.compiled_side_bar_html ??
