@@ -4160,6 +4160,82 @@ async fn countpages_unprefixed_tags_use_or_semantics() {
 }
 
 #[tokio::test]
+async fn countpages_artwork_hub_url_fallback_ignores_display_options() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tags = [
+        "verification-count-artwork",
+        "verification-count-artist",
+        "verification-count-comic",
+    ];
+
+    for index in 0..25 {
+        let tag = tags[index % tags.len()];
+        let slug = format!("fixture-countpages-artwork-url-target-{index:02}");
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            &slug,
+            "Fixture CountPages Artwork URL Target",
+            "Fixture CountPages artwork URL marker.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &[tag]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-countpages-artwork-url-excluded",
+        "Fixture CountPages Artwork URL Excluded",
+        "Fixture CountPages artwork URL excluded marker.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-countpages-artwork-url-index",
+        "Fixture CountPages Artwork URL Index",
+        "CountPages artwork URL marker.\n\n[[module CountPages order=\"created_at desc\" wrapper=\"no\" category=\"*\" separate=\"false\" perPage=\"20\" tags=\"@URL|verification-count-artwork verification-count-artist verification-count-comic\"]]\nCurrently listing %%total%% pages.\n[[/module]]",
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "fixture-countpages-artwork-url-index",
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("CountPages artwork URL index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("Currently listing 25 pages."),
+        "CountPages should use the @URL fallback tags and count all matching pages; perPage/wrapper/separate are display options for this module:\n{html}"
+    );
+    for forbidden in [
+        "[[module CountPages",
+        "%%total%%",
+        "Currently listing 20 pages.",
+        "Fixture CountPages Artwork URL Excluded",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "CountPages artwork URL fixture should not contain {forbidden:?}:\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
 async fn countpages_unsupported_filters_remain_literal() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

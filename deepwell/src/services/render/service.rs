@@ -2312,6 +2312,7 @@ impl RenderService {
                 page_info,
                 arguments,
                 body,
+                mtch.as_str(),
             )
             .await?;
             expanded.push_str(&replacement);
@@ -3445,6 +3446,8 @@ impl RenderService {
             authors,
             order,
             limit,
+            count_pages_explicit_limit: _,
+            count_pages_per_page: _,
             offset,
             exclude_current_page,
             page_type,
@@ -3678,6 +3681,7 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         arguments: ListPagesArguments,
         body: &str,
+        original_module: &str,
     ) -> Result<String> {
         let ListPagesArguments {
             current_page_only,
@@ -3693,6 +3697,8 @@ impl RenderService {
             authors,
             order,
             limit,
+            count_pages_explicit_limit,
+            count_pages_per_page,
             offset,
             exclude_current_page,
             page_type,
@@ -3702,6 +3708,16 @@ impl RenderService {
             data_form_fields,
             unsupported_count_pages_filter: _,
         } = arguments;
+        let per_page_only_count =
+            count_pages_explicit_limit.is_none() && count_pages_per_page.is_some();
+        let count_pages_query_limit = count_pages_explicit_limit
+            .map(|limit| {
+                limit
+                    .saturating_add(u64::from(offset))
+                    .saturating_add(u64::from(exclude_current_page))
+            })
+            .unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
+            .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
         any_tags.extend(default_tags);
         let (category_all, include_current_category) = if category_selector_present {
             (category_all, include_current_category)
@@ -3783,16 +3799,7 @@ impl RenderService {
                 Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
             },
             pagination: PaginationSelector {
-                limit: Some(
-                    limit
-                        .map(|limit| {
-                            limit
-                                .saturating_add(u64::from(offset))
-                                .saturating_add(u64::from(exclude_current_page))
-                        })
-                        .unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
-                        .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS)),
-                ),
+                limit: Some(count_pages_query_limit),
                 per_page: PaginationSelector::default().per_page,
                 reversed: false,
             },
@@ -3816,25 +3823,25 @@ impl RenderService {
             .await?
         } else if current_page_only {
             FoundPages { pages: Vec::new() }
-        } else if let Some(limit) = limit {
-            let target_count = (offset as usize)
-                .saturating_add(limit.min(usize::MAX as u64) as usize)
-                .saturating_add(usize::from(exclude_current_page));
-            Self::find_viewable_list_pages_rows(ctx, query, target_count).await?
         } else {
-            let found = PageQueryService::find(ctx, query).await?;
-            FoundPages {
-                pages: Self::filter_viewable_list_pages_rows(ctx, found.pages).await?,
-            }
+            let target_count = count_pages_query_limit.min(usize::MAX as u64) as usize;
+            Self::find_viewable_list_pages_rows(ctx, query, target_count).await?
         };
         let pages = pages
             .pages
             .into_iter()
             .filter(|page| !exclude_current_page || page.page_id != current_page_id)
             .skip(offset as usize);
-        let total = match limit {
+        let total = match count_pages_explicit_limit {
             Some(limit) => pages.take(limit.min(usize::MAX as u64) as usize).count(),
-            None => pages.count(),
+            None => {
+                let total = pages.count();
+                if per_page_only_count && total >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize
+                {
+                    return Ok(original_module.to_owned());
+                }
+                total
+            }
         };
 
         Ok(substitute_count_pages_variables(body, total))
@@ -4244,6 +4251,8 @@ struct ListPagesArguments {
     authors: Vec<Cow<'static, str>>,
     order: Option<OrderBySelector>,
     limit: Option<u64>,
+    count_pages_explicit_limit: Option<u64>,
+    count_pages_per_page: Option<u64>,
     offset: u32,
     exclude_current_page: bool,
     page_type: PageTypeSelector,
@@ -4273,6 +4282,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut authors = Vec::new();
     let mut order = None;
     let mut limit = None;
+    let mut count_pages_explicit_limit = None;
+    let mut count_pages_per_page = None;
     let mut offset = 0;
     let mut exclude_current_page = false;
     let mut page_type = PageTypeSelector::Normal;
@@ -4377,10 +4388,14 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 }
             }
             "limit" => {
-                limit = Some(parse_list_pages_numeric_argument(value)?);
+                let parsed = parse_list_pages_numeric_argument(value)?;
+                limit = Some(parsed);
+                count_pages_explicit_limit = Some(parsed);
             }
             "perpage" | "per_page" => {
-                limit = Some(parse_list_pages_numeric_argument(value)?);
+                let parsed = parse_list_pages_numeric_argument(value)?;
+                limit = Some(parsed);
+                count_pages_per_page = Some(parsed);
             }
             "offset" => {
                 let parsed = parse_list_pages_numeric_argument(value)?;
@@ -4469,8 +4484,9 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 }
                 _ => {}
             },
+            "wrapper" => {}
             "rating" | "score" | "votes" | "form" | "link_to" | "linkto"
-            | "urlattrprefix" | "wrapper" | "created_at" | "createdat" | "updated_at"
+            | "urlattrprefix" | "created_at" | "createdat" | "updated_at"
             | "updatedat" => {
                 unsupported_count_pages_filter = true;
                 // These filters need Wikidot-specific query semantics that are not
@@ -4513,6 +4529,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         authors,
         order,
         limit,
+        count_pages_explicit_limit,
+        count_pages_per_page,
         offset,
         exclude_current_page,
         page_type,
@@ -4525,9 +4543,12 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
 }
 
 fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
+    let count_pages_bound = arguments
+        .count_pages_explicit_limit
+        .or(arguments.count_pages_per_page);
     arguments.unsupported_count_pages_filter
-        || (arguments.limit.is_none() && !arguments.current_page_only)
-        || arguments.limit.is_some_and(|limit| {
+        || (count_pages_bound.is_none() && !arguments.current_page_only)
+        || count_pages_bound.is_some_and(|limit| {
             limit
                 .saturating_add(u64::from(arguments.offset))
                 .saturating_add(u64::from(arguments.exclude_current_page))
@@ -4535,7 +4556,7 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
         })
         || (arguments.category_selector_present
             && arguments.category_all
-            && arguments.limit.is_none()
+            && arguments.count_pages_explicit_limit.is_none()
             && !count_pages_has_static_filter(arguments))
         || (arguments.current_page_only
             && (arguments.category_selector_present
