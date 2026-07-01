@@ -44,12 +44,20 @@ export const formatWikidotSourceDate = (timestampMs) => {
   return `${day} ${WIKIDOT_MONTHS[month - 1]} ${year}, ${hour}:${minute}`
 }
 
-/** @param {number} days */
-export const formatWikidotRelativeDays = (days) => {
-  if (days === 0) return "today"
-  if (days === 1) return "yesterday"
+/** @param {number} elapsedMs */
+export const formatWikidotRelativeAge = (elapsedMs) => {
+  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000))
 
-  return `${days} days ago`
+  if (totalSeconds < 60) return "less than a minute ago"
+
+  const minutes = Math.floor(totalSeconds / 60)
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`
+
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`
+
+  const days = Math.floor(hours / 24)
+  return `${days} day${days === 1 ? "" : "s"} ago`
 }
 
 /** @param {{ revision: number; updatedAt: string; now?: number }} input */
@@ -58,9 +66,8 @@ export const buildWikidotPageInfoText = ({ revision, updatedAt, now = Date.now()
 
   if (!Number.isFinite(updatedAtMs)) return null
 
-  const daysDiff = Math.floor((now - updatedAtMs) / 1000 / 86400)
   const date = formatWikidotSourceDate(updatedAtMs)
-  const relative = formatWikidotRelativeDays(daysDiff)
+  const relative = formatWikidotRelativeAge(now - updatedAtMs)
 
   return `page revision: ${revision}, last edited: ${date} (${relative})`
 }

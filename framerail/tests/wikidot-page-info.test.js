@@ -17,6 +17,37 @@ test("formats imported Wikidot page revision metadata like the source shell", ()
   )
 })
 
+test("formats recent Wikidot page revision metadata with elapsed hours", () => {
+  const updatedAt = "2026-07-01T05:52:50Z"
+  const now = Date.parse("2026-07-01T16:30:00Z")
+
+  assert.equal(
+    buildWikidotPageInfoText({ revision: 234, updatedAt, now }),
+    "page revision: 234, last edited: 1 Jul 2026, 14:52 (10 hours ago)"
+  )
+})
+
+test("formats singular recent Wikidot page revision metadata units", () => {
+  const updatedAt = "2026-07-01T05:52:50Z"
+
+  assert.equal(
+    buildWikidotPageInfoText({
+      revision: 234,
+      updatedAt,
+      now: Date.parse("2026-07-01T06:53:00Z")
+    }),
+    "page revision: 234, last edited: 1 Jul 2026, 14:52 (1 hour ago)"
+  )
+  assert.equal(
+    buildWikidotPageInfoText({
+      revision: 234,
+      updatedAt,
+      now: Date.parse("2026-07-01T05:53:50Z")
+    }),
+    "page revision: 234, last edited: 1 Jul 2026, 14:52 (1 minute ago)"
+  )
+})
+
 test("rejects invalid imported Wikidot page revision timestamps", () => {
   assert.equal(
     buildWikidotPageInfoText({
