@@ -66,9 +66,9 @@
     },
     {
         "slug": "scp-wiki",
-        "name": "SCP Wiki (test)",
+        "name": "SCP Foundation",
         "tagline": "Secure, Contain, Protect",
-        "description": "Test site mimicking the SCP Wiki (EN)",
+        "description": "Local mirror of the SCP Wiki (EN)",
         "default-page": "main",
         "layout": null,
         "license": "cc-by-sa-3.0",

@@ -42,6 +42,16 @@ test("seed data includes local sandbox-for-codex site required by parity probes"
   }
 });
 
+test("seed data names the EN mirror like live SCP Wiki chrome", () => {
+  const sites = readJson("deepwell/seeder/sites.json");
+  const site = sites.find((candidate) => candidate.slug === "scp-wiki");
+
+  assert.ok(site, "scp-wiki seed site should exist");
+  assert.equal(site.name, "SCP Foundation");
+  assert.equal(site.tagline, "Secure, Contain, Protect");
+  assert.equal(site["default-page"], "main");
+});
+
 test("seeded mirror authors are non-login identities", () => {
   const users = readJson("deepwell/seeder/users.json");
   const mirrorAuthorNames = new Set(["SeekGull", "daveyoufool"]);
