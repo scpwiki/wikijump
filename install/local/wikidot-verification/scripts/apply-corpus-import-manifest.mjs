@@ -5,6 +5,12 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
+import {
+  buildParentLinkParentPagesSql,
+  buildParentLinkSql,
+  parseParentLinkParentPages,
+  parseParentLinkSummary,
+} from '../src/corpus-import-parent-links.mjs';
 
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
@@ -879,6 +885,33 @@ WHERE import_run_id = ${sqlInt(importRunId)};
 `);
 }
 
+function upsertParentLinks(args, selectedRows) {
+  const sql = buildParentLinkSql(args, selectedRows);
+  if (sql === null) {
+    return {
+      parent_link_requested: 0,
+      parent_link_ready: 0,
+      parent_link_inserted: 0,
+      parent_link_missing_parent: 0,
+      parent_link_missing_child: 0,
+    };
+  }
+  return parseParentLinkSummary(runPsql(args, sql, { capture: true }));
+}
+
+async function rerenderParentLinkPages(args, selectedRows) {
+  if (args.skipRerender) return { parent_link_parent_rerendered: 0 };
+  const sql = buildParentLinkParentPagesSql(args, selectedRows);
+  if (sql === null) return { parent_link_parent_rerendered: 0 };
+  const pages = parseParentLinkParentPages(runPsql(args, sql, { capture: true }));
+  let rerendered = 0;
+  for (const page of pages) {
+    await rerenderPage(args, page.page_id, page.page_category_id);
+    rerendered += 1;
+  }
+  return { parent_link_parent_rerendered: rerendered };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const manifestText = fs.readFileSync(args.manifest, 'utf8');
@@ -911,6 +944,8 @@ async function main() {
         console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
       }
     }
+    Object.assign(summary, upsertParentLinks(args, selectedRows));
+    Object.assign(summary, await rerenderParentLinkPages(args, selectedRows));
     finalState = summary.failed > 0 ? 'failed' : 'done';
   } finally {
     finishRun(args, importRunId, summary, finalState);

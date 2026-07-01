@@ -520,7 +520,10 @@ impl RenderService {
         Self::remove_unresolved_variable_iftags_blocks(&mut wikitext);
         Self::resolve_single_line_wikidot_iftags_fragments(&mut wikitext, page_info);
         Self::resolve_simple_wikidot_iftags_blocks(&mut wikitext, page_info);
-        wikitext = Self::expand_list_pages(
+        let IncludeExpansion {
+            wikitext: expanded_wikitext,
+            included_pages: list_pages_included_pages,
+        } = Self::expand_list_pages(
             ctx,
             wikitext,
             page_info,
@@ -530,6 +533,8 @@ impl RenderService {
         )
         .await
         .or_raise(make_error)?;
+        wikitext = expanded_wikitext;
+        included_pages.extend(list_pages_included_pages);
         wikitext = Self::expand_count_pages(
             ctx,
             wikitext,
@@ -2404,18 +2409,25 @@ impl RenderService {
         settings: &WikitextSettings,
         current_site_id: Option<i64>,
         current_page_id: Option<i64>,
-    ) -> Result<String> {
+    ) -> Result<IncludeExpansion> {
         let (Some(current_site_id), Some(current_page_id)) =
             (current_site_id, current_page_id)
         else {
-            return Ok(wikitext);
+            return Ok(IncludeExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+            });
         };
 
         if !settings.enable_page_syntax {
-            return Ok(wikitext);
+            return Ok(IncludeExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+            });
         }
 
         let mut expanded = String::with_capacity(wikitext.len());
+        let mut included_pages = Vec::new();
         let mut cursor = 0;
 
         for captures in LISTPAGES_MODULE_REGEX.captures_iter(&wikitext) {
@@ -2446,21 +2458,29 @@ impl RenderService {
                 continue;
             }
 
-            let replacement = Self::render_list_pages_block(
+            let IncludeExpansion {
+                wikitext: replacement,
+                included_pages: replacement_included_pages,
+            } = Self::render_list_pages_block(
                 ctx,
                 current_site_id,
                 current_page_id,
                 page_info,
+                settings,
                 arguments,
                 body,
             )
             .await?;
             expanded.push_str(&replacement);
+            included_pages.extend(replacement_included_pages);
             cursor = mtch.end();
         }
 
         expanded.push_str(&wikitext[cursor..]);
-        Ok(expanded)
+        Ok(IncludeExpansion {
+            wikitext: expanded,
+            included_pages,
+        })
     }
 
     async fn expand_count_pages(
@@ -3639,9 +3659,10 @@ impl RenderService {
         current_site_id: i64,
         current_page_id: i64,
         page_info: &PageInfo<'_>,
+        settings: &WikitextSettings,
         arguments: ListPagesArguments,
         body: &str,
-    ) -> Result<String> {
+    ) -> Result<IncludeExpansion> {
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -3862,6 +3883,7 @@ impl RenderService {
             BTreeMap::new()
         };
         let mut output = String::from("[[div class=\"list-pages-box\"]]\n");
+        let mut included_pages = Vec::new();
         if let Some(prepend_line) = prepend_line {
             output.push_str(&prepend_line);
             output.push('\n');
@@ -3890,11 +3912,32 @@ impl RenderService {
             } else {
                 BTreeMap::new()
             };
+            let expanded_page_wikitext = if wants_content {
+                match page_wikitext.as_deref() {
+                    Some(wikitext) => {
+                        let expansion = Self::expand_includes(
+                            ctx,
+                            wikitext.to_owned(),
+                            page_info.site.as_ref(),
+                            settings,
+                            Some(page.site_id),
+                        )
+                        .await?;
+                        included_pages.extend(expansion.included_pages);
+                        Some(expansion.wikitext)
+                    }
+                    None => None,
+                }
+            } else {
+                None
+            };
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
                 user_displays: &user_displays,
                 snapshot_displays: &snapshot_displays,
-                page_wikitext: page_wikitext.as_deref(),
+                page_wikitext: expanded_page_wikitext
+                    .as_deref()
+                    .or(page_wikitext.as_deref()),
                 data_form_values: &data_form_values,
                 render_generated_html: list_pages_body_has_table_rows(body),
             };
@@ -3924,7 +3967,10 @@ impl RenderService {
         }
 
         output.push_str("[[/div]]");
-        Ok(output)
+        Ok(IncludeExpansion {
+            wikitext: output,
+            included_pages,
+        })
     }
 
     async fn render_count_pages_block(
