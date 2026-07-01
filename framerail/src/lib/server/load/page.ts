@@ -34,6 +34,7 @@ import { pageView } from "$lib/server/deepwell/views"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
+import { buildWikidotPageActionLabels } from "$lib/wikidot-page-actions"
 import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
@@ -234,6 +235,7 @@ export async function loadPage(
 
   const internationalization = await translate(locales, translateKeys)
   let wikidotPageInfo: string | null = null
+  let wikidotPageActions: ReturnType<typeof buildWikidotPageActionLabels> | null = null
 
   if (errorStatus === null && responseType === "found") {
     const wikidotSnapshot = responseData.wikidot_snapshot
@@ -246,6 +248,13 @@ export async function loadPage(
       wikidotPageInfo = buildWikidotPageInfoText({
         revision: wikidotSnapshot.source_revision_count,
         updatedAt: wikidotSnapshot.source_updated_at
+      })
+    }
+
+    if (responseData.page.from_wikidot) {
+      wikidotPageActions = buildWikidotPageActionLabels({
+        rating: wikidotSnapshot?.imported_rating ?? null,
+        comments: wikidotSnapshot?.comments ?? null
       })
     }
   }
@@ -273,7 +282,8 @@ export async function loadPage(
     ...responseData,
     view: responseType,
     internationalization,
-    wikidot_page_info: wikidotPageInfo
+    wikidot_page_info: wikidotPageInfo,
+    wikidot_page_actions: wikidotPageActions
   }
 
   if (errorStatus !== null) {
