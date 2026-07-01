@@ -46,6 +46,7 @@ use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::*;
 use ftml::tree::{CodeBlock, VariableMap};
 use regex::Regex;
+use sea_orm::{FromQueryResult, Statement};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::future::Future;
@@ -3664,6 +3665,23 @@ impl RenderService {
         } else {
             BTreeMap::new()
         };
+        let wants_comments = list_pages_body_uses_variable(body, "comments");
+        let wants_commented_by = list_pages_body_uses_variable(body, "commented_by")
+            || list_pages_body_uses_variable(body, "commentedby");
+        let wants_commented_at = list_pages_body_uses_variable(body, "commented_at")
+            || list_pages_body_uses_variable(body, "commentedat");
+        let snapshot_displays = if wants_created_by
+            || wants_updated_by
+            || wants_created_at
+            || wants_updated_at
+            || wants_comments
+            || wants_commented_by
+            || wants_commented_at
+        {
+            Self::load_list_pages_snapshot_displays(ctx, &pages).await?
+        } else {
+            BTreeMap::new()
+        };
         let mut output = String::from("[[div class=\"list-pages-box\"]]\n");
         if let Some(prepend_line) = prepend_line {
             output.push_str(&prepend_line);
@@ -3696,6 +3714,7 @@ impl RenderService {
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
                 user_displays: &user_displays,
+                snapshot_displays: &snapshot_displays,
                 page_wikitext: page_wikitext.as_deref(),
                 data_form_values: &data_form_values,
                 render_generated_html: list_pages_body_has_table_rows(body),
@@ -4177,6 +4196,89 @@ impl RenderService {
         Ok(displays)
     }
 
+    async fn load_list_pages_snapshot_displays(
+        ctx: &ServiceContext<'_>,
+        pages: &[FoundPageRow],
+    ) -> Result<BTreeMap<i64, ListPagesSnapshotDisplay>> {
+        #[derive(FromQueryResult, Debug)]
+        struct SnapshotDisplayRow {
+            page_id: i64,
+            source_created_at: time::OffsetDateTime,
+            source_updated_at: time::OffsetDateTime,
+            created_by_name: Option<String>,
+            updated_by_name: Option<String>,
+            comments: i32,
+            commented_at: Option<time::OffsetDateTime>,
+            commented_by_name: Option<String>,
+        }
+
+        let page_ids = pages
+            .iter()
+            .map(|page| page.page_id)
+            .collect::<BTreeSet<_>>();
+        if page_ids.is_empty() {
+            return Ok(BTreeMap::new());
+        }
+
+        let make_error = || {
+            Error::new(
+                "failed to load imported Wikidot snapshot metadata for ListPages render",
+                ErrorType::Render,
+            )
+        };
+        let values = page_ids
+            .iter()
+            .map(|page_id| format!("({page_id})"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let txn = ctx.transaction();
+        let statement = Statement::from_string(
+            txn.get_database_backend(),
+            format!(
+                "WITH input(page_id) AS (VALUES {values}) \
+                 SELECT snapshot.page_id, snapshot.source_created_at, snapshot.source_updated_at, \
+                        snapshot.created_by_name, snapshot.updated_by_name, snapshot.comments, \
+                        snapshot.commented_at, snapshot.commented_by_name \
+                 FROM input \
+                 JOIN wikidot_page_snapshot snapshot ON snapshot.page_id = input.page_id",
+            ),
+        );
+
+        SnapshotDisplayRow::find_by_statement(statement)
+            .all(txn)
+            .await
+            .or_raise(make_error)
+            .map(|rows| {
+                rows.into_iter()
+                    .map(
+                        |SnapshotDisplayRow {
+                             page_id,
+                             source_created_at,
+                             source_updated_at,
+                             created_by_name,
+                             updated_by_name,
+                             comments,
+                             commented_at,
+                             commented_by_name,
+                         }| {
+                            (
+                                page_id,
+                                ListPagesSnapshotDisplay {
+                                    created_at: source_created_at,
+                                    updated_at: source_updated_at,
+                                    created_by_name,
+                                    updated_by_name,
+                                    comments,
+                                    commented_at,
+                                    commented_by_name,
+                                },
+                            )
+                        },
+                    )
+                    .collect()
+            })
+    }
+
     async fn resolve_list_pages_author_ids(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
@@ -4279,6 +4381,17 @@ struct WikidotUserDisplay {
     name: String,
     slug: Option<String>,
     wikidot_profile: bool,
+}
+
+#[derive(Debug, Clone)]
+struct ListPagesSnapshotDisplay {
+    created_at: time::OffsetDateTime,
+    updated_at: time::OffsetDateTime,
+    created_by_name: Option<String>,
+    updated_by_name: Option<String>,
+    comments: i32,
+    commented_at: Option<time::OffsetDateTime>,
+    commented_by_name: Option<String>,
 }
 
 #[derive(Debug)]
@@ -4875,6 +4988,7 @@ fn wikidot_content_section(wikitext: &str, section: Option<usize>) -> String {
 struct ListPagesSubstitutionContext<'a> {
     rendered_limit: usize,
     user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
+    snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
     page_wikitext: Option<&'a str>,
     data_form_values: &'a BTreeMap<String, String>,
     render_generated_html: bool,
@@ -4894,31 +5008,58 @@ fn substitute_list_pages_variables(
     } else {
         format!("[/{slug} {title}]")
     };
-    let created_by = page
-        .created_by
-        .map(|user_id| {
-            context
-                .user_displays
-                .get(&user_id)
-                .map(|user| user.name.clone())
-                .unwrap_or_else(|| user_id.to_string())
+    let snapshot = context.snapshot_displays.get(&page.page_id);
+    let created_by_snapshot =
+        snapshot.and_then(|snapshot| snapshot.created_by_name.as_deref());
+    let updated_by_snapshot =
+        snapshot.and_then(|snapshot| snapshot.updated_by_name.as_deref());
+    let commented_by_snapshot =
+        snapshot.and_then(|snapshot| snapshot.commented_by_name.as_deref());
+    let created_by = created_by_snapshot
+        .map(str::to_owned)
+        .or_else(|| {
+            page.created_by.map(|user_id| {
+                context
+                    .user_displays
+                    .get(&user_id)
+                    .map(|user| user.name.clone())
+                    .unwrap_or_else(|| user_id.to_string())
+            })
         })
         .unwrap_or_default();
-    let created_by_linked = page
-        .created_by
-        .map(|user_id| {
-            render_list_pages_wikidot_user(user_id, context.user_displays.get(&user_id))
+    let created_by_linked = created_by_snapshot
+        .map(render_list_pages_snapshot_user)
+        .or_else(|| {
+            page.created_by.map(|user_id| {
+                render_list_pages_wikidot_user(
+                    user_id,
+                    context.user_displays.get(&user_id),
+                )
+            })
         })
         .unwrap_or_default();
-    let updated_by = page
-        .updated_by
-        .map(|user_id| {
-            context
-                .user_displays
-                .get(&user_id)
-                .map(|user| user.name.clone())
-                .unwrap_or_else(|| user_id.to_string())
+    let updated_by = updated_by_snapshot
+        .map(str::to_owned)
+        .or_else(|| {
+            page.updated_by.map(|user_id| {
+                context
+                    .user_displays
+                    .get(&user_id)
+                    .map(|user| user.name.clone())
+                    .unwrap_or_else(|| user_id.to_string())
+            })
         })
+        .unwrap_or_default();
+    let commented_by = commented_by_snapshot.map(str::to_owned).unwrap_or_default();
+    let created_at = snapshot
+        .map(|snapshot| snapshot.created_at)
+        .or(page.created_at);
+    let updated_at = snapshot
+        .map(|snapshot| snapshot.updated_at)
+        .or(page.updated_at);
+    let commented_at = snapshot.and_then(|snapshot| snapshot.commented_at);
+    let comments = snapshot
+        .map(|snapshot| snapshot.comments.to_string())
         .unwrap_or_default();
     let tags = page.tags.as_deref().unwrap_or(&[]);
     let visible_tags = tags
@@ -4945,21 +5086,25 @@ fn substitute_list_pages_variables(
                     created_by_linked.clone()
                 }
                 "created_at" | "createdat" | "date" => format_list_pages_created_at(
-                    page.created_at,
+                    created_at,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                 ),
                 "updated_by" | "updatedby" => updated_by.clone(),
                 "updated_at" | "updatedat" => format_list_pages_created_at(
-                    page.updated_at,
+                    updated_at,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                 ),
-                "commented_by" | "commentedby" => String::new(),
-                "commented_at" | "commentedat" => String::new(),
+                "commented_by" | "commentedby" => commented_by.clone(),
+                "commented_at" | "commentedat" => format_list_pages_created_at(
+                    commented_at,
+                    captures.name("format").map(|matched| matched.as_str()),
+                    context.render_generated_html,
+                ),
                 "rating" => rating.clone(),
                 "rating_votes" | "ratingvotes" => String::new(),
-                "comments" => String::new(),
+                "comments" => comments.clone(),
                 "tags" => tags_text.clone(),
                 "tags_linked" | "tagslinked" => render_list_pages_tags(
                     &visible_tags,
@@ -5120,6 +5265,10 @@ fn render_list_pages_wikidot_user(
     )
 }
 
+fn render_list_pages_snapshot_user(name: &str) -> String {
+    escape_list_pages_html_text(name)
+}
+
 fn format_list_pages_created_at(
     created_at: Option<time::OffsetDateTime>,
     format: Option<&str>,
@@ -5128,20 +5277,22 @@ fn format_list_pages_created_at(
     let Some(created_at) = created_at else {
         return String::new();
     };
+    let created_at = created_at
+        .to_offset(time::UtcOffset::from_hms(9, 0, 0).expect("valid JST offset"));
     let format = format.unwrap_or("%e %b %Y %H:%M");
     let display_format = format.split('|').next().unwrap_or(format);
     let text = format_wikidot_list_pages_date(created_at, display_format);
     let encoded_format = percent_encode_list_pages_class(format);
     if render_as_html {
         format!(
-            r#"<span class="odate time_{} format_{}">{}</span>"#,
+            r#"<span class="odate time_{} format_{}" style="cursor: help; display: inline;">{}</span>"#,
             created_at.unix_timestamp(),
             encoded_format,
             escape_list_pages_html_text(&text),
         )
     } else {
         format!(
-            r#"[[span class="odate time_{} format_{}"]]{}[[/span]]"#,
+            r#"[[span class="odate time_{} format_{}" style="cursor: help; display: inline;"]]{}[[/span]]"#,
             created_at.unix_timestamp(),
             encoded_format,
             text,
@@ -6310,12 +6461,13 @@ fn rendered_wikidot_mailform_attribute(head: &str, name: &str) -> Option<String>
 #[cfg(test)]
 mod tests {
     use super::{
-        CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSubstitutionContext,
-        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
-        MAX_FTML_COMPAT_PARSE_BYTES, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
-        OrderBySelector, OrderProperty, RenderContext, RenderService,
-        WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
-        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
+        CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
+        ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
+        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
+        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
+        RenderContext, RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
+        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WikidotUserDisplay,
+        count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
@@ -6354,6 +6506,7 @@ mod tests {
         list_pages_substitution_context_with_mode(
             rendered_limit,
             user_displays,
+            empty_list_pages_snapshot_displays(),
             page_wikitext,
             data_form_values,
             false,
@@ -6363,6 +6516,7 @@ mod tests {
     fn list_pages_substitution_context_with_mode<'a>(
         rendered_limit: usize,
         user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
+        snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
         page_wikitext: Option<&'a str>,
         data_form_values: &'a BTreeMap<String, String>,
         render_generated_html: bool,
@@ -6370,10 +6524,18 @@ mod tests {
         ListPagesSubstitutionContext {
             rendered_limit,
             user_displays,
+            snapshot_displays,
             page_wikitext,
             data_form_values,
             render_generated_html,
         }
+    }
+
+    fn empty_list_pages_snapshot_displays()
+    -> &'static BTreeMap<i64, ListPagesSnapshotDisplay> {
+        static EMPTY: std::sync::LazyLock<BTreeMap<i64, ListPagesSnapshotDisplay>> =
+            std::sync::LazyLock::new(BTreeMap::new);
+        &EMPTY
     }
 
     fn fallback_test_page_info(
@@ -7234,7 +7396,7 @@ mod tests {
         assert!(rendered.contains("WIKIDOT.page.listeners.userInfo(8955132)"));
         assert!(!rendered.contains("userkarma.php"));
         assert!(rendered.contains(
-            r#"[[span class="odate time_1782003564 format_%25d%20%25b%20%25Y"]]21 Jun 2026[[/span]]"#
+            r#"[[span class="odate time_1782003564 format_%25d%20%25b%20%25Y" style="cursor: help; display: inline;"]]21 Jun 2026[[/span]]"#
         ));
 
         let rendered = substitute_list_pages_variables(
@@ -7414,6 +7576,82 @@ mod tests {
     }
 
     #[test]
+    fn substitutes_imported_wikidot_snapshot_metadata_for_list_pages_rows() {
+        let local_created_at = time::OffsetDateTime::from_unix_timestamp(1_600_000_000)
+            .expect("fixture timestamp should be valid");
+        let source_created_at = time::OffsetDateTime::from_unix_timestamp(1_781_900_521)
+            .expect("fixture timestamp should be valid");
+        let source_commented_at =
+            time::OffsetDateTime::from_unix_timestamp(1_781_934_132)
+                .expect("fixture timestamp should be valid");
+        let page = FoundPageRow {
+            page_id: 101,
+            site_id: 1,
+            title: Some("Aspenq Pride Art 2026".to_owned()),
+            alt_title: None,
+            slug: Some("aspenq-pride-art-2026".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: Some(local_created_at),
+            created_by: Some(ADMIN_USER_ID),
+            updated_at: Some(local_created_at),
+            updated_by: Some(ADMIN_USER_ID),
+            score: Some(28.0),
+        };
+        let mut users = BTreeMap::new();
+        users.insert(
+            ADMIN_USER_ID,
+            WikidotUserDisplay {
+                user_id: ADMIN_USER_ID,
+                name: "Administrator".to_owned(),
+                slug: Some("admin".to_owned()),
+                wikidot_profile: false,
+            },
+        );
+        let mut snapshots = BTreeMap::new();
+        snapshots.insert(
+            101,
+            ListPagesSnapshotDisplay {
+                created_at: source_created_at,
+                updated_at: source_created_at,
+                created_by_name: Some("Aspenq".to_owned()),
+                updated_by_name: Some("Aspenq".to_owned()),
+                comments: 10,
+                commented_at: Some(source_commented_at),
+                commented_by_name: Some("Aspenq".to_owned()),
+            },
+        );
+
+        let rendered = substitute_list_pages_variables(
+            "%%title%% by %%author%% on %%created_at|%Y %b %e|agohover%% -- %%comments%% Comments -- %%commented_by%% %%commented_at|%Y %b %e%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context_with_mode(
+                20,
+                &users,
+                &snapshots,
+                None,
+                &BTreeMap::new(),
+                false,
+            ),
+        );
+
+        assert!(rendered.contains("Aspenq Pride Art 2026 by "));
+        assert!(rendered.contains("by Aspenq on "));
+        assert!(rendered.contains("2026 Jun 20"));
+        assert!(rendered.contains("10 Comments"));
+        assert!(rendered.contains("-- Aspenq "));
+        assert!(rendered.contains(r#"style="cursor: help; display: inline;""#));
+        assert!(!rendered.contains("Administrator"));
+        assert!(!rendered.contains("<span"));
+        assert!(!rendered.contains("user:info"));
+        assert!(!rendered.contains("2020 Sep"));
+        assert!(!rendered.contains("%%comments%%"));
+    }
+
+    #[test]
     fn substitutes_wikidot_list_pages_table_body_generated_variables_as_html() {
         let created_at = time::OffsetDateTime::from_unix_timestamp(1_782_003_564)
             .expect("fixture timestamp should be valid");
@@ -7450,6 +7688,7 @@ mod tests {
             &list_pages_substitution_context_with_mode(
                 20,
                 &BTreeMap::new(),
+                empty_list_pages_snapshot_displays(),
                 None,
                 &BTreeMap::new(),
                 true,
@@ -7457,7 +7696,7 @@ mod tests {
         );
 
         assert!(substituted.contains(
-            r#"<span class="odate time_1782003564 format_%25d%20%25b%20%25Y">21 Jun 2026</span>"#
+            r#"<span class="odate time_1782003564 format_%25d%20%25b%20%25Y" style="cursor: help; display: inline;">21 Jun 2026</span>"#
         ));
         assert!(substituted.contains(r#"<a href="/system:page-tags/tag/scp">scp</a>"#));
         assert!(
@@ -7535,7 +7774,7 @@ mod tests {
         assert!(!rendered.contains("_image"));
         assert!(!rendered.contains("_licensebox"));
         assert!(rendered.contains("[/aspenq-pride-art-2026 Aspenq Pride Art 2026]"));
-        assert!(rendered.contains(r#"[[span class="odate time_1781900521 format_%25Y%20%25b%20%25e%7Cagohover"]]2026 Jun 19[[/span]]"#));
+        assert!(rendered.contains(r#"[[span class="odate time_1781900521 format_%25Y%20%25b%20%25e%7Cagohover" style="cursor: help; display: inline;"]]2026 Jun 20[[/span]]"#));
         assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,artwork artwork]"));
         assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,preview preview]"));
         assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,colored-pencil colored-pencil]"));
