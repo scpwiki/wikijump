@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { header, topBar, sideBar, content, footer, license } = $props()
+  let { header, topBar, loginStatus, sideBar, content, footer, license } = $props()
 </script>
 
 <div id="skrollr-body">
@@ -13,6 +13,7 @@
           <div id="top-bar">
             {@render topBar?.()}
           </div>
+          {@render loginStatus?.()}
         </div>
         <div id="content-wrap">
           <div id="side-bar">
