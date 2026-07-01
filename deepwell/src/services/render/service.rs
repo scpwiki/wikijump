@@ -541,6 +541,9 @@ impl RenderService {
         wikitext = Self::expand_members_modules(wikitext, settings);
         wikitext = Self::expand_new_page_modules(wikitext, settings);
         wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
+        if settings.enable_page_syntax {
+            Self::normalize_wikidot_div_style_url_quotes(&mut wikitext);
+        }
         wikitext = Self::render_wikidot_color_spans(wikitext, settings);
         wikitext = Self::escape_unrendered_wikidot_color_markers(wikitext, settings);
         wikitext = Self::render_long_native_list_runs(wikitext);
@@ -982,6 +985,40 @@ impl RenderService {
                 }
             })
             .into_owned()
+    }
+
+    fn normalize_wikidot_div_style_url_quotes(wikitext: &mut String) {
+        let mut normalized = String::with_capacity(wikitext.len());
+        let mut changed = false;
+
+        for line in wikitext.split_inclusive('\n') {
+            if !line.trim_start().starts_with("[[div") || !line.contains("url(\"") {
+                normalized.push_str(line);
+                continue;
+            }
+
+            let mut line = line.to_owned();
+            let mut search_start = 0usize;
+            while let Some(open_offset) = line[search_start..].find("url(\"") {
+                let open_quote = search_start + open_offset + "url(".len();
+                let value_start = open_quote + 1;
+                let Some(close_offset) = line[value_start..].find("\")") else {
+                    break;
+                };
+                let close_quote = value_start + close_offset;
+
+                line.replace_range(close_quote..close_quote + 1, "'");
+                line.replace_range(open_quote..open_quote + 1, "'");
+                search_start = open_quote + "url('".len();
+                changed = true;
+            }
+
+            normalized.push_str(&line);
+        }
+
+        if changed {
+            *wikitext = normalized;
+        }
     }
 
     fn restore_wikidot_mailform_compatibility(html: &str) -> String {
@@ -6629,6 +6666,7 @@ mod tests {
     use ftml::data::PageRef;
     use ftml::includes::IncludeRef;
     use ftml::layout::Layout;
+    use ftml::render::{Render, html::HtmlRender};
     use ftml::settings::{WikitextMode, WikitextSettings};
     use ftml::tree::VariableMap;
     use std::borrow::Cow;
@@ -9219,6 +9257,37 @@ mod tests {
 
         assert!(source.contains(r#"class="badges badge-action action atrue bfalse""#));
         assert!(!source.contains("{$action}"));
+    }
+
+    #[test]
+    fn normalizes_wikidot_div_style_url_quotes_for_acs_icon_markers() {
+        let mut wikitext = concat!(
+            "[[div_ class=\"icon-1\" style=\"background-image: url(\"",
+            "https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg",
+            "\");\"]]\n",
+            "[[/div]]\n",
+        )
+        .to_owned();
+
+        RenderService::normalize_wikidot_div_style_url_quotes(&mut wikitext);
+
+        assert!(wikitext.contains(
+            "style=\"background-image: url('https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg');\""
+        ));
+
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(rendered.contains(r#"<div class="icon-1""#));
+        assert!(rendered.contains(
+            "style=\"background-image: url(&#39;https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg&#39;);\""
+        ));
+        assert!(!rendered.contains("[[div_"));
     }
 
     #[test]
