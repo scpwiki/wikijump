@@ -5850,7 +5850,7 @@ fn render_native_list_inline_wikidot_spans(value: &str) -> String {
         let marker = &marker_start[..marker_end + 2];
         let after_marker = &marker_start[marker_end + 2..];
 
-        let Some(close_start) = after_marker.find("[[/span]]") else {
+        let Some(close_start) = find_matching_wikidot_span_close(after_marker) else {
             output.push_str(&escape_list_pages_html_text(marker));
             rest = after_marker;
             continue;
@@ -5871,6 +5871,52 @@ fn render_native_list_inline_wikidot_spans(value: &str) -> String {
 
     output.push_str(&escape_list_pages_html_text(rest));
     output
+}
+
+fn find_matching_wikidot_span_close(value: &str) -> Option<usize> {
+    let mut depth = 1_usize;
+    let mut offset = 0_usize;
+
+    while offset < value.len() {
+        let next_open = value[offset..].find("[[span").map(|index| offset + index);
+        let next_close = value[offset..]
+            .find("[[/span]]")
+            .map(|index| offset + index);
+
+        match (next_open, next_close) {
+            (None, Some(close)) => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(close);
+                }
+                offset = close + "[[/span]]".len();
+            }
+            (Some(open), Some(close)) if close <= open => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(close);
+                }
+                offset = close + "[[/span]]".len();
+            }
+            (Some(open), _) => {
+                let marker_end = value[open..].find("]]")?;
+                let marker_end = open + marker_end + 2;
+                if next_close.is_some_and(|close| marker_end > close) {
+                    offset = open + "[[span".len();
+                    continue;
+                }
+
+                let marker = &value[open..marker_end];
+                if wikidot_inline_span_marker_open(marker).is_some() {
+                    depth += 1;
+                }
+                offset = marker_end;
+            }
+            (None, None) => return None,
+        }
+    }
+
+    None
 }
 
 fn wikidot_inline_span_marker_open(marker: &str) -> Option<String> {
@@ -9380,6 +9426,50 @@ mod tests {
         ));
         assert!(!rendered.contains("onclick"));
         assert!(!rendered.contains("[[span"));
+    }
+
+    #[test]
+    fn renders_nested_inline_wikidot_spans_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Nested [[span class=\"outer\"]]a [[span class=\"inner\"]]b[[/span]] c[[/span]]\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(
+            rendered.contains(
+                r#"<span class="outer">a <span class="inner">b</span> c</span>"#
+            )
+        );
+        assert!(!rendered.contains("[[span"));
+        assert!(!rendered.contains("[[/span]]"));
+    }
+
+    #[test]
+    fn ignores_unterminated_span_like_text_before_native_list_span_close() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Literal [[span class=\"outer\"]]a [[span text[[/span]]\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(r#"<span class="outer">a [[span text</span>"#));
     }
 
     #[test]
