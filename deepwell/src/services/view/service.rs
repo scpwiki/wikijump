@@ -51,8 +51,10 @@ use crate::utils::{parse_locales, split_category};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
+use sea_orm::{FromQueryResult, Statement};
 use std::borrow::Cow;
 use std::mem;
+use time::OffsetDateTime;
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
@@ -167,6 +169,7 @@ impl ViewService {
             Found {
                 page: PageModel,
                 page_revision: PageRevisionModel,
+                wikidot_snapshot: Option<WikidotPageSnapshotView>,
                 attributions: Vec<PageAttribution>,
             },
             Missing,
@@ -290,10 +293,16 @@ impl ViewService {
                     .await
                     .or_raise(make_error)?;
 
+                    let wikidot_snapshot =
+                        Self::get_wikidot_snapshot_page_info(ctx, page.page_id)
+                            .await
+                            .or_raise(make_error)?;
+
                     PageReturn {
                         page_status: PageStatus::Found {
                             page,
                             page_revision,
+                            wikidot_snapshot,
                             attributions,
                         },
                         wikitext,
@@ -421,11 +430,13 @@ impl ViewService {
             PageStatus::Found {
                 page,
                 page_revision,
+                wikidot_snapshot,
                 attributions,
             } => GetPageViewOutput::Found {
                 options,
                 page,
                 page_revision,
+                wikidot_snapshot,
                 attributions,
                 redirect_page,
                 wikitext,
@@ -460,6 +471,48 @@ impl ViewService {
         };
 
         Ok(output)
+    }
+
+    async fn get_wikidot_snapshot_page_info(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<Option<WikidotPageSnapshotView>> {
+        #[derive(FromQueryResult, Debug)]
+        struct WikidotSnapshotRow {
+            source_revision_count: Option<i32>,
+            source_updated_at: Option<OffsetDateTime>,
+        }
+
+        let txn = ctx.transaction();
+        let statement = Statement::from_string(
+            txn.get_database_backend(),
+            format!(
+                "SELECT source_revision_count, source_updated_at FROM wikidot_page_snapshot WHERE page_id = {}",
+                page_id,
+            ),
+        );
+
+        let row = WikidotSnapshotRow::find_by_statement(statement)
+            .one(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to load imported Wikidot page snapshot",
+                    ErrorType::GetView(ViewType::Page),
+                )
+            })?;
+
+        Ok(row.and_then(
+            |WikidotSnapshotRow {
+                 source_revision_count,
+                 source_updated_at,
+             }| {
+                Some(WikidotPageSnapshotView {
+                    source_revision_count: source_revision_count?,
+                    source_updated_at: source_updated_at?,
+                })
+            },
+        ))
     }
 
     pub async fn user(

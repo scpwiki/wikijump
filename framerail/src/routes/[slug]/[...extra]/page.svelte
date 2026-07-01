@@ -142,9 +142,12 @@
   {#if data.options?.edit}
     <div id="page-options-container">
       <div id="page-info">
-        {data.internationalization?.["wiki-page-revision"]}, {data.internationalization?.[
-          "wiki-page-last-edit"
-        ]}
+        {#if data.wikidot_page_info}
+          {data.wikidot_page_info}
+        {:else}
+          {data.internationalization?.["wiki-page-revision"]}, {data
+            .internationalization?.["wiki-page-last-edit"]}
+        {/if}
       </div>
     </div>
     <div id="action-area">
@@ -153,9 +156,12 @@
   {:else}
     <div id="page-options-container">
       <div id="page-info">
-        {data.internationalization?.["wiki-page-revision"]}, {data.internationalization?.[
-          "wiki-page-last-edit"
-        ]}
+        {#if data.wikidot_page_info}
+          {data.wikidot_page_info}
+        {:else}
+          {data.internationalization?.["wiki-page-revision"]}, {data
+            .internationalization?.["wiki-page-last-edit"]}
+        {/if}
       </div>
       <div
         id="page-options-bottom"

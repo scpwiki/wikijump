@@ -26,6 +26,7 @@ use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::user::Model as UserModel;
 use crate::services::relation::PageAttribution;
+use time::OffsetDateTime;
 
 // NOTE: Any changes to the output structures here, including the variant names,
 //       MUST be reflected in framerail!
@@ -75,6 +76,7 @@ pub enum GetPageViewOutput {
         options: PageOptions,
         page: PageModel,
         page_revision: PageRevisionModel,
+        wikidot_snapshot: Option<WikidotPageSnapshotView>,
         attributions: Vec<PageAttribution>,
         redirect_page: Option<String>,
         wikitext: String,
@@ -100,6 +102,14 @@ pub enum GetPageViewOutput {
         compiled_side_bar_html: Option<String>,
         banned: bool,
     },
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct WikidotPageSnapshotView {
+    pub source_revision_count: i32,
+
+    #[serde(with = "time::serde::rfc3339")]
+    pub source_updated_at: OffsetDateTime,
 }
 
 #[derive(Deserialize, Debug, Clone)]

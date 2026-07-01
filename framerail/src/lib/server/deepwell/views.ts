@@ -20,6 +20,11 @@ export interface Viewer {
   user_session: Nullable<UserSession>
 }
 
+export interface WikidotPageSnapshotView {
+  source_revision_count: number
+  source_updated_at: string
+}
+
 /* ----- Preload ----- */
 
 export async function preloadView(
@@ -55,6 +60,7 @@ interface PageViewFound {
   data: PageViewDataBase & {
     page: PageModel
     page_revision: PageRevisionModel
+    wikidot_snapshot: Nullable<WikidotPageSnapshotView>
     attributions: PageAttribution[]
   }
 }

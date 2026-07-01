@@ -34,6 +34,7 @@ import { pageView } from "$lib/server/deepwell/views"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
+import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
@@ -232,6 +233,22 @@ export async function loadPage(
   }
 
   const internationalization = await translate(locales, translateKeys)
+  let wikidotPageInfo: string | null = null
+
+  if (errorStatus === null && responseType === "found") {
+    const wikidotSnapshot = responseData.wikidot_snapshot
+
+    if (
+      responseData.page.from_wikidot &&
+      wikidotSnapshot?.source_revision_count !== undefined &&
+      wikidotSnapshot?.source_updated_at
+    ) {
+      wikidotPageInfo = buildWikidotPageInfoText({
+        revision: wikidotSnapshot.source_revision_count,
+        updatedAt: wikidotSnapshot.source_updated_at
+      })
+    }
+  }
 
   const forms = {
     pageDeleteForm: await superValidate(request, valibot(pageDeleteSchema)),
@@ -252,7 +269,12 @@ export async function loadPage(
     pageRestoreForm: await superValidate(request, valibot(pageRestoreSchema))
   }
 
-  const viewData = { ...responseData, view: responseType, internationalization }
+  const viewData = {
+    ...responseData,
+    view: responseType,
+    internationalization,
+    wikidot_page_info: wikidotPageInfo
+  }
 
   if (errorStatus !== null) {
     error(errorStatus, { ...viewData, forms: errorForms })
