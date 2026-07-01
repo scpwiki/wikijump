@@ -1,3 +1,8 @@
+import {
+  buildWikidotInterwikiFrameHtml,
+  buildWikidotInterwikiSourceUrl,
+  fetchCromInterwikiPage
+} from "$lib/wikidot-interwiki"
 import type { RequestHandler } from "./$types"
 
 const FRAME_HEADERS = {
@@ -5,27 +10,17 @@ const FRAME_HEADERS = {
   "cache-control": "no-store"
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-}
-
-export const GET: RequestHandler = ({ url }) => {
+export const GET: RequestHandler = async ({ url, fetch }) => {
   const lang = url.searchParams.get("lang") ?? ""
   const community = url.searchParams.get("community") ?? ""
   const pagename = url.searchParams.get("pagename") ?? ""
-  const body = `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Local Wikidot interwiki frame</title>
-  </head>
-  <body data-lang="${escapeHtml(lang)}" data-community="${escapeHtml(community)}" data-pagename="${escapeHtml(pagename)}"></body>
-</html>
-`
+  const sourceUrl = buildWikidotInterwikiSourceUrl({
+    community,
+    lang,
+    sourcePath: pagename
+  })
+  const page = sourceUrl ? await fetchCromInterwikiPage(fetch, sourceUrl) : null
+  const body = buildWikidotInterwikiFrameHtml({ community, lang, pagename, page })
 
   return new Response(body, { headers: FRAME_HEADERS })
 }
