@@ -723,6 +723,102 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
 }
 
 #[tokio::test]
+async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category_slug = "fixture-listpages-default-category";
+    let tag_a = "fixture-listpages-bare-a";
+    let tag_b = "fixture-listpages-bare-b";
+    let target_a_slug = format!("{category_slug}:target-a");
+    let target_b_slug = format!("{category_slug}:target-b");
+
+    for (slug, title, tags) in [
+        (
+            target_a_slug.clone(),
+            "Fixture ListPages Bare Tag Target A",
+            vec![tag_a],
+        ),
+        (
+            target_b_slug.clone(),
+            "Fixture ListPages Bare Tag Target B",
+            vec![tag_b],
+        ),
+        (
+            "fixture-listpages-default-category-excluded".to_owned(),
+            "Fixture ListPages Bare Tag Excluded",
+            vec![tag_a],
+        ),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            &slug,
+            title,
+            "Fixture ListPages bare tag target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &tags).await;
+    }
+
+    let index_slug = format!("{category_slug}:index");
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &index_slug,
+        "Fixture ListPages Default Category Index",
+        &format!(
+            "Default category ListPages start.\n\n[[module ListPages tags=\"{tag_a} {tag_b}\" limit=\"10\" order=\"name\"]]\n* %%title%% :: %%slug%%\n[[/module]]\n\nDefault category ListPages end."
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("ListPages default-category index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in [
+        "Default category ListPages start.",
+        "Fixture ListPages Bare Tag Target A",
+        "Fixture ListPages Bare Tag Target B",
+        &target_a_slug,
+        &target_b_slug,
+        "Default category ListPages end.",
+    ] {
+        assert!(
+            html.contains(expected),
+            "ListPages should include current-category pages matching either bare tag {expected:?}:\n{html}"
+        );
+    }
+
+    for forbidden in [
+        "Fixture ListPages Bare Tag Excluded",
+        "fixture-listpages-default-category-excluded",
+        "[[module ListPages",
+        "%%title%%",
+        "%%slug%%",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "ListPages should default to the current category and render body variables, but found {forbidden:?}:\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
 async fn first_revision_current_page_listpages_uses_render_page_info() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

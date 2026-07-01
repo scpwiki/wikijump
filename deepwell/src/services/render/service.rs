@@ -3470,13 +3470,13 @@ impl RenderService {
     ) -> Result<String> {
         let ListPagesArguments {
             current_page_only,
-            category_selector_present: _,
+            category_selector_present,
             category_all,
             include_current_category,
             categories,
             excluded_categories,
-            any_tags,
-            mut all_tags,
+            mut any_tags,
+            all_tags,
             default_tags,
             no_tags,
             authors,
@@ -3493,7 +3493,12 @@ impl RenderService {
             prepend_line,
             unsupported_count_pages_filter: _,
         } = arguments;
-        all_tags.extend(default_tags);
+        any_tags.extend(default_tags);
+        let (category_all, include_current_category) = if category_selector_present {
+            (category_all, include_current_category)
+        } else {
+            (false, true)
+        };
         let categories = if include_current_category && !category_all {
             let make_error = || {
                 Error::new(
