@@ -113,7 +113,7 @@ static CSS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
+        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<div class="pager" data-wikijump-compat-pager="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
     )
     .unwrap()
 });
@@ -2583,6 +2583,7 @@ impl RenderService {
                     captures[0]
                         .replace(r#" data-wikijump-compat-list="1""#, "")
                         .replace(r#" data-wikijump-compat-members="1""#, "")
+                        .replace(r#" data-wikijump-compat-pager="1""#, "")
                         .replace(r#" data-wikijump-compat-new-page="1""#, ""),
                 );
                 marker
@@ -3529,7 +3530,7 @@ impl RenderService {
             order,
             limit,
             count_pages_explicit_limit: _,
-            count_pages_per_page: _,
+            count_pages_per_page,
             offset,
             exclude_current_page,
             page_type,
@@ -3571,9 +3572,16 @@ impl RenderService {
         } else {
             categories
         };
-        let requested_limit = limit
+        let requested_limit = count_pages_per_page
+            .or(limit)
             .unwrap_or(DEFAULT_LISTPAGES_RENDER_LIMIT)
-            .min(MAX_LISTPAGES_RENDER_LIMIT);
+            .min(MAX_LISTPAGES_RENDER_LIMIT)
+            .min(limit.unwrap_or(u64::MAX));
+        let query_limit = limit
+            .unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
+            .saturating_add(u64::from(offset))
+            .saturating_add(u64::from(exclude_current_page))
+            .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
         let included_categories = if category_all {
             IncludedCategories::All
         } else {
@@ -3688,17 +3696,19 @@ impl RenderService {
             Self::find_viewable_list_pages_rows(
                 ctx,
                 query,
-                offset as usize
-                    + requested_limit as usize
-                    + usize::from(exclude_current_page),
+                query_limit.min(usize::MAX as u64) as usize,
             )
             .await?
         };
-        let pages = pages
+        let selected_pages = pages
             .pages
             .into_iter()
             .filter(|page| !exclude_current_page || page.page_id != current_page_id)
             .skip(offset as usize)
+            .collect::<Vec<_>>();
+        let total_selected = selected_pages.len();
+        let pages = selected_pages
+            .into_iter()
             .take(requested_limit as usize)
             .collect::<Vec<_>>();
         let total = pages.len();
@@ -3774,6 +3784,16 @@ impl RenderService {
                 output.push_str(&render_list_pages_numbered_rows(&body));
             }
             output.push_str("\n[[/div]]\n");
+        }
+
+        if let Some(per_page) = count_pages_per_page {
+            push_list_pages_pager(
+                &mut output,
+                page_info,
+                offset,
+                per_page,
+                total_selected,
+            );
         }
 
         output.push_str("[[/div]]");
@@ -4594,7 +4614,6 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
             }
             "perpage" | "per_page" => {
                 let parsed = parse_list_pages_numeric_argument(value)?;
-                limit = Some(parsed);
                 count_pages_per_page = Some(parsed);
             }
             "offset" => {
@@ -4994,6 +5013,83 @@ fn list_pages_body_uses_variable(body: &str, variable: &str) -> bool {
 
 fn list_pages_body_uses_content_variable(body: &str) -> bool {
     list_pages_body_uses_variable(body, "content")
+}
+
+fn push_list_pages_pager(
+    output: &mut String,
+    page_info: &PageInfo<'_>,
+    offset: u32,
+    per_page: u64,
+    total_selected: usize,
+) {
+    let per_page = per_page
+        .min(MAX_LISTPAGES_RENDER_LIMIT)
+        .min(usize::MAX as u64) as usize;
+    if per_page == 0 || total_selected <= per_page {
+        return;
+    }
+
+    let page_count = total_selected.div_ceil(per_page);
+    let current_page = (offset as usize / per_page).saturating_add(1);
+    if current_page > page_count {
+        return;
+    }
+
+    output.push_str(r#"<div class="pager" data-wikijump-compat-pager="1">"#);
+    output.push_str(&format!(
+        r#"<span class="pager-no">page {current_page} of {page_count}</span>"#
+    ));
+
+    let mut pages = BTreeSet::from([1, current_page, page_count]);
+    if current_page > 1 {
+        pages.insert(current_page - 1);
+    }
+    if current_page < page_count {
+        pages.insert(current_page + 1);
+    }
+    if current_page <= 2 && page_count >= 3 {
+        pages.insert(3);
+    }
+    if current_page + 1 >= page_count && page_count > 2 {
+        pages.insert(page_count - 2);
+    }
+    if page_count > 1 {
+        pages.insert(page_count - 1);
+    }
+
+    let mut previous = 0;
+    for page in pages {
+        if previous != 0 && page > previous + 1 {
+            output.push_str(r#"<span class="dots">...</span>"#);
+        }
+        if page == current_page {
+            output.push_str(&format!(r#"<span class="current">{page}</span>"#));
+        } else {
+            push_list_pages_pager_target(output, page_info, page, &page.to_string());
+        }
+        previous = page;
+    }
+
+    if current_page < page_count {
+        push_list_pages_pager_target(output, page_info, current_page + 1, "next »");
+    }
+
+    output.push_str("</div>\n");
+}
+
+fn push_list_pages_pager_target(
+    output: &mut String,
+    page_info: &PageInfo<'_>,
+    target_page: usize,
+    label: &str,
+) {
+    output.push_str(r#"<span class="target"><a href="/"#);
+    output.push_str(page_info.page.as_ref());
+    output.push_str("/p/");
+    output.push_str(&target_page.to_string());
+    output.push_str(r#"">"#);
+    output.push_str(&escape_list_pages_html_text(label));
+    output.push_str("</a></span>");
 }
 
 fn is_wikidot_content_separator_line(line: &str) -> bool {

@@ -492,9 +492,9 @@ async fn html_block_render_leaves_image_block_include_literal() {
     let html =
         String::from_utf8(response.into()).expect("HTML block object should be UTF-8");
 
-    for forbidden in ["scp-image-block", "local--files/image-block-html-literal"] {
+    for forbidden in ["scp-image-block".to_owned(), format!("local--files/{slug}")] {
         assert!(
-            !html.contains(forbidden),
+            !html.contains(&forbidden),
             "HTML block image-block include should not be pre-expanded:\n{html}"
         );
     }
@@ -3891,6 +3891,85 @@ async fn listpages_limit_two_caps_ordered_results() {
         target_a < target_b,
         "limit=2 target slugs should render in order a, b:\n{html}"
     );
+}
+
+#[tokio::test]
+async fn listpages_perpage_renders_wikidot_pager_controls() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-list-pager";
+
+    for index in 0..45 {
+        let slug = format!("fixture-listpages-pager-target-{index:02}");
+        let title = format!("Fixture ListPages Pager Target {index:02}");
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            &slug,
+            &title,
+            &format!("Fixture ListPages Pager Target {index:02} marker."),
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &[tag]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-listpages-pager-index",
+        "Fixture ListPages Pager Index",
+        &format!(
+            "ListPages pager marker.\n\n[[module ListPages category=\"*\" tags=\"+{tag}\" perPage=\"20\" order=\"name\"]]\n* %%title%% :: %%slug%%\n[[/module]]"
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "fixture-listpages-pager-index",
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("ListPages pager index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in [
+        "Fixture ListPages Pager Target 00",
+        "fixture-listpages-pager-target-00",
+        "Fixture ListPages Pager Target 19",
+        "fixture-listpages-pager-target-19",
+        r#"<div class="pager">"#,
+        r#"<span class="current">1</span>"#,
+        ">2</a>",
+        ">3</a>",
+        "next »",
+    ] {
+        assert!(
+            html.contains(expected),
+            "perPage ListPages fixture should contain {expected:?}:\n{html}",
+        );
+    }
+
+    for forbidden in [
+        "Fixture ListPages Pager Target 20",
+        "fixture-listpages-pager-target-20",
+        "[[module ListPages",
+        "%%title%%",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "perPage ListPages first page should not contain {forbidden:?}:\n{html}",
+        );
+    }
 }
 
 #[tokio::test]
