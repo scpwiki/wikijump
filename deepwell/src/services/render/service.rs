@@ -4921,7 +4921,12 @@ fn substitute_list_pages_variables(
         })
         .unwrap_or_default();
     let tags = page.tags.as_deref().unwrap_or(&[]);
-    let tags_text = tags.join(" ");
+    let visible_tags = tags
+        .iter()
+        .filter(|tag| is_list_pages_visible_tag(tag))
+        .cloned()
+        .collect::<Vec<_>>();
+    let tags_text = visible_tags.join(" ");
     let rating = format_list_pages_rating(page.score);
     let index = index.to_string();
     let total = total.to_string();
@@ -4957,7 +4962,7 @@ fn substitute_list_pages_variables(
                 "comments" => String::new(),
                 "tags" => tags_text.clone(),
                 "tags_linked" | "tagslinked" => render_list_pages_tags(
-                    tags,
+                    &visible_tags,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                 ),
@@ -5083,6 +5088,11 @@ fn is_tag_cloud_visible_tag(tag: &str) -> bool {
                 | "edited"
                 | "fragment"
         )
+}
+
+fn is_list_pages_visible_tag(tag: &str) -> bool {
+    let tag = tag.trim();
+    !tag.is_empty() && !tag.starts_with('_')
 }
 
 fn render_list_pages_wikidot_user(
@@ -7351,7 +7361,11 @@ mod tests {
             slug: Some("scp-2693".to_owned()),
             page_category_id: None,
             page_revision_id: None,
-            tags: Some(vec!["scp".to_owned(), "safe".to_owned()]),
+            tags: Some(vec![
+                "_image".to_owned(),
+                "scp".to_owned(),
+                "safe".to_owned(),
+            ]),
             created_at: None,
             created_by: None,
             updated_at: Some(updated_at),
@@ -7411,7 +7425,12 @@ mod tests {
             slug: Some("dom-001".to_owned()),
             page_category_id: None,
             page_revision_id: None,
-            tags: Some(vec!["scp".to_owned(), "safe".to_owned()]),
+            tags: Some(vec![
+                "_image".to_owned(),
+                "scp".to_owned(),
+                "safe".to_owned(),
+                "preview".to_owned(),
+            ]),
             created_at: Some(created_at),
             created_by: None,
             updated_at: None,
@@ -7441,6 +7460,11 @@ mod tests {
             r#"<span class="odate time_1782003564 format_%25d%20%25b%20%25Y">21 Jun 2026</span>"#
         ));
         assert!(substituted.contains(r#"<a href="/system:page-tags/tag/scp">scp</a>"#));
+        assert!(
+            substituted
+                .contains(r#"<a href="/system:page-tags/tag/preview">preview</a>"#)
+        );
+        assert!(!substituted.contains("_image"));
         assert!(!substituted.contains("[[span"));
         assert!(!substituted.contains("[/system:page-tags/tag/scp scp]"));
 
@@ -7450,6 +7474,9 @@ mod tests {
         assert!(rendered.contains("<table class=\"wiki-content-table\">"));
         assert!(rendered.contains(r#"<span class="odate time_1782003564"#));
         assert!(rendered.contains(r#"<a href="/system:page-tags/tag/scp">scp</a>"#));
+        assert!(
+            rendered.contains(r#"<a href="/system:page-tags/tag/preview">preview</a>"#)
+        );
         assert!(!rendered.contains("&lt;span"));
         assert!(!rendered.contains("&lt;a href"));
     }
@@ -7467,7 +7494,10 @@ mod tests {
             page_category_id: None,
             page_revision_id: None,
             tags: Some(vec![
+                "_image".to_owned(),
+                "_licensebox".to_owned(),
                 "artwork".to_owned(),
+                "preview".to_owned(),
                 "colored-pencil".to_owned(),
                 "pridefest2026".to_owned(),
             ]),
@@ -7500,11 +7530,14 @@ mod tests {
         );
 
         assert!(rendered.contains(
-            "[[div class=\"tale-block artwork colored-pencil pridefest2026\"]]"
+            "[[div class=\"tale-block artwork preview colored-pencil pridefest2026\"]]"
         ));
+        assert!(!rendered.contains("_image"));
+        assert!(!rendered.contains("_licensebox"));
         assert!(rendered.contains("[/aspenq-pride-art-2026 Aspenq Pride Art 2026]"));
         assert!(rendered.contains(r#"[[span class="odate time_1781900521 format_%25Y%20%25b%20%25e%7Cagohover"]]2026 Jun 19[[/span]]"#));
         assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,artwork artwork]"));
+        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,preview preview]"));
         assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,colored-pencil colored-pencil]"));
         assert!(rendered.contains(r#"[[span class="rating"]]+28[[/span]]"#));
         assert!(!rendered.contains("<span"));
