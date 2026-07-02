@@ -346,13 +346,13 @@ export const buildWikidotInterwikiFrameHtml = ({ community, lang, pagename, page
     sourcePath: pagename,
     page
   })
-  const heading = branch?.heading ?? ""
+  const heading = (branch?.heading ?? "").toUpperCase()
   const menuItems = links
     .map((link) => {
       const originalClass = link.original ? " original" : ""
       return `<div class="menu-item${originalClass}" name="${escapeHtml(link.code)}"><img src="${DEFAULT_ICON_URL}" alt="default.png" class="image"><a href="${escapeHtml(link.href)}" target="_parent">${escapeHtml(link.label)}</a></div>`
     })
-    .join("")
+    .join(" ")
   const display = links.length > 0 ? "" : ' style="display: none"'
 
   return `<!DOCTYPE html>
