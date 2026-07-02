@@ -1,6 +1,7 @@
 /**
  * @typedef {object} WikidotPageActionLabels
  * @property {string} rate
+ * @property {string | null} ratingText
  * @property {string} discuss
  */
 
@@ -9,9 +10,11 @@
  * @returns {WikidotPageActionLabels}
  */
 export const buildWikidotPageActionLabels = ({ rating, comments }) => {
+  const ratingText = rating === null || rating === undefined ? null : formatSigned(rating)
+
   return {
-    rate:
-      rating === null || rating === undefined ? "Rate" : `Rate (${formatSigned(rating)})`,
+    ratingText,
+    rate: ratingText === null ? "Rate" : `Rate (${ratingText})`,
     discuss:
       comments === null || comments === undefined ? "Discuss" : `Discuss (${comments})`
   }

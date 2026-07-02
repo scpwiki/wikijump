@@ -193,7 +193,11 @@
           }}
           type="button"
         >
-          {wikidotPageActions?.rate ?? data.internationalization?.vote}
+          {#if wikidotPageActions?.ratingText}
+            Rate (<span>{wikidotPageActions.ratingText}</span>)
+          {:else}
+            {wikidotPageActions?.rate ?? data.internationalization?.vote}
+          {/if}
         </a>
         {#if wikidotPageActions}
           <!-- svelte-ignore a11y_invalid_attribute -->

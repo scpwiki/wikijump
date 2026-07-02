@@ -7086,6 +7086,17 @@ fn apply_basalt_shell_compatibility(html: &mut String) {
     margin-right: auto !important;
     margin-top: -12rem !important;
 }
+#page-info {
+    text-transform: uppercase;
+}
+#page-options-bottom.page-options-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+#page-options-bottom.page-options-bottom > a {
+    display: flex;
+}
 </style>"#,
     );
 }
@@ -10578,6 +10589,10 @@ mod tests {
         assert!(restored.contains("#side-bar"));
         assert!(restored.contains("display: none !important"));
         assert!(restored.contains("margin-top: -12rem !important"));
+        assert!(restored.contains("#page-info"));
+        assert!(restored.contains("text-transform: uppercase"));
+        assert!(restored.contains("#page-options-bottom.page-options-bottom"));
+        assert!(restored.contains("display: flex"));
     }
 
     #[test]

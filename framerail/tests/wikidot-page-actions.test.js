@@ -8,6 +8,7 @@ import {
 
 test("formats imported Wikidot action labels with source rating and comment counts", () => {
   assert.deepEqual(buildWikidotPageActionLabels({ rating: 19, comments: 2 }), {
+    ratingText: "+19",
     rate: "Rate (+19)",
     discuss: "Discuss (2)"
   })
@@ -20,6 +21,7 @@ test("formats non-positive Wikidot ratings without an extra plus sign", () => {
 
 test("falls back to count-less labels when imported snapshot counts are unavailable", () => {
   assert.deepEqual(buildWikidotPageActionLabels({ rating: null, comments: null }), {
+    ratingText: null,
     rate: "Rate",
     discuss: "Discuss"
   })
