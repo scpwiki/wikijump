@@ -204,6 +204,10 @@ pub async fn page_get_files(
 
     let make_error = || Error::new("failed to get files for page", ErrorType::Page);
 
+    ensure_page_view_permission(ctx, site_id, page_id)
+        .await
+        .or_raise(make_error)?;
+
     let get_page_files = FileService::get_all(
         ctx,
         site_id,
@@ -1042,6 +1046,52 @@ async fn ensure_page_permission<'a>(
     } else {
         Err(Error::new(
             format!("user does not have permission to {action_name} this page"),
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
+}
+
+async fn ensure_page_view_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_id: i64,
+) -> Result<()> {
+    let page = PageService::get(ctx, site_id, Reference::Id(page_id))
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to load page for view permission check",
+                ErrorType::Permission,
+            )
+        })?;
+
+    let can_view = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: ctx.request().user_id,
+            site_id,
+            page_reference: Some(Reference::Id(page.page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(page.page_category_id)),
+            action: Action::View,
+        },
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to check page view permission",
+            ErrorType::Permission,
+        )
+    })?;
+
+    if can_view {
+        Ok(())
+    } else {
+        Err(Error::new(
+            "user does not have permission to view this page",
             ErrorType::PermissionDenied,
         )
         .into())
