@@ -161,6 +161,22 @@ const pages = {
     wikitext: "Parent",
     compiled_body_html: "<p>Parent</p>"
   },
+  "private-page": {
+    page_id: 3000199,
+    revision_id: 9000199,
+    page_created_at: "2026-07-01T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-01T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Private Page",
+    slug: "private-page",
+    tags: ["private"],
+    rating: 0,
+    wikitext: "Private page body marker.",
+    compiled_body_html: "<p>Private page body marker.</p>"
+  },
   "xmlrpc-post-page": {
     page_id: 3000300,
     revision_id: 9000300,
@@ -417,12 +433,14 @@ const server = createServer((request, response) => {
       })
       const page = pages[rpcRequest.params.route.slug]
       result = page
-        ? {
-            type: "found",
-            data: {
-              page: { slug: page.slug }
+        ? page.slug === "private-page"
+          ? { type: "forbidden", data: {} }
+          : {
+              type: "found",
+              data: {
+                page: { slug: page.slug }
+              }
             }
-          }
         : { type: "missing", data: {} }
     } else if (
       rpcRequest.method === "page_get" &&
