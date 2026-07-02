@@ -66,6 +66,11 @@ struct ProtectedWikidotWikipediaLink {
     href: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ProtectedWikidotCompatLink {
+    anchor: String,
+}
+
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
@@ -85,6 +90,7 @@ const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTEMBEDIFRAME";
 const WIKIDOT_CSS_MODULE_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCSSMODULE";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
+const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 const WIKIDOT_TABVIEW_SCRIPT: &str = r#"<script src="http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/yahooui/tabview-min.js" type="text/javascript"></script>"#;
@@ -145,6 +151,11 @@ static WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX: LazyLock<Regex> = LazyLock::new(
 });
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
+static WIKIDOT_CURRENT_PAGE_LINK_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\[#\s+(?P<label>[^\]\n]+)\]").unwrap());
+static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\[\*/(?P<target>[^\s\]\n]+)\s+(?P<label>[^\]\n]+)\]").unwrap()
+});
 static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]\n]*)\]\]\]").unwrap()
 });
@@ -595,6 +606,8 @@ impl RenderService {
         let render_task = task::spawn_blocking(move || {
             let wikidot_css_modules =
                 Self::protect_wikidot_css_modules(&mut wikitext, &render_settings);
+            let wikidot_compat_links =
+                Self::protect_wikidot_compat_links(&mut wikitext, &render_settings);
             let wikidot_wikipedia_links =
                 Self::protect_wikidot_wikipedia_links(&mut wikitext, &render_settings);
             let wikidot_compat_html = Self::protect_generated_wikidot_compat_html(
@@ -625,6 +638,10 @@ impl RenderService {
             html_output.body = Self::restore_protected_wikidot_wikipedia_links(
                 html_output.body,
                 &wikidot_wikipedia_links,
+            );
+            html_output.body = Self::restore_protected_wikidot_compat_links(
+                html_output.body,
+                &wikidot_compat_links,
             );
             Self::record_protected_wikidot_wikipedia_backlinks(
                 &mut html_output.backlinks,
@@ -1890,6 +1907,132 @@ impl RenderService {
         output.push_str(&source[last..]);
         *wikitext = output;
         links
+    }
+
+    fn protect_wikidot_compat_links(
+        wikitext: &mut String,
+        settings: &WikitextSettings,
+    ) -> Vec<ProtectedWikidotCompatLink> {
+        if !settings.enable_page_syntax {
+            return Vec::new();
+        }
+
+        let mut links = Vec::new();
+        Self::protect_wikidot_current_page_links(wikitext, &mut links);
+        Self::protect_wikidot_star_local_links(wikitext, &mut links);
+        links
+    }
+
+    fn protect_wikidot_current_page_links(
+        wikitext: &mut String,
+        links: &mut Vec<ProtectedWikidotCompatLink>,
+    ) {
+        let source = wikitext.clone();
+        let mut output = String::with_capacity(source.len());
+        let mut last = 0;
+
+        for captures in WIKIDOT_CURRENT_PAGE_LINK_REGEX.captures_iter(&source) {
+            let Some(link_match) = captures.get(0) else {
+                continue;
+            };
+
+            output.push_str(&source[last..link_match.start()]);
+            last = link_match.end();
+
+            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let Some(label) = captures
+                .name("label")
+                .map(|matched| matched.as_str().trim())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+            if label.is_empty() {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            links.push(ProtectedWikidotCompatLink {
+                anchor: wikidot_current_page_anchor(label),
+            });
+            output.push_str(&marker);
+        }
+
+        if last == 0 {
+            return;
+        }
+
+        output.push_str(&source[last..]);
+        *wikitext = output;
+    }
+
+    fn protect_wikidot_star_local_links(
+        wikitext: &mut String,
+        links: &mut Vec<ProtectedWikidotCompatLink>,
+    ) {
+        let source = wikitext.clone();
+        let mut output = String::with_capacity(source.len());
+        let mut last = 0;
+
+        for captures in WIKIDOT_STAR_LOCAL_LINK_REGEX.captures_iter(&source) {
+            let Some(link_match) = captures.get(0) else {
+                continue;
+            };
+
+            output.push_str(&source[last..link_match.start()]);
+            last = link_match.end();
+
+            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let Some(target) = captures.name("target").map(|matched| matched.as_str())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+            let Some(label) = captures
+                .name("label")
+                .map(|matched| matched.as_str().trim())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+            if label.is_empty() {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            links.push(ProtectedWikidotCompatLink {
+                anchor: wikidot_star_local_anchor(target, label),
+            });
+            output.push_str(&marker);
+        }
+
+        if last == 0 {
+            return;
+        }
+
+        output.push_str(&source[last..]);
+        *wikitext = output;
+    }
+
+    fn restore_protected_wikidot_compat_links(
+        mut html: String,
+        links: &[ProtectedWikidotCompatLink],
+    ) -> String {
+        for (index, link) in links.iter().enumerate() {
+            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{index}X");
+            html = html.replace(&marker, &link.anchor);
+        }
+        html
     }
 
     fn restore_protected_wikidot_wikipedia_links(
@@ -5644,6 +5787,28 @@ fn escape_wikidot_link_text(value: &str) -> String {
     value.replace(']', r"\]")
 }
 
+fn wikidot_current_page_anchor(label: &str) -> String {
+    format!(
+        r#"<a href="javascript:;">{label}</a>"#,
+        label = escape_list_pages_html_text(label),
+    )
+}
+
+fn wikidot_star_local_anchor(target: &str, label: &str) -> String {
+    let target = target.trim();
+    let href = if target.starts_with('/') {
+        target.to_owned()
+    } else {
+        format!("/{target}")
+    };
+
+    format!(
+        r#"<a href="{href}" target="_blank">{label}</a>"#,
+        href = escape_list_pages_html_attr(&href),
+        label = escape_list_pages_html_text(label),
+    )
+}
+
 fn render_wikidot_wikipedia_link(target: &str, label: Option<&str>) -> String {
     build_wikidot_wikipedia_link(target, label).anchor
 }
@@ -7011,8 +7176,9 @@ mod tests {
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
         RenderContext, RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
-        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX,
-        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
+        WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
+        WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotUserDisplay,
+        count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
@@ -9658,6 +9824,39 @@ mod tests {
             "style=\"background-image: url(&#39;https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg&#39;);\""
         ));
         assert!(!rendered.contains("[[div_"));
+    }
+
+    #[test]
+    fn protects_wikidot_current_page_links_inside_inline_code() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "{{[# phmd@scip.net]:// ./msg ",
+            "[*/scp-6276 ext_server-6276] !undata recipient 0000}}",
+        )
+        .to_owned();
+
+        let links = RenderService::protect_wikidot_compat_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 2);
+        assert!(wikitext.contains(WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX));
+        assert!(!wikitext.contains("[# phmd@scip.net]"));
+        assert!(!wikitext.contains("[*/scp-6276 ext_server-6276]"));
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let mut rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        rendered =
+            RenderService::restore_protected_wikidot_compat_links(rendered, &links);
+        rendered = RenderService::restore_wikidot_email_obfuscation(&rendered);
+        rendered = RenderService::remove_spurious_wikidot_email_classes(&rendered);
+
+        assert!(rendered.contains(r#"<a href="javascript:;">phmd@scip.net</a>:// ./msg <a href="/scp-6276" target="_blank">ext_server-6276</a> !undata recipient 0000"#));
+        assert!(!rendered.contains("//:]ten.pics|dmhp"));
+        assert!(!rendered.contains("[# phmd@scip.net]"));
+        assert!(!rendered.contains("[*/scp-6276 ext_server-6276]"));
     }
 
     #[test]
