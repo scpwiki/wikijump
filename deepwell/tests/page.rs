@@ -1285,6 +1285,133 @@ async fn listpages_fragment_content_skips_hidden_pages_by_default() {
 }
 
 #[tokio::test]
+async fn listpages_fragment_content_expands_child_includes() {
+    const INDEX_SLUG: &str = "fixture-listpages-fragment-include-index";
+    const FRAGMENT_SLUG: &str = "fixture-listpages-fragment-include-child";
+    const INCLUDE_SLUG: &str = "fixture-listpages-fragment-include-target";
+    const INCLUDE_MARKER: &str = "Included fragment dependency should render.";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let index_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Fragment Include Index",
+        concat!(
+            "Before included fragment.\n\n",
+            "[[module ListPages parent=\".\" category=\"fragment\" order=\"created_at\" limit=\"1\"]]\n",
+            "%%content%%\n",
+            "[[/module]]\n\n",
+            "After included fragment."
+        ),
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fragment:fixture-listpages-fragment-include-primer",
+        "Fixture Fragment Include Category Primer",
+        "Fixture fragment include category primer.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INCLUDE_SLUG,
+        "Fixture ListPages Fragment Include Target",
+        INCLUDE_MARKER,
+    )
+    .await;
+
+    let fragment_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        FRAGMENT_SLUG,
+        "Fixture ListPages Fragment Include Child",
+        &format!(
+            "Fragment before include.\n[[include {INCLUDE_SLUG}]]\nFragment after include."
+        ),
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, FRAGMENT_SLUG, "fragment").await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        FRAGMENT_SLUG,
+        fragment_revision,
+        &["verification", "verification-fragment-include"],
+    )
+    .await;
+    set_listpages_test_created_at(
+        &runner,
+        site_id,
+        FRAGMENT_SLUG,
+        OffsetDateTime::UNIX_EPOCH + Duration::seconds(1),
+    )
+    .await;
+    set_listpages_test_parent(&mut runner, site_id, FRAGMENT_SLUG, INDEX_SLUG).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(INDEX_SLUG))),
+    });
+    let rerender = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "last_revision_id": index_revision,
+            "revision_comments": "rerender after attaching include fragment",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(
+        rerender.is_none(),
+        "relationship-only rerender should not create a page revision",
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("fragment include ListPages index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in [
+        "Fragment before include.",
+        INCLUDE_MARKER,
+        "Fragment after include.",
+    ] {
+        assert!(
+            html.contains(expected),
+            "fragment ListPages content should contain {expected:?}:\n{html}"
+        );
+    }
+    assert!(
+        !html.contains("[[include"),
+        "fragment ListPages content should expand child includes before rendering:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_content_body_supports_bounded_ordered_child_results() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

@@ -60,6 +60,17 @@ use tokio::time::timeout;
 #[derive(Debug)]
 pub struct RenderService;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ProtectedWikidotWikipediaLink {
+    anchor: String,
+    href: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ProtectedWikidotCompatLink {
+    anchor: String,
+}
+
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
@@ -79,6 +90,8 @@ const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTEMBEDIFRAME";
 const WIKIDOT_CSS_MODULE_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCSSMODULE";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
+const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
+const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 const WIKIDOT_TABVIEW_SCRIPT: &str = r#"<script src="http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/yahooui/tabview-min.js" type="text/javascript"></script>"#;
 const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
@@ -138,6 +151,11 @@ static WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX: LazyLock<Regex> = LazyLock::new(
 });
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
+static WIKIDOT_CURRENT_PAGE_LINK_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\[#\s+(?P<label>[^\]\n]+)\]").unwrap());
+static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\[\*/(?P<target>[^\s\]\n]+)\s+(?P<label>[^\]\n]+)\]").unwrap()
+});
 static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]\n]*)\]\]\]").unwrap()
 });
@@ -150,6 +168,10 @@ static WIKIDOT_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static WIKIDOT_EXTERNAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\*?(?P<url>https?://[^\s\]]+)\s+(?P<label>[^\]]+)\]").unwrap()
+});
+static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\[wikipedia:(?P<target>[^\s\]\n]+)(?:\s+(?P<label>[^\]\n]+))?\]")
+        .unwrap()
 });
 static WIKIDOT_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"##(?P<color>[A-Za-z0-9_-]+)\|(?P<body>.*?)##").unwrap()
@@ -509,7 +531,10 @@ impl RenderService {
         Self::remove_unresolved_variable_iftags_blocks(&mut wikitext);
         Self::resolve_single_line_wikidot_iftags_fragments(&mut wikitext, page_info);
         Self::resolve_simple_wikidot_iftags_blocks(&mut wikitext, page_info);
-        wikitext = Self::expand_list_pages(
+        let IncludeExpansion {
+            wikitext: expanded_wikitext,
+            included_pages: list_pages_included_pages,
+        } = Self::expand_list_pages(
             ctx,
             wikitext,
             page_info,
@@ -519,6 +544,8 @@ impl RenderService {
         )
         .await
         .or_raise(make_error)?;
+        wikitext = expanded_wikitext;
+        included_pages.extend(list_pages_included_pages);
         wikitext = Self::expand_count_pages(
             ctx,
             wikitext,
@@ -541,6 +568,9 @@ impl RenderService {
         wikitext = Self::expand_members_modules(wikitext, settings);
         wikitext = Self::expand_new_page_modules(wikitext, settings);
         wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
+        if settings.enable_page_syntax {
+            Self::normalize_wikidot_div_style_url_quotes(&mut wikitext);
+        }
         wikitext = Self::render_wikidot_color_spans(wikitext, settings);
         wikitext = Self::escape_unrendered_wikidot_color_markers(wikitext, settings);
         wikitext = Self::render_long_native_list_runs(wikitext);
@@ -576,6 +606,10 @@ impl RenderService {
         let render_task = task::spawn_blocking(move || {
             let wikidot_css_modules =
                 Self::protect_wikidot_css_modules(&mut wikitext, &render_settings);
+            let wikidot_compat_links =
+                Self::protect_wikidot_compat_links(&mut wikitext, &render_settings);
+            let wikidot_wikipedia_links =
+                Self::protect_wikidot_wikipedia_links(&mut wikitext, &render_settings);
             let wikidot_compat_html = Self::protect_generated_wikidot_compat_html(
                 &mut wikitext,
                 &render_settings,
@@ -600,6 +634,18 @@ impl RenderService {
             html_output.body = Self::restore_protected_generated_wikidot_compat_html(
                 html_output.body,
                 &wikidot_compat_html,
+            );
+            html_output.body = Self::restore_protected_wikidot_wikipedia_links(
+                html_output.body,
+                &wikidot_wikipedia_links,
+            );
+            html_output.body = Self::restore_protected_wikidot_compat_links(
+                html_output.body,
+                &wikidot_compat_links,
+            );
+            Self::record_protected_wikidot_wikipedia_backlinks(
+                &mut html_output.backlinks,
+                &wikidot_wikipedia_links,
             );
             html_output.body = Self::restore_wikidot_render_compatibility(
                 &html_output.body,
@@ -982,6 +1028,40 @@ impl RenderService {
                 }
             })
             .into_owned()
+    }
+
+    fn normalize_wikidot_div_style_url_quotes(wikitext: &mut String) {
+        let mut normalized = String::with_capacity(wikitext.len());
+        let mut changed = false;
+
+        for line in wikitext.split_inclusive('\n') {
+            if !line.trim_start().starts_with("[[div") || !line.contains("url(\"") {
+                normalized.push_str(line);
+                continue;
+            }
+
+            let mut line = line.to_owned();
+            let mut search_start = 0usize;
+            while let Some(open_offset) = line[search_start..].find("url(\"") {
+                let open_quote = search_start + open_offset + "url(".len();
+                let value_start = open_quote + 1;
+                let Some(close_offset) = line[value_start..].find("\")") else {
+                    break;
+                };
+                let close_quote = value_start + close_offset;
+
+                line.replace_range(close_quote..close_quote + 1, "'");
+                line.replace_range(open_quote..open_quote + 1, "'");
+                search_start = open_quote + "url('".len();
+                changed = true;
+            }
+
+            normalized.push_str(&line);
+        }
+
+        if changed {
+            *wikitext = normalized;
+        }
     }
 
     fn restore_wikidot_mailform_compatibility(html: &str) -> String {
@@ -1780,6 +1860,201 @@ impl RenderService {
         html
     }
 
+    fn protect_wikidot_wikipedia_links(
+        wikitext: &mut String,
+        settings: &WikitextSettings,
+    ) -> Vec<ProtectedWikidotWikipediaLink> {
+        if !settings.enable_page_syntax {
+            return Vec::new();
+        }
+
+        let source = wikitext.clone();
+        let mut links = Vec::new();
+        let mut output = String::with_capacity(source.len());
+        let mut last = 0;
+
+        for captures in WIKIDOT_WIKIPEDIA_LINK_REGEX.captures_iter(&source) {
+            let Some(link_match) = captures.get(0) else {
+                continue;
+            };
+
+            output.push_str(&source[last..link_match.start()]);
+            last = link_match.end();
+
+            let Some(target) = captures.name("target").map(|matched| matched.as_str())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+
+            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let label = captures.name("label").map(|matched| matched.as_str());
+            let link = build_wikidot_wikipedia_link(target, label);
+            let marker =
+                format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{}X", links.len());
+            links.push(link);
+            output.push_str(&marker);
+        }
+
+        if links.is_empty() {
+            return links;
+        }
+
+        output.push_str(&source[last..]);
+        *wikitext = output;
+        links
+    }
+
+    fn protect_wikidot_compat_links(
+        wikitext: &mut String,
+        settings: &WikitextSettings,
+    ) -> Vec<ProtectedWikidotCompatLink> {
+        if !settings.enable_page_syntax {
+            return Vec::new();
+        }
+
+        let mut links = Vec::new();
+        Self::protect_wikidot_current_page_links(wikitext, &mut links);
+        Self::protect_wikidot_star_local_links(wikitext, &mut links);
+        links
+    }
+
+    fn protect_wikidot_current_page_links(
+        wikitext: &mut String,
+        links: &mut Vec<ProtectedWikidotCompatLink>,
+    ) {
+        let source = wikitext.clone();
+        let mut output = String::with_capacity(source.len());
+        let mut last = 0;
+
+        for captures in WIKIDOT_CURRENT_PAGE_LINK_REGEX.captures_iter(&source) {
+            let Some(link_match) = captures.get(0) else {
+                continue;
+            };
+
+            output.push_str(&source[last..link_match.start()]);
+            last = link_match.end();
+
+            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let Some(label) = captures
+                .name("label")
+                .map(|matched| matched.as_str().trim())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+            if label.is_empty() {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            links.push(ProtectedWikidotCompatLink {
+                anchor: wikidot_current_page_anchor(label),
+            });
+            output.push_str(&marker);
+        }
+
+        if last == 0 {
+            return;
+        }
+
+        output.push_str(&source[last..]);
+        *wikitext = output;
+    }
+
+    fn protect_wikidot_star_local_links(
+        wikitext: &mut String,
+        links: &mut Vec<ProtectedWikidotCompatLink>,
+    ) {
+        let source = wikitext.clone();
+        let mut output = String::with_capacity(source.len());
+        let mut last = 0;
+
+        for captures in WIKIDOT_STAR_LOCAL_LINK_REGEX.captures_iter(&source) {
+            let Some(link_match) = captures.get(0) else {
+                continue;
+            };
+
+            output.push_str(&source[last..link_match.start()]);
+            last = link_match.end();
+
+            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let Some(target) = captures.name("target").map(|matched| matched.as_str())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+            let Some(label) = captures
+                .name("label")
+                .map(|matched| matched.as_str().trim())
+            else {
+                output.push_str(link_match.as_str());
+                continue;
+            };
+            if label.is_empty() {
+                output.push_str(link_match.as_str());
+                continue;
+            }
+
+            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            links.push(ProtectedWikidotCompatLink {
+                anchor: wikidot_star_local_anchor(target, label),
+            });
+            output.push_str(&marker);
+        }
+
+        if last == 0 {
+            return;
+        }
+
+        output.push_str(&source[last..]);
+        *wikitext = output;
+    }
+
+    fn restore_protected_wikidot_compat_links(
+        mut html: String,
+        links: &[ProtectedWikidotCompatLink],
+    ) -> String {
+        for (index, link) in links.iter().enumerate() {
+            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{index}X");
+            html = html.replace(&marker, &link.anchor);
+        }
+        html
+    }
+
+    fn restore_protected_wikidot_wikipedia_links(
+        mut html: String,
+        links: &[ProtectedWikidotWikipediaLink],
+    ) -> String {
+        for (index, link) in links.iter().enumerate() {
+            let marker = format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{index}X");
+            html = html.replace(&marker, &link.anchor);
+        }
+        html
+    }
+
+    fn record_protected_wikidot_wikipedia_backlinks(
+        backlinks: &mut ftml::data::Backlinks<'_>,
+        links: &[ProtectedWikidotWikipediaLink],
+    ) {
+        backlinks
+            .external_links
+            .extend(links.iter().map(|link| Cow::Owned(link.href.clone())));
+    }
+
     fn restore_wikidot_rendered_embed_iframes(html: &str) -> String {
         WIKIDOT_EMBED_PARAGRAPH_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
@@ -2277,18 +2552,25 @@ impl RenderService {
         settings: &WikitextSettings,
         current_site_id: Option<i64>,
         current_page_id: Option<i64>,
-    ) -> Result<String> {
+    ) -> Result<IncludeExpansion> {
         let (Some(current_site_id), Some(current_page_id)) =
             (current_site_id, current_page_id)
         else {
-            return Ok(wikitext);
+            return Ok(IncludeExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+            });
         };
 
         if !settings.enable_page_syntax {
-            return Ok(wikitext);
+            return Ok(IncludeExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+            });
         }
 
         let mut expanded = String::with_capacity(wikitext.len());
+        let mut included_pages = Vec::new();
         let mut cursor = 0;
 
         for captures in LISTPAGES_MODULE_REGEX.captures_iter(&wikitext) {
@@ -2319,21 +2601,29 @@ impl RenderService {
                 continue;
             }
 
-            let replacement = Self::render_list_pages_block(
+            let IncludeExpansion {
+                wikitext: replacement,
+                included_pages: replacement_included_pages,
+            } = Self::render_list_pages_block(
                 ctx,
                 current_site_id,
                 current_page_id,
                 page_info,
+                settings,
                 arguments,
                 body,
             )
             .await?;
             expanded.push_str(&replacement);
+            included_pages.extend(replacement_included_pages);
             cursor = mtch.end();
         }
 
         expanded.push_str(&wikitext[cursor..]);
-        Ok(expanded)
+        Ok(IncludeExpansion {
+            wikitext: expanded,
+            included_pages,
+        })
     }
 
     async fn expand_count_pages(
@@ -3511,9 +3801,10 @@ impl RenderService {
         current_site_id: i64,
         current_page_id: i64,
         page_info: &PageInfo<'_>,
+        settings: &WikitextSettings,
         arguments: ListPagesArguments,
         body: &str,
-    ) -> Result<String> {
+    ) -> Result<IncludeExpansion> {
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -3734,6 +4025,7 @@ impl RenderService {
             BTreeMap::new()
         };
         let mut output = String::from("[[div class=\"list-pages-box\"]]\n");
+        let mut included_pages = Vec::new();
         if let Some(prepend_line) = prepend_line {
             output.push_str(&prepend_line);
             output.push('\n');
@@ -3762,11 +4054,32 @@ impl RenderService {
             } else {
                 BTreeMap::new()
             };
+            let expanded_page_wikitext = if wants_content {
+                match page_wikitext.as_deref() {
+                    Some(wikitext) => {
+                        let expansion = Self::expand_includes(
+                            ctx,
+                            wikitext.to_owned(),
+                            page_info.site.as_ref(),
+                            settings,
+                            Some(page.site_id),
+                        )
+                        .await?;
+                        included_pages.extend(expansion.included_pages);
+                        Some(expansion.wikitext)
+                    }
+                    None => None,
+                }
+            } else {
+                None
+            };
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
                 user_displays: &user_displays,
                 snapshot_displays: &snapshot_displays,
-                page_wikitext: page_wikitext.as_deref(),
+                page_wikitext: expanded_page_wikitext
+                    .as_deref()
+                    .or(page_wikitext.as_deref()),
                 data_form_values: &data_form_values,
                 render_generated_html: list_pages_body_has_table_rows(body),
             };
@@ -3796,7 +4109,10 @@ impl RenderService {
         }
 
         output.push_str("[[/div]]");
-        Ok(output)
+        Ok(IncludeExpansion {
+            wikitext: output,
+            included_pages,
+        })
     }
 
     async fn render_count_pages_block(
@@ -5470,6 +5786,68 @@ fn escape_wikidot_link_text(value: &str) -> String {
     value.replace(']', r"\]")
 }
 
+fn wikidot_current_page_anchor(label: &str) -> String {
+    format!(
+        r#"<a href="javascript:;">{label}</a>"#,
+        label = escape_list_pages_html_text(label),
+    )
+}
+
+fn wikidot_star_local_anchor(target: &str, label: &str) -> String {
+    let target = target.trim();
+    let href = if target.starts_with('/') {
+        target.to_owned()
+    } else {
+        format!("/{target}")
+    };
+
+    format!(
+        r#"<a href="{href}" target="_blank">{label}</a>"#,
+        href = escape_list_pages_html_attr(&href),
+        label = escape_list_pages_html_text(label),
+    )
+}
+
+fn render_wikidot_wikipedia_link(target: &str, label: Option<&str>) -> String {
+    build_wikidot_wikipedia_link(target, label).anchor
+}
+
+fn build_wikidot_wikipedia_link(
+    target: &str,
+    label: Option<&str>,
+) -> ProtectedWikidotWikipediaLink {
+    let (language, page) = wikidot_wikipedia_target(target);
+    let href = wikidot_wikipedia_href(language, page);
+    let label = label
+        .filter(|value| !value.is_empty())
+        .map(Cow::Borrowed)
+        .unwrap_or_else(|| Cow::Owned(page.replace('_', " ")));
+    let anchor = format!(
+        r#"<a href="{href}" onclick="window.open(this.href, '_blank'); return false;">{label}</a>"#,
+        href = escape_list_pages_html_attr(&href),
+        label = escape_list_pages_html_text(&label),
+    );
+    ProtectedWikidotWikipediaLink { anchor, href }
+}
+
+fn wikidot_wikipedia_href(language: &str, page: &str) -> String {
+    format!("http://{language}.wikipedia.org/wiki/{page}")
+}
+
+fn wikidot_wikipedia_target(target: &str) -> (&str, &str) {
+    if let Some((language, page)) = target.split_once(':')
+        && !page.is_empty()
+        && (2..=3).contains(&language.len())
+        && language
+            .chars()
+            .all(|character| character.is_ascii_alphabetic())
+    {
+        return (language, page);
+    }
+
+    ("en", target)
+}
+
 fn format_wikidot_list_pages_date(
     created_at: time::OffsetDateTime,
     format: &str,
@@ -5759,7 +6137,7 @@ fn push_list_pages_table_inline_segment(output: &mut String, value: &str) {
 }
 
 fn render_native_list_inline_html(value: &str) -> String {
-    let escaped = escape_list_pages_html_text(value);
+    let escaped = render_native_list_inline_wikidot_spans(value);
     let with_quadruple_links = WIKIDOT_QUADRUPLE_LINK_REGEX
         .replace_all(&escaped, |captures: &regex::Captures<'_>| {
             render_native_list_page_link(&captures["target"], None)
@@ -5785,16 +6163,210 @@ fn render_native_list_inline_html(value: &str) -> String {
             render_native_list_wikidot_user(&captures["name"])
         })
         .into_owned();
-
-    WIKIDOT_EXTERNAL_LINK_REGEX
+    let with_wikipedia_links = WIKIDOT_WIKIPEDIA_LINK_REGEX
         .replace_all(&with_user_links, |captures: &regex::Captures<'_>| {
+            render_wikidot_wikipedia_link(
+                &captures["target"],
+                captures.name("label").map(|matched| matched.as_str()),
+            )
+        })
+        .into_owned();
+
+    let with_external_links = WIKIDOT_EXTERNAL_LINK_REGEX
+        .replace_all(&with_wikipedia_links, |captures: &regex::Captures<'_>| {
             format!(
                 r#"<a href="{url}">{label}</a>"#,
                 url = escape_list_pages_html_attr(&captures["url"]),
                 label = captures["label"].to_owned(),
             )
         })
-        .into_owned()
+        .into_owned();
+
+    render_native_list_inline_wikidot_italics(&with_external_links)
+}
+
+fn render_native_list_inline_wikidot_italics(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(tag_start) = rest.find('<') {
+        let (before, after_start) = rest.split_at(tag_start);
+        output.push_str(&render_native_list_text_italics(before));
+
+        let Some(tag_end) = after_start.find('>') else {
+            output.push_str(&render_native_list_text_italics(after_start));
+            return output;
+        };
+        let (tag, after_tag) = after_start.split_at(tag_end + 1);
+        output.push_str(tag);
+        rest = after_tag;
+    }
+
+    output.push_str(&render_native_list_text_italics(rest));
+    output
+}
+
+fn render_native_list_text_italics(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(open) = find_wikidot_italic_open(rest) {
+        output.push_str(&rest[..open]);
+        let after_open = &rest[open + "//".len()..];
+        let Some(close) = find_wikidot_italic_close(after_open) else {
+            output.push_str(&rest[open..]);
+            return output;
+        };
+
+        output.push_str("<em>");
+        output.push_str(&after_open[..close]);
+        output.push_str("</em>");
+        rest = &after_open[close + "//".len()..];
+    }
+
+    output.push_str(rest);
+    output
+}
+
+fn find_wikidot_italic_open(value: &str) -> Option<usize> {
+    let mut cursor = 0usize;
+    while let Some(offset) = value[cursor..].find("//") {
+        let marker = cursor + offset;
+        let previous = value[..marker].chars().next_back();
+        let next = value[marker + "//".len()..].chars().next();
+        if previous == Some(':')
+            || next.is_none_or(|character| character.is_whitespace() || character == '/')
+        {
+            cursor = marker + "//".len();
+            continue;
+        }
+        return Some(marker);
+    }
+    None
+}
+
+fn find_wikidot_italic_close(value: &str) -> Option<usize> {
+    let mut cursor = 0usize;
+    while let Some(offset) = value[cursor..].find("//") {
+        let marker = cursor + offset;
+        let previous = value[..marker].chars().next_back();
+        let next = value[marker + "//".len()..].chars().next();
+        if previous.is_none_or(char::is_whitespace) || next == Some('/') {
+            cursor = marker + "//".len();
+            continue;
+        }
+        return Some(marker);
+    }
+    None
+}
+
+fn render_native_list_inline_wikidot_spans(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(start) = rest.find("[[span") {
+        let (before, marker_start) = rest.split_at(start);
+        output.push_str(&escape_list_pages_html_text(before));
+
+        let Some(marker_end) = marker_start.find("]]") else {
+            output.push_str(&escape_list_pages_html_text(marker_start));
+            return output;
+        };
+        let marker = &marker_start[..marker_end + 2];
+        let after_marker = &marker_start[marker_end + 2..];
+
+        let Some(close_start) = find_matching_wikidot_span_close(after_marker) else {
+            output.push_str(&escape_list_pages_html_text(marker));
+            rest = after_marker;
+            continue;
+        };
+
+        if let Some(open_tag) = wikidot_inline_span_marker_open(marker) {
+            output.push_str(&open_tag);
+            output.push_str(&render_native_list_inline_wikidot_spans(
+                &after_marker[..close_start],
+            ));
+            output.push_str("</span>");
+            rest = &after_marker[close_start + "[[/span]]".len()..];
+        } else {
+            output.push_str(&escape_list_pages_html_text(marker));
+            rest = after_marker;
+        }
+    }
+
+    output.push_str(&escape_list_pages_html_text(rest));
+    output
+}
+
+fn find_matching_wikidot_span_close(value: &str) -> Option<usize> {
+    let mut depth = 1_usize;
+    let mut offset = 0_usize;
+
+    while offset < value.len() {
+        let next_open = value[offset..].find("[[span").map(|index| offset + index);
+        let next_close = value[offset..]
+            .find("[[/span]]")
+            .map(|index| offset + index);
+
+        match (next_open, next_close) {
+            (None, Some(close)) => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(close);
+                }
+                offset = close + "[[/span]]".len();
+            }
+            (Some(open), Some(close)) if close <= open => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(close);
+                }
+                offset = close + "[[/span]]".len();
+            }
+            (Some(open), _) => {
+                let marker_end = value[open..].find("]]")?;
+                let marker_end = open + marker_end + 2;
+                if next_close.is_some_and(|close| marker_end > close) {
+                    offset = open + "[[span".len();
+                    continue;
+                }
+
+                let marker = &value[open..marker_end];
+                if wikidot_inline_span_marker_open(marker).is_some() {
+                    depth += 1;
+                }
+                offset = marker_end;
+            }
+            (None, None) => return None,
+        }
+    }
+
+    None
+}
+
+fn wikidot_inline_span_marker_open(marker: &str) -> Option<String> {
+    let marker = marker.trim();
+    if !marker.ends_with("]]") {
+        return None;
+    }
+
+    let inner = marker.strip_prefix("[[")?.strip_suffix("]]")?.trim();
+    if inner.len() < "span".len() || !inner[.."span".len()].eq_ignore_ascii_case("span") {
+        return None;
+    }
+    if inner.len() > "span".len()
+        && !inner
+            .as_bytes()
+            .get("span".len())
+            .is_some_and(u8::is_ascii_whitespace)
+    {
+        return None;
+    }
+    if inner.contains(['<', '>']) {
+        return None;
+    }
+
+    sanitize_wikidot_compat_inline_tag(&format!("<{inner}>"))
 }
 
 fn render_native_list_page_link(target: &str, label: Option<&str>) -> String {
@@ -6603,7 +7175,8 @@ mod tests {
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
         RenderContext, RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
-        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WikidotUserDisplay,
+        WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
+        WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotUserDisplay,
         count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -6628,6 +7201,7 @@ mod tests {
     use ftml::data::PageRef;
     use ftml::includes::IncludeRef;
     use ftml::layout::Layout;
+    use ftml::render::{Render, html::HtmlRender};
     use ftml::settings::{WikitextMode, WikitextSettings};
     use ftml::tree::VariableMap;
     use std::borrow::Cow;
@@ -9231,6 +9805,282 @@ mod tests {
 
         assert!(source.contains(r#"class="badges badge-action action atrue bfalse""#));
         assert!(!source.contains("{$action}"));
+    }
+
+    #[test]
+    fn normalizes_wikidot_div_style_url_quotes_for_acs_icon_markers() {
+        let mut wikitext = concat!(
+            "[[div_ class=\"icon-1\" style=\"background-image: url(\"",
+            "https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg",
+            "\");\"]]\n",
+            "[[/div]]\n",
+        )
+        .to_owned();
+
+        RenderService::normalize_wikidot_div_style_url_quotes(&mut wikitext);
+
+        assert!(wikitext.contains(
+            "style=\"background-image: url('https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg');\""
+        ));
+
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(rendered.contains(r#"<div class="icon-1""#));
+        assert!(rendered.contains(
+            "style=\"background-image: url(&#39;https://scp-wiki.wdfiles.com/local--files/scp-7243/7243-godel-icon.svg&#39;);\""
+        ));
+        assert!(!rendered.contains("[[div_"));
+    }
+
+    #[test]
+    fn protects_wikidot_current_page_links_inside_inline_code() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "{{[# phmd@scip.net]:// ./msg ",
+            "[*/scp-6276 ext_server-6276] !undata recipient 0000}}",
+        )
+        .to_owned();
+
+        let links = RenderService::protect_wikidot_compat_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 2);
+        assert!(wikitext.contains(WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX));
+        assert!(!wikitext.contains("[# phmd@scip.net]"));
+        assert!(!wikitext.contains("[*/scp-6276 ext_server-6276]"));
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let mut rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        rendered =
+            RenderService::restore_protected_wikidot_compat_links(rendered, &links);
+        rendered = RenderService::restore_wikidot_email_obfuscation(&rendered);
+        rendered = RenderService::remove_spurious_wikidot_email_classes(&rendered);
+
+        assert!(rendered.contains(r#"<a href="javascript:;">phmd@scip.net</a>:// ./msg <a href="/scp-6276" target="_blank">ext_server-6276</a> !undata recipient 0000"#));
+        assert!(!rendered.contains("//:]ten.pics|dmhp"));
+        assert!(!rendered.contains("[# phmd@scip.net]"));
+        assert!(!rendered.contains("[*/scp-6276 ext_server-6276]"));
+    }
+
+    #[test]
+    fn protects_wikidot_wikipedia_links_before_ftml_parsing() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "\"Our Foundation\" of ",
+            "[wikipedia:Canonical_bundle Canonical Bundle]",
+            " DW17 Timeline Delta-Blue",
+        )
+        .to_owned();
+
+        let links =
+            RenderService::protect_wikidot_wikipedia_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 1);
+        assert!(wikitext.contains(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX));
+        assert!(!wikitext.contains("[wikipedia:Canonical_bundle"));
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let mut html_output = HtmlRender.render(&tree, &page_info, &settings);
+        html_output.body = RenderService::restore_protected_wikidot_wikipedia_links(
+            html_output.body,
+            &links,
+        );
+        RenderService::record_protected_wikidot_wikipedia_backlinks(
+            &mut html_output.backlinks,
+            &links,
+        );
+
+        assert!(html_output.body.contains(r#"<a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a>"#));
+        assert!(!html_output.body.contains("[wikipedia:Canonical_bundle"));
+        assert_eq!(
+            html_output.backlinks.external_links,
+            vec![Cow::Borrowed(
+                "http://en.wikipedia.org/wiki/Canonical_bundle"
+            )],
+        );
+    }
+
+    #[test]
+    fn renders_wikidot_wikipedia_links_with_language_and_default_label() {
+        assert_eq!(
+            super::render_wikidot_wikipedia_link("it:Albert_Einstein", Some("Albert")),
+            r#"<a href="http://it.wikipedia.org/wiki/Albert_Einstein" onclick="window.open(this.href, '_blank'); return false;">Albert</a>"#,
+        );
+        assert_eq!(
+            super::render_wikidot_wikipedia_link("Canonical_bundle", None),
+            r#"<a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical bundle</a>"#,
+        );
+    }
+
+    #[test]
+    fn leaves_wikidot_wikipedia_links_inside_literal_regions_unchanged() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut escaped = "@@[wikipedia:Canonical_bundle Canonical Bundle]@@".to_owned();
+        let links =
+            RenderService::protect_wikidot_wikipedia_links(&mut escaped, &settings);
+
+        assert!(links.is_empty());
+        assert_eq!(escaped, "@@[wikipedia:Canonical_bundle Canonical Bundle]@@",);
+
+        let mut code = concat!(
+            "[[code]]\n",
+            "[wikipedia:Canonical_bundle Canonical Bundle]\n",
+            "[[/code]]\n",
+        )
+        .to_owned();
+        let links = RenderService::protect_wikidot_wikipedia_links(&mut code, &settings);
+
+        assert!(links.is_empty());
+        assert!(code.contains("[wikipedia:Canonical_bundle Canonical Bundle]"));
+    }
+
+    #[test]
+    fn renders_inline_wikidot_spans_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Safe [[span class=\"safe\" onclick=\"alert(1)\"]]span[[/span]]\n",
+            "* The Logistics Branch must maintain supply lines for transport of non-existent",
+            "[[span class=\"fnnum\"]].[[/span]]",
+            "[[span class=\"fncon\"]]For clarity: payloads will be absent.[[/span]]",
+            " effluence to Site-43;\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(r#"<li>The Logistics Branch"#));
+        assert!(rendered.contains(r#"<span class="safe">span</span>"#));
+        assert!(rendered.contains(r#"<span class="fnnum">.</span>"#));
+        assert!(rendered.contains(
+            r#"<span class="fncon">For clarity: payloads will be absent.</span>"#
+        ));
+        assert!(!rendered.contains("onclick"));
+        assert!(!rendered.contains("[[span"));
+    }
+
+    #[test]
+    fn renders_wikidot_wikipedia_links_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Source [wikipedia:Canonical_bundle Canonical Bundle]\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(r#"<li>Source <a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a></li>"#));
+        assert!(!rendered.contains("[wikipedia:Canonical_bundle"));
+    }
+
+    #[test]
+    fn renders_wikidot_italic_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* All acroamatic material //in absentia// must be voided.\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(
+            r#"<li>All acroamatic material <em>in absentia</em> must be voided.</li>"#
+        ));
+        assert!(!rendered.contains("//in absentia//"));
+    }
+
+    #[test]
+    fn leaves_double_slashes_inside_native_list_external_link_urls() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Source [http://example.com/a//b//c label]\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(r#"<a href="http://example.com/a//b//c">label</a>"#));
+        assert!(!rendered.contains("a<em>b</em>c"));
+        assert!(!rendered.contains("a&lt;em&gt;b&lt;/em&gt;c"));
+    }
+
+    #[test]
+    fn renders_nested_inline_wikidot_spans_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Nested [[span class=\"outer\"]]a [[span class=\"inner\"]]b[[/span]] c[[/span]]\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(
+            rendered.contains(
+                r#"<span class="outer">a <span class="inner">b</span> c</span>"#
+            )
+        );
+        assert!(!rendered.contains("[[span"));
+        assert!(!rendered.contains("[[/span]]"));
+    }
+
+    #[test]
+    fn ignores_unterminated_span_like_text_before_native_list_span_close() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Literal [[span class=\"outer\"]]a [[span text[[/span]]\n",
+        )
+        .to_owned();
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains(r#"<span class="outer">a [[span text</span>"#));
     }
 
     #[test]
