@@ -25,7 +25,8 @@ use crate::models::{
     forum_thread::Entity as ForumThread, forum_thread::Model as ForumThreadModel, page,
     page::Model as PageModel,
 };
-use crate::types::Reference;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::types::{Action, Permission, Reference, Resource};
 use sea_orm::prelude::TimeDateTimeWithTimeZone;
 use sea_orm::{
     ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
@@ -98,9 +99,12 @@ pub async fn forum_post_select(
     } = parse!(params, ForumPost);
 
     let thread = if let Some(page) = page.as_deref() {
-        let Some((_page, thread)) = find_page_thread(ctx, site_id, page).await? else {
+        let Some((page, thread)) = find_page_thread(ctx, site_id, page).await? else {
             return Ok(Vec::new());
         };
+        if !can_view_page(ctx, site_id, &page).await? {
+            return Ok(Vec::new());
+        }
         Some(thread)
     } else {
         None
@@ -144,7 +148,14 @@ pub async fn forum_post_select(
         .await
         .or_raise(|| Error::new("failed to select forum posts", ErrorType::ForumPost))?;
 
-    Ok(posts.into_iter().map(|post| post.forum_post_id).collect())
+    let mut output = Vec::with_capacity(posts.len());
+    for post in posts {
+        if can_view_forum_post(ctx, &post).await? {
+            output.push(post.forum_post_id);
+        }
+    }
+
+    Ok(output)
 }
 
 pub async fn forum_post_get(
@@ -182,7 +193,9 @@ pub async fn forum_post_get(
         .collect();
     let mut output = Vec::with_capacity(post_ids.len());
     for post_id in post_ids {
-        if let Some(post) = models_by_id.get(&post_id) {
+        if let Some(post) = models_by_id.get(&post_id)
+            && can_view_forum_post(ctx, post).await?
+        {
             output.push(build_wikidot_forum_post(ctx, post.clone()).await?);
         }
     }
@@ -195,9 +208,12 @@ pub async fn forum_post_page_summary(
     params: Params<'static>,
 ) -> Result<ForumPostPageSummary> {
     let ForumPostPageSummaryInput { site_id, page } = parse!(params, ForumPost);
-    let Some((_page, thread)) = find_page_thread(ctx, site_id, &page).await? else {
+    let Some((page_model, thread)) = find_page_thread(ctx, site_id, &page).await? else {
         return Ok(empty_page_summary());
     };
+    if !can_view_page(ctx, site_id, &page_model).await? {
+        return Ok(empty_page_summary());
+    }
 
     let condition = Condition::all()
         .add(forum_post::Column::SiteId.eq(site_id))
@@ -307,6 +323,14 @@ async fn build_wikidot_forum_post(
         .into());
     };
 
+    if !can_view_page(ctx, post.site_id, &page).await? {
+        return Err(Error::new(
+            "forum post page is not viewable",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
     let content = TextService::get(ctx, &revision.wikitext_hash)
         .await
         .or_raise(make_error)?;
@@ -376,6 +400,71 @@ async fn find_page_thread(
         .or_raise(make_error)?;
 
     Ok(thread.map(|thread| (page, thread)))
+}
+
+async fn can_view_forum_post(
+    ctx: &ServiceContext<'_>,
+    post: &ForumPostModel,
+) -> Result<bool> {
+    let make_error =
+        || Error::new("failed to check forum post page", ErrorType::ForumPost);
+
+    let Some(thread) = ForumThread::find_by_id(post.forum_thread_id)
+        .filter(
+            Condition::all()
+                .add(forum_thread::Column::SiteId.eq(post.site_id))
+                .add(forum_thread::Column::DeletedAt.is_null()),
+        )
+        .one(ctx.transaction())
+        .await
+        .or_raise(make_error)?
+    else {
+        return Ok(false);
+    };
+    let Some(page_id) = thread.page_id else {
+        return Ok(false);
+    };
+    let Some(page) = page::Entity::find_by_id(page_id)
+        .filter(
+            Condition::all()
+                .add(page::Column::SiteId.eq(post.site_id))
+                .add(page::Column::DeletedAt.is_null()),
+        )
+        .one(ctx.transaction())
+        .await
+        .or_raise(make_error)?
+    else {
+        return Ok(false);
+    };
+
+    can_view_page(ctx, post.site_id, &page).await
+}
+
+async fn can_view_page(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page: &PageModel,
+) -> Result<bool> {
+    PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: ctx.request().user_id,
+            site_id,
+            page_reference: Some(Reference::Id(page.page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(page.page_category_id)),
+            action: Action::View,
+        },
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            "failed to check forum post page permissions",
+            ErrorType::Permission,
+        )
+    })
 }
 
 async fn resolve_optional_user_filter(
