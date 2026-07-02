@@ -54,6 +54,16 @@
         ]
     },
     "scp-wiki": {
+        "component:anomaly-class-bar": [
+            {
+                "name": "danger-icon.svg",
+                "path": "component-anomaly-class-bar--danger-icon.svg"
+            },
+            {
+                "name": "ekhi-icon.svg",
+                "path": "component-anomaly-class-bar--ekhi-icon.svg"
+            }
+        ],
         "scp-002": [
             {
                 "name": "SCP.txt",
@@ -87,6 +97,18 @@
             {
                 "name": "theend.jpg",
                 "path": "scp-3922--theend.jpg"
+            }
+        ],
+        "scp-5382": [
+            {
+                "name": "thaumiel-icon-2.svg",
+                "path": "scp-5382--thaumiel-icon-2.svg"
+            }
+        ],
+        "scp-7000": [
+            {
+                "name": "inimical-icon.svg",
+                "path": "scp-7000--inimical-icon.svg"
             }
         ],
         "scp-7243": [
