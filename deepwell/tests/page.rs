@@ -35,6 +35,9 @@ use deepwell::models::user::Entity as UserTable;
 use deepwell::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
 use deepwell::services::category::CategoryService;
 use deepwell::services::file_revision::CreateFirstFileRevision;
+use deepwell::services::forum::{CreateForumCategory, CreateForumGroup};
+use deepwell::services::forum_post::CreateForumPost;
+use deepwell::services::forum_thread::CreateForumThread;
 use deepwell::services::page_query::{
     CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
@@ -47,7 +50,8 @@ use deepwell::services::role::{
 use deepwell::services::session::CreateSession;
 use deepwell::services::view::GetPageViewOutput;
 use deepwell::services::{
-    FileRevisionService, RenderService, RequestContext, SessionService,
+    FileRevisionService, ForumPostService, ForumService, ForumThreadService,
+    RenderService, RequestContext, SessionService,
 };
 use deepwell::types::{
     Action, PageRevisionType, Permission, Reference, Resource, TextBlockType,
@@ -1845,6 +1849,250 @@ async fn file_get_requires_parent_page_view_permission() {
     assert_eq!(output.mime, EMPTY_BLOB_MIME);
     assert_eq!(output.s3_hash.as_ref(), &EMPTY_BLOB_HASH);
     assert!(output.data.is_none());
+}
+
+#[tokio::test]
+async fn forum_post_reads_require_parent_page_view_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PAGE_SLUG: &str = "fixture-private-forum-post-read";
+    const PUBLIC_PAGE_SLUG: &str = "fixture-public-forum-post-read";
+    const PRIVATE_CATEGORY: &str = "fixture-forum-post-read-private-view";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private forum post parent page",
+            "title": "Private Forum Post Read",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private forum post read fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+    set_listpages_test_category_slug(&runner, site_id, PAGE_SLUG, PRIVATE_CATEGORY).await;
+
+    let public_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "public forum post parent page",
+            "title": "Public Forum Post Read",
+            "alt_title": null,
+            "slug": PUBLIC_PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create public forum post read fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(public_page.parser_errors.is_empty());
+
+    let group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "Forum Post Read ACL Group".to_owned(),
+            description: "Forum post read ACL fixture group".to_owned(),
+            visible: true,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("forum group fixture should be created");
+    let forum_category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Forum Post Read ACL Category".to_owned(),
+            description: "Forum post read ACL fixture category".to_owned(),
+            sort_index: None,
+            max_nest_level: Some(3),
+            per_page_discussion: Some(true),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("forum category fixture should be created");
+
+    let private_thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: forum_category.forum_category_id,
+            user_id: ADMIN_USER_ID,
+            associated_page_id: Some(page.page_id),
+            title: "Private forum post read thread".to_owned(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("private forum thread fixture should be created");
+    let private_post = ForumPostService::create(
+        runner.context(),
+        CreateForumPost {
+            forum_thread_id: private_thread.forum_thread_id,
+            parent_post_id: None,
+            user_id: ADMIN_USER_ID,
+            title: "Private forum post read title".to_owned(),
+            wikitext: "private forum post body marker".to_owned(),
+            comments: "create private forum post fixture".to_owned(),
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("private forum post fixture should be created");
+    assert!(private_post.parser_errors.is_empty());
+
+    let public_thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: forum_category.forum_category_id,
+            user_id: ADMIN_USER_ID,
+            associated_page_id: Some(public_page.page_id),
+            title: "Public forum post read thread".to_owned(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("public forum thread fixture should be created");
+    let public_post = ForumPostService::create(
+        runner.context(),
+        CreateForumPost {
+            forum_thread_id: public_thread.forum_thread_id,
+            parent_post_id: None,
+            user_id: ADMIN_USER_ID,
+            title: "Public forum post read title".to_owned(),
+            wikitext: "public forum post body marker".to_owned(),
+            comments: "create public forum post fixture".to_owned(),
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("public forum post fixture should be created");
+    assert!(public_post.parser_errors.is_empty());
+
+    runner.set_request_context(RequestContext::default());
+
+    let public_selection = run_endpoint!(
+        runner,
+        forum_post_select,
+        json!({
+            "site_id": site_id,
+            "page": PUBLIC_PAGE_SLUG,
+        }),
+    );
+    assert_eq!(public_selection, vec![public_post.forum_post_id]);
+
+    let private_selection = run_endpoint!(
+        runner,
+        forum_post_select,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    );
+    assert!(private_selection.is_empty());
+
+    let visible_posts = run_endpoint!(
+        runner,
+        forum_post_get,
+        json!({
+            "site_id": site_id,
+            "posts": [private_post.forum_post_id, public_post.forum_post_id],
+        }),
+    );
+    assert_eq!(visible_posts.len(), 1);
+    let visible_post = serde_json::to_value(&visible_posts[0])
+        .expect("forum post output should serialize");
+    assert_eq!(visible_post["id"], json!(public_post.forum_post_id));
+    assert_eq!(
+        visible_post["content"],
+        json!("public forum post body marker")
+    );
+
+    let private_summary = run_endpoint!(
+        runner,
+        forum_post_page_summary,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    );
+    let private_summary_value = serde_json::to_value(private_summary)
+        .expect("private forum summary should serialize");
+    assert_eq!(private_summary_value["comments"], json!(0));
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+
+    let admin_selection = run_endpoint!(
+        runner,
+        forum_post_select,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    );
+    assert_eq!(admin_selection, vec![private_post.forum_post_id]);
+
+    let admin_posts = run_endpoint!(
+        runner,
+        forum_post_get,
+        json!({
+            "site_id": site_id,
+            "posts": [private_post.forum_post_id],
+        }),
+    );
+    assert_eq!(admin_posts.len(), 1);
+    let admin_post = serde_json::to_value(&admin_posts[0])
+        .expect("admin forum post output should serialize");
+    assert_eq!(admin_post["id"], json!(private_post.forum_post_id));
+    assert_eq!(
+        admin_post["content"],
+        json!("private forum post body marker")
+    );
+
+    let admin_summary = run_endpoint!(
+        runner,
+        forum_post_page_summary,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    );
+    let admin_summary_value = serde_json::to_value(admin_summary)
+        .expect("admin forum summary should serialize");
+    assert_eq!(admin_summary_value["comments"], json!(1));
 }
 
 #[tokio::test]
