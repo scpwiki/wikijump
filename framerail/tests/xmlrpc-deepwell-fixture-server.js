@@ -70,6 +70,7 @@ const pageReadRequests = {
   pageGet: [],
   pageGetDirect: [],
   pageRevisionGet: [],
+  pageView: [],
   pageSelect: [],
   parentRelationshipsGet: [],
   siteGet: []
@@ -398,6 +399,31 @@ const server = createServer((request, response) => {
     ) {
       pageReadRequests.siteGet.push(rpcRequest.params)
       result = rpcRequest.params.site === "scp-wiki" ? { site_id: 6000005 } : null
+    } else if (
+      rpcRequest.method === "page_view" &&
+      hasExactKeys(rpcRequest.params, ["locales", "route", "session_token", "site_id"]) &&
+      rpcRequest.params.site_id === 6000005 &&
+      Array.isArray(rpcRequest.params.locales) &&
+      rpcRequest.params.session_token === "fixture-session-token" &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005" &&
+      hasExactKeys(rpcRequest.params.route, ["extra", "slug"]) &&
+      typeof rpcRequest.params.route.slug === "string" &&
+      rpcRequest.params.route.extra === null
+    ) {
+      pageReadRequests.pageView.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      const page = pages[rpcRequest.params.route.slug]
+      result = page
+        ? {
+            type: "found",
+            data: {
+              page: { slug: page.slug }
+            }
+          }
+        : { type: "missing", data: {} }
     } else if (
       rpcRequest.method === "page_get" &&
       hasExactKeys(rpcRequest.params, ["details", "page", "site_id"]) &&

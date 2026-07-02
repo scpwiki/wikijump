@@ -973,6 +973,11 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
         site_id: 6000005
       },
       {
+        details: { compiled_html: false, wikitext: false },
+        page: "scp-173",
+        site_id: 6000005
+      },
+      {
         details: { compiled_html: true, wikitext: true },
         page: "scp-173",
         site_id: 6000005
@@ -1007,6 +1012,34 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
       }
     ],
     pageSelect: [{ parent: "scp-173", site: "scp-wiki" }],
+    pageView: [
+      {
+        headers: {
+          page: "scp-173",
+          sessionToken: "fixture-session-token",
+          siteId: "6000005"
+        },
+        params: {
+          locales: [],
+          route: { extra: null, slug: "scp-173" },
+          session_token: "fixture-session-token",
+          site_id: 6000005
+        }
+      },
+      {
+        headers: {
+          page: "scp-173",
+          sessionToken: "fixture-session-token",
+          siteId: "6000005"
+        },
+        params: {
+          locales: [],
+          route: { extra: null, slug: "scp-173" },
+          session_token: "fixture-session-token",
+          site_id: 6000005
+        }
+      }
+    ],
     parentRelationshipsGet: [
       {
         page: "scp-173",
