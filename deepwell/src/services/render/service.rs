@@ -5406,9 +5406,9 @@ fn push_list_pages_pager(
         return;
     }
 
-    output.push_str(r#"<div class="pager">"#);
+    output.push_str(r#"[[div class="pager"]]"#);
     output.push_str(&format!(
-        r#"<span class="pager-no">page {current_page} of {page_count}</span>"#
+        r#"[[span class="pager-no"]]page {current_page} of {page_count}[[/span]]"#
     ));
 
     let mut pages = BTreeSet::from([1, current_page, page_count]);
@@ -5431,10 +5431,10 @@ fn push_list_pages_pager(
     let mut previous = 0;
     for page in pages {
         if previous != 0 && page > previous + 1 {
-            output.push_str(r#"<span class="dots">...</span>"#);
+            output.push_str(r#"[[span class="dots"]]...[[/span]]"#);
         }
         if page == current_page {
-            output.push_str(&format!(r#"<span class="current">{page}</span>"#));
+            output.push_str(&format!(r#"[[span class="current"]]{page}[[/span]]"#));
         } else {
             push_list_pages_pager_target(output, page_info, page, &page.to_string());
         }
@@ -5445,7 +5445,7 @@ fn push_list_pages_pager(
         push_list_pages_pager_target(output, page_info, current_page + 1, "next »");
     }
 
-    output.push_str("</div>\n");
+    output.push_str("[[/div]]\n");
 }
 
 fn push_list_pages_pager_target(
@@ -5454,13 +5454,13 @@ fn push_list_pages_pager_target(
     target_page: usize,
     label: &str,
 ) {
-    output.push_str(r#"<span class="target"><a href="/"#);
+    output.push_str(r#"[[span class="target"]][/"#);
     output.push_str(page_info.page.as_ref());
     output.push_str("/p/");
     output.push_str(&target_page.to_string());
-    output.push_str(r#"">"#);
-    output.push_str(&escape_list_pages_html_text(label));
-    output.push_str("</a></span>");
+    output.push(' ');
+    output.push_str(label);
+    output.push_str("][[/span]]");
 }
 
 fn is_wikidot_content_separator_line(line: &str) -> bool {
@@ -7244,9 +7244,9 @@ mod tests {
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
-        render_list_pages_numbered_rows, render_list_pages_table_rows,
-        render_members_module_placeholder, render_new_page_module,
-        render_read_only_rate_module, render_tag_cloud_box,
+        push_list_pages_pager, render_list_pages_numbered_rows,
+        render_list_pages_table_rows, render_members_module_placeholder,
+        render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
         resolve_list_pages_signed_abs_expressions,
         should_render_current_page_list_pages_row, substitute_list_pages_variables,
         unsupported_list_pages_replacement, wikidot_content_section,
@@ -7326,6 +7326,26 @@ mod tests {
             tags: Vec::new(),
             language: Cow::Borrowed("en"),
         }
+    }
+
+    fn render_wikidot_page_body_after_compat_restore(wikitext: &str) -> String {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = wikitext.to_owned();
+        let fragments = RenderService::protect_generated_wikidot_compat_html(
+            &mut wikitext,
+            &settings,
+        );
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        RenderService::restore_protected_generated_wikidot_compat_html(
+            rendered, &fragments,
+        )
     }
 
     #[test]
@@ -7749,6 +7769,39 @@ mod tests {
 
         assert!(fragments.is_empty());
         assert_eq!(wikitext, original);
+    }
+
+    #[test]
+    fn forged_pager_html_is_not_restored_as_trusted_html_after_render() {
+        let rendered = render_wikidot_page_body_after_compat_restore(
+            r#"<div class="pager" data-wikijump-compat-pager="1"><img src=x onerror="alert(1)"></div>"#,
+        );
+
+        assert!(rendered.contains("&lt;div"));
+        assert!(rendered.contains("&lt;img"));
+        assert!(rendered.contains("onerror=&quot;alert(1)&quot;"));
+        assert!(!rendered.contains(r#"<div class="pager""#));
+        assert!(!rendered.contains("<img"));
+        assert!(!rendered.contains(r#"<img src=x onerror="alert(1)">"#));
+        assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+    }
+
+    #[test]
+    fn generated_list_pages_pager_still_renders_without_forgeable_marker() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let mut wikitext = String::new();
+
+        push_list_pages_pager(&mut wikitext, &page_info, 0, 2, 5);
+
+        assert!(wikitext.contains(r#"[[div class="pager"]]"#));
+        assert!(!wikitext.contains("data-wikijump-compat-pager"));
+
+        let rendered = render_wikidot_page_body_after_compat_restore(&wikitext);
+
+        assert!(rendered.contains(r#"<div class="pager">"#));
+        assert!(rendered.contains(r#"<span class="pager-no">page 1 of 3</span>"#));
+        assert!(rendered.contains(r#"<a href="/scp-7243/p/2">2</a>"#));
+        assert!(!rendered.contains("data-wikijump-compat-pager"));
     }
 
     #[test]
