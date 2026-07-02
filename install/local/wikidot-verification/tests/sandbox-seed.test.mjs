@@ -107,6 +107,32 @@ test("seed data includes SCP-7243 page-local files used by browser parity canary
   }
 });
 
+test("seed data includes SCP-7243 cross-page icon dependencies", () => {
+  const filesBySite = readJson("deepwell/seeder/files.json");
+  const expectedByPage = new Map([
+    ["component:anomaly-class-bar", ["danger-icon.svg", "ekhi-icon.svg"]],
+    ["scp-5382", ["thaumiel-icon-2.svg"]],
+    ["scp-7000", ["inimical-icon.svg"]],
+  ]);
+
+  for (const [page, expectedNames] of expectedByPage) {
+    const files = filesBySite["scp-wiki"]?.[page] ?? [];
+    assert.deepEqual(files.map((file) => file.name).sort(), expectedNames);
+
+    for (const file of files) {
+      const seededPath = path.join(seederRoot, file.path);
+      assert.ok(
+        fs.existsSync(seededPath),
+        `${page}/${file.name} references missing ${seededPath}`,
+      );
+      assert.ok(
+        fs.statSync(seededPath).size > 0,
+        `${page}/${file.name} should not be empty`,
+      );
+    }
+  }
+});
+
 test("seeded mirror authors are non-login identities", () => {
   const users = readJson("deepwell/seeder/users.json");
   const mirrorAuthorNames = new Set(["SeekGull", "daveyoufool"]);
