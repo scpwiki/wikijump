@@ -64,6 +64,40 @@
                 "path": "component-anomaly-class-bar--ekhi-icon.svg"
             }
         ],
+        "nav:side": [
+            {
+                "name": "black.png",
+                "path": "nav-side--black.png"
+            },
+            {
+                "name": "icon-Discord-2023.png",
+                "path": "nav-side--icon-Discord-2023.png"
+            },
+            {
+                "name": "social-bluesky.png",
+                "path": "nav-side--social-bluesky.png"
+            },
+            {
+                "name": "social-facebook.png",
+                "path": "nav-side--social-facebook.png"
+            },
+            {
+                "name": "social-instagram.png",
+                "path": "nav-side--social-instagram.png"
+            },
+            {
+                "name": "social-reddit.png",
+                "path": "nav-side--social-reddit.png"
+            },
+            {
+                "name": "social-tiktok.png",
+                "path": "nav-side--social-tiktok.png"
+            },
+            {
+                "name": "social-twitter.png",
+                "path": "nav-side--social-twitter.png"
+            }
+        ],
         "scp-002": [
             {
                 "name": "SCP.txt",
