@@ -193,10 +193,10 @@ pub async fn forum_post_get(
         .collect();
     let mut output = Vec::with_capacity(post_ids.len());
     for post_id in post_ids {
-        if let Some(post) = models_by_id.get(&post_id) {
-            if can_view_forum_post(ctx, post).await? {
-                output.push(build_wikidot_forum_post(ctx, post.clone()).await?);
-            }
+        if let Some(post) = models_by_id.get(&post_id)
+            && can_view_forum_post(ctx, post).await?
+        {
+            output.push(build_wikidot_forum_post(ctx, post.clone()).await?);
         }
     }
 
