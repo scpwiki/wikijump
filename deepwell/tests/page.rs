@@ -2096,6 +2096,124 @@ async fn forum_post_reads_require_parent_page_view_permission() {
 }
 
 #[tokio::test]
+async fn page_get_files_requires_parent_page_view_permission() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const PAGE_SLUG: &str = "fixture-private-file-list";
+    const PUBLIC_PAGE_SLUG: &str = "fixture-public-file-list";
+    const PRIVATE_CATEGORY: &str = "fixture-file-list-private-view";
+    const FILE_NAME: &str = "private-list-attachment.txt";
+    const PUBLIC_FILE_NAME: &str = "public-list-attachment.txt";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+    let page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "private file list parent page",
+            "title": "Private File List",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create private file list fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(page.parser_errors.is_empty());
+    set_listpages_test_category_slug(&runner, site_id, PAGE_SLUG, PRIVATE_CATEGORY).await;
+
+    let file_id =
+        create_empty_file_fixture(&runner, site_id, page.page_id, FILE_NAME).await;
+
+    let public_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "public file list parent page",
+            "title": "Public File List",
+            "alt_title": null,
+            "slug": PUBLIC_PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create public file list fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(public_page.parser_errors.is_empty());
+    let public_file_id = create_empty_file_fixture(
+        &runner,
+        site_id,
+        public_page.page_id,
+        PUBLIC_FILE_NAME,
+    )
+    .await;
+
+    runner.set_request_context(RequestContext::default());
+
+    let public_output = run_endpoint!(
+        runner,
+        page_get_files,
+        json!({
+            "site_id": site_id,
+            "page_id": public_page.page_id,
+            "deleted": false,
+        }),
+    );
+    assert_eq!(public_output.len(), 1);
+    assert_eq!(public_output[0].file_id, public_file_id);
+    assert_eq!(public_output[0].name, PUBLIC_FILE_NAME);
+
+    let error = run_endpoint_err!(
+        runner,
+        page_get_files,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "deleted": false,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(PAGE_SLUG))),
+    });
+
+    let output = run_endpoint!(
+        runner,
+        page_get_files,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "deleted": false,
+        }),
+    );
+
+    assert_eq!(output.len(), 1);
+    assert_eq!(output[0].file_id, file_id);
+    assert_eq!(output[0].name, FILE_NAME);
+    assert_eq!(output[0].mime, EMPTY_BLOB_MIME);
+    assert_eq!(output[0].s3_hash.as_ref(), &EMPTY_BLOB_HASH);
+    assert!(output[0].data.is_none());
+}
+
+#[tokio::test]
 async fn page_mutations_require_page_permissions() {
     let mut runner = TestRunner::setup().await;
     const SITE_SLUG: &str = "scp-wiki";
