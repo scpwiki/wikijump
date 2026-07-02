@@ -113,7 +113,7 @@ static CSS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<div class="pager" data-wikijump-compat-pager="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
+        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
     )
     .unwrap()
 });
@@ -2583,7 +2583,6 @@ impl RenderService {
                     captures[0]
                         .replace(r#" data-wikijump-compat-list="1""#, "")
                         .replace(r#" data-wikijump-compat-members="1""#, "")
-                        .replace(r#" data-wikijump-compat-pager="1""#, "")
                         .replace(r#" data-wikijump-compat-new-page="1""#, ""),
                 );
                 marker
@@ -5035,7 +5034,7 @@ fn push_list_pages_pager(
         return;
     }
 
-    output.push_str(r#"<div class="pager" data-wikijump-compat-pager="1">"#);
+    output.push_str(r#"<div class="pager">"#);
     output.push_str(&format!(
         r#"<span class="pager-no">page {current_page} of {page_count}</span>"#
     ));
@@ -7100,6 +7099,19 @@ mod tests {
         ));
         assert!(restored.contains(r#"value="new &lt;page&gt;""#));
         assert!(!restored.contains("data-wikijump-compat-new-page"));
+    }
+
+    #[test]
+    fn does_not_protect_forgeable_pager_html_before_parsing() {
+        let original = r#"<div class="pager" data-wikijump-compat-pager="1"><img src=x onerror="alert(1)"></div>"#;
+        let mut wikitext = original.to_owned();
+        let fragments = RenderService::protect_generated_wikidot_compat_html(
+            &mut wikitext,
+            &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+        );
+
+        assert!(fragments.is_empty());
+        assert_eq!(wikitext, original);
     }
 
     #[test]
