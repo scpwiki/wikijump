@@ -174,6 +174,27 @@ const xmlRpcPagesGetMetaRequest = `<?xml version="1.0"?>
   </params>
 </methodCall>`
 
+function xmlRpcPagesGetMetaForPagesRequest(pages: string[]): string {
+  const pageValues = pages
+    .map((page) => `<value><string>${xmlEscape(page)}</string></value>`)
+    .join("")
+
+  return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>pages.get_meta</methodName>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member><name>site</name><value><string>scp-wiki</string></value></member>
+          <member><name>pages</name><value><array><data>${pageValues}</data></array></value></member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodCall>`
+}
+
 const xmlRpcPagesGetOneRequest = `<?xml version="1.0"?>
 <methodCall>
   <methodName>pages.get_one</methodName>
@@ -973,6 +994,11 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
         site_id: 6000005
       },
       {
+        details: { compiled_html: false, wikitext: false },
+        page: "scp-173",
+        site_id: 6000005
+      },
+      {
         details: { compiled_html: true, wikitext: true },
         page: "scp-173",
         site_id: 6000005
@@ -1007,6 +1033,34 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
       }
     ],
     pageSelect: [{ parent: "scp-173", site: "scp-wiki" }],
+    pageView: [
+      {
+        headers: {
+          page: "scp-173",
+          sessionToken: "fixture-session-token",
+          siteId: "6000005"
+        },
+        params: {
+          locales: [],
+          route: { extra: null, slug: "scp-173" },
+          session_token: "fixture-session-token",
+          site_id: 6000005
+        }
+      },
+      {
+        headers: {
+          page: "scp-173",
+          sessionToken: "fixture-session-token",
+          siteId: "6000005"
+        },
+        params: {
+          locales: [],
+          route: { extra: null, slug: "scp-173" },
+          session_token: "fixture-session-token",
+          site_id: 6000005
+        }
+      }
+    ],
     parentRelationshipsGet: [
       {
         page: "scp-173",
@@ -1026,6 +1080,56 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
       { site: "missing-site" }
     ]
   })
+})
+
+test("XML-RPC endpoint enforces page view ACLs for page reads", async ({ request }) => {
+  const metaResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetMetaForPagesRequest(["scp-173", "private-page"]),
+    headers: xmlRpcHeaders
+  })
+  expect(metaResponse.status()).toBe(200)
+
+  const metaBody = await metaResponse.text()
+  expect(metaBody).toContain("<methodResponse>")
+  expect(metaBody).toContain(
+    "<name>fullname</name><value><string>scp-173</string></value>"
+  )
+  expect(metaBody).not.toContain("private-page")
+  expect(metaBody).not.toContain("Private Page")
+
+  const oneResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetOneForPageRequest("private-page"),
+    headers: xmlRpcHeaders
+  })
+  expect(oneResponse.status()).toBe(403)
+
+  const oneBody = await oneResponse.text()
+  expect(oneBody).toContain("<fault>")
+  expect(oneBody).toContain("<name>faultCode</name><value><int>403</int></value>")
+  expect(oneBody).toContain("XML-RPC user is not allowed to view this page")
+  expect(oneBody).not.toContain("Private page body marker")
+
+  const deepwellRequests = await request.get(
+    "http://127.0.0.1:42747/last-page-read-requests"
+  )
+  expect(deepwellRequests.status()).toBe(200)
+  const readRequests = await deepwellRequests.json()
+  expect(
+    readRequests.pageView.map(
+      (entry: { params: { route: { slug: string } } }) => entry.params.route.slug
+    )
+  ).toEqual(["scp-173", "private-page", "private-page"])
+  expect(
+    readRequests.pageGet.some(
+      (entry: { page: string; details: { compiled_html: boolean } }) =>
+        entry.page === "private-page" && entry.details.compiled_html === true
+    )
+  ).toBe(false)
+  expect(
+    readRequests.forumPostPageSummary.some(
+      (entry: { page: string }) => entry.page === "private-page"
+    )
+  ).toBe(false)
 })
 
 test("XML-RPC endpoint returns page comment summaries and forum posts", async ({

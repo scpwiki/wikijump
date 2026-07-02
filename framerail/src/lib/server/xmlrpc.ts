@@ -98,6 +98,13 @@ interface DeepwellForumPostSummary {
   commented_by: string | null
 }
 
+interface DeepwellPageView {
+  type: string
+  data?: {
+    page?: { slug?: string }
+  }
+}
+
 interface DeepwellForumPost {
   id: number
   fullname: string
@@ -353,10 +360,10 @@ async function dispatchXmlRpcCall(
       return selectPages(call)
     case "pages.get_meta":
       expectParamCount(call, 1)
-      return getPagesMeta(call)
+      return getPagesMeta(call, options.requestIp)
     case "pages.get_one":
       expectParamCount(call, 1)
-      return getPageOne(call)
+      return getPageOne(call, options.requestIp)
     case "pages.save_one":
       expectParamCount(call, 1)
       return savePageOne(call, options.requestIp)
@@ -565,7 +572,10 @@ async function selectPages(call: XmlRpcCall): Promise<string[]> {
   )
 }
 
-async function getPagesMeta(call: XmlRpcCall): Promise<Record<string, XmlRpcValue>> {
+async function getPagesMeta(
+  call: XmlRpcCall,
+  requestIp: string
+): Promise<Record<string, XmlRpcValue>> {
   const params = getStructParam(call, 0, "params")
   const site = getRequiredStructString(params, "site")
   const pages = getRequiredStructStringArray(params, "pages")
@@ -582,7 +592,7 @@ async function getPagesMeta(call: XmlRpcCall): Promise<Record<string, XmlRpcValu
   const entries: [string, XmlRpcValue][] = []
   for (const pageReference of pages) {
     const page = await getDeepwellPage(siteId, pageReference, false)
-    if (!page) {
+    if (!page || !(await canXmlRpcViewPage(siteId, page.slug, requestIp))) {
       continue
     }
 
@@ -600,13 +610,16 @@ async function getPagesMeta(call: XmlRpcCall): Promise<Record<string, XmlRpcValu
   return Object.fromEntries(entries)
 }
 
-async function getPageOne(call: XmlRpcCall): Promise<Record<string, XmlRpcValue>> {
+async function getPageOne(
+  call: XmlRpcCall,
+  requestIp: string
+): Promise<Record<string, XmlRpcValue>> {
   const params = getStructParam(call, 0, "params")
   const site = getRequiredStructString(params, "site")
   const pageReference = getRequiredStructString(params, "page")
   const siteId = await getDeepwellSiteId(site)
 
-  return buildXmlRpcPage(site, siteId, pageReference)
+  return buildXmlRpcPage(site, siteId, pageReference, requestIp)
 }
 
 async function savePageOne(
@@ -732,7 +745,7 @@ async function savePageOne(
     finalPageReference = renameAs
   }
 
-  return buildXmlRpcPage(site, siteId, finalPageReference)
+  return buildXmlRpcPage(site, siteId, finalPageReference, requestIp)
 }
 
 async function selectFiles(call: XmlRpcCall): Promise<string[]> {
@@ -1041,13 +1054,18 @@ function localPresignConnectBase(url: URL): URL | null {
 async function buildXmlRpcPage(
   site: string,
   siteId: number,
-  pageReference: string
+  pageReference: string,
+  requestIp: string
 ): Promise<Record<string, XmlRpcValue>> {
-  const page = await getDeepwellPage(siteId, pageReference, true)
-  if (!page) {
+  const pageMetadata = await getDeepwellPage(siteId, pageReference, false)
+  if (!pageMetadata) {
     throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
   }
+  if (!(await canXmlRpcViewPage(siteId, pageMetadata.slug, requestIp))) {
+    throw new XmlRpcFault(403, "XML-RPC user is not allowed to view this page", 403)
+  }
 
+  const page = await requireDeepwellPage(siteId, pageMetadata.slug, true)
   const [parentPage, creatorUserId, postSummary] = await Promise.all([
     getDeepwellDirectParentPage(siteId, page.slug),
     getDeepwellPageCreatorUserId(siteId, page),
@@ -1070,6 +1088,33 @@ async function buildXmlRpcPage(
     content: page.wikitext ?? "",
     html: page.compiled_body_html ?? ""
   }
+}
+
+async function canXmlRpcViewPage(
+  siteId: number,
+  page: string,
+  requestIp: string
+): Promise<boolean> {
+  const principal = await getXmlRpcWritePrincipal(requestIp)
+  const view = await requestDeepwell(
+    "page_view",
+    {
+      site_id: siteId,
+      locales: [],
+      session_token: principal.sessionToken,
+      route: { slug: page, extra: null }
+    },
+    {
+      sessionToken: principal.sessionToken,
+      siteId,
+      page
+    }
+  )
+  if (!isDeepwellPageView(view)) {
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: page_view")
+  }
+
+  return view.type === "found" && view.data?.page?.slug === page
 }
 
 async function getXmlRpcWriteContext(
@@ -1403,6 +1448,17 @@ function isDeepwellPage(value: unknown, includeBody: boolean): value is Deepwell
       ((typeof value.wikitext === "string" || value.wikitext === null) &&
         (typeof value.compiled_body_html === "string" ||
           value.compiled_body_html === null)))
+  )
+}
+
+function isDeepwellPageView(value: unknown): value is DeepwellPageView {
+  return (
+    isXmlRpcStruct(value) &&
+    typeof value.type === "string" &&
+    (value.type !== "found" ||
+      (isXmlRpcStruct(value.data) &&
+        isXmlRpcStruct(value.data.page) &&
+        typeof value.data.page.slug === "string"))
   )
 }
 
