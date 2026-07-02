@@ -151,6 +151,8 @@ static WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX: LazyLock<Regex> = LazyLock::new(
 });
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
+static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\[\[#\s+(?P<name>[^\]\n]+)\]\]").unwrap());
 static WIKIDOT_CURRENT_PAGE_LINK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[#\s+(?P<label>[^\]\n]+)\]").unwrap());
 static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -876,7 +878,7 @@ impl RenderService {
             .replace_all(&html, r#"<li class="selected"><a href="javascript:;">"#);
         let html = WIKIJUMP_TAB_BUTTON_REGEX
             .replace_all(&html, r#"<li><a href="javascript:;">"#);
-        html.replace("</wj-tabs-button>", "</a></li>").replace(
+        html.replace("</wj-tabs-button>", "</a></li>\n").replace(
             "</wj-tabs>",
             &format!("</div>{WIKIDOT_TABVIEW_INIT_SCRIPT}"),
         )
@@ -1918,9 +1920,56 @@ impl RenderService {
         }
 
         let mut links = Vec::new();
+        Self::protect_wikidot_anchor_markers(wikitext, &mut links);
         Self::protect_wikidot_current_page_links(wikitext, &mut links);
         Self::protect_wikidot_star_local_links(wikitext, &mut links);
         links
+    }
+
+    fn protect_wikidot_anchor_markers(
+        wikitext: &mut String,
+        links: &mut Vec<ProtectedWikidotCompatLink>,
+    ) {
+        let source = wikitext.clone();
+        let mut output = String::with_capacity(source.len());
+        let mut last = 0;
+
+        for captures in WIKIDOT_ANCHOR_MARKER_REGEX.captures_iter(&source) {
+            let Some(marker_match) = captures.get(0) else {
+                continue;
+            };
+
+            output.push_str(&source[last..marker_match.start()]);
+            last = marker_match.end();
+
+            if Self::is_inside_wikidot_literal_region(&source, marker_match.start()) {
+                output.push_str(marker_match.as_str());
+                continue;
+            }
+
+            let Some(name) = captures.name("name").map(|matched| matched.as_str().trim())
+            else {
+                output.push_str(marker_match.as_str());
+                continue;
+            };
+            if name.is_empty() {
+                output.push_str(marker_match.as_str());
+                continue;
+            }
+
+            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            links.push(ProtectedWikidotCompatLink {
+                anchor: wikidot_named_anchor(name),
+            });
+            output.push_str(&marker);
+        }
+
+        if last == 0 {
+            return;
+        }
+
+        output.push_str(&source[last..]);
+        *wikitext = output;
     }
 
     fn protect_wikidot_current_page_links(
@@ -1938,6 +1987,13 @@ impl RenderService {
 
             output.push_str(&source[last..link_match.start()]);
             last = link_match.end();
+
+            if source[..link_match.start()].ends_with('[')
+                || source[link_match.end()..].starts_with(']')
+            {
+                output.push_str(link_match.as_str());
+                continue;
+            }
 
             if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
                 output.push_str(link_match.as_str());
@@ -5785,6 +5841,13 @@ fn resolve_list_pages_signed_abs_expressions(value: &str) -> String {
 
 fn escape_wikidot_link_text(value: &str) -> String {
     value.replace(']', r"\]")
+}
+
+fn wikidot_named_anchor(name: &str) -> String {
+    format!(
+        r#"<a name="{name}"></a>"#,
+        name = escape_list_pages_html_attr(name),
+    )
 }
 
 fn wikidot_current_page_anchor(label: &str) -> String {
@@ -9860,6 +9923,33 @@ mod tests {
     }
 
     #[test]
+    fn protects_wikidot_named_anchor_markers_without_visible_brackets() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = "[[# tabanchor]]\nVisible text".to_owned();
+
+        let links = RenderService::protect_wikidot_compat_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 1);
+        assert!(wikitext.contains(WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX));
+        assert!(!wikitext.contains("[# tabanchor]"));
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = RenderService::restore_protected_wikidot_compat_links(
+            HtmlRender.render(&tree, &page_info, &settings).body,
+            &links,
+        );
+
+        assert!(rendered.contains(r#"<a name="tabanchor"></a>"#));
+        assert!(rendered.contains("Visible text"));
+        assert!(!rendered.contains("[tabanchor]"));
+        assert!(!rendered.contains("[# tabanchor]"));
+    }
+
+    #[test]
     fn protects_wikidot_wikipedia_links_before_ftml_parsing() {
         let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -10226,6 +10316,7 @@ mod tests {
                 .contains(r#"<li class="selected"><a href="javascript:;">One</a></li>"#)
         );
         assert!(restored.contains(r#"<li><a href="javascript:;">Two</a></li>"#));
+        assert!(restored.contains("</a></li>\n<li>"));
         assert!(!restored.contains("wj-tabs"));
         assert!(!restored.contains("aria-selected"));
         assert!(!restored.contains("role=\"tab\""));
