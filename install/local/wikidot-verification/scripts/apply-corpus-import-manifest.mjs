@@ -56,6 +56,7 @@ function parseArgs(argv) {
     skipRerender: false,
     rerenderAfterDbCreate: false,
     replaceExisting: false,
+    attachmentsOnlyExisting: false,
     createMode: 'rpc',
     dryRun: false,
     sourceSite: 'scp-wiki',
@@ -90,6 +91,7 @@ function parseArgs(argv) {
     else if (arg === '--skip-rerender') args.skipRerender = true;
     else if (arg === '--rerender-after-db-create') args.rerenderAfterDbCreate = true;
     else if (arg === '--replace-existing') args.replaceExisting = true;
+    else if (arg === '--attachments-only-existing') args.attachmentsOnlyExisting = true;
     else if (arg === '--create-mode') {
       args.createMode = next();
     }
@@ -97,9 +99,9 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -126,6 +128,12 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   }
   if (args.replaceExisting && args.createMode !== 'db') {
     throw new Error('--replace-existing requires --create-mode db');
+  }
+  if (args.attachmentsOnlyExisting && args.replaceExisting) {
+    throw new Error('--attachments-only-existing cannot be combined with --replace-existing');
+  }
+  if (args.attachmentsOnlyExisting && args.rerenderAfterDbCreate) {
+    throw new Error('--attachments-only-existing cannot be combined with --rerender-after-db-create');
   }
   if (args.limit !== null && (!Number.isInteger(args.limit) || args.limit < 0)) {
     throw new Error('--limit must be a non-negative integer');
@@ -940,6 +948,34 @@ ON CONFLICT (import_run_id, source_entity_id) DO UPDATE SET
 }
 
 async function importRow(args, row, importRunId) {
+  if (args.attachmentsOnlyExisting) {
+    const existing = await getPage(args, row.fullname);
+    if (existing === null) {
+      if (!args.dryRun) {
+        runPsql(args, recordItemSql(row, null, importRunId, 'failed', { collision: 'missing_existing_page_for_attachments' }));
+      }
+      return { slug: row.fullname, action: 'missing_existing_page_for_attachments' };
+    }
+    if (args.dryRun) {
+      return {
+        slug: row.fullname,
+        action: 'would_materialize_existing_attachments',
+        page_id: existing.page_id,
+        attachments_requested: Array.isArray(row.attachments) ? row.attachments.length : 0,
+        attachments_uploaded: 0,
+        attachments_skipped_existing: 0,
+      };
+    }
+    const attachmentSummary = await materializeRowAttachments(args, row, existing.page_id);
+    runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'done'));
+    return {
+      slug: row.fullname,
+      action: 'materialized_existing_attachments',
+      page_id: existing.page_id,
+      ...attachmentSummary,
+    };
+  }
+
   if (args.skipExistingDone) {
     const snapshotStatus = existingSnapshotPageStatus(args, row);
     if (snapshotStatus !== null && snapshotStatus.render_complete) {

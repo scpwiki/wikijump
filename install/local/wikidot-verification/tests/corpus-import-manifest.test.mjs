@@ -775,3 +775,39 @@ test('apply-corpus-import-manifest rejects conflicting DB rerender flags', async
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /rerender-after-db-create cannot be combined with --skip-rerender/);
 });
+
+test('apply-corpus-import-manifest rejects conflicting attachments-only replacement flags', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    source: 'SCP-173',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--attachments-only-existing',
+    '--replace-existing',
+    '--create-mode',
+    'db',
+    '--dry-run',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /attachments-only-existing cannot be combined with --replace-existing/);
+});
