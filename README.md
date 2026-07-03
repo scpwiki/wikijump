@@ -1,8 +1,4 @@
-<p align="center">
-  <img width="500"
-       src="assets/logo.min.svg"
-       alt="Wikijump">
-</p>
+# Wikijump
 
 <p align="center">
   <a href="https://codecov.io/gh/Rokurolize/wikijump">

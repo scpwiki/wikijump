@@ -1,5 +1,5 @@
 ## Assets
 
-This directory contains assets for the Wikijump project, such as its logo.
+This directory is reserved for redistributable Wikijump project assets.
 
-At this time, these files are _not_ licensed as AGPL or CC-BY-SA.
+Do not add logo or brand files here unless their repository redistribution license is documented and compatible with downstream source distribution.

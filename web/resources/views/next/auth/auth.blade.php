@@ -20,7 +20,7 @@
     <div id="app_auth">
         <div id="auth_panel" class="light">
             <a href="/" title="{{ __('goto-home') }}">
-                <img src="/files--static/media/logo.min.svg">
+                <span id="auth_brand">Wikijump</span>
             </a>
             <hr>
 
