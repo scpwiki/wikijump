@@ -6812,15 +6812,12 @@ fn render_read_only_rate_module(score: ftml::data::ScoreValue) -> String {
             "[[span class=\"rate-points\"]]rating: ",
             "[[span class=\"number prw54353\"]]{}[[/span]]",
             "[[/span]]",
-            " ",
             "[[span class=\"rateup btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"I like it\"]]+[[/a]]",
             "[[/span]]",
-            " ",
             "[[span class=\"ratedown btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"I don't like it\"]]–[[/a]]",
             "[[/span]]",
-            " ",
             "[[span class=\"cancel btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"Cancel my vote\"]]x[[/a]]",
             "[[/span]]",
@@ -7854,18 +7851,18 @@ mod tests {
         assert!(rendered.contains(r#"[[span class="rateup btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
         assert!(
-            rendered.contains(r#"]][[/span]] [[span class="rateup btn btn-default"]]"#)
+            rendered.contains(r#"]][[/span]][[span class="rateup btn btn-default"]]"#)
         );
         assert!(rendered.contains(r#"[[span class="ratedown btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.rate(event, -1)"#));
         assert!(
-            rendered.contains(r#"]][[/span]] [[span class="ratedown btn btn-default"]]"#)
+            rendered.contains(r#"]][[/span]][[span class="ratedown btn btn-default"]]"#)
         );
         assert!(rendered.contains(r#"title="I don't like it"]]–[[/a]]"#));
         assert!(rendered.contains(r#"[[span class="cancel btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.cancelVote(event)"#));
         assert!(
-            rendered.contains(r#"]][[/span]] [[span class="cancel btn btn-default"]]"#)
+            rendered.contains(r#"]][[/span]][[span class="cancel btn btn-default"]]"#)
         );
     }
 
