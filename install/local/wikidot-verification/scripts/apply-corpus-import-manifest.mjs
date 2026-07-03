@@ -6,6 +6,12 @@ import { spawnSync } from 'node:child_process';
 
 import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
 import {
+  DEFAULT_IMPORT_USER_ID,
+  assertExistingAttachmentMatches,
+  attachmentActorUserId,
+  validateAttachmentActorArgs,
+} from '../src/corpus-attachment-policy.mjs';
+import {
   buildParentLinkParentPagesSql,
   buildParentLinkSql,
   parseParentLinkParentPages,
@@ -15,7 +21,7 @@ import {
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
 const DEFAULT_SITE_ID = 6000005;
-const DEFAULT_USER_ID = -1;
+const DEFAULT_USER_ID = DEFAULT_IMPORT_USER_ID;
 const DEFAULT_IP_ADDRESS = '127.0.0.1';
 const DEFAULT_SESSION_TOKEN = process.env.DEEPWELL_SESSION_TOKEN ?? null;
 const SHELL_COMPILED_GENERATOR = 'corpus db import';
@@ -33,6 +39,7 @@ function parseArgs(argv) {
     dbContainer: DEFAULT_DB_CONTAINER,
     siteId: DEFAULT_SITE_ID,
     userId: DEFAULT_USER_ID,
+    attachmentUserId: null,
     ipAddress: DEFAULT_IP_ADDRESS,
     sessionToken: DEFAULT_SESSION_TOKEN,
     rpcTimeoutMs: 120_000,
@@ -65,6 +72,7 @@ function parseArgs(argv) {
     else if (arg === '--db-container') args.dbContainer = next();
     else if (arg === '--site-id') args.siteId = Number.parseInt(next(), 10);
     else if (arg === '--user-id') args.userId = Number.parseInt(next(), 10);
+    else if (arg === '--attachment-user-id') args.attachmentUserId = Number.parseInt(next(), 10);
     else if (arg === '--ip-address') args.ipAddress = next();
     else if (arg === '--session-token') args.sessionToken = next();
     else if (arg === '--rpc-timeout-ms') args.rpcTimeoutMs = Number.parseInt(next(), 10);
@@ -84,9 +92,9 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--attachment-user-id <id>] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -96,6 +104,9 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   if (!args.manifest) throw new Error('--manifest is required');
   if (!Number.isInteger(args.siteId)) throw new Error('--site-id must be an integer');
   if (!Number.isInteger(args.userId)) throw new Error('--user-id must be an integer');
+  if (args.attachmentUserId !== null && !Number.isInteger(args.attachmentUserId)) {
+    throw new Error('--attachment-user-id must be an integer');
+  }
   if (!Number.isInteger(args.rpcTimeoutMs) || args.rpcTimeoutMs <= 0) throw new Error('--rpc-timeout-ms must be a positive integer');
   if (!['rpc', 'db'].includes(args.createMode)) throw new Error('--create-mode must be rpc or db');
   if (args.rerenderAfterDbCreate && args.createMode !== 'db') {
@@ -553,9 +564,9 @@ function readAttachmentBytes(row, attachment) {
   return bytes;
 }
 
-async function uploadBlob(args, bytes, attachment) {
+async function uploadBlob(args, bytes, attachment, actorUserId) {
   const upload = await rpc(args, 'blob_upload', {
-    user_id: args.userId,
+    user_id: actorUserId,
     blob_size: bytes.byteLength,
   });
   const controller = new AbortController();
@@ -582,14 +593,14 @@ async function uploadBlob(args, bytes, attachment) {
   return upload.pending_blob_id;
 }
 
-async function createFile(args, pageId, attachment, pendingBlobId) {
+async function createFile(args, pageId, attachment, pendingBlobId, actorUserId) {
   return await rpc(args, 'file_create', {
     site_id: args.siteId,
     page_id: pageId,
     name: attachment.filename,
     uploaded_blob_id: pendingBlobId,
     revision_comments: ATTACHMENT_IMPORT_COMMENTS,
-    user_id: args.userId,
+    user_id: actorUserId,
     bypass_filter: true,
     ip_address: args.ipAddress,
   }, { siteId: args.siteId, pageRef: pageId });
@@ -606,15 +617,17 @@ async function materializeRowAttachments(args, row, pageId) {
 
   let uploaded = 0;
   let skippedExisting = 0;
+  const actorUserId = attachmentActorUserId(args, row);
   for (const attachment of attachments) {
+    const bytes = readAttachmentBytes(row, attachment);
     const existing = await getFile(args, pageId, attachment.filename);
     if (existing !== null) {
+      assertExistingAttachmentMatches({ row, attachment, existing, bytes });
       skippedExisting += 1;
       continue;
     }
-    const bytes = readAttachmentBytes(row, attachment);
-    const pendingBlobId = await uploadBlob(args, bytes, attachment);
-    await createFile(args, pageId, attachment, pendingBlobId);
+    const pendingBlobId = await uploadBlob(args, bytes, attachment, actorUserId);
+    await createFile(args, pageId, attachment, pendingBlobId, actorUserId);
     uploaded += 1;
   }
   return {
@@ -1045,6 +1058,7 @@ async function main() {
   const allRows = parseRows(manifestText);
   const selectedRows = filterRows(args, allRows);
   const completeInventory = selectedRows.length === allRows.length && args.limit === null && args.slug.length === 0 && args.slugFile === null;
+  if (!args.dryRun) validateAttachmentActorArgs(args, selectedRows);
 
   if (args.applyMigration && !args.dryRun) applyMigration(args);
   if (args.dryRun) {

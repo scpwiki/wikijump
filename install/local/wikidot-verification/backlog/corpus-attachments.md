@@ -21,4 +21,4 @@ Per page, captured attachment bytes use this layout:
 - `mime`: MIME guess used for operator inspection
 - `size`: byte length
 
-Use `scripts/capture-corpus-files.mjs --corpus-root <scp-wiki-translation/corpus> --branch en --slug <slug>` to populate the corpus attachment layout. Use `scripts/build-corpus-import-manifest.mjs` to carry those entries into an import manifest, then `scripts/apply-corpus-import-manifest.mjs --session-token <token>` to upload them into a local Deepwell runtime through `blob_upload` and `file_create`.
+Use `scripts/capture-corpus-files.mjs --corpus-root <scp-wiki-translation/corpus> --branch en --slug <slug>` to populate the corpus attachment layout. Use `scripts/build-corpus-import-manifest.mjs` to carry those entries into an import manifest, then `scripts/apply-corpus-import-manifest.mjs --session-token <token> --attachment-user-id <user-id>` to upload them into a local Deepwell runtime through `blob_upload` and `file_create`. The attachment user ID must match the authenticated session user; use `--user-id` instead only when page and attachment attribution should be the same user.

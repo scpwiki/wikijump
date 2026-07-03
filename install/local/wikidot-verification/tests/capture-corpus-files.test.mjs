@@ -18,8 +18,14 @@ test('capture-corpus-files dry-run discovers absolute and page-relative attachme
     path.join(pageDir, 'source.wikidot.txt'),
     [
       '[[image cover.jpg]]',
+      '[[image alternate.jpg?rev=1]]',
       '[[include component:image-block',
       'name=detail.png|caption=Detail]]',
+      '[[include component:image-block',
+      'name=detail-v2.png#caption|caption=Detail]]',
+      '[[module CSS]]',
+      '.icon { background: url(icon.svg#cache); }',
+      '[[/module]]',
       '[[image https://scp-wiki.wdfiles.com/local--files/scp-1234/remote.webp]]',
       '> **Filename:** credits-only.gif, cover.jpg',
     ].join('\n'),
@@ -38,7 +44,7 @@ test('capture-corpus-files dry-run discovers absolute and page-relative attachme
     .map((line) => JSON.parse(line));
   assert.deepEqual(
     rows.map((row) => row.filename).sort(),
-    ['cover.jpg', 'credits-only.gif', 'detail.png', 'remote.webp'],
+    ['alternate.jpg', 'cover.jpg', 'credits-only.gif', 'detail-v2.png', 'detail.png', 'icon.svg', 'remote.webp'],
   );
   assert.equal(rows.find((row) => row.filename === 'remote.webp').original_url, 'https://scp-wiki.wdfiles.com/local--files/scp-1234/remote.webp');
 });

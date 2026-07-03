@@ -162,6 +162,7 @@ function encodeWikidotSegment(value) {
 function cleanRelativeFilename(value) {
   let candidate = value.trim().replace(/^['"]|['"]$/gu, '');
   candidate = candidate.split(/[|\s]/u)[0] ?? '';
+  candidate = candidate.replace(/[?#].*$/u, '');
   if (
     candidate.length === 0 ||
     /^[a-z][a-z0-9+.-]*:/iu.test(candidate) ||
