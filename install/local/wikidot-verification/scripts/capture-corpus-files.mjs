@@ -5,12 +5,17 @@ import path from 'node:path';
 
 import { stableStringify } from '../src/corpus-import-manifest.mjs';
 import { buildFixtureResourceTargetPath } from '../src/resource-manifest.mjs';
-import { createHttpFixtureResourceLoader } from '../src/resource-materializer.mjs';
+import {
+  createHttpFixtureResourceLoader,
+  createLocalFixtureResourceLoader,
+} from '../src/resource-materializer.mjs';
 import { scanForFixtureLocalResources } from '../src/resource-scanner.mjs';
 
 const DEFAULT_BRANCH = 'en';
 const DEFAULT_MAX_RESOURCE_BYTES = 64 * 1024 * 1024;
 const DEFAULT_HTTP_TIMEOUT_MS = 30_000;
+const ATTACHMENT_ONLY_CAPTURE_METHOD = 'wikijump_corpus_attachment_placeholder';
+const ATTACHMENT_ONLY_TIMESTAMP = '1970-01-01T00:00:00+00:00';
 
 const MIME_BY_EXTENSION = new Map([
   ['avif', 'image/avif'],
@@ -42,6 +47,8 @@ function parseArgs(argv) {
     slug: [],
     slugFile: null,
     dryRun: false,
+    createMissingAttachmentPages: false,
+    resourceSourceRoot: null,
     maxResourceBytes: DEFAULT_MAX_RESOURCE_BYTES,
     httpTimeoutMs: DEFAULT_HTTP_TIMEOUT_MS,
   };
@@ -58,6 +65,8 @@ function parseArgs(argv) {
     else if (arg === '--slug') args.slug.push(next());
     else if (arg === '--slug-file') args.slugFile = next();
     else if (arg === '--dry-run') args.dryRun = true;
+    else if (arg === '--create-missing-attachment-pages') args.createMissingAttachmentPages = true;
+    else if (arg === '--resource-source-root') args.resourceSourceRoot = next();
     else if (arg === '--max-resource-bytes') args.maxResourceBytes = Number.parseInt(next(), 10);
     else if (arg === '--http-timeout-ms') args.httpTimeoutMs = Number.parseInt(next(), 10);
     else if (arg === '--help' || arg === '-h') {
@@ -68,7 +77,9 @@ Scans imported Wikidot source pages for Wikidot /local--files/ URLs and captures
   <corpus-root>/<branch>/pages/<attachment-page>/files/<filename>
   <corpus-root>/<branch>/pages/<attachment-page>/files.json
 
-The files.json manifest is consumed by build-corpus-import-manifest.mjs and then materialized into a local Deepwell runtime by apply-corpus-import-manifest.mjs.`);
+The files.json manifest is consumed by build-corpus-import-manifest.mjs and then materialized into a local Deepwell runtime by apply-corpus-import-manifest.mjs.
+
+Use --create-missing-attachment-pages only for corpus-adjacent/source-bundle capture roots where cross-page /local--files/<owner>/<file> references need placeholder owner pages for local file serving. It does not vendor files into wikijump source.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -105,6 +116,18 @@ async function readSlugSet(args, pagesRoot) {
 
 function sha256Hex(bytes) {
   return crypto.createHash('sha256').update(bytes).digest('hex');
+}
+
+function deterministicEntityId(branch, page) {
+  const bytes = crypto
+    .createHash('sha256')
+    .update(`wikijump-corpus-attachment-page:${branch}:${page}`)
+    .digest()
+    .subarray(0, 16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x50;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = bytes.toString('hex');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 function decodedSegment(segment, field, sourceUrl) {
@@ -257,18 +280,68 @@ async function readExistingManifest(manifestPath) {
   }
 }
 
-async function writeAttachment({ corpusRoot, pagesRoot, entry, loadResource }) {
+async function ensureAttachmentPage({ branch, entry, page, pageDir }) {
+  const sourceFilePath = path.join(pageDir, 'source.wikidot.txt');
+  try {
+    const stat = await fs.stat(sourceFilePath);
+    if (!stat.isFile()) throw new Error('not a file');
+    return false;
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+
+  await fs.mkdir(pageDir, { recursive: true });
+  const source = [
+    'Attachment-only placeholder generated for local Wikijump file materialization.',
+    `Original file URL: ${entry.original_url}`,
+    '',
+  ].join('\n');
+  const meta = {
+    children: 0,
+    commented_at: null,
+    commented_by: null,
+    comments: 0,
+    created_at: ATTACHMENT_ONLY_TIMESTAMP,
+    created_by: null,
+    fullname: page,
+    parent_fullname: null,
+    parent_title: null,
+    rating: 0,
+    revisions: 0,
+    tags: ['attachment-placeholder'],
+    title: page,
+    title_shown: page,
+    updated_at: ATTACHMENT_ONLY_TIMESTAMP,
+    updated_by: null,
+    capture_method: ATTACHMENT_ONLY_CAPTURE_METHOD,
+    source_browser_visibility: 'source_only',
+    source_visibility_reason: 'attachment_only_placeholder_for_local_file_materialization',
+  };
+
+  await fs.writeFile(sourceFilePath, source);
+  await fs.writeFile(path.join(pageDir, 'meta.json'), `${stableStringify(meta)}\n`);
+  await fs.writeFile(path.join(pageDir, 'entity_id.txt'), `${deterministicEntityId(branch, page)}\n`);
+  return true;
+}
+
+async function writeAttachment({ corpusRoot, pagesRoot, branch, entry, loadResource, createMissingAttachmentPages }) {
   const { page, filename } = attachmentPageAndFilename(entry);
   const pageDir = path.join(pagesRoot, page);
   const sourceFilePath = path.join(pageDir, 'source.wikidot.txt');
+  let createdMissingCorpusPage = false;
   try {
     const stat = await fs.stat(sourceFilePath);
     if (!stat.isFile()) throw new Error('not a file');
   } catch (error) {
     if (error?.code === 'ENOENT') {
-      return { action: 'skipped_missing_corpus_page', page, filename, original_url: entry.original_url };
+      if (createMissingAttachmentPages) {
+        createdMissingCorpusPage = await ensureAttachmentPage({ branch, entry, page, pageDir });
+      } else {
+        return { action: 'skipped_missing_corpus_page', page, filename, original_url: entry.original_url };
+      }
+    } else {
+      throw error;
     }
-    throw error;
   }
 
   const bytes = await loadResource(entry);
@@ -302,6 +375,7 @@ async function writeAttachment({ corpusRoot, pagesRoot, entry, loadResource }) {
     sha256: attachment.sha256,
     corpus_path: toPosixPath(path.relative(corpusRoot, filePath)),
     original_url: entry.original_url,
+    created_missing_corpus_page: createdMissingCorpusPage,
   };
 }
 
@@ -310,11 +384,16 @@ async function main() {
   const corpusRoot = path.resolve(args.corpusRoot);
   const pagesRoot = path.join(corpusRoot, args.branch, 'pages');
   const slugs = await readSlugSet(args, pagesRoot);
-  const loadResource = createHttpFixtureResourceLoader({
-    maxResourceBytes: args.maxResourceBytes,
-    timeoutMs: args.httpTimeoutMs,
-    redirect: 'follow',
-  });
+  const loadResource = args.resourceSourceRoot === null
+    ? createHttpFixtureResourceLoader({
+      maxResourceBytes: args.maxResourceBytes,
+      timeoutMs: args.httpTimeoutMs,
+      redirect: 'follow',
+    })
+    : createLocalFixtureResourceLoader({
+      sourceRoot: path.resolve(args.resourceSourceRoot),
+      maxResourceBytes: args.maxResourceBytes,
+    });
 
   const summary = {
     dry_run: args.dryRun,
@@ -323,6 +402,7 @@ async function main() {
     discovered_resources: 0,
     captured: 0,
     skipped_missing_corpus_page: 0,
+    created_missing_corpus_page: 0,
     out_of_scope: 0,
   };
 
@@ -354,13 +434,33 @@ async function main() {
     summary.discovered_resources += entries.length;
 
     for (const entry of entries) {
+      const { page, filename } = attachmentPageAndFilename(entry);
       if (args.dryRun) {
-        const { page, filename } = attachmentPageAndFilename(entry);
-        console.log(JSON.stringify({ action: 'would_capture', source_slug: slug, page, filename, original_url: entry.original_url }));
+        const pageSourcePath = path.join(pagesRoot, page, 'source.wikidot.txt');
+        let missingCorpusPage = false;
+        try {
+          const stat = await fs.stat(pageSourcePath);
+          missingCorpusPage = !stat.isFile();
+        } catch (error) {
+          if (error?.code !== 'ENOENT') throw error;
+          missingCorpusPage = true;
+        }
+        const action = missingCorpusPage && args.createMissingAttachmentPages
+          ? 'would_create_missing_corpus_page'
+          : 'would_capture';
+        console.log(JSON.stringify({ action, source_slug: slug, page, filename, original_url: entry.original_url }));
         continue;
       }
-      const result = await writeAttachment({ corpusRoot, pagesRoot, entry, loadResource });
+      const result = await writeAttachment({
+        corpusRoot,
+        pagesRoot,
+        branch: args.branch,
+        entry,
+        loadResource,
+        createMissingAttachmentPages: args.createMissingAttachmentPages,
+      });
       summary[result.action] = (summary[result.action] ?? 0) + 1;
+      if (result.created_missing_corpus_page) summary.created_missing_corpus_page += 1;
       console.log(JSON.stringify({ source_slug: slug, ...result }));
     }
   }
