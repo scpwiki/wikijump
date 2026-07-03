@@ -673,6 +673,7 @@ impl RenderService {
                 &render_config,
             );
             apply_basalt_shell_compatibility(&mut html_output.body);
+            apply_blankstyle_shell_compatibility(&mut html_output.body);
             html_output.body =
                 Self::remove_wikidot_compat_style_blocks(&html_output.body);
             html_output.backlinks.included_pages.extend(included_pages);
@@ -7230,6 +7231,38 @@ fn apply_basalt_shell_compatibility(html: &mut String) {
     );
 }
 
+fn apply_blankstyle_shell_compatibility(html: &mut String) {
+    if !html.contains("theme%3Ablankstyle")
+        && !html.contains("theme:blankstyle")
+        && !html.contains("43Head.png")
+    {
+        return;
+    }
+
+    html.push_str(
+        r#"<style>
+#top-bar .mobile-top-bar {
+    display: block !important;
+}
+#top-bar .mobile-top-bar > ul,
+#top-bar .mobile-top-bar > p {
+    display: none !important;
+}
+#top-bar div.open-menu a {
+    display: block !important;
+    position: fixed !important;
+    top: 15px !important;
+    left: 15px !important;
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    text-align: center !important;
+    z-index: 30 !important;
+}
+</style>"#,
+    );
+}
+
 fn site_matches_wikidot_slug(site: &SiteModel, site_slug: &str) -> bool {
     if site.slug.eq_ignore_ascii_case(site_slug) {
         return true;
@@ -10892,6 +10925,35 @@ mod tests {
             restored.contains(".admo-rate_splash .page-rate-widget-box .rate-points")
         );
         assert!(restored.contains(".admo-rate_splash .page-rate-widget-box .cancel"));
+    }
+
+    #[test]
+    fn preserves_blankstyle_open_menu_compatibility_style_after_render() {
+        let mut html = concat!(
+            r#"<p><style>div#extra-div-1{background:url("https://scp-wiki.wjfiles.localhost/local--files/theme%3Ablankstyle/43Head.png");}</style></p>"#,
+            r#"<p>body</p>"#,
+        )
+        .to_owned();
+
+        super::apply_blankstyle_shell_compatibility(&mut html);
+        let restored = RenderService::remove_wikidot_compat_style_blocks(&html);
+
+        assert!(restored.contains("#top-bar .mobile-top-bar"));
+        assert!(restored.contains("display: block !important"));
+        assert!(restored.contains("#top-bar .mobile-top-bar > ul"));
+        assert!(restored.contains("display: none !important"));
+        assert!(restored.contains("#top-bar div.open-menu a"));
+        assert!(restored.contains("position: fixed !important"));
+        assert!(restored.contains("line-height: 32px !important"));
+    }
+
+    #[test]
+    fn blankstyle_open_menu_compatibility_ignores_unrelated_pages() {
+        let mut html = r#"<p>ordinary page body</p>"#.to_owned();
+
+        super::apply_blankstyle_shell_compatibility(&mut html);
+
+        assert_eq!(html, r#"<p>ordinary page body</p>"#);
     }
 
     #[test]
