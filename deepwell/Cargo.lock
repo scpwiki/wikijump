@@ -1405,7 +1405,7 @@ dependencies = [
 [[package]]
 name = "ftml"
 version = "1.42.0+roku.20260630.1"
-source = "git+https://github.com/Rokurolize/ftml?branch=main#53ea9fe174762455b30879dfa13f1c8175787217"
+source = "git+https://github.com/Rokurolize/ftml?branch=main#7d92028a9862d49969a3e0c0c561f96b1b2e037d"
 dependencies = [
  "built",
  "cfg-if",
