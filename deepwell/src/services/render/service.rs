@@ -179,6 +179,9 @@ static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[#ifexpr\s+(?P<test>-?[0-9]+(?:\.[0-9]+)?)\s*>\s*-1\s*\|\s*\+\s*\|\s*-\s*\]\]\s*\[\[#expr\s+abs\(\s*(?P<abs>-?[0-9]+(?:\.[0-9]+)?)\s*\)\s*\]\]").unwrap()
 });
+static WIKIDOT_NUMERIC_IFEXPR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?is)\[\[#ifexpr\s+(?P<left>-?[0-9]+(?:\.[0-9]+)?)\s*(?P<op>>=|<=|==|!=|=|>|<)\s*(?P<right>-?[0-9]+(?:\.[0-9]+)?)\s*\|\s*(?P<when_true>.*?)\s*\|\s*(?P<when_false>.*?)\s*\]\]").unwrap()
+});
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
 static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> =
@@ -4616,7 +4619,7 @@ impl RenderService {
             order,
             limit,
             count_pages_explicit_limit,
-            count_pages_per_page,
+            count_pages_per_page: _,
             offset,
             exclude_current_page,
             page_type,
@@ -4626,8 +4629,6 @@ impl RenderService {
             data_form_fields,
             unsupported_count_pages_filter: _,
         } = arguments;
-        let per_page_only_count =
-            count_pages_explicit_limit.is_none() && count_pages_per_page.is_some();
         let count_pages_query_limit = count_pages_explicit_limit
             .map(|limit| {
                 limit
@@ -4733,7 +4734,8 @@ impl RenderService {
             Some(limit) => pages.take(limit.min(usize::MAX as u64) as usize).count(),
             None => {
                 let total = pages.count();
-                if per_page_only_count && total >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize
+                if count_pages_explicit_limit.is_none()
+                    && total >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize
                 {
                     return Ok(original_module.to_owned());
                 }
@@ -5560,7 +5562,9 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
         .count_pages_explicit_limit
         .or(arguments.count_pages_per_page);
     arguments.unsupported_count_pages_filter
-        || (count_pages_bound.is_none() && !arguments.current_page_only)
+        || (count_pages_bound.is_none()
+            && !arguments.current_page_only
+            && !count_pages_has_static_filter(arguments))
         || count_pages_bound.is_some_and(|limit| {
             limit
                 .saturating_add(u64::from(arguments.offset))
@@ -6075,7 +6079,7 @@ fn substitute_list_pages_variables(
 
 fn substitute_count_pages_variables(template: &str, total: usize) -> String {
     let total = total.to_string();
-    LISTPAGES_VARIABLE_REGEX
+    let substituted = LISTPAGES_VARIABLE_REGEX
         .replace_all(template, |captures: &regex::Captures<'_>| {
             match captures["name"].to_ascii_lowercase().as_str() {
                 "total" | "count" => total.clone(),
@@ -6083,6 +6087,47 @@ fn substitute_count_pages_variables(template: &str, total: usize) -> String {
                     .get(0)
                     .map_or("", |matched| matched.as_str())
                     .to_owned(),
+            }
+        })
+        .into_owned();
+    resolve_wikidot_numeric_ifexpr(&substituted)
+}
+
+fn resolve_wikidot_numeric_ifexpr(value: &str) -> String {
+    WIKIDOT_NUMERIC_IFEXPR_REGEX
+        .replace_all(value, |captures: &regex::Captures<'_>| {
+            let left = captures["left"].parse::<f64>().ok();
+            let right = captures["right"].parse::<f64>().ok();
+            let Some(left) = left else {
+                return captures
+                    .get(0)
+                    .map_or("", |matched| matched.as_str())
+                    .to_owned();
+            };
+            let Some(right) = right else {
+                return captures
+                    .get(0)
+                    .map_or("", |matched| matched.as_str())
+                    .to_owned();
+            };
+            let matched = match &captures["op"] {
+                ">" => left > right,
+                ">=" => left >= right,
+                "<" => left < right,
+                "<=" => left <= right,
+                "=" | "==" => (left - right).abs() <= f64::EPSILON,
+                "!=" => (left - right).abs() > f64::EPSILON,
+                _ => {
+                    return captures
+                        .get(0)
+                        .map_or("", |matched| matched.as_str())
+                        .to_owned();
+                }
+            };
+            if matched {
+                captures["when_true"].trim().to_owned()
+            } else {
+                captures["when_false"].trim().to_owned()
             }
         })
         .into_owned()
@@ -8004,9 +8049,9 @@ mod tests {
         render_list_pages_table_rows, render_members_module_placeholder,
         render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
         resolve_list_pages_signed_abs_expressions,
-        should_render_current_page_list_pages_row, substitute_list_pages_variables,
-        unsupported_list_pages_replacement, wikidot_content_section,
-        wikidot_module_argument,
+        should_render_current_page_list_pages_row, substitute_count_pages_variables,
+        substitute_list_pages_variables, unsupported_list_pages_replacement,
+        wikidot_content_section, wikidot_module_argument,
     };
     use crate::config::Config;
     use crate::constants::ADMIN_USER_ID;
@@ -8421,18 +8466,41 @@ mod tests {
     }
 
     #[test]
-    fn keeps_unbounded_count_pages_literal_even_with_static_filters() {
-        let tagged = parse_list_pages_arguments(r#" category="*" tags="codex" "#)
-            .expect("static tag CountPages selector should parse");
-        assert!(count_pages_should_remain_literal(&tagged));
-
-        let broad = parse_list_pages_arguments(r#" category="*" "#)
+    fn keeps_broad_unbounded_count_pages_literal() {
+        let no_filter = parse_list_pages_arguments(r#""#)
             .expect("broad CountPages selector should parse");
-        assert!(count_pages_should_remain_literal(&broad));
+        assert!(count_pages_should_remain_literal(&no_filter));
+
+        let all_categories = parse_list_pages_arguments(r#" category="*" "#)
+            .expect("all-category CountPages selector should parse");
+        assert!(count_pages_should_remain_literal(&all_categories));
 
         let exclusion_only = parse_list_pages_arguments(r#" category="* -deleted" "#)
             .expect("exclusion-only CountPages selector should parse");
         assert!(count_pages_should_remain_literal(&exclusion_only));
+    }
+
+    #[test]
+    fn allows_unbounded_count_pages_with_static_filter() {
+        let tagged = parse_list_pages_arguments(r#" category="*" tags="codex" "#)
+            .expect("static tag CountPages selector should parse");
+        assert!(!count_pages_should_remain_literal(&tagged));
+
+        let named = parse_list_pages_arguments(r#" name="example" "#)
+            .expect("static name CountPages selector should parse");
+        assert!(!count_pages_should_remain_literal(&named));
+    }
+
+    #[test]
+    fn count_pages_substitution_resolves_numeric_ifexpr() {
+        let output = substitute_count_pages_variables(
+            r#"[[div class="activity-container [[#ifexpr %%total%% >= 60 | large-c | not-large-c ]]" data-number="%%total%%"]]x[[/div]]"#,
+            0,
+        );
+
+        assert!(output.contains(r#"activity-container not-large-c"#));
+        assert!(output.contains(r#"data-number="0""#));
+        assert!(!output.contains("[[#ifexpr"));
     }
 
     #[test]

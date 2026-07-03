@@ -225,6 +225,77 @@ After"#;
     );
 }
 
+#[tokio::test]
+async fn countpages_static_filter_direct_fragment_renders_zero_without_raw_markers() {
+    const SOURCE_SLUG: &str = "activity-marker-countpages-direct-smoke";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let source = r#"[[module CountPages tags="{$tag} -hub -artwork -artist" wrapper="no"]]
+[[div_ class="activity-container [[#ifexpr %%total%% >= 60 | large-c | not-large-c ]] " data-number="%%total%%"]]
+[[span class="large-marker"]]large canon[[/span]]
+[[/div]]
+[[/module]]"#;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(SOURCE_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": source,
+            "title": "Activity Marker CountPages Direct Smoke",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "direct fragment CountPages smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": SOURCE_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("CountPages source page_get should succeed")
+    .expect("CountPages source page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("activity-container not-large-c"),
+        "CountPages direct fragment shape should resolve numeric ifexpr to not-large-c:\n{html}",
+    );
+    assert!(
+        html.contains(r#"data-number="0""#),
+        "CountPages direct fragment shape should substitute %%total%% as 0:\n{html}",
+    );
+    assert!(
+        !html.contains("[[module CountPages")
+            && !html.contains("[[/module]]")
+            && !html.contains("%%total%%")
+            && !html.contains("[[#ifexpr"),
+        "compiled output should not leak raw CountPages markers:\n{html}",
+    );
+}
+
 async fn execute_sql(runner: &TestRunner, sql: &str) {
     let transaction = runner.context().transaction();
     let statement =
