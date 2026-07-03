@@ -62,6 +62,18 @@
             {
                 "name": "ekhi-icon.svg",
                 "path": "component-anomaly-class-bar--ekhi-icon.svg"
+            },
+            {
+                "name": "amida-icon.svg",
+                "path": "component-anomaly-class-bar--amida-icon.svg"
+            },
+            {
+                "name": "critical-icon.svg",
+                "path": "component-anomaly-class-bar--critical-icon.svg"
+            },
+            {
+                "name": "keter-icon.svg",
+                "path": "component-anomaly-class-bar--keter-icon.svg"
             }
         ],
         "nav:side": [
@@ -409,6 +421,66 @@
             {
                 "name": "MISCOMM_DARKLOGO.png",
                 "path": "theme-basalt--MISCOMM_DARKLOGO.png"
+            }
+        ],
+        "scp-8382": [
+            {
+                "name": "8382_Main.jpg",
+                "path": "scp-8382--8382_Main.jpg"
+            },
+            {
+                "name": "Avys.jpg",
+                "path": "scp-8382--Avys.jpg"
+            },
+            {
+                "name": "Boswell.jpg",
+                "path": "scp-8382--Boswell.jpg"
+            },
+            {
+                "name": "Bradbury.jpg",
+                "path": "scp-8382--Bradbury.jpg"
+            },
+            {
+                "name": "Brury.jpg",
+                "path": "scp-8382--Brury.jpg"
+            },
+            {
+                "name": "Buck.jpg",
+                "path": "scp-8382--Buck.jpg"
+            },
+            {
+                "name": "Hsieh.jpg",
+                "path": "scp-8382--Hsieh.jpg"
+            },
+            {
+                "name": "Lillihammer_Staff.jpg",
+                "path": "scp-8382--Lillihammer_Staff.jpg"
+            },
+            {
+                "name": "Sinclair.jpg",
+                "path": "scp-8382--Sinclair.jpg"
+            },
+            {
+                "name": "Zwist.jpg",
+                "path": "scp-8382--Zwist.jpg"
+            }
+        ],
+        "theme:blankstyle": [
+            {
+                "name": "43Head.png",
+                "path": "theme-blankstyle--43Head.png"
+            }
+        ],
+        "this-page-intentionally-left-blank": [
+            {
+                "name": "Mallet.png",
+                "path": "this-page-intentionally-left-blank--Mallet.png"
+            }
+        ],
+        "the-b-b-decommission": [
+            {
+                "name": "Asterisk43.png",
+                "path": "the-b-b-decommission--Asterisk43.png"
             }
         ]
     }
