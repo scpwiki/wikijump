@@ -206,12 +206,15 @@ static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .unwrap()
 });
 static WIKIDOT_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"##(?P<color>[A-Za-z0-9_-]+)\|(?P<body>.*?)##").unwrap()
+    Regex::new(r"##(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>.*?)##").unwrap()
 });
 static WIKIDOT_BOLD_UNDERLINE_SPAN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\*\*__(?P<body>[^\n]*?)\*\*__").unwrap());
+static WIKIDOT_BOLD_OUTER_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\*\*##(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>[^\n]*?)##\*\*").unwrap()
+});
 static WIKIDOT_BOLD_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"\*\*##(?P<color>[A-Za-z0-9_-]+)\|(?P<body>[^\n]*?)\*\*##").unwrap()
+    Regex::new(r"\*\*##(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>[^\n]*?)\*\*##").unwrap()
 });
 static WIKIJUMP_CODE_BLOCK_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-code-panel">.*?</div>"#).unwrap());
@@ -3131,8 +3134,30 @@ impl RenderService {
         }
 
         let mut spans = Vec::new();
-        let protected = WIKIDOT_BOLD_COLOR_SPAN_REGEX
+        let protected = WIKIDOT_BOLD_OUTER_COLOR_SPAN_REGEX
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                if captures["body"].contains("##") {
+                    return captures[0].to_owned();
+                }
+                let marker = wikidot_inline_html_marker();
+                spans.push(ProtectedWikidotInlineHtml {
+                    marker: marker.clone(),
+                    html: format!(
+                        "<strong>{}</strong>",
+                        render_wikidot_color_span_html(
+                            &captures["color"],
+                            &captures["body"],
+                        ),
+                    ),
+                });
+                marker
+            })
+            .into_owned();
+        let protected = WIKIDOT_BOLD_COLOR_SPAN_REGEX
+            .replace_all(&protected, |captures: &regex::Captures<'_>| {
+                if captures["body"].contains("##") {
+                    return captures[0].to_owned();
+                }
                 let marker = wikidot_inline_html_marker();
                 spans.push(ProtectedWikidotInlineHtml {
                     marker: marker.clone(),
@@ -3988,7 +4013,7 @@ impl RenderService {
                         rest = &marker_start[marker_len..];
                         continue;
                     };
-                    let color = &marker_start[2..pipe_offset];
+                    let color = marker_start[2..pipe_offset].trim();
                     let inner = &marker_start[pipe_offset + 1..marker_len - 2];
                     output.push_str(r#"<span style="color: "#);
                     output.push_str(&escape_list_pages_html_attr(
@@ -4057,7 +4082,7 @@ impl RenderService {
                 offset = start + 2;
                 continue;
             };
-            let color = &marker_start[..pipe_relative];
+            let color = marker_start[..pipe_relative].trim();
             if !Self::wikidot_compat_valid_color_value(color) {
                 offset = start + 2;
                 continue;
@@ -8836,6 +8861,45 @@ mod tests {
     }
 
     #[test]
+    fn protects_wikidot_bold_outer_color_spans_before_cross_line_matching() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source = concat!(
+            "//<Dr. Lillihammer and Thilo Zwist are walking through **##green|a dense and mysterious forest##**. ",
+            "As they move down **##sienna|a gently arcing path##**, **##ce005c|enigmatic figures##** can be glimpsed ",
+            "in **##green|the distant underbrush##**.>//\n",
+            "**##orange|Giftschreiber/Guard##:** **##orange|You're/we're##** not **##red|[SAFEGUARDS ENGAGED]##**.\n",
+            "**##ce005c|What## ##blue|the ghost of long-drowned sorrow## ##ce005c|says is true.##**\n",
+            "protected from **##ce005c |the fae the fae the fae##** work\n",
+            "**##C5000B|That might be the reason.**##\n",
+        )
+        .to_owned();
+
+        let inline_spans =
+            RenderService::protect_wikidot_inline_html_spans(&mut source, &settings);
+        let color_spans =
+            RenderService::protect_wikidot_color_spans(&mut source, &settings);
+
+        assert_eq!(inline_spans.len() + color_spans.len(), 12);
+        assert!(!source.contains("sienna|a gently"));
+        assert!(!source.contains("forest##**"));
+        assert!(!source.contains("figures##**"));
+        assert!(!source.contains("Dr. Lillihammer##"));
+        assert!(!source.contains("##orange|You're/we're"));
+        assert!(!source.contains("##blue|the ghost"));
+        assert!(!source.contains("##ce005c |the fae"));
+        assert!(source.contains("//<Dr. Lillihammer"));
+        assert!(inline_spans.iter().any(|span| span.html.contains(
+            r#"<strong><span style="color: green">a dense and mysterious forest</span></strong>"#
+        )));
+        assert!(inline_spans.iter().any(|span| span.html.contains(
+            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+        )));
+        assert!(color_spans.iter().any(|span| span.html.contains(
+            r#"<span style="color: blue">the ghost of long-drowned sorrow</span>"#
+        )));
+    }
+
+    #[test]
     fn protects_wikidot_color_spans_before_ftml_parsing() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut source = "##blue|**[[include :scp-wiki:component:coltop**##\n".to_owned();
@@ -8849,14 +8913,14 @@ mod tests {
         assert!(!source.contains("##blue"));
         assert_eq!(
             spans[0].html,
-            r#"<span style="color: blue">**[[include :scp-wiki:component:coltop**</span>"#
+            r#"<span style="color: blue"><strong>[[include :scp-wiki:component:coltop</strong></span>"#
         );
 
         let restored =
             RenderService::restore_protected_wikidot_color_spans(source, &spans);
         assert_eq!(
             restored,
-            r#"<span style="color: blue">**[[include :scp-wiki:component:coltop**</span>"#
+            r#"<span style="color: blue"><strong>[[include :scp-wiki:component:coltop</strong></span>"#
                 .to_owned() + "\n",
         );
 
