@@ -15,7 +15,7 @@
     DeletePane
   } from "."
   import { resolve } from "$app/paths"
-  import { wikidotTagSeparator } from "$lib/wikidot-page-tags"
+  import { buildWikidotPageTagsHtml } from "$lib/wikidot-page-tags"
 
   import type { PageProps } from "./$types"
   import type { Optional } from "$lib/types"
@@ -136,22 +136,12 @@
   {#if showRevision}
     {#if revision?.tags?.length}
       <div class="page-tags">
-        <span
-          >{#each revision.tags as tag, index (tag)}
-            {wikidotTagSeparator(index)}
-            <a href={resolve(`/system:page-tags/tag/${tag}`, {})}>{tag}</a>
-          {/each}</span
-        >
+        <span>{@html buildWikidotPageTagsHtml(revision.tags)}</span>
       </div>
     {/if}
   {:else if data.page_revision?.tags?.length}
     <div class="page-tags">
-      <span
-        >{#each data.page_revision?.tags as tag, index (tag)}
-          {wikidotTagSeparator(index)}
-          <a href={resolve(`/system:page-tags/tag/${tag}`, {})}>{tag}</a>
-        {/each}</span
-      >
+      <span>{@html buildWikidotPageTagsHtml(data.page_revision.tags)}</span>
     </div>
   {/if}
 
