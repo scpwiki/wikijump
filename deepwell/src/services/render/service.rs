@@ -6295,9 +6295,71 @@ fn render_wikidot_color_span_html(color: &str, body: &str) -> String {
 }
 
 fn render_wikidot_protected_inline_body_html(body: &str) -> String {
-    render_native_list_inline_wikidot_underlines(
+    let rendered = render_native_list_inline_wikidot_underlines(
         &render_native_list_inline_wikidot_strong(&render_native_list_inline_html(body)),
-    )
+    );
+
+    substitute_wikidot_protected_inline_typography(&rendered)
+}
+
+fn substitute_wikidot_protected_inline_typography(html: &str) -> String {
+    let mut output = String::with_capacity(html.len());
+    let mut rest = html;
+
+    while let Some(tag_start) = rest.find('<') {
+        let (before, after_start) = rest.split_at(tag_start);
+        output.push_str(&substitute_wikidot_protected_inline_text_typography(before));
+
+        let Some(tag_end) = after_start.find('>') else {
+            output.push_str(&substitute_wikidot_protected_inline_text_typography(
+                after_start,
+            ));
+            return output;
+        };
+        let (tag, after_tag) = after_start.split_at(tag_end + 1);
+        output.push_str(tag);
+        rest = after_tag;
+    }
+
+    output.push_str(&substitute_wikidot_protected_inline_text_typography(rest));
+    output
+}
+
+fn substitute_wikidot_protected_inline_text_typography(value: &str) -> String {
+    let mut text = value.to_owned();
+    ftml::preprocess(&mut text);
+    substitute_wikidot_protected_inline_dashes(&text)
+}
+
+fn substitute_wikidot_protected_inline_dashes(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while !rest.is_empty() {
+        if rest.starts_with("[!--")
+            && let Some(comment_end) = rest.find("--]")
+        {
+            let comment_end = comment_end + "--]".len();
+            output.push_str(&rest[..comment_end]);
+            rest = &rest[comment_end..];
+            continue;
+        }
+
+        if rest.starts_with("--") {
+            output.push('\u{2014}');
+            rest = &rest["--".len()..];
+            continue;
+        }
+
+        let character = rest
+            .chars()
+            .next()
+            .expect("non-empty string has next character");
+        output.push(character);
+        rest = &rest[character.len_utf8()..];
+    }
+
+    output
 }
 
 fn wikidot_named_anchor(name: &str) -> String {
@@ -9024,6 +9086,7 @@ mod tests {
             "+ ##8E2C4D|Lillian S. Lillihammer##\n\n",
             "**##8E2C4D|Memetics and Countermemetics##**\n",
             "**##ce005c|I am... I //should// be...##**\n",
+            "**##C5000B|PATH uses North -- heading for the arctic -- red.##**\n",
             "##C5000B|**That might be the reason.**##\n",
         )
         .to_owned();
@@ -9048,13 +9111,28 @@ mod tests {
             r#"<strong><span style="color: 8E2C4D">Memetics and Countermemetics</span></strong>"#
         ));
         assert!(rendered.contains(
-            r#"<strong><span style="color: ce005c">I am... I <em>should</em> be...</span></strong>"#
+            r#"<strong><span style="color: ce005c">I am… I <em>should</em> be…</span></strong>"#
+        ));
+        assert!(rendered.contains(
+            r#"<strong><span style="color: C5000B">PATH uses North — heading for the arctic — red.</span></strong>"#
         ));
         assert!(rendered.contains(
             r#"<span style="color: C5000B"><strong>That might be the reason.</strong></span>"#
         ));
         assert!(!rendered.contains("&lt;span"));
         assert!(!rendered.contains(WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX));
+    }
+
+    #[test]
+    fn protected_wikidot_inline_typography_does_not_rewrite_tag_attributes() {
+        let rendered = super::render_wikidot_protected_inline_body_html(
+            "[https://example.com/a--b go -- now...]",
+        );
+
+        assert_eq!(
+            rendered,
+            r#"<a href="https://example.com/a--b">go — now…</a>"#
+        );
     }
 
     #[test]
