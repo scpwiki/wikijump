@@ -1,15 +1,21 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { wikidotTagSeparator } from "../src/lib/wikidot-page-tags.js"
+import { buildWikidotPageTagsHtml } from "../src/lib/wikidot-page-tags.js"
 
-test("separates Wikidot page tags in browser-visible text", () => {
-  const tags = ["admonition", "artifact", "chemical"]
-  const visibleText = tags
-    .map((tag, index) => `${wikidotTagSeparator(index)}${tag}`)
-    .join("")
+test("renders imported Wikidot page tag links without visible separators", () => {
+  const html = buildWikidotPageTagsHtml(["_cc", "_licensebox", "alive"])
 
-  assert.equal(wikidotTagSeparator(0), "")
-  assert.equal(wikidotTagSeparator(1), " ")
-  assert.equal(visibleText, "admonition artifact chemical")
+  assert.equal(
+    html,
+    '<a href="/system:page-tags/tag/_cc#pages">_cc</a><a href="/system:page-tags/tag/_licensebox#pages">_licensebox</a><a href="/system:page-tags/tag/alive#pages">alive</a>'
+  )
+  assert.equal(/>\s+</.test(html), false)
+})
+
+test("escapes imported Wikidot page tag labels and hrefs", () => {
+  assert.equal(
+    buildWikidotPageTagsHtml(["tag&<\"'"], (tag) => `/tags/${tag}#pages`),
+    '<a href="/tags/tag&amp;&lt;&quot;&#39;#pages">tag&amp;&lt;&quot;&#39;</a>'
+  )
 })
