@@ -2945,6 +2945,7 @@ impl RenderService {
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
                 let body = captures.name("body").map_or("", |mtch| mtch.as_str());
                 let body = body.trim_matches('\n');
+                let body = Self::escape_wikidot_css_module_body(body);
                 let marker =
                     format!("{WIKIDOT_CSS_MODULE_SENTINEL_PREFIX}{}X", styles.len());
                 styles.push(format!("<style>\n{body}\n</style>"));
@@ -2953,6 +2954,10 @@ impl RenderService {
             .into_owned();
         *wikitext = protected;
         styles
+    }
+
+    fn escape_wikidot_css_module_body(body: &str) -> String {
+        body.replace('<', r"\3C ")
     }
 
     fn restore_protected_wikidot_css_modules(
@@ -3222,6 +3227,7 @@ impl RenderService {
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
                 let body = captures.name("body").map_or("", |mtch| mtch.as_str());
                 let body = body.trim_matches('\n');
+                let body = Self::escape_wikidot_css_module_body(body);
                 format!("<style data-wikijump-compat-css-module=\"1\">\n{body}\n</style>")
             })
             .into_owned()
@@ -8316,6 +8322,25 @@ mod tests {
     }
 
     #[test]
+    fn escapes_css_module_style_end_tags() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source = concat!(
+            "[[module css]]\n",
+            "</style><img src=x onerror=alert(1)><style>\n",
+            "[[/module]]\n",
+        )
+        .to_owned();
+
+        let styles = RenderService::protect_wikidot_css_modules(&mut source, &settings);
+
+        assert_eq!(styles.len(), 1);
+        assert!(styles[0].starts_with("<style>\n"));
+        assert!(styles[0].ends_with("\n</style>"));
+        assert!(!styles[0].contains("</style><img"));
+        assert!(styles[0].contains(r"\3C /style>\3C img"));
+    }
+
+    #[test]
     fn protects_wikidot_color_spans_before_ftml_parsing() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut source = "##blue|**[[include :scp-wiki:component:coltop**##\n".to_owned();
@@ -9300,6 +9325,27 @@ mod tests {
         assert!(!html.contains("[[module CSS"));
         assert!(!html.contains("[[/module]]"));
         assert!(!html.contains("[[div"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_escapes_css_module_style_end_tags() {
+        let source = RenderService::render_wikidot_compat_fallback_css_modules(concat!(
+            "[[module CSS]]\n",
+            "</style><img src=x onerror=alert(1)><style>\n",
+            "[[/module]]\n",
+            "[[collapsible]]\n",
+            "body\n",
+            "[[/collapsible]]\n",
+        ));
+
+        let html = RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+            &source,
+        );
+
+        assert!(html.contains(r#"<style data-wikijump-compat-css-module="1">"#));
+        assert!(html.contains(r"\3C /style>\3C img"));
+        assert!(!html.contains("</style><img"));
+        assert!(!html.contains("<img src=x"));
     }
 
     #[test]
