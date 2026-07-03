@@ -1,7 +1,7 @@
 import {createHash} from "node:crypto";
 import path from "node:path";
 
-const WIKIDOT_DOMAIN_SUFFIX = ".wikidot.com";
+const WIKIDOT_RESOURCE_DOMAIN_SUFFIXES = [".wikidot.com", ".wdfiles.com"];
 const FIXTURE_SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const SHA256_RE = /^[0-9a-f]{64}$/;
 
@@ -115,7 +115,7 @@ function queryTargetSuffix(urlSearch) {
 }
 
 export function isWikidotResourceHost(hostname) {
-  return hostname.endsWith(WIKIDOT_DOMAIN_SUFFIX);
+  return WIKIDOT_RESOURCE_DOMAIN_SUFFIXES.some((suffix) => hostname.endsWith(suffix));
 }
 
 export function buildFixtureResourceTargetPath({

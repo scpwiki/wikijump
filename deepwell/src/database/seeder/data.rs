@@ -301,23 +301,6 @@ mod tests {
         assert!(scp_9506.wikitext.contains("National Fog Safety Initiative"));
         assert!(scp_9506.wikitext.contains("local--files/scp-9506/NFSI.png"));
 
-        let files = seed.files.get("scp-wiki").expect("scp-wiki files");
-        let scp_3922_files = files.get("scp-3922").expect("scp-3922 files");
-        assert!(scp_3922_files.iter().any(|file| file.name == "theend.jpg"
-            && file.path == Path::new("scp-3922--theend.jpg")));
-
-        let basalt_files = files.get("theme:basalt").expect("theme:basalt files");
-        assert!(
-            basalt_files
-                .iter()
-                .any(|file| file.name == "basalt_scp_logo-for_lightmode.svg")
-        );
-        assert!(
-            basalt_files
-                .iter()
-                .any(|file| file.name == "O5_DARKLOGO.png")
-        );
-
         let theme_basalt = pages
             .iter()
             .find(|page| page.slug == "theme:basalt")

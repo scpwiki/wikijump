@@ -247,12 +247,16 @@ export function createHttpFixtureResourceLoader({
   fetchImpl = globalThis.fetch,
   maxResourceBytes = DEFAULT_MAX_RESOURCE_BYTES,
   timeoutMs = DEFAULT_HTTP_TIMEOUT_MS,
+  redirect = "error",
 } = {}) {
   if (typeof fetchImpl !== "function") {
     throw new TypeError("fetchImpl must be a function");
   }
   assertPositiveInteger(maxResourceBytes, "maxResourceBytes");
   assertPositiveInteger(timeoutMs, "timeoutMs");
+  if (!["error", "follow", "manual"].includes(redirect)) {
+    throw new TypeError("redirect must be error, follow, or manual");
+  }
 
   return async (entry) => {
     assertFixtureResourceManifestEntry(entry);
@@ -262,7 +266,7 @@ export function createHttpFixtureResourceLoader({
     try {
       const response = await fetchImpl(entry.original_url, {
         method: "GET",
-        redirect: "error",
+        redirect,
         signal: controller.signal,
       });
 

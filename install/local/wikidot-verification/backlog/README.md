@@ -4,6 +4,8 @@ This artifact tracks a deterministic fixture backlog for Wikidot parity coverage
 
 Inputs are limited to local corpus evidence under `/home/roku/src/Rokurolize/scp-wiki-translation/corpus/en/pages`.
 
+Imported page-local file bytes use the corpus-side layout documented in `corpus-attachments.md`; they should not be added to `deepwell/seeder/files.json` as repository seed fixtures.
+
 ## Deterministic inputs
 
 - Use exactly one path per row in `source_path`.

@@ -185,7 +185,7 @@ test("trims a Wikidot image-option pipe after a local--files URL", () => {
   );
 });
 
-test("keeps wdfiles.com resources out-of-scope for the anthology follow-up", () => {
+test("keeps wdfiles.com local-file resources in scope", () => {
   const sourceText =
     "https://scp-sandbox-3.wdfiles.com/local--files/test544/INTRO.mp3";
 
@@ -195,10 +195,10 @@ test("keeps wdfiles.com resources out-of-scope for the anthology follow-up", () 
     sourcePath: "corpus/en/pages/scp-anthology-2024/source.wikidot.txt",
   });
 
-  assert.equal(result.manifest.length, 0);
-  assert.equal(result.out_of_scope.length, 1);
-  assert.equal(result.out_of_scope[0].filename, "INTRO.mp3");
-  assert.equal(result.out_of_scope[0].kind_guess, "audio");
+  assert.equal(result.manifest.length, 1);
+  assert.equal(result.out_of_scope.length, 0);
+  assert.equal(result.manifest[0].filename, "INTRO.mp3");
+  assert.equal(result.manifest[0].kind_guess, "audio");
 });
 
 test("unsafe in-scope resource paths do not abort later scan results", () => {

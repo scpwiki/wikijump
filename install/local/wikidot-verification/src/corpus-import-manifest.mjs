@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { isWikidotResourceHost } from './resource-manifest.mjs';
+
 const REQUIRED_META_KEYS = [
   'children',
   'commented_at',
@@ -28,6 +30,9 @@ const SOURCE_BROWSER_VISIBILITIES = new Set([
   'source_only',
   'fail_closed',
 ]);
+const ATTACHMENT_MANIFEST_FILENAME = 'files.json';
+const ATTACHMENT_FILES_DIRECTORY = 'files';
+const SHA256_RE = /^[0-9a-f]{64}$/iu;
 
 export function sha256Hex(bufferOrString) {
   return crypto.createHash('sha256').update(bufferOrString).digest('hex');
@@ -133,7 +138,7 @@ function validateEntityId(entityId, rowPath) {
 }
 
 function assertSha256(value, field, rowPath) {
-  if (typeof value !== 'string' || !/^[0-9a-f]{64}$/iu.test(value)) {
+  if (typeof value !== 'string' || !SHA256_RE.test(value)) {
     throw new Error(`${rowPath}: meta.${field} must be a sha256 hex string`);
   }
 }
@@ -270,6 +275,183 @@ function normalizeSourceBrowserVisibility(value, rowPath) {
   return normalized;
 }
 
+function toPosixPath(filePath) {
+  return filePath.split(path.sep).join(path.posix.sep);
+}
+
+function assertAttachmentSha256(value, field, rowPath) {
+  if (typeof value !== 'string' || !SHA256_RE.test(value)) {
+    throw new Error(`${rowPath}: attachment ${field} must be a sha256 hex string`);
+  }
+}
+
+function assertSafeAttachmentRelativePath(relativePath, rowPath) {
+  if (typeof relativePath !== 'string' || relativePath.length === 0) {
+    throw new Error(`${rowPath}: attachment path must be a non-empty string`);
+  }
+  if (
+    path.posix.isAbsolute(relativePath) ||
+    relativePath.includes('\\') ||
+    relativePath.includes('\0')
+  ) {
+    throw new Error(`${rowPath}: attachment path must be a safe relative POSIX path`);
+  }
+  const segments = relativePath.split('/');
+  if (
+    segments[0] !== ATTACHMENT_FILES_DIRECTORY ||
+    segments.some((segment) => segment.length === 0 || segment === '.' || segment === '..')
+  ) {
+    throw new Error(`${rowPath}: attachment path must remain below ${ATTACHMENT_FILES_DIRECTORY}/`);
+  }
+}
+
+function assertPathWithin(rootPath, candidatePath, field, rowPath) {
+  const relative = path.relative(rootPath, candidatePath);
+  if (
+    relative === '..' ||
+    relative.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relative)
+  ) {
+    throw new Error(`${rowPath}: attachment ${field} escapes its page directory`);
+  }
+}
+
+function decodedFilenameFromWikidotPath(wikidotPath, rowPath) {
+  const encoded = wikidotPath.split('/').at(-1) ?? '';
+  try {
+    const decoded = decodeURIComponent(encoded);
+    if (
+      decoded.length === 0 ||
+      decoded === '.' ||
+      decoded === '..' ||
+      decoded.includes('/') ||
+      decoded.includes('\\') ||
+      decoded.includes('\0')
+    ) {
+      throw new Error('unsafe decoded filename');
+    }
+    return decoded;
+  } catch (error) {
+    throw new Error(`${rowPath}: attachment wikidot_path has invalid filename encoding: ${encoded}`, { cause: error });
+  }
+}
+
+function validateAttachmentEntry(entry, index, rowPath) {
+  const entryPath = `${rowPath}/${ATTACHMENT_MANIFEST_FILENAME}[${index}]`;
+  if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
+    throw new Error(`${entryPath}: attachment entry must be an object`);
+  }
+  for (const field of ['filename', 'original_url', 'wikidot_path', 'path', 'sha256', 'mime', 'size']) {
+    if (!Object.hasOwn(entry, field)) {
+      throw new Error(`${entryPath}: missing attachment ${field}`);
+    }
+  }
+  if (typeof entry.filename !== 'string' || entry.filename.length === 0) {
+    throw new Error(`${entryPath}: attachment filename must be a non-empty string`);
+  }
+  if (entry.filename.includes('/') || entry.filename.includes('\\') || entry.filename.includes('\0')) {
+    throw new Error(`${entryPath}: attachment filename contains an unsafe character`);
+  }
+  if (typeof entry.wikidot_path !== 'string' || !entry.wikidot_path.startsWith('/local--files/')) {
+    throw new Error(`${entryPath}: attachment wikidot_path must start with /local--files/`);
+  }
+  if (decodedFilenameFromWikidotPath(entry.wikidot_path, entryPath) !== entry.filename) {
+    throw new Error(`${entryPath}: attachment filename does not match wikidot_path`);
+  }
+  if (typeof entry.original_url !== 'string' || entry.original_url.length === 0) {
+    throw new Error(`${entryPath}: attachment original_url must be a non-empty string`);
+  }
+  let parsed;
+  try {
+    parsed = new URL(entry.original_url);
+  } catch (error) {
+    throw new Error(`${entryPath}: attachment original_url is invalid: ${entry.original_url}`, { cause: error });
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error(`${entryPath}: attachment original_url must use http or https`);
+  }
+  if (parsed.username || parsed.password || parsed.hash) {
+    throw new Error(`${entryPath}: attachment original_url must not contain credentials or a fragment`);
+  }
+  if (!isWikidotResourceHost(parsed.hostname)) {
+    throw new Error(`${entryPath}: attachment original_url host is out of scope: ${parsed.hostname}`);
+  }
+  if (parsed.pathname !== entry.wikidot_path) {
+    throw new Error(`${entryPath}: attachment original_url pathname does not match wikidot_path`);
+  }
+  const canonicalUrl = `${parsed.origin}${parsed.pathname}${parsed.search}`;
+  if (canonicalUrl !== entry.original_url) {
+    throw new Error(`${entryPath}: attachment original_url is not canonical`);
+  }
+  assertSafeAttachmentRelativePath(entry.path, entryPath);
+  assertAttachmentSha256(entry.sha256, 'sha256', entryPath);
+  if (entry.sha256 !== entry.sha256.toLowerCase()) {
+    throw new Error(`${entryPath}: attachment sha256 must be lowercase`);
+  }
+  if (typeof entry.mime !== 'string' || entry.mime.length === 0) {
+    throw new Error(`${entryPath}: attachment mime must be a non-empty string`);
+  }
+  if (!Number.isSafeInteger(entry.size) || entry.size < 0) {
+    throw new Error(`${entryPath}: attachment size must be a non-negative safe integer`);
+  }
+}
+
+function readAttachmentManifest({ pageDir, manifestRoot, rowPath }) {
+  const manifestPath = path.join(pageDir, ATTACHMENT_MANIFEST_FILENAME);
+  if (!fs.existsSync(manifestPath)) return [];
+  const manifest = readJson(manifestPath);
+  if (!Array.isArray(manifest)) {
+    throw new Error(`${manifestPath}: attachment manifest must be an array`);
+  }
+
+  const pageRoot = path.resolve(pageDir);
+  const rootPath = path.resolve(manifestRoot);
+  const seenFilenames = new Set();
+  const seenPaths = new Set();
+  const attachments = manifest.map((entry, index) => {
+    validateAttachmentEntry(entry, index, pageDir);
+    if (seenFilenames.has(entry.filename)) {
+      throw new Error(`${pageDir}: duplicate attachment filename ${entry.filename}`);
+    }
+    if (seenPaths.has(entry.wikidot_path)) {
+      throw new Error(`${pageDir}: duplicate attachment wikidot_path ${entry.wikidot_path}`);
+    }
+    seenFilenames.add(entry.filename);
+    seenPaths.add(entry.wikidot_path);
+
+    const filePath = path.resolve(pageRoot, ...entry.path.split('/'));
+    assertPathWithin(pageRoot, filePath, 'path', pageDir);
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`${pageDir}: missing attachment file ${entry.path}`);
+    }
+    const bytes = fs.readFileSync(filePath);
+    const actualSha = sha256Hex(bytes);
+    if (actualSha !== entry.sha256) {
+      throw new Error(`${pageDir}: attachment ${entry.filename} sha256 mismatch: expected ${entry.sha256}, got ${actualSha}`);
+    }
+    if (bytes.length !== entry.size) {
+      throw new Error(`${pageDir}: attachment ${entry.filename} size mismatch: expected ${entry.size}, got ${bytes.length}`);
+    }
+
+    return {
+      filename: entry.filename,
+      original_url: entry.original_url,
+      wikidot_path: entry.wikidot_path,
+      sha256: entry.sha256,
+      size: entry.size,
+      mime: entry.mime,
+      file_path: filePath,
+      corpus_path: toPosixPath(path.relative(rootPath, filePath)),
+      metadata_path: manifestPath,
+    };
+  });
+
+  attachments.sort((left, right) =>
+    `${left.wikidot_path}\u0000${left.filename}`.localeCompare(`${right.wikidot_path}\u0000${right.filename}`),
+  );
+  return attachments;
+}
+
 function classifySourceBrowserEvidence({ meta, manifestRow, rowPath }) {
   const visibility = normalizeSourceBrowserVisibility(
     firstNonEmptyValue(
@@ -336,6 +518,7 @@ function rowFromRecord({
   entityIdPath,
   meta,
   sourceBrowser = null,
+  attachments = [],
 }) {
   const row = {
     source_site: sourceSite,
@@ -365,6 +548,9 @@ function rowFromRecord({
     meta_path: metaPath,
     entity_id_path: entityIdPath,
   };
+  if (attachments.length > 0) {
+    row.attachments = attachments;
+  }
   if (sourceBrowser !== null) {
     Object.assign(row, sourceBrowser);
   }
@@ -424,6 +610,12 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
     entityIds.set(entityId, pageDir);
     fullnames.set(meta.fullname, pageDir);
 
+    const attachments = readAttachmentManifest({
+      pageDir,
+      manifestRoot: corpusRoot,
+      rowPath: pageDir,
+    });
+
     rows.push(rowFromRecord({
       sourceSite: effectiveSourceSite,
       sourceBranch: effectiveSourceBranch,
@@ -434,6 +626,7 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
       metaFile,
       entityIdPath,
       meta,
+      attachments,
     }));
   }
 
@@ -512,6 +705,12 @@ export function buildSourceBundleImportManifest({ sourceBundleRoot, sourceSite =
 
     const sourceBrowser = classifySourceBrowserEvidence({ meta, manifestRow, rowPath: pageDir });
 
+    const attachments = readAttachmentManifest({
+      pageDir,
+      manifestRoot: sourceBundleRoot,
+      rowPath: pageDir,
+    });
+
     rows.push(rowFromRecord({
       sourceSite: rowSourceSite,
       sourceBranch,
@@ -523,6 +722,7 @@ export function buildSourceBundleImportManifest({ sourceBundleRoot, sourceSite =
       entityIdPath: fs.existsSync(entityIdPath) ? entityIdPath : null,
       meta,
       sourceBrowser,
+      attachments,
     }));
   }
 
@@ -549,6 +749,8 @@ export function buildManifestSummary(rows, jsonl) {
     row_count: rows.length,
     manifest_sha256: sha256Hex(jsonl),
     parent_count: parentCount,
+    attachment_count: rows.reduce((count, row) => count + (row.attachments?.length ?? 0), 0),
+    attachment_page_count: rows.filter((row) => (row.attachments?.length ?? 0) > 0).length,
     source_sites: [...new Set(rows.map((row) => row.source_site))].sort(codePointCompare),
     source_branches: [...new Set(rows.map((row) => row.source_branch))].sort(codePointCompare),
     required_browser_count: rows.filter((row) => row.required_browser === true).length,

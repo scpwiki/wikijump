@@ -17,10 +17,12 @@ const DEFAULT_DB_CONTAINER = 'local-database-1';
 const DEFAULT_SITE_ID = 6000005;
 const DEFAULT_USER_ID = -1;
 const DEFAULT_IP_ADDRESS = '127.0.0.1';
+const DEFAULT_SESSION_TOKEN = process.env.DEEPWELL_SESSION_TOKEN ?? null;
 const SHELL_COMPILED_GENERATOR = 'corpus db import';
 const SHELL_IMPORT_MARKER = 'corpus-shell-import';
 const SHELL_IMPORT_MESSAGE = 'Content not rendered yet for local Wikidot corpus snapshot import';
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
+const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from scp-wiki-translation corpus';
 
 function parseArgs(argv) {
   const args = {
@@ -32,6 +34,7 @@ function parseArgs(argv) {
     siteId: DEFAULT_SITE_ID,
     userId: DEFAULT_USER_ID,
     ipAddress: DEFAULT_IP_ADDRESS,
+    sessionToken: DEFAULT_SESSION_TOKEN,
     rpcTimeoutMs: 120_000,
     textHashCommand: process.env.DEEPWELL_TEXT_HASH_COMMAND ?? null,
     slug: [],
@@ -63,6 +66,7 @@ function parseArgs(argv) {
     else if (arg === '--site-id') args.siteId = Number.parseInt(next(), 10);
     else if (arg === '--user-id') args.userId = Number.parseInt(next(), 10);
     else if (arg === '--ip-address') args.ipAddress = next();
+    else if (arg === '--session-token') args.sessionToken = next();
     else if (arg === '--rpc-timeout-ms') args.rpcTimeoutMs = Number.parseInt(next(), 10);
     else if (arg === '--text-hash-command') args.textHashCommand = next();
     else if (arg === '--slug') args.slug.push(next());
@@ -80,9 +84,9 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -182,15 +186,22 @@ function applyMigration(args) {
 }
 
 let rpcSequence = 0;
-async function rpc(args, method, params) {
+async function rpc(args, method, params, requestContext = {}) {
   rpcSequence += 1;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), args.rpcTimeoutMs);
+  const headers = { 'content-type': 'application/json' };
+  const sessionToken = requestContext.sessionToken ?? args.sessionToken;
+  const siteId = requestContext.siteId ?? null;
+  const pageRef = requestContext.pageRef ?? null;
+  if (sessionToken) headers['X-Deepwell-Session-Token'] = sessionToken;
+  if (siteId !== null) headers['X-Deepwell-Site-Id'] = String(siteId);
+  if (pageRef !== null) headers['X-Deepwell-Page'] = String(pageRef);
   let response;
   try {
     response = await fetch(args.apiUrl, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers,
       body: JSON.stringify({ jsonrpc: '2.0', id: rpcSequence, method, params }),
       signal: controller.signal,
     });
@@ -303,6 +314,15 @@ async function getPage(args, slug) {
     page: slug,
     details: { wikitext: false, compiled: false },
   });
+}
+
+async function getFile(args, pageId, filename) {
+  return await rpc(args, 'file_get', {
+    site_id: args.siteId,
+    page_id: pageId,
+    file: filename,
+    details: { data: false },
+  }, { siteId: args.siteId, pageRef: pageId });
 }
 
 async function createPage(args, row) {
@@ -499,6 +519,109 @@ async function rerenderPage(args, pageId, categoryId) {
     category_id: categoryId,
     page_id: pageId,
   });
+}
+
+function assertAttachmentSha(attachment) {
+  if (typeof attachment.sha256 !== 'string' || !/^[0-9a-f]{64}$/u.test(attachment.sha256)) {
+    throw new Error(`invalid attachment sha256 for ${attachment.filename ?? '<unknown>'}`);
+  }
+}
+
+function readAttachmentBytes(row, attachment) {
+  if (attachment === null || typeof attachment !== 'object' || Array.isArray(attachment)) {
+    throw new Error(`${row.fullname}: attachment entry must be an object`);
+  }
+  if (typeof attachment.filename !== 'string' || attachment.filename.length === 0) {
+    throw new Error(`${row.fullname}: attachment filename must be a non-empty string`);
+  }
+  if (typeof attachment.file_path !== 'string' || attachment.file_path.length === 0) {
+    throw new Error(`${row.fullname}/${attachment.filename}: attachment file_path must be a non-empty string`);
+  }
+  if (!Number.isSafeInteger(attachment.size) || attachment.size < 0) {
+    throw new Error(`${row.fullname}/${attachment.filename}: attachment size must be a non-negative safe integer`);
+  }
+  assertAttachmentSha(attachment);
+
+  const bytes = fs.readFileSync(attachment.file_path);
+  const actualSha = crypto.createHash('sha256').update(bytes).digest('hex');
+  if (actualSha !== attachment.sha256) {
+    throw new Error(`${row.fullname}/${attachment.filename}: attachment sha256 mismatch: expected ${attachment.sha256}, got ${actualSha}`);
+  }
+  if (bytes.length !== attachment.size) {
+    throw new Error(`${row.fullname}/${attachment.filename}: attachment size mismatch: expected ${attachment.size}, got ${bytes.length}`);
+  }
+  return bytes;
+}
+
+async function uploadBlob(args, bytes, attachment) {
+  const upload = await rpc(args, 'blob_upload', {
+    user_id: args.userId,
+    blob_size: bytes.byteLength,
+  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), args.rpcTimeoutMs);
+  let response;
+  try {
+    response = await fetch(upload.presign_url, {
+      method: 'PUT',
+      body: bytes,
+      redirect: 'error',
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error(`${attachment.filename}: presigned PUT timed out after ${args.rpcTimeoutMs}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+  if (!response.ok) {
+    throw new Error(`${attachment.filename}: presigned PUT failed with status ${response.status}`);
+  }
+  return upload.pending_blob_id;
+}
+
+async function createFile(args, pageId, attachment, pendingBlobId) {
+  return await rpc(args, 'file_create', {
+    site_id: args.siteId,
+    page_id: pageId,
+    name: attachment.filename,
+    uploaded_blob_id: pendingBlobId,
+    revision_comments: ATTACHMENT_IMPORT_COMMENTS,
+    user_id: args.userId,
+    bypass_filter: true,
+    ip_address: args.ipAddress,
+  }, { siteId: args.siteId, pageRef: pageId });
+}
+
+async function materializeRowAttachments(args, row, pageId) {
+  const attachments = Array.isArray(row.attachments) ? row.attachments : [];
+  if (attachments.length === 0) {
+    return { attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0 };
+  }
+  if (!args.sessionToken) {
+    throw new Error(`${row.fullname}: attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN`);
+  }
+
+  let uploaded = 0;
+  let skippedExisting = 0;
+  for (const attachment of attachments) {
+    const existing = await getFile(args, pageId, attachment.filename);
+    if (existing !== null) {
+      skippedExisting += 1;
+      continue;
+    }
+    const bytes = readAttachmentBytes(row, attachment);
+    const pendingBlobId = await uploadBlob(args, bytes, attachment);
+    await createFile(args, pageId, attachment, pendingBlobId);
+    uploaded += 1;
+  }
+  return {
+    attachments_requested: attachments.length,
+    attachments_uploaded: uploaded,
+    attachments_skipped_existing: skippedExisting,
+  };
 }
 
 function upsertSnapshotSql(args, row, pageId, revisionId, importRunId) {
@@ -760,19 +883,22 @@ async function importRow(args, row, importRunId) {
   if (args.skipExistingDone) {
     const snapshotStatus = existingSnapshotPageStatus(args, row);
     if (snapshotStatus !== null && snapshotStatus.render_complete) {
+      const attachmentSummary = await materializeRowAttachments(args, row, snapshotStatus.page_id);
       if (!args.dryRun) runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'done'));
-      return { slug: row.fullname, action: args.dryRun ? 'would_skip_existing_done' : 'skipped_existing_done', page_id: snapshotStatus.page_id };
+      return { slug: row.fullname, action: args.dryRun ? 'would_skip_existing_done' : 'skipped_existing_done', page_id: snapshotStatus.page_id, ...attachmentSummary };
     }
     if (snapshotStatus !== null && args.skipRerender) {
+      const attachmentSummary = await materializeRowAttachments(args, row, snapshotStatus.page_id);
       if (!args.dryRun) {
         runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_pending', { render: 'matching_snapshot_still_shell_or_pending' }));
       }
-      return { slug: row.fullname, action: args.dryRun ? 'would_keep_existing_render_pending' : 'kept_existing_render_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id };
+      return { slug: row.fullname, action: args.dryRun ? 'would_keep_existing_render_pending' : 'kept_existing_render_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id, ...attachmentSummary };
     }
     if (snapshotStatus !== null) {
       if (args.dryRun) {
         return { slug: row.fullname, action: 'would_rerender_existing_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id };
       }
+      const attachmentSummary = await materializeRowAttachments(args, row, snapshotStatus.page_id);
       runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_pending', { render: 'matching_snapshot_rerender_requested' }));
       try {
         await rerenderPage(args, snapshotStatus.page_id, snapshotStatus.page_category_id);
@@ -781,7 +907,7 @@ async function importRow(args, row, importRunId) {
         return { slug: row.fullname, action: 'render_failed', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id, error: error.message };
       }
       runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'done'));
-      return { slug: row.fullname, action: 'rerendered_existing_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id };
+      return { slug: row.fullname, action: 'rerendered_existing_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id, ...attachmentSummary };
     }
   }
 
@@ -861,9 +987,10 @@ async function importRow(args, row, importRunId) {
   }
 
   runPsql(args, upsertSnapshotSql(args, row, pageId, revisionId, importRunId));
+  const attachmentSummary = await materializeRowAttachments(args, row, pageId);
   if (args.skipRerender) {
     runPsql(args, recordItemSql(row, pageId, importRunId, 'render_pending'));
-    return { slug: row.fullname, action: `${action}_snapshot_ready`, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length };
+    return { slug: row.fullname, action: `${action}_snapshot_ready`, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length, ...attachmentSummary };
   }
 
   runPsql(args, recordItemSql(row, pageId, importRunId, 'render_pending'));
@@ -874,7 +1001,7 @@ async function importRow(args, row, importRunId) {
     return { slug: row.fullname, action: 'render_failed', page_id: pageId, revision_id: revisionId, error: error.message };
   }
   runPsql(args, recordItemSql(row, pageId, importRunId, 'done'));
-  return { slug: row.fullname, action, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length };
+  return { slug: row.fullname, action, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length, ...attachmentSummary };
 }
 
 function finishRun(args, importRunId, summary, state = 'done') {
@@ -927,7 +1054,7 @@ async function main() {
 
   const importRunId = ensureImportRun(args, manifestText, allRows, selectedRows, completeInventory);
   const results = [];
-  const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, import_run_id: importRunId };
+  const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, import_run_id: importRunId };
   let finalState = 'failed';
 
   try {
@@ -936,6 +1063,9 @@ async function main() {
         const result = await importRow(args, row, importRunId);
         results.push(result);
         summary[result.action] = (summary[result.action] ?? 0) + 1;
+        summary.attachments_requested += result.attachments_requested ?? 0;
+        summary.attachments_uploaded += result.attachments_uploaded ?? 0;
+        summary.attachments_skipped_existing += result.attachments_skipped_existing ?? 0;
         if (result.action === 'render_failed') summary.failed += 1;
         console.log(JSON.stringify(result));
       } catch (error) {

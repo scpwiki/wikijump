@@ -39,6 +39,28 @@ function writePage(root, branch, fullname, { entityId, meta = {}, source = 'cont
   fs.writeFileSync(path.join(pageDir, 'entity_id.txt'), `${entityId}\n`);
 }
 
+function writePageAttachment(root, branch, fullname, { filename, bytes, originalUrl } = {}) {
+  const pageDir = path.join(root, branch, 'pages', fullname);
+  const filesDir = path.join(pageDir, 'files');
+  const filePath = path.join(filesDir, filename);
+  fs.mkdirSync(filesDir, { recursive: true });
+  fs.writeFileSync(filePath, bytes);
+  fs.writeFileSync(
+    path.join(pageDir, 'files.json'),
+    `${JSON.stringify([
+      {
+        filename,
+        original_url: originalUrl,
+        wikidot_path: new URL(originalUrl).pathname,
+        path: `files/${filename}`,
+        sha256: cryptoSha256(bytes),
+        mime: 'image/png',
+        size: bytes.length,
+      },
+    ], null, 2)}\n`,
+  );
+}
+
 function writeSourceBundlePage(root, fullname, { entityId = null, site = 'sandbox-for-codex', meta = {}, manifest = {}, source = 'content' } = {}) {
   const pageDir = path.join(root, 'pages', fullname);
   fs.mkdirSync(pageDir, { recursive: true });
@@ -130,6 +152,66 @@ test('buildCorpusImportManifest emits deterministic rows and summary', () => {
   assert.equal(summary.parent_count, 1);
   assert.match(summary.manifest_sha256, /^[0-9a-f]{64}$/);
   assert.equal(formatJsonl(rows), jsonl, 'formatting should be deterministic');
+});
+
+test('buildCorpusImportManifest includes validated per-page corpus attachments', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  const bytes = Buffer.from([1, 2, 3, 4]);
+  writePage(root, 'en', 'scp-173', {
+    entityId: '12121212-1212-4121-8121-121212121212',
+    source: '[[image https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png]]',
+  });
+  writePageAttachment(root, 'en', 'scp-173', {
+    filename: 'pixel.png',
+    bytes,
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+  });
+
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const jsonl = formatJsonl(rows);
+  const summary = buildManifestSummary(rows, jsonl);
+
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].attachments.length, 1);
+  assert.deepEqual(rows[0].attachments[0], {
+    filename: 'pixel.png',
+    original_url: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+    wikidot_path: '/local--files/scp-173/pixel.png',
+    sha256: cryptoSha256(bytes),
+    size: 4,
+    mime: 'image/png',
+    file_path: path.join(root, 'en', 'pages', 'scp-173', 'files', 'pixel.png'),
+    corpus_path: 'en/pages/scp-173/files/pixel.png',
+    metadata_path: path.join(root, 'en', 'pages', 'scp-173', 'files.json'),
+  });
+  assert.equal(summary.attachment_count, 1);
+  assert.equal(summary.attachment_page_count, 1);
+});
+
+test('buildCorpusImportManifest rejects attachment byte hash mismatches', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: '13131313-1313-4131-8131-131313131313',
+  });
+  writePageAttachment(root, 'en', 'scp-173', {
+    filename: 'pixel.png',
+    bytes: Buffer.from([1]),
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+  });
+  const manifestPath = path.join(root, 'en', 'pages', 'scp-173', 'files.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest[0].sha256 = '0'.repeat(64);
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+  assert.throws(
+    () => buildCorpusImportManifest({ corpusRoot: root, branch: 'en' }),
+    /sha256 mismatch/,
+  );
 });
 
 test('buildCorpusImportManifest rejects duplicate entity IDs before import', () => {

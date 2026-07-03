@@ -57,53 +57,16 @@ test("seed data names the EN mirror like live SCP Wiki chrome", () => {
   assert.equal(site["default-page"], "main");
 });
 
-test("seed data includes SCP-7243 page-local files used by browser parity canary", () => {
+test("imported page-local attachments are not repository seed fixtures", () => {
   const filesBySite = readJson("deepwell/seeder/files.json");
-  const files = filesBySite["scp-wiki"]?.["scp-7243"] ?? [];
-  const expectedNames = [
-    "5y46584875-1.webp",
-    "ARsterisk.png",
-    "Anaximander.png",
-    "DT.jpg",
-    "DeeringsBW.jpg",
-    "Digamma.png",
-    "PhilStock.jpg",
-    "Verne.jpg",
-    "absentia-icon-3.svg",
-    "admo-7243-abatement.jpg",
-    "admo-7243-amy-abstract.jpg",
-    "admo-7243-amy-cafeteria.jpg",
-    "admo-7243-amy-ceiling.jpg",
-    "admo-7243-amy-class.jpg",
-    "admo-7243-amy-lights.jpg",
-    "admo-7243-amy-sky.jpg",
-    "admo-7243-amy-subway.jpg",
-    "admo-7243-amy-truss.jpg",
-    "admo-7243-amy-warehouse.jpg",
-    "admo-7243-bubble-evenmoredone.jpg",
-    "admo-7243-exactus.jpg",
-    "admo-7243-oracle.png",
-    "admo-7243-resurgence.jpg",
-    "bluepint2.jpg",
-    "chamber.jpg",
-    "fucksplosion-4.webp",
-    "metaamida-icon.svg",
-    "paradoxysm-icon.svg",
-    "timecrash.jpg",
-  ];
-
-  assert.deepEqual(files.map((file) => file.name).sort(), expectedNames);
-
-  for (const file of files) {
-    const seededPath = path.join(seederRoot, file.path);
-    assert.ok(
-      fs.existsSync(seededPath),
-      `${file.name} references missing ${seededPath}`,
-    );
-    assert.ok(
-      fs.statSync(seededPath).size > 0,
-      `${file.name} should not be empty`,
-    );
+  for (const page of [
+    "scp-3922",
+    "scp-7243",
+    "scp-8382",
+    "scp-9506",
+    "theme:basalt",
+  ]) {
+    assert.equal(filesBySite["scp-wiki"]?.[page], undefined);
   }
 });
 
@@ -168,57 +131,6 @@ test("seed data includes SCP-7243 nav side chrome image dependencies", () => {
       fs.statSync(seededPath).size > 0,
       `nav:side/${file.name} should not be empty`,
     );
-  }
-});
-
-test("seed data includes SCP-8382 image dependency files used by browser parity canary", () => {
-  const filesBySite = readJson("deepwell/seeder/files.json");
-  const expectedByPage = new Map([
-    [
-      "scp-8382",
-      [
-        "8382_Main.jpg",
-        "Avys.jpg",
-        "Boswell.jpg",
-        "Bradbury.jpg",
-        "Brury.jpg",
-        "Buck.jpg",
-        "Hsieh.jpg",
-        "Lillihammer_Staff.jpg",
-        "Sinclair.jpg",
-        "Zwist.jpg",
-      ],
-    ],
-    [
-      "component:anomaly-class-bar",
-      [
-        "amida-icon.svg",
-        "critical-icon.svg",
-        "danger-icon.svg",
-        "ekhi-icon.svg",
-        "keter-icon.svg",
-      ],
-    ],
-    ["theme:blankstyle", ["43Head.png"]],
-    ["this-page-intentionally-left-blank", ["Mallet.png"]],
-    ["the-b-b-decommission", ["Asterisk43.png"]],
-  ]);
-
-  for (const [page, expectedNames] of expectedByPage) {
-    const files = filesBySite["scp-wiki"]?.[page] ?? [];
-    assert.deepEqual(files.map((file) => file.name).sort(), expectedNames);
-
-    for (const file of files) {
-      const seededPath = path.join(seederRoot, file.path);
-      assert.ok(
-        fs.existsSync(seededPath),
-        `${page}/${file.name} references missing ${seededPath}`,
-      );
-      assert.ok(
-        fs.statSync(seededPath).size > 0,
-        `${page}/${file.name} should not be empty`,
-      );
-    }
   }
 });
 
