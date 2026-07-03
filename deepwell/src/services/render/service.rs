@@ -624,13 +624,20 @@ impl RenderService {
                 page_info.page.as_ref(),
             );
             let html_output = HtmlOutput {
-                body: Self::restore_protected_wikidot_inline_html(
-                    Self::restore_protected_wikidot_color_spans(
-                        fallback_body,
-                        &wikidot_color_spans,
-                    ),
-                    &wikidot_inline_html,
-                ),
+                body: {
+                    let body = Self::restore_protected_wikidot_inline_html(
+                        Self::restore_protected_wikidot_color_spans(
+                            fallback_body,
+                            &wikidot_color_spans,
+                        ),
+                        &wikidot_inline_html,
+                    );
+                    Self::localize_wikidot_local_file_urls(
+                        &body,
+                        current_site.as_ref(),
+                        config,
+                    )
+                },
                 meta: Vec::new(),
                 backlinks,
             };
@@ -711,6 +718,11 @@ impl RenderService {
             apply_blankstyle_shell_compatibility(&mut html_output.body);
             html_output.body =
                 Self::remove_wikidot_compat_style_blocks(&html_output.body);
+            html_output.body = Self::localize_wikidot_local_file_urls(
+                &html_output.body,
+                render_current_site.as_ref(),
+                &render_config,
+            );
             html_output.backlinks.included_pages.extend(included_pages);
             let html_block_texts = tree
                 .html_blocks
@@ -2369,7 +2381,9 @@ impl RenderService {
         config: &Config,
     ) -> Option<String> {
         let site_slug = local_file_host_site_slug(host, config)?;
-        if !site_accepts_wikidot_local_asset_slug(current_site, &site_slug) {
+        if !site_accepts_wikidot_local_asset_slug(current_site, &site_slug)
+            && !site_accepts_cross_site_wdfiles_local_file(current_site, host, path)
+        {
             return None;
         }
 
@@ -7676,6 +7690,29 @@ fn site_accepts_wikidot_local_asset_slug(site: &SiteModel, site_slug: &str) -> b
         || translated_scp_site_uses_scp_wiki_source_assets(site, site_slug)
 }
 
+fn site_accepts_cross_site_wdfiles_local_file(
+    site: &SiteModel,
+    host: &str,
+    path: &str,
+) -> bool {
+    if !path.starts_with("/local--files/") {
+        return false;
+    }
+
+    let host = host.trim().trim_end_matches('.').to_ascii_lowercase();
+    host.ends_with(".wdfiles.com") && site_is_wikidot_local_asset_mirror(site)
+}
+
+fn site_is_wikidot_local_asset_mirror(site: &SiteModel) -> bool {
+    site.from_wikidot
+        || site.slug.eq_ignore_ascii_case("scp-wiki")
+        || site
+            .preferred_domain
+            .as_deref()
+            .and_then(preferred_domain_wikidot_slug)
+            .is_some()
+}
+
 fn corpus_site_slug_matches_wikidot_slug(site: &SiteModel, site_slug: &str) -> bool {
     if !site.from_wikidot {
         return false;
@@ -9501,6 +9538,29 @@ mod tests {
             concat!(
                 r#"<img src="https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png">"#,
                 r#"<style>@import "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme%3Abasalt/1";</style>"#,
+            ),
+        );
+    }
+
+    #[test]
+    fn localizes_cross_site_wdfiles_local_file_urls_for_imported_corpus_files() {
+        let mut site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
+        site.from_wikidot = false;
+        let mut config = Config::integration_testing();
+        config.files_domain = ".wjfiles.localhost".to_owned();
+        config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        let html = concat!(
+            r#"<img src="https://scp-sandbox-3.wdfiles.com/local--files/harry-blank-9/Lillihammer_Preview.png">"#,
+            r#"<style>.logo{background:url("http://scp-sandbox-3.wdfiles.com/local--files/harry-blank-4/deicidium-logo.svg")}</style>"#,
+            r#"<style>@import "https://scp-sandbox-3.wdfiles.com/local--code/theme%3Aforeign/1";</style>"#,
+        );
+
+        assert_eq!(
+            RenderService::localize_wikidot_local_file_urls(html, Some(&site), &config,),
+            concat!(
+                r#"<img src="https://scp-wiki.wjfiles.localhost/local--files/harry-blank-9/Lillihammer_Preview.png">"#,
+                r#"<style>.logo{background:url("https://scp-wiki.wjfiles.localhost/local--files/harry-blank-4/deicidium-logo.svg")}</style>"#,
+                r#"<style>@import "https://scp-sandbox-3.wdfiles.com/local--code/theme%3Aforeign/1";</style>"#,
             ),
         );
     }

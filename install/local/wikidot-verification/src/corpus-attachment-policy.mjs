@@ -15,11 +15,12 @@ export function validateAttachmentActorArgs(args, rows) {
 }
 
 export function attachmentActorUserId(args, row = null) {
-  const userId = args.attachmentUserId ?? args.userId;
+  const hasExplicitAttachmentUser = (args.attachmentUserId ?? null) !== null;
+  const userId = hasExplicitAttachmentUser ? args.attachmentUserId : args.userId;
   if (!Number.isInteger(userId)) {
     throw new Error('--attachment-user-id or --user-id must be an integer');
   }
-  if (userId === DEFAULT_IMPORT_USER_ID) {
+  if (!hasExplicitAttachmentUser && userId === DEFAULT_IMPORT_USER_ID) {
     const prefix = row?.fullname ? `${row.fullname}: ` : '';
     throw new Error(`${prefix}attachment materialization requires --attachment-user-id or --user-id matching the authenticated session user`);
   }

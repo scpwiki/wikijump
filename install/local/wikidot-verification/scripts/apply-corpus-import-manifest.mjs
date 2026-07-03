@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import crypto from 'node:crypto';
+import dns from 'node:dns';
 import fs from 'node:fs';
+import http from 'node:http';
+import https from 'node:https';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -42,6 +45,7 @@ function parseArgs(argv) {
     attachmentUserId: null,
     ipAddress: DEFAULT_IP_ADDRESS,
     sessionToken: DEFAULT_SESSION_TOKEN,
+    presignHostAlias: process.env.DEEPWELL_PRESIGN_HOST_ALIAS ? [process.env.DEEPWELL_PRESIGN_HOST_ALIAS] : [],
     rpcTimeoutMs: 120_000,
     textHashCommand: process.env.DEEPWELL_TEXT_HASH_COMMAND ?? null,
     slug: [],
@@ -75,6 +79,7 @@ function parseArgs(argv) {
     else if (arg === '--attachment-user-id') args.attachmentUserId = Number.parseInt(next(), 10);
     else if (arg === '--ip-address') args.ipAddress = next();
     else if (arg === '--session-token') args.sessionToken = next();
+    else if (arg === '--presign-host-alias') args.presignHostAlias.push(next());
     else if (arg === '--rpc-timeout-ms') args.rpcTimeoutMs = Number.parseInt(next(), 10);
     else if (arg === '--text-hash-command') args.textHashCommand = next();
     else if (arg === '--slug') args.slug.push(next());
@@ -92,9 +97,9 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--attachment-user-id <id>] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -125,7 +130,26 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   if (args.limit !== null && (!Number.isInteger(args.limit) || args.limit < 0)) {
     throw new Error('--limit must be a non-negative integer');
   }
+  args.presignHostAliases = parsePresignHostAliases(args.presignHostAlias);
   return args;
+}
+
+function parsePresignHostAliases(values) {
+  const aliases = new Map();
+  for (const value of values) {
+    const index = value.indexOf('=');
+    if (index <= 0 || index === value.length - 1) {
+      throw new Error('--presign-host-alias must be formatted as hostname=address');
+    }
+    const hostname = value.slice(0, index).trim().toLowerCase();
+    const address = value.slice(index + 1).trim();
+    if (!hostname || hostname.includes('/') || hostname.includes(':')) {
+      throw new Error('--presign-host-alias hostname must be a bare hostname');
+    }
+    if (!address) throw new Error('--presign-host-alias address must be non-empty');
+    aliases.set(hostname, address);
+  }
+  return aliases;
 }
 
 function sqlQuote(value) {
@@ -569,28 +593,51 @@ async function uploadBlob(args, bytes, attachment, actorUserId) {
     user_id: actorUserId,
     blob_size: bytes.byteLength,
   });
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), args.rpcTimeoutMs);
-  let response;
-  try {
-    response = await fetch(upload.presign_url, {
-      method: 'PUT',
-      body: bytes,
-      redirect: 'error',
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error.name === 'AbortError') {
-      throw new Error(`${attachment.filename}: presigned PUT timed out after ${args.rpcTimeoutMs}ms`);
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeout);
-  }
-  if (!response.ok) {
-    throw new Error(`${attachment.filename}: presigned PUT failed with status ${response.status}`);
+  const { statusCode } = await putPresignedBytes(args, upload.presign_url, bytes, attachment);
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`${attachment.filename}: presigned PUT failed with status ${statusCode}`);
   }
   return upload.pending_blob_id;
+}
+
+function putPresignedBytes(args, presignUrl, bytes, attachment) {
+  const url = new URL(presignUrl);
+  const client = url.protocol === 'https:' ? https : http;
+  const aliases = args.presignHostAliases ?? new Map();
+  const requestOptions = {
+    method: 'PUT',
+    hostname: url.hostname,
+    port: url.port || (url.protocol === 'https:' ? 443 : 80),
+    path: `${url.pathname}${url.search}`,
+    headers: {
+      'content-length': bytes.byteLength,
+    },
+    lookup(hostname, options, callback) {
+      const alias = aliases.get(hostname.toLowerCase());
+      if (alias) {
+        const family = alias.includes(':') ? 6 : 4;
+        if (options?.all) {
+          callback(null, [{ address: alias, family }]);
+        } else {
+          callback(null, alias, family);
+        }
+        return;
+      }
+      dns.lookup(hostname, options, callback);
+    },
+  };
+
+  return new Promise((resolve, reject) => {
+    const request = client.request(requestOptions, (response) => {
+      response.resume();
+      response.on('end', () => resolve({ statusCode: response.statusCode ?? 0 }));
+    });
+    request.setTimeout(args.rpcTimeoutMs, () => {
+      request.destroy(new Error(`${attachment.filename}: presigned PUT timed out after ${args.rpcTimeoutMs}ms`));
+    });
+    request.on('error', reject);
+    request.end(bytes);
+  });
 }
 
 async function createFile(args, pageId, attachment, pendingBlobId, actorUserId) {
