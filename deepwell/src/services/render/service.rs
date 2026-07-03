@@ -2235,18 +2235,25 @@ impl RenderService {
             .replace_all(html, |captures: &regex::Captures<'_>| {
                 let href_email = captures.get(1).map_or("", |m| m.as_str());
                 let visible_email = captures.get(2).map_or("", |m| m.as_str());
+                let href_email = decode_wikidot_email_html_entities(href_email);
+                let visible_email =
+                    decode_wikidot_email_html_entities(visible_email);
 
                 if href_email != visible_email {
                     return captures.get(0).map_or("", |m| m.as_str()).to_string();
                 }
 
                 let (email, trailing) =
-                    Self::split_trailing_email_punctuation(visible_email);
-                let Some(obfuscated) = Self::wikidot_obfuscated_email(email) else {
+                    Self::split_trailing_email_punctuation(&visible_email);
+                if Self::wikidot_obfuscated_email(email).is_none() {
                     return captures.get(0).map_or("", |m| m.as_str()).to_string();
-                };
+                }
 
-                format!(r#"<span class="wiki-email">{obfuscated}</span>{trailing}"#)
+                format!(
+                    r#"<span class="wiki-email" style="visibility: visible;"><a href="mailto:{email_attr}">{email_text}</a></span>{trailing}"#,
+                    email_attr = escape_list_pages_html_attr(email),
+                    email_text = escape_list_pages_html_text(email),
+                )
             })
             .into_owned()
     }
@@ -6625,6 +6632,54 @@ fn escape_list_pages_html_attr(value: &str) -> String {
     escape_list_pages_html_text(value).replace('"', "&quot;")
 }
 
+fn decode_wikidot_email_html_entities(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(start) = rest.find('&') {
+        output.push_str(&rest[..start]);
+        let entity_start = start + 1;
+        let Some(relative_end) = rest[entity_start..].find(';') else {
+            output.push_str(&rest[start..]);
+            return output;
+        };
+
+        let entity_end = entity_start + relative_end;
+        let entity = &rest[entity_start..entity_end];
+        let decoded = match entity {
+            "amp" => Some('&'),
+            "quot" => Some('"'),
+            "#39" | "apos" => Some('\''),
+            "lt" => Some('<'),
+            "gt" => Some('>'),
+            _ => decode_numeric_html_entity(entity),
+        };
+
+        if let Some(character) = decoded {
+            output.push(character);
+        } else {
+            output.push_str(&rest[start..=entity_end]);
+        }
+
+        rest = &rest[entity_end + 1..];
+    }
+
+    output.push_str(rest);
+    output
+}
+
+fn decode_numeric_html_entity(entity: &str) -> Option<char> {
+    if let Some(hex) = entity
+        .strip_prefix("#x")
+        .or_else(|| entity.strip_prefix("#X"))
+    {
+        return u32::from_str_radix(hex, 16).ok().and_then(char::from_u32);
+    }
+
+    let decimal = entity.strip_prefix('#')?;
+    decimal.parse::<u32>().ok().and_then(char::from_u32)
+}
+
 fn sanitize_wikidot_compat_inline_tag(tag: &str) -> Option<String> {
     match tag {
         "</span>" | "</a>" => return Some(tag.to_owned()),
@@ -7519,7 +7574,7 @@ mod tests {
     }
 
     #[test]
-    fn restores_wikidot_email_obfuscation() {
+    fn restores_wikidot_email_visibility() {
         let html = concat!(
             r#"<p><strong>Email:</strong> "#,
             r#"<span class="wiki-email" style="visibility: visible;">"#,
@@ -7530,7 +7585,8 @@ mod tests {
             RenderService::restore_wikidot_email_obfuscation(html),
             concat!(
                 r#"<p><strong>Email:</strong> "#,
-                r#"<span class="wiki-email">vog.isfn|ofni#vog.isfn|ofni</span>"#,
+                r#"<span class="wiki-email" style="visibility: visible;">"#,
+                r#"<a href="mailto:info@nfsi.gov">info@nfsi.gov</a></span>"#,
                 r#"<br /></p>"#,
             ),
         );
@@ -8892,7 +8948,7 @@ mod tests {
     }
 
     #[test]
-    fn moves_sentence_punctuation_outside_wikidot_email_span() {
+    fn moves_sentence_punctuation_outside_wikidot_email_anchor() {
         let html = concat!(
             r#"<p>For more information, contact "#,
             r#"<span class="wiki-email" style="visibility: visible;">"#,
@@ -8903,8 +8959,25 @@ mod tests {
             RenderService::restore_wikidot_email_obfuscation(html),
             concat!(
                 r#"<p>For more information, contact "#,
-                r#"<span class="wiki-email">vog.isfn|gniniart#vog.isfn|gniniart</span>."#,
+                r#"<span class="wiki-email" style="visibility: visible;">"#,
+                r#"<a href="mailto:training@nfsi.gov">training@nfsi.gov</a></span>."#,
                 r#"</p>"#,
+            ),
+        );
+    }
+
+    #[test]
+    fn decodes_escaped_wikidot_email_before_rendering_visible_anchor() {
+        let html = concat!(
+            r#"<span class="wiki-email" style="visibility: visible;">"#,
+            r#"<a href="mailto:o&#39;hara@example.com">o&#39;hara@example.com</a></span>"#,
+        );
+
+        assert_eq!(
+            RenderService::restore_wikidot_email_obfuscation(html),
+            concat!(
+                r#"<span class="wiki-email" style="visibility: visible;">"#,
+                r#"<a href="mailto:o'hara@example.com">o'hara@example.com</a></span>"#,
             ),
         );
     }
