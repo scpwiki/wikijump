@@ -79,6 +79,26 @@ struct ProtectedWikidotColorSpan {
     html: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ProtectedWikidotInlineHtml {
+    marker: String,
+    html: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum WikidotCompatInlineMarkerKind {
+    Color,
+    Italic,
+    Underline,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct WikidotCompatInlineMarker {
+    start: usize,
+    end: usize,
+    kind: WikidotCompatInlineMarkerKind,
+}
+
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
@@ -101,6 +121,7 @@ const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
+const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 const WIKIDOT_TABVIEW_SCRIPT: &str = "";
 const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
@@ -186,6 +207,11 @@ static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static WIKIDOT_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"##(?P<color>[A-Za-z0-9_-]+)\|(?P<body>.*?)##").unwrap()
+});
+static WIKIDOT_BOLD_UNDERLINE_SPAN_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\*\*__(?P<body>[^\n]*?)\*\*__").unwrap());
+static WIKIDOT_BOLD_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\*\*##(?P<color>[A-Za-z0-9_-]+)\|(?P<body>[^\n]*?)\*\*##").unwrap()
 });
 static WIKIJUMP_CODE_BLOCK_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-code-panel">.*?</div>"#).unwrap());
@@ -582,6 +608,8 @@ impl RenderService {
         if settings.enable_page_syntax {
             Self::normalize_wikidot_div_style_url_quotes(&mut wikitext);
         }
+        let wikidot_inline_html =
+            Self::protect_wikidot_inline_html_spans(&mut wikitext, settings);
         let wikidot_color_spans =
             Self::protect_wikidot_color_spans(&mut wikitext, settings);
         wikitext = Self::escape_unrendered_wikidot_color_markers(wikitext, settings);
@@ -596,9 +624,12 @@ impl RenderService {
                 page_info.page.as_ref(),
             );
             let html_output = HtmlOutput {
-                body: Self::restore_protected_wikidot_color_spans(
-                    fallback_body,
-                    &wikidot_color_spans,
+                body: Self::restore_protected_wikidot_inline_html(
+                    Self::restore_protected_wikidot_color_spans(
+                        fallback_body,
+                        &wikidot_color_spans,
+                    ),
+                    &wikidot_inline_html,
                 ),
                 meta: Vec::new(),
                 backlinks,
@@ -650,6 +681,10 @@ impl RenderService {
             html_output.body = Self::restore_protected_wikidot_color_spans(
                 html_output.body,
                 &wikidot_color_spans,
+            );
+            html_output.body = Self::restore_protected_wikidot_inline_html(
+                html_output.body,
+                &wikidot_inline_html,
             );
             html_output.body = Self::restore_protected_generated_wikidot_compat_html(
                 html_output.body,
@@ -3073,9 +3108,61 @@ impl RenderService {
         spans
     }
 
+    fn protect_wikidot_inline_html_spans(
+        wikitext: &mut String,
+        settings: &WikitextSettings,
+    ) -> Vec<ProtectedWikidotInlineHtml> {
+        if !settings.enable_page_syntax {
+            return Vec::new();
+        }
+
+        let mut spans = Vec::new();
+        let protected = WIKIDOT_BOLD_COLOR_SPAN_REGEX
+            .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                let marker = wikidot_inline_html_marker();
+                spans.push(ProtectedWikidotInlineHtml {
+                    marker: marker.clone(),
+                    html: format!(
+                        "<strong>{}</strong>",
+                        render_wikidot_color_span_html(
+                            &captures["color"],
+                            &captures["body"],
+                        ),
+                    ),
+                });
+                marker
+            })
+            .into_owned();
+        let protected = WIKIDOT_BOLD_UNDERLINE_SPAN_REGEX
+            .replace_all(&protected, |captures: &regex::Captures<'_>| {
+                let marker = wikidot_inline_html_marker();
+                spans.push(ProtectedWikidotInlineHtml {
+                    marker: marker.clone(),
+                    html: format!(
+                        "<strong><u>{}</u></strong>",
+                        render_wikidot_protected_inline_body_html(&captures["body"]),
+                    ),
+                });
+                marker
+            })
+            .into_owned();
+        *wikitext = protected;
+        spans
+    }
+
     fn restore_protected_wikidot_color_spans(
         mut html: String,
         spans: &[ProtectedWikidotColorSpan],
+    ) -> String {
+        for span in spans {
+            html = html.replace(&span.marker, &span.html);
+        }
+        html
+    }
+
+    fn restore_protected_wikidot_inline_html(
+        mut html: String,
+        spans: &[ProtectedWikidotInlineHtml],
     ) -> String {
         for span in spans {
             html = html.replace(&span.marker, &span.html);
@@ -3865,8 +3952,167 @@ impl RenderService {
     }
 
     fn render_wikidot_compat_inline_text_segment(value: &str) -> String {
-        let html = render_native_list_inline_html(value);
+        let html = Self::render_wikidot_compat_fallback_inline_markup(value);
         Self::render_wikidot_compat_inline_size_markers(&html)
+    }
+
+    fn render_wikidot_compat_fallback_inline_markup(value: &str) -> String {
+        let mut output = String::with_capacity(value.len());
+        let mut rest = value;
+
+        while let Some(marker) = Self::next_wikidot_compat_inline_marker(rest) {
+            let (before, marker_start) = rest.split_at(marker.start);
+            output.push_str(&render_native_list_inline_html(before));
+            let marker_len = marker.end - marker.start;
+
+            match marker.kind {
+                WikidotCompatInlineMarkerKind::Color => {
+                    let Some(pipe_offset) = marker_start[..marker_len].find('|') else {
+                        output.push_str(&render_native_list_inline_html(
+                            &marker_start[..marker_len],
+                        ));
+                        rest = &marker_start[marker_len..];
+                        continue;
+                    };
+                    let color = &marker_start[2..pipe_offset];
+                    let inner = &marker_start[pipe_offset + 1..marker_len - 2];
+                    output.push_str(r#"<span style="color: "#);
+                    output.push_str(&escape_list_pages_html_attr(
+                        &Self::wikidot_compat_color_value(color),
+                    ));
+                    output.push_str(r#";">"#);
+                    output.push_str(&Self::render_wikidot_compat_fallback_inline_markup(
+                        inner,
+                    ));
+                    output.push_str("</span>");
+                }
+                WikidotCompatInlineMarkerKind::Italic => {
+                    let inner = &marker_start[2..marker_len - 2];
+                    output.push_str("<em>");
+                    output.push_str(&Self::render_wikidot_compat_fallback_inline_markup(
+                        inner,
+                    ));
+                    output.push_str("</em>");
+                }
+                WikidotCompatInlineMarkerKind::Underline => {
+                    let inner = &marker_start[2..marker_len - 2];
+                    output.push_str("<u>");
+                    output.push_str(&Self::render_wikidot_compat_fallback_inline_markup(
+                        inner,
+                    ));
+                    output.push_str("</u>");
+                }
+            }
+
+            rest = &marker_start[marker_len..];
+        }
+
+        output.push_str(&render_native_list_inline_html(rest));
+        output
+    }
+
+    fn next_wikidot_compat_inline_marker(
+        value: &str,
+    ) -> Option<WikidotCompatInlineMarker> {
+        let color = Self::find_wikidot_compat_color_marker(value);
+        let italic = Self::find_wikidot_compat_delimited_marker(
+            value,
+            "//",
+            WikidotCompatInlineMarkerKind::Italic,
+        );
+        let underline = Self::find_wikidot_compat_delimited_marker(
+            value,
+            "__",
+            WikidotCompatInlineMarkerKind::Underline,
+        );
+
+        [color, italic, underline]
+            .into_iter()
+            .flatten()
+            .min_by_key(|marker| marker.start)
+    }
+
+    fn find_wikidot_compat_color_marker(
+        value: &str,
+    ) -> Option<WikidotCompatInlineMarker> {
+        let mut offset = 0;
+        while let Some(relative_start) = value[offset..].find("##") {
+            let start = offset + relative_start;
+            let marker_start = &value[start + 2..];
+            let Some(pipe_relative) = marker_start.find('|') else {
+                offset = start + 2;
+                continue;
+            };
+            let color = &marker_start[..pipe_relative];
+            if !Self::wikidot_compat_valid_color_value(color) {
+                offset = start + 2;
+                continue;
+            }
+            let content_start = start + 2 + pipe_relative + 1;
+            let Some(end_relative) = value[content_start..].find("##") else {
+                offset = start + 2;
+                continue;
+            };
+            return Some(WikidotCompatInlineMarker {
+                start,
+                end: content_start + end_relative + 2,
+                kind: WikidotCompatInlineMarkerKind::Color,
+            });
+        }
+
+        None
+    }
+
+    fn find_wikidot_compat_delimited_marker(
+        value: &str,
+        delimiter: &str,
+        kind: WikidotCompatInlineMarkerKind,
+    ) -> Option<WikidotCompatInlineMarker> {
+        let mut offset = 0;
+        while let Some(relative_start) = value[offset..].find(delimiter) {
+            let start = offset + relative_start;
+            if delimiter == "//" && value[..start].ends_with(':') {
+                offset = start + delimiter.len();
+                continue;
+            }
+            let content_start = start + delimiter.len();
+            let Some(end_relative) = value[content_start..].find(delimiter) else {
+                return None;
+            };
+            if end_relative == 0 {
+                offset = content_start + delimiter.len();
+                continue;
+            }
+            return Some(WikidotCompatInlineMarker {
+                start,
+                end: content_start + end_relative + delimiter.len(),
+                kind,
+            });
+        }
+
+        None
+    }
+
+    fn wikidot_compat_valid_color_value(value: &str) -> bool {
+        !value.is_empty()
+            && value.len() <= 32
+            && value
+                .chars()
+                .all(|character| character.is_ascii_alphanumeric() || character == '#')
+    }
+
+    fn wikidot_compat_color_value(value: &str) -> String {
+        let color = value.trim();
+        if color.starts_with('#') || !Self::wikidot_compat_is_hex_color(color) {
+            color.to_owned()
+        } else {
+            format!("#{color}")
+        }
+    }
+
+    fn wikidot_compat_is_hex_color(value: &str) -> bool {
+        matches!(value.len(), 3 | 6)
+            && value.chars().all(|character| character.is_ascii_hexdigit())
     }
 
     fn render_wikidot_compat_inline_size_markers(value: &str) -> String {
@@ -5943,11 +6189,24 @@ fn wikidot_color_span_marker() -> String {
     )
 }
 
+fn wikidot_inline_html_marker() -> String {
+    format!(
+        "{WIKIDOT_INLINE_HTML_SENTINEL_PREFIX}{}X",
+        Uuid::new_v4().as_simple(),
+    )
+}
+
 fn render_wikidot_color_span_html(color: &str, body: &str) -> String {
     format!(
         r#"<span style="color: {color}">{body}</span>"#,
         color = escape_list_pages_html_attr(color),
-        body = escape_list_pages_html_text(body),
+        body = render_wikidot_protected_inline_body_html(body),
+    )
+}
+
+fn render_wikidot_protected_inline_body_html(body: &str) -> String {
+    render_native_list_inline_wikidot_underlines(
+        &render_native_list_inline_wikidot_strong(&render_native_list_inline_html(body)),
     )
 }
 
@@ -6394,6 +6653,92 @@ fn render_native_list_text_italics(value: &str) -> String {
         output.push_str(&after_open[..close]);
         output.push_str("</em>");
         rest = &after_open[close + "//".len()..];
+    }
+
+    output.push_str(rest);
+    output
+}
+
+fn render_native_list_inline_wikidot_strong(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(tag_start) = rest.find('<') {
+        let (before, after_start) = rest.split_at(tag_start);
+        output.push_str(&render_native_list_text_strong(before));
+
+        let Some(tag_end) = after_start.find('>') else {
+            output.push_str(&render_native_list_text_strong(after_start));
+            return output;
+        };
+        let (tag, after_tag) = after_start.split_at(tag_end + 1);
+        output.push_str(tag);
+        rest = after_tag;
+    }
+
+    output.push_str(&render_native_list_text_strong(rest));
+    output
+}
+
+fn render_native_list_text_strong(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(open) = rest.find("**") {
+        output.push_str(&rest[..open]);
+        let after_open = &rest[open + "**".len()..];
+        let Some(close) = after_open.find("**") else {
+            output.push_str(&rest[open..]);
+            return output;
+        };
+
+        output.push_str("<strong>");
+        output.push_str(&after_open[..close]);
+        output.push_str("</strong>");
+        rest = &after_open[close + "**".len()..];
+    }
+
+    output.push_str(rest);
+    output
+}
+
+fn render_native_list_inline_wikidot_underlines(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(tag_start) = rest.find('<') {
+        let (before, after_start) = rest.split_at(tag_start);
+        output.push_str(&render_native_list_text_underlines(before));
+
+        let Some(tag_end) = after_start.find('>') else {
+            output.push_str(&render_native_list_text_underlines(after_start));
+            return output;
+        };
+        let (tag, after_tag) = after_start.split_at(tag_end + 1);
+        output.push_str(tag);
+        rest = after_tag;
+    }
+
+    output.push_str(&render_native_list_text_underlines(rest));
+    output
+}
+
+fn render_native_list_text_underlines(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut rest = value;
+
+    while let Some(open) = rest.find("__") {
+        output.push_str(&rest[..open]);
+        let after_open = &rest[open + "__".len()..];
+        let Some(close) = after_open.find("__") else {
+            output.push_str(&rest[open..]);
+            return output;
+        };
+
+        output.push_str("<u>");
+        output.push_str(&after_open[..close]);
+        output.push_str("</u>");
+        rest = &after_open[close + "__".len()..];
     }
 
     output.push_str(rest);
@@ -8427,6 +8772,35 @@ mod tests {
     }
 
     #[test]
+    fn protects_wikidot_bold_underline_spans_before_ftml_parsing() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source =
+            "**##C5000B|That might be the reason.**##\n**__10 October 2022**__\n**In which the finale is foreshadowed**\n"
+                .to_owned();
+
+        let spans =
+            RenderService::protect_wikidot_inline_html_spans(&mut source, &settings);
+
+        assert_eq!(spans.len(), 2);
+        assert!(source.contains(&spans[0].marker));
+        assert!(!source.contains("**##C5000B"));
+        assert!(!source.contains("**__10 October 2022**__"));
+        assert_eq!(
+            spans[0].html,
+            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+        );
+        assert_eq!(spans[1].html, r#"<strong><u>10 October 2022</u></strong>"#);
+
+        let restored =
+            RenderService::restore_protected_wikidot_inline_html(source, &spans);
+        assert!(restored.contains(
+            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+        ));
+        assert!(restored.contains(r#"<strong><u>10 October 2022</u></strong>"#));
+        assert!(restored.contains("**In which the finale is foreshadowed**"));
+    }
+
+    #[test]
     fn protects_wikidot_color_spans_before_ftml_parsing() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut source = "##blue|**[[include :scp-wiki:component:coltop**##\n".to_owned();
@@ -8465,6 +8839,8 @@ mod tests {
         let mut wikitext = concat!(
             "+ ##8E2C4D|Lillian S. Lillihammer##\n\n",
             "**##8E2C4D|Memetics and Countermemetics##**\n",
+            "**##ce005c|I am... I //should// be...##**\n",
+            "##C5000B|**That might be the reason.**##\n",
         )
         .to_owned();
 
@@ -8486,6 +8862,12 @@ mod tests {
         ));
         assert!(rendered.contains(
             r#"<strong><span style="color: 8E2C4D">Memetics and Countermemetics</span></strong>"#
+        ));
+        assert!(rendered.contains(
+            r#"<strong><span style="color: ce005c">I am... I <em>should</em> be...</span></strong>"#
+        ));
+        assert!(rendered.contains(
+            r#"<span style="color: C5000B"><strong>That might be the reason.</strong></span>"#
         ));
         assert!(!rendered.contains("&lt;span"));
         assert!(!rendered.contains(WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX));
@@ -9363,6 +9745,27 @@ mod tests {
         assert!(html.contains("+3034"));
         assert!(!html.contains("[[div"));
         assert!(!html.contains("[[/div]]"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_renders_inline_markers() {
+        let source = concat!(
+            "**##ce005c|I am... I //should// be...##**\n",
+            "__10 October 2022__\n",
+            "Plain URL http://example.com/a/b stays plain.\n",
+        );
+
+        let html =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(source);
+
+        assert!(html.contains(
+            r#"<strong><span style="color: #ce005c;">I am... I <em>should</em> be...</span></strong>"#
+        ));
+        assert!(html.contains("<u>10 October 2022</u>"));
+        assert!(html.contains("http://example.com/a/b"));
+        assert!(!html.contains("##ce005c"));
+        assert!(!html.contains("//should//"));
+        assert!(!html.contains("__10 October"));
     }
 
     #[test]
