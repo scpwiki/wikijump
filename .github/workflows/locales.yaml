@@ -10,6 +10,9 @@ on:
       - develop
       - prod
 
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Check
@@ -28,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-locales-default-${{ hashFiles('locales/validator/**/Cargo.toml') }}
 
       - name: Run Check
-        run: cd locales/validator && cargo run
+        run: cd locales/validator && cargo run --locked
 
   clippy_lint:
     name: Lint
@@ -52,4 +55,4 @@ jobs:
         run: cd locales/validator && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd locales/validator && cargo clippy --tests --no-deps
+        run: cd locales/validator && cargo clippy --locked --tests --no-deps

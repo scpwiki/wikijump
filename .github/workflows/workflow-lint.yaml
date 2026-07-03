@@ -1,0 +1,27 @@
+name: '[ci] Workflow lint'
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+  push:
+    branches:
+      - develop
+      - prod
+    paths:
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: Actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1.7.12

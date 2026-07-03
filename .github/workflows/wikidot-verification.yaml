@@ -1,0 +1,44 @@
+name: '[wikidot] Verification tests'
+
+on:
+  pull_request:
+    paths:
+      - 'install/local/wikidot-verification/**'
+      - '.github/workflows/wikidot-verification.yaml'
+  push:
+    branches:
+      - develop
+      - prod
+    paths:
+      - 'install/local/wikidot-verification/**'
+      - '.github/workflows/wikidot-verification.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: install/local/wikidot-verification/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: cd install/local/wikidot-verification && pnpm install --frozen-lockfile
+
+      - name: Test
+        run: cd install/local/wikidot-verification && pnpm test
