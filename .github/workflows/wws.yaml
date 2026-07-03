@@ -8,10 +8,7 @@ on:
       - reopened
       - labeled
     paths:
-      - 'wws/Cargo.toml'
-      - 'wws/Cargo.lock'
-      - 'wws/src/**'
-      - 'wws/tests/**'
+      - 'wws/**'
       - '.github/workflows/wws.yaml'
       - '.github/codecov.yml'
   push:
@@ -21,6 +18,9 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -53,14 +53,14 @@ jobs:
           key: ${{ runner.os }}-wws-default-${{ hashFiles('wws/**/Cargo.toml') }}
 
       - name: Build
-        run: cd wws && cargo build
+        run: cd wws && cargo build --locked
 
       - name: Test
-        run: cd wws && cargo test --all-features -- --nocapture --test-threads 1
+        run: cd wws && cargo test --locked --all-features -- --nocapture --test-threads 1
 
       - name: Generate Coverage
         run: |
-          cd wws && cargo +nightly tarpaulin --all-features --workspace --timeout 120 --out xml --output-dir target/coverage
+          cd wws && cargo +nightly tarpaulin --locked --all-features --workspace --timeout 120 --out xml --output-dir target/coverage
 
       - name: Export Coverage
         # codecov/codecov-action v5.5.5
@@ -102,4 +102,4 @@ jobs:
         run: cd wws && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd wws && cargo clippy --tests --no-deps
+        run: cd wws && cargo clippy --locked --tests --no-deps

@@ -8,15 +8,9 @@ on:
       - reopened
       - labeled
     paths:
-      - 'deepwell/Cargo.toml'
-      - 'deepwell/Cargo.lock'
-      - 'deepwell/src/**'
-      - 'deepwell/tests/**'
-      - 'deepwell/migrations/**'
-      - 'deepwell/seeder/**'
+      - 'deepwell/**'
       - '.github/workflows/deepwell.yaml'
       - '.github/codecov.yml'
-      - 'deepwell/config.example.toml'
       - 'install/local/deepwell/config.toml'
       - 'install/dev/deepwell/config.toml'
       - 'install/prod/deepwell/config.toml'
@@ -27,6 +21,9 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -130,13 +127,13 @@ jobs:
         run: cargo install sqlx-cli --no-default-features --features rustls,postgres
 
       - name: Build (no features)
-        run: cd deepwell && cargo build --no-default-features
+        run: cd deepwell && cargo build --locked --no-default-features
 
       - name: Build (all features)
-        run: cd deepwell && cargo build --all-features
+        run: cd deepwell && cargo build --locked --all-features
 
       - name: Check Configuration
-        run: cd deepwell && cargo run --all-features -- config.example.toml ../install/local/deepwell/config.toml ../install/dev/deepwell/config.toml ../install/prod/deepwell/config.toml
+        run: cd deepwell && cargo run --locked --all-features -- config.example.toml ../install/local/deepwell/config.toml ../install/dev/deepwell/config.toml ../install/prod/deepwell/config.toml
         env:
           DEEPWELL_RUNTIME_ACTION: validate-config
 
@@ -144,16 +141,16 @@ jobs:
         run: cd deepwell && sqlx migrate run
 
       - name: Run Seeder
-        run: cd deepwell && cargo run --all-features -- config.example.toml
+        run: cd deepwell && cargo run --locked --all-features -- config.example.toml
         env:
           DEEPWELL_RUNTIME_ACTION: run-seeder
 
       - name: Test
-        run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
+        run: cd deepwell && cargo test --locked --all-features -- --nocapture --test-threads 1
 
       - name: Generate Coverage
         run: |
-          cd deepwell && cargo +nightly tarpaulin --all-features --workspace --timeout 120 --out xml --output-dir target/coverage
+          cd deepwell && cargo +nightly tarpaulin --locked --all-features --workspace --timeout 120 --out xml --output-dir target/coverage
 
       - name: Export Coverage
         # codecov/codecov-action v5.5.5
@@ -198,4 +195,4 @@ jobs:
         run: cd deepwell && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cd deepwell && cargo clippy --tests --no-deps
+        run: cd deepwell && cargo clippy --locked --tests --no-deps
