@@ -6710,12 +6710,15 @@ fn render_read_only_rate_module(score: ftml::data::ScoreValue) -> String {
             "[[span class=\"rate-points\"]]rating: ",
             "[[span class=\"number prw54353\"]]{}[[/span]]",
             "[[/span]]",
+            " ",
             "[[span class=\"rateup btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"I like it\"]]+[[/a]]",
             "[[/span]]",
+            " ",
             "[[span class=\"ratedown btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"I don't like it\"]]–[[/a]]",
             "[[/span]]",
+            " ",
             "[[span class=\"cancel btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"Cancel my vote\"]]x[[/a]]",
             "[[/span]]",
@@ -7096,6 +7099,13 @@ fn apply_basalt_shell_compatibility(html: &mut String) {
 }
 #page-options-bottom.page-options-bottom > a {
     display: flex;
+}
+.admo-rate_splash .page-rate-widget-box .rate-points {
+    text-transform: uppercase;
+}
+.admo-rate_splash .page-rate-widget-box .cancel,
+.admo-rate_splash .page-rate-widget-box .cancel a {
+    text-transform: none;
 }
 </style>"#,
     );
@@ -7691,11 +7701,20 @@ mod tests {
         assert!(rendered.contains(r#"[[span class="number prw54353"]]+19[[/span]]"#));
         assert!(rendered.contains(r#"[[span class="rateup btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
+        assert!(
+            rendered.contains(r#"]][[/span]] [[span class="rateup btn btn-default"]]"#)
+        );
         assert!(rendered.contains(r#"[[span class="ratedown btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.rate(event, -1)"#));
+        assert!(
+            rendered.contains(r#"]][[/span]] [[span class="ratedown btn btn-default"]]"#)
+        );
         assert!(rendered.contains(r#"title="I don't like it"]]–[[/a]]"#));
         assert!(rendered.contains(r#"[[span class="cancel btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.cancelVote(event)"#));
+        assert!(
+            rendered.contains(r#"]][[/span]] [[span class="cancel btn btn-default"]]"#)
+        );
     }
 
     #[test]
@@ -10593,6 +10612,10 @@ mod tests {
         assert!(restored.contains("text-transform: uppercase"));
         assert!(restored.contains("#page-options-bottom.page-options-bottom"));
         assert!(restored.contains("display: flex"));
+        assert!(
+            restored.contains(".admo-rate_splash .page-rate-widget-box .rate-points")
+        );
+        assert!(restored.contains(".admo-rate_splash .page-rate-widget-box .cancel"));
     }
 
     #[test]
