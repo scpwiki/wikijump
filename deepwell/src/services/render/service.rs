@@ -5803,7 +5803,9 @@ fn list_pages_body_variables_supported(body: &str) -> bool {
 }
 
 fn unsupported_list_pages_replacement(module_source: &str, body: &str) -> String {
-    if list_pages_body_has_numbered_rows(body) {
+    if list_pages_body_has_numbered_rows(body)
+        || list_pages_body_is_no_visible_tracking_markup(body)
+    {
         "[[div class=\"list-pages-box\"]][[/div]]".to_owned()
     } else {
         module_source.to_owned()
@@ -5813,6 +5815,33 @@ fn unsupported_list_pages_replacement(module_source: &str, body: &str) -> String
 fn list_pages_body_has_numbered_rows(body: &str) -> bool {
     body.lines()
         .any(|line| native_numbered_list_content(line).is_some())
+}
+
+fn list_pages_body_is_no_visible_tracking_markup(body: &str) -> bool {
+    let mut saw_tracking_markup = false;
+
+    for line in body.lines() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+
+        let lower = line.to_ascii_lowercase();
+        let allowed = lower.starts_with("[[image ")
+            || lower.starts_with("[[embed]]")
+            || lower.starts_with("[[/embed]]")
+            || lower.starts_with("<iframe ") && lower.contains("display: none")
+            || lower.starts_with("[[module listusers ")
+            || lower.starts_with("[[/module]]")
+            || lower.starts_with("[[%%content{0}%%module listusers ")
+            || lower.starts_with("[[%%content{0}%%/module]]");
+        if !allowed {
+            return false;
+        }
+        saw_tracking_markup = true;
+    }
+
+    saw_tracking_markup
 }
 
 fn list_pages_body_uses_variable(body: &str, variable: &str) -> bool {
@@ -7649,7 +7678,7 @@ impl<'a, 't> Includer<'t> for CollectingIncluder<'a> {
     }
 
     fn no_such_include(&mut self, page_ref: &PageRef) -> Result<Cow<'t, str>> {
-        Ok(Cow::Owned(format!("No such page: {page_ref}")))
+        Ok(wikidot_no_such_include_replacement(page_ref))
     }
 }
 
@@ -7684,8 +7713,25 @@ impl<'t> Includer<'t> for PreparedIncluder {
     }
 
     fn no_such_include(&mut self, page_ref: &PageRef) -> Result<Cow<'t, str>> {
-        Ok(Cow::Owned(format!("No such page: {page_ref}")))
+        Ok(wikidot_no_such_include_replacement(page_ref))
     }
+}
+
+fn wikidot_no_such_include_replacement(page_ref: &PageRef) -> Cow<'static, str> {
+    if is_optional_no_visible_wikidot_include(page_ref) {
+        Cow::Borrowed("")
+    } else {
+        Cow::Owned(format!("No such page: {page_ref}"))
+    }
+}
+
+fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
+    let Some(site) = page_ref.site() else {
+        return false;
+    };
+    let page = page_ref.page();
+    (site.eq_ignore_ascii_case("drizzles") && page.eq_ignore_ascii_case("raven"))
+        || (site.eq_ignore_ascii_case("crom") && page.eq_ignore_ascii_case("pixel"))
 }
 
 fn include_error() -> ExnError {
@@ -8077,6 +8123,7 @@ mod tests {
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotUserDisplay,
         count_pages_should_remain_literal, include_error,
+        list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
@@ -8088,6 +8135,7 @@ mod tests {
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
         wikidot_content_section, wikidot_module_argument,
+        wikidot_no_such_include_replacement,
     };
     use crate::config::Config;
     use crate::constants::ADMIN_USER_ID;
@@ -8917,6 +8965,45 @@ mod tests {
                 "# %%unsupported_variable%%\n"
             ),
             "[[div class=\"list-pages-box\"]][[/div]]",
+        );
+    }
+
+    #[test]
+    fn unsupported_tracking_list_pages_body_does_not_leak_to_ftml() {
+        let body = concat!(
+            "[[%%content{0}%%module listusers users=\".\"]]\n",
+            "[[image https://manage.scp-jp.com/api/public/assets/layoutSupporter.png?s_id=578002&s_name=scp-jp&m_id=%%number%%&m_name=%%ti%%content{0}%%tle%%&fn=%%fullname%%]]\n",
+            "[[%%content{0}%%/module]]\n",
+            "[[image https://manage.scp-jp.com/api/public/assets/analytics.png?s_id=578002&fn=%%fullname%%]]\n",
+        );
+        let module_source = format!(
+            "[[module ListPages category=\"*\" pagetype=\"*\" range=\".\" wrapper=\"no\" separate=\"no\"]]\n{body}[[/module]]"
+        );
+
+        assert!(list_pages_body_is_no_visible_tracking_markup(body));
+        assert_eq!(
+            unsupported_list_pages_replacement(&module_source, body),
+            "[[div class=\"list-pages-box\"]][[/div]]",
+        );
+    }
+
+    #[test]
+    fn optional_no_visible_wikidot_includes_do_not_render_missing_page_text() {
+        assert_eq!(
+            wikidot_no_such_include_replacement(&PageRef::page_and_site(
+                "drizzles", "raven"
+            )),
+            "",
+        );
+        assert_eq!(
+            wikidot_no_such_include_replacement(&PageRef::page_and_site("crom", "pixel")),
+            "",
+        );
+        assert_eq!(
+            wikidot_no_such_include_replacement(&PageRef::page_and_site(
+                "scp-jp", "missing"
+            )),
+            "No such page: :scp-jp:missing",
         );
     }
 
