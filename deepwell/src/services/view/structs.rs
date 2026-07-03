@@ -77,6 +77,7 @@ pub enum GetPageViewOutput {
         page: PageModel,
         page_revision: PageRevisionModel,
         wikidot_snapshot: Option<WikidotPageSnapshotView>,
+        wikidot_breadcrumbs: Vec<WikidotPageBreadcrumbView>,
         attributions: Vec<PageAttribution>,
         redirect_page: Option<String>,
         wikitext: String,
@@ -113,6 +114,12 @@ pub struct WikidotPageSnapshotView {
 
     pub imported_rating: Option<i64>,
     pub comments: Option<i32>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct WikidotPageBreadcrumbView {
+    pub slug: String,
+    pub title: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -170,6 +170,7 @@ impl ViewService {
                 page: PageModel,
                 page_revision: PageRevisionModel,
                 wikidot_snapshot: Option<WikidotPageSnapshotView>,
+                wikidot_breadcrumbs: Vec<WikidotPageBreadcrumbView>,
                 attributions: Vec<PageAttribution>,
             },
             Missing,
@@ -297,12 +298,17 @@ impl ViewService {
                         Self::get_wikidot_snapshot_page_info(ctx, page.page_id)
                             .await
                             .or_raise(make_error)?;
+                    let wikidot_breadcrumbs =
+                        Self::get_wikidot_breadcrumbs(ctx, page.page_id)
+                            .await
+                            .or_raise(make_error)?;
 
                     PageReturn {
                         page_status: PageStatus::Found {
                             page,
                             page_revision,
                             wikidot_snapshot,
+                            wikidot_breadcrumbs,
                             attributions,
                         },
                         wikitext,
@@ -431,12 +437,14 @@ impl ViewService {
                 page,
                 page_revision,
                 wikidot_snapshot,
+                wikidot_breadcrumbs,
                 attributions,
             } => GetPageViewOutput::Found {
                 options,
                 page,
                 page_revision,
                 wikidot_snapshot,
+                wikidot_breadcrumbs,
                 attributions,
                 redirect_page,
                 wikitext,
@@ -519,6 +527,75 @@ impl ViewService {
                 })
             },
         ))
+    }
+
+    async fn get_wikidot_breadcrumbs(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<Vec<WikidotPageBreadcrumbView>> {
+        #[derive(FromQueryResult, Debug)]
+        struct WikidotBreadcrumbRow {
+            source_fullname: String,
+            title_shown: Option<String>,
+        }
+
+        let txn = ctx.transaction();
+        let statement = Statement::from_string(
+            txn.get_database_backend(),
+            format!(
+                r#"
+WITH RECURSIVE
+breadcrumb_chain(depth, source_site, source_fullname, title_shown, parent_fullname) AS (
+  SELECT 0, source_site, source_fullname, title_shown, parent_fullname
+  FROM wikidot_page_snapshot
+  WHERE page_id = {page_id}
+  UNION ALL
+  SELECT
+    breadcrumb_chain.depth + 1,
+    parent.source_site,
+    parent.source_fullname,
+    parent.title_shown,
+    parent.parent_fullname
+  FROM breadcrumb_chain
+  JOIN wikidot_page_snapshot parent
+    ON parent.source_site = breadcrumb_chain.source_site
+   AND parent.source_fullname = breadcrumb_chain.parent_fullname
+  WHERE breadcrumb_chain.parent_fullname IS NOT NULL
+    AND breadcrumb_chain.depth < 12
+)
+SELECT source_fullname, title_shown
+FROM breadcrumb_chain
+ORDER BY depth DESC
+"#,
+            ),
+        );
+
+        let mut rows = WikidotBreadcrumbRow::find_by_statement(statement)
+            .all(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to load imported Wikidot page breadcrumb chain",
+                    ErrorType::GetView(ViewType::Page),
+                )
+            })?
+            .into_iter()
+            .map(
+                |WikidotBreadcrumbRow {
+                     source_fullname,
+                     title_shown,
+                 }| WikidotPageBreadcrumbView {
+                    title: title_shown.unwrap_or_else(|| source_fullname.clone()),
+                    slug: source_fullname,
+                },
+            )
+            .collect::<Vec<_>>();
+
+        if rows.len() <= 1 {
+            rows.clear();
+        }
+
+        Ok(rows)
     }
 
     pub async fn user(

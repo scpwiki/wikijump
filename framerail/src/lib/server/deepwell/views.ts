@@ -27,6 +27,11 @@ export interface WikidotPageSnapshotView {
   comments: Nullable<number>
 }
 
+export interface WikidotPageBreadcrumbView {
+  slug: string
+  title: string
+}
+
 /* ----- Preload ----- */
 
 export async function preloadView(
@@ -63,6 +68,7 @@ interface PageViewFound {
     page: PageModel
     page_revision: PageRevisionModel
     wikidot_snapshot: Nullable<WikidotPageSnapshotView>
+    wikidot_breadcrumbs: WikidotPageBreadcrumbView[]
     attributions: PageAttribution[]
   }
 }

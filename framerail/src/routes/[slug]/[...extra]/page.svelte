@@ -32,6 +32,7 @@
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
   let pagePaneState = $state<PagePane>(PagePane.None)
   let wikidotPageActions = $derived(data.wikidot_page_actions)
+  const breadcrumbSeparator = " » "
 
   async function navigateEdit() {
     // Check edit permission first
@@ -106,6 +107,17 @@
     <div id="page-title">{revision?.title}</div>
   {:else}
     <div id="page-title">{data.page_revision?.title}</div>
+  {/if}
+
+  {#if !data.options?.debug && !showRevision && data.wikidot_breadcrumbs?.length}
+    <div id="breadcrumbs">
+      {#each data.wikidot_breadcrumbs as breadcrumb, index (breadcrumb.slug)}
+        {#if index > 0}
+          <span class="breadcrumb-separator">{breadcrumbSeparator}</span>
+        {/if}
+        <a href={resolve(`/${breadcrumb.slug}`, {})}>{breadcrumb.title}</a>
+      {/each}
+    </div>
   {/if}
 
   <div id="page-content">
