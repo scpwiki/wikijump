@@ -1,6 +1,6 @@
 ## Wikijump Logo
 
-The historical Wikijump logo files are not stored in this fork because their repository redistribution status is not documented in a way that downstream source users can verify from the repository.
+The historical Wikijump logo and logo-derived favicon files are not stored in this fork because their repository redistribution status is not documented in a way that downstream source users can verify from the repository.
 
 **Colors:**
 
