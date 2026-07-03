@@ -1,7 +1,6 @@
 <script lang="ts">
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
   import Wikidot from "$lib/sigma-esque/wikidot.svelte"
-  import wjBanner from "$assets/logo-outline.min.svg?raw"
   import ErrorPopup from "$lib/popup/error.svelte"
 
   import { page } from "$app/state"
@@ -164,9 +163,7 @@
 {:else}
   <SigmaEsque>
     {#snippet header()}
-      <div class="header-wjbanner">
-        {@html wjBanner}
-      </div>
+      <h1 class="header-wordmark">Wikijump</h1>
     {/snippet}
 
     {#snippet topBar()}
@@ -214,21 +211,19 @@
   </SigmaEsque>
 {/if}
 
-<!-- Ignoring the "unused" svg as we know we imported and embedded a raw svg -->
-<!-- svelte-ignore css_unused_selector -->
 <style global lang="scss">
   @use "../lib/css/abstracts/variables" as *;
 
   $tablet-max-width: 767px;
 
-  .header-wjbanner {
-    height: 80%;
+  .header-wordmark {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
     color: #fff;
-
-    svg {
-      width: auto;
-      height: 100%;
-    }
+    letter-spacing: 0;
   }
 
   .footer-inner {
@@ -257,13 +252,9 @@
   }
 
   @media (max-width: $tablet-max-width) {
-    .header-wjbanner {
+    .header-wordmark {
+      font-size: 2rem;
       text-align: center;
-
-      svg {
-        height: initial;
-        max-height: 6.5em;
-      }
     }
   }
 </style>

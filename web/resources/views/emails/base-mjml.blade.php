@@ -33,11 +33,11 @@
         {{-- Header --}}
         <mj-section background-color="#fff" padding-bottom="0">
             <mj-column>
-                <mj-image width="400px"
-                          src="{{ $HTTP_SCHEMA }}://{{ $URL_HOST }}/files--static/media/logo.png"
-                          href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}"
-                          alt="{{ __('goto-service') }}"
-                />
+                <mj-text align="center"
+                         font-size="28px"
+                         font-weight="700"
+                         color="#0068b5"
+                >Wikijump</mj-text>
                 <mj-divider border-width="2px"
                             border-color="#eee"
                             padding-bottom="0"

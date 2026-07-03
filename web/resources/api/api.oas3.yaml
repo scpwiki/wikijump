@@ -97,10 +97,6 @@ info:
 
   version: 0.1.0
 
-  x-logo: # redoc
-    url: https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo.min.svg
-    altText: Wikijump Logo
-
 servers:
 - url: https://wikijump.com/api--v1
   description: Contextless Public API

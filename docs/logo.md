@@ -1,6 +1,6 @@
 ## Wikijump Logo
 
-The Wikijump Logo was created by EstrellaYoshte (SYwaves) who has graciously agreed to release it under CC-BY-SA 3.0.
+The historical Wikijump logo files are not stored in this fork because their repository redistribution status is not documented in a way that downstream source users can verify from the repository.
 
 **Colors:**
 
@@ -10,12 +10,3 @@ The Wikijump Logo was created by EstrellaYoshte (SYwaves) who has graciously agr
 **Fonts:**
 
 * [Poppins](https://fonts.google.com/specimen/Poppins)
-
-**Images:**
-
-<details>
-<summary>Wikijump Logos and Icons</summary>
-<p align="center"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo.inkscape.svg"></p>
-<p align="center"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo-square.inkscape.svg"></p>
-<p align="center"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo-round.inkscape.svg"></p>
-</details>
