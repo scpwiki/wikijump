@@ -444,7 +444,7 @@ impl PageQueryService {
                 OrderProperty::PageSlug => {
                     debug!("Ordering by page slug (no category)");
                     let expr = Expr::cust_with_expr(
-                        "regexp_replace($1, '^.*:', '')",
+                        "regexp_replace(regexp_replace($1, '^.*:', ''), '[^[:alnum:]]', '', 'g')",
                         Expr::col((Page, page::Column::Slug)),
                     );
                     query = query
