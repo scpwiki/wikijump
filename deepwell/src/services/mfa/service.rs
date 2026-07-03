@@ -23,6 +23,7 @@ use crate::models::user::Model as UserModel;
 use crate::services::audit::{AuditEvent, AuditService, UpdateMfaOperation};
 use crate::services::{PasswordService, UserService};
 use crate::types::UserType;
+use data_encoding::BASE32_NOPAD;
 use rust_otp::{Algorithm as TotpAlgorithm, TOTP};
 use sea_orm::ActiveValue;
 use std::net::IpAddr;
@@ -257,9 +258,11 @@ impl MfaService {
             }
         };
 
+        let secret_bytes = BASE32_NOPAD
+            .decode(secret.as_bytes())
+            .or_raise(make_error)?;
         let totp = TOTP::builder()
-            .base32_secret(secret)
-            .or_raise(make_error)?
+            .secret(secret_bytes)
             .algorithm(TOTP_ALGORITHM)
             .digits(config.totp_digits)
             .time_step(config.totp_time_step)

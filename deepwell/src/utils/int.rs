@@ -105,3 +105,43 @@ impl_convert_traits!(usize => i16);
 impl_convert_traits!(usize => i32);
 impl_convert_traits!(usize => i64);
 impl_convert_traits!(usize => u64);
+
+#[test]
+fn integer_conversions_accept_representable_values() {
+    assert_eq!(9_i16.try_into_usize().unwrap(), 9_usize);
+
+    assert_eq!(9_i64.try_into_i16().unwrap(), 9_i16);
+    assert_eq!(9_i64.try_into_i32().unwrap(), 9_i32);
+    assert_eq!(9_i64.try_into_u64().unwrap(), 9_u64);
+    assert_eq!(9_i64.try_into_usize().unwrap(), 9_usize);
+
+    assert_eq!(9_u64.try_into_i16().unwrap(), 9_i16);
+    assert_eq!(9_u64.try_into_i32().unwrap(), 9_i32);
+    assert_eq!(9_u64.try_into_i64().unwrap(), 9_i64);
+    assert_eq!(9_u64.try_into_usize().unwrap(), 9_usize);
+
+    assert_eq!(9_usize.try_into_i16().unwrap(), 9_i16);
+    assert_eq!(9_usize.try_into_i32().unwrap(), 9_i32);
+    assert_eq!(9_usize.try_into_i64().unwrap(), 9_i64);
+    assert_eq!(9_usize.try_into_u64().unwrap(), 9_u64);
+}
+
+#[test]
+fn integer_conversions_reject_out_of_range_values() {
+    assert!(i16::MIN.try_into_usize().is_err());
+
+    assert!((i16::MAX as i64 + 1).try_into_i16().is_err());
+    assert!((i32::MAX as i64 + 1).try_into_i32().is_err());
+    assert!((-1_i64).try_into_u64().is_err());
+    assert!((-1_i64).try_into_usize().is_err());
+
+    assert!((i16::MAX as u64 + 1).try_into_i16().is_err());
+    assert!((i32::MAX as u64 + 1).try_into_i32().is_err());
+    assert!((i64::MAX as u64 + 1).try_into_i64().is_err());
+
+    assert!((i16::MAX as usize + 1).try_into_i16().is_err());
+    assert!((i32::MAX as usize + 1).try_into_i32().is_err());
+
+    #[cfg(target_pointer_width = "64")]
+    assert!((i64::MAX as usize + 1).try_into_i64().is_err());
+}

@@ -37,3 +37,19 @@ pub fn get_slug<S: Into<String>>(name: S) -> String {
     normalize(&mut slug);
     slug
 }
+
+#[test]
+fn regular_slug_replaces_category_separator() {
+    assert_eq!(get_regular_slug("forum:staff"), "forum-staff");
+}
+
+#[test]
+fn page_slug_preserves_category_separator() {
+    assert_eq!(get_slug("forum:staff"), "forum:staff");
+}
+
+#[test]
+fn slug_normalization_handles_case_and_spacing() {
+    assert_eq!(get_regular_slug("  Mixed Case  "), "mixed-case");
+    assert_eq!(get_slug("  Mixed Case  "), "mixed-case");
+}

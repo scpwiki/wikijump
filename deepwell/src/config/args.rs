@@ -19,15 +19,22 @@
  */
 
 use super::Config;
+use crate::error::Result;
 use crate::info;
 use clap::builder::{BoolishValueParser, NonEmptyStringValueParser};
 use clap::{Arg, ArgAction, Command, value_parser};
+use std::env;
+use std::ffi::OsString;
 use std::net::IpAddr;
 use std::path::PathBuf;
 use std::process;
 
 pub fn parse_args() -> Config {
-    let mut matches = Command::new("DEEPWELL")
+    parse_args_from(env::args_os(), Config::load)
+}
+
+fn command() -> Command {
+    Command::new("DEEPWELL")
         .author(info::PKG_AUTHORS)
         .version(info::VERSION.as_str())
         .long_version(info::FULL_VERSION.as_str())
@@ -108,7 +115,15 @@ pub fn parse_args() -> Config {
                 .required(true)
                 .help("The configuration file to use for this DEEPWELL instance."),
         )
-        .get_matches();
+}
+
+fn parse_args_from<I, T, F>(args: I, load_config: F) -> Config
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + Clone,
+    F: FnOnce(PathBuf) -> Result<Config>,
+{
+    let mut matches = command().get_matches_from(args);
 
     // Read configuration from path
 
@@ -116,7 +131,7 @@ pub fn parse_args() -> Config {
         .remove_one::<PathBuf>("config-file")
         .expect("Required argument not provided");
 
-    let mut config = match Config::load(config_path) {
+    let mut config = match load_config(config_path) {
         Ok(config) => config,
         Err(error) => {
             eprintln!("Unable to load configuration from file: {error}");
@@ -165,4 +180,77 @@ pub fn parse_args() -> Config {
     }
 
     config
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use femme::LevelFilter;
+    use std::net::{IpAddr, Ipv4Addr};
+
+    fn parse_test_args(args: &[&str]) -> Config {
+        parse_args_from(args.iter().copied(), |path| {
+            assert_eq!(path, PathBuf::from("config.toml"));
+            Ok(Config::integration_testing())
+        })
+    }
+
+    #[test]
+    fn command_line_flags_override_config_file_values() {
+        let config = parse_test_args(&[
+            "deepwell",
+            "--disable-log",
+            "--log-level",
+            "warn",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "8080",
+            "--watch",
+            "--run-seeder",
+            "true",
+            "--localizations",
+            "../test-locales",
+            "--seed",
+            "../test-seeder",
+            "config.toml",
+        ]);
+
+        assert!(!config.logger);
+        assert_eq!(config.logger_level, LevelFilter::Warn);
+        assert_eq!(config.address.ip(), IpAddr::V4(Ipv4Addr::LOCALHOST));
+        assert_eq!(config.address.port(), 8080);
+        assert!(config.watch_files);
+        assert!(config.run_seeder);
+        assert_eq!(config.localization_path, PathBuf::from("../test-locales"));
+        assert_eq!(config.seeder_path, PathBuf::from("../test-seeder"));
+    }
+
+    #[test]
+    fn short_flags_are_accepted() {
+        let config = parse_test_args(&[
+            "deepwell",
+            "-q",
+            "-l",
+            "debug",
+            "-H",
+            "127.0.0.1",
+            "-p",
+            "9090",
+            "-w",
+            "-S",
+            "false",
+            "-L",
+            "../locale-short",
+            "config.toml",
+        ]);
+
+        assert!(!config.logger);
+        assert_eq!(config.logger_level, LevelFilter::Debug);
+        assert_eq!(config.address.ip(), IpAddr::V4(Ipv4Addr::LOCALHOST));
+        assert_eq!(config.address.port(), 9090);
+        assert!(config.watch_files);
+        assert!(!config.run_seeder);
+        assert_eq!(config.localization_path, PathBuf::from("../locale-short"));
+    }
 }

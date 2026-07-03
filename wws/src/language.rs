@@ -44,3 +44,35 @@ pub fn parse_accept_language(headers: &HeaderMap) -> Vec<String> {
 
     languages
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::HeaderValue;
+
+    #[test]
+    fn missing_accept_language_uses_english() {
+        let headers = HeaderMap::new();
+
+        assert_eq!(parse_accept_language(&headers), vec!["en"]);
+    }
+
+    #[test]
+    fn invalid_accept_language_uses_english() {
+        let mut headers = HeaderMap::new();
+        headers.insert("accept-language", HeaderValue::from_bytes(b"\xFF").unwrap());
+
+        assert_eq!(parse_accept_language(&headers), vec!["en"]);
+    }
+
+    #[test]
+    fn parses_accept_language_preferences() {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            "accept-language",
+            HeaderValue::from_static("fr-CA, fr;q=0.8, en;q=0.4"),
+        );
+
+        assert_eq!(parse_accept_language(&headers), vec!["fr-CA", "fr", "en"]);
+    }
+}

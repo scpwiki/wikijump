@@ -268,6 +268,12 @@
             "wikitext": "component-license-box"
         },
         {
+            "slug": "component:anomaly-class-bar",
+            "title": "Anomaly Classification Bar",
+            "tags": ["component"],
+            "wikitext": "empty-page"
+        },
+        {
             "slug": "theme:basalt",
             "title": "Basalt Theme",
             "tags": ["theme"],
@@ -292,6 +298,18 @@
             "tags": ["scp"],
             "created-by": -21,
             "wikitext": "scp-3922"
+        },
+        {
+            "slug": "scp-5382",
+            "title": "SCP-5382",
+            "tags": ["scp"],
+            "wikitext": "empty-page"
+        },
+        {
+            "slug": "scp-7000",
+            "title": "SCP-7000",
+            "tags": ["scp"],
+            "wikitext": "empty-page"
         },
         {
             "slug": "scp-9506",

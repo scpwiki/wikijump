@@ -31,3 +31,29 @@ pub fn get_path(uri: &Uri) -> &str {
         None => uri.path(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn path_without_query_returns_path() {
+        let uri: Uri = "/scp-173".parse().unwrap();
+
+        assert_eq!(get_path(&uri), "/scp-173");
+    }
+
+    #[test]
+    fn path_with_query_preserves_query() {
+        let uri: Uri = "/scp-173?theme=classic".parse().unwrap();
+
+        assert_eq!(get_path(&uri), "/scp-173?theme=classic");
+    }
+
+    #[test]
+    fn authority_form_uri_falls_back_to_path() {
+        let uri: Uri = "https://example.wikijump.com".parse().unwrap();
+
+        assert_eq!(get_path(&uri), "/");
+    }
+}

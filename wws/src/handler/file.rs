@@ -383,3 +383,528 @@ fn multipart_content_length(
     len += 2 + boundary.len() + 2 + 2;
     len
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::Secrets;
+    use crate::state::build_server_state;
+    use axum::body;
+    use axum::http::StatusCode;
+    use axum::http::header::{
+        ACCEPT_RANGES, CONTENT_DISPOSITION, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE,
+        ETAG, RANGE,
+    };
+    use s3::creds::Credentials;
+    use s3::region::Region;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    use std::sync::{Arc, Mutex};
+    use std::thread::{self, JoinHandle};
+    use std::time::Duration;
+
+    struct S3Server {
+        endpoint: String,
+        requests: Arc<Mutex<Vec<String>>>,
+        handle: JoinHandle<()>,
+    }
+
+    impl S3Server {
+        fn requests(&self) -> Vec<String> {
+            self.requests.lock().unwrap().clone()
+        }
+
+        fn join(self) {
+            self.handle.join().unwrap();
+        }
+    }
+
+    fn spawn_s3_server(responses: Vec<(u16, &'static [u8])>) -> S3Server {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = format!("http://{}", listener.local_addr().unwrap());
+        let requests = Arc::new(Mutex::new(Vec::new()));
+        let server_requests = Arc::clone(&requests);
+
+        let handle = thread::spawn(move || {
+            for (status, body) in responses {
+                let (mut stream, _) = listener.accept().unwrap();
+                stream
+                    .set_read_timeout(Some(Duration::from_secs(2)))
+                    .unwrap();
+
+                let mut raw = Vec::new();
+                let mut chunk = [0_u8; 1024];
+                loop {
+                    let read = stream.read(&mut chunk).unwrap();
+                    if read == 0 {
+                        break;
+                    }
+                    raw.extend_from_slice(&chunk[..read]);
+                    if raw.windows(4).any(|window| window == b"\r\n\r\n") {
+                        break;
+                    }
+                }
+
+                server_requests
+                    .lock()
+                    .unwrap()
+                    .push(String::from_utf8_lossy(&raw).into_owned());
+
+                let response = format!(
+                    concat!(
+                        "HTTP/1.1 {status} OK\r\n",
+                        "Content-Length: {length}\r\n",
+                        "Content-Type: application/octet-stream\r\n",
+                        "ETag: \"test-etag\"\r\n",
+                        "Connection: close\r\n",
+                        "\r\n",
+                    ),
+                    status = status,
+                    length = body.len(),
+                );
+                stream.write_all(response.as_bytes()).unwrap();
+                stream.write_all(body).unwrap();
+            }
+        });
+
+        S3Server {
+            endpoint,
+            requests,
+            handle,
+        }
+    }
+
+    fn file_data(size: i64) -> FileData {
+        FileData {
+            file_id: 1,
+            mime: str!("text/plain"),
+            size,
+            s3_hash: str!("sha512-hash"),
+        }
+    }
+
+    async fn test_state() -> ServerState {
+        test_state_with_endpoint("http://127.0.0.1:9000").await
+    }
+
+    async fn test_state_with_endpoint(endpoint: &str) -> ServerState {
+        let mut state = build_server_state(
+            false,
+            Secrets {
+                deepwell_url: str!("http://127.0.0.1:2747"),
+                redis_url: str!("redis://127.0.0.1/"),
+                s3_files_bucket: str!("files"),
+                s3_tblocks_bucket: str!("text-blocks"),
+                s3_region: Region::Custom {
+                    region: str!("test"),
+                    endpoint: endpoint.to_string(),
+                },
+                s3_credentials: Credentials::new(
+                    Some("access-key"),
+                    Some("secret-key"),
+                    None,
+                    None,
+                    None,
+                )
+                .unwrap(),
+                s3_path_style: true,
+            },
+        )
+        .await
+        .unwrap();
+        disable_s3_proxies(&mut state);
+        state
+    }
+
+    fn disable_s3_proxies(state: &mut ServerState) {
+        let state = Arc::get_mut(state).expect("test state should have one owner");
+        let files_bucket = state
+            .s3_files_bucket
+            .set_proxy(reqwest::Proxy::custom(|_| None::<reqwest::Url>))
+            .unwrap();
+        let tblocks_bucket = state
+            .s3_tblocks_bucket
+            .set_proxy(reqwest::Proxy::custom(|_| None::<reqwest::Url>))
+            .unwrap();
+        *state.s3_files_bucket = files_bucket;
+        *state.s3_tblocks_bucket = tblocks_bucket;
+    }
+
+    #[tokio::test]
+    async fn serve_get_full_file_streams_s3_body() {
+        let server = spawn_s3_server(vec![(200, b"abcdef")]);
+        let state = test_state_with_endpoint(&server.endpoint).await;
+        let mut headers = HeaderMap::new();
+        headers.insert(crate::handler::HEADER_SITE_ID, "10".parse().unwrap());
+        let file_info = file_data(6);
+
+        let response = serve_file(
+            &state,
+            &Method::GET,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers().get(CONTENT_TYPE).unwrap(), "text/plain");
+        assert_eq!(response.headers().get(CONTENT_LENGTH).unwrap(), "6");
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(&body[..], b"abcdef");
+        let requests = server.requests();
+        assert!(requests[0].starts_with("GET /files/sha512-hash "));
+        server.join();
+    }
+
+    #[tokio::test]
+    async fn serve_get_single_range_streams_s3_body() {
+        let server = spawn_s3_server(vec![(206, b"bcd")]);
+        let state = test_state_with_endpoint(&server.endpoint).await;
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=1-3".parse().unwrap());
+        let file_info = file_data(6);
+
+        let response = serve_file(
+            &state,
+            &Method::GET,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+        assert_eq!(
+            response.headers().get(CONTENT_RANGE).unwrap(),
+            "bytes 1-3/6",
+        );
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(&body[..], b"bcd");
+        let requests = server.requests();
+        assert!(
+            requests[0]
+                .to_ascii_lowercase()
+                .contains("range: bytes=1-3"),
+        );
+        server.join();
+    }
+
+    #[tokio::test]
+    async fn serve_get_multi_range_assembles_multipart_body() {
+        let server = spawn_s3_server(vec![(206, b"ab"), (206, b"de")]);
+        let state = test_state_with_endpoint(&server.endpoint).await;
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=0-1,3-4".parse().unwrap());
+        let file_info = file_data(6);
+
+        let response = serve_file(
+            &state,
+            &Method::GET,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+        let content_type = response.headers().get(CONTENT_TYPE).unwrap();
+        assert!(
+            content_type
+                .to_str()
+                .unwrap()
+                .starts_with("multipart/byteranges; boundary=wikijump_byteranges_")
+        );
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let body = String::from_utf8(body.to_vec()).unwrap();
+        assert!(body.contains("Content-Range: bytes 0-1/6\r\n\r\nab\r\n"));
+        assert!(body.contains("Content-Range: bytes 3-4/6\r\n\r\nde\r\n"));
+        assert!(body.ends_with("--\r\n"));
+        let requests = server.requests();
+        assert!(
+            requests[0]
+                .to_ascii_lowercase()
+                .contains("range: bytes=0-1"),
+        );
+        assert!(
+            requests[1]
+                .to_ascii_lowercase()
+                .contains("range: bytes=3-4"),
+        );
+        server.join();
+    }
+
+    #[tokio::test]
+    async fn serve_get_range_returns_500_when_s3_does_not_return_partial_content() {
+        let server = spawn_s3_server(vec![(200, b"abcdef")]);
+        let state = test_state_with_endpoint(&server.endpoint).await;
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=1-3".parse().unwrap());
+        let file_info = file_data(6);
+
+        let response = serve_file(
+            &state,
+            &Method::GET,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        server.join();
+    }
+
+    #[tokio::test]
+    async fn serve_get_multi_range_returns_500_when_s3_does_not_return_partial_content() {
+        let server = spawn_s3_server(vec![(200, b"abcdef")]);
+        let state = test_state_with_endpoint(&server.endpoint).await;
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=0-1,3-4".parse().unwrap());
+        let file_info = file_data(6);
+
+        let response = serve_file(
+            &state,
+            &Method::GET,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        server.join();
+    }
+
+    #[tokio::test]
+    async fn range_not_satisfiable_reports_valid_content_range() {
+        let response = range_not_satisfiable(1234);
+
+        assert_eq!(response.status(), StatusCode::RANGE_NOT_SATISFIABLE);
+        assert_eq!(
+            response.headers().get(CONTENT_RANGE).unwrap(),
+            "bytes */1234"
+        );
+        assert_eq!(response.headers().get(ACCEPT_RANGES).unwrap(), "bytes");
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert!(body.is_empty());
+    }
+
+    #[test]
+    fn base_headers_sets_etag_and_accept_ranges() {
+        let response = base_headers(StatusCode::OK, "\"etag\"", false, "file.txt")
+            .body(Body::empty())
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers().get(ETAG).unwrap(), "\"etag\"");
+        assert_eq!(response.headers().get(ACCEPT_RANGES).unwrap(), "bytes");
+        assert!(response.headers().get(CONTENT_DISPOSITION).is_none());
+    }
+
+    #[test]
+    fn base_headers_sets_attachment_disposition_when_requested() {
+        let response = base_headers(StatusCode::OK, "\"etag\"", true, "report 1.txt")
+            .body(Body::empty())
+            .unwrap();
+
+        let disposition = response.headers().get(CONTENT_DISPOSITION).unwrap();
+        assert_eq!(disposition, "attachment; filename=\"report 1.txt\"");
+    }
+
+    #[test]
+    fn multipart_boundary_has_expected_prefix_and_random_suffix_length() {
+        let boundary = generate_multipart_boundary();
+
+        assert!(boundary.starts_with(MULTIPART_BOUNDARY_PREFIX));
+        assert_eq!(
+            boundary.len(),
+            MULTIPART_BOUNDARY_PREFIX.len() + MULTIPART_BOUNDARY_RANDOM_LENGTH,
+        );
+    }
+
+    #[test]
+    fn multipart_content_length_matches_wire_format() {
+        let boundary = "BOUNDARY";
+        let ranges = [
+            ByteRange { start: 0, end: 1 },
+            ByteRange { start: 10, end: 12 },
+        ];
+
+        let mut expected = Vec::new();
+        expected.extend_from_slice(
+            b"--BOUNDARY\r\nContent-Type: text/plain\r\nContent-Range: bytes 0-1/20\r\n\r\n",
+        );
+        expected.extend_from_slice(&[0_u8; 2]);
+        expected.extend_from_slice(b"\r\n");
+        expected.extend_from_slice(
+            b"--BOUNDARY\r\nContent-Type: text/plain\r\nContent-Range: bytes 10-12/20\r\n\r\n",
+        );
+        expected.extend_from_slice(&[0_u8; 3]);
+        expected.extend_from_slice(b"\r\n--BOUNDARY--\r\n");
+
+        assert_eq!(
+            multipart_content_length(boundary, "text/plain", &ranges, 20),
+            expected.len(),
+        );
+    }
+
+    #[tokio::test]
+    async fn build_or_500_preserves_successful_response() {
+        let result = Response::builder()
+            .status(StatusCode::PARTIAL_CONTENT)
+            .header(CONTENT_TYPE, "application/octet-stream")
+            .header(CONTENT_LENGTH, 0)
+            .body(Body::empty());
+
+        let response = build_or_500(result);
+        assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+        assert_eq!(
+            response.headers().get(CONTENT_TYPE).unwrap(),
+            "application/octet-stream",
+        );
+    }
+
+    #[tokio::test]
+    async fn serve_head_full_file_returns_metadata_without_fetching_s3() {
+        let state = test_state().await;
+        let headers = HeaderMap::new();
+        let file_info = file_data(42);
+
+        let response = serve_file(
+            &state,
+            &Method::HEAD,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers().get(CONTENT_TYPE).unwrap(), "text/plain");
+        assert_eq!(response.headers().get(CONTENT_LENGTH).unwrap(), "42");
+        assert_eq!(response.headers().get(ETAG).unwrap(), "\"sha512-hash\"");
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert!(body.is_empty());
+    }
+
+    #[tokio::test]
+    async fn serve_head_single_range_returns_partial_metadata() {
+        let state = test_state().await;
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=1-3".parse().unwrap());
+        let file_info = file_data(10);
+
+        let response = serve_file(
+            &state,
+            &Method::HEAD,
+            &headers,
+            &file_info,
+            true,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+        assert_eq!(
+            response.headers().get(CONTENT_RANGE).unwrap(),
+            "bytes 1-3/10",
+        );
+        assert_eq!(response.headers().get(CONTENT_LENGTH).unwrap(), "3");
+        assert!(response.headers().get(CONTENT_DISPOSITION).is_some());
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert!(body.is_empty());
+    }
+
+    #[tokio::test]
+    async fn serve_head_multi_range_returns_multipart_metadata() {
+        let state = test_state().await;
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=0-0,2-3".parse().unwrap());
+        let file_info = file_data(10);
+
+        let response = serve_file(
+            &state,
+            &Method::HEAD,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+        let content_type = response.headers().get(CONTENT_TYPE).unwrap();
+        assert!(
+            content_type
+                .to_str()
+                .unwrap()
+                .starts_with("multipart/byteranges; boundary=wikijump_byteranges_")
+        );
+        assert!(response.headers().get(CONTENT_LENGTH).is_some());
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert!(body.is_empty());
+    }
+
+    #[tokio::test]
+    async fn serve_file_rejects_unsatisfiable_and_oversized_ranges() {
+        let state = test_state().await;
+        let file_info = file_data(9_000_000);
+
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=9999999-10000000".parse().unwrap());
+        let response = serve_file(
+            &state,
+            &Method::HEAD,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+        assert_eq!(response.status(), StatusCode::RANGE_NOT_SATISFIABLE);
+
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=0-8388608,8388609-8388610".parse().unwrap());
+        let response = serve_file(
+            &state,
+            &Method::HEAD,
+            &headers,
+            &file_info,
+            false,
+            "page",
+            "file.txt",
+        )
+        .await;
+        assert_eq!(response.status(), StatusCode::RANGE_NOT_SATISFIABLE);
+    }
+}

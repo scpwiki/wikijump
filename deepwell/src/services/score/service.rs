@@ -295,3 +295,29 @@ impl ScoreService {
         condition
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn combines_imported_rating_with_local_scores() {
+        assert_eq!(
+            ScoreService::combine_imported_rating(10, ScoreValue::Integer(5),).unwrap(),
+            ScoreValue::Integer(15),
+        );
+        assert_eq!(
+            ScoreService::combine_imported_rating(10, ScoreValue::Float(2.5),).unwrap(),
+            ScoreValue::Float(12.5),
+        );
+    }
+
+    #[test]
+    fn rejects_imported_rating_integer_overflow() {
+        let error =
+            ScoreService::combine_imported_rating(i64::MAX, ScoreValue::Integer(1))
+                .unwrap_err();
+
+        assert!(error.to_string().contains("overflowed"));
+    }
+}

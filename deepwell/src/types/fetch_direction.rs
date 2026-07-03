@@ -87,3 +87,13 @@ fn name_serde() {
         assert_eq!(converted, variant, "Converted item does not match variant");
     }
 }
+
+#[test]
+fn rejects_unknown_fetch_direction() {
+    let error = "sideways".parse::<FetchDirection>().unwrap_err();
+
+    assert_eq!(
+        error.to_string(),
+        "failed to convert value 'sideways' to a FetchDirection enum value",
+    );
+}

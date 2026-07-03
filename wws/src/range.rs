@@ -173,6 +173,8 @@ pub fn evaluate_range(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::http::HeaderMap;
+    use axum::http::header::{IF_RANGE, RANGE};
 
     // ------------ Range parser tests ------------
 
@@ -282,5 +284,72 @@ mod tests {
     fn skip_unsatisfiable_keep_good() {
         // First range is past EOF, second is valid.
         assert_eq!(ranges("bytes=99999-100000, 0-99", 12345), vec![(0, 99)]);
+    }
+
+    #[test]
+    fn open_ended_start_past_eof_is_not_satisfiable() {
+        assert!(is_not_satisfiable("bytes=12345-", 12345));
+    }
+
+    #[test]
+    fn malformed_suffix_zero_or_non_numeric() {
+        assert!(is_none("bytes=-0", 12345));
+        assert!(is_none("bytes=-abc", 12345));
+    }
+
+    #[test]
+    fn malformed_start_or_end_values() {
+        assert!(is_none("bytes=abc-10", 12345));
+        assert!(is_none("bytes=0-abc", 12345));
+        assert!(is_none("bytes=0", 12345));
+    }
+
+    #[test]
+    fn too_many_ranges_is_rejected() {
+        assert!(is_none(
+            "bytes=0-0,2-2,4-4,6-6,8-8,10-10,12-12,14-14,16-16,18-18,20-20",
+            12345,
+        ));
+    }
+
+    #[test]
+    fn byte_range_len_is_inclusive() {
+        assert_eq!(ByteRange { start: 10, end: 12 }.len(), 3);
+    }
+
+    #[test]
+    fn if_range_must_match_current_etag() {
+        let mut headers = HeaderMap::new();
+        assert!(should_evaluate_range(&headers, "\"abc\""));
+
+        headers.insert(IF_RANGE, "\"abc\"".parse().unwrap());
+        assert!(should_evaluate_range(&headers, "\"abc\""));
+
+        headers.insert(IF_RANGE, "\"old\"".parse().unwrap());
+        assert!(!should_evaluate_range(&headers, "\"abc\""));
+    }
+
+    #[test]
+    fn evaluate_range_uses_range_header_when_allowed() {
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=1-2".parse().unwrap());
+
+        assert!(matches!(
+            evaluate_range(&headers, "\"abc\"", 10),
+            ParsedRange::Satisfiable(ranges)
+                if ranges.len() == 1 && ranges[0].start == 1 && ranges[0].end == 2
+        ));
+    }
+
+    #[test]
+    fn evaluate_range_ignores_range_header_when_if_range_mismatches() {
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=1-2".parse().unwrap());
+        headers.insert(IF_RANGE, "\"old\"".parse().unwrap());
+
+        assert!(matches!(
+            evaluate_range(&headers, "\"abc\"", 10),
+            ParsedRange::None,
+        ));
     }
 }

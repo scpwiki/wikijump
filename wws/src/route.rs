@@ -98,3 +98,40 @@ pub fn build_router(state: ServerState) -> Router {
         )
         .with_state(state)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::Secrets;
+    use crate::state::build_server_state;
+    use s3::creds::Credentials;
+    use s3::region::Region;
+
+    fn test_secrets() -> Secrets {
+        Secrets {
+            deepwell_url: str!("http://127.0.0.1:2747"),
+            redis_url: str!("redis://127.0.0.1/"),
+            s3_files_bucket: str!("files"),
+            s3_tblocks_bucket: str!("text-blocks"),
+            s3_region: Region::Custom {
+                region: str!("test"),
+                endpoint: str!("http://127.0.0.1:9000"),
+            },
+            s3_credentials: Credentials::new(
+                Some("access-key"),
+                Some("secret-key"),
+                None,
+                None,
+                None,
+            )
+            .unwrap(),
+            s3_path_style: true,
+        }
+    }
+
+    #[tokio::test]
+    async fn build_router_accepts_initialized_state() {
+        let state = build_server_state(false, test_secrets()).await.unwrap();
+        let _router = build_router(state);
+    }
+}

@@ -348,3 +348,267 @@ impl TextBlockType {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::Router;
+    use axum::body::Bytes;
+    use axum::extract::State;
+    use axum::http::header;
+    use axum::response::{IntoResponse, Response};
+    use axum::routing::post;
+    use serde_json::{Value, json};
+    use std::sync::{Arc, Mutex};
+    use tokio::net::TcpListener;
+
+    type Requests = Arc<Mutex<Vec<Value>>>;
+
+    async fn rpc_handler(State(requests): State<Requests>, body: Bytes) -> Response {
+        let request: Value = serde_json::from_slice(&body).unwrap();
+        let method = request["method"].as_str().unwrap();
+        let id = request["id"].clone();
+        let result = match method {
+            "ping" => json!("pong"),
+            "site_domain" => json!("scp-wiki.wikijump.local"),
+            "page_get" => json!({ "page_id": 123 }),
+            "file_get" => json!({
+                "file_id": 7,
+                "mime": "text/plain",
+                "size": 42,
+                "s3_hash": "abc123",
+            }),
+            "text_block_get_index" => json!({
+                "index": 2,
+                "s3_filename": "blocks/2.html",
+            }),
+            "basic_error_missing_site_slug"
+            | "basic_error_missing_custom_domain"
+            | "basic_error_missing_page_slug"
+            | "basic_error_page_fetch"
+            | "basic_error_missing_file_name"
+            | "basic_error_file_fetch"
+            | "basic_error_text_block"
+            | "basic_error_file_root" => json!({
+                "title": format!("title:{method}"),
+                "body": format!("body:{method}"),
+            }),
+            other => panic!("unexpected JSON-RPC method: {other}"),
+        };
+
+        requests.lock().unwrap().push(request);
+        let body = json!({
+            "jsonrpc": "2.0",
+            "result": result,
+            "id": id,
+        })
+        .to_string();
+
+        ([(header::CONTENT_TYPE, "application/json")], body).into_response()
+    }
+
+    async fn spawn_rpc_server() -> (String, Requests) {
+        let requests = Requests::default();
+        let app = Router::new()
+            .route("/", post(rpc_handler))
+            .with_state(Arc::clone(&requests));
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            axum::serve(listener, app).await.unwrap();
+        });
+
+        (format!("http://{address}"), requests)
+    }
+
+    fn requests_by_method(requests: &Requests, method: &str) -> Vec<Value> {
+        requests
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|request| request["method"] == method)
+            .cloned()
+            .collect()
+    }
+
+    #[test]
+    fn text_block_type_values_match_deepwell_contract() {
+        assert_eq!(TextBlockType::Code.value(), "code");
+        assert_eq!(TextBlockType::Html.value(), "html");
+    }
+
+    #[test]
+    fn invalid_deepwell_url_is_rejected() {
+        assert!(Deepwell::connect("not a url").is_err());
+    }
+
+    #[tokio::test]
+    async fn deepwell_getters_send_expected_json_rpc_requests() {
+        let (url, requests) = spawn_rpc_server().await;
+        let deepwell = Deepwell::connect(&url).unwrap();
+
+        deepwell.ping().await.unwrap();
+        assert_eq!(
+            deepwell.get_site_domain(42).await.unwrap(),
+            "scp-wiki.wikijump.local",
+        );
+        assert_eq!(
+            deepwell
+                .get_page(42, "scp-173")
+                .await
+                .unwrap()
+                .unwrap()
+                .page_id,
+            123
+        );
+
+        let file = deepwell
+            .get_file(42, 123, "image.png")
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(file.file_id, 7);
+        assert_eq!(file.mime, "text/plain");
+        assert_eq!(file.size, 42);
+        assert_eq!(file.s3_hash, "abc123");
+
+        let block = deepwell
+            .get_text_block_index(
+                42,
+                123,
+                TextBlockType::Html,
+                TextBlockId::Index(NonZeroU16::new(2).unwrap()),
+                Some("session-token"),
+            )
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(block.index, NonZeroU16::new(2).unwrap());
+        assert_eq!(block.s3_filename, "blocks/2.html");
+
+        let named_block = deepwell
+            .get_text_block_index(
+                42,
+                123,
+                TextBlockType::Code,
+                TextBlockId::Name("example"),
+                None,
+            )
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(named_block.index, NonZeroU16::new(2).unwrap());
+
+        let page_get = requests_by_method(&requests, "page_get");
+        assert_eq!(page_get[0]["params"]["site_id"], 42);
+        assert_eq!(page_get[0]["params"]["page"], "scp-173");
+        assert_eq!(page_get[0]["params"]["wikitext"], false);
+        assert_eq!(page_get[0]["params"]["compiled"], false);
+
+        let file_get = requests_by_method(&requests, "file_get");
+        assert_eq!(file_get[0]["params"]["site_id"], 42);
+        assert_eq!(file_get[0]["params"]["page_id"], 123);
+        assert_eq!(file_get[0]["params"]["file"], "image.png");
+        assert_eq!(file_get[0]["params"]["data"], false);
+
+        let block_gets = requests_by_method(&requests, "text_block_get_index");
+        assert_eq!(block_gets[0]["params"]["block_type"], "html");
+        assert_eq!(block_gets[0]["params"]["index"], 2);
+        assert!(block_gets[0]["params"]["name"].is_null());
+        assert_eq!(block_gets[0]["params"]["session_token"], "session-token");
+        assert_eq!(block_gets[1]["params"]["block_type"], "code");
+        assert!(block_gets[1]["params"]["index"].is_null());
+        assert_eq!(block_gets[1]["params"]["name"], "example");
+        assert!(block_gets[1]["params"]["session_token"].is_null());
+    }
+
+    #[tokio::test]
+    async fn deepwell_basic_error_methods_send_locales_and_context() {
+        let (url, requests) = spawn_rpc_server().await;
+        let deepwell = Deepwell::connect(&url).unwrap();
+        let locales = vec!["ja".to_string(), "en".to_string()];
+
+        assert_eq!(
+            deepwell
+                .basic_error_missing_site_slug(&locales, "scp-wiki")
+                .await
+                .unwrap()
+                .title,
+            "title:basic_error_missing_site_slug",
+        );
+        assert_eq!(
+            deepwell
+                .basic_error_missing_custom_domain(&locales, "example.com")
+                .await
+                .unwrap()
+                .title,
+            "title:basic_error_missing_custom_domain",
+        );
+        assert_eq!(
+            deepwell
+                .basic_error_missing_page_slug(&locales, 42, "scp-173")
+                .await
+                .unwrap()
+                .title,
+            "title:basic_error_missing_page_slug",
+        );
+        assert_eq!(
+            deepwell
+                .basic_error_page_fetch(&locales, 42, "scp-173")
+                .await
+                .unwrap()
+                .title,
+            "title:basic_error_page_fetch",
+        );
+        assert_eq!(
+            deepwell
+                .basic_error_missing_file_name(&locales, 42, "scp-173", "image.png")
+                .await
+                .unwrap()
+                .title,
+            "title:basic_error_missing_file_name",
+        );
+        assert_eq!(
+            deepwell
+                .basic_error_file_fetch(&locales, 42, "scp-173", "image.png")
+                .await
+                .unwrap()
+                .title,
+            "title:basic_error_file_fetch",
+        );
+        let text_block = deepwell
+            .basic_error_text_block(
+                &locales,
+                42,
+                "2",
+                TextBlockType::Html,
+                TextBlockErrorReason::Missing,
+            )
+            .await
+            .unwrap();
+        assert_eq!(text_block.title, "title:basic_error_text_block");
+        assert_eq!(text_block.body, "body:basic_error_text_block");
+        assert_eq!(
+            deepwell
+                .basic_error_file_root(&locales)
+                .await
+                .unwrap()
+                .title,
+            "title:basic_error_file_root",
+        );
+
+        let site_slug = requests_by_method(&requests, "basic_error_missing_site_slug");
+        assert_eq!(site_slug[0]["params"]["locales"], json!(["ja", "en"]));
+        assert_eq!(site_slug[0]["params"]["site_slug"], "scp-wiki");
+
+        let custom_domain =
+            requests_by_method(&requests, "basic_error_missing_custom_domain");
+        assert_eq!(custom_domain[0]["params"]["domain"], "example.com");
+
+        let text_block_requests = requests_by_method(&requests, "basic_error_text_block");
+        assert_eq!(text_block_requests[0]["params"]["site_id"], 42);
+        assert_eq!(text_block_requests[0]["params"]["index"], "2");
+        assert_eq!(text_block_requests[0]["params"]["block_type"], "html");
+        assert_eq!(text_block_requests[0]["params"]["reason"], "missing");
+    }
+}

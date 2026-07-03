@@ -369,3 +369,112 @@ impl Debug for Localizations {
             .finish()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fluent::FluentValue;
+    use std::env;
+    use std::fs;
+    use std::process;
+
+    fn locale_dir(name: &str) -> PathBuf {
+        let path = env::temp_dir()
+            .join(format!("deepwell-fluent-test-{name}-{}", process::id()));
+        let _ = fs::remove_dir_all(&path);
+        fs::create_dir_all(path.join("fluent/core")).unwrap();
+        path
+    }
+
+    #[test]
+    fn parse_selector_splits_message_attribute_once() {
+        assert_eq!(Localizations::parse_selector("message"), ("message", None));
+        assert_eq!(
+            Localizations::parse_selector("message.title"),
+            ("message", Some("title")),
+        );
+    }
+
+    #[tokio::test]
+    async fn open_translates_values_attributes_and_locale_fallbacks() {
+        let root = locale_dir("translate");
+        fs::write(
+            root.join("fluent/core/en.ftl"),
+            "hello = Hello { $name }\n    .title = Title { $name }\n",
+        )
+        .unwrap();
+
+        let localizations = Localizations::open(&root).await.unwrap();
+        let en_us: LanguageIdentifier = "en-US".parse().unwrap();
+        let mut args = FluentArgs::new();
+        args.set("name", FluentValue::from("Ada"));
+
+        let hello = localizations
+            .translate([en_us.clone()], "hello", &args)
+            .unwrap();
+        let title = localizations
+            .translate([en_us], "hello.title", &args)
+            .unwrap();
+
+        assert_eq!(hello.replace(['\u{2068}', '\u{2069}'], ""), "Hello Ada");
+        assert_eq!(title.replace(['\u{2068}', '\u{2069}'], ""), "Title Ada");
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[tokio::test]
+    async fn translate_option_propagates_wrapped_missing_translation_errors() {
+        let root = locale_dir("missing");
+        fs::write(root.join("fluent/core/en.ftl"), "hello = Hello\n").unwrap();
+        let localizations = Localizations::open(&root).await.unwrap();
+        let en: LanguageIdentifier = "en".parse().unwrap();
+        let fr: LanguageIdentifier = "fr".parse().unwrap();
+        let args = FluentArgs::new();
+
+        let missing_message = localizations
+            .translate_option([en.clone()], "missing", &args)
+            .unwrap_err();
+        let missing_attribute = localizations
+            .translate_option([en], "hello.title", &args)
+            .unwrap_err();
+        let missing_locale = localizations
+            .translate_option([fr], "hello", &args)
+            .unwrap_err();
+
+        assert!(matches!(
+            missing_message.error_type,
+            ErrorType::Localization
+        ));
+        assert!(matches!(
+            missing_attribute.error_type,
+            ErrorType::Localization
+        ));
+        assert!(matches!(missing_locale.error_type, ErrorType::Localization));
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[tokio::test]
+    async fn open_reports_invalid_fluent_resources() {
+        let root = locale_dir("invalid");
+        fs::write(root.join("fluent/core/en.ftl"), "broken = {").unwrap();
+
+        let error = Localizations::open(&root).await.unwrap_err();
+
+        assert!(matches!(error.error_type, ErrorType::Localization));
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[tokio::test]
+    async fn debug_reports_bundle_count_without_dumping_bundles() {
+        let root = locale_dir("debug");
+        fs::write(root.join("fluent/core/en.ftl"), "hello = Hello\n").unwrap();
+        let localizations = Localizations::open(&root).await.unwrap();
+
+        let debug = format!("{localizations:?}");
+
+        assert!(debug.contains("1 items"));
+        assert!(!debug.contains("hello = Hello"));
+        fs::remove_dir_all(root).unwrap();
+    }
+}

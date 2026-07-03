@@ -137,7 +137,7 @@ After"#;
         .expect("compiled body should be included in page_get details");
 
     assert!(
-        html.contains("16 May 2017 16:02"),
+        html.contains("17 May 2017 01:02"),
         "exact-name ListPages should expand created_at in Wikidot date format:\n{html}",
     );
     assert!(

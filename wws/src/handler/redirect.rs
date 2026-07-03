@@ -65,3 +65,55 @@ pub async fn handle_download_redirect(
     let destination = format!("/-/download/{page_slug}/{filename}");
     Redirect::permanent(&destination)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::StatusCode;
+    use axum::http::header::LOCATION;
+
+    fn assert_permanent_redirect(response: Response, destination: &str) {
+        assert_eq!(response.status(), StatusCode::PERMANENT_REDIRECT);
+        assert_eq!(response.headers().get(LOCATION).unwrap(), destination);
+    }
+
+    #[tokio::test]
+    async fn code_redirect_targets_internal_code_route() {
+        assert_permanent_redirect(
+            handle_code_redirect(Path(("scp-173".into(), "2".into())))
+                .await
+                .into_response(),
+            "/-/code/scp-173/2",
+        );
+    }
+
+    #[tokio::test]
+    async fn html_redirect_targets_internal_html_route() {
+        assert_permanent_redirect(
+            handle_html_redirect(Path(("scp-173".into(), "4".into())))
+                .await
+                .into_response(),
+            "/-/html/scp-173/4",
+        );
+    }
+
+    #[tokio::test]
+    async fn file_redirect_targets_internal_file_route() {
+        assert_permanent_redirect(
+            handle_file_redirect(Path(("scp-173".into(), "image.png".into())))
+                .await
+                .into_response(),
+            "/-/file/scp-173/image.png",
+        );
+    }
+
+    #[tokio::test]
+    async fn download_redirect_targets_internal_download_route() {
+        assert_permanent_redirect(
+            handle_download_redirect(Path(("scp-173".into(), "image.png".into())))
+                .await
+                .into_response(),
+            "/-/download/scp-173/image.png",
+        );
+    }
+}

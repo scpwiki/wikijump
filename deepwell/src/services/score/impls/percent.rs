@@ -54,3 +54,18 @@ impl Scorer for PercentScorer {
         Ok(ScoreValue::Float(percent))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::services::score::Scorer;
+
+    #[test]
+    fn percent_scorer_metadata_accepts_only_up_down_votes() {
+        let scorer = PercentScorer;
+
+        assert_eq!(Scorer::score_type(&scorer), ScoreType::Percent);
+        assert!(Scorer::accepts_vote_type(&scorer, VoteType::UpsDowns));
+        assert!(!Scorer::accepts_vote_type(&scorer, VoteType::FiveStar));
+    }
+}

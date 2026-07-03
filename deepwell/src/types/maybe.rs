@@ -136,3 +136,33 @@ fn serde() {
     check_ser!(Maybe::Set(None), r#"{"field":null}"#);
     check_ser!(Maybe::Set(Some(str!("banana"))), r#"{"field":"banana"}"#);
 }
+
+#[test]
+fn accessors_distinguish_set_from_unset() {
+    let set = Maybe::Set(42);
+    let unset: Maybe<i32> = Maybe::Unset;
+
+    assert_eq!(set.to_option(), Some(&42));
+    assert_eq!(unset.to_option(), None);
+    assert!(set.is_set());
+    assert!(!set.is_unset());
+    assert!(!unset.is_set());
+    assert!(unset.is_unset());
+}
+
+#[test]
+fn converts_to_option() {
+    assert_eq!(Option::from(Maybe::Set(str!("value"))), Some(str!("value")));
+    assert_eq!(Option::<String>::from(Maybe::Unset), None);
+}
+
+#[test]
+fn converts_to_active_value() {
+    assert!(matches!(
+        Maybe::Set(42_i32).into_active_value(),
+        sea_orm::ActiveValue::Set(42),
+    ));
+
+    let active: sea_orm::ActiveValue<i32> = Maybe::Unset.into_active_value();
+    assert!(matches!(active, sea_orm::ActiveValue::NotSet));
+}

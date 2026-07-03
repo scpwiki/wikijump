@@ -27,3 +27,10 @@
 pub fn debug_pointer<T>(item: &T) -> *const () {
     item as *const T as *const ()
 }
+
+#[test]
+fn debug_pointer_returns_item_address() {
+    let value = 42_u32;
+
+    assert_eq!(debug_pointer(&value), (&value as *const u32).cast::<()>(),);
+}

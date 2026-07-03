@@ -163,3 +163,35 @@ fn to_bool(value: ArgumentValue) -> bool {
         ArgumentValue::String(_) | ArgumentValue::Null => true,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn page_options_parse_flags_strings_offsets_and_aliases() {
+        let options = PageOptions::parse(
+            "/edit/title/Title/parentPage/_parent/tags/a+b/noredirect/norender/false/debug/0/rerender/comments/false/discuss/history/offset/25/data/raw",
+        );
+
+        assert!(options.edit);
+        assert_eq!(options.title.as_deref(), Some("Title"));
+        assert_eq!(options.parent.as_deref(), Some("_parent"));
+        assert_eq!(options.tags.as_deref(), Some("a+b"));
+        assert!(options.no_redirect);
+        assert!(!options.no_render);
+        assert!(!options.debug);
+        assert!(options.rerender);
+        assert!(options.comments);
+        assert!(options.history);
+        assert_eq!(options.offset, Some(25));
+        assert_eq!(options.data, "raw");
+    }
+
+    #[test]
+    fn page_options_ignore_invalid_offset_values() {
+        let options = PageOptions::parse("/offset/not-an-integer");
+
+        assert_eq!(options.offset, None);
+    }
+}

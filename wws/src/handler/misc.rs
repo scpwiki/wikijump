@@ -47,3 +47,32 @@ pub async fn handle_health_check(State(state): State<ServerState>) -> Response {
 pub async fn handle_invalid_method() -> StatusCode {
     StatusCode::METHOD_NOT_ALLOWED
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body;
+
+    #[tokio::test]
+    async fn text_response_sets_status_content_type_and_body() {
+        let response = text_response("ready", StatusCode::OK);
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers().get(header::CONTENT_TYPE).unwrap(),
+            "text/plain; charset=utf-8",
+        );
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(&body[..], b"ready");
+    }
+
+    #[tokio::test]
+    async fn invalid_methods_are_rejected() {
+        assert_eq!(
+            handle_invalid_method().await,
+            StatusCode::METHOD_NOT_ALLOWED
+        );
+    }
+}

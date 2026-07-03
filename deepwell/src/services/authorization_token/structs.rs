@@ -59,3 +59,18 @@ pub struct CreateAuthorizationToken {
     pub description: String,
     pub ip_address: IpAddr,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn authorized_object_names_and_codes_are_stable() {
+        assert_eq!(AuthorizedObject::Site.name(), "site");
+        assert_eq!(AuthorizedObject::Site.code(), 'S');
+        assert_eq!(AuthorizedObject::User.name(), "user");
+        assert_eq!(AuthorizedObject::User.code(), 'U');
+        assert_eq!(AuthorizedObject::BotUser.name(), "bot-user");
+        assert_eq!(AuthorizedObject::BotUser.code(), 'B');
+    }
+}

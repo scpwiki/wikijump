@@ -948,3 +948,433 @@ impl ErrorType {
         matches!(self.code(), 1000..2000)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fluent_syntax::parser::ErrorKind as FluentParserErrorKind;
+    use serde_json::json;
+
+    fn error_type_code_cases() -> Vec<(ErrorType, i32)> {
+        vec![
+            (ErrorType::ApplicationStart, 1000),
+            (ErrorType::Request, 1001),
+            (ErrorType::DatabaseSeeder, 1002),
+            (ErrorType::HealthCheck, 1003),
+            (ErrorType::Login, 1004),
+            (ErrorType::Logout, 1005),
+            (ErrorType::Site, 1006),
+            (ErrorType::SiteSettings, 1007),
+            (ErrorType::User, 1008),
+            (ErrorType::Page, 1009),
+            (ErrorType::PageRevision, 1010),
+            (ErrorType::PageLink, 1011),
+            (ErrorType::PageOutdater, 1012),
+            (ErrorType::PageVote, 1013),
+            (ErrorType::File, 1014),
+            (ErrorType::FileRevision, 1015),
+            (ErrorType::GetView(ViewType::Page), 1016),
+            (ErrorType::Job, 1017),
+            (ErrorType::Render, 1018),
+            (ErrorType::PageLock, 1019),
+            (ErrorType::ServerSetup, 1100),
+            (ErrorType::DatabaseSetup, 1101),
+            (ErrorType::RedisSetup, 1102),
+            (ErrorType::ConfigSetup, 1103),
+            (ErrorType::DatabaseQuery, 1200),
+            (ErrorType::RedisQuery, 1201),
+            (ErrorType::RenderTimeout, 1202),
+            (ErrorType::RateLimited, 1203),
+            (ErrorType::EmailVerification, 1204),
+            (ErrorType::DatabaseImport, 1205),
+            (ErrorType::Localization, 1206),
+            (ErrorType::Fluent(vec![]), 1207),
+            (ErrorType::FluentParser(vec![]), 1208),
+            (ErrorType::Cryptography("cipher failure".to_string()), 1209),
+            (ErrorType::Text, 1300),
+            (ErrorType::Blob, 1301),
+            (ErrorType::Message, 1302),
+            (ErrorType::MessageDraft, 1303),
+            (ErrorType::MessageRecord, 1304),
+            (ErrorType::SiteMembership, 1305),
+            (ErrorType::PageAttribution, 1306),
+            (ErrorType::PageCategory, 1307),
+            (ErrorType::PageParent, 1308),
+            (ErrorType::PageQuery, 1309),
+            (ErrorType::UserBotOwner, 1310),
+            (ErrorType::UserMfa, 1311),
+            (ErrorType::Caddyfile, 1312),
+            (ErrorType::BasicError, 1313),
+            (ErrorType::License, 1314),
+            (ErrorType::TextBlock, 1315),
+            (ErrorType::AuditLog, 1316),
+            (ErrorType::BlueprintPage, 1317),
+            (ErrorType::Filter, 1318),
+            (ErrorType::CustomDomain, 1319),
+            (ErrorType::Alias, 1320),
+            (ErrorType::AuthorizationToken, 1321),
+            (ErrorType::Forum, 1322),
+            (ErrorType::ForumGroup, 1323),
+            (ErrorType::ForumCategory, 1324),
+            (ErrorType::ForumThread, 1325),
+            (ErrorType::ForumPost, 1326),
+            (ErrorType::ForumPostRevision, 1327),
+            (ErrorType::Permission, 1328),
+            (ErrorType::Role, 1329),
+            (ErrorType::GeneralNotFound, 2000),
+            (ErrorType::AliasNotFound, 2001),
+            (ErrorType::RelationNotFound, 2002),
+            (ErrorType::UserNotFound, 2003),
+            (ErrorType::SiteNotFound, 2004),
+            (ErrorType::PageNotFound, 2005),
+            (ErrorType::PageCategoryNotFound, 2006),
+            (ErrorType::PageParentNotFound, 2007),
+            (ErrorType::PageRevisionNotFound, 2008),
+            (ErrorType::FileNotFound, 2009),
+            (ErrorType::FileRevisionNotFound, 2010),
+            (ErrorType::VoteNotFound, 2011),
+            (ErrorType::FilterNotFound, 2012),
+            (ErrorType::CustomDomainNotFound, 2013),
+            (ErrorType::MessageNotFound, 2014),
+            (ErrorType::MessageDraftNotFound, 2015),
+            (ErrorType::BlobNotFound, 2016),
+            (ErrorType::TextNotFound, 2017),
+            (ErrorType::ForumGroupNotFound, 2018),
+            (ErrorType::ForumCategoryNotFound, 2019),
+            (ErrorType::ForumThreadNotFound, 2020),
+            (ErrorType::ForumPostNotFound, 2021),
+            (ErrorType::ForumPostRevisionNotFound, 2022),
+            (ErrorType::UserExists, 2100),
+            (ErrorType::UserMfaExists, 2101),
+            (ErrorType::SiteExists, 2102),
+            (ErrorType::PageExists, 2103),
+            (ErrorType::PageSlugExists, 2104),
+            (ErrorType::FileExists, 2105),
+            (ErrorType::FilterExists, 2106),
+            (ErrorType::CustomDomainExists, 2107),
+            (ErrorType::PageLockExists, 2108),
+            (ErrorType::InvalidAuthentication, 3000),
+            (ErrorType::InvalidSessionToken, 3001),
+            (ErrorType::CreateSession, 3002),
+            (ErrorType::Session, 3003),
+            (
+                ErrorType::SessionUserId {
+                    active_user_id: 11,
+                    session_user_id: 22,
+                },
+                3004,
+            ),
+            (ErrorType::EmptyPassword, 3005),
+            (ErrorType::InvalidAuthorizationToken, 3006),
+            (ErrorType::AddRolePermission, 3100),
+            (ErrorType::RemoveRolePermission, 3101),
+            (ErrorType::GrantUserRole, 3102),
+            (ErrorType::RevokeUserRole, 3103),
+            (ErrorType::PermissionNotFound, 3104),
+            (ErrorType::RoleNotFound, 3105),
+            (ErrorType::PermissionDenied, 3106),
+            (
+                ErrorType::CyclicRoleViolation {
+                    role_id: 1,
+                    parent_role_id: 2,
+                },
+                3107,
+            ),
+            (
+                ErrorType::RoleHierarchyViolation {
+                    role_id: 1,
+                    parent_role_id: 2,
+                },
+                3108,
+            ),
+            (ErrorType::DeleteRoleWithChildren, 3109),
+            (ErrorType::BadRequest, 4000),
+            (ErrorType::UserNameTooShort, 4100),
+            (ErrorType::UserSlugEmpty, 4101),
+            (ErrorType::UserEmailEmpty, 4102),
+            (ErrorType::UserWrongType, 4103),
+            (ErrorType::InsufficientNameChanges, 4104),
+            (ErrorType::InvalidEmail, 4105),
+            (ErrorType::DisallowedEmail, 4106),
+            (ErrorType::SiteSlugEmpty, 4200),
+            (ErrorType::PageSlugEmpty, 4300),
+            (ErrorType::PageNotDeleted, 4301),
+            (ErrorType::CannotHideLatestRevision, 4302),
+            (ErrorType::NotLatestRevisionId, 4303),
+            (ErrorType::FileNameEmpty, 4400),
+            (
+                ErrorType::FileNameTooLong {
+                    length: 101,
+                    maximum: 100,
+                },
+                4401,
+            ),
+            (ErrorType::FileNameInvalidCharacters, 4402),
+            (ErrorType::FileMimeEmpty, 4403),
+            (ErrorType::FileNotDeleted, 4404),
+            (ErrorType::ForumPostNotDeleted, 4500),
+            (
+                ErrorType::LocaleInvalid {
+                    locale: "xx".to_string(),
+                },
+                5000,
+            ),
+            (
+                ErrorType::LocaleMissing {
+                    locale: "xx".to_string(),
+                },
+                5001,
+            ),
+            (
+                ErrorType::LocaleMessageMissing {
+                    message_key: "missing".to_string(),
+                },
+                5002,
+            ),
+            (
+                ErrorType::LocaleMessageValueMissing {
+                    message_key: "empty".to_string(),
+                },
+                5003,
+            ),
+            (
+                ErrorType::LocaleMessageAttributeMissing {
+                    message_key: "key".to_string(),
+                    attribute: "attr".to_string(),
+                },
+                5004,
+            ),
+            (ErrorType::NoLocalesSpecified, 5005),
+            (
+                ErrorType::FilterViolation {
+                    field: "title".to_string(),
+                    value: "blocked".to_string(),
+                    failed: vec![FilterSummary {
+                        filter_id: 7,
+                        regex: "blocked".to_string(),
+                        description: "blocked words".to_string(),
+                    }],
+                },
+                5100,
+            ),
+            (
+                ErrorType::FilterRegexInvalid {
+                    regex: "(".to_string(),
+                },
+                5101,
+            ),
+            (ErrorType::FilterNotDeleted, 5102),
+            (ErrorType::BlobNotUploaded, 5200),
+            (ErrorType::BlobWrongUser, 5201),
+            (ErrorType::BlobTooBig, 5202),
+            (
+                ErrorType::BlobSizeMismatch {
+                    expected: 10,
+                    actual: 9,
+                },
+                5204,
+            ),
+            (ErrorType::BlobBlacklisted([1; 64]), 5205),
+            (ErrorType::BlobCannotBlacklistExisting, 5206),
+            (ErrorType::BlobBackend, 5207),
+            (ErrorType::MessageSubjectEmpty, 5300),
+            (ErrorType::MessageSubjectTooLong, 5301),
+            (ErrorType::MessageBodyEmpty, 5302),
+            (ErrorType::MessageBodyTooLong, 5303),
+            (ErrorType::MessageNoRecipients, 5304),
+            (ErrorType::MessageTooManyRecipients, 5305),
+            (ErrorType::CustomDomainWrongSite, 5400),
+            (ErrorType::CustomDomainSubdomain, 5401),
+            (
+                ErrorType::CustomDomainUsePunycode {
+                    domain: "éxample.com".to_string(),
+                },
+                5402,
+            ),
+            (
+                ErrorType::InvalidDomainValue {
+                    domain: "bad domain".to_string(),
+                },
+                5403,
+            ),
+            (ErrorType::Relation, 6000),
+            (ErrorType::UserBlockRelation, 6010),
+            (ErrorType::UserBotOwnerRelation, 6011),
+            (ErrorType::UserFollowRelation, 6012),
+            (ErrorType::SiteBanRelation, 6020),
+            (ErrorType::SiteMemberRelation, 6021),
+            (ErrorType::SiteUserRelation, 6022),
+            (ErrorType::PageAttributionRelation, 6030),
+            (ErrorType::PageStarRelation, 6031),
+            (ErrorType::PageWatchRelation, 6032),
+            (ErrorType::UserBlockedUser, 6100),
+            (ErrorType::SiteBannedUser, 6101),
+        ]
+    }
+
+    #[test]
+    fn error_type_codes_summaries_and_high_level_classification_are_stable() {
+        for (error_type, expected_code) in error_type_code_cases() {
+            assert_eq!(error_type.code(), expected_code, "{error_type:?}");
+            assert!(
+                !error_type.summary().is_empty(),
+                "summary for {error_type:?} must not be empty",
+            );
+            assert_eq!(
+                error_type.is_high_level(),
+                (1000..2000).contains(&expected_code),
+                "{error_type:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn error_type_data_serializes_payload_variants() {
+        assert_eq!(ErrorType::GetView(ViewType::Admin).data(), json!("admin"),);
+        let parser_error = FluentParserError {
+            pos: 0..1,
+            slice: None,
+            kind: FluentParserErrorKind::MissingValue,
+        };
+        assert_eq!(
+            ErrorType::Fluent(vec![FluentError::ParserError(parser_error.clone())])
+                .data(),
+            json!(["Parser error: Expected a value"]),
+        );
+        assert_eq!(
+            ErrorType::FluentParser(vec![parser_error]).data(),
+            json!(["Expected a value"]),
+        );
+        assert_eq!(
+            ErrorType::Cryptography("cipher failure".to_string()).data(),
+            json!("cipher failure"),
+        );
+        assert_eq!(
+            ErrorType::SessionUserId {
+                active_user_id: 11,
+                session_user_id: 22,
+            }
+            .data(),
+            json!({
+                "active_user_id": 11,
+                "session_user_id": 22,
+            }),
+        );
+        assert_eq!(
+            ErrorType::FileNameTooLong {
+                length: 101,
+                maximum: 100,
+            }
+            .data(),
+            json!({
+                "length": 101,
+                "maximum": 100,
+            }),
+        );
+        assert_eq!(
+            ErrorType::LocaleInvalid {
+                locale: "xx".to_string(),
+            }
+            .data(),
+            json!({ "locale": "xx" }),
+        );
+        assert_eq!(
+            ErrorType::LocaleMissing {
+                locale: "yy".to_string(),
+            }
+            .data(),
+            json!({ "locale": "yy" }),
+        );
+        assert_eq!(
+            ErrorType::LocaleMessageMissing {
+                message_key: "missing".to_string(),
+            }
+            .data(),
+            json!({ "message_key": "missing" }),
+        );
+        assert_eq!(
+            ErrorType::LocaleMessageValueMissing {
+                message_key: "empty".to_string(),
+            }
+            .data(),
+            json!({ "message_key": "empty" }),
+        );
+        assert_eq!(
+            ErrorType::LocaleMessageAttributeMissing {
+                message_key: "key".to_string(),
+                attribute: "attr".to_string(),
+            }
+            .data(),
+            json!({
+                "message_key": "key",
+                "attribute": "attr",
+            }),
+        );
+        assert_eq!(
+            ErrorType::FilterViolation {
+                field: "title".to_string(),
+                value: "blocked".to_string(),
+                failed: vec![FilterSummary {
+                    filter_id: 7,
+                    regex: "blocked".to_string(),
+                    description: "blocked words".to_string(),
+                }],
+            }
+            .data(),
+            json!({
+                "field": "title",
+                "value": "blocked",
+                "failed": [{
+                    "filter_id": 7,
+                    "regex": "blocked",
+                    "description": "blocked words",
+                }],
+            }),
+        );
+        assert_eq!(
+            ErrorType::FilterRegexInvalid {
+                regex: "(".to_string(),
+            }
+            .data(),
+            json!({ "regex": "(" }),
+        );
+        assert_eq!(
+            ErrorType::BlobSizeMismatch {
+                expected: 10,
+                actual: 9,
+            }
+            .data(),
+            json!({
+                "expected": 10,
+                "actual": 9,
+            }),
+        );
+        assert_eq!(
+            ErrorType::BlobBlacklisted([1; 64]).data(),
+            json!("01".repeat(64)),
+        );
+        assert_eq!(
+            ErrorType::CyclicRoleViolation {
+                role_id: 1,
+                parent_role_id: 2,
+            }
+            .data(),
+            json!({
+                "role_id": 1,
+                "parent_role_id": 2,
+            }),
+        );
+        assert_eq!(
+            ErrorType::RoleHierarchyViolation {
+                role_id: 3,
+                parent_role_id: 4,
+            }
+            .data(),
+            json!({
+                "role_id": 3,
+                "parent_role_id": 4,
+            }),
+        );
+        assert_eq!(ErrorType::BadRequest.data(), json!(null));
+    }
+}

@@ -528,3 +528,238 @@ fn test_prefix_domain() {
     check!("example.com"; ".example.com", "example.com");
     check!(".example.com"; ".example.com", "example.com");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env;
+    use std::fs;
+
+    fn sample_config_file() -> ConfigFile {
+        ConfigFile {
+            logger: Logger {
+                enable: true,
+                level: LevelFilter::Debug,
+            },
+            server: Server {
+                address: "127.0.0.1:8080".parse().unwrap(),
+                pid_file: Some(PathBuf::from("deepwell.pid")),
+            },
+            database: Database {
+                run_seeder: true,
+                seeder_path: PathBuf::from("seeder"),
+            },
+            security: Security {
+                authentication_fail_delay_ms: 250,
+                session: Session {
+                    token_prefix: str!("wj:"),
+                    token_length: 48,
+                    duration_session_minutes: 30,
+                    duration_login_minutes: 5,
+                },
+                mfa: Mfa {
+                    recovery_code_count: 8,
+                    recovery_code_length: 12,
+                    mfa_digits: 6,
+                    time_step: 30,
+                    time_skew: 1,
+                },
+            },
+            locale: Locale {
+                path: PathBuf::from("../locales"),
+            },
+            domain: Domain {
+                main: str!("wikijump.example"),
+                files: str!(".files.example"),
+            },
+            job: Job {
+                workers: NonZeroU16::new(3).unwrap(),
+                max_attempts: 4,
+                delay_ms: 50,
+                min_delay_poll_secs: 1,
+                max_delay_poll_secs: 9,
+                prune_session_secs: 60,
+                prune_upload_secs: 70,
+                prune_text_secs: 80,
+                name_change_refill_secs: 90,
+                lift_expired_punishments_secs: 100,
+            },
+            ftml: Ftml {
+                preprocess_timeout_ms: 1_000,
+                render_timeout_ms: 9_000,
+                rerender_skip: vec![
+                    RerenderSkip {
+                        job_depth: 2,
+                        last_update_ms: 0,
+                    },
+                    RerenderSkip {
+                        job_depth: 5,
+                        last_update_ms: 250,
+                    },
+                ],
+                layout: FtmlLayout {
+                    messages: Layout::Wikijump,
+                    default_page: Layout::Wikidot,
+                },
+            },
+            blueprint: Blueprint {
+                page_prefix: str!("_"),
+                template: str!("_template"),
+                missing: str!("_404"),
+                private: str!("_public"),
+                banned: str!("_ban"),
+            },
+            user: User {
+                default_name_changes: 2,
+                maximum_name_changes: 5,
+                refill_name_change_days: 7,
+                minimum_name_bytes: 4,
+                minimum_name_chars: 2,
+            },
+            email: Email {
+                mock_mailcheck: true,
+                automation_address: str!("noreply@example.com"),
+                notification_address: str!("notifications@example.com"),
+                newsletter_address: str!("newsletter@example.com"),
+            },
+            file: FileSection {
+                presigned_path_length: 16,
+                presigned_expiration_minutes: 3,
+                maximum_blob_size_kb: 512,
+                maximum_avatar_size_kb: 256,
+            },
+            message: Message {
+                maximum_subject_bytes: 128,
+                maximum_body_bytes: 10_000,
+                maximum_recipients: 3,
+            },
+        }
+    }
+
+    fn extra_config() -> ExtraConfig {
+        ExtraConfig {
+            raw_toml: str!("raw"),
+            raw_toml_path: PathBuf::from("/tmp/deepwell-test.toml"),
+        }
+    }
+
+    #[test]
+    fn load_reads_toml_and_preserves_raw_metadata() {
+        let config_file = sample_config_file();
+        let toml = toml::to_string(&config_file).unwrap();
+        let path = env::temp_dir()
+            .join(format!("deepwell-config-test-{}.toml", std::process::id(),));
+
+        fs::write(&path, &toml).unwrap();
+        let (_loaded, extra) = ConfigFile::load(path.clone()).unwrap();
+        fs::remove_file(&path).unwrap();
+
+        assert_eq!(extra.raw_toml, toml);
+        assert_eq!(extra.raw_toml_path, path);
+    }
+
+    #[test]
+    fn into_config_flattens_file_values() {
+        let config = sample_config_file().into_config(extra_config());
+
+        assert_eq!(config.raw_toml, "raw");
+        assert_eq!(
+            config.raw_toml_path,
+            PathBuf::from("/tmp/deepwell-test.toml")
+        );
+        assert!(config.logger);
+        assert_eq!(config.logger_level, LevelFilter::Debug);
+        assert_eq!(
+            config.address,
+            "127.0.0.1:8080".parse::<SocketAddr>().unwrap(),
+        );
+        assert_eq!(config.pid_file, Some(PathBuf::from("deepwell.pid")));
+        assert_eq!(config.main_domain, ".wikijump.example");
+        assert_eq!(config.main_domain_no_dot, "wikijump.example");
+        assert_eq!(config.files_domain, ".files.example");
+        assert_eq!(config.files_domain_no_dot, "files.example");
+        assert!(!config.watch_files);
+        assert!(config.run_seeder);
+        assert_eq!(config.seeder_path, PathBuf::from("seeder"));
+        assert_eq!(config.localization_path, PathBuf::from("../locales"));
+        assert_eq!(
+            config.authentication_fail_delay,
+            StdDuration::from_millis(250)
+        );
+        assert_eq!(config.session_token_prefix, "wj:");
+        assert_eq!(config.session_token_length, 48);
+        assert_eq!(config.normal_session_duration, TimeDuration::minutes(30));
+        assert_eq!(config.restricted_session_duration, TimeDuration::minutes(5));
+        assert_eq!(config.recovery_code_count, 8);
+        assert_eq!(config.recovery_code_length, 12);
+        assert_eq!(config.totp_digits, 6);
+        assert_eq!(config.totp_time_step, 30);
+        assert_eq!(config.totp_time_skew, 1);
+        assert_eq!(config.job_workers, NonZeroU16::new(3).unwrap());
+        assert_eq!(config.job_max_attempts, 4);
+        assert_eq!(config.job_work_delay, StdDuration::from_millis(50));
+        assert_eq!(config.job_min_poll_delay, StdDuration::from_secs(1));
+        assert_eq!(config.job_max_poll_delay, StdDuration::from_secs(9));
+        assert_eq!(config.job_prune_session, StdDuration::from_secs(60));
+        assert_eq!(config.job_prune_uploads, StdDuration::from_secs(70));
+        assert_eq!(config.job_prune_text, StdDuration::from_secs(80));
+        assert_eq!(config.job_name_change_refill, StdDuration::from_secs(90));
+        assert_eq!(
+            config.job_lift_expired_punishments,
+            StdDuration::from_secs(100),
+        );
+        assert_eq!(config.preprocess_timeout, StdDuration::from_millis(1_000));
+        assert_eq!(config.render_timeout, StdDuration::from_millis(9_000));
+        assert_eq!(
+            config.rerender_skip,
+            vec![(2, None), (5, Some(TimeDuration::milliseconds(250))),],
+        );
+        assert_eq!(config.message_layout, Layout::Wikijump);
+        assert_eq!(config.default_page_layout, Layout::Wikidot);
+        assert_eq!(config.blueprint_page_prefix, "_");
+        assert_eq!(config.blueprint_page_template, "_template");
+        assert_eq!(config.blueprint_page_missing, "_404");
+        assert_eq!(config.blueprint_page_private, "_public");
+        assert_eq!(config.blueprint_page_banned, "_ban");
+        assert_eq!(config.default_name_changes, 2);
+        assert_eq!(config.maximum_name_changes, 5);
+        assert_eq!(
+            config.refill_name_change,
+            Some(StdDuration::from_secs(7 * 24 * 60 * 60)),
+        );
+        assert_eq!(config.minimum_name_bytes, 4);
+        assert_eq!(config.minimum_name_chars, 2);
+        assert!(config.mock_mailcheck);
+        assert_eq!(config.automation_email, "noreply@example.com");
+        assert_eq!(config.notification_email, "notifications@example.com");
+        assert_eq!(config.newsletter_email, "newsletter@example.com");
+        assert_eq!(config.presigned_path_length, 16);
+        assert_eq!(config.presigned_expiry_secs, 180);
+        assert_eq!(config.maximum_blob_size, 512 * 1024);
+        assert_eq!(config.maximum_avatar_size, 256 * 1024);
+        assert_eq!(config.maximum_message_subject_bytes, 128);
+        assert_eq!(config.maximum_message_body_bytes, 10_000);
+        assert_eq!(config.maximum_message_recipients, 3);
+    }
+
+    #[test]
+    fn into_config_treats_empty_pid_file_and_zero_refill_as_none() {
+        let mut config_file = sample_config_file();
+        config_file.server.pid_file = Some(PathBuf::new());
+        config_file.user.refill_name_change_days = 0;
+
+        let config = config_file.into_config(extra_config());
+
+        assert_eq!(config.pid_file, None);
+        assert_eq!(config.refill_name_change, None);
+    }
+
+    #[test]
+    #[should_panic(expected = "Session prune job period time too long")]
+    fn into_config_rejects_rsmq_delay_over_limit() {
+        let mut config_file = sample_config_file();
+        config_file.job.prune_session_secs = 9_999_999;
+
+        config_file.into_config(extra_config());
+    }
+}

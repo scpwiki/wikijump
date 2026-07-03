@@ -111,3 +111,48 @@ pub struct MultiFactorSetupOutput {
 pub struct MultiFactorResetOutput {
     pub recovery_codes: Vec<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use argon2::{Argon2, PasswordHash, PasswordVerifier};
+
+    #[test]
+    fn totp_secret_is_base32_encoded_random_bytes() {
+        let secret = generate_totp_secret();
+        let decoded = BASE32_NOPAD.decode(secret.as_bytes()).unwrap();
+
+        assert_eq!(decoded.len(), 32);
+        assert!(
+            secret
+                .chars()
+                .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
+        );
+    }
+
+    #[test]
+    fn recovery_codes_are_returned_with_matching_argon_hashes() {
+        let config = Config::integration_testing();
+        let codes = RecoveryCodes::generate(&config).unwrap();
+
+        assert_eq!(codes.recovery_codes.len(), config.recovery_code_count);
+        assert_eq!(
+            codes.recovery_codes_hashed.len(),
+            config.recovery_code_count
+        );
+
+        for (code, hash) in codes
+            .recovery_codes
+            .iter()
+            .zip(codes.recovery_codes_hashed.iter())
+        {
+            assert_eq!(code.len(), config.recovery_code_length + 1);
+            assert_eq!(code.as_bytes()[config.recovery_code_length / 2], b'-');
+
+            let parsed_hash = PasswordHash::new(hash).unwrap();
+            Argon2::default()
+                .verify_password(code.as_bytes(), &parsed_hash)
+                .unwrap();
+        }
+    }
+}

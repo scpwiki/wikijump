@@ -20,6 +20,7 @@
 
 use crate::info;
 use clap::{Arg, ArgAction, Command, value_parser};
+use std::env;
 use std::ffi::OsString;
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
@@ -45,7 +46,11 @@ impl Default for Arguments {
 
 impl Arguments {
     pub fn parse() -> Self {
-        let mut matches = Command::new("wws")
+        Self::parse_from(env::args_os())
+    }
+
+    fn command() -> Command {
+        Command::new("wws")
             .author(info::PKG_AUTHORS)
             .version(info::PKG_VERSION)
             .about(info::PKG_DESCRIPTION)
@@ -69,6 +74,7 @@ impl Arguments {
                     .long("pid")
                     .long("pid-file")
                     .value_name("PATH")
+                    .value_parser(value_parser!(PathBuf))
                     .help("The PID file to write to on boot."),
             )
             .arg(
@@ -90,7 +96,14 @@ impl Arguments {
                     .action(ArgAction::Set)
                     .help("What port to listen on."),
             )
-            .get_matches();
+    }
+
+    fn parse_from<I, T>(args: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        let mut matches = Self::command().get_matches_from(args);
 
         let mut args = Arguments::default();
 
@@ -102,8 +115,8 @@ impl Arguments {
             args.enable_deepwell_check = false;
         }
 
-        if let Some(value) = matches.remove_one::<OsString>("pid-file") {
-            args.pid_file = Some(PathBuf::from(value));
+        if let Some(value) = matches.remove_one::<PathBuf>("pid-file") {
+            args.pid_file = Some(value);
         }
 
         if let Some(value) = matches.remove_one::<IpAddr>("host") {
@@ -115,5 +128,43 @@ impl Arguments {
         }
 
         args
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+
+    #[test]
+    fn defaults_match_documented_listener_settings() {
+        let args = Arguments::parse_from(["wws"]);
+
+        assert!(args.enable_trace);
+        assert!(args.enable_deepwell_check);
+        assert_eq!(args.pid_file, None);
+        assert_eq!(args.address.ip(), IpAddr::V6(Ipv6Addr::UNSPECIFIED));
+        assert_eq!(args.address.port(), 3466);
+    }
+
+    #[test]
+    fn command_line_flags_override_defaults() {
+        let args = Arguments::parse_from([
+            "wws",
+            "--disable-trace",
+            "--disable-deepwell-check",
+            "--pid-file",
+            "/tmp/wws.pid",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "8080",
+        ]);
+
+        assert!(!args.enable_trace);
+        assert!(!args.enable_deepwell_check);
+        assert_eq!(args.pid_file, Some(PathBuf::from("/tmp/wws.pid")));
+        assert_eq!(args.address.ip(), IpAddr::V4(Ipv4Addr::LOCALHOST));
+        assert_eq!(args.address.port(), 8080);
     }
 }

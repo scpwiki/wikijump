@@ -47,3 +47,30 @@ impl From<&'_ PageModel> for PageId {
         }
     }
 }
+
+#[test]
+fn converts_page_model_to_page_id() {
+    let model = PageModel {
+        page_id: 30,
+        created_at: time::OffsetDateTime::UNIX_EPOCH,
+        updated_at: None,
+        deleted_at: None,
+        from_wikidot: false,
+        site_id: 10,
+        latest_revision_id: Some(40),
+        page_category_id: 20,
+        slug: str!("test-page"),
+        discussion_thread_id: None,
+        layout: None,
+    };
+
+    let page_id = PageId::from_page_model(&model);
+    assert_eq!(page_id.site_id, 10);
+    assert_eq!(page_id.category_id, 20);
+    assert_eq!(page_id.page_id, 30);
+
+    let page_id: PageId = (&model).into();
+    assert_eq!(page_id.site_id, 10);
+    assert_eq!(page_id.category_id, 20);
+    assert_eq!(page_id.page_id, 30);
+}

@@ -58,3 +58,24 @@ pub fn parse_layout(value: &str) -> StdResult<Layout, EnumConversionError> {
         Err(_) => Err(EnumConversionError::new("Layout", value)),
     }
 }
+
+#[test]
+fn enum_conversion_error_formats_context() {
+    let error = EnumConversionError::new("Example", "bad-value");
+
+    assert_eq!(
+        error.to_string(),
+        "failed to convert value 'bad-value' to a Example enum value",
+    );
+}
+
+#[test]
+fn parse_layout_accepts_known_layouts_and_rejects_unknown_values() {
+    assert_eq!(parse_layout("wikidot").unwrap(), Layout::Wikidot);
+
+    let error = parse_layout("unknown-layout").unwrap_err();
+    assert_eq!(
+        error.to_string(),
+        "failed to convert value 'unknown-layout' to a Layout enum value",
+    );
+}

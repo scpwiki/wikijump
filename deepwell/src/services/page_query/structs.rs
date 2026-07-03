@@ -414,3 +414,73 @@ impl FoundPages {
         self.pages.len()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn data_form_parser_ignores_leading_blanks_and_stops_after_body_text() {
+        let values = parse_static_wikidot_data_form_values(
+            "\n field-one : 'alpha'\nfield-two: \"beta\"\n\nbody text\nfield-three: gamma",
+        );
+
+        assert_eq!(values.get("field-one").map(String::as_str), Some("alpha"));
+        assert_eq!(values.get("field-two").map(String::as_str), Some("beta"));
+        assert!(!values.contains_key("field-three"));
+    }
+
+    #[test]
+    fn static_data_form_matching_honors_negated_selectors() {
+        let values = parse_static_wikidot_data_form_values("status: open\nkind: tale");
+
+        assert!(static_wikidot_data_form_matches(
+            &values,
+            &[
+                DataFormSelector {
+                    field: Cow::Borrowed("status"),
+                    value: Cow::Borrowed("open"),
+                    negated: false,
+                },
+                DataFormSelector {
+                    field: Cow::Borrowed("kind"),
+                    value: Cow::Borrowed("scp"),
+                    negated: true,
+                },
+            ],
+        ));
+
+        assert!(!static_wikidot_data_form_matches(
+            &values,
+            &[DataFormSelector {
+                field: Cow::Borrowed("missing"),
+                value: Cow::Borrowed("open"),
+                negated: true,
+            }],
+        ));
+    }
+
+    #[test]
+    fn default_order_and_pagination_match_list_pages_defaults() {
+        assert_eq!(
+            OrderBySelector::default(),
+            OrderBySelector {
+                property: OrderProperty::CreatedAt,
+                ascending: false,
+            },
+        );
+        assert_eq!(
+            PaginationSelector::default(),
+            PaginationSelector {
+                limit: None,
+                per_page: 20,
+                reversed: false,
+            },
+        );
+    }
+
+    #[test]
+    fn found_pages_total_is_page_count() {
+        assert_eq!(FoundPages { pages: Vec::new() }.total(), 0);
+    }
+}

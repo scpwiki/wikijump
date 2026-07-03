@@ -39,3 +39,18 @@ impl Scorer for NullScorer {
         Ok(ScoreValue::Integer(0))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::services::score::Scorer;
+
+    #[test]
+    fn null_scorer_metadata_accepts_all_vote_styles() {
+        let scorer = NullScorer;
+
+        assert_eq!(Scorer::score_type(&scorer), ScoreType::Null);
+        assert!(Scorer::accepts_vote_type(&scorer, VoteType::UpsDowns));
+        assert!(Scorer::accepts_vote_type(&scorer, VoteType::FiveStar));
+    }
+}

@@ -180,3 +180,27 @@ async fn clear_inconsistent_fields(
     hdel!(conn, key, fields);
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn redis_keys_include_all_identifying_parts() {
+        assert_eq!(redis_key!(site_domain => 42), "site_domain:42");
+        assert_eq!(
+            redis_key!(page_slug => 42, "scp-173"),
+            "page_slug:42:scp-173",
+        );
+        assert_eq!(
+            redis_key!(file_name => 42, 123, "image.png"),
+            "file_name:42:123:image.png",
+        );
+    }
+
+    #[test]
+    fn cache_connect_validates_redis_url() {
+        assert!(Cache::connect("redis://127.0.0.1/").is_ok());
+        assert!(Cache::connect("not a redis url").is_err());
+    }
+}

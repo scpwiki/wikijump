@@ -88,3 +88,24 @@ impl VoteMap {
         self.inner.iter().map(|(&value, &count)| (value, count))
     }
 }
+
+#[test]
+fn vote_map_tracks_counts_and_totals() {
+    let mut votes = VoteMap::new();
+
+    assert!(votes.is_empty());
+    assert_eq!(votes.get(1), 0);
+    assert_eq!(votes.count(), 0);
+    assert_eq!(votes.sum(), 0);
+
+    votes.insert(1, 3);
+    votes.insert(-1, 2);
+
+    assert!(!votes.is_empty());
+    assert_eq!(votes.get(1), 3);
+    assert_eq!(votes.get(-1), 2);
+    assert_eq!(votes.get(5), 0);
+    assert_eq!(votes.count(), 5);
+    assert_eq!(votes.sum(), 1);
+    assert_eq!(votes.iter().collect::<Vec<_>>(), vec![(-1, 2), (1, 3)]);
+}

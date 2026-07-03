@@ -70,3 +70,14 @@ impl Error {
         self.error_type.data()
     }
 }
+
+#[test]
+fn error_object_delegates_to_error_type() {
+    let error = Error::new("missing page", ErrorType::PageNotFound);
+
+    assert_eq!(error.message, "missing page");
+    assert_eq!(error.code(), ErrorType::PageNotFound.code());
+    assert_eq!(error.summary(), ErrorType::PageNotFound.summary());
+    assert_eq!(error.data(), ErrorType::PageNotFound.data());
+    assert_eq!(error.to_string(), "[2005] missing page");
+}

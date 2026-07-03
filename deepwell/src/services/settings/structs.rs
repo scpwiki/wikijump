@@ -70,3 +70,21 @@ pub struct ForumStructureSettings {
     pub max_nest_level: i16,
     pub per_page_discussion: bool,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn navigation_page_from_string_distinguishes_disabled_from_enabled() {
+        match NavigationPage::from(String::new()) {
+            NavigationPage::Disabled => {}
+            NavigationPage::Enabled(value) => panic!("empty slug enabled as {value}"),
+        }
+
+        match NavigationPage::from(String::from("_default")) {
+            NavigationPage::Enabled(value) => assert_eq!(value, "_default"),
+            NavigationPage::Disabled => panic!("non-empty slug was disabled"),
+        }
+    }
+}

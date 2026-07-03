@@ -42,3 +42,18 @@ impl Scorer for TestScorer {
         Ok(ScoreValue::Integer(value))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::services::score::Scorer;
+
+    #[test]
+    fn test_scorer_metadata_accepts_all_vote_styles() {
+        let scorer = TestScorer;
+
+        assert_eq!(Scorer::score_type(&scorer), ScoreType::Test);
+        assert!(Scorer::accepts_vote_type(&scorer, VoteType::UpsDowns));
+        assert!(Scorer::accepts_vote_type(&scorer, VoteType::FiveStar));
+    }
+}

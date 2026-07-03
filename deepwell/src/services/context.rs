@@ -80,6 +80,54 @@ impl RequestContext {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::Reference;
+    use std::borrow::Cow;
+    use time::OffsetDateTime;
+
+    fn session_model() -> SessionModel {
+        SessionModel {
+            session_token: str!("token"),
+            user_id: 42,
+            created_at: OffsetDateTime::UNIX_EPOCH,
+            expires_at: OffsetDateTime::UNIX_EPOCH,
+            ip_address: str!("127.0.0.1"),
+            user_agent: str!("test"),
+            restricted: false,
+        }
+    }
+
+    #[test]
+    fn request_context_accessors_return_present_values() {
+        let context = RequestContext {
+            session: Some(session_model()),
+            user_id: Some(42),
+            site_id: Some(7),
+            page_reference: Some(Reference::Slug(Cow::Borrowed("page"))),
+        };
+
+        assert_eq!(context.user_session().unwrap().session_token, "token");
+        assert_eq!(context.user_id().unwrap(), 42);
+        assert_eq!(context.site_id().unwrap(), 7);
+        assert_eq!(
+            context.page_reference().unwrap(),
+            &Reference::Slug(Cow::Borrowed("page")),
+        );
+    }
+
+    #[test]
+    fn request_context_accessors_reject_absent_values() {
+        let context = RequestContext::default();
+
+        assert!(context.user_session().is_err());
+        assert!(context.user_id().is_err());
+        assert!(context.site_id().is_err());
+        assert!(context.page_reference().is_err());
+    }
+}
+
 #[derive(Debug)]
 pub struct ServiceContext<'txn> {
     state: ServerState,

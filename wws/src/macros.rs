@@ -28,3 +28,40 @@ macro_rules! try_response {
         }
     };
 }
+
+#[cfg(test)]
+mod tests {
+    use axum::body;
+    use axum::http::StatusCode;
+    use axum::response::{IntoResponse, Response};
+
+    async fn ok_path() -> Response {
+        let value: u16 = try_response!(async { Ok::<_, Response>(204) });
+        (StatusCode::OK, value.to_string()).into_response()
+    }
+
+    async fn error_path() -> Response {
+        let _value: u16 = try_response!(async {
+            Err::<u16, _>(StatusCode::BAD_REQUEST.into_response())
+        });
+        StatusCode::OK.into_response()
+    }
+
+    #[tokio::test]
+    async fn try_response_unwraps_ok_value() {
+        let response = ok_path().await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(&body[..], b"204");
+    }
+
+    #[tokio::test]
+    async fn try_response_returns_error_response() {
+        let response = error_path().await;
+
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+}

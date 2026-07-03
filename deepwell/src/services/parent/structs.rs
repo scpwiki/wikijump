@@ -86,3 +86,28 @@ pub struct UpdateParentsOutput {
     pub added: Option<Vec<i64>>,
     pub removed: Option<Vec<bool>>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parental_relationship_names_and_parsing_are_stable() {
+        assert_eq!(ParentalRelationshipType::Parent.name(), "parents");
+        assert_eq!(ParentalRelationshipType::Child.name(), "children");
+        assert_eq!(
+            "parents".parse::<ParentalRelationshipType>().unwrap(),
+            ParentalRelationshipType::Parent,
+        );
+        assert_eq!(
+            "children".parse::<ParentalRelationshipType>().unwrap(),
+            ParentalRelationshipType::Child,
+        );
+
+        let error = "siblings".parse::<ParentalRelationshipType>().unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "failed to convert value 'siblings' to a ParentalRelationshipType enum value"
+        );
+    }
+}

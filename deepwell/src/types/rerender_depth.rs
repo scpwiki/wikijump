@@ -45,3 +45,18 @@ impl Display for RerenderDepth {
         write!(f, "{}", self.0)
     }
 }
+
+#[test]
+fn default_depth_is_zero() {
+    assert_eq!(RerenderDepth::default(), RerenderDepth(0));
+}
+
+#[test]
+fn plus_one_increments_depth() {
+    assert_eq!(RerenderDepth(41).plus_one(), RerenderDepth(42));
+}
+
+#[test]
+fn display_outputs_inner_depth() {
+    assert_eq!(RerenderDepth(42).to_string(), "42");
+}

@@ -28,3 +28,14 @@ use rand::CryptoRng;
 /// (cryptographically-secure psuedorandom number generator).
 #[inline]
 pub fn assert_is_csprng(_: &dyn CryptoRng) {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn thread_rng_satisfies_csprng_bound() {
+        let rng = rand::rng();
+        assert_is_csprng(&rng);
+    }
+}

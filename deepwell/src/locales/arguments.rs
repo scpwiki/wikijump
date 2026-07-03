@@ -69,3 +69,35 @@ impl<'a> From<MessageValue<'a>> for FluentValue<'a> {
         }
     }
 }
+
+#[test]
+fn message_arguments_deserialize_and_convert_to_fluent_args() {
+    let args: MessageArguments = serde_json::from_value(serde_json::json!({
+        "name": "Alice",
+        "count": 2.0,
+        "empty": null,
+    }))
+    .unwrap();
+
+    assert_eq!(args.len(), 3);
+    assert!(!args.is_empty());
+
+    let fluent_args = args.into_fluent_args();
+    assert!(matches!(
+        fluent_args.get("name"),
+        Some(FluentValue::String(value)) if value == "Alice",
+    ));
+    assert!(matches!(
+        fluent_args.get("count"),
+        Some(FluentValue::Number(value)) if value.value == 2.0,
+    ));
+    assert!(matches!(fluent_args.get("empty"), Some(FluentValue::None)));
+}
+
+#[test]
+fn empty_message_arguments_report_empty() {
+    let args: MessageArguments = serde_json::from_value(serde_json::json!({})).unwrap();
+
+    assert_eq!(args.len(), 0);
+    assert!(args.is_empty());
+}

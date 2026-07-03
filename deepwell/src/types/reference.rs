@@ -68,3 +68,26 @@ impl<'a> From<&'a str> for Reference<'a> {
         Reference::Slug(Cow::Borrowed(slug))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reference_conversions_and_borrow_preserve_identity() {
+        assert_eq!(Reference::from(42), Reference::Id(42));
+        assert_eq!(
+            Reference::from("scp-173"),
+            Reference::Slug(Cow::Borrowed("scp-173"))
+        );
+
+        let id = Reference::Id(7);
+        assert_eq!(id.borrow(), Reference::Id(7));
+
+        let slug = Reference::Slug(Cow::Owned(String::from("sandbox:page")));
+        assert_eq!(
+            slug.borrow(),
+            Reference::Slug(Cow::Borrowed("sandbox:page"))
+        );
+    }
+}

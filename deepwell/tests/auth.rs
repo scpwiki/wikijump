@@ -22,6 +22,7 @@
 mod common;
 
 use self::common::TestRunner;
+use data_encoding::BASE32_NOPAD;
 use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::prelude::*;
 use deepwell::models::audit_log::{Column as AuditLogColumn, Entity as AuditLogTable};
@@ -31,7 +32,8 @@ use deepwell::models::authorization_token::{
 use deepwell::services::RequestContext;
 use deepwell::services::password::PasswordService;
 use deepwell::services::user::{CreateUser, UserService};
-use deepwell::types::UserType;
+use deepwell::types::{Reference, UserType};
+use rust_otp::{Algorithm as TotpAlgorithm, TOTP};
 use sea_orm::{ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
 use serde_json::json;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -181,6 +183,158 @@ async fn unrestricted_sessions_still_get_and_renew_normally() {
     let renewed_session = run_endpoint!(runner, auth_session_get, json!([renewed]))
         .expect("renewed normal session should be returned by session_get");
     assert!(!renewed_session.restricted);
+}
+
+#[tokio::test]
+async fn session_other_listing_and_invalidation_keep_current_session() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let (name, user_id) = create_auth_test_user(&runner, n, false).await;
+
+    let first = run_endpoint!(runner, auth_login, login_params(&name));
+    let current = run_endpoint!(runner, auth_login, login_params(&name));
+    let third = run_endpoint!(runner, auth_login, login_params(&name));
+
+    let sessions = run_endpoint!(
+        runner,
+        auth_session_get_others,
+        json!({
+            "user_id": user_id,
+            "session_token": current.session_token,
+        }),
+    );
+    assert_eq!(sessions.current.session_token, current.session_token);
+    assert_eq!(sessions.others.len(), 2);
+    assert!(
+        sessions
+            .others
+            .iter()
+            .any(|session| session.session_token == first.session_token)
+    );
+    assert!(
+        sessions
+            .others
+            .iter()
+            .any(|session| session.session_token == third.session_token)
+    );
+
+    let invalidated = run_endpoint!(
+        runner,
+        auth_session_invalidate_others,
+        json!({
+            "user_id": user_id,
+            "session_token": current.session_token,
+        }),
+    );
+    assert_eq!(invalidated, 2);
+
+    assert!(
+        run_endpoint!(
+            runner,
+            auth_session_get,
+            json!([current.session_token.clone()])
+        )
+        .is_some()
+    );
+    assert!(
+        run_endpoint!(runner, auth_session_get, json!([first.session_token])).is_none()
+    );
+    assert!(
+        run_endpoint!(runner, auth_session_get, json!([third.session_token])).is_none()
+    );
+}
+
+#[tokio::test]
+async fn mfa_setup_reset_disable_and_totp_login_flow() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let (name, user_id) = create_auth_test_user(&runner, n, false).await;
+    let login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(!login.needs_mfa);
+
+    let setup = run_endpoint!(
+        runner,
+        auth_mfa_setup,
+        json!({
+            "user_id": user_id,
+            "session_token": login.session_token,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(
+        setup.recovery_codes.len(),
+        runner.config().recovery_code_count,
+    );
+
+    let user = UserService::get(runner.context(), Reference::Id(user_id))
+        .await
+        .expect("user lookup after MFA setup should succeed");
+    assert_eq!(
+        user.multi_factor_secret.as_deref(),
+        Some(setup.totp_secret.as_str())
+    );
+    assert_eq!(
+        user.multi_factor_recovery_codes
+            .as_ref()
+            .expect("recovery hashes should be stored")
+            .len(),
+        runner.config().recovery_code_count,
+    );
+
+    let mfa_login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(mfa_login.needs_mfa);
+    let secret_bytes = BASE32_NOPAD
+        .decode(setup.totp_secret.as_bytes())
+        .expect("generated TOTP secret should be valid base32");
+    let totp = TOTP::builder()
+        .secret(secret_bytes)
+        .algorithm(TotpAlgorithm::SHA256)
+        .digits(runner.config().totp_digits)
+        .time_step(runner.config().totp_time_step)
+        .build()
+        .expect("TOTP builder should accept Deepwell configuration");
+    let session_token = run_endpoint!(
+        runner,
+        auth_mfa_verify,
+        json!({
+            "session_token": mfa_login.session_token,
+            "totp_or_code": totp.generate_current().unwrap().to_string(),
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "deepwell-auth-test-totp",
+        }),
+    );
+    let session = run_endpoint!(runner, auth_session_get, json!([session_token]))
+        .expect("TOTP-verified session should be normal");
+    assert!(!session.restricted);
+
+    let reset = run_endpoint!(
+        runner,
+        auth_mfa_reset_recovery,
+        json!({
+            "user_id": user_id,
+            "session_token": login.session_token,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(
+        reset.recovery_codes.len(),
+        runner.config().recovery_code_count,
+    );
+
+    run_endpoint!(
+        runner,
+        auth_mfa_disable,
+        json!({
+            "user_id": user_id,
+            "session_token": login.session_token,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let user = UserService::get(runner.context(), Reference::Id(user_id))
+        .await
+        .expect("user lookup after MFA disable should succeed");
+    assert!(user.multi_factor_secret.is_none());
+    assert!(user.multi_factor_recovery_codes.is_none());
 }
 
 #[tokio::test]

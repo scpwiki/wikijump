@@ -4260,6 +4260,37 @@ impl RenderService {
         Some(rest[..end].to_owned())
     }
 
+    fn categories_with_current_page_category(
+        mut categories: Vec<Cow<'static, str>>,
+        page_info: &PageInfo<'_>,
+    ) -> Vec<Cow<'static, str>> {
+        let category = page_info
+            .category
+            .as_ref()
+            .map(Cow::as_ref)
+            .unwrap_or("_default");
+        if !categories.iter().any(|slug| slug.as_ref() == category) {
+            categories.push(Cow::Owned(category.to_owned()));
+        }
+        categories
+    }
+
+    fn page_info_category_slug<'a>(page_info: &'a PageInfo<'_>) -> Cow<'a, str> {
+        page_info
+            .category
+            .as_ref()
+            .map(|category| Cow::Borrowed(category.as_ref()))
+            .unwrap_or(Cow::Borrowed("_default"))
+    }
+
+    fn page_info_full_slug(page_info: &PageInfo<'_>) -> String {
+        let page = page_info.page.as_ref();
+        match Self::page_info_category_slug(page_info).as_ref() {
+            "_default" => page.to_owned(),
+            category => format!("{category}:{page}"),
+        }
+    }
+
     async fn render_list_pages_block(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
@@ -4301,28 +4332,7 @@ impl RenderService {
             (false, true)
         };
         let categories = if include_current_category && !category_all {
-            let make_error = || {
-                Error::new(
-                    "failed to load current page category for ListPages render",
-                    ErrorType::Render,
-                )
-            };
-            let page =
-                PageService::get(ctx, current_site_id, Reference::Id(current_page_id))
-                    .await
-                    .or_raise(make_error)?;
-            let category = CategoryService::get(
-                ctx,
-                current_site_id,
-                Reference::Id(page.page_category_id),
-            )
-            .await
-            .or_raise(make_error)?;
-            let mut categories = categories;
-            if !categories.iter().any(|slug| slug.as_ref() == category.slug) {
-                categories.push(Cow::Owned(category.slug));
-            }
-            categories
+            Self::categories_with_current_page_category(categories, page_info)
         } else {
             categories
         };
@@ -4633,28 +4643,7 @@ impl RenderService {
             (false, true)
         };
         let categories = if include_current_category && !category_all {
-            let make_error = || {
-                Error::new(
-                    "failed to load current page category for CountPages render",
-                    ErrorType::Render,
-                )
-            };
-            let page =
-                PageService::get(ctx, current_site_id, Reference::Id(current_page_id))
-                    .await
-                    .or_raise(make_error)?;
-            let category = CategoryService::get(
-                ctx,
-                current_site_id,
-                Reference::Id(page.page_category_id),
-            )
-            .await
-            .or_raise(make_error)?;
-            let mut categories = categories;
-            if !categories.iter().any(|slug| slug.as_ref() == category.slug) {
-                categories.push(Cow::Owned(category.slug));
-            }
-            categories
+            Self::categories_with_current_page_category(categories, page_info)
         } else {
             categories
         };
@@ -4828,9 +4817,36 @@ impl RenderService {
             )
         };
 
-        let page = PageService::get(ctx, current_site_id, Reference::Id(current_page_id))
+        let page = PageService::get_direct(ctx, current_page_id, true)
             .await
             .or_raise(make_error)?;
+        if page.site_id != current_site_id {
+            bail!(Error::new(
+                format!(
+                    "current page ID {} is not in site ID {}",
+                    current_page_id, current_site_id,
+                ),
+                ErrorType::Render,
+            ));
+        }
+        let page_category_id = if fields.page_category_id {
+            let category_slug = Self::page_info_category_slug(page_info);
+            let category = CategoryService::get(
+                ctx,
+                current_site_id,
+                Reference::Slug(Cow::Borrowed(category_slug.as_ref())),
+            )
+            .await
+            .or_raise(make_error)?;
+            Some(category.category_id)
+        } else {
+            None
+        };
+        let slug = if fields.slug {
+            Some(Self::page_info_full_slug(page_info))
+        } else {
+            None
+        };
         let latest_revision =
             if fields.title || fields.alt_title || fields.tags || fields.updated_by {
                 match page.latest_revision_id {
@@ -4873,12 +4889,8 @@ impl RenderService {
             pages: vec![FoundPageRow {
                 page_id: page.page_id,
                 site_id: page.site_id,
-                slug: if fields.slug { Some(page.slug) } else { None },
-                page_category_id: if fields.page_category_id {
-                    Some(page.page_category_id)
-                } else {
-                    None
-                },
+                slug,
+                page_category_id,
                 page_revision_id: if fields.page_revision_id {
                     page.latest_revision_id
                 } else {
@@ -8010,6 +8022,26 @@ mod tests {
         }
     }
 
+    #[test]
+    fn page_info_full_slug_uses_render_target_category() {
+        let default = fallback_test_page_info("restored", "Restored");
+        assert_eq!(RenderService::page_info_full_slug(&default), "restored");
+
+        let mut categorized = fallback_test_page_info("restored", "Restored");
+        categorized.category = Some(Cow::Borrowed("archive"));
+        assert_eq!(
+            RenderService::page_info_full_slug(&categorized),
+            "archive:restored",
+        );
+
+        let mut explicit_default = fallback_test_page_info("restored", "Restored");
+        explicit_default.category = Some(Cow::Borrowed("_default"));
+        assert_eq!(
+            RenderService::page_info_full_slug(&explicit_default),
+            "restored",
+        );
+    }
+
     fn render_wikidot_page_body_after_compat_restore(wikitext: &str) -> String {
         let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -8075,7 +8107,7 @@ mod tests {
 
         assert!(!arguments.current_page_only);
         assert!(arguments.exclude_current_page);
-        assert_eq!(arguments.limit, Some(15));
+        assert_eq!(arguments.count_pages_per_page, Some(15));
     }
 
     #[test]
@@ -8140,7 +8172,7 @@ mod tests {
             arguments.excluded_categories,
             vec![Cow::Borrowed("fragment")]
         );
-        assert_eq!(arguments.limit, Some(250));
+        assert_eq!(arguments.count_pages_per_page, Some(250));
     }
 
     #[test]
@@ -8156,7 +8188,7 @@ mod tests {
             vec![Cow::Borrowed("deleted")]
         );
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("1998")]);
-        assert_eq!(arguments.limit, Some(100));
+        assert_eq!(arguments.count_pages_per_page, Some(100));
         assert_eq!(
             arguments.prepend_line.as_deref(),
             Some("||~ ページ ||~ 投稿者 ||~ 投稿日 ||~ 評価 ||"),
@@ -8179,7 +8211,8 @@ mod tests {
         .expect("tag-search ListPages arguments should parse");
 
         assert!(arguments.category_all);
-        assert_eq!(arguments.limit, Some(20));
+        assert_eq!(arguments.limit, Some(0));
+        assert_eq!(arguments.count_pages_per_page, Some(20));
         assert_eq!(arguments.offset, 0);
         assert!(arguments.slug.is_none());
 
@@ -8289,7 +8322,7 @@ mod tests {
 
         assert_eq!(arguments.authors, vec![Cow::Borrowed("=")]);
         assert_eq!(arguments.order, None);
-        assert_eq!(arguments.limit, Some(250));
+        assert_eq!(arguments.count_pages_per_page, Some(250));
         assert_eq!(arguments.all_tags, vec![Cow::Borrowed("scp")]);
         assert_eq!(arguments.no_tags, vec![Cow::Borrowed("co-authored")]);
         assert_eq!(

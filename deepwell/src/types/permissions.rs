@@ -110,3 +110,67 @@ define_permission_types! {
     Role => [View, Edit, Assign],
     Site => [View, Edit],
 }
+
+#[test]
+fn parses_permission_without_category() {
+    let permission: Permission = "page:view".parse().unwrap();
+
+    assert_eq!(permission.resource_type, Resource::Page);
+    assert_eq!(permission.resource_category, None);
+    assert_eq!(permission.action, Action::View);
+}
+
+#[test]
+fn parses_permission_with_numeric_category() {
+    let permission: Permission = "page:123:edit".parse().unwrap();
+
+    assert_eq!(permission.resource_type, Resource::Page);
+    assert_eq!(permission.resource_category, Some(Reference::Id(123)));
+    assert_eq!(permission.action, Action::Edit);
+}
+
+#[test]
+fn parses_permission_with_slug_category() {
+    let permission: Permission = "page:staff:create".parse().unwrap();
+
+    assert_eq!(permission.resource_type, Resource::Page);
+    assert!(
+        matches!(permission.resource_category, Some(Reference::Slug(ref slug)) if slug == "staff"),
+    );
+    assert_eq!(permission.action, Action::Create);
+}
+
+#[test]
+fn rejects_invalid_permission_parts() {
+    let format_error = "page:view:extra:field".parse::<Permission>().unwrap_err();
+    assert!(
+        format_error
+            .to_string()
+            .contains("invalid permission format")
+    );
+
+    let resource_error = "forum:view".parse::<Permission>().unwrap_err();
+    assert!(resource_error.to_string().contains("invalid resource type"));
+
+    let action_error = "page:publish".parse::<Permission>().unwrap_err();
+    assert!(action_error.to_string().contains("invalid action type"));
+}
+
+#[test]
+fn permission_catalog_lists_valid_resource_actions() {
+    assert_eq!(Permission::ALL.len(), 11);
+    assert!(Permission::ALL.contains(&Permission {
+        resource_type: Resource::Page,
+        resource_category: None,
+        action: Action::BypassLock,
+    }));
+    assert_eq!(
+        Permission::new(Resource::Role, Action::Assign),
+        Some(Permission {
+            resource_type: Resource::Role,
+            resource_category: None,
+            action: Action::Assign,
+        }),
+    );
+    assert_eq!(Permission::new(Resource::Site, Action::Assign), None);
+}

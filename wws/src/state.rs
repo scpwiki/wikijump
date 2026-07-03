@@ -256,3 +256,48 @@ impl ServerStateInner {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use s3::creds::Credentials;
+    use s3::region::Region;
+
+    fn test_secrets(path_style: bool) -> Secrets {
+        Secrets {
+            deepwell_url: str!("http://127.0.0.1:2747"),
+            redis_url: str!("redis://127.0.0.1/"),
+            s3_files_bucket: str!("files"),
+            s3_tblocks_bucket: str!("text-blocks"),
+            s3_region: Region::Custom {
+                region: str!("test"),
+                endpoint: str!("http://127.0.0.1:9000"),
+            },
+            s3_credentials: Credentials::new(
+                Some("access-key"),
+                Some("secret-key"),
+                None,
+                None,
+                None,
+            )
+            .unwrap(),
+            s3_path_style: path_style,
+        }
+    }
+
+    #[tokio::test]
+    async fn build_server_state_initializes_clients_and_buckets_without_check() {
+        let state = build_server_state(false, test_secrets(true)).await.unwrap();
+
+        assert_eq!(state.s3_files_bucket.name, "files");
+        assert_eq!(state.s3_tblocks_bucket.name, "text-blocks");
+        assert_eq!(
+            state.s3_files_bucket.request_timeout,
+            Some(BUCKET_REQUEST_TIMEOUT),
+        );
+        assert_eq!(
+            state.s3_tblocks_bucket.request_timeout,
+            Some(BUCKET_REQUEST_TIMEOUT),
+        );
+    }
+}

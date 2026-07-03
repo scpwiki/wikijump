@@ -130,3 +130,50 @@ impl<'de> Deserialize<'de> for Bytes<'static> {
         Ok(Self::from(bytes))
     }
 }
+
+#[test]
+fn constructs_and_extracts_bytes() {
+    let borrowed = [1, 2, 3];
+    let borrowed_bytes = Bytes::from(&borrowed[..]);
+
+    assert_eq!(borrowed_bytes.len(), 3);
+    assert!(!borrowed_bytes.is_empty());
+    assert_eq!(borrowed_bytes.as_ref(), &borrowed);
+
+    let owned = Bytes::from(vec![4, 5, 6]);
+    let extracted: Vec<u8> = owned.into();
+    assert_eq!(extracted, vec![4, 5, 6]);
+}
+
+#[test]
+fn default_bytes_are_empty() {
+    let bytes = Bytes::default();
+
+    assert_eq!(bytes.len(), 0);
+    assert!(bytes.is_empty());
+    assert_eq!(bytes.as_ref(), &[] as &[u8]);
+}
+
+#[test]
+fn constructs_from_hash_types() {
+    let blob_hash: BlobHash = [0xab; 64];
+    let text_hash: TextHash = [0xcd; 16];
+
+    assert_eq!(Bytes::from(blob_hash).as_ref(), &[0xab; 64]);
+    assert_eq!(Bytes::from(text_hash).as_ref(), &[0xcd; 16]);
+}
+
+#[test]
+fn serializes_and_deserializes_as_hex() {
+    let bytes = Bytes::from(&[0x0a, 0xbc][..]);
+
+    assert_eq!(serde_json::to_string(&bytes).unwrap(), r#""0abc""#);
+
+    let deserialized: Bytes<'static> = serde_json::from_str(r#""0abc""#).unwrap();
+    assert_eq!(deserialized.as_ref(), &[0x0a, 0xbc]);
+}
+
+#[test]
+fn rejects_invalid_hex() {
+    assert!(serde_json::from_str::<Bytes<'static>>(r#""abc""#).is_err());
+}

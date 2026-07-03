@@ -107,3 +107,121 @@ impl License {
         Ok(name.to_string())
     }
 }
+
+#[test]
+fn license_urls_are_stable() {
+    assert_eq!(
+        License::CcBySa40.url(),
+        "https://creativecommons.org/licenses/by-sa/4.0/",
+    );
+    assert_eq!(
+        License::CcBy40.url(),
+        "https://creativecommons.org/licenses/by/4.0/",
+    );
+    assert_eq!(
+        License::CcByNd40.url(),
+        "https://creativecommons.org/licenses/by-nd/4.0/",
+    );
+    assert_eq!(
+        License::CcByNc40.url(),
+        "https://creativecommons.org/licenses/by-nc/4.0/",
+    );
+    assert_eq!(
+        License::CcByNcSa40.url(),
+        "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    );
+    assert_eq!(
+        License::CcByNcNd40.url(),
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+    );
+    assert_eq!(
+        License::CcBySa30.url(),
+        "https://creativecommons.org/licenses/by-sa/3.0/",
+    );
+    assert_eq!(
+        License::CcBy30.url(),
+        "https://creativecommons.org/licenses/by/3.0/",
+    );
+    assert_eq!(
+        License::CcByNd30.url(),
+        "https://creativecommons.org/licenses/by-nd/3.0/",
+    );
+    assert_eq!(
+        License::CcByNc30.url(),
+        "https://creativecommons.org/licenses/by-nc/3.0/",
+    );
+    assert_eq!(
+        License::CcByNcSa30.url(),
+        "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+    );
+    assert_eq!(
+        License::CcByNcNd30.url(),
+        "https://creativecommons.org/licenses/by-nc-nd/3.0/",
+    );
+    assert_eq!(
+        License::CcBySa25.url(),
+        "https://creativecommons.org/licenses/by-sa/2.5/",
+    );
+    assert_eq!(
+        License::CcBy25.url(),
+        "https://creativecommons.org/licenses/by/2.5/",
+    );
+    assert_eq!(
+        License::CcByNd25.url(),
+        "https://creativecommons.org/licenses/by-nd/2.5/",
+    );
+    assert_eq!(
+        License::CcByNc25.url(),
+        "https://creativecommons.org/licenses/by-nc/2.5/",
+    );
+    assert_eq!(
+        License::CcByNcSa25.url(),
+        "https://creativecommons.org/licenses/by-nc-sa/2.5/",
+    );
+    assert_eq!(
+        License::CcByNcNd25.url(),
+        "https://creativecommons.org/licenses/by-nc-nd/2.5/",
+    );
+    assert_eq!(
+        License::GnuFdl13.url(),
+        "https://www.gnu.org/licenses/fdl-1.3.html",
+    );
+    assert_eq!(
+        License::GnuFdl12.url(),
+        "https://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
+    );
+    assert_eq!(
+        License::GnuFdl11.url(),
+        "https://www.gnu.org/licenses/old-licenses/fdl-1.1.html",
+    );
+    assert_eq!(
+        License::Cc0.url(),
+        "https://creativecommons.org/public-domain/cc0/",
+    );
+}
+
+#[test]
+fn license_fluent_keys_are_stable() {
+    assert_eq!(License::CcBySa40.fluent_key(), "license.cc-by-sa-4-0");
+    assert_eq!(License::CcBy40.fluent_key(), "license.cc-by-4-0");
+    assert_eq!(License::CcByNd40.fluent_key(), "license.cc-by-nd-4-0");
+    assert_eq!(License::CcByNc40.fluent_key(), "license.cc-by-nc-4-0");
+    assert_eq!(License::CcByNcSa40.fluent_key(), "license.cc-by-nc-sa-4-0",);
+    assert_eq!(License::CcByNcNd40.fluent_key(), "license.cc-by-nc-nd-4-0",);
+    assert_eq!(License::CcBySa30.fluent_key(), "license.cc-by-sa-3-0");
+    assert_eq!(License::CcBy30.fluent_key(), "license.cc-by-3-0");
+    assert_eq!(License::CcByNd30.fluent_key(), "license.cc-by-nd-3-0");
+    assert_eq!(License::CcByNc30.fluent_key(), "license.cc-by-nc-3-0");
+    assert_eq!(License::CcByNcSa30.fluent_key(), "license.cc-by-nc-sa-3-0",);
+    assert_eq!(License::CcByNcNd30.fluent_key(), "license.cc-by-nc-nd-3-0",);
+    assert_eq!(License::CcBySa25.fluent_key(), "license.cc-by-sa-2-5");
+    assert_eq!(License::CcBy25.fluent_key(), "license.cc-by-2-5");
+    assert_eq!(License::CcByNd25.fluent_key(), "license.cc-by-nd-2-5");
+    assert_eq!(License::CcByNc25.fluent_key(), "license.cc-by-nc-2-5");
+    assert_eq!(License::CcByNcSa25.fluent_key(), "license.cc-by-nc-sa-2-5",);
+    assert_eq!(License::CcByNcNd25.fluent_key(), "license.cc-by-nc-nd-2-5",);
+    assert_eq!(License::GnuFdl13.fluent_key(), "license.gnu-fdl-1-3");
+    assert_eq!(License::GnuFdl12.fluent_key(), "license.gnu-fdl-1-2");
+    assert_eq!(License::GnuFdl11.fluent_key(), "license.gnu-fdl-1-1");
+    assert_eq!(License::Cc0.fluent_key(), "license.cc0");
+}

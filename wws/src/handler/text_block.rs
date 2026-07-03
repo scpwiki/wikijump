@@ -359,3 +359,62 @@ fn get_session_token(headers: &HeaderMap) -> Option<&str> {
 
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::HeaderValue;
+    use jsonrpsee_types::ErrorObjectOwned;
+
+    #[test]
+    fn s3_headers_are_read_case_insensitively() {
+        let headers = HashMap::from([
+            ("Content-Type".to_string(), "text/html".to_string()),
+            ("etag".to_string(), "\"abc\"".to_string()),
+        ]);
+
+        let parsed = get_headers(headers);
+
+        assert_eq!(parsed.content_type, "text/html");
+        assert_eq!(parsed.etag, "\"abc\"");
+    }
+
+    #[test]
+    fn session_token_is_extracted_from_cookie_header() {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::COOKIE,
+            HeaderValue::from_static("theme=dark; wikijump_token=secret; other=1"),
+        );
+
+        assert_eq!(get_session_token(&headers), Some("secret"));
+    }
+
+    #[test]
+    fn empty_or_missing_session_token_is_ignored() {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::COOKIE,
+            HeaderValue::from_static("wikijump_token=; a=b"),
+        );
+
+        assert_eq!(get_session_token(&headers), None);
+    }
+
+    #[test]
+    fn deepwell_permission_denied_is_detected_from_rpc_code() {
+        let denied = WwsError::Deepwell(ClientError::Call(ErrorObjectOwned::owned(
+            3106,
+            "permission denied",
+            None::<()>,
+        )));
+        let other = WwsError::Deepwell(ClientError::Call(ErrorObjectOwned::owned(
+            1234,
+            "other error",
+            None::<()>,
+        )));
+
+        assert!(is_deepwell_permission_denied(&denied));
+        assert!(!is_deepwell_permission_denied(&other));
+    }
+}

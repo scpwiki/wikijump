@@ -135,3 +135,99 @@ pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use exn::ErrorExt;
+    use sea_orm::{DbErr, TransactionError};
+    use serde_json::json;
+
+    #[test]
+    fn unwraps_transaction_errors_without_rewriting_inner_error() {
+        let error = Error::new("page missing", ErrorType::PageNotFound).raise();
+        let unwrapped = unwrap_transaction_error(TransactionError::Transaction(error));
+
+        assert_eq!(unwrapped.code(), ErrorType::PageNotFound.code());
+        assert_eq!(unwrapped.message, "page missing");
+    }
+
+    #[test]
+    fn wraps_transaction_connection_errors() {
+        let unwrapped = unwrap_transaction_error(TransactionError::Connection(
+            DbErr::Custom(str!("offline")),
+        ));
+
+        assert_eq!(unwrapped.code(), ErrorType::DatabaseQuery.code());
+        assert!(format!("{unwrapped:?}").contains("offline"));
+    }
+
+    #[test]
+    fn converts_low_level_crate_error_to_rpc_error() {
+        let rpc = exn_error_to_rpc_error(
+            Error::new("page missing", ErrorType::PageNotFound).raise(),
+        );
+
+        assert_eq!(rpc.code(), ErrorType::PageNotFound.code());
+        assert_eq!(rpc.message(), ErrorType::PageNotFound.summary());
+        let data: JsonValue = serde_json::from_str(rpc.data().unwrap().get()).unwrap();
+        assert_eq!(data["code_trace"], json!([ErrorType::PageNotFound.code()]),);
+        assert_eq!(data["extra"], json!(null));
+        assert!(
+            data["call_trace"]
+                .as_str()
+                .unwrap()
+                .contains("page missing")
+        );
+    }
+
+    #[test]
+    fn converts_high_level_chain_to_low_level_rpc_error() {
+        let inner = Error::new("page missing", ErrorType::PageNotFound).raise();
+        let exn = inner.raise(Error::new("page operation failed", ErrorType::Page));
+        let rpc = exn_error_to_rpc_error(exn);
+
+        assert_eq!(rpc.code(), ErrorType::PageNotFound.code());
+        let data: JsonValue = serde_json::from_str(rpc.data().unwrap().get()).unwrap();
+        assert_eq!(
+            data["code_trace"],
+            json!([ErrorType::Page.code(), ErrorType::PageNotFound.code()]),
+        );
+    }
+
+    #[test]
+    fn omits_rpc_data_for_invalid_authentication() {
+        let rpc = exn_error_to_rpc_error(
+            Error::new("invalid login", ErrorType::InvalidAuthentication).raise(),
+        );
+
+        assert_eq!(rpc.code(), ErrorType::InvalidAuthentication.code());
+        assert!(rpc.data().is_none());
+    }
+
+    #[test]
+    fn passes_jsonrpc_error_through_high_level_chain() {
+        let jsonrpc = ErrorObjectOwned::owned(1234, "jsonrpc failure", Some("data"));
+        let exn = Exn::<Error>::raise_all(
+            Error::new("request failed", ErrorType::Request),
+            [jsonrpc.clone().raise()],
+        );
+        let rpc = exn_error_to_rpc_error(exn);
+
+        assert_eq!(rpc.code(), 1234);
+        assert_eq!(rpc.message(), "jsonrpc failure");
+        assert_eq!(rpc.data().unwrap().get(), r#""data""#);
+    }
+
+    #[test]
+    fn converts_high_level_only_chain_to_generic_rpc_error() {
+        let rpc = exn_error_to_rpc_error(
+            Error::new("request failed", ErrorType::Request).raise(),
+        );
+
+        assert_eq!(rpc.code(), 0);
+        assert!(rpc.message().contains("request failed"));
+        let data: JsonValue = serde_json::from_str(rpc.data().unwrap().get()).unwrap();
+        assert_eq!(data["code_trace"], json!([ErrorType::Request.code()]));
+    }
+}

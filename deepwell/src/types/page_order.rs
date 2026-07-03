@@ -86,3 +86,35 @@ impl From<PageOrderColumn> for page::Column {
         }
     }
 }
+
+#[test]
+fn default_page_order_uses_id_ascending() {
+    let order = PageOrder::default();
+
+    assert_eq!(order.column, PageOrderColumn::Id);
+    assert_eq!(order.direction, Order::Asc);
+}
+
+#[test]
+fn page_order_columns_map_to_database_columns() {
+    assert!(matches!(
+        PageOrderColumn::Id.into_column(),
+        page::Column::PageId,
+    ));
+    assert!(matches!(
+        PageOrderColumn::Creation.into_column(),
+        page::Column::CreatedAt,
+    ));
+    assert!(matches!(
+        PageOrderColumn::Update.into_column(),
+        page::Column::UpdatedAt,
+    ));
+    assert!(matches!(
+        PageOrderColumn::Deletion.into_column(),
+        page::Column::DeletedAt,
+    ));
+    assert!(matches!(
+        PageOrderColumn::Slug.into_column(),
+        page::Column::Slug,
+    ));
+}

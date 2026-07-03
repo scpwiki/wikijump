@@ -109,3 +109,59 @@ impl IntoResponse for FallbackError {
         (status_code, message).into_response()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body;
+    use axum::http::StatusCode;
+
+    #[test]
+    fn fallback_error_codes_are_stable() {
+        assert_eq!(FallbackError::BasicErrorCode.error_code(), 1000);
+        assert_eq!(FallbackError::BasicErrorFetch.error_code(), 1001);
+        assert_eq!(FallbackError::BasicErrorDirect.error_code(), 1002);
+        assert_eq!(FallbackError::RedirectMain.error_code(), 1003);
+        assert_eq!(FallbackError::TextBlockS3Fetch.error_code(), 1004);
+        assert_eq!(FallbackError::CannotGenerateCaddyfile.error_code(), 1005);
+    }
+
+    #[test]
+    fn fallback_errors_map_to_expected_http_statuses() {
+        assert_eq!(
+            FallbackError::BasicErrorCode.status_code(),
+            StatusCode::BAD_REQUEST,
+        );
+        assert_eq!(
+            FallbackError::BasicErrorDirect.status_code(),
+            StatusCode::FORBIDDEN,
+        );
+        assert_eq!(
+            FallbackError::BasicErrorFetch.status_code(),
+            StatusCode::GATEWAY_TIMEOUT,
+        );
+        assert_eq!(
+            FallbackError::RedirectMain.status_code(),
+            StatusCode::GATEWAY_TIMEOUT,
+        );
+        assert_eq!(
+            FallbackError::TextBlockS3Fetch.status_code(),
+            StatusCode::INTERNAL_SERVER_ERROR,
+        );
+        assert_eq!(
+            FallbackError::CannotGenerateCaddyfile.status_code(),
+            StatusCode::BAD_GATEWAY,
+        );
+    }
+
+    #[tokio::test]
+    async fn fallback_error_response_contains_xf_code() {
+        let response = FallbackError::TextBlockS3Fetch.into_response();
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(&body[..], b"ERROR XF-1004");
+    }
+}

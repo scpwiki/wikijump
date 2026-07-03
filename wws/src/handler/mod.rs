@@ -104,3 +104,30 @@ fn get_target_server(headers: &HeaderMap) -> TargetServer {
         _ => panic!("Invalid header value: {value:?}"),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::HeaderValue;
+
+    #[test]
+    fn reads_site_headers() {
+        let mut headers = HeaderMap::new();
+        headers.insert(HEADER_SITE_ID, HeaderValue::from_static("42"));
+        headers.insert(HEADER_SITE_SLUG, HeaderValue::from_static("scp-wiki"));
+
+        assert_eq!(get_site_id(&headers), 42);
+        assert_eq!(get_site_slug(&headers), "scp-wiki");
+    }
+
+    #[test]
+    fn target_server_accepts_main_and_files_values() {
+        let mut headers = HeaderMap::new();
+
+        headers.insert(HEADER_TARGET_SERVER, HeaderValue::from_static("main"));
+        assert_eq!(get_target_server(&headers), TargetServer::Main);
+
+        headers.insert(HEADER_TARGET_SERVER, HeaderValue::from_static("files"));
+        assert_eq!(get_target_server(&headers), TargetServer::Files);
+    }
+}

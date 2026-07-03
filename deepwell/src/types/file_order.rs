@@ -86,3 +86,35 @@ impl From<FileOrderColumn> for file::Column {
         }
     }
 }
+
+#[test]
+fn default_file_order_uses_id_ascending() {
+    let order = FileOrder::default();
+
+    assert_eq!(order.column, FileOrderColumn::Id);
+    assert_eq!(order.direction, Order::Asc);
+}
+
+#[test]
+fn file_order_columns_map_to_database_columns() {
+    assert!(matches!(
+        FileOrderColumn::Id.into_column(),
+        file::Column::FileId,
+    ));
+    assert!(matches!(
+        FileOrderColumn::Creation.into_column(),
+        file::Column::CreatedAt,
+    ));
+    assert!(matches!(
+        FileOrderColumn::Update.into_column(),
+        file::Column::UpdatedAt,
+    ));
+    assert!(matches!(
+        FileOrderColumn::Deletion.into_column(),
+        file::Column::DeletedAt,
+    ));
+    assert!(matches!(
+        FileOrderColumn::Name.into_column(),
+        file::Column::Name,
+    ));
+}

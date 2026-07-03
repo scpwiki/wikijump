@@ -150,24 +150,6 @@
                 "name": "inimical-icon.svg",
                 "path": "scp-7000--inimical-icon.svg"
             }
-        ],
-        "theme:blankstyle": [
-            {
-                "name": "43Head.png",
-                "path": "theme-blankstyle--43Head.png"
-            }
-        ],
-        "this-page-intentionally-left-blank": [
-            {
-                "name": "Mallet.png",
-                "path": "this-page-intentionally-left-blank--Mallet.png"
-            }
-        ],
-        "the-b-b-decommission": [
-            {
-                "name": "Asterisk43.png",
-                "path": "the-b-b-decommission--Asterisk43.png"
-            }
         ]
     }
 }

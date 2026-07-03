@@ -59,3 +59,36 @@ pub fn parse_locales<S: AsRef<str>>(
 
     Ok(locales)
 }
+
+#[test]
+fn validate_locale_accepts_valid_locale() {
+    let locale = validate_locale("en-US").unwrap();
+
+    assert_eq!(locale.to_string(), "en-US");
+}
+
+#[test]
+fn validate_locale_rejects_invalid_locale() {
+    let error = validate_locale("not a locale").unwrap_err();
+
+    assert!(error.to_string().contains("failed to validate locale"));
+}
+
+#[test]
+fn parse_locales_accepts_empty_and_valid_locale_lists() {
+    let empty: Vec<LanguageIdentifier> = parse_locales::<&str>(&[]).unwrap();
+    assert!(empty.is_empty());
+
+    let locales = parse_locales(&["en-US", "ja"]).unwrap();
+    assert_eq!(
+        locales.iter().map(ToString::to_string).collect::<Vec<_>>(),
+        vec!["en-US", "ja"],
+    );
+}
+
+#[test]
+fn parse_locales_rejects_invalid_locale() {
+    let error = parse_locales(&["en-US", "not a locale"]).unwrap_err();
+
+    assert!(error.to_string().contains("failed to parse locale"));
+}

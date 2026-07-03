@@ -309,6 +309,44 @@ impl From<(CreatePageRevisionOutput, String)> for RestorePageOutput {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn delete_page_output_uses_tombstone_revision_metadata() {
+        let output = DeletePageOutput::from((
+            CreatePageRevisionOutput {
+                revision_id: 50,
+                revision_number: 4,
+                parser_errors: None,
+            },
+            20,
+        ));
+
+        assert_eq!(output.page_id, 20);
+        assert_eq!(output.revision_id, 50);
+        assert_eq!(output.revision_number, 4);
+    }
+
+    #[test]
+    fn restore_page_output_requires_rerender_parser_errors() {
+        let output = RestorePageOutput::from((
+            CreatePageRevisionOutput {
+                revision_id: 51,
+                revision_number: 5,
+                parser_errors: Some(Vec::new()),
+            },
+            str!("restored-page"),
+        ));
+
+        assert_eq!(output.slug, "restored-page");
+        assert_eq!(output.revision_id, 51);
+        assert_eq!(output.revision_number, 5);
+        assert!(output.parser_errors.is_empty());
+    }
+}
+
 #[derive(Deserialize, Debug, Clone)]
 #[allow(dead_code)]
 pub struct PageEditPermission<'a> {

@@ -588,12 +588,6 @@ impl PageService {
             .await
             .or_raise(|| Error::new("failed to restore page", ErrorType::Page))?;
 
-        let id = PageId {
-            site_id,
-            category_id: page.page_category_id,
-            page_id,
-        };
-
         let slug = slug.unwrap_or(page.slug);
 
         let make_error = || {
@@ -639,6 +633,11 @@ impl PageService {
             CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
                 .await
                 .or_raise(make_error)?;
+        let id = PageId {
+            site_id,
+            category_id: category.category_id,
+            page_id,
+        };
 
         // Get latest revision
         let last_revision = PageRevisionService::get_latest(ctx, site_id, page_id)

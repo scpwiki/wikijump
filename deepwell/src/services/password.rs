@@ -120,3 +120,28 @@ fn convert_argon_error(error: argon2::password_hash::Error) -> Error {
         ErrorType::Cryptography(str!(error)),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use uuid::Uuid;
+
+    #[test]
+    fn password_hashes_verify_original_password_and_reject_wrong_password() {
+        let password = Uuid::new_v4().to_string();
+        let wrong_password = Uuid::new_v4().to_string();
+        let hash = PasswordService::new_hash(&password).unwrap();
+
+        PasswordService::verify_internal(&password, &hash).unwrap();
+        assert!(PasswordService::verify_internal(&wrong_password, &hash).is_err());
+        assert!(PasswordService::verify_internal(&password, "not phc").is_err());
+    }
+
+    #[tokio::test]
+    async fn failure_sleep_uses_configured_delay() {
+        let mut config = Config::integration_testing();
+        config.authentication_fail_delay = std::time::Duration::from_millis(0);
+
+        PasswordService::failure_sleep(&config).await;
+    }
+}

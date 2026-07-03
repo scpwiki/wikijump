@@ -70,3 +70,27 @@ pub fn blob_hash_to_hex(hash: &[u8]) -> BlobHexHash {
 
     ArrayString::from_utf8(hex_bytes).expect("Encoded hash was not UTF-8")
 }
+
+#[test]
+fn sha512_hash_matches_known_digest() {
+    let hash = sha512_hash(b"wikijump");
+
+    assert_eq!(hash.len(), BLOB_HASH_LENGTH);
+    assert_eq!(
+        blob_hash_to_hex(&hash).to_string(),
+        "f015e34d6caf50a3dc012ce5d7e6732362e6835852a1d4140bc97448faa28c5b712d7c065129c942699af05d9d6517ee1063b4ca4c625f13a61a936e2806d574",
+    );
+}
+
+#[test]
+fn slice_to_blob_hash_copies_exact_length_slice() {
+    let input = [0x5a; BLOB_HASH_LENGTH];
+
+    assert_eq!(slice_to_blob_hash(&input), input);
+}
+
+#[test]
+#[should_panic]
+fn slice_to_blob_hash_rejects_wrong_length_slice() {
+    slice_to_blob_hash(&[0x5a; BLOB_HASH_LENGTH - 1]);
+}

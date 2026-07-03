@@ -67,3 +67,18 @@ impl Scorer for SumScorer {
         Ok(ScoreValue::Integer(result.sum.unwrap_or(0)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::services::score::Scorer;
+
+    #[test]
+    fn sum_scorer_metadata_accepts_all_vote_styles() {
+        let scorer = SumScorer;
+
+        assert_eq!(Scorer::score_type(&scorer), ScoreType::Sum);
+        assert!(Scorer::accepts_vote_type(&scorer, VoteType::UpsDowns));
+        assert!(Scorer::accepts_vote_type(&scorer, VoteType::FiveStar));
+    }
+}

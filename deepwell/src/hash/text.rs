@@ -60,3 +60,14 @@ pub fn text_hash_to_hex(hash: &[u8]) -> TextHexHash {
 
     ArrayString::from_utf8(hex_bytes).expect("Encoded hash was not UTF-8")
 }
+
+#[test]
+fn k12_hash_is_stable_and_hex_encoded() {
+    let hash = k12_hash(b"wikijump");
+
+    assert_eq!(hash.len(), TEXT_HASH_LENGTH);
+    assert_ne!(hash, [0; TEXT_HASH_LENGTH]);
+    assert_eq!(hash, k12_hash(b"wikijump"));
+    assert_ne!(hash, k12_hash(b"wikijump!"));
+    assert_eq!(text_hash_to_hex(&hash).to_string(), hex::encode(hash));
+}

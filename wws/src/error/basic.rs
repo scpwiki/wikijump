@@ -74,6 +74,31 @@ pub struct BasicErrorOutput {
     pub status: StatusCode,
 }
 
+impl BasicErrorOutput {
+    fn into_response(self) -> Response {
+        let BasicErrorOutput {
+            title,
+            body,
+            status,
+        } = self;
+
+        // SAFETY: Both string fields here come from DEEPWELL,
+        //         which in turn come from Fluent translation lines.
+        //         As such, they can be trusted to not contain malicious HTML.
+
+        const HTML_START: &str = r#"<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>"#;
+        const HTML_MIDDLE: &str = "</title></head><body><article>";
+        const HTML_END: &str = "</article></body></html>\n";
+
+        let html = format!("{HTML_START}{title}{HTML_MIDDLE}{body}{HTML_END}");
+        Response::builder()
+            .status(status)
+            .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+            .body(Body::from(html))
+            .expect("Unable to convert response data")
+    }
+}
+
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum TextBlockErrorReason {
     /// This hosted text block does not exist.
@@ -139,11 +164,7 @@ pub async fn build_basic_error_response(
         }};
     }
 
-    let BasicErrorOutput {
-        title,
-        body,
-        status,
-    } = match basic_error {
+    let output = match basic_error {
         BasicError::SiteSlug { site_slug } => {
             deepwell_fetch!(missing_site_slug, site_slug => NOT_FOUND)
         }
@@ -189,18 +210,299 @@ pub async fn build_basic_error_response(
         }
     };
 
-    // SAFETY: Both string fields here come from DEEPWELL,
-    //         which in turn come from Fluent translation lines.
-    //         As such, they can be trusted to not contain malicious HTML.
+    output.into_response()
+}
 
-    const HTML_START: &str = r#"<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>"#;
-    const HTML_MIDDLE: &str = "</title></head><body><article>";
-    const HTML_END: &str = "</article></body></html>\n";
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::cache::Cache;
+    use crate::deepwell::Deepwell;
+    use axum::Router;
+    use axum::body;
+    use axum::body::Bytes;
+    use axum::extract::State;
+    use axum::http::header::ACCEPT_LANGUAGE;
+    use axum::routing::post;
+    use s3::bucket::Bucket;
+    use s3::creds::Credentials;
+    use s3::region::Region;
+    use serde_json::{Value, json};
+    use std::sync::{Arc, Mutex};
+    use tokio::net::TcpListener;
 
-    let html = format!("{HTML_START}{title}{HTML_MIDDLE}{body}{HTML_END}");
-    Response::builder()
-        .status(status)
-        .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
-        .body(Body::from(html))
-        .expect("Unable to convert response data")
+    type Requests = Arc<Mutex<Vec<Value>>>;
+
+    #[derive(Clone)]
+    struct RpcState {
+        requests: Requests,
+        fail: bool,
+    }
+
+    async fn rpc_handler(State(state): State<RpcState>, body: Bytes) -> Response {
+        let request: Value = serde_json::from_slice(&body).unwrap();
+        let method = request["method"].as_str().unwrap().to_owned();
+        let id = request["id"].clone();
+        state.requests.lock().unwrap().push(request);
+
+        let body = if state.fail {
+            json!({
+                "jsonrpc": "2.0",
+                "error": { "code": -32000, "message": "basic error unavailable" },
+                "id": id,
+            })
+        } else {
+            json!({
+                "jsonrpc": "2.0",
+                "result": {
+                    "title": format!("title:{method}"),
+                    "body": format!("body:{method}"),
+                },
+                "id": id,
+            })
+        }
+        .to_string();
+
+        ([(header::CONTENT_TYPE, "application/json")], body).into_response()
+    }
+
+    async fn spawn_rpc_server(fail: bool) -> (String, Requests) {
+        let requests = Requests::default();
+        let app = Router::new()
+            .route("/", post(rpc_handler))
+            .with_state(RpcState {
+                requests: Arc::clone(&requests),
+                fail,
+            });
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            axum::serve(listener, app).await.unwrap();
+        });
+
+        (format!("http://{address}"), requests)
+    }
+
+    fn test_bucket(name: &str) -> Box<Bucket> {
+        Bucket::new(
+            name,
+            Region::Custom {
+                region: str!("test"),
+                endpoint: str!("http://127.0.0.1:9000"),
+            },
+            Credentials::new(Some("access-key"), Some("secret-key"), None, None, None)
+                .unwrap(),
+        )
+        .unwrap()
+        .with_path_style()
+    }
+
+    fn test_state(deepwell_url: &str) -> ServerStateInner {
+        ServerStateInner {
+            deepwell: Deepwell::connect(deepwell_url).unwrap(),
+            cache: Cache::connect("redis://127.0.0.1/").unwrap(),
+            s3_files_bucket: test_bucket("files"),
+            s3_tblocks_bucket: test_bucket("text-blocks"),
+        }
+    }
+
+    async fn assert_basic_response(response: Response, status: StatusCode, method: &str) {
+        assert_eq!(response.status(), status);
+        assert_eq!(
+            response.headers().get(header::CONTENT_TYPE).unwrap(),
+            "text/html; charset=utf-8",
+        );
+
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let body = String::from_utf8(body.to_vec()).unwrap();
+        assert!(body.contains(&format!("<title>title:{method}</title>")));
+        assert!(body.contains(&format!("body:{method}")));
+    }
+
+    #[test]
+    fn text_block_error_reasons_match_deepwell_fluent_values() {
+        assert_eq!(TextBlockErrorReason::Missing.value(), "missing");
+        assert_eq!(TextBlockErrorReason::Invalid.value(), "invalid");
+        assert_eq!(TextBlockErrorReason::Fetch.value(), "fetch");
+    }
+
+    #[tokio::test]
+    async fn basic_error_output_builds_html_response() {
+        let response = BasicErrorOutput {
+            title: "Missing page".to_string(),
+            body: "<p>No such page.</p>".to_string(),
+            status: StatusCode::NOT_FOUND,
+        }
+        .into_response();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+        assert_eq!(
+            response.headers().get(header::CONTENT_TYPE).unwrap(),
+            "text/html; charset=utf-8",
+        );
+
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(
+            &body[..],
+            br#"<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Missing page</title></head><body><article><p>No such page.</p></article></body></html>
+"#,
+        );
+    }
+
+    #[tokio::test]
+    async fn build_basic_error_response_fetches_localized_deepwell_errors() {
+        let (url, requests) = spawn_rpc_server(false).await;
+        let state = test_state(&url);
+        let mut headers = HeaderMap::new();
+        headers.insert(ACCEPT_LANGUAGE, "ja, en;q=0.5".parse().unwrap());
+
+        assert_basic_response(
+            build_basic_error_response(
+                &state,
+                &headers,
+                BasicError::SiteSlug {
+                    site_slug: "scp-wiki",
+                },
+            )
+            .await,
+            StatusCode::NOT_FOUND,
+            "basic_error_missing_site_slug",
+        )
+        .await;
+        assert_basic_response(
+            build_basic_error_response(
+                &state,
+                &headers,
+                BasicError::SiteCustom {
+                    host: "example.com",
+                },
+            )
+            .await,
+            StatusCode::NOT_FOUND,
+            "basic_error_missing_custom_domain",
+        )
+        .await;
+        assert_basic_response(
+            build_basic_error_response(
+                &state,
+                &headers,
+                BasicError::PageSlug {
+                    site_id: 42,
+                    page_slug: "scp-173",
+                },
+            )
+            .await,
+            StatusCode::NOT_FOUND,
+            "basic_error_missing_page_slug",
+        )
+        .await;
+        assert_basic_response(
+            build_basic_error_response(
+                &state,
+                &headers,
+                BasicError::PageFetch {
+                    site_id: 42,
+                    page_slug: "scp-173",
+                },
+            )
+            .await,
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "basic_error_page_fetch",
+        )
+        .await;
+        assert_basic_response(
+            build_basic_error_response(
+                &state,
+                &headers,
+                BasicError::FileName {
+                    site_id: 42,
+                    page_slug: "scp-173",
+                    filename: "image.png",
+                },
+            )
+            .await,
+            StatusCode::NOT_FOUND,
+            "basic_error_missing_file_name",
+        )
+        .await;
+        assert_basic_response(
+            build_basic_error_response(
+                &state,
+                &headers,
+                BasicError::FileFetch {
+                    site_id: 42,
+                    page_slug: "scp-173",
+                    filename: "image.png",
+                },
+            )
+            .await,
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "basic_error_file_fetch",
+        )
+        .await;
+        for (reason, status) in [
+            (TextBlockErrorReason::Missing, StatusCode::NOT_FOUND),
+            (TextBlockErrorReason::Invalid, StatusCode::BAD_REQUEST),
+            (
+                TextBlockErrorReason::Fetch,
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+        ] {
+            assert_basic_response(
+                build_basic_error_response(
+                    &state,
+                    &headers,
+                    BasicError::TextBlock {
+                        site_id: 42,
+                        index: "2",
+                        block_type: TextBlockType::Html,
+                        reason,
+                    },
+                )
+                .await,
+                status,
+                "basic_error_text_block",
+            )
+            .await;
+        }
+        assert_basic_response(
+            build_basic_error_response(&state, &headers, BasicError::FileRoot).await,
+            StatusCode::BAD_REQUEST,
+            "basic_error_file_root",
+        )
+        .await;
+
+        let requests = requests.lock().unwrap();
+        assert_eq!(
+            requests[0]["params"]["locales"],
+            json!(["ja", "en"]),
+            "Accept-Language should be forwarded to DEEPWELL",
+        );
+        let text_block_requests = requests
+            .iter()
+            .filter(|request| request["method"] == "basic_error_text_block")
+            .collect::<Vec<_>>();
+        assert_eq!(text_block_requests[0]["params"]["reason"], "missing");
+        assert_eq!(text_block_requests[1]["params"]["reason"], "invalid");
+        assert_eq!(text_block_requests[2]["params"]["reason"], "fetch");
+    }
+
+    #[tokio::test]
+    async fn build_basic_error_response_falls_back_when_deepwell_errors() {
+        let (url, _requests) = spawn_rpc_server(true).await;
+        let state = test_state(&url);
+        let response =
+            build_basic_error_response(&state, &HeaderMap::new(), BasicError::FileRoot)
+                .await;
+
+        assert_eq!(response.status(), StatusCode::GATEWAY_TIMEOUT);
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(&body[..], b"ERROR XF-1001");
+    }
 }

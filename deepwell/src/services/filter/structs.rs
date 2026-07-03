@@ -96,6 +96,27 @@ impl From<Option<i64>> for FilterClass {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn filter_class_names_and_option_conversion_are_stable() {
+        assert_eq!(FilterClass::Platform.name(), "platform");
+        assert_eq!(FilterClass::Site(7).name(), "site");
+        assert_eq!(FilterClass::PlatformAndSite(7).name(), "platform and site");
+        assert_eq!(FilterClass::from(None), FilterClass::Platform);
+        assert_eq!(FilterClass::from(Some(7)), FilterClass::Site(7));
+    }
+
+    #[test]
+    fn filter_class_conditions_are_constructible_for_all_scopes() {
+        let _ = FilterClass::Platform.to_condition();
+        let _ = FilterClass::Site(7).to_condition();
+        let _ = FilterClass::PlatformAndSite(7).to_condition();
+    }
+}
+
 /// Denotes what kind of object this filter is checking.
 ///
 /// These are stored in the `filter` tables as boolean toggles for each

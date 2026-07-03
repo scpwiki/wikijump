@@ -189,3 +189,18 @@ pub fn mime_for_language<S: AsRef<str>>(language: &Option<S>) -> &'static str {
     warn!("Unknown MIME type for language '{language}', returning text");
     MIME_TEXT
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mime_for_language_maps_known_aliases_and_defaults_to_text() {
+        assert_eq!(mime_for_language(&Some("css")), MIME_CSS);
+        assert_eq!(mime_for_language(&Some("JavaScript")), MIME_JAVASCRIPT);
+        assert_eq!(mime_for_language(&Some("wikidot")), MIME_FTML);
+        assert_eq!(mime_for_language(&Some("rs")), MIME_RUST);
+        assert_eq!(mime_for_language(&Some("unknown-language")), MIME_TEXT);
+        assert_eq!(mime_for_language::<&str>(&None), MIME_TEXT);
+    }
+}
