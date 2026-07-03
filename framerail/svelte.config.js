@@ -31,6 +31,8 @@ const LOCAL_FILE_IMAGE_SOURCES = ["https://*.wjfiles.localhost"]
 /** @type {CspSources} */
 const LOCAL_FILE_STYLE_SOURCES = ["https://*.wjfiles.localhost"]
 /** @type {CspSources} */
+const WIKIDOT_LEGACY_IMAGE_SOURCES = ["https://d3g0gp89917ko0.cloudfront.net"]
+/** @type {CspSources} */
 const WIKIDOT_IMAGE_SOURCES = [
   "https://*.wdfiles.com",
   "https://cdn.scpwiki.com",
@@ -40,6 +42,7 @@ const WIKIDOT_IMAGE_SOURCES = [
 const WIKIDOT_STYLE_SOURCES = [
   "https://*.wdfiles.com",
   "https://cdn.scpwiki.com",
+  "https://cdn.jsdelivr.net",
   "https://d3g0gp89917ko0.cloudfront.net",
   "https://fonts.bunny.net",
   "https://maxcdn.bootstrapcdn.com",
@@ -50,6 +53,7 @@ const WIKIDOT_STYLE_SOURCES = [
 const WIKIDOT_FONT_SOURCES = [
   "https://*.wdfiles.com",
   "https://cdn.scpwiki.com",
+  "https://cdn.jsdelivr.net",
   "https://fonts.bunny.net",
   "https://maxcdn.bootstrapcdn.com",
   "https://rsms.me",
@@ -67,6 +71,7 @@ function imageSources() {
 
   if (isLocalEnvironment()) {
     sources.push(...LOCAL_FILE_IMAGE_SOURCES)
+    sources.push(...WIKIDOT_LEGACY_IMAGE_SOURCES)
   }
 
   return sources

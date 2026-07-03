@@ -93,7 +93,7 @@ const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
-const WIKIDOT_TABVIEW_SCRIPT: &str = r#"<script src="http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/yahooui/tabview-min.js" type="text/javascript"></script>"#;
+const WIKIDOT_TABVIEW_SCRIPT: &str = "";
 const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
 
 static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
@@ -10417,8 +10417,7 @@ mod tests {
 
         let restored = RenderService::restore_wikidot_tabview_dom_compatibility(html);
 
-        assert!(restored.contains(super::WIKIDOT_TABVIEW_SCRIPT));
-        assert!(restored.contains(super::WIKIDOT_TABVIEW_INIT_SCRIPT));
+        assert!(!restored.contains("tabview-min.js"));
         assert!(restored.contains(r#"<div class="yui-navset">"#));
         assert!(restored.contains(r#"<ul class="yui-nav">"#));
         assert!(restored.contains(r#"<div class="yui-content">"#));
