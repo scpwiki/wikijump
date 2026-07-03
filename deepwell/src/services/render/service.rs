@@ -7079,10 +7079,28 @@ fn apply_basalt_shell_compatibility(html: &mut String) {
 
     html.push_str(
         r#"<style>
-#side-bar {
+#top-bar {
+    display: contents;
+}
+#top-bar ul ul {
+    display: flex !important;
+    visibility: visible !important;
+    position: static !important;
+}
+#top-bar > div > ul > li > a,
+.mobile-top-bar > p > ul > li > a {
+    text-transform: uppercase;
+}
+#header h2 {
     display: none !important;
-    visibility: hidden !important;
-    left: -9999px !important;
+}
+#side-bar {
+    display: block !important;
+    visibility: visible !important;
+    left: -272px !important;
+}
+#side-bar .heading p {
+    text-transform: uppercase;
 }
 #main-content {
     margin-left: auto !important;
@@ -10606,7 +10624,14 @@ mod tests {
         let restored = RenderService::remove_wikidot_compat_style_blocks(&html);
 
         assert!(restored.contains("#side-bar"));
-        assert!(restored.contains("display: none !important"));
+        assert!(restored.contains("display: block !important"));
+        assert!(restored.contains("left: -272px !important"));
+        assert!(restored.contains("#top-bar"));
+        assert!(restored.contains("display: contents"));
+        assert!(restored.contains("#top-bar ul ul"));
+        assert!(restored.contains("display: flex !important"));
+        assert!(restored.contains("#header h2"));
+        assert!(restored.contains("#side-bar .heading p"));
         assert!(restored.contains("margin-top: -12rem !important"));
         assert!(restored.contains("#page-info"));
         assert!(restored.contains("text-transform: uppercase"));
