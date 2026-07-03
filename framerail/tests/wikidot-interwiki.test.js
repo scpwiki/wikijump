@@ -38,7 +38,8 @@ test("renders Wikidot-compatible interwiki visible text for translated SCP pages
     page: cromPage
   })
 
-  assert.match(html, /IN OTHER LANGUAGES/)
+  assert.match(html, /In other languages/)
+  assert.doesNotMatch(html, /IN OTHER LANGUAGES/)
   assert.match(html, /中文<\/a><\/div> <div class="menu-item" name="fr"/)
   assert.match(html, /中文/)
   assert.match(html, /Français/)
