@@ -122,6 +122,8 @@ const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
+const WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX: &str =
+    "WIKIJUMPWIKIDOTLISTPAGESELLIPSIS";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 const WIKIDOT_TABVIEW_SCRIPT: &str = "";
 const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
@@ -134,6 +136,13 @@ static LISTPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
+static WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(&format!(
+            r"{WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX}[0-9a-f]{{32}}X"
+        ))
+        .unwrap()
+    });
 static COUNTPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?is)\[\[module\s+CountPages(?P<head>(?:"[^"]*"|'[^']*'|[^\]])*)\]\](?P<body>.*?)\[\[/module\]\]"#,
@@ -642,6 +651,7 @@ impl RenderService {
                         ),
                         &wikidot_inline_html,
                     );
+                    let body = restore_list_pages_literal_ellipsis_markers(&body);
                     Self::localize_wikidot_local_file_urls(
                         &body,
                         current_site.as_ref(),
@@ -715,6 +725,8 @@ impl RenderService {
                 html_output.body,
                 &wikidot_compat_links,
             );
+            html_output.body =
+                restore_list_pages_literal_ellipsis_markers(&html_output.body);
             Self::record_protected_wikidot_wikipedia_backlinks(
                 &mut html_output.backlinks,
                 &wikidot_wikipedia_links,
@@ -5939,10 +5951,11 @@ fn substitute_list_pages_variables(
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
     let title = page.title.as_deref().unwrap_or(slug);
+    let generated_wikitext_title = preserve_list_pages_generated_text_typography(title);
     let title_linked = if slug.is_empty() {
-        title.to_owned()
+        generated_wikitext_title.clone()
     } else {
-        format!("[/{slug} {title}]")
+        format!("[/{slug} {generated_wikitext_title}]")
     };
     let snapshot = context.snapshot_displays.get(&page.page_id);
     let created_by_snapshot =
@@ -6014,7 +6027,7 @@ fn substitute_list_pages_variables(
             match captures["name"].to_ascii_lowercase().as_str() {
                 "title_linked" => title_linked.clone(),
                 "linked_title" => title_linked.clone(),
-                "title" => title.to_owned(),
+                "title" => generated_wikitext_title.clone(),
                 "name" | "slug" | "page_unix_name" | "fullname" | "full_slug"
                 | "link" => slug.to_owned(),
                 "created_by" | "createdby" => created_by.clone(),
@@ -6246,6 +6259,27 @@ fn render_list_pages_snapshot_user(name: &str) -> String {
     escape_list_pages_html_text(name)
 }
 
+fn preserve_list_pages_generated_text_typography(value: &str) -> String {
+    if !value.contains("...") {
+        return value.to_owned();
+    }
+    let marker = list_pages_literal_ellipsis_marker();
+    value.replace("...", &marker)
+}
+
+fn list_pages_literal_ellipsis_marker() -> String {
+    format!(
+        "{WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX}{}X",
+        Uuid::new_v4().as_simple(),
+    )
+}
+
+fn restore_list_pages_literal_ellipsis_markers(html: &str) -> String {
+    WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_REGEX
+        .replace_all(html, "...")
+        .into_owned()
+}
+
 fn format_list_pages_created_at(
     created_at: Option<time::OffsetDateTime>,
     format: Option<&str>,
@@ -6256,7 +6290,7 @@ fn format_list_pages_created_at(
     };
     let created_at = created_at
         .to_offset(time::UtcOffset::from_hms(9, 0, 0).expect("valid JST offset"));
-    let format = format.unwrap_or("%e %b %Y %H:%M");
+    let format = format.unwrap_or("%e %b %Y, %H:%M");
     let display_format = format.split('|').next().unwrap_or(format);
     let text = format_wikidot_list_pages_date(created_at, display_format);
     let encoded_format = percent_encode_list_pages_class(format);
@@ -8040,6 +8074,7 @@ mod tests {
         PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
+        WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotUserDisplay,
         count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
@@ -8049,6 +8084,7 @@ mod tests {
         render_list_pages_table_rows, render_members_module_placeholder,
         render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
         resolve_list_pages_signed_abs_expressions,
+        restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
         wikidot_content_section, wikidot_module_argument,
@@ -9250,6 +9286,18 @@ mod tests {
         ));
 
         let rendered = substitute_list_pages_variables(
+            "%%created_at%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
+        );
+        assert_eq!(
+            rendered,
+            r#"[[span class="odate time_1782003564 format_%25e%20%25b%20%25Y%2C%20%25H%3A%25M" style="cursor: help; display: inline;"]]21 Jun 2026, 09:59[[/span]]"#
+        );
+
+        let rendered = substitute_list_pages_variables(
             "%%date|%r|agohover%%",
             &page,
             1,
@@ -9269,6 +9317,24 @@ mod tests {
             &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
         );
         assert_eq!(rendered, "[/dom-001 Codex virtual Wikidot DOM 001]");
+
+        let ellipsis_title_page = FoundPageRow {
+            title: Some("Now watch and learn, here's the deal...".to_owned()),
+            ..page.clone()
+        };
+        let rendered = substitute_list_pages_variables(
+            "%%title_linked%%",
+            &ellipsis_title_page,
+            1,
+            1,
+            &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
+        );
+        assert!(rendered.starts_with("[/dom-001 Now watch and learn, here's the deal"));
+        assert!(rendered.contains(WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX));
+        assert_eq!(
+            restore_list_pages_literal_ellipsis_markers(&rendered),
+            "[/dom-001 Now watch and learn, here's the deal...]"
+        );
 
         let rendered = substitute_list_pages_variables(
             "%%author%%",
