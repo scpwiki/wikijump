@@ -346,7 +346,7 @@ export const buildWikidotInterwikiFrameHtml = ({ community, lang, pagename, page
     sourcePath: pagename,
     page
   })
-  const heading = (branch?.heading ?? "").toUpperCase()
+  const heading = branch?.heading ?? ""
   const menuItems = links
     .map((link) => {
       const originalClass = link.original ? " original" : ""
