@@ -555,12 +555,15 @@ impl RenderService {
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: expanded_included_pages,
+            ..
         } = Self::expand_includes(
             ctx,
             wikitext,
+            page_info,
             page_info.site.as_ref(),
             settings,
             current_site_id,
+            true,
         )
         .await
         .or_raise(make_error)?;
@@ -574,6 +577,7 @@ impl RenderService {
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: list_pages_included_pages,
+            ..
         } = Self::expand_list_pages(
             ctx,
             wikitext,
@@ -2431,14 +2435,17 @@ impl RenderService {
     async fn expand_includes(
         ctx: &ServiceContext<'_>,
         wikitext: String,
+        page_info: &PageInfo<'_>,
         current_site_slug: &str,
         settings: &WikitextSettings,
         current_site_id: Option<i64>,
+        expand_wikidot_image_blocks: bool,
     ) -> Result<IncludeExpansion> {
         let Some(current_site_id) = current_site_id else {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
+                expanded_include_count: 0,
             });
         };
 
@@ -2446,15 +2453,20 @@ impl RenderService {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
+                expanded_include_count: 0,
             });
         }
 
         let mut expansion = Self::expand_includes_for_site(
             ctx,
             wikitext,
-            current_site_id,
-            current_site_slug.to_owned(),
-            settings,
+            IncludeExpansionContext {
+                current_site_id,
+                current_site_slug: current_site_slug.to_owned(),
+                page_info,
+                settings,
+                expand_wikidot_image_blocks,
+            },
             0,
             MAX_INCLUDE_EXPANSION_TOTAL,
         )
@@ -2467,20 +2479,30 @@ impl RenderService {
     fn expand_includes_for_site<'a>(
         ctx: &'a ServiceContext<'_>,
         wikitext: String,
-        current_site_id: i64,
-        current_site_slug: String,
-        settings: &'a WikitextSettings,
+        expansion_context: IncludeExpansionContext<'a>,
         depth: usize,
         mut remaining_includes: usize,
     ) -> Pin<Box<dyn Future<Output = Result<IncludeExpansion>> + Send + 'a>> {
         Box::pin(async move {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
+            let image_block_included_pages = if expansion_context
+                .expand_wikidot_image_blocks
+                && expansion_context.current_site_slug
+                    == expansion_context.page_info.site.as_ref()
+            {
+                Self::expand_wikidot_image_block_includes(
+                    &mut wikitext,
+                    expansion_context.page_info,
+                )
+            } else {
+                Vec::new()
+            };
 
             let mut includes = Vec::new();
             ftml::include(
                 &wikitext,
-                settings,
+                expansion_context.settings,
                 CollectingIncluder {
                     includes: &mut includes,
                 },
@@ -2492,7 +2514,8 @@ impl RenderService {
                 protect_include_variables(&mut wikitext);
                 return Ok(IncludeExpansion {
                     wikitext,
-                    included_pages: Vec::new(),
+                    included_pages: image_block_included_pages,
+                    expanded_include_count: 0,
                 });
             }
 
@@ -2509,6 +2532,7 @@ impl RenderService {
 
             let mut fetched_pages = Vec::with_capacity(includes.len());
             let mut nested_included_pages = Vec::with_capacity(includes.len());
+            let mut nested_include_counts = Vec::with_capacity(includes.len());
 
             for include in &includes {
                 if remaining_includes == 0 {
@@ -2525,8 +2549,8 @@ impl RenderService {
 
                 let source = Self::fetch_include_source(
                     ctx,
-                    current_site_id,
-                    &current_site_slug,
+                    expansion_context.current_site_id,
+                    &expansion_context.current_site_slug,
                     include.page_ref(),
                 )
                 .await?;
@@ -2534,6 +2558,7 @@ impl RenderService {
                 let Some(mut source) = source else {
                     fetched_pages.push(None);
                     nested_included_pages.push(Vec::new());
+                    nested_include_counts.push(0);
                     continue;
                 };
 
@@ -2544,14 +2569,19 @@ impl RenderService {
                 let expansion = Self::expand_includes_for_site(
                     ctx,
                     source.wikitext,
-                    source.site_id,
-                    source.site_slug,
-                    settings,
+                    IncludeExpansionContext {
+                        current_site_id: source.site_id,
+                        current_site_slug: source.site_slug,
+                        page_info: expansion_context.page_info,
+                        settings: expansion_context.settings,
+                        expand_wikidot_image_blocks: expansion_context
+                            .expand_wikidot_image_blocks,
+                    },
                     depth + 1,
                     remaining_includes,
                 )
                 .await?;
-                if expansion.included_pages.len() > remaining_includes {
+                if expansion.expanded_include_count > remaining_includes {
                     return Err(Error::new(
                         format!(
                             "include expansion exceeded maximum total includes {}",
@@ -2561,7 +2591,8 @@ impl RenderService {
                     )
                     .into());
                 }
-                remaining_includes -= expansion.included_pages.len();
+                remaining_includes -= expansion.expanded_include_count;
+                nested_include_counts.push(expansion.expanded_include_count);
 
                 fetched_pages.push(Some(expansion.wikitext));
                 nested_included_pages.push(expansion.included_pages);
@@ -2569,7 +2600,7 @@ impl RenderService {
 
             let (mut expanded, direct_included_pages) = ftml::include(
                 &wikitext,
-                settings,
+                expansion_context.settings,
                 PreparedIncluder {
                     pages: fetched_pages,
                 },
@@ -2578,7 +2609,9 @@ impl RenderService {
 
             protect_include_variables(&mut expanded);
 
-            let mut included_pages = Vec::new();
+            let mut included_pages = image_block_included_pages;
+            let expanded_include_count = direct_included_pages.len()
+                + nested_include_counts.into_iter().sum::<usize>();
             for (page_ref, nested_pages) in
                 direct_included_pages.into_iter().zip(nested_included_pages)
             {
@@ -2589,6 +2622,7 @@ impl RenderService {
             Ok(IncludeExpansion {
                 wikitext: expanded,
                 included_pages,
+                expanded_include_count,
             })
         })
     }
@@ -2731,6 +2765,7 @@ impl RenderService {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
+                expanded_include_count: 0,
             });
         };
 
@@ -2738,6 +2773,7 @@ impl RenderService {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
+                expanded_include_count: 0,
             });
         }
 
@@ -2776,6 +2812,7 @@ impl RenderService {
             let IncludeExpansion {
                 wikitext: replacement,
                 included_pages: replacement_included_pages,
+                ..
             } = Self::render_list_pages_block(
                 ctx,
                 current_site_id,
@@ -2795,6 +2832,7 @@ impl RenderService {
         Ok(IncludeExpansion {
             wikitext: expanded,
             included_pages,
+            expanded_include_count: 0,
         })
     }
 
@@ -4486,9 +4524,11 @@ impl RenderService {
                         let expansion = Self::expand_includes(
                             ctx,
                             wikitext.to_owned(),
+                            page_info,
                             page_info.site.as_ref(),
                             settings,
                             Some(page.site_id),
+                            false,
                         )
                         .await?;
                         included_pages.extend(expansion.included_pages);
@@ -4538,6 +4578,7 @@ impl RenderService {
         Ok(IncludeExpansion {
             wikitext: output,
             included_pages,
+            expanded_include_count: 0,
         })
     }
 
@@ -7412,6 +7453,16 @@ impl RenderContext {
 struct IncludeExpansion {
     wikitext: String,
     included_pages: Vec<PageRef>,
+    expanded_include_count: usize,
+}
+
+#[derive(Debug)]
+struct IncludeExpansionContext<'a> {
+    current_site_id: i64,
+    current_site_slug: String,
+    page_info: &'a PageInfo<'a>,
+    settings: &'a WikitextSettings,
+    expand_wikidot_image_blocks: bool,
 }
 
 #[derive(Debug)]
@@ -7867,10 +7918,11 @@ mod tests {
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
-        RenderContext, RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
-        WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
-        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX,
-        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
+        PreparedIncluder, RenderContext, RenderService,
+        WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
+        WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
+        WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotUserDisplay,
+        count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
@@ -10611,6 +10663,63 @@ mod tests {
                 PageRef::page_and_site("scp-wiki", "component:image-block-base"),
             ],
         );
+    }
+
+    #[test]
+    fn expands_included_fragment_wikidot_image_blocks_before_generic_includes() {
+        let page_info = fallback_test_page_info("scp-8382", "SCP-8382");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut fragment_wikitext = concat!(
+            "Before the block.\n",
+            "[[include component:image-block\n",
+            "  name=Alis.jpg|\n",
+            "  caption=Photograph of PoI-6721-1 at Secure Area-219, 2023. |\n",
+            "  width=225px|\n",
+            "  align=left|\n",
+            "]]\n",
+            "After the block.\n",
+        )
+        .to_owned();
+
+        let image_block_includes = RenderService::expand_wikidot_image_block_includes(
+            &mut fragment_wikitext,
+            &page_info,
+        );
+        let top_wikitext = "[[include fragment:scp-8382-2]]\n";
+        let (mut expanded, direct_included_pages) = ftml::include(
+            top_wikitext,
+            &settings,
+            PreparedIncluder {
+                pages: vec![Some(fragment_wikitext)],
+            },
+            include_error,
+        )
+        .expect("prepared include should expand");
+
+        ftml::preprocess(&mut expanded);
+        let tokens = ftml::tokenize(&expanded);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert_eq!(
+            direct_included_pages,
+            vec![PageRef::page_only("fragment:scp-8382-2")]
+        );
+        assert_eq!(
+            image_block_includes,
+            vec![
+                PageRef::page_only("component:image-block"),
+                PageRef::page_only("component:image-block-base"),
+            ]
+        );
+        assert!(rendered.contains(
+            r#"<img src="http://scp-wiki.wikidot.com/local--files/scp-8382/Alis.jpg""#
+        ));
+        assert!(rendered.contains("Photograph of PoI-6721-1 at Secure Area-219, 2023."));
+        assert!(!rendered.contains("[[image"));
+        assert!(!rendered.contains("{$alt}"));
+        assert!(!rendered.contains("link=#"));
     }
 
     #[test]
