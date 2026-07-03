@@ -4076,9 +4076,7 @@ impl RenderService {
                 continue;
             }
             let content_start = start + delimiter.len();
-            let Some(end_relative) = value[content_start..].find(delimiter) else {
-                return None;
-            };
+            let end_relative = value[content_start..].find(delimiter)?;
             if end_relative == 0 {
                 offset = content_start + delimiter.len();
                 continue;
