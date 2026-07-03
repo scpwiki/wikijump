@@ -6,6 +6,12 @@
  */
 
 /**
+ * @param {readonly string[] | null | undefined} tags
+ * @returns {boolean}
+ */
+export const isWikidotFragmentPage = (tags) => tags?.includes("fragment") ?? false
+
+/**
  * @param {{ rating?: number | null; comments?: number | null }} snapshot
  * @returns {WikidotPageActionLabels}
  */

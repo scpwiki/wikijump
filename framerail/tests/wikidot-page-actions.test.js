@@ -3,7 +3,8 @@ import test from "node:test"
 
 import {
   buildWikidotPageActionLabels,
-  formatSigned
+  formatSigned,
+  isWikidotFragmentPage
 } from "../src/lib/wikidot-page-actions.js"
 
 test("formats imported Wikidot action labels with source rating and comment counts", () => {
@@ -25,4 +26,12 @@ test("falls back to count-less labels when imported snapshot counts are unavaila
     rate: "Rate",
     discuss: "Discuss"
   })
+})
+
+test("detects direct Wikidot fragment pages from page tags", () => {
+  assert.equal(isWikidotFragmentPage(["fragment"]), true)
+  assert.equal(isWikidotFragmentPage(["scp", "fragment"]), true)
+  assert.equal(isWikidotFragmentPage(["scp"]), false)
+  assert.equal(isWikidotFragmentPage([]), false)
+  assert.equal(isWikidotFragmentPage(null), false)
 })

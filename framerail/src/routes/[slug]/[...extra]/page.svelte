@@ -16,6 +16,7 @@
   } from "."
   import { resolve } from "$app/paths"
   import { buildWikidotPageTagsHtml } from "$lib/wikidot-page-tags"
+  import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
 
   import type { PageProps } from "./$types"
   import type { Optional } from "$lib/types"
@@ -32,6 +33,13 @@
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
   let pagePaneState = $state<PagePane>(PagePane.None)
   let wikidotPageActions = $derived(data.wikidot_page_actions)
+  let isDirectWikidotFragmentPage = $derived(
+    pageLayoutContext.current === Layout.WIKIDOT &&
+      !data.options?.debug &&
+      !data.options?.no_render &&
+      !showRevision &&
+      isWikidotFragmentPage(data.page_revision?.tags)
+  )
   const breadcrumbSeparator = " » "
 
   async function navigateEdit() {
@@ -129,6 +137,17 @@
     {:else if showRevision}
       {@html revision?.compiled_body_html}
     {:else}
+      {#if isDirectWikidotFragmentPage}
+        <div class="warning-top-box">
+          <h1><span>NOTICE:</span></h1>
+          <p>This is a <em>fragment</em> page.</p>
+          <p>
+            It is an <em>internal page</em> used by the SCP Wiki, and is
+            <em>not</em> meant to be read directly, but included by another. This page should
+            be parented, see above.
+          </p>
+        </div>
+      {/if}
       {@html data.compiled_body_html}
     {/if}
   </div>
@@ -184,23 +203,25 @@
         >
           {data.internationalization?.edit}
         </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="pagerate-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.Vote
-          }}
-          type="button"
-        >
-          {#if wikidotPageActions?.ratingText}
-            Rate (<span>{wikidotPageActions.ratingText}</span>)
-          {:else}
-            {wikidotPageActions?.rate ?? data.internationalization?.vote}
-          {/if}
-        </a>
+        {#if !isDirectWikidotFragmentPage}
+          <!-- svelte-ignore a11y_invalid_attribute -->
+          <a
+            id="pagerate-button"
+            class="btn btn-default"
+            href="javascript:;"
+            onclick={() => {
+              showSource = false
+              pagePaneState = PagePane.Vote
+            }}
+            type="button"
+          >
+            {#if wikidotPageActions?.ratingText}
+              Rate (<span>{wikidotPageActions.ratingText}</span>)
+            {:else}
+              {wikidotPageActions?.rate ?? data.internationalization?.vote}
+            {/if}
+          </a>
+        {/if}
         {#if wikidotPageActions}
           <!-- svelte-ignore a11y_invalid_attribute -->
           <a id="tags-button" class="btn btn-default" href="javascript:;" type="button">
