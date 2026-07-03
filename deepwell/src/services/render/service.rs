@@ -56,6 +56,7 @@ use std::sync::LazyLock;
 use std::time::Duration;
 use tokio::task;
 use tokio::time::timeout;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct RenderService;
@@ -69,6 +70,13 @@ struct ProtectedWikidotWikipediaLink {
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ProtectedWikidotCompatLink {
     anchor: String,
+    marker: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ProtectedWikidotColorSpan {
+    marker: String,
+    html: String,
 }
 
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
@@ -92,6 +100,7 @@ const WIKIDOT_CSS_MODULE_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCSSMODULE";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
+const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 const WIKIDOT_TABVIEW_SCRIPT: &str = "";
 const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
@@ -573,18 +582,23 @@ impl RenderService {
         if settings.enable_page_syntax {
             Self::normalize_wikidot_div_style_url_quotes(&mut wikitext);
         }
-        wikitext = Self::render_wikidot_color_spans(wikitext, settings);
+        let wikidot_color_spans =
+            Self::protect_wikidot_color_spans(&mut wikitext, settings);
         wikitext = Self::escape_unrendered_wikidot_color_markers(wikitext, settings);
         wikitext = Self::render_long_native_list_runs(wikitext);
         if Self::should_use_wikidot_compatibility_fallback(&wikitext, page_info) {
             let mut backlinks = ftml::data::Backlinks::new();
             backlinks.included_pages.extend(included_pages);
+            let fallback_body = Self::render_oversized_wikidot_compatibility_fallback(
+                &wikitext,
+                current_site.as_ref(),
+                config,
+                page_info.page.as_ref(),
+            );
             let html_output = HtmlOutput {
-                body: Self::render_oversized_wikidot_compatibility_fallback(
-                    &wikitext,
-                    current_site.as_ref(),
-                    config,
-                    page_info.page.as_ref(),
+                body: Self::restore_protected_wikidot_color_spans(
+                    fallback_body,
+                    &wikidot_color_spans,
                 ),
                 meta: Vec::new(),
                 backlinks,
@@ -633,6 +647,10 @@ impl RenderService {
                 html_output.body,
                 &wikidot_css_modules,
             );
+            html_output.body = Self::restore_protected_wikidot_color_spans(
+                html_output.body,
+                &wikidot_color_spans,
+            );
             html_output.body = Self::restore_protected_generated_wikidot_compat_html(
                 html_output.body,
                 &wikidot_compat_html,
@@ -655,6 +673,7 @@ impl RenderService {
                 &render_config,
             );
             apply_basalt_shell_compatibility(&mut html_output.body);
+            apply_blankstyle_shell_compatibility(&mut html_output.body);
             html_output.body =
                 Self::remove_wikidot_compat_style_blocks(&html_output.body);
             html_output.backlinks.included_pages.extend(included_pages);
@@ -1957,9 +1976,10 @@ impl RenderService {
                 continue;
             }
 
-            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            let marker = wikidot_compat_link_marker();
             links.push(ProtectedWikidotCompatLink {
                 anchor: wikidot_named_anchor(name),
+                marker: marker.clone(),
             });
             output.push_str(&marker);
         }
@@ -2012,9 +2032,10 @@ impl RenderService {
                 continue;
             }
 
-            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            let marker = wikidot_compat_link_marker();
             links.push(ProtectedWikidotCompatLink {
                 anchor: wikidot_current_page_anchor(label),
+                marker: marker.clone(),
             });
             output.push_str(&marker);
         }
@@ -2065,9 +2086,10 @@ impl RenderService {
                 continue;
             }
 
-            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X", links.len());
+            let marker = wikidot_compat_link_marker();
             links.push(ProtectedWikidotCompatLink {
                 anchor: wikidot_star_local_anchor(target, label),
+                marker: marker.clone(),
             });
             output.push_str(&marker);
         }
@@ -2084,11 +2106,46 @@ impl RenderService {
         mut html: String,
         links: &[ProtectedWikidotCompatLink],
     ) -> String {
-        for (index, link) in links.iter().enumerate() {
-            let marker = format!("{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{index}X");
-            html = html.replace(&marker, &link.anchor);
+        for link in links {
+            html = Self::replace_html_text_marker(&html, &link.marker, &link.anchor);
         }
         html
+    }
+
+    fn replace_html_text_marker(html: &str, marker: &str, replacement: &str) -> String {
+        if marker.is_empty() || !html.contains(marker) {
+            return html.to_owned();
+        }
+
+        let mut output = String::with_capacity(html.len());
+        let mut last = 0;
+        let mut index = 0;
+        let mut in_tag = false;
+        let bytes = html.as_bytes();
+        let marker_bytes = marker.as_bytes();
+
+        while index < bytes.len() {
+            match bytes[index] {
+                b'<' => in_tag = true,
+                b'>' if in_tag => in_tag = false,
+                _ if !in_tag && bytes[index..].starts_with(marker_bytes) => {
+                    output.push_str(&html[last..index]);
+                    output.push_str(replacement);
+                    index += marker.len();
+                    last = index;
+                    continue;
+                }
+                _ => {}
+            }
+            index += 1;
+        }
+
+        if last == 0 {
+            return html.to_owned();
+        }
+
+        output.push_str(&html[last..]);
+        output
     }
 
     fn restore_protected_wikidot_wikipedia_links(
@@ -2889,6 +2946,7 @@ impl RenderService {
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
                 let body = captures.name("body").map_or("", |mtch| mtch.as_str());
                 let body = body.trim_matches('\n');
+                let body = Self::escape_wikidot_css_module_body(body);
                 let marker =
                     format!("{WIKIDOT_CSS_MODULE_SENTINEL_PREFIX}{}X", styles.len());
                 styles.push(format!("<style>\n{body}\n</style>"));
@@ -2897,6 +2955,10 @@ impl RenderService {
             .into_owned();
         *wikitext = protected;
         styles
+    }
+
+    fn escape_wikidot_css_module_body(body: &str) -> String {
+        body.replace('<', r"\3C ")
     }
 
     fn restore_protected_wikidot_css_modules(
@@ -2978,23 +3040,40 @@ impl RenderService {
         html
     }
 
-    fn render_wikidot_color_spans(
-        wikitext: String,
+    fn protect_wikidot_color_spans(
+        wikitext: &mut String,
         settings: &WikitextSettings,
-    ) -> String {
+    ) -> Vec<ProtectedWikidotColorSpan> {
         if !settings.enable_page_syntax {
-            return wikitext;
+            return Vec::new();
         }
 
-        WIKIDOT_COLOR_SPAN_REGEX
-            .replace_all(&wikitext, |captures: &regex::Captures<'_>| {
-                format!(
-                    r#"<span style="color: {color}">{body}</span>"#,
-                    color = escape_list_pages_html_attr(&captures["color"]),
-                    body = escape_list_pages_html_text(&captures["body"]),
-                )
+        let mut spans = Vec::new();
+        let protected = WIKIDOT_COLOR_SPAN_REGEX
+            .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                let marker = wikidot_color_span_marker();
+                spans.push(ProtectedWikidotColorSpan {
+                    marker: marker.clone(),
+                    html: render_wikidot_color_span_html(
+                        &captures["color"],
+                        &captures["body"],
+                    ),
+                });
+                marker
             })
-            .into_owned()
+            .into_owned();
+        *wikitext = protected;
+        spans
+    }
+
+    fn restore_protected_wikidot_color_spans(
+        mut html: String,
+        spans: &[ProtectedWikidotColorSpan],
+    ) -> String {
+        for span in spans {
+            html = html.replace(&span.marker, &span.html);
+        }
+        html
     }
 
     fn escape_unrendered_wikidot_color_markers(
@@ -3149,6 +3228,7 @@ impl RenderService {
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
                 let body = captures.name("body").map_or("", |mtch| mtch.as_str());
                 let body = body.trim_matches('\n');
+                let body = Self::escape_wikidot_css_module_body(body);
                 format!("<style data-wikijump-compat-css-module=\"1\">\n{body}\n</style>")
             })
             .into_owned()
@@ -5842,6 +5922,28 @@ fn escape_wikidot_link_text(value: &str) -> String {
     value.replace(']', r"\]")
 }
 
+fn wikidot_compat_link_marker() -> String {
+    format!(
+        "{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X",
+        Uuid::new_v4().as_simple(),
+    )
+}
+
+fn wikidot_color_span_marker() -> String {
+    format!(
+        "{WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX}{}X",
+        Uuid::new_v4().as_simple(),
+    )
+}
+
+fn render_wikidot_color_span_html(color: &str, body: &str) -> String {
+    format!(
+        r#"<span style="color: {color}">{body}</span>"#,
+        color = escape_list_pages_html_attr(color),
+        body = escape_list_pages_html_text(body),
+    )
+}
+
 fn wikidot_named_anchor(name: &str) -> String {
     format!(
         r#"<a name="{name}"></a>"#,
@@ -6710,15 +6812,12 @@ fn render_read_only_rate_module(score: ftml::data::ScoreValue) -> String {
             "[[span class=\"rate-points\"]]rating: ",
             "[[span class=\"number prw54353\"]]{}[[/span]]",
             "[[/span]]",
-            " ",
             "[[span class=\"rateup btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"I like it\"]]+[[/a]]",
             "[[/span]]",
-            " ",
             "[[span class=\"ratedown btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"I don't like it\"]]–[[/a]]",
             "[[/span]]",
-            " ",
             "[[span class=\"cancel btn btn-default\"]]",
             "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"Cancel my vote\"]]x[[/a]]",
             "[[/span]]",
@@ -7129,6 +7228,38 @@ fn apply_basalt_shell_compatibility(html: &mut String) {
     );
 }
 
+fn apply_blankstyle_shell_compatibility(html: &mut String) {
+    if !html.contains("theme%3Ablankstyle")
+        && !html.contains("theme:blankstyle")
+        && !html.contains("43Head.png")
+    {
+        return;
+    }
+
+    html.push_str(
+        r#"<style>
+#top-bar .mobile-top-bar {
+    display: block !important;
+}
+#top-bar .mobile-top-bar > ul,
+#top-bar .mobile-top-bar > p {
+    display: none !important;
+}
+#top-bar div.open-menu a {
+    display: block !important;
+    position: fixed !important;
+    top: 15px !important;
+    left: 15px !important;
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    text-align: center !important;
+    z-index: 30 !important;
+}
+</style>"#,
+    );
+}
+
 fn site_matches_wikidot_slug(site: &SiteModel, site_slug: &str) -> bool {
     if site.slug.eq_ignore_ascii_case(site_slug) {
         return true;
@@ -7276,10 +7407,10 @@ mod tests {
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
-        RenderContext, RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
-        WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
-        WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotUserDisplay,
-        count_pages_should_remain_literal, include_error,
+        RenderContext, RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
+        WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
+        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX, WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX,
+        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
@@ -7720,18 +7851,18 @@ mod tests {
         assert!(rendered.contains(r#"[[span class="rateup btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
         assert!(
-            rendered.contains(r#"]][[/span]] [[span class="rateup btn btn-default"]]"#)
+            rendered.contains(r#"]][[/span]][[span class="rateup btn btn-default"]]"#)
         );
         assert!(rendered.contains(r#"[[span class="ratedown btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.rate(event, -1)"#));
         assert!(
-            rendered.contains(r#"]][[/span]] [[span class="ratedown btn btn-default"]]"#)
+            rendered.contains(r#"]][[/span]][[span class="ratedown btn btn-default"]]"#)
         );
         assert!(rendered.contains(r#"title="I don't like it"]]–[[/a]]"#));
         assert!(rendered.contains(r#"[[span class="cancel btn btn-default"]]"#));
         assert!(rendered.contains(r#"listeners.cancelVote(event)"#));
         assert!(
-            rendered.contains(r#"]][[/span]] [[span class="cancel btn btn-default"]]"#)
+            rendered.contains(r#"]][[/span]][[span class="cancel btn btn-default"]]"#)
         );
     }
 
@@ -8221,24 +8352,87 @@ mod tests {
     }
 
     #[test]
-    fn renders_wikidot_color_spans_before_ftml_parsing() {
+    fn escapes_css_module_style_end_tags() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
-        let source = "##blue|**[[include :scp-wiki:component:coltop**##\n".to_owned();
+        let mut source = concat!(
+            "[[module css]]\n",
+            "</style><img src=x onerror=alert(1)><style>\n",
+            "[[/module]]\n",
+        )
+        .to_owned();
 
-        let rendered = RenderService::render_wikidot_color_spans(source, &settings);
+        let styles = RenderService::protect_wikidot_css_modules(&mut source, &settings);
 
+        assert_eq!(styles.len(), 1);
+        assert!(styles[0].starts_with("<style>\n"));
+        assert!(styles[0].ends_with("\n</style>"));
+        assert!(!styles[0].contains("</style><img"));
+        assert!(styles[0].contains(r"\3C /style>\3C img"));
+    }
+
+    #[test]
+    fn protects_wikidot_color_spans_before_ftml_parsing() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source = "##blue|**[[include :scp-wiki:component:coltop**##\n".to_owned();
+
+        let spans = RenderService::protect_wikidot_color_spans(&mut source, &settings);
+
+        assert_eq!(spans.len(), 1);
+        assert!(source.contains(&spans[0].marker));
+        assert!(source.ends_with('\n'));
+        assert!(!source.contains("<span"));
+        assert!(!source.contains("##blue"));
         assert_eq!(
-            rendered,
+            spans[0].html,
+            r#"<span style="color: blue">**[[include :scp-wiki:component:coltop**</span>"#
+        );
+
+        let restored =
+            RenderService::restore_protected_wikidot_color_spans(source, &spans);
+        assert_eq!(
+            restored,
             r#"<span style="color: blue">**[[include :scp-wiki:component:coltop**</span>"#
                 .to_owned() + "\n",
         );
-        assert!(!rendered.starts_with('#'));
 
         let escaped = RenderService::escape_unrendered_wikidot_color_markers(
             "####blue|leftover##".to_owned(),
             &settings,
         );
         assert_eq!(escaped, "&#35;&#35;&#35;&#35;blue|leftover&#35;&#35;");
+    }
+
+    #[test]
+    fn renders_protected_wikidot_color_spans_as_html_after_ftml_parsing() {
+        let page_info = fallback_test_page_info("scp-8382", "SCP-8382");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "+ ##8E2C4D|Lillian S. Lillihammer##\n\n",
+            "**##8E2C4D|Memetics and Countermemetics##**\n",
+        )
+        .to_owned();
+
+        let spans = RenderService::protect_wikidot_color_spans(&mut wikitext, &settings);
+        wikitext =
+            RenderService::escape_unrendered_wikidot_color_markers(wikitext, &settings);
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, errors) = result.into();
+        assert!(errors.is_empty(), "{errors:?}");
+
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        let rendered =
+            RenderService::restore_protected_wikidot_color_spans(rendered, &spans);
+
+        assert!(rendered.contains(
+            r#"<h1 id="toc0"><span style="color: 8E2C4D">Lillian S. Lillihammer</span></h1>"#
+        ));
+        assert!(rendered.contains(
+            r#"<strong><span style="color: 8E2C4D">Memetics and Countermemetics</span></strong>"#
+        ));
+        assert!(!rendered.contains("&lt;span"));
+        assert!(!rendered.contains(WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX));
     }
 
     #[test]
@@ -9164,6 +9358,27 @@ mod tests {
     }
 
     #[test]
+    fn wikidot_compatibility_fallback_escapes_css_module_style_end_tags() {
+        let source = RenderService::render_wikidot_compat_fallback_css_modules(concat!(
+            "[[module CSS]]\n",
+            "</style><img src=x onerror=alert(1)><style>\n",
+            "[[/module]]\n",
+            "[[collapsible]]\n",
+            "body\n",
+            "[[/collapsible]]\n",
+        ));
+
+        let html = RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+            &source,
+        );
+
+        assert!(html.contains(r#"<style data-wikijump-compat-css-module="1">"#));
+        assert!(html.contains(r"\3C /style>\3C img"));
+        assert!(!html.contains("</style><img"));
+        assert!(!html.contains("<img src=x"));
+    }
+
+    #[test]
     fn wikidot_compatibility_fallback_renders_tabs_size_and_page_images() {
         let source = concat!(
             "[[tabview]]\n",
@@ -10063,6 +10278,73 @@ mod tests {
     }
 
     #[test]
+    fn wikidot_named_anchor_markers_do_not_restore_predictable_literal_sentinels() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "[[# x onmouseover=alert(1) y]]\n",
+            "[[span class=\"WIKIJUMPWIKIDOTCOMPATLINK0X\"]]hover[[/span]]",
+        )
+        .to_owned();
+
+        let links = RenderService::protect_wikidot_compat_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 1);
+        assert_ne!(links[0].marker, "WIKIJUMPWIKIDOTCOMPATLINK0X");
+        assert!(wikitext.contains(&links[0].marker));
+        assert!(wikitext.contains("WIKIJUMPWIKIDOTCOMPATLINK0X"));
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = RenderService::restore_protected_wikidot_compat_links(
+            HtmlRender.render(&tree, &page_info, &settings).body,
+            &links,
+        );
+
+        assert!(rendered.contains(r#"<a name="x onmouseover=alert(1) y"></a>"#));
+        assert!(
+            rendered
+                .contains(r#"<span class="WIKIJUMPWIKIDOTCOMPATLINK0X">hover</span>"#)
+        );
+        assert!(!rendered.contains(r#"<span class="<a name="#));
+    }
+
+    #[test]
+    fn wikidot_named_anchor_markers_do_not_restore_markers_inside_attributes() {
+        let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "[[span class=\"[[# x onmouseover=alert(1) y]]\"]]",
+            "hover",
+            "[[/span]]",
+        )
+        .to_owned();
+
+        let links = RenderService::protect_wikidot_compat_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 1);
+        assert!(wikitext.contains(&links[0].marker));
+
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = RenderService::restore_protected_wikidot_compat_links(
+            HtmlRender.render(&tree, &page_info, &settings).body,
+            &links,
+        );
+
+        assert!(rendered.contains(&format!(
+            r#"<span class="{}">hover</span>"#,
+            links[0].marker,
+        )));
+        assert!(!rendered.contains("onmouseover"));
+        assert!(!rendered.contains(r#"<span class="<a name="#));
+    }
+
+    #[test]
     fn protects_wikidot_wikipedia_links_before_ftml_parsing() {
         let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -10640,6 +10922,35 @@ mod tests {
             restored.contains(".admo-rate_splash .page-rate-widget-box .rate-points")
         );
         assert!(restored.contains(".admo-rate_splash .page-rate-widget-box .cancel"));
+    }
+
+    #[test]
+    fn preserves_blankstyle_open_menu_compatibility_style_after_render() {
+        let mut html = concat!(
+            r#"<p><style>div#extra-div-1{background:url("https://scp-wiki.wjfiles.localhost/local--files/theme%3Ablankstyle/43Head.png");}</style></p>"#,
+            r#"<p>body</p>"#,
+        )
+        .to_owned();
+
+        super::apply_blankstyle_shell_compatibility(&mut html);
+        let restored = RenderService::remove_wikidot_compat_style_blocks(&html);
+
+        assert!(restored.contains("#top-bar .mobile-top-bar"));
+        assert!(restored.contains("display: block !important"));
+        assert!(restored.contains("#top-bar .mobile-top-bar > ul"));
+        assert!(restored.contains("display: none !important"));
+        assert!(restored.contains("#top-bar div.open-menu a"));
+        assert!(restored.contains("position: fixed !important"));
+        assert!(restored.contains("line-height: 32px !important"));
+    }
+
+    #[test]
+    fn blankstyle_open_menu_compatibility_ignores_unrelated_pages() {
+        let mut html = r#"<p>ordinary page body</p>"#.to_owned();
+
+        super::apply_blankstyle_shell_compatibility(&mut html);
+
+        assert_eq!(html, r#"<p>ordinary page body</p>"#);
     }
 
     #[test]
