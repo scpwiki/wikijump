@@ -20,6 +20,12 @@
   } from "$lib/page-layout-context"
   import { resolveShellLayout } from "$lib/wikidot-shell"
   import { resolve } from "$app/paths"
+  import {
+    resolveWikidotSessionUserName,
+    resolveWikidotSiteTagline,
+    resolveWikidotSiteTitle,
+    shouldUseSandboxWikidotChrome
+  } from "$lib/wikidot-chrome"
 
   let { children } = $props()
 
@@ -52,6 +58,11 @@
       locale: wikidotLocale
     })
   )
+  const viewData = $derived(page.data ?? page.error)
+  const useSandboxWikidotChrome = $derived(shouldUseSandboxWikidotChrome(viewData))
+  const wikidotSiteTitle = $derived(resolveWikidotSiteTitle(viewData))
+  const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
+  const wikidotSessionUserName = $derived(resolveWikidotSessionUserName(viewData))
   const pageLayoutContext = $state<PageLayoutContext>({
     current: resolveCurrentLayout()
   })
@@ -81,22 +92,63 @@
     @import url("https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/css/pagerate/PageRateWidgetModule.css");
     @import url("https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css");
   </style>
+  {#if useSandboxWikidotChrome}
+    <div id="navi-bar">
+      <a href="http://www.wikidot.com"><span>Wikidot.com</span></a>
+      <div class="new-site">
+        <form action="http://www.wikidot.com/new-site" method="get">
+          <input
+            name="address"
+            class="text empty"
+            type="text"
+            value="site-name"
+          />.wikidot.com
+        </form>
+      </div>
+      <div class="action-buttons">
+        <span>Edit</span>
+        <span>History</span>
+        <span>Tags</span>
+        <span>Source</span>
+      </div>
+      <a class="random-site" href={resolve("/random-site.php", {})}>Explore »</a>
+    </div>
+    <div id="navi-bar-shadow">&nbsp;</div>
+  {/if}
   <Wikidot>
     {#snippet header()}
       <h1>
-        <a class="active" href={resolve("/", {})}><span>{page.data.site?.name}</span></a>
+        <a class="active" href={resolve("/", {})}><span>{wikidotSiteTitle}</span></a>
       </h1>
-      <h2>
-        <span>{page.data.site?.tagline}</span>
-      </h2>
+      {#if wikidotSiteTagline}
+        <h2>
+          <span>{wikidotSiteTagline}</span>
+        </h2>
+      {/if}
+      {#if useSandboxWikidotChrome && wikidotSessionUserName}
+        <div class="login-status">
+          <div class="btn-group logged-in">
+            <button
+              style:opacity={1}
+              class="btn disabled user-karma-level-5"
+              type="button"
+            >
+              <span class="printuser">{wikidotSessionUserName}</span>
+            </button>
+          </div>
+        </div>
+      {/if}
     {/snippet}
 
     {#snippet topBar()}
+      {#if useSandboxWikidotChrome}
+        <a class="navbar-brand" href={resolve("/", {})}>Home</a>
+      {/if}
       {@html page.data?.compiled_top_bar_html ?? page.error?.compiled_top_bar_html ?? ""}
     {/snippet}
 
     {#snippet loginStatus()}
-      {#if !(page.data?.user_session ?? page.error?.user_session)}
+      {#if !useSandboxWikidotChrome && !(page.data?.user_session ?? page.error?.user_session)}
         <div id="login-status">
           <a class="login-status-create-account btn" href={resolve("/-/register", {})}
             >{wikidotLoginLabels.createAccount}</a

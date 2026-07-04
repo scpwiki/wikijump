@@ -193,7 +193,7 @@
         <div class="page-watch-options">
           <!-- svelte-ignore a11y_invalid_attribute -->
           <a href="javascript:;">{wikidotPageWatch.label}</a>
-          [<a href={wikidotPageWatch.helpHref} target="_blank" rel="noreferrer"
+          [<a href={wikidotPageWatch.helpHref} rel="noopener noreferrer" target="_blank"
             >{wikidotPageWatch.helpLabel}</a
           >]
         </div>
