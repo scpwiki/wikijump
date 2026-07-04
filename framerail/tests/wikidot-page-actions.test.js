@@ -9,9 +9,17 @@ import {
 
 test("formats imported Wikidot action labels with source rating and comment counts", () => {
   assert.deepEqual(buildWikidotPageActionLabels({ rating: 19, comments: 2 }), {
+    edit: "Edit",
     ratingText: "+19",
+    ratePrefix: "Rate",
     rate: "Rate (+19)",
-    discuss: "Discuss (2)"
+    tags: "Tags",
+    discuss: "Discuss (2)",
+    history: "History",
+    files: "Files",
+    print: "Print",
+    siteTools: "Site tools",
+    options: "Options"
   })
 })
 
@@ -22,10 +30,37 @@ test("formats non-positive Wikidot ratings without an extra plus sign", () => {
 
 test("falls back to count-less labels when imported snapshot counts are unavailable", () => {
   assert.deepEqual(buildWikidotPageActionLabels({ rating: null, comments: null }), {
+    edit: "Edit",
     ratingText: null,
+    ratePrefix: "Rate",
     rate: "Rate",
-    discuss: "Discuss"
+    tags: "Tags",
+    discuss: "Discuss",
+    history: "History",
+    files: "Files",
+    print: "Print",
+    siteTools: "Site tools",
+    options: "Options"
   })
+})
+
+test("formats Japanese Wikidot action labels with source counts", () => {
+  assert.deepEqual(
+    buildWikidotPageActionLabels({ rating: 35, comments: 4, locale: "ja" }),
+    {
+      edit: "編集",
+      ratingText: "+35",
+      ratePrefix: "評価",
+      rate: "評価 (+35)",
+      tags: "タグ",
+      discuss: "ディスカッション (4)",
+      history: "履歴",
+      files: "ファイル",
+      print: "印刷",
+      siteTools: "サイトツール",
+      options: "オプション"
+    }
+  )
 })
 
 test("detects direct Wikidot fragment pages from page tags", () => {

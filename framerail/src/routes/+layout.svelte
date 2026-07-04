@@ -8,9 +8,10 @@
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
   import {
-    WIKIDOT_FOOTER_LINKS,
     WIKIDOT_POWERED_BY,
+    buildWikidotFooterLinks,
     buildWikidotLicenseHtml,
+    buildWikidotLoginLabels,
     isImportedWikidotView
   } from "$lib/wikidot-footer"
   import {
@@ -41,10 +42,14 @@
 
   const currentLayout = $derived.by(resolveCurrentLayout)
   const isImportedWikidotLayout = $derived(isImportedWikidotView(page.data ?? page.error))
+  const wikidotLocale = $derived(page.data?.site?.locale ?? page.error?.site?.locale)
+  const wikidotFooterLinks = $derived(buildWikidotFooterLinks(wikidotLocale))
+  const wikidotLoginLabels = $derived(buildWikidotLoginLabels(wikidotLocale))
   const wikidotLicenseHtml = $derived(
     buildWikidotLicenseHtml({
       licenseName: page.data?.license_name ?? page.error?.license_name,
-      licenseUrl: page.data?.license_url ?? page.error?.license_url
+      licenseUrl: page.data?.license_url ?? page.error?.license_url,
+      locale: wikidotLocale
     })
   )
   const pageLayoutContext = $state<PageLayoutContext>({
@@ -94,11 +99,11 @@
       {#if !(page.data?.user_session ?? page.error?.user_session)}
         <div id="login-status">
           <a class="login-status-create-account btn" href={resolve("/-/register", {})}
-            >Create account</a
+            >{wikidotLoginLabels.createAccount}</a
           >
-          <span>or</span>
+          <span>{wikidotLoginLabels.or}</span>
           <a class="login-status-sign-in btn btn-primary" href={resolve("/-/login", {})}
-            >Sign in</a
+            >{wikidotLoginLabels.signIn}</a
           >
         </div>
       {/if}
@@ -117,9 +122,9 @@
     {#snippet footer()}
       {#if isImportedWikidotLayout}
         <div class="options">
-          {#each WIKIDOT_FOOTER_LINKS as link, index (link.label)}
+          {#each wikidotFooterLinks as link, index (link.label)}
             <a href={resolve(link.href, {})}>{link.label}</a
-            >{#if index < WIKIDOT_FOOTER_LINKS.length - 1}{" | "}{/if}
+            >{#if index < wikidotFooterLinks.length - 1}{" | "}{/if}
           {/each}
         </div>
         <div class="footer-powered-by">{WIKIDOT_POWERED_BY}</div>

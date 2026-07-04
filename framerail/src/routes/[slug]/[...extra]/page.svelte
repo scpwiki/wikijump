@@ -201,7 +201,7 @@
           onclick={navigateEdit}
           type="button"
         >
-          {data.internationalization?.edit}
+          {wikidotPageActions?.edit ?? data.internationalization?.edit}
         </a>
         {#if !isDirectWikidotFragmentPage}
           <!-- svelte-ignore a11y_invalid_attribute -->
@@ -216,7 +216,8 @@
             type="button"
           >
             {#if wikidotPageActions?.ratingText}
-              Rate (<span>{wikidotPageActions.ratingText}</span>)
+              {wikidotPageActions.ratePrefix} (<span>{wikidotPageActions.ratingText}</span
+              >)
             {:else}
               {wikidotPageActions?.rate ?? data.internationalization?.vote}
             {/if}
@@ -225,7 +226,7 @@
         {#if wikidotPageActions}
           <!-- svelte-ignore a11y_invalid_attribute -->
           <a id="tags-button" class="btn btn-default" href="javascript:;" type="button">
-            Tags
+            {wikidotPageActions.tags}
           </a>
           <!-- svelte-ignore a11y_invalid_attribute -->
           <a
@@ -248,7 +249,7 @@
           }}
           type="button"
         >
-          {data.internationalization?.history}
+          {wikidotPageActions?.history ?? data.internationalization?.history}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -261,12 +262,12 @@
           }}
           type="button"
         >
-          {data.internationalization?.files}
+          {wikidotPageActions?.files ?? data.internationalization?.files}
         </a>
         {#if wikidotPageActions}
           <!-- svelte-ignore a11y_invalid_attribute -->
           <a id="print-button" class="btn btn-default" href="javascript:;" type="button">
-            Print
+            {wikidotPageActions.print}
           </a>
           <!-- svelte-ignore a11y_invalid_attribute -->
           <a
@@ -275,7 +276,7 @@
             href="javascript:;"
             type="button"
           >
-            Site tools
+            {wikidotPageActions.siteTools}
           </a>
         {/if}
 
@@ -287,7 +288,8 @@
           onclick={() => toggleShowPageOptions()}
           type="button"
         >
-          {(showPageOptions ? "- " : "+ ") + data.internationalization?.options}
+          {(showPageOptions ? "- " : "+ ") +
+            (wikidotPageActions?.options ?? data.internationalization?.options)}
         </a>
       </div>
     </div>

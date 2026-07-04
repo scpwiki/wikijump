@@ -27,6 +27,16 @@ test("formats recent Wikidot page revision metadata with elapsed hours", () => {
   )
 })
 
+test("formats Japanese Wikidot page revision metadata like SCP-JP", () => {
+  const updatedAt = "2023-01-07T06:16:27Z"
+  const now = Date.parse("2026-07-04T00:16:27Z")
+
+  assert.equal(
+    buildWikidotPageInfoText({ revision: 6, updatedAt, now, locale: "ja" }),
+    "ページリビジョン: 6, 最終更新: 7 Jan 2023, 15:16 (1273 days 前)"
+  )
+})
+
 test("formats singular recent Wikidot page revision metadata units", () => {
   const updatedAt = "2026-07-01T05:52:50Z"
 

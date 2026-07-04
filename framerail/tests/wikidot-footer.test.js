@@ -4,7 +4,9 @@ import test from "node:test"
 import {
   WIKIDOT_FOOTER_LINKS,
   WIKIDOT_POWERED_BY,
+  buildWikidotFooterLinks,
   buildWikidotLicenseHtml,
+  buildWikidotLoginLabels,
   formatWikidotLicenseName,
   isImportedWikidotView
 } from "../src/lib/wikidot-footer.js"
@@ -15,6 +17,18 @@ test("uses Wikidot footer labels in source order", () => {
     ["Help", "Terms of Service", "Privacy", "Report a bug", "Flag as objectionable"]
   )
   assert.equal(WIKIDOT_POWERED_BY, "Powered by Wikidot.com")
+})
+
+test("uses Japanese Wikidot footer and login labels for Japanese imported sites", () => {
+  assert.deepEqual(
+    buildWikidotFooterLinks("ja").map((link) => link.label),
+    ["ヘルプ", "利用規約", "プライバシー", "バグを報告", "不快フラグを立てる"]
+  )
+  assert.deepEqual(buildWikidotLoginLabels("ja"), {
+    createAccount: "アカウントを作成",
+    or: "または",
+    signIn: "サインイン"
+  })
 })
 
 test("formats Wikidot license wording without Wikijump copy", () => {
@@ -32,6 +46,21 @@ test("formats Wikidot license wording without Wikijump copy", () => {
       licenseUrl: "https://example.invalid/license"
     }),
     'Unless otherwise stated, the content of this page is licensed under <a href="https://example.invalid/license">Creative Commons Attribution-ShareAlike 3.0 License</a>'
+  )
+})
+
+test("formats Japanese Wikidot license wording for SCP-JP", () => {
+  assert.equal(
+    formatWikidotLicenseName("Creative Commons Attribution-ShareAlike 3.0", "ja"),
+    "クリエイティブ・コモンズ 表示 - 継承3.0ライセンス"
+  )
+  assert.equal(
+    buildWikidotLicenseHtml({
+      licenseName: "Creative Commons Attribution-ShareAlike 3.0",
+      licenseUrl: "https://example.invalid/license",
+      locale: "ja"
+    }),
+    '特に指定がない限り、このサイトのすべてのコンテンツは<a href="https://example.invalid/license">クリエイティブ・コモンズ 表示 - 継承3.0ライセンス</a> の元で利用可能です。'
   )
 })
 

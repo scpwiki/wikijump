@@ -1,3 +1,5 @@
+import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
+
 export const WIKIDOT_FOOTER_LINKS = Object.freeze([
   { label: "Help", href: "/" },
   { label: "Terms of Service", href: "/" },
@@ -6,7 +8,37 @@ export const WIKIDOT_FOOTER_LINKS = Object.freeze([
   { label: "Flag as objectionable", href: "/" }
 ])
 
+export const WIKIDOT_FOOTER_LINKS_JA = Object.freeze([
+  { label: "ヘルプ", href: "/" },
+  { label: "利用規約", href: "/" },
+  { label: "プライバシー", href: "/" },
+  { label: "バグを報告", href: "/" },
+  { label: "不快フラグを立てる", href: "/" }
+])
+
 export const WIKIDOT_POWERED_BY = "Powered by Wikidot.com"
+
+export const WIKIDOT_LOGIN_LABELS = Object.freeze({
+  createAccount: "Create account",
+  or: "or",
+  signIn: "Sign in"
+})
+
+export const WIKIDOT_LOGIN_LABELS_JA = Object.freeze({
+  createAccount: "アカウントを作成",
+  or: "または",
+  signIn: "サインイン"
+})
+
+/** @param {string | null | undefined} locale */
+export const buildWikidotFooterLinks = (locale) => {
+  return isJapaneseWikidotLocale(locale) ? WIKIDOT_FOOTER_LINKS_JA : WIKIDOT_FOOTER_LINKS
+}
+
+/** @param {string | null | undefined} locale */
+export const buildWikidotLoginLabels = (locale) => {
+  return isJapaneseWikidotLocale(locale) ? WIKIDOT_LOGIN_LABELS_JA : WIKIDOT_LOGIN_LABELS
+}
 
 /**
  * @param {string | null | undefined} value
@@ -24,21 +56,36 @@ const escapeHtml = (value) => {
  * @param {string | null | undefined} licenseName
  * @returns {string}
  */
-export const formatWikidotLicenseName = (licenseName) => {
+export const formatWikidotLicenseName = (licenseName, locale = "en") => {
   const name = `${licenseName ?? ""}`.replace(/\.$/, "").trim()
 
   if (!name) return "License"
+
+  if (isJapaneseWikidotLocale(locale)) {
+    if (/^creative commons attribution-sharealike 3\.0$/i.test(name)) {
+      return "クリエイティブ・コモンズ 表示 - 継承3.0ライセンス"
+    }
+  }
 
   return /license$/i.test(name) ? name : `${name} License`
 }
 
 /**
- * @param {{ licenseName?: string | null; licenseUrl?: string | null }} input
+ * @param {{
+ *   licenseName?: string | null
+ *   licenseUrl?: string | null
+ *   locale?: string | null
+ * }} input
  * @returns {string}
  */
-export const buildWikidotLicenseHtml = ({ licenseName, licenseUrl }) => {
-  const name = escapeHtml(formatWikidotLicenseName(licenseName))
+export const buildWikidotLicenseHtml = ({ licenseName, licenseUrl, locale = "en" }) => {
+  const effectiveLocale = locale ?? "en"
+  const name = escapeHtml(formatWikidotLicenseName(licenseName, effectiveLocale))
   const url = escapeHtml(licenseUrl || "/")
+
+  if (isJapaneseWikidotLocale(effectiveLocale)) {
+    return `特に指定がない限り、このサイトのすべてのコンテンツは<a href="${url}">${name}</a> の元で利用可能です。`
+  }
 
   return `Unless otherwise stated, the content of this page is licensed under <a href="${url}">${name}</a>`
 }

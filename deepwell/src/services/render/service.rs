@@ -2929,7 +2929,8 @@ impl RenderService {
             return wikitext;
         }
 
-        let replacement = render_read_only_rate_module(page_info.score);
+        let replacement =
+            render_read_only_rate_module(page_info.score, &page_info.language);
         RATE_MODULE_REGEX
             .replace_all(&wikitext, replacement.as_str())
             .into_owned()
@@ -7463,28 +7464,64 @@ fn format_list_pages_rating(score: Option<f32>) -> String {
     }
 }
 
-fn render_read_only_rate_module(score: ftml::data::ScoreValue) -> String {
+fn render_read_only_rate_module(score: ftml::data::ScoreValue, language: &str) -> String {
     let score = format_score_value(score);
+    let labels = wikidot_rate_module_labels(language);
 
     format!(
         concat!(
             "[[div class=\"page-rate-widget-box\"]]",
-            "[[span class=\"rate-points\"]]rating: ",
+            "[[span class=\"rate-points\"]]{}",
             "[[span class=\"number prw54353\"]]{}[[/span]]",
             "[[/span]]",
             "[[span class=\"rateup btn btn-default\"]]",
-            "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"I like it\"]]+[[/a]]",
+            "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"{}\"]]+[[/a]]",
             "[[/span]]",
             "[[span class=\"ratedown btn btn-default\"]]",
-            "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"I don't like it\"]]–[[/a]]",
+            "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"{}\"]]–[[/a]]",
             "[[/span]]",
             "[[span class=\"cancel btn btn-default\"]]",
-            "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"Cancel my vote\"]]x[[/a]]",
+            "[[a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"{}\"]]x[[/a]]",
             "[[/span]]",
             "[[/div]]"
         ),
+        labels.rating_prefix,
         score,
+        labels.up_title,
+        labels.down_title,
+        labels.cancel_title,
     )
+}
+
+#[derive(Debug)]
+struct WikidotRateModuleLabels {
+    rating_prefix: &'static str,
+    up_title: &'static str,
+    down_title: &'static str,
+    cancel_title: &'static str,
+}
+
+fn wikidot_rate_module_labels(language: &str) -> WikidotRateModuleLabels {
+    if is_japanese_wikidot_locale(language) {
+        WikidotRateModuleLabels {
+            rating_prefix: "評価:\u{00a0}",
+            up_title: "好き",
+            down_title: "好きじゃない",
+            cancel_title: "投票を取り消す",
+        }
+    } else {
+        WikidotRateModuleLabels {
+            rating_prefix: "rating: ",
+            up_title: "I like it",
+            down_title: "I don't like it",
+            cancel_title: "Cancel my vote",
+        }
+    }
+}
+
+fn is_japanese_wikidot_locale(language: &str) -> bool {
+    let language = language.replace('_', "-").to_ascii_lowercase();
+    matches!(language.as_str(), "ja" | "jp") || language.starts_with("ja-")
 }
 
 fn wikidot_module_argument<'a>(head: &'a str, name: &str) -> Option<&'a str> {
@@ -8604,7 +8641,8 @@ mod tests {
 
     #[test]
     fn renders_wikidot_read_only_rate_module_with_downvote() {
-        let rendered = render_read_only_rate_module(ftml::data::ScoreValue::Integer(19));
+        let rendered =
+            render_read_only_rate_module(ftml::data::ScoreValue::Integer(19), "en");
 
         assert!(rendered.contains(r#"[[span class="rate-points"]]rating: "#));
         assert!(rendered.contains(r#"[[span class="number prw54353"]]+19[[/span]]"#));
@@ -8624,6 +8662,18 @@ mod tests {
         assert!(
             rendered.contains(r#"]][[/span]][[span class="cancel btn btn-default"]]"#)
         );
+    }
+
+    #[test]
+    fn renders_japanese_wikidot_read_only_rate_module_labels() {
+        let rendered =
+            render_read_only_rate_module(ftml::data::ScoreValue::Integer(35), "ja");
+
+        assert!(rendered.contains("[[span class=\"rate-points\"]]評価:\u{00a0}"));
+        assert!(rendered.contains(r#"[[span class="number prw54353"]]+35[[/span]]"#));
+        assert!(rendered.contains(r#"title="好き""#));
+        assert!(rendered.contains(r#"title="好きじゃない""#));
+        assert!(rendered.contains(r#"title="投票を取り消す""#));
     }
 
     #[test]
