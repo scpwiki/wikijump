@@ -39,6 +39,7 @@ import {
   sourceShowsStandardWikidotPageActions
 } from "$lib/wikidot-page-actions"
 import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
+import { buildWikidotPageWatchLabel } from "$lib/wikidot-page-watch"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
@@ -240,6 +241,7 @@ export async function loadPage(
   const internationalization = await translate(locales, translateKeys)
   let wikidotPageInfo: string | null = null
   let wikidotPageActions: ReturnType<typeof buildWikidotPageActionLabels> | null = null
+  let wikidotPageWatch: ReturnType<typeof buildWikidotPageWatchLabel> = null
 
   if (errorStatus === null && responseType === "found") {
     const wikidotSnapshot = responseData.wikidot_snapshot
@@ -268,6 +270,11 @@ export async function loadPage(
         showRate: sourceShowsStandardActions,
         showDiscuss: sourceShowsStandardActions
       })
+
+      wikidotPageWatch = buildWikidotPageWatchLabel({
+        sourceSite: wikidotSnapshot?.source_site,
+        hasSession: !!parentData.user_session
+      })
     }
   }
 
@@ -295,7 +302,8 @@ export async function loadPage(
     view: responseType,
     internationalization,
     wikidot_page_info: wikidotPageInfo,
-    wikidot_page_actions: wikidotPageActions
+    wikidot_page_actions: wikidotPageActions,
+    wikidot_page_watch: wikidotPageWatch
   }
 
   if (errorStatus !== null) {

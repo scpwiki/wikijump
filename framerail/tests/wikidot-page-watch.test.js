@@ -1,0 +1,39 @@
+import { strict as assert } from "node:assert"
+import test from "node:test"
+
+import { buildWikidotPageWatchLabel } from "../src/lib/wikidot-page-watch.js"
+
+test("renders authenticated sandbox site watch text", () => {
+  assert.deepEqual(
+    buildWikidotPageWatchLabel({
+      sourceSite: "sandbox-for-codex",
+      hasSession: true
+    }),
+    {
+      label: "Stop watching site sandbox-for-codex.wikidot.com",
+      helpLabel: "?",
+      helpHref: "http://www.wikidot.com/faq:watching"
+    }
+  )
+})
+
+test("omits sandbox site watch text without an authenticated session", () => {
+  assert.equal(
+    buildWikidotPageWatchLabel({
+      sourceSite: "sandbox-for-codex",
+      hasSession: false
+    }),
+    null
+  )
+})
+
+test("omits site watch text for other imported source sites", () => {
+  assert.equal(
+    buildWikidotPageWatchLabel({
+      sourceSite: "scp-wiki",
+      hasSession: true
+    }),
+    null
+  )
+  assert.equal(buildWikidotPageWatchLabel({ sourceSite: null, hasSession: true }), null)
+})

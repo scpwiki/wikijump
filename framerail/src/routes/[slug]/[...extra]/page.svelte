@@ -33,6 +33,7 @@
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
   let pagePaneState = $state<PagePane>(PagePane.None)
   let wikidotPageActions = $derived(data.wikidot_page_actions)
+  let wikidotPageWatch = $derived(data.wikidot_page_watch)
   let isDirectWikidotFragmentPage = $derived(
     pageLayoutContext.current === Layout.WIKIDOT &&
       !data.options?.debug &&
@@ -188,6 +189,15 @@
             .internationalization?.["wiki-page-last-edit"]}
         {/if}
       </div>
+      {#if wikidotPageWatch}
+        <div class="page-watch-options">
+          <!-- svelte-ignore a11y_invalid_attribute -->
+          <a href="javascript:;">{wikidotPageWatch.label}</a>
+          [<a href={wikidotPageWatch.helpHref} target="_blank" rel="noreferrer"
+            >{wikidotPageWatch.helpLabel}</a
+          >]
+        </div>
+      {/if}
       <div
         id="page-options-bottom"
         class="page-options-bottom"
