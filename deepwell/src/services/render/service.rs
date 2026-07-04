@@ -183,6 +183,20 @@ static WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX: LazyLock<Regex> = LazyLock::new(|| 
     )
     .unwrap()
 });
+static WIKIJUMP_FOOTNOTE_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?is)<wj-footnote-ref-marker(?P<attrs>[^>]*)>(?P<label>.*?)</wj-footnote-ref-marker>"#,
+    )
+    .unwrap()
+});
+static WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?is)<span class="wj-footnote-ref">\s*(?P<body><sup class="footnoteref">.*?</sup>)\s*</span>"#,
+    )
+    .unwrap()
+});
+static WIKIJUMP_FOOTNOTE_DATA_ID_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"data-id="(?P<id>[0-9]+)""#).unwrap());
 static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)(?P<key>[A-Za-z_][A-Za-z0-9_\-]*)\s*(?P<op>!?=)\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
         .unwrap()
@@ -210,6 +224,10 @@ static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]\n]*)\]\]\]").unwrap()
+});
+static WIKIDOT_MULTILINE_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?s)\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]]*\n[^\]]*)\]\]\]")
+        .unwrap()
 });
 static WIKIDOT_QUADRUPLE_LINK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\[\[(?P<target>[^\]\n]+)\]\]\]\]").unwrap());
@@ -646,6 +664,7 @@ impl RenderService {
         wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
         if settings.enable_page_syntax {
             Self::normalize_wikidot_div_style_url_quotes(&mut wikitext);
+            Self::normalize_wikidot_multiline_page_links(&mut wikitext);
         }
         let wikidot_inline_html =
             Self::protect_wikidot_inline_html_spans(&mut wikitext, settings);
@@ -920,6 +939,8 @@ impl RenderService {
         let html = Self::remove_wikidot_compat_style_blocks(&html);
         let html = Self::restore_wikidot_inline_math_compatibility(&html);
         let html = Self::restore_wikidot_ta_badge_default_compatibility(&html);
+        let html = Self::restore_wikidot_text_ellipsis_compatibility(&html);
+        let html = Self::restore_wikidot_footnote_dom_compatibility(&html);
         let html = Self::remove_wikijump_plain_format_wrappers(&html);
         let html = Self::remove_wikidot_userkarma_background_styles(&html);
         Self::localize_wikidot_local_file_urls(&html, current_site, config)
@@ -1040,6 +1061,92 @@ impl RenderService {
             .trim_end_matches('>')
             .split_ascii_whitespace()
             .any(|attribute| attribute == "hidden" || attribute.starts_with("hidden="))
+    }
+
+    fn restore_wikidot_footnote_dom_compatibility(html: &str) -> String {
+        let html = WIKIJUMP_FOOTNOTE_MARKER_REGEX
+            .replace_all(html, |captures: &regex::Captures<'_>| {
+                let attrs = captures.name("attrs").map_or("", |mtch| mtch.as_str());
+                let label = captures.name("label").map_or("", |mtch| mtch.as_str());
+                let Some(id) = WIKIJUMP_FOOTNOTE_DATA_ID_REGEX
+                    .captures(attrs)
+                    .and_then(|data_id| data_id.name("id"))
+                    .map(|mtch| mtch.as_str())
+                else {
+                    return captures.get(0).unwrap().as_str().to_owned();
+                };
+
+                format!(
+                    r#"<sup class="footnoteref"><a id="footnoteref-{id}" href="javascript:;" class="footnoteref" onclick="WIKIDOT.page.utils.scrollToReference('footnote-{id}')">{label}</a></sup>"#
+                )
+            })
+            .into_owned();
+        let html = WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX
+            .replace_all(&html, |captures: &regex::Captures<'_>| {
+                captures
+                    .name("body")
+                    .map_or("", |mtch| mtch.as_str())
+                    .to_owned()
+            })
+            .into_owned();
+        let html = Self::remove_wikijump_footnote_ref_tooltips(&html);
+        html.replace(
+            r#"<div class="wj-footnote-list">"#,
+            r#"<div class="wj-footnote-list footnotes-footer">"#,
+        )
+        .replace(
+            r#"<div class="wj-title">Footnotes</div>"#,
+            r#"<div class="wj-title title">Footnotes</div>"#,
+        )
+    }
+
+    fn remove_wikijump_footnote_ref_tooltips(html: &str) -> String {
+        const TOOLTIP_OPEN: &str = r#"<div class="wj-footnote-ref-tooltip""#;
+        let mut output = String::with_capacity(html.len());
+        let mut cursor = 0usize;
+
+        while let Some(relative_start) = html[cursor..].find(TOOLTIP_OPEN) {
+            let start = cursor + relative_start;
+            output.push_str(&html[cursor..start]);
+
+            let Some(end) = Self::balanced_div_end(html, start) else {
+                output.push_str(&html[start..]);
+                return output;
+            };
+            cursor = end;
+        }
+
+        output.push_str(&html[cursor..]);
+        output
+    }
+
+    fn balanced_div_end(html: &str, start: usize) -> Option<usize> {
+        let mut cursor = start;
+        let mut depth = 0usize;
+
+        loop {
+            let next_open = html[cursor..].find("<div").map(|offset| cursor + offset);
+            let next_close = html[cursor..].find("</div>").map(|offset| cursor + offset);
+
+            match (next_open, next_close) {
+                (Some(open), Some(close)) if open < close => {
+                    depth += 1;
+                    cursor = open + "<div".len();
+                }
+                (Some(_), None) => return None,
+                (_, Some(close)) => {
+                    if depth == 0 {
+                        return None;
+                    }
+                    depth -= 1;
+                    cursor = close + "</div>".len();
+                    if depth == 0 {
+                        return Some(cursor);
+                    }
+                }
+                (None, None) => return None,
+            }
+        }
     }
 
     fn restore_residual_wikidot_div_paragraph_markers(html: &str) -> String {
@@ -1183,6 +1290,58 @@ impl RenderService {
         }
     }
 
+    fn normalize_wikidot_multiline_page_links(wikitext: &mut String) {
+        let source = wikitext.clone();
+        let mut normalized = String::with_capacity(source.len());
+        let mut last = 0usize;
+        let mut changed = false;
+
+        for captures in WIKIDOT_MULTILINE_LABELED_LINK_REGEX.captures_iter(&source) {
+            let Some(link_match) = captures.get(0) else {
+                continue;
+            };
+
+            normalized.push_str(&source[last..link_match.start()]);
+            last = link_match.end();
+
+            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+                normalized.push_str(link_match.as_str());
+                continue;
+            }
+
+            let Some(target) = captures
+                .name("target")
+                .map(|matched| matched.as_str().trim())
+                .filter(|target| !target.is_empty())
+            else {
+                normalized.push_str(link_match.as_str());
+                continue;
+            };
+            let Some(label) = captures
+                .name("label")
+                .map(|matched| Self::collapse_wikidot_inline_whitespace(matched.as_str()))
+                .filter(|label| !label.is_empty())
+            else {
+                normalized.push_str(link_match.as_str());
+                continue;
+            };
+
+            normalized.push_str(&format!("[[[{target}|{label}]]]"));
+            changed = true;
+        }
+
+        if !changed {
+            return;
+        }
+
+        normalized.push_str(&source[last..]);
+        *wikitext = normalized;
+    }
+
+    fn collapse_wikidot_inline_whitespace(value: &str) -> String {
+        value.split_whitespace().collect::<Vec<_>>().join(" ")
+    }
+
     fn restore_wikidot_mailform_compatibility(html: &str) -> String {
         WIKIDOT_RENDERED_MAILFORM_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
@@ -1258,6 +1417,93 @@ impl RenderService {
             .replace("{$item-rt-link}", "empty")
             .replace("{$item-rc-link}", "empty")
             .replace("{$item-rb-link}", "empty")
+    }
+
+    fn restore_wikidot_text_ellipsis_compatibility(html: &str) -> String {
+        let mut output = String::with_capacity(html.len());
+        let mut cursor = 0usize;
+        let mut literal_depth = 0usize;
+
+        while let Some(tag_start_offset) = html[cursor..].find('<') {
+            let tag_start = cursor + tag_start_offset;
+            Self::push_wikidot_text_ellipsis_segment(
+                &mut output,
+                &html[cursor..tag_start],
+                literal_depth,
+            );
+
+            let Some(tag_end_offset) = html[tag_start..].find('>') else {
+                output.push_str(&html[tag_start..]);
+                return output;
+            };
+            let tag_end = tag_start + tag_end_offset + 1;
+            let tag = &html[tag_start..tag_end];
+            Self::update_wikidot_ellipsis_literal_depth(tag, &mut literal_depth);
+            output.push_str(tag);
+            cursor = tag_end;
+        }
+
+        Self::push_wikidot_text_ellipsis_segment(
+            &mut output,
+            &html[cursor..],
+            literal_depth,
+        );
+        output
+    }
+
+    fn push_wikidot_text_ellipsis_segment(
+        output: &mut String,
+        segment: &str,
+        literal_depth: usize,
+    ) {
+        if literal_depth == 0 {
+            output.push_str(&segment.replace("...", "…"));
+        } else {
+            output.push_str(segment);
+        }
+    }
+
+    fn update_wikidot_ellipsis_literal_depth(tag: &str, literal_depth: &mut usize) {
+        let Some((name, closing, self_closing)) = Self::html_tag_name(tag) else {
+            return;
+        };
+        if !matches!(
+            name.as_str(),
+            "code" | "pre" | "script" | "style" | "textarea"
+        ) {
+            return;
+        }
+
+        if closing {
+            *literal_depth = literal_depth.saturating_sub(1);
+        } else if !self_closing {
+            *literal_depth += 1;
+        }
+    }
+
+    fn html_tag_name(tag: &str) -> Option<(String, bool, bool)> {
+        let inner = tag.strip_prefix('<')?.strip_suffix('>')?.trim();
+        if inner.is_empty() || inner.starts_with('!') || inner.starts_with('?') {
+            return None;
+        }
+
+        let closing = inner.starts_with('/');
+        let inner = if closing {
+            inner[1..].trim_start()
+        } else {
+            inner
+        };
+        let name = inner
+            .split(|character: char| {
+                character.is_ascii_whitespace() || character == '/' || character == '>'
+            })
+            .next()?
+            .to_ascii_lowercase();
+        if name.is_empty() {
+            return None;
+        }
+
+        Some((name, closing, inner.ends_with('/')))
     }
 
     fn remove_wikijump_plain_format_wrappers(html: &str) -> String {
@@ -11698,6 +11944,38 @@ mod tests {
     }
 
     #[test]
+    fn normalizes_wikidot_multiline_page_links_before_ftml() {
+        let mut wikitext = concat!(
+            "[[[an-incredibly-importanterest-announcement|",
+            "Creck Fection Contest 2 (TWO DAY EXTRAVAGANZA!)\n",
+            "]]]\n",
+            "[!-- [[[literal|Nope\n]]] --]\n",
+        )
+        .to_owned();
+
+        RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
+
+        assert!(wikitext.contains(
+            "[[[an-incredibly-importanterest-announcement|Creck Fection Contest 2 (TWO DAY EXTRAVAGANZA!)]]]"
+        ));
+        assert!(wikitext.contains("[!-- [[[literal|Nope\n]]] --]"));
+
+        let page_info = fallback_test_page_info("049-x-minion-x-reader", "Reader");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(
+            rendered.contains(r#"href="/an-incredibly-importanterest-announcement""#)
+        );
+        assert!(rendered.contains("Creck Fection Contest 2 (TWO DAY EXTRAVAGANZA!)"));
+        assert!(!rendered.contains("[[[an-incredibly-importanterest-announcement"));
+    }
+
+    #[test]
     fn protects_wikidot_current_page_links_inside_inline_code() {
         let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -12452,6 +12730,47 @@ mod tests {
         );
         assert!(!restored.contains("wj-math"));
         assert!(!restored.contains("<math"));
+    }
+
+    #[test]
+    fn restores_wikidot_footnote_dom_compatibility_after_render() {
+        let html = concat!(
+            r#"<p>text<span class="wj-footnote-ref">"#,
+            r#"<wj-footnote-ref-marker class="wj-footnote-ref-marker" role="link" aria-label="Footnote 2." data-id="2">2</wj-footnote-ref-marker>"#,
+            r#"</span><div class="wj-footnote-ref-tooltip" aria-hidden="true">"#,
+            r#"<span class="wj-footnote-ref-tooltip-label">Footnote 2.</span>"#,
+            r#"<div class="wj-footnote-ref-contents"><div>hidden note</div></div>"#,
+            r#"</div> after</p>"#,
+            r#"<div class="wj-footnote-list"><div class="wj-title">Footnotes</div></div>"#,
+        );
+
+        let restored = RenderService::restore_wikidot_footnote_dom_compatibility(html);
+
+        assert!(restored.contains(
+            r#"<sup class="footnoteref"><a id="footnoteref-2" href="javascript:;" class="footnoteref" onclick="WIKIDOT.page.utils.scrollToReference('footnote-2')">2</a></sup> after"#
+        ));
+        assert!(restored.contains(r#"<div class="wj-footnote-list footnotes-footer">"#));
+        assert!(restored.contains(r#"<div class="wj-title title">Footnotes</div>"#));
+        assert!(!restored.contains(r#"<span class="wj-footnote-ref">"#));
+        assert!(!restored.contains("wj-footnote-ref-tooltip"));
+        assert!(!restored.contains("hidden note"));
+    }
+
+    #[test]
+    fn restores_wikidot_text_ellipsis_only_in_text_nodes() {
+        let html = concat!(
+            r#"<p>"scp-049...." be.... witnessed...</p>"#,
+            r#"<a title="keep....">label....</a>"#,
+            r#"<code>keep....</code>"#,
+            r#"<style>.x:after{content:"keep...."}</style>"#,
+        );
+
+        let restored = RenderService::restore_wikidot_text_ellipsis_compatibility(html);
+
+        assert!(restored.contains(r#"<p>"scp-049…." be…. witnessed…</p>"#));
+        assert!(restored.contains(r#"<a title="keep....">label….</a>"#));
+        assert!(restored.contains(r#"<code>keep....</code>"#));
+        assert!(restored.contains(r#"<style>.x:after{content:"keep...."}</style>"#));
     }
 
     #[test]
