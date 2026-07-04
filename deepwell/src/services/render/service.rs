@@ -164,12 +164,14 @@ static MEMBERS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static NEWPAGE_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+NewPage(?P<head>[^\]]*)\]\]").unwrap()
 });
+static CLONE_MODULE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?is)\[\[module\s+Clone(?P<head>[^\]]*)\]\]").unwrap());
 static CSS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+css[^\]]*\]\](?P<body>.*?)\[\[/module\]\]").unwrap()
 });
 static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
+        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>|<a class="button" data-wikijump-compat-clone="1"[^>]*>.*?</a>"#,
     )
     .unwrap()
 });
@@ -636,6 +638,7 @@ impl RenderService {
         .or_raise(make_error)?;
         wikitext = Self::expand_members_modules(wikitext, settings);
         wikitext = Self::expand_new_page_modules(wikitext, settings);
+        wikitext = Self::expand_clone_modules(wikitext, settings);
         wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
         if settings.enable_page_syntax {
             Self::normalize_wikidot_div_style_url_quotes(&mut wikitext);
@@ -2978,6 +2981,19 @@ impl RenderService {
             .into_owned()
     }
 
+    fn expand_clone_modules(wikitext: String, settings: &WikitextSettings) -> String {
+        if !settings.enable_page_syntax {
+            return wikitext;
+        }
+
+        CLONE_MODULE_REGEX
+            .replace_all(&wikitext, |captures: &regex::Captures<'_>| {
+                let head = captures.name("head").map_or("", |mtch| mtch.as_str());
+                render_clone_module(head)
+            })
+            .into_owned()
+    }
+
     async fn expand_tag_cloud_modules(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -3228,7 +3244,8 @@ impl RenderService {
                         .replace(r#" data-wikijump-compat-list="1""#, "")
                         .replace(r#" data-wikijump-compat-members="1""#, "")
                         .replace(r#" data-wikijump-compat-backlinks="1""#, "")
-                        .replace(r#" data-wikijump-compat-new-page="1""#, ""),
+                        .replace(r#" data-wikijump-compat-new-page="1""#, "")
+                        .replace(r#" data-wikijump-compat-clone="1""#, ""),
                 );
                 marker
             })
@@ -7731,6 +7748,17 @@ fn render_new_page_module(head: &str) -> String {
     )
 }
 
+fn render_clone_module(head: &str) -> String {
+    let button = wikidot_module_argument(head, "button")
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("Clone this site");
+
+    format!(
+        r#"<a class="button" data-wikijump-compat-clone="1" href="javascript:;">{button}</a>"#,
+        button = escape_list_pages_html_text(button),
+    )
+}
+
 fn escape_javascript_single_quoted(value: &str) -> String {
     value
         .replace('\\', r"\\")
@@ -8313,7 +8341,7 @@ mod tests {
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
-        push_list_pages_pager, render_list_pages_numbered_rows,
+        push_list_pages_pager, render_clone_module, render_list_pages_numbered_rows,
         render_list_pages_table_rows, render_members_module_placeholder,
         render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
         resolve_list_pages_signed_abs_expressions,
@@ -8874,6 +8902,50 @@ mod tests {
             rendered.contains(r#"<input class="button" type="button" value="new page">"#)
         );
         assert!(!rendered.contains("[[module NewPage"));
+    }
+
+    #[test]
+    fn renders_wikidot_clone_module_placeholder() {
+        let rendered = RenderService::expand_clone_modules(
+            "[[module Clone]]".to_owned(),
+            &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+        );
+
+        assert!(rendered.contains(
+            r#"<a class="button" data-wikijump-compat-clone="1" href="javascript:;">Clone this site</a>"#
+        ));
+        assert!(!rendered.contains("[[module Clone"));
+    }
+
+    #[test]
+    fn renders_wikidot_clone_module_custom_button() {
+        let rendered = RenderService::expand_clone_modules(
+            "[[module Clone button=\"Clone <now>\"]]".to_owned(),
+            &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+        );
+
+        assert!(rendered.contains("Clone &lt;now&gt;"));
+        assert!(!rendered.contains("[[module Clone"));
+    }
+
+    #[test]
+    fn protects_wikidot_clone_module_html_before_parsing() {
+        let mut wikitext = render_clone_module("");
+        let fragments = RenderService::protect_generated_wikidot_compat_html(
+            &mut wikitext,
+            &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+        );
+
+        assert_eq!(fragments.len(), 1);
+        assert!(wikitext.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+        let restored = RenderService::restore_protected_generated_wikidot_compat_html(
+            wikitext, &fragments,
+        );
+        assert!(
+            restored
+                .contains(r#"<a class="button" href="javascript:;">Clone this site</a>"#)
+        );
+        assert!(!restored.contains("data-wikijump-compat-clone"));
     }
 
     #[test]
