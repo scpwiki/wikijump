@@ -82,6 +82,7 @@ export async function loadPage(
 
   const parentData = await preloadData()
   const locales = parentData.locales
+  const siteLocale = parentData.site.locale
 
   // Request data from backend
   const response = await pageView(siteId, locales, route, sessionToken)
@@ -247,14 +248,16 @@ export async function loadPage(
     ) {
       wikidotPageInfo = buildWikidotPageInfoText({
         revision: wikidotSnapshot.source_revision_count,
-        updatedAt: wikidotSnapshot.source_updated_at
+        updatedAt: wikidotSnapshot.source_updated_at,
+        locale: siteLocale
       })
     }
 
     if (responseData.page.from_wikidot) {
       wikidotPageActions = buildWikidotPageActionLabels({
         rating: wikidotSnapshot?.imported_rating ?? null,
-        comments: wikidotSnapshot?.comments ?? null
+        comments: wikidotSnapshot?.comments ?? null,
+        locale: siteLocale
       })
     }
   }
