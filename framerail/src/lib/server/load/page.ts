@@ -34,7 +34,10 @@ import { pageView } from "$lib/server/deepwell/views"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
-import { buildWikidotPageActionLabels } from "$lib/wikidot-page-actions"
+import {
+  buildWikidotPageActionLabels,
+  sourceShowsStandardWikidotPageActions
+} from "$lib/wikidot-page-actions"
 import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
@@ -254,10 +257,16 @@ export async function loadPage(
     }
 
     if (responseData.page.from_wikidot) {
+      const sourceShowsStandardActions = sourceShowsStandardWikidotPageActions(
+        wikidotSnapshot?.source_site
+      )
+
       wikidotPageActions = buildWikidotPageActionLabels({
         rating: wikidotSnapshot?.imported_rating ?? null,
         comments: wikidotSnapshot?.comments ?? null,
-        locale: siteLocale
+        locale: siteLocale,
+        showRate: sourceShowsStandardActions,
+        showDiscuss: sourceShowsStandardActions
       })
     }
   }

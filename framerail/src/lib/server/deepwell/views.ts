@@ -21,6 +21,7 @@ export interface Viewer {
 }
 
 export interface WikidotPageSnapshotView {
+  source_site: string
   source_revision_count: number
   source_updated_at: string
   imported_rating: Nullable<number>

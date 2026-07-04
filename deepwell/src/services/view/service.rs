@@ -487,6 +487,7 @@ impl ViewService {
     ) -> Result<Option<WikidotPageSnapshotView>> {
         #[derive(FromQueryResult, Debug)]
         struct WikidotSnapshotRow {
+            source_site: String,
             source_revision_count: Option<i32>,
             source_updated_at: Option<OffsetDateTime>,
             imported_rating: Option<i64>,
@@ -497,7 +498,7 @@ impl ViewService {
         let statement = Statement::from_string(
             txn.get_database_backend(),
             format!(
-                "SELECT source_revision_count, source_updated_at, imported_rating, comments FROM wikidot_page_snapshot WHERE page_id = {}",
+                "SELECT source_site, source_revision_count, source_updated_at, imported_rating, comments FROM wikidot_page_snapshot WHERE page_id = {}",
                 page_id,
             ),
         );
@@ -514,12 +515,14 @@ impl ViewService {
 
         Ok(row.and_then(
             |WikidotSnapshotRow {
+                 source_site,
                  source_revision_count,
                  source_updated_at,
                  imported_rating,
                  comments,
              }| {
                 Some(WikidotPageSnapshotView {
+                    source_site,
                     source_revision_count: source_revision_count?,
                     source_updated_at: source_updated_at?,
                     imported_rating,

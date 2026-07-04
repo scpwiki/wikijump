@@ -1,11 +1,15 @@
 import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 
+const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"])
+
 /**
  * @typedef {object} WikidotPageActionLabels
  * @property {string} rate
  * @property {string} ratePrefix
  * @property {string | null} ratingText
  * @property {string} discuss
+ * @property {boolean} showRate
+ * @property {boolean} showDiscuss
  * @property {string} edit
  * @property {string} tags
  * @property {string} history
@@ -22,14 +26,30 @@ import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 export const isWikidotFragmentPage = (tags) => tags?.includes("fragment") ?? false
 
 /**
+ * @param {string | null | undefined} sourceSite
+ * @returns {boolean}
+ */
+export const sourceShowsStandardWikidotPageActions = (sourceSite) => {
+  return !WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS.has(sourceSite ?? "")
+}
+
+/**
  * @param {{
  *   rating?: number | null
  *   comments?: number | null
  *   locale?: string | null
+ *   showRate?: boolean
+ *   showDiscuss?: boolean
  * }} snapshot
  * @returns {WikidotPageActionLabels}
  */
-export const buildWikidotPageActionLabels = ({ rating, comments, locale = "en" }) => {
+export const buildWikidotPageActionLabels = ({
+  rating,
+  comments,
+  locale = "en",
+  showRate = true,
+  showDiscuss = true
+}) => {
   const ratingText = rating === null || rating === undefined ? null : formatSigned(rating)
   const labels = isJapaneseWikidotLocale(locale)
     ? {
@@ -57,6 +77,8 @@ export const buildWikidotPageActionLabels = ({ rating, comments, locale = "en" }
 
   return {
     ratingText,
+    showRate,
+    showDiscuss,
     edit: labels.edit,
     ratePrefix: labels.ratePrefix,
     rate:

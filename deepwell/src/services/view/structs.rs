@@ -107,6 +107,7 @@ pub enum GetPageViewOutput {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct WikidotPageSnapshotView {
+    pub source_site: String,
     pub source_revision_count: i32,
 
     #[serde(with = "time::serde::rfc3339")]

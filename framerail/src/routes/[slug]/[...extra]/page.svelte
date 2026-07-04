@@ -203,7 +203,7 @@
         >
           {wikidotPageActions?.edit ?? data.internationalization?.edit}
         </a>
-        {#if !isDirectWikidotFragmentPage}
+        {#if !isDirectWikidotFragmentPage && wikidotPageActions?.showRate !== false}
           <!-- svelte-ignore a11y_invalid_attribute -->
           <a
             id="pagerate-button"
@@ -228,15 +228,17 @@
           <a id="tags-button" class="btn btn-default" href="javascript:;" type="button">
             {wikidotPageActions.tags}
           </a>
-          <!-- svelte-ignore a11y_invalid_attribute -->
-          <a
-            id="discuss-button"
-            class="btn btn-default"
-            href="javascript:;"
-            type="button"
-          >
-            {wikidotPageActions.discuss}
-          </a>
+          {#if wikidotPageActions.showDiscuss}
+            <!-- svelte-ignore a11y_invalid_attribute -->
+            <a
+              id="discuss-button"
+              class="btn btn-default"
+              href="javascript:;"
+              type="button"
+            >
+              {wikidotPageActions.discuss}
+            </a>
+          {/if}
         {/if}
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
