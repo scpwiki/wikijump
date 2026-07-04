@@ -234,6 +234,8 @@ static WIKIDOT_BOLD_OUTER_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static WIKIDOT_BOLD_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\*\*##(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>[^\n]*?)\*\*##").unwrap()
 });
+static WIKIDOT_ESCAPED_NBSP_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"@<(?P<html>&nbsp;)>@").unwrap());
 static WIKIJUMP_CODE_BLOCK_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-code-panel">.*?</div>"#).unwrap());
 static WIKIJUMP_CODE_BLOCK_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -3329,8 +3331,18 @@ impl RenderService {
         }
 
         let mut spans = Vec::new();
-        let protected = WIKIDOT_BOLD_OUTER_COLOR_SPAN_REGEX
+        let protected = WIKIDOT_ESCAPED_NBSP_REGEX
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                let marker = wikidot_inline_html_marker();
+                spans.push(ProtectedWikidotInlineHtml {
+                    marker: marker.clone(),
+                    html: captures["html"].to_owned(),
+                });
+                marker
+            })
+            .into_owned();
+        let protected = WIKIDOT_BOLD_OUTER_COLOR_SPAN_REGEX
+            .replace_all(&protected, |captures: &regex::Captures<'_>| {
                 if captures["body"].contains("##") {
                     return captures[0].to_owned();
                 }
@@ -9467,6 +9479,24 @@ mod tests {
         ));
         assert!(restored.contains(r#"<strong><u>10 October 2022</u></strong>"#));
         assert!(restored.contains("**In which the finale is foreshadowed**"));
+    }
+
+    #[test]
+    fn protects_wikidot_escaped_nbsp_entities_before_ftml_parsing() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source = r#"Icon @<&nbsp;>@ label"#.to_owned();
+
+        let spans =
+            RenderService::protect_wikidot_inline_html_spans(&mut source, &settings);
+
+        assert_eq!(spans.len(), 1);
+        assert!(source.contains(&spans[0].marker));
+        assert!(!source.contains("@<&nbsp;>@"));
+        assert_eq!(spans[0].html, "&nbsp;");
+
+        let restored =
+            RenderService::restore_protected_wikidot_inline_html(source, &spans);
+        assert!(restored.contains("Icon &nbsp; label"));
     }
 
     #[test]
