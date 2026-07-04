@@ -553,6 +553,189 @@ async fn non_scp_page_render_does_not_hardcode_scp_image_block_include() {
 }
 
 #[tokio::test]
+async fn backlinks_module_renders_current_page_incoming_links() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let target_slug = "fixture-backlinks-current-target";
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target_slug,
+        "Fixture Backlinks Current Target",
+        "BF_DEFAULT_START\n[[module Backlinks]]\nBF_DEFAULT_END",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-backlinks-linker-alpha",
+        "Fixture Backlinks Linker Alpha",
+        &format!("[[[{target_slug}|alpha target link]]]"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-backlinks-linker-beta",
+        "Fixture Backlinks Linker Beta",
+        &format!("[[[{target_slug}|beta target link]]]"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-backlinks-excluded",
+        "Fixture Backlinks Excluded",
+        "This page does not link to the backlinks target.",
+    )
+    .await;
+
+    let target = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": target_slug,
+        }),
+    )
+    .expect("Backlinks target should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": target.page_category_id,
+            "page_id": target.page_id,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": target_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("Backlinks target should exist after rerender");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in [
+        "BF_DEFAULT_START",
+        r#"<div class="backlinks-module-box">"#,
+        r#"<a href="/fixture-backlinks-linker-alpha">Fixture Backlinks Linker Alpha</a>"#,
+        r#"<a href="/fixture-backlinks-linker-beta">Fixture Backlinks Linker Beta</a>"#,
+        "BF_DEFAULT_END",
+    ] {
+        assert!(
+            html.contains(expected),
+            "Backlinks module output should contain {expected:?}:\n{html}"
+        );
+    }
+
+    for forbidden in [
+        "TODO: module Backlinks",
+        "[[module Backlinks",
+        "Fixture Backlinks Excluded",
+        "fixture-backlinks-excluded",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "Backlinks module output should not contain {forbidden:?}:\n{html}"
+        );
+    }
+
+    let alpha = html
+        .find("Fixture Backlinks Linker Alpha")
+        .expect("alpha backlink should render");
+    let beta = html
+        .find("Fixture Backlinks Linker Beta")
+        .expect("beta backlink should render");
+    assert!(
+        alpha < beta,
+        "Backlinks should render in title order:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn backlinks_module_with_unsupported_arguments_remains_literal() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let target_slug = "fixture-backlinks-unsupported-target";
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target_slug,
+        "Fixture Backlinks Unsupported Target",
+        "Unsupported backlinks marker.\n[[module Backlinks page=\"start\"]]",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-backlinks-unsupported-linker",
+        "Fixture Backlinks Unsupported Linker",
+        &format!("[[[{target_slug}|unsupported target link]]]"),
+    )
+    .await;
+
+    let target = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": target_slug,
+        }),
+    )
+    .expect("unsupported Backlinks target should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": target.page_category_id,
+            "page_id": target.page_id,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": target_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("unsupported Backlinks target should exist after rerender");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("TODO: module Backlinks") || html.contains("[[module Backlinks"),
+        "unsupported Backlinks arguments should remain literal/degraded:\n{html}"
+    );
+    assert!(
+        !html.contains("Fixture Backlinks Unsupported Linker"),
+        "unsupported Backlinks arguments must not render a guessed incoming-link list:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

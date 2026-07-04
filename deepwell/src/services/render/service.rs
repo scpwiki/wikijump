@@ -105,6 +105,7 @@ const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
 const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
+const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
 const LONG_NATIVE_LIST_RENDER_MIN_ITEMS: usize = 8;
 const MAX_FTML_COMPAT_PARSE_BYTES: usize = 768_000;
 const MAX_FTML_COMPAT_DENSE_PARSE_SCORE: usize = 180_000;
@@ -154,6 +155,9 @@ static RATE_MODULE_REGEX: LazyLock<Regex> =
 static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
 });
+static BACKLINKS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?is)\[\[module\s+Backlinks(?P<head>[^\]]*)\]\]").unwrap()
+});
 static MEMBERS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+Members(?P<head>[^\]]*)\]\]").unwrap()
 });
@@ -165,7 +169,7 @@ static CSS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
+        r#"(?is)<table class="wiki-content-table">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>"#,
     )
     .unwrap()
 });
@@ -616,6 +620,15 @@ impl RenderService {
             ctx,
             wikitext,
             page_info,
+            current_site_id,
+            current_page_id,
+        )
+        .await
+        .or_raise(make_error)?;
+        wikitext = Self::expand_backlinks_modules(
+            ctx,
+            wikitext,
+            settings,
             current_site_id,
             current_page_id,
         )
@@ -3000,6 +3013,116 @@ impl RenderService {
             .into_owned())
     }
 
+    async fn expand_backlinks_modules(
+        ctx: &ServiceContext<'_>,
+        wikitext: String,
+        settings: &WikitextSettings,
+        current_site_id: Option<i64>,
+        current_page_id: Option<i64>,
+    ) -> Result<String> {
+        if !settings.enable_page_syntax || !BACKLINKS_MODULE_REGEX.is_match(&wikitext) {
+            return Ok(wikitext);
+        }
+
+        let (Some(current_site_id), Some(current_page_id)) =
+            (current_site_id, current_page_id)
+        else {
+            return Ok(wikitext);
+        };
+
+        let mut expanded = String::with_capacity(wikitext.len());
+        let mut cursor = 0;
+
+        for captures in BACKLINKS_MODULE_REGEX.captures_iter(&wikitext) {
+            let mtch = captures.get(0).unwrap();
+            expanded.push_str(&wikitext[cursor..mtch.start()]);
+
+            if Self::is_inside_wikidot_literal_region(&wikitext, mtch.start()) {
+                expanded.push_str(mtch.as_str());
+                cursor = mtch.end();
+                continue;
+            }
+
+            let head = captures.name("head").map_or("", |mtch| mtch.as_str());
+            if !head.trim().is_empty() {
+                expanded.push_str(mtch.as_str());
+                cursor = mtch.end();
+                continue;
+            }
+
+            let pages =
+                Self::load_backlinks_module_pages(ctx, current_site_id, current_page_id)
+                    .await?;
+            expanded.push_str(&render_backlinks_module_box(&pages));
+            cursor = mtch.end();
+        }
+
+        expanded.push_str(&wikitext[cursor..]);
+        Ok(expanded)
+    }
+
+    async fn load_backlinks_module_pages(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+    ) -> Result<Vec<BacklinksModulePage>> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to load Backlinks module rows for page ID {} in site ID {}",
+                    current_page_id, current_site_id,
+                ),
+                ErrorType::Render,
+            )
+        };
+        let txn = ctx.transaction();
+        let statement = Statement::from_string(
+            txn.get_database_backend(),
+            format!(
+                "SELECT p.page_id, p.page_category_id, p.slug, pr.title \
+                 FROM page_connection pc \
+                 JOIN page p ON p.page_id = pc.from_page_id \
+                 JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
+                 WHERE pc.to_page_id = {current_page_id} \
+                   AND pc.connection_type = 'link' \
+                   AND p.site_id = {current_site_id} \
+                   AND p.deleted_at IS NULL \
+                 ORDER BY lower(pr.title), p.slug \
+                 LIMIT {MAX_BACKLINKS_MODULE_ROWS}",
+            ),
+        );
+
+        let rows = BacklinksModulePage::find_by_statement(statement)
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        let mut viewable = Vec::with_capacity(rows.len());
+        for row in rows {
+            let anonymously_viewable = PermissionService::check_user_can(
+                ctx,
+                &CheckPermissionContext {
+                    user_id: None,
+                    site_id: current_site_id,
+                    page_reference: Some(Reference::Id(row.page_id)),
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(row.page_category_id)),
+                    action: Action::View,
+                },
+            )
+            .await
+            .or_raise(make_error)?;
+
+            if anonymously_viewable {
+                viewable.push(row);
+            }
+        }
+
+        Ok(viewable)
+    }
+
     async fn load_tag_cloud_counts(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
@@ -3104,6 +3227,7 @@ impl RenderService {
                     captures[0]
                         .replace(r#" data-wikijump-compat-list="1""#, "")
                         .replace(r#" data-wikijump-compat-members="1""#, "")
+                        .replace(r#" data-wikijump-compat-backlinks="1""#, "")
                         .replace(r#" data-wikijump-compat-new-page="1""#, ""),
                 );
                 marker
@@ -5263,6 +5387,14 @@ struct ListPagesSnapshotDisplay {
     comments: i32,
     commented_at: Option<time::OffsetDateTime>,
     commented_by_name: Option<String>,
+}
+
+#[derive(Debug, FromQueryResult)]
+struct BacklinksModulePage {
+    page_id: i64,
+    page_category_id: i64,
+    slug: String,
+    title: String,
 }
 
 #[derive(Debug)]
@@ -7539,6 +7671,23 @@ fn wikidot_module_argument<'a>(head: &'a str, name: &str) -> Option<&'a str> {
     }
 
     None
+}
+
+fn render_backlinks_module_box(pages: &[BacklinksModulePage]) -> String {
+    let mut output = String::from(
+        "\n<div class=\"backlinks-module-box\" data-wikijump-compat-backlinks=\"1\"><ul>",
+    );
+
+    for page in pages {
+        output.push_str(r#"<li><a href="/"#);
+        output.push_str(&escape_list_pages_html_attr(&page.slug));
+        output.push_str(r#"">"#);
+        output.push_str(&escape_list_pages_html_text(&page.title));
+        output.push_str("</a></li>");
+    }
+
+    output.push_str("</ul></div>\n");
+    output
 }
 
 fn render_members_module_placeholder(group: &str) -> String {
