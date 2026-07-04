@@ -1,4 +1,4 @@
-const WIKIDOT_SITES_WITH_SITE_WATCH_TEXT = new Set(["sandbox-for-codex"])
+import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 
 /**
  * @typedef {object} WikidotPageWatchLabel
@@ -11,12 +11,25 @@ const WIKIDOT_SITES_WITH_SITE_WATCH_TEXT = new Set(["sandbox-for-codex"])
  * @param {{
  *   sourceSite?: string | null
  *   hasSession?: boolean
+ *   locale?: string | null
  * }} input
  * @returns {WikidotPageWatchLabel | null}
  */
-export const buildWikidotPageWatchLabel = ({ sourceSite, hasSession = false }) => {
-  if (!hasSession || !WIKIDOT_SITES_WITH_SITE_WATCH_TEXT.has(sourceSite ?? "")) {
+export const buildWikidotPageWatchLabel = ({
+  sourceSite,
+  hasSession = false,
+  locale = "en"
+}) => {
+  if (!hasSession || !sourceSite) {
     return null
+  }
+
+  if (isJapaneseWikidotLocale(locale)) {
+    return {
+      label: "このサイトのウォッチングを終了",
+      helpLabel: "?",
+      helpHref: "http://www.wikidot.com/faq:watching"
+    }
   }
 
   return {

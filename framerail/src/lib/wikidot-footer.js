@@ -75,15 +75,26 @@ export const formatWikidotLicenseName = (licenseName, locale = "en") => {
  *   licenseName?: string | null
  *   licenseUrl?: string | null
  *   locale?: string | null
+ *   sourceSite?: string | null
  * }} input
  * @returns {string}
  */
-export const buildWikidotLicenseHtml = ({ licenseName, licenseUrl, locale = "en" }) => {
+export const buildWikidotLicenseHtml = ({
+  licenseName,
+  licenseUrl,
+  locale = "en",
+  sourceSite = null
+}) => {
   const effectiveLocale = locale ?? "en"
   const name = escapeHtml(formatWikidotLicenseName(licenseName, effectiveLocale))
+  const englishName = escapeHtml(formatWikidotLicenseName(licenseName, "en"))
   const url = escapeHtml(licenseUrl || "/")
 
   if (isJapaneseWikidotLocale(effectiveLocale)) {
+    if (sourceSite && sourceSite !== "scp-jp") {
+      return `特に明記しない限り、このページのコンテンツは次のライセンスの下にあります: <a href="${url}">${englishName}</a>`
+    }
+
     return `特に指定がない限り、このサイトのすべてのコンテンツは<a href="${url}">${name}</a> の元で利用可能です。`
   }
 

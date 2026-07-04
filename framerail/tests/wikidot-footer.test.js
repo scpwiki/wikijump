@@ -64,6 +64,18 @@ test("formats Japanese Wikidot license wording for SCP-JP", () => {
   )
 })
 
+test("formats Japanese non-SCP-JP Wikidot license wording from page scope", () => {
+  assert.equal(
+    buildWikidotLicenseHtml({
+      licenseName: "Creative Commons Attribution-ShareAlike 3.0",
+      licenseUrl: "https://example.invalid/license",
+      locale: "ja",
+      sourceSite: "scpaiueouiuiuiui"
+    }),
+    '特に明記しない限り、このページのコンテンツは次のライセンスの下にあります: <a href="https://example.invalid/license">Creative Commons Attribution-ShareAlike 3.0 License</a>'
+  )
+})
+
 test("selects Wikidot footer branding only for imported Wikidot views", () => {
   assert.equal(isImportedWikidotView(null), false)
   assert.equal(isImportedWikidotView({ site: { from_wikidot: false } }), false)

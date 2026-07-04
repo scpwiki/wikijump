@@ -55,7 +55,8 @@
     buildWikidotLicenseHtml({
       licenseName: page.data?.license_name ?? page.error?.license_name,
       licenseUrl: page.data?.license_url ?? page.error?.license_url,
-      locale: wikidotLocale
+      locale: wikidotLocale,
+      sourceSite: page.data?.wikidot_snapshot?.source_site
     })
   )
   const viewData = $derived(page.data ?? page.error)
@@ -148,7 +149,14 @@
     {/snippet}
 
     {#snippet loginStatus()}
-      {#if !useSandboxWikidotChrome && !(page.data?.user_session ?? page.error?.user_session)}
+      {#if isImportedWikidotLayout && !useSandboxWikidotChrome && wikidotSessionUserName}
+        <div id="login-status">
+          <span class="printuser">{wikidotSessionUserName}</span>
+          <span> | </span>
+          <span>My account</span>
+          <span> ▼</span>
+        </div>
+      {:else if !useSandboxWikidotChrome && !(page.data?.user_session ?? page.error?.user_session)}
         <div id="login-status">
           <a class="login-status-create-account btn" href={resolve("/-/register", {})}
             >{wikidotLoginLabels.createAccount}</a

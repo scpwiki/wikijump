@@ -268,12 +268,13 @@ export async function loadPage(
         comments: wikidotSnapshot?.comments ?? null,
         locale: siteLocale,
         showRate: sourceShowsStandardActions,
-        showDiscuss: sourceShowsStandardActions
+        showDiscuss: sourceShowsStandardActions && wikidotSnapshot?.comments !== 0
       })
 
       wikidotPageWatch = buildWikidotPageWatchLabel({
         sourceSite: wikidotSnapshot?.source_site,
-        hasSession: !!parentData.user_session
+        hasSession: !!parentData.user_session,
+        locale: siteLocale
       })
     }
   }
