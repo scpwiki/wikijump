@@ -4829,23 +4829,12 @@ async fn countpages_with_limit_defaults_to_current_category() {
 }
 
 #[tokio::test]
-async fn countpages_without_limit_remains_literal() {
+async fn countpages_without_limit_or_static_filter_remains_literal() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
     let category_slug = "countpages-no-limit-literal";
-    let tag = "verification-count-no-limit-literal";
-    let target_slug = format!("{category_slug}:target");
-    let revision = create_listpages_test_page(
-        &mut runner,
-        site_id,
-        &target_slug,
-        "Fixture CountPages No Limit Target",
-        "Fixture CountPages no-limit target marker.",
-    )
-    .await;
-    set_listpages_test_tags(&mut runner, site_id, &target_slug, revision, &[tag]).await;
 
     let index_slug = format!("{category_slug}:index");
     create_listpages_test_page(
@@ -4853,9 +4842,7 @@ async fn countpages_without_limit_remains_literal() {
         site_id,
         &index_slug,
         "Fixture CountPages No Limit Literal Index",
-        &format!(
-            "CountPages no-limit marker.\n\n[[module CountPages tags=\"+{tag}\"]]\nNO_LIMIT_COUNT=%%total%%\n[[/module]]"
-        ),
+        "CountPages no-limit marker.\n\n[[module CountPages]]\nNO_LIMIT_COUNT=%%total%%\n[[/module]]",
     )
     .await;
 
@@ -4879,11 +4866,68 @@ async fn countpages_without_limit_remains_literal() {
         html.contains("NO_LIMIT_COUNT=%%total%%")
             || html.contains("[[module CountPages")
             || html.contains("module CountPages"),
-        "CountPages without an explicit limit should remain literal/degraded:\n{html}"
+        "CountPages without an explicit limit or static filter should remain literal/degraded:\n{html}"
     );
     assert!(
         !html.contains("NO_LIMIT_COUNT=1"),
-        "CountPages without an explicit limit must not run an unbounded partial count:\n{html}"
+        "CountPages without an explicit limit or static filter must not run an unbounded partial count:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn countpages_static_tag_filter_without_limit_substitutes_total() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category_slug = "countpages-no-limit-static";
+    let tag = "verification-count-no-limit-static";
+    let target_slug = format!("{category_slug}:target");
+    let revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &target_slug,
+        "Fixture CountPages No Limit Static Target",
+        "Fixture CountPages no-limit static target marker.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, &target_slug, revision, &[tag]).await;
+
+    let index_slug = format!("{category_slug}:index");
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &index_slug,
+        "Fixture CountPages No Limit Static Index",
+        &format!(
+            "CountPages static no-limit marker.\n\n[[module CountPages tags=\"+{tag}\"]]\nSTATIC_NO_LIMIT_COUNT=%%total%%\n[[/module]]"
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("CountPages static no-limit index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("STATIC_NO_LIMIT_COUNT=1"),
+        "CountPages with a static tag filter and no explicit limit should substitute the bounded total:\n{html}"
+    );
+    assert!(
+        !html.contains("[[module CountPages") && !html.contains("%%total%%"),
+        "CountPages static-filter fixture should render completely:\n{html}"
     );
 }
 
