@@ -1,0 +1,84 @@
+import { strict as assert } from 'node:assert';
+import test from 'node:test';
+
+import {
+  applyThreshold,
+  buildImportHealthVerdict,
+  classifyFailure,
+  parseImportLog,
+  IMPORT_HEALTH_SCHEMA,
+} from '../src/import-health.mjs';
+
+test('classifyFailure maps known error shapes', () => {
+  assert.equal(
+    classifyFailure('page_create failed: {"code":3106,"message":"User does not have permission"}'),
+    'auth-context-missing',
+  );
+  assert.equal(
+    classifyFailure('page_create failed: ... include expansion exceeded maximum depth 8 ...'),
+    'include-depth-exceeded',
+  );
+  assert.equal(classifyFailure('page_create timed out after 120000ms'), 'render-timeout');
+  assert.equal(
+    classifyFailure('created page not found after page_create: art:re:goi-arts'),
+    'page-missing-after-create',
+  );
+  assert.equal(classifyFailure('page_create failed: something novel'), 'rpc-error');
+  assert.equal(classifyFailure('totally unknown breakage'), null);
+});
+
+test('parseImportLog reads JSONL rows and multi-line summary', () => {
+  const log = [
+    '{"slug":"a","action":"created","page_id":1}',
+    '{"slug":"b","action":"failed","error":"page_create timed out after 120000ms"}',
+    '{',
+    ' "summary": { "created": 1, "failed": 1 }',
+    '}',
+  ].join('\n');
+  const { rows, summary } = parseImportLog(log);
+  assert.equal(rows.length, 2);
+  assert.deepEqual(summary, { created: 1, failed: 1 });
+});
+
+test('verdict counts done/failed and classifies failures', () => {
+  const rows = [
+    { slug: 'a', action: 'created' },
+    { slug: 'b', action: 'skipped_existing_done' },
+    { slug: 'c', action: 'collision_existing_page' },
+    { slug: 'd', action: 'failed', error: 'include expansion exceeded maximum depth 8' },
+  ];
+  const { verdict, exitCode } = buildImportHealthVerdict({ runId: 'r', family: 'EN', rows });
+  assert.equal(verdict.schema, IMPORT_HEALTH_SCHEMA);
+  assert.equal(verdict.aggregate.rows_total, 4);
+  assert.equal(verdict.aggregate.rows_done, 3);
+  assert.equal(verdict.aggregate.import_rate, 0.75);
+  assert.equal(verdict.aggregate.failure_counts['include-depth-exceeded'], 1);
+  assert.equal(verdict.aggregate.unclassified, 0);
+  assert.equal(exitCode, 0);
+});
+
+test('unclassified failure forces exit 2', () => {
+  const rows = [{ slug: 'x', action: 'failed', error: 'mystery' }];
+  const { verdict, exitCode } = buildImportHealthVerdict({ runId: 'r', family: 'EN', rows });
+  assert.equal(exitCode, 2);
+  assert.equal(verdict.failures[0].code, 'unclassified');
+});
+
+test('snapshot-mismatch collision is a classified failure, not done', () => {
+  const rows = [{ slug: 'x', action: 'collision_existing_snapshot_mismatch' }];
+  const { verdict, exitCode } = buildImportHealthVerdict({ runId: 'r', family: 'EN', rows });
+  assert.equal(verdict.aggregate.rows_done, 0);
+  assert.equal(verdict.aggregate.failure_counts['collision-snapshot-mismatch'], 1);
+  assert.equal(exitCode, 0);
+});
+
+test('threshold gate', () => {
+  const rows = [
+    { slug: 'a', action: 'created' },
+    { slug: 'b', action: 'failed', error: 'page_create timed out after 1ms' },
+  ];
+  const { verdict } = buildImportHealthVerdict({ runId: 'r', family: 'EN', rows });
+  assert.equal(applyThreshold(verdict, 0.9), 1);
+  assert.equal(applyThreshold(verdict, 0.5), 0);
+  assert.equal(applyThreshold(verdict, null), 0);
+});
