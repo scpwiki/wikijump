@@ -83,10 +83,14 @@ function recordsByFixture(recordsJson) {
   return byFixture;
 }
 
-function frozenRecordFor(pair) {
+function frozenRecordFor(pair, catalogDir) {
+  // evidence_directory may be relative to the catalog file (CI subset) or absolute.
+  const evidenceDir = pair.evidence_directory
+    ? path.resolve(catalogDir, pair.evidence_directory)
+    : null;
   const recordsPath =
     pair.artifacts?.find((a) => a.name === 'records.json')?.dest_path ??
-    (pair.evidence_directory ? path.join(pair.evidence_directory, 'records.json') : null);
+    (evidenceDir ? path.join(evidenceDir, 'records.json') : null);
   if (!recordsPath || !fs.existsSync(recordsPath)) return null;
   const records = JSON.parse(fs.readFileSync(recordsPath, 'utf8'));
   return recordsByFixture(records).get(pair.fixture_id) ?? null;
@@ -103,8 +107,9 @@ function main() {
 
   const pairs = [];
   const skipped = [];
+  const catalogDir = path.dirname(path.resolve(args.pairs));
   for (const pair of catalog.pairs ?? []) {
-    const frozen = frozenRecordFor(pair);
+    const frozen = frozenRecordFor(pair, catalogDir);
     if (!frozen) {
       skipped.push({ fixture_id: pair.fixture_id, reason: 'frozen records.json missing or fixture absent' });
       continue;

@@ -1,0 +1,39 @@
+{
+ "schema": "wikijump_local_lab.golden_pairs_ci_subset.v1",
+ "note": "Slim visible-text-only subset of the golden-pairs catalog for CI comparator self-checks. Full evidence stays in the shared-artifacts root.",
+ "pairs": [
+  {
+   "fixture_id": "EN:01092025",
+   "family": "EN",
+   "slug": "01092025",
+   "expected_verdict": "match",
+   "evidence_directory": "evidence/EN_01092025",
+   "provenance": {
+    "copied_from": "/home/roku/codex-thread-workspaces/wikijump-shared-artifacts/golden-pairs-20260705/evidence/EN_01092025",
+    "catalog": "golden-pairs-20260705"
+   }
+  },
+  {
+   "fixture_id": "EN:04-23-87",
+   "family": "EN",
+   "slug": "04-23-87",
+   "expected_verdict": "match",
+   "evidence_directory": "evidence/EN_04-23-87",
+   "provenance": {
+    "copied_from": "/home/roku/codex-thread-workspaces/wikijump-shared-artifacts/golden-pairs-20260705/evidence/EN_04-23-87",
+    "catalog": "golden-pairs-20260705"
+   }
+  },
+  {
+   "fixture_id": "EN:0-texts-found",
+   "family": "EN",
+   "slug": "0-texts-found",
+   "expected_verdict": "regression",
+   "evidence_directory": "evidence/EN_0-texts-found",
+   "provenance": {
+    "copied_from": "/home/roku/codex-thread-workspaces/wikijump-shared-artifacts/golden-pairs-20260705/evidence/EN_0-texts-found",
+    "catalog": "golden-pairs-20260705"
+   }
+  }
+ ]
+}
