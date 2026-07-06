@@ -193,6 +193,79 @@ test('buildCorpusImportManifest includes validated per-page corpus attachments',
   assert.equal(summary.attachment_page_count, 1);
 });
 
+test('buildCorpusImportManifest reads files/_state.json capture-state attachment manifests', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  const bytes = Buffer.from([5, 6, 7, 8, 9]);
+  writePage(root, 'en', 'theme:pataphysics', {
+    entityId: '14141414-1414-4141-8141-141414141414',
+  });
+  const pageDir = path.join(root, 'en', 'pages', 'theme:pataphysics');
+  const filesDir = path.join(pageDir, 'files');
+  fs.mkdirSync(filesDir, { recursive: true });
+  fs.writeFileSync(path.join(filesDir, 'pata-logo.png'), bytes);
+  fs.writeFileSync(
+    path.join(filesDir, '_state.json'),
+    `${JSON.stringify({
+      files: {
+        'pata-logo.png': {
+          download_url: 'http://scp-wiki.wdfiles.com/local--files/theme%3Apataphysics/pata-logo.png',
+          mime_type: 'image/png',
+          sha256: `sha256:${cryptoSha256(bytes)}`,
+          size: bytes.length,
+          uploaded_at: '2020-01-01T00:00:00+00:00',
+        },
+      },
+    }, null, 2)}\n`,
+  );
+
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].attachments.length, 1);
+  assert.deepEqual(rows[0].attachments[0], {
+    filename: 'pata-logo.png',
+    original_url: 'http://scp-wiki.wdfiles.com/local--files/theme%3Apataphysics/pata-logo.png',
+    wikidot_path: '/local--files/theme%3Apataphysics/pata-logo.png',
+    sha256: cryptoSha256(bytes),
+    size: bytes.length,
+    mime: 'image/png',
+    file_path: path.join(filesDir, 'pata-logo.png'),
+    corpus_path: 'en/pages/theme:pataphysics/files/pata-logo.png',
+    metadata_path: path.join(filesDir, '_state.json'),
+  });
+});
+
+test('files.json takes precedence over files/_state.json when both exist', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  const bytes = Buffer.from([1, 2, 3, 4]);
+  writePage(root, 'en', 'scp-173', {
+    entityId: '15151515-1515-4151-8151-151515151515',
+  });
+  writePageAttachment(root, 'en', 'scp-173', {
+    filename: 'pixel.png',
+    bytes,
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+  });
+  fs.writeFileSync(
+    path.join(root, 'en', 'pages', 'scp-173', 'files', '_state.json'),
+    JSON.stringify({ files: { 'other.png': { download_url: 'not-a-url' } } }),
+  );
+
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  assert.equal(rows[0].attachments.length, 1);
+  assert.equal(rows[0].attachments[0].filename, 'pixel.png');
+});
+
 test('buildCorpusImportManifest rejects attachment byte hash mismatches', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
   writePage(root, 'en', 'scp-173', {

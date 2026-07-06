@@ -31,6 +31,7 @@ const SOURCE_BROWSER_VISIBILITIES = new Set([
   'fail_closed',
 ]);
 const ATTACHMENT_MANIFEST_FILENAME = 'files.json';
+const ATTACHMENT_STATE_MANIFEST_FILENAME = '_state.json';
 const ATTACHMENT_FILES_DIRECTORY = 'files';
 const SHA256_RE = /^[0-9a-f]{64}$/iu;
 
@@ -396,10 +397,59 @@ function validateAttachmentEntry(entry, index, rowPath) {
   }
 }
 
+// Convert a capture-state attachment manifest (files/_state.json, the
+// source-bundle spec format: {"files": {"<filename>": {download_url,
+// mime_type, sha256, size, ...}}}) into files.json-shaped entries so both
+// formats flow through the same validation below.
+function attachmentEntriesFromStateManifest(statePath) {
+  const state = readJson(statePath);
+  if (state === null || typeof state !== 'object' || Array.isArray(state)) {
+    throw new Error(`${statePath}: state manifest must be an object`);
+  }
+  const files = state.files ?? {};
+  if (files === null || typeof files !== 'object' || Array.isArray(files)) {
+    throw new Error(`${statePath}: state manifest "files" must be an object`);
+  }
+  return Object.entries(files).map(([filename, record]) => {
+    if (record === null || typeof record !== 'object' || Array.isArray(record)) {
+      throw new Error(`${statePath}: state entry for ${filename} must be an object`);
+    }
+    const downloadUrl = record.download_url;
+    if (typeof downloadUrl !== 'string' || downloadUrl.length === 0) {
+      throw new Error(`${statePath}: state entry for ${filename} is missing download_url`);
+    }
+    let wikidotPath;
+    try {
+      wikidotPath = new URL(downloadUrl).pathname;
+    } catch (error) {
+      throw new Error(`${statePath}: state entry for ${filename} has invalid download_url`, { cause: error });
+    }
+    const sha256 = typeof record.sha256 === 'string'
+      ? record.sha256.replace(/^sha256:/, '')
+      : record.sha256;
+    return {
+      filename,
+      original_url: downloadUrl,
+      wikidot_path: wikidotPath,
+      path: `files/${filename}`,
+      sha256,
+      mime: record.mime_type,
+      size: record.size,
+    };
+  });
+}
+
 function readAttachmentManifest({ pageDir, manifestRoot, rowPath }) {
-  const manifestPath = path.join(pageDir, ATTACHMENT_MANIFEST_FILENAME);
-  if (!fs.existsSync(manifestPath)) return [];
-  const manifest = readJson(manifestPath);
+  let manifestPath = path.join(pageDir, ATTACHMENT_MANIFEST_FILENAME);
+  let manifest;
+  if (fs.existsSync(manifestPath)) {
+    manifest = readJson(manifestPath);
+  } else {
+    const statePath = path.join(pageDir, 'files', ATTACHMENT_STATE_MANIFEST_FILENAME);
+    if (!fs.existsSync(statePath)) return [];
+    manifestPath = statePath;
+    manifest = attachmentEntriesFromStateManifest(statePath);
+  }
   if (!Array.isArray(manifest)) {
     throw new Error(`${manifestPath}: attachment manifest must be an array`);
   }
