@@ -69,6 +69,8 @@ test("builds styleFrame parent injection for theme stylesheets", () => {
   assert.match(html, /wikidot-style-theme-count" content="2"/)
   assert.match(html, /window\.parent\.document/)
   assert.match(html, /head\.insertBefore\(element, laterStyle\)/)
+  assert.match(html, /restoreStyleFrameOrder/)
+  assert.match(html, /head\.appendChild\(node\)/)
   assert.match(html, /cdn\.scpwiki\.com\/theme\/en\/basalt\/basalt-bedrock-min\.css/)
   assert.match(html, /scp-wiki\.wjfiles\.localhost\/local--code\/theme%3Abasalt\/1/)
   assert.doesNotMatch(html, /<style>\{\$css\}<\/style>/)
