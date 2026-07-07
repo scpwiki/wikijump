@@ -54,6 +54,32 @@ export function parseViewport(value) {
   return {width, height};
 }
 
+export function layoutShiftSourceAttributionFromSnapshot(snapshot = {}) {
+  const tag = normalizedTag(snapshot.tag);
+  const id = boundedString(snapshot.id, 120);
+  const classes = normalizedClassList(snapshot.classes);
+  const role = boundedString(snapshot.role, 120);
+  const ariaLabel = boundedString(snapshot.aria_label ?? snapshot.ariaLabel, 120);
+  const alt = boundedString(snapshot.alt, 160);
+  const src = boundedString(snapshot.src, 240);
+  const href = boundedString(snapshot.href, 240);
+  const text = compactSourceText(snapshot.text, 80);
+  const selectorHint = selectorHintFromParts({tag, id, classes, src, href});
+
+  return {
+    tag,
+    selector_hint: selectorHint,
+    id,
+    classes,
+    role,
+    aria_label: ariaLabel,
+    alt,
+    src,
+    href,
+    text,
+  };
+}
+
 export async function collectElementDiagnostics(
   page,
   descriptors = DEFAULT_SCP9506_DESCRIPTORS,
@@ -160,7 +186,7 @@ export async function installLayoutShiftObserver(page) {
             value: entry.value,
             startTime: entry.startTime,
             sources: (entry.sources ?? []).map((source) => ({
-              node: source.node?.tagName ?? null,
+              ...sourceAttribution(source.node),
               previousRect: rect(source.previousRect),
               currentRect: rect(source.currentRect),
             })),
@@ -180,6 +206,113 @@ export async function installLayoutShiftObserver(page) {
         width: value.width,
         height: value.height,
       };
+    }
+
+    function sourceAttribution(node) {
+      const snapshot = sourceSnapshot(node);
+      const tag = normalizedTag(snapshot.tag);
+      const id = boundedString(snapshot.id, 120);
+      const classes = normalizedClassList(snapshot.classes);
+      const role = boundedString(snapshot.role, 120);
+      const ariaLabel = boundedString(snapshot.aria_label, 120);
+      const alt = boundedString(snapshot.alt, 160);
+      const src = boundedString(snapshot.src, 240);
+      const href = boundedString(snapshot.href, 240);
+      const text = compactSourceText(snapshot.text, 80);
+      return {
+        tag,
+        selector_hint: selectorHintFromParts({tag, id, classes, src, href}),
+        id,
+        classes,
+        role,
+        aria_label: ariaLabel,
+        alt,
+        src,
+        href,
+        text,
+      };
+    }
+
+    function sourceSnapshot(node) {
+      if (!node || node.nodeType !== 1) {
+        return {};
+      }
+      const element = node;
+      return {
+        tag: element.tagName,
+        id: element.id,
+        classes: Array.from(element.classList ?? []),
+        role: element.getAttribute("role"),
+        aria_label: element.getAttribute("aria-label"),
+        alt: element.getAttribute("alt"),
+        src: element.currentSrc || element.src || element.getAttribute("src"),
+        href: element.href || element.getAttribute("href"),
+        text: element.innerText || element.textContent,
+      };
+    }
+
+    function normalizedTag(value) {
+      const tag = boundedString(value, 80);
+      return tag ? tag.toLowerCase() : null;
+    }
+
+    function normalizedClassList(value) {
+      const raw = Array.isArray(value) ? value : String(value ?? "").split(/\s+/u);
+      return raw.map(cssToken).filter(Boolean).slice(0, 6);
+    }
+
+    function selectorHintFromParts({tag, id, classes = [], src, href}) {
+      let hint = tag || "node";
+      const safeId = cssToken(id);
+      if (safeId) {
+        return `${hint}#${safeId}`;
+      }
+      for (const className of classes.slice(0, 3)) {
+        hint += `.${className}`;
+      }
+      const localPath = localFilesPath(src);
+      if (localPath) {
+        hint += `[src*="${localPath}"]`;
+      } else {
+        const hrefPath = localFilesPath(href) ?? urlPath(href);
+        if (hrefPath) hint += `[href*="${hrefPath}"]`;
+      }
+      return hint;
+    }
+
+    function compactSourceText(value, maxLength) {
+      const text = boundedString(value, maxLength);
+      return text ? text.replace(/\s+/gu, " ").trim().slice(0, maxLength) : null;
+    }
+
+    function boundedString(value, maxLength) {
+      const text = String(value ?? "").replace(/\s+/gu, " ").trim();
+      return text ? text.slice(0, maxLength) : null;
+    }
+
+    function cssToken(value) {
+      const token = boundedString(value, 80);
+      if (!token) return null;
+      return token.replace(/\s+/gu, "-").replace(/[^a-zA-Z0-9_-]/gu, "") || null;
+    }
+
+    function localFilesPath(value) {
+      const path = urlPath(value);
+      if (!path) return null;
+      const index = path.indexOf("/local--files/");
+      return index >= 0 ? path.slice(index).replace(/["\\]/gu, "") : null;
+    }
+
+    function urlPath(value) {
+      const text = boundedString(value, 240);
+      if (!text) return null;
+      try {
+        const parsed = new URL(text, "https://local.invalid");
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+        return parsed.pathname.replace(/["\\]/gu, "");
+      } catch {
+        return text.split(/[?#]/u)[0].replace(/["\\]/gu, "");
+      }
     }
   });
 }
@@ -308,4 +441,68 @@ function firstInstance(diagnostics, name) {
 
 function allInstances(diagnostics, name) {
   return (diagnostics.elements ?? []).find((item) => item.name === name)?.instances ?? [];
+}
+
+function normalizedTag(value) {
+  const tag = boundedString(value, 80);
+  return tag ? tag.toLowerCase() : null;
+}
+
+function normalizedClassList(value) {
+  const raw = Array.isArray(value) ? value : String(value ?? "").split(/\s+/u);
+  return raw.map(cssToken).filter(Boolean).slice(0, 6);
+}
+
+function selectorHintFromParts({tag, id, classes = [], src, href}) {
+  let hint = tag || "node";
+  const safeId = cssToken(id);
+  if (safeId) {
+    return `${hint}#${safeId}`;
+  }
+  for (const className of classes.slice(0, 3)) {
+    hint += `.${className}`;
+  }
+  const localPath = localFilesPath(src);
+  if (localPath) {
+    hint += `[src*="${localPath}"]`;
+  } else {
+    const hrefPath = localFilesPath(href) ?? urlPath(href);
+    if (hrefPath) hint += `[href*="${hrefPath}"]`;
+  }
+  return hint;
+}
+
+function compactSourceText(value, maxLength) {
+  const text = boundedString(value, maxLength);
+  return text ? text.replace(/\s+/gu, " ").trim().slice(0, maxLength) : null;
+}
+
+function boundedString(value, maxLength) {
+  const text = String(value ?? "").replace(/\s+/gu, " ").trim();
+  return text ? text.slice(0, maxLength) : null;
+}
+
+function cssToken(value) {
+  const token = boundedString(value, 80);
+  if (!token) return null;
+  return token.replace(/\s+/gu, "-").replace(/[^a-zA-Z0-9_-]/gu, "") || null;
+}
+
+function localFilesPath(value) {
+  const path = urlPath(value);
+  if (!path) return null;
+  const index = path.indexOf("/local--files/");
+  return index >= 0 ? path.slice(index).replace(/["\\]/gu, "") : null;
+}
+
+function urlPath(value) {
+  const text = boundedString(value, 240);
+  if (!text) return null;
+  try {
+    const parsed = new URL(text, "https://local.invalid");
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    return parsed.pathname.replace(/["\\]/gu, "");
+  } catch {
+    return text.split(/[?#]/u)[0].replace(/["\\]/gu, "");
+  }
 }
