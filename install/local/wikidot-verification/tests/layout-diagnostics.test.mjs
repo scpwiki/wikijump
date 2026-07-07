@@ -6,6 +6,7 @@ import {
   DEFAULT_SCP9506_DESCRIPTORS,
   collectElementDiagnostics,
   evaluateLayoutInvariants,
+  layoutShiftSourceAttributionFromSnapshot,
   parseViewport,
 } from "../src/layout-diagnostics.mjs";
 
@@ -114,6 +115,52 @@ test("default scp-9506 descriptors and computed styles include planned LD1 probe
   assert.ok(DEFAULT_SCP9506_DESCRIPTORS.some((item) => item.selector.includes("/local--files/scp-9506/")));
   assert.ok(DEFAULT_COMPUTED_STYLE_WHITELIST.includes("display"));
   assert.ok(DEFAULT_COMPUTED_STYLE_WHITELIST.includes("--logo"));
+});
+
+test("layoutShiftSourceAttributionFromSnapshot records compact image source hints", () => {
+  const source = layoutShiftSourceAttributionFromSnapshot({
+    tag: "IMG",
+    id: "",
+    classes: ["image", "crom-thumbnail", "extra-one", "extra-two"],
+    alt: "NFSI",
+    src: "https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png?cache=1",
+    text: "",
+  });
+
+  assert.equal(source.tag, "img");
+  assert.deepEqual(source.classes, ["image", "crom-thumbnail", "extra-one", "extra-two"]);
+  assert.equal(source.alt, "NFSI");
+  assert.equal(source.src, "https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png?cache=1");
+  assert.equal(source.selector_hint, 'img.image.crom-thumbnail.extra-one[src*="/local--files/scp-9506/NFSI.png"]');
+});
+
+test("layoutShiftSourceAttributionFromSnapshot prefers ids and keeps text bounded", () => {
+  const source = layoutShiftSourceAttributionFromSnapshot({
+    tag: "DIV",
+    id: "page-content",
+    classes: ["content-panel", "unused"],
+    role: "main",
+    ariaLabel: "Article body",
+    text: `The quick brown fox jumps over the lazy dog. ${"Repeated ".repeat(20)}`,
+  });
+
+  assert.equal(source.selector_hint, "div#page-content");
+  assert.equal(source.role, "main");
+  assert.equal(source.aria_label, "Article body");
+  assert.ok(source.text.length <= 80);
+  assert.ok(source.text.startsWith("The quick brown fox"));
+});
+
+test("layoutShiftSourceAttributionFromSnapshot does not turn javascript hrefs into selector hints", () => {
+  const source = layoutShiftSourceAttributionFromSnapshot({
+    tag: "A",
+    href: "javascript:;",
+    text: "COMMUNITY",
+  });
+
+  assert.equal(source.selector_hint, "a");
+  assert.equal(source.href, "javascript:;");
+  assert.equal(source.text, "COMMUNITY");
 });
 
 function element(name, rendered, text, overrides = {}) {
