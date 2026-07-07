@@ -112,6 +112,67 @@ test('ledger entry converts regression to accepted-diff', () => {
   assert.deepEqual(pair.ledger_refs, ['visible_text_difference:EN:chrome-words']);
 });
 
+test('granular visible-text ledger accepts exact source/local text edits', () => {
+  const ledger = [
+    {
+      category: 'visible_text_difference',
+      scope: 'EN:scp-9506-navside-source-freshness-20260708',
+      policy_reason: 'frozen live capture predates current corpus nav:side',
+      fixture_ids: ['EN:scp-9506'],
+      source_text: 'X OTHER SCP',
+      local_text: 'X Lost Series OTHER SCP',
+    },
+    {
+      category: 'visible_text_difference',
+      scope: 'EN:scp-9506-rating-source-freshness-20260708',
+      policy_reason: 'frozen live rating differs from imported corpus snapshot',
+      fixture_ids: ['EN:scp-9506'],
+      source_text: 'RATING: +401 Rate ( +401 ) Discuss (94)',
+      local_text: 'RATING: +371 Rate ( +371 ) Discuss (79)',
+    },
+  ];
+  const pair = comparePair({
+    fixtureId: 'EN:scp-9506',
+    sourceVisibleText: 'SCP BY SERIES IX | X OTHER SCP Explained RATING: +401 Rate ( +401 ) Discuss (94)',
+    localVisibleText: 'SCP BY SERIES IX | X Lost Series OTHER SCP Explained RATING: +371 Rate ( +371 ) Discuss (79)',
+    ledger,
+  });
+
+  assert.equal(pair.verdict, 'accepted-diff');
+  assert.deepEqual(pair.ledger_refs, [
+    'visible_text_difference:EN:scp-9506-navside-source-freshness-20260708',
+    'visible_text_difference:EN:scp-9506-rating-source-freshness-20260708',
+  ]);
+  const finding = pair.findings.find((f) => f.category === 'visible_text_difference');
+  assert.equal(finding.accepted_by_ledger.length, 2);
+});
+
+test('granular visible-text ledger does not accept unlisted differences', () => {
+  const ledger = [
+    {
+      category: 'visible_text_difference',
+      scope: 'EN:scp-9506-navside-source-freshness-20260708',
+      policy_reason: 'frozen live capture predates current corpus nav:side',
+      fixture_ids: ['EN:scp-9506'],
+      source_text: 'X OTHER SCP',
+      local_text: 'X Lost Series OTHER SCP',
+    },
+  ];
+  const pair = comparePair({
+    fixtureId: 'EN:scp-9506',
+    sourceVisibleText: 'SCP BY SERIES IX | X OTHER SCP Explained RATING: +401',
+    localVisibleText: 'SCP BY SERIES IX | X Lost Series OTHER SCP Explained RATING: +371',
+    ledger,
+  });
+
+  assert.equal(pair.verdict, 'regression');
+  assert.deepEqual(pair.ledger_refs, []);
+  const finding = pair.findings.find((f) => f.category === 'visible_text_difference');
+  assert.equal(finding.accepted_by_ledger.length, 1);
+  assert.ok(finding.remaining.source.includes('+401'));
+  assert.ok(finding.remaining.local.includes('+371'));
+});
+
 test('ledger does not apply to other fixtures', () => {
   const ledger = [
     { category: 'visible_text_difference', scope: 's', fixture_ids: ['EN:other'] },
