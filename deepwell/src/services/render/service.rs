@@ -3563,8 +3563,45 @@ impl RenderService {
 
         let source = wikitext.as_str();
         let mut output = String::with_capacity(source.len());
-        let mut index = 0;
         let mut protected_count = 0;
+        let mut in_code_block = false;
+
+        for line in source.split_inclusive('\n') {
+            let marker = line.trim_start().to_ascii_lowercase();
+            let opens_code_block = marker.starts_with("[[code");
+            let closes_code_block = marker.starts_with("[[/code]]");
+
+            if in_code_block || opens_code_block {
+                output.push_str(line);
+                if opens_code_block {
+                    in_code_block = true;
+                }
+                if closes_code_block {
+                    in_code_block = false;
+                }
+                continue;
+            }
+
+            Self::push_wikidot_stray_bibcite_protected_segment(
+                line,
+                &mut output,
+                &mut protected_count,
+            );
+        }
+
+        if protected_count > 0 {
+            *wikitext = output;
+        }
+
+        protected_count
+    }
+
+    fn push_wikidot_stray_bibcite_protected_segment(
+        source: &str,
+        output: &mut String,
+        protected_count: &mut usize,
+    ) {
+        let mut index = 0;
 
         while index < source.len() {
             let remaining = &source[index..];
@@ -3580,7 +3617,7 @@ impl RenderService {
                 output.push_str(&format!(
                     "{WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX}{protected_count}X"
                 ));
-                protected_count += 1;
+                *protected_count += 1;
                 index += "))".len();
                 continue;
             }
@@ -3592,12 +3629,6 @@ impl RenderService {
             output.push(character);
             index += character.len_utf8();
         }
-
-        if protected_count > 0 {
-            *wikitext = output;
-        }
-
-        protected_count
     }
 
     fn wikidot_bibcite_close_start(source: &str) -> Option<usize> {
@@ -8848,6 +8879,33 @@ mod tests {
         assert!(source.contains("((bibcite alpha))"));
         assert!(!source.contains("(a (b))"));
         assert!(!source.contains("((notbibcite beta))"));
+        assert_eq!(
+            RenderService::restore_protected_wikidot_stray_bibcite_closers(
+                source,
+                protected_count,
+            ),
+            original,
+        );
+    }
+
+    #[test]
+    fn does_not_protect_parentheses_inside_wikidot_code_blocks() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let original = concat!(
+            "[[code type=\"css\"]]\n",
+            "#header { background: rgb(var(--header-background-color)) 100%; }\n",
+            "[[/code]]\n",
+            "outside (a (b))",
+        )
+        .to_owned();
+        let mut source = original.clone();
+
+        let protected_count =
+            RenderService::protect_wikidot_stray_bibcite_closers(&mut source, &settings);
+
+        assert_eq!(protected_count, 1);
+        assert!(source.contains("rgb(var(--header-background-color)) 100%"));
+        assert!(!source.contains("rgb(var(--header-background-colorWIKIJUMP"));
         assert_eq!(
             RenderService::restore_protected_wikidot_stray_bibcite_closers(
                 source,

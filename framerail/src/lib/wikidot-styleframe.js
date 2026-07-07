@@ -118,6 +118,20 @@ export const buildWikidotStyleFrameHtml = ({
     const value = Number.parseFloat(node.dataset.wikidotStylePriority || "");
     return Number.isFinite(value) ? value : 0;
   };
+  const restoreStyleFrameOrder = () => {
+    markedStyleNodes()
+      .sort((left, right) => stylePriority(left) - stylePriority(right))
+      .forEach((node) => head.appendChild(node));
+  };
+  const scheduleStyleFrameOrderRestore = () => {
+    setTimeout(restoreStyleFrameOrder, 0);
+    setTimeout(restoreStyleFrameOrder, 250);
+    if (typeof targetDocument.defaultView?.requestAnimationFrame === "function") {
+      targetDocument.defaultView.requestAnimationFrame(() => {
+        targetDocument.defaultView.requestAnimationFrame(restoreStyleFrameOrder);
+      });
+    }
+  };
   const appendMarked = (element, id) => {
     element.dataset.wikidotStyleFrame = marker;
     element.dataset.wikidotStylePriority = priority;
@@ -140,6 +154,7 @@ export const buildWikidotStyleFrameHtml = ({
     style.textContent = css;
     appendMarked(style, "inline-css");
   }
+  scheduleStyleFrameOrderRestore();
 })();`
 
   return `<!doctype html>
