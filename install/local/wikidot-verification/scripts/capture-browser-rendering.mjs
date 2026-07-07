@@ -19,6 +19,7 @@ import {
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_SETTLE_MS = 1_000;
 const POST_NAVIGATION_STATE_TIMEOUT_MS = 2_000;
+const VISIBLE_TEXT_SCOPES = new Set(["all-frames", "main-frame"]);
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 
@@ -39,6 +40,7 @@ function parseArgs(argv) {
     screenshot: true,
     ignoreHttpsErrors: false,
     waitUntil: "domcontentloaded",
+    visibleTextScope: "all-frames",
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -106,6 +108,12 @@ function parseArgs(argv) {
     } else if (arg === "--wait-until") {
       args.waitUntil = nextArg(argv, index, arg);
       index += 1;
+    } else if (arg === "--visible-text-scope") {
+      args.visibleTextScope = nextArg(argv, index, arg);
+      if (!VISIBLE_TEXT_SCOPES.has(args.visibleTextScope)) {
+        throw new Error("--visible-text-scope must be all-frames or main-frame");
+      }
+      index += 1;
     } else if (arg === "--ignore-https-errors") {
       args.ignoreHttpsErrors = true;
     } else if (arg === "--no-screenshot") {
@@ -125,7 +133,7 @@ function parseArgs(argv) {
 }
 
 function printHelpAndExit() {
-  console.log(`Usage: capture-browser-rendering.mjs --inventory FILE --output-dir DIR [--shard-manifest FILE --shard-id ID] [--fixture-id ID ...] [--limit N] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--storage-state FILE | --source-storage-state FILE --local-storage-state FILE] [--actor-label LABEL] [--local-url-field local_https_url] [--timeout-ms 30000] [--settle-ms 1000] [--ignore-https-errors] [--no-screenshot] [--json]
+  console.log(`Usage: capture-browser-rendering.mjs --inventory FILE --output-dir DIR [--shard-manifest FILE --shard-id ID] [--fixture-id ID ...] [--limit N] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--storage-state FILE | --source-storage-state FILE --local-storage-state FILE] [--actor-label LABEL] [--local-url-field local_https_url] [--timeout-ms 30000] [--settle-ms 1000] [--visible-text-scope all-frames|main-frame] [--ignore-https-errors] [--no-screenshot] [--json]
 
 Writes validator-compatible browser rendering evidence JSON plus DOM/screenshot artifacts for selected corpus inventory rows. The output directory should live under one of the render validator evidence roots, for example:
 
@@ -262,8 +270,13 @@ export async function openBrowser({
   }
 }
 
-async function collectVisibleText(page) {
-  const frames = typeof page.frames === "function" ? page.frames() : [page];
+async function collectVisibleText(page, visibleTextScope = "all-frames") {
+  const frames =
+    visibleTextScope === "main-frame"
+      ? [typeof page.mainFrame === "function" ? page.mainFrame() : page]
+      : typeof page.frames === "function"
+        ? page.frames()
+        : [page];
   const texts = [];
   for (const frame of frames) {
     try {
@@ -282,7 +295,7 @@ async function waitForLoadStateWithinBudget(page, state, timeoutMs, startedAt) {
   await page.waitForLoadState(state, {timeout: Math.min(POST_NAVIGATION_STATE_TIMEOUT_MS, remainingMs)}).catch(() => {});
 }
 
-export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = DEFAULT_SETTLE_MS, screenshotPath}) {
+export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = DEFAULT_SETTLE_MS, screenshotPath, visibleTextScope = "all-frames"}) {
   const consoleErrors = [];
   const failedRequests = [];
   const badResponses = [];
@@ -342,7 +355,7 @@ export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = D
     if (settleMs > 0 && typeof page.waitForTimeout === "function") {
       await page.waitForTimeout(settleMs).catch(() => {});
     }
-    visibleText = await collectVisibleText(page);
+    visibleText = await collectVisibleText(page, visibleTextScope);
     html = await page.content();
   } catch (error) {
     if (!navigationError) navigationError = error;
@@ -451,12 +464,14 @@ async function run() {
           timeoutMs: args.timeoutMs,
           waitUntil: args.waitUntil,
           settleMs: args.settleMs,
+          visibleTextScope: args.visibleTextScope,
           screenshotPath: artifacts.sourceScreenshot,
         });
         const local = await captureOptionalPage(rowContexts.localContext, localUrl, "missing local URL", {
           timeoutMs: args.timeoutMs,
           waitUntil: args.waitUntil,
           settleMs: args.settleMs,
+          visibleTextScope: args.visibleTextScope,
           screenshotPath: artifacts.localScreenshot,
         });
 
@@ -495,6 +510,7 @@ async function run() {
       timeout_ms: args.timeoutMs,
       settle_ms: args.settleMs,
       wait_until: args.waitUntil,
+      visible_text_scope: args.visibleTextScope,
       ignore_https_errors: args.ignoreHttpsErrors,
       screenshot: args.screenshot,
       browser_executable: args.browserExecutable ?? null,

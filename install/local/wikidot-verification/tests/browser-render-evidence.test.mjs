@@ -369,6 +369,40 @@ test("capturePage records page errors and failed subframe responses", async () =
   ]);
 });
 
+test("capturePage can scope visible text to the main frame", async () => {
+  const mainFrame = {async evaluate() { return "main frame text"; }};
+  const childFrame = {async evaluate() { return "child frame text"; }};
+  const page = {
+    on() {},
+    mainFrame() {
+      return mainFrame;
+    },
+    async goto() {
+      return {status: () => 200};
+    },
+    async waitForLoadState() {},
+    frames() {
+      return [mainFrame, childFrame];
+    },
+    async content() {
+      return "<html>main frame text</html>";
+    },
+    url() {
+      return "https://local.example/page";
+    },
+  };
+
+  const result = await capturePage(page, "https://local.example/page", {
+    timeoutMs: 100,
+    waitUntil: "domcontentloaded",
+    settleMs: 0,
+    screenshotPath: null,
+    visibleTextScope: "main-frame",
+  });
+
+  assert.equal(result.visibleText, "main frame text");
+});
+
 test("capturePage records delayed main-frame navigation failures", async () => {
   const handlers = new Map();
   const mainFrame = {name: "main"};
@@ -603,6 +637,72 @@ exports.chromium = {
       ["EN:beta", "context-2", "context-3"],
     ]
   );
+});
+
+test("capture CLI records requested visible text scope", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-visible-scope-"));
+  const browserRoot = path.join(root, "browser-root");
+  const inventoryPath = path.join(root, "inventory.json");
+  const outputDir = path.join(root, "out");
+  await fs.mkdir(browserRoot);
+  await fs.writeFile(path.join(browserRoot, "package.json"), "{}", "utf8");
+  await fs.mkdir(path.join(browserRoot, "node_modules", "@playwright", "test"), {recursive: true});
+  await fs.writeFile(
+    path.join(browserRoot, "node_modules", "@playwright", "test", "index.js"),
+    `
+let nextContextId = 0;
+class Page {
+  constructor(contextId) {
+    this.contextId = contextId;
+    this.handlers = new Map();
+    this.currentUrl = "about:blank";
+    this.main = {evaluate: async () => "main-" + this.contextId};
+    this.child = {evaluate: async () => "child-" + this.contextId};
+  }
+  on(event, handler) { this.handlers.set(event, handler); }
+  async goto(url) { this.currentUrl = url; return {status: () => 200}; }
+  async waitForLoadState() {}
+  mainFrame() { return this.main; }
+  frames() { return [this.main, this.child]; }
+  async content() { return "<html>main-" + this.contextId + "</html>"; }
+  async screenshot({path}) { require("node:fs").writeFileSync(path, "png"); }
+  url() { return this.currentUrl; }
+  async close() {}
+}
+exports.chromium = {
+  async launch() {
+    return {
+      async newContext() {
+        const id = nextContextId++;
+        return {async newPage() { return new Page(id); }, async close() {}};
+      },
+      async close() {},
+    };
+  },
+};
+`,
+    "utf8"
+  );
+  await fs.writeFile(inventoryPath, JSON.stringify({schema: inventory.schema, rows: [inventory.rows[0]]}), "utf8");
+
+  await execFileAsync(process.execPath, [
+    scriptPath,
+    "--inventory",
+    inventoryPath,
+    "--output-dir",
+    outputDir,
+    "--browser-root",
+    browserRoot,
+    "--visible-text-scope",
+    "main-frame",
+    "--json",
+  ]);
+
+  const records = JSON.parse(await fs.readFile(path.join(outputDir, "records.json"), "utf8"));
+  const [record] = records.evidence;
+  assert.equal(records.capture.visible_text_scope, "main-frame");
+  assert.equal(record.source_visible_text, "main-0");
+  assert.equal(record.local_visible_text, "main-1");
 });
 
 test("capture CLI keeps source evidence when local URL is missing", async () => {
