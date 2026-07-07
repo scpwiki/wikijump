@@ -884,3 +884,45 @@ test('apply-corpus-import-manifest rejects conflicting attachments-only replacem
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /attachments-only-existing cannot be combined with --replace-existing/);
 });
+
+test('buildCorpusImportManifest fullnames filter selects only the named pages', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  writePage(root, 'en', 'scp-2000', { entityId: '16161616-1616-4161-8161-161616161616' });
+  writePage(root, 'en', 'scp-173', { entityId: '17171717-1717-4171-8171-171717171717' });
+  writePage(root, 'en', 'component:license-box', { entityId: '18181818-1818-4181-8181-181818181818' });
+
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+    fullnames: ['scp-2000', 'component:license-box'],
+  });
+  assert.deepEqual(rows.map((row) => row.fullname), ['component:license-box', 'scp-2000']);
+});
+
+test('buildCorpusImportManifest fullnames filter fails closed on unknown pages', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  writePage(root, 'en', 'scp-2000', { entityId: '19191919-1919-4191-8191-191919191919' });
+
+  assert.throws(
+    () => buildCorpusImportManifest({
+      corpusRoot: root,
+      branch: 'en',
+      sourceSite: 'scp-wiki',
+      sourceBranch: 'en',
+      fullnames: ['scp-2000', 'scp-404-not-there'],
+    }),
+    /fullnames not found in corpus .*scp-404-not-there/,
+  );
+  assert.throws(
+    () => buildCorpusImportManifest({
+      corpusRoot: root,
+      branch: 'en',
+      sourceSite: 'scp-wiki',
+      sourceBranch: 'en',
+      fullnames: [],
+    }),
+    /at least one page/,
+  );
+});

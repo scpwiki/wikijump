@@ -607,11 +607,14 @@ function rowFromRecord({
   return row;
 }
 
-export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot = null, branch, sourceSite = null, sourceBranch = null }) {
+export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot = null, branch, sourceSite = null, sourceBranch = null, fullnames: fullnameFilter = null }) {
   if ((corpusRoot === null) === (sourceBundleRoot === null)) {
     throw new Error('exactly one of corpusRoot or sourceBundleRoot is required');
   }
   if (sourceBundleRoot !== null) {
+    if (fullnameFilter !== null) {
+      throw new Error('fullnames filtering is only supported with corpusRoot');
+    }
     const sourceBundleInput = { sourceBundleRoot, sourceSite };
     if (sourceBranch !== null) sourceBundleInput.sourceBranch = sourceBranch;
     return buildSourceBundleImportManifest(sourceBundleInput);
@@ -620,10 +623,22 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
   const pagesRoot = path.join(corpusRoot, branch, 'pages');
   const effectiveSourceSite = sourceSite ?? branch;
   const effectiveSourceBranch = sourceBranch ?? branch;
+  const requestedFullnames = fullnameFilter === null ? null : new Set(fullnameFilter);
+  if (requestedFullnames !== null && requestedFullnames.size === 0) {
+    throw new Error('fullnames filter must name at least one page');
+  }
   const entries = fs.readdirSync(pagesRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
+    .filter((entry) => requestedFullnames === null || requestedFullnames.has(entry.name))
     .map((entry) => entry.name)
     .sort(codePointCompare);
+  // Requested pages absent from the corpus must fail closed, not silently
+  // shrink the manifest.
+  if (requestedFullnames !== null && entries.length !== requestedFullnames.size) {
+    const found = new Set(entries);
+    const missing = [...requestedFullnames].filter((name) => !found.has(name)).sort(codePointCompare);
+    throw new Error(`fullnames not found in corpus ${pagesRoot}: ${missing.join(', ')}`);
+  }
 
   const rows = [];
   const entityIds = new Map();
