@@ -80,6 +80,83 @@ export function layoutShiftSourceAttributionFromSnapshot(snapshot = {}) {
   };
 }
 
+export function normalizeResourceTimingEntry(entry = {}) {
+  const name = boundedString(entry.name, 500);
+  const initiatorType = boundedString(entry.initiatorType ?? entry.initiator_type, 80);
+  const startTime = finiteNumber(entry.startTime ?? entry.start_time);
+  const duration = finiteNumber(entry.duration);
+  const responseEnd = finiteNumber(entry.responseEnd ?? entry.response_end);
+  return {
+    name,
+    role: timingResourceRole(name, initiatorType),
+    initiator_type: initiatorType,
+    start_time: startTime,
+    duration,
+    response_end: responseEnd,
+    transfer_size: finiteNumber(entry.transferSize ?? entry.transfer_size),
+    encoded_body_size: finiteNumber(entry.encodedBodySize ?? entry.encoded_body_size),
+    decoded_body_size: finiteNumber(entry.decodedBodySize ?? entry.decoded_body_size),
+    render_blocking_status: boundedString(entry.renderBlockingStatus ?? entry.render_blocking_status, 80),
+  };
+}
+
+export function buildTimingDiagnostics(
+  rawTiming = {},
+  layoutShifts = {},
+  {windowMs = 500, maxResources = 200, maxNearbyResources = 12} = {},
+) {
+  const resources = (rawTiming.resources ?? []).map(normalizeResourceTimingEntry).slice(0, maxResources);
+  const marks = (rawTiming.marks ?? []).map((mark) => ({
+    name: boundedString(mark.name, 120),
+    start_time: finiteNumber(mark.startTime ?? mark.start_time),
+  }));
+  const navigation = normalizeNavigationTiming(rawTiming.navigation);
+  const roleCounts = resources.reduce((counts, resource) => {
+    const role = resource.role ?? "other";
+    counts[role] = (counts[role] ?? 0) + 1;
+    return counts;
+  }, {});
+  const layoutShiftCorrelations = (layoutShifts.entries ?? []).map((entry) => {
+    const shiftStart = finiteNumber(entry.startTime ?? entry.start_time);
+    const nearbyResources = resources
+      .map((resource) => ({
+        ...resource,
+        delta_ms: finiteNumber(resource.response_end - shiftStart),
+      }))
+      .filter((resource) => resource.response_end !== null && shiftStart !== null && Math.abs(resource.delta_ms) <= windowMs)
+      .sort((left, right) => Math.abs(left.delta_ms) - Math.abs(right.delta_ms))
+      .slice(0, maxNearbyResources);
+    return {
+      shift_start_time: shiftStart,
+      shift_value: finiteNumber(entry.value),
+      sources: (entry.sources ?? []).map((source) => ({
+        selector_hint: source.selector_hint ?? null,
+        tag: source.tag ?? null,
+        id: source.id ?? null,
+        text: source.text ?? null,
+      })),
+      nearby_resources: nearbyResources,
+    };
+  });
+
+  return {
+    supported: rawTiming.supported !== false,
+    collected_at: rawTiming.collected_at ?? null,
+    navigation,
+    marks,
+    resources,
+    layout_shift_correlations: layoutShiftCorrelations,
+    summary: {
+      resource_count: resources.length,
+      resource_counts_by_role: roleCounts,
+      styleframe_resource_count: roleCounts.styleframe ?? 0,
+      layout_shift_count: layoutShiftCorrelations.length,
+      layout_shift_correlation_window_ms: windowMs,
+      max_nearby_resources_per_shift: maxNearbyResources,
+    },
+  };
+}
+
 export async function collectElementDiagnostics(
   page,
   descriptors = DEFAULT_SCP9506_DESCRIPTORS,
@@ -172,6 +249,30 @@ export async function collectDocumentMetrics(page) {
     body_scroll_width: document.body?.scrollWidth ?? null,
     body_scroll_height: document.body?.scrollHeight ?? null,
   }));
+}
+
+export async function installTimingObserver(page) {
+  await page.addInitScript(() => {
+    window.__wikijumpTimingMarks = [];
+    if (performance?.setResourceTimingBufferSize) {
+      performance.setResourceTimingBufferSize(1_000);
+    }
+    mark("init_script");
+    window.addEventListener("DOMContentLoaded", () => mark("dom_content_loaded"));
+    window.addEventListener("load", () => mark("load"));
+
+    function mark(name) {
+      const startTime = performance?.now ? performance.now() : null;
+      window.__wikijumpTimingMarks.push({name, startTime});
+      if (performance?.mark) {
+        try {
+          performance.mark(`wikijump:${name}`);
+        } catch {
+          // Non-fatal diagnostic marker failure.
+        }
+      }
+    }
+  });
 }
 
 export async function installLayoutShiftObserver(page) {
@@ -325,6 +426,36 @@ export async function collectLayoutShifts(page) {
   }));
 }
 
+export async function collectTimingDiagnostics(page, layoutShifts, options = {}) {
+  const rawTiming = await page.evaluate(() => {
+    const navigationEntry = performance.getEntriesByType("navigation")[0] ?? null;
+    return {
+      supported: typeof performance?.getEntriesByType === "function",
+      collected_at: performance?.now ? performance.now() : null,
+      marks: window.__wikijumpTimingMarks ?? [],
+      navigation: navigationEntry ? timingEntry(navigationEntry) : null,
+      resources: performance.getEntriesByType("resource").map(timingEntry),
+    };
+
+    function timingEntry(entry) {
+      return {
+        name: entry.name ?? null,
+        initiatorType: entry.initiatorType ?? null,
+        startTime: entry.startTime ?? null,
+        duration: entry.duration ?? null,
+        responseEnd: entry.responseEnd ?? null,
+        transferSize: entry.transferSize ?? null,
+        encodedBodySize: entry.encodedBodySize ?? null,
+        decodedBodySize: entry.decodedBodySize ?? null,
+        renderBlockingStatus: entry.renderBlockingStatus ?? null,
+        domContentLoadedEventEnd: entry.domContentLoadedEventEnd ?? null,
+        loadEventEnd: entry.loadEventEnd ?? null,
+      };
+    }
+  });
+  return buildTimingDiagnostics(rawTiming, layoutShifts, options);
+}
+
 export function evaluateLayoutInvariants(diagnostics) {
   const invariants = [];
   const anomalies = [];
@@ -408,6 +539,7 @@ export function buildDiagnosticsRecord({
   document,
   elements,
   layoutShifts,
+  timing,
 }) {
   const diagnostics = {
     schema: "wikijump_local_lab.layout_diagnostics.v1",
@@ -424,6 +556,7 @@ export function buildDiagnosticsRecord({
     },
     elements,
     layout_shifts: layoutShifts,
+    timing,
   };
   return {
     ...diagnostics,
@@ -505,4 +638,35 @@ function urlPath(value) {
   } catch {
     return text.split(/[?#]/u)[0].replace(/["\\]/gu, "");
   }
+}
+
+function timingResourceRole(name, initiatorType) {
+  const text = `${name ?? ""}`.toLowerCase();
+  const initiator = `${initiatorType ?? ""}`.toLowerCase();
+  if (text.includes("styleframe.html")) return "styleframe";
+  if (text.includes("interwikiframe.html")) return "interwiki_frame";
+  if (text.includes("/local--files/")) return "local_file";
+  if (/\.(?:woff2?|ttf|otf)(?:[?#]|$)/u.test(text)) return "font";
+  if (initiator === "link" || /\.(?:css)(?:[?#]|$)/u.test(text)) return "stylesheet";
+  if (initiator === "script" || /\.(?:mjs|js)(?:[?#]|$)/u.test(text)) return "script";
+  if (initiator === "img" || /\.(?:png|jpe?g|gif|webp|svg)(?:[?#]|$)/u.test(text)) return "image";
+  if (initiator === "iframe") return "frame";
+  return initiator || "other";
+}
+
+function normalizeNavigationTiming(entry) {
+  if (!entry) return null;
+  return {
+    name: boundedString(entry.name, 500),
+    start_time: finiteNumber(entry.startTime ?? entry.start_time),
+    duration: finiteNumber(entry.duration),
+    response_end: finiteNumber(entry.responseEnd ?? entry.response_end),
+    dom_content_loaded_event_end: finiteNumber(entry.domContentLoadedEventEnd ?? entry.dom_content_loaded_event_end),
+    load_event_end: finiteNumber(entry.loadEventEnd ?? entry.load_event_end),
+  };
+}
+
+function finiteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(number * 1000) / 1000 : null;
 }

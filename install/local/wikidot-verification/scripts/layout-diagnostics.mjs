@@ -14,7 +14,9 @@ import {
   collectDocumentMetrics,
   collectElementDiagnostics,
   collectLayoutShifts,
+  collectTimingDiagnostics,
   installLayoutShiftObserver,
+  installTimingObserver,
   parseViewport,
 } from "../src/layout-diagnostics.mjs";
 
@@ -150,6 +152,7 @@ async function captureViewport({browser, args, viewport}) {
   });
 
   try {
+    await installTimingObserver(page);
     await installLayoutShiftObserver(page);
     const response = await page.goto(args.url, {waitUntil: "domcontentloaded", timeout: args.timeoutMs});
     if (args.settleMs > 0) {
@@ -162,6 +165,7 @@ async function captureViewport({browser, args, viewport}) {
       DEFAULT_COMPUTED_STYLE_WHITELIST,
     );
     const layoutShifts = await collectLayoutShifts(page);
+    const timing = await collectTimingDiagnostics(page, layoutShifts);
     return buildDiagnosticsRecord({
       fixtureId: args.fixtureId,
       url: args.url,
@@ -173,6 +177,7 @@ async function captureViewport({browser, args, viewport}) {
       document,
       elements,
       layoutShifts,
+      timing,
     });
   } finally {
     await page.close().catch(() => {});
