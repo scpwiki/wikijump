@@ -20,6 +20,7 @@ import {
   parseParentLinkParentPages,
   parseParentLinkSummary,
 } from '../src/corpus-import-parent-links.mjs';
+import { createSqlExecutor } from '../src/corpus-import-sql.mjs';
 
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
@@ -30,8 +31,10 @@ const DEFAULT_SESSION_TOKEN = process.env.DEEPWELL_SESSION_TOKEN ?? null;
 const SHELL_COMPILED_GENERATOR = 'corpus db import';
 const SHELL_IMPORT_MARKER = 'corpus-shell-import';
 const SHELL_IMPORT_MESSAGE = 'Content not rendered yet for local Wikidot corpus snapshot import';
+const SHELL_BODY_HTML = `<div class="wj-proof-stub ${SHELL_IMPORT_MARKER}">${SHELL_IMPORT_MESSAGE}.</div>`;
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from scp-wiki-translation corpus';
+let shellBodyHash = null;
 
 function parseArgs(argv) {
   const args = {
@@ -39,6 +42,7 @@ function parseArgs(argv) {
     migration: path.resolve('deepwell/migrations/20260625104500_wikidot_corpus_import.sql'),
     applyMigration: false,
     apiUrl: DEFAULT_API_URL,
+    dbUrl: process.env.DEEPWELL_VERIFY_DB_URL ?? null,
     dbContainer: DEFAULT_DB_CONTAINER,
     siteId: DEFAULT_SITE_ID,
     userId: DEFAULT_USER_ID,
@@ -57,6 +61,7 @@ function parseArgs(argv) {
     rerenderAfterDbCreate: false,
     replaceExisting: false,
     attachmentsOnlyExisting: false,
+    skipAttachments: false,
     createMode: 'rpc',
     dryRun: false,
     sourceSite: 'scp-wiki',
@@ -74,6 +79,7 @@ function parseArgs(argv) {
     else if (arg === '--migration') args.migration = next();
     else if (arg === '--apply-migration') args.applyMigration = true;
     else if (arg === '--api-url') args.apiUrl = next();
+    else if (arg === '--db-url') args.dbUrl = next();
     else if (arg === '--db-container') args.dbContainer = next();
     else if (arg === '--site-id') args.siteId = Number.parseInt(next(), 10);
     else if (arg === '--user-id') args.userId = Number.parseInt(next(), 10);
@@ -92,6 +98,7 @@ function parseArgs(argv) {
     else if (arg === '--rerender-after-db-create') args.rerenderAfterDbCreate = true;
     else if (arg === '--replace-existing') args.replaceExisting = true;
     else if (arg === '--attachments-only-existing') args.attachmentsOnlyExisting = true;
+    else if (arg === '--skip-attachments') args.skipAttachments = true;
     else if (arg === '--create-mode') {
       args.createMode = next();
     }
@@ -99,9 +106,9 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--create-mode rpc|db] [--rerender-after-db-create] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -131,6 +138,9 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   }
   if (args.attachmentsOnlyExisting && args.replaceExisting) {
     throw new Error('--attachments-only-existing cannot be combined with --replace-existing');
+  }
+  if (args.skipAttachments && args.attachmentsOnlyExisting) {
+    throw new Error('--skip-attachments cannot be combined with --attachments-only-existing');
   }
   if (args.attachmentsOnlyExisting && args.rerenderAfterDbCreate) {
     throw new Error('--attachments-only-existing cannot be combined with --rerender-after-db-create');
@@ -202,6 +212,11 @@ function textHashHex(args, contents) {
   return hash.toLowerCase();
 }
 
+function shellBodyHashHex(args) {
+  if (shellBodyHash === null) shellBodyHash = textHashHex(args, SHELL_BODY_HTML);
+  return shellBodyHash;
+}
+
 function sqlTextFromBase64(value) {
   return `convert_from(decode(${sqlQuote(Buffer.from(value, 'utf8').toString('base64'))}, 'base64'), 'UTF8')`;
 }
@@ -210,22 +225,9 @@ function sqlTextArray(values) {
   return `ARRAY[${values.map((value) => sqlQuote(value)).join(',')}]::text[]`;
 }
 
-function runPsql(args, sql, { capture = false } = {}) {
-  const result = spawnSync(
-    'docker',
-    ['exec', '-i', '-e', 'PGPASSWORD=wikijump', args.dbContainer, 'psql', '-h', 'localhost', '-U', 'wikijump', '-d', 'wikijump', '-1', '-v', 'ON_ERROR_STOP=1', '-q', '-t', '-A'],
-    { input: sql, encoding: 'utf8' },
-  );
-  if (result.status !== 0) {
-    const sqlPreview = sql.length > 2000 ? `${sql.slice(0, 2000)}\n... <truncated ${sql.length - 2000} bytes>` : sql;
-    throw new Error(`psql failed (${result.status})\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}\nSQL preview:\n${sqlPreview}`);
-  }
-  return capture ? result.stdout.trim() : null;
-}
-
-function applyMigration(args) {
+async function applyMigration(args, sqlExecutor) {
   const migrationSql = fs.readFileSync(args.migration, 'utf8');
-  runPsql(args, migrationSql);
+  await sqlExecutor.runSql(migrationSql);
 }
 
 let rpcSequence = 0;
@@ -316,7 +318,7 @@ function metaJsonText(row) {
   return readManifestFile(row, 'meta_path', 'meta_sha256');
 }
 
-function ensureImportRun(args, manifestText, manifestRows, selectedRows, completeInventory) {
+async function ensureImportRun(args, sqlExecutor, manifestText, manifestRows, selectedRows, completeInventory) {
   const manifestSha = crypto.createHash('sha256').update(manifestText).digest('hex');
   const sourceSites = new Set(manifestRows.map((row) => row.source_site));
   const sourceBranches = new Set(manifestRows.map((row) => row.source_branch));
@@ -348,7 +350,7 @@ INSERT INTO wikidot_corpus_import_run (
 )
 RETURNING import_run_id;
 `;
-  return Number.parseInt(runPsql(args, sql, { capture: true }), 10);
+  return Number.parseInt(await sqlExecutor.runSql(sql, { capture: true }), 10);
 }
 
 async function getPage(args, slug) {
@@ -388,11 +390,11 @@ function categoryName(slug) {
   return index === -1 ? '_default' : slug.slice(0, index);
 }
 
-function shellCreatePage(args, row, { replaceExistingRevision = false } = {}) {
+async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision = false } = {}) {
   const wikitext = sourceText(row);
-  const bodyHtml = `<div class="wj-proof-stub ${SHELL_IMPORT_MARKER}">${SHELL_IMPORT_MESSAGE}.</div>`;
+  const bodyHtml = SHELL_BODY_HTML;
   const wikitextHash = textHashHex(args, wikitext);
-  const bodyHash = textHashHex(args, bodyHtml);
+  const bodyHash = shellBodyHashHex(args);
   const title = fallbackTitle(row);
   const category = categoryName(row.fullname);
   const canUseExisting = canReuseExistingPageForDbImport(args, { replaceExistingRevision });
@@ -540,7 +542,7 @@ WHERE corpus_shell_import_result.page_id = updated_page.page_id;
 SELECT page_id || '|' || page_category_id || '|' || COALESCE(latest_revision_id::text, '') || '|' || existed::text || '|' || created_revision::text
 FROM corpus_shell_import_result;
 `;
-  const output = runPsql(args, sql, { capture: true });
+  const output = await sqlExecutor.runSql(sql, { capture: true });
   const [pageIdText, categoryIdText, revisionIdText = '', pageExistedText = '', createdRevisionText = ''] = output.split('|');
   const pageId = Number.parseInt(pageIdText, 10);
   const categoryId = Number.parseInt(categoryIdText, 10);
@@ -663,6 +665,14 @@ async function createFile(args, pageId, attachment, pendingBlobId, actorUserId) 
 
 async function materializeRowAttachments(args, row, pageId) {
   const attachments = Array.isArray(row.attachments) ? row.attachments : [];
+  if (args.skipAttachments) {
+    return {
+      attachments_requested: attachments.length,
+      attachments_uploaded: 0,
+      attachments_skipped_existing: 0,
+      attachments_deferred: attachments.length,
+    };
+  }
   if (attachments.length === 0) {
     return { attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0 };
   }
@@ -778,7 +788,7 @@ ON CONFLICT (page_id) DO UPDATE SET
 `;
 }
 
-function existingSnapshotPageStatus(args, row) {
+async function existingSnapshotPageStatus(args, sqlExecutor, row) {
   const sql = `
 WITH matching_snapshot AS (
   SELECT snapshot.page_id
@@ -823,7 +833,7 @@ SELECT
   END
 FROM active_page p;
 `;
-  const output = runPsql(args, sql, { capture: true });
+  const output = await sqlExecutor.runSql(sql, { capture: true });
   if (!output) return null;
   const [pageIdText, categoryIdText, revisionIdText = '', renderCompleteText = ''] = output.split('|');
   const pageId = Number.parseInt(pageIdText, 10);
@@ -836,7 +846,7 @@ FROM active_page p;
   return { page_id: pageId, page_category_id: categoryId, revision_id: revisionId, render_complete: renderComplete };
 }
 
-function existingActivePage(args, slug) {
+async function existingActivePage(args, sqlExecutor, slug) {
   const sql = `
 WITH target_page AS (
   SELECT
@@ -877,7 +887,7 @@ SELECT
 FROM target_page
 WHERE NOT EXISTS (SELECT 1 FROM repaired_page);
 `;
-  const output = runPsql(args, sql, { capture: true });
+  const output = await sqlExecutor.runSql(sql, { capture: true });
   if (!output) return null;
   const [pageIdText, categoryIdText, revisionIdText = ''] = output.split('|');
   const pageId = Number.parseInt(pageIdText, 10);
@@ -889,20 +899,20 @@ WHERE NOT EXISTS (SELECT 1 FROM repaired_page);
   return { page_id: pageId, page_category_id: categoryId, revision_id: revisionId };
 }
 
-function pageSnapshotStatus(args, row, pageId) {
+async function pageSnapshotStatus(args, sqlExecutor, row, pageId) {
   const sql = `
 SELECT encode(source_sha256, 'hex') || '|' || encode(meta_sha256, 'hex')
 FROM wikidot_page_snapshot
 WHERE page_id = ${sqlInt(pageId)}
 LIMIT 1;
 `;
-  const output = runPsql(args, sql, { capture: true });
+  const output = await sqlExecutor.runSql(sql, { capture: true });
   if (!output) return 'absent';
   const [sourceSha, metaSha] = output.split('|');
   return sourceSha === row.source_sha256 && metaSha === row.meta_sha256 ? 'matching' : 'mismatched';
 }
 
-function existingPageSourceStatus(args, row, revisionId) {
+async function existingPageSourceStatus(args, sqlExecutor, row, revisionId) {
   if (revisionId === null) return 'missing_revision';
   const sql = `
 SELECT CASE
@@ -914,7 +924,7 @@ LEFT JOIN text ON text.hash = revision.wikitext_hash
 WHERE revision.revision_id = ${sqlInt(revisionId)}
 LIMIT 1;
 `;
-  const output = runPsql(args, sql, { capture: true });
+  const output = await sqlExecutor.runSql(sql, { capture: true });
   return output === 'matching' ? 'matching' : 'mismatched';
 }
 
@@ -947,12 +957,12 @@ ON CONFLICT (import_run_id, source_entity_id) DO UPDATE SET
 `;
 }
 
-async function importRow(args, row, importRunId) {
+async function importRow(args, sqlExecutor, row, importRunId) {
   if (args.attachmentsOnlyExisting) {
     const existing = await getPage(args, row.fullname);
     if (existing === null) {
       if (!args.dryRun) {
-        runPsql(args, recordItemSql(row, null, importRunId, 'failed', { collision: 'missing_existing_page_for_attachments' }));
+        await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { collision: 'missing_existing_page_for_attachments' }));
       }
       return { slug: row.fullname, action: 'missing_existing_page_for_attachments' };
     }
@@ -967,7 +977,7 @@ async function importRow(args, row, importRunId) {
       };
     }
     const attachmentSummary = await materializeRowAttachments(args, row, existing.page_id);
-    runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'done'));
+    await sqlExecutor.runSql(recordItemSql(row, existing.page_id, importRunId, 'done'));
     return {
       slug: row.fullname,
       action: 'materialized_existing_attachments',
@@ -977,16 +987,16 @@ async function importRow(args, row, importRunId) {
   }
 
   if (args.skipExistingDone) {
-    const snapshotStatus = existingSnapshotPageStatus(args, row);
+    const snapshotStatus = await existingSnapshotPageStatus(args, sqlExecutor, row);
     if (snapshotStatus !== null && snapshotStatus.render_complete) {
       const attachmentSummary = await materializeRowAttachments(args, row, snapshotStatus.page_id);
-      if (!args.dryRun) runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'done'));
+      if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, snapshotStatus.page_id, importRunId, 'done'));
       return { slug: row.fullname, action: args.dryRun ? 'would_skip_existing_done' : 'skipped_existing_done', page_id: snapshotStatus.page_id, ...attachmentSummary };
     }
     if (snapshotStatus !== null && args.skipRerender) {
       const attachmentSummary = await materializeRowAttachments(args, row, snapshotStatus.page_id);
       if (!args.dryRun) {
-        runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_pending', { render: 'matching_snapshot_still_shell_or_pending' }));
+        await sqlExecutor.runSql(recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_pending', { render: 'matching_snapshot_still_shell_or_pending' }));
       }
       return { slug: row.fullname, action: args.dryRun ? 'would_keep_existing_render_pending' : 'kept_existing_render_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id, ...attachmentSummary };
     }
@@ -995,14 +1005,14 @@ async function importRow(args, row, importRunId) {
         return { slug: row.fullname, action: 'would_rerender_existing_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id };
       }
       const attachmentSummary = await materializeRowAttachments(args, row, snapshotStatus.page_id);
-      runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_pending', { render: 'matching_snapshot_rerender_requested' }));
+      await sqlExecutor.runSql(recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_pending', { render: 'matching_snapshot_rerender_requested' }));
       try {
         await rerenderPage(args, snapshotStatus.page_id, snapshotStatus.page_category_id);
       } catch (error) {
-        runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_failed', { message: error.message }));
+        await sqlExecutor.runSql(recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_failed', { message: error.message }));
         return { slug: row.fullname, action: 'render_failed', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id, error: error.message };
       }
-      runPsql(args, recordItemSql(row, snapshotStatus.page_id, importRunId, 'done'));
+      await sqlExecutor.runSql(recordItemSql(row, snapshotStatus.page_id, importRunId, 'done'));
       return { slug: row.fullname, action: 'rerendered_existing_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id, ...attachmentSummary };
     }
   }
@@ -1013,24 +1023,24 @@ async function importRow(args, row, importRunId) {
   let action;
 
   if (args.createMode === 'db') {
-    const existing = existingActivePage(args, row.fullname);
+    const existing = await existingActivePage(args, sqlExecutor, row.fullname);
     let replaceExistingRevision = false;
     if (existing !== null) {
-      const existingSnapshotStatus = pageSnapshotStatus(args, row, existing.page_id);
-      const existingSourceStatus = existingPageSourceStatus(args, row, existing.revision_id);
+      const existingSnapshotStatus = await pageSnapshotStatus(args, sqlExecutor, row, existing.page_id);
+      const existingSourceStatus = await existingPageSourceStatus(args, sqlExecutor, row, existing.revision_id);
       const contentMatches = existingSourceStatus === 'matching';
       const needsReplacement = existingSnapshotStatus !== 'matching' || !contentMatches;
 
       if (needsReplacement && args.replaceExisting) {
         replaceExistingRevision = true;
       } else if (existingSnapshotStatus === 'absent' && !args.adoptExisting) {
-        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_requires_adopt_or_replace', source_status: existingSourceStatus }));
+        if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_requires_adopt_or_replace', source_status: existingSourceStatus }));
         return { slug: row.fullname, action: 'collision_existing_page', page_id: existing.page_id, source_status: existingSourceStatus };
       } else if (existingSnapshotStatus === 'mismatched') {
-        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_requires_replace', source_status: existingSourceStatus }));
+        if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_requires_replace', source_status: existingSourceStatus }));
         return { slug: row.fullname, action: 'collision_existing_snapshot_mismatch', page_id: existing.page_id, source_status: existingSourceStatus };
       } else if (!contentMatches) {
-        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_content_mismatch_requires_replace', snapshot_status: existingSnapshotStatus }));
+        if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_content_mismatch_requires_replace', snapshot_status: existingSnapshotStatus }));
         return { slug: row.fullname, action: 'collision_existing_content_mismatch', page_id: existing.page_id, snapshot_status: existingSnapshotStatus };
       }
       if (args.dryRun) {
@@ -1038,17 +1048,17 @@ async function importRow(args, row, importRunId) {
       }
     }
     if (args.dryRun) return { slug: row.fullname, action: 'would_db_create' };
-    const created = shellCreatePage(args, row, { replaceExistingRevision });
+    const created = await shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision });
     pageId = created.page_id;
     revisionId = created.revision_id;
     categoryId = created.page_category_id;
-    const snapshotStatus = pageSnapshotStatus(args, row, pageId);
+    const snapshotStatus = await pageSnapshotStatus(args, sqlExecutor, row, pageId);
     if (!created.created_page && snapshotStatus === 'absent' && !args.adoptExisting && !replaceExistingRevision) {
-      runPsql(args, recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_requires_adopt_or_replace' }));
+      await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_requires_adopt_or_replace' }));
       return { slug: row.fullname, action: 'collision_existing_page', page_id: pageId };
     }
     if (snapshotStatus === 'mismatched' && !replaceExistingRevision) {
-      runPsql(args, recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_requires_replace' }));
+      await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_requires_replace' }));
       return { slug: row.fullname, action: 'collision_existing_snapshot_mismatch', page_id: pageId };
     }
     action = created.created_page ? 'created_db' : created.created_revision ? 'replaced_db' : 'adopted';
@@ -1066,13 +1076,13 @@ async function importRow(args, row, importRunId) {
       action = 'created';
     } else {
       if (!args.adoptExisting) {
-        if (!args.dryRun) runPsql(args, recordItemSql(row, existing.page_id ?? null, importRunId, 'failed', { collision: 'existing_page_requires_adopt' }));
+        if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, existing.page_id ?? null, importRunId, 'failed', { collision: 'existing_page_requires_adopt' }));
         return { slug: row.fullname, action: 'collision_existing_page', page_id: existing.page_id };
       }
       if (args.dryRun) return { slug: row.fullname, action: 'would_adopt', page_id: existing.page_id };
-      const snapshotStatus = pageSnapshotStatus(args, row, existing.page_id);
+      const snapshotStatus = await pageSnapshotStatus(args, sqlExecutor, row, existing.page_id);
       if (snapshotStatus === 'mismatched') {
-        runPsql(args, recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_update_not_implemented' }));
+        await sqlExecutor.runSql(recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_snapshot_mismatch_update_not_implemented' }));
         return { slug: row.fullname, action: 'collision_existing_snapshot_mismatch', page_id: existing.page_id };
       }
       pageId = existing.page_id;
@@ -1082,33 +1092,33 @@ async function importRow(args, row, importRunId) {
     }
   }
 
-  runPsql(args, upsertSnapshotSql(args, row, pageId, revisionId, importRunId));
+  await sqlExecutor.runSql(upsertSnapshotSql(args, row, pageId, revisionId, importRunId));
   const attachmentSummary = await materializeRowAttachments(args, row, pageId);
   if (args.skipRerender) {
-    runPsql(args, recordItemSql(row, pageId, importRunId, 'render_pending'));
+    await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'render_pending'));
     return { slug: row.fullname, action: `${action}_snapshot_ready`, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length, ...attachmentSummary };
   }
 
-  runPsql(args, recordItemSql(row, pageId, importRunId, 'render_pending'));
+  await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'render_pending'));
   try {
     await rerenderPage(args, pageId, categoryId);
   } catch (error) {
-    runPsql(args, recordItemSql(row, pageId, importRunId, 'render_failed', { message: error.message }));
+    await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'render_failed', { message: error.message }));
     return { slug: row.fullname, action: 'render_failed', page_id: pageId, revision_id: revisionId, error: error.message };
   }
-  runPsql(args, recordItemSql(row, pageId, importRunId, 'done'));
+  await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'done'));
   return { slug: row.fullname, action, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length, ...attachmentSummary };
 }
 
-function finishRun(args, importRunId, summary, state = 'done') {
-  runPsql(args, `
+async function finishRun(args, sqlExecutor, importRunId, summary, state = 'done') {
+  await sqlExecutor.runSql(`
 UPDATE wikidot_corpus_import_run
 SET state = ${sqlQuote(state)}, finished_at = NOW(), summary = ${sqlQuote(JSON.stringify(summary))}::jsonb
 WHERE import_run_id = ${sqlInt(importRunId)};
 `);
 }
 
-function upsertParentLinks(args, selectedRows) {
+async function upsertParentLinks(args, sqlExecutor, selectedRows) {
   const sql = buildParentLinkSql(args, selectedRows);
   if (sql === null) {
     return {
@@ -1119,14 +1129,14 @@ function upsertParentLinks(args, selectedRows) {
       parent_link_missing_child: 0,
     };
   }
-  return parseParentLinkSummary(runPsql(args, sql, { capture: true }));
+  return parseParentLinkSummary(await sqlExecutor.runSql(sql, { capture: true }));
 }
 
-async function rerenderParentLinkPages(args, selectedRows) {
+async function rerenderParentLinkPages(args, sqlExecutor, selectedRows) {
   if (args.skipRerender) return { parent_link_parent_rerendered: 0 };
   const sql = buildParentLinkParentPagesSql(args, selectedRows);
   if (sql === null) return { parent_link_parent_rerendered: 0 };
-  const pages = parseParentLinkParentPages(runPsql(args, sql, { capture: true }));
+  const pages = parseParentLinkParentPages(await sqlExecutor.runSql(sql, { capture: true }));
   let rerendered = 0;
   for (const page of pages) {
     await rerenderPage(args, page.page_id, page.page_category_id);
@@ -1137,48 +1147,54 @@ async function rerenderParentLinkPages(args, selectedRows) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const manifestText = fs.readFileSync(args.manifest, 'utf8');
-  const allRows = parseRows(manifestText);
-  const selectedRows = filterRows(args, allRows);
-  const completeInventory = selectedRows.length === allRows.length && args.limit === null && args.slug.length === 0 && args.slugFile === null;
-  if (!args.dryRun) validateAttachmentActorArgs(args, selectedRows);
-
-  if (args.applyMigration && !args.dryRun) applyMigration(args);
-  if (args.dryRun) {
-    console.log(JSON.stringify({ dry_run: true, selected_rows: selectedRows.length, complete_inventory: completeInventory }, null, 2));
-    return;
-  }
-
-  const importRunId = ensureImportRun(args, manifestText, allRows, selectedRows, completeInventory);
-  const results = [];
-  const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, import_run_id: importRunId };
-  let finalState = 'failed';
-
+  const sqlExecutor = createSqlExecutor({ dbUrl: args.dbUrl, dbContainer: args.dbContainer });
   try {
-    for (const row of selectedRows) {
-      try {
-        const result = await importRow(args, row, importRunId);
-        results.push(result);
-        summary[result.action] = (summary[result.action] ?? 0) + 1;
-        summary.attachments_requested += result.attachments_requested ?? 0;
-        summary.attachments_uploaded += result.attachments_uploaded ?? 0;
-        summary.attachments_skipped_existing += result.attachments_skipped_existing ?? 0;
-        if (result.action === 'render_failed') summary.failed += 1;
-        console.log(JSON.stringify(result));
-      } catch (error) {
-        summary.failed += 1;
-        runPsql(args, recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
-        console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
-      }
+    const manifestText = fs.readFileSync(args.manifest, 'utf8');
+    const allRows = parseRows(manifestText);
+    const selectedRows = filterRows(args, allRows);
+    const completeInventory = selectedRows.length === allRows.length && args.limit === null && args.slug.length === 0 && args.slugFile === null;
+    if (!args.dryRun) validateAttachmentActorArgs(args, selectedRows);
+
+    if (args.applyMigration && !args.dryRun) await applyMigration(args, sqlExecutor);
+    if (args.dryRun) {
+      console.log(JSON.stringify({ dry_run: true, selected_rows: selectedRows.length, complete_inventory: completeInventory }, null, 2));
+      return;
     }
-    Object.assign(summary, upsertParentLinks(args, selectedRows));
-    Object.assign(summary, await rerenderParentLinkPages(args, selectedRows));
-    finalState = summary.failed > 0 ? 'failed' : 'done';
+
+    const importRunId = await ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory);
+    const results = [];
+    const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId };
+    let finalState = 'failed';
+
+    try {
+      for (const row of selectedRows) {
+        try {
+          const result = await importRow(args, sqlExecutor, row, importRunId);
+          results.push(result);
+          summary[result.action] = (summary[result.action] ?? 0) + 1;
+          summary.attachments_requested += result.attachments_requested ?? 0;
+          summary.attachments_uploaded += result.attachments_uploaded ?? 0;
+          summary.attachments_skipped_existing += result.attachments_skipped_existing ?? 0;
+          summary.attachments_deferred += result.attachments_deferred ?? 0;
+          if (result.action === 'render_failed') summary.failed += 1;
+          console.log(JSON.stringify(result));
+        } catch (error) {
+          summary.failed += 1;
+          await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
+          console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
+        }
+      }
+      Object.assign(summary, await upsertParentLinks(args, sqlExecutor, selectedRows));
+      Object.assign(summary, await rerenderParentLinkPages(args, sqlExecutor, selectedRows));
+      finalState = summary.failed > 0 ? 'failed' : 'done';
+    } finally {
+      await finishRun(args, sqlExecutor, importRunId, summary, finalState);
+    }
+    console.log(JSON.stringify({ summary }, null, 2));
+    if (finalState === 'failed') process.exitCode = 1;
   } finally {
-    finishRun(args, importRunId, summary, finalState);
+    await sqlExecutor.close();
   }
-  console.log(JSON.stringify({ summary }, null, 2));
-  if (finalState === 'failed') process.exitCode = 1;
 }
 
 main().catch((error) => {

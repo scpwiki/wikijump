@@ -885,6 +885,85 @@ test('apply-corpus-import-manifest rejects conflicting attachments-only replacem
   assert.match(result.stderr, /attachments-only-existing cannot be combined with --replace-existing/);
 });
 
+test('apply-corpus-import-manifest rejects conflicting skip attachment flags', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    source: 'SCP-173',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--attachments-only-existing',
+    '--skip-attachments',
+    '--dry-run',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /skip-attachments cannot be combined with --attachments-only-existing/);
+});
+
+test('apply-corpus-import-manifest dry-run accepts skipped attachments without a session token', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    source: '[[image https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png]]',
+  });
+  writePageAttachment(root, 'en', 'scp-173', {
+    filename: 'pixel.png',
+    bytes: Buffer.from([9, 8, 7]),
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--skip-attachments',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    env: { ...process.env, DEEPWELL_SESSION_TOKEN: '' },
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.deepEqual(output, {
+    dry_run: true,
+    selected_rows: 1,
+    complete_inventory: true,
+  });
+});
+
 test('buildCorpusImportManifest fullnames filter selects only the named pages', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
   writePage(root, 'en', 'scp-2000', { entityId: '16161616-1616-4161-8161-161616161616' });
