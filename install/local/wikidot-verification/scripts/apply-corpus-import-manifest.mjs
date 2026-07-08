@@ -41,6 +41,7 @@ const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from
 let shellBodyHash = null;
 const precomputedTextHashes = new Map();
 const precomputedSourceTexts = new Map();
+const precreatedCategoryIds = new Map();
 
 function envString(name) {
   const value = process.env[name];
@@ -321,6 +322,50 @@ function precomputeDbTextHashes(args, selectedRows) {
   }
 }
 
+function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
+  const categories = [...new Set(selectedRows.map((row) => categoryName(row.fullname)))].sort();
+  if (args.createMode !== 'db' || categories.length === 0) return null;
+  const values = categories.map((category) => `(${sqlInt(args.siteId)}, ${sqlQuote(category)})`).join(',\n  ');
+  return `
+WITH requested(site_id, slug) AS (
+  VALUES
+  ${values}
+), inserted AS (
+  INSERT INTO page_category (site_id, slug)
+  SELECT site_id, slug
+  FROM requested
+  ON CONFLICT (site_id, slug) DO UPDATE SET slug = EXCLUDED.slug
+  RETURNING category_id, slug
+)
+SELECT slug || '|' || category_id::text
+FROM inserted
+ORDER BY slug;
+`;
+}
+
+function parsePrecreatedCategoryIds(output) {
+  const ids = new Map();
+  if (!output.trim()) return ids;
+  for (const line of output.split('\n')) {
+    const [slug, categoryIdText, extra] = line.split('|');
+    const categoryId = Number.parseInt(categoryIdText, 10);
+    if (!slug || extra !== undefined || !Number.isInteger(categoryId)) {
+      throw new Error(`invalid category precreate output: ${line}`);
+    }
+    ids.set(slug, categoryId);
+  }
+  return ids;
+}
+
+async function precreateDbShellCategories(args, sqlExecutor, selectedRows) {
+  const sql = buildPrecreateDbShellCategoriesSql(args, selectedRows);
+  if (sql === null) return;
+  const ids = parsePrecreatedCategoryIds(await sqlExecutor.runSql(sql, { capture: true }));
+  for (const [slug, categoryId] of ids) {
+    precreatedCategoryIds.set(slug, categoryId);
+  }
+}
+
 function sqlTextFromBase64(value) {
   return `convert_from(decode(${sqlQuote(Buffer.from(value, 'utf8').toString('base64'))}, 'base64'), 'UTF8')`;
 }
@@ -503,6 +548,17 @@ async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision
   const bodyHash = shellBodyHashHex(args);
   const title = fallbackTitle(row);
   const category = categoryName(row.fullname);
+  const precreatedCategoryId = precreatedCategoryIds.get(category);
+  const categorySql = precreatedCategoryId === undefined
+    ? `category AS (
+  INSERT INTO page_category (site_id, slug)
+  VALUES (${sqlInt(args.siteId)}, ${sqlQuote(category)})
+  ON CONFLICT (site_id, slug) DO UPDATE SET slug = EXCLUDED.slug
+  RETURNING category_id
+)`
+    : `category AS (
+  SELECT ${sqlInt(precreatedCategoryId)}::bigint AS category_id
+)`;
   const canUseExisting = canReuseExistingPageForDbImport(args, { replaceExistingRevision });
   const sql = `
 CREATE TEMP TABLE corpus_shell_import_result (
@@ -524,12 +580,7 @@ WITH inserted_wikitext AS (
   VALUES (${sqlTextHash(bodyHash)}, ${sqlTextFromBase64(bodyHtml)})
   ON CONFLICT (hash) DO NOTHING
   RETURNING 1
-), category AS (
-  INSERT INTO page_category (site_id, slug)
-  VALUES (${sqlInt(args.siteId)}, ${sqlQuote(category)})
-  ON CONFLICT (site_id, slug) DO UPDATE SET slug = EXCLUDED.slug
-  RETURNING category_id
-), target_page AS (
+), ${categorySql}, target_page AS (
   SELECT
     p.page_id,
     p.page_category_id,
@@ -1348,6 +1399,7 @@ async function main() {
 
     precomputeDbTextHashes(args, selectedRows);
     const importRunId = await ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory);
+    await precreateDbShellCategories(args, sqlExecutor, selectedRows);
     const results = [];
     const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId };
     let finalState = 'failed';
