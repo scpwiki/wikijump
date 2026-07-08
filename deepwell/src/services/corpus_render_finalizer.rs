@@ -60,6 +60,7 @@ pub struct RenderFinalizerSummary {
     candidates: usize,
     claimed: usize,
     rendered: usize,
+    done: usize,
     render_failed: usize,
     reason_counts: BTreeMap<String, usize>,
     items: Vec<RenderFinalizerItem>,
@@ -175,6 +176,13 @@ impl RenderFinalizerPass {
             }
         }
     }
+
+    fn success_state(self) -> &'static str {
+        match self {
+            Self::Pass1 => "rendered",
+            Self::Pass2 => "done",
+        }
+    }
 }
 
 impl RenderFinalizerSettings {
@@ -223,14 +231,6 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         settings: RenderFinalizerSettings,
     ) -> Result<RenderFinalizerSummary> {
-        if settings.pass == RenderFinalizerPass::Pass2 && !settings.dry_run {
-            return Err(Error::new(
-                "render-finalize pass2 is reporting-only in this slice; use DEEPWELL_RENDER_DRY_RUN=true",
-                ErrorType::Render,
-            )
-            .into());
-        }
-
         let import_run_id = match settings.import_run_id {
             Some(import_run_id) => Some(import_run_id),
             None => Self::select_latest_import_run(state, &settings).await?,
@@ -252,6 +252,10 @@ impl CorpusRenderFinalizerService {
             .iter()
             .filter(|item| item.outcome.as_deref() == Some("rendered"))
             .count();
+        let done = items
+            .iter()
+            .filter(|item| item.outcome.as_deref() == Some("done"))
+            .count();
         let render_failed = items
             .iter()
             .filter(|item| item.outcome.as_deref() == Some("render_failed"))
@@ -270,6 +274,7 @@ impl CorpusRenderFinalizerService {
             candidates: items.len(),
             claimed: if settings.dry_run { 0 } else { items.len() },
             rendered,
+            done,
             render_failed,
             reason_counts,
             items,
@@ -359,9 +364,9 @@ impl CorpusRenderFinalizerService {
             ORDER BY item.updated_at ASC, item.source_fullname ASC
             LIMIT $3
             ",
+            settings.pass.candidate_reasons(),
             settings.pass.candidate_joins(),
             settings.pass.candidate_filter(),
-            settings.pass.candidate_reasons(),
         );
 
         let statement = Statement::from_sql_and_values(
@@ -399,7 +404,10 @@ impl CorpusRenderFinalizerService {
         let sql = format!(
             "
             WITH candidates AS (
-                SELECT item.import_run_id, item.source_entity_id
+                SELECT
+                    item.import_run_id,
+                    item.source_entity_id,
+                    {} AS reasons
                 FROM wikidot_corpus_import_item AS item
                 LEFT JOIN page
                     ON page.page_id = item.page_id
@@ -441,8 +449,9 @@ impl CorpusRenderFinalizerService {
                     AND page.deleted_at IS NULL
                 ) AS page_category_id,
                 item.attempts,
-                '{{}}'::text[] AS reasons
+                candidates.reasons
             ",
+            settings.pass.candidate_reasons(),
             settings.pass.candidate_joins(),
             settings.pass.candidate_filter(),
         );
@@ -495,10 +504,11 @@ impl CorpusRenderFinalizerService {
         settings: &RenderFinalizerSettings,
         items: Vec<RenderFinalizerItem>,
     ) -> Vec<RenderFinalizerItem> {
+        let pass = settings.pass;
         stream::iter(items)
             .map(|item| {
                 let state = state.clone();
-                async move { Self::render_claimed_item(&state, item).await }
+                async move { Self::render_claimed_item(&state, pass, item).await }
             })
             .buffered(settings.concurrency)
             .collect()
@@ -507,6 +517,7 @@ impl CorpusRenderFinalizerService {
 
     async fn render_claimed_item(
         state: &ServerState,
+        pass: RenderFinalizerPass,
         mut item: RenderFinalizerItem,
     ) -> RenderFinalizerItem {
         let result = match (item.page_id, item.site_id, item.page_category_id) {
@@ -519,6 +530,7 @@ impl CorpusRenderFinalizerService {
                         category_id: page_category_id,
                         page_id,
                     },
+                    pass.success_state(),
                 )
                 .await
             }
@@ -531,7 +543,7 @@ impl CorpusRenderFinalizerService {
 
         match result {
             Ok(()) => {
-                item.outcome = Some(str!("rendered"));
+                item.outcome = Some(str!(pass.success_state()));
             }
             Err(error) => {
                 let message = error.to_string();
@@ -555,6 +567,7 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         item: &RenderFinalizerItem,
         id: PageId,
+        success_state: &'static str,
     ) -> Result<()> {
         let make_error = || {
             Error::new(
@@ -575,7 +588,7 @@ impl CorpusRenderFinalizerService {
             )
             .await
             .or_raise(make_error)?;
-            Self::mark_item_rendered(&txn, item).await?;
+            Self::mark_item_rendered(&txn, item, success_state).await?;
             ctx.drain_post_commit_actions().or_raise(make_error)
         }
         .await;
@@ -606,12 +619,14 @@ impl CorpusRenderFinalizerService {
     async fn mark_item_rendered(
         txn: &DatabaseTransaction,
         item: &RenderFinalizerItem,
+        success_state: &'static str,
     ) -> Result<()> {
+        debug_assert!(matches!(success_state, "rendered" | "done"));
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to mark render-finalize item {} rendered",
-                    item.source_fullname,
+                    "failed to mark render-finalize item {} {}",
+                    item.source_fullname, success_state,
                 ),
                 ErrorType::DatabaseQuery,
             )
@@ -621,7 +636,7 @@ impl CorpusRenderFinalizerService {
             str!(
                 "
                 UPDATE wikidot_corpus_import_item
-                SET state = 'rendered',
+                SET state = $3::text,
                     lease_until = NULL,
                     error = NULL,
                     updated_at = NOW()
@@ -633,13 +648,15 @@ impl CorpusRenderFinalizerService {
             [
                 Value::from(item.import_run_id),
                 Value::from(item.source_entity_id.clone()),
+                Value::from(success_state),
             ],
         );
         let result = txn.execute(statement).await.or_raise(make_error)?;
         if result.rows_affected() != 1 {
             return Err(Error::new(
                 format!(
-                    "expected to mark one render-finalize item rendered, marked {}",
+                    "expected to mark one render-finalize item {}, marked {}",
+                    success_state,
                     result.rows_affected(),
                 ),
                 ErrorType::DatabaseQuery,
@@ -856,6 +873,12 @@ mod tests {
                 .candidate_reasons()
                 .contains("source_backlinks_module")
         );
+    }
+
+    #[test]
+    fn render_finalizer_pass_success_state_tracks_pass_completion() {
+        assert_eq!(RenderFinalizerPass::Pass1.success_state(), "rendered");
+        assert_eq!(RenderFinalizerPass::Pass2.success_state(), "done");
     }
 
     #[test]
