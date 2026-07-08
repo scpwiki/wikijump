@@ -92,6 +92,10 @@ pub fn build_router(state: ServerState) -> Router {
             get(handle_html_block_iframe_js),
         )
         .route(
+            "/common--javascript/resize-iframe.html",
+            get(handle_resize_iframe_html),
+        )
+        .route(
             "/common--javascript/{*path}",
             get(handle_common_javascript),
         )

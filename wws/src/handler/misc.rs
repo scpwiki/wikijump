@@ -114,6 +114,46 @@ const HTML_BLOCK_IFRAME_JS: &str = r##"(function() {
 })();
 "##;
 
+const RESIZE_IFRAME_HTML: &str = r#"<!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<title></title>
+<script type="text/javascript">
+
+var hash = location.hash.toString();
+var hash_a1 = hash.split('/');
+var hash_a2 = hash_a1[0].split('#');
+var id = hash_a1[1];
+var height = hash_a2[1];
+
+parent.parent.$j('iframe.html-block-iframe[src$="/' + id + '"]').height(height + 'px');
+
+</script>
+</head>
+<body>
+<!--
+
+This HTML is meant to be iframed in an iframe in order to do cross-domain iframe resizing.
+
+From parent.parent window, jQuery and document objects are grabbed.
+Iframe with class "html-block-iframe" and src ending with <src> is matched
+and resized to height <height> px using jQuery.
+
+<src> and <height> are grabbed from URL of this iframe, format:
+
+http://<domain>/common-javascript/resize-iframe.html#<height>/<src>
+
+<domain> may be at wikidot.com or custom domain.
+It must be the same as the parent.parent's domain.
+
+-->
+</body>
+</html>
+"#;
+
 fn text_response(body: &'static str, status: StatusCode) -> Response {
     Response::builder()
         .status(status)
@@ -157,6 +197,10 @@ pub async fn handle_common_javascript(Path(path): Path<String>) -> StatusCode {
 
 pub async fn handle_html_block_iframe_js() -> Response {
     static_response(HTML_BLOCK_IFRAME_JS, "application/x-javascript")
+}
+
+pub async fn handle_resize_iframe_html() -> Response {
+    static_response(RESIZE_IFRAME_HTML, "text/html")
 }
 
 pub async fn handle_invalid_method() -> StatusCode {
@@ -211,6 +255,21 @@ mod tests {
             .await
             .unwrap();
         assert!(String::from_utf8_lossy(&body).contains("resize_url"));
+    }
+
+    #[tokio::test]
+    async fn resize_iframe_html_is_served_with_html_type() {
+        let response = handle_resize_iframe_html().await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers().get(header::CONTENT_TYPE).unwrap(),
+            "text/html"
+        );
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert!(String::from_utf8_lossy(&body).contains("iframe.html-block-iframe"));
     }
 
     #[tokio::test]
