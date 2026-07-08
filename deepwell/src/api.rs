@@ -96,7 +96,7 @@ pub async fn build_server_state(
 
     // Connect to databases
     info!("Connecting to PostgreSQL database");
-    let database = database::connect(&database_url)
+    let database = database::connect(&database_url, config.sqlx_logging)
         .await
         .or_raise(make_error)?;
 
