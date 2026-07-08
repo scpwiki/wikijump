@@ -79,6 +79,7 @@ function parseArgs(argv) {
     skipRerender: false,
     rerenderAfterDbCreate: false,
     replaceExisting: false,
+    assumeEmptyDbImport: false,
     attachmentsOnlyExisting: false,
     skipAttachments: false,
     createMode: 'rpc',
@@ -124,6 +125,7 @@ function parseArgs(argv) {
     else if (arg === '--skip-rerender') args.skipRerender = true;
     else if (arg === '--rerender-after-db-create') args.rerenderAfterDbCreate = true;
     else if (arg === '--replace-existing') args.replaceExisting = true;
+    else if (arg === '--assume-empty-db-import') args.assumeEmptyDbImport = true;
     else if (arg === '--attachments-only-existing') args.attachmentsOnlyExisting = true;
     else if (arg === '--skip-attachments') args.skipAttachments = true;
     else if (arg === '--create-mode') {
@@ -142,9 +144,9 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-secret-access-key <secret>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--assume-empty-db-import] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-secret-access-key <secret>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. RPC attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with S3 config from --attachment-s3-* options or S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Use --assume-empty-db-import only on a reset DB shell-import target; it skips per-row active-page probes and lets database uniqueness fail closed if the assumption is wrong. RPC attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with S3 config from --attachment-s3-* options or S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -181,6 +183,12 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   }
   if (args.replaceExisting && args.createMode !== 'db') {
     throw new Error('--replace-existing requires --create-mode db');
+  }
+  if (args.assumeEmptyDbImport && args.createMode !== 'db') {
+    throw new Error('--assume-empty-db-import requires --create-mode db');
+  }
+  if (args.assumeEmptyDbImport && (args.adoptExisting || args.replaceExisting)) {
+    throw new Error('--assume-empty-db-import cannot be combined with --adopt-existing or --replace-existing');
   }
   if (args.attachmentsOnlyExisting && args.replaceExisting) {
     throw new Error('--attachments-only-existing cannot be combined with --replace-existing');
@@ -1181,7 +1189,7 @@ async function importRow(args, sqlExecutor, row, importRunId) {
   let action;
 
   if (args.createMode === 'db') {
-    const existing = await existingActivePage(args, sqlExecutor, row.fullname);
+    const existing = args.assumeEmptyDbImport ? null : await existingActivePage(args, sqlExecutor, row.fullname);
     let replaceExistingRevision = false;
     if (existing !== null) {
       const existingSnapshotStatus = await pageSnapshotStatus(args, sqlExecutor, row, existing.page_id);
