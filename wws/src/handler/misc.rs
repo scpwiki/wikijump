@@ -53,10 +53,15 @@ const HTML_BLOCK_IFRAME_JS: &str = r##"(function() {
     //  ^ keep the same protocol (http/https)    ^ iframe hash to pass when resizing      ^ original domain     ^ authorization key
     var url_array = location.toString().split('/');
     var iframe_hash = url_array[5];
+    var resize_domain = url_array[6];
+    if (/^\d+$/.test(resize_domain) && url_array[3] == '-' && url_array[4] == 'html') {
+        iframe_hash = resize_domain;
+        resize_domain = location.host;
+    }
     var random = Math.random();
     var resize_div_id = 'div_' + iframe_hash + random;
     var resize_iframe_id = 'iframe_' + iframe_hash + random;
-    var resize_url = url_array[0] + '//' + url_array[6] + '/common--javascript/resize-iframe.html';
+    var resize_url = url_array[0] + '//' + resize_domain + '/common--javascript/resize-iframe.html';
     //               ^ http:               ^ www.wikidot.dev (original domain)
 
     var get_height = function() {
@@ -254,7 +259,9 @@ mod tests {
         let body = body::to_bytes(response.into_body(), usize::MAX)
             .await
             .unwrap();
-        assert!(String::from_utf8_lossy(&body).contains("resize_url"));
+        let body = String::from_utf8_lossy(&body);
+        assert!(body.contains("resize_url"));
+        assert!(body.contains("resize_domain = location.host"));
     }
 
     #[tokio::test]
