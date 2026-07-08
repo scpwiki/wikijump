@@ -25,7 +25,7 @@ use crate::types::{PageId, RerenderDepth};
 use futures::{StreamExt, stream};
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, Value};
 use sea_orm::{DatabaseTransaction, TransactionTrait};
-use std::env;
+use std::{collections::BTreeMap, env};
 
 const ACTION: &str = "render-finalize";
 const DEFAULT_BATCH_SIZE: i64 = 100;
@@ -39,6 +39,7 @@ pub struct CorpusRenderFinalizerService;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RenderFinalizerSettings {
     pub import_run_id: Option<i64>,
+    pub pass: RenderFinalizerPass,
     pub batch_size: i64,
     pub concurrency: usize,
     pub lease_seconds: i64,
@@ -51,6 +52,7 @@ pub struct RenderFinalizerSummary {
     action: &'static str,
     dry_run: bool,
     import_run_id: Option<i64>,
+    pass: &'static str,
     batch_size: i64,
     concurrency: usize,
     lease_seconds: i64,
@@ -59,6 +61,7 @@ pub struct RenderFinalizerSummary {
     claimed: usize,
     rendered: usize,
     render_failed: usize,
+    reason_counts: BTreeMap<String, usize>,
     items: Vec<RenderFinalizerItem>,
 }
 
@@ -73,8 +76,105 @@ struct RenderFinalizerItem {
     site_id: Option<i64>,
     page_category_id: Option<i64>,
     attempts: i32,
+    reasons: Vec<String>,
     outcome: Option<String>,
     error: Option<String>,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum RenderFinalizerPass {
+    Pass1,
+    Pass2,
+}
+
+impl RenderFinalizerPass {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Pass1 => "pass1",
+            Self::Pass2 => "pass2",
+        }
+    }
+
+    fn candidate_joins(self) -> &'static str {
+        match self {
+            Self::Pass1 => "",
+            Self::Pass2 => {
+                "
+                JOIN page_revision AS revision
+                    ON revision.revision_id = page.latest_revision_id
+                JOIN text AS revision_text
+                    ON revision_text.hash = revision.wikitext_hash
+                "
+            }
+        }
+    }
+
+    fn candidate_filter(self) -> &'static str {
+        match self {
+            Self::Pass1 => "item.state = 'render_pending'",
+            Self::Pass2 => {
+                "
+                item.state = 'rendered'
+                AND (
+                    revision_text.contents ~* '\\[\\[module[[:space:]]+(backlinks|listpages|countpages|tagcloud)'
+                    OR page.slug = '_template'
+                    OR page.slug LIKE '%:_template'
+                    OR EXISTS (
+                        SELECT 1
+                        FROM site
+                        WHERE site.site_id = page.site_id
+                        AND page.slug IN (site.top_bar_page, site.side_bar_page)
+                    )
+                    OR EXISTS (
+                        SELECT 1
+                        FROM page_category AS nav_category
+                        WHERE nav_category.site_id = page.site_id
+                        AND page.slug IN (nav_category.top_bar_page, nav_category.side_bar_page)
+                    )
+                )
+                "
+            }
+        }
+    }
+
+    fn candidate_reasons(self) -> &'static str {
+        match self {
+            Self::Pass1 => "'{}'::text[]",
+            Self::Pass2 => {
+                "
+                array_remove(ARRAY[
+                    CASE
+                        WHEN revision_text.contents ~* '\\[\\[module[[:space:]]+backlinks'
+                        THEN 'source_backlinks_module'
+                    END,
+                    CASE
+                        WHEN revision_text.contents ~* '\\[\\[module[[:space:]]+(listpages|countpages|tagcloud)'
+                        THEN 'source_query_module'
+                    END,
+                    CASE
+                        WHEN page.slug = '_template' OR page.slug LIKE '%:_template'
+                        THEN 'template_source'
+                    END,
+                    CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM site
+                            WHERE site.site_id = page.site_id
+                            AND page.slug IN (site.top_bar_page, site.side_bar_page)
+                        )
+                        OR EXISTS (
+                            SELECT 1
+                            FROM page_category AS nav_category
+                            WHERE nav_category.site_id = page.site_id
+                            AND page.slug IN (nav_category.top_bar_page, nav_category.side_bar_page)
+                        )
+                        THEN 'nav_source'
+                    END
+                ], NULL)::text[]
+                "
+            }
+        }
+    }
 }
 
 impl RenderFinalizerSettings {
@@ -88,6 +188,7 @@ impl RenderFinalizerSettings {
                 "DEEPWELL_RENDER_IMPORT_RUN_ID",
                 get("DEEPWELL_RENDER_IMPORT_RUN_ID"),
             )?,
+            pass: parse_render_pass("DEEPWELL_RENDER_PASS", get("DEEPWELL_RENDER_PASS"))?,
             batch_size: parse_positive_i64(
                 "DEEPWELL_RENDER_BATCH_SIZE",
                 get("DEEPWELL_RENDER_BATCH_SIZE"),
@@ -122,9 +223,17 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         settings: RenderFinalizerSettings,
     ) -> Result<RenderFinalizerSummary> {
+        if settings.pass == RenderFinalizerPass::Pass2 && !settings.dry_run {
+            return Err(Error::new(
+                "render-finalize pass2 is reporting-only in this slice; use DEEPWELL_RENDER_DRY_RUN=true",
+                ErrorType::Render,
+            )
+            .into());
+        }
+
         let import_run_id = match settings.import_run_id {
             Some(import_run_id) => Some(import_run_id),
-            None => Self::select_latest_import_run(state).await?,
+            None => Self::select_latest_import_run(state, &settings).await?,
         };
 
         let items = match import_run_id {
@@ -147,11 +256,13 @@ impl CorpusRenderFinalizerService {
             .iter()
             .filter(|item| item.outcome.as_deref() == Some("render_failed"))
             .count();
+        let reason_counts = reason_counts(&items);
 
         Ok(RenderFinalizerSummary {
             action: ACTION,
             dry_run: settings.dry_run,
             import_run_id,
+            pass: settings.pass.as_str(),
             batch_size: settings.batch_size,
             concurrency: settings.concurrency,
             lease_seconds: settings.lease_seconds,
@@ -160,11 +271,15 @@ impl CorpusRenderFinalizerService {
             claimed: if settings.dry_run { 0 } else { items.len() },
             rendered,
             render_failed,
+            reason_counts,
             items,
         })
     }
 
-    async fn select_latest_import_run(state: &ServerState) -> Result<Option<i64>> {
+    async fn select_latest_import_run(
+        state: &ServerState,
+        settings: &RenderFinalizerSettings,
+    ) -> Result<Option<i64>> {
         let make_error = || {
             Error::new(
                 "failed to select latest render-finalize import run",
@@ -174,20 +289,29 @@ impl CorpusRenderFinalizerService {
 
         let statement = Statement::from_string(
             DatabaseBackend::Postgres,
-            str!(
+            format!(
                 "
                 SELECT import_run_id
                 FROM wikidot_corpus_import_run AS run
-                WHERE state IN ('running', 'rendering')
+                WHERE state IN ('running', 'rendering', 'done')
                 AND EXISTS (
                     SELECT 1
                     FROM wikidot_corpus_import_item AS item
+                    LEFT JOIN page
+                        ON page.page_id = item.page_id
+                        AND page.deleted_at IS NULL
+                    {}
                     WHERE item.import_run_id = run.import_run_id
-                    AND item.state = 'render_pending'
+                    AND {}
+                    AND (item.lease_until IS NULL OR item.lease_until <= NOW())
+                    AND item.attempts < {}
                 )
                 ORDER BY started_at DESC, import_run_id DESC
                 LIMIT 1
-                "
+                ",
+                settings.pass.candidate_joins(),
+                settings.pass.candidate_filter(),
+                settings.max_attempts,
             ),
         );
 
@@ -212,30 +336,37 @@ impl CorpusRenderFinalizerService {
             )
         };
 
+        let sql = format!(
+            "
+            SELECT
+                item.import_run_id,
+                item.source_entity_id::text AS source_entity_id,
+                item.source_fullname,
+                item.page_id,
+                page.site_id,
+                page.page_category_id,
+                item.attempts,
+                {} AS reasons
+            FROM wikidot_corpus_import_item AS item
+            LEFT JOIN page
+                ON page.page_id = item.page_id
+                AND page.deleted_at IS NULL
+            {}
+            WHERE item.import_run_id = $1
+            AND {}
+            AND (item.lease_until IS NULL OR item.lease_until <= NOW())
+            AND item.attempts < $2
+            ORDER BY item.updated_at ASC, item.source_fullname ASC
+            LIMIT $3
+            ",
+            settings.pass.candidate_joins(),
+            settings.pass.candidate_filter(),
+            settings.pass.candidate_reasons(),
+        );
+
         let statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
-            str!(
-                "
-                SELECT
-                    item.import_run_id,
-                    item.source_entity_id::text AS source_entity_id,
-                    item.source_fullname,
-                    item.page_id,
-                    page.site_id,
-                    page.page_category_id,
-                    item.attempts
-                FROM wikidot_corpus_import_item AS item
-                LEFT JOIN page
-                    ON page.page_id = item.page_id
-                    AND page.deleted_at IS NULL
-                WHERE item.import_run_id = $1
-                AND item.state = 'render_pending'
-                AND (item.lease_until IS NULL OR item.lease_until <= NOW())
-                AND item.attempts < $2
-                ORDER BY item.updated_at ASC, item.source_fullname ASC
-                LIMIT $3
-                "
-            ),
+            sql,
             [
                 Value::from(import_run_id),
                 Value::from(settings.max_attempts),
@@ -265,51 +396,60 @@ impl CorpusRenderFinalizerService {
             )
         };
 
+        let sql = format!(
+            "
+            WITH candidates AS (
+                SELECT item.import_run_id, item.source_entity_id
+                FROM wikidot_corpus_import_item AS item
+                LEFT JOIN page
+                    ON page.page_id = item.page_id
+                    AND page.deleted_at IS NULL
+                {}
+                WHERE item.import_run_id = $1
+                AND {}
+                AND (item.lease_until IS NULL OR item.lease_until <= NOW())
+                AND item.attempts < $2
+                ORDER BY item.updated_at ASC, item.source_fullname ASC
+                LIMIT $3
+                FOR UPDATE SKIP LOCKED
+            )
+            UPDATE wikidot_corpus_import_item AS item
+            SET
+                state = 'render_running',
+                attempts = item.attempts + 1,
+                lease_until = NOW() + ($4::bigint * INTERVAL '1 second'),
+                error = NULL,
+                updated_at = NOW()
+            FROM candidates
+            WHERE item.import_run_id = candidates.import_run_id
+            AND item.source_entity_id = candidates.source_entity_id
+            RETURNING
+                item.source_entity_id::text AS source_entity_id,
+                item.import_run_id,
+                item.source_fullname,
+                item.page_id,
+                (
+                    SELECT page.site_id
+                    FROM page
+                    WHERE page.page_id = item.page_id
+                    AND page.deleted_at IS NULL
+                ) AS site_id,
+                (
+                    SELECT page.page_category_id
+                    FROM page
+                    WHERE page.page_id = item.page_id
+                    AND page.deleted_at IS NULL
+                ) AS page_category_id,
+                item.attempts,
+                '{{}}'::text[] AS reasons
+            ",
+            settings.pass.candidate_joins(),
+            settings.pass.candidate_filter(),
+        );
+
         let statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
-            str!(
-                "
-                WITH candidates AS (
-                    SELECT item.import_run_id, item.source_entity_id
-                    FROM wikidot_corpus_import_item AS item
-                    WHERE item.import_run_id = $1
-                    AND item.state = 'render_pending'
-                    AND (item.lease_until IS NULL OR item.lease_until <= NOW())
-                    AND item.attempts < $2
-                    ORDER BY item.updated_at ASC, item.source_fullname ASC
-                    LIMIT $3
-                    FOR UPDATE SKIP LOCKED
-                )
-                UPDATE wikidot_corpus_import_item AS item
-                SET
-                    state = 'render_running',
-                    attempts = item.attempts + 1,
-                    lease_until = NOW() + ($4::bigint * INTERVAL '1 second'),
-                    error = NULL,
-                    updated_at = NOW()
-                FROM candidates
-                WHERE item.import_run_id = candidates.import_run_id
-                AND item.source_entity_id = candidates.source_entity_id
-                RETURNING
-                    item.source_entity_id::text AS source_entity_id,
-                    item.import_run_id,
-                    item.source_fullname,
-                    item.page_id,
-                    (
-                        SELECT page.site_id
-                        FROM page
-                        WHERE page.page_id = item.page_id
-                        AND page.deleted_at IS NULL
-                    ) AS site_id,
-                    (
-                        SELECT page.page_category_id
-                        FROM page
-                        WHERE page.page_id = item.page_id
-                        AND page.deleted_at IS NULL
-                    ) AS page_category_id,
-                    item.attempts
-                "
-            ),
+            sql,
             [
                 Value::from(import_run_id),
                 Value::from(settings.max_attempts),
@@ -344,6 +484,7 @@ impl CorpusRenderFinalizerService {
                 .try_get("", "page_category_id")
                 .or_raise(&make_error)?,
             attempts: row.try_get("", "attempts").or_raise(&make_error)?,
+            reasons: row.try_get("", "reasons").or_raise(&make_error)?,
             outcome: None,
             error: None,
         })
@@ -571,6 +712,29 @@ fn parse_optional_positive_i64(name: &str, value: Option<String>) -> Result<Opti
         .transpose()
 }
 
+fn reason_counts(items: &[RenderFinalizerItem]) -> BTreeMap<String, usize> {
+    let mut counts = BTreeMap::new();
+    for reason in items.iter().flat_map(|item| item.reasons.iter()) {
+        *counts.entry(reason.clone()).or_insert(0) += 1;
+    }
+    counts
+}
+
+fn parse_render_pass(name: &str, value: Option<String>) -> Result<RenderFinalizerPass> {
+    let Some(value) = value else {
+        return Ok(RenderFinalizerPass::Pass1);
+    };
+    match value.trim().to_ascii_lowercase().as_str() {
+        "1" | "pass1" | "pass-1" => Ok(RenderFinalizerPass::Pass1),
+        "2" | "pass2" | "pass-2" => Ok(RenderFinalizerPass::Pass2),
+        _ => Err(Error::new(
+            format!("{name} must be 1/pass1 or 2/pass2"),
+            ErrorType::ConfigSetup,
+        )
+        .into()),
+    }
+}
+
 fn parse_positive_i64(name: &str, value: Option<String>, default: i64) -> Result<i64> {
     let Some(value) = value else {
         return Ok(default);
@@ -641,6 +805,7 @@ mod tests {
         let defaults = settings_from_pairs(&[]).unwrap();
 
         assert_eq!(defaults.import_run_id, None);
+        assert_eq!(defaults.pass, RenderFinalizerPass::Pass1);
         assert_eq!(defaults.batch_size, DEFAULT_BATCH_SIZE);
         assert_eq!(defaults.concurrency, DEFAULT_CONCURRENCY);
         assert_eq!(defaults.lease_seconds, DEFAULT_LEASE_SECONDS);
@@ -649,6 +814,7 @@ mod tests {
 
         let configured = settings_from_pairs(&[
             ("DEEPWELL_RENDER_IMPORT_RUN_ID", "42"),
+            ("DEEPWELL_RENDER_PASS", "pass2"),
             ("DEEPWELL_RENDER_BATCH_SIZE", "25"),
             ("DEEPWELL_RENDER_CONCURRENCY", "8"),
             ("DEEPWELL_RENDER_LEASE_SECONDS", "60"),
@@ -658,6 +824,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(configured.import_run_id, Some(42));
+        assert_eq!(configured.pass, RenderFinalizerPass::Pass2);
         assert_eq!(configured.batch_size, 25);
         assert_eq!(configured.concurrency, 8);
         assert_eq!(configured.lease_seconds, 60);
@@ -669,5 +836,60 @@ mod tests {
     fn render_finalizer_settings_reject_non_positive_batch_size() {
         assert!(settings_from_pairs(&[("DEEPWELL_RENDER_BATCH_SIZE", "0")]).is_err());
         assert!(settings_from_pairs(&[("DEEPWELL_RENDER_CONCURRENCY", "0")]).is_err());
+        assert!(settings_from_pairs(&[("DEEPWELL_RENDER_PASS", "third")]).is_err());
+    }
+
+    #[test]
+    fn render_finalizer_pass_two_selects_dependency_sensitive_pages() {
+        let filter = RenderFinalizerPass::Pass2.candidate_filter();
+
+        assert!(filter.contains("backlinks|listpages|countpages|tagcloud"));
+        assert!(filter.contains("page.slug = '_template'"));
+        assert!(filter.contains("nav_category"));
+        assert!(
+            RenderFinalizerPass::Pass2
+                .candidate_joins()
+                .contains("revision_text")
+        );
+        assert!(
+            RenderFinalizerPass::Pass2
+                .candidate_reasons()
+                .contains("source_backlinks_module")
+        );
+    }
+
+    #[test]
+    fn render_finalizer_reason_counts_summarizes_item_reasons() {
+        let items = vec![
+            RenderFinalizerItem {
+                import_run_id: 1,
+                source_entity_id: str!("00000000-0000-4000-8000-000000000001"),
+                source_fullname: str!("nav:top"),
+                page_id: Some(10),
+                site_id: Some(20),
+                page_category_id: Some(30),
+                attempts: 1,
+                reasons: vec![str!("nav_source"), str!("source_query_module")],
+                outcome: None,
+                error: None,
+            },
+            RenderFinalizerItem {
+                import_run_id: 1,
+                source_entity_id: str!("00000000-0000-4000-8000-000000000002"),
+                source_fullname: str!("_template"),
+                page_id: Some(11),
+                site_id: Some(20),
+                page_category_id: Some(31),
+                attempts: 1,
+                reasons: vec![str!("template_source"), str!("source_query_module")],
+                outcome: None,
+                error: None,
+            },
+        ];
+        let counts = reason_counts(&items);
+
+        assert_eq!(counts.get("nav_source"), Some(&1));
+        assert_eq!(counts.get("template_source"), Some(&1));
+        assert_eq!(counts.get("source_query_module"), Some(&2));
     }
 }
