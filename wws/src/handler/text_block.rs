@@ -33,6 +33,13 @@ use axum::response::{IntoResponse, Response};
 use jsonrpsee::core::ClientError;
 use std::collections::HashMap;
 
+const HTML_BLOCK_DOCUMENT_PREFIX: &[u8] = br#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="html-block-html" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-type" content="text/html; charset=utf-8"/><link rel="stylesheet" href="/common--theme/base/css/html-block.css"/></head><body>
+"#;
+const HTML_BLOCK_DOCUMENT_SUFFIX: &[u8] =
+    br#"<script type="text/javascript" src="/common--javascript/html-block-iframe.js"></script></body></html>
+"#;
+
 pub async fn handle_html_block(
     State(state): State<ServerState>,
     Path((page_slug, index)): Path<(String, String)>,
@@ -222,14 +229,7 @@ async fn handle_text_block(
     };
 
     let Headers { content_type, etag } = get_headers(s3_response.headers());
-    let body = Body::from({
-        // Ensure text blocks always end in a newline.
-        // This doesn't make the additional conditional to
-        // avoid confusing behavior.
-        let mut bytes = s3_response.to_vec();
-        bytes.push(b'\n');
-        bytes
-    });
+    let body = Body::from(text_block_response_body(block_type, s3_response.to_vec()));
     let result = Response::builder()
         .header(header::CONTENT_TYPE, &content_type)
         .header(header::ETAG, &etag)
@@ -242,6 +242,31 @@ async fn handle_text_block(
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
         }
     }
+}
+
+fn text_block_response_body(block_type: TextBlockType, bytes: Vec<u8>) -> Vec<u8> {
+    match block_type {
+        TextBlockType::Html => html_block_response_body(bytes),
+        TextBlockType::Code => ensure_trailing_newline(bytes),
+    }
+}
+
+fn html_block_response_body(bytes: Vec<u8>) -> Vec<u8> {
+    let bytes = ensure_trailing_newline(bytes);
+    let mut body = Vec::with_capacity(
+        HTML_BLOCK_DOCUMENT_PREFIX.len() + bytes.len() + HTML_BLOCK_DOCUMENT_SUFFIX.len(),
+    );
+    body.extend_from_slice(HTML_BLOCK_DOCUMENT_PREFIX);
+    body.extend_from_slice(&bytes);
+    body.extend_from_slice(HTML_BLOCK_DOCUMENT_SUFFIX);
+    body
+}
+
+fn ensure_trailing_newline(mut bytes: Vec<u8>) -> Vec<u8> {
+    if !bytes.ends_with(b"\n") {
+        bytes.push(b'\n');
+    }
+    bytes
 }
 
 async fn get_text_block_info(
@@ -377,6 +402,43 @@ mod tests {
 
         assert_eq!(parsed.content_type, "text/html");
         assert_eq!(parsed.etag, "\"abc\"");
+    }
+
+    #[test]
+    fn html_block_response_wraps_author_bytes_in_wikidot_document() {
+        let author = b"<html><head><style>body { color: red; }</style></head><body><p>Hi</p><script>run()</script></body></html>".to_vec();
+
+        let body = text_block_response_body(TextBlockType::Html, author.clone());
+        let body_text = String::from_utf8(body).unwrap();
+
+        assert!(body_text.starts_with(
+            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\""
+        ));
+        assert!(body_text.contains("<html id=\"html-block-html\" xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">"));
+        assert!(body_text.contains(
+            "<meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\"/>"
+        ));
+        assert!(body_text.contains(
+            "<link rel=\"stylesheet\" href=\"/common--theme/base/css/html-block.css\"/>"
+        ));
+        assert!(body_text.contains("<body>\n<html><head><style>body { color: red; }</style></head><body><p>Hi</p><script>run()</script></body></html>\n<script type=\"text/javascript\" src=\"/common--javascript/html-block-iframe.js\"></script></body></html>"));
+        assert_eq!(body_text.matches("<p>Hi</p>").count(), 1);
+        assert_eq!(body_text.matches("<script>run()</script>").count(), 1);
+    }
+
+    #[test]
+    fn code_block_response_stays_unwrapped() {
+        let body = text_block_response_body(TextBlockType::Code, b"let x = 1;".to_vec());
+
+        assert_eq!(body, b"let x = 1;\n");
+    }
+
+    #[test]
+    fn text_block_response_preserves_existing_trailing_newline() {
+        let body =
+            text_block_response_body(TextBlockType::Code, b"let x = 1;\n".to_vec());
+
+        assert_eq!(body, b"let x = 1;\n");
     }
 
     #[test]
