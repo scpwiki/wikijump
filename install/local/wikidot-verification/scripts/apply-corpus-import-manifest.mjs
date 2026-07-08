@@ -42,7 +42,10 @@ let shellBodyHash = null;
 let shellBodyTextPrecreated = false;
 const precomputedTextHashes = new Map();
 const precomputedSourceTexts = new Map();
+const precreatedSourceTextHashes = new Set();
 const precreatedCategoryIds = new Map();
+const SOURCE_TEXT_PRECREATE_MAX_ROWS = 200;
+const SOURCE_TEXT_PRECREATE_MAX_BASE64_BYTES = 4 * 1024 * 1024;
 
 function envString(name) {
   const value = process.env[name];
@@ -334,6 +337,43 @@ ON CONFLICT (hash) DO NOTHING;
   shellBodyTextPrecreated = true;
 }
 
+async function precreateDbSourceTexts(args, sqlExecutor, selectedRows) {
+  if (args.createMode !== 'db' || !args.textHashBatchCommand || selectedRows.length === 0) return;
+  let batch = [];
+  let batchBytes = 0;
+
+  async function flush() {
+    if (batch.length === 0) return;
+    const sql = `
+INSERT INTO text (hash, contents)
+VALUES
+${batch.map((item) => item.valueSql).join(',\n')}
+ON CONFLICT (hash) DO NOTHING;
+`;
+    await sqlExecutor.runSql(sql);
+    for (const item of batch) {
+      precreatedSourceTextHashes.add(item.fullname);
+    }
+    batch = [];
+    batchBytes = 0;
+  }
+
+  for (const row of selectedRows) {
+    const contents = sourceText(row);
+    const hash = textHashHex(args, contents, row.fullname);
+    const encodedBytes = Buffer.byteLength(contents, 'utf8') * 4 / 3;
+    if (batch.length > 0 && (batch.length >= SOURCE_TEXT_PRECREATE_MAX_ROWS || batchBytes + encodedBytes > SOURCE_TEXT_PRECREATE_MAX_BASE64_BYTES)) {
+      await flush();
+    }
+    batch.push({
+      fullname: row.fullname,
+      valueSql: `(${sqlTextHash(hash)}, ${sqlTextFromBase64(contents)})`,
+    });
+    batchBytes += encodedBytes;
+  }
+  await flush();
+}
+
 function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
   const categories = [...new Set(selectedRows.map((row) => categoryName(row.fullname)))].sort();
   if (args.createMode !== 'db' || categories.length === 0) return null;
@@ -554,7 +594,8 @@ function categoryName(slug) {
 }
 
 async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision = false } = {}) {
-  const wikitext = sourceText(row);
+  const sourceTextPrecreated = precreatedSourceTextHashes.has(row.fullname);
+  const wikitext = sourceTextPrecreated ? '' : sourceText(row);
   const wikitextHash = textHashHex(args, wikitext, row.fullname);
   const bodyHash = shellBodyHashHex(args);
   const title = fallbackTitle(row);
@@ -578,6 +619,16 @@ async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision
   ON CONFLICT (hash) DO NOTHING
   RETURNING 1
 )`;
+  const wikitextSql = sourceTextPrecreated
+    ? `prefetched_wikitext AS (
+  SELECT 1
+)`
+    : `inserted_wikitext AS (
+  INSERT INTO text (hash, contents)
+  VALUES (${sqlTextHash(wikitextHash)}, ${sqlTextFromBase64(wikitext)})
+  ON CONFLICT (hash) DO NOTHING
+  RETURNING 1
+)`;
   const canUseExisting = canReuseExistingPageForDbImport(args, { replaceExistingRevision });
   const sql = `
 CREATE TEMP TABLE corpus_shell_import_result (
@@ -589,12 +640,7 @@ CREATE TEMP TABLE corpus_shell_import_result (
   created_revision BOOLEAN NOT NULL DEFAULT false
 ) ON COMMIT DROP;
 
-WITH inserted_wikitext AS (
-  INSERT INTO text (hash, contents)
-  VALUES (${sqlTextHash(wikitextHash)}, ${sqlTextFromBase64(wikitext)})
-  ON CONFLICT (hash) DO NOTHING
-  RETURNING 1
-)${bodyTextSql}, ${categorySql}, target_page AS (
+WITH ${wikitextSql}${bodyTextSql}, ${categorySql}, target_page AS (
   SELECT
     p.page_id,
     p.page_category_id,
@@ -1414,6 +1460,7 @@ async function main() {
     precomputeDbTextHashes(args, selectedRows);
     const importRunId = await ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory);
     await precreateDbShellBodyText(args, sqlExecutor, selectedRows);
+    await precreateDbSourceTexts(args, sqlExecutor, selectedRows);
     await precreateDbShellCategories(args, sqlExecutor, selectedRows);
     const results = [];
     const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId };
