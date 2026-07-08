@@ -25,6 +25,9 @@
 //! as if motivated by a script.
 
 use super::{Config, SetupConfig};
+use crate::services::corpus_render_finalizer::{
+    CorpusRenderFinalizerService, RenderFinalizerSettings,
+};
 use crate::{api, database};
 use std::path::PathBuf;
 use std::{env, process};
@@ -40,6 +43,7 @@ pub async fn run_runtime_action() {
     let return_code = match action_name.as_str() {
         "config" | "validate-config" => validate_config(),
         "seeder" | "run-seeder" => run_seeder().await,
+        "render-finalize" => run_render_finalize().await,
         _ => {
             eprintln!("Unknown runtime action: {action_name}");
             process::exit(1);
@@ -92,6 +96,42 @@ async fn run_seeder() -> i32 {
         }
         Err(error) => {
             println!("error:");
+            eprintln!("{error:?}");
+            1
+        }
+    }
+}
+
+async fn run_render_finalize() -> i32 {
+    let settings = match RenderFinalizerSettings::from_env() {
+        Ok(settings) => settings,
+        Err(error) => {
+            eprintln!("{error:?}");
+            return 1;
+        }
+    };
+
+    let SetupConfig { secrets, config } = SetupConfig::load_only();
+    let app_state = match api::build_server_state(config, secrets).await {
+        Ok(app_state) => app_state,
+        Err(error) => {
+            eprintln!("{error:?}");
+            return 1;
+        }
+    };
+
+    match CorpusRenderFinalizerService::run(&app_state, settings).await {
+        Ok(summary) => match serde_json::to_string(&summary) {
+            Ok(json) => {
+                println!("{json}");
+                0
+            }
+            Err(error) => {
+                eprintln!("{error:?}");
+                1
+            }
+        },
+        Err(error) => {
             eprintln!("{error:?}");
             1
         }
