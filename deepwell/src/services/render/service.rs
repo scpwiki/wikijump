@@ -4300,7 +4300,9 @@ impl RenderService {
             || text.contains("[[/=]]")
             || text.lines().any(|line| {
                 let trimmed = line.trim();
-                trimmed == "////" || Self::wikidot_compat_horizontal_rule_marker(trimmed)
+                trimmed == "////"
+                    || trimmed == "@@ @@"
+                    || Self::wikidot_compat_horizontal_rule_marker(trimmed)
             })
             || text.contains("[[=image")
             || text.contains("[[[")
@@ -4368,10 +4370,32 @@ impl RenderService {
         let mut size_depth = 0usize;
         let mut embed_body: Option<String> = None;
         let mut html_body: Option<String> = None;
+        let mut tabview_body: Option<String> = None;
         let mut center_depth = 0usize;
 
         for line in text.lines() {
             let trimmed = line.trim();
+            if tabview_body.is_some() {
+                if trimmed.eq_ignore_ascii_case("[[/tabview]]") {
+                    let body = tabview_body.take().unwrap_or_default();
+                    Self::push_wikidot_compat_fallback_paragraph_for_page(
+                        &mut output,
+                        &mut paragraph,
+                        current_page,
+                    );
+                    output.push_str(&Self::render_wikidot_compat_fallback_tabview_html(
+                        &body,
+                        current_page,
+                        local_file_site_slug,
+                        html_block_texts,
+                    ));
+                } else if let Some(body) = tabview_body.as_mut() {
+                    body.push_str(line);
+                    body.push('\n');
+                }
+                continue;
+            }
+
             if html_body.is_some() {
                 if trimmed.eq_ignore_ascii_case("[[/html]]") {
                     let body = html_body.take().unwrap_or_default();
@@ -4516,19 +4540,23 @@ impl RenderService {
                 continue;
             }
 
+            if trimmed == "@@ @@" {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                output.push_str(r#"<span style="white-space: pre-wrap;"> </span><br>"#);
+                continue;
+            }
+
             if trimmed.eq_ignore_ascii_case("[[tabview]]") {
                 Self::push_wikidot_compat_fallback_paragraph_for_page(
                     &mut output,
                     &mut paragraph,
                     current_page,
                 );
-                if !tabview_open {
-                    output.push_str(WIKIDOT_TABVIEW_SCRIPT);
-                    output.push_str(
-                        r#"<div class="yui-navset wikidot-compat-tabview"><div class="yui-content">"#,
-                    );
-                    tabview_open = true;
-                }
+                tabview_body = Some(String::new());
                 continue;
             }
 
@@ -4676,6 +4704,10 @@ impl RenderService {
             paragraph.push_str("[[html]]\n");
             paragraph.push_str(&body);
         }
+        if let Some(body) = tabview_body {
+            paragraph.push_str("[[tabview]]\n");
+            paragraph.push_str(&body);
+        }
         Self::push_wikidot_compat_fallback_paragraph_for_page(
             &mut output,
             &mut paragraph,
@@ -4697,6 +4729,121 @@ impl RenderService {
             center_depth -= 1;
         }
         output
+    }
+
+    fn render_wikidot_compat_fallback_tabview_html(
+        text: &str,
+        current_page: Option<&str>,
+        local_file_site_slug: Option<&str>,
+        html_block_texts: &mut Vec<String>,
+    ) -> String {
+        let Some(tabs) = Self::parse_wikidot_compat_fallback_tabs(text) else {
+            let mut output = String::new();
+            output.push_str("<p>");
+            output.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
+                "[[tabview]]",
+                current_page,
+            ));
+            output.push_str("</p>");
+            output.push_str(&Self::render_wikidot_compat_fallback_text_html_with_blocks(
+                text,
+                current_page,
+                local_file_site_slug,
+                html_block_texts,
+            ));
+            output.push_str("<p>");
+            output.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
+                "[[/tabview]]",
+                current_page,
+            ));
+            output.push_str("</p>");
+            return output;
+        };
+
+        let mut output = String::new();
+        output.push_str(WIKIDOT_TABVIEW_SCRIPT);
+        output.push_str(
+            r#"<div class="yui-navset yui-navset-top wikidot-compat-tabview">"#,
+        );
+        output.push_str(r#"<ul class="yui-nav">"#);
+        for (index, (title, _)) in tabs.iter().enumerate() {
+            if index == 0 {
+                output.push_str(
+                    r#"<li class="selected" title="active"><a href="javascript:;"><em>"#,
+                );
+            } else {
+                output.push_str(r#"<li><a href="javascript:;"><em>"#);
+            }
+            output.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
+                title,
+                current_page,
+            ));
+            output.push_str("</em></a></li>");
+        }
+        output.push_str(r#"</ul><div class="yui-content">"#);
+
+        for (index, (_, body)) in tabs.iter().enumerate() {
+            if index == 0 {
+                output.push_str(r#"<div style="display: block;">"#);
+            } else {
+                output.push_str(r#"<div style="display:none">"#);
+            }
+            output.push_str(&Self::render_wikidot_compat_fallback_text_html_with_blocks(
+                body,
+                current_page,
+                local_file_site_slug,
+                html_block_texts,
+            ));
+            output.push_str("</div>");
+        }
+
+        output.push_str("</div></div>");
+        output.push_str(WIKIDOT_TABVIEW_INIT_SCRIPT);
+        output
+    }
+
+    fn parse_wikidot_compat_fallback_tabs(text: &str) -> Option<Vec<(String, String)>> {
+        let mut tabs = Vec::new();
+        let mut current_title: Option<String> = None;
+        let mut current_body = String::new();
+        let mut prelude = String::new();
+
+        for line in text.lines() {
+            let trimmed = line.trim();
+            if let Some(title) = Self::wikidot_compat_tab_title(trimmed) {
+                if let Some(title) = current_title.take() {
+                    tabs.push((title, std::mem::take(&mut current_body)));
+                } else if !prelude.trim().is_empty() {
+                    return None;
+                }
+                current_title = Some(title.to_owned());
+                continue;
+            }
+
+            if trimmed.eq_ignore_ascii_case("[[/tab]]") {
+                let title = current_title.take()?;
+                tabs.push((title, std::mem::take(&mut current_body)));
+                continue;
+            }
+
+            if current_title.is_some() {
+                current_body.push_str(line);
+                current_body.push('\n');
+            } else {
+                prelude.push_str(line);
+                prelude.push('\n');
+            }
+        }
+
+        if let Some(title) = current_title {
+            tabs.push((title, current_body));
+        }
+
+        if tabs.is_empty() || !prelude.trim().is_empty() {
+            return None;
+        }
+
+        Some(tabs)
     }
 
     fn wikidot_compat_horizontal_rule_marker(marker: &str) -> bool {
@@ -4925,6 +5072,17 @@ impl RenderService {
             }
             attributes.push_str(r#" class=""#);
             attributes.push_str(&escape_list_pages_html_attr(&class));
+            attributes.push('"');
+        }
+
+        if let Some(id) = Self::wikidot_marker_attr(marker, "id") {
+            if !id.chars().all(|character| {
+                character.is_ascii_alphanumeric() || matches!(character, '-' | '_')
+            }) {
+                return None;
+            }
+            attributes.push_str(r#" id="u-"#);
+            attributes.push_str(&escape_list_pages_html_attr(&id));
             attributes.push('"');
         }
 
@@ -11825,16 +11983,74 @@ mod tests {
                 Some("scp-wiki"),
             );
 
-        assert!(html.contains(r#"<div class="yui-navset wikidot-compat-tabview">"#));
-        assert!(html.contains(r#"<div class="wikidot-compat-tab"><h3>SCPs</h3>"#));
+        assert!(html.contains(
+            r#"<div class="yui-navset yui-navset-top wikidot-compat-tabview">"#
+        ));
+        assert!(html.contains(r#"<ul class="yui-nav">"#));
+        assert!(html.contains(
+            r#"<li class="selected" title="active"><a href="javascript:;"><em>SCPs</em></a></li>"#
+        ));
+        assert!(html.contains(r#"<div style="display: block;">"#));
         assert!(html.contains(r#"<span style="font-size: 75%;">"#));
         assert!(html.contains(r#"<div class="image-container aligncenter">"#));
         assert!(html.contains(r#"src="https://scp-wiki.wdfiles.com/local--files/the-great-hippo/hippo2.jpg""#));
         assert!(html.contains(r#"class="image image-size-small""#));
+        assert!(!html.contains(r#"<div class="wikidot-compat-tab"><h3>"#));
         assert!(!html.contains("[[tabview"));
         assert!(!html.contains("[[tab"));
         assert!(!html.contains("[[size"));
         assert!(!html.contains("[[=image"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_renders_raw_space_markers_as_spacers() {
+        let html = RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+            "before\n@@ @@\nafter\ninline @@ @@ stays\n",
+        );
+
+        assert!(html.contains(r#"<span style="white-space: pre-wrap;"> </span><br>"#));
+        assert!(!html.contains("<p>@@ @@</p>"));
+        assert!(html.contains("inline @@ @@ stays"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_preserves_tabview_bodies_in_hidden_panels() {
+        let source = concat!(
+            "[[div class=\"closable-tab\"]]\n",
+            "[[tabview]]\n",
+            "[[tab X]]\n",
+            "[[/tab]]\n",
+            "[[tab One]]\n",
+            "first body\n",
+            "[[div id=\"newest\"]]\n",
+            "[[/div]]\n",
+            "[[/tab]]\n",
+            "[[tab Two]]\n",
+            "second body\n",
+            "[[/tab]]\n",
+            "[[/tabview]]\n",
+            "[[/div]]\n",
+        );
+
+        let html =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(source);
+
+        assert!(html.contains(r#"<div class="closable-tab">"#));
+        assert!(html.contains(
+            r#"<div class="yui-navset yui-navset-top wikidot-compat-tabview">"#
+        ));
+        assert!(html.contains(r#"<ul class="yui-nav">"#));
+        assert!(html.contains(
+            r#"<li class="selected" title="active"><a href="javascript:;"><em>X</em></a></li>"#
+        ));
+        assert!(html.contains(r#"<li><a href="javascript:;"><em>One</em></a></li>"#));
+        assert!(html.contains(r#"<li><a href="javascript:;"><em>Two</em></a></li>"#));
+        assert!(html.contains(r#"<div style="display: block;"></div>"#));
+        assert!(html.contains(r#"<div style="display:none"><p>first body</p><div id="u-newest"></div></div>"#));
+        assert!(html.contains(r#"<div style="display:none"><p>second body</p></div>"#));
+        assert!(!html.contains(r#"<div class="wikidot-compat-tab"><h3>"#));
+        assert!(!html.contains("[[tabview"));
+        assert!(!html.contains("[[tab "));
     }
 
     #[test]
