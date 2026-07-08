@@ -403,6 +403,54 @@ test("capturePage can scope visible text to the main frame", async () => {
   assert.equal(result.visibleText, "main frame text");
 });
 
+test("capturePage skips hidden child frames for all-frame visible text", async () => {
+  const mainFrame = {async evaluate() { return "main frame text"; }};
+  const visibleFrame = {
+    async frameElement() {
+      return {async evaluate() { return true; }};
+    },
+    async evaluate() {
+      return "visible iframe text";
+    },
+  };
+  const hiddenFrame = {
+    async frameElement() {
+      return {async evaluate() { return false; }};
+    },
+    async evaluate() {
+      throw new Error("hidden frame text should not be read");
+    },
+  };
+  const page = {
+    on() {},
+    mainFrame() {
+      return mainFrame;
+    },
+    async goto() {
+      return {status: () => 200};
+    },
+    async waitForLoadState() {},
+    frames() {
+      return [mainFrame, visibleFrame, hiddenFrame];
+    },
+    async content() {
+      return "<html>main frame text</html>";
+    },
+    url() {
+      return "https://local.example/page";
+    },
+  };
+
+  const result = await capturePage(page, "https://local.example/page", {
+    timeoutMs: 100,
+    waitUntil: "domcontentloaded",
+    settleMs: 0,
+    screenshotPath: null,
+  });
+
+  assert.equal(result.visibleText, "main frame text\nvisible iframe text");
+});
+
 test("capturePage records delayed main-frame navigation failures", async () => {
   const handlers = new Map();
   const mainFrame = {name: "main"};
