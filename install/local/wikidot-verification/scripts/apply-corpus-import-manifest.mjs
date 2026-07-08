@@ -39,6 +39,7 @@ const SHELL_BODY_HTML = `<div class="wj-proof-stub ${SHELL_IMPORT_MARKER}">${SHE
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from scp-wiki-translation corpus';
 let shellBodyHash = null;
+let shellBodyTextPrecreated = false;
 const precomputedTextHashes = new Map();
 const precomputedSourceTexts = new Map();
 const precreatedCategoryIds = new Map();
@@ -322,6 +323,17 @@ function precomputeDbTextHashes(args, selectedRows) {
   }
 }
 
+async function precreateDbShellBodyText(args, sqlExecutor, selectedRows) {
+  if (args.createMode !== 'db' || selectedRows.length === 0) return;
+  const sql = `
+INSERT INTO text (hash, contents)
+VALUES (${sqlTextHash(shellBodyHashHex(args))}, ${sqlTextFromBase64(SHELL_BODY_HTML)})
+ON CONFLICT (hash) DO NOTHING;
+`;
+  await sqlExecutor.runSql(sql);
+  shellBodyTextPrecreated = true;
+}
+
 function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
   const categories = [...new Set(selectedRows.map((row) => categoryName(row.fullname)))].sort();
   if (args.createMode !== 'db' || categories.length === 0) return null;
@@ -543,7 +555,6 @@ function categoryName(slug) {
 
 async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision = false } = {}) {
   const wikitext = sourceText(row);
-  const bodyHtml = SHELL_BODY_HTML;
   const wikitextHash = textHashHex(args, wikitext, row.fullname);
   const bodyHash = shellBodyHashHex(args);
   const title = fallbackTitle(row);
@@ -558,6 +569,14 @@ async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision
 )`
     : `category AS (
   SELECT ${sqlInt(precreatedCategoryId)}::bigint AS category_id
+)`;
+  const bodyTextSql = shellBodyTextPrecreated
+    ? ''
+    : `, inserted_body AS (
+  INSERT INTO text (hash, contents)
+  VALUES (${sqlTextHash(bodyHash)}, ${sqlTextFromBase64(SHELL_BODY_HTML)})
+  ON CONFLICT (hash) DO NOTHING
+  RETURNING 1
 )`;
   const canUseExisting = canReuseExistingPageForDbImport(args, { replaceExistingRevision });
   const sql = `
@@ -575,12 +594,7 @@ WITH inserted_wikitext AS (
   VALUES (${sqlTextHash(wikitextHash)}, ${sqlTextFromBase64(wikitext)})
   ON CONFLICT (hash) DO NOTHING
   RETURNING 1
-), inserted_body AS (
-  INSERT INTO text (hash, contents)
-  VALUES (${sqlTextHash(bodyHash)}, ${sqlTextFromBase64(bodyHtml)})
-  ON CONFLICT (hash) DO NOTHING
-  RETURNING 1
-), ${categorySql}, target_page AS (
+)${bodyTextSql}, ${categorySql}, target_page AS (
   SELECT
     p.page_id,
     p.page_category_id,
@@ -1399,6 +1413,7 @@ async function main() {
 
     precomputeDbTextHashes(args, selectedRows);
     const importRunId = await ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory);
+    await precreateDbShellBodyText(args, sqlExecutor, selectedRows);
     await precreateDbShellCategories(args, sqlExecutor, selectedRows);
     const results = [];
     const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId };
