@@ -1123,6 +1123,10 @@ ON CONFLICT (import_run_id, source_entity_id) DO UPDATE SET
 `;
 }
 
+function canCombineSnapshotReadyRecord(args) {
+  return args.skipRerender && (args.skipAttachments || args.attachmentCreateMode === 'direct');
+}
+
 async function importRow(args, sqlExecutor, row, importRunId) {
   if (args.attachmentsOnlyExisting) {
     const existing = await getPage(args, row.fullname);
@@ -1258,13 +1262,23 @@ async function importRow(args, sqlExecutor, row, importRunId) {
     }
   }
 
-  await sqlExecutor.runSql(upsertSnapshotSql(args, row, pageId, revisionId, importRunId));
-  const attachmentSummary = await materializeRowAttachments(args, row, pageId);
   if (args.skipRerender) {
-    await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'render_pending'));
+    const snapshotSql = upsertSnapshotSql(args, row, pageId, revisionId, importRunId);
+    const renderPendingSql = recordItemSql(row, pageId, importRunId, 'render_pending');
+    let attachmentSummary;
+    if (canCombineSnapshotReadyRecord(args)) {
+      await sqlExecutor.runSql(`${snapshotSql}\n${renderPendingSql}`);
+      attachmentSummary = await materializeRowAttachments(args, row, pageId);
+    } else {
+      await sqlExecutor.runSql(snapshotSql);
+      attachmentSummary = await materializeRowAttachments(args, row, pageId);
+      await sqlExecutor.runSql(renderPendingSql);
+    }
     return { slug: row.fullname, action: `${action}_snapshot_ready`, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length, ...attachmentSummary };
   }
 
+  await sqlExecutor.runSql(upsertSnapshotSql(args, row, pageId, revisionId, importRunId));
+  const attachmentSummary = await materializeRowAttachments(args, row, pageId);
   await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'render_pending'));
   try {
     await rerenderPage(args, pageId, categoryId);
