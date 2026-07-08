@@ -1018,6 +1018,9 @@ impl RenderService {
         let html = Self::restore_wikidot_mailform_compatibility(&html);
         let html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
         let html = Self::restore_residual_wikidot_span_markers(&html);
+        let html = Self::restore_residual_wikidot_alignment_markers(&html);
+        let html = Self::restore_residual_wikidot_separator_markers(&html);
+        let html = Self::restore_residual_wikidot_heading_markers(&html);
         let html = Self::remove_residual_wikidot_iftags_fragments(&html);
         let html = Self::remove_wikijump_table_body_wrappers(&html);
         let html = Self::remove_wikidot_compat_style_blocks(&html);
@@ -1429,6 +1432,227 @@ impl RenderService {
             .replace("&#34;", "\"")
             .replace("&#x22;", "\"")
             .replace("&#X22;", "\"")
+    }
+
+    fn restore_residual_wikidot_alignment_markers(html: &str) -> String {
+        let mut output = String::with_capacity(html.len());
+        let mut alignment_stack: Vec<&'static str> = Vec::new();
+        let mut raw_text_depth = 0usize;
+
+        for line in html.split_inclusive('\n') {
+            let (line_body, line_end) = line
+                .strip_suffix('\n')
+                .map_or((line, ""), |body| (body, "\n"));
+            let trimmed = line_body.trim();
+            let protected = raw_text_depth > 0;
+
+            if !protected {
+                if let Some((alignment, replacement)) =
+                    Self::residual_wikidot_alignment_open_replacement(trimmed)
+                {
+                    alignment_stack.push(alignment);
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        replacement,
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+
+                if let Some(alignment) = Self::residual_wikidot_alignment_close(trimmed)
+                    && alignment_stack.last().copied() == Some(alignment)
+                {
+                    alignment_stack.pop();
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        "</div>",
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+            }
+
+            output.push_str(line_body);
+            output.push_str(line_end);
+            raw_text_depth =
+                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
+        }
+
+        output
+    }
+
+    fn residual_wikidot_alignment_open_replacement(
+        marker: &str,
+    ) -> Option<(&'static str, &'static str)> {
+        match marker.to_ascii_lowercase().as_str() {
+            "[[=]]" => Some(("center", r#"<div style="text-align: center;">"#)),
+            "[[<]]" | "[[&lt;]]" => Some(("left", r#"<div style="text-align: left;">"#)),
+            "[[>]]" | "[[&gt;]]" => {
+                Some(("right", r#"<div style="text-align: right;">"#))
+            }
+            _ => None,
+        }
+    }
+
+    fn residual_wikidot_alignment_close(marker: &str) -> Option<&'static str> {
+        match marker.to_ascii_lowercase().as_str() {
+            "[[/=]]" => Some("center"),
+            "[[/<]]" | "[[/&lt;]]" => Some("left"),
+            "[[/>]]" | "[[/&gt;]]" => Some("right"),
+            _ => None,
+        }
+    }
+
+    fn restore_residual_wikidot_separator_markers(html: &str) -> String {
+        let mut output = String::with_capacity(html.len());
+        let mut raw_text_depth = 0usize;
+
+        for line in html.split_inclusive('\n') {
+            let (line_body, line_end) = line
+                .strip_suffix('\n')
+                .map_or((line, ""), |body| (body, "\n"));
+            let trimmed = line_body.trim();
+            let protected = raw_text_depth > 0;
+
+            if !protected {
+                if Self::residual_wikidot_horizontal_rule_line(trimmed) {
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        "<hr>",
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+
+                if trimmed == "@@ @@" {
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        r#"<p><span style="white-space: pre-wrap;"> </span></p>"#,
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+
+                if trimmed == "~~~~" {
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        r#"<div style="clear:both; height: 0px; font-size: 1px"></div>"#,
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+            }
+
+            output.push_str(line_body);
+            output.push_str(line_end);
+            raw_text_depth =
+                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
+        }
+
+        output
+    }
+
+    fn residual_wikidot_horizontal_rule_line(line: &str) -> bool {
+        line.len() >= 4 && line.chars().all(|character| character == '-')
+    }
+
+    fn restore_residual_wikidot_heading_markers(html: &str) -> String {
+        let mut output = String::with_capacity(html.len());
+        let mut raw_text_depth = 0usize;
+
+        for line in html.split_inclusive('\n') {
+            let (line_body, line_end) = line
+                .strip_suffix('\n')
+                .map_or((line, ""), |body| (body, "\n"));
+            let trimmed = line_body.trim();
+            let protected = raw_text_depth > 0;
+
+            if !protected {
+                if Self::residual_wikidot_content_section_line(trimmed) {
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        "",
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+
+                if let Some((level, body)) =
+                    Self::residual_wikidot_heading_replacement(trimmed)
+                {
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        &format!("<h{level}><span>{body}</span></h{level}>"),
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+            }
+
+            output.push_str(line_body);
+            output.push_str(line_end);
+            raw_text_depth =
+                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
+        }
+
+        output
+    }
+
+    fn residual_wikidot_content_section_line(line: &str) -> bool {
+        line.len() >= 4 && line.chars().all(|character| character == '=')
+    }
+
+    fn residual_wikidot_heading_replacement(line: &str) -> Option<(usize, &str)> {
+        let level = line.bytes().take_while(|byte| *byte == b'+').count();
+        if !(1..=6).contains(&level) {
+            return None;
+        }
+
+        let mut body = &line[level..];
+        if body.starts_with('*') {
+            body = &body[1..];
+        }
+        body = body.trim_start();
+        if body.is_empty() {
+            return None;
+        }
+
+        Some((level, body))
     }
 
     fn remove_residual_wikidot_iftags_fragments(html: &str) -> String {
@@ -14495,6 +14719,130 @@ mod tests {
         );
 
         let restored = RenderService::restore_residual_wikidot_span_markers(html);
+
+        assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn restores_standalone_residual_wikidot_alignment_lines() {
+        let html = concat!(
+            "<div>\n",
+            "[[=]]\n",
+            "**Centered**\n",
+            "[[/=]]\n",
+            "[[&lt;]]\n",
+            "Left\n",
+            "[[/&lt;]]\n",
+            "[[&gt;]]\n",
+            "Right\n",
+            "[[/&gt;]]\n",
+            "</div>\n",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_alignment_markers(html);
+
+        assert!(restored.contains(r#"<div style="text-align: center;">"#,));
+        assert!(restored.contains(r#"<div style="text-align: left;">"#));
+        assert!(restored.contains(r#"<div style="text-align: right;">"#));
+        assert!(!restored.contains("[[=]]"));
+        assert!(!restored.contains("[[/=]]"));
+        assert!(!restored.contains("[[&lt;]]"));
+        assert!(!restored.contains("[[/&lt;]]"));
+        assert!(!restored.contains("[[&gt;]]"));
+        assert!(!restored.contains("[[/&gt;]]"));
+    }
+
+    #[test]
+    fn leaves_standalone_residual_wikidot_alignment_lines_inside_pre() {
+        let html = concat!("<pre>\n", "[[=]]\n", "literal\n", "[[/=]]\n", "</pre>\n");
+
+        let restored = RenderService::restore_residual_wikidot_alignment_markers(html);
+
+        assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn leaves_standalone_residual_wikidot_alignment_closer_without_opener() {
+        let html = "Before\n[[/=]]\nAfter\n";
+
+        let restored = RenderService::restore_residual_wikidot_alignment_markers(html);
+
+        assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn restores_standalone_residual_wikidot_separator_lines() {
+        let html = concat!("Before\n", "------\n", "@@ @@\n", "~~~~\n", "After\n",);
+
+        let restored = RenderService::restore_residual_wikidot_separator_markers(html);
+
+        assert!(restored.contains("Before\n<hr>\n"));
+        assert!(
+            restored.contains(r#"<p><span style="white-space: pre-wrap;"> </span></p>"#)
+        );
+        assert!(
+            restored.contains(
+                r#"<div style="clear:both; height: 0px; font-size: 1px"></div>"#
+            )
+        );
+        assert!(!restored.contains("------"));
+        assert!(!restored.contains("@@ @@"));
+        assert!(!restored.contains("~~~~"));
+    }
+
+    #[test]
+    fn leaves_standalone_residual_wikidot_separator_lines_inside_raw_text() {
+        let html = concat!(
+            "<style>\n",
+            "------\n",
+            "@@ @@\n",
+            "</style>\n",
+            "<pre>\n",
+            "~~~~\n",
+            "</pre>\n",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_separator_markers(html);
+
+        assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn restores_standalone_residual_wikidot_heading_lines() {
+        let html = concat!(
+            "====\n",
+            "++* Info\n",
+            "++ 43NET DEVICE REPORT\n",
+            "+++ **Chief, Security and Containment Section**\n",
+            "=====\n",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_heading_markers(html);
+
+        assert!(restored.contains("<h2><span>Info</span></h2>"));
+        assert!(restored.contains("<h2><span>43NET DEVICE REPORT</span></h2>"));
+        assert!(restored.contains(
+            "<h3><span>**Chief, Security and Containment Section**</span></h3>"
+        ));
+        assert!(!restored.contains("===="));
+        assert!(!restored.contains("====="));
+        assert!(!restored.contains("++*"));
+        assert!(!restored.contains("++ 43NET"));
+    }
+
+    #[test]
+    fn leaves_standalone_residual_wikidot_heading_lines_inside_raw_text() {
+        let html = concat!(
+            "<style>\n",
+            "++ hidden\n",
+            "====\n",
+            "</style>\n",
+            "<pre>\n",
+            "+++ literal\n",
+            "</pre>\n",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_heading_markers(html);
 
         assert_eq!(restored, html);
     }
