@@ -29,6 +29,7 @@
 //! The service also contains the core method `ViewService::get_viewer()`, which converts the
 //! requesting domain and session token into a site and user, respectively.
 
+use super::article_cache::ArticlePageCache;
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
@@ -89,11 +90,27 @@ impl ViewService {
         if !input.locales.contains(&preload.viewer.site.locale) {
             input.locales.push(preload.viewer.site.locale.clone());
         }
-        let page = Self::page(ctx, input).await?;
+        let cache_key = ArticlePageCache::key(ctx, &input).await?;
+        if let Some(cache_key) = &cache_key
+            && let Some(page) = ArticlePageCache::get(ctx, cache_key).await?
+        {
+            return Ok(GetArticleViewOutput {
+                viewer: preload.viewer,
+                page,
+            });
+        }
+
+        let page_view = Self::page(ctx, input).await?;
+        if let (Some(cache_key), GetPageViewOutput::Found { page, .. }) =
+            (&cache_key, &page_view)
+            && page.from_wikidot
+        {
+            ArticlePageCache::set(ctx, cache_key, &page_view).await?;
+        }
 
         Ok(GetArticleViewOutput {
             viewer: preload.viewer,
-            page,
+            page: page_view,
         })
     }
 
