@@ -61,16 +61,16 @@ export class CodeElement extends HTMLElement {
       if (this.language) {
         this.language = null
         await animationFrame(() => {
-          this.content = element.innerText
+          this.content = element.textContent ?? ""
           this.html = this.content
-          element.innerHTML = this.content
+          element.textContent = this.content
         })
       }
       return
     }
 
     await animationFrame(async () => {
-      const content = element.innerText
+      const content = element.textContent ?? ""
 
       // don't waste resources if we're just doing the same thing
       if (!this.html || this.content !== content || this.language !== language) {

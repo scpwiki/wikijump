@@ -11,6 +11,14 @@ This module wraps around the Prism syntax highlighting library.
 >
 > These values will be found near the top of whatever Prism file you are editing.
 
+The following vendored Prism grammars are disabled at runtime because CodeQL flags exponential backtracking risk in their current regular expressions:
+* `aspnet`
+* `csharp`, `cs`, `dotnet`
+* `jsx`
+* `rust`
+* `svelte`
+* `tsx`
+
 The following languages have highlighting support:
 * `css`
 * `clike`
@@ -20,7 +28,6 @@ The following languages have highlighting support:
 * `apl`
 * `arduino`
 * `asciidoc`
-* `aspnet`
 * `autohotkey`
 * `bash`
 * `basic`
@@ -29,7 +36,6 @@ The following languages have highlighting support:
 * `brainfuck`
 * `brightscript`
 * `c`
-* `csharp`
 * `cpp`
 * `clojure`
 * `cobol`
@@ -89,12 +95,9 @@ The following languages have highlighting support:
 * `python`
 * `qml`
 * `r`
-* `jsx`
-* `tsx`
 * `regex`
 * `rest`
 * `ruby`
-* `rust`
 * `sass`
 * `scss`
 * `scala`

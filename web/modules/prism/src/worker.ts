@@ -8,10 +8,21 @@ import { prismFTML } from "./ftml"
 /** Reference to the Prism syntax highlighter. */
 export const Prism: typeof PrismType = globalThis.Prism
 
+const BLOCKED_LANGS = new Set([
+  "aspnet",
+  "cs",
+  "csharp",
+  "dotnet",
+  "jsx",
+  "rust",
+  "svelte",
+  "tsx"
+])
+
 // add languages
 prismBase(Prism)
 prismSvelte(Prism)
-prismFTML(Prism)
+prismFTML(Prism, BLOCKED_LANGS)
 
 // set prism class prefix
 // https://prismjs.com/plugins/custom-class/
@@ -21,12 +32,23 @@ Prism.plugins.customClass.prefix("wj-code-")
 const encode: (src: string) => string = Prism.util.encode as any
 
 const RAW_LANGS = ["raw", "text", "none", ""]
+const MAX_HIGHLIGHT_CODE_UNITS = 100_000
+
+function canHighlight(lang: string) {
+  return (
+    lang &&
+    !RAW_LANGS.includes(lang) &&
+    !BLOCKED_LANGS.has(lang) &&
+    Object.prototype.hasOwnProperty.call(Prism.languages, lang) &&
+    typeof Prism.languages[lang] !== "function"
+  )
+}
 
 const module = {
   /** Returns the list of languages (and their aliases) supported by Prism. */
   getLanguages() {
     return Object.keys(Prism.languages).filter(
-      lang => typeof Prism.languages[lang] !== "function"
+      lang => !BLOCKED_LANGS.has(lang) && typeof Prism.languages[lang] !== "function"
     )
   },
   /**
@@ -42,7 +64,7 @@ const module = {
    */
   highlight(code: string, lang: string) {
     try {
-      if (lang && !RAW_LANGS.includes(lang) && lang in Prism.languages) {
+      if (code.length <= MAX_HIGHLIGHT_CODE_UNITS && canHighlight(lang)) {
         const grammar = Prism.languages[lang]
         const html = Prism.highlight(code, grammar, lang)
         return html
