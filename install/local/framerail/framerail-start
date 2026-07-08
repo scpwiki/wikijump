@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+case "${FRAMERAIL_MODE:-dev}" in
+    dev)
+        exec pnpm dev
+        ;;
+    built)
+        pnpm build
+        exec /usr/bin/env HOST="${HOST:-0.0.0.0}" PORT="${PORT:-3393}" node build
+        ;;
+    *)
+        echo "Unsupported FRAMERAIL_MODE: ${FRAMERAIL_MODE}" >&2
+        exit 64
+        ;;
+esac
