@@ -116,6 +116,7 @@ const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
 const LISTPAGES_NO_MATCH_AUTHOR_ID: &str = "-9223372036854775808";
 const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
 const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
+const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
 const WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTEMBEDIFRAME";
 const WIKIDOT_CSS_MODULE_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCSSMODULE";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
@@ -303,6 +304,9 @@ static WIKIDOT_IMAGE_BLOCK_INCLUDE_START_REGEX: LazyLock<Regex> = LazyLock::new(
         r#"(?is)\[\[include\s+(?::(?P<site>[A-Za-z0-9_-]+):)?component:image-block(?P<after>\s|\||\]\])"#,
     )
     .unwrap()
+});
+static WIKIDOT_INCLUDE_OPEN_LINE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?im)^\[\[\s*(?P<keyword>include)(?P<after>\s+)").unwrap()
 });
 static WIKIDOT_COMPAT_STYLE_BLOCK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)<style\b[^>]*\btype\s*=\s*["']text/css["'][^>]*>.*?</style>"#)
@@ -1892,6 +1896,30 @@ impl RenderService {
         }
     }
 
+    fn mask_wikidot_comment_include_markers(wikitext: &mut String) {
+        let source = wikitext.clone();
+        let mut replacements = Vec::new();
+
+        for captures in WIKIDOT_INCLUDE_OPEN_LINE_REGEX.captures_iter(&source) {
+            let keyword = captures
+                .name("keyword")
+                .expect("include keyword capture exists");
+            if Self::is_inside_wikidot_comment(&source, keyword.start()) {
+                replacements.push(keyword.range());
+            }
+        }
+
+        for range in replacements.into_iter().rev() {
+            wikitext.replace_range(range, WIKIDOT_COMMENT_INCLUDE_SENTINEL);
+        }
+    }
+
+    fn unmask_wikidot_comment_include_markers(wikitext: &mut String) {
+        if wikitext.contains(WIKIDOT_COMMENT_INCLUDE_SENTINEL) {
+            *wikitext = wikitext.replace(WIKIDOT_COMMENT_INCLUDE_SENTINEL, "include");
+        }
+    }
+
     fn wikidot_image_block_source(name: &str, page_info: &PageInfo<'_>) -> String {
         if name.starts_with("http://")
             || name.starts_with("https://")
@@ -2776,6 +2804,7 @@ impl RenderService {
         Box::pin(async move {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
+            Self::mask_wikidot_comment_include_markers(&mut wikitext);
             let image_block_included_pages = if expansion_context
                 .expand_wikidot_image_blocks
                 && expansion_context.current_site_slug
@@ -2801,6 +2830,7 @@ impl RenderService {
 
             if includes.is_empty() {
                 let mut wikitext = wikitext;
+                Self::unmask_wikidot_comment_include_markers(&mut wikitext);
                 protect_include_variables(&mut wikitext);
                 return Ok(IncludeExpansion {
                     wikitext,
@@ -2897,6 +2927,7 @@ impl RenderService {
                 include_error,
             )?;
 
+            Self::unmask_wikidot_comment_include_markers(&mut expanded);
             protect_include_variables(&mut expanded);
 
             let mut included_pages = image_block_included_pages;
@@ -4107,7 +4138,12 @@ impl RenderService {
             return;
         }
 
-        let text = chunk.trim_end_matches('\n');
+        let cleaned = Self::strip_wikidot_comments_from_text(chunk);
+        let text = cleaned.trim_end_matches('\n');
+        if text.is_empty() {
+            chunk.clear();
+            return;
+        }
         if Self::wikidot_compat_text_has_markup(text) {
             body.push_str(&Self::render_wikidot_compat_fallback_text_html_for_context(
                 text,
@@ -4159,6 +4195,7 @@ impl RenderService {
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
     ) -> String {
+        let text = Self::strip_wikidot_comments_from_text(text);
         let mut output = String::with_capacity(text.len());
         let mut paragraph = String::new();
         let mut in_style = false;
@@ -4349,6 +4386,33 @@ impl RenderService {
         output
     }
 
+    fn strip_wikidot_comments_from_text(text: &str) -> String {
+        let mut output = String::with_capacity(text.len());
+        let mut rest = text;
+        let mut in_comment = false;
+
+        while !rest.is_empty() {
+            if in_comment {
+                let Some(end) = rest.find("--]") else {
+                    break;
+                };
+                rest = &rest[end + "--]".len()..];
+                in_comment = false;
+                continue;
+            }
+
+            let Some(start) = rest.find("[!--") else {
+                output.push_str(rest);
+                break;
+            };
+            output.push_str(&rest[..start]);
+            rest = &rest[start + "[!--".len()..];
+            in_comment = true;
+        }
+
+        output
+    }
+
     fn wikidot_compat_tab_title(marker: &str) -> Option<&str> {
         let lower = marker.to_ascii_lowercase();
         if !lower.starts_with("[[tab ") || !marker.ends_with("]]") {
@@ -4480,7 +4544,16 @@ impl RenderService {
     }
 
     fn wikidot_compat_div_attributes(marker: &str) -> Option<String> {
-        if !marker.starts_with("[[div") || !marker.ends_with("]]") {
+        if !marker.ends_with("]]") {
+            return None;
+        }
+
+        let lower = marker.to_ascii_lowercase();
+        if lower != "[[div]]"
+            && lower != "[[div_]]"
+            && !lower.starts_with("[[div ")
+            && !lower.starts_with("[[div_ ")
+        {
             return None;
         }
 
@@ -4503,7 +4576,7 @@ impl RenderService {
             attributes.push('"');
         }
 
-        (!attributes.is_empty()).then_some(attributes)
+        Some(attributes)
     }
 
     #[allow(dead_code)]
@@ -10976,8 +11049,10 @@ mod tests {
     fn wikidot_compatibility_fallback_renders_generated_listpages_divs() {
         let source = concat!(
             "[[div class=\"list-pages-box\"]]\n",
+            "[[div_]]\n",
             "[[div class=\"list-pages-item\"]]\n",
             "**<span class=\"odate time_123 format_%25e%20%25b%20%25Y%20%25H%3A%25M\">9 Aug 2017 13:06</span> <span style=\"color: green\">+3034</span>**\n",
+            "[[/div]]\n",
             "[[/div]]\n",
             "[[/div]]\n",
         );
@@ -10986,6 +11061,7 @@ mod tests {
             RenderService::render_wikidot_compatibility_fallback_with_code_blocks(source);
 
         assert!(html.contains(r#"<div class="list-pages-box">"#));
+        assert!(html.contains(r#"<div><div class="list-pages-item">"#));
         assert!(html.contains(r#"<div class="list-pages-item">"#));
         assert!(html.contains("<strong>"));
         assert!(html.contains(
@@ -10996,6 +11072,55 @@ mod tests {
         assert!(html.contains("+3034"));
         assert!(!html.contains("[[div"));
         assert!(!html.contains("[[/div]]"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_strips_visible_comment_blocks() {
+        let source = concat!(
+            "[[module CSS]]\n",
+            ".theme { display: block; }\n",
+            "[[/module]]\n",
+            "[[div_]]\n",
+            "[!--\n",
+            "Usage:\n",
+            " [[include :scp-wiki:component:interwiki-style\n",
+            "| priority=X\n",
+            "]]\n",
+            "--]\n",
+            "Visible body\n",
+            "[[/div]]\n",
+        );
+        let source = RenderService::render_wikidot_compat_fallback_css_modules(source);
+
+        let html = RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+            &source,
+        );
+
+        assert!(html.contains(r#"<div class="wikidot-compat-fallback">"#));
+        assert!(html.contains(r#"<div><p>Visible body</p></div>"#));
+        assert!(html.contains(".theme { display: block; }"));
+        assert!(!html.contains("Usage:"));
+        assert!(!html.contains("[[include :scp-wiki:component:interwiki-style"));
+        assert!(!html.contains("[!--"));
+        assert!(!html.contains("[[div_]]"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_preserves_comments_inside_code_blocks() {
+        let source = concat!(
+            "[[code]]\n",
+            "[!-- kept as code --]\n",
+            "[[/code]]\n",
+            "[!-- hidden prose --]\n",
+            "Visible prose\n",
+        );
+
+        let html =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(source);
+
+        assert!(html.contains("[!-- kept as code --]"));
+        assert!(html.contains("Visible prose"));
+        assert!(!html.contains("hidden prose"));
     }
 
     #[test]
@@ -11854,6 +11979,134 @@ mod tests {
                 PageRef::page_only("component:image-block-base"),
             ],
         );
+    }
+
+    #[test]
+    fn skips_generic_includes_inside_wikidot_comments() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "[!--\n",
+            "Usage:\n",
+            "[[include :scp-wiki:component:interwiki-style\n",
+            "| priority=1\n",
+            "]]\n",
+            "--]\n",
+            "[[include component:live]]\n",
+        )
+        .to_owned();
+
+        RenderService::mask_wikidot_comment_include_markers(&mut wikitext);
+        let mut includes = Vec::new();
+        ftml::include(
+            &wikitext,
+            &settings,
+            CollectingIncluder {
+                includes: &mut includes,
+            },
+            include_error,
+        )
+        .expect("include collection should skip comment-hidden usage examples");
+        RenderService::unmask_wikidot_comment_include_markers(&mut wikitext);
+
+        assert_eq!(includes.len(), 1);
+        assert_eq!(
+            includes[0].page_ref(),
+            &PageRef::page_only("component:live")
+        );
+        assert!(wikitext.contains("[[include :scp-wiki:component:interwiki-style"));
+    }
+
+    #[test]
+    fn strips_included_comment_usage_examples_after_expansion() {
+        let page_info =
+            fallback_test_page_info("scp-anthology-2024", "SCP Anthology 2024");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut component_source = concat!(
+            "[!--\n",
+            "Usage:\n",
+            "[[include :scp-wiki:component:interwiki-style\n",
+            "| priority=1\n",
+            "]]\n",
+            "--]\n",
+            "[[embed]]\n",
+            "<iframe src=\"/-/wikidot-interwiki/styleFrame.html?priority=1\"></iframe>\n",
+            "[[/embed]]\n",
+        )
+        .to_owned();
+
+        RenderService::mask_wikidot_comment_include_markers(&mut component_source);
+        let mut nested_includes = Vec::new();
+        ftml::include(
+            &component_source,
+            &settings,
+            CollectingIncluder {
+                includes: &mut nested_includes,
+            },
+            include_error,
+        )
+        .expect("comment usage examples should not request nested pages");
+        RenderService::unmask_wikidot_comment_include_markers(&mut component_source);
+
+        let (mut expanded, included_pages) = ftml::include(
+            "[[include :scp-wiki:component:interwiki-style]]\n",
+            &settings,
+            PreparedIncluder {
+                pages: vec![Some(component_source)],
+            },
+            include_error,
+        )
+        .expect("prepared include should expand the component source");
+        ftml::preprocess(&mut expanded);
+        let tokens = ftml::tokenize(&expanded);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(nested_includes.is_empty());
+        assert_eq!(
+            included_pages,
+            vec![PageRef::page_and_site(
+                "scp-wiki",
+                "component:interwiki-style"
+            )]
+        );
+        assert!(rendered.contains("styleFrame.html?priority=1"));
+        assert!(!rendered.contains("Usage:"));
+        assert!(!rendered.contains("[[include :scp-wiki:component:interwiki-style"));
+    }
+
+    #[test]
+    fn keeps_selected_comment_branch_includes_collectable() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "[!-- --]\n",
+            "[[include component:selected]]\n",
+            "[!----]\n",
+            "[!-- {$inc-hidden}\n",
+            "[[include component:hidden]]\n",
+            "[!----]\n",
+        )
+        .to_owned();
+
+        RenderService::mask_wikidot_comment_include_markers(&mut wikitext);
+        let mut includes = Vec::new();
+        ftml::include(
+            &wikitext,
+            &settings,
+            CollectingIncluder {
+                includes: &mut includes,
+            },
+            include_error,
+        )
+        .expect("include collection should keep selected branch includes");
+        RenderService::unmask_wikidot_comment_include_markers(&mut wikitext);
+
+        assert_eq!(includes.len(), 1);
+        assert_eq!(
+            includes[0].page_ref(),
+            &PageRef::page_only("component:selected")
+        );
+        assert!(wikitext.contains("[[include component:hidden]]"));
     }
 
     #[test]
