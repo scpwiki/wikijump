@@ -1017,6 +1017,7 @@ impl RenderService {
         let html = Self::resolve_residual_wikidot_simple_if_fragments(&html);
         let html = Self::restore_wikidot_mailform_compatibility(&html);
         let html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
+        let html = Self::restore_residual_wikidot_span_markers(&html);
         let html = Self::remove_residual_wikidot_iftags_fragments(&html);
         let html = Self::remove_wikijump_table_body_wrappers(&html);
         let html = Self::remove_wikidot_compat_style_blocks(&html);
@@ -1236,7 +1237,7 @@ impl RenderService {
     fn restore_residual_wikidot_div_paragraph_markers(html: &str) -> String {
         let mut restored_open_count = 0usize;
 
-        WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX
+        let restored = WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
                 if let Some(marker) = captures.name("open") {
                     let marker = marker
@@ -1244,7 +1245,7 @@ impl RenderService {
                         .replace("&quot;", "\"")
                         .replace("&#34;", "\"");
                     if let Some(attributes) =
-                        Self::wikidot_residual_div_paragraph_attributes(&marker)
+                        Self::wikidot_residual_div_attributes(&marker)
                     {
                         restored_open_count += 1;
                         return format!("<div{attributes}>");
@@ -1260,7 +1261,174 @@ impl RenderService {
                 restored_open_count -= 1;
                 "</div>".to_owned()
             })
-            .into_owned()
+            .into_owned();
+
+        Self::restore_standalone_residual_wikidot_div_markers(&restored)
+    }
+
+    fn restore_standalone_residual_wikidot_div_markers(html: &str) -> String {
+        let mut output = String::with_capacity(html.len());
+        let mut restored_open_count = 0usize;
+        let mut raw_text_depth = 0usize;
+
+        for line in html.split_inclusive('\n') {
+            let (line_body, line_end) = line
+                .strip_suffix('\n')
+                .map_or((line, ""), |body| (body, "\n"));
+            let trimmed = line_body.trim();
+            let protected = raw_text_depth > 0;
+
+            if !protected && trimmed.starts_with("[[div") && trimmed.ends_with("]]") {
+                let marker = trimmed.replace("&quot;", "\"").replace("&#34;", "\"");
+                if let Some(attributes) = Self::wikidot_residual_div_attributes(&marker) {
+                    restored_open_count += 1;
+                    Self::push_replaced_standalone_wikidot_marker_line(
+                        &mut output,
+                        line_body,
+                        line_end,
+                        &format!("<div{attributes}>"),
+                    );
+                    raw_text_depth = Self::update_residual_div_raw_text_depth(
+                        raw_text_depth,
+                        line_body,
+                    );
+                    continue;
+                }
+            }
+
+            if !protected
+                && trimmed.eq_ignore_ascii_case("[[/div]]")
+                && restored_open_count > 0
+            {
+                restored_open_count -= 1;
+                Self::push_replaced_standalone_wikidot_marker_line(
+                    &mut output,
+                    line_body,
+                    line_end,
+                    "</div>",
+                );
+                raw_text_depth =
+                    Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
+                continue;
+            }
+
+            output.push_str(line_body);
+            output.push_str(line_end);
+            raw_text_depth =
+                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
+        }
+
+        output
+    }
+
+    fn push_replaced_standalone_wikidot_marker_line(
+        output: &mut String,
+        line_body: &str,
+        line_end: &str,
+        replacement: &str,
+    ) {
+        let prefix_len = line_body.len() - line_body.trim_start().len();
+        let suffix_len = line_body.len() - line_body.trim_end().len();
+        output.push_str(&line_body[..prefix_len]);
+        output.push_str(replacement);
+        output.push_str(&line_body[line_body.len() - suffix_len..]);
+        output.push_str(line_end);
+    }
+
+    fn update_residual_div_raw_text_depth(mut depth: usize, line: &str) -> usize {
+        let lower = line.to_ascii_lowercase();
+        for tag in ["pre", "code", "textarea", "style", "script"] {
+            depth += lower.matches(&format!("<{tag}")).count();
+            depth = depth.saturating_sub(lower.matches(&format!("</{tag}>")).count());
+        }
+        depth
+    }
+
+    fn restore_residual_wikidot_span_markers(html: &str) -> String {
+        let mut output = String::with_capacity(html.len());
+        let mut raw_text_depth = 0usize;
+        let mut unprotected_segment = String::new();
+
+        for line in html.split_inclusive('\n') {
+            let (line_body, line_end) = line
+                .strip_suffix('\n')
+                .map_or((line, ""), |body| (body, "\n"));
+            let protected = raw_text_depth > 0;
+
+            if protected {
+                if !unprotected_segment.is_empty() {
+                    output.push_str(
+                        &Self::restore_residual_wikidot_span_markers_in_segment(
+                            &unprotected_segment,
+                        ),
+                    );
+                    unprotected_segment.clear();
+                }
+                output.push_str(line_body);
+                output.push_str(line_end);
+            } else {
+                unprotected_segment.push_str(line_body);
+                unprotected_segment.push_str(line_end);
+            }
+            raw_text_depth =
+                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
+        }
+
+        if !unprotected_segment.is_empty() {
+            output.push_str(&Self::restore_residual_wikidot_span_markers_in_segment(
+                &unprotected_segment,
+            ));
+        }
+
+        output
+    }
+
+    fn restore_residual_wikidot_span_markers_in_segment(segment: &str) -> String {
+        let mut output = String::with_capacity(segment.len());
+        let mut rest = segment;
+
+        while let Some(start) = rest.find("[[span") {
+            let (before, marker_start) = rest.split_at(start);
+            output.push_str(before);
+
+            let Some(marker_end) = marker_start.find("]]") else {
+                output.push_str(marker_start);
+                return output;
+            };
+            let marker = &marker_start[..marker_end + 2];
+            let decoded_marker = Self::decode_residual_wikidot_marker_quotes(marker);
+            let after_marker = &marker_start[marker_end + 2..];
+
+            let Some(open_tag) = wikidot_inline_span_marker_open(&decoded_marker) else {
+                output.push_str(marker);
+                rest = after_marker;
+                continue;
+            };
+
+            let Some(close_start) = find_matching_wikidot_span_close(after_marker) else {
+                output.push_str(marker);
+                rest = after_marker;
+                continue;
+            };
+
+            output.push_str(&open_tag);
+            output.push_str(&Self::restore_residual_wikidot_span_markers_in_segment(
+                &after_marker[..close_start],
+            ));
+            output.push_str("</span>");
+            rest = &after_marker[close_start + "[[/span]]".len()..];
+        }
+
+        output.push_str(rest);
+        output
+    }
+
+    fn decode_residual_wikidot_marker_quotes(marker: &str) -> String {
+        marker
+            .replace("&quot;", "\"")
+            .replace("&#34;", "\"")
+            .replace("&#x22;", "\"")
+            .replace("&#X22;", "\"")
     }
 
     fn remove_residual_wikidot_iftags_fragments(html: &str) -> String {
@@ -5244,11 +5412,11 @@ impl RenderService {
         Self::wikidot_div_attributes(marker, true)
     }
 
-    fn wikidot_residual_div_paragraph_attributes(marker: &str) -> Option<String> {
+    fn wikidot_residual_div_attributes(marker: &str) -> Option<String> {
         Self::wikidot_div_attributes(marker, false)
     }
 
-    fn wikidot_div_attributes(marker: &str, allow_id: bool) -> Option<String> {
+    fn wikidot_div_attributes(marker: &str, prefix_ids: bool) -> Option<String> {
         if !marker.ends_with("]]") {
             return None;
         }
@@ -5260,6 +5428,15 @@ impl RenderService {
             && !lower.starts_with("[[div_ ")
         {
             return None;
+        }
+
+        let inner = marker
+            .strip_prefix("[[div")
+            .and_then(|value| value.strip_suffix("]]"))?
+            .trim();
+
+        if inner.is_empty() || inner == "_" {
+            return Some(String::new());
         }
 
         let mut attributes = String::new();
@@ -5276,15 +5453,15 @@ impl RenderService {
         }
 
         if let Some(id) = Self::wikidot_marker_attr(marker, "id") {
-            if !allow_id {
-                return None;
-            }
             if !id.chars().all(|character| {
                 character.is_ascii_alphanumeric() || matches!(character, '-' | '_')
             }) {
                 return None;
             }
-            attributes.push_str(r#" id="u-"#);
+            attributes.push_str(r#" id=""#);
+            if prefix_ids {
+                attributes.push_str("u-");
+            }
             attributes.push_str(&escape_list_pages_html_attr(&id));
             attributes.push('"');
         }
@@ -5295,7 +5472,7 @@ impl RenderService {
             attributes.push('"');
         }
 
-        Some(attributes)
+        (!attributes.is_empty()).then_some(attributes)
     }
 
     #[allow(dead_code)]
@@ -14208,13 +14385,116 @@ mod tests {
     #[test]
     fn leaves_residual_wikidot_div_closer_without_restored_opener() {
         let html = concat!(
-            r#"<p>[[div id=&quot;unsupported&quot;]]</p>"#,
+            r#"<p>[[div onclick=&quot;unsupported&quot;]]</p>"#,
             r#"<span>Body</span>"#,
             r#"<p>[[/div]]</p>"#,
         );
 
         let restored =
             RenderService::restore_residual_wikidot_div_paragraph_markers(html);
+
+        assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn restores_standalone_residual_wikidot_div_lines() {
+        let html = concat!(
+            "====\n",
+            r#"[[div class=&quot;preview&quot;]]"#,
+            "\nPreview text\n",
+            "[[/div]]\n",
+            r#"[[div id=&quot;cromthumbnail&quot; style=&quot;display: none;&quot;]]"#,
+            "\nHidden text\n",
+            "[[/div]]\n",
+            "[[div]]\n",
+            "Bare body\n",
+            "[[/div]]\n",
+        );
+
+        let restored =
+            RenderService::restore_residual_wikidot_div_paragraph_markers(html);
+
+        assert!(restored.contains(r#"<div class="preview">"#));
+        assert!(restored.contains(r#"<div id="cromthumbnail" style="display: none;">"#));
+        assert!(restored.contains("<div>\nBare body\n</div>"));
+        assert!(!restored.contains("[[div"));
+        assert!(!restored.contains("[[/div]]"));
+    }
+
+    #[test]
+    fn leaves_standalone_residual_wikidot_div_lines_inside_pre() {
+        let html = concat!(
+            "<pre>\n",
+            r#"[[div class=&quot;literal&quot;]]"#,
+            "\nbody\n",
+            "[[/div]]\n",
+            "</pre>\n",
+        );
+
+        let restored =
+            RenderService::restore_residual_wikidot_div_paragraph_markers(html);
+
+        assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn leaves_standalone_residual_wikidot_div_closer_without_restored_opener() {
+        let html = "Before\n[[/div]]\nAfter\n";
+
+        let restored =
+            RenderService::restore_residual_wikidot_div_paragraph_markers(html);
+
+        assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn restores_residual_wikidot_span_markers() {
+        let html = concat!(
+            r#"<div class="top-left-box">"#,
+            r#"[[span class=&quot;item&quot;]]Item#:[[/span]] "#,
+            r#"[[span class=&quot;number&quot; onclick=&quot;bad()&quot;]]SCP-001[[/span]]"#,
+            "</div>",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_span_markers(html);
+
+        assert!(restored.contains(r#"<span class="item">Item#:</span>"#));
+        assert!(restored.contains(r#"<span class="number">SCP-001</span>"#));
+        assert!(!restored.contains("[[span"));
+        assert!(!restored.contains("onclick"));
+    }
+
+    #[test]
+    fn restores_multiline_residual_wikidot_span_markers() {
+        let html = concat!(
+            "<div>\n",
+            r#"[[span style=&quot;font-family: Courier New; font-size: 120%;&quot;]]William Shakespeare has a problem. "#,
+            "\n\n",
+            "None could articulate why.[[/span]]\n",
+            "</div>\n",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_span_markers(html);
+
+        assert!(restored.contains(
+            r#"<span style="font-family: Courier New; font-size: 120%;">William Shakespeare has a problem. "#
+        ));
+        assert!(restored.contains("None could articulate why.</span>"));
+        assert!(!restored.contains("[[span"));
+        assert!(!restored.contains("[[/span]]"));
+    }
+
+    #[test]
+    fn leaves_residual_wikidot_span_markers_inside_pre() {
+        let html = concat!(
+            "<pre>\n",
+            r#"[[span class=&quot;literal&quot;]]body"#,
+            "\n",
+            "still literal[[/span]]",
+            "\n</pre>\n",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_span_markers(html);
 
         assert_eq!(restored, html);
     }
