@@ -25,6 +25,7 @@ use crate::types::{PageId, RerenderDepth};
 use futures::{StreamExt, stream};
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, Value};
 use sea_orm::{DatabaseTransaction, TransactionTrait};
+use std::time::{Duration, Instant};
 use std::{collections::BTreeMap, env};
 
 const ACTION: &str = "render-finalize";
@@ -80,6 +81,8 @@ struct RenderFinalizerItem {
     reasons: Vec<String>,
     outcome: Option<String>,
     error: Option<String>,
+    error_chain: Option<String>,
+    duration_ms: Option<u64>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -496,6 +499,8 @@ impl CorpusRenderFinalizerService {
             reasons: row.try_get("", "reasons").or_raise(&make_error)?,
             outcome: None,
             error: None,
+            error_chain: None,
+            duration_ms: None,
         })
     }
 
@@ -520,6 +525,7 @@ impl CorpusRenderFinalizerService {
         pass: RenderFinalizerPass,
         mut item: RenderFinalizerItem,
     ) -> RenderFinalizerItem {
+        let started_at = Instant::now();
         let result = match (item.page_id, item.site_id, item.page_category_id) {
             (Some(page_id), Some(site_id), Some(page_category_id)) => {
                 Self::render_page(
@@ -547,19 +553,25 @@ impl CorpusRenderFinalizerService {
             }
             Err(error) => {
                 let message = error.to_string();
+                let error_chain = format!("{error:?}");
                 if let Err(update_error) =
-                    Self::mark_item_failed(state, &item, &message).await
+                    Self::mark_item_failed(state, &item, &message, &error_chain).await
                 {
                     item.error = Some(format!(
                         "{message}; failed to mark item failed: {update_error}"
                     ));
+                    item.error_chain = Some(format!(
+                        "{error_chain}; failed to mark item failed: {update_error:?}"
+                    ));
                 } else {
                     item.error = Some(message);
+                    item.error_chain = Some(error_chain);
                 }
                 item.outcome = Some(str!("render_failed"));
             }
         }
 
+        item.duration_ms = Some(duration_millis(started_at.elapsed()));
         item
     }
 
@@ -670,6 +682,7 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         item: &RenderFinalizerItem,
         message: &str,
+        error_chain: &str,
     ) -> Result<()> {
         let make_error = || {
             Error::new(
@@ -687,7 +700,10 @@ impl CorpusRenderFinalizerService {
                 UPDATE wikidot_corpus_import_item
                 SET state = 'render_failed',
                     lease_until = NULL,
-                    error = jsonb_build_object('message', $3::text),
+                    error = jsonb_build_object(
+                        'message', $3::text,
+                        'error_chain', $4::text
+                    ),
                     updated_at = NOW()
                 WHERE import_run_id = $1
                 AND source_entity_id = $2::uuid
@@ -698,6 +714,7 @@ impl CorpusRenderFinalizerService {
                 Value::from(item.import_run_id),
                 Value::from(item.source_entity_id.clone()),
                 Value::from(message.to_owned()),
+                Value::from(error_chain.to_owned()),
             ],
         );
         state
@@ -721,6 +738,10 @@ impl CorpusRenderFinalizerService {
             })?;
         Ok(())
     }
+}
+
+fn duration_millis(duration: Duration) -> u64 {
+    u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
 }
 
 fn parse_optional_positive_i64(name: &str, value: Option<String>) -> Result<Option<i64>> {
@@ -895,6 +916,8 @@ mod tests {
                 reasons: vec![str!("nav_source"), str!("source_query_module")],
                 outcome: None,
                 error: None,
+                error_chain: None,
+                duration_ms: None,
             },
             RenderFinalizerItem {
                 import_run_id: 1,
@@ -907,6 +930,8 @@ mod tests {
                 reasons: vec![str!("template_source"), str!("source_query_module")],
                 outcome: None,
                 error: None,
+                error_chain: None,
+                duration_ms: None,
             },
         ];
         let counts = reason_counts(&items);
@@ -914,5 +939,38 @@ mod tests {
         assert_eq!(counts.get("nav_source"), Some(&1));
         assert_eq!(counts.get("template_source"), Some(&1));
         assert_eq!(counts.get("source_query_module"), Some(&2));
+    }
+
+    #[test]
+    fn duration_millis_returns_whole_milliseconds() {
+        assert_eq!(duration_millis(Duration::from_millis(42)), 42);
+        assert_eq!(duration_millis(Duration::from_micros(1_999)), 1);
+    }
+
+    #[test]
+    fn render_finalizer_item_serializes_diagnostics() {
+        let item = RenderFinalizerItem {
+            import_run_id: 1,
+            source_entity_id: str!("00000000-0000-4000-8000-000000000001"),
+            source_fullname: str!("error-page"),
+            page_id: Some(10),
+            site_id: Some(20),
+            page_category_id: Some(30),
+            attempts: 2,
+            reasons: vec![str!("source_query_module")],
+            outcome: Some(str!("render_failed")),
+            error: Some(str!("render failed")),
+            error_chain: Some(str!("render failed: caused by test")),
+            duration_ms: Some(123),
+        };
+
+        let value = serde_json::to_value(item).unwrap();
+
+        assert_eq!(value["source_fullname"], "error-page");
+        assert_eq!(value["error"], "render failed");
+        assert_eq!(value["error_chain"], "render failed: caused by test");
+        assert_eq!(value["duration_ms"], 123);
+        assert!(value.get("import_run_id").is_none());
+        assert!(value.get("source_entity_id").is_none());
     }
 }
