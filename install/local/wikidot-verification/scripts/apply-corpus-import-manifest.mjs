@@ -48,6 +48,32 @@ const SOURCE_TEXT_PRECREATE_MAX_ROWS = 200;
 const SOURCE_TEXT_PRECREATE_MAX_BASE64_BYTES = 4 * 1024 * 1024;
 const DB_SHELL_BATCH_MAX_ROWS = 200;
 
+function monotonicMsSince(start) {
+  return Number(process.hrtime.bigint() - start) / 1_000_000;
+}
+
+function recordPhaseTiming(timings, name, startedAt) {
+  timings[name] = Math.round(monotonicMsSince(startedAt) * 1000) / 1000;
+}
+
+function timePhaseSync(timings, name, callback) {
+  const startedAt = process.hrtime.bigint();
+  try {
+    return callback();
+  } finally {
+    recordPhaseTiming(timings, name, startedAt);
+  }
+}
+
+async function timePhase(timings, name, callback) {
+  const startedAt = process.hrtime.bigint();
+  try {
+    return await callback();
+  } finally {
+    recordPhaseTiming(timings, name, startedAt);
+  }
+}
+
 function envString(name) {
   const value = process.env[name];
   return value === undefined || value === '' ? null : value;
@@ -1719,17 +1745,21 @@ async function rerenderParentLinkPages(args, sqlExecutor, selectedRows) {
 }
 
 async function main() {
+  const totalStartedAt = process.hrtime.bigint();
+  const phaseTimingsMs = {};
   const args = parseArgs(process.argv.slice(2));
   const sqlExecutor = createSqlExecutor({ dbUrl: args.dbUrl, dbContainer: args.dbContainer });
   try {
-    const manifestText = fs.readFileSync(args.manifest, 'utf8');
-    const allRows = parseRows(manifestText);
-    const selectedRows = filterRows(args, allRows);
+    const manifestText = timePhaseSync(phaseTimingsMs, 'read_manifest', () => fs.readFileSync(args.manifest, 'utf8'));
+    const allRows = timePhaseSync(phaseTimingsMs, 'parse_manifest', () => parseRows(manifestText));
+    const selectedRows = timePhaseSync(phaseTimingsMs, 'filter_rows', () => filterRows(args, allRows));
     const completeInventory = selectedRows.length === allRows.length && args.limit === null && args.slug.length === 0 && args.slugFile === null;
-    const directAttachmentPlan = args.attachmentCreateMode === 'direct' ? planDirectAttachmentMaterialization(selectedRows) : null;
+    const directAttachmentPlan = timePhaseSync(phaseTimingsMs, 'plan_direct_attachments', () => (
+      args.attachmentCreateMode === 'direct' ? planDirectAttachmentMaterialization(selectedRows) : null
+    ));
     if (!args.dryRun) validateAttachmentActorArgs(args, selectedRows);
 
-    if (args.applyMigration && !args.dryRun) await applyMigration(args, sqlExecutor);
+    if (args.applyMigration && !args.dryRun) await timePhase(phaseTimingsMs, 'apply_migration', () => applyMigration(args, sqlExecutor));
     if (args.dryRun) {
       const output = { dry_run: true, selected_rows: selectedRows.length, complete_inventory: completeInventory };
       if (args.attachmentCreateMode === 'direct') {
@@ -1739,53 +1769,61 @@ async function main() {
       return;
     }
 
-    precomputeDbTextHashes(args, selectedRows);
-    const importRunId = await ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory);
-    await precreateDbShellBodyText(args, sqlExecutor, selectedRows);
-    await precreateDbSourceTexts(args, sqlExecutor, selectedRows);
-    await precreateDbShellCategories(args, sqlExecutor, selectedRows);
+    timePhaseSync(phaseTimingsMs, 'precompute_db_text_hashes', () => precomputeDbTextHashes(args, selectedRows));
+    const importRunId = await timePhase(phaseTimingsMs, 'ensure_import_run', () => ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory));
+    await timePhase(phaseTimingsMs, 'precreate_db_shell_body_text', () => precreateDbShellBodyText(args, sqlExecutor, selectedRows));
+    await timePhase(phaseTimingsMs, 'precreate_db_source_texts', () => precreateDbSourceTexts(args, sqlExecutor, selectedRows));
+    await timePhase(phaseTimingsMs, 'precreate_db_shell_categories', () => precreateDbShellCategories(args, sqlExecutor, selectedRows));
     const results = [];
-    const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId };
+    const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId, phase_timings_ms: phaseTimingsMs };
     let finalState = 'failed';
     let directAttachmentUpload = null;
 
     try {
       if (directAttachmentPlan !== null) {
         summary.attachment_direct_plan = directAttachmentPlan.attachment_direct_plan;
-        directAttachmentUpload = await uploadDirectAttachmentBlobs(args, directAttachmentPlan);
+        directAttachmentUpload = await timePhase(phaseTimingsMs, 'upload_direct_attachment_blobs', () => uploadDirectAttachmentBlobs(args, directAttachmentPlan));
         summary.attachment_direct_upload = summarizeAttachmentUpload(directAttachmentUpload);
       }
       if (canBatchCreateDbShellPages(args)) {
-        for (let index = 0; index < selectedRows.length; index += DB_SHELL_BATCH_MAX_ROWS) {
-          const batch = selectedRows.slice(index, index + DB_SHELL_BATCH_MAX_ROWS);
-          try {
-            for (const result of await batchShellCreatePages(args, sqlExecutor, batch, importRunId)) {
-              recordImportResult(results, summary, result);
+        let shellBatchCount = 0;
+        await timePhase(phaseTimingsMs, 'import_rows_batched', async () => {
+          for (let index = 0; index < selectedRows.length; index += DB_SHELL_BATCH_MAX_ROWS) {
+            const batch = selectedRows.slice(index, index + DB_SHELL_BATCH_MAX_ROWS);
+            shellBatchCount += 1;
+            try {
+              for (const result of await batchShellCreatePages(args, sqlExecutor, batch, importRunId)) {
+                recordImportResult(results, summary, result);
+              }
+            } catch (error) {
+              summary.failed += batch.length;
+              for (const row of batch) {
+                await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
+                console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
+              }
             }
-          } catch (error) {
-            summary.failed += batch.length;
-            for (const row of batch) {
+          }
+        });
+        summary.db_shell_batch_size = DB_SHELL_BATCH_MAX_ROWS;
+        summary.db_shell_batches = shellBatchCount;
+      } else {
+        await timePhase(phaseTimingsMs, 'import_rows_serial', async () => {
+          for (const row of selectedRows) {
+            try {
+              const result = await importRow(args, sqlExecutor, row, importRunId);
+              recordImportResult(results, summary, result);
+            } catch (error) {
+              summary.failed += 1;
               await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
               console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
             }
           }
-        }
-      } else {
-        for (const row of selectedRows) {
-          try {
-            const result = await importRow(args, sqlExecutor, row, importRunId);
-            recordImportResult(results, summary, result);
-          } catch (error) {
-            summary.failed += 1;
-            await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
-            console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
-          }
-        }
+        });
       }
       if (directAttachmentPlan !== null) {
         let attachmentStaging = { summary: { total: 0, insert: 0, skip_existing: 0, fail_closed: 0 }, rows: [] };
         if (directAttachmentUpload.failed === 0) {
-          attachmentStaging = await commitDirectAttachmentStaging(args, sqlExecutor, directAttachmentPlan);
+          attachmentStaging = await timePhase(phaseTimingsMs, 'commit_direct_attachment_staging', () => commitDirectAttachmentStaging(args, sqlExecutor, directAttachmentPlan));
           summary.attachments_uploaded += attachmentStaging.summary.insert;
           summary.attachments_skipped_existing += attachmentStaging.summary.skip_existing;
         }
@@ -1797,10 +1835,11 @@ async function main() {
         }));
         if (directAttachmentUpload.failed > 0 || attachmentStaging.summary.fail_closed > 0) summary.failed += 1;
       }
-      Object.assign(summary, await upsertParentLinks(args, sqlExecutor, selectedRows));
-      Object.assign(summary, await rerenderParentLinkPages(args, sqlExecutor, selectedRows));
+      Object.assign(summary, await timePhase(phaseTimingsMs, 'upsert_parent_links', () => upsertParentLinks(args, sqlExecutor, selectedRows)));
+      Object.assign(summary, await timePhase(phaseTimingsMs, 'rerender_parent_link_pages', () => rerenderParentLinkPages(args, sqlExecutor, selectedRows)));
       finalState = summary.failed > 0 ? 'failed' : 'done';
     } finally {
+      recordPhaseTiming(phaseTimingsMs, 'total_before_finish_run', totalStartedAt);
       await finishRun(args, sqlExecutor, importRunId, summary, finalState);
     }
     console.log(JSON.stringify({ summary }, null, 2));
