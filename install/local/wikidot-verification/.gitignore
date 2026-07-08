@@ -1,3 +1,4 @@
 node_modules/
 /artifacts/command-ledger/
 /artifacts/runtime-health/
+/artifacts/ci-status/
