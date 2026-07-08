@@ -132,6 +132,9 @@ const WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX: &str =
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 const WIKIDOT_TABVIEW_SCRIPT: &str = "";
 const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
+const MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS: usize = 128;
+
+type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
 
 static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
@@ -688,11 +691,19 @@ impl RenderService {
                 Self::protect_generated_wikidot_compat_html(&mut wikitext, settings);
             let mut backlinks = ftml::data::Backlinks::new();
             backlinks.included_pages.extend(included_pages);
+            let fallback_link_titles = if let Some(site_id) = current_site_id {
+                Self::load_wikidot_compat_fallback_link_titles(ctx, site_id, &wikitext)
+                    .await
+                    .or_raise(make_error)?
+            } else {
+                WikidotCompatLinkTitleMap::new()
+            };
             let fallback_output = Self::render_oversized_wikidot_compatibility_fallback(
                 &wikitext,
                 current_site.as_ref(),
                 config,
                 page_info.page.as_ref(),
+                Some(&fallback_link_titles),
             );
             let fallback_html_block_texts: Vec<String> = fallback_output
                 .html_block_texts
@@ -4000,11 +4011,62 @@ impl RenderService {
         score
     }
 
+    async fn load_wikidot_compat_fallback_link_titles(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        wikitext: &str,
+    ) -> Result<WikidotCompatLinkTitleMap> {
+        let slugs = collect_wikidot_compat_empty_label_link_slugs(wikitext);
+        if slugs.is_empty() {
+            return Ok(WikidotCompatLinkTitleMap::new());
+        }
+
+        let mut titles = WikidotCompatLinkTitleMap::new();
+        for slug in slugs {
+            let Some(page) =
+                PageService::get_optional(ctx, site_id, Reference::from(slug.as_str()))
+                    .await?
+            else {
+                continue;
+            };
+
+            let can_view = PermissionService::check_user_can(
+                ctx,
+                &CheckPermissionContext {
+                    user_id: None,
+                    site_id,
+                    page_reference: Some(Reference::Id(page.page_id)),
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(page.page_category_id)),
+                    action: Action::View,
+                },
+            )
+            .await?;
+            if !can_view {
+                continue;
+            }
+
+            let Some(revision_id) = page.latest_revision_id else {
+                continue;
+            };
+            let revision = PageRevisionService::get_direct(ctx, revision_id).await?;
+            let title = revision.title.trim();
+            if !title.is_empty() {
+                titles.insert(slug, title.to_owned());
+            }
+        }
+
+        Ok(titles)
+    }
+
     fn render_oversized_wikidot_compatibility_fallback(
         wikitext: &str,
         current_site: Option<&SiteModel>,
         config: &Config,
         current_page: &str,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
     ) -> WikidotCompatibilityFallbackOutput {
         let localized =
             Self::localize_wikidot_local_file_urls(wikitext, current_site, config);
@@ -4018,6 +4080,7 @@ impl RenderService {
                 &localized,
                 Some(current_page),
                 current_site.map(|site| site.slug.as_str()),
+                link_titles,
             );
         }
 
@@ -4026,6 +4089,7 @@ impl RenderService {
                 &localized,
                 Some(current_page),
                 current_site.map(|site| site.slug.as_str()),
+                link_titles,
             );
         }
 
@@ -4075,6 +4139,7 @@ impl RenderService {
             wikitext,
             current_page,
             local_file_site_slug,
+            None,
         )
         .body
     }
@@ -4083,6 +4148,7 @@ impl RenderService {
         wikitext: &str,
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
     ) -> WikidotCompatibilityFallbackOutput {
         let has_code_or_collapsible = wikitext.lines().any(|line| {
             let marker = line.trim_start().to_ascii_lowercase();
@@ -4098,6 +4164,7 @@ impl RenderService {
                         wikitext,
                         current_page,
                         local_file_site_slug,
+                        link_titles,
                         &mut html_block_texts,
                     ),
                 );
@@ -4135,6 +4202,7 @@ impl RenderService {
                     &mut text_chunk,
                     current_page,
                     local_file_site_slug,
+                    link_titles,
                     &mut html_block_texts,
                 );
                 in_code = true;
@@ -4158,6 +4226,7 @@ impl RenderService {
                     &mut text_chunk,
                     current_page,
                     local_file_site_slug,
+                    link_titles,
                     &mut html_block_texts,
                 );
                 Self::push_wikidot_compat_fallback_collapsible_open(&mut body, trimmed);
@@ -4173,6 +4242,7 @@ impl RenderService {
                         &mut text_chunk,
                         current_page,
                         local_file_site_slug,
+                        link_titles,
                         &mut html_block_texts,
                     );
                     body.push_str("</div></div></div>");
@@ -4203,6 +4273,7 @@ impl RenderService {
             &mut text_chunk,
             current_page,
             local_file_site_slug,
+            link_titles,
             &mut html_block_texts,
         );
         while collapsible_depth > 0 {
@@ -4220,6 +4291,7 @@ impl RenderService {
                         wikitext,
                         current_page,
                         local_file_site_slug,
+                        link_titles,
                         &mut html_block_texts,
                     ),
                 );
@@ -4251,6 +4323,7 @@ impl RenderService {
             chunk,
             None,
             None,
+            None,
             &mut html_block_texts,
         );
     }
@@ -4260,6 +4333,7 @@ impl RenderService {
         chunk: &mut String,
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
         html_block_texts: &mut Vec<String>,
     ) {
         if chunk.is_empty() {
@@ -4277,6 +4351,7 @@ impl RenderService {
                 text,
                 current_page,
                 local_file_site_slug,
+                link_titles,
                 html_block_texts,
             ));
         } else {
@@ -4351,6 +4426,7 @@ impl RenderService {
             text,
             current_page,
             local_file_site_slug,
+            None,
             &mut html_block_texts,
         )
     }
@@ -4359,6 +4435,7 @@ impl RenderService {
         text: &str,
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
         html_block_texts: &mut Vec<String>,
     ) -> String {
         let text = Self::strip_wikidot_comments_from_text(text);
@@ -4382,11 +4459,13 @@ impl RenderService {
                         &mut output,
                         &mut paragraph,
                         current_page,
+                        link_titles,
                     );
                     output.push_str(&Self::render_wikidot_compat_fallback_tabview_html(
                         &body,
                         current_page,
                         local_file_site_slug,
+                        link_titles,
                         html_block_texts,
                     ));
                 } else if let Some(body) = tabview_body.as_mut() {
@@ -4408,6 +4487,7 @@ impl RenderService {
                             &mut output,
                             &mut paragraph,
                             current_page,
+                            link_titles,
                         );
                         output.push_str(&iframe);
                     } else {
@@ -4456,6 +4536,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str(trimmed);
                 output.push('\n');
@@ -4468,6 +4549,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 embed_body = Some(String::new());
                 continue;
@@ -4478,6 +4560,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 html_body = Some(String::new());
                 continue;
@@ -4488,6 +4571,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str(trimmed);
                 continue;
@@ -4498,6 +4582,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str(r#"<div style="text-align: center;">"#);
                 center_depth += 1;
@@ -4509,6 +4594,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 if center_depth > 0 {
                     output.push_str("</div>");
@@ -4525,6 +4611,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str("<br>");
                 continue;
@@ -4535,6 +4622,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str("<hr>");
                 continue;
@@ -4545,6 +4633,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str(r#"<span style="white-space: pre-wrap;"> </span><br>"#);
                 continue;
@@ -4555,6 +4644,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 tabview_body = Some(String::new());
                 continue;
@@ -4565,6 +4655,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 if !tabview_open {
                     output.push_str(WIKIDOT_TABVIEW_SCRIPT);
@@ -4581,6 +4672,7 @@ impl RenderService {
                     &Self::render_wikidot_compat_fallback_inline_html_for_page(
                         title,
                         current_page,
+                        link_titles,
                     ),
                 );
                 output.push_str("</h3>");
@@ -4593,6 +4685,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 if tab_open {
                     output.push_str("</div>");
@@ -4606,6 +4699,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 if tab_open {
                     output.push_str("</div>");
@@ -4624,6 +4718,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str(r#"<span style="font-size: "#);
                 output.push_str(&escape_list_pages_html_attr(&size));
@@ -4637,6 +4732,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 if size_depth > 0 {
                     output.push_str("</span>");
@@ -4654,6 +4750,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str(&image);
                 continue;
@@ -4665,6 +4762,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str(&rate_html);
                 continue;
@@ -4675,6 +4773,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str("<div");
                 output.push_str(&attributes);
@@ -4687,6 +4786,7 @@ impl RenderService {
                     &mut output,
                     &mut paragraph,
                     current_page,
+                    link_titles,
                 );
                 output.push_str("</div>");
                 continue;
@@ -4712,6 +4812,7 @@ impl RenderService {
             &mut output,
             &mut paragraph,
             current_page,
+            link_titles,
         );
         while size_depth > 0 {
             output.push_str("</span>");
@@ -4735,6 +4836,7 @@ impl RenderService {
         text: &str,
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
         html_block_texts: &mut Vec<String>,
     ) -> String {
         let Some(tabs) = Self::parse_wikidot_compat_fallback_tabs(text) else {
@@ -4743,18 +4845,21 @@ impl RenderService {
             output.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
                 "[[tabview]]",
                 current_page,
+                link_titles,
             ));
             output.push_str("</p>");
             output.push_str(&Self::render_wikidot_compat_fallback_text_html_with_blocks(
                 text,
                 current_page,
                 local_file_site_slug,
+                link_titles,
                 html_block_texts,
             ));
             output.push_str("<p>");
             output.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
                 "[[/tabview]]",
                 current_page,
+                link_titles,
             ));
             output.push_str("</p>");
             return output;
@@ -4777,6 +4882,7 @@ impl RenderService {
             output.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
                 title,
                 current_page,
+                link_titles,
             ));
             output.push_str("</em></a></li>");
         }
@@ -4792,6 +4898,7 @@ impl RenderService {
                 body,
                 current_page,
                 local_file_site_slug,
+                link_titles,
                 html_block_texts,
             ));
             output.push_str("</div>");
@@ -5097,13 +5204,16 @@ impl RenderService {
 
     #[allow(dead_code)]
     fn push_wikidot_compat_fallback_paragraph(body: &mut String, paragraph: &mut String) {
-        Self::push_wikidot_compat_fallback_paragraph_for_page(body, paragraph, None);
+        Self::push_wikidot_compat_fallback_paragraph_for_page(
+            body, paragraph, None, None,
+        );
     }
 
     fn push_wikidot_compat_fallback_paragraph_for_page(
         body: &mut String,
         paragraph: &mut String,
         current_page: Option<&str>,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
     ) {
         let text = paragraph.trim_matches('\n');
         if !text.trim().is_empty() {
@@ -5111,6 +5221,7 @@ impl RenderService {
             body.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
                 text,
                 current_page,
+                link_titles,
             ));
             body.push_str("</p>");
         }
@@ -5119,12 +5230,13 @@ impl RenderService {
 
     #[allow(dead_code)]
     fn render_wikidot_compat_fallback_inline_html(value: &str) -> String {
-        Self::render_wikidot_compat_fallback_inline_html_for_page(value, None)
+        Self::render_wikidot_compat_fallback_inline_html_for_page(value, None, None)
     }
 
     fn render_wikidot_compat_fallback_inline_html_for_page(
         value: &str,
         _current_page: Option<&str>,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
     ) -> String {
         let mut output = String::with_capacity(value.len());
         let mut strong = false;
@@ -5132,7 +5244,11 @@ impl RenderService {
             if strong {
                 output.push_str("<strong>");
             }
-            Self::push_wikidot_compat_fallback_inline_segment(&mut output, segment);
+            Self::push_wikidot_compat_fallback_inline_segment(
+                &mut output,
+                segment,
+                link_titles,
+            );
             if strong {
                 output.push_str("</strong>");
             }
@@ -5141,11 +5257,18 @@ impl RenderService {
         output
     }
 
-    fn push_wikidot_compat_fallback_inline_segment(output: &mut String, value: &str) {
+    fn push_wikidot_compat_fallback_inline_segment(
+        output: &mut String,
+        value: &str,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
+    ) {
         let mut rest = value;
         while let Some(start) = rest.find('<') {
             let (before, after_start) = rest.split_at(start);
-            output.push_str(&Self::render_wikidot_compat_inline_text_segment(before));
+            output.push_str(&Self::render_wikidot_compat_inline_text_segment(
+                before,
+                link_titles,
+            ));
             if let Some(end) = after_start.find('>') {
                 let (tag, after_tag) = after_start.split_at(end + 1);
                 if let Some(tag) = sanitize_wikidot_compat_inline_tag(tag) {
@@ -5157,32 +5280,46 @@ impl RenderService {
             } else {
                 output.push_str(&Self::render_wikidot_compat_inline_text_segment(
                     after_start,
+                    link_titles,
                 ));
                 return;
             }
         }
-        output.push_str(&Self::render_wikidot_compat_inline_text_segment(rest));
+        output.push_str(&Self::render_wikidot_compat_inline_text_segment(
+            rest,
+            link_titles,
+        ));
     }
 
-    fn render_wikidot_compat_inline_text_segment(value: &str) -> String {
-        let html = Self::render_wikidot_compat_fallback_inline_markup(value);
+    fn render_wikidot_compat_inline_text_segment(
+        value: &str,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
+    ) -> String {
+        let html = Self::render_wikidot_compat_fallback_inline_markup(value, link_titles);
         Self::render_wikidot_compat_inline_size_markers(&html)
     }
 
-    fn render_wikidot_compat_fallback_inline_markup(value: &str) -> String {
+    fn render_wikidot_compat_fallback_inline_markup(
+        value: &str,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
+    ) -> String {
         let mut output = String::with_capacity(value.len());
         let mut rest = value;
 
         while let Some(marker) = Self::next_wikidot_compat_inline_marker(rest) {
             let (before, marker_start) = rest.split_at(marker.start);
-            output.push_str(&render_native_list_inline_html(before));
+            output.push_str(&render_native_list_inline_html_with_titles(
+                before,
+                link_titles,
+            ));
             let marker_len = marker.end - marker.start;
 
             match marker.kind {
                 WikidotCompatInlineMarkerKind::Color => {
                     let Some(pipe_offset) = marker_start[..marker_len].find('|') else {
-                        output.push_str(&render_native_list_inline_html(
+                        output.push_str(&render_native_list_inline_html_with_titles(
                             &marker_start[..marker_len],
+                            link_titles,
                         ));
                         rest = &marker_start[marker_len..];
                         continue;
@@ -5196,6 +5333,7 @@ impl RenderService {
                     output.push_str(r#";">"#);
                     output.push_str(&Self::render_wikidot_compat_fallback_inline_markup(
                         inner,
+                        link_titles,
                     ));
                     output.push_str("</span>");
                 }
@@ -5204,6 +5342,7 @@ impl RenderService {
                     output.push_str("<em>");
                     output.push_str(&Self::render_wikidot_compat_fallback_inline_markup(
                         inner,
+                        link_titles,
                     ));
                     output.push_str("</em>");
                 }
@@ -5212,6 +5351,7 @@ impl RenderService {
                     output.push_str("<u>");
                     output.push_str(&Self::render_wikidot_compat_fallback_inline_markup(
                         inner,
+                        link_titles,
                     ));
                     output.push_str("</u>");
                 }
@@ -5220,7 +5360,10 @@ impl RenderService {
             rest = &marker_start[marker_len..];
         }
 
-        output.push_str(&render_native_list_inline_html(rest));
+        output.push_str(&render_native_list_inline_html_with_titles(
+            rest,
+            link_titles,
+        ));
         output
     }
 
@@ -7957,25 +8100,40 @@ fn push_list_pages_table_inline_segment(output: &mut String, value: &str) {
 }
 
 fn render_native_list_inline_html(value: &str) -> String {
+    render_native_list_inline_html_with_titles(value, None)
+}
+
+fn render_native_list_inline_html_with_titles(
+    value: &str,
+    link_titles: Option<&WikidotCompatLinkTitleMap>,
+) -> String {
     let escaped = render_native_list_inline_wikidot_spans(value);
     let with_quadruple_links = WIKIDOT_QUADRUPLE_LINK_REGEX
         .replace_all(&escaped, |captures: &regex::Captures<'_>| {
-            render_native_list_page_link(&captures["target"], None)
+            render_native_list_page_link(&captures["target"], None, link_titles)
         })
         .into_owned();
     let with_labeled_links = WIKIDOT_LABELED_LINK_REGEX
         .replace_all(&with_quadruple_links, |captures: &regex::Captures<'_>| {
-            render_native_list_page_link(&captures["target"], Some(&captures["label"]))
+            render_native_list_page_link(
+                &captures["target"],
+                Some(&captures["label"]),
+                link_titles,
+            )
         })
         .into_owned();
     let with_unlabeled_links = WIKIDOT_UNLABELED_LINK_REGEX
         .replace_all(&with_labeled_links, |captures: &regex::Captures<'_>| {
-            render_native_list_page_link(&captures["target"], None)
+            render_native_list_page_link(&captures["target"], None, link_titles)
         })
         .into_owned();
     let with_local_links = WIKIDOT_LOCAL_LINK_REGEX
         .replace_all(&with_unlabeled_links, |captures: &regex::Captures<'_>| {
-            render_native_list_page_link(&captures["target"], Some(&captures["label"]))
+            render_native_list_page_link(
+                &captures["target"],
+                Some(&captures["label"]),
+                link_titles,
+            )
         })
         .into_owned();
     let with_user_links = WIKIDOT_USER_INLINE_REGEX
@@ -8275,19 +8433,34 @@ fn wikidot_inline_span_marker_open(marker: &str) -> Option<String> {
     sanitize_wikidot_compat_inline_tag(&format!("<{inner}>"))
 }
 
-fn render_native_list_page_link(target: &str, label: Option<&str>) -> String {
+fn render_native_list_page_link(
+    target: &str,
+    label: Option<&str>,
+    link_titles: Option<&WikidotCompatLinkTitleMap>,
+) -> String {
     let target = target.trim();
     let label = label
         .map(str::trim)
         .filter(|label| !label.is_empty())
         .map(str::to_owned)
-        .unwrap_or_else(|| native_list_page_link_default_label(target));
+        .unwrap_or_else(|| {
+            native_list_page_link_title_label(target, link_titles)
+                .unwrap_or_else(|| native_list_page_link_default_label(target))
+        });
     let href = native_list_page_link_href(target);
     format!(
         r#"<a href="{href}">{label}</a>"#,
         href = escape_list_pages_html_attr(&href),
         label = label,
     )
+}
+
+fn native_list_page_link_title_label(
+    target: &str,
+    link_titles: Option<&WikidotCompatLinkTitleMap>,
+) -> Option<String> {
+    let slug = native_list_page_link_slug(target)?;
+    link_titles?.get(&slug).cloned()
 }
 
 fn native_list_page_link_href(target: &str) -> String {
@@ -8312,6 +8485,66 @@ fn native_list_page_link_href(target: &str) -> String {
     }
 
     format!("/{}", slug.trim_matches('-'))
+}
+
+fn native_list_page_link_slug(target: &str) -> Option<String> {
+    let target = target.trim();
+    if target.is_empty()
+        || target.starts_with("http://")
+        || target.starts_with("https://")
+        || target.starts_with('#')
+        || target.starts_with(':')
+        || target.contains(['?', '&', '=', '#', '<', '>', '"', '\''])
+    {
+        return None;
+    }
+
+    let href = native_list_page_link_href(target);
+    let slug = href.strip_prefix('/')?.trim_matches('-');
+    if slug.is_empty()
+        || slug.len() > 256
+        || slug.contains('/')
+        || !slug.chars().all(|character| {
+            character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | ':')
+        })
+    {
+        return None;
+    }
+
+    Some(slug.to_owned())
+}
+
+fn collect_wikidot_compat_empty_label_link_slugs(wikitext: &str) -> BTreeSet<String> {
+    let mut slugs = BTreeSet::new();
+    for captures in WIKIDOT_QUADRUPLE_LINK_REGEX.captures_iter(wikitext) {
+        if let Some(slug) = native_list_page_link_slug(&captures["target"]) {
+            slugs.insert(slug);
+        }
+        if slugs.len() >= MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS {
+            return slugs;
+        }
+    }
+    for captures in WIKIDOT_UNLABELED_LINK_REGEX.captures_iter(wikitext) {
+        if let Some(slug) = native_list_page_link_slug(&captures["target"]) {
+            slugs.insert(slug);
+        }
+        if slugs.len() >= MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS {
+            return slugs;
+        }
+    }
+    for captures in WIKIDOT_LABELED_LINK_REGEX.captures_iter(wikitext) {
+        if !captures["label"].trim().is_empty() {
+            continue;
+        }
+        if let Some(slug) = native_list_page_link_slug(&captures["target"]) {
+            slugs.insert(slug);
+        }
+        if slugs.len() >= MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS {
+            return slugs;
+        }
+    }
+
+    slugs
 }
 
 fn native_list_page_link_default_label(target: &str) -> String {
@@ -9360,8 +9593,8 @@ mod tests {
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
-        WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotUserDisplay,
-        count_pages_should_remain_literal, include_error,
+        WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
+        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -10489,16 +10722,75 @@ mod tests {
         );
 
         assert_eq!(
-            render_native_list_page_link("scp-8066", None),
+            render_native_list_page_link("scp-8066", None, None),
             r#"<a href="/scp-8066">SCP-8066</a>"#
         );
         assert_eq!(
-            render_native_list_page_link("scp-8066", Some("the article")),
+            render_native_list_page_link("scp-8066", Some("the article"), None),
             r#"<a href="/scp-8066">the article</a>"#
         );
         assert_eq!(
-            render_native_list_page_link("scp-8596", Some("")),
+            render_native_list_page_link("scp-8596", Some(""), None),
             r#"<a href="/scp-8596">SCP-8596</a>"#
+        );
+    }
+
+    #[test]
+    fn defaults_empty_page_link_labels_to_known_target_titles() {
+        let mut titles = WikidotCompatLinkTitleMap::new();
+        titles.insert(
+            "dr-frueh-s-proposal".to_owned(),
+            "DarkStuff's Proposal".to_owned(),
+        );
+
+        assert_eq!(
+            render_native_list_page_link("dr-frueh-s-proposal", None, Some(&titles)),
+            r#"<a href="/dr-frueh-s-proposal">DarkStuff's Proposal</a>"#
+        );
+        assert_eq!(
+            render_native_list_page_link(
+                "dr-frueh-s-proposal",
+                Some("Family Life"),
+                Some(&titles),
+            ),
+            r#"<a href="/dr-frueh-s-proposal">Family Life</a>"#
+        );
+        assert_eq!(
+            render_native_list_page_link("missing-target", None, Some(&titles)),
+            r#"<a href="/missing-target">Missing Target</a>"#
+        );
+        assert_eq!(
+            render_native_list_page_link("scp-8066", None, Some(&titles)),
+            r#"<a href="/scp-8066">SCP-8066</a>"#
+        );
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_uses_known_target_titles_for_empty_links() {
+        let mut titles = WikidotCompatLinkTitleMap::new();
+        titles.insert(
+            "dr-frueh-s-proposal".to_owned(),
+            "DarkStuff's Proposal".to_owned(),
+        );
+
+        let output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                "[[[dr-frueh-s-proposal|]]]\n[[[scp-8066|]]]\n[[[missing-target|]]]",
+                Some("scp-anthology-2024"),
+                Some("scp-wiki"),
+                Some(&titles),
+            );
+
+        assert!(
+            output
+                .body
+                .contains(r#"<a href="/dr-frueh-s-proposal">DarkStuff's Proposal</a>"#)
+        );
+        assert!(output.body.contains(r#"<a href="/scp-8066">SCP-8066</a>"#));
+        assert!(
+            output
+                .body
+                .contains(r#"<a href="/missing-target">Missing Target</a>"#)
         );
     }
 
@@ -11775,6 +12067,7 @@ mod tests {
                 source,
                 Some("scp-anthology-2024"),
                 Some("scp-wiki"),
+                None,
             );
 
         assert!(output.body.contains(r#"<div style="text-align: center;">"#));
@@ -11804,6 +12097,7 @@ mod tests {
                 &source,
                 Some("scp-anthology-2024"),
                 Some("scp-wiki"),
+                None,
             );
 
         assert!(output.body.contains(
@@ -11833,6 +12127,7 @@ mod tests {
                 source,
                 Some("scp-anthology-2024"),
                 Some("scp-wiki"),
+                None,
             );
 
         assert_eq!(output.html_block_texts.len(), 1);
@@ -11856,6 +12151,7 @@ mod tests {
                 source,
                 Some("scp-anthology-2024"),
                 Some("scp-wiki"),
+                None,
             );
 
         assert!(output.html_block_texts.is_empty());
@@ -11887,6 +12183,7 @@ mod tests {
                 source,
                 Some("scp-anthology-2024"),
                 Some("scp-wiki"),
+                None,
             );
 
         assert!(output.html_block_texts.is_empty());
