@@ -677,6 +677,8 @@ impl RenderService {
         wikitext = Self::escape_unrendered_wikidot_color_markers(wikitext, settings);
         wikitext = Self::render_long_native_list_runs(wikitext);
         if Self::should_use_wikidot_compatibility_fallback(&wikitext, page_info) {
+            let wikidot_compat_html =
+                Self::protect_generated_wikidot_compat_html(&mut wikitext, settings);
             let mut backlinks = ftml::data::Backlinks::new();
             backlinks.included_pages.extend(included_pages);
             let fallback_body = Self::render_oversized_wikidot_compatibility_fallback(
@@ -687,9 +689,13 @@ impl RenderService {
             );
             let html_output = HtmlOutput {
                 body: {
+                    let body = Self::restore_protected_generated_wikidot_compat_html(
+                        fallback_body,
+                        &wikidot_compat_html,
+                    );
                     let body = Self::restore_protected_wikidot_inline_html(
                         Self::restore_protected_wikidot_color_spans(
-                            fallback_body,
+                            body,
                             &wikidot_color_spans,
                         ),
                         &wikidot_inline_html,
@@ -4172,6 +4178,18 @@ impl RenderService {
             || text.contains("[http")
             || text.contains("**")
             || text.contains("<style data-wikijump-compat-css-module=\"1\">")
+            || text.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
+    }
+
+    fn wikidot_compat_html_sentinel_marker(marker: &str) -> bool {
+        let Some(index) = marker
+            .strip_prefix(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
+            .and_then(|value| value.strip_suffix('X'))
+        else {
+            return false;
+        };
+
+        !index.is_empty() && index.chars().all(|character| character.is_ascii_digit())
     }
 
     #[allow(dead_code)]
@@ -4255,6 +4273,16 @@ impl RenderService {
                     current_page,
                 );
                 embed_body = Some(String::new());
+                continue;
+            }
+
+            if Self::wikidot_compat_html_sentinel_marker(trimmed) {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                output.push_str(trimmed);
                 continue;
             }
 
@@ -8974,6 +9002,23 @@ mod tests {
         )
     }
 
+    fn render_wikidot_fallback_after_generated_compat_restore(wikitext: &str) -> String {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = wikitext.to_owned();
+        let fragments = RenderService::protect_generated_wikidot_compat_html(
+            &mut wikitext,
+            &settings,
+        );
+        let rendered =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+                &wikitext,
+            );
+
+        RenderService::restore_protected_generated_wikidot_compat_html(
+            rendered, &fragments,
+        )
+    }
+
     #[test]
     fn protects_stray_bibcite_closers_without_touching_valid_bibcite() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -9452,6 +9497,34 @@ mod tests {
     }
 
     #[test]
+    fn wikidot_compatibility_fallback_restores_generated_members_html_as_block() {
+        let source = format!(
+            concat!(
+                "before\n",
+                "[[div_ class=\"a-randomizer\"]]\n",
+                "{}\n",
+                "[[div class=\"dude\"]]\n",
+                "[[/div]]\n",
+                "[[/div]]\n",
+                "after\n",
+            ),
+            render_members_module_placeholder("moderators"),
+        );
+
+        let rendered = render_wikidot_fallback_after_generated_compat_restore(&source);
+
+        assert!(rendered.contains(
+            r#"<div class="a-randomizer"><div id="ml-607935" data-group="moderators">"#
+        ));
+        assert!(rendered.contains("membership/MembersListModule"));
+        assert!(rendered.contains(r#"<div class="dude"></div>"#));
+        assert!(!rendered.contains(r#"data-wikijump-compat-members"#));
+        assert!(!rendered.contains(r#"&lt;div id="ml-607935""#));
+        assert!(!rendered.contains(r#"<p><div id="ml-607935""#));
+        assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+    }
+
+    #[test]
     fn renders_wikidot_new_page_module_placeholder() {
         let rendered = RenderService::expand_new_page_modules(
             "[[module NewPage size=\"15\" button=\"new page\"]]".to_owned(),
@@ -9558,6 +9631,20 @@ mod tests {
         assert!(!rendered.contains(r#"<div class="pager""#));
         assert!(!rendered.contains("<img"));
         assert!(!rendered.contains(r#"<img src=x onerror="alert(1)">"#));
+        assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_keeps_arbitrary_html_escaped() {
+        let rendered = render_wikidot_fallback_after_generated_compat_restore(
+            r#"<div class="pager" data-wikijump-compat-pager="1"><img src=x onerror="alert(1)"></div>"#,
+        );
+
+        assert!(rendered.contains("&lt;div"));
+        assert!(rendered.contains("&lt;img"));
+        assert!(rendered.contains("onerror=&quot;alert(1)&quot;"));
+        assert!(!rendered.contains(r#"<div class="pager""#));
+        assert!(!rendered.contains("<img"));
         assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
     }
 
