@@ -1342,6 +1342,12 @@ async function batchShellCreatePages(args, sqlExecutor, rows, importRunId) {
   }
   const values = batchShellCreatePageValues(args, rows);
   const sql = `
+CREATE TEMP TABLE corpus_shell_batch_result (
+  row_index INTEGER NOT NULL,
+  page_id BIGINT NOT NULL,
+  revision_id BIGINT NOT NULL
+) ON COMMIT DROP;
+
 WITH input_rows (
   row_index,
   source_entity_id,
@@ -1423,14 +1429,6 @@ ${values}
   FROM input_rows
   JOIN inserted_pages ON inserted_pages.slug = input_rows.fullname
   RETURNING revision_id, page_id, slug
-), updated_pages AS (
-  UPDATE page
-  SET
-    latest_revision_id = inserted_revisions.revision_id,
-    from_wikidot = true
-  FROM inserted_revisions
-  WHERE page.page_id = inserted_revisions.page_id
-  RETURNING page.page_id
 ), inserted_snapshots AS (
   INSERT INTO wikidot_page_snapshot (
     page_id,
@@ -1500,16 +1498,29 @@ ${values}
   JOIN inserted_revisions ON inserted_revisions.slug = input_rows.fullname
   RETURNING page_id
 )
+INSERT INTO corpus_shell_batch_result (row_index, page_id, revision_id)
 SELECT
-  input_rows.row_index::text || '|' ||
-  inserted_revisions.page_id::text || '|' ||
-  inserted_revisions.revision_id::text
+  input_rows.row_index,
+  inserted_revisions.page_id,
+  inserted_revisions.revision_id
 FROM input_rows
 JOIN inserted_revisions ON inserted_revisions.slug = input_rows.fullname
-JOIN updated_pages ON updated_pages.page_id = inserted_revisions.page_id
 JOIN inserted_snapshots ON inserted_snapshots.page_id = inserted_revisions.page_id
-JOIN inserted_items ON inserted_items.page_id = inserted_revisions.page_id
-ORDER BY input_rows.row_index;
+JOIN inserted_items ON inserted_items.page_id = inserted_revisions.page_id;
+
+UPDATE page
+SET
+  latest_revision_id = corpus_shell_batch_result.revision_id,
+  from_wikidot = true
+FROM corpus_shell_batch_result
+WHERE page.page_id = corpus_shell_batch_result.page_id;
+
+SELECT
+  row_index::text || '|' ||
+  page_id::text || '|' ||
+  revision_id::text
+FROM corpus_shell_batch_result
+ORDER BY row_index;
 `;
   const output = await sqlExecutor.runSql(sql, { capture: true });
   const parsed = new Map();
