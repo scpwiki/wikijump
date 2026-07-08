@@ -1210,7 +1210,7 @@ async function importRow(args, sqlExecutor, row, importRunId) {
     pageId = created.page_id;
     revisionId = created.revision_id;
     categoryId = created.page_category_id;
-    const snapshotStatus = await pageSnapshotStatus(args, sqlExecutor, row, pageId);
+    const snapshotStatus = created.created_page ? 'absent' : await pageSnapshotStatus(args, sqlExecutor, row, pageId);
     if (!created.created_page && snapshotStatus === 'absent' && !args.adoptExisting && !replaceExistingRevision) {
       await sqlExecutor.runSql(recordItemSql(row, pageId, importRunId, 'failed', { collision: 'existing_page_requires_adopt_or_replace' }));
       return { slug: row.fullname, action: 'collision_existing_page', page_id: pageId };
