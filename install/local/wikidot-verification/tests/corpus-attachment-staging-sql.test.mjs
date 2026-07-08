@@ -69,8 +69,9 @@ test('buildAttachmentStagingSql commit mode inserts files and first revisions', 
     'inserted_first_revisions AS',
     'INSERT INTO file_revision (',
     'JOIN inserted_file_rows ifr',
-    'COALESCE(inserted_file_rows.file_id::text, c.file_id::text, \'\') AS file_id',
-    'COALESCE(inserted_first_revisions.revision_number::text, \'\') AS revision_number',
+    "json_build_object(",
+    "'file_id', COALESCE(inserted_file_rows.file_id, c.file_id)",
+    "'revision_number', inserted_first_revisions.revision_number",
   ]);
 });
 
@@ -80,18 +81,18 @@ test('buildAttachmentStagingSql handles empty input and validates metadata', () 
   assert.throws(() => sampleSql({ attachments: [{ fullname: 'scp-173', filename: 'bad.bin', sha256: 'b'.repeat(64), size: 1, s3_key_hex: 'bad' }] }), /s3_key_hex/);
 });
 
-test('parseAttachmentStagingResults summarizes pipe-delimited rows', () => {
+test('parseAttachmentStagingResults summarizes JSON rows', () => {
   const parsed = parseAttachmentStagingResults([
-    '0|scp-173|a.png|insert||101||0',
-    '1|scp-173|a.png|skip_existing||101|201|',
-    '2|missing|b.txt|fail_closed|missing_page|||',
-    '3|scp-174|blocked.gif|fail_closed|blob_blacklisted|102||',
-    '4|scp-175|old.bin|fail_closed|existing_mismatch|103|203|',
+    '{"row_index":0,"fullname":"scp-173","filename":"a|pipe.png","action":"insert","reason":null,"page_id":101,"file_id":null,"revision_number":0}',
+    '{"row_index":1,"fullname":"scp-173","filename":"a.png","action":"skip_existing","reason":null,"page_id":101,"file_id":201,"revision_number":null}',
+    '{"row_index":2,"fullname":"missing","filename":"b.txt","action":"fail_closed","reason":"missing_page","page_id":null,"file_id":null,"revision_number":null}',
+    '{"row_index":3,"fullname":"scp-174","filename":"blocked.gif","action":"fail_closed","reason":"blob_blacklisted","page_id":102,"file_id":null,"revision_number":null}',
+    '{"row_index":4,"fullname":"scp-175","filename":"old.bin","action":"fail_closed","reason":"existing_mismatch","page_id":103,"file_id":203,"revision_number":null}',
   ].join('\n'));
 
   assert.deepEqual(parsed.summary, { total: 5, insert: 1, skip_existing: 1, fail_closed: 3 });
-  assert.deepEqual(parsed.rows[0], { row_index: 0, fullname: 'scp-173', filename: 'a.png', action: 'insert', reason: null, page_id: 101, file_id: null, revision_number: 0 });
+  assert.deepEqual(parsed.rows[0], { row_index: 0, fullname: 'scp-173', filename: 'a|pipe.png', action: 'insert', reason: null, page_id: 101, file_id: null, revision_number: 0 });
   assert.equal(parsed.rows[4].reason, 'existing_mismatch');
-  assert.throws(() => parseAttachmentStagingResults('0|scp-173|a.png|defer||||'), /unknown action/);
-  assert.throws(() => parseAttachmentStagingResults('0|too|few'), /expected 8 pipe-delimited fields/);
+  assert.throws(() => parseAttachmentStagingResults('{"row_index":0,"fullname":"scp-173","filename":"a.png","action":"defer"}'), /unknown action/);
+  assert.throws(() => parseAttachmentStagingResults('0|too|few'), /expected JSON staging row/);
 });
