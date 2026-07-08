@@ -64,7 +64,7 @@ pub struct ViewService;
 impl ViewService {
     pub async fn article(
         ctx: &ServiceContext<'_>,
-        input: GetPageView,
+        mut input: GetPageView,
     ) -> Result<GetArticleViewOutput> {
         let preload = Self::preload(
             ctx,
@@ -75,6 +75,20 @@ impl ViewService {
             },
         )
         .await?;
+        if let Some(user_session) = &preload.viewer.user_session {
+            let mut locales = user_session.user.locales.clone();
+            locales.extend(
+                input
+                    .locales
+                    .iter()
+                    .filter(|locale| !user_session.user.locales.contains(locale))
+                    .cloned(),
+            );
+            input.locales = locales;
+        }
+        if !input.locales.contains(&preload.viewer.site.locale) {
+            input.locales.push(preload.viewer.site.locale.clone());
+        }
         let page = Self::page(ctx, input).await?;
 
         Ok(GetArticleViewOutput {

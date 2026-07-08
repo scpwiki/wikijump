@@ -26,8 +26,8 @@ import {
   pageVoteGetAction
 } from "$lib/server/load/page"
 
-export async function load({ params, request, cookies, parent }) {
-  return loadPage(params.slug, params.extra, request, cookies, parent)
+export async function load({ params, request, cookies }) {
+  return loadPage(params.slug, params.extra, request, cookies)
 }
 
 export const actions = {

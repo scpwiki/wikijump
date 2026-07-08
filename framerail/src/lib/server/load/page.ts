@@ -30,8 +30,13 @@ import {
   pageFileRollback
 } from "$lib/server/deepwell/pageFile"
 import { translate } from "$lib/server/deepwell/translate"
-import { pageView } from "$lib/server/deepwell/views"
+import { articleView } from "$lib/server/deepwell/views"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
+import {
+  finalizePreloadData,
+  getPreloadBackendLocales,
+  getPreloadRequestLocales
+} from "$lib/server/load/preload"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
 import {
@@ -56,7 +61,7 @@ import {
   enum as vEnum
 } from "valibot"
 
-import type { PageView, PreloadDataAsync } from "$lib/server/deepwell/views"
+import type { PageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
 import type { Cookies, RequestEvent } from "@sveltejs/kit"
 import { getRequestContext } from "./request-ctx"
@@ -76,20 +81,24 @@ export async function loadPage(
   slug: Optional<string>,
   extra: Optional<string>,
   request: Request,
-  cookies: Cookies,
-  preloadData: PreloadDataAsync
+  cookies: Cookies
 ) {
   // Set up parameters
   const { siteId } = loadSiteInfo(request.headers)
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")
 
-  const parentData = await preloadData()
+  const requestLocales = getPreloadRequestLocales(request)
+  const articleResponse = await articleView(
+    siteId,
+    getPreloadBackendLocales(requestLocales),
+    route,
+    sessionToken
+  )
+  const { page: response, ...preloadResponse } = articleResponse
+  const parentData = finalizePreloadData(preloadResponse, requestLocales)
   const locales = parentData.locales
   const siteLocale = parentData.site.locale
-
-  // Request data from backend
-  const response = await pageView(siteId, locales, route, sessionToken)
 
   // Process response, performing redirects etc
   const { data: responseData, type: responseType } = response
