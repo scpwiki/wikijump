@@ -14,6 +14,7 @@ import {
   attachmentActorUserId,
   validateAttachmentActorArgs,
 } from '../src/corpus-attachment-policy.mjs';
+import { planDirectAttachmentMaterialization } from '../src/corpus-attachment-direct.mjs';
 import {
   buildParentLinkParentPagesSql,
   buildParentLinkSql,
@@ -63,6 +64,7 @@ function parseArgs(argv) {
     attachmentsOnlyExisting: false,
     skipAttachments: false,
     createMode: 'rpc',
+    attachmentCreateMode: 'rpc',
     dryRun: false,
     sourceSite: 'scp-wiki',
     sourceBranch: 'en',
@@ -102,11 +104,14 @@ function parseArgs(argv) {
     else if (arg === '--create-mode') {
       args.createMode = next();
     }
+    else if (arg === '--attachment-create-mode') {
+      args.attachmentCreateMode = next();
+    }
     else if (arg === '--dry-run') args.dryRun = true;
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
 Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
@@ -123,6 +128,13 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   }
   if (!Number.isInteger(args.rpcTimeoutMs) || args.rpcTimeoutMs <= 0) throw new Error('--rpc-timeout-ms must be a positive integer');
   if (!['rpc', 'db'].includes(args.createMode)) throw new Error('--create-mode must be rpc or db');
+  if (!['rpc', 'direct'].includes(args.attachmentCreateMode)) throw new Error('--attachment-create-mode must be rpc or direct');
+  if (args.skipAttachments && args.attachmentCreateMode === 'direct') {
+    throw new Error('--skip-attachments cannot be combined with --attachment-create-mode direct');
+  }
+  if (args.attachmentCreateMode === 'direct' && !args.dryRun) {
+    throw new Error('direct attachment materialization is not implemented in this slice; use --dry-run or --attachment-create-mode rpc');
+  }
   if (args.rerenderAfterDbCreate && args.createMode !== 'db') {
     throw new Error('--rerender-after-db-create requires --create-mode db');
   }
@@ -1157,7 +1169,11 @@ async function main() {
 
     if (args.applyMigration && !args.dryRun) await applyMigration(args, sqlExecutor);
     if (args.dryRun) {
-      console.log(JSON.stringify({ dry_run: true, selected_rows: selectedRows.length, complete_inventory: completeInventory }, null, 2));
+      const output = { dry_run: true, selected_rows: selectedRows.length, complete_inventory: completeInventory };
+      if (args.attachmentCreateMode === 'direct') {
+        output.attachment_direct_plan = planDirectAttachmentMaterialization(selectedRows).attachment_direct_plan;
+      }
+      console.log(JSON.stringify(output, null, 2));
       return;
     }
 

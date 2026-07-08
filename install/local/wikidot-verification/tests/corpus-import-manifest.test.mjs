@@ -964,6 +964,122 @@ test('apply-corpus-import-manifest dry-run accepts skipped attachments without a
   });
 });
 
+test('apply-corpus-import-manifest dry-run direct attachment mode plans selected rows', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+    source: '[[image https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png]]',
+  });
+  writePage(root, 'en', 'scp-174', {
+    entityId: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+    meta: {
+      fullname: 'scp-174',
+      title: 'SCP-174',
+      title_shown: 'SCP-174',
+    },
+    source: '[[image https://scp-wiki.wikidot.com/local--files/scp-174/pixel.png]]',
+  });
+  writePageAttachment(root, 'en', 'scp-173', {
+    filename: 'pixel.png',
+    bytes: Buffer.from([1, 2, 3]),
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+  });
+  writePageAttachment(root, 'en', 'scp-174', {
+    filename: 'pixel.png',
+    bytes: Buffer.from([1, 2, 3]),
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-174/pixel.png',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--attachment-create-mode',
+    'direct',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    env: { ...process.env, DEEPWELL_SESSION_TOKEN: '' },
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.deepEqual(output, {
+    dry_run: true,
+    selected_rows: 2,
+    complete_inventory: true,
+    attachment_direct_plan: {
+      attachments_requested: 2,
+      unique_blobs: 1,
+      duplicate_blobs: 1,
+      total_bytes: 6,
+      unique_bytes: 3,
+    },
+  });
+});
+
+test('apply-corpus-import-manifest rejects unsafe direct attachment mode combinations', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: '12345678-1234-4234-8234-123456789abc',
+    source: 'SCP-173',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const scriptPath = path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs');
+  const directWrite = spawnSync(process.execPath, [
+    scriptPath,
+    '--manifest',
+    manifestPath,
+    '--attachment-create-mode',
+    'direct',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+  const skippedDirect = spawnSync(process.execPath, [
+    scriptPath,
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--skip-attachments',
+    '--attachment-create-mode',
+    'direct',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.notEqual(directWrite.status, 0);
+  assert.match(directWrite.stderr, /direct attachment materialization is not implemented in this slice/);
+  assert.notEqual(skippedDirect.status, 0);
+  assert.match(skippedDirect.stderr, /skip-attachments cannot be combined with --attachment-create-mode direct/);
+});
+
 test('buildCorpusImportManifest fullnames filter selects only the named pages', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
   writePage(root, 'en', 'scp-2000', { entityId: '16161616-1616-4161-8161-161616161616' });
