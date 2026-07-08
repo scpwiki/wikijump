@@ -9,6 +9,10 @@ function sha512Hex(bytes) {
   return crypto.createHash('sha512').update(bytes).digest('hex');
 }
 
+function sha256Hex(bytes) {
+  return crypto.createHash('sha256').update(bytes).digest('hex');
+}
+
 function blobFromBytes(bytes, extras = {}) {
   return {s3_key_hex: sha512Hex(bytes), size: bytes.byteLength, ...extras};
 }
@@ -201,18 +205,78 @@ test('uploadPlannedAttachmentBlobs rejects invalid inputs before object-store ca
   assert.deepEqual(objectStore.calls, []);
 });
 
-test('createHttpObjectStoreClient validates configuration and refuses unauthenticated network use', async () => {
+test('createHttpObjectStoreClient validates configuration and signs HEAD and PUT requests', async () => {
   assert.throws(
     () => createHttpObjectStoreClient({endpoint: 'ftp://localhost:9000', bucket: 'wikijump', accessKeyId: 'key', secretAccessKey: 'secret'}),
     /endpoint/,
   );
+
+  const objectBytes = Buffer.from('stored bytes');
+  const objectKey = sha512Hex(objectBytes);
+  const calls = [];
+  const objects = new Map();
+  const fetchImpl = async (url, options) => {
+    calls.push({
+      url: String(url),
+      method: options.method,
+      headers: options.headers,
+      body: options.body === null ? null : Buffer.from(options.body ?? []),
+    });
+    if (options.method === 'HEAD') {
+      const bytes = objects.get(pathKey(url));
+      if (bytes === undefined) {
+        return response(404);
+      }
+      return response(200, {
+        'content-length': String(bytes.byteLength),
+        'content-type': 'text/plain',
+      });
+    }
+    if (options.method === 'PUT') {
+      objects.set(pathKey(url), Buffer.from(options.body));
+      return response(200);
+    }
+    return response(405);
+  };
 
   const client = createHttpObjectStoreClient({
     endpoint: 'http://localhost:9000',
     bucket: 'wikijump',
     accessKeyId: 'key',
     secretAccessKey: 'secret',
+    fetchImpl,
+    now: () => new Date('2026-07-08T12:34:56Z'),
   });
-  await assert.rejects(client.headObject('a'.repeat(128)), /SigV4/);
-  await assert.rejects(client.putObject('a'.repeat(128), Buffer.from([]), {contentType: 'application/octet-stream'}), /SigV4/);
+
+  assert.deepEqual(await client.headObject(objectKey), { exists: false });
+  await client.putObject(objectKey, objectBytes, {contentType: 'text/plain'});
+  assert.deepEqual(await client.headObject(objectKey), { exists: true, size: objectBytes.byteLength, contentType: 'text/plain' });
+
+  assert.deepEqual(calls.map((call) => [call.method, call.url]), [
+    ['HEAD', `http://localhost:9000/wikijump/${objectKey}`],
+    ['PUT', `http://localhost:9000/wikijump/${objectKey}`],
+    ['HEAD', `http://localhost:9000/wikijump/${objectKey}`],
+  ]);
+  assert.equal(calls[0].headers['x-amz-date'], '20260708T123456Z');
+  assert.equal(calls[0].headers['x-amz-content-sha256'], sha256Hex(Buffer.from('')));
+  assert.match(calls[0].headers.authorization, /^AWS4-HMAC-SHA256 Credential=key\/20260708\/local\/s3\/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=[0-9a-f]{64}$/u);
+  assert.equal(calls[1].headers['content-type'], 'text/plain');
+  assert.equal(calls[1].headers['content-length'], String(objectBytes.byteLength));
+  assert.match(calls[1].headers.authorization, /SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date/u);
 });
+
+function response(status, headers = {}) {
+  return {
+    status,
+    headers: {
+      get(name) {
+        return headers[name.toLowerCase()] ?? null;
+      },
+    },
+  };
+}
+
+function pathKey(url) {
+  const parsed = new URL(url);
+  return parsed.pathname.split('/').at(-1);
+}
