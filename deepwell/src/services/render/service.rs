@@ -110,6 +110,8 @@ const LONG_NATIVE_LIST_RENDER_MIN_ITEMS: usize = 8;
 const MAX_FTML_COMPAT_PARSE_BYTES: usize = 768_000;
 const MAX_FTML_COMPAT_DENSE_PARSE_SCORE: usize = 180_000;
 const MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS: usize = 48;
+const MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES: usize = 64_000;
+const MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS: usize = 12;
 const MIN_FTML_COMPAT_TABBED_RENDER_BYTES: usize = 100_000;
 const MIN_FTML_COMPAT_TABBED_MARKERS: usize = 10;
 const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
@@ -4011,6 +4013,10 @@ impl RenderService {
             return true;
         }
 
+        if Self::wikidot_compat_has_pathological_tabview_shape(wikitext) {
+            return true;
+        }
+
         let page_name = page_info.page.as_ref();
         let title = page_info.title.as_ref();
         if !page_name.contains("scp-style-resource")
@@ -4025,6 +4031,12 @@ impl RenderService {
 
     fn wikidot_compat_has_many_collapsible_blocks(wikitext: &str) -> bool {
         wikitext.matches("[[collapsible").count() > MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS
+    }
+
+    fn wikidot_compat_has_pathological_tabview_shape(wikitext: &str) -> bool {
+        wikitext.len() >= MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES
+            && wikitext.matches("[[tab").count()
+                >= MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS
     }
 
     fn ftml_compat_render_timeout(config: &Config, wikitext: &str) -> Duration {
@@ -9672,7 +9684,8 @@ mod tests {
         CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, OrderBySelector, OrderProperty,
+        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
+        MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
         PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
@@ -12512,6 +12525,30 @@ mod tests {
         assert!(RenderService::should_use_wikidot_compatibility_fallback(
             &source,
             &fallback_test_page_info("the-great-hippo", "Great Hippo's Great Skippos")
+        ));
+    }
+
+    #[test]
+    fn tabbed_corpus_page_uses_compatibility_fallback_before_ftml() {
+        let mut source = String::new();
+        source.push_str("[[tabview]]\n");
+        for index in 0..MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS {
+            source.push_str(&format!("[[tab Section {index}]]\n"));
+            source.push_str("ordinary author page prose\n".repeat(220).as_str());
+            source.push_str("[[/tab]]\n");
+        }
+        source.push_str("[[/tabview]]\n");
+        while source.len() < MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES {
+            source.push_str("ordinary author page prose\n");
+        }
+
+        assert!(source.len() < MAX_FTML_COMPAT_PARSE_BYTES);
+        assert!(RenderService::should_use_wikidot_compatibility_fallback(
+            &source,
+            &fallback_test_page_info(
+                "a-plague-of-philosophical-zombies",
+                "A Plague of Philosophical Zombies",
+            )
         ));
     }
 
