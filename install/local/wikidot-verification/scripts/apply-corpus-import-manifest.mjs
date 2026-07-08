@@ -46,6 +46,7 @@ const precreatedSourceTextHashes = new Set();
 const precreatedCategoryIds = new Map();
 const SOURCE_TEXT_PRECREATE_MAX_ROWS = 200;
 const SOURCE_TEXT_PRECREATE_MAX_BASE64_BYTES = 4 * 1024 * 1024;
+const DB_SHELL_BATCH_MAX_ROWS = 200;
 
 function envString(name) {
   const value = process.env[name];
@@ -1238,6 +1239,287 @@ function canCombineSnapshotReadyRecord(args) {
   return args.skipRerender && (args.skipAttachments || args.attachmentCreateMode === 'direct');
 }
 
+function canBatchCreateDbShellPages(args) {
+  return args.createMode === 'db'
+    && args.assumeEmptyDbImport
+    && args.skipRerender
+    && !args.skipExistingDone
+    && !args.adoptExisting
+    && !args.replaceExisting
+    && !args.rerenderAfterDbCreate
+    && !args.attachmentsOnlyExisting
+    && !!args.textHashBatchCommand
+    && (args.skipAttachments || args.attachmentCreateMode === 'direct');
+}
+
+function recordImportResult(results, summary, result) {
+  results.push(result);
+  summary[result.action] = (summary[result.action] ?? 0) + 1;
+  summary.attachments_requested += result.attachments_requested ?? 0;
+  summary.attachments_uploaded += result.attachments_uploaded ?? 0;
+  summary.attachments_skipped_existing += result.attachments_skipped_existing ?? 0;
+  summary.attachments_deferred += result.attachments_deferred ?? 0;
+  if (result.action === 'render_failed') summary.failed += 1;
+  console.log(JSON.stringify(result));
+}
+
+function batchShellCreatePageValues(args, rows) {
+  const bodyHash = shellBodyHashHex(args);
+  return rows.map((row, index) => {
+    const categoryId = precreatedCategoryIds.get(categoryName(row.fullname));
+    if (categoryId === undefined) {
+      throw new Error(`missing precreated category id for ${row.fullname}`);
+    }
+    const sourceTextPrecreated = precreatedSourceTextHashes.has(row.fullname);
+    if (!sourceTextPrecreated) {
+      throw new Error(`missing precreated source text for ${row.fullname}`);
+    }
+    const wikitextHash = textHashHex(args, '', row.fullname);
+    const title = fallbackTitle(row);
+    const metaText = metaJsonText(row);
+    return `(
+      ${sqlInt(index)},
+      ${sqlQuote(row.source_entity_id)}::uuid,
+      ${sqlQuote(row.source_branch)},
+      ${sqlQuote(row.source_site)},
+      ${sqlQuote(row.fullname)},
+      ${sqlInt(categoryId)},
+      ${sqlTimestamp(row.created_at)},
+      ${sqlTimestamp(row.updated_at)},
+      ${sqlInt(row.revisions)},
+      ${sqlInt(row.rating)},
+      ${sqlQuote(row.created_by)},
+      ${sqlQuote(row.updated_by)},
+      ${sqlQuote(row.title_shown)},
+      ${sqlQuote(row.parent_fullname)},
+      ${sqlInt(row.comments)},
+      ${sqlTimestamp(row.commented_at)},
+      ${sqlQuote(row.commented_by)},
+      ${sqlByteaFromHex(row.source_sha256)},
+      ${sqlByteaFromHex(row.meta_sha256)},
+      ${sqlQuote(metaText)}::jsonb,
+      ${sqlTextHash(wikitextHash)},
+      ${sqlTextHash(bodyHash)},
+      ${sqlQuote(title)},
+      ${sqlTextArray(row.tags)}
+    )`;
+  }).join(',\n');
+}
+
+async function batchShellCreatePages(args, sqlExecutor, rows, importRunId) {
+  if (rows.length === 0) return [];
+  const duplicateFullnames = rows
+    .map((row) => row.fullname)
+    .filter((fullname, index, fullnames) => fullnames.indexOf(fullname) !== index);
+  if (duplicateFullnames.length > 0) {
+    throw new Error(`batched DB shell import requires unique fullnames; duplicate ${duplicateFullnames[0]}`);
+  }
+  const values = batchShellCreatePageValues(args, rows);
+  const sql = `
+WITH input_rows (
+  row_index,
+  source_entity_id,
+  source_branch,
+  source_site,
+  fullname,
+  page_category_id,
+  created_at,
+  updated_at,
+  source_revision_count,
+  imported_rating,
+  created_by_name,
+  updated_by_name,
+  title_shown,
+  parent_fullname,
+  comments,
+  commented_at,
+  commented_by_name,
+  source_sha256,
+  meta_sha256,
+  meta_json,
+  wikitext_hash,
+  body_hash,
+  title,
+  tags
+) AS (
+  VALUES
+${values}
+), inserted_pages AS (
+  INSERT INTO page (created_at, updated_at, from_wikidot, site_id, page_category_id, slug)
+  SELECT created_at, updated_at, true, ${sqlInt(args.siteId)}, page_category_id, fullname
+  FROM input_rows
+  ORDER BY row_index
+  RETURNING page_id, slug
+), inserted_revisions AS (
+  INSERT INTO page_revision (
+    revision_type,
+    created_at,
+    revision_number,
+    page_id,
+    site_id,
+    user_id,
+    from_wikidot,
+    changes,
+    wikitext_hash,
+    compiled_body_html_hash,
+    compiled_top_bar_html_hash,
+    compiled_side_bar_html_hash,
+    compiled_at,
+    compiled_generator,
+    comments,
+    hidden,
+    title,
+    alt_title,
+    slug,
+    tags
+  )
+  SELECT
+    'create',
+    input_rows.updated_at,
+    0,
+    inserted_pages.page_id,
+    ${sqlInt(args.siteId)},
+    ${sqlInt(args.userId)},
+    true,
+    ARRAY['wikitext', 'title', 'alt_title', 'slug', 'tags']::text[],
+    input_rows.wikitext_hash,
+    input_rows.body_hash,
+    NULL,
+    NULL,
+    NOW(),
+    ${sqlQuote(SHELL_COMPILED_GENERATOR)},
+    'local scp-wiki mirror DB import from scp-wiki-translation corpus',
+    ARRAY[]::text[],
+    input_rows.title,
+    NULL,
+    input_rows.fullname,
+    input_rows.tags
+  FROM input_rows
+  JOIN inserted_pages ON inserted_pages.slug = input_rows.fullname
+  RETURNING revision_id, page_id, slug
+), updated_pages AS (
+  UPDATE page
+  SET
+    latest_revision_id = inserted_revisions.revision_id,
+    from_wikidot = true
+  FROM inserted_revisions
+  WHERE page.page_id = inserted_revisions.page_id
+  RETURNING page.page_id
+), inserted_snapshots AS (
+  INSERT INTO wikidot_page_snapshot (
+    page_id,
+    source_branch,
+    source_site,
+    source_entity_id,
+    source_fullname,
+    source_created_at,
+    source_updated_at,
+    source_revision_count,
+    imported_rating,
+    created_by_name,
+    updated_by_name,
+    title_shown,
+    parent_fullname,
+    comments,
+    commented_at,
+    commented_by_name,
+    source_sha256,
+    meta_sha256,
+    meta_json,
+    last_import_run_id
+  )
+  SELECT
+    inserted_revisions.page_id,
+    input_rows.source_branch,
+    input_rows.source_site,
+    input_rows.source_entity_id,
+    input_rows.fullname,
+    input_rows.created_at,
+    input_rows.updated_at,
+    input_rows.source_revision_count,
+    input_rows.imported_rating,
+    input_rows.created_by_name,
+    input_rows.updated_by_name,
+    input_rows.title_shown,
+    input_rows.parent_fullname,
+    input_rows.comments,
+    input_rows.commented_at,
+    input_rows.commented_by_name,
+    input_rows.source_sha256,
+    input_rows.meta_sha256,
+    input_rows.meta_json,
+    ${sqlInt(importRunId)}
+  FROM input_rows
+  JOIN inserted_revisions ON inserted_revisions.slug = input_rows.fullname
+  RETURNING page_id
+), inserted_items AS (
+  INSERT INTO wikidot_corpus_import_item (
+    import_run_id,
+    source_entity_id,
+    source_fullname,
+    page_id,
+    source_sha256,
+    meta_sha256,
+    state
+  )
+  SELECT
+    ${sqlInt(importRunId)},
+    input_rows.source_entity_id,
+    input_rows.fullname,
+    inserted_revisions.page_id,
+    input_rows.source_sha256,
+    input_rows.meta_sha256,
+    'render_pending'
+  FROM input_rows
+  JOIN inserted_revisions ON inserted_revisions.slug = input_rows.fullname
+  RETURNING page_id
+)
+SELECT
+  input_rows.row_index::text || '|' ||
+  inserted_revisions.page_id::text || '|' ||
+  inserted_revisions.revision_id::text
+FROM input_rows
+JOIN inserted_revisions ON inserted_revisions.slug = input_rows.fullname
+JOIN updated_pages ON updated_pages.page_id = inserted_revisions.page_id
+JOIN inserted_snapshots ON inserted_snapshots.page_id = inserted_revisions.page_id
+JOIN inserted_items ON inserted_items.page_id = inserted_revisions.page_id
+ORDER BY input_rows.row_index;
+`;
+  const output = await sqlExecutor.runSql(sql, { capture: true });
+  const parsed = new Map();
+  if (output.trim()) {
+    for (const line of output.split('\n')) {
+      const [indexText, pageIdText, revisionIdText, extra] = line.split('|');
+      const index = Number.parseInt(indexText, 10);
+      const pageId = Number.parseInt(pageIdText, 10);
+      const revisionId = Number.parseInt(revisionIdText, 10);
+      if (extra !== undefined || !Number.isInteger(index) || !Number.isInteger(pageId) || !Number.isInteger(revisionId)) {
+        throw new Error(`invalid batched DB shell import output: ${line}`);
+      }
+      parsed.set(index, { page_id: pageId, revision_id: revisionId });
+    }
+  }
+  if (parsed.size !== rows.length) {
+    throw new Error(`batched DB shell import returned ${parsed.size} rows for ${rows.length} inputs`);
+  }
+  const results = [];
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    const parsedRow = parsed.get(index);
+    const attachmentSummary = await materializeRowAttachments(args, row, parsedRow.page_id);
+    results.push({
+      slug: row.fullname,
+      action: 'created_db_snapshot_ready',
+      page_id: parsedRow.page_id,
+      revision_id: parsedRow.revision_id,
+      rating: row.rating,
+      tags: row.tags.length,
+      ...attachmentSummary,
+    });
+  }
+  return results;
+}
+
 async function importRow(args, sqlExecutor, row, importRunId) {
   if (args.attachmentsOnlyExisting) {
     const existing = await getPage(args, row.fullname);
@@ -1473,21 +1755,31 @@ async function main() {
         directAttachmentUpload = await uploadDirectAttachmentBlobs(args, directAttachmentPlan);
         summary.attachment_direct_upload = summarizeAttachmentUpload(directAttachmentUpload);
       }
-      for (const row of selectedRows) {
-        try {
-          const result = await importRow(args, sqlExecutor, row, importRunId);
-          results.push(result);
-          summary[result.action] = (summary[result.action] ?? 0) + 1;
-          summary.attachments_requested += result.attachments_requested ?? 0;
-          summary.attachments_uploaded += result.attachments_uploaded ?? 0;
-          summary.attachments_skipped_existing += result.attachments_skipped_existing ?? 0;
-          summary.attachments_deferred += result.attachments_deferred ?? 0;
-          if (result.action === 'render_failed') summary.failed += 1;
-          console.log(JSON.stringify(result));
-        } catch (error) {
-          summary.failed += 1;
-          await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
-          console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
+      if (canBatchCreateDbShellPages(args)) {
+        for (let index = 0; index < selectedRows.length; index += DB_SHELL_BATCH_MAX_ROWS) {
+          const batch = selectedRows.slice(index, index + DB_SHELL_BATCH_MAX_ROWS);
+          try {
+            for (const result of await batchShellCreatePages(args, sqlExecutor, batch, importRunId)) {
+              recordImportResult(results, summary, result);
+            }
+          } catch (error) {
+            summary.failed += batch.length;
+            for (const row of batch) {
+              await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
+              console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
+            }
+          }
+        }
+      } else {
+        for (const row of selectedRows) {
+          try {
+            const result = await importRow(args, sqlExecutor, row, importRunId);
+            recordImportResult(results, summary, result);
+          } catch (error) {
+            summary.failed += 1;
+            await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
+            console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
+          }
         }
       }
       if (directAttachmentPlan !== null) {
