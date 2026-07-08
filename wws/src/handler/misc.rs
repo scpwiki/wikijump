@@ -55,8 +55,9 @@ const HTML_BLOCK_IFRAME_JS: &str = r##"(function() {
     var iframe_hash = url_array[5];
     var resize_domain = url_array[6];
     if (/^\d+$/.test(resize_domain) && url_array[3] == '-' && url_array[4] == 'html') {
+        var referrer_match = document.referrer.match(/^https?:\/\/([^\/]+)/);
         iframe_hash = resize_domain;
-        resize_domain = location.host;
+        resize_domain = referrer_match ? referrer_match[1] : location.host.replace('.wjfiles.', '.wikijump.');
     }
     var random = Math.random();
     var resize_div_id = 'div_' + iframe_hash + random;
@@ -261,7 +262,8 @@ mod tests {
             .unwrap();
         let body = String::from_utf8_lossy(&body);
         assert!(body.contains("resize_url"));
-        assert!(body.contains("resize_domain = location.host"));
+        assert!(body.contains("document.referrer"));
+        assert!(body.contains("location.host.replace('.wjfiles.', '.wikijump.')"));
     }
 
     #[tokio::test]
