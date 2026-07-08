@@ -39,6 +39,7 @@ const SHELL_BODY_HTML = `<div class="wj-proof-stub ${SHELL_IMPORT_MARKER}">${SHE
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from scp-wiki-translation corpus';
 let shellBodyHash = null;
+const precomputedTextHashes = new Map();
 
 function envString(name) {
   const value = process.env[name];
@@ -68,6 +69,7 @@ function parseArgs(argv) {
     presignHostAlias: process.env.DEEPWELL_PRESIGN_HOST_ALIAS ? [process.env.DEEPWELL_PRESIGN_HOST_ALIAS] : [],
     rpcTimeoutMs: 120_000,
     textHashCommand: process.env.DEEPWELL_TEXT_HASH_COMMAND ?? null,
+    textHashBatchCommand: process.env.DEEPWELL_TEXT_HASH_BATCH_COMMAND ?? null,
     slug: [],
     slugFile: null,
     limit: null,
@@ -112,6 +114,7 @@ function parseArgs(argv) {
     else if (arg === '--presign-host-alias') args.presignHostAlias.push(next());
     else if (arg === '--rpc-timeout-ms') args.rpcTimeoutMs = Number.parseInt(next(), 10);
     else if (arg === '--text-hash-command') args.textHashCommand = next();
+    else if (arg === '--text-hash-batch-command') args.textHashBatchCommand = next();
     else if (arg === '--slug') args.slug.push(next());
     else if (arg === '--slug-file') args.slugFile = next();
     else if (arg === '--limit') args.limit = Number.parseInt(next(), 10);
@@ -138,7 +141,7 @@ function parseArgs(argv) {
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-secret-access-key <secret>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-secret-access-key <secret>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
 Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. RPC attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with S3 config from --attachment-s3-* options or S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
@@ -172,8 +175,8 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
     throw new Error('--rerender-after-db-create cannot be combined with --skip-rerender');
   }
   if (args.createMode === 'db' && !args.rerenderAfterDbCreate) args.skipRerender = true;
-  if (args.createMode === 'db' && !args.dryRun && !args.textHashCommand) {
-    throw new Error('--create-mode db requires --text-hash-command or DEEPWELL_TEXT_HASH_COMMAND');
+  if (args.createMode === 'db' && !args.dryRun && !args.textHashCommand && !args.textHashBatchCommand) {
+    throw new Error('--create-mode db requires --text-hash-command/DEEPWELL_TEXT_HASH_COMMAND or --text-hash-batch-command/DEEPWELL_TEXT_HASH_BATCH_COMMAND');
   }
   if (args.replaceExisting && args.createMode !== 'db') {
     throw new Error('--replace-existing requires --create-mode db');
@@ -237,7 +240,20 @@ function sqlTextHash(hex) {
   return `decode(${sqlQuote(hex.toLowerCase())}, 'hex')`;
 }
 
-function textHashHex(args, contents) {
+function validateTextHash(hash) {
+  if (!/^[0-9a-f]{32}$/iu.test(hash)) {
+    throw new Error(`text hash command returned invalid 16-byte hex hash: ${hash}`);
+  }
+  return hash.toLowerCase();
+}
+
+function textHashHex(args, contents, cacheKey = null) {
+  if (cacheKey !== null && precomputedTextHashes.has(cacheKey)) {
+    return precomputedTextHashes.get(cacheKey);
+  }
+  if (!args.textHashCommand) {
+    throw new Error(`missing precomputed text hash for ${cacheKey ?? '<uncached text>'}; set --text-hash-command or use --text-hash-batch-command before DB import`);
+  }
   const result = spawnSync(args.textHashCommand, {
     input: contents,
     shell: true,
@@ -247,16 +263,51 @@ function textHashHex(args, contents) {
   if (result.status !== 0) {
     throw new Error(`text hash command failed (${result.status})\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}`);
   }
-  const hash = result.stdout.trim();
-  if (!/^[0-9a-f]{32}$/iu.test(hash)) {
-    throw new Error(`text hash command returned invalid 16-byte hex hash: ${hash}`);
-  }
-  return hash.toLowerCase();
+  return validateTextHash(result.stdout.trim());
 }
 
 function shellBodyHashHex(args) {
-  if (shellBodyHash === null) shellBodyHash = textHashHex(args, SHELL_BODY_HTML);
+  if (shellBodyHash === null) shellBodyHash = textHashHex(args, SHELL_BODY_HTML, '__shell_body__');
   return shellBodyHash;
+}
+
+function batchTextHashesHex(args, items) {
+  const input = items
+    .map(({ id, contents }) => `${id}\t${Buffer.from(contents, 'utf8').toString('base64')}`)
+    .join('\n') + '\n';
+  const result = spawnSync(args.textHashBatchCommand, {
+    input,
+    shell: true,
+    encoding: 'utf8',
+    maxBuffer: Math.max(1024 * 1024, items.length * 80),
+  });
+  if (result.status !== 0) {
+    throw new Error(`text hash batch command failed (${result.status})\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}`);
+  }
+  const hashes = new Map();
+  for (const line of result.stdout.split('\n')) {
+    if (!line.trim()) continue;
+    const [id, hash, extra] = line.split('\t');
+    if (!id || extra !== undefined) throw new Error(`invalid text hash batch output line: ${line}`);
+    hashes.set(id, validateTextHash(hash));
+  }
+  if (hashes.size !== items.length) {
+    throw new Error(`text hash batch command returned ${hashes.size} hashes for ${items.length} inputs`);
+  }
+  return hashes;
+}
+
+function precomputeDbTextHashes(args, selectedRows) {
+  if (args.createMode !== 'db' || !args.textHashBatchCommand) return;
+  const items = [{ id: '__shell_body__', contents: SHELL_BODY_HTML }];
+  for (let index = 0; index < selectedRows.length; index += 1) {
+    items.push({ id: `page:${index}`, contents: sourceText(selectedRows[index]) });
+  }
+  const hashes = batchTextHashesHex(args, items);
+  shellBodyHash = hashes.get('__shell_body__');
+  for (let index = 0; index < selectedRows.length; index += 1) {
+    precomputedTextHashes.set(selectedRows[index].fullname, hashes.get(`page:${index}`));
+  }
 }
 
 function sqlTextFromBase64(value) {
@@ -435,7 +486,7 @@ function categoryName(slug) {
 async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision = false } = {}) {
   const wikitext = sourceText(row);
   const bodyHtml = SHELL_BODY_HTML;
-  const wikitextHash = textHashHex(args, wikitext);
+  const wikitextHash = textHashHex(args, wikitext, row.fullname);
   const bodyHash = shellBodyHashHex(args);
   const title = fallbackTitle(row);
   const category = categoryName(row.fullname);
@@ -1268,6 +1319,7 @@ async function main() {
       return;
     }
 
+    precomputeDbTextHashes(args, selectedRows);
     const importRunId = await ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory);
     const results = [];
     const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId };
