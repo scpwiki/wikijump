@@ -280,6 +280,7 @@ async function collectVisibleText(page, visibleTextScope = "all-frames") {
   const texts = [];
   for (const frame of frames) {
     try {
+      if (!(await shouldCaptureFrameVisibleText(page, frame))) continue;
       const text = await frame.evaluate(() => document.body?.innerText ?? "");
       if (text) texts.push(text);
     } catch {
@@ -287,6 +288,39 @@ async function collectVisibleText(page, visibleTextScope = "all-frames") {
     }
   }
   return texts.join("\n");
+}
+
+async function shouldCaptureFrameVisibleText(page, frame) {
+  if (typeof page.mainFrame === "function" && frame === page.mainFrame()) {
+    return true;
+  }
+  if (typeof frame.frameElement !== "function") {
+    return true;
+  }
+
+  let frameElement = null;
+  try {
+    frameElement = await frame.frameElement();
+  } catch {
+    return true;
+  }
+  if (!frameElement) {
+    return true;
+  }
+
+  try {
+    return await frameElement.evaluate((element) => {
+      if (!(element instanceof HTMLElement)) return true;
+      if (element.hidden) return false;
+      const style = window.getComputedStyle(element);
+      if (style.display === "none" || style.visibility === "hidden" || style.visibility === "collapse") {
+        return false;
+      }
+      return true;
+    });
+  } catch {
+    return true;
+  }
 }
 
 async function waitForLoadStateWithinBudget(page, state, timeoutMs, startedAt) {
