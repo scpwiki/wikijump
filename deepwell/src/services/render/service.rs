@@ -4165,6 +4165,7 @@ impl RenderService {
             || text.contains("[[/tab")
             || text.contains("[[size")
             || text.contains("[[/size")
+            || text.contains("[[embed]]")
             || text.contains("[[=image")
             || text.contains("[[[")
             || text.contains("[[*")
@@ -4202,9 +4203,30 @@ impl RenderService {
         let mut tabview_open = false;
         let mut tab_open = false;
         let mut size_depth = 0usize;
+        let mut embed_body: Option<String> = None;
 
         for line in text.lines() {
             let trimmed = line.trim();
+            if embed_body.is_some() {
+                if trimmed.eq_ignore_ascii_case("[[/embed]]") {
+                    let body = embed_body.take().unwrap_or_default();
+                    if let Some(iframe) = Self::allowed_wikidot_embed_iframe(body.trim())
+                    {
+                        output.push_str("<div>");
+                        output.push_str(&iframe);
+                        output.push_str("</div>");
+                    } else {
+                        paragraph.push_str("[[embed]]\n");
+                        paragraph.push_str(&body);
+                        paragraph.push_str("[[/embed]]\n");
+                    }
+                } else if let Some(body) = embed_body.as_mut() {
+                    body.push_str(line);
+                    body.push('\n');
+                }
+                continue;
+            }
+
             if in_style {
                 output.push_str(line);
                 output.push('\n');
@@ -4223,6 +4245,16 @@ impl RenderService {
                 output.push_str(trimmed);
                 output.push('\n');
                 in_style = true;
+                continue;
+            }
+
+            if trimmed.eq_ignore_ascii_case("[[embed]]") {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                embed_body = Some(String::new());
                 continue;
             }
 
@@ -4367,6 +4399,10 @@ impl RenderService {
             paragraph.push('\n');
         }
 
+        if let Some(body) = embed_body {
+            paragraph.push_str("[[embed]]\n");
+            paragraph.push_str(&body);
+        }
         Self::push_wikidot_compat_fallback_paragraph_for_page(
             &mut output,
             &mut paragraph,
@@ -11536,6 +11572,66 @@ mod tests {
             RenderService::restore_wikidot_rendered_embed_iframes(non_styleframe),
             non_styleframe,
         );
+    }
+
+    #[test]
+    fn renders_wikidot_styleframe_embed_in_compat_fallback() {
+        let rendered =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+                concat!(
+                    "[[embed]]\n",
+                    r#"<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority=1&theme=https://scp-wiki.wdfiles.com/local--code/theme%3Asunside/1&css={$css}" style="display: none"></iframe>"#,
+                    "\n[[/embed]]",
+                ),
+            );
+
+        assert_eq!(
+            rendered,
+            concat!(
+                r#"<div class="wikidot-compat-fallback"><div>"#,
+                r#"<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&theme=https://scp-wiki.wdfiles.com/local--code/theme%3Asunside/1&css={$css}" style="display: none"></iframe>"#,
+                r#"</div></div>"#,
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_wikidot_interwiki_embed_in_compat_fallback() {
+        let rendered =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+                concat!(
+                    "[[embed]]\n",
+                    r#"<iframe src="//interwiki.scpwiki.com/interwikiFrame.html?lang=en&community=scp&pagename=scp-anthology-2024" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#,
+                    "\n[[/embed]]",
+                ),
+            );
+
+        assert_eq!(
+            rendered,
+            concat!(
+                r#"<div class="wikidot-compat-fallback"><div>"#,
+                r#"<iframe src="/-/wikidot-interwiki/interwikiFrame.html?lang=en&community=scp&pagename=scp-anthology-2024" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#,
+                r#"</div></div>"#,
+            ),
+        );
+    }
+
+    #[test]
+    fn leaves_unsupported_embed_literal_in_compat_fallback() {
+        let rendered =
+            RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
+                concat!(
+                    "[[embed]]\n",
+                    r#"<iframe src="//example.com/widget" style="display: none"></iframe>"#,
+                    "\n[[/embed]]",
+                ),
+            );
+
+        assert!(rendered.contains("[[embed]]"));
+        assert!(rendered.contains(
+            r#"&lt;iframe src="//example.com/widget" style="display: none"&gt;&lt;/iframe&gt;"#
+        ));
+        assert!(!rendered.contains(r#"<iframe src="//example.com/widget""#));
     }
 
     #[test]
