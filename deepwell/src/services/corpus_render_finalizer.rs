@@ -419,7 +419,7 @@ impl CorpusRenderFinalizerService {
                 AND item.attempts < $2
                 ORDER BY item.updated_at ASC, item.source_fullname ASC
                 LIMIT $3
-                FOR UPDATE SKIP LOCKED
+                FOR UPDATE OF item SKIP LOCKED
             )
             UPDATE wikidot_corpus_import_item AS item
             SET
