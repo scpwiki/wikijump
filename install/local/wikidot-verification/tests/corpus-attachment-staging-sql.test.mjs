@@ -29,6 +29,8 @@ test('buildAttachmentStagingSql stages planned attachments and guard joins', () 
     'p.site_id = 246::bigint',
     'p.slug = pa.fullname',
     'p.deleted_at IS NULL',
+    'planned_name_counts AS',
+    'GROUP BY page_id, filename',
     'f.page_id = pm.page_id',
     'f.name = pm.filename',
     'f.deleted_at IS NULL',
@@ -44,6 +46,7 @@ test('buildAttachmentStagingSql classifies rows and exposes first revision stagi
     "WHEN af.active_file_count = 1 THEN 'existing_mismatch'",
     "WHEN bb.s3_hash IS NOT NULL THEN 'blob_blacklisted'",
     "WHEN pm.page_id IS NULL THEN 'missing_page'",
+    "WHEN COALESCE(pnc.planned_name_count, 1) > 1 THEN 'duplicate_planned_name'",
     "ELSE 'insert'",
     'staged_file_rows AS',
     'staged_first_revisions AS',
@@ -54,6 +57,21 @@ test('buildAttachmentStagingSql classifies rows and exposes first revision stagi
     'ARRAY[]::text[] AS hidden',
   ]);
   assert.equal(/\bINSERT\s+INTO\b/iu.test(sql), false);
+});
+
+test('buildAttachmentStagingSql commit mode inserts files and first revisions', () => {
+  const sql = sampleSql({ commit: true });
+
+  assertSqlFragments(sql, [
+    'inserted_files AS',
+    'INSERT INTO file (site_id, page_id, name, from_wikidot)',
+    'inserted_file_rows AS',
+    'inserted_first_revisions AS',
+    'INSERT INTO file_revision (',
+    'JOIN inserted_file_rows ifr',
+    'COALESCE(inserted_file_rows.file_id::text, c.file_id::text, \'\') AS file_id',
+    'COALESCE(inserted_first_revisions.revision_number::text, \'\') AS revision_number',
+  ]);
 });
 
 test('buildAttachmentStagingSql handles empty input and validates metadata', () => {

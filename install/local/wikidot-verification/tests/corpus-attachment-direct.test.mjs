@@ -49,6 +49,8 @@ test('planDirectAttachmentMaterialization validates bytes and deduplicates by S3
   assert.equal(plan.attachments[0].s3_key_hex, attachmentS3KeyHex(sharedBytes));
   assert.equal(plan.attachments[2].s3_key_hex, plan.attachments[0].s3_key_hex);
   assert.equal(plan.attachments[2].duplicate, true);
+  assert.equal(plan.blobs[0].first_file_path, rows[0].attachments[0].file_path);
+  assert.equal(plan.blobs[0].mime, null);
 });
 
 test('planDirectAttachmentMaterialization rejects stale sha256 metadata', () => {

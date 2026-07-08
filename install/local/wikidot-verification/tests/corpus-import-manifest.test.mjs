@@ -1049,12 +1049,25 @@ test('apply-corpus-import-manifest rejects unsafe direct attachment mode combina
   const { spawnSync } = await import('node:child_process');
   const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
   const scriptPath = path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs');
-  const directWrite = spawnSync(process.execPath, [
+  const directWriteWithoutDb = spawnSync(process.execPath, [
     scriptPath,
     '--manifest',
     manifestPath,
     '--attachment-create-mode',
     'direct',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+  const directWriteWithoutActor = spawnSync(process.execPath, [
+    scriptPath,
+    '--manifest',
+    manifestPath,
+    '--attachment-create-mode',
+    'direct',
+    '--db-url',
+    'postgres://wikijump:wikijump@127.0.0.1:1/wikijump',
   ], {
     cwd: packageRoot,
     encoding: 'utf8',
@@ -1074,8 +1087,10 @@ test('apply-corpus-import-manifest rejects unsafe direct attachment mode combina
     maxBuffer: 1024 * 1024,
   });
 
-  assert.notEqual(directWrite.status, 0);
-  assert.match(directWrite.stderr, /direct attachment materialization is not implemented in this slice/);
+  assert.notEqual(directWriteWithoutDb.status, 0);
+  assert.match(directWriteWithoutDb.stderr, /direct requires --db-url|direct requires --db-url or DEEPWELL_VERIFY_DB_URL/);
+  assert.notEqual(directWriteWithoutActor.status, 0);
+  assert.match(directWriteWithoutActor.stderr, /direct requires --attachment-user-id or non-default --user-id/);
   assert.notEqual(skippedDirect.status, 0);
   assert.match(skippedDirect.stderr, /skip-attachments cannot be combined with --attachment-create-mode direct/);
 });

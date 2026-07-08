@@ -15,6 +15,9 @@ import {
   validateAttachmentActorArgs,
 } from '../src/corpus-attachment-policy.mjs';
 import { planDirectAttachmentMaterialization } from '../src/corpus-attachment-direct.mjs';
+import { uploadPlannedAttachmentBlobs } from '../src/corpus-attachment-direct-upload.mjs';
+import { createHttpObjectStoreClient } from '../src/corpus-attachment-object-store.mjs';
+import { buildAttachmentStagingSql, parseAttachmentStagingResults } from '../src/corpus-attachment-staging-sql.mjs';
 import {
   buildParentLinkParentPagesSql,
   buildParentLinkSql,
@@ -36,6 +39,18 @@ const SHELL_BODY_HTML = `<div class="wj-proof-stub ${SHELL_IMPORT_MARKER}">${SHE
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from scp-wiki-translation corpus';
 let shellBodyHash = null;
+
+function envString(name) {
+  const value = process.env[name];
+  return value === undefined || value === '' ? null : value;
+}
+
+function parseBooleanString(value, label) {
+  if (value === null || value === undefined || value === '') return null;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  throw new Error(`${label} must be true or false`);
+}
 
 function parseArgs(argv) {
   const args = {
@@ -65,6 +80,12 @@ function parseArgs(argv) {
     skipAttachments: false,
     createMode: 'rpc',
     attachmentCreateMode: 'rpc',
+    attachmentS3Endpoint: envString('S3_CUSTOM_ENDPOINT'),
+    attachmentS3Bucket: envString('S3_FILES_BUCKET'),
+    attachmentS3AccessKeyId: envString('S3_ACCESS_KEY_ID'),
+    attachmentS3SecretAccessKey: envString('S3_SECRET_ACCESS_KEY'),
+    attachmentS3Region: envString('S3_REGION_NAME'),
+    attachmentS3PathStyle: parseBooleanString(process.env.S3_PATH_STYLE, 'S3_PATH_STYLE'),
     dryRun: false,
     sourceSite: 'scp-wiki',
     sourceBranch: 'en',
@@ -107,13 +128,19 @@ function parseArgs(argv) {
     else if (arg === '--attachment-create-mode') {
       args.attachmentCreateMode = next();
     }
+    else if (arg === '--attachment-s3-endpoint') args.attachmentS3Endpoint = next();
+    else if (arg === '--attachment-s3-bucket') args.attachmentS3Bucket = next();
+    else if (arg === '--attachment-s3-access-key-id') args.attachmentS3AccessKeyId = next();
+    else if (arg === '--attachment-s3-secret-access-key') args.attachmentS3SecretAccessKey = next();
+    else if (arg === '--attachment-s3-region') args.attachmentS3Region = next();
+    else if (arg === '--attachment-s3-path-style') args.attachmentS3PathStyle = parseBooleanString(next(), '--attachment-s3-path-style');
     else if (arg === '--dry-run') args.dryRun = true;
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-secret-access-key <secret>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. RPC attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with S3 config from --attachment-s3-* options or S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -133,7 +160,10 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
     throw new Error('--skip-attachments cannot be combined with --attachment-create-mode direct');
   }
   if (args.attachmentCreateMode === 'direct' && !args.dryRun) {
-    throw new Error('direct attachment materialization is not implemented in this slice; use --dry-run or --attachment-create-mode rpc');
+    if (!args.dbUrl) throw new Error('--attachment-create-mode direct requires --db-url or DEEPWELL_VERIFY_DB_URL');
+    if ((args.attachmentUserId ?? null) === null && args.userId === DEFAULT_USER_ID) {
+      throw new Error('--attachment-create-mode direct requires --attachment-user-id or non-default --user-id');
+    }
   }
   if (args.rerenderAfterDbCreate && args.createMode !== 'db') {
     throw new Error('--rerender-after-db-create requires --create-mode db');
@@ -685,6 +715,13 @@ async function materializeRowAttachments(args, row, pageId) {
       attachments_deferred: attachments.length,
     };
   }
+  if (args.attachmentCreateMode === 'direct') {
+    return {
+      attachments_requested: attachments.length,
+      attachments_uploaded: 0,
+      attachments_skipped_existing: 0,
+    };
+  }
   if (attachments.length === 0) {
     return { attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0 };
   }
@@ -712,6 +749,59 @@ async function materializeRowAttachments(args, row, pageId) {
     attachments_uploaded: uploaded,
     attachments_skipped_existing: skippedExisting,
   };
+}
+
+function createAttachmentObjectStore(args) {
+  return createHttpObjectStoreClient({
+    endpoint: args.attachmentS3Endpoint,
+    bucket: args.attachmentS3Bucket,
+    accessKeyId: args.attachmentS3AccessKeyId,
+    secretAccessKey: args.attachmentS3SecretAccessKey,
+    region: args.attachmentS3Region ?? 'local',
+    pathStyle: args.attachmentS3PathStyle ?? true,
+  });
+}
+
+function summarizeAttachmentUpload(upload) {
+  return {
+    requested: upload.requested,
+    uploaded: upload.uploaded,
+    skipped_existing: upload.skipped_existing,
+    failed: upload.failed,
+    total_bytes: upload.total_bytes,
+    uploaded_bytes: upload.uploaded_bytes,
+  };
+}
+
+async function uploadDirectAttachmentBlobs(args, directPlan) {
+  if (directPlan.blobs.length === 0) {
+    return {
+      requested: 0,
+      uploaded: 0,
+      skipped_existing: 0,
+      failed: 0,
+      total_bytes: 0,
+      uploaded_bytes: 0,
+      results: [],
+    };
+  }
+  const objectStore = createAttachmentObjectStore(args);
+  return await uploadPlannedAttachmentBlobs({
+    blobs: directPlan.blobs,
+    objectStore,
+    readBlobBytes: async (blob) => fs.readFileSync(blob.first_file_path),
+  });
+}
+
+async function commitDirectAttachmentStaging(args, sqlExecutor, directPlan) {
+  const sql = buildAttachmentStagingSql({
+    siteId: args.siteId,
+    actorUserId: attachmentActorUserId(args),
+    attachments: directPlan.attachments,
+    revisionComments: ATTACHMENT_IMPORT_COMMENTS,
+    commit: true,
+  });
+  return parseAttachmentStagingResults(await sqlExecutor.runSql(sql, { capture: true }));
 }
 
 function upsertSnapshotSql(args, row, pageId, revisionId, importRunId) {
@@ -1165,13 +1255,14 @@ async function main() {
     const allRows = parseRows(manifestText);
     const selectedRows = filterRows(args, allRows);
     const completeInventory = selectedRows.length === allRows.length && args.limit === null && args.slug.length === 0 && args.slugFile === null;
+    const directAttachmentPlan = args.attachmentCreateMode === 'direct' ? planDirectAttachmentMaterialization(selectedRows) : null;
     if (!args.dryRun) validateAttachmentActorArgs(args, selectedRows);
 
     if (args.applyMigration && !args.dryRun) await applyMigration(args, sqlExecutor);
     if (args.dryRun) {
       const output = { dry_run: true, selected_rows: selectedRows.length, complete_inventory: completeInventory };
       if (args.attachmentCreateMode === 'direct') {
-        output.attachment_direct_plan = planDirectAttachmentMaterialization(selectedRows).attachment_direct_plan;
+        output.attachment_direct_plan = directAttachmentPlan.attachment_direct_plan;
       }
       console.log(JSON.stringify(output, null, 2));
       return;
@@ -1181,8 +1272,14 @@ async function main() {
     const results = [];
     const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId };
     let finalState = 'failed';
+    let directAttachmentUpload = null;
 
     try {
+      if (directAttachmentPlan !== null) {
+        summary.attachment_direct_plan = directAttachmentPlan.attachment_direct_plan;
+        directAttachmentUpload = await uploadDirectAttachmentBlobs(args, directAttachmentPlan);
+        summary.attachment_direct_upload = summarizeAttachmentUpload(directAttachmentUpload);
+      }
       for (const row of selectedRows) {
         try {
           const result = await importRow(args, sqlExecutor, row, importRunId);
@@ -1199,6 +1296,21 @@ async function main() {
           await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { message: error.message }));
           console.error(JSON.stringify({ slug: row.fullname, action: 'failed', error: error.message }));
         }
+      }
+      if (directAttachmentPlan !== null) {
+        let attachmentStaging = { summary: { total: 0, insert: 0, skip_existing: 0, fail_closed: 0 }, rows: [] };
+        if (directAttachmentUpload.failed === 0) {
+          attachmentStaging = await commitDirectAttachmentStaging(args, sqlExecutor, directAttachmentPlan);
+          summary.attachments_uploaded += attachmentStaging.summary.insert;
+          summary.attachments_skipped_existing += attachmentStaging.summary.skip_existing;
+        }
+        summary.attachment_direct_staging = attachmentStaging.summary;
+        console.log(JSON.stringify({
+          action: 'direct_attachment_materialization',
+          attachment_direct_upload: summary.attachment_direct_upload,
+          attachment_direct_staging: summary.attachment_direct_staging,
+        }));
+        if (directAttachmentUpload.failed > 0 || attachmentStaging.summary.fail_closed > 0) summary.failed += 1;
       }
       Object.assign(summary, await upsertParentLinks(args, sqlExecutor, selectedRows));
       Object.assign(summary, await rerenderParentLinkPages(args, sqlExecutor, selectedRows));

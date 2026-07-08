@@ -61,6 +61,7 @@ export function buildAttachmentStagingSql({
   attachments,
   actorUserId,
   revisionComments = DEFAULT_REVISION_COMMENTS,
+  commit = false,
 }) {
   assertSafeInteger(siteId, 'siteId');
   assertSafeInteger(actorUserId, 'actorUserId');
@@ -69,6 +70,9 @@ export function buildAttachmentStagingSql({
   }
   if (typeof revisionComments !== 'string' || revisionComments.length === 0) {
     throw new Error('revisionComments must be a non-empty string');
+  }
+  if (typeof commit !== 'boolean') {
+    throw new Error('commit must be a boolean');
   }
   attachments.forEach(assertAttachment);
 
@@ -82,6 +86,12 @@ page_match AS (
     ON p.site_id = ${sqlBigint(siteId)}
    AND p.slug = pa.fullname
    AND p.deleted_at IS NULL
+),
+planned_name_counts AS (
+  SELECT page_id, filename, count(*)::integer AS planned_name_count
+  FROM page_match
+  WHERE page_id IS NOT NULL
+  GROUP BY page_id, filename
 ),
 active_file_matches AS (
   SELECT pm.row_index, count(f.file_id)::integer AS active_file_count, min(f.file_id) AS file_id
@@ -115,6 +125,7 @@ classified AS (
     CASE
       WHEN pm.page_id IS NULL THEN 'fail_closed'
       WHEN bb.s3_hash IS NOT NULL THEN 'fail_closed'
+      WHEN COALESCE(pnc.planned_name_count, 1) > 1 THEN 'fail_closed'
       WHEN af.active_file_count > 1 THEN 'fail_closed'
       WHEN af.active_file_count = 1 AND lfr.file_id IS NULL THEN 'fail_closed'
       WHEN af.active_file_count = 1 AND lfr.size = pm.size AND lfr.s3_hash = pm.s3_hash THEN 'skip_existing'
@@ -124,6 +135,7 @@ classified AS (
     CASE
       WHEN pm.page_id IS NULL THEN 'missing_page'
       WHEN bb.s3_hash IS NOT NULL THEN 'blob_blacklisted'
+      WHEN COALESCE(pnc.planned_name_count, 1) > 1 THEN 'duplicate_planned_name'
       WHEN af.active_file_count > 1 THEN 'active_name_conflict'
       WHEN af.active_file_count = 1 AND lfr.file_id IS NULL THEN 'existing_missing_revision'
       WHEN af.active_file_count = 1 AND lfr.size = pm.size AND lfr.s3_hash = pm.s3_hash THEN NULL
@@ -137,6 +149,9 @@ classified AS (
   FROM page_match pm
   JOIN active_file_matches af
     ON af.row_index = pm.row_index
+  LEFT JOIN planned_name_counts pnc
+    ON pnc.page_id = pm.page_id
+   AND pnc.filename = pm.filename
   LEFT JOIN latest_file_revisions lfr
     ON lfr.file_id = af.file_id
   LEFT JOIN blob_blacklist bb
@@ -165,17 +180,72 @@ staged_first_revisions AS (
   FROM classified
   WHERE action = 'insert'
 )
+${commit ? `, inserted_files AS (
+  INSERT INTO file (site_id, page_id, name, from_wikidot)
+  SELECT site_id, page_id, name, from_wikidot
+  FROM staged_file_rows
+  ORDER BY row_index
+  RETURNING file_id, site_id, page_id, name
+),
+inserted_file_rows AS (
+  SELECT sfr.row_index, inserted_files.file_id
+  FROM staged_file_rows sfr
+  JOIN inserted_files
+    ON inserted_files.site_id = sfr.site_id
+   AND inserted_files.page_id = sfr.page_id
+   AND inserted_files.name = sfr.name
+),
+inserted_first_revisions AS (
+  INSERT INTO file_revision (
+    revision_type,
+    revision_number,
+    file_id,
+    page_id,
+    site_id,
+    user_id,
+    name,
+    s3_hash,
+    mime,
+    size,
+    changes,
+    comments,
+    hidden
+  )
+  SELECT
+    sfrv.revision_type,
+    sfrv.revision_number,
+    ifr.file_id,
+    sfrv.page_id,
+    sfrv.site_id,
+    sfrv.user_id,
+    sfrv.name,
+    sfrv.s3_hash,
+    sfrv.mime,
+    sfrv.size,
+    sfrv.changes,
+    sfrv.comments,
+    sfrv.hidden
+  FROM staged_first_revisions sfrv
+  JOIN inserted_file_rows ifr
+    ON ifr.row_index = sfrv.row_index
+  ORDER BY sfrv.row_index
+  RETURNING revision_id, file_id, page_id, revision_number
+)` : ''}
 SELECT
   c.row_index, c.fullname, c.filename, c.action,
   COALESCE(c.reason, '') AS reason,
   COALESCE(c.page_id::text, '') AS page_id,
-  COALESCE(c.file_id::text, '') AS file_id,
-  COALESCE(c.revision_number::text, '') AS revision_number
+  COALESCE(${commit ? 'inserted_file_rows.file_id::text, ' : ''}c.file_id::text, '') AS file_id,
+  COALESCE(${commit ? 'inserted_first_revisions.revision_number' : 'sfrv.revision_number'}::text, '') AS revision_number
 FROM classified c
 LEFT JOIN staged_file_rows sfr
   ON sfr.row_index = c.row_index
 LEFT JOIN staged_first_revisions sfrv
   ON sfrv.row_index = c.row_index
+${commit ? `LEFT JOIN inserted_file_rows
+  ON inserted_file_rows.row_index = c.row_index
+LEFT JOIN inserted_first_revisions
+  ON inserted_first_revisions.file_id = inserted_file_rows.file_id` : ''}
 ORDER BY c.row_index;`;
 }
 

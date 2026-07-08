@@ -62,12 +62,20 @@ export function planDirectAttachmentMaterialization(rows) {
       let blob = blobsByS3Key.get(s3KeyHex);
       const duplicate = blob !== undefined;
       if (!blob) {
-        blob = { s3_key_hex: s3KeyHex, sha256: attachment.sha256, size: bytes.length, first_fullname: row.fullname, first_filename: attachment.filename };
+        blob = {
+          s3_key_hex: s3KeyHex,
+          sha256: attachment.sha256,
+          size: bytes.length,
+          mime: attachment.mime ?? null,
+          first_file_path: attachment.file_path,
+          first_fullname: row.fullname,
+          first_filename: attachment.filename,
+        };
         blobsByS3Key.set(s3KeyHex, blob);
         uniqueBytes = addSafeInteger(uniqueBytes, bytes.length, 'attachment unique_bytes');
       }
 
-      attachments.push({ fullname: row.fullname, filename: attachment.filename, file_path: attachment.file_path, sha256: attachment.sha256, size: bytes.length, s3_key_hex: s3KeyHex, duplicate });
+      attachments.push({ fullname: row.fullname, filename: attachment.filename, file_path: attachment.file_path, sha256: attachment.sha256, size: bytes.length, mime: attachment.mime ?? null, s3_key_hex: s3KeyHex, duplicate });
     }
   }
 
