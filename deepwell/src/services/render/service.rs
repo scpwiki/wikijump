@@ -126,6 +126,7 @@ const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
 const WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX: &str =
     "WIKIJUMPWIKIDOTSTRAYBIBCITECLOSE";
+const WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTRATEANCHOR";
 const WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX: &str =
     "WIKIJUMPWIKIDOTLISTPAGESELLIPSIS";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
@@ -155,6 +156,12 @@ static COUNTPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static RATE_MODULE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[module\s+Rate(?P<head>[^\]]*)\]\]").unwrap());
+static WIKIDOT_RATE_ANCHOR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"\[\[a href="javascript:;" onclick="(?P<onclick>WIKIDOT\.modules\.PageRateWidgetModule\.listeners\.(?:rate\(event, -?1\)|cancelVote\(event\)))" title="(?P<title>[^"]*)"\]\](?P<label>[^\[]*)\[\[/a\]\]"#,
+    )
+    .unwrap()
+});
 static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
 });
@@ -681,16 +688,39 @@ impl RenderService {
                 Self::protect_generated_wikidot_compat_html(&mut wikitext, settings);
             let mut backlinks = ftml::data::Backlinks::new();
             backlinks.included_pages.extend(included_pages);
-            let fallback_body = Self::render_oversized_wikidot_compatibility_fallback(
+            let fallback_output = Self::render_oversized_wikidot_compatibility_fallback(
                 &wikitext,
                 current_site.as_ref(),
                 config,
                 page_info.page.as_ref(),
             );
+            let fallback_html_block_texts: Vec<String> = fallback_output
+                .html_block_texts
+                .iter()
+                .map(|html| {
+                    let html = Self::restore_protected_generated_wikidot_compat_html(
+                        html.to_owned(),
+                        &wikidot_compat_html,
+                    );
+                    let html = Self::restore_protected_wikidot_inline_html(
+                        Self::restore_protected_wikidot_color_spans(
+                            html,
+                            &wikidot_color_spans,
+                        ),
+                        &wikidot_inline_html,
+                    );
+                    let html = restore_list_pages_literal_ellipsis_markers(&html);
+                    Self::localize_wikidot_local_file_urls(
+                        &html,
+                        current_site.as_ref(),
+                        config,
+                    )
+                })
+                .collect();
             let html_output = HtmlOutput {
                 body: {
                     let body = Self::restore_protected_generated_wikidot_compat_html(
-                        fallback_body,
+                        fallback_output.body,
                         &wikidot_compat_html,
                     );
                     let body = Self::restore_protected_wikidot_inline_html(
@@ -713,6 +743,26 @@ impl RenderService {
             let compiled_hash = TextService::create(ctx, html_output.body.clone())
                 .await
                 .or_raise(make_error)?;
+            if let Some(page_id) = text_block_page_id {
+                let html_blocks: Vec<TextBlock> = fallback_html_block_texts
+                    .iter()
+                    .map(|html| TextBlock {
+                        text: html,
+                        text_type: None,
+                        mime: MIME_HTML,
+                        name: None,
+                    })
+                    .collect();
+
+                TextBlockService::add_blocks(
+                    ctx,
+                    page_id,
+                    TextBlockType::Html,
+                    &html_blocks,
+                )
+                .await
+                .or_raise(make_error)?;
+            }
 
             return Ok(RenderInnerOutput {
                 html_output,
@@ -3955,7 +4005,7 @@ impl RenderService {
         current_site: Option<&SiteModel>,
         config: &Config,
         current_page: &str,
-    ) -> String {
+    ) -> WikidotCompatibilityFallbackOutput {
         let localized =
             Self::localize_wikidot_local_file_urls(wikitext, current_site, config);
         let localized = Self::render_wikidot_compat_fallback_css_modules(&localized);
@@ -3964,7 +4014,15 @@ impl RenderService {
             let marker = line.trim_start().to_ascii_lowercase();
             marker.starts_with("[[code") || marker.starts_with("[[collapsible")
         }) {
-            return Self::render_wikidot_compatibility_fallback_with_code_blocks_for_context(
+            return Self::render_wikidot_compatibility_fallback_output_for_context(
+                &localized,
+                Some(current_page),
+                current_site.map(|site| site.slug.as_str()),
+            );
+        }
+
+        if Self::wikidot_compat_text_has_markup(&localized) {
+            return Self::render_wikidot_compatibility_fallback_output_for_context(
                 &localized,
                 Some(current_page),
                 current_site.map(|site| site.slug.as_str()),
@@ -3975,7 +4033,7 @@ impl RenderService {
         body.push_str("<div class=\"wikidot-compat-fallback\"><pre>");
         push_escaped_html(&mut body, &localized);
         body.push_str("</pre></div>");
-        body
+        WikidotCompatibilityFallbackOutput::body(body)
     }
 
     fn render_wikidot_compat_fallback_css_modules(wikitext: &str) -> String {
@@ -4013,8 +4071,53 @@ impl RenderService {
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
     ) -> String {
+        Self::render_wikidot_compatibility_fallback_output_for_context(
+            wikitext,
+            current_page,
+            local_file_site_slug,
+        )
+        .body
+    }
+
+    fn render_wikidot_compatibility_fallback_output_for_context(
+        wikitext: &str,
+        current_page: Option<&str>,
+        local_file_site_slug: Option<&str>,
+    ) -> WikidotCompatibilityFallbackOutput {
+        let has_code_or_collapsible = wikitext.lines().any(|line| {
+            let marker = line.trim_start().to_ascii_lowercase();
+            marker.starts_with("[[code") || marker.starts_with("[[collapsible")
+        });
+        if !has_code_or_collapsible {
+            let mut html_block_texts = Vec::new();
+            if Self::wikidot_compat_text_has_markup(wikitext) {
+                let mut body = String::with_capacity(wikitext.len() + 96);
+                body.push_str("<div class=\"wikidot-compat-fallback\">");
+                body.push_str(
+                    &Self::render_wikidot_compat_fallback_text_html_with_blocks(
+                        wikitext,
+                        current_page,
+                        local_file_site_slug,
+                        &mut html_block_texts,
+                    ),
+                );
+                body.push_str("</div>");
+                return WikidotCompatibilityFallbackOutput {
+                    body,
+                    html_block_texts,
+                };
+            }
+
+            let mut body = String::with_capacity(wikitext.len() + 96);
+            body.push_str("<div class=\"wikidot-compat-fallback\"><pre>");
+            push_escaped_html(&mut body, wikitext);
+            body.push_str("</pre></div>");
+            return WikidotCompatibilityFallbackOutput::body(body);
+        }
+
         let mut body = String::with_capacity(wikitext.len() + 256);
         body.push_str("<div class=\"wikidot-compat-fallback\">");
+        let mut html_block_texts = Vec::new();
 
         let mut text_chunk = String::new();
         let mut code_chunk = String::new();
@@ -4032,6 +4135,7 @@ impl RenderService {
                     &mut text_chunk,
                     current_page,
                     local_file_site_slug,
+                    &mut html_block_texts,
                 );
                 in_code = true;
                 code_chunk.clear();
@@ -4054,6 +4158,7 @@ impl RenderService {
                     &mut text_chunk,
                     current_page,
                     local_file_site_slug,
+                    &mut html_block_texts,
                 );
                 Self::push_wikidot_compat_fallback_collapsible_open(&mut body, trimmed);
                 collapsible_depth += 1;
@@ -4068,6 +4173,7 @@ impl RenderService {
                         &mut text_chunk,
                         current_page,
                         local_file_site_slug,
+                        &mut html_block_texts,
                     );
                     body.push_str("</div></div></div>");
                     collapsible_depth -= 1;
@@ -4097,6 +4203,7 @@ impl RenderService {
             &mut text_chunk,
             current_page,
             local_file_site_slug,
+            &mut html_block_texts,
         );
         while collapsible_depth > 0 {
             body.push_str("</div></div></div>");
@@ -4109,29 +4216,43 @@ impl RenderService {
                 let mut fallback = String::with_capacity(wikitext.len() + 96);
                 fallback.push_str("<div class=\"wikidot-compat-fallback\">");
                 fallback.push_str(
-                    &Self::render_wikidot_compat_fallback_text_html_for_context(
+                    &Self::render_wikidot_compat_fallback_text_html_with_blocks(
                         wikitext,
                         current_page,
                         local_file_site_slug,
+                        &mut html_block_texts,
                     ),
                 );
                 fallback.push_str("</div>");
-                return fallback;
+                return WikidotCompatibilityFallbackOutput {
+                    body: fallback,
+                    html_block_texts,
+                };
             }
 
             let mut fallback = String::with_capacity(wikitext.len() + 96);
             fallback.push_str("<div class=\"wikidot-compat-fallback\"><pre>");
             push_escaped_html(&mut fallback, wikitext);
             fallback.push_str("</pre></div>");
-            return fallback;
+            return WikidotCompatibilityFallbackOutput::body(fallback);
         }
 
-        body
+        WikidotCompatibilityFallbackOutput {
+            body,
+            html_block_texts,
+        }
     }
 
     #[allow(dead_code)]
     fn push_wikidot_compat_fallback_text_chunk(body: &mut String, chunk: &mut String) {
-        Self::push_wikidot_compat_fallback_text_chunk_for_page(body, chunk, None, None);
+        let mut html_block_texts = Vec::new();
+        Self::push_wikidot_compat_fallback_text_chunk_for_page(
+            body,
+            chunk,
+            None,
+            None,
+            &mut html_block_texts,
+        );
     }
 
     fn push_wikidot_compat_fallback_text_chunk_for_page(
@@ -4139,6 +4260,7 @@ impl RenderService {
         chunk: &mut String,
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
+        html_block_texts: &mut Vec<String>,
     ) {
         if chunk.is_empty() {
             return;
@@ -4151,10 +4273,11 @@ impl RenderService {
             return;
         }
         if Self::wikidot_compat_text_has_markup(text) {
-            body.push_str(&Self::render_wikidot_compat_fallback_text_html_for_context(
+            body.push_str(&Self::render_wikidot_compat_fallback_text_html_with_blocks(
                 text,
                 current_page,
                 local_file_site_slug,
+                html_block_texts,
             ));
         } else {
             body.push_str("<pre>");
@@ -4172,6 +4295,13 @@ impl RenderService {
             || text.contains("[[size")
             || text.contains("[[/size")
             || text.contains("[[embed]]")
+            || text.contains("[[html]]")
+            || text.contains("[[=]]")
+            || text.contains("[[/=]]")
+            || text.lines().any(|line| {
+                let trimmed = line.trim();
+                trimmed == "////" || Self::wikidot_compat_horizontal_rule_marker(trimmed)
+            })
             || text.contains("[[=image")
             || text.contains("[[[")
             || text.contains("[[*")
@@ -4214,6 +4344,21 @@ impl RenderService {
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
     ) -> String {
+        let mut html_block_texts = Vec::new();
+        Self::render_wikidot_compat_fallback_text_html_with_blocks(
+            text,
+            current_page,
+            local_file_site_slug,
+            &mut html_block_texts,
+        )
+    }
+
+    fn render_wikidot_compat_fallback_text_html_with_blocks(
+        text: &str,
+        current_page: Option<&str>,
+        local_file_site_slug: Option<&str>,
+        html_block_texts: &mut Vec<String>,
+    ) -> String {
         let text = Self::strip_wikidot_comments_from_text(text);
         let mut output = String::with_capacity(text.len());
         let mut paragraph = String::new();
@@ -4222,9 +4367,37 @@ impl RenderService {
         let mut tab_open = false;
         let mut size_depth = 0usize;
         let mut embed_body: Option<String> = None;
+        let mut html_body: Option<String> = None;
+        let mut center_depth = 0usize;
 
         for line in text.lines() {
             let trimmed = line.trim();
+            if html_body.is_some() {
+                if trimmed.eq_ignore_ascii_case("[[/html]]") {
+                    let body = html_body.take().unwrap_or_default();
+                    if let Some(iframe) = Self::wikidot_compat_html_block_iframe(
+                        current_page,
+                        html_block_texts.len() + 1,
+                    ) {
+                        html_block_texts.push(body.trim_matches('\n').to_owned());
+                        Self::push_wikidot_compat_fallback_paragraph_for_page(
+                            &mut output,
+                            &mut paragraph,
+                            current_page,
+                        );
+                        output.push_str(&iframe);
+                    } else {
+                        paragraph.push_str("[[html]]\n");
+                        paragraph.push_str(&body);
+                        paragraph.push_str("[[/html]]\n");
+                    }
+                } else if let Some(body) = html_body.as_mut() {
+                    body.push_str(line);
+                    body.push('\n');
+                }
+                continue;
+            }
+
             if embed_body.is_some() {
                 if trimmed.eq_ignore_ascii_case("[[/embed]]") {
                     let body = embed_body.take().unwrap_or_default();
@@ -4276,6 +4449,16 @@ impl RenderService {
                 continue;
             }
 
+            if trimmed.eq_ignore_ascii_case("[[html]]") {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                html_body = Some(String::new());
+                continue;
+            }
+
             if Self::wikidot_compat_html_sentinel_marker(trimmed) {
                 Self::push_wikidot_compat_fallback_paragraph_for_page(
                     &mut output,
@@ -4283,6 +4466,53 @@ impl RenderService {
                     current_page,
                 );
                 output.push_str(trimmed);
+                continue;
+            }
+
+            if trimmed.eq_ignore_ascii_case("[[=]]") {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                output.push_str(r#"<div style="text-align: center;">"#);
+                center_depth += 1;
+                continue;
+            }
+
+            if trimmed.eq_ignore_ascii_case("[[/=]]") {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                if center_depth > 0 {
+                    output.push_str("</div>");
+                    center_depth -= 1;
+                } else {
+                    paragraph.push_str(line);
+                    paragraph.push('\n');
+                }
+                continue;
+            }
+
+            if trimmed == "////" {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                output.push_str("<br>");
+                continue;
+            }
+
+            if Self::wikidot_compat_horizontal_rule_marker(trimmed) {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                output.push_str("<hr>");
                 continue;
             }
 
@@ -4401,6 +4631,17 @@ impl RenderService {
                 continue;
             }
 
+            if let Some(rate_html) = Self::render_wikidot_compat_rate_widget_line(trimmed)
+            {
+                Self::push_wikidot_compat_fallback_paragraph_for_page(
+                    &mut output,
+                    &mut paragraph,
+                    current_page,
+                );
+                output.push_str(&rate_html);
+                continue;
+            }
+
             if let Some(attributes) = Self::wikidot_compat_div_attributes(trimmed) {
                 Self::push_wikidot_compat_fallback_paragraph_for_page(
                     &mut output,
@@ -4431,6 +4672,10 @@ impl RenderService {
             paragraph.push_str("[[embed]]\n");
             paragraph.push_str(&body);
         }
+        if let Some(body) = html_body {
+            paragraph.push_str("[[html]]\n");
+            paragraph.push_str(&body);
+        }
         Self::push_wikidot_compat_fallback_paragraph_for_page(
             &mut output,
             &mut paragraph,
@@ -4447,7 +4692,27 @@ impl RenderService {
             output.push_str("</div></div>");
             output.push_str(WIKIDOT_TABVIEW_INIT_SCRIPT);
         }
+        while center_depth > 0 {
+            output.push_str("</div>");
+            center_depth -= 1;
+        }
         output
+    }
+
+    fn wikidot_compat_horizontal_rule_marker(marker: &str) -> bool {
+        marker.len() >= 4 && marker.chars().all(|character| character == '-')
+    }
+
+    fn wikidot_compat_html_block_iframe(
+        current_page: Option<&str>,
+        block_index: usize,
+    ) -> Option<String> {
+        let current_page = current_page?;
+        let src = format!("/{current_page}/html/{block_index}");
+        Some(format!(
+            r#"<iframe src="{}" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe>"#,
+            escape_list_pages_html_attr(&src)
+        ))
     }
 
     fn strip_wikidot_comments_from_text(text: &str) -> String {
@@ -4605,6 +4870,35 @@ impl RenderService {
             && value
                 .chars()
                 .all(|character| character.is_ascii_alphanumeric() || character == '-')
+    }
+
+    fn render_wikidot_compat_rate_widget_line(line: &str) -> Option<String> {
+        let inner = line
+            .strip_prefix("[[div class=\"page-rate-widget-box\"]]")?
+            .strip_suffix("[[/div]]")?;
+        let mut anchors = Vec::new();
+        let protected = WIKIDOT_RATE_ANCHOR_REGEX
+            .replace_all(inner, |captures: &regex::Captures<'_>| {
+                let marker =
+                    format!("{WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX}{}X", anchors.len());
+                anchors.push(format!(
+                    r#"<a href="javascript:;" onclick="{}" title="{}">{}</a>"#,
+                    escape_list_pages_html_attr(&captures["onclick"]),
+                    escape_list_pages_html_attr(&captures["title"]),
+                    escape_list_pages_html_text(&captures["label"]),
+                ));
+                marker
+            })
+            .into_owned();
+        let mut inner_html = render_native_list_inline_wikidot_spans(&protected);
+        for (index, anchor) in anchors.iter().enumerate() {
+            let marker = format!("{WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX}{index}X");
+            inner_html = inner_html.replace(&marker, anchor);
+        }
+
+        Some(format!(
+            r#"<div class="page-rate-widget-box">{inner_html}</div>"#
+        ))
     }
 
     fn wikidot_compat_div_attributes(marker: &str) -> Option<String> {
@@ -8339,6 +8633,21 @@ struct FtmlRenderOutput {
     code_blocks: Vec<CodeBlock<'static>>,
 }
 
+#[derive(Debug)]
+struct WikidotCompatibilityFallbackOutput {
+    body: String,
+    html_block_texts: Vec<String>,
+}
+
+impl WikidotCompatibilityFallbackOutput {
+    fn body(body: String) -> Self {
+        Self {
+            body,
+            html_block_texts: Vec::new(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct RenderContext {
     current_site_id: Option<i64>,
@@ -11226,6 +11535,149 @@ mod tests {
         assert!(!html.contains("[[include :scp-wiki:component:interwiki-style"));
         assert!(!html.contains("[!--"));
         assert!(!html.contains("[[div_]]"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_renders_page_body_block_markers() {
+        let source = concat!(
+            "[[=]]\n",
+            "Centered body\n",
+            "[[/=]]\n",
+            "////\n",
+            "[[div class=\"city-block\"]]\n",
+            "-----\n",
+            "[[/div]]\n",
+        );
+
+        let output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                source,
+                Some("scp-anthology-2024"),
+                Some("scp-wiki"),
+            );
+
+        assert!(output.body.contains(r#"<div style="text-align: center;">"#));
+        assert!(output.body.contains("<p>Centered body</p></div>"));
+        assert!(output.body.contains("<br>"));
+        assert!(
+            output
+                .body
+                .contains(r#"<div class="city-block"><hr></div>"#)
+        );
+        assert!(output.html_block_texts.is_empty());
+        assert!(!output.body.contains("[[=]]"));
+        assert!(!output.body.contains("[[/=]]"));
+        assert!(!output.body.contains("////"));
+        assert!(!output.body.contains("-----"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_centers_read_only_rate_module() {
+        let source = format!(
+            "[[=]]\n{}\n[[/=]]\n",
+            render_read_only_rate_module(ftml::data::ScoreValue::Integer(396), "en",),
+        );
+
+        let output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                &source,
+                Some("scp-anthology-2024"),
+                Some("scp-wiki"),
+            );
+
+        assert!(output.body.contains(
+            r#"<div style="text-align: center;"><div class="page-rate-widget-box">"#
+        ));
+        assert!(output.body.contains(r#"<span class="rate-points">rating: <span class="number prw54353">+396</span></span>"#));
+        assert!(output.body.contains(r#"<span class="rateup btn btn-default"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>"#));
+        assert!(output.body.contains("</div></div>"));
+        assert!(!output.body.contains("[[=]]"));
+        assert!(!output.body.contains("[[/=]]"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_collects_html_blocks_as_iframes() {
+        let source = concat!(
+            "[[div_ class=\"audio_iframe INTRO\"]]\n",
+            "[[html]]\n",
+            "<html>\n",
+            "<body><script src=\"https://example.test/audio.js\"></script></body>\n",
+            "</html>\n",
+            "[[/html]]\n",
+            "[[/div]]\n",
+        );
+
+        let output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                source,
+                Some("scp-anthology-2024"),
+                Some("scp-wiki"),
+            );
+
+        assert_eq!(output.html_block_texts.len(), 1);
+        assert!(output.html_block_texts[0].contains("<script src="));
+        assert!(output.body.contains(r#"<div class="audio_iframe INTRO"><iframe src="/scp-anthology-2024/html/1" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe></div>"#));
+        assert!(!output.body.contains("&lt;script"));
+        assert!(!output.body.contains("[[html]]"));
+        assert!(!output.body.contains("[[/html]]"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_keeps_raw_script_and_unclosed_html_literal() {
+        let source = concat!(
+            "<script>alert(1)</script>\n",
+            "[[html]]\n",
+            "<span>unfinished</span>\n",
+        );
+
+        let output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                source,
+                Some("scp-anthology-2024"),
+                Some("scp-wiki"),
+            );
+
+        assert!(output.html_block_texts.is_empty());
+        assert!(
+            output
+                .body
+                .contains("&lt;script&gt;alert(1)&lt;/script&gt;")
+        );
+        assert!(output.body.contains("[[html]]"));
+        assert!(
+            !output
+                .body
+                .contains(r#"<iframe src="/scp-anthology-2024/html/1""#)
+        );
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_leaves_markers_inside_code_blocks_literal() {
+        let source = concat!(
+            "[[code]]\n",
+            "[[=]]\n",
+            "////\n",
+            "[[html]]\n",
+            "[[/code]]\n",
+        );
+
+        let output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                source,
+                Some("scp-anthology-2024"),
+                Some("scp-wiki"),
+            );
+
+        assert!(output.html_block_texts.is_empty());
+        assert!(output.body.contains("[[=]]"));
+        assert!(output.body.contains("////"));
+        assert!(output.body.contains("[[html]]"));
+        assert!(!output.body.contains(r#"<div style="text-align: center;">"#));
+        assert!(
+            !output
+                .body
+                .contains(r#"<iframe src="/scp-anthology-2024/html/1""#)
+        );
     }
 
     #[test]
