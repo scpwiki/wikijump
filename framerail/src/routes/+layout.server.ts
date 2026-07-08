@@ -1,5 +1,9 @@
-import { loadPreload } from "$lib/server/load/preload"
+import { loadPreload, pageRouteProvidesPreload } from "$lib/server/load/preload"
 
-export async function load({ request, cookies }) {
+export async function load({ request, cookies, route }) {
+  if (pageRouteProvidesPreload(route.id)) {
+    return {}
+  }
+
   return loadPreload(request, cookies)
 }

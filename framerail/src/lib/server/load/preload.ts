@@ -9,6 +9,12 @@ import { sanitizeUserData } from "$lib/server/load/user"
 import type { Viewer } from "$lib/server/deepwell/views"
 import type { Cookies } from "@sveltejs/kit"
 
+const PAGE_ROUTES_WITH_ARTICLE_PRELOAD = new Set(["/", "/[slug]/[...extra]"])
+
+export function pageRouteProvidesPreload(routeId: string | null) {
+  return PAGE_ROUTES_WITH_ARTICLE_PRELOAD.has(routeId ?? "")
+}
+
 export function getPreloadRequestLocales(request: Request): string[] {
   return parseAcceptLangHeader(request)
 }
