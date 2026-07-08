@@ -8321,6 +8321,9 @@ fn native_list_page_link_default_label(target: &str) -> String {
     if target.contains(char::is_whitespace) {
         return target.to_owned();
     }
+    if let Some(label) = native_list_scp_style_page_link_default_label(target) {
+        return label;
+    }
 
     target
         .split('-')
@@ -8340,6 +8343,34 @@ fn native_list_page_link_default_label(target: &str) -> String {
         })
         .collect::<Vec<_>>()
         .join(" ")
+}
+
+fn native_list_scp_style_page_link_default_label(target: &str) -> Option<String> {
+    let mut parts = target.trim().split('-');
+    let prefix = parts.next()?;
+    if !prefix.eq_ignore_ascii_case("scp") {
+        return None;
+    }
+
+    let number = parts.next()?;
+    if number.is_empty() || !number.chars().all(|character| character.is_ascii_digit()) {
+        return None;
+    }
+
+    let mut label = format!("SCP-{number}");
+    for part in parts {
+        if part.is_empty()
+            || !part
+                .chars()
+                .all(|character| character.is_ascii_alphanumeric())
+        {
+            return None;
+        }
+        label.push('-');
+        label.push_str(&part.to_ascii_uppercase());
+    }
+
+    Some(label)
 }
 
 fn render_native_list_wikidot_user(name: &str) -> String {
@@ -9334,9 +9365,10 @@ mod tests {
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
-        list_pages_has_unsupported_parent_selector, parse_list_pages_arguments,
-        push_list_pages_pager, render_clone_module, render_list_pages_numbered_rows,
-        render_list_pages_table_rows, render_members_module_placeholder,
+        list_pages_has_unsupported_parent_selector, native_list_page_link_default_label,
+        parse_list_pages_arguments, push_list_pages_pager, render_clone_module,
+        render_list_pages_numbered_rows, render_list_pages_table_rows,
+        render_members_module_placeholder, render_native_list_page_link,
         render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
         resolve_list_pages_signed_abs_expressions,
         restore_list_pages_literal_ellipsis_markers,
@@ -10437,6 +10469,37 @@ mod tests {
         );
         assert!(restored.starts_with("<ul>"));
         assert!(!restored.contains("data-wikijump-compat-list"));
+    }
+
+    #[test]
+    fn defaults_empty_scp_style_page_link_labels_to_canonical_slug_text() {
+        assert_eq!(native_list_page_link_default_label("scp-8066"), "SCP-8066");
+        assert_eq!(native_list_page_link_default_label("SCP-8091"), "SCP-8091");
+        assert_eq!(
+            native_list_page_link_default_label("scp-2408-jp"),
+            "SCP-2408-JP"
+        );
+        assert_eq!(
+            native_list_page_link_default_label("ordinary-page-name"),
+            "Ordinary Page Name"
+        );
+        assert_eq!(
+            native_list_page_link_default_label("scp-foundation"),
+            "Scp Foundation"
+        );
+
+        assert_eq!(
+            render_native_list_page_link("scp-8066", None),
+            r#"<a href="/scp-8066">SCP-8066</a>"#
+        );
+        assert_eq!(
+            render_native_list_page_link("scp-8066", Some("the article")),
+            r#"<a href="/scp-8066">the article</a>"#
+        );
+        assert_eq!(
+            render_native_list_page_link("scp-8596", Some("")),
+            r#"<a href="/scp-8596">SCP-8596</a>"#
+        );
     }
 
     #[test]
