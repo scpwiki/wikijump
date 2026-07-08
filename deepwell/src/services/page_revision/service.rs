@@ -822,6 +822,28 @@ impl PageRevisionService {
         depth: RerenderDepth,
         rerender_type: RerenderType,
     ) -> Result<()> {
+        Self::rerender_inner(ctx, id, depth, rerender_type, true).await
+    }
+
+    /// Re-renders a page without queueing dependent page outdating.
+    ///
+    /// This is used by the corpus render finalizer's first pass, where every
+    /// imported shell page is already being rendered by the batch job.
+    pub(crate) async fn rerender_without_outdating(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        depth: RerenderDepth,
+    ) -> Result<()> {
+        Self::rerender_inner(ctx, id, depth, RerenderType::Full, false).await
+    }
+
+    async fn rerender_inner(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        depth: RerenderDepth,
+        rerender_type: RerenderType,
+        outdate_dependents: bool,
+    ) -> Result<()> {
         let txn = ctx.transaction();
         let PageId {
             site_id,
@@ -908,15 +930,17 @@ impl PageRevisionService {
             RerenderType::Full => {
                 // Outdate all descendent pages and update body and nav pages
 
-                OutdateService::process_page_edit(
-                    ctx,
-                    site_id,
-                    page_id,
-                    &revision.slug,
-                    depth,
-                )
-                .await
-                .or_raise(make_error)?;
+                if outdate_dependents {
+                    OutdateService::process_page_edit(
+                        ctx,
+                        site_id,
+                        page_id,
+                        &revision.slug,
+                        depth,
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                }
 
                 page_revision::ActiveModel {
                     revision_id: Set(revision.revision_id),
