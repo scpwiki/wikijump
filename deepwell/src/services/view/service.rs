@@ -62,6 +62,27 @@ use wikidot_normalize::normalize;
 pub struct ViewService;
 
 impl ViewService {
+    pub async fn article(
+        ctx: &ServiceContext<'_>,
+        input: GetPageView,
+    ) -> Result<GetArticleViewOutput> {
+        let preload = Self::preload(
+            ctx,
+            GetPreloadView {
+                site_id: input.site_id,
+                session_token: input.session_token.clone(),
+                locales: input.locales.clone(),
+            },
+        )
+        .await?;
+        let page = Self::page(ctx, input).await?;
+
+        Ok(GetArticleViewOutput {
+            viewer: preload.viewer,
+            page,
+        })
+    }
+
     pub async fn preload(
         ctx: &ServiceContext<'_>,
         GetPreloadView {

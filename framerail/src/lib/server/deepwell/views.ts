@@ -100,6 +100,24 @@ export async function pageView(
   })
 }
 
+export type ArticleView = Viewer & {
+  page: PageView
+}
+
+export async function articleView(
+  siteId: number,
+  locales: string[],
+  route: Nullable<PageRoute>,
+  sessionToken: Optional<string>
+): Promise<ArticleView> {
+  return client.request("article_view", {
+    site_id: siteId,
+    locales,
+    session_token: sessionToken,
+    route
+  })
+}
+
 /* ----- Admin View ----- */
 interface AdminViewSiteFound {
   type: "site_found"

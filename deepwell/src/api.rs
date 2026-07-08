@@ -311,6 +311,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
 
     // Web server
     register!("preload_view", preload_view);
+    register!("article_view", article_view);
     register!("page_view", page_view);
     register!("user_view", user_view);
     register!("admin_view", admin_view);
