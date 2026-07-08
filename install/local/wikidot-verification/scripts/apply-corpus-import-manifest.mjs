@@ -40,6 +40,7 @@ const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from scp-wiki-translation corpus';
 let shellBodyHash = null;
 const precomputedTextHashes = new Map();
+const precomputedSourceTexts = new Map();
 
 function envString(name) {
   const value = process.env[name];
@@ -301,7 +302,9 @@ function precomputeDbTextHashes(args, selectedRows) {
   if (args.createMode !== 'db' || !args.textHashBatchCommand) return;
   const items = [{ id: '__shell_body__', contents: SHELL_BODY_HTML }];
   for (let index = 0; index < selectedRows.length; index += 1) {
-    items.push({ id: `page:${index}`, contents: sourceText(selectedRows[index]) });
+    const contents = sourceText(selectedRows[index]);
+    precomputedSourceTexts.set(selectedRows[index].fullname, contents);
+    items.push({ id: `page:${index}`, contents });
   }
   const hashes = batchTextHashesHex(args, items);
   shellBodyHash = hashes.get('__shell_body__');
@@ -404,6 +407,8 @@ function readManifestFile(row, pathKey, shaKey) {
 }
 
 function sourceText(row) {
+  const cached = precomputedSourceTexts.get(row.fullname);
+  if (cached !== undefined) return cached;
   return readManifestFile(row, 'source_path', 'source_sha256');
 }
 
