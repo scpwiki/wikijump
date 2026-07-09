@@ -779,6 +779,7 @@ impl RenderService {
                     )
                 },
                 meta: Vec::new(),
+                styles: Vec::new(),
                 backlinks,
             };
             let compiled_hash = TextService::create(ctx, html_output.body.clone())
