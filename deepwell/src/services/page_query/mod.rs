@@ -24,8 +24,10 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod count_pages;
 mod service;
 mod structs;
 
+pub use self::count_pages::*;
 pub use self::service::PageQueryService;
 pub use self::structs::*;

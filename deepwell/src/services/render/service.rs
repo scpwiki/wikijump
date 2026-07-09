@@ -26,9 +26,12 @@ use crate::models::site::Model as SiteModel;
 use crate::models::user::{self, Entity as UserTable};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::page_query::{
-    CategoriesSelector, DataFormSelector, DateSelector, FoundPageFields, FoundPageRow,
-    FoundPages, IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQuery, PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    CategoriesSelector, CountPagesExactCountEligibilityDiagnostics,
+    CountPagesExactCountEligibilityInput, DataFormSelector, DateSelector,
+    FoundPageFields, FoundPageRow, FoundPages, IncludedCategories, OrderBySelector,
+    OrderProperty, PageParentSelector, PageQuery, PageQueryResultMetadata,
+    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    count_pages_exact_count_eligibility_diagnostics,
     parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
@@ -60,6 +63,13 @@ use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct RenderService;
+
+#[derive(Debug)]
+struct ViewableCountPagesRows {
+    pages: FoundPages,
+    metadata: PageQueryResultMetadata,
+    view_permission_filtering_applied: bool,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ProtectedWikidotWikipediaLink {
@@ -6481,6 +6491,7 @@ impl RenderService {
             },
         };
 
+        let mut count_pages_metadata = None;
         let pages = if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
@@ -6496,8 +6507,26 @@ impl RenderService {
             FoundPages { pages: Vec::new() }
         } else {
             let target_count = count_pages_query_limit.min(usize::MAX as u64) as usize;
-            Self::find_viewable_list_pages_rows(ctx, query, target_count).await?
+            let found =
+                Self::find_viewable_count_pages_rows(ctx, query, target_count).await?;
+            count_pages_metadata = Some((
+                found.metadata.clone(),
+                found.view_permission_filtering_applied,
+            ));
+            found.pages
         };
+        if let Some((metadata, view_permission_filtering_applied)) = count_pages_metadata
+        {
+            let diagnostics = count_pages_exact_count_render_diagnostics(
+                metadata,
+                view_permission_filtering_applied,
+                exclude_current_page,
+                offset > 0,
+                count_pages_explicit_limit,
+                count_pages_query_limit,
+            );
+            debug!("CountPages exact count eligibility diagnostics: {diagnostics:?}");
+        }
         let pages = pages
             .pages
             .into_iter()
@@ -6576,6 +6605,47 @@ impl RenderService {
         }
 
         Ok(FoundPages { pages })
+    }
+
+    async fn find_viewable_count_pages_rows(
+        ctx: &ServiceContext<'_>,
+        query: PageQuery<'_>,
+        target_count: usize,
+    ) -> Result<ViewableCountPagesRows> {
+        let mut pages = Vec::new();
+        let mut raw_offset = 0;
+        let mut metadata = None;
+        let mut view_permission_filtering_applied = false;
+
+        while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
+            let mut query = query.clone();
+            query.offset = raw_offset;
+            query.pagination.limit = Some(
+                MAX_LISTPAGES_RENDER_LIMIT
+                    .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS - raw_offset)),
+            );
+
+            let found = PageQueryService::find_with_metadata(ctx, query).await?;
+            merge_count_pages_query_metadata(&mut metadata, found.metadata);
+            let raw_count = found.pages.pages.len();
+            if raw_count == 0 {
+                break;
+            }
+            let viewable =
+                Self::filter_viewable_list_pages_rows(ctx, found.pages.pages).await?;
+            view_permission_filtering_applied |= viewable.len() != raw_count;
+            pages.extend(viewable);
+            if raw_count < MAX_LISTPAGES_RENDER_LIMIT as usize {
+                break;
+            }
+            raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
+        }
+
+        Ok(ViewableCountPagesRows {
+            pages: FoundPages { pages },
+            metadata: metadata.unwrap_or_default(),
+            view_permission_filtering_applied,
+        })
     }
 
     async fn current_page_list_pages_row(
@@ -7380,6 +7450,52 @@ fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
         || arguments.page_parent != PageParentSelector::All
         || arguments.slug.is_some()
         || !arguments.data_form_fields.is_empty()
+}
+
+fn count_pages_exact_count_render_diagnostics(
+    metadata: PageQueryResultMetadata,
+    view_permission_filtering_applied: bool,
+    post_query_exclusion_applied: bool,
+    post_query_offset_applied: bool,
+    count_pages_explicit_limit: Option<u64>,
+    count_pages_query_limit: u64,
+) -> CountPagesExactCountEligibilityDiagnostics {
+    let explicit_count_pages_bound_matches_sql_window =
+        count_pages_explicit_limit.is_some_and(|limit| limit == count_pages_query_limit);
+
+    count_pages_exact_count_eligibility_diagnostics(
+        CountPagesExactCountEligibilityInput {
+            metadata,
+            view_permission_filtering_applied,
+            post_query_filtering_applied: false,
+            post_query_exclusion_applied,
+            post_query_offset_applied,
+            explicit_count_pages_bound_matches_sql_window,
+        },
+    )
+}
+
+fn merge_count_pages_query_metadata(
+    metadata: &mut Option<PageQueryResultMetadata>,
+    next: PageQueryResultMetadata,
+) {
+    let Some(current) = metadata.as_mut() else {
+        *metadata = Some(next);
+        return;
+    };
+
+    current.candidate_count = match (current.candidate_count, next.candidate_count) {
+        (Some(left), Some(right)) => Some(left.saturating_add(right)),
+        _ => None,
+    };
+    current.cap_exceeded |= next.cap_exceeded;
+    current.sql_limit_offset_applied |= next.sql_limit_offset_applied;
+    current.filtering_deferred_to_rust |= next.filtering_deferred_to_rust;
+    current.ordering_deferred_to_rust |= next.ordering_deferred_to_rust;
+    current.exact_count_safe &= next.exact_count_safe;
+    if current.unsupported_reason.is_none() {
+        current.unsupported_reason = next.unsupported_reason;
+    }
 }
 
 fn should_render_current_page_list_pages_row(
@@ -10085,14 +10201,15 @@ mod tests {
         CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
-        MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
-        PreparedIncluder, RenderContext, RenderService,
+        MAX_LISTPAGES_RENDER_SCAN_ROWS, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
+        MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
+        OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
-        WikidotUserDisplay, count_pages_should_remain_literal, include_error,
+        WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
+        count_pages_should_remain_literal, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -10112,8 +10229,8 @@ mod tests {
     use crate::constants::ADMIN_USER_ID;
     use crate::models::site::Model as SiteModel;
     use crate::services::page_query::{
-        DataFormSelector, FoundPageRow, parse_static_wikidot_data_form_values,
-        static_wikidot_data_form_matches,
+        DataFormSelector, FoundPageRow, PageQueryResultMetadata,
+        parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
     };
     use crate::types::License;
     use crate::utils::now;
@@ -10639,6 +10756,69 @@ mod tests {
         assert!(output.contains(r#"activity-container not-large-c"#));
         assert!(output.contains(r#"data-number="0""#));
         assert!(!output.contains("[[#ifexpr"));
+    }
+
+    #[test]
+    fn count_pages_exact_count_render_diagnostics_allow_matching_explicit_sql_window() {
+        let diagnostics = count_pages_exact_count_render_diagnostics(
+            PageQueryResultMetadata {
+                candidate_count: Some(10),
+                sql_limit_offset_applied: true,
+                exact_count_safe: true,
+                ..PageQueryResultMetadata::default()
+            },
+            false,
+            false,
+            false,
+            Some(10),
+            10,
+        );
+
+        assert!(diagnostics.allowed);
+        assert_eq!(diagnostics.denied_reason_code, None);
+        assert_eq!(diagnostics.denied_reason_detail, None);
+    }
+
+    #[test]
+    fn count_pages_exact_count_render_diagnostics_denies_unbounded_sql_window() {
+        let diagnostics = count_pages_exact_count_render_diagnostics(
+            PageQueryResultMetadata {
+                candidate_count: Some(MAX_LISTPAGES_RENDER_SCAN_ROWS as usize),
+                sql_limit_offset_applied: true,
+                exact_count_safe: true,
+                ..PageQueryResultMetadata::default()
+            },
+            false,
+            false,
+            false,
+            None,
+            u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS),
+        );
+
+        assert!(!diagnostics.allowed);
+        assert_eq!(diagnostics.denied_reason_code, Some("unsafe_sql_window"));
+        assert_eq!(diagnostics.denied_reason_detail, None);
+    }
+
+    #[test]
+    fn count_pages_exact_count_render_diagnostics_denies_post_query_exclusion_before_offset()
+     {
+        let diagnostics = count_pages_exact_count_render_diagnostics(
+            PageQueryResultMetadata {
+                candidate_count: Some(10),
+                exact_count_safe: true,
+                ..PageQueryResultMetadata::default()
+            },
+            false,
+            true,
+            true,
+            Some(10),
+            11,
+        );
+
+        assert!(!diagnostics.allowed);
+        assert_eq!(diagnostics.denied_reason_code, Some("post_query_exclusion"));
+        assert_eq!(diagnostics.denied_reason_detail, None);
     }
 
     #[test]
