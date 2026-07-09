@@ -6390,6 +6390,175 @@ async fn page_query_score_order_returns_results() {
 }
 
 #[tokio::test]
+async fn page_query_find_with_metadata_marks_sql_limited_results() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-page-query-metadata-sql";
+
+    for slug in [
+        "fixture-page-query-metadata-sql-a",
+        "fixture-page-query-metadata-sql-b",
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            "Fixture PageQuery Metadata SQL",
+            "Fixture PageQuery Metadata SQL marker.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[tag]).await;
+    }
+
+    let all_tags = [Cow::Borrowed(tag)];
+    let result = PageQueryService::find_with_metadata(
+        runner.context(),
+        PageQuery {
+            current_page_id: 0,
+            current_site_id: site_id,
+            queried_site_id: Some(site_id),
+            page_type: PageTypeSelector::All,
+            categories: CategoriesSelector {
+                included_categories: IncludedCategories::All,
+                excluded_categories: &[],
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &all_tags,
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            author: &[],
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            data_form_fields: &[],
+            order: Some(OrderBySelector {
+                property: OrderProperty::PageSlug,
+                ascending: true,
+            }),
+            candidate_limit: None,
+            pagination: PaginationSelector {
+                limit: Some(1),
+                ..Default::default()
+            },
+            variables: &[],
+            fields: FoundPageFields {
+                slug: true,
+                ..Default::default()
+            },
+        },
+    )
+    .await
+    .expect("metadata query should not fail");
+
+    assert_eq!(result.pages.total(), 1);
+    assert_eq!(result.metadata.candidate_count, Some(1));
+    assert!(result.metadata.sql_limit_offset_applied);
+    assert!(!result.metadata.filtering_deferred_to_rust);
+    assert!(!result.metadata.ordering_deferred_to_rust);
+    assert!(!result.metadata.cap_exceeded);
+    assert!(result.metadata.exact_count_safe);
+}
+
+#[tokio::test]
+async fn page_query_find_with_metadata_marks_deferred_score_ordering() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-page-query-metadata-score";
+
+    for slug in [
+        "fixture-page-query-metadata-score-a",
+        "fixture-page-query-metadata-score-b",
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            "Fixture PageQuery Metadata Score",
+            "Fixture PageQuery Metadata Score marker.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[tag]).await;
+    }
+
+    let all_tags = [Cow::Borrowed(tag)];
+    let result = PageQueryService::find_with_metadata(
+        runner.context(),
+        PageQuery {
+            current_page_id: 0,
+            current_site_id: site_id,
+            queried_site_id: Some(site_id),
+            page_type: PageTypeSelector::All,
+            categories: CategoriesSelector {
+                included_categories: IncludedCategories::All,
+                excluded_categories: &[],
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &all_tags,
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            author: &[],
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            data_form_fields: &[],
+            order: Some(OrderBySelector {
+                property: OrderProperty::Score,
+                ascending: true,
+            }),
+            candidate_limit: None,
+            pagination: PaginationSelector {
+                limit: Some(1),
+                ..Default::default()
+            },
+            variables: &[],
+            fields: FoundPageFields {
+                slug: true,
+                score: true,
+                ..Default::default()
+            },
+        },
+    )
+    .await
+    .expect("metadata query should not fail");
+
+    assert_eq!(result.pages.total(), 1);
+    assert_eq!(result.metadata.candidate_count, Some(2));
+    assert!(!result.metadata.sql_limit_offset_applied);
+    assert!(!result.metadata.filtering_deferred_to_rust);
+    assert!(result.metadata.ordering_deferred_to_rust);
+    assert!(!result.metadata.cap_exceeded);
+    assert!(!result.metadata.exact_count_safe);
+}
+
+#[tokio::test]
 async fn listpages_deferred_forms_remain_unsupported() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
