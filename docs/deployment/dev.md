@@ -67,6 +67,6 @@ In order to add the rest of the infrastructure, we need to add a git repository 
 10. Add secrets.
 It is not good practice to add secrets to code, and triply so if the repository is public. As such, `install/dev/komodo/variables.toml` is missing values for those marked "secret" (see the file for more information). Some of these are secret values that need to be generated, and some come from your infrastructure. Fill in the values as appropriate.
 11. Go to the `wikijump-dev` stack and **pull images**. If everything is configured properly so far, it should be able to retrieve the images and be in a state to deploy it.
-12. Now, deploy the `wikijump-dev` stack. This will first build the local images (the two databases) and attempt to start the containers per the topology in `docker-compose.yaml`.
+12. Before deploying the stack, enable a host firewall or security-group policy. The only public inbound ports should be 22 (for SSH), and 80 and 443 (for HTTP traffic). The `database`, `cache`, `deepwell`, `framerail`, and `wws` services are internal to the Compose network and must not be published directly to public host interfaces.
+13. Now, deploy the `wikijump-dev` stack. This will first build the local images (the two databases) and attempt to start the containers per the topology in `docker-compose.yaml`.
 On the first deploy, it may take some time to populate the database. You may need to restart services dependent on `deepwell` (i.e. `caddy`, `framerail`, `wws`) if they are reporting as unhealthy.
-13. Once the stack is deployed, and caddy is serving as TLS termination for Komodo, you should enable a firewall on the machine. The only exposed ports should be 22 (for SSH), and 80 and 443 (for HTTP traffic).
