@@ -1,6 +1,8 @@
 import {
   buildAnonymousArticleResponseCacheFences,
   buildAnonymousArticleResponseCacheMetadata,
+  buildAnonymousArticleResponseTokenKey,
+  createLocalArticleResponseHotCache,
   readAnonymousArticleResponseCacheEntry,
   readAnonymousArticleResponseCacheFences,
   readAnonymousArticleResponseToken
@@ -19,7 +21,6 @@ const STATIC_APP_ROUTE_SLUGS = new Set([
   "forum",
   "xml-rpc-api.php"
 ])
-
 const hasSessionCookie = (cookieHeader) => {
   if (!cookieHeader) return false
 
@@ -103,18 +104,24 @@ export const getArticleResponseFastPathRequest = (request) => {
   }
 }
 
-export const readArticleResponseFastPathEntry = async ({ store, request }) => {
+export const readArticleResponseFastPathEntry = async ({
+  store,
+  request,
+  localHotCache
+}) => {
   return readArticleResponseFastPathEntryFromStores({
     responseStore: store,
     tokenStore: store,
-    request
+    request,
+    localHotCache
   })
 }
 
 export const readArticleResponseFastPathEntryFromStores = async ({
   responseStore,
   tokenStore,
-  request
+  request,
+  localHotCache
 }) => {
   if (!responseStore || !tokenStore || !request) return null
 
@@ -135,6 +142,12 @@ export const readArticleResponseFastPathEntryFromStores = async ({
       publicContentFence: fences?.publicContentFence,
       permissionFence: fences?.permissionFence
     })
+    if (!tokenMetadata) return null
+
+    const tokenKey = buildAnonymousArticleResponseTokenKey(tokenMetadata)
+    const hotEntry = localHotCache?.get(tokenKey)
+    if (hotEntry?.status === 200) return hotEntry
+
     const deepwellArticlePageCacheKey = await readAnonymousArticleResponseToken({
       store: tokenStore,
       tokenMetadata
@@ -153,7 +166,9 @@ export const readArticleResponseFastPathEntryFromStores = async ({
       metadata
     })
 
-    return cachedEntry?.status === 200 ? cachedEntry : null
+    if (cachedEntry?.status !== 200) return null
+    localHotCache?.set(tokenKey, cachedEntry)
+    return cachedEntry
   } catch {
     return null
   }
@@ -178,16 +193,24 @@ export const createArticleResponseFastPathHandler = ({
   responseStore,
   tokenStore,
   store,
-  handler
+  handler,
+  localHotCache,
+  localHotCacheOptions
 }) => {
   const resolvedResponseStore = responseStore ?? store
   const resolvedTokenStore = tokenStore ?? store
+  const hotCache =
+    localHotCache ??
+    (localHotCacheOptions
+      ? createLocalArticleResponseHotCache(localHotCacheOptions)
+      : createLocalArticleResponseHotCache())
 
   return async (request, response) => {
     const cachedEntry = await readArticleResponseFastPathEntryFromStores({
       responseStore: resolvedResponseStore,
       tokenStore: resolvedTokenStore,
-      request
+      request,
+      localHotCache: hotCache
     })
     if (cachedEntry) {
       writeArticleResponseFastPathHit(request, response, cachedEntry)

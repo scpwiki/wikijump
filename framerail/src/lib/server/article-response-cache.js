@@ -9,6 +9,9 @@ export const ARTICLE_RESPONSE_CACHE_MAX_ENTRIES = 1024
 export const ARTICLE_RESPONSE_CACHE_MAX_BYTES = 32 * 1024 * 1024
 export const ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES = 1024 * 1024
 export const ARTICLE_RESPONSE_CACHE_TTL_SECONDS = 60
+export const ARTICLE_RESPONSE_LOCAL_HOT_CACHE_TTL_MS = 5000
+export const ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_ENTRIES = 1024
+export const ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_BYTES = 8 * 1024 * 1024
 export const PUBLIC_CONTENT_FENCE_PREFIX = "deepwell:public-content:site"
 
 const utf8Hex = (value) => {
@@ -326,6 +329,118 @@ export const normalizeCachedArticleResponseEntry = (value) => {
     status: value.status,
     headers: value.headers.map(([name, headerValue]) => [name, headerValue]),
     body: value.body
+  }
+}
+
+const copyCachedArticleResponseEntry = (entry) => {
+  return {
+    status: entry.status,
+    headers: entry.headers.map(([name, value]) => [name, value]),
+    body: entry.body
+  }
+}
+
+const cachedArticleResponseEntryByteLength = (key, entry) => {
+  let bytes = serializedByteLength(key) + 8
+  bytes += serializedByteLength(entry.body)
+  for (const [name, value] of entry.headers) {
+    bytes += serializedByteLength(name) + serializedByteLength(value) + 4
+  }
+  return bytes
+}
+
+export const createLocalArticleResponseHotCache = ({
+  now = () => Date.now(),
+  ttlMs = ARTICLE_RESPONSE_LOCAL_HOT_CACHE_TTL_MS,
+  maxEntries = ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_ENTRIES,
+  maxBytes = ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_BYTES
+} = {}) => {
+  const entries = new Map()
+  let totalBytes = 0
+  const maxEntryCount =
+    Number.isInteger(maxEntries) && maxEntries > 0
+      ? maxEntries
+      : ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_ENTRIES
+  const maxTotalBytes =
+    Number.isInteger(maxBytes) && maxBytes > 0
+      ? maxBytes
+      : ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_BYTES
+  const entryTtlMs =
+    Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : ARTICLE_RESPONSE_LOCAL_HOT_CACHE_TTL_MS
+
+  const deleteEntry = (key) => {
+    const entry = entries.get(key)
+    if (!entry) return
+    totalBytes -= entry.bytes
+    entries.delete(key)
+  }
+
+  const pruneExpired = (nowMs) => {
+    for (const [key, entry] of entries) {
+      if (entry.expiresAt <= nowMs) {
+        deleteEntry(key)
+      }
+    }
+  }
+
+  const pruneOverflow = () => {
+    while (entries.size > maxEntryCount || totalBytes > maxTotalBytes) {
+      const oldest = entries.keys().next()
+      if (oldest.done) return
+      deleteEntry(oldest.value)
+    }
+  }
+
+  return {
+    get(key) {
+      const entry = entries.get(key)
+      if (!entry) return null
+
+      if (entry.expiresAt <= now()) {
+        deleteEntry(key)
+        return null
+      }
+
+      entries.delete(key)
+      entries.set(key, entry)
+      return copyCachedArticleResponseEntry(entry.value)
+    },
+
+    set(key, value) {
+      if (typeof key !== "string" || key.length === 0) return false
+
+      const normalized = normalizeCachedArticleResponseEntry(value)
+      if (!normalized) {
+        deleteEntry(key)
+        return false
+      }
+
+      const nowMs = now()
+      const expiresAt = nowMs + entryTtlMs
+      const bytes = cachedArticleResponseEntryByteLength(key, normalized)
+
+      pruneExpired(nowMs)
+      deleteEntry(key)
+      if (bytes > maxTotalBytes) return false
+
+      entries.set(key, {
+        value: copyCachedArticleResponseEntry(normalized),
+        expiresAt,
+        bytes
+      })
+      totalBytes += bytes
+      pruneOverflow()
+      return entries.has(key)
+    },
+
+    size() {
+      return entries.size
+    },
+
+    clear() {
+      entries.clear()
+      totalBytes = 0
+    }
   }
 }
 

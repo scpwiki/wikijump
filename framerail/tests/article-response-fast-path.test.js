@@ -21,20 +21,18 @@ const PERMISSION_FENCE = "site=11,user=13"
 const DEEPWELL_ARTICLE_PAGE_CACHE_KEY =
   "deepwell:article-view:page:v1:site=6000005:page=173:rev=9:updated=123:permission=site=11,user=13:body=aa"
 
-const createFastPathFixtureStore = async ({
-  route = { slug: "scp-173", extra: "" },
-  headers = [
-    ["content-type", "text/html; charset=utf-8"],
-    ["x-cache-fixture", "hit"]
-  ],
-  body = "<!doctype html><html><body>cached article</body></html>"
-} = {}) => {
-  const tokenStore = createMemoryArticleResponseCacheStore()
-  const responseStore = createMemoryArticleResponseCacheStore()
-  await tokenStore.set(buildPublicContentFenceKey(SITE_ID), PUBLIC_CONTENT_FENCE)
-  await tokenStore.set(`permission:site:${SITE_ID}:version`, "11")
-  await tokenStore.set(`permission:site:${SITE_ID}:user:anonymous:version`, "13")
-
+const seedFastPathStoreEntry = async (
+  { responseStore, tokenStore },
+  {
+    route = { slug: "scp-173", extra: "" },
+    deepwellArticlePageCacheKey = DEEPWELL_ARTICLE_PAGE_CACHE_KEY,
+    headers = [
+      ["content-type", "text/html; charset=utf-8"],
+      ["x-cache-fixture", "hit"]
+    ],
+    body = "<!doctype html><html><body>cached article</body></html>"
+  } = {}
+) => {
   const tokenMetadata = buildAnonymousArticleResponseCacheFences({
     siteId: SITE_ID,
     siteSlug: SITE_SLUG,
@@ -46,7 +44,7 @@ const createFastPathFixtureStore = async ({
   })
   await tokenStore.set(
     buildAnonymousArticleResponseTokenKey(tokenMetadata),
-    JSON.stringify({ articlePageCacheKey: DEEPWELL_ARTICLE_PAGE_CACHE_KEY })
+    JSON.stringify({ articlePageCacheKey: deepwellArticlePageCacheKey })
   )
 
   const metadata = buildAnonymousArticleResponseCacheMetadata({
@@ -54,7 +52,7 @@ const createFastPathFixtureStore = async ({
     siteSlug: SITE_SLUG,
     requestLocales: REQUEST_LOCALES,
     backendLocales: BACKEND_LOCALES,
-    deepwellArticlePageCacheKey: DEEPWELL_ARTICLE_PAGE_CACHE_KEY,
+    deepwellArticlePageCacheKey,
     publicContentFence: PUBLIC_CONTENT_FENCE,
     permissionFence: PERMISSION_FENCE
   })
@@ -71,7 +69,54 @@ const createFastPathFixtureStore = async ({
   return { responseStore, tokenStore, cacheKey }
 }
 
-const withServer = async ({ responseStore, tokenStore }, run) => {
+const createFastPathFixtureStore = async ({
+  route = { slug: "scp-173", extra: "" },
+  headers = [
+    ["content-type", "text/html; charset=utf-8"],
+    ["x-cache-fixture", "hit"]
+  ],
+  body = "<!doctype html><html><body>cached article</body></html>"
+} = {}) => {
+  const tokenStore = createMemoryArticleResponseCacheStore()
+  const responseStore = createMemoryArticleResponseCacheStore()
+  await tokenStore.set(buildPublicContentFenceKey(SITE_ID), PUBLIC_CONTENT_FENCE)
+  await tokenStore.set(`permission:site:${SITE_ID}:version`, "11")
+  await tokenStore.set(`permission:site:${SITE_ID}:user:anonymous:version`, "13")
+
+  const { cacheKey } = await seedFastPathStoreEntry(
+    { responseStore, tokenStore },
+    { route, headers, body }
+  )
+
+  return { responseStore, tokenStore, cacheKey }
+}
+
+const createCountingStore = (store) => {
+  let getCalls = 0
+  let mgetCalls = 0
+
+  return {
+    async get(key) {
+      getCalls += 1
+      return store.get(key)
+    },
+    async mget(keys) {
+      mgetCalls += 1
+      return Promise.all(keys.map((key) => store.get(key)))
+    },
+    async set(key, value, ttlSeconds) {
+      return store.set(key, value, ttlSeconds)
+    },
+    getCalls() {
+      return getCalls
+    },
+    mgetCalls() {
+      return mgetCalls
+    }
+  }
+}
+
+const withServer = async ({ responseStore, tokenStore }, run, fastPathOptions = {}) => {
   let handlerCalls = 0
   const handler = (request, response) => {
     handlerCalls += 1
@@ -82,7 +127,8 @@ const withServer = async ({ responseStore, tokenStore }, run) => {
   const fastPathHandler = createArticleResponseFastPathHandler({
     responseStore,
     tokenStore,
-    handler
+    handler,
+    ...fastPathOptions
   })
   const server = http.createServer((request, response) => {
     void fastPathHandler(request, response)
@@ -139,6 +185,218 @@ test("article response fast path sends no cached body for HEAD hits", async () =
     assert.equal(response.headers.get("x-cache-fixture"), "hit")
     assert.equal(await response.text(), "")
     assert.equal(handlerCalls(), 0)
+  })
+})
+
+test("article response fast path local hot hit avoids token and response store reads", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+
+  await withServer({ responseStore, tokenStore }, async ({ baseUrl, handlerCalls }) => {
+    const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    assert.equal(first.status, 200)
+    assert.equal(
+      await first.text(),
+      "<!doctype html><html><body>cached article</body></html>"
+    )
+    assert.equal(tokenStore.mgetCalls(), 1)
+    assert.equal(tokenStore.getCalls(), 1)
+    assert.equal(responseStore.getCalls(), 1)
+
+    const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    assert.equal(second.status, 200)
+    assert.equal(
+      await second.text(),
+      "<!doctype html><html><body>cached article</body></html>"
+    )
+    assert.equal(handlerCalls(), 0)
+    assert.equal(tokenStore.mgetCalls(), 2)
+    assert.equal(tokenStore.getCalls(), 1)
+    assert.equal(responseStore.getCalls(), 1)
+  })
+})
+
+test("article response fast path local hot cache misses after a fence change", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+
+  await withServer({ responseStore, tokenStore }, async ({ baseUrl, handlerCalls }) => {
+    const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    assert.equal(first.status, 200)
+    assert.equal(
+      await first.text(),
+      "<!doctype html><html><body>cached article</body></html>"
+    )
+
+    await tokenStore.set(buildPublicContentFenceKey(SITE_ID), "8")
+    const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    assert.equal(second.status, 209)
+    assert.equal(await second.text(), "fallback handler")
+    assert.equal(handlerCalls(), 1)
+    assert.equal(tokenStore.mgetCalls(), 2)
+    assert.equal(tokenStore.getCalls(), 2)
+    assert.equal(responseStore.getCalls(), 1)
+  })
+})
+
+test("article response fast path local hot cache entries expire by TTL", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  let now = 0
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(tokenStore.getCalls(), 1)
+      assert.equal(responseStore.getCalls(), 1)
+
+      now = 9
+      const stillFresh = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(stillFresh.status, 200)
+      assert.equal(
+        await stillFresh.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(tokenStore.mgetCalls(), 2)
+      assert.equal(tokenStore.getCalls(), 1)
+      assert.equal(responseStore.getCalls(), 1)
+
+      now = 11
+      const expired = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(expired.status, 200)
+      assert.equal(
+        await expired.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(handlerCalls(), 0)
+      assert.equal(tokenStore.mgetCalls(), 3)
+      assert.equal(tokenStore.getCalls(), 2)
+      assert.equal(responseStore.getCalls(), 2)
+    },
+    { localHotCacheOptions: { ttlMs: 10, now: () => now } }
+  )
+})
+
+test("article response fast path local hot cache evicts least recently used entries and oversized entries", async () => {
+  const stores = await createFastPathFixtureStore()
+  await seedFastPathStoreEntry(stores, {
+    route: { slug: "scp-174", extra: "" },
+    deepwellArticlePageCacheKey:
+      "deepwell:article-view:page:v1:site=6000005:page=174:rev=9:updated=123:permission=site=11,user=13:body=bb",
+    body: "<!doctype html><html><body>cached article 174</body></html>"
+  })
+  await seedFastPathStoreEntry(stores, {
+    route: { slug: "scp-175", extra: "" },
+    deepwellArticlePageCacheKey:
+      "deepwell:article-view:page:v1:site=6000005:page=175:rev=9:updated=123:permission=site=11,user=13:body=cc",
+    body: "<!doctype html><html><body>cached article 175</body></html>"
+  })
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+
+      const second = await fetch(`${baseUrl}/scp-174`, { headers: fastPathHeaders })
+      assert.equal(second.status, 200)
+      assert.equal(
+        await second.text(),
+        "<!doctype html><html><body>cached article 174</body></html>"
+      )
+
+      const third = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(third.status, 200)
+      assert.equal(
+        await third.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(tokenStore.getCalls(), 2)
+      assert.equal(responseStore.getCalls(), 2)
+
+      const fourth = await fetch(`${baseUrl}/scp-175`, { headers: fastPathHeaders })
+      assert.equal(fourth.status, 200)
+      assert.equal(
+        await fourth.text(),
+        "<!doctype html><html><body>cached article 175</body></html>"
+      )
+
+      const fifth = await fetch(`${baseUrl}/scp-174`, { headers: fastPathHeaders })
+      assert.equal(fifth.status, 200)
+      assert.equal(
+        await fifth.text(),
+        "<!doctype html><html><body>cached article 174</body></html>"
+      )
+      assert.equal(tokenStore.getCalls(), 4)
+      assert.equal(responseStore.getCalls(), 4)
+    },
+    { localHotCacheOptions: { maxEntries: 2 } }
+  )
+
+  const smallTokenStore = createCountingStore(stores.tokenStore)
+  const smallResponseStore = createCountingStore(stores.responseStore)
+  await withServer(
+    { responseStore: smallResponseStore, tokenStore: smallTokenStore },
+    async ({ baseUrl }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 200)
+      assert.equal(
+        await second.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(smallTokenStore.getCalls(), 2)
+      assert.equal(smallResponseStore.getCalls(), 2)
+    },
+    { localHotCacheOptions: { maxBytes: 1 } }
+  )
+})
+
+test("article response fast path replays HEAD from local hot cache", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+
+  await withServer({ responseStore, tokenStore }, async ({ baseUrl, handlerCalls }) => {
+    const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    assert.equal(first.status, 200)
+    assert.equal(
+      await first.text(),
+      "<!doctype html><html><body>cached article</body></html>"
+    )
+
+    const second = await fetch(`${baseUrl}/scp-173`, {
+      method: "HEAD",
+      headers: fastPathHeaders
+    })
+    assert.equal(second.status, 200)
+    assert.equal(second.headers.get("x-cache-fixture"), "hit")
+    assert.equal(await second.text(), "")
+    assert.equal(handlerCalls(), 0)
+    assert.equal(tokenStore.mgetCalls(), 2)
+    assert.equal(tokenStore.getCalls(), 1)
+    assert.equal(responseStore.getCalls(), 1)
   })
 })
 
