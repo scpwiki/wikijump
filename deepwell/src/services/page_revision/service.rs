@@ -211,12 +211,17 @@ impl PageRevisionService {
         // If nothing has changed, then don't create a new revision
         if changes.is_empty() {
             debug!("No changes in edit, only rerendering the page");
+            ctx.defer_public_content_cache_invalidate_site(site_id)
+                .or_raise(make_error)?;
             Self::rerender(ctx, id, RerenderDepth::default(), RerenderType::Full)
                 .await
                 .or_raise(make_error)?;
 
             return Ok(None);
         }
+
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
 
         // Get ancillary page data
         let (score_result, layout_result) = join!(
@@ -415,6 +420,9 @@ impl PageRevisionService {
             )
         };
 
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
+
         // If the page creation doesn't specify a preferred layout,
         // use the default for the site.
         let layout = match layout {
@@ -542,6 +550,9 @@ impl PageRevisionService {
             ..
         } = previous;
 
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
+
         // Run outdater
         OutdateService::process_page_displace(
             ctx,
@@ -653,6 +664,9 @@ impl PageRevisionService {
         } else {
             vec![str!("slug")]
         };
+
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
 
         // Get ancillary page data
         let (score_result, layout_result) = join!(
@@ -895,6 +909,9 @@ impl PageRevisionService {
                 return Ok(());
             }
         }
+
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
 
         // Get data for page
         let (wikitext, score, layout) = try_join!(

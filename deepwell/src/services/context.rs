@@ -25,6 +25,7 @@ use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::permission::{PermissionCache, PermissionService};
+use crate::services::public_cache::PublicContentCache;
 use crate::types::{Permission, Reference};
 use exn::ErrorExt;
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
@@ -139,8 +140,9 @@ pub struct ServiceContext<'txn> {
 
 #[derive(Debug)]
 pub(crate) enum PostCommitAction {
-    InvalidatePermissionUser { site_id: i64, user_id: i64 },
-    InvalidatePermissionSite { site_id: i64 },
+    PermissionUser { site_id: i64, user_id: i64 },
+    PermissionSite { site_id: i64 },
+    PublicContentSite { site_id: i64 },
 }
 
 impl<'txn> ServiceContext<'txn> {
@@ -233,7 +235,7 @@ impl<'txn> ServiceContext<'txn> {
             )
             .raise()
         })?;
-        actions.push(PostCommitAction::InvalidatePermissionUser { site_id, user_id });
+        actions.push(PostCommitAction::PermissionUser { site_id, user_id });
         Ok(())
     }
 
@@ -245,7 +247,19 @@ impl<'txn> ServiceContext<'txn> {
             )
             .raise()
         })?;
-        actions.push(PostCommitAction::InvalidatePermissionSite { site_id });
+        actions.push(PostCommitAction::PermissionSite { site_id });
+        Ok(())
+    }
+
+    pub fn defer_public_content_cache_invalidate_site(&self, site_id: i64) -> Result<()> {
+        let mut actions = self.post_commit_actions.lock().map_err(|_| {
+            Error::new(
+                "failed to queue public content cache invalidation",
+                ErrorType::Page,
+            )
+            .raise()
+        })?;
+        actions.push(PostCommitAction::PublicContentSite { site_id });
         Ok(())
     }
 
@@ -266,12 +280,15 @@ impl<'txn> ServiceContext<'txn> {
     ) -> Result<()> {
         for action in actions {
             match action {
-                PostCommitAction::InvalidatePermissionUser { site_id, user_id } => {
+                PostCommitAction::PermissionUser { site_id, user_id } => {
                     PermissionCache::invalidate_user_for_state(state, site_id, user_id)
                         .await?;
                 }
-                PostCommitAction::InvalidatePermissionSite { site_id } => {
+                PostCommitAction::PermissionSite { site_id } => {
                     PermissionCache::invalidate_site_for_state(state, site_id).await?;
+                }
+                PostCommitAction::PublicContentSite { site_id } => {
+                    PublicContentCache::invalidate_site_for_state(state, site_id).await?;
                 }
             }
         }

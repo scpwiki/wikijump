@@ -21,6 +21,7 @@
 use super::options::PageOptions;
 use super::prelude::*;
 use crate::services::permission::PermissionCache;
+use crate::services::public_cache::PublicContentCache;
 use crate::services::render::{RenderDependencyClass, classify_render_dependencies};
 use redis::AsyncCommands;
 use sea_orm::{DatabaseBackend, FromQueryResult, Statement, Value};
@@ -30,11 +31,17 @@ const ARTICLE_VIEW_PAGE_CACHE_PREFIX: &str = "deepwell:article-view:page:v1";
 
 pub(super) struct ArticlePageCache;
 
+pub(super) struct ArticlePageCacheMetadata {
+    pub cache_key: String,
+    pub public_content_cache_fence: String,
+    pub anonymous_permission_cache_fence: String,
+}
+
 impl ArticlePageCache {
-    pub(super) async fn key(
+    pub(super) async fn metadata(
         ctx: &ServiceContext<'_>,
         input: &GetPageView,
-    ) -> Result<Option<String>> {
+    ) -> Result<Option<ArticlePageCacheMetadata>> {
         if !matches!(input.session_token.as_deref(), None | Some("")) {
             return Ok(None);
         }
@@ -113,6 +120,8 @@ impl ArticlePageCache {
             .page_updated_at
             .map(|value| value.unix_timestamp_nanos())
             .unwrap_or_default();
+        let public_content_cache_fence =
+            PublicContentCache::cache_fence(ctx, input.site_id).await?;
         let permission_fence =
             PermissionCache::cache_fence(ctx, input.site_id, None).await?;
         let permission_fence = permission_fence.cache_key_fragment();
@@ -134,7 +143,12 @@ impl ArticlePageCache {
                 page_extra,
                 locales: &locales,
             },
-        ))
+        )
+        .map(|cache_key| ArticlePageCacheMetadata {
+            cache_key,
+            public_content_cache_fence,
+            anonymous_permission_cache_fence: permission_fence,
+        }))
     }
 
     pub(super) async fn get(

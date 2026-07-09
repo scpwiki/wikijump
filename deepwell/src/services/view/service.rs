@@ -90,8 +90,9 @@ impl ViewService {
         if !input.locales.contains(&preload.viewer.site.locale) {
             input.locales.push(preload.viewer.site.locale.clone());
         }
-        let cache_key = ArticlePageCache::key(ctx, &input).await?;
-        if let Some(cache_key) = &cache_key
+        let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
+        if let Some(cache_key) =
+            cache_metadata.as_ref().map(|metadata| &metadata.cache_key)
             && let Some(page) = ArticlePageCache::get(ctx, cache_key).await?
             && Self::cached_article_page_visible_to_viewer(ctx, &preload.viewer, &input)
                 .await?
@@ -100,13 +101,20 @@ impl ViewService {
                 viewer: preload.viewer,
                 page,
                 article_page_cache_key: Some(cache_key.clone()),
+                public_content_cache_fence: cache_metadata
+                    .as_ref()
+                    .map(|metadata| metadata.public_content_cache_fence.clone()),
+                anonymous_permission_cache_fence: cache_metadata
+                    .as_ref()
+                    .map(|metadata| metadata.anonymous_permission_cache_fence.clone()),
             });
         }
 
         let page_view = Self::page(ctx, input).await?;
-        if let (Some(cache_key), GetPageViewOutput::Found { page, .. }) =
-            (&cache_key, &page_view)
-            && page.from_wikidot
+        if let (Some(cache_key), GetPageViewOutput::Found { page, .. }) = (
+            cache_metadata.as_ref().map(|metadata| &metadata.cache_key),
+            &page_view,
+        ) && page.from_wikidot
         {
             ArticlePageCache::set(ctx, cache_key, &page_view).await?;
         }
@@ -114,7 +122,15 @@ impl ViewService {
         Ok(GetArticleViewOutput {
             viewer: preload.viewer,
             page: page_view,
-            article_page_cache_key: cache_key,
+            article_page_cache_key: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.cache_key.clone()),
+            public_content_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.public_content_cache_fence.clone()),
+            anonymous_permission_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.anonymous_permission_cache_fence.clone()),
         })
     }
 
@@ -125,6 +141,8 @@ impl ViewService {
         if !matches!(input.session_token.as_deref(), None | Some("")) {
             return Ok(GetArticleViewCacheMetadataOutput {
                 article_page_cache_key: None,
+                public_content_cache_fence: None,
+                anonymous_permission_cache_fence: None,
             });
         }
 
@@ -141,8 +159,18 @@ impl ViewService {
             input.locales.push(preload.viewer.site.locale);
         }
 
+        let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
+
         Ok(GetArticleViewCacheMetadataOutput {
-            article_page_cache_key: ArticlePageCache::key(ctx, &input).await?,
+            article_page_cache_key: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.cache_key.clone()),
+            public_content_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.public_content_cache_fence.clone()),
+            anonymous_permission_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.anonymous_permission_cache_fence.clone()),
         })
     }
 

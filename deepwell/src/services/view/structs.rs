@@ -71,11 +71,15 @@ pub struct GetArticleViewOutput {
     pub viewer: Viewer,
     pub page: GetPageViewOutput,
     pub article_page_cache_key: Option<String>,
+    pub public_content_cache_fence: Option<String>,
+    pub anonymous_permission_cache_fence: Option<String>,
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetArticleViewCacheMetadataOutput {
     pub article_page_cache_key: Option<String>,
+    pub public_content_cache_fence: Option<String>,
+    pub anonymous_permission_cache_fence: Option<String>,
 }
 
 /// Yield information for a page view, depending on the status of the page.
