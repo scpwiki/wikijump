@@ -93,6 +93,8 @@ impl ViewService {
         let cache_key = ArticlePageCache::key(ctx, &input).await?;
         if let Some(cache_key) = &cache_key
             && let Some(page) = ArticlePageCache::get(ctx, cache_key).await?
+            && Self::cached_article_page_visible_to_viewer(ctx, &preload.viewer, &input)
+                .await?
         {
             return Ok(GetArticleViewOutput {
                 viewer: preload.viewer,
@@ -112,6 +114,40 @@ impl ViewService {
             viewer: preload.viewer,
             page: page_view,
         })
+    }
+
+    async fn cached_article_page_visible_to_viewer(
+        ctx: &ServiceContext<'_>,
+        viewer: &Viewer,
+        input: &GetPageView,
+    ) -> Result<bool> {
+        let page_full_slug = input
+            .route
+            .as_ref()
+            .map_or(viewer.site.default_page.as_str(), |route| {
+                route.slug.as_str()
+            });
+        let (category_slug, _) = split_category(page_full_slug);
+        let category_id =
+            Self::get_category_id(ctx, viewer.site.site_id, category_slug).await?;
+
+        PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id: viewer
+                    .user_session
+                    .as_ref()
+                    .map(|session| session.user.user_id),
+                site_id: viewer.site.site_id,
+                page_reference: None,
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: category_id.map(Reference::Id),
+                action: Action::View,
+            },
+        )
+        .await
     }
 
     pub async fn preload(

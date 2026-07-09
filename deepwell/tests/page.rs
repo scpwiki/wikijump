@@ -30,6 +30,7 @@ use deepwell::models::file;
 use deepwell::models::page::{self, Entity as PageTable};
 use deepwell::models::page_category::{self, Entity as PageCategoryTable};
 use deepwell::models::page_revision::Entity as PageRevisionTable;
+use deepwell::models::role_permission::{self, Entity as RolePermissionTable};
 use deepwell::models::text_block;
 use deepwell::models::user::Entity as UserTable;
 use deepwell::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
@@ -43,12 +44,12 @@ use deepwell::services::page_query::{
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
     PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
-use deepwell::services::permission::PermissionService;
+use deepwell::services::permission::{PermissionCache, PermissionService};
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
 use deepwell::services::session::CreateSession;
-use deepwell::services::view::GetPageViewOutput;
+use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
     FileRevisionService, ForumPostService, ForumService, ForumThreadService,
     RenderService, RequestContext, SessionService,
@@ -317,6 +318,142 @@ async fn rerender_uses_latest_navigation_page_revision() {
     assert!(
         !top_bar.contains("Wikijump Blog"),
         "rerender reused stale nav:top wikitext:\n{top_bar}"
+    );
+}
+
+#[tokio::test]
+async fn article_view_cache_respects_anonymous_permission_revocation() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+    let category_slug = "article-cache-permission-revocation";
+    let slug = "article-cache-permission-revocation:source";
+    let category_id =
+        CategoryService::get_or_create(runner.context(), site_id, category_slug)
+            .await
+            .expect("cache permission category should be created")
+            .category_id;
+    let root_role = RoleService::get(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed("root")),
+    )
+    .await
+    .expect("root role should exist");
+    let guest_role = RoleService::get(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed("guest")),
+    )
+    .await
+    .expect("guest role should exist");
+    for role_id in [root_role.role_id, guest_role.role_id] {
+        role_permission::ActiveModel {
+            role_id: Set(role_id),
+            site_id: Set(site_id),
+            resource_type: Set(Resource::Page),
+            resource_category_id: Set(Some(category_id)),
+            action: Set(Action::View),
+            ..Default::default()
+        }
+        .insert(runner.context().transaction())
+        .await
+        .expect("scoped cache test permission should be inserted");
+    }
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(slug)),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "cached anonymous article body",
+            "title": "Article cache permission revocation",
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "create cache permission page",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("page lookup should not fail")
+        .expect("created page should exist");
+    let mut page = page.into_active_model();
+    page.from_wikidot = Set(true);
+    page.update(runner.context().transaction())
+        .await
+        .expect("page should be marked imported");
+
+    let first = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {
+                "slug": slug,
+                "extra": "",
+            },
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(
+        matches!(
+            first,
+            GetArticleViewOutput {
+                page: GetPageViewOutput::Found { .. },
+                ..
+            }
+        ),
+        "first article view should populate the anonymous cache"
+    );
+
+    RolePermissionTable::delete_many()
+        .filter(role_permission::Column::RoleId.eq(guest_role.role_id))
+        .filter(role_permission::Column::SiteId.eq(site_id))
+        .filter(role_permission::Column::ResourceType.eq(Resource::Page))
+        .filter(role_permission::Column::ResourceCategoryId.eq(category_id))
+        .filter(role_permission::Column::Action.eq(Action::View))
+        .exec(runner.context().transaction())
+        .await
+        .expect("guest scoped view permission should be revoked");
+    PermissionCache::invalidate_site(runner.context(), site_id)
+        .await
+        .expect("permission cache invalidation should run");
+
+    let second = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {
+                "slug": slug,
+                "extra": "",
+            },
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(
+        matches!(
+            second,
+            GetArticleViewOutput {
+                page: GetPageViewOutput::Permissions { banned: false, .. },
+                ..
+            }
+        ),
+        "cached article data must not bypass revoked anonymous page:view permission"
     );
 }
 

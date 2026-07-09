@@ -33,8 +33,12 @@ mod prelude {
 
 #[allow(dead_code)]
 mod list_pages;
+mod render_dependency;
 mod service;
 mod structs;
 
+pub use self::render_dependency::{
+    RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
+};
 pub use self::service::RenderService;
 pub use self::structs::*;
