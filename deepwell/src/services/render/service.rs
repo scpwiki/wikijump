@@ -289,15 +289,21 @@ static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .unwrap()
 });
 static WIKIDOT_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"##(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>.*?)##").unwrap()
+    Regex::new(r"(?P<hashes>#{2,})(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>.*?)##").unwrap()
 });
 static WIKIDOT_BOLD_UNDERLINE_SPAN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\*\*__(?P<body>[^\n]*?)\*\*__").unwrap());
 static WIKIDOT_BOLD_OUTER_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"\*\*##(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>[^\n]*?)##\*\*").unwrap()
+    Regex::new(
+        r"\*\*(?P<hashes>#{2,})(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>[^\n]*?)##\*\*",
+    )
+    .unwrap()
 });
 static WIKIDOT_BOLD_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"\*\*##(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>[^\n]*?)\*\*##").unwrap()
+    Regex::new(
+        r"\*\*(?P<hashes>#{2,})(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>[^\n]*?)\*\*##",
+    )
+    .unwrap()
 });
 static WIKIDOT_ESCAPED_NBSP_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"@<(?P<html>&nbsp;)>@").unwrap());
@@ -4328,13 +4334,16 @@ impl RenderService {
         let mut spans = Vec::new();
         let protected = WIKIDOT_COLOR_SPAN_REGEX
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                let Some(color) = parse_wikidot_compat_color_descriptor(
+                    &captures["hashes"],
+                    &captures["color"],
+                ) else {
+                    return captures[0].to_owned();
+                };
                 let marker = wikidot_color_span_marker();
                 spans.push(ProtectedWikidotColorSpan {
                     marker: marker.clone(),
-                    html: render_wikidot_color_span_html(
-                        &captures["color"],
-                        &captures["body"],
-                    ),
+                    html: render_wikidot_color_span_html(&color, &captures["body"]),
                 });
                 marker
             })
@@ -4367,15 +4376,18 @@ impl RenderService {
                 if captures["body"].contains("##") {
                     return captures[0].to_owned();
                 }
+                let Some(color) = parse_wikidot_compat_color_descriptor(
+                    &captures["hashes"],
+                    &captures["color"],
+                ) else {
+                    return captures[0].to_owned();
+                };
                 let marker = wikidot_inline_html_marker();
                 spans.push(ProtectedWikidotInlineHtml {
                     marker: marker.clone(),
                     html: format!(
                         "<strong>{}</strong>",
-                        render_wikidot_color_span_html(
-                            &captures["color"],
-                            &captures["body"],
-                        ),
+                        render_wikidot_color_span_html(&color, &captures["body"]),
                     ),
                 });
                 marker
@@ -4386,15 +4398,18 @@ impl RenderService {
                 if captures["body"].contains("##") {
                     return captures[0].to_owned();
                 }
+                let Some(color) = parse_wikidot_compat_color_descriptor(
+                    &captures["hashes"],
+                    &captures["color"],
+                ) else {
+                    return captures[0].to_owned();
+                };
                 let marker = wikidot_inline_html_marker();
                 spans.push(ProtectedWikidotInlineHtml {
                     marker: marker.clone(),
                     html: format!(
                         "<strong>{}</strong>",
-                        render_wikidot_color_span_html(
-                            &captures["color"],
-                            &captures["body"],
-                        ),
+                        render_wikidot_color_span_html(&color, &captures["body"]),
                     ),
                 });
                 marker
@@ -8375,6 +8390,21 @@ fn wikidot_inline_html_marker() -> String {
     )
 }
 
+fn parse_wikidot_compat_color_descriptor<'a>(
+    hashes: &str,
+    descriptor: &'a str,
+) -> Option<Cow<'a, str>> {
+    match hashes.len() {
+        2 => Some(Cow::Borrowed(descriptor)),
+        3 if matches!(descriptor.len(), 3 | 6)
+            && descriptor.bytes().all(|byte| byte.is_ascii_hexdigit()) =>
+        {
+            Some(Cow::Owned(format!("#{descriptor}")))
+        }
+        _ => None,
+    }
+}
+
 fn render_wikidot_color_span_html(color: &str, body: &str) -> String {
     format!(
         r#"<span style="color: {color}">{body}</span>"#,
@@ -10310,10 +10340,11 @@ mod tests {
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, native_list_page_link_default_label,
-        parse_list_pages_arguments, push_list_pages_pager, render_clone_module,
-        render_list_pages_numbered_rows, render_list_pages_table_rows,
-        render_members_module_placeholder, render_native_list_page_link,
-        render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
+        parse_list_pages_arguments, parse_wikidot_compat_color_descriptor,
+        push_list_pages_pager, render_clone_module, render_list_pages_numbered_rows,
+        render_list_pages_table_rows, render_members_module_placeholder,
+        render_native_list_page_link, render_new_page_module,
+        render_read_only_rate_module, render_tag_cloud_box,
         resolve_list_pages_signed_abs_expressions,
         restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
@@ -11804,6 +11835,75 @@ mod tests {
             &settings,
         );
         assert_eq!(escaped, "&#35;&#35;&#35;&#35;blue|leftover&#35;&#35;");
+    }
+
+    #[test]
+    fn protects_wikidot_hash_prefixed_hex_colors_without_shifted_matches() {
+        let page_info = fallback_test_page_info("scp-6670", "SCP-6670");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "###880808|plain##\n",
+            "**###880808|bold outer##**\n",
+            "**###880808|bold inner**##\n",
+            "###12345|bad five##\n",
+            "###gggggg|bad nonhex##\n",
+            "####880808|bad run##\n",
+            "###880808;background:red|bad css##\n",
+        )
+        .to_owned();
+
+        let inline_spans =
+            RenderService::protect_wikidot_inline_html_spans(&mut wikitext, &settings);
+        let color_spans =
+            RenderService::protect_wikidot_color_spans(&mut wikitext, &settings);
+        assert_eq!(inline_spans.len(), 2);
+        assert_eq!(color_spans.len(), 1);
+
+        wikitext =
+            RenderService::escape_unrendered_wikidot_color_markers(wikitext, &settings);
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, errors) = result.into();
+        assert!(errors.is_empty(), "{errors:?}");
+
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        let rendered =
+            RenderService::restore_protected_wikidot_color_spans(rendered, &color_spans);
+        let rendered =
+            RenderService::restore_protected_wikidot_inline_html(rendered, &inline_spans);
+
+        assert!(rendered.contains(r#"<span style="color: #880808">plain</span>"#));
+        assert!(rendered.contains(
+            r#"<strong><span style="color: #880808">bold outer</span></strong>"#
+        ));
+        assert!(rendered.contains(
+            r#"<strong><span style="color: #880808">bold inner</span></strong>"#
+        ));
+        assert!(!rendered.contains(r#"#<span style="color: 880808">"#));
+        assert!(!rendered.contains(r#"style="color: 880808""#));
+        assert!(!rendered.contains(r#"style="color: 12345""#));
+        assert!(!rendered.contains(r#"style="color: gggggg""#));
+        assert!(!rendered.contains(r#"style="color: 880808;background"#));
+    }
+
+    #[test]
+    fn wikidot_hash_prefixed_color_descriptor_accepts_only_three_or_six_hex_digits() {
+        assert_eq!(
+            parse_wikidot_compat_color_descriptor("###", "abc").as_deref(),
+            Some("#abc"),
+        );
+        assert_eq!(
+            parse_wikidot_compat_color_descriptor("###", "880808").as_deref(),
+            Some("#880808"),
+        );
+        assert!(parse_wikidot_compat_color_descriptor("###", "12345").is_none());
+        assert!(parse_wikidot_compat_color_descriptor("###", "gggggg").is_none());
+        assert!(parse_wikidot_compat_color_descriptor("####", "880808").is_none());
+        assert_eq!(
+            parse_wikidot_compat_color_descriptor("##", "blue").as_deref(),
+            Some("blue"),
+        );
     }
 
     #[test]
