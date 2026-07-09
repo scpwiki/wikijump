@@ -130,12 +130,19 @@ export const readAnonymousArticleResponseCacheFences = async ({ store, siteId })
   if (!store || !Number.isInteger(siteId) || siteId <= 0) return null
 
   try {
-    const publicContentFence = normalizeFenceVersion(
-      await store.get(buildPublicContentFenceKey(siteId))
-    )
+    const publicContentFenceKey = buildPublicContentFenceKey(siteId)
     const { siteKey, userKey } = buildAnonymousPermissionFenceKeys(siteId)
-    const sitePermissionFence = normalizeFenceVersion(await store.get(siteKey))
-    const userPermissionFence = normalizeFenceVersion(await store.get(userKey))
+    const [publicContentFenceValue, sitePermissionFenceValue, userPermissionFenceValue] =
+      typeof store.mget === "function"
+        ? await store.mget([publicContentFenceKey, siteKey, userKey])
+        : [
+            await store.get(publicContentFenceKey),
+            await store.get(siteKey),
+            await store.get(userKey)
+          ]
+    const publicContentFence = normalizeFenceVersion(publicContentFenceValue)
+    const sitePermissionFence = normalizeFenceVersion(sitePermissionFenceValue)
+    const userPermissionFence = normalizeFenceVersion(userPermissionFenceValue)
 
     if (
       publicContentFence === null ||
@@ -312,24 +319,40 @@ const isCachedArticleResponse = (value) => {
   )
 }
 
-export const deserializeCachedArticleResponse = (value) => {
+export const normalizeCachedArticleResponseEntry = (value) => {
   if (!isCachedArticleResponse(value)) return null
 
-  return new Response(value.body, {
+  return {
     status: value.status,
-    headers: value.headers
+    headers: value.headers.map(([name, headerValue]) => [name, headerValue]),
+    body: value.body
+  }
+}
+
+export const deserializeCachedArticleResponse = (value) => {
+  const entry = normalizeCachedArticleResponseEntry(value)
+  if (!entry) return null
+
+  return new Response(entry.body, {
+    status: entry.status,
+    headers: entry.headers
   })
 }
 
-export const readCachedArticleResponse = async (store, key) => {
+export const readCachedArticleResponseEntry = async (store, key) => {
   try {
     const cached = await store.get(key)
     if (typeof cached !== "string") return null
 
-    return deserializeCachedArticleResponse(JSON.parse(cached))
+    return normalizeCachedArticleResponseEntry(JSON.parse(cached))
   } catch {
     return null
   }
+}
+
+export const readCachedArticleResponse = async (store, key) => {
+  const entry = await readCachedArticleResponseEntry(store, key)
+  return deserializeCachedArticleResponse(entry)
 }
 
 export const writeCachedArticleResponse = async (
@@ -352,6 +375,14 @@ export const writeCachedArticleResponse = async (
 export const readAnonymousArticleResponseCache = async ({ store, metadata }) => {
   if (!metadata) return null
   return readCachedArticleResponse(store, buildAnonymousArticleResponseCacheKey(metadata))
+}
+
+export const readAnonymousArticleResponseCacheEntry = async ({ store, metadata }) => {
+  if (!metadata) return null
+  return readCachedArticleResponseEntry(
+    store,
+    buildAnonymousArticleResponseCacheKey(metadata)
+  )
 }
 
 const isTokenValue = (value) => {

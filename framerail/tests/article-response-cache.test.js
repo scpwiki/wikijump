@@ -131,6 +131,30 @@ test("anonymous article response cache fence helpers read Redis keys with defaul
   )
 })
 
+test("anonymous article response cache fence helpers use atomic multi-key reads when available", async () => {
+  const store = {
+    async mget(keys) {
+      assert.deepEqual(keys, [
+        buildPublicContentFenceKey(6000005),
+        "permission:site:6000005:version",
+        "permission:site:6000005:user:anonymous:version"
+      ])
+      return ["7", "11", "13"]
+    },
+    async get() {
+      throw new Error("non-atomic fence read")
+    }
+  }
+
+  assert.deepEqual(
+    await readAnonymousArticleResponseCacheFences({ store, siteId: 6000005 }),
+    {
+      publicContentFence: "7",
+      permissionFence: "site=11,user=13"
+    }
+  )
+})
+
 test("anonymous article response cache fence helpers fail closed on malformed values", async () => {
   const store = createMemoryArticleResponseCacheStore()
   await store.set(buildPublicContentFenceKey(6000005), "not-a-version")

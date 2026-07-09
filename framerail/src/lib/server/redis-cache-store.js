@@ -55,7 +55,26 @@ const parseResponse = (buffer, offset = 0) => {
       nextOffset
     }
   }
+  if (type === "*") {
+    const length = Number.parseInt(line.value, 10)
+    if (length === -1) {
+      return { value: null, nextOffset: line.nextOffset }
+    }
+    if (!Number.isInteger(length) || length < 0) {
+      throw new Error("invalid Redis array length")
+    }
 
+    const values = []
+    let nextOffset = line.nextOffset
+    for (let index = 0; index < length; index += 1) {
+      const parsed = parseResponse(buffer, nextOffset)
+      if (!parsed) return null
+      values.push(parsed.value)
+      nextOffset = parsed.nextOffset
+    }
+
+    return { value: values, nextOffset }
+  }
   throw new Error("unsupported Redis response type")
 }
 
@@ -189,6 +208,12 @@ class RedisCacheStore {
 
   async get(key) {
     return this.command(["GET", key])
+  }
+
+  async mget(keys) {
+    if (!Array.isArray(keys) || keys.length === 0) return []
+    const values = await this.command(["MGET", ...keys])
+    return Array.isArray(values) ? values : []
   }
 
   async set(key, value, ttlSeconds) {

@@ -7,7 +7,7 @@ case "${FRAMERAIL_MODE:-dev}" in
         ;;
     built)
         pnpm build
-        exec /usr/bin/env HOST="${HOST:-0.0.0.0}" PORT="${PORT:-3393}" node build
+        exec /usr/bin/env HOST="${HOST:-0.0.0.0}" PORT="${PORT:-3393}" node server.js
         ;;
     *)
         echo "Unsupported FRAMERAIL_MODE: ${FRAMERAIL_MODE}" >&2
