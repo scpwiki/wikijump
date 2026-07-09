@@ -209,7 +209,10 @@ export const readArticleResponseFastPathEntryFromStores = async ({
     const shouldRevalidateLocalFences =
       fenceCache?.canValidateFencesLocally?.({ siteId: candidate.siteId }) === true
     const tokenKey = buildAnonymousArticleResponseTokenKey(tokenMetadata)
-    const hotEntry = localHotCache?.getReplay?.(tokenKey) ?? localHotCache?.get(tokenKey)
+    const hotEntry =
+      localHotCache?.getSharedReplayForInternalUse?.(tokenKey) ??
+      localHotCache?.getReplay?.(tokenKey) ??
+      localHotCache?.get(tokenKey)
     if (hotEntry?.status === 200) {
       if (
         shouldRevalidateLocalFences &&

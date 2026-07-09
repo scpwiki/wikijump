@@ -266,6 +266,49 @@ test("article response fast path local hot hit avoids token and response store r
   })
 })
 
+test("article response fast path uses trusted shared local hot replay", async () => {
+  const stores = await createFastPathFixtureStore()
+  const replay = Object.freeze({
+    status: 200,
+    headers: Object.freeze([Object.freeze(["x-cache-fixture", "shared"])]),
+    bodyBuffer: Buffer.from(
+      "<!doctype html><html><body>shared hot article</body></html>"
+    ),
+    finalHeaders: true
+  })
+  const localHotCache = {
+    getSharedReplayForInternalUse(key) {
+      assert.equal(key, stores.tokenKey)
+      return replay
+    },
+    getReplay() {
+      throw new Error("fast path should not copy local hot replay")
+    },
+    get() {
+      throw new Error("fast path should not fall back to entry copy")
+    },
+    set() {
+      throw new Error("fast path should not refill on a hot replay hit")
+    }
+  }
+
+  await withServer(
+    stores,
+    async ({ baseUrl, handlerCalls }) => {
+      const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+
+      assert.equal(response.status, 200)
+      assert.equal(response.headers.get("x-cache-fixture"), "shared")
+      assert.equal(
+        await response.text(),
+        "<!doctype html><html><body>shared hot article</body></html>"
+      )
+      assert.equal(handlerCalls(), 0)
+    },
+    { localHotCache }
+  )
+})
+
 test("article response fast path trusted local fence second hot hit does zero store reads", async () => {
   const stores = await createFastPathFixtureStore()
   const tokenStore = createCountingStore(stores.tokenStore)

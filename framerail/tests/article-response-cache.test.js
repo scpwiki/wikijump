@@ -726,6 +726,44 @@ test("local article response hot cache getReplay body mutation does not poison l
   assert.equal(hotCache.get("token").bodyBuffer.toString("utf8"), "cached body")
 })
 
+test("local article response hot cache exposes trusted shared replay without copying", () => {
+  const hotCache = createLocalArticleResponseHotCache()
+
+  assert.equal(
+    hotCache.set(
+      "token",
+      {
+        status: 200,
+        headers: [["content-type", "text/html"]],
+        body: "cached body"
+      },
+      {
+        replay: {
+          status: 200,
+          headers: [["x-final", "safe"]],
+          bodyBuffer: Buffer.from("cached body")
+        }
+      }
+    ),
+    true
+  )
+
+  const firstSharedReplay = hotCache.getSharedReplayForInternalUse("token")
+  const secondSharedReplay = hotCache.getSharedReplayForInternalUse("token")
+  const publicReplay = hotCache.getReplay("token")
+
+  assert.equal(firstSharedReplay, secondSharedReplay)
+  assert.equal(firstSharedReplay.bodyBuffer, secondSharedReplay.bodyBuffer)
+  assert.notEqual(publicReplay, firstSharedReplay)
+  assert.notEqual(publicReplay.bodyBuffer, firstSharedReplay.bodyBuffer)
+  assert.deepEqual(firstSharedReplay.headers, [["x-final", "safe"]])
+  assert.equal(firstSharedReplay.bodyBuffer.toString("utf8"), "cached body")
+  assert.throws(() => firstSharedReplay.headers.push(["x-extra", "nope"]), TypeError)
+  assert.throws(() => {
+    firstSharedReplay.headers[0][1] = "mutated"
+  }, TypeError)
+})
+
 test("anonymous article response cache read/write helpers gate final responses", async () => {
   const metadata = buildAnonymousArticleResponseCacheMetadata({
     siteId: 6000005,

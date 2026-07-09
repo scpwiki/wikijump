@@ -659,6 +659,14 @@ export const createLocalArticleResponseHotCache = ({
       return copyCachedArticleResponseReplay(entry.value.replay)
     },
 
+    // Trusted fast-path callers pass this Buffer directly to ServerResponse.end.
+    // They must not mutate the shared bodyBuffer.
+    getSharedReplayForInternalUse(key) {
+      const entry = getRecord(key)
+      if (!entry) return null
+      return entry.value.replay
+    },
+
     set(key, value, { replay } = {}) {
       if (typeof key !== "string" || key.length === 0) return false
 
