@@ -3,11 +3,13 @@ import { createHash } from "node:crypto"
 const ARTICLE_ROUTES = new Set(["/", "/[slug]/[...extra]"])
 const PERMISSION_FENCE = "anonymous-page-view-v1"
 const RESPONSE_CACHE_PREFIX = "framerail:article-response:v1"
+const RESPONSE_TOKEN_PREFIX = "framerail:article-response-token:v1"
 const SESSION_COOKIE = "wikijump_token"
 export const ARTICLE_RESPONSE_CACHE_MAX_ENTRIES = 1024
 export const ARTICLE_RESPONSE_CACHE_MAX_BYTES = 32 * 1024 * 1024
 export const ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES = 1024 * 1024
 export const ARTICLE_RESPONSE_CACHE_TTL_SECONDS = 60
+export const PUBLIC_CONTENT_FENCE_PREFIX = "deepwell:public-content:site"
 
 const utf8Hex = (value) => {
   return Buffer.from(value, "utf8").toString("hex")
@@ -30,6 +32,12 @@ const hasSessionCookie = (cookieHeader) => {
 
 const isEmptyExtra = (extra) => {
   return extra === undefined || extra === null || extra === ""
+}
+
+const normalizeFenceVersion = (value) => {
+  if (value === undefined || value === null) return "0"
+  if (typeof value !== "string" || !/^\d+$/.test(value)) return null
+  return value
 }
 
 const reject = (reason) => {
@@ -61,12 +69,15 @@ export const buildAnonymousArticleResponseCacheMetadata = ({
   siteSlug,
   requestLocales,
   backendLocales,
-  deepwellArticlePageCacheKey
+  deepwellArticlePageCacheKey,
+  publicContentFence = "0",
+  permissionFence = PERMISSION_FENCE
 }) => {
   if (!Number.isInteger(siteId) || siteId <= 0) return null
   if (!siteSlug) return null
   if (!Array.isArray(requestLocales) || !Array.isArray(backendLocales)) return null
   if (!deepwellArticlePageCacheKey) return null
+  if (!publicContentFence || !permissionFence) return null
 
   return {
     siteId,
@@ -74,7 +85,72 @@ export const buildAnonymousArticleResponseCacheMetadata = ({
     requestLocales,
     backendLocales,
     deepwellArticlePageCacheKey,
-    permissionFence: PERMISSION_FENCE
+    publicContentFence,
+    permissionFence
+  }
+}
+
+export const buildPublicContentFenceKey = (siteId) => {
+  return `${PUBLIC_CONTENT_FENCE_PREFIX}:${siteId}:version`
+}
+
+export const buildAnonymousPermissionFenceKeys = (siteId) => {
+  return {
+    siteKey: `permission:site:${siteId}:version`,
+    userKey: `permission:site:${siteId}:user:anonymous:version`
+  }
+}
+
+export const buildAnonymousArticleResponseCacheFences = ({
+  siteId,
+  siteSlug,
+  route,
+  requestLocales,
+  backendLocales,
+  publicContentFence,
+  permissionFence
+}) => {
+  if (!Number.isInteger(siteId) || siteId <= 0) return null
+  if (!siteSlug) return null
+  if (!Array.isArray(requestLocales) || !Array.isArray(backendLocales)) return null
+  if (!publicContentFence || !permissionFence) return null
+
+  return {
+    siteId,
+    siteSlug,
+    route: route ?? null,
+    requestLocales,
+    backendLocales,
+    publicContentFence,
+    permissionFence
+  }
+}
+
+export const readAnonymousArticleResponseCacheFences = async ({ store, siteId }) => {
+  if (!store || !Number.isInteger(siteId) || siteId <= 0) return null
+
+  try {
+    const publicContentFence = normalizeFenceVersion(
+      await store.get(buildPublicContentFenceKey(siteId))
+    )
+    const { siteKey, userKey } = buildAnonymousPermissionFenceKeys(siteId)
+    const sitePermissionFence = normalizeFenceVersion(await store.get(siteKey))
+    const userPermissionFence = normalizeFenceVersion(await store.get(userKey))
+
+    if (
+      publicContentFence === null ||
+      sitePermissionFence === null ||
+      userPermissionFence === null
+    ) {
+      return null
+    }
+
+    return {
+      publicContentFence,
+      permissionFence: `site=${sitePermissionFence},user=${userPermissionFence}`
+    }
+  } catch {
+    return null
   }
 }
 
@@ -85,8 +161,32 @@ export const buildAnonymousArticleResponseCacheKey = (metadata) => {
     `slug=${utf8Hex(metadata.siteSlug)}`,
     `requestLocales=${utf8Hex(metadata.requestLocales.join(","))}`,
     `backendLocales=${utf8Hex(metadata.backendLocales.join(","))}`,
+    `content=${metadata.publicContentFence}`,
     `permission=${metadata.permissionFence}`,
     `deepwell=${sha256Hex(metadata.deepwellArticlePageCacheKey)}`
+  ].join(":")
+}
+
+const normalizeRouteForToken = (route) => {
+  if (!route) return { slug: "", extra: "" }
+  return {
+    slug: route.slug ?? "",
+    extra: route.extra ?? ""
+  }
+}
+
+export const buildAnonymousArticleResponseTokenKey = (metadata) => {
+  const route = normalizeRouteForToken(metadata.route)
+
+  return [
+    RESPONSE_TOKEN_PREFIX,
+    `site=${metadata.siteId}`,
+    `slug=${utf8Hex(metadata.siteSlug)}`,
+    `route=${sha256Hex(JSON.stringify(route))}`,
+    `requestLocales=${utf8Hex(metadata.requestLocales.join(","))}`,
+    `backendLocales=${utf8Hex(metadata.backendLocales.join(","))}`,
+    `content=${metadata.publicContentFence}`,
+    `permission=${utf8Hex(metadata.permissionFence)}`
   ].join(":")
 }
 
@@ -252,6 +352,64 @@ export const writeCachedArticleResponse = async (
 export const readAnonymousArticleResponseCache = async ({ store, metadata }) => {
   if (!metadata) return null
   return readCachedArticleResponse(store, buildAnonymousArticleResponseCacheKey(metadata))
+}
+
+const isTokenValue = (value) => {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    typeof value.articlePageCacheKey === "string" &&
+    value.articlePageCacheKey.length > 0
+  )
+}
+
+export const readAnonymousArticleResponseToken = async ({ store, tokenMetadata }) => {
+  if (!tokenMetadata) return null
+
+  try {
+    const cached = await store.get(buildAnonymousArticleResponseTokenKey(tokenMetadata))
+    if (typeof cached !== "string") return null
+
+    const value = JSON.parse(cached)
+    if (!isTokenValue(value)) return null
+
+    return value.articlePageCacheKey
+  } catch {
+    return null
+  }
+}
+
+export const writeAnonymousArticleResponseToken = async ({
+  store,
+  tokenMetadata,
+  deepwellArticlePageCacheKey,
+  ttlSeconds = ARTICLE_RESPONSE_CACHE_TTL_SECONDS
+}) => {
+  if (!tokenMetadata || !deepwellArticlePageCacheKey) return false
+
+  try {
+    const currentFences = await readAnonymousArticleResponseCacheFences({
+      store,
+      siteId: tokenMetadata.siteId
+    })
+    if (
+      currentFences?.publicContentFence !== tokenMetadata.publicContentFence ||
+      currentFences?.permissionFence !== tokenMetadata.permissionFence
+    ) {
+      return false
+    }
+
+    const value = JSON.stringify({ articlePageCacheKey: deepwellArticlePageCacheKey })
+    return (
+      (await store.set(
+        buildAnonymousArticleResponseTokenKey(tokenMetadata),
+        value,
+        ttlSeconds
+      )) !== false
+    )
+  } catch {
+    return false
+  }
 }
 
 export const writeAnonymousArticleResponseCache = async ({

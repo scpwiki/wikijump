@@ -103,6 +103,8 @@ export async function pageView(
 export type ArticleView = Viewer & {
   page: PageView
   article_page_cache_key: Optional<string>
+  public_content_cache_fence: Optional<string>
+  anonymous_permission_cache_fence: Optional<string>
 }
 
 export async function articleView(
@@ -121,6 +123,8 @@ export async function articleView(
 
 export interface ArticleViewCacheMetadata {
   article_page_cache_key: Optional<string>
+  public_content_cache_fence: Optional<string>
+  anonymous_permission_cache_fence: Optional<string>
 }
 
 export async function articleViewCacheMetadata(

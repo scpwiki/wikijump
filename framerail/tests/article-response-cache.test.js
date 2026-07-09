@@ -5,14 +5,21 @@ import {
   ARTICLE_RESPONSE_CACHE_MAX_BYTES,
   ARTICLE_RESPONSE_CACHE_MAX_ENTRIES,
   ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES,
+  buildAnonymousArticleResponseCacheFences,
   buildAnonymousArticleResponseCacheKey,
   buildAnonymousArticleResponseCacheMetadata,
+  buildAnonymousArticleResponseTokenKey,
+  buildAnonymousPermissionFenceKeys,
+  buildPublicContentFenceKey,
   canConsiderAnonymousArticleResponseCache,
   createMemoryArticleResponseCacheStore,
   deserializeCachedArticleResponse,
+  readAnonymousArticleResponseCacheFences,
   readAnonymousArticleResponseCache,
+  readAnonymousArticleResponseToken,
   readCachedArticleResponse,
   serializeArticleResponseForCache,
+  writeAnonymousArticleResponseToken,
   writeAnonymousArticleResponseCache,
   writeCachedArticleResponse
 } from "../src/lib/server/article-response-cache.js"
@@ -71,12 +78,13 @@ test("anonymous article response cache key requires Deepwell eligibility metadat
     requestLocales: ["ja-JP", "en-US"],
     backendLocales: ["ja-JP", "en-US", "en"],
     deepwellArticlePageCacheKey,
+    publicContentFence: "0",
     permissionFence: "anonymous-page-view-v1"
   })
 
   assert.match(
     buildAnonymousArticleResponseCacheKey(metadata),
-    /^framerail:article-response:v1:site=6000005:slug=7363702d77696b69:requestLocales=6a612d4a502c656e2d5553:backendLocales=6a612d4a502c656e2d55532c656e:permission=anonymous-page-view-v1:deepwell=[a-f0-9]{64}$/
+    /^framerail:article-response:v1:site=6000005:slug=7363702d77696b69:requestLocales=6a612d4a502c656e2d5553:backendLocales=6a612d4a502c656e2d55532c656e:content=0:permission=anonymous-page-view-v1:deepwell=[a-f0-9]{64}$/
   )
 
   assert.equal(
@@ -89,6 +97,127 @@ test("anonymous article response cache key requires Deepwell eligibility metadat
     }),
     null
   )
+})
+
+test("anonymous article response cache fence helpers read Redis keys with default zero", async () => {
+  assert.equal(
+    buildPublicContentFenceKey(6000005),
+    "deepwell:public-content:site:6000005:version"
+  )
+  assert.deepEqual(buildAnonymousPermissionFenceKeys(6000005), {
+    siteKey: "permission:site:6000005:version",
+    userKey: "permission:site:6000005:user:anonymous:version"
+  })
+
+  const store = createMemoryArticleResponseCacheStore()
+  assert.deepEqual(
+    await readAnonymousArticleResponseCacheFences({ store, siteId: 6000005 }),
+    {
+      publicContentFence: "0",
+      permissionFence: "site=0,user=0"
+    }
+  )
+
+  await store.set(buildPublicContentFenceKey(6000005), "7")
+  await store.set("permission:site:6000005:version", "11")
+  await store.set("permission:site:6000005:user:anonymous:version", "13")
+
+  assert.deepEqual(
+    await readAnonymousArticleResponseCacheFences({ store, siteId: 6000005 }),
+    {
+      publicContentFence: "7",
+      permissionFence: "site=11,user=13"
+    }
+  )
+})
+
+test("anonymous article response cache fence helpers fail closed on malformed values", async () => {
+  const store = createMemoryArticleResponseCacheStore()
+  await store.set(buildPublicContentFenceKey(6000005), "not-a-version")
+
+  assert.equal(
+    await readAnonymousArticleResponseCacheFences({ store, siteId: 6000005 }),
+    null
+  )
+})
+
+test("anonymous article response token maps route and fences to Deepwell cache key", async () => {
+  const tokenMetadata = buildAnonymousArticleResponseCacheFences({
+    siteId: 6000005,
+    siteSlug: "scp-wiki",
+    route: { slug: "scp-173", extra: "" },
+    requestLocales: ["en-US"],
+    backendLocales: ["en-US", "en"],
+    publicContentFence: "7",
+    permissionFence: "site=11,user=13"
+  })
+  const tokenKey = buildAnonymousArticleResponseTokenKey(tokenMetadata)
+  const store = createMemoryArticleResponseCacheStore()
+  await store.set(buildPublicContentFenceKey(6000005), "7")
+  await store.set("permission:site:6000005:version", "11")
+  await store.set("permission:site:6000005:user:anonymous:version", "13")
+  const deepwellArticlePageCacheKey =
+    "deepwell:article-view:page:v1:site=6000005:page=173:rev=9:updated=123:permission=site=11,user=13:body=aa"
+
+  assert.match(
+    tokenKey,
+    /^framerail:article-response-token:v1:site=6000005:slug=7363702d77696b69:route=[a-f0-9]{64}:requestLocales=656e2d5553:backendLocales=656e2d55532c656e:content=7:permission=736974653d31312c757365723d3133$/
+  )
+  assert.equal(
+    await writeAnonymousArticleResponseToken({
+      store,
+      tokenMetadata,
+      deepwellArticlePageCacheKey
+    }),
+    true
+  )
+  assert.equal(
+    await readAnonymousArticleResponseToken({ store, tokenMetadata }),
+    deepwellArticlePageCacheKey
+  )
+})
+
+test("anonymous article response token write skips when captured fences are stale", async () => {
+  const tokenMetadata = buildAnonymousArticleResponseCacheFences({
+    siteId: 6000005,
+    siteSlug: "scp-wiki",
+    route: { slug: "scp-173", extra: "" },
+    requestLocales: ["en-US"],
+    backendLocales: ["en-US", "en"],
+    publicContentFence: "7",
+    permissionFence: "site=11,user=13"
+  })
+  const store = createMemoryArticleResponseCacheStore()
+  await store.set(buildPublicContentFenceKey(6000005), "8")
+  await store.set("permission:site:6000005:version", "11")
+  await store.set("permission:site:6000005:user:anonymous:version", "13")
+
+  assert.equal(
+    await writeAnonymousArticleResponseToken({
+      store,
+      tokenMetadata,
+      deepwellArticlePageCacheKey:
+        "deepwell:article-view:page:v1:site=6000005:page=173:rev=9:updated=123:permission=site=11,user=13:body=aa"
+    }),
+    false
+  )
+  assert.equal(await readAnonymousArticleResponseToken({ store, tokenMetadata }), null)
+})
+
+test("anonymous article response token reads fail closed on malformed values", async () => {
+  const tokenMetadata = buildAnonymousArticleResponseCacheFences({
+    siteId: 6000005,
+    siteSlug: "scp-wiki",
+    route: { slug: "scp-173", extra: "" },
+    requestLocales: ["en-US"],
+    backendLocales: ["en-US", "en"],
+    publicContentFence: "7",
+    permissionFence: "site=11,user=13"
+  })
+  const store = createMemoryArticleResponseCacheStore()
+  await store.set(buildAnonymousArticleResponseTokenKey(tokenMetadata), "{not-json")
+
+  assert.equal(await readAnonymousArticleResponseToken({ store, tokenMetadata }), null)
 })
 
 test("anonymous article response cache key varies by Deepwell cache key", () => {

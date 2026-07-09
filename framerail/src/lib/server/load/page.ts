@@ -126,7 +126,9 @@ export async function loadPage(
       siteSlug,
       requestLocales,
       backendLocales,
-      deepwellArticlePageCacheKey: articleResponse.article_page_cache_key
+      deepwellArticlePageCacheKey: articleResponse.article_page_cache_key,
+      publicContentFence: articleResponse.public_content_cache_fence,
+      permissionFence: articleResponse.anonymous_permission_cache_fence
     })
     if (metadata) {
       locals.anonymousArticleResponseCacheMetadata = metadata

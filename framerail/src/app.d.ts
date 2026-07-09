@@ -184,6 +184,7 @@ declare global {
         requestLocales: string[]
         backendLocales: string[]
         deepwellArticlePageCacheKey: string
+        publicContentFence: string
         permissionFence: string
       }
     }
