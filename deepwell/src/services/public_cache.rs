@@ -20,9 +20,11 @@
 
 use super::prelude::*;
 use crate::api::ServerState;
-use redis::AsyncCommands;
+use redis::{AsyncCommands, Script};
 
 const PUBLIC_CONTENT_CACHE_PREFIX: &str = "deepwell:public-content:site";
+pub const PUBLIC_CONTENT_CACHE_INVALIDATION_CHANNEL: &str =
+    "wikijump:article-response-fence-invalidation:v1";
 
 #[derive(Debug, Clone, Copy)]
 pub struct PublicContentCache;
@@ -55,7 +57,20 @@ impl PublicContentCache {
     ) -> Result<()> {
         let key = Self::site_version_key(site_id);
         let mut redis = state.redis.clone();
-        let _: i64 = redis.incr(&key, 1).await.or_raise(|| {
+        let _: i64 = Script::new(
+            r#"
+            local version = redis.call('INCR', KEYS[1])
+            local payload = '{"type":"public-content","site_id":' .. ARGV[2] .. ',"version":"' .. version .. '"}'
+            redis.call('PUBLISH', ARGV[1], payload)
+            return version
+            "#,
+        )
+        .key(&key)
+        .arg(PUBLIC_CONTENT_CACHE_INVALIDATION_CHANNEL)
+        .arg(site_id)
+        .invoke_async(&mut redis)
+        .await
+        .or_raise(|| {
             Error::new(
                 "public content cache fence invalidation error",
                 ErrorType::RedisQuery,

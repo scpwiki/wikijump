@@ -36,6 +36,8 @@ pub const SITE_NOT_SET_KEY: &str = "platform";
 pub const USER_NOT_SET_KEY: &str = "anonymous";
 pub const PERMISSION_CACHE_TTL_SECONDS: i64 = 300;
 pub const PERMISSION_CACHE_FENCE_TTL_SECONDS: i64 = PERMISSION_CACHE_TTL_SECONDS * 2;
+pub const PERMISSION_CACHE_INVALIDATION_CHANNEL: &str =
+    "wikijump:article-response-fence-invalidation:v1";
 
 #[derive(Debug, Clone, Copy)]
 pub struct PermissionCache;
@@ -314,11 +316,23 @@ impl PermissionCache {
             )
         };
 
-        let _: i64 = redis.incr(&version_key, 1).await.or_raise(make_error)?;
-        let _: bool = redis
-            .expire(&version_key, PERMISSION_CACHE_FENCE_TTL_SECONDS)
-            .await
-            .or_raise(make_error)?;
+        let _: i64 = Script::new(
+            r#"
+            local version = redis.call('INCR', KEYS[1])
+            redis.call('EXPIRE', KEYS[1], ARGV[1])
+            local payload = '{"type":"user-permission","site_id":' .. ARGV[3] .. ',"user_id":' .. ARGV[4] .. ',"version":"' .. version .. '"}'
+            redis.call('PUBLISH', ARGV[2], payload)
+            return version
+            "#,
+        )
+        .key(&version_key)
+        .arg(PERMISSION_CACHE_FENCE_TTL_SECONDS)
+        .arg(PERMISSION_CACHE_INVALIDATION_CHANNEL)
+        .arg(site_id)
+        .arg(user_id)
+        .invoke_async(&mut redis)
+        .await
+        .or_raise(make_error)?;
 
         let mut iter: AsyncIter<String> =
             redis.scan_match(&pattern).await.or_raise(make_error)?;
@@ -353,6 +367,7 @@ impl PermissionCache {
         let mut redis = state.redis.clone();
         let pattern = format!("permission:site:{}:*", site_id);
         let version_key = Self::site_version_key(site_id);
+        let anonymous_user_version_key = Self::site_user_version_key(site_id, None);
         let make_error = || {
             Error::new(
                 format!("Failed to invalidate permission cache for site {}", site_id),
@@ -360,11 +375,24 @@ impl PermissionCache {
             )
         };
 
-        let _: i64 = redis.incr(&version_key, 1).await.or_raise(make_error)?;
-        let _: bool = redis
-            .expire(&version_key, PERMISSION_CACHE_FENCE_TTL_SECONDS)
-            .await
-            .or_raise(make_error)?;
+        let _: i64 = Script::new(
+            r#"
+            local site_version = redis.call('INCR', KEYS[1])
+            redis.call('EXPIRE', KEYS[1], ARGV[1])
+            local user_version = redis.call('GET', KEYS[2]) or '0'
+            local payload = '{"type":"anonymous-permission","site_id":' .. ARGV[3] .. ',"site_version":"' .. site_version .. '","user_version":"' .. user_version .. '"}'
+            redis.call('PUBLISH', ARGV[2], payload)
+            return site_version
+            "#,
+        )
+        .key(&version_key)
+        .key(&anonymous_user_version_key)
+        .arg(PERMISSION_CACHE_FENCE_TTL_SECONDS)
+        .arg(PERMISSION_CACHE_INVALIDATION_CHANNEL)
+        .arg(site_id)
+        .invoke_async(&mut redis)
+        .await
+        .or_raise(make_error)?;
 
         let mut iter: AsyncIter<String> =
             redis.scan_match(&pattern).await.or_raise(make_error)?;

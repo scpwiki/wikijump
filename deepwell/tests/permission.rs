@@ -27,8 +27,8 @@ use deepwell::license::License;
 use deepwell::services::category::CategoryService;
 use deepwell::services::permission::{
     CheckPermissionContext, DecoratedPermission, PERMISSION_CACHE_FENCE_TTL_SECONDS,
-    PERMISSION_CACHE_TTL_SECONDS, PermissionCache, PermissionService,
-    SetUserPermissionInput,
+    PERMISSION_CACHE_INVALIDATION_CHANNEL, PERMISSION_CACHE_TTL_SECONDS, PermissionCache,
+    PermissionService, SetUserPermissionInput,
 };
 use deepwell::services::relation::{
     CreateSiteBan, CreateSiteMember, RelationService, RemoveSiteMember, SiteBanData,
@@ -42,9 +42,14 @@ use deepwell::services::site::{CreateSite, SiteService};
 use deepwell::services::user::{CreateUser, UserService};
 use deepwell::services::{RequestContext, ServiceContext};
 use deepwell::types::{Action, Permission, Reference, Resource, UserType};
+use futures::StreamExt;
 use redis::AsyncCommands;
 use serde_json::json;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::{
+    env,
+    sync::atomic::{AtomicU64, Ordering},
+    time::Duration,
+};
 use str_macro::str;
 use time::{Date, Month};
 
@@ -55,6 +60,22 @@ const OTHER_CATEGORY_NAME: &str = "other-category";
 fn next_n() -> u64 {
     FIXTURE_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
+
+async fn subscribed_permission_invalidation_stream() -> redis::aio::PubSub {
+    let redis_url =
+        env::var("REDIS_URL").expect("REDIS_URL must be set for integration tests");
+    let client = redis::Client::open(redis_url).expect("failed to build Redis client");
+    let mut pubsub = client
+        .get_async_pubsub()
+        .await
+        .expect("failed to open Redis pub/sub connection");
+    pubsub
+        .subscribe(PERMISSION_CACHE_INVALIDATION_CHANNEL)
+        .await
+        .expect("failed to subscribe to permission cache invalidations");
+    pubsub
+}
+
 struct PermissionFixture {
     site_id: i64,
     // A page category to use for testing category-scoped permissions
@@ -729,6 +750,48 @@ async fn stale_site_permission_fence_does_not_write_cache() {
         None,
         "stale site fenced write must not recreate page:view cache"
     );
+}
+
+#[tokio::test]
+async fn site_permission_cache_invalidation_publishes_anonymous_fence() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+    let site_key = format!("permission:site:{}:version", f.site_id);
+    let anonymous_user_key =
+        format!("permission:site:{}:user:anonymous:version", f.site_id);
+    let mut redis = ctx.redis();
+    let _: usize = redis
+        .del((&site_key, &anonymous_user_key))
+        .await
+        .expect("failed to clear permission fence keys");
+    let mut pubsub = subscribed_permission_invalidation_stream().await;
+
+    PermissionCache::invalidate_site(ctx, f.site_id)
+        .await
+        .expect("Failed to invalidate permission cache for site");
+
+    let message =
+        tokio::time::timeout(Duration::from_secs(2), pubsub.on_message().next())
+            .await
+            .expect("timed out waiting for permission invalidation")
+            .expect("pub/sub stream ended unexpectedly");
+    let payload: String = message
+        .get_payload()
+        .expect("failed to read permission invalidation payload");
+
+    assert_eq!(
+        payload,
+        format!(
+            r#"{{"type":"anonymous-permission","site_id":{},"site_version":"1","user_version":"0"}}"#,
+            f.site_id
+        )
+    );
+
+    let _: usize = redis
+        .del((&site_key, &anonymous_user_key))
+        .await
+        .expect("failed to clean permission fence keys");
 }
 
 #[tokio::test]
