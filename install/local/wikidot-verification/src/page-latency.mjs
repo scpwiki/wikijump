@@ -13,6 +13,7 @@ function positiveInteger(value, name) {
 export function parseArgs(argv) {
   const args = {
     url: null,
+    compareUrl: null,
     requests: 20,
     warmups: 3,
     headers: {},
@@ -27,6 +28,7 @@ export function parseArgs(argv) {
       return argv[i];
     };
     if (arg === "--url") args.url = next();
+    else if (arg === "--compare-url") args.compareUrl = next();
     else if (arg === "--requests") args.requests = positiveInteger(next(), "--requests");
     else if (arg === "--warmups") args.warmups = positiveInteger(next(), "--warmups");
     else if (arg === "--header") {
@@ -107,10 +109,23 @@ async function oneFetch(fetchImpl, url, headers) {
     bytes: body.length,
     content_type: response.headers.get("content-type"),
     body_sha256: createHash("sha256").update(body).digest("hex"),
+    body,
   };
 }
 
-export async function runPageLatency({ url, requests = 20, warmups = 3, headers = {}, fetchImpl = fetch } = {}) {
+function summarizeComparison(measuredSamples, comparisonSample, compareUrl) {
+  const measuredHashes = [...new Set(measuredSamples.map((sample) => sample.body_sha256))];
+  return {
+    url: compareUrl,
+    status: comparisonSample.status,
+    bytes: comparisonSample.bytes,
+    body_sha256: comparisonSample.body_sha256,
+    same_body: measuredHashes.length === 1 && comparisonSample.body_sha256 === measuredHashes[0],
+    same_bytes: measuredSamples.length > 0 && measuredSamples.every((sample) => sample.body.equals(comparisonSample.body)),
+  };
+}
+
+export async function runPageLatency({ url, compareUrl = null, requests = 20, warmups = 3, headers = {}, fetchImpl = fetch } = {}) {
   if (!url) throw new Error("url is required");
   for (let i = 0; i < warmups; i += 1) {
     await oneFetch(fetchImpl, url, headers);
@@ -119,13 +134,18 @@ export async function runPageLatency({ url, requests = 20, warmups = 3, headers 
   for (let i = 0; i < requests; i += 1) {
     samples.push(await oneFetch(fetchImpl, url, headers));
   }
+  const summary = summarizeSamples(samples);
+  if (compareUrl) {
+    const comparisonSample = await oneFetch(fetchImpl, compareUrl, headers);
+    summary.comparison = summarizeComparison(samples, comparisonSample, compareUrl);
+  }
   return {
     schema_version: 1,
     measured_at: new Date().toISOString(),
     url,
     warmups,
-    summary: summarizeSamples(samples),
-    samples: samples.map((sample, index) => ({ index: index + 1, ...sample, duration_ms: round(sample.duration_ms) })),
+    summary,
+    samples: samples.map(({ body, ...sample }, index) => ({ index: index + 1, ...sample, duration_ms: round(sample.duration_ms) })),
   };
 }
 
