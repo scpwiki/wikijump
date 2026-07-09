@@ -31,6 +31,7 @@ import {
 } from "$lib/server/deepwell/pageFile"
 import { translate } from "$lib/server/deepwell/translate"
 import { articleView } from "$lib/server/deepwell/views"
+import { buildPageLoadData } from "$lib/server/load/page-data"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import {
   finalizePreloadData,
@@ -317,7 +318,7 @@ export async function loadPage(
   }
 
   if (errorStatus !== null) {
-    error(errorStatus, { ...viewData, forms: errorForms })
+    error(errorStatus, buildPageLoadData(parentData, viewData, errorForms))
   }
 
   // TODO remove checkRedirect when errorStatus is fixed
@@ -326,7 +327,7 @@ export async function loadPage(
   }
 
   // Return to page for rendering
-  return { ...viewData, forms }
+  return buildPageLoadData(parentData, viewData, forms)
 }
 
 function runRedirect(

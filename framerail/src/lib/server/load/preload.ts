@@ -1,6 +1,6 @@
 import defaults from "$lib/defaults"
 
-import { parseAcceptLangHeader } from "$lib/locales"
+import { parseAcceptLangHeader, uniqueLocales, withFallbackLocale } from "$lib/locales"
 
 import { preloadView } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
@@ -20,28 +20,24 @@ export function getPreloadRequestLocales(request: Request): string[] {
 }
 
 export function getPreloadBackendLocales(locales: string[]): string[] {
-  return [...locales, defaults.fallbackLocale]
+  return withFallbackLocale(locales, defaults.fallbackLocale)
 }
 
 export function finalizePreloadData(response: Viewer, locales: string[]) {
-  let resolvedLocales = [...locales]
+  let resolvedLocales = uniqueLocales(locales)
 
   if (response.user_session?.user.locales) {
-    resolvedLocales = [
+    resolvedLocales = uniqueLocales([
       ...response.user_session.user.locales,
-      ...resolvedLocales.filter(
-        (locale) => !response.user_session?.user.locales.includes(locale)
-      )
-    ]
+      ...resolvedLocales
+    ])
   }
 
-  if (response?.site?.locale && !resolvedLocales.includes(response.site.locale)) {
-    resolvedLocales.push(response.site.locale)
+  if (response?.site?.locale) {
+    resolvedLocales = uniqueLocales([...resolvedLocales, response.site.locale])
   }
 
-  if (!resolvedLocales.includes(defaults.fallbackLocale)) {
-    resolvedLocales.push(defaults.fallbackLocale)
-  }
+  resolvedLocales = withFallbackLocale(resolvedLocales, defaults.fallbackLocale)
 
   if (response.user_session?.user) {
     response.user_session.user = sanitizeUserData(response.user_session?.user, false)
