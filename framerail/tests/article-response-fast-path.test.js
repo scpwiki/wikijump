@@ -8,6 +8,7 @@ import {
   buildAnonymousArticleResponseCacheMetadata,
   buildAnonymousArticleResponseTokenKey,
   buildPublicContentFenceKey,
+  createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore
 } from "../src/lib/server/article-response-cache.js"
 import { createArticleResponseFastPathHandler } from "../article-response-fast-path.js"
@@ -116,6 +117,15 @@ const createCountingStore = (store) => {
   }
 }
 
+const createTrustedFenceCache = async (store, options = {}) => {
+  const fenceCache = createMemoryArticleResponseFenceCache({
+    store,
+    ...options
+  })
+  await fenceCache.markSubscribedForTest()
+  return fenceCache
+}
+
 const withServer = async ({ responseStore, tokenStore }, run, fastPathOptions = {}) => {
   let handlerCalls = 0
   const handler = (request, response) => {
@@ -217,6 +227,71 @@ test("article response fast path local hot hit avoids token and response store r
   })
 })
 
+test("article response fast path trusted local fence second hot hit does zero store reads", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  const fenceCache = await createTrustedFenceCache(tokenStore)
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(tokenStore.mgetCalls(), 1)
+      assert.equal(tokenStore.getCalls(), 1)
+      assert.equal(responseStore.getCalls(), 1)
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 200)
+      assert.equal(
+        await second.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(handlerCalls(), 0)
+      assert.equal(tokenStore.mgetCalls(), 1)
+      assert.equal(tokenStore.getCalls(), 1)
+      assert.equal(responseStore.getCalls(), 1)
+    },
+    { fenceCache, localHotCacheOptions: {} }
+  )
+})
+
+test("article response fast path untrusted local fence cache falls back to Redis fences", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  const fenceCache = createMemoryArticleResponseFenceCache({ store: tokenStore })
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 200)
+      assert.equal(
+        await second.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(handlerCalls(), 0)
+      assert.equal(tokenStore.mgetCalls(), 2)
+      assert.equal(tokenStore.getCalls(), 1)
+      assert.equal(responseStore.getCalls(), 1)
+    },
+    { fenceCache, localHotCacheOptions: {} }
+  )
+})
+
 test("article response fast path local hot cache misses after a fence change", async () => {
   const stores = await createFastPathFixtureStore()
   const tokenStore = createCountingStore(stores.tokenStore)
@@ -239,6 +314,145 @@ test("article response fast path local hot cache misses after a fence change", a
     assert.equal(tokenStore.getCalls(), 2)
     assert.equal(responseStore.getCalls(), 1)
   })
+})
+
+test("article response fast path trusted public content invalidation prevents old hot response", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  const fenceCache = await createTrustedFenceCache(tokenStore)
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+
+      await fenceCache.applyMessageForTest(
+        JSON.stringify({
+          type: "public-content",
+          site_id: SITE_ID,
+          version: "8"
+        })
+      )
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 209)
+      assert.equal(await second.text(), "fallback handler")
+      assert.equal(handlerCalls(), 1)
+      assert.equal(tokenStore.mgetCalls(), 1)
+      assert.equal(tokenStore.getCalls(), 2)
+      assert.equal(responseStore.getCalls(), 1)
+    },
+    { fenceCache, localHotCacheOptions: {} }
+  )
+})
+
+test("article response fast path trusted anonymous permission invalidation prevents old hot response", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  const fenceCache = await createTrustedFenceCache(tokenStore)
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+
+      await fenceCache.applyMessageForTest(
+        JSON.stringify({
+          type: "anonymous-permission",
+          site_id: SITE_ID,
+          site_version: "12",
+          user_version: "13"
+        })
+      )
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 209)
+      assert.equal(await second.text(), "fallback handler")
+      assert.equal(handlerCalls(), 1)
+      assert.equal(tokenStore.mgetCalls(), 1)
+      assert.equal(tokenStore.getCalls(), 2)
+      assert.equal(responseStore.getCalls(), 1)
+    },
+    { fenceCache, localHotCacheOptions: {} }
+  )
+})
+
+test("article response fast path malformed fence messages fail closed to Redis fences", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  const fenceCache = await createTrustedFenceCache(tokenStore)
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+
+      await fenceCache.applyMessageForTest("{not-json")
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 200)
+      assert.equal(
+        await second.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(handlerCalls(), 0)
+      assert.equal(tokenStore.mgetCalls(), 2)
+      assert.equal(tokenStore.getCalls(), 2)
+      assert.equal(responseStore.getCalls(), 2)
+    },
+    { fenceCache, localHotCacheOptions: {} }
+  )
+})
+
+test("article response fast path local fence disconnect clears hot cache and falls back", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  const fenceCache = await createTrustedFenceCache(tokenStore)
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+
+      fenceCache.markDisconnectedForTest()
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 200)
+      assert.equal(
+        await second.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(handlerCalls(), 0)
+      assert.equal(tokenStore.mgetCalls(), 2)
+      assert.equal(tokenStore.getCalls(), 2)
+      assert.equal(responseStore.getCalls(), 2)
+    },
+    { fenceCache, localHotCacheOptions: {} }
+  )
 })
 
 test("article response fast path local hot cache entries expire by TTL", async () => {

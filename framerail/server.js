@@ -2,6 +2,7 @@ import http from "node:http"
 
 import { createArticleResponseFastPathHandler } from "./article-response-fast-path.js"
 import { handler } from "./build/handler.js"
+import { createMemoryArticleResponseFenceCache } from "./src/lib/server/article-response-cache.js"
 import {
   articleResponseCacheStore,
   articleResponseTokenStore
@@ -10,10 +11,15 @@ import {
 const path = process.env.SOCKET_PATH
 const host = process.env.HOST ?? "0.0.0.0"
 const port = process.env.PORT ?? "3000"
+const fenceCache = createMemoryArticleResponseFenceCache({
+  store: articleResponseTokenStore,
+  subscriber: articleResponseTokenStore
+})
 const fastPathHandler = createArticleResponseFastPathHandler({
   responseStore: articleResponseCacheStore,
   tokenStore: articleResponseTokenStore,
-  handler
+  handler,
+  fenceCache
 })
 
 const server = http.createServer((request, response) => {
@@ -28,6 +34,7 @@ server.listen(path ? { path } : { host, port }, () => {
 })
 
 const closeServer = () => {
+  fenceCache.close()
   server.close()
 }
 

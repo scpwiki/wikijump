@@ -107,13 +107,15 @@ export const getArticleResponseFastPathRequest = (request) => {
 export const readArticleResponseFastPathEntry = async ({
   store,
   request,
-  localHotCache
+  localHotCache,
+  fenceCache = null
 }) => {
   return readArticleResponseFastPathEntryFromStores({
     responseStore: store,
     tokenStore: store,
     request,
-    localHotCache
+    localHotCache,
+    fenceCache
   })
 }
 
@@ -121,7 +123,8 @@ export const readArticleResponseFastPathEntryFromStores = async ({
   responseStore,
   tokenStore,
   request,
-  localHotCache
+  localHotCache,
+  fenceCache = null
 }) => {
   if (!responseStore || !tokenStore || !request) return null
 
@@ -129,10 +132,12 @@ export const readArticleResponseFastPathEntryFromStores = async ({
     const candidate = getArticleResponseFastPathRequest(request)
     if (!candidate) return null
 
-    const fences = await readAnonymousArticleResponseCacheFences({
-      store: tokenStore,
-      siteId: candidate.siteId
-    })
+    const fences = fenceCache
+      ? await fenceCache.readFences({ siteId: candidate.siteId })
+      : await readAnonymousArticleResponseCacheFences({
+          store: tokenStore,
+          siteId: candidate.siteId
+        })
     const tokenMetadata = buildAnonymousArticleResponseCacheFences({
       siteId: candidate.siteId,
       siteSlug: candidate.siteSlug,
@@ -195,7 +200,8 @@ export const createArticleResponseFastPathHandler = ({
   store,
   handler,
   localHotCache,
-  localHotCacheOptions
+  localHotCacheOptions,
+  fenceCache
 }) => {
   const resolvedResponseStore = responseStore ?? store
   const resolvedTokenStore = tokenStore ?? store
@@ -204,13 +210,15 @@ export const createArticleResponseFastPathHandler = ({
     (localHotCacheOptions
       ? createLocalArticleResponseHotCache(localHotCacheOptions)
       : createLocalArticleResponseHotCache())
+  fenceCache?.attachHotCache?.(hotCache)
 
   return async (request, response) => {
     const cachedEntry = await readArticleResponseFastPathEntryFromStores({
       responseStore: resolvedResponseStore,
       tokenStore: resolvedTokenStore,
       request,
-      localHotCache: hotCache
+      localHotCache: hotCache,
+      fenceCache
     })
     if (cachedEntry) {
       writeArticleResponseFastPathHit(request, response, cachedEntry)
