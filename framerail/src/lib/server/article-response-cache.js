@@ -323,6 +323,22 @@ export const createMemoryArticleResponseFenceCache = ({ store, subscriber } = {}
       }
     },
 
+    areFencesCurrent({ siteId, publicContentFence, permissionFence }) {
+      if (!trusted) return null
+      const site = sites.get(siteId)
+      if (!site) return null
+
+      return (
+        site.publicContentFence === publicContentFence &&
+        `site=${site.sitePermissionFence},user=${site.userPermissionFence}` ===
+          permissionFence
+      )
+    },
+
+    canValidateFencesLocally({ siteId }) {
+      return trusted && sites.has(siteId)
+    },
+
     markSubscribedForTest: async () => {
       trusted = true
     },
@@ -521,12 +537,48 @@ export const normalizeCachedArticleResponseEntry = (value) => {
   }
 }
 
+const freezeHeaderEntries = (headers) => {
+  return Object.freeze(headers.map(([name, value]) => Object.freeze([name, value])))
+}
+
+const normalizeCachedArticleResponseReplay = (entry, replay) => {
+  const status = replay?.status ?? entry.status
+  const headers = replay?.headers ?? entry.headers
+  const bodyBuffer = replay?.bodyBuffer
+
+  if (status !== entry.status) return null
+  if (!Array.isArray(headers) || !headers.every(isHeaderPair)) return null
+  if (bodyBuffer !== undefined && !Buffer.isBuffer(bodyBuffer)) return null
+  const replayBodyBuffer =
+    bodyBuffer === undefined ? Buffer.from(entry.body, "utf8") : Buffer.from(bodyBuffer)
+
+  return Object.freeze({
+    status,
+    headers: freezeHeaderEntries(headers.map(([name, value]) => [name, value])),
+    bodyBuffer: replayBodyBuffer,
+    finalHeaders: replay?.finalHeaders === true
+  })
+}
+
+const copyCachedArticleResponseReplay = (replay) => {
+  return Object.freeze({
+    status: replay.status,
+    headers: replay.headers,
+    bodyBuffer: Buffer.from(replay.bodyBuffer),
+    finalHeaders: replay.finalHeaders
+  })
+}
+
 const copyCachedArticleResponseEntry = (entry) => {
-  return {
+  const copy = {
     status: entry.status,
     headers: entry.headers.map(([name, value]) => [name, value]),
     body: entry.body
   }
+  if (Buffer.isBuffer(entry.bodyBuffer)) {
+    copy.bodyBuffer = Buffer.from(entry.bodyBuffer)
+  }
+  return copy
 }
 
 const cachedArticleResponseEntryByteLength = (key, entry) => {
@@ -580,26 +632,47 @@ export const createLocalArticleResponseHotCache = ({
     }
   }
 
+  const getRecord = (key) => {
+    const entry = entries.get(key)
+    if (!entry) return null
+
+    if (entry.expiresAt <= now()) {
+      deleteEntry(key)
+      return null
+    }
+
+    entries.delete(key)
+    entries.set(key, entry)
+    return entry
+  }
+
   return {
     get(key) {
-      const entry = entries.get(key)
+      const entry = getRecord(key)
       if (!entry) return null
-
-      if (entry.expiresAt <= now()) {
-        deleteEntry(key)
-        return null
-      }
-
-      entries.delete(key)
-      entries.set(key, entry)
       return copyCachedArticleResponseEntry(entry.value)
     },
 
-    set(key, value) {
+    getReplay(key) {
+      const entry = getRecord(key)
+      if (!entry) return null
+      return copyCachedArticleResponseReplay(entry.value.replay)
+    },
+
+    set(key, value, { replay } = {}) {
       if (typeof key !== "string" || key.length === 0) return false
 
       const normalized = normalizeCachedArticleResponseEntry(value)
       if (!normalized) {
+        deleteEntry(key)
+        return false
+      }
+      const bodyBuffer = Buffer.from(normalized.body, "utf8")
+      const preparedReplay = normalizeCachedArticleResponseReplay(
+        { ...normalized, bodyBuffer },
+        replay
+      )
+      if (!preparedReplay) {
         deleteEntry(key)
         return false
       }
@@ -612,8 +685,13 @@ export const createLocalArticleResponseHotCache = ({
       deleteEntry(key)
       if (bytes > maxTotalBytes) return false
 
+      const cachedValue = copyCachedArticleResponseEntry({
+        ...normalized,
+        bodyBuffer
+      })
+      cachedValue.replay = preparedReplay
       entries.set(key, {
-        value: copyCachedArticleResponseEntry(normalized),
+        value: cachedValue,
         expiresAt,
         bytes
       })

@@ -68,6 +68,34 @@ const articleRouteFromPathname = (pathname) => {
   }
 }
 
+const fencesMatch = (currentFences, capturedFences) => {
+  return (
+    currentFences?.publicContentFence === capturedFences?.publicContentFence &&
+    currentFences?.permissionFence === capturedFences?.permissionFence
+  )
+}
+
+const revalidateCapturedFences = async ({ store, fenceCache, siteId, fences }) => {
+  if (!fences) return false
+
+  const localValidation = fenceCache?.areFencesCurrent?.({
+    siteId,
+    publicContentFence: fences.publicContentFence,
+    permissionFence: fences.permissionFence
+  })
+  if (localValidation !== null && localValidation !== undefined) {
+    return localValidation === true
+  }
+
+  return fencesMatch(
+    await readAnonymousArticleResponseCacheFences({
+      store,
+      siteId
+    }),
+    fences
+  )
+}
+
 export const getArticleResponseFastPathRequest = (request) => {
   if (request.method !== "GET" && request.method !== "HEAD") return null
   if (hasSessionCookie(singleHeaderValue(request.headers, "cookie"))) return null
@@ -96,11 +124,40 @@ export const getArticleResponseFastPathRequest = (request) => {
 
   return {
     route,
+    pathname: url.pathname,
     siteId,
     siteSlug,
     requestLocales,
     backendLocales,
     method: request.method
+  }
+}
+
+const finalArticleResponseFastPathHeaders = (entry, pathname) => {
+  const headers = new Map(
+    entry.headers.map(([name, value]) => [name.toLowerCase(), value])
+  )
+  const headerTarget = {
+    setHeader(name, value) {
+      headers.set(name.toLowerCase(), String(value))
+    },
+    removeHeader(name) {
+      headers.delete(name.toLowerCase())
+    }
+  }
+
+  applyStaticSecurityHeadersToNodeResponse(headerTarget, pathname)
+  return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+}
+
+const prepareArticleResponseFastPathReplay = (entry, pathname) => {
+  return {
+    status: entry.status,
+    headers: finalArticleResponseFastPathHeaders(entry, pathname),
+    bodyBuffer: Buffer.isBuffer(entry.bodyBuffer)
+      ? entry.bodyBuffer
+      : Buffer.from(entry.body, "utf8"),
+    finalHeaders: true
   }
 }
 
@@ -149,9 +206,24 @@ export const readArticleResponseFastPathEntryFromStores = async ({
     })
     if (!tokenMetadata) return null
 
+    const shouldRevalidateLocalFences =
+      fenceCache?.canValidateFencesLocally?.({ siteId: candidate.siteId }) === true
     const tokenKey = buildAnonymousArticleResponseTokenKey(tokenMetadata)
-    const hotEntry = localHotCache?.get(tokenKey)
-    if (hotEntry?.status === 200) return hotEntry
+    const hotEntry = localHotCache?.getReplay?.(tokenKey) ?? localHotCache?.get(tokenKey)
+    if (hotEntry?.status === 200) {
+      if (
+        shouldRevalidateLocalFences &&
+        !(await revalidateCapturedFences({
+          store: tokenStore,
+          fenceCache,
+          siteId: candidate.siteId,
+          fences
+        }))
+      ) {
+        return null
+      }
+      return hotEntry
+    }
 
     const deepwellArticlePageCacheKey = await readAnonymousArticleResponseToken({
       store: tokenStore,
@@ -172,8 +244,20 @@ export const readArticleResponseFastPathEntryFromStores = async ({
     })
 
     if (cachedEntry?.status !== 200) return null
-    localHotCache?.set(tokenKey, cachedEntry)
-    return cachedEntry
+    if (
+      shouldRevalidateLocalFences &&
+      !(await revalidateCapturedFences({
+        store: tokenStore,
+        fenceCache,
+        siteId: candidate.siteId,
+        fences
+      }))
+    ) {
+      return null
+    }
+    const replay = prepareArticleResponseFastPathReplay(cachedEntry, candidate.pathname)
+    localHotCache?.set(tokenKey, cachedEntry, { replay })
+    return replay
   } catch {
     return null
   }
@@ -184,13 +268,15 @@ export const writeArticleResponseFastPathHit = (request, response, entry) => {
   for (const [name, value] of entry.headers) {
     response.setHeader(name, value)
   }
-  const pathname = new URL(request.url ?? "", "http://localhost").pathname
-  applyStaticSecurityHeadersToNodeResponse(response, pathname)
+  if (entry.finalHeaders !== true) {
+    const pathname = new URL(request.url ?? "", "http://localhost").pathname
+    applyStaticSecurityHeadersToNodeResponse(response, pathname)
+  }
 
   if (request.method === "HEAD") {
     response.end()
   } else {
-    response.end(entry.body)
+    response.end(entry.bodyBuffer ?? entry.body)
   }
 }
 

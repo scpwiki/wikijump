@@ -8,6 +8,7 @@ import {
   buildAnonymousArticleResponseCacheMetadata,
   buildAnonymousArticleResponseTokenKey,
   buildPublicContentFenceKey,
+  createLocalArticleResponseHotCache,
   createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore
 } from "../src/lib/server/article-response-cache.js"
@@ -43,8 +44,9 @@ const seedFastPathStoreEntry = async (
     publicContentFence: PUBLIC_CONTENT_FENCE,
     permissionFence: PERMISSION_FENCE
   })
+  const tokenKey = buildAnonymousArticleResponseTokenKey(tokenMetadata)
   await tokenStore.set(
-    buildAnonymousArticleResponseTokenKey(tokenMetadata),
+    tokenKey,
     JSON.stringify({ articlePageCacheKey: deepwellArticlePageCacheKey })
   )
 
@@ -67,7 +69,7 @@ const seedFastPathStoreEntry = async (
     })
   )
 
-  return { responseStore, tokenStore, cacheKey }
+  return { responseStore, tokenStore, cacheKey, tokenKey }
 }
 
 const createFastPathFixtureStore = async ({
@@ -84,12 +86,12 @@ const createFastPathFixtureStore = async ({
   await tokenStore.set(`permission:site:${SITE_ID}:version`, "11")
   await tokenStore.set(`permission:site:${SITE_ID}:user:anonymous:version`, "13")
 
-  const { cacheKey } = await seedFastPathStoreEntry(
+  const { cacheKey, tokenKey } = await seedFastPathStoreEntry(
     { responseStore, tokenStore },
     { route, headers, body }
   )
 
-  return { responseStore, tokenStore, cacheKey }
+  return { responseStore, tokenStore, cacheKey, tokenKey }
 }
 
 const createCountingStore = (store) => {
@@ -114,6 +116,43 @@ const createCountingStore = (store) => {
     mgetCalls() {
       return mgetCalls
     }
+  }
+}
+
+const createDeferredGetStore = (store, shouldDefer) => {
+  let resolveStarted
+  let resume
+  const started = new Promise((resolve) => {
+    resolveStarted = resolve
+  })
+  const ready = new Promise((resolve) => {
+    resume = resolve
+  })
+  let deferred = false
+
+  return {
+    async get(key) {
+      if (!deferred && shouldDefer(key)) {
+        deferred = true
+        resolveStarted(key)
+        await ready
+      }
+      return store.get(key)
+    },
+    async mget(keys) {
+      return store.mget(keys)
+    },
+    async set(key, value, ttlSeconds) {
+      return store.set(key, value, ttlSeconds)
+    },
+    getCalls() {
+      return store.getCalls?.() ?? 0
+    },
+    mgetCalls() {
+      return store.mgetCalls?.() ?? 0
+    },
+    started,
+    resume
   }
 }
 
@@ -387,6 +426,59 @@ test("article response fast path trusted anonymous permission invalidation preve
     },
     { fenceCache, localHotCacheOptions: {} }
   )
+})
+
+test("article response fast path revalidates local fences after invalidation during store reads", async () => {
+  for (const scenario of [
+    {
+      defer: "token",
+      message: {
+        type: "public-content",
+        site_id: SITE_ID,
+        version: "8"
+      }
+    },
+    {
+      defer: "response",
+      message: {
+        type: "anonymous-permission",
+        site_id: SITE_ID,
+        site_version: "12",
+        user_version: "13"
+      }
+    }
+  ]) {
+    const stores = await createFastPathFixtureStore()
+    const tokenStore = createCountingStore(stores.tokenStore)
+    const responseStore = createCountingStore(stores.responseStore)
+    const deferredTokenStore = createDeferredGetStore(tokenStore, (key) =>
+      scenario.defer === "token" ? key === stores.tokenKey : false
+    )
+    const deferredResponseStore = createDeferredGetStore(responseStore, (key) =>
+      scenario.defer === "response" ? key === stores.cacheKey : false
+    )
+    const deferredStore =
+      scenario.defer === "token" ? deferredTokenStore : deferredResponseStore
+    const fenceCache = await createTrustedFenceCache(deferredTokenStore)
+
+    await withServer(
+      { responseStore: deferredResponseStore, tokenStore: deferredTokenStore },
+      async ({ baseUrl, handlerCalls }) => {
+        const responsePromise = fetch(`${baseUrl}/scp-173`, {
+          headers: fastPathHeaders
+        })
+        await deferredStore.started
+        await fenceCache.applyMessageForTest(JSON.stringify(scenario.message))
+        deferredStore.resume()
+
+        const response = await responsePromise
+        assert.equal(response.status, 209)
+        assert.equal(await response.text(), "fallback handler")
+        assert.equal(handlerCalls(), 1)
+      },
+      { fenceCache, localHotCacheOptions: {} }
+    )
+  }
 })
 
 test("article response fast path malformed fence messages fail closed to Redis fences", async () => {
@@ -709,6 +801,114 @@ test("article response fast path enforces static security headers on replay", as
     assert.equal(await response.text(), cachedBody)
     assert.equal(handlerCalls(), 0)
   })
+})
+
+test("article response fast path lets static security headers override mixed-case cached names", async () => {
+  const stores = await createFastPathFixtureStore({
+    headers: [
+      ["content-type", "text/html; charset=utf-8"],
+      ["X-Frame-Options", "SAMEORIGIN"],
+      ["x-cache-fixture", "hit"]
+    ]
+  })
+
+  await withServer(stores, async ({ baseUrl, handlerCalls }) => {
+    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+
+    assert.equal(response.status, 200)
+    assert.equal(response.headers.get("x-frame-options"), "DENY")
+    assert.equal(handlerCalls(), 0)
+  })
+})
+
+test("article response fast path replays prepared static security headers from local hot cache", async () => {
+  const csp = "script-src 'nonce-cached-nonce'"
+  const cachedBody =
+    '<!doctype html><html><body><script nonce="cached-nonce"></script></body></html>'
+  const stores = await createFastPathFixtureStore({
+    headers: [
+      ["content-security-policy", csp],
+      ["content-type", "text/html; charset=utf-8"],
+      ["cross-origin-opener-policy", "unsafe-none"],
+      ["x-cache-fixture", "hit"],
+      ["x-frame-options", "SAMEORIGIN"]
+    ],
+    body: cachedBody
+  })
+  const hotCache = createLocalArticleResponseHotCache()
+
+  await withServer(
+    stores,
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(await first.text(), cachedBody)
+
+      const replay = hotCache.getReplay(stores.tokenKey)
+      assert.equal(replay.status, 200)
+      assert.deepEqual(replay.headers, [
+        ["content-security-policy", csp],
+        ["content-type", "text/html; charset=utf-8"],
+        ["cross-origin-opener-policy", "same-origin"],
+        [
+          "permissions-policy",
+          "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), publickey-credentials-get=(self), screen-wake-lock=(), usb=(), web-share=(self), xr-spatial-tracking=()"
+        ],
+        ["referrer-policy", "strict-origin-when-cross-origin"],
+        ["strict-transport-security", "max-age=31536000; includeSubDomains"],
+        ["x-cache-fixture", "hit"],
+        ["x-content-type-options", "nosniff"],
+        ["x-frame-options", "DENY"]
+      ])
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 200)
+      assert.equal(second.headers.get("content-security-policy"), csp)
+      assert.equal(second.headers.get("cross-origin-opener-policy"), "same-origin")
+      assert.equal(second.headers.get("x-frame-options"), "DENY")
+      assert.equal(await second.text(), cachedBody)
+      assert.equal(handlerCalls(), 0)
+    },
+    { localHotCache: hotCache }
+  )
+})
+
+test("article response fast path fence invalidation clears prepared replay entries", async () => {
+  const stores = await createFastPathFixtureStore()
+  const tokenStore = createCountingStore(stores.tokenStore)
+  const responseStore = createCountingStore(stores.responseStore)
+  const hotCache = createLocalArticleResponseHotCache()
+  const fenceCache = await createTrustedFenceCache(tokenStore)
+
+  await withServer(
+    { responseStore, tokenStore },
+    async ({ baseUrl, handlerCalls }) => {
+      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(first.status, 200)
+      assert.equal(
+        await first.text(),
+        "<!doctype html><html><body>cached article</body></html>"
+      )
+      assert.equal(hotCache.size(), 1)
+      assert.equal(hotCache.getReplay(stores.tokenKey).status, 200)
+
+      await fenceCache.applyMessageForTest(
+        JSON.stringify({
+          type: "public-content",
+          site_id: SITE_ID,
+          version: "8"
+        })
+      )
+      assert.equal(hotCache.size(), 0)
+      assert.equal(hotCache.getReplay(stores.tokenKey), null)
+
+      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      assert.equal(second.status, 209)
+      assert.equal(await second.text(), "fallback handler")
+      assert.equal(handlerCalls(), 1)
+    },
+    { fenceCache, localHotCache: hotCache }
+  )
 })
 
 test("article response fast path falls through for unsafe requests", async () => {

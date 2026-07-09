@@ -652,6 +652,80 @@ test("local article response hot cache keeps an isolated body replay copy", () =
   assert.equal(cached.body, "<!doctype html><html><body>cached body</body></html>")
 })
 
+test("local article response hot cache reuses immutable prepared replay state", () => {
+  const hotCache = createLocalArticleResponseHotCache()
+  const headers = [["x-final", "safe"]]
+  const bodyBuffer = Buffer.from("cached body")
+
+  assert.equal(
+    hotCache.set(
+      "token",
+      {
+        status: 200,
+        headers: [["content-type", "text/html"]],
+        body: "cached body"
+      },
+      {
+        replay: {
+          status: 200,
+          headers,
+          bodyBuffer
+        }
+      }
+    ),
+    true
+  )
+
+  headers[0][1] = "poisoned"
+  bodyBuffer.write("poison")
+
+  const firstReplay = hotCache.getReplay("token")
+  const secondReplay = hotCache.getReplay("token")
+  assert.notEqual(firstReplay, secondReplay)
+  assert.equal(firstReplay.status, 200)
+  assert.deepEqual(firstReplay.headers, [["x-final", "safe"]])
+  assert.equal(firstReplay.bodyBuffer.toString("utf8"), "cached body")
+  assert.throws(() => firstReplay.headers.push(["x-extra", "nope"]), TypeError)
+  assert.throws(() => {
+    firstReplay.headers[0][1] = "mutated"
+  }, TypeError)
+
+  const publicCopy = hotCache.get("token")
+  publicCopy.headers[0][1] = "mutated"
+  publicCopy.bodyBuffer.write("mutated")
+  assert.deepEqual(hotCache.getReplay("token").headers, [["x-final", "safe"]])
+  assert.equal(hotCache.getReplay("token").bodyBuffer.toString("utf8"), "cached body")
+})
+
+test("local article response hot cache getReplay body mutation does not poison later reads", () => {
+  const hotCache = createLocalArticleResponseHotCache()
+
+  assert.equal(
+    hotCache.set(
+      "token",
+      {
+        status: 200,
+        headers: [["content-type", "text/html"]],
+        body: "cached body"
+      },
+      {
+        replay: {
+          status: 200,
+          headers: [["x-final", "safe"]],
+          bodyBuffer: Buffer.from("cached body")
+        }
+      }
+    ),
+    true
+  )
+
+  const replay = hotCache.getReplay("token")
+  replay.bodyBuffer.write("poison")
+
+  assert.equal(hotCache.getReplay("token").bodyBuffer.toString("utf8"), "cached body")
+  assert.equal(hotCache.get("token").bodyBuffer.toString("utf8"), "cached body")
+})
+
 test("anonymous article response cache read/write helpers gate final responses", async () => {
   const metadata = buildAnonymousArticleResponseCacheMetadata({
     siteId: 6000005,
