@@ -684,16 +684,22 @@ test("local article response hot cache reuses immutable prepared replay state", 
   assert.notEqual(firstReplay, secondReplay)
   assert.equal(firstReplay.status, 200)
   assert.deepEqual(firstReplay.headers, [["x-final", "safe"]])
+  assert.deepEqual(firstReplay.nodeRawHeaders, ["x-final", "safe"])
   assert.equal(firstReplay.bodyBuffer.toString("utf8"), "cached body")
   assert.throws(() => firstReplay.headers.push(["x-extra", "nope"]), TypeError)
   assert.throws(() => {
     firstReplay.headers[0][1] = "mutated"
+  }, TypeError)
+  assert.throws(() => firstReplay.nodeRawHeaders.push("x-extra", "nope"), TypeError)
+  assert.throws(() => {
+    firstReplay.nodeRawHeaders[1] = "mutated"
   }, TypeError)
 
   const publicCopy = hotCache.get("token")
   publicCopy.headers[0][1] = "mutated"
   publicCopy.bodyBuffer.write("mutated")
   assert.deepEqual(hotCache.getReplay("token").headers, [["x-final", "safe"]])
+  assert.deepEqual(hotCache.getReplay("token").nodeRawHeaders, ["x-final", "safe"])
   assert.equal(hotCache.getReplay("token").bodyBuffer.toString("utf8"), "cached body")
 })
 
@@ -757,10 +763,15 @@ test("local article response hot cache exposes trusted shared replay without cop
   assert.notEqual(publicReplay, firstSharedReplay)
   assert.notEqual(publicReplay.bodyBuffer, firstSharedReplay.bodyBuffer)
   assert.deepEqual(firstSharedReplay.headers, [["x-final", "safe"]])
+  assert.deepEqual(firstSharedReplay.nodeRawHeaders, ["x-final", "safe"])
   assert.equal(firstSharedReplay.bodyBuffer.toString("utf8"), "cached body")
   assert.throws(() => firstSharedReplay.headers.push(["x-extra", "nope"]), TypeError)
   assert.throws(() => {
     firstSharedReplay.headers[0][1] = "mutated"
+  }, TypeError)
+  assert.throws(() => firstSharedReplay.nodeRawHeaders.push("x-extra", "nope"), TypeError)
+  assert.throws(() => {
+    firstSharedReplay.nodeRawHeaders[1] = "mutated"
   }, TypeError)
 })
 

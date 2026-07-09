@@ -151,9 +151,11 @@ const finalArticleResponseFastPathHeaders = (entry, pathname) => {
 }
 
 const prepareArticleResponseFastPathReplay = (entry, pathname) => {
+  const headers = finalArticleResponseFastPathHeaders(entry, pathname)
   return {
     status: entry.status,
-    headers: finalArticleResponseFastPathHeaders(entry, pathname),
+    headers,
+    nodeRawHeaders: Object.freeze(headers.flatMap(([name, value]) => [name, value])),
     bodyBuffer: Buffer.isBuffer(entry.bodyBuffer)
       ? entry.bodyBuffer
       : Buffer.from(entry.body, "utf8"),
@@ -267,6 +269,12 @@ export const readArticleResponseFastPathEntryFromStores = async ({
 }
 
 export const writeArticleResponseFastPathHit = (request, response, entry) => {
+  if (entry.finalHeaders === true && Array.isArray(entry.nodeRawHeaders)) {
+    response.writeHead(entry.status, entry.nodeRawHeaders)
+    response.end(request.method === "HEAD" ? undefined : (entry.bodyBuffer ?? entry.body))
+    return
+  }
+
   response.statusCode = entry.status
   for (const [name, value] of entry.headers) {
     response.setHeader(name, value)

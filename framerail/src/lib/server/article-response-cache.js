@@ -541,6 +541,10 @@ const freezeHeaderEntries = (headers) => {
   return Object.freeze(headers.map(([name, value]) => Object.freeze([name, value])))
 }
 
+const freezeNodeRawHeaders = (headers) => {
+  return Object.freeze(headers.flatMap(([name, value]) => [name, value]))
+}
+
 const normalizeCachedArticleResponseReplay = (entry, replay) => {
   const status = replay?.status ?? entry.status
   const headers = replay?.headers ?? entry.headers
@@ -555,6 +559,7 @@ const normalizeCachedArticleResponseReplay = (entry, replay) => {
   return Object.freeze({
     status,
     headers: freezeHeaderEntries(headers.map(([name, value]) => [name, value])),
+    nodeRawHeaders: freezeNodeRawHeaders(headers),
     bodyBuffer: replayBodyBuffer,
     finalHeaders: replay?.finalHeaders === true
   })
@@ -564,6 +569,7 @@ const copyCachedArticleResponseReplay = (replay) => {
   return Object.freeze({
     status: replay.status,
     headers: replay.headers,
+    nodeRawHeaders: replay.nodeRawHeaders,
     bodyBuffer: Buffer.from(replay.bodyBuffer),
     finalHeaders: replay.finalHeaders
   })

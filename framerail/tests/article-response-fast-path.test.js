@@ -12,7 +12,10 @@ import {
   createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore
 } from "../src/lib/server/article-response-cache.js"
-import { createArticleResponseFastPathHandler } from "../article-response-fast-path.js"
+import {
+  createArticleResponseFastPathHandler,
+  writeArticleResponseFastPathHit
+} from "../article-response-fast-path.js"
 
 const SITE_ID = 6000005
 const SITE_SLUG = "scp-wiki"
@@ -203,6 +206,101 @@ const fastPathHeaders = {
   "x-wikijump-site-id": String(SITE_ID),
   "x-wikijump-site-slug": SITE_SLUG
 }
+
+const createRecordingResponse = () => {
+  const calls = []
+  return {
+    calls,
+    statusCode: undefined,
+    writeHead(status, headers) {
+      calls.push(["writeHead", status, headers])
+    },
+    setHeader(name, value) {
+      calls.push(["setHeader", name, value])
+    },
+    removeHeader(name) {
+      calls.push(["removeHeader", name])
+    },
+    end(body) {
+      calls.push(["end", body])
+    }
+  }
+}
+
+test("article response fast path writes raw Node headers without per-header setHeader", () => {
+  const response = createRecordingResponse()
+
+  writeArticleResponseFastPathHit(
+    { method: "GET", url: "http://localhost/scp-173" },
+    response,
+    {
+      status: 200,
+      headers: [["x-cache-fixture", "tuple"]],
+      nodeRawHeaders: Object.freeze(["x-cache-fixture", "raw"]),
+      bodyBuffer: Buffer.from("cached body"),
+      finalHeaders: true
+    }
+  )
+
+  assert.equal(response.statusCode, undefined)
+  assert.deepEqual(response.calls, [
+    ["writeHead", 200, ["x-cache-fixture", "raw"]],
+    ["end", Buffer.from("cached body")]
+  ])
+})
+
+test("article response fast path raw-header HEAD hit sends no body", () => {
+  const response = createRecordingResponse()
+
+  writeArticleResponseFastPathHit(
+    { method: "HEAD", url: "http://localhost/scp-173" },
+    response,
+    {
+      status: 200,
+      headers: [["x-cache-fixture", "tuple"]],
+      nodeRawHeaders: Object.freeze(["x-cache-fixture", "raw"]),
+      bodyBuffer: Buffer.from("cached body"),
+      finalHeaders: true
+    }
+  )
+
+  assert.deepEqual(response.calls, [
+    ["writeHead", 200, ["x-cache-fixture", "raw"]],
+    ["end", undefined]
+  ])
+})
+
+test("article response fast path falls back to setHeader and static security headers without raw headers", () => {
+  const response = createRecordingResponse()
+
+  writeArticleResponseFastPathHit(
+    { method: "GET", url: "http://localhost/scp-173" },
+    response,
+    {
+      status: 200,
+      headers: [
+        ["content-type", "text/html; charset=utf-8"],
+        ["x-frame-options", "SAMEORIGIN"]
+      ],
+      bodyBuffer: Buffer.from("cached body"),
+      finalHeaders: false
+    }
+  )
+
+  assert.equal(response.statusCode, 200)
+  assert.equal(
+    response.calls.some(
+      ([method, name, value]) =>
+        method === "setHeader" && name === "x-frame-options" && value === "DENY"
+    ),
+    true
+  )
+  assert.equal(
+    response.calls.some(([method]) => method === "writeHead"),
+    false
+  )
+  assert.deepEqual(response.calls.at(-1), ["end", Buffer.from("cached body")])
+})
 
 test("article response fast path serves a hot anonymous article hit without calling handler", async () => {
   const stores = await createFastPathFixtureStore()
@@ -903,6 +1001,7 @@ test("article response fast path replays prepared static security headers from l
         ["x-content-type-options", "nosniff"],
         ["x-frame-options", "DENY"]
       ])
+      assert.deepEqual(replay.nodeRawHeaders, replay.headers.flat())
 
       const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
