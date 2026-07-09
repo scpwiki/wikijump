@@ -235,6 +235,10 @@ static WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX: LazyLock<Regex> = LazyLock::new
     )
     .unwrap()
 });
+static WIKIJUMP_FOOTNOTE_REF_LEADING_SPACE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r#"(?s)(?P<before>\S)\s+(?P<footnote><span class="wj-footnote-ref">)"#)
+        .unwrap()
+});
 static WIKIJUMP_FOOTNOTE_DATA_ID_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"data-id="(?P<id>[0-9]+)""#).unwrap());
 static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -329,10 +333,8 @@ static WIKIDOT_SINGLE_LINE_IFTAGS_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     .unwrap()
 });
 static WIKIDOT_SIMPLE_IFTAGS_BLOCK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?is)\[\[iftags\s+(?P<sign>[+-])(?P<tag>[A-Za-z0-9_-]+)\]\](?P<body>.*?)\[\[/iftags\]\]"#,
-    )
-    .unwrap()
+    Regex::new(r#"(?is)\[\[iftags(?P<spec>\s+[^\]\n]+)\]\](?P<body>.*?)\[\[/iftags\]\]"#)
+        .unwrap()
 });
 static WIKIDOT_SIMPLE_IF_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)\[\[#if\s+(?P<cond>1|0|true|false)\s*\|\s*(?P<when_true>.*?)\s*\|\s*(?P<when_false>.*?)\s*\]\]"#)
@@ -654,9 +656,10 @@ impl RenderService {
         included_pages.extend(expanded_included_pages);
         Self::remove_wikidot_metacomponent_documentation(&mut wikitext);
         Self::remove_unresolved_include_comment_branches(&mut wikitext);
-        Self::remove_unresolved_variable_iftags_blocks(&mut wikitext);
-        Self::resolve_single_line_wikidot_iftags_fragments(&mut wikitext, page_info);
-        Self::resolve_simple_wikidot_iftags_blocks(&mut wikitext, page_info);
+        Self::prepare_wikidot_conditionals_for_include_expansion(
+            &mut wikitext,
+            page_info,
+        );
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: list_pages_included_pages,
@@ -779,6 +782,7 @@ impl RenderService {
                     )
                 },
                 meta: Vec::new(),
+                styles: Vec::new(),
                 backlinks,
             };
             let compiled_hash = TextService::create(ctx, html_output.body.clone())
@@ -1187,6 +1191,11 @@ impl RenderService {
                 )
             })
             .into_owned();
+        let html = WIKIJUMP_FOOTNOTE_REF_LEADING_SPACE_REGEX
+            .replace_all(&html, |captures: &regex::Captures<'_>| {
+                format!("{}{}", &captures["before"], &captures["footnote"])
+            })
+            .into_owned();
         let html = WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX
             .replace_all(&html, |captures: &regex::Captures<'_>| {
                 captures
@@ -1506,7 +1515,87 @@ impl RenderService {
                 Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
         }
 
-        output
+        Self::restore_residual_wikidot_alignment_html_markers(&output)
+    }
+
+    fn restore_residual_wikidot_alignment_html_markers(html: &str) -> String {
+        const MARKERS: &[(&str, &str, &str, bool)] = &[
+            (
+                "<p>[[=]]</p>",
+                "center",
+                r#"<div style="text-align: center;">"#,
+                false,
+            ),
+            (
+                "<p>[[<]]</p>",
+                "left",
+                r#"<div style="text-align: left;">"#,
+                false,
+            ),
+            (
+                "<p>[[&lt;]]</p>",
+                "left",
+                r#"<div style="text-align: left;">"#,
+                false,
+            ),
+            (
+                "<p>[[>]]</p>",
+                "right",
+                r#"<div style="text-align: right;">"#,
+                false,
+            ),
+            (
+                "<p>[[&gt;]]</p>",
+                "right",
+                r#"<div style="text-align: right;">"#,
+                false,
+            ),
+            ("<p>[[/=]]</p>", "center", "</div>", true),
+            ("<br>[[/=]]<br>", "center", "</div><br>", true),
+            ("<br/>[[/=]]<br/>", "center", "</div><br/>", true),
+            ("<br />[[/=]]<br />", "center", "</div><br />", true),
+            ("<p>[[/<]]</p>", "left", "</div>", true),
+            ("<p>[[/&lt;]]</p>", "left", "</div>", true),
+            ("<br>[[/<]]<br>", "left", "</div><br>", true),
+            ("<br>[[/&lt;]]<br>", "left", "</div><br>", true),
+            ("<p>[[/>]]</p>", "right", "</div>", true),
+            ("<p>[[/&gt;]]</p>", "right", "</div>", true),
+            ("<br>[[/>]]<br>", "right", "</div><br>", true),
+            ("<br>[[/&gt;]]<br>", "right", "</div><br>", true),
+        ];
+
+        let mut output = String::with_capacity(html.len());
+        let mut rest = html;
+        let mut alignment_stack: Vec<&'static str> = Vec::new();
+
+        loop {
+            let Some((position, marker, alignment, replacement, is_close)) = MARKERS
+                .iter()
+                .filter_map(|(marker, alignment, replacement, is_close)| {
+                    rest.find(marker).map(|position| {
+                        (position, *marker, *alignment, *replacement, *is_close)
+                    })
+                })
+                .min_by_key(|(position, ..)| *position)
+            else {
+                output.push_str(rest);
+                return output;
+            };
+
+            output.push_str(&rest[..position]);
+            if is_close {
+                if alignment_stack.last().copied() == Some(alignment) {
+                    alignment_stack.pop();
+                    output.push_str(replacement);
+                } else {
+                    output.push_str(marker);
+                }
+            } else {
+                alignment_stack.push(alignment);
+                output.push_str(replacement);
+            }
+            rest = &rest[position + marker.len()..];
+        }
     }
 
     fn residual_wikidot_alignment_open_replacement(
@@ -1679,6 +1768,15 @@ impl RenderService {
             .into_owned()
     }
 
+    fn prepare_wikidot_conditionals_for_include_expansion(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+    ) {
+        Self::remove_unresolved_variable_iftags_blocks(wikitext);
+        Self::resolve_single_line_wikidot_iftags_fragments(wikitext, page_info);
+        Self::resolve_simple_wikidot_iftags_blocks(wikitext, page_info);
+    }
+
     fn resolve_single_line_wikidot_iftags_fragments(
         wikitext: &mut String,
         page_info: &ftml::data::PageInfo<'_>,
@@ -1714,14 +1812,8 @@ impl RenderService {
                             .to_owned();
                     }
 
-                    let tag = captures.name("tag").map_or("", |mtch| mtch.as_str());
-                    let has_tag = page_info.tags.iter().any(|page_tag| page_tag == tag);
-                    let active = match captures.name("sign").map(|mtch| mtch.as_str()) {
-                        Some("+") => has_tag,
-                        Some("-") => !has_tag,
-                        _ => false,
-                    };
-                    if active {
+                    let spec = captures.name("spec").map_or("", |mtch| mtch.as_str());
+                    if wikidot_tag_conditions_match(spec, &page_info.tags) {
                         body.to_owned()
                     } else {
                         String::new()
@@ -3356,6 +3448,10 @@ impl RenderService {
         Box::pin(async move {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
+            Self::prepare_wikidot_conditionals_for_include_expansion(
+                &mut wikitext,
+                expansion_context.page_info,
+            );
             Self::mask_wikidot_comment_include_markers(&mut wikitext);
             let image_block_included_pages = if expansion_context
                 .expand_wikidot_image_blocks
@@ -14969,6 +15065,29 @@ mod tests {
     }
 
     #[test]
+    fn restores_residual_wikidot_alignment_html_markers_around_collapsible() {
+        let html = concat!(
+            "<hr><p>[[=]]</p>",
+            r#"<span style="font-size: 150%;">"#,
+            r#"<details class="collapsible-block">"#,
+            r#"<summary class="collapsible-block-link">"#,
+            r#"<span class="collapsible-block-link">Show</span>"#,
+            "</summary></details></span>",
+            "<br>[[/=]]<br>",
+            "<span>after</span>",
+        );
+
+        let restored = RenderService::restore_residual_wikidot_alignment_markers(html);
+
+        assert!(restored.contains(
+            r#"<hr><div style="text-align: center;"><span style="font-size: 150%;">"#
+        ));
+        assert!(restored.contains(r#"</details></span></div><br><span>after</span>"#));
+        assert!(!restored.contains("[[=]]"));
+        assert!(!restored.contains("[[/=]]"));
+    }
+
+    #[test]
     fn leaves_standalone_residual_wikidot_alignment_lines_inside_pre() {
         let html = concat!("<pre>\n", "[[=]]\n", "literal\n", "[[/=]]\n", "</pre>\n");
 
@@ -15279,6 +15398,20 @@ mod tests {
     }
 
     #[test]
+    fn restores_wikidot_footnote_refs_without_source_spacing() {
+        let html = concat!(
+            r#"<p>behaviour. <span class="wj-footnote-ref">"#,
+            r#"<wj-footnote-ref-marker class="wj-footnote-ref-marker" role="link" aria-label="Footnote 7." data-id="7">7</wj-footnote-ref-marker>"#,
+            r#"</span></p>"#,
+        );
+
+        let restored = RenderService::restore_wikidot_footnote_dom_compatibility(html);
+
+        assert!(restored.contains(r#"behaviour.<sup class="footnoteref">"#));
+        assert!(!restored.contains(r#"behaviour. <sup"#));
+    }
+
+    #[test]
     fn restores_wikidot_text_ellipsis_only_in_text_nodes() {
         let html = concat!(
             r#"<p>"scp-049...." be.... witnessed...</p>"#,
@@ -15433,6 +15566,89 @@ mod tests {
         assert!(!wikitext.contains("documentation"));
         assert!(!wikitext.contains("[[iftags"));
         assert!(!wikitext.contains("[[/iftags]]"));
+    }
+
+    #[test]
+    fn resolves_active_compound_multiline_wikidot_iftags_blocks_in_source() {
+        let page_info = fallback_test_page_info("black-highlighter-theme", "BHL");
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("theme")],
+            ..page_info
+        };
+        let mut wikitext = concat!(
+            "before\n",
+            "[[iftags +theme -nobhl]]\n",
+            "[[module css]]\n.a { color: red; }\n[[/module]]\n",
+            "[[/iftags]]\n",
+            "after\n",
+        )
+        .to_owned();
+
+        RenderService::resolve_simple_wikidot_iftags_blocks(&mut wikitext, &page_info);
+
+        assert!(wikitext.contains("[[module css]]"));
+        assert!(wikitext.contains(".a { color: red; }"));
+        assert!(!wikitext.contains("[[iftags"));
+        assert!(!wikitext.contains("[[/iftags]]"));
+    }
+
+    #[test]
+    fn removes_inactive_compound_multiline_wikidot_iftags_blocks_in_source() {
+        let page_info = fallback_test_page_info("scp-5516", "SCP-5516");
+        let mut wikitext = concat!(
+            "before\n",
+            "[[iftags +theme -nobhl]]\n",
+            "[[module css]]\n.a { color: red; }\n[[/module]]\n",
+            "[[/iftags]]\n",
+            "after\n",
+        )
+        .to_owned();
+
+        RenderService::resolve_simple_wikidot_iftags_blocks(&mut wikitext, &page_info);
+
+        assert!(wikitext.contains("before\n"));
+        assert!(wikitext.contains("after\n"));
+        assert!(!wikitext.contains("[[module css]]"));
+        assert!(!wikitext.contains(".a { color: red; }"));
+        assert!(!wikitext.contains("[[iftags"));
+        assert!(!wikitext.contains("[[/iftags]]"));
+    }
+
+    #[test]
+    fn include_expansion_cleanup_removes_includes_in_inactive_wikidot_iftags_blocks() {
+        let page_info = fallback_test_page_info("scp-5516", "SCP-5516");
+        let mut wikitext = concat!(
+            "before\n",
+            "[[iftags +theme -nobhl]]\n",
+            "[[include component:hidden]]\n",
+            "[[/iftags]]\n",
+            "[[include component:visible]]\n",
+        )
+        .to_owned();
+
+        RenderService::prepare_wikidot_conditionals_for_include_expansion(
+            &mut wikitext,
+            &page_info,
+        );
+
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut includes = Vec::new();
+        ftml::include(
+            &wikitext,
+            &settings,
+            CollectingIncluder {
+                includes: &mut includes,
+            },
+            include_error,
+        )
+        .expect("include collection should parse visible includes only");
+
+        assert_eq!(includes.len(), 1);
+        assert_eq!(
+            includes[0].page_ref(),
+            &PageRef::page_only("component:visible")
+        );
+        assert!(!wikitext.contains("component:hidden"));
     }
 
     #[test]
