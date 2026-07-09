@@ -28,11 +28,12 @@ use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::page_query::{
     CategoriesSelector, CountPagesExactCountEligibilityDiagnostics,
     CountPagesExactCountEligibilityInput, DataFormSelector, DateSelector,
-    FoundPageFields, FoundPageRow, FoundPages, IncludedCategories, OrderBySelector,
-    OrderProperty, PageParentSelector, PageQuery, PageQueryResultMetadata,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
-    count_pages_exact_count_eligibility_diagnostics,
-    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
+    FoundPageFields, FoundPageRow, FoundPages, IncludedCategories,
+    ListPagesRenderDiagnosticsInput, OrderBySelector, OrderProperty, PageParentSelector,
+    PageQuery, PageQueryResultMetadata, PageTypeSelector, PaginationSelector,
+    RangeSelector, TagCondition, count_pages_exact_count_eligibility_diagnostics,
+    list_pages_render_diagnostics, parse_static_wikidot_data_form_values,
+    static_wikidot_data_form_matches,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
@@ -66,6 +67,13 @@ pub struct RenderService;
 
 #[derive(Debug)]
 struct ViewableCountPagesRows {
+    pages: FoundPages,
+    metadata: PageQueryResultMetadata,
+    view_permission_filtering_applied: bool,
+}
+
+#[derive(Debug)]
+struct ViewableListPagesRows {
     pages: FoundPages,
     metadata: PageQueryResultMetadata,
     view_permission_filtering_applied: bool,
@@ -6216,6 +6224,7 @@ impl RenderService {
             },
         };
 
+        let mut list_pages_metadata = None;
         let pages = if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
@@ -6243,13 +6252,30 @@ impl RenderService {
         } else if current_page_only {
             FoundPages { pages: Vec::new() }
         } else {
-            Self::find_viewable_list_pages_rows(
+            let found = Self::find_viewable_list_pages_rows(
                 ctx,
                 query,
                 query_limit.min(usize::MAX as u64) as usize,
             )
-            .await?
+            .await?;
+            list_pages_metadata = Some((
+                found.metadata.clone(),
+                found.view_permission_filtering_applied,
+            ));
+            found.pages
         };
+        if let Some((metadata, view_permission_filtering_applied)) = list_pages_metadata {
+            let diagnostics =
+                list_pages_render_diagnostics(ListPagesRenderDiagnosticsInput {
+                    metadata,
+                    view_permission_filtering_applied,
+                    post_query_exclusion_applied: exclude_current_page,
+                    post_query_offset_applied: offset > 0,
+                    requested_limit,
+                    query_limit,
+                });
+            debug!("ListPages render diagnostics: {diagnostics:?}");
+        }
         let selected_pages = pages
             .pages
             .into_iter()
@@ -6580,9 +6606,11 @@ impl RenderService {
         ctx: &ServiceContext<'_>,
         query: PageQuery<'_>,
         target_count: usize,
-    ) -> Result<FoundPages> {
+    ) -> Result<ViewableListPagesRows> {
         let mut pages = Vec::new();
         let mut raw_offset = 0;
+        let mut metadata = None;
+        let mut view_permission_filtering_applied = false;
 
         while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
             let mut query = query.clone();
@@ -6592,19 +6620,27 @@ impl RenderService {
                     .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS - raw_offset)),
             );
 
-            let found = PageQueryService::find(ctx, query).await?;
-            let raw_count = found.pages.len();
+            let found = PageQueryService::find_with_metadata(ctx, query).await?;
+            merge_render_page_query_metadata(&mut metadata, found.metadata);
+            let raw_count = found.pages.pages.len();
             if raw_count == 0 {
                 break;
             }
-            pages.extend(Self::filter_viewable_list_pages_rows(ctx, found.pages).await?);
+            let viewable =
+                Self::filter_viewable_list_pages_rows(ctx, found.pages.pages).await?;
+            view_permission_filtering_applied |= viewable.len() != raw_count;
+            pages.extend(viewable);
             if raw_count < MAX_LISTPAGES_RENDER_LIMIT as usize {
                 break;
             }
             raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
         }
 
-        Ok(FoundPages { pages })
+        Ok(ViewableListPagesRows {
+            pages: FoundPages { pages },
+            metadata: metadata.unwrap_or_default(),
+            view_permission_filtering_applied,
+        })
     }
 
     async fn find_viewable_count_pages_rows(
@@ -6626,7 +6662,7 @@ impl RenderService {
             );
 
             let found = PageQueryService::find_with_metadata(ctx, query).await?;
-            merge_count_pages_query_metadata(&mut metadata, found.metadata);
+            merge_render_page_query_metadata(&mut metadata, found.metadata);
             let raw_count = found.pages.pages.len();
             if raw_count == 0 {
                 break;
@@ -7475,7 +7511,7 @@ fn count_pages_exact_count_render_diagnostics(
     )
 }
 
-fn merge_count_pages_query_metadata(
+fn merge_render_page_query_metadata(
     metadata: &mut Option<PageQueryResultMetadata>,
     next: PageQueryResultMetadata,
 ) {
