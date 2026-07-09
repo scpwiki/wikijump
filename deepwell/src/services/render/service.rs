@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::prelude::*;
 use crate::hash::TextHash;
 use crate::models::page::{self, Entity as Page};
@@ -655,7 +656,7 @@ impl RenderService {
         wikitext = expanded_wikitext;
         included_pages.extend(expanded_included_pages);
         Self::remove_wikidot_metacomponent_documentation(&mut wikitext);
-        Self::remove_unresolved_include_comment_branches(&mut wikitext);
+        remove_unresolved_include_comment_branches(&mut wikitext);
         Self::prepare_wikidot_conditionals_for_include_expansion(
             &mut wikitext,
             page_info,
@@ -2629,43 +2630,6 @@ impl RenderService {
 
         segments.push(&args[segment_start..]);
         segments
-    }
-
-    fn remove_unresolved_include_comment_branches(wikitext: &mut String) {
-        const HIDDEN_BRANCH_MARKER: &str = "[!-- {$";
-        const COMMENT_BOUNDARY_MARKER: &str = "[!----]";
-        const SELECTED_BRANCH_MARKER: &str = "[!-- --]";
-
-        while let Some(marker_start) = wikitext.find(HIDDEN_BRANCH_MARKER) {
-            let removal_start = wikitext[..marker_start]
-                .rfind('\n')
-                .map_or(marker_start, |index| index + 1);
-            let Some(boundary_offset) =
-                wikitext[marker_start..].find(COMMENT_BOUNDARY_MARKER)
-            else {
-                break;
-            };
-            let boundary_start = marker_start + boundary_offset;
-            let boundary_end = boundary_start + COMMENT_BOUNDARY_MARKER.len();
-            let removal_end = wikitext[boundary_end..]
-                .find('\n')
-                .map_or(boundary_end, |offset| boundary_end + offset + 1);
-
-            wikitext.replace_range(removal_start..removal_end, "");
-        }
-
-        for marker in [SELECTED_BRANCH_MARKER, COMMENT_BOUNDARY_MARKER] {
-            while let Some(marker_start) = wikitext.find(marker) {
-                let removal_start = wikitext[..marker_start]
-                    .rfind('\n')
-                    .map_or(marker_start, |index| index + 1);
-                let marker_end = marker_start + marker.len();
-                let removal_end = wikitext[marker_end..]
-                    .find('\n')
-                    .map_or(marker_end, |offset| marker_end + offset + 1);
-                wikitext.replace_range(removal_start..removal_end, "");
-            }
-        }
     }
 
     fn find_preview_component_separator_markers(
@@ -14752,35 +14716,6 @@ mod tests {
         assert!(wikitext.contains(".usable { display: block; }"));
         assert!(!wikitext.contains("croqstyle__documentation"));
         assert!(!wikitext.contains("Documentation that live Wikidot hides"));
-    }
-
-    #[test]
-    fn removes_unselected_include_comment_branches() {
-        let mut wikitext = concat!(
-            "Before\n",
-            "[!----]\n",
-            "[!-- {$inc-hidden}\n",
-            "Hidden branch %%title%%\n",
-            "[!----]\n",
-            "[!-- --]\n",
-            "Selected branch body\n",
-            "[!----]\n",
-            "[!-- {$inc-other}\n",
-            "Other hidden branch\n",
-            "[!----]\n",
-            "After\n",
-        )
-        .to_owned();
-
-        RenderService::remove_unresolved_include_comment_branches(&mut wikitext);
-
-        assert!(wikitext.contains("Before"));
-        assert!(wikitext.contains("Selected branch body"));
-        assert!(wikitext.contains("After"));
-        assert!(!wikitext.contains("Hidden branch"));
-        assert!(!wikitext.contains("Other hidden branch"));
-        assert!(!wikitext.contains("[!--"));
-        assert!(!wikitext.contains("[!----]"));
     }
 
     #[test]
