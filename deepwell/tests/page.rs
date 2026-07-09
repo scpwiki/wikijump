@@ -408,15 +408,18 @@ async fn article_view_cache_respects_anonymous_permission_revocation() {
             "locales": ["en-US", "en"],
         }),
     );
+    let GetArticleViewOutput {
+        page: GetPageViewOutput::Found { .. },
+        article_page_cache_key: Some(first_cache_key),
+        ..
+    } = first
+    else {
+        panic!("first article view should populate the anonymous cache");
+    };
     assert!(
-        matches!(
-            first,
-            GetArticleViewOutput {
-                page: GetPageViewOutput::Found { .. },
-                ..
-            }
-        ),
-        "first article view should populate the anonymous cache"
+        first_cache_key.contains(":permission=site=")
+            && first_cache_key.contains(",user="),
+        "article cache key must include the anonymous permission fence: {first_cache_key}"
     );
 
     RolePermissionTable::delete_many()
@@ -445,15 +448,24 @@ async fn article_view_cache_respects_anonymous_permission_revocation() {
             "locales": ["en-US", "en"],
         }),
     );
+    let GetArticleViewOutput {
+        page: GetPageViewOutput::Permissions { banned: false, .. },
+        article_page_cache_key: Some(second_cache_key),
+        ..
+    } = second
+    else {
+        panic!(
+            "cached article data must not bypass revoked anonymous page:view permission"
+        );
+    };
     assert!(
-        matches!(
-            second,
-            GetArticleViewOutput {
-                page: GetPageViewOutput::Permissions { banned: false, .. },
-                ..
-            }
-        ),
-        "cached article data must not bypass revoked anonymous page:view permission"
+        second_cache_key.contains(":permission=site=")
+            && second_cache_key.contains(",user="),
+        "permission revocation must move anonymous article cache reads to a new key: {second_cache_key}"
+    );
+    assert_ne!(
+        first_cache_key, second_cache_key,
+        "permission revocation must move anonymous article cache reads to a new key"
     );
 }
 

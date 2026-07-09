@@ -70,6 +70,12 @@ pub struct GetArticleViewOutput {
     #[serde(flatten)]
     pub viewer: Viewer,
     pub page: GetPageViewOutput,
+    pub article_page_cache_key: Option<String>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetArticleViewCacheMetadataOutput {
+    pub article_page_cache_key: Option<String>,
 }
 
 /// Yield information for a page view, depending on the status of the page.

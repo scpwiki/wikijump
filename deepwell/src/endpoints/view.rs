@@ -20,9 +20,9 @@
 
 use super::prelude::*;
 use crate::services::view::{
-    GetAdminView, GetAdminViewOutput, GetArticleViewOutput, GetPageView,
-    GetPageViewOutput, GetPreloadView, GetPreloadViewOutput, GetUserView,
-    GetUserViewOutput, ViewType,
+    GetAdminView, GetAdminViewOutput, GetArticleViewCacheMetadataOutput,
+    GetArticleViewOutput, GetPageView, GetPageViewOutput, GetPreloadView,
+    GetPreloadViewOutput, GetUserView, GetUserViewOutput, ViewType,
 };
 
 /// Returns relevant context for rendering a view from a processed web request.
@@ -53,6 +53,23 @@ pub async fn article_view(
             ErrorType::GetView(ViewType::Page),
         )
     })
+}
+
+/// Returns the current fenced cache metadata for an anonymous article request.
+pub async fn article_view_cache_metadata(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetArticleViewCacheMetadataOutput> {
+    let input: GetPageView = parse!(params => ErrorType::GetView(ViewType::Page));
+
+    ViewService::article_cache_metadata(ctx, input)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to get article view cache metadata",
+                ErrorType::GetView(ViewType::Page),
+            )
+        })
 }
 
 /// Returns relevant context for rendering a page from a processed web request.

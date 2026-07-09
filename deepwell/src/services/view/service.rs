@@ -99,6 +99,7 @@ impl ViewService {
             return Ok(GetArticleViewOutput {
                 viewer: preload.viewer,
                 page,
+                article_page_cache_key: Some(cache_key.clone()),
             });
         }
 
@@ -113,6 +114,35 @@ impl ViewService {
         Ok(GetArticleViewOutput {
             viewer: preload.viewer,
             page: page_view,
+            article_page_cache_key: cache_key,
+        })
+    }
+
+    pub async fn article_cache_metadata(
+        ctx: &ServiceContext<'_>,
+        mut input: GetPageView,
+    ) -> Result<GetArticleViewCacheMetadataOutput> {
+        if !matches!(input.session_token.as_deref(), None | Some("")) {
+            return Ok(GetArticleViewCacheMetadataOutput {
+                article_page_cache_key: None,
+            });
+        }
+
+        let preload = Self::preload(
+            ctx,
+            GetPreloadView {
+                site_id: input.site_id,
+                session_token: None,
+                locales: input.locales.clone(),
+            },
+        )
+        .await?;
+        if !input.locales.contains(&preload.viewer.site.locale) {
+            input.locales.push(preload.viewer.site.locale);
+        }
+
+        Ok(GetArticleViewCacheMetadataOutput {
+            article_page_cache_key: ArticlePageCache::key(ctx, &input).await?,
         })
     }
 

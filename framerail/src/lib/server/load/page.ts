@@ -1,5 +1,6 @@
 import defaults from "$lib/defaults"
 
+import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/article-response-cache"
 import { authGetSession } from "$lib/server/auth/getSession"
 import {
   pageDelete,
@@ -82,20 +83,17 @@ export async function loadPage(
   slug: Optional<string>,
   extra: Optional<string>,
   request: Request,
-  cookies: Cookies
+  cookies: Cookies,
+  locals?: App.Locals
 ) {
   // Set up parameters
-  const { siteId } = loadSiteInfo(request.headers)
+  const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")
 
   const requestLocales = getPreloadRequestLocales(request)
-  const articleResponse = await articleView(
-    siteId,
-    getPreloadBackendLocales(requestLocales),
-    route,
-    sessionToken
-  )
+  const backendLocales = getPreloadBackendLocales(requestLocales)
+  const articleResponse = await articleView(siteId, backendLocales, route, sessionToken)
   const { page: response, ...preloadResponse } = articleResponse
   const parentData = finalizePreloadData(preloadResponse, requestLocales)
   const locales = parentData.locales
@@ -120,6 +118,19 @@ export async function loadPage(
       // Unexpected response type!
       // There is an inconsistency between here / DEEPWELL
       errorStatus = 500
+  }
+
+  if (locals && responseType === "found") {
+    const metadata = buildAnonymousArticleResponseCacheMetadata({
+      siteId,
+      siteSlug,
+      requestLocales,
+      backendLocales,
+      deepwellArticlePageCacheKey: articleResponse.article_page_cache_key
+    })
+    if (metadata) {
+      locals.anonymousArticleResponseCacheMetadata = metadata
+    }
   }
 
   let translateKeys: TranslateKeys = {

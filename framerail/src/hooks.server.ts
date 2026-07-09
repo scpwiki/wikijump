@@ -1,8 +1,20 @@
 // Hook that runs on every request, including form actions.
 
+import {
+  buildAnonymousArticleResponseCacheMetadata,
+  canConsiderAnonymousArticleResponseCache,
+  createMemoryArticleResponseCacheStore,
+  readAnonymousArticleResponseCache,
+  writeAnonymousArticleResponseCache
+} from "$lib/server/article-response-cache"
+import { articleViewCacheMetadata } from "$lib/server/deepwell/views"
+import {
+  getPreloadBackendLocales,
+  getPreloadRequestLocales
+} from "$lib/server/load/preload"
 import { storeRequestContext } from "$lib/server/load/request-ctx"
 import { loadSiteInfo } from "$lib/server/load/site-info"
-import type { Handle } from "@sveltejs/kit"
+import type { Handle, RequestEvent } from "@sveltejs/kit"
 
 function isLocalEnvironment() {
   return process.env.FRAMERAIL_ENV === "local" || process.env.NODE_ENV === "development"
@@ -40,6 +52,7 @@ const LOCAL_WIKIDOT_INTERWIKI_FRAME_PATHS = new Set([
   "/-/wikidot-interwiki/interwikiFrame.html",
   "/-/wikidot-interwiki/styleFrame.html"
 ])
+const articleResponseCacheStore = createMemoryArticleResponseCacheStore()
 
 function shouldSetHsts() {
   return !isLocalEnvironment()
@@ -64,6 +77,60 @@ function applySecurityHeaders(response: Response, pathname: string) {
   }
 }
 
+function getArticleRoute(event: RequestEvent) {
+  return event.params.slug || event.params.extra
+    ? { slug: event.params.slug, extra: event.params.extra }
+    : null
+}
+
+function canUseAnonymousArticleResponseCache(
+  event: RequestEvent,
+  siteId: number,
+  siteSlug: string
+) {
+  return canConsiderAnonymousArticleResponseCache({
+    method: event.request.method,
+    routeId: event.route.id,
+    url: event.url,
+    siteId,
+    siteSlug,
+    route: getArticleRoute(event),
+    cookieHeader: event.request.headers.get("cookie")
+  })
+}
+
+async function readAnonymousArticleResponseCacheForEvent(
+  event: RequestEvent,
+  siteId: number,
+  siteSlug: string
+) {
+  const route = getArticleRoute(event)
+  const requestLocales = getPreloadRequestLocales(event.request)
+  const backendLocales = getPreloadBackendLocales(requestLocales)
+  const gate = canUseAnonymousArticleResponseCache(event, siteId, siteSlug)
+
+  if (!gate.cacheable) return null
+
+  try {
+    const cacheMetadata = await articleViewCacheMetadata(siteId, backendLocales, route)
+    const metadata = buildAnonymousArticleResponseCacheMetadata({
+      siteId,
+      siteSlug,
+      requestLocales,
+      backendLocales,
+      deepwellArticlePageCacheKey: cacheMetadata.article_page_cache_key
+    })
+    if (!metadata) return null
+
+    return readAnonymousArticleResponseCache({
+      store: articleResponseCacheStore,
+      metadata
+    })
+  } catch {
+    return null
+  }
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
   const { request, cookies, locals, params } = event
 
@@ -74,16 +141,35 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   // Gather common request metadata into a shared context.
-  const { siteId } = loadSiteInfo(request.headers)
+  const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const page_slug = params.slug
   const sessionToken = cookies.get("wikijump_token")
 
   storeRequestContext(locals, sessionToken, siteId, page_slug)
 
+  const cachedResponse = await readAnonymousArticleResponseCacheForEvent(
+    event,
+    siteId,
+    siteSlug
+  )
+  if (cachedResponse) {
+    applySecurityHeaders(cachedResponse, event.url.pathname)
+    return cachedResponse
+  }
+
   // Continue processing the request
   const response = await resolve(event)
 
   applySecurityHeaders(response, event.url.pathname)
+
+  const writeGate = canUseAnonymousArticleResponseCache(event, siteId, siteSlug)
+  if (writeGate.cacheable) {
+    await writeAnonymousArticleResponseCache({
+      store: articleResponseCacheStore,
+      metadata: locals.anonymousArticleResponseCacheMetadata,
+      response
+    })
+  }
 
   return response
 }

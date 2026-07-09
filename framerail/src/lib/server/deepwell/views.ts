@@ -102,6 +102,7 @@ export async function pageView(
 
 export type ArticleView = Viewer & {
   page: PageView
+  article_page_cache_key: Optional<string>
 }
 
 export async function articleView(
@@ -114,6 +115,23 @@ export async function articleView(
     site_id: siteId,
     locales,
     session_token: sessionToken,
+    route
+  })
+}
+
+export interface ArticleViewCacheMetadata {
+  article_page_cache_key: Optional<string>
+}
+
+export async function articleViewCacheMetadata(
+  siteId: number,
+  locales: string[],
+  route: Nullable<PageRoute>
+): Promise<ArticleViewCacheMetadata> {
+  return client.request("article_view_cache_metadata", {
+    site_id: siteId,
+    locales,
+    session_token: null,
     route
   })
 }

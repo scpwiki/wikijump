@@ -20,6 +20,7 @@
 
 use super::options::PageOptions;
 use super::prelude::*;
+use crate::services::permission::PermissionCache;
 use crate::services::render::{RenderDependencyClass, classify_render_dependencies};
 use redis::AsyncCommands;
 use sea_orm::{DatabaseBackend, FromQueryResult, Statement, Value};
@@ -112,6 +113,9 @@ impl ArticlePageCache {
             .page_updated_at
             .map(|value| value.unix_timestamp_nanos())
             .unwrap_or_default();
+        let permission_fence =
+            PermissionCache::cache_fence(ctx, input.site_id, None).await?;
+        let permission_fence = permission_fence.cache_key_fragment();
         let route_slug = input.route.as_ref().map_or("", |route| route.slug.as_str());
         let locales = input.locales.join(",");
 
@@ -122,6 +126,7 @@ impl ArticlePageCache {
                 page_id: row.page_id,
                 latest_revision_id,
                 page_updated_at,
+                permission_fence: &permission_fence,
                 compiled_body_html_hash: row.compiled_body_html_hash.as_deref(),
                 compiled_top_bar_html_hash: row.compiled_top_bar_html_hash.as_deref(),
                 compiled_side_bar_html_hash: row.compiled_side_bar_html_hash.as_deref(),
@@ -189,6 +194,7 @@ struct ArticlePageCacheKeyParts<'a> {
     page_id: i64,
     latest_revision_id: i64,
     page_updated_at: i128,
+    permission_fence: &'a str,
     compiled_body_html_hash: Option<&'a [u8]>,
     compiled_top_bar_html_hash: Option<&'a [u8]>,
     compiled_side_bar_html_hash: Option<&'a [u8]>,
@@ -203,11 +209,12 @@ fn format_article_page_cache_key(parts: ArticlePageCacheKeyParts<'_>) -> String 
     let side_bar_hash = optional_hash_hex(parts.compiled_side_bar_html_hash);
 
     format!(
-        "{ARTICLE_VIEW_PAGE_CACHE_PREFIX}:site={}:page={}:rev={}:updated={}:body={}:top={}:side={}:slug={}:extra={}:locales={}",
+        "{ARTICLE_VIEW_PAGE_CACHE_PREFIX}:site={}:page={}:rev={}:updated={}:permission={}:body={}:top={}:side={}:slug={}:extra={}:locales={}",
         parts.site_id,
         parts.page_id,
         parts.latest_revision_id,
         parts.page_updated_at,
+        parts.permission_fence,
         body_hash,
         top_bar_hash,
         side_bar_hash,
@@ -253,6 +260,7 @@ mod tests {
             page_id: 11,
             latest_revision_id: 13,
             page_updated_at: 17,
+            permission_fence: "site=19,user=23",
             compiled_body_html_hash: Some(&[0x01, 0x23]),
             compiled_top_bar_html_hash: Some(&[0x45]),
             compiled_side_bar_html_hash: Some(&[0x67]),
@@ -263,7 +271,7 @@ mod tests {
 
         assert_eq!(
             key,
-            "deepwell:article-view:page:v1:site=7:page=11:rev=13:updated=17:body=0123:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61",
+            "deepwell:article-view:page:v1:site=7:page=11:rev=13:updated=17:permission=site=19,user=23:body=0123:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61",
         );
     }
 
@@ -284,6 +292,7 @@ mod tests {
                     page_id: 11,
                     latest_revision_id: 13,
                     page_updated_at: 17,
+                    permission_fence: "site=19,user=23",
                     compiled_body_html_hash: Some(&[0x01, 0x23]),
                     compiled_top_bar_html_hash: Some(&[0x45]),
                     compiled_side_bar_html_hash: Some(&[0x67]),
@@ -296,7 +305,7 @@ mod tests {
             assert_eq!(
                 key.as_deref(),
                 Some(
-                    "deepwell:article-view:page:v1:site=7:page=11:rev=13:updated=17:body=0123:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61"
+                    "deepwell:article-view:page:v1:site=7:page=11:rev=13:updated=17:permission=site=19,user=23:body=0123:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61"
                 ),
                 "{source}",
             );
@@ -310,6 +319,7 @@ mod tests {
             page_id: 11,
             latest_revision_id: 13,
             page_updated_at: 17,
+            permission_fence: "site=19,user=23",
             compiled_body_html_hash: None,
             compiled_top_bar_html_hash: None,
             compiled_side_bar_html_hash: None,
@@ -335,6 +345,7 @@ mod tests {
                 page_id: 11,
                 latest_revision_id: 13,
                 page_updated_at: 17,
+                permission_fence: "site=19,user=23",
                 compiled_body_html_hash: None,
                 compiled_top_bar_html_hash: None,
                 compiled_side_bar_html_hash: None,

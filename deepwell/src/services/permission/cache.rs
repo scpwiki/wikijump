@@ -46,6 +46,12 @@ pub struct PermissionCacheFence {
     user_version: String,
 }
 
+impl PermissionCacheFence {
+    pub fn cache_key_fragment(&self) -> String {
+        format!("site={},user={}", self.site_version, self.user_version)
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct SetUserPermissionInput {
     pub site_id: Option<i64>,
