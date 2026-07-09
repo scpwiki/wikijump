@@ -8460,7 +8460,9 @@ fn native_list_page_link_title_label(
     link_titles: Option<&WikidotCompatLinkTitleMap>,
 ) -> Option<String> {
     let slug = native_list_page_link_slug(target)?;
-    link_titles?.get(&slug).cloned()
+    link_titles?
+        .get(&slug)
+        .map(|title| escape_list_pages_html_text(title))
 }
 
 fn native_list_page_link_href(target: &str) -> String {
@@ -10762,6 +10764,20 @@ mod tests {
         assert_eq!(
             render_native_list_page_link("scp-8066", None, Some(&titles)),
             r#"<a href="/scp-8066">SCP-8066</a>"#
+        );
+    }
+
+    #[test]
+    fn escapes_known_target_titles_used_for_empty_page_link_labels() {
+        let mut titles = WikidotCompatLinkTitleMap::new();
+        titles.insert(
+            "target-page".to_owned(),
+            r#"<img src=x onerror=alert(1)>"#.to_owned(),
+        );
+
+        assert_eq!(
+            render_native_list_page_link("target-page", None, Some(&titles)),
+            r#"<a href="/target-page">&lt;img src=x onerror=alert(1)&gt;</a>"#
         );
     }
 
