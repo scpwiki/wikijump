@@ -2,6 +2,7 @@ import { Socket } from "node:net"
 import { connect as tlsConnect } from "node:tls"
 
 const DEFAULT_REDIS_PORT = 6379
+const REDIS_SUBSCRIBER_RETRY_DELAY_MS = 100
 const CRLF = "\r\n"
 
 const encodeCommand = (parts) => {
@@ -223,6 +224,200 @@ class RedisCacheStore {
       await this.command(["SET", key, value])
     }
     return true
+  }
+
+  subscribe({ channel, onSubscribed, onMessage, onDisconnect, onMalformed }) {
+    const subscriber = new RedisFenceInvalidationSubscriber(
+      this.redisUrl,
+      this.authCommands
+    )
+    subscriber.subscribe({ channel, onSubscribed, onMessage, onDisconnect, onMalformed })
+    return subscriber
+  }
+}
+
+class RedisFenceInvalidationSubscriber {
+  constructor(redisUrl, authCommands) {
+    this.redisUrl = redisUrl
+    this.authCommands = authCommands
+    this.socket = null
+    this.buffer = Buffer.alloc(0)
+    this.pending = []
+    this.started = false
+    this.running = false
+    this.retryTimer = null
+    this.stopped = false
+    this.subscribed = false
+    this.channel = null
+    this.onSubscribed = null
+    this.onMessage = null
+    this.onDisconnect = null
+    this.onMalformed = null
+  }
+
+  subscribe({ channel, onSubscribed, onMessage, onDisconnect, onMalformed }) {
+    if (this.started) return
+    this.started = true
+    this.stopped = false
+    this.channel = channel
+    this.onSubscribed = onSubscribed
+    this.onMessage = onMessage
+    this.onDisconnect = onDisconnect
+    this.onMalformed = onMalformed
+    void this.run()
+  }
+
+  async run() {
+    if (this.running || this.stopped) return
+    this.running = true
+    try {
+      await this.connect()
+      for (const command of this.authCommands) {
+        await this.command(command)
+      }
+      const response = await this.command(["SUBSCRIBE", this.channel])
+      if (
+        !Array.isArray(response) ||
+        response[0] !== "subscribe" ||
+        response[1] !== this.channel
+      ) {
+        this.onMalformed?.()
+        this.reset()
+        return
+      }
+      this.subscribed = true
+      this.onSubscribed?.()
+    } catch {
+      this.reset()
+    } finally {
+      this.running = false
+      this.scheduleRetry()
+    }
+  }
+
+  scheduleRetry() {
+    if (this.stopped || !this.started || this.subscribed || this.retryTimer) return
+    this.retryTimer = setTimeout(() => {
+      this.retryTimer = null
+      void this.run()
+    }, REDIS_SUBSCRIBER_RETRY_DELAY_MS)
+    this.retryTimer.unref?.()
+  }
+
+  async connect() {
+    if (this.socket && !this.socket.destroyed) return
+
+    await new Promise((resolve, reject) => {
+      const url = new URL(this.redisUrl)
+      const port = Number.parseInt(url.port || `${DEFAULT_REDIS_PORT}`, 10)
+      const host = url.hostname
+      const socket =
+        url.protocol === "rediss:"
+          ? tlsConnect({ host, port, servername: host })
+          : new Socket().connect({ host, port })
+
+      const onConnect = () => {
+        socket.off("error", onError)
+        this.socket = socket
+        this.buffer = Buffer.alloc(0)
+        socket.on("data", (chunk) => this.handleData(chunk))
+        socket.on("error", () => this.reset())
+        socket.on("close", () => this.reset())
+        resolve()
+      }
+      const onError = (error) => {
+        socket.destroy()
+        reject(error)
+      }
+
+      socket.once(url.protocol === "rediss:" ? "secureConnect" : "connect", onConnect)
+      socket.once("error", onError)
+    })
+  }
+
+  reset() {
+    this.subscribed = false
+    if (this.socket && !this.socket.destroyed) {
+      this.socket.destroy()
+    }
+    this.socket = null
+    this.buffer = Buffer.alloc(0)
+    const pending = this.pending
+    this.pending = []
+    for (const request of pending) {
+      request.reject(new Error("Redis subscriber connection closed"))
+    }
+    this.onDisconnect?.()
+    this.scheduleRetry()
+  }
+
+  close() {
+    this.stopped = true
+    this.started = false
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer)
+      this.retryTimer = null
+    }
+    this.reset()
+  }
+
+  handleData(chunk) {
+    this.buffer = Buffer.concat([this.buffer, chunk])
+
+    while (this.buffer.length > 0) {
+      let parsed
+      try {
+        parsed = parseResponse(this.buffer)
+      } catch (error) {
+        const request = this.pending.shift()
+        if (request) request.reject(error)
+        this.onMalformed?.()
+        this.buffer = Buffer.alloc(0)
+        this.reset()
+        return
+      }
+
+      if (!parsed) return
+
+      this.buffer = this.buffer.subarray(parsed.nextOffset)
+      const request = this.pending.shift()
+      if (request) {
+        request.resolve(parsed.value)
+      } else {
+        this.handlePubSubMessage(parsed.value)
+      }
+    }
+  }
+
+  handlePubSubMessage(value) {
+    if (
+      Array.isArray(value) &&
+      value[0] === "message" &&
+      value[1] === this.channel &&
+      typeof value[2] === "string"
+    ) {
+      this.onMessage?.(value[2])
+      return
+    }
+
+    this.onMalformed?.()
+  }
+
+  async command(parts) {
+    await this.connect()
+    if (!this.socket || this.socket.destroyed) {
+      throw new Error("Redis subscriber connection unavailable")
+    }
+
+    return new Promise((resolve, reject) => {
+      this.pending.push({ resolve, reject })
+      this.socket.write(encodeCommand(parts), "utf8", (error) => {
+        if (error) {
+          this.pending = this.pending.filter((request) => request.resolve !== resolve)
+          reject(error)
+        }
+      })
+    })
   }
 }
 
