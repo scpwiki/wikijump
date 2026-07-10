@@ -27,10 +27,17 @@ const OPAQUE_ELEMENTS: &[&str] = &[
     "textarea", "title", "xmp",
 ];
 
-pub(super) fn html_data_ranges(html: &str) -> Vec<Range<usize>> {
-    let mut ranges = Vec::new();
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) struct HtmlDataSegment {
+    pub range: Range<usize>,
+    pub continues_from_previous: bool,
+}
+
+pub(super) fn html_data_segments(html: &str) -> Vec<HtmlDataSegment> {
+    let mut segments = Vec::new();
     let mut data_start = 0;
     let mut cursor = 0;
+    let mut break_before_next_data = false;
 
     while let Some(relative) = html[cursor..].find('<') {
         let tag_start = cursor + relative;
@@ -39,9 +46,13 @@ pub(super) fn html_data_ranges(html: &str) -> Vec<Range<usize>> {
             continue;
         };
 
-        push_nonempty_range(&mut ranges, data_start..tag_start);
+        push_nonempty_segment(
+            &mut segments,
+            data_start..tag_start,
+            &mut break_before_next_data,
+        );
         let Some(tag_end) = protected_construct_end(html, tag_start, kind) else {
-            return ranges;
+            return segments;
         };
 
         if let TagKind::Element { closing: false } = kind
@@ -50,19 +61,28 @@ pub(super) fn html_data_ranges(html: &str) -> Vec<Range<usize>> {
             && !is_self_closing(&html[tag_start..tag_end])
         {
             let Some(close_end) = opaque_element_end(html, tag_end, &name) else {
-                return ranges;
+                return segments;
             };
             cursor = close_end;
             data_start = close_end;
+            break_before_next_data = true;
             continue;
+        }
+
+        if !matches!(kind, TagKind::Element { .. }) {
+            break_before_next_data = true;
         }
 
         cursor = tag_end;
         data_start = tag_end;
     }
 
-    push_nonempty_range(&mut ranges, data_start..html.len());
-    ranges
+    push_nonempty_segment(
+        &mut segments,
+        data_start..html.len(),
+        &mut break_before_next_data,
+    );
+    segments
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -187,9 +207,17 @@ fn is_self_closing(tag: &str) -> bool {
     tag[..tag.len() - 1].trim_end().ends_with('/')
 }
 
-fn push_nonempty_range(ranges: &mut Vec<Range<usize>>, range: Range<usize>) {
+fn push_nonempty_segment(
+    segments: &mut Vec<HtmlDataSegment>,
+    range: Range<usize>,
+    break_before_next_data: &mut bool,
+) {
     if !range.is_empty() {
-        ranges.push(range);
+        segments.push(HtmlDataSegment {
+            range,
+            continues_from_previous: !*break_before_next_data,
+        });
+        *break_before_next_data = false;
     }
 }
 
@@ -198,11 +226,18 @@ mod tests {
     use super::*;
 
     fn data(html: &str) -> String {
-        html_data_ranges(html)
+        html_data_segments(html)
             .into_iter()
-            .map(|range| &html[range])
+            .map(|segment| &html[segment.range])
             .collect::<Vec<_>>()
             .join("|")
+    }
+
+    fn continuity(html: &str) -> Vec<bool> {
+        html_data_segments(html)
+            .into_iter()
+            .map(|segment| segment.continues_from_previous)
+            .collect()
     }
 
     #[test]
@@ -222,6 +257,16 @@ mod tests {
             "<svg><text>hidden</text></svg>f",
         );
         assert_eq!(data(html), "a|b|c|d|e|f");
+        assert_eq!(
+            continuity(html),
+            vec![true, false, false, false, false, false],
+        );
+    }
+
+    #[test]
+    fn preserves_continuity_across_ordinary_elements_only() {
+        assert_eq!(continuity("a<strong>b</strong>c"), vec![true, true, true]);
+        assert_eq!(continuity("a<style>x</style>b"), vec![true, false]);
     }
 
     #[test]

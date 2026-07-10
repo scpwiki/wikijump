@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::html_text::html_data_ranges;
+use super::html_text::html_data_segments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::prelude::*;
 use crate::hash::TextHash;
@@ -1451,7 +1451,11 @@ impl RenderService {
         let mut open_markers: Vec<(Range<usize>, String)> = Vec::new();
         let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
 
-        for data_range in html_data_ranges(html) {
+        for segment in html_data_segments(html) {
+            if !segment.continues_from_previous {
+                open_markers.clear();
+            }
+            let data_range = segment.range;
             let data = &html[data_range.clone()];
             let mut cursor = 0;
             while cursor < data.len() {
@@ -15172,6 +15176,27 @@ mod tests {
             RenderService::restore_residual_wikidot_span_markers(html),
             html
         );
+    }
+
+    #[test]
+    fn does_not_pair_residual_spans_across_opaque_or_comment_boundaries() {
+        for boundary in [
+            "<style>body { color: red; }</style>",
+            "<script>void 0</script>",
+            "<pre>literal</pre>",
+            "<svg><text>foreign</text></svg>",
+            "<!-- comment -->",
+        ] {
+            let html = format!(
+                r#"[[span class=&quot;outer&quot;]]before{boundary}after[[/span]]"#,
+            );
+
+            assert_eq!(
+                RenderService::restore_residual_wikidot_span_markers(&html),
+                html,
+                "boundary {boundary}",
+            );
+        }
     }
 
     #[test]
