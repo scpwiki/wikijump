@@ -7,6 +7,13 @@ import {fileURLToPath} from "node:url";
 
 const SAFE_FAMILY_RE = /^[A-Za-z0-9_.:-]+$/;
 const STDERR_PREFIX_LIMIT = 2048;
+const REDACTION = "[REDACTED]";
+const SENSITIVE_VALUE_OPTIONS = new Set([
+  "--session-token",
+  "--db-url",
+  "--attachment-s3-secret-access-key",
+]);
+const SENSITIVE_NAME_RE = /(?:password|passwd|pwd|secret|token|credential|access[_-]?key|db[_-]?url)/i;
 const COMMON_SIGNAL_EXIT_CODES = new Map([
   ["SIGHUP", 129],
   ["SIGINT", 130],
@@ -45,6 +52,105 @@ function validateOptions({family, label, command, args, timeoutMs}) {
   }
 }
 
+function isSensitiveOptionName(option) {
+  return SENSITIVE_VALUE_OPTIONS.has(option) || SENSITIVE_NAME_RE.test(option.replace(/^--?/, ""));
+}
+
+function redactConnectionUrl(value) {
+  return String(value).replace(/([a-z][a-z0-9+.-]*:\/\/[^\s:/?#]+:)([^@\s/?#]+)(@)/gi, `$1${REDACTION}$3`);
+}
+
+function redactTextPatterns(value) {
+  return redactConnectionUrl(String(value))
+    .replace(/((?:password|passwd|pwd|secret|token|credential|access[_-]?key|db[_-]?url)\s*[:=]\s*)([^\s'"`]+)/gi, `$1${REDACTION}`);
+}
+
+function redactArgs(args) {
+  const redacted = [];
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    const equalsIndex = arg.indexOf("=");
+    if (arg.startsWith("--") && equalsIndex > 0) {
+      const option = arg.slice(0, equalsIndex);
+      redacted.push(isSensitiveOptionName(option) ? `${option}=${REDACTION}` : redactTextPatterns(arg));
+      continue;
+    }
+    if (arg.startsWith("--") && isSensitiveOptionName(arg) && index + 1 < args.length) {
+      redacted.push(arg, REDACTION);
+      index += 1;
+      continue;
+    }
+    redacted.push(redactTextPatterns(arg));
+  }
+  return redacted;
+}
+
+function sensitiveOutputSecrets(args) {
+  const secrets = [];
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    const equalsIndex = arg.indexOf("=");
+    if (arg.startsWith("--") && equalsIndex > 0) {
+      const option = arg.slice(0, equalsIndex);
+      const value = arg.slice(equalsIndex + 1);
+      if (isSensitiveOptionName(option)) {
+        secrets.push(value);
+        const urlPassword = /[a-z][a-z0-9+.-]*:\/\/[^\s:/?#]+:([^@\s/?#]+)@/i.exec(value)?.[1];
+        if (urlPassword !== undefined) {
+          secrets.push(urlPassword);
+        }
+      }
+    } else if (arg.startsWith("--") && isSensitiveOptionName(arg) && index + 1 < args.length) {
+      secrets.push(args[index + 1]);
+      const urlPassword = /[a-z][a-z0-9+.-]*:\/\/[^\s:/?#]+:([^@\s/?#]+)@/i.exec(args[index + 1])?.[1];
+      if (urlPassword !== undefined) {
+        secrets.push(urlPassword);
+      }
+      index += 1;
+    }
+
+    if (redactTextPatterns(arg) !== arg) {
+      secrets.push(arg);
+    }
+  }
+  return [...new Set(secrets.filter((secret) => secret.length >= 4))];
+}
+
+function createOutputRedactor(args) {
+  const decoder = new TextDecoder("utf-8", {fatal: false});
+  const encoder = new TextEncoder();
+  const secrets = sensitiveOutputSecrets(args);
+  const maxSecretLength = Math.max(0, ...secrets.map((secret) => secret.length));
+  const tailLength = Math.max(0, maxSecretLength - 1);
+  let pending = "";
+
+  function redact(text) {
+    let redacted = redactTextPatterns(text);
+    for (const secret of secrets) {
+      redacted = redacted.split(secret).join(REDACTION);
+    }
+    return redacted;
+  }
+
+  return {
+    push(chunk) {
+      pending += decoder.decode(chunk, {stream: true});
+      if (pending.length <= tailLength) {
+        return new Uint8Array();
+      }
+      const emit = pending.slice(0, pending.length - tailLength);
+      pending = pending.slice(-tailLength);
+      return encoder.encode(redact(emit));
+    },
+    finish() {
+      pending += decoder.decode();
+      const output = encoder.encode(redact(pending));
+      pending = "";
+      return output;
+    },
+  };
+}
+
 function createBoundedUtf8Prefix(limit) {
   const decoder = new TextDecoder("utf-8", {fatal: false});
   let prefix = "";
@@ -69,9 +175,14 @@ function createBoundedUtf8Prefix(limit) {
 
 function writeChunk(stream, chunk) {
   return new Promise((resolve, reject) => {
+    if (stream.destroyed || stream.writable === false) {
+      reject(new Error("stream is no longer writable"));
+      return;
+    }
     function cleanup() {
       stream.off("drain", onDrain);
       stream.off("error", onError);
+      stream.off("close", onClose);
     }
     function onDrain() {
       cleanup();
@@ -81,8 +192,13 @@ function writeChunk(stream, chunk) {
       cleanup();
       reject(error);
     }
+    function onClose() {
+      cleanup();
+      reject(new Error("stream closed before write completed"));
+    }
 
     stream.on("error", onError);
+    stream.on("close", onClose);
     if (stream.write(chunk)) {
       cleanup();
       resolve();
@@ -92,9 +208,18 @@ function writeChunk(stream, chunk) {
   });
 }
 
-async function pumpOutput(readable, logStream, liveStream, {quiet, onChunk}) {
+async function pumpOutput(readable, logStream, liveStream, {quiet, onChunk, redactor}) {
   let liveWritable = !quiet;
-  for await (const chunk of readable) {
+  const stopLiveWrites = () => {
+    liveWritable = false;
+  };
+  liveStream.once("error", stopLiveWrites);
+  liveStream.once("close", stopLiveWrites);
+
+  async function writeRedactedChunk(chunk) {
+    if (chunk.length === 0) {
+      return;
+    }
     onChunk(chunk);
     await writeChunk(logStream, chunk);
     if (liveWritable) {
@@ -105,6 +230,13 @@ async function pumpOutput(readable, logStream, liveStream, {quiet, onChunk}) {
       }
     }
   }
+
+  for await (const chunk of readable) {
+    await writeRedactedChunk(redactor.push(chunk));
+  }
+  await writeRedactedChunk(redactor.finish());
+  liveStream.off("error", stopLiveWrites);
+  liveStream.off("close", stopLiveWrites);
 }
 
 function finishStream(stream) {
@@ -194,7 +326,7 @@ export async function runMeasuredCommand(options) {
   const runDirectory = path.join(path.dirname(ledgerPath), "runs", runId);
   const stdoutPath = path.join(runDirectory, "stdout.log");
   const stderrPath = path.join(runDirectory, "stderr.log");
-  await mkdir(runDirectory, {recursive: true});
+  await mkdir(runDirectory, {recursive: true, mode: 0o700});
 
   const startTime = new Date().toISOString();
   const startNs = process.hrtime.bigint();
@@ -208,8 +340,9 @@ export async function runMeasuredCommand(options) {
   let timeoutTimer = null;
   let killTimer = null;
 
-  const stdoutLog = createWriteStream(stdoutPath, {flags: "w"});
-  const stderrLog = createWriteStream(stderrPath, {flags: "w"});
+  const redactedArgs = redactArgs(args);
+  const stdoutLog = createWriteStream(stdoutPath, {flags: "w", mode: 0o600});
+  const stderrLog = createWriteStream(stderrPath, {flags: "w", mode: 0o600});
   const child = spawn(command, args, {
     cwd,
     stdio: ["inherit", "pipe", "pipe"],
@@ -218,7 +351,12 @@ export async function runMeasuredCommand(options) {
 
   const forwardSigint = () => sendSignalToChild(child, "SIGINT");
   const forwardSigterm = () => sendSignalToChild(child, "SIGTERM");
-  const ignoreLiveStreamError = () => {};
+  const ignoreLiveStreamError = (error) => {
+    if (error?.code === "EPIPE") {
+      process.stdout.destroy();
+      process.stderr.destroy();
+    }
+  };
   process.on("SIGINT", forwardSigint);
   process.on("SIGTERM", forwardSigterm);
   process.stdout.on("error", ignoreLiveStreamError);
@@ -245,6 +383,7 @@ export async function runMeasuredCommand(options) {
     onChunk(chunk) {
       stdoutBytes += chunk.length;
     },
+    redactor: createOutputRedactor(args),
   });
   const stderrPump = pumpOutput(child.stderr, stderrLog, process.stderr, {
     quiet,
@@ -252,6 +391,7 @@ export async function runMeasuredCommand(options) {
       stderrBytes += chunk.length;
       stderrPrefix.push(chunk);
     },
+    redactor: createOutputRedactor(args),
   });
 
   const closeResult = await new Promise((resolve) => {
@@ -292,7 +432,7 @@ export async function runMeasuredCommand(options) {
     family,
     label,
     command,
-    args,
+    args: redactedArgs,
     cwd,
     gitHead,
     startTime,
@@ -311,7 +451,7 @@ export async function runMeasuredCommand(options) {
     stdoutBytes,
     stderrBytes,
     firstErrorExcerpt,
-    rerunCommand: buildRerunCommand({cwd, command, args}),
+    rerunCommand: buildRerunCommand({cwd, command, args: redactedArgs}),
     envFingerprint: {
       node: process.version,
       platform: process.platform,
@@ -319,7 +459,7 @@ export async function runMeasuredCommand(options) {
     },
   };
 
-  await appendFile(ledgerPath, `${JSON.stringify(record)}\n`, "utf8");
+  await appendFile(ledgerPath, `${JSON.stringify(record)}\n`, {encoding: "utf8", mode: 0o600});
 
   return {
     record,

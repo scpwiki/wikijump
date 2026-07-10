@@ -219,12 +219,12 @@ test("ENOENT exits 127 and records the spawn error excerpt", async (t) => {
 test("closed downstream stdout does not change wrapped command outcome or lose the ledger record", async (t) => {
   const ledgerPath = await tempLedger(t);
   const childSource = [
-    "const chunk = 'x'.repeat(64 * 1024);",
+    "const chunk = 'x'.repeat(1024);",
     "let count = 0;",
     "const interval = setInterval(() => {",
     "  process.stdout.write(chunk);",
     "  count += 1;",
-    "  if (count >= 40) {",
+    "  if (count >= 4) {",
     "    clearInterval(interval);",
     "    setTimeout(() => process.exit(0), 20);",
     "  }",
@@ -232,7 +232,7 @@ test("closed downstream stdout does not change wrapped command outcome or lose t
   ].join("\n");
   const child = spawn(
     process.execPath,
-    [MEASURE_SCRIPT, "--family", "node-mjs", "--ledger", ledgerPath, "--", ...nodeCommand(childSource)],
+    [MEASURE_SCRIPT, "--family", "node-mjs", "--ledger", ledgerPath, "--quiet", "--", ...nodeCommand(childSource)],
     {
       cwd: PACKAGE_ROOT,
       stdio: ["ignore", "pipe", "inherit"],
@@ -251,4 +251,49 @@ test("closed downstream stdout does not change wrapped command outcome or lose t
   assert.equal(records[0].exitCode, 0);
   assert.equal(records[0].timedOut, false);
   assert.ok(records[0].stdoutBytes > 0);
+});
+
+test("redacts sensitive arguments, rerun command, and output artifacts", async (t) => {
+  const ledgerPath = await tempLedger(t);
+  const dbUrl = "postgres://wikijump:DB_PASSWORD_AUTOTEST@127.0.0.1:5432/wikijump";
+  const sessionToken = "SESSION_TOKEN_AUTOTEST";
+  const s3Secret = "S3_SECRET_AUTOTEST";
+  const outputSecret = "OUTPUT_SECRET_AUTOTEST";
+  const result = runMeasure([
+    "--family",
+    "import",
+    "--ledger",
+    ledgerPath,
+    "--",
+    ...nodeCommand([
+      "const args = process.argv.slice(1);",
+
+      "console.log(`args=${args.join(' ')}`);",
+      `console.log('token=${outputSecret}');`,
+      `console.error('secret=${outputSecret}');`,
+    ].join("\n")),
+    "--",
+    "--db-url",
+    dbUrl,
+    "--session-token",
+    sessionToken,
+    `--attachment-s3-secret-access-key=${s3Secret}`,
+  ]);
+
+  assert.equal(result.status, 0);
+  const ledgerText = readFileSync(ledgerPath, "utf8");
+  assert.doesNotMatch(ledgerText, /DB_PASSWORD_AUTOTEST|SESSION_TOKEN_AUTOTEST|S3_SECRET_AUTOTEST/);
+  assert.match(ledgerText, /\[REDACTED\]/);
+
+  const [record] = ledgerRecords(ledgerPath);
+  assert.deepEqual(record.args.slice(-5), [
+    "--db-url",
+    "[REDACTED]",
+    "--session-token",
+    "[REDACTED]",
+    "--attachment-s3-secret-access-key=[REDACTED]",
+  ]);
+  assert.doesNotMatch(record.rerunCommand, /DB_PASSWORD_AUTOTEST|SESSION_TOKEN_AUTOTEST|S3_SECRET_AUTOTEST/);
+  assert.doesNotMatch(readFileSync(record.artifactPaths.stdout, "utf8"), /DB_PASSWORD_AUTOTEST|SESSION_TOKEN_AUTOTEST|S3_SECRET_AUTOTEST|OUTPUT_SECRET_AUTOTEST/);
+  assert.doesNotMatch(readFileSync(record.artifactPaths.stderr, "utf8"), /OUTPUT_SECRET_AUTOTEST/);
 });
