@@ -905,6 +905,38 @@ test('apply-corpus-import-manifest rejects unsafe empty-DB assumption combinatio
   assert.match(adoptMode.stderr, /assume-empty-db-import cannot be combined with --adopt-existing or --replace-existing/);
 });
 
+test('apply-corpus-import-manifest documents empty-DB preflight instead of uniqueness fallback', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--help',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /site-level empty-page preflight/);
+  assert.doesNotMatch(result.stdout, /database uniqueness fail closed/);
+});
+
+test('apply-corpus-import-manifest empty-DB assumption checks site pages before importing', async () => {
+  const scriptPath = path.join(
+    path.dirname(path.dirname(fileURLToPath(import.meta.url))),
+    'scripts/apply-corpus-import-manifest.mjs',
+  );
+  const script = fs.readFileSync(scriptPath, 'utf8');
+
+  assert.match(script, /async function assertEmptyDbImportTarget/);
+  assert.match(script, /WHERE site_id = \$\{sqlInt\(args\.siteId\)\}/);
+  assert.match(script, /AND deleted_at IS NULL/);
+  assert.match(script, /verify_empty_db_import_target/);
+  assert.match(script, /requires an empty active page set/);
+});
+
 test('apply-corpus-import-manifest rejects conflicting DB rerender flags', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
   writePage(root, 'en', 'scp-173', {
