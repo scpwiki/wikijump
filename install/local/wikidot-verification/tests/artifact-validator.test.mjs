@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {execFile} from "node:child_process";
 import {createHash} from "node:crypto";
-import {mkdir, mkdtemp, rm, writeFile} from "node:fs/promises";
+import {mkdir, mkdtemp, rm, symlink, writeFile} from "node:fs/promises";
 import {promisify} from "node:util";
 import {fileURLToPath} from "node:url";
 import os from "node:os";
@@ -186,6 +186,32 @@ test("auto-detects Codex artifacts from assignment_id", async (t) => {
 
   assert.equal(report.status, "pass");
   assert.equal(report.artifact_kind, "codex");
+});
+
+test("quarantines symlinked metadata without leaking target contents", async (t) => {
+  const root = await temporaryDirectory(t);
+  const outside = path.join(await temporaryDirectory(t, "wikijump-artifact-outside-"), "secret.txt");
+  await writeFile(outside, "SECRET_RESULT_MARKER is not JSON\n");
+  await symlink(outside, path.join(root, "result.json"));
+  await writeManifest(root, []);
+
+  const report = await validateArtifactDirectory({artifactRoot: root, kind: "pro"});
+
+  assert.equal(report.status, "quarantine");
+  assert.ok(findingCodes(report).includes("result_not_regular"));
+  assert.ok(!JSON.stringify(report).includes("SECRET_RESULT_MARKER"));
+});
+
+test("quarantines oversized metadata before reading JSON", async (t) => {
+  const root = await temporaryDirectory(t);
+  await writeFile(path.join(root, "result.json"), `${"{"}${" ".repeat(1024 * 1024)}`);
+  await writeManifest(root, []);
+
+  const report = await validateArtifactDirectory({artifactRoot: root, kind: "pro"});
+
+  assert.equal(report.status, "quarantine");
+  assert.ok(findingCodes(report).includes("result_too_large"));
+  assert.ok(!findingCodes(report).includes("result_invalid_json"));
 });
 
 test("quarantines invalid result JSON without trusting textual completion", async (t) => {

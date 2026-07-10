@@ -1,8 +1,10 @@
 import {createHash} from "node:crypto";
-import {lstat, readFile} from "node:fs/promises";
+import {constants as fsConstants} from "node:fs";
+import {lstat, open, readFile} from "node:fs/promises";
 import path from "node:path";
 
 const SHA256_RE = /^[0-9a-f]{64}$/;
+const MAX_METADATA_JSON_BYTES = 1024 * 1024;
 
 const PRO_RESULT_STATUSES = new Set([
   "strategy_ready",
@@ -90,9 +92,9 @@ function resolveContained(rootPath, artifactPath) {
 }
 
 async function readJsonFile(filePath, findings, codePrefix, artifactPath) {
-  let text;
+  let stat;
   try {
-    text = await readFile(filePath, "utf8");
+    stat = await lstat(filePath);
   } catch (error) {
     addFinding(findings, "error", `${codePrefix}_missing`, `missing ${artifactPath}`, {
       path: artifactPath,
@@ -101,12 +103,57 @@ async function readJsonFile(filePath, findings, codePrefix, artifactPath) {
     return null;
   }
 
+  if (!stat.isFile()) {
+    addFinding(findings, "error", `${codePrefix}_not_regular`, `${artifactPath} must be a regular file`, {
+      path: artifactPath,
+    });
+    return null;
+  }
+
+  if (stat.size > MAX_METADATA_JSON_BYTES) {
+    addFinding(findings, "error", `${codePrefix}_too_large`, `${artifactPath} exceeds metadata size limit`, {
+      path: artifactPath,
+      max_bytes: MAX_METADATA_JSON_BYTES,
+      actual_bytes: stat.size,
+    });
+    return null;
+  }
+
+  let text;
+  let fileHandle;
   try {
-    return JSON.parse(text);
+    fileHandle = await open(filePath, fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW);
+    stat = await fileHandle.stat();
+    if (!stat.isFile()) {
+      addFinding(findings, "error", `${codePrefix}_not_regular`, `${artifactPath} must be a regular file`, {
+        path: artifactPath,
+      });
+      return null;
+    }
+    if (stat.size > MAX_METADATA_JSON_BYTES) {
+      addFinding(findings, "error", `${codePrefix}_too_large`, `${artifactPath} exceeds metadata size limit`, {
+        path: artifactPath,
+        max_bytes: MAX_METADATA_JSON_BYTES,
+        actual_bytes: stat.size,
+      });
+      return null;
+    }
+    text = await fileHandle.readFile("utf8");
   } catch (error) {
-    addFinding(findings, "error", `${codePrefix}_invalid_json`, `${artifactPath} is invalid JSON`, {
+    addFinding(findings, "error", `${codePrefix}_unreadable`, `could not read ${artifactPath}`, {
       path: artifactPath,
       detail: error.message,
+    });
+    return null;
+  } finally {
+    await fileHandle?.close();
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    addFinding(findings, "error", `${codePrefix}_invalid_json`, `${artifactPath} is invalid JSON`, {
+      path: artifactPath,
     });
     return null;
   }
