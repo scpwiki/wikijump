@@ -997,6 +997,7 @@ impl UserService {
 
     fn validate_locales<S: AsRef<str>>(user_type: UserType, locales: &[S]) -> Result<()> {
         use crate::utils::validate_locale;
+        use std::collections::HashSet;
 
         debug!(
             "Validating locales ({}) for user type {:?}",
@@ -1007,9 +1008,29 @@ impl UserService {
         let make_error =
             || Error::new("failed to validate list of locales", ErrorType::User);
 
-        // Ensure values are valid
+        const MAX_LOCALE_PREFERENCES: usize = 16;
+        const MAX_LOCALE_LENGTH: usize = 64;
+
+        if locales.len() > MAX_LOCALE_PREFERENCES {
+            bail!(Error::new(
+                "too many locale preferences",
+                ErrorType::BadRequest
+            ));
+        }
+
+        let mut seen = HashSet::with_capacity(locales.len());
+
+        // Ensure values are valid, bounded, and deduplicated.
         for locale in locales {
-            validate_locale(locale.as_ref()).or_raise(make_error)?;
+            let locale = locale.as_ref();
+            if locale.len() > MAX_LOCALE_LENGTH || !seen.insert(locale) {
+                bail!(Error::new(
+                    "one or more locales are invalid",
+                    ErrorType::BadRequest
+                ));
+            }
+
+            validate_locale(locale).or_raise(make_error)?;
         }
 
         // Invariants for locale lists

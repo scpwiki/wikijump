@@ -2,6 +2,9 @@ import { parse } from "accept-language-parser"
 
 const FALLBACK_LOCALE = "en"
 
+export const MAX_LOCALE_PREFERENCES = 16
+export const MAX_LOCALE_LENGTH = 64
+
 /**
  * @param {string[]} locales
  * @returns {string[]}
@@ -17,6 +20,31 @@ export const uniqueLocales = (locales) => {
   }
 
   return unique
+}
+
+/**
+ * Returns a bounded, deduplicated locale preference list for request-time
+ * translation and persisted user preferences. Locale syntax is still
+ * validated by Deepwell; this guard prevents oversized valid lists from
+ * amplifying work.
+ *
+ * @param {string[]} locales
+ * @returns {string[]}
+ */
+export const limitLocalePreferences = (locales) => {
+  const limited = []
+  const seen = new Set()
+
+  for (const locale of locales) {
+    const value = locale?.trim()
+    if (!value || value.length > MAX_LOCALE_LENGTH || seen.has(value)) continue
+
+    seen.add(value)
+    limited.push(value)
+    if (limited.length >= MAX_LOCALE_PREFERENCES) break
+  }
+
+  return limited
 }
 
 /**

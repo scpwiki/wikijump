@@ -1,3 +1,4 @@
+import { limitLocalePreferences } from "$lib/locales"
 import { client } from "$lib/server/deepwell"
 import { startBlobUpload, uploadToPresignUrl } from "./file"
 
@@ -90,7 +91,7 @@ export async function userEdit(
     Array.isArray(params.locales) &&
     params.locales.every((v) => typeof v === "string")
   ) {
-    data.locales = params.locales
+    data.locales = limitLocalePreferences(params.locales)
   }
   if (params.avatar instanceof File && params.avatar.type.startsWith("image/")) {
     const presign = await startBlobUpload(userId, params.avatar.size)
