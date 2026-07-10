@@ -567,7 +567,11 @@ export async function pageFileListAction({ request }: RequestEvent) {
 }
 
 /* ----- Page File Upload ----- */
-export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
+export async function pageFileUploadAction({
+  request,
+  cookies,
+  getClientAddress
+}: RequestEvent) {
   const form = await superValidate(request, valibot(pageFileUploadSchema))
   if (!form.valid) {
     return fail(400, { form })
@@ -585,6 +589,7 @@ export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
       name === "" ? undefined : name,
       file,
       comments,
+      getClientAddress(),
       { sessionToken, siteId, page: pageId }
     )
 
@@ -635,7 +640,11 @@ export async function pageFileDeleteAction({ request, cookies }: RequestEvent) {
 }
 
 /* ----- Page File Edit ----- */
-export async function pageFileEditAction({ request, cookies }: RequestEvent) {
+export async function pageFileEditAction({
+  request,
+  cookies,
+  getClientAddress
+}: RequestEvent) {
   const form = await superValidate(request, valibot(pageFileEditSchema))
   if (!form.valid) {
     return fail(400, { form })
@@ -655,6 +664,7 @@ export async function pageFileEditAction({ request, cookies }: RequestEvent) {
       file,
       lastRevisionId,
       comments,
+      getClientAddress(),
       { sessionToken, siteId, page: pageId }
     )
 
@@ -791,7 +801,11 @@ export async function pageFileHistoryAction({ request }: RequestEvent) {
 }
 
 /* ----- Page File Rollback ----- */
-export async function pageFileRollbackAction({ request, cookies }: RequestEvent) {
+export async function pageFileRollbackAction({
+  request,
+  cookies,
+  getClientAddress
+}: RequestEvent) {
   const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
 
@@ -827,6 +841,7 @@ export async function pageFileRollbackAction({ request, cookies }: RequestEvent)
       lastRevisionId,
       revisionNumber,
       comments,
+      getClientAddress(),
       { sessionToken, siteId, page: pageId },
       false
     )
