@@ -31,7 +31,7 @@
 
 use super::prelude::*;
 use crate::constants::SYSTEM_USER_ID;
-use crate::models::known_user;
+use crate::models::known_user::{self, Entity as KnownUser};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::site::{self, Entity as Site};
@@ -83,10 +83,9 @@ impl ImportService {
         };
 
         let txn = ctx.transaction();
-        known_user::ActiveModel {
+        KnownUser::insert(known_user::ActiveModel {
             user_id: Set(i64::from(user_id)),
-        }
-        .insert(txn)
+        })
         .on_conflict(
             OnConflict::column(known_user::Column::UserId)
                 .do_nothing()
