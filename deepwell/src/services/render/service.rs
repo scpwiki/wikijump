@@ -715,12 +715,24 @@ impl RenderService {
         let wikidot_color_spans =
             Self::protect_wikidot_color_spans(&mut wikitext, settings);
         wikitext = Self::escape_unrendered_wikidot_color_markers(wikitext, settings);
-        wikitext = Self::render_long_native_list_runs(wikitext);
+        let long_native_list_wikipedia_links = if settings.enable_page_syntax {
+            let (rendered, links) =
+                Self::render_long_native_list_runs_with_wikipedia_links(wikitext);
+            wikitext = rendered;
+            links
+        } else {
+            wikitext = Self::render_long_native_list_runs(wikitext);
+            Vec::new()
+        };
         if Self::should_use_wikidot_compatibility_fallback(&wikitext, page_info) {
             let wikidot_compat_html =
                 Self::protect_generated_wikidot_compat_html(&mut wikitext, settings);
             let mut backlinks = ftml::data::Backlinks::new();
             backlinks.included_pages.extend(included_pages);
+            Self::record_protected_wikidot_wikipedia_backlinks(
+                &mut backlinks,
+                &long_native_list_wikipedia_links,
+            );
             let fallback_link_titles = if let Some(site_id) = current_site_id {
                 Self::load_wikidot_compat_fallback_link_titles(ctx, site_id, &wikitext)
                     .await
@@ -879,6 +891,10 @@ impl RenderService {
             Self::record_protected_wikidot_wikipedia_backlinks(
                 &mut html_output.backlinks,
                 &wikidot_wikipedia_links,
+            );
+            Self::record_protected_wikidot_wikipedia_backlinks(
+                &mut html_output.backlinks,
+                &long_native_list_wikipedia_links,
             );
             html_output.body = Self::restore_wikidot_render_compatibility(
                 &html_output.body,
@@ -4389,8 +4405,15 @@ impl RenderService {
     }
 
     fn render_long_native_list_runs(wikitext: String) -> String {
+        Self::render_long_native_list_runs_with_wikipedia_links(wikitext).0
+    }
+
+    fn render_long_native_list_runs_with_wikipedia_links(
+        wikitext: String,
+    ) -> (String, Vec<ProtectedWikidotWikipediaLink>) {
         let lines = wikitext.split_inclusive('\n').collect::<Vec<_>>();
         let mut output = String::with_capacity(wikitext.len());
+        let mut wikipedia_links = Vec::new();
         let mut index = 0;
 
         while index < lines.len() {
@@ -4400,6 +4423,9 @@ impl RenderService {
             }
 
             if end - index >= LONG_NATIVE_LIST_RENDER_MIN_ITEMS {
+                let native_list_wikitext = lines[index..end].concat();
+                wikipedia_links
+                    .extend(collect_wikidot_wikipedia_links(&native_list_wikitext));
                 output.push_str(&render_native_bullet_list(&lines[index..end]));
                 index = end;
             } else {
@@ -4408,7 +4434,7 @@ impl RenderService {
             }
         }
 
-        output
+        (output, wikipedia_links)
     }
 
     fn should_use_wikidot_compatibility_fallback(
@@ -8422,6 +8448,17 @@ fn wikidot_star_local_anchor(target: &str, label: &str) -> String {
 
 fn render_wikidot_wikipedia_link(target: &str, label: Option<&str>) -> String {
     build_wikidot_wikipedia_link(target, label).anchor
+}
+
+fn collect_wikidot_wikipedia_links(source: &str) -> Vec<ProtectedWikidotWikipediaLink> {
+    WIKIDOT_WIKIPEDIA_LINK_REGEX
+        .captures_iter(source)
+        .filter_map(|captures| {
+            let target = captures.name("target")?.as_str();
+            let label = captures.name("label").map(|matched| matched.as_str());
+            Some(build_wikidot_wikipedia_link(target, label))
+        })
+        .collect()
 }
 
 fn build_wikidot_wikipedia_link(
@@ -14520,6 +14557,37 @@ mod tests {
 
         assert!(rendered.contains(r#"<li>Source <a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a></li>"#));
         assert!(!rendered.contains("[wikipedia:Canonical_bundle"));
+    }
+
+    #[test]
+    fn records_wikidot_wikipedia_backlinks_inside_preprocessed_native_list_runs() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Source [wikipedia:Canonical_bundle Canonical Bundle]\n",
+        )
+        .to_owned();
+
+        let (rendered, links) =
+            RenderService::render_long_native_list_runs_with_wikipedia_links(wikitext);
+        let mut backlinks = ftml::data::Backlinks::new();
+        RenderService::record_protected_wikidot_wikipedia_backlinks(
+            &mut backlinks,
+            &links,
+        );
+
+        assert!(rendered.contains(r#"<li>Source <a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a></li>"#));
+        assert_eq!(
+            backlinks.external_links,
+            vec![Cow::Borrowed(
+                "http://en.wikipedia.org/wiki/Canonical_bundle"
+            )],
+        );
     }
 
     #[test]
