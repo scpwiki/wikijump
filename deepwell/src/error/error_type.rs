@@ -915,7 +915,7 @@ impl ErrorType {
             } => json!({
                 "field": field,
                 "value": value,
-                "failed": failed,
+                "failed_count": failed.len(),
             }),
             ErrorType::FilterRegexInvalid { regex } => json!({
                 "regex": regex,
@@ -1324,11 +1324,7 @@ mod tests {
             json!({
                 "field": "title",
                 "value": "blocked",
-                "failed": [{
-                    "filter_id": 7,
-                    "regex": "blocked",
-                    "description": "blocked words",
-                }],
+                "failed_count": 1,
             }),
         );
         assert_eq!(
