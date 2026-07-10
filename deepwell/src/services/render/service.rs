@@ -3679,13 +3679,11 @@ impl RenderService {
                             )
                         })?
                 else {
-                    return Self::fetch_include_source_from_site(
-                        ctx,
-                        current_site_id,
-                        current_site_slug,
-                        page_ref.page(),
-                    )
-                    .await;
+                    // The include names a distinct site that is not available
+                    // locally. Falling back to the current site can select the
+                    // including page itself when both slugs match and recurse
+                    // until the depth limit. Preserve missing-include behavior.
+                    return Ok(None);
                 };
 
                 Self::fetch_include_source_from_site(

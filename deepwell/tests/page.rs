@@ -550,6 +550,63 @@ async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_incl
 }
 
 #[tokio::test]
+async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let slug = "missing-remote-include-self-cycle";
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(slug)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": concat!(
+                "Before missing remote include.\n",
+                "[[include :missing-remote:missing-remote-include-self-cycle]]\n",
+                "After missing remote include.\n",
+            ),
+            "title": "Missing Remote Include",
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "create missing remote include regression",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site.site.site_id,
+            "page": slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("page with a missing remote include should still render");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(html.contains("Before missing remote include."), "{html}");
+    assert!(html.contains("After missing remote include."), "{html}");
+    assert!(
+        html.contains("No such page: :missing-remote:missing-remote-include-self-cycle"),
+        "{html}",
+    );
+}
+
+#[tokio::test]
 async fn direct_message_render_leaves_image_block_include_literal() {
     let runner = TestRunner::setup().await;
     let settings =
