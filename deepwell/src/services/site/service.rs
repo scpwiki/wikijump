@@ -41,12 +41,18 @@ use wikidot_normalize::normalize;
 #[derive(Debug)]
 pub struct SiteService;
 
+const RESERVED_PLATFORM_HOSTNAME_SLUGS: &[&str] = &["acme", "dns", "ech"];
+
 #[allow(dead_code)] // TODO
 const DEFAULT_FORUM_MAX_NEST_LEVEL: i16 = 10;
 #[allow(dead_code)] // TODO
 const DEFAULT_FORUM_PER_PAGE_DISCUSSION: bool = false;
 
 impl SiteService {
+    pub(crate) fn is_reserved_platform_hostname_slug(slug: &str) -> bool {
+        is_reserved_platform_hostname_slug(slug)
+    }
+
     pub async fn create(
         ctx: &ServiceContext<'_>,
         CreateSite {
@@ -570,6 +576,17 @@ impl SiteService {
             ));
         }
 
+        if is_reserved_platform_hostname_slug(slug) {
+            error!("Cannot {action} site with reserved platform hostname slug '{slug}'");
+            bail!(Error::new(
+                format!(
+                    "cannot {}, site slug '{}' is reserved by the platform",
+                    action, slug
+                ),
+                ErrorType::BadRequest
+            ));
+        }
+
         let result = Site::find()
             .filter(
                 Condition::all()
@@ -592,6 +609,35 @@ impl SiteService {
                     ErrorType::SiteExists
                 ));
             }
+        }
+    }
+}
+
+pub(crate) fn is_reserved_platform_hostname_slug(slug: &str) -> bool {
+    RESERVED_PLATFORM_HOSTNAME_SLUGS.contains(&slug)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_reserved_platform_hostname_slug;
+
+    #[test]
+    fn dns_related_platform_hostnames_are_reserved() {
+        for slug in ["acme", "dns", "ech"] {
+            assert!(
+                is_reserved_platform_hostname_slug(slug),
+                "{slug} should be reserved",
+            );
+        }
+    }
+
+    #[test]
+    fn unrelated_site_slugs_are_not_reserved_hostnames() {
+        for slug in ["example", "secure", "static", "service"] {
+            assert!(
+                !is_reserved_platform_hostname_slug(slug),
+                "{slug} should not be reserved by the DNS hostname guard",
+            );
         }
     }
 }

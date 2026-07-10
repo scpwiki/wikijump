@@ -486,8 +486,23 @@ impl AliasService {
         let (filter_type, target_object) = match alias_type {
             AliasType::User => (FilterType::User, ObjectScope::User(target_id)),
             AliasType::Site => {
-                // No filter with this type, skip verification
-                debug!("No need to run filter verification for site alias");
+                if SiteService::is_reserved_platform_hostname_slug(slug) {
+                    error!(
+                        "Cannot create site alias with reserved platform hostname slug '{slug}'"
+                    );
+                    bail!(Error::new(
+                        format!(
+                            "cannot create site alias '{}', slug is reserved by the platform",
+                            slug
+                        ),
+                        ErrorType::BadRequest
+                    ));
+                }
+
+                // No database-backed filter with this type, skip verification
+                debug!(
+                    "No need to run database-backed filter verification for site alias"
+                );
                 return Ok(());
             }
         };

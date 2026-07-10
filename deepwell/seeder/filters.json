@@ -180,21 +180,21 @@
         "regex": "^acme$",
         "description": "Reserved name (acme)",
         "case-sensitive": false,
-        "user": false
+        "user": true
     },
     {
         "site": null,
         "regex": "^dns$",
         "description": "Reserved name (dns)",
         "case-sensitive": false,
-        "user": false
+        "user": true
     },
     {
         "site": null,
         "regex": "^ech$",
         "description": "Reserved name (ech) (for Encrypted ClientHello)",
         "case-sensitive": false,
-        "user": false
+        "user": true
     },
     {
         "site": null,
