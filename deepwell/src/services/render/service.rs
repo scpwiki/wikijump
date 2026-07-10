@@ -157,9 +157,18 @@ const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></sc
 const MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS: usize = 128;
 
 type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
+type WikidotClassIncludeVariables = BTreeMap<u64, String>;
 
 static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
+static WIKIDOT_CLASS_INCLUDE_VARIABLE_SENTINEL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(&format!(
+            r"{}(?P<id>[0-9A-F]{{16}})X",
+            regex::escape(WIKIDOT_CLASS_INCLUDE_VARIABLE_SENTINEL_PREFIX)
+        ))
+        .unwrap()
+    });
 static LISTPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?is)\[\[module\s+ListPages(?P<head>(?:"[^"]*"|'[^']*'|[^\]])*)\]\](?P<body>.*?)\[\[/module\]\]"#,
@@ -698,7 +707,7 @@ impl RenderService {
         wikitext = Self::expand_new_page_modules(wikitext, settings);
         wikitext = Self::expand_clone_modules(wikitext, settings);
         wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
-        let mut wikidot_class_include_variables = Vec::new();
+        let mut wikidot_class_include_variables = WikidotClassIncludeVariables::new();
         if settings.enable_page_syntax {
             Self::normalize_wikidot_div_style_url_quotes(&mut wikitext);
             wikidot_class_include_variables =
@@ -1031,7 +1040,7 @@ impl RenderService {
         html: &str,
         current_site: Option<&SiteModel>,
         config: &Config,
-        wikidot_class_include_variables: &[(String, String)],
+        wikidot_class_include_variables: &WikidotClassIncludeVariables,
     ) -> String {
         let html = Self::restore_wikidot_rendered_embed_iframes(html);
         let html = Self::restore_wikidot_email_obfuscation(&html);
@@ -1797,13 +1806,19 @@ impl RenderService {
 
     fn protect_wikidot_marker_class_include_variables(
         wikitext: &mut String,
-    ) -> Vec<(String, String)> {
+    ) -> WikidotClassIncludeVariables {
         if !wikitext.contains("{$") {
-            return Vec::new();
+            return WikidotClassIncludeVariables::new();
         }
 
+        let source = wikitext.as_str();
         let mut normalized = String::with_capacity(wikitext.len());
-        let mut protected_variables = Vec::new();
+        let occupied_sentinel_ids = WIKIDOT_CLASS_INCLUDE_VARIABLE_SENTINEL_REGEX
+            .captures_iter(source)
+            .filter_map(|captures| u64::from_str_radix(&captures["id"], 16).ok())
+            .collect::<BTreeSet<_>>();
+        let mut protected_variables = WikidotClassIncludeVariables::new();
+        let mut next_sentinel_id = 0u64;
 
         for line in wikitext.split_inclusive('\n') {
             let trimmed = line.trim_start();
@@ -1827,11 +1842,14 @@ impl RenderService {
                 let protected = INCLUDE_VARIABLE_REGEX
                     .replace_all(value, |captures: &regex::Captures<'_>| {
                         let original = captures[0].to_owned();
+                        while occupied_sentinel_ids.contains(&next_sentinel_id) {
+                            next_sentinel_id += 1;
+                        }
                         let sentinel = format!(
-                            "{WIKIDOT_CLASS_INCLUDE_VARIABLE_SENTINEL_PREFIX}{}",
-                            protected_variables.len()
+                            "{WIKIDOT_CLASS_INCLUDE_VARIABLE_SENTINEL_PREFIX}{next_sentinel_id:016X}X"
                         );
-                        protected_variables.push((sentinel.clone(), original));
+                        protected_variables.insert(next_sentinel_id, original);
+                        next_sentinel_id += 1;
                         sentinel
                     })
                     .into_owned();
@@ -1855,13 +1873,24 @@ impl RenderService {
     }
 
     fn restore_protected_wikidot_marker_class_include_variables(
-        mut html: String,
-        protected_variables: &[(String, String)],
+        html: String,
+        protected_variables: &WikidotClassIncludeVariables,
     ) -> String {
-        for (sentinel, original) in protected_variables {
-            html = html.replace(sentinel, original);
+        if protected_variables.is_empty() {
+            return html;
         }
-        html
+
+        WIKIDOT_CLASS_INCLUDE_VARIABLE_SENTINEL_REGEX
+            .replace_all(&html, |captures: &regex::Captures<'_>| {
+                let Some(id) = u64::from_str_radix(&captures["id"], 16).ok() else {
+                    return captures[0].to_owned();
+                };
+                protected_variables
+                    .get(&id)
+                    .cloned()
+                    .unwrap_or_else(|| captures[0].to_owned())
+            })
+            .into_owned()
     }
 
     fn normalize_wikidot_multiline_page_links(wikitext: &mut String) {
@@ -14234,7 +14263,7 @@ mod tests {
         let protected_variables =
             RenderService::protect_wikidot_marker_class_include_variables(&mut wikitext);
 
-        assert!(wikitext.contains("WIKIJUMPWIKIDOTCLASSINCLUDEVAR0"));
+        assert!(wikitext.contains("WIKIJUMPWIKIDOTCLASSINCLUDEVAR0000000000000000X"));
         let page_info =
             fallback_test_page_info("001-blank-i", "Proposal Blank the First");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -14260,15 +14289,28 @@ mod tests {
 
     #[test]
     fn restores_only_tracked_wikidot_class_include_variable_sentinels() {
-        let html = r#"<p>literal wikijump-include-var-demo</p><a href="/docs/wikijump-include-var-path">link</a>"#;
+        let literal_sentinel = "WIKIJUMPWIKIDOTCLASSINCLUDEVAR0000000000000000X";
+        let variables = (0..12)
+            .map(|index| format!("{{$value{index}}}"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let original = format!(
+            "literal wikijump-include-var-demo {literal_sentinel}\n[[div class=\"{variables}\"]]\nbody\n[[/div]]\n"
+        );
+        let mut protected = original.clone();
+        let protected_variables =
+            RenderService::protect_wikidot_marker_class_include_variables(&mut protected);
 
         let restored =
             RenderService::restore_protected_wikidot_marker_class_include_variables(
-                html.to_owned(),
-                &[],
+                protected,
+                &protected_variables,
             );
 
-        assert_eq!(restored, html);
+        assert_eq!(protected_variables.len(), 12);
+        assert!(restored.contains(literal_sentinel));
+        assert!(restored.contains("wikijump-include-var-demo"));
+        assert_eq!(restored, original);
     }
 
     #[test]
