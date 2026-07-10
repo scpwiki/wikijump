@@ -308,7 +308,7 @@ test("capturePage records page errors and failed subframe responses", async () =
   const mainFrame = {
     name: "main",
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
     async evaluate() {
       return "visible";
@@ -326,7 +326,7 @@ test("capturePage records page errors and failed subframe responses", async () =
       handlers.get("pageerror")?.(new Error("client render failed"));
       handlers.get("response")?.({
         status: () => 500,
-        url: () => "https://local.example/main",
+        url: () => "https://scp-wiki.wikijump.localhost/main",
         request: () => ({
           isNavigationRequest: () => true,
           frame: () => mainFrame,
@@ -335,7 +335,7 @@ test("capturePage records page errors and failed subframe responses", async () =
       });
       handlers.get("response")?.({
         status: () => 500,
-        url: () => "https://local.example/frame",
+        url: () => "https://scp-wiki.wikijump.localhost/frame",
         request: () => ({
           isNavigationRequest: () => true,
           frame: () => childFrame,
@@ -352,11 +352,12 @@ test("capturePage records page errors and failed subframe responses", async () =
       return "<html>visible</html>";
     },
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
   };
 
-  const result = await capturePage(page, "https://local.example/page", {
+  const result = await capturePage(page, "https://scp-wiki.wikijump.localhost/page", {
+    captureSide: "local",
     timeoutMs: 100,
     waitUntil: "domcontentloaded",
     settleMs: 0,
@@ -367,7 +368,7 @@ test("capturePage records page errors and failed subframe responses", async () =
   assert.equal(result.visibleText, "visible");
   assert.deepEqual(result.failedRequests, [
     {
-      url: "https://local.example/frame",
+      url: "https://scp-wiki.wikijump.localhost/frame",
       status: 500,
       resourceType: "document",
     },
@@ -377,7 +378,7 @@ test("capturePage records page errors and failed subframe responses", async () =
 test("capturePage can scope visible text to the main frame", async () => {
   const mainFrame = {
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
     async evaluate() {
       return "main frame text";
@@ -407,11 +408,12 @@ test("capturePage can scope visible text to the main frame", async () => {
       return "<html>main frame text</html>";
     },
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
   };
 
-  const result = await capturePage(page, "https://local.example/page", {
+  const result = await capturePage(page, "https://scp-wiki.wikijump.localhost/page", {
+    captureSide: "local",
     timeoutMs: 100,
     waitUntil: "domcontentloaded",
     settleMs: 0,
@@ -425,7 +427,7 @@ test("capturePage can scope visible text to the main frame", async () => {
 test("capturePage skips hidden child frames for all-frame visible text", async () => {
   const mainFrame = {
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
     async evaluate() {
       return "main frame text";
@@ -433,7 +435,7 @@ test("capturePage skips hidden child frames for all-frame visible text", async (
   };
   const visibleFrame = {
     url() {
-      return "https://local.example/frame";
+      return "https://scp-wiki.wikijump.localhost/frame";
     },
     async frameElement() {
       return {async evaluate() { return true; }};
@@ -444,7 +446,7 @@ test("capturePage skips hidden child frames for all-frame visible text", async (
   };
   const hiddenFrame = {
     url() {
-      return "https://local.example/hidden";
+      return "https://scp-wiki.wikijump.localhost/hidden";
     },
     async frameElement() {
       return {async evaluate() { return false; }};
@@ -469,11 +471,12 @@ test("capturePage skips hidden child frames for all-frame visible text", async (
       return "<html>main frame text</html>";
     },
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
   };
 
-  const result = await capturePage(page, "https://local.example/page", {
+  const result = await capturePage(page, "https://scp-wiki.wikijump.localhost/page", {
+    captureSide: "local",
     timeoutMs: 100,
     waitUntil: "domcontentloaded",
     settleMs: 0,
@@ -487,7 +490,7 @@ test("capturePage skips hidden child frames for all-frame visible text", async (
 test("capturePage does not read cross-origin child frame text", async () => {
   const mainFrame = {
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
     async evaluate() {
       return "main frame text";
@@ -517,11 +520,12 @@ test("capturePage does not read cross-origin child frame text", async () => {
       return "<html>main frame text</html>";
     },
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
   };
 
-  const result = await capturePage(page, "https://local.example/page", {
+  const result = await capturePage(page, "https://scp-wiki.wikijump.localhost/page", {
+    captureSide: "local",
     timeoutMs: 100,
     waitUntil: "domcontentloaded",
     settleMs: 0,
@@ -545,7 +549,7 @@ test("capturePage records delayed main-frame navigation failures", async () => {
     async goto() {
       handlers.get("response")?.({
         status: () => 200,
-        url: () => "https://local.example/initial",
+        url: () => "https://scp-wiki.wikijump.localhost/initial",
         request: () => ({
           isNavigationRequest: () => true,
           frame: () => mainFrame,
@@ -558,7 +562,7 @@ test("capturePage records delayed main-frame navigation failures", async () => {
       if (state !== "load") return;
       handlers.get("response")?.({
         status: () => 404,
-        url: () => "https://local.example/not-found",
+        url: () => "https://scp-wiki.wikijump.localhost/not-found",
         request: () => ({
           isNavigationRequest: () => true,
           frame: () => mainFrame,
@@ -573,11 +577,12 @@ test("capturePage records delayed main-frame navigation failures", async () => {
       return "<html>visible</html>";
     },
     url() {
-      return "https://local.example/not-found";
+      return "https://scp-wiki.wikijump.localhost/not-found";
     },
   };
 
-  const result = await capturePage(page, "https://local.example/page", {
+  const result = await capturePage(page, "https://scp-wiki.wikijump.localhost/page", {
+    captureSide: "local",
     timeoutMs: 100,
     waitUntil: "domcontentloaded",
     settleMs: 0,
@@ -586,7 +591,7 @@ test("capturePage records delayed main-frame navigation failures", async () => {
 
   assert.deepEqual(result.failedRequests, [
     {
-      url: "https://local.example/not-found",
+      url: "https://scp-wiki.wikijump.localhost/not-found",
       status: 404,
       resourceType: "document",
     },
@@ -613,11 +618,12 @@ test("capturePage bounds post-navigation load-state waits", async () => {
       return "<html>visible</html>";
     },
     url() {
-      return "https://local.example/page";
+      return "https://scp-wiki.wikijump.localhost/page";
     },
   };
 
-  await capturePage(page, "https://local.example/page", {
+  await capturePage(page, "https://scp-wiki.wikijump.localhost/page", {
+    captureSide: "local",
     timeoutMs: 30_000,
     waitUntil: "domcontentloaded",
     settleMs: 0,
@@ -883,7 +889,7 @@ exports.chromium = {
         fixture_id: "EN:partial",
         family: "EN",
         slug: "partial",
-        source_url: "https://live.example/partial",
+        source_url: "https://partial.wikidot.com/partial",
         local_https_url: "",
         required_browser: true,
       }],

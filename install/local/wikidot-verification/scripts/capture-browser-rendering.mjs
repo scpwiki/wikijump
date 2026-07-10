@@ -6,6 +6,12 @@ import path from "node:path";
 import process from "node:process";
 import {fileURLToPath} from "node:url";
 import {
+  assertBrowserCaptureUrl,
+  BrowserCaptureUrlPolicyError,
+  createBrowserCaptureUrlPolicy,
+  guardMainFrameNavigation,
+} from "../src/browser-capture-url-policy.mjs";
+import {
   buildEvidenceRecord,
   readJson,
   inventoryRows,
@@ -272,7 +278,8 @@ export async function openBrowser({
 
 function frameOrigin(value) {
   try {
-    return new URL(value).origin;
+    const origin = new URL(value).origin;
+    return origin === "null" ? null : origin;
   } catch {
     return null;
   }
@@ -282,6 +289,21 @@ function frameUrl(frame) {
   if (typeof frame.url !== "function") return null;
   try {
     return frame.url();
+  } catch {
+    return null;
+  }
+}
+
+function effectiveFrameOrigin(frame, seen = new Set()) {
+  if (!frame || seen.has(frame)) return null;
+  seen.add(frame);
+  const url = frameUrl(frame);
+  const origin = frameOrigin(url);
+  if (origin) return origin;
+  if (url !== "about:blank" && url !== "about:srcdoc") return null;
+  if (typeof frame.parentFrame !== "function") return null;
+  try {
+    return effectiveFrameOrigin(frame.parentFrame(), seen);
   } catch {
     return null;
   }
@@ -299,10 +321,12 @@ async function collectVisibleText(page, visibleTextScope = "main-frame") {
   for (const frame of frames) {
     try {
       const isMainFrame = typeof page.mainFrame === "function" && frame === page.mainFrame();
-      const origin = frameOrigin(frameUrl(frame));
+      const origin = effectiveFrameOrigin(frame);
       if (!isMainFrame && (!pageOrigin || origin !== pageOrigin)) continue;
       if (!(await shouldCaptureFrameVisibleText(page, frame))) continue;
+      if (!isMainFrame && effectiveFrameOrigin(frame) !== pageOrigin) continue;
       const text = await frame.evaluate(() => document.body?.innerText ?? "");
+      if (!isMainFrame && effectiveFrameOrigin(frame) !== pageOrigin) continue;
       if (text) texts.push(text);
     } catch {
       // Detached or inaccessible frames should not abort page-level capture.
@@ -350,7 +374,8 @@ async function waitForLoadStateWithinBudget(page, state, timeoutMs, startedAt) {
   await page.waitForLoadState(state, {timeout: Math.min(POST_NAVIGATION_STATE_TIMEOUT_MS, remainingMs)}).catch(() => {});
 }
 
-export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = DEFAULT_SETTLE_MS, screenshotPath, visibleTextScope = "main-frame"}) {
+export async function capturePage(page, url, {captureSide, timeoutMs, waitUntil, settleMs = DEFAULT_SETTLE_MS, screenshotPath, visibleTextScope = "main-frame"}) {
+  const urlPolicy = createBrowserCaptureUrlPolicy(captureSide, url);
   const consoleErrors = [];
   const failedRequests = [];
   const badResponses = [];
@@ -397,23 +422,46 @@ export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = D
   let visibleText = "";
   let html = "";
   let writtenScreenshotPath = null;
+  let policyBlocked = false;
+  let finalUrlAllowed = true;
+  let blockedNavigationError = null;
   const startedAt = Date.now();
+  const removeRequestGuard = await guardMainFrameNavigation(
+    page,
+    urlPolicy,
+    (error) => {
+      blockedNavigationError ??= error;
+    },
+  );
   try {
     response = await page.goto(url, {timeout: timeoutMs, waitUntil});
   } catch (error) {
     navigationError = error;
   }
+  if (blockedNavigationError) {
+    navigationError = blockedNavigationError;
+    policyBlocked = true;
+    finalUrlAllowed = false;
+  }
 
-  try {
-    await waitForLoadStateWithinBudget(page, "domcontentloaded", timeoutMs, startedAt);
-    await waitForLoadStateWithinBudget(page, "load", timeoutMs, startedAt);
-    if (settleMs > 0 && typeof page.waitForTimeout === "function") {
-      await page.waitForTimeout(settleMs).catch(() => {});
+  if (!policyBlocked) {
+    try {
+      assertBrowserCaptureUrl(urlPolicy, page.url(), "final URL");
+      await waitForLoadStateWithinBudget(page, "domcontentloaded", timeoutMs, startedAt);
+      await waitForLoadStateWithinBudget(page, "load", timeoutMs, startedAt);
+      if (settleMs > 0 && typeof page.waitForTimeout === "function") {
+        await page.waitForTimeout(settleMs).catch(() => {});
+      }
+      if (blockedNavigationError) throw blockedNavigationError;
+      assertBrowserCaptureUrl(urlPolicy, page.url(), "final URL");
+      visibleText = await collectVisibleText(page, visibleTextScope);
+      if (blockedNavigationError) throw blockedNavigationError;
+      html = await page.content();
+      if (blockedNavigationError) throw blockedNavigationError;
+    } catch (error) {
+      if (!navigationError) navigationError = error;
+      if (error instanceof BrowserCaptureUrlPolicyError) finalUrlAllowed = false;
     }
-    visibleText = await collectVisibleText(page, visibleTextScope);
-    html = await page.content();
-  } catch (error) {
-    if (!navigationError) navigationError = error;
   }
 
   if (screenshotPath && html) {
@@ -425,38 +473,28 @@ export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = D
     }
   }
 
-  if (!navigationError) {
-    return {
-      status: response?.status() ?? null,
-      finalUrl: page.url(),
-      visibleText,
-      html,
-      consoleErrors,
-      failedRequests: [...failedRequests, ...badResponses],
-      screenshotPath: writtenScreenshotPath,
-    };
-  }
-
-  return {
+  await removeRequestGuard();
+  const result = {
     status: response?.status() ?? null,
-    finalUrl: page.url(),
+    finalUrl: finalUrlAllowed ? page.url() : null,
     visibleText,
     html,
     consoleErrors,
     failedRequests: [...failedRequests, ...badResponses],
     screenshotPath: writtenScreenshotPath,
-    error: navigationError.message,
   };
+  if (navigationError) result.error = navigationError.message;
+  return result;
 }
 
-async function captureOptionalPage(context, url, missingMessage, options) {
+async function captureOptionalPage(context, url, missingMessage, captureSide, options) {
   if (!url) {
     return {error: missingMessage, html: "", consoleErrors: [], failedRequests: []};
   }
 
   const page = await context.newPage();
   try {
-    return await capturePage(page, url, options);
+    return await capturePage(page, url, {...options, captureSide});
   } finally {
     await page.close();
   }
@@ -479,6 +517,12 @@ async function run() {
   });
   if (selectedRows.length === 0) {
     throw new Error("no inventory rows selected; check --fixture-id, --shard-id, and --limit inputs");
+  }
+  for (const row of selectedRows) {
+    const sourceUrl = rowSourceUrl(row);
+    const localUrl = rowLocalUrl(row, args.localUrlField);
+    if (sourceUrl) createBrowserCaptureUrlPolicy("source", sourceUrl);
+    if (localUrl) createBrowserCaptureUrlPolicy("local", localUrl);
   }
 
   await fs.mkdir(args.outputDir, {recursive: true});
@@ -515,14 +559,14 @@ async function run() {
         screenshot: args.screenshot,
       });
       try {
-        const source = await captureOptionalPage(rowContexts.sourceContext, sourceUrl, "missing source URL", {
+        const source = await captureOptionalPage(rowContexts.sourceContext, sourceUrl, "missing source URL", "source", {
           timeoutMs: args.timeoutMs,
           waitUntil: args.waitUntil,
           settleMs: args.settleMs,
           visibleTextScope: args.visibleTextScope,
           screenshotPath: artifacts.sourceScreenshot,
         });
-        const local = await captureOptionalPage(rowContexts.localContext, localUrl, "missing local URL", {
+        const local = await captureOptionalPage(rowContexts.localContext, localUrl, "missing local URL", "local", {
           timeoutMs: args.timeoutMs,
           waitUntil: args.waitUntil,
           settleMs: args.settleMs,
