@@ -186,6 +186,7 @@ async fn basic_update() {
     assert!(output.user.last_renamed_at.is_none());
     assert!(!output.user.password.is_empty());
     assert_eq!(output.user.email, "jane@private.me");
+    assert!(output.user.email_verified_at.is_none());
     assert!(output.user.email_validation_info.is_some());
     assert!(output.user.email_validation_at.is_some());
     assert_eq!(output.user.locales.len(), 1);
@@ -272,6 +273,67 @@ async fn basic_update() {
         }),
     );
     assert_ne!(user.password, old_password);
+}
+
+#[tokio::test]
+async fn user_create_only_verified_email_blocks_conflict() {
+    let runner = TestRunner::setup().await;
+
+    let first = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "First Unverified Email User",
+            "email": "shared-unverified@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let second = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Second Unverified Email User",
+            "email": "shared-unverified@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_ne!(first.user_id, second.user_id);
+
+    let verified = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": first.user_id,
+            "email_verified": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(verified.email_verified_at.is_some());
+
+    let error = run_endpoint_err!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Blocked Verified Email User",
+            "email": "shared-unverified@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    assert_contains_error!(error, ErrorType::UserExists);
 }
 
 // TODO test renames / rename tokens

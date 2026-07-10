@@ -204,13 +204,21 @@ impl UserService {
             ));
         }
 
-        // Check for email conflicts, if a regular user
-        // Other kinds of accounts do not need unique emails
+        // Check for email conflicts, if a regular user.
+        //
+        // Only email addresses whose ownership has been verified are uniqueness
+        // blockers. MailCheck validation records deliverability metadata, but it
+        // does not prove the registrant controls the address; treating an
+        // unverified account as a blocker would let public registration reserve
+        // somebody else's email address.
+        //
+        // Other kinds of accounts do not need unique emails.
         if user_type == UserType::Regular {
             let result = User::find()
                 .filter(
                     Condition::all()
                         .add(user::Column::Email.eq(email.as_str()))
+                        .add(user::Column::EmailVerifiedAt.is_not_null())
                         .add(user::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
