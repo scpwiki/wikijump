@@ -117,7 +117,7 @@ pub struct Config {
     /// Length in seconds that each TOTP lasts.
     pub totp_time_step: u64,
 
-    /// How much leniency should be allowed for TOTP.
+    /// How many seconds of clock-skew leniency should be allowed for TOTP.
     pub totp_time_skew: u32,
 
     /// The number of job workers to run in this process.

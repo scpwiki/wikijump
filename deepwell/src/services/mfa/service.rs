@@ -27,6 +27,7 @@ use data_encoding::BASE32_NOPAD;
 use rust_otp::{Algorithm as TotpAlgorithm, TOTP};
 use sea_orm::ActiveValue;
 use std::net::IpAddr;
+use std::time::SystemTime;
 
 const TOTP_ALGORITHM: TotpAlgorithm = TotpAlgorithm::SHA256;
 
@@ -270,9 +271,17 @@ impl MfaService {
             .map_err(|message| Error::new(message, ErrorType::UserMfa))
             .or_raise(make_error)?;
 
-        let code_verified = totp
-            .verify_current(entered_totp, config.totp_time_skew)
-            .or_raise(make_error)?;
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .or_raise(make_error)?
+            .as_secs();
+        let code_verified = verify_totp_at_with_seconds_skew(
+            &totp,
+            entered_totp,
+            now,
+            config.totp_time_step,
+            config.totp_time_skew,
+        );
 
         if code_verified {
             return Ok(());
@@ -353,5 +362,85 @@ impl MfaService {
                 ));
             }
         }
+    }
+}
+
+fn verify_totp_at_with_seconds_skew(
+    totp: &TOTP,
+    code: u32,
+    timestamp: u64,
+    time_step_seconds: u64,
+    time_skew_seconds: u32,
+) -> bool {
+    let time_skew_seconds = u64::from(time_skew_seconds);
+    let earliest = timestamp.saturating_sub(time_skew_seconds);
+    let latest = timestamp.saturating_add(time_skew_seconds);
+    let earliest_step = earliest / time_step_seconds;
+    let latest_step = latest / time_step_seconds;
+
+    (earliest_step..=latest_step).any(|step| {
+        let timestamp_in_step = step.saturating_mul(time_step_seconds);
+        totp.verify_at(code, timestamp_in_step, 0)
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_totp() -> TOTP {
+        TOTP::builder()
+            .secret(b"12345678901234567890".to_vec())
+            .algorithm(TOTP_ALGORITHM)
+            .digits(6)
+            .time_step(30)
+            .build()
+            .expect("test TOTP should build")
+    }
+
+    #[test]
+    fn totp_time_skew_is_interpreted_as_seconds_not_windows() {
+        let totp = test_totp();
+        let timestamp = 1_700_000_000;
+        let previous_step_code = totp.generate_at(timestamp - 30);
+        let next_step_code = totp.generate_at(timestamp + 30);
+
+        assert!(!verify_totp_at_with_seconds_skew(
+            &totp,
+            previous_step_code,
+            timestamp,
+            30,
+            1,
+        ));
+        assert!(!verify_totp_at_with_seconds_skew(
+            &totp,
+            next_step_code,
+            timestamp,
+            30,
+            1,
+        ));
+    }
+
+    #[test]
+    fn totp_time_skew_accepts_boundary_codes_within_seconds() {
+        let totp = test_totp();
+        let timestamp = 1_700_000_020;
+        let previous_step_code = totp.generate_at(timestamp - 21);
+        let next_step_code = totp.generate_at(timestamp + 10);
+
+        assert!(verify_totp_at_with_seconds_skew(
+            &totp,
+            previous_step_code,
+            timestamp,
+            30,
+            21,
+        ));
+        assert!(verify_totp_at_with_seconds_skew(
+            &totp,
+            next_step_code,
+            timestamp,
+            30,
+            10,
+        ));
     }
 }
