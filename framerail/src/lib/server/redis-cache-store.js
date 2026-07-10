@@ -109,11 +109,11 @@ class RedisCacheStore {
   }
 
   async connect() {
-    if (this.socket && !this.socket.destroyed) return
     if (this.connecting) {
       await this.connecting
       return
     }
+    if (this.socket && !this.socket.destroyed) return
 
     this.connecting = new Promise((resolve, reject) => {
       const url = new URL(this.redisUrl)
@@ -145,7 +145,7 @@ class RedisCacheStore {
 
         try {
           for (const command of this.authCommands) {
-            await this.command(command)
+            await this.writeCommand(command)
           }
           resolve()
         } catch (error) {
@@ -206,6 +206,10 @@ class RedisCacheStore {
 
   async command(parts) {
     await this.connect()
+    return this.writeCommand(parts)
+  }
+
+  writeCommand(parts) {
     if (!this.socket || this.socket.destroyed) {
       throw new Error("Redis connection unavailable")
     }
