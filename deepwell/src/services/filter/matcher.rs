@@ -91,10 +91,7 @@ impl FilterMatcher {
         let mut failed = Vec::new();
         for index in matches {
             let info = &self.filter_data[index];
-            error!(
-                "String failed filter ID {} (regex '{}'): {}",
-                info.filter_id, info.regex, info.description,
-            );
+            error!("String failed filter: {info:?}");
 
             AuditService::log(
                 ctx,
