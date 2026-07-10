@@ -2,6 +2,8 @@ name: '[backend] Docker build Minio'
 
 on:
   push:
+    branches:
+      - develop
     paths:
       - 'install/local/minio/*'
       - '.github/workflows/docker-push-minio.yaml'
