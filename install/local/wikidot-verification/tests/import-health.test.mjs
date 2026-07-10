@@ -72,6 +72,22 @@ test('snapshot-mismatch collision is a classified failure, not done', () => {
   assert.equal(exitCode, 0);
 });
 
+test('prototype-named actions remain unclassified', () => {
+  for (const action of ['__proto__', 'constructor', 'toString']) {
+    const { verdict, exitCode } = buildImportHealthVerdict({
+      runId: 'r',
+      family: 'EN',
+      rows: [{ slug: `x-${action}`, action }],
+    });
+    assert.equal(exitCode, 2);
+    assert.equal(verdict.aggregate.unclassified, 1);
+    assert.equal(verdict.aggregate.failure_counts.unclassified, 1);
+    assert.deepEqual(verdict.failures, [
+      { slug: `x-${action}`, code: 'unclassified', detail: `unknown action ${action}` },
+    ]);
+  }
+});
+
 test('threshold gate', () => {
   const rows = [
     { slug: 'a', action: 'created' },

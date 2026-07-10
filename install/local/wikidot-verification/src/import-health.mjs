@@ -72,8 +72,8 @@ export function buildImportHealthVerdict({ runId, family, rows, summary = null }
       done += 1;
       continue;
     }
-    const collision = COLLISION_ACTIONS[row.action];
-    if (collision) {
+    if (Object.hasOwn(COLLISION_ACTIONS, row.action)) {
+      const collision = COLLISION_ACTIONS[row.action];
       if (collision.done) done += 1;
       else {
         failures.push({ slug: row.slug, code: collision.code, detail: row.action });
