@@ -25,6 +25,7 @@ import {
   parseParentLinkSummary,
 } from '../src/corpus-import-parent-links.mjs';
 import { createSqlExecutor } from '../src/corpus-import-sql.mjs';
+import { parsePrecreatedCategoryIds } from '../src/corpus-precreated-categories.mjs';
 
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
@@ -420,20 +421,6 @@ SELECT encode(convert_to(slug, 'UTF8'), 'hex') || '|' || category_id::text
 FROM inserted
 ORDER BY slug;
 `;
-}
-
-function parsePrecreatedCategoryIds(output) {
-  const ids = new Map();
-  if (!output.trim()) return ids;
-  for (const line of output.split('\n')) {
-    const [slugHex, categoryIdText, extra] = line.split('|');
-    const categoryId = Number.parseInt(categoryIdText, 10);
-    if (extra !== undefined || !/^(?:[0-9a-f]{2})*$/u.test(slugHex) || !Number.isInteger(categoryId)) {
-      throw new Error(`invalid category precreate output: ${line}`);
-    }
-    ids.set(Buffer.from(slugHex, 'hex').toString('utf8'), categoryId);
-  }
-  return ids;
 }
 
 async function precreateDbShellCategories(args, sqlExecutor, selectedRows) {
