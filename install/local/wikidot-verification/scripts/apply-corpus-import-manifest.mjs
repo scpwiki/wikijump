@@ -8,6 +8,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
+import { assertEmptyDbImportTarget } from '../src/corpus-import-empty-target.mjs';
 import {
   DEFAULT_IMPORT_USER_ID,
   assertExistingAttachmentMatches,
@@ -1201,21 +1202,6 @@ WHERE NOT EXISTS (SELECT 1 FROM repaired_page);
     throw new Error(`invalid existing page output: ${output}`);
   }
   return { page_id: pageId, page_category_id: categoryId, revision_id: revisionId };
-}
-
-async function assertEmptyDbImportTarget(args, sqlExecutor) {
-  if (!args.assumeEmptyDbImport) return;
-  const output = await sqlExecutor.runSql(`
-SELECT page_id::text || '|' || slug
-FROM page
-WHERE site_id = ${sqlInt(args.siteId)}
-  AND deleted_at IS NULL
-ORDER BY page_id
-LIMIT 1;
-`, { capture: true });
-  if (!output) return;
-  const [pageIdText, slug = ''] = output.split('|');
-  throw new Error(`--assume-empty-db-import requires an empty active page set for site ${args.siteId}; found page ${pageIdText} (${slug})`);
 }
 
 async function pageSnapshotStatus(args, sqlExecutor, row, pageId) {

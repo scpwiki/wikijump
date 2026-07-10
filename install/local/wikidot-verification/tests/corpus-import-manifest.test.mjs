@@ -11,6 +11,7 @@ import {
   buildManifestSummary,
   formatJsonl,
 } from '../src/corpus-import-manifest.mjs';
+import { assertEmptyDbImportTarget } from '../src/corpus-import-empty-target.mjs';
 
 function writePage(root, branch, fullname, { entityId, meta = {}, source = 'content' } = {}) {
   const pageDir = path.join(root, branch, 'pages', fullname);
@@ -923,18 +924,38 @@ test('apply-corpus-import-manifest documents empty-DB preflight instead of uniqu
   assert.doesNotMatch(result.stdout, /database uniqueness fail closed/);
 });
 
-test('apply-corpus-import-manifest empty-DB assumption checks site pages before importing', async () => {
+test('apply-corpus-import-manifest empty-DB preflight fails closed on active pages', async () => {
+  const calls = [];
+  const sqlExecutor = {
+    async runSql(sql, options) {
+      calls.push({ sql, options });
+      return '42|existing-page';
+    },
+  };
+
+  await assertEmptyDbImportTarget({ assumeEmptyDbImport: false, siteId: 6000005 }, sqlExecutor);
+  assert.equal(calls.length, 0);
+
+  await assert.rejects(
+    assertEmptyDbImportTarget({ assumeEmptyDbImport: true, siteId: 6000005 }, sqlExecutor),
+    /requires an empty active page set for site 6000005; found page 42 \(existing-page\)/,
+  );
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].options, { capture: true });
+  assert.match(calls[0].sql, /WHERE site_id = 6000005/);
+  assert.match(calls[0].sql, /AND deleted_at IS NULL/);
+
+  const emptyExecutor = { runSql: async () => '' };
+  await assert.doesNotReject(
+    assertEmptyDbImportTarget({ assumeEmptyDbImport: true, siteId: 6000005 }, emptyExecutor),
+  );
+
   const scriptPath = path.join(
     path.dirname(path.dirname(fileURLToPath(import.meta.url))),
     'scripts/apply-corpus-import-manifest.mjs',
   );
   const script = fs.readFileSync(scriptPath, 'utf8');
-
-  assert.match(script, /async function assertEmptyDbImportTarget/);
-  assert.match(script, /WHERE site_id = \$\{sqlInt\(args\.siteId\)\}/);
-  assert.match(script, /AND deleted_at IS NULL/);
   assert.match(script, /verify_empty_db_import_target/);
-  assert.match(script, /requires an empty active page set/);
 });
 
 test('apply-corpus-import-manifest rejects conflicting DB rerender flags', async () => {
