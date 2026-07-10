@@ -24,7 +24,12 @@ function hasUndisposedGap(gapLedger) {
 }
 
 function hasUnresolvedPostMergeFinding(postMergeFindings) {
-  return postMergeFindings.some((finding) => finding?.disposition === "unresolved" || finding?.needs_followup === true);
+  return postMergeFindings.some(
+    (finding) =>
+      finding?.disposition === "unresolved" ||
+      finding?.needs_followup === true ||
+      finding?.controller_disposition === "unverified",
+  );
 }
 
 function ownerCommentContradictsClosure(issue) {

@@ -54,6 +54,24 @@ test("classifies unresolved post-merge findings as follow-up work", () => {
   assert.equal(result.classification, "NEEDS_FOLLOWUP_ISSUE");
 });
 
+test("classifies unverified post-merge monitor findings as follow-up work", () => {
+  const result = reconcileIssueClosure({
+    issue: issue(46, "CLOSED"),
+    proofBundles: [{status: "accepted"}],
+    postMergeFindings: [
+      {
+        source: "review",
+        source_id: "101",
+        source_state: "CHANGES_REQUESTED",
+        type: "changes_requested",
+        controller_disposition: "unverified",
+      },
+    ],
+  });
+
+  assert.equal(result.classification, "NEEDS_FOLLOWUP_ISSUE");
+});
+
 test("classifies closed issues with proof and disposed gaps as accepted closed", () => {
   const result = reconcileIssueClosure({
     issue: issue(47, "CLOSED"),
