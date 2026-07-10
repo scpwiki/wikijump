@@ -120,6 +120,27 @@ test("corpus-discover rejects output directories inside the corpus", async () =>
   ], /--output-dir must be outside --corpus/);
 });
 
+test("corpus-discover rejects dot-prefixed output directories inside the corpus on repeated runs", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-dot-output-"));
+  const corpus = path.join(root, "corpus");
+  const outputDir = path.join(corpus, "..output");
+
+  await fs.mkdir(corpus, { recursive: true });
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await assertDiscoverFails([
+      "--corpus",
+      corpus,
+      "--output-dir",
+      outputDir,
+      "--canary-count",
+      "1"
+    ], /--output-dir must be outside --corpus/);
+  }
+
+  await assert.rejects(fs.stat(outputDir), { code: "ENOENT" });
+});
+
 test("corpus-discover rejects symlinked page metadata files", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-symlink-"));
   const corpus = path.join(root, "corpus");

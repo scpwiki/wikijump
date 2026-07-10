@@ -8,7 +8,12 @@ let descriptorTraversalSupportPromise;
 
 export function isPathInside(root, filePath) {
   const relativePath = path.relative(root, filePath);
-  return relativePath === "" || (!relativePath.startsWith("..") && !path.isAbsolute(relativePath));
+  return (
+    relativePath === "" ||
+    (relativePath !== ".." &&
+      !relativePath.startsWith(`..${path.sep}`) &&
+      !path.isAbsolute(relativePath))
+  );
 }
 
 function assertMaxBytes(maxBytes) {
