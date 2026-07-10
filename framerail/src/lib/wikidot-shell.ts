@@ -42,7 +42,15 @@ export function shouldUseWikidotShell(data: ShellViewData | null | undefined): b
     return false
   }
 
-  if (pageLayout === Layout.WIKIDOT || siteLayout === Layout.WIKIDOT) {
+  if (pageLayout === Layout.WIKIDOT) {
+    return true
+  }
+
+  if (siteLayout === Layout.WIKIJUMP) {
+    return false
+  }
+
+  if (siteLayout === Layout.WIKIDOT) {
     return true
   }
 
