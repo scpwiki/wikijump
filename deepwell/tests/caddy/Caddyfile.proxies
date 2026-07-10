@@ -198,7 +198,14 @@ bar.wjfiles.test {
 #
 
 # Missing canonical domains
-http://*.wikijump.test,
+http://*.wikijump.test {
+	import strip_headers
+	request_header X-Wikijump-Basic-Error 1
+	request_header X-Wikijump-Site-Slug {labels.2}
+	rewrite * /-/basic-error/site-slug
+	import reverse_proxy_wws *
+}
+
 http://*.wjfiles.test {
 	import strip_headers
 	request_header X-Wikijump-Basic-Error 1
