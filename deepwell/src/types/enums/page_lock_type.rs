@@ -45,5 +45,28 @@ pub enum PageLockType {
     // Only users with Page:BypassLock permission can edit
     PermissionOnly,
     // Authors and users with Page:BypassLock can edit
+    #[serde(alias = "author-only")]
+    #[strum(serialize = "author-only", serialize = "author-or-permission-only")]
     AuthorOrPermissionOnly,
+}
+
+/// Ensure the renamed author-or-permission lock type remains compatible with
+/// rows and clients that still use the previous `author-only` value.
+#[test]
+fn author_only_compatibility() {
+    assert_eq!(
+        serde_json::from_str::<PageLockType>(r#""author-only""#)
+            .expect("Unable to deserialize legacy author-only JSON"),
+        PageLockType::AuthorOrPermissionOnly,
+    );
+    assert_eq!(
+        "author-only"
+            .parse::<PageLockType>()
+            .expect("Unable to parse legacy author-only database value"),
+        PageLockType::AuthorOrPermissionOnly,
+    );
+    assert_eq!(
+        PageLockType::AuthorOrPermissionOnly.to_string(),
+        "author-or-permission-only",
+    );
 }
