@@ -4,6 +4,7 @@ import { parseAcceptLangHeader, uniqueLocales, withFallbackLocale } from "$lib/l
 
 import { preloadView } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
+import { buildPublicPreloadData } from "$lib/server/load/preload-data.js"
 import { sanitizeUserData } from "$lib/server/load/user"
 
 import type { PreloadData, Viewer } from "$lib/server/deepwell/views"
@@ -43,7 +44,7 @@ export function finalizePreloadData(response: Viewer, locales: string[]): Preloa
     ? { user: sanitizeUserData(response.user_session.user, false) }
     : null
 
-  return { ...response, user_session: userSession, locales: resolvedLocales }
+  return buildPublicPreloadData(response, userSession, resolvedLocales)
 }
 
 /**

@@ -51,7 +51,11 @@ export interface ClientUserSession {
   user: Partial<UserModel>
 }
 
-export type PreloadData = Omit<Viewer, "user_session"> & {
+export interface PreloadData {
+  site: Viewer["site"]
+  site_file_domain: Viewer["site_file_domain"]
+  license_name: Viewer["license_name"]
+  license_url: Viewer["license_url"]
   user_session: Nullable<ClientUserSession>
   locales: string[]
 }
