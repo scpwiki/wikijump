@@ -74,7 +74,7 @@ is_secret = true
 [[variable]]
 name = "DIGITALOCEAN_API_TOKEN"
 description = "API token for changing DNS records in DigitalOcean"
-vaue = ""  # TODO: fill in value here!
+value = ""  # TODO: fill in value here!
 is_secret = true
 
 # Alerters
