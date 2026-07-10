@@ -55,7 +55,7 @@ use deepwell::services::{
     RenderService, RequestContext, SessionService,
 };
 use deepwell::types::{
-    Action, PageRevisionType, Permission, Reference, Resource, TextBlockType,
+    Action, PageId, PageRevisionType, Permission, Reference, Resource, TextBlockType,
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
@@ -4107,6 +4107,92 @@ async fn create_listpages_test_page(
         }),
     );
     output.revision_id
+}
+
+#[tokio::test]
+async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
+    const COMPONENT_SLUG: &str = "component:dense-include-cell";
+    const PAGE_SLUG: &str = "fixture-dense-includes";
+    const INCLUDE_COUNT: usize = 1_266;
+    const MARKER: &str = "DENSE_INCLUDE_CELL";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPONENT_SLUG,
+        "Dense Include Cell",
+        MARKER,
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        PAGE_SLUG,
+        "Dense Includes",
+        "placeholder",
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    )
+    .expect("dense include fixture should exist");
+
+    let wikitext = format!("[[include {COMPONENT_SLUG}]]\n").repeat(INCLUDE_COUNT);
+    let page_info = PageInfo {
+        page: Cow::Borrowed(PAGE_SLUG),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Dense Includes"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: page.page_category_id,
+        page_id: page.page_id,
+    };
+
+    let public_error = RenderService::render_page(
+        runner.context(),
+        wikitext.clone(),
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect_err("ordinary render must retain the public include ceiling");
+    assert!(
+        format!("{public_error:?}")
+            .contains("include expansion exceeded maximum total includes 256")
+    );
+
+    let output = RenderService::render_corpus_page(
+        runner.context(),
+        wikitext,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("trusted corpus render should accept the observed dense include shape");
+
+    assert_eq!(
+        output.html_output.body.matches(MARKER).count(),
+        INCLUDE_COUNT,
+        "every corpus-provenanced include occurrence should render",
+    );
 }
 
 #[tokio::test]

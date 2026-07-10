@@ -259,7 +259,8 @@ impl PageRevisionService {
                 compiled_side_bar_html_hash: new_side_bar_html_hash,
                 compiled_at: new_compiled_at,
                 compiled_generator: new_compiled_generator,
-            } = Self::render_and_update_links(ctx, id, wikitext, render_input).await?;
+            } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
+                .await?;
 
             // Update fields
             parser_errors = Some(errors);
@@ -459,7 +460,7 @@ impl PageRevisionService {
             compiled_side_bar_html_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render_and_update_links(ctx, id, wikitext, render_input)
+        } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
             .await
             .or_raise(make_error)?;
 
@@ -706,6 +707,7 @@ impl PageRevisionService {
             },
             wikitext,
             render_input,
+            false,
         )
         .await
         .or_raise(make_error)?;
@@ -775,6 +777,7 @@ impl PageRevisionService {
             score,
             tags,
         }: RenderPageInfo<'_>,
+        allow_corpus_dense_includes: bool,
     ) -> Result<RenderPageOutput> {
         // Get site
         let PageId {
@@ -811,9 +814,12 @@ impl PageRevisionService {
         };
 
         // Parse and render
-        let output = RenderService::render_page(ctx, wikitext, &page_info, layout, id)
-            .await
-            .or_raise(make_error)?;
+        let output = if allow_corpus_dense_includes {
+            RenderService::render_corpus_page(ctx, wikitext, &page_info, layout, id).await
+        } else {
+            RenderService::render_page(ctx, wikitext, &page_info, layout, id).await
+        }
+        .or_raise(make_error)?;
 
         // Update backlinks
         LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks)
@@ -836,19 +842,22 @@ impl PageRevisionService {
         depth: RerenderDepth,
         rerender_type: RerenderType,
     ) -> Result<()> {
-        Self::rerender_inner(ctx, id, depth, rerender_type, true).await
+        Self::rerender_inner(ctx, id, depth, rerender_type, true, false).await
     }
 
-    /// Re-renders a page without queueing dependent page outdating.
+    /// Re-renders a trusted imported page for the corpus finalizer.
     ///
-    /// This is used by the corpus render finalizer's first pass, where every
-    /// imported shell page is already being rendered by the batch job.
-    pub(crate) async fn rerender_without_outdating(
+    /// The finalizer needs a corpus-provenanced include ceiling while normal
+    /// user-controlled renders retain the lower public safety limit.
+    pub(crate) async fn rerender_for_corpus_finalizer(
         ctx: &ServiceContext<'_>,
         id: PageId,
         depth: RerenderDepth,
+        rerender_type: RerenderType,
+        outdate_dependents: bool,
     ) -> Result<()> {
-        Self::rerender_inner(ctx, id, depth, RerenderType::Full, false).await
+        Self::rerender_inner(ctx, id, depth, rerender_type, outdate_dependents, true)
+            .await
     }
 
     async fn rerender_inner(
@@ -857,6 +866,7 @@ impl PageRevisionService {
         depth: RerenderDepth,
         rerender_type: RerenderType,
         outdate_dependents: bool,
+        allow_corpus_dense_includes: bool,
     ) -> Result<()> {
         let txn = ctx.transaction();
         let PageId {
@@ -939,9 +949,15 @@ impl PageRevisionService {
             compiled_side_bar_html_hash,
             compiled_generator,
             ..
-        } = Self::render_and_update_links(ctx, id, wikitext, render_input)
-            .await
-            .or_raise(make_error)?;
+        } = Self::render_and_update_links(
+            ctx,
+            id,
+            wikitext,
+            render_input,
+            allow_corpus_dense_includes,
+        )
+        .await
+        .or_raise(make_error)?;
 
         let model = match rerender_type {
             RerenderType::Full => {

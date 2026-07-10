@@ -120,6 +120,10 @@ struct WikidotCompatInlineMarker {
 
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
+// The frozen EN corpus contains a page with 1,266 direct includes. Only the
+// trusted corpus finalizer receives this higher ceiling; user-controlled
+// render paths retain the ordinary limit above.
+const MAX_CORPUS_INCLUDE_EXPANSION_TOTAL: usize = 4096;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
 const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
@@ -499,9 +503,16 @@ impl RenderService {
             html_output,
             errors,
             compiled_hash,
-        } = Self::render_inner(ctx, wikitext, page_info, settings, RenderContext::none())
-            .await
-            .or_raise(make_error)?;
+        } = Self::render_inner(
+            ctx,
+            wikitext,
+            page_info,
+            settings,
+            RenderContext::none(),
+            MAX_INCLUDE_EXPANSION_TOTAL,
+        )
+        .await
+        .or_raise(make_error)?;
 
         Ok(RenderOutput {
             html_output,
@@ -522,6 +533,54 @@ impl RenderService {
             category_id,
             page_id,
         }: PageId,
+    ) -> Result<RenderPageOutput> {
+        Self::render_page_with_include_limit(
+            ctx,
+            wikitext,
+            page_info,
+            layout,
+            PageId {
+                site_id,
+                category_id,
+                page_id,
+            },
+            MAX_INCLUDE_EXPANSION_TOTAL,
+        )
+        .await
+    }
+
+    /// Render a trusted corpus-import page with its evidence-backed include ceiling.
+    ///
+    /// Callers must not expose this path to user-controlled page rendering.
+    pub async fn render_corpus_page(
+        ctx: &ServiceContext<'_>,
+        wikitext: String,
+        page_info: &PageInfo<'_>,
+        layout: Layout,
+        id: PageId,
+    ) -> Result<RenderPageOutput> {
+        Self::render_page_with_include_limit(
+            ctx,
+            wikitext,
+            page_info,
+            layout,
+            id,
+            MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+        )
+        .await
+    }
+
+    async fn render_page_with_include_limit(
+        ctx: &ServiceContext<'_>,
+        wikitext: String,
+        page_info: &PageInfo<'_>,
+        layout: Layout,
+        PageId {
+            site_id,
+            category_id,
+            page_id,
+        }: PageId,
+        max_include_expansions: usize,
     ) -> Result<RenderPageOutput> {
         let page_settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let nav_settings = WikitextSettings::from_mode(WikitextMode::PageNav, layout);
@@ -551,6 +610,7 @@ impl RenderService {
             page_info,
             &page_settings,
             RenderContext::page(site_id, page_id),
+            max_include_expansions,
         )
         .await
         .or_raise(make_error)?;
@@ -578,6 +638,7 @@ impl RenderService {
                         page_info,
                         &nav_settings,
                         RenderContext::page_nav(site_id, page_id),
+                        max_include_expansions,
                     )
                     .await;
 
@@ -618,6 +679,7 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         render_context: RenderContext,
+        max_include_expansions: usize,
     ) -> Result<RenderInnerOutput> {
         let config = ctx.config();
         let RenderContext {
@@ -655,7 +717,10 @@ impl RenderService {
             page_info.site.as_ref(),
             settings,
             current_site_id,
-            true,
+            IncludeExpansionOptions {
+                expand_wikidot_image_blocks: true,
+                max_total_includes: max_include_expansions,
+            },
         )
         .await
         .or_raise(make_error)?;
@@ -3371,7 +3436,7 @@ impl RenderService {
         current_site_slug: &str,
         settings: &WikitextSettings,
         current_site_id: Option<i64>,
-        expand_wikidot_image_blocks: bool,
+        options: IncludeExpansionOptions,
     ) -> Result<IncludeExpansion> {
         let Some(current_site_id) = current_site_id else {
             return Ok(IncludeExpansion {
@@ -3397,10 +3462,11 @@ impl RenderService {
                 current_site_slug: current_site_slug.to_owned(),
                 page_info,
                 settings,
-                expand_wikidot_image_blocks,
+                expand_wikidot_image_blocks: options.expand_wikidot_image_blocks,
+                max_total_includes: options.max_total_includes,
             },
             0,
-            MAX_INCLUDE_EXPANSION_TOTAL,
+            options.max_total_includes,
         )
         .await?;
         unprotect_include_variables(&mut expansion.wikitext);
@@ -3477,7 +3543,7 @@ impl RenderService {
                     return Err(Error::new(
                         format!(
                             "include expansion exceeded maximum total includes {}",
-                            MAX_INCLUDE_EXPANSION_TOTAL,
+                            expansion_context.max_total_includes,
                         ),
                         ErrorType::Render,
                     )
@@ -3514,6 +3580,7 @@ impl RenderService {
                         settings: expansion_context.settings,
                         expand_wikidot_image_blocks: expansion_context
                             .expand_wikidot_image_blocks,
+                        max_total_includes: expansion_context.max_total_includes,
                     },
                     depth + 1,
                     remaining_includes,
@@ -3523,7 +3590,7 @@ impl RenderService {
                     return Err(Error::new(
                         format!(
                             "include expansion exceeded maximum total includes {}",
-                            MAX_INCLUDE_EXPANSION_TOTAL,
+                            expansion_context.max_total_includes,
                         ),
                         ErrorType::Render,
                     )
@@ -6425,7 +6492,10 @@ impl RenderService {
                             page_info.site.as_ref(),
                             settings,
                             Some(page.site_id),
-                            false,
+                            IncludeExpansionOptions {
+                                expand_wikidot_image_blocks: false,
+                                max_total_includes: MAX_INCLUDE_EXPANSION_TOTAL,
+                            },
                         )
                         .await?;
                         included_pages.extend(expansion.included_pages);
@@ -9849,6 +9919,12 @@ struct IncludeExpansion {
     expanded_include_count: usize,
 }
 
+#[derive(Clone, Copy, Debug)]
+struct IncludeExpansionOptions {
+    expand_wikidot_image_blocks: bool,
+    max_total_includes: usize,
+}
+
 #[derive(Debug)]
 struct IncludeExpansionContext<'a> {
     current_site_id: i64,
@@ -9856,6 +9932,7 @@ struct IncludeExpansionContext<'a> {
     page_info: &'a PageInfo<'a>,
     settings: &'a WikitextSettings,
     expand_wikidot_image_blocks: bool,
+    max_total_includes: usize,
 }
 
 #[derive(Debug)]
