@@ -4358,6 +4358,43 @@ impl RenderService {
     }
 
     fn restore_protected_wikidot_color_spans(
+        html: String,
+        spans: &[ProtectedWikidotColorSpan],
+    ) -> String {
+        if spans.is_empty() {
+            return html;
+        }
+
+        let replacements: BTreeMap<&str, &str> = spans
+            .iter()
+            .map(|span| (span.marker.as_str(), span.html.as_str()))
+            .collect();
+        let marker_len = WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX.len() + 32 + 1;
+        let mut output = String::with_capacity(html.len());
+        let mut rest = html.as_str();
+
+        while let Some(offset) = rest.find(WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX) {
+            output.push_str(&rest[..offset]);
+            let marker_start = &rest[offset..];
+
+            if let Some(candidate) = marker_start.get(..marker_len) {
+                if let Some(replacement) = replacements.get(candidate) {
+                    output.push_str(replacement);
+                    rest = &marker_start[marker_len..];
+                    continue;
+                }
+            }
+
+            output.push_str(WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX);
+            rest = &marker_start[WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX.len()..];
+        }
+
+        output.push_str(rest);
+        output
+    }
+
+    #[cfg(test)]
+    fn restore_protected_wikidot_color_spans_quadratic_reference(
         mut html: String,
         spans: &[ProtectedWikidotColorSpan],
     ) -> String {
@@ -11744,6 +11781,45 @@ mod tests {
             &settings,
         );
         assert_eq!(escaped, "&#35;&#35;&#35;&#35;blue|leftover&#35;&#35;");
+    }
+
+    #[test]
+    fn restores_protected_wikidot_color_spans_in_single_pass() {
+        let spans = vec![
+            ProtectedWikidotColorSpan {
+                marker: format!(
+                    "{WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX}00000000000000000000000000000000X"
+                ),
+                html: r#"<span style="color: red">red</span>"#.to_owned(),
+            },
+            ProtectedWikidotColorSpan {
+                marker: format!(
+                    "{WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX}11111111111111111111111111111111X"
+                ),
+                html: r#"<span style="color: blue">blue</span>"#.to_owned(),
+            },
+        ];
+        let unknown_marker = format!(
+            "{WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX}22222222222222222222222222222222X"
+        );
+        let html = format!(
+            "before {red} middle {blue} repeat {red} unknown {unknown_marker} after",
+            red = spans[0].marker,
+            blue = spans[1].marker,
+        );
+
+        let restored =
+            RenderService::restore_protected_wikidot_color_spans(html.clone(), &spans);
+
+        assert_eq!(
+            restored,
+            RenderService::restore_protected_wikidot_color_spans_quadratic_reference(
+                html, &spans,
+            ),
+        );
+        assert!(restored.contains(r#"<span style="color: red">red</span>"#));
+        assert!(restored.contains(r#"<span style="color: blue">blue</span>"#));
+        assert!(restored.contains(&unknown_marker));
     }
 
     #[test]
