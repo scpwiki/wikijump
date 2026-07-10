@@ -1,13 +1,17 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { Layout } from "../src/lib/types.js"
-import { resolveShellLayout, shouldUseWikidotShell } from "../src/lib/wikidot-shell.js"
+import {
+  resolveShellLayoutValue,
+  shouldUseWikidotShellValue,
+  WIKIDOT_LAYOUT,
+  WIKIJUMP_LAYOUT
+} from "../src/lib/wikidot-shell-decision.js"
 
 test("site-level Wikijump layout takes precedence over Wikidot shell heuristics", () => {
   const data = {
     site: {
-      layout: Layout.WIKIJUMP,
+      layout: WIKIJUMP_LAYOUT,
       top_bar_page: "nav:top",
       side_bar_page: "nav:side"
     },
@@ -16,16 +20,16 @@ test("site-level Wikijump layout takes precedence over Wikidot shell heuristics"
     compiled_side_bar_html: "<nav>side</nav>"
   }
 
-  assert.equal(shouldUseWikidotShell(data), false)
-  assert.equal(resolveShellLayout(data), Layout.WIKIJUMP)
+  assert.equal(shouldUseWikidotShellValue(data), false)
+  assert.equal(resolveShellLayoutValue(data), WIKIJUMP_LAYOUT)
 })
 
 test("page-level Wikidot layout takes precedence over site-level Wikijump layout", () => {
   const data = {
-    site: { layout: Layout.WIKIJUMP },
-    page: { layout: Layout.WIKIDOT }
+    site: { layout: WIKIJUMP_LAYOUT },
+    page: { layout: WIKIDOT_LAYOUT }
   }
 
-  assert.equal(shouldUseWikidotShell(data), true)
-  assert.equal(resolveShellLayout(data), Layout.WIKIDOT)
+  assert.equal(shouldUseWikidotShellValue(data), true)
+  assert.equal(resolveShellLayoutValue(data), WIKIDOT_LAYOUT)
 })
