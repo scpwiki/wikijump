@@ -8372,6 +8372,9 @@ fn substitute_wikidot_protected_inline_dashes(value: &str) -> String {
             output.push_str(&rest[..comment_end]);
             rest = &rest[comment_end..];
             continue;
+        } else if rest.starts_with("[!--") {
+            output.push_str(&substitute_wikidot_protected_inline_dashes_in_text(rest));
+            break;
         }
 
         if rest.starts_with("--") {
@@ -8389,6 +8392,10 @@ fn substitute_wikidot_protected_inline_dashes(value: &str) -> String {
     }
 
     output
+}
+
+fn substitute_wikidot_protected_inline_dashes_in_text(value: &str) -> String {
+    value.replace("--", "\u{2014}")
 }
 
 fn wikidot_named_anchor(name: &str) -> String {
@@ -11801,6 +11808,23 @@ mod tests {
             rendered,
             r#"<a href="https://example.com/a--b">go — now…</a>"#
         );
+    }
+
+    #[test]
+    fn protected_wikidot_inline_typography_preserves_closed_comment_dashes() {
+        let rendered =
+            super::render_wikidot_protected_inline_body_html("[!-- keep -- as-is --] --");
+
+        assert_eq!(rendered, "[!-- keep -- as-is --] —");
+    }
+
+    #[test]
+    fn protected_inline_typography_handles_unterminated_comment_markers_linearly() {
+        let body = format!("{}--done", "[!--".repeat(10_000));
+        let rendered = super::render_wikidot_protected_inline_body_html(&body);
+        let expected = format!("{}—done", "[!—".repeat(10_000));
+
+        assert_eq!(rendered, expected);
     }
 
     #[test]
