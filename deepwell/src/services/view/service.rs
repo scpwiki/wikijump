@@ -690,7 +690,6 @@ impl ViewService {
     ) -> Result<Vec<WikidotPageBreadcrumbView>> {
         #[derive(FromQueryResult, Debug)]
         struct WikidotBreadcrumbRow {
-            page_id: i64,
             source_fullname: String,
             title_shown: Option<String>,
             page_category_id: i64,
@@ -722,7 +721,6 @@ breadcrumb_chain(depth, page_id, source_site, source_fullname, title_shown, pare
     AND breadcrumb_chain.depth < 12
 )
 SELECT
-  breadcrumb_chain.page_id,
   breadcrumb_chain.source_fullname,
   breadcrumb_chain.title_shown,
   page.page_category_id
@@ -747,7 +745,6 @@ ORDER BY breadcrumb_chain.depth DESC
 
         let mut breadcrumbs = Vec::new();
         for WikidotBreadcrumbRow {
-            page_id,
             source_fullname,
             title_shown,
             page_category_id,
@@ -758,7 +755,10 @@ ORDER BY breadcrumb_chain.depth DESC
                 &CheckPermissionContext {
                     user_id,
                     site_id,
-                    page_reference: Some(Reference::Id(page_id)),
+                    // View permissions are cached per category, not per page.
+                    // Supplying an ancestor ID would make page-author roles leak
+                    // one page-specific decision into other ancestors.
+                    page_reference: None,
                 },
                 Permission {
                     resource_type: Resource::Page,
