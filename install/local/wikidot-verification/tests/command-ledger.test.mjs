@@ -7,6 +7,8 @@ import path from "node:path";
 import test from "node:test";
 import {fileURLToPath} from "node:url";
 
+import {createOutputRedactor} from "../src/command-ledger.mjs";
+
 const PACKAGE_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const MEASURE_SCRIPT = fileURLToPath(new URL("../scripts/measure.mjs", import.meta.url));
 
@@ -32,6 +34,18 @@ function ledgerRecords(ledgerPath) {
     .trim()
     .split("\n")
     .map((line) => JSON.parse(line));
+}
+
+function redactChunks(args, chunks) {
+  const redactor = createOutputRedactor(args);
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  let output = "";
+  for (const chunk of chunks) {
+    output += decoder.decode(redactor.push(encoder.encode(chunk)), {stream: true});
+  }
+  output += decoder.decode(redactor.finish(), {stream: true});
+  return `${output}${decoder.decode()}`;
 }
 
 function waitForClose(child, timeoutMs = 3000) {
@@ -253,6 +267,68 @@ test("closed downstream stdout does not change wrapped command outcome or lose t
   assert.ok(records[0].stdoutBytes > 0);
 });
 
+test("stream redactor replaces an exact maximum-length secret before emitting its prefix", () => {
+  const sensitiveValue = "maximum-configured-value-autotest";
+  const output = redactChunks(
+    ["--session-token", sensitiveValue],
+    [`before:${sensitiveValue}:after`],
+  );
+
+  assert.equal(output, "before:[REDACTED]:after");
+});
+
+test("stream redactor catches a secret across every internal chunk boundary", () => {
+  const sensitiveValue = "every-chunk-boundary-value";
+  const args = ["--session-token", sensitiveValue];
+
+  for (let boundary = 1; boundary < sensitiveValue.length; boundary += 1) {
+    const output = redactChunks(args, [
+      `before:${sensitiveValue.slice(0, boundary)}`,
+      `${sensitiveValue.slice(boundary)}:after`,
+    ]);
+    assert.equal(output, "before:[REDACTED]:after", `boundary ${boundary}`);
+  }
+});
+
+test("stream redactor merges overlapping secret matches", () => {
+  const first = "ABCDEF";
+  const second = "DEFGHI";
+  const output = redactChunks(
+    ["--session-token", first, "--backup-token", second],
+    ["before:ABCDEF", "GHI:after"],
+  );
+
+  assert.equal(output, "before:[REDACTED]:after");
+});
+
+test("stream redactor preserves non-BMP characters around the retained-tail boundary", () => {
+  const output = redactChunks(["--session-token", "WXYZ"], ["a😀bc"]);
+
+  assert.equal(output, "a😀bc");
+});
+
+test("stream redactor preserves active coverage when a surrogate-safe cutoff emits nothing", () => {
+  const output = redactChunks(["--session-token", "A😀BC"], ["xA😀BC", "z", "q"]);
+
+  assert.equal(output, "x[REDACTED]zq");
+});
+
+test("stream redactor redacts a buffered secret during EOF flush", () => {
+  const sensitiveValue = "eof-buffered-value";
+  const redactor = createOutputRedactor(["--session-token", sensitiveValue]);
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  const prefix = decoder.decode(redactor.push(encoder.encode(sensitiveValue)), {stream: true});
+  const suffix = decoder.decode(redactor.finish());
+
+  assert.equal(`${prefix}${suffix}`, "[REDACTED]");
+});
+
+test("stream redactor does not duplicate unsensitive output during EOF flush", () => {
+  assert.equal(redactChunks([], ["plain output"]), "plain output");
+});
+
 test("redacts sensitive arguments, rerun command, and output artifacts", async (t) => {
   const ledgerPath = await tempLedger(t);
   const dbUrl = "postgres://wikijump:DB_PASSWORD_AUTOTEST@127.0.0.1:5432/wikijump";
@@ -296,4 +372,51 @@ test("redacts sensitive arguments, rerun command, and output artifacts", async (
   assert.doesNotMatch(record.rerunCommand, /DB_PASSWORD_AUTOTEST|SESSION_TOKEN_AUTOTEST|S3_SECRET_AUTOTEST/);
   assert.doesNotMatch(readFileSync(record.artifactPaths.stdout, "utf8"), /DB_PASSWORD_AUTOTEST|SESSION_TOKEN_AUTOTEST|S3_SECRET_AUTOTEST|OUTPUT_SECRET_AUTOTEST/);
   assert.doesNotMatch(readFileSync(record.artifactPaths.stderr, "utf8"), /OUTPUT_SECRET_AUTOTEST/);
+});
+
+test("redacts raw command values from live output, artifacts, rerun, and failure excerpt", async (t) => {
+  const ledgerPath = await tempLedger(t);
+  const dbCredential = ["db", "value", "autotest"].join("-");
+  const dbUrl = `postgres://wikijump:${dbCredential}@127.0.0.1:5432/wikijump`;
+  const sessionValue = ["session", "value", "autotest"].join("-");
+  const objectStoreValue = ["object", "store", "value", "autotest"].join("-");
+  const forbidden = new RegExp([
+    dbCredential,
+    sessionValue,
+    objectStoreValue,
+  ].join("|"));
+  const result = runMeasure([
+    "--family",
+    "import",
+    "--ledger",
+    ledgerPath,
+    "--",
+    ...nodeCommand([
+      "const args = process.argv.slice(1);",
+      "console.log(`raw-args=${args.join(' ')}`);",
+      "console.error(`raw-args=${args.join(' ')}`);",
+      "process.exitCode = 7;",
+    ].join("\n")),
+    "--",
+    "--db-url",
+    dbUrl,
+    "--session-token",
+    sessionValue,
+    `--attachment-s3-secret-access-key=${objectStoreValue}`,
+  ]);
+
+  assert.equal(result.status, 7);
+  assert.doesNotMatch(result.stdout, forbidden);
+  assert.doesNotMatch(result.stderr, forbidden);
+
+  const ledgerText = readFileSync(ledgerPath, "utf8");
+  const [record] = ledgerRecords(ledgerPath);
+  const stdout = readFileSync(record.artifactPaths.stdout, "utf8");
+  const stderr = readFileSync(record.artifactPaths.stderr, "utf8");
+  for (const text of [ledgerText, record.rerunCommand, stdout, stderr, record.firstErrorExcerpt]) {
+    assert.doesNotMatch(text, forbidden);
+  }
+  for (const text of [result.stdout, result.stderr, ledgerText, stdout, stderr, record.firstErrorExcerpt]) {
+    assert.match(text, /\[REDACTED\]/);
+  }
 });

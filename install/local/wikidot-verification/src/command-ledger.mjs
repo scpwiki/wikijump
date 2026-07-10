@@ -116,20 +116,89 @@ function sensitiveOutputSecrets(args) {
   return [...new Set(secrets.filter((secret) => secret.length >= 4))];
 }
 
-function createOutputRedactor(args) {
+function exactSecretIntervals(text, secrets) {
+  const matches = [];
+  for (const secret of secrets) {
+    let start = text.indexOf(secret);
+    while (start !== -1) {
+      matches.push({start, end: start + secret.length});
+      start = text.indexOf(secret, start + 1);
+    }
+  }
+  if (matches.length === 0) {
+    return matches;
+  }
+
+  matches.sort((left, right) => left.start - right.start || right.end - left.end);
+  const merged = [];
+  for (const match of matches) {
+    const previous = merged.at(-1);
+    if (previous !== undefined && match.start <= previous.end) {
+      previous.end = Math.max(previous.end, match.end);
+    } else {
+      merged.push({...match});
+    }
+  }
+  return merged;
+}
+
+function safeUtf16PrefixLength(text, requestedLength) {
+  if (requestedLength <= 0 || requestedLength >= text.length) {
+    return requestedLength;
+  }
+  const before = text.charCodeAt(requestedLength - 1);
+  const after = text.charCodeAt(requestedLength);
+  const splitsSurrogatePair = before >= 0xd800 && before <= 0xdbff && after >= 0xdc00 && after <= 0xdfff;
+  return splitsSurrogatePair ? requestedLength - 1 : requestedLength;
+}
+
+export function createOutputRedactor(args) {
   const decoder = new TextDecoder("utf-8", {fatal: false});
   const encoder = new TextEncoder();
   const secrets = sensitiveOutputSecrets(args);
   const maxSecretLength = Math.max(0, ...secrets.map((secret) => secret.length));
   const tailLength = Math.max(0, maxSecretLength - 1);
   let pending = "";
+  let coveredPrefixLength = 0;
 
-  function redact(text) {
-    let redacted = redactTextPatterns(text);
-    for (const secret of secrets) {
-      redacted = redacted.split(secret).join(REDACTION);
+  function redactPrefix(emitLength) {
+    const intervals = exactSecretIntervals(pending, secrets)
+      .map((interval) => ({...interval, markerEmitted: false}));
+    if (coveredPrefixLength > 0) {
+      intervals.push({start: 0, end: coveredPrefixLength, markerEmitted: true});
     }
-    return redacted;
+    intervals.sort((left, right) => left.start - right.start || right.end - left.end);
+
+    const merged = [];
+    for (const interval of intervals) {
+      const previous = merged.at(-1);
+      if (previous !== undefined && interval.start <= previous.end) {
+        previous.end = Math.max(previous.end, interval.end);
+        previous.markerEmitted ||= interval.markerEmitted;
+      } else {
+        merged.push({...interval});
+      }
+    }
+
+    let cursor = 0;
+    let output = "";
+    let nextCoveredPrefixLength = 0;
+    for (const interval of merged) {
+      if (interval.start >= emitLength) {
+        break;
+      }
+      output += pending.slice(cursor, interval.start);
+      if (!interval.markerEmitted) {
+        output += REDACTION;
+      }
+      cursor = Math.min(interval.end, emitLength);
+      if (interval.end > emitLength) {
+        nextCoveredPrefixLength = interval.end - emitLength;
+      }
+    }
+    output += pending.slice(cursor, emitLength);
+    coveredPrefixLength = nextCoveredPrefixLength;
+    return redactTextPatterns(output);
   }
 
   return {
@@ -138,14 +207,19 @@ function createOutputRedactor(args) {
       if (pending.length <= tailLength) {
         return new Uint8Array();
       }
-      const emit = pending.slice(0, pending.length - tailLength);
-      pending = pending.slice(-tailLength);
-      return encoder.encode(redact(emit));
+      const emitLength = safeUtf16PrefixLength(pending, pending.length - tailLength);
+      if (emitLength === 0) {
+        return new Uint8Array();
+      }
+      const output = redactPrefix(emitLength);
+      pending = pending.slice(emitLength);
+      return encoder.encode(output);
     },
     finish() {
       pending += decoder.decode();
-      const output = encoder.encode(redact(pending));
+      const output = encoder.encode(redactPrefix(pending.length));
       pending = "";
+      coveredPrefixLength = 0;
       return output;
     },
   };
