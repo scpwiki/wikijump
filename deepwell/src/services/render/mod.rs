@@ -34,6 +34,7 @@ mod prelude {
 mod include_comment_branches;
 #[allow(dead_code)]
 mod list_pages;
+mod list_pages_generated_html;
 mod render_dependency;
 mod service;
 mod structs;

@@ -19,6 +19,10 @@
  */
 
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
+use super::list_pages_generated_html::{
+    ListPagesGeneratedHtml, percent_encode_tag_path_segment,
+    restore_list_pages_generated_html, restore_list_pages_generated_text,
+};
 use super::prelude::*;
 use crate::hash::TextHash;
 use crate::models::page::{self, Entity as Page};
@@ -732,10 +736,10 @@ impl RenderService {
             &mut wikitext,
             page_info,
         );
-        let IncludeExpansion {
+        let ListPagesExpansion {
             wikitext: expanded_wikitext,
             included_pages: list_pages_included_pages,
-            ..
+            generated_html: list_pages_generated_html,
         } = Self::expand_list_pages(
             ctx,
             wikitext,
@@ -826,11 +830,12 @@ impl RenderService {
                         &wikidot_inline_html,
                     );
                     let html = restore_list_pages_literal_ellipsis_markers(&html);
-                    Self::localize_wikidot_local_file_urls(
+                    let html = Self::localize_wikidot_local_file_urls(
                         &html,
                         current_site.as_ref(),
                         config,
-                    )
+                    );
+                    restore_list_pages_generated_html(html, &list_pages_generated_html)
                 })
                 .collect();
             let html_output = HtmlOutput {
@@ -847,11 +852,12 @@ impl RenderService {
                         &wikidot_inline_html,
                     );
                     let body = restore_list_pages_literal_ellipsis_markers(&body);
-                    Self::localize_wikidot_local_file_urls(
+                    let body = Self::localize_wikidot_local_file_urls(
                         &body,
                         current_site.as_ref(),
                         config,
-                    )
+                    );
+                    restore_list_pages_generated_html(body, &list_pages_generated_html)
                 },
                 meta: Vec::new(),
                 styles: Vec::new(),
@@ -970,16 +976,21 @@ impl RenderService {
                 render_current_site.as_ref(),
                 &render_config,
             );
+            html_output.body = restore_list_pages_generated_html(
+                html_output.body,
+                &list_pages_generated_html,
+            );
             html_output.backlinks.included_pages.extend(included_pages);
             let html_block_texts = tree
                 .html_blocks
                 .iter()
                 .map(|html| {
-                    Self::localize_wikidot_local_file_urls(
+                    let html = Self::localize_wikidot_local_file_urls(
                         html,
                         render_current_site.as_ref(),
                         &render_config,
-                    )
+                    );
+                    restore_list_pages_generated_html(html, &list_pages_generated_html)
                 })
                 .collect();
             let code_blocks = tree
@@ -991,13 +1002,18 @@ impl RenderService {
                          language,
                          name,
                      }| CodeBlock {
-                        contents: Cow::Owned(
-                            Self::restore_wikidot_code_block_compatibility(
+                        contents: Cow::Owned({
+                            let contents = Self::restore_wikidot_code_block_compatibility(
                                 contents,
                                 render_current_site.as_ref(),
                                 &render_config,
-                            ),
-                        ),
+                            );
+                            restore_list_pages_generated_text(
+                                &contents,
+                                &list_pages_generated_html,
+                            )
+                            .into_owned()
+                        }),
                         language: language
                             .as_ref()
                             .map(|language| Cow::Owned(language.to_string())),
@@ -3761,22 +3777,23 @@ impl RenderService {
         settings: &WikitextSettings,
         current_site_id: Option<i64>,
         current_page_id: Option<i64>,
-    ) -> Result<IncludeExpansion> {
+    ) -> Result<ListPagesExpansion> {
+        let mut generated_html = ListPagesGeneratedHtml::new();
         let (Some(current_site_id), Some(current_page_id)) =
             (current_site_id, current_page_id)
         else {
-            return Ok(IncludeExpansion {
+            return Ok(ListPagesExpansion {
                 wikitext,
                 included_pages: Vec::new(),
-                expanded_include_count: 0,
+                generated_html,
             });
         };
 
         if !settings.enable_page_syntax {
-            return Ok(IncludeExpansion {
+            return Ok(ListPagesExpansion {
                 wikitext,
                 included_pages: Vec::new(),
-                expanded_include_count: 0,
+                generated_html,
             });
         }
 
@@ -3818,12 +3835,15 @@ impl RenderService {
                 ..
             } = Self::render_list_pages_block(
                 ctx,
-                current_site_id,
-                current_page_id,
+                ListPagesPageIds {
+                    site_id: current_site_id,
+                    page_id: current_page_id,
+                },
                 page_info,
                 settings,
                 arguments,
                 body,
+                &mut generated_html,
             )
             .await?;
             expanded.push_str(&replacement);
@@ -3832,10 +3852,10 @@ impl RenderService {
         }
 
         expanded.push_str(&wikitext[cursor..]);
-        Ok(IncludeExpansion {
+        Ok(ListPagesExpansion {
             wikitext: expanded,
             included_pages,
-            expanded_include_count: 0,
+            generated_html,
         })
     }
 
@@ -6226,13 +6246,17 @@ impl RenderService {
 
     async fn render_list_pages_block(
         ctx: &ServiceContext<'_>,
-        current_site_id: i64,
-        current_page_id: i64,
+        page_ids: ListPagesPageIds,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         arguments: ListPagesArguments,
         body: &str,
+        generated_html: &mut ListPagesGeneratedHtml,
     ) -> Result<IncludeExpansion> {
+        let ListPagesPageIds {
+            site_id: current_site_id,
+            page_id: current_page_id,
+        } = page_ids;
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -6513,12 +6537,13 @@ impl RenderService {
                 data_form_values: &data_form_values,
                 render_generated_html: list_pages_body_has_table_rows(body),
             };
-            let body = substitute_list_pages_variables(
+            let body = substitute_list_pages_variables_with_generated_html(
                 body,
                 page,
                 index + 1,
                 total,
                 &substitution_context,
+                generated_html,
             );
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
@@ -7281,6 +7306,12 @@ struct BacklinksModulePage {
     title: String,
 }
 
+#[derive(Clone, Copy, Debug)]
+struct ListPagesPageIds {
+    site_id: i64,
+    page_id: i64,
+}
+
 #[derive(Debug)]
 struct ListPagesArguments {
     current_page_only: bool,
@@ -8034,12 +8065,33 @@ struct ListPagesSubstitutionContext<'a> {
     render_generated_html: bool,
 }
 
+#[cfg(test)]
 fn substitute_list_pages_variables(
     template: &str,
     page: &FoundPageRow,
     index: usize,
     total: usize,
     context: &ListPagesSubstitutionContext<'_>,
+) -> String {
+    let mut generated_html = ListPagesGeneratedHtml::new();
+    let substituted = substitute_list_pages_variables_with_generated_html(
+        template,
+        page,
+        index,
+        total,
+        context,
+        &mut generated_html,
+    );
+    restore_list_pages_generated_html(substituted, &generated_html)
+}
+
+fn substitute_list_pages_variables_with_generated_html(
+    template: &str,
+    page: &FoundPageRow,
+    index: usize,
+    total: usize,
+    context: &ListPagesSubstitutionContext<'_>,
+    generated_html: &mut ListPagesGeneratedHtml,
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
     let title = page.title.as_deref().unwrap_or(slug);
@@ -8151,6 +8203,7 @@ fn substitute_list_pages_variables(
                     &visible_tags,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
+                    generated_html,
                 ),
                 "form_data" | "form_raw" => captures
                     .name("argument")
@@ -8242,6 +8295,7 @@ fn render_list_pages_tags(
     tags: &[String],
     path_prefix: Option<&str>,
     render_as_html: bool,
+    generated_html: &mut ListPagesGeneratedHtml,
 ) -> String {
     let path_prefix = path_prefix
         .filter(|prefix| !prefix.trim().is_empty())
@@ -8256,7 +8310,8 @@ fn render_list_pages_tags(
                     tag = escape_list_pages_html_text(tag),
                 )
             } else {
-                format!("[{href} {tag}]", tag = escape_wikidot_link_text(tag))
+                let marker = generated_html.protect_label(tag);
+                format!("[{href} {marker}]")
             }
         })
         .collect::<Vec<_>>()
@@ -8265,7 +8320,7 @@ fn render_list_pages_tags(
 
 fn list_pages_tag_link_href(path_prefix: &str, tag: &str) -> String {
     let path_prefix = path_prefix.trim();
-    let tag = tag.trim();
+    let tag = percent_encode_tag_path_segment(tag.trim());
     if path_prefix.starts_with("http://")
         || path_prefix.starts_with("https://")
         || path_prefix.starts_with('/')
@@ -8430,10 +8485,6 @@ fn resolve_list_pages_signed_abs_expressions(value: &str) -> String {
             format!("{sign}{magnitude}")
         })
         .into_owned()
-}
-
-fn escape_wikidot_link_text(value: &str) -> String {
-    value.replace(']', r"\]")
 }
 
 fn wikidot_compat_link_marker() -> String {
@@ -9916,6 +9967,13 @@ struct IncludeExpansion {
     expanded_include_count: usize,
 }
 
+#[derive(Debug)]
+struct ListPagesExpansion {
+    wikitext: String,
+    included_pages: Vec<PageRef>,
+    generated_html: ListPagesGeneratedHtml,
+}
+
 #[derive(Clone, Copy, Debug)]
 struct IncludeExpansionOptions {
     expand_wikidot_image_blocks: bool,
@@ -10398,12 +10456,13 @@ fn rendered_wikidot_mailform_attribute(head: &str, name: &str) -> Option<String>
 #[cfg(test)]
 mod tests {
     use super::{
-        CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
-        ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
-        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MAX_LISTPAGES_RENDER_SCAN_ROWS, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
-        MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
-        OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
+        CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesGeneratedHtml,
+        ListPagesSnapshotDisplay, ListPagesSubstitutionContext,
+        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
+        MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
+        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
+        MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
+        PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
@@ -10419,12 +10478,13 @@ mod tests {
         render_list_pages_table_rows, render_members_module_placeholder,
         render_native_list_page_link, render_new_page_module,
         render_read_only_rate_module, render_tag_cloud_box,
-        resolve_list_pages_signed_abs_expressions,
+        resolve_list_pages_signed_abs_expressions, restore_list_pages_generated_html,
         restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
-        substitute_list_pages_variables, unsupported_list_pages_replacement,
-        wikidot_content_section, wikidot_module_argument,
-        wikidot_no_such_include_replacement,
+        substitute_list_pages_variables,
+        substitute_list_pages_variables_with_generated_html,
+        unsupported_list_pages_replacement, wikidot_content_section,
+        wikidot_module_argument, wikidot_no_such_include_replacement,
     };
     use crate::config::Config;
     use crate::constants::ADMIN_USER_ID;
@@ -10479,6 +10539,24 @@ mod tests {
         }
     }
 
+    fn list_pages_page_with_tag(tag: &str) -> FoundPageRow {
+        FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Tagged page".to_owned()),
+            alt_title: None,
+            slug: Some("tagged-page".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: Some(vec![tag.to_owned()]),
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        }
+    }
+
     fn empty_list_pages_snapshot_displays()
     -> &'static BTreeMap<i64, ListPagesSnapshotDisplay> {
         static EMPTY: std::sync::LazyLock<BTreeMap<i64, ListPagesSnapshotDisplay>> =
@@ -10523,6 +10601,12 @@ mod tests {
     }
 
     fn render_wikidot_page_body_after_compat_restore(wikitext: &str) -> String {
+        render_wikidot_page_after_compat_restore(wikitext).body
+    }
+
+    fn render_wikidot_page_after_compat_restore(
+        wikitext: &str,
+    ) -> ftml::render::html::HtmlOutput {
         let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut wikitext = wikitext.to_owned();
@@ -10539,15 +10623,17 @@ mod tests {
         let tokens = ftml::tokenize(&wikitext);
         let result = ftml::parse(&tokens, &page_info, &settings);
         let (tree, _) = result.into();
-        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
-        let rendered = RenderService::restore_protected_wikidot_stray_bibcite_closers(
-            rendered,
+        let mut rendered = HtmlRender.render(&tree, &page_info, &settings);
+        rendered.body = RenderService::restore_protected_wikidot_stray_bibcite_closers(
+            rendered.body,
             stray_bibcite_closers,
         );
 
-        RenderService::restore_protected_generated_wikidot_compat_html(
-            rendered, &fragments,
-        )
+        rendered.body = RenderService::restore_protected_generated_wikidot_compat_html(
+            rendered.body,
+            &fragments,
+        );
+        rendered
     }
 
     fn render_wikidot_fallback_after_generated_compat_restore(wikitext: &str) -> String {
@@ -12270,23 +12356,115 @@ mod tests {
         );
         assert!(list_pages_body_variables_supported(body));
 
-        let rendered = substitute_list_pages_variables(
+        let mut generated_html = ListPagesGeneratedHtml::new();
+        let rendered = substitute_list_pages_variables_with_generated_html(
             body,
             &page,
             1,
             1,
             &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
+            &mut generated_html,
         );
 
         assert!(rendered.contains("[/scp-2693 SCP-2693]"));
         assert!(rendered.contains("**Rating:** +42"));
         assert!(rendered.contains("**Last Edit:** Calibold"));
         assert!(rendered.contains(r#"[[span class="odate time_1782005400"#));
-        assert!(rendered.contains("[/system:page-tags/tag/scp scp]"));
-        assert!(rendered.contains("[/system:page-tags/tag/safe safe]"));
+        assert!(rendered.contains(&generated_html.marker_prefix));
+        assert!(rendered.contains("[/system:page-tags/tag/scp "));
+        assert!(rendered.contains("[/system:page-tags/tag/safe "));
         assert!(rendered.ends_with("scp-2693"));
         assert!(!rendered.contains("%%updated_by%%"));
         assert!(!rendered.contains("%%tags_linked%%"));
+    }
+
+    #[test]
+    fn list_pages_tags_linked_survives_final_render_as_one_safe_anchor() {
+        let page = list_pages_page_with_tag("owned]\n[[div class=\"poc\"]]");
+
+        let mut generated_html = ListPagesGeneratedHtml::new();
+        let substituted = substitute_list_pages_variables_with_generated_html(
+            "%%tags_linked%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context(
+                20,
+                &BTreeMap::new(),
+                None,
+                &BTreeMap::new(),
+            ),
+            &mut generated_html,
+        );
+
+        assert!(substituted.contains(
+            "/system:page-tags/tag/owned%5D%0A%5B%5Bdiv%20class%3D%22poc%22%5D%5D",
+        ));
+        assert!(substituted.contains(&generated_html.marker_prefix));
+        assert!(!substituted.contains("[[div"));
+
+        let rendered = render_wikidot_page_after_compat_restore(&substituted);
+        assert_eq!(rendered.backlinks.internal_links.len(), 1);
+        assert_eq!(
+            rendered.backlinks.internal_links[0].page(),
+            "system:page-tags",
+        );
+        assert_eq!(
+            rendered.backlinks.internal_links[0].extra(),
+            Some("/tag/owned%5D%0A%5B%5Bdiv%20class%3D%22poc%22%5D%5D"),
+        );
+        let rendered = restore_list_pages_generated_html(rendered.body, &generated_html);
+        assert_eq!(rendered.matches("<a href=").count(), 1);
+        assert!(rendered.contains(
+            r#"<a href="/system:page-tags/tag/owned%5D%0A%5B%5Bdiv%20class%3D%22poc%22%5D%5D">"#,
+        ));
+        assert!(rendered.contains(concat!(
+            "owned&#x5D;&#xA;&#x5B;&#x5B;div&#x20;class&#x3D;&#x22;",
+            "poc&#x22;&#x5D;&#x5D;</a>",
+        )));
+        assert!(!rendered.contains(r#"<div class="poc">"#));
+
+        let fallback =
+            render_wikidot_fallback_after_generated_compat_restore(&substituted);
+        let fallback = restore_list_pages_generated_html(fallback, &generated_html);
+        assert_eq!(fallback.matches("<a href=").count(), 0);
+        assert!(fallback.contains(
+            "/system:page-tags/tag/owned%5D%0A%5B%5Bdiv%20class%3D%22poc%22%5D%5D",
+        ));
+        assert!(fallback.contains(
+            "owned&#x5D;&#xA;&#x5B;&#x5B;div&#x20;class&#x3D;&#x22;poc&#x22;&#x5D;&#x5D;]</pre>",
+        ));
+        assert!(!fallback.contains(r#"<div class="poc">"#));
+    }
+
+    #[test]
+    fn list_pages_tags_linked_label_cannot_escape_an_html_attribute() {
+        let page = list_pages_page_with_tag(r#"owned" onerror="alert(1)<b>"#);
+
+        let mut generated_html = ListPagesGeneratedHtml::new();
+        let substituted = substitute_list_pages_variables_with_generated_html(
+            r#"[[span class="prefix %%tags_linked%% suffix"]]body[[/span]]"#,
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context(
+                20,
+                &BTreeMap::new(),
+                None,
+                &BTreeMap::new(),
+            ),
+            &mut generated_html,
+        );
+        assert!(!substituted.contains(r#"" onerror=""#));
+
+        let rendered = render_wikidot_page_body_after_compat_restore(&substituted);
+        let rendered = restore_list_pages_generated_html(rendered, &generated_html);
+        assert_eq!(rendered.matches("<a ").count(), 0);
+        assert!(!rendered.contains(r#" onerror="#));
+        assert!(!rendered.contains("<b>"));
+        assert!(rendered.contains(
+            "owned&#x22;&#x20;onerror&#x3D;&#x22;alert&#x28;1&#x29;&#x3C;b&#x3E;",
+        ));
     }
 
     #[test]
@@ -12469,7 +12647,8 @@ mod tests {
             "[[/div]]",
         );
 
-        let rendered = substitute_list_pages_variables(
+        let mut generated_html = ListPagesGeneratedHtml::new();
+        let rendered = substitute_list_pages_variables_with_generated_html(
             body,
             &page,
             1,
@@ -12480,6 +12659,7 @@ mod tests {
                 None,
                 &BTreeMap::new(),
             ),
+            &mut generated_html,
         );
 
         assert!(rendered.contains(
@@ -12489,9 +12669,9 @@ mod tests {
         assert!(!rendered.contains("_licensebox"));
         assert!(rendered.contains("[/aspenq-pride-art-2026 Aspenq Pride Art 2026]"));
         assert!(rendered.contains(r#"[[span class="odate time_1781900521 format_%25Y%20%25b%20%25e%7Cagohover" style="cursor: help; display: inline;"]]2026 Jun 20[[/span]]"#));
-        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,artwork artwork]"));
-        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,preview preview]"));
-        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,colored-pencil colored-pencil]"));
+        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,artwork "));
+        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,preview "));
+        assert!(rendered.contains("[/artwork-hub/tag/-scp,-goi-format,-supplement,-tale,-hub,-site,-resource,-guide,-essay,-theme,colored-pencil "));
         assert!(rendered.contains(r#"[[span class="rating"]]+28[[/span]]"#));
         assert!(!rendered.contains("<span"));
         assert!(!rendered.contains("<a href"));
