@@ -2,6 +2,8 @@ import { Socket } from "node:net"
 import { connect as tlsConnect } from "node:tls"
 
 const DEFAULT_REDIS_PORT = 6379
+const REDIS_CONNECT_TIMEOUT_MS = 1000
+const REDIS_COMMAND_TIMEOUT_MS = 1000
 const REDIS_SUBSCRIBER_RETRY_DELAY_MS = 100
 const CRLF = "\r\n"
 
@@ -121,9 +123,20 @@ class RedisCacheStore {
         url.protocol === "rediss:"
           ? tlsConnect({ host, port, servername: host })
           : new Socket().connect({ host, port })
+      const connectEvent = url.protocol === "rediss:" ? "secureConnect" : "connect"
+      const timeout = setTimeout(() => {
+        socket.destroy()
+        reject(new Error("Redis connection timed out"))
+      }, REDIS_CONNECT_TIMEOUT_MS)
+      timeout.unref?.()
 
-      const onConnect = async () => {
+      const cleanup = () => {
+        clearTimeout(timeout)
+        socket.off(connectEvent, onConnect)
         socket.off("error", onError)
+      }
+      const onConnect = async () => {
+        cleanup()
         this.socket = socket
         this.buffer = Buffer.alloc(0)
         socket.on("data", (chunk) => this.handleData(chunk))
@@ -141,11 +154,12 @@ class RedisCacheStore {
         }
       }
       const onError = (error) => {
+        cleanup()
         socket.destroy()
         reject(error)
       }
 
-      socket.once(url.protocol === "rediss:" ? "secureConnect" : "connect", onConnect)
+      socket.once(connectEvent, onConnect)
       socket.once("error", onError)
     }).finally(() => {
       this.connecting = null
@@ -197,11 +211,27 @@ class RedisCacheStore {
     }
 
     return new Promise((resolve, reject) => {
-      this.pending.push({ resolve, reject })
+      const timeout = setTimeout(() => {
+        this.pending = this.pending.filter((request) => request !== pendingRequest)
+        reject(new Error("Redis command timed out"))
+        this.reset()
+      }, REDIS_COMMAND_TIMEOUT_MS)
+      timeout.unref?.()
+      const pendingRequest = {
+        resolve: (value) => {
+          clearTimeout(timeout)
+          resolve(value)
+        },
+        reject: (error) => {
+          clearTimeout(timeout)
+          reject(error)
+        }
+      }
+      this.pending.push(pendingRequest)
       this.socket.write(encodeCommand(parts), "utf8", (error) => {
         if (error) {
-          this.pending = this.pending.filter((request) => request.resolve !== resolve)
-          reject(error)
+          this.pending = this.pending.filter((request) => request !== pendingRequest)
+          pendingRequest.reject(error)
         }
       })
     })
@@ -315,9 +345,20 @@ class RedisFenceInvalidationSubscriber {
         url.protocol === "rediss:"
           ? tlsConnect({ host, port, servername: host })
           : new Socket().connect({ host, port })
+      const connectEvent = url.protocol === "rediss:" ? "secureConnect" : "connect"
+      const timeout = setTimeout(() => {
+        socket.destroy()
+        reject(new Error("Redis subscriber connection timed out"))
+      }, REDIS_CONNECT_TIMEOUT_MS)
+      timeout.unref?.()
 
-      const onConnect = () => {
+      const cleanup = () => {
+        clearTimeout(timeout)
+        socket.off(connectEvent, onConnect)
         socket.off("error", onError)
+      }
+      const onConnect = () => {
+        cleanup()
         this.socket = socket
         this.buffer = Buffer.alloc(0)
         socket.on("data", (chunk) => this.handleData(chunk))
@@ -326,11 +367,12 @@ class RedisFenceInvalidationSubscriber {
         resolve()
       }
       const onError = (error) => {
+        cleanup()
         socket.destroy()
         reject(error)
       }
 
-      socket.once(url.protocol === "rediss:" ? "secureConnect" : "connect", onConnect)
+      socket.once(connectEvent, onConnect)
       socket.once("error", onError)
     })
   }
@@ -410,11 +452,27 @@ class RedisFenceInvalidationSubscriber {
     }
 
     return new Promise((resolve, reject) => {
-      this.pending.push({ resolve, reject })
+      const timeout = setTimeout(() => {
+        this.pending = this.pending.filter((request) => request !== pendingRequest)
+        reject(new Error("Redis subscriber command timed out"))
+        this.reset()
+      }, REDIS_COMMAND_TIMEOUT_MS)
+      timeout.unref?.()
+      const pendingRequest = {
+        resolve: (value) => {
+          clearTimeout(timeout)
+          resolve(value)
+        },
+        reject: (error) => {
+          clearTimeout(timeout)
+          reject(error)
+        }
+      }
+      this.pending.push(pendingRequest)
       this.socket.write(encodeCommand(parts), "utf8", (error) => {
         if (error) {
-          this.pending = this.pending.filter((request) => request.resolve !== resolve)
-          reject(error)
+          this.pending = this.pending.filter((request) => request !== pendingRequest)
+          pendingRequest.reject(error)
         }
       })
     })

@@ -237,6 +237,34 @@ test("anonymous article response cache fence helpers fail closed on malformed va
   )
 })
 
+test("Redis cache store times out unanswered commands", async () => {
+  const sockets = new Set()
+  const server = net.createServer((socket) => {
+    sockets.add(socket)
+    socket.on("close", () => sockets.delete(socket))
+    socket.on("data", () => {
+      // Keep the socket open while withholding a Redis response.
+    })
+  })
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const store = createRedisCacheStore(`redis://127.0.0.1:${address.port}`)
+
+  try {
+    await assert.rejects(store.get("deepwell:public-content:site:6000005:version"), {
+      message: "Redis command timed out"
+    })
+  } finally {
+    for (const socket of sockets) {
+      socket.destroy()
+    }
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
+})
+
 test("Redis article response fence subscriber retries after initial subscribe failure", async () => {
   const channel = "test:article-response-fence"
   const port = await getUnusedPort()
