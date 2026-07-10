@@ -13,10 +13,15 @@ services:
     restart: unless-stopped
     env_file:
       - ./.env
-    ports:
-      - "7100:7000"
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    expose:
+      - "7000"
+    networks:
+      - komodo
+
+networks:
+  komodo:
+    external: true
+    name: komodo_default
 """
 environment = """
 ## Required
@@ -50,7 +55,7 @@ tags = ["system"]
 [alerter.config]
 enabled = true
 endpoint.type = "Custom"
-endpoint.params.url = "http://host.docker.internal:7100"
+endpoint.params.url = "http://alerter:7000"
 alert_types = [
     # Deployment / build status
     "BuildFailed",
