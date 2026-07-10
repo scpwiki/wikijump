@@ -4,6 +4,7 @@ import { authGetSession } from "$lib/server/auth/getSession"
 import { authLogin } from "$lib/server/auth/login"
 import { authMfaVerify } from "$lib/server/auth/mfa"
 import { translate } from "$lib/server/deepwell/translate"
+import { clearLoginPassword } from "$lib/server/load/auth-form-redaction.js"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -136,11 +137,6 @@ const loginSchema = object({
   nameOrEmail: pipe(string(), minLength(1)),
   password: pipe(string(), minLength(1))
 })
-
-function clearLoginPassword<T extends { data: { password?: string } }>(form: T): T {
-  form.data.password = ""
-  return form
-}
 
 async function setSessionCookie(cookies: Cookies, sessionToken: string) {
   const session = await authGetSession(sessionToken)

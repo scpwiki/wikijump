@@ -2,6 +2,7 @@ import defaults from "$lib/defaults"
 
 import { translate } from "$lib/server/deepwell/translate"
 import { userCreate } from "$lib/server/deepwell/user"
+import { clearRegisterPasswords } from "$lib/server/load/auth-form-redaction.js"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -99,14 +100,6 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
       data: error?.data
     })
   }
-}
-
-function clearRegisterPasswords<
-  T extends { data: { password?: string; confirmPassword?: string } }
->(form: T): T {
-  form.data.password = ""
-  form.data.confirmPassword = ""
-  return form
 }
 
 const registerSchema = pipe(
