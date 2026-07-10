@@ -57,21 +57,68 @@ function printHelpAndExit() {
 
 async function pathExists(filePath) {
   try {
-    await fs.access(filePath);
+    await fs.lstat(filePath);
     return true;
   } catch {
     return false;
   }
 }
 
-async function readJsonIfPresent(filePath) {
-  if (!(await pathExists(filePath))) return null;
-  return JSON.parse(await fs.readFile(filePath, "utf8"));
+function isPathInside(root, filePath) {
+  const relativePath = path.relative(root, filePath);
+  return relativePath === "" || (!relativePath.startsWith("..") && !path.isAbsolute(relativePath));
 }
 
-async function readTextIfPresent(filePath) {
-  if (!(await pathExists(filePath))) return "";
+async function readCorpusFile(corpusRoot, filePath, { optional = false, maxBytes = 1024 * 1024 } = {}) {
+  let stats;
+  try {
+    stats = await fs.lstat(filePath);
+  } catch (error) {
+    if (optional && error.code === "ENOENT") return null;
+    throw error;
+  }
+
+  if (!stats.isFile()) {
+    throw new Error(`Corpus path must be a regular file: ${filePath}`);
+  }
+  if (stats.size > maxBytes) {
+    throw new Error(`Corpus file exceeds ${maxBytes} byte limit: ${filePath}`);
+  }
+
+  const [realCorpusRoot, realFilePath] = await Promise.all([
+    fs.realpath(corpusRoot),
+    fs.realpath(filePath),
+  ]);
+  if (!isPathInside(realCorpusRoot, realFilePath)) {
+    throw new Error(`Corpus file escapes corpus root: ${filePath}`);
+  }
+
   return fs.readFile(filePath, "utf8");
+}
+
+async function readJsonIfPresent(corpusRoot, filePath) {
+  const text = await readCorpusFile(corpusRoot, filePath, { optional: true });
+  return text === null ? null : JSON.parse(text);
+}
+
+async function readTextIfPresent(corpusRoot, filePath, options) {
+  return (await readCorpusFile(corpusRoot, filePath, { optional: true, ...options })) ?? "";
+}
+
+function validateEntityId(entityId, sourceLabel) {
+  if (!entityId) return "";
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(entityId)) {
+    throw new Error(`Invalid entity id value in ${sourceLabel}`);
+  }
+  return entityId;
+}
+
+function entityIdFromText(text, filePath) {
+  return validateEntityId(text.trim(), filePath);
+}
+
+function entityIdFromMeta(meta, filePath) {
+  return validateEntityId(String(meta?.entity_id ?? "").trim(), filePath);
 }
 
 async function walkFiles(root) {
@@ -236,12 +283,12 @@ async function buildManifest(corpusRoot) {
     const metadataPath = path.join(pageDir, "meta.json");
     const entityIdPath = path.join(pageDir, "entity_id.txt");
     const [source, meta, entityIdText] = await Promise.all([
-      fs.readFile(sourcePath, "utf8"),
-      readJsonIfPresent(metadataPath),
-      readTextIfPresent(entityIdPath),
+      readCorpusFile(corpusRoot, sourcePath, { maxBytes: 10 * 1024 * 1024 }),
+      readJsonIfPresent(corpusRoot, metadataPath),
+      readTextIfPresent(corpusRoot, entityIdPath, { maxBytes: 256 }),
     ]);
 
-    const pageId = entityIdText.trim() || meta?.entity_id || "";
+    const pageId = entityIdFromText(entityIdText, entityIdPath) || entityIdFromMeta(meta, metadataPath);
     const bytes = Buffer.byteLength(source);
     const lineCount = source.length ? source.split(/\r?\n/).length : 0;
     const tags = uniqueSorted(Array.isArray(meta?.tags) ? meta.tags : []);
@@ -389,9 +436,7 @@ Notes:
 
 async function main() {
   const args = parseArgs(process.argv);
-  const relativeOutput = path.relative(args.corpus, args.outputDir);
-  const outputInsideCorpus =
-    relativeOutput === "" || (!relativeOutput.startsWith("..") && !path.isAbsolute(relativeOutput));
+  const outputInsideCorpus = isPathInside(args.corpus, args.outputDir);
   if (outputInsideCorpus) {
     throw new Error("--output-dir must be outside --corpus to avoid self-inventory");
   }

@@ -116,6 +116,35 @@ test("corpus-discover rejects output directories inside the corpus", async () =>
   ], /--output-dir must be outside --corpus/);
 });
 
+test("corpus-discover rejects symlinked page metadata files", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-symlink-"));
+  const corpus = path.join(root, "corpus");
+  const outputDir = path.join(root, "out");
+  const pageDir = path.join(corpus, "pages", "evil");
+  const secretPath = path.join(root, "secret.txt");
+
+  await fs.mkdir(pageDir, { recursive: true });
+  await fs.writeFile(path.join(pageDir, "source.wikidot.txt"), "[[module ListPages]]\n");
+  await writeJson(path.join(pageDir, "meta.json"), {
+    title: "Evil Fixture"
+  });
+  await fs.writeFile(secretPath, "LEAKED_SECRET_TOKEN=autovalidator-12345\n");
+  await fs.symlink(secretPath, path.join(pageDir, "entity_id.txt"));
+
+  await assertDiscoverFails([
+    "--corpus",
+    corpus,
+    "--output-dir",
+    outputDir,
+    "--canary-count",
+    "1"
+  ], /Corpus path must be a regular file/);
+
+  await assert.rejects(fs.readFile(path.join(outputDir, "corpus-manifest.tsv"), "utf8"), {
+    code: "ENOENT"
+  });
+});
+
 test("corpus-discover handles a corpus without pages directory", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-no-pages-"));
   const corpus = path.join(root, "corpus");
