@@ -40,7 +40,6 @@ use strum_macros::{Display, EnumIter, EnumString};
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
 pub enum RelationType {
-    #[strum(to_string = "user", serialize = "site-user")]
     SiteUser,
     #[strum(to_string = "ban", serialize = "site-ban")]
     SiteBan,
@@ -100,7 +99,7 @@ mod tests {
     #[test]
     fn relation_type_display_keeps_legacy_database_values() {
         let cases = [
-            (RelationType::SiteUser, "user"),
+            (RelationType::SiteUser, "site-user"),
             (RelationType::SiteBan, "ban"),
             (RelationType::SiteApplication, "application"),
             (RelationType::SiteMember, "member"),
@@ -122,7 +121,7 @@ mod tests {
     #[test]
     fn relation_type_parses_legacy_and_variant_database_values() {
         let cases = [
-            (RelationType::SiteUser, "user", "site-user"),
+            (RelationType::SiteUser, "site-user", "site-user"),
             (RelationType::SiteBan, "ban", "site-ban"),
             (
                 RelationType::SiteApplication,
@@ -155,5 +154,7 @@ mod tests {
                 relation_type
             );
         }
+
+        assert!(RelationType::from_str("user").is_err());
     }
 }
