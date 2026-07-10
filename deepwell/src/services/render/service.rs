@@ -1568,21 +1568,22 @@ impl RenderService {
         let mut rest = html;
         let mut alignment_stack: Vec<&'static str> = Vec::new();
 
-        loop {
-            let Some((position, marker, alignment, replacement, is_close)) = MARKERS
+        while let Some(position) = rest.find('<') {
+            output.push_str(&rest[..position]);
+            rest = &rest[position..];
+
+            let Some((marker, alignment, replacement, is_close)) = MARKERS
                 .iter()
-                .filter_map(|(marker, alignment, replacement, is_close)| {
-                    rest.find(marker).map(|position| {
-                        (position, *marker, *alignment, *replacement, *is_close)
-                    })
+                .find(|(marker, ..)| rest.starts_with(marker))
+                .map(|(marker, alignment, replacement, is_close)| {
+                    (*marker, *alignment, *replacement, *is_close)
                 })
-                .min_by_key(|(position, ..)| *position)
             else {
-                output.push_str(rest);
-                return output;
+                output.push('<');
+                rest = &rest['<'.len_utf8()..];
+                continue;
             };
 
-            output.push_str(&rest[..position]);
             if is_close {
                 if alignment_stack.last().copied() == Some(alignment) {
                     alignment_stack.pop();
@@ -1594,8 +1595,11 @@ impl RenderService {
                 alignment_stack.push(alignment);
                 output.push_str(replacement);
             }
-            rest = &rest[position + marker.len()..];
+            rest = &rest[marker.len()..];
         }
+
+        output.push_str(rest);
+        output
     }
 
     fn residual_wikidot_alignment_open_replacement(
@@ -15085,6 +15089,18 @@ mod tests {
         assert!(restored.contains(r#"</details></span></div><br><span>after</span>"#));
         assert!(!restored.contains("[[=]]"));
         assert!(!restored.contains("[[/=]]"));
+    }
+
+    #[test]
+    fn restores_repeated_residual_wikidot_alignment_html_markers() {
+        let html = "<p>[[=]]</p>".repeat(1024);
+
+        let restored = RenderService::restore_residual_wikidot_alignment_markers(&html);
+
+        assert_eq!(
+            restored,
+            r#"<div style="text-align: center;">"#.repeat(1024)
+        );
     }
 
     #[test]
