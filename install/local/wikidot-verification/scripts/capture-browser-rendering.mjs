@@ -40,7 +40,7 @@ function parseArgs(argv) {
     screenshot: true,
     ignoreHttpsErrors: false,
     waitUntil: "domcontentloaded",
-    visibleTextScope: "all-frames",
+    visibleTextScope: "main-frame",
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -270,7 +270,24 @@ export async function openBrowser({
   }
 }
 
-async function collectVisibleText(page, visibleTextScope = "all-frames") {
+function frameOrigin(value) {
+  try {
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+}
+
+function frameUrl(frame) {
+  if (typeof frame.url !== "function") return null;
+  try {
+    return frame.url();
+  } catch {
+    return null;
+  }
+}
+
+async function collectVisibleText(page, visibleTextScope = "main-frame") {
   const frames =
     visibleTextScope === "main-frame"
       ? [typeof page.mainFrame === "function" ? page.mainFrame() : page]
@@ -278,8 +295,12 @@ async function collectVisibleText(page, visibleTextScope = "all-frames") {
         ? page.frames()
         : [page];
   const texts = [];
+  const pageOrigin = frameOrigin(typeof page.url === "function" ? page.url() : "");
   for (const frame of frames) {
     try {
+      const isMainFrame = typeof page.mainFrame === "function" && frame === page.mainFrame();
+      const origin = frameOrigin(frameUrl(frame));
+      if (!isMainFrame && (!pageOrigin || origin !== pageOrigin)) continue;
       if (!(await shouldCaptureFrameVisibleText(page, frame))) continue;
       const text = await frame.evaluate(() => document.body?.innerText ?? "");
       if (text) texts.push(text);
@@ -329,7 +350,7 @@ async function waitForLoadStateWithinBudget(page, state, timeoutMs, startedAt) {
   await page.waitForLoadState(state, {timeout: Math.min(POST_NAVIGATION_STATE_TIMEOUT_MS, remainingMs)}).catch(() => {});
 }
 
-export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = DEFAULT_SETTLE_MS, screenshotPath, visibleTextScope = "all-frames"}) {
+export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = DEFAULT_SETTLE_MS, screenshotPath, visibleTextScope = "main-frame"}) {
   const consoleErrors = [];
   const failedRequests = [];
   const badResponses = [];

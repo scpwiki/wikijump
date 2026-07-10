@@ -305,7 +305,15 @@ test("browser context options do not expose unset storage state", () => {
 
 test("capturePage records page errors and failed subframe responses", async () => {
   const handlers = new Map();
-  const mainFrame = {name: "main"};
+  const mainFrame = {
+    name: "main",
+    url() {
+      return "https://local.example/page";
+    },
+    async evaluate() {
+      return "visible";
+    },
+  };
   const childFrame = {name: "child"};
   const page = {
     on(event, handler) {
@@ -338,10 +346,7 @@ test("capturePage records page errors and failed subframe responses", async () =
     },
     async waitForLoadState() {},
     frames() {
-      return [
-        {async evaluate() { return "visible"; }},
-        {async evaluate() { return "child frame text"; }},
-      ];
+      return [mainFrame, childFrame];
     },
     async content() {
       return "<html>visible</html>";
@@ -359,7 +364,7 @@ test("capturePage records page errors and failed subframe responses", async () =
   });
 
   assert.deepEqual(result.consoleErrors, ["client render failed"]);
-  assert.equal(result.visibleText, "visible\nchild frame text");
+  assert.equal(result.visibleText, "visible");
   assert.deepEqual(result.failedRequests, [
     {
       url: "https://local.example/frame",
@@ -370,8 +375,22 @@ test("capturePage records page errors and failed subframe responses", async () =
 });
 
 test("capturePage can scope visible text to the main frame", async () => {
-  const mainFrame = {async evaluate() { return "main frame text"; }};
-  const childFrame = {async evaluate() { return "child frame text"; }};
+  const mainFrame = {
+    url() {
+      return "https://local.example/page";
+    },
+    async evaluate() {
+      return "main frame text";
+    },
+  };
+  const childFrame = {
+    url() {
+      return "https://other.example/frame";
+    },
+    async evaluate() {
+      return "child frame text";
+    },
+  };
   const page = {
     on() {},
     mainFrame() {
@@ -404,8 +423,18 @@ test("capturePage can scope visible text to the main frame", async () => {
 });
 
 test("capturePage skips hidden child frames for all-frame visible text", async () => {
-  const mainFrame = {async evaluate() { return "main frame text"; }};
+  const mainFrame = {
+    url() {
+      return "https://local.example/page";
+    },
+    async evaluate() {
+      return "main frame text";
+    },
+  };
   const visibleFrame = {
+    url() {
+      return "https://local.example/frame";
+    },
     async frameElement() {
       return {async evaluate() { return true; }};
     },
@@ -414,6 +443,9 @@ test("capturePage skips hidden child frames for all-frame visible text", async (
     },
   };
   const hiddenFrame = {
+    url() {
+      return "https://local.example/hidden";
+    },
     async frameElement() {
       return {async evaluate() { return false; }};
     },
@@ -446,9 +478,58 @@ test("capturePage skips hidden child frames for all-frame visible text", async (
     waitUntil: "domcontentloaded",
     settleMs: 0,
     screenshotPath: null,
+    visibleTextScope: "all-frames",
   });
 
   assert.equal(result.visibleText, "main frame text\nvisible iframe text");
+});
+
+test("capturePage does not read cross-origin child frame text", async () => {
+  const mainFrame = {
+    url() {
+      return "https://local.example/page";
+    },
+    async evaluate() {
+      return "main frame text";
+    },
+  };
+  const crossOriginFrame = {
+    url() {
+      return "http://127.0.0.1:18443/admin";
+    },
+    async evaluate() {
+      throw new Error("cross-origin frame text should not be read");
+    },
+  };
+  const page = {
+    on() {},
+    mainFrame() {
+      return mainFrame;
+    },
+    async goto() {
+      return {status: () => 200};
+    },
+    async waitForLoadState() {},
+    frames() {
+      return [mainFrame, crossOriginFrame];
+    },
+    async content() {
+      return "<html>main frame text</html>";
+    },
+    url() {
+      return "https://local.example/page";
+    },
+  };
+
+  const result = await capturePage(page, "https://local.example/page", {
+    timeoutMs: 100,
+    waitUntil: "domcontentloaded",
+    settleMs: 0,
+    screenshotPath: null,
+    visibleTextScope: "all-frames",
+  });
+
+  assert.equal(result.visibleText, "main frame text");
 });
 
 test("capturePage records delayed main-frame navigation failures", async () => {
@@ -616,11 +697,13 @@ class Page {
     this.contextId = contextId;
     this.handlers = new Map();
     this.currentUrl = "about:blank";
+    this.main = {url: () => this.currentUrl, evaluate: async () => "context-" + this.contextId};
   }
   on(event, handler) { this.handlers.set(event, handler); }
   async goto(url) { this.currentUrl = url; return {status: () => 200}; }
   async waitForLoadState() {}
-  frames() { return [{evaluate: async () => "context-" + this.contextId}]; }
+  mainFrame() { return this.main; }
+  frames() { return [this.main]; }
   async content() { return "<html>context-" + this.contextId + "</html>"; }
   async screenshot({path}) { fs.writeFileSync(path, "png"); }
   url() { return this.currentUrl; }
@@ -704,8 +787,8 @@ class Page {
     this.contextId = contextId;
     this.handlers = new Map();
     this.currentUrl = "about:blank";
-    this.main = {evaluate: async () => "main-" + this.contextId};
-    this.child = {evaluate: async () => "child-" + this.contextId};
+    this.main = {url: () => this.currentUrl, evaluate: async () => "main-" + this.contextId};
+    this.child = {url: () => this.currentUrl + "#child", evaluate: async () => "child-" + this.contextId};
   }
   on(event, handler) { this.handlers.set(event, handler); }
   async goto(url) { this.currentUrl = url; return {status: () => 200}; }
