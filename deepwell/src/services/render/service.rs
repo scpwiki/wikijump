@@ -1122,7 +1122,7 @@ impl RenderService {
         let html = Self::restore_wikidot_ta_badge_default_compatibility(&html);
         let html = Self::restore_wikidot_text_ellipsis_compatibility(&html);
         let html = Self::restore_wikidot_footnote_dom_compatibility(&html);
-        let html = Self::remove_wikijump_plain_format_wrappers(&html);
+        let html = Self::remove_wikijump_underline_wrappers(&html);
         let html = Self::remove_wikidot_userkarma_background_styles(&html);
         let html = Self::restore_protected_wikidot_marker_class_include_variables(&html);
         Self::localize_wikidot_local_file_urls(&html, current_site, config)
@@ -2226,11 +2226,10 @@ impl RenderService {
         Some((name, closing, inner.ends_with('/')))
     }
 
-    fn remove_wikijump_plain_format_wrappers(html: &str) -> String {
-        html.replace("<u>", "")
-            .replace("</u>", "")
-            .replace("<s>", "")
-            .replace("</s>", "")
+    fn remove_wikijump_underline_wrappers(html: &str) -> String {
+        // FTML uses semantic <s> elements for paired Wikidot --text--
+        // strikethrough. Those are visible formatting, not plain wrappers.
+        html.replace("<u>", "").replace("</u>", "")
     }
 
     fn remove_wikidot_userkarma_background_styles(html: &str) -> String {
@@ -15580,12 +15579,24 @@ mod tests {
     }
 
     #[test]
-    fn removes_wikijump_plain_format_wrappers_after_render() {
+    fn removes_wikijump_underline_wrappers_without_stripping_strikethrough() {
         let html = "<p><u>under</u> and <s>strike</s></p>";
 
-        let restored = RenderService::remove_wikijump_plain_format_wrappers(html);
+        let restored = RenderService::remove_wikijump_underline_wrappers(html);
 
-        assert_eq!(restored, "<p>under and strike</p>");
+        assert_eq!(restored, "<p>under and <s>strike</s></p>");
+    }
+
+    #[test]
+    fn preserves_compact_ftml_dash_strikethrough_after_compat_cleanup() {
+        let rendered =
+            render_wikidot_page_body_after_compat_restore("before --removed-- after");
+
+        assert_eq!(rendered, "<p>before <s>removed</s> after</p>");
+        assert_eq!(
+            RenderService::remove_wikijump_underline_wrappers(&rendered),
+            rendered,
+        );
     }
 
     #[test]
