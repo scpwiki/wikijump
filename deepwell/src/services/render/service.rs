@@ -145,8 +145,7 @@ const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
-const WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX: &str =
-    "WIKIJUMPWIKIDOTSTRAYBIBCITECLOSE";
+const WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL: &str = "\u{001E}\u{001F}";
 const WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTRATEANCHOR";
 const WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX: &str =
     "WIKIJUMPWIKIDOTLISTPAGESELLIPSIS";
@@ -4197,9 +4196,7 @@ impl RenderService {
             }
 
             if remaining.starts_with("))") {
-                output.push_str(&format!(
-                    "{WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX}{protected_count}X"
-                ));
+                output.push_str(WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL);
                 *protected_count += 1;
                 index += "))".len();
                 continue;
@@ -4247,14 +4244,14 @@ impl RenderService {
     }
 
     fn restore_protected_wikidot_stray_bibcite_closers(
-        mut html: String,
+        html: String,
         protected_count: usize,
     ) -> String {
-        for index in 0..protected_count {
-            let marker = format!("{WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX}{index}X");
-            html = html.replace(&marker, "))");
+        if protected_count == 0 {
+            return html;
         }
-        html
+
+        html.replace(WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL, "))")
     }
 
     fn protect_wikidot_color_spans(
@@ -10416,6 +10413,26 @@ mod tests {
         assert!(source.contains("((bibcite alpha))"));
         assert!(!source.contains("(a (b))"));
         assert!(!source.contains("((notbibcite beta))"));
+        assert_eq!(
+            RenderService::restore_protected_wikidot_stray_bibcite_closers(
+                source,
+                protected_count,
+            ),
+            original,
+        );
+    }
+
+    #[test]
+    fn restores_many_stray_bibcite_closers_in_one_pass() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let original = "))".repeat(10_000);
+        let mut source = original.clone();
+
+        let protected_count =
+            RenderService::protect_wikidot_stray_bibcite_closers(&mut source, &settings);
+
+        assert_eq!(protected_count, 10_000);
+        assert_eq!(source.len(), original.len());
         assert_eq!(
             RenderService::restore_protected_wikidot_stray_bibcite_closers(
                 source,
