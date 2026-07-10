@@ -31,6 +31,7 @@
 
 use super::prelude::*;
 use crate::constants::SYSTEM_USER_ID;
+use crate::models::known_user;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::site::{self, Entity as Site};
@@ -39,6 +40,7 @@ use crate::services::page_lock::{CreatePageLockInput, PageLockService};
 use crate::services::{BlobService, CategoryService};
 use crate::types::PageLockType;
 use crate::utils::get_category_name;
+use sea_orm::sea_query::OnConflict;
 
 #[derive(Debug)]
 pub struct ImportService;
@@ -81,6 +83,19 @@ impl ImportService {
         };
 
         let txn = ctx.transaction();
+        known_user::ActiveModel {
+            user_id: Set(i64::from(user_id)),
+        }
+        .insert(txn)
+        .on_conflict(
+            OnConflict::column(known_user::Column::UserId)
+                .do_nothing()
+                .to_owned(),
+        )
+        .exec_without_returning(txn)
+        .await
+        .or_raise(make_error)?;
+
         let model = wikidot_user::ActiveModel {
             user_id: Set(user_id),
             created_at: Set(created_at),
