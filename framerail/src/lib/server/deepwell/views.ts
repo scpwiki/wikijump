@@ -47,7 +47,16 @@ export async function preloadView(
   })
 }
 
-export type PreloadDataAsync = () => Promise<Viewer & { locales: string[] }>
+export interface ClientUserSession {
+  user: Partial<UserModel>
+}
+
+export type PreloadData = Omit<Viewer, "user_session"> & {
+  user_session: Nullable<ClientUserSession>
+  locales: string[]
+}
+
+export type PreloadDataAsync = () => Promise<PreloadData>
 
 /* ----- Page View ----- */
 export interface PageRoute {

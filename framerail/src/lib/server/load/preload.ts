@@ -6,7 +6,7 @@ import { preloadView } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { sanitizeUserData } from "$lib/server/load/user"
 
-import type { Viewer } from "$lib/server/deepwell/views"
+import type { PreloadData, Viewer } from "$lib/server/deepwell/views"
 import type { Cookies } from "@sveltejs/kit"
 
 const PAGE_ROUTES_WITH_ARTICLE_PRELOAD = new Set(["/", "/[slug]/[...extra]"])
@@ -23,7 +23,7 @@ export function getPreloadBackendLocales(locales: string[]): string[] {
   return withFallbackLocale(locales, defaults.fallbackLocale)
 }
 
-export function finalizePreloadData(response: Viewer, locales: string[]) {
+export function finalizePreloadData(response: Viewer, locales: string[]): PreloadData {
   let resolvedLocales = uniqueLocales(locales)
 
   if (response.user_session?.user.locales) {
@@ -39,11 +39,11 @@ export function finalizePreloadData(response: Viewer, locales: string[]) {
 
   resolvedLocales = withFallbackLocale(resolvedLocales, defaults.fallbackLocale)
 
-  if (response.user_session?.user) {
-    response.user_session.user = sanitizeUserData(response.user_session?.user, false)
-  }
+  const userSession = response.user_session
+    ? { user: sanitizeUserData(response.user_session.user, false) }
+    : null
 
-  return { ...response, locales: resolvedLocales }
+  return { ...response, user_session: userSession, locales: resolvedLocales }
 }
 
 /**
