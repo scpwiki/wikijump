@@ -46,27 +46,76 @@ pub enum PageLockType {
     PermissionOnly,
     // Authors and users with Page:BypassLock can edit
     #[serde(alias = "author-only")]
-    #[strum(serialize = "author-only", serialize = "author-or-permission-only")]
+    // DeriveValueType delegates database strings to Display and FromStr.
+    // Accept known historical spellings while keeping writes canonical.
+    #[strum(
+        serialize = "author_only",
+        serialize = "author-only",
+        serialize = "author_or_permission_only",
+        to_string = "author-or-permission-only"
+    )]
     AuthorOrPermissionOnly,
 }
 
-/// Ensure the renamed author-or-permission lock type remains compatible with
-/// rows and clients that still use the previous `author-only` value.
-#[test]
-fn author_only_compatibility() {
-    assert_eq!(
-        serde_json::from_str::<PageLockType>(r#""author-only""#)
-            .expect("Unable to deserialize legacy author-only JSON"),
-        PageLockType::AuthorOrPermissionOnly,
-    );
-    assert_eq!(
-        "author-only"
-            .parse::<PageLockType>()
-            .expect("Unable to parse legacy author-only database value"),
-        PageLockType::AuthorOrPermissionOnly,
-    );
-    assert_eq!(
-        PageLockType::AuthorOrPermissionOnly.to_string(),
-        "author-or-permission-only",
-    );
+#[cfg(test)]
+mod tests {
+    use super::PageLockType;
+    use sea_orm::{Value, sea_query::ValueType};
+
+    const AUTHOR_LOCK: PageLockType = PageLockType::AuthorOrPermissionOnly;
+
+    #[test]
+    fn author_only_database_value_compatibility() {
+        let canonical_value: Value = AUTHOR_LOCK.into();
+        assert_eq!(
+            canonical_value,
+            Value::String(Some(Box::new("author-or-permission-only".to_owned()))),
+        );
+        assert_eq!(
+            <PageLockType as ValueType>::try_from(canonical_value)
+                .expect("Unable to round-trip the canonical database value"),
+            AUTHOR_LOCK,
+        );
+
+        for compatible_value in
+            ["author_only", "author-only", "author_or_permission_only"]
+        {
+            assert_eq!(
+                <PageLockType as ValueType>::try_from(Value::String(Some(Box::new(
+                    compatible_value.to_owned(),
+                ))))
+                .expect("Unable to read a compatible database value"),
+                AUTHOR_LOCK,
+            );
+        }
+
+        for invalid_value in ["author", "permission_only"] {
+            assert!(
+                <PageLockType as ValueType>::try_from(Value::String(Some(Box::new(
+                    invalid_value.to_owned(),
+                ))))
+                .is_err()
+            );
+        }
+    }
+
+    #[test]
+    fn author_only_json_compatibility() {
+        for value in [r#""author-only""#, r#""author-or-permission-only""#] {
+            assert_eq!(
+                serde_json::from_str::<PageLockType>(value)
+                    .expect("Unable to deserialize compatible JSON"),
+                AUTHOR_LOCK,
+            );
+        }
+        assert_eq!(
+            serde_json::to_string(&AUTHOR_LOCK)
+                .expect("Unable to serialize canonical JSON"),
+            r#""author-or-permission-only""#,
+        );
+
+        for value in [r#""author_only""#, r#""author_or_permission_only""#] {
+            assert!(serde_json::from_str::<PageLockType>(value).is_err());
+        }
+    }
 }
