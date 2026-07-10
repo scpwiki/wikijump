@@ -21,10 +21,14 @@ services:
   cache:
     build: valkey
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    environment:
+      - "VALKEY_PASSWORD=${VALKEY_PASSWORD:?set VALKEY_PASSWORD for the dev cache}"
+    command:
+      - "sh"
+      - "-c"
+      - 'exec valkey-server /usr/local/etc/valkey.conf --requirepass "$$VALKEY_PASSWORD"'
     healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
+      test: ['CMD-SHELL', 'valkey-cli -a "$$VALKEY_PASSWORD" ping']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -35,7 +39,7 @@ services:
       - "2747:2747"
     environment:
       - "DATABASE_URL=postgres://wikijump:${POSTGRES_PASSWORD}@database/wikijump"
-      - "REDIS_URL=redis://cache"
+      - "REDIS_URL=redis://:${VALKEY_PASSWORD}@cache"
       - "S3_FILES_BUCKET=${S3_FILES_BUCKET}"
       - "S3_TEXT_BLOCKS_BUCKET=${S3_TEXT_BLOCKS_BUCKET}"
       - "S3_REGION_NAME=${S3_REGION_NAME}"
@@ -72,7 +76,7 @@ services:
     environment:
       - "ADDRESS=[::]:3466"
       - "DEEPWELL_URL=http://deepwell:2747"
-      - "REDIS_URL=redis://cache"
+      - "REDIS_URL=redis://:${VALKEY_PASSWORD}@cache"
       - "S3_FILES_BUCKET=${S3_FILES_BUCKET}"
       - "S3_TEXT_BLOCKS_BUCKET=${S3_TEXT_BLOCKS_BUCKET}"
       - "S3_REGION_NAME=${S3_REGION_NAME}"

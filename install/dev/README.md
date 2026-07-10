@@ -3,6 +3,7 @@
 For a permanent dev deployment, you can run docker-compose to start the provided containers. Feel free to modify this configuration to suit your purposes.
 
 The main infrastructural requirements are a Postgres database and two S3 buckets. Information about how to access external resources must be passed as environment variables.
+Set `VALKEY_PASSWORD` to a URL-safe password before starting the stack; the bundled Valkey service is not published to the host and application containers authenticate to it with this password.
 Presently, Valkey (Redis) is exposed as Docker images. If you wish, you can replace it with an external service by updating the appropriate environment variables.
 
 Note that the database is intended to be recreated on dev re-deploy (at least for the time being), which can be implemented by deleting the container before the next `up`.
