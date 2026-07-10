@@ -16,12 +16,12 @@ function write(filePath, value) {
   fs.writeFileSync(filePath, value);
 }
 
-function fixtureCorpus() {
+function fixtureCorpus(index = {
+  schema_version: 1,
+  by_site_created_at: { 'scp-wiki|2020-01-01T00:00:00+00:00': ['id'] },
+}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-snapshot-'));
-  write(path.join(root, 'en', 'index.json'), JSON.stringify({
-    schema_version: 1,
-    by_site_created_at: { 'scp-wiki|2020-01-01T00:00:00+00:00': ['id'] },
-  }));
+  write(path.join(root, 'en', 'index.json'), JSON.stringify(index));
   write(path.join(root, 'en', 'pages', 'alpha', 'source.wikidot.txt'), 'alpha source\n');
   write(path.join(root, 'en', 'pages', 'alpha', 'meta.json'), JSON.stringify({ fullname: 'alpha', parent_fullname: null }));
   write(path.join(root, 'en', 'pages', 'alpha', 'entity_id.txt'), '12345678-1234-1234-1234-123456789abc\n');
@@ -51,6 +51,64 @@ test('buildCorpusSnapshot freezes canonical files and emits browser inventory ro
   assert.equal(snapshot.rows[0].local_https_url, 'https://scp-wiki.wikijump.localhost/alpha');
   assert.equal(snapshot.rows[0].file_count, 4);
   assert.equal(snapshot.branches[0].files.some((file) => file.path.includes('_runs')), false);
+});
+
+test('buildCorpusSnapshot accepts canonical target Wikidot origins', () => {
+  for (const targetWiki of [
+    'scpaiueouiuiuiui.wikidot.com',
+    'http://scpaiueouiuiuiui.wikidot.com',
+    'https://scpaiueouiuiuiui.wikidot.com/',
+  ]) {
+    const root = fixtureCorpus({ target_wiki: targetWiki });
+    const snapshot = buildCorpusSnapshot({ corpusRoot: root });
+
+    assert.equal(snapshot.branches[0].site_status, 'resolved');
+    assert.equal(snapshot.rows[0].source_site, 'scpaiueouiuiuiui');
+    assert.equal(snapshot.rows[0].source_url, 'https://scpaiueouiuiuiui.wikidot.com/alpha');
+    assert.equal(snapshot.rows[0].local_https_url, 'https://scpaiueouiuiuiui.wikijump.localhost/alpha');
+    assert.equal(snapshot.rows[0].inventory_status, 'ready');
+  }
+});
+
+test('buildCorpusSnapshot fails closed on unverified source origins', () => {
+  const unsafeIndexes = [
+    [{ target_wiki: 'https://127.0.0.1:1234/private' }, []],
+    [{ target_wiki: 'https://scp-wiki.wikidot.com.attacker.example' }, []],
+    [{ by_site_created_at: { '127.0.0.1:1234/private|2020-01-01T00:00:00+00:00': ['id'] } }, []],
+    [{
+      by_site_created_at: { 'scp-wiki|2020-01-01T00:00:00+00:00': ['id'] },
+      target_wiki: 'https://127.0.0.1:1234/private',
+    }, ['scp-wiki']],
+  ];
+
+  for (const [index, verifiedSites] of unsafeIndexes) {
+    const root = fixtureCorpus(index);
+    const snapshot = buildCorpusSnapshot({ corpusRoot: root });
+
+    assert.equal(snapshot.branches[0].site_status, 'unverified');
+    assert.equal(snapshot.branches[0].source_site, null);
+    assert.deepEqual(snapshot.branches[0].source_sites, verifiedSites);
+    assert.equal(snapshot.rows[0].source_url, null);
+    assert.equal(snapshot.rows[0].local_https_url, null);
+    assert.equal(snapshot.rows[0].inventory_status, 'invalid');
+    assert.deepEqual(snapshot.rows[0].inventory_problems, ['source_site_unverified']);
+  }
+});
+
+test('buildCorpusSnapshot rejects conflicting canonical source sites as ambiguous', () => {
+  const root = fixtureCorpus({
+    by_site_created_at: { 'scp-wiki|2020-01-01T00:00:00+00:00': ['id'] },
+    target_wiki: 'scp-jp.wikidot.com',
+  });
+  const snapshot = buildCorpusSnapshot({ corpusRoot: root });
+
+  assert.equal(snapshot.branches[0].site_status, 'ambiguous');
+  assert.deepEqual(snapshot.branches[0].source_sites, ['scp-jp', 'scp-wiki']);
+  assert.equal(snapshot.rows[0].source_site, null);
+  assert.equal(snapshot.rows[0].source_url, null);
+  assert.equal(snapshot.rows[0].local_https_url, null);
+  assert.equal(snapshot.rows[0].inventory_status, 'invalid');
+  assert.deepEqual(snapshot.rows[0].inventory_problems, ['source_site_ambiguous']);
 });
 
 test('buildCorpusSnapshot records incomplete pages instead of silently dropping them', () => {
