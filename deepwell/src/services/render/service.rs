@@ -10426,7 +10426,7 @@ mod tests {
     }
 
     #[test]
-    fn renders_nested_plain_parentheses_before_ftml_parsing() {
+    fn renders_nested_plain_parentheses_directly_through_ftml() {
         let rendered =
             render_wikidot_page_body_after_compat_restore("before (a (b)) after");
 
@@ -10434,11 +10434,13 @@ mod tests {
     }
 
     #[test]
-    fn renders_dense_stray_bibcite_closers_without_source_expansion() {
-        let source = "))".repeat(10_000);
+    fn renders_maximum_dense_stray_bibcite_input_without_amplification() {
+        let source = "))".repeat(MAX_FTML_COMPAT_PARSE_BYTES / 2);
         let rendered = render_wikidot_page_body_after_compat_restore(&source);
 
+        assert_eq!(source.len(), MAX_FTML_COMPAT_PARSE_BYTES);
         assert!(rendered.contains(&source));
+        assert!(rendered.len() <= source.len() + 64);
     }
 
     #[test]
