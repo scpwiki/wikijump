@@ -8974,6 +8974,16 @@ fn find_wikidot_italic_close(value: &str) -> Option<usize> {
 }
 
 fn render_native_list_inline_wikidot_spans(value: &str) -> String {
+    render_native_list_inline_wikidot_spans_at_depth(value, 0)
+}
+
+const MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING: usize = 64;
+
+fn render_native_list_inline_wikidot_spans_at_depth(value: &str, depth: usize) -> String {
+    if depth >= MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING {
+        return escape_list_pages_html_text(value);
+    }
+
     let mut output = String::with_capacity(value.len());
     let mut rest = value;
 
@@ -8996,8 +9006,9 @@ fn render_native_list_inline_wikidot_spans(value: &str) -> String {
 
         if let Some(open_tag) = wikidot_inline_span_marker_open(marker) {
             output.push_str(&open_tag);
-            output.push_str(&render_native_list_inline_wikidot_spans(
+            output.push_str(&render_native_list_inline_wikidot_spans_at_depth(
                 &after_marker[..close_start],
+                depth + 1,
             ));
             output.push_str("</span>");
             rest = &after_marker[close_start + "[[/span]]".len()..];
@@ -14588,6 +14599,31 @@ mod tests {
         );
         assert!(!rendered.contains("[[span"));
         assert!(!rendered.contains("[[/span]]"));
+    }
+
+    #[test]
+    fn caps_deep_inline_wikidot_span_nesting_inside_preprocessed_native_list_runs() {
+        let mut wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Item 7\n",
+            "* Nested ",
+        )
+        .to_owned();
+        wikitext.push_str(&"[[span]]".repeat(MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING + 1));
+        wikitext.push_str("capped");
+        wikitext.push_str(&"[[/span]]".repeat(MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING + 1));
+        wikitext.push('\n');
+
+        let rendered = RenderService::render_long_native_list_runs(wikitext);
+
+        assert!(rendered.contains("capped"));
+        assert!(rendered.contains("[[span]]"));
+        assert!(rendered.contains("[[/span]]"));
     }
 
     #[test]
