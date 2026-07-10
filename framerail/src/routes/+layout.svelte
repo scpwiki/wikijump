@@ -47,7 +47,6 @@
   }
 
   const currentLayout = $derived.by(resolveCurrentLayout)
-  const isImportedWikidotLayout = $derived(isImportedWikidotView(page.data ?? page.error))
   const wikidotLocale = $derived(page.data?.site?.locale ?? page.error?.site?.locale)
   const wikidotFooterLinks = $derived(buildWikidotFooterLinks(wikidotLocale))
   const wikidotLoginLabels = $derived(buildWikidotLoginLabels(wikidotLocale))
@@ -56,10 +55,13 @@
       licenseName: page.data?.license_name ?? page.error?.license_name,
       licenseUrl: page.data?.license_url ?? page.error?.license_url,
       locale: wikidotLocale,
-      sourceSite: page.data?.wikidot_snapshot?.source_site
+      sourceSite:
+        page.data?.wikidot_snapshot?.source_site ??
+        page.error?.wikidot_snapshot?.source_site
     })
   )
-  const viewData = $derived(page.data ?? page.error)
+  const viewData = $derived(page.error ?? page.data)
+  const isImportedWikidotLayout = $derived(isImportedWikidotView(viewData))
   const useSandboxWikidotChrome = $derived(shouldUseSandboxWikidotChrome(viewData))
   const wikidotSiteTitle = $derived(resolveWikidotSiteTitle(viewData))
   const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
