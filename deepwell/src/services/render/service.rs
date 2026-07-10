@@ -19,6 +19,9 @@
  */
 
 use super::prelude::*;
+use super::wikidot_inline_markers::{
+    WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
+};
 use crate::hash::TextHash;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_revision;
@@ -101,20 +104,6 @@ struct ProtectedWikidotColorSpan {
 struct ProtectedWikidotInlineHtml {
     marker: String,
     html: String,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum WikidotCompatInlineMarkerKind {
-    Color,
-    Italic,
-    Underline,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct WikidotCompatInlineMarker {
-    start: usize,
-    end: usize,
-    kind: WikidotCompatInlineMarkerKind,
 }
 
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
@@ -5821,7 +5810,7 @@ impl RenderService {
         let mut output = String::with_capacity(value.len());
         let mut rest = value;
 
-        while let Some(marker) = Self::next_wikidot_compat_inline_marker(rest) {
+        while let Some(marker) = next_wikidot_compat_inline_marker(rest) {
             let (before, marker_start) = rest.split_at(marker.start);
             output.push_str(&render_native_list_inline_html_with_titles(
                 before,
@@ -5880,127 +5869,6 @@ impl RenderService {
             link_titles,
         ));
         output
-    }
-
-    fn next_wikidot_compat_inline_marker(
-        value: &str,
-    ) -> Option<WikidotCompatInlineMarker> {
-        let mut offset = 0;
-
-        while let Some((start, kind)) =
-            Self::find_next_wikidot_compat_inline_delimiter(value, offset)
-        {
-            let marker = match kind {
-                WikidotCompatInlineMarkerKind::Color => {
-                    Self::match_wikidot_compat_color_marker(value, start)
-                }
-                WikidotCompatInlineMarkerKind::Italic => {
-                    Self::match_wikidot_compat_delimited_marker(
-                        value,
-                        start,
-                        "//",
-                        WikidotCompatInlineMarkerKind::Italic,
-                    )
-                }
-                WikidotCompatInlineMarkerKind::Underline => {
-                    Self::match_wikidot_compat_delimited_marker(
-                        value,
-                        start,
-                        "__",
-                        WikidotCompatInlineMarkerKind::Underline,
-                    )
-                }
-            };
-
-            if let Some(marker) = marker {
-                return Some(marker);
-            }
-
-            offset = start + 2;
-        }
-
-        None
-    }
-
-    fn find_next_wikidot_compat_inline_delimiter(
-        value: &str,
-        offset: usize,
-    ) -> Option<(usize, WikidotCompatInlineMarkerKind)> {
-        value[offset..].char_indices().find_map(|(relative, _)| {
-            let start = offset + relative;
-            let rest = &value[start..];
-            if rest.starts_with("##") {
-                Some((start, WikidotCompatInlineMarkerKind::Color))
-            } else if rest.starts_with("//") {
-                Some((start, WikidotCompatInlineMarkerKind::Italic))
-            } else if rest.starts_with("__") {
-                Some((start, WikidotCompatInlineMarkerKind::Underline))
-            } else {
-                None
-            }
-        })
-    }
-
-    fn match_wikidot_compat_color_marker(
-        value: &str,
-        start: usize,
-    ) -> Option<WikidotCompatInlineMarker> {
-        let marker_start = &value[start + 2..];
-        let pipe_relative = Self::find_wikidot_compat_color_pipe(marker_start)?;
-        let color = marker_start[..pipe_relative].trim();
-        if !Self::wikidot_compat_valid_color_value(color) {
-            return None;
-        }
-        let content_start = start + 2 + pipe_relative + 1;
-        let end_relative = value[content_start..].find("##")?;
-
-        Some(WikidotCompatInlineMarker {
-            start,
-            end: content_start + end_relative + 2,
-            kind: WikidotCompatInlineMarkerKind::Color,
-        })
-    }
-
-    fn match_wikidot_compat_delimited_marker(
-        value: &str,
-        start: usize,
-        delimiter: &str,
-        kind: WikidotCompatInlineMarkerKind,
-    ) -> Option<WikidotCompatInlineMarker> {
-        if delimiter == "//" && value[..start].ends_with(':') {
-            return None;
-        }
-        let content_start = start + delimiter.len();
-        let end_relative = value[content_start..].find(delimiter)?;
-        if end_relative == 0 {
-            return None;
-        }
-
-        Some(WikidotCompatInlineMarker {
-            start,
-            end: content_start + end_relative + delimiter.len(),
-            kind,
-        })
-    }
-
-    fn find_wikidot_compat_color_pipe(value: &str) -> Option<usize> {
-        value.char_indices().find_map(|(offset, character)| {
-            if character == '|' {
-                Some(Some(offset))
-            } else if value[offset..].starts_with("##") {
-                Some(None)
-            } else {
-                None
-            }
-        })?
-    }
-
-    fn wikidot_compat_valid_color_value(value: &str) -> bool {
-        !value.is_empty()
-            && value.len() <= 32
-            && value
-                .chars()
-                .all(|character| character.is_ascii_alphanumeric() || character == '#')
     }
 
     fn wikidot_compat_color_value(value: &str) -> String {
