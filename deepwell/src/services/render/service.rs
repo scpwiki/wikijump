@@ -117,6 +117,13 @@ struct WikidotCompatInlineMarker {
     kind: WikidotCompatInlineMarkerKind,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum WikidotBibciteScan {
+    Valid(usize),
+    Invalid(usize),
+    StrayCloser(usize),
+}
+
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
@@ -4188,10 +4195,19 @@ impl RenderService {
         while index < source.len() {
             let remaining = &source[index..];
 
-            if let Some(close_start) = Self::wikidot_bibcite_close_start(remaining) {
-                let close_end = close_start + "))".len();
-                output.push_str(&remaining[..close_end]);
-                index += close_end;
+            if remaining.starts_with("((bibcite") {
+                match Self::scan_wikidot_bibcite(remaining) {
+                    WikidotBibciteScan::Valid(end) | WikidotBibciteScan::Invalid(end) => {
+                        output.push_str(&remaining[..end]);
+                        index += end;
+                    }
+                    WikidotBibciteScan::StrayCloser(close_start) => {
+                        output.push_str(&remaining[..close_start]);
+                        output.push_str(WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL);
+                        *protected_count += 1;
+                        index += close_start + "))".len();
+                    }
+                }
                 continue;
             }
 
@@ -4211,36 +4227,41 @@ impl RenderService {
         }
     }
 
-    fn wikidot_bibcite_close_start(source: &str) -> Option<usize> {
+    fn scan_wikidot_bibcite(source: &str) -> WikidotBibciteScan {
         const PREFIX: &str = "((bibcite";
 
-        if !source.starts_with(PREFIX) {
-            return None;
-        }
+        debug_assert!(source.starts_with(PREFIX));
 
         let bytes = source.as_bytes();
         let mut label_start = PREFIX.len();
         if !matches!(bytes.get(label_start), Some(b' ' | b'\t')) {
-            return None;
+            return WikidotBibciteScan::Invalid(PREFIX.len());
         }
 
         while matches!(bytes.get(label_start), Some(b' ' | b'\t')) {
             label_start += 1;
         }
 
-        let close_start = source[label_start..].find("))")? + label_start;
-        if close_start == label_start {
-            return None;
+        let mut index = label_start;
+        while index < bytes.len() {
+            if bytes[index] == b')' && bytes.get(index + 1) == Some(&b')') {
+                return if index == label_start {
+                    WikidotBibciteScan::StrayCloser(index)
+                } else {
+                    WikidotBibciteScan::Valid(index + "))".len())
+                };
+            }
+
+            if matches!(bytes[index], b' ' | b'\t' | b'\n' | b'\r') {
+                // No closer occurs in the scanned prefix. Advancing through the
+                // first invalid byte prevents later candidates from rescanning it.
+                return WikidotBibciteScan::Invalid(index + 1);
+            }
+
+            index += 1;
         }
 
-        if source[label_start..close_start]
-            .bytes()
-            .any(|byte| matches!(byte, b' ' | b'\t' | b'\n' | b'\r'))
-        {
-            return None;
-        }
-
-        Some(close_start)
+        WikidotBibciteScan::Invalid(source.len())
     }
 
     fn restore_protected_wikidot_stray_bibcite_closers(
@@ -10423,6 +10444,32 @@ mod tests {
     }
 
     #[test]
+    fn preserves_the_existing_wikidot_bibcite_label_grammar() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let original = concat!(
+            "((bibcite alpha)) ",
+            "((bibcite\tbeta)gamma)) ",
+            "((bibcite )) ",
+            "((bibcite two words)) ",
+            "((Bibcite uppercase))",
+        )
+        .to_owned();
+        let mut source = original.clone();
+
+        let protected_count =
+            RenderService::protect_wikidot_stray_bibcite_closers(&mut source, &settings);
+
+        assert_eq!(protected_count, 3);
+        assert_eq!(
+            RenderService::restore_protected_wikidot_stray_bibcite_closers(
+                source,
+                protected_count,
+            ),
+            original,
+        );
+    }
+
+    #[test]
     fn restores_many_stray_bibcite_closers_in_one_pass() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let original = "))".repeat(10_000);
@@ -10432,6 +10479,26 @@ mod tests {
             RenderService::protect_wikidot_stray_bibcite_closers(&mut source, &settings);
 
         assert_eq!(protected_count, 10_000);
+        assert_eq!(source.len(), original.len());
+        assert_eq!(
+            RenderService::restore_protected_wikidot_stray_bibcite_closers(
+                source,
+                protected_count,
+            ),
+            original,
+        );
+    }
+
+    #[test]
+    fn handles_many_unterminated_bibcite_prefixes_without_suffix_rescans() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let original = format!("stray ))\n{}", "((bibcite x".repeat(60_000));
+        let mut source = original.clone();
+
+        let protected_count =
+            RenderService::protect_wikidot_stray_bibcite_closers(&mut source, &settings);
+
+        assert_eq!(protected_count, 1);
         assert_eq!(source.len(), original.len());
         assert_eq!(
             RenderService::restore_protected_wikidot_stray_bibcite_closers(
