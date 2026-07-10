@@ -30,7 +30,7 @@ use crate::services::{AliasService, FilterService, PasswordService};
 use crate::types::{AliasType, UserType};
 use crate::utils::regex_replace_in_place;
 use regex::Regex;
-use sea_orm::ActiveValue;
+use sea_orm::{ActiveValue, DbErr, SqlErr};
 use serde_json::Value as JsonValue;
 use std::borrow::Cow;
 use std::cmp;
@@ -41,6 +41,8 @@ use std::sync::LazyLock;
 /// It is not possible for any password hash to match this value,
 /// so no password can possibly match.
 pub const DISABLED_PASSWORD_HASH: &str = "!";
+
+const VERIFIED_EMAIL_UNIQUE_INDEX: &str = "user_verified_email_active_unique_idx";
 
 static LEADING_TRAILING_CHARS: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap());
@@ -218,6 +220,7 @@ impl UserService {
                 .filter(
                     Condition::all()
                         .add(user::Column::Email.eq(email.as_str()))
+                        .add(user::Column::UserType.eq(UserType::Regular))
                         .add(user::Column::EmailVerifiedAt.is_not_null())
                         .add(user::Column::DeletedAt.is_null()),
                 )
@@ -546,6 +549,12 @@ impl UserService {
             .or_raise(make_error)?;
         }
 
+        let updated_email = match &input.email {
+            Maybe::Set(email) => email.clone(),
+            _ => user.email.clone(),
+        };
+        let email_changed = updated_email != user.email;
+
         if let Maybe::Set(email) = input.email {
             if should_check_filter {
                 Self::run_email_filter(
@@ -569,10 +578,39 @@ impl UserService {
 
             model.email = Set(email);
             model.email_validation_info = Set(Some(email_validation_json));
-            model.email_validation_at = Set(Some(now()))
+            model.email_validation_at = Set(Some(now()));
+
+            // Deliverability validation does not prove ownership of the new
+            // address. A separate verification step must establish that.
+            if email_changed {
+                model.email_verified_at = Set(None);
+            }
         }
 
         if let Maybe::Set(email_verified) = input.email_verified {
+            if email_verified && email_changed {
+                bail!(Error::new(
+                    "cannot change and verify an email in the same update",
+                    ErrorType::BadRequest,
+                ));
+            }
+
+            if email_verified
+                && user.user_type == UserType::Regular
+                && Self::verified_email_owner_exists(
+                    ctx,
+                    &updated_email,
+                    Some(user.user_id),
+                )
+                .await
+                .or_raise(make_error)?
+            {
+                bail!(Error::new(
+                    "cannot verify email, another active user already owns it",
+                    ErrorType::UserExists,
+                ));
+            }
+
             let timestamp = if email_verified { Some(now()) } else { None };
             model.email_verified_at = Set(timestamp);
         }
@@ -648,7 +686,16 @@ impl UserService {
 
         // Update user
         model.updated_at = Set(Some(now()));
-        let new_user = model.update(txn).await.or_raise(make_error)?;
+        let new_user = match model.update(txn).await {
+            Ok(user) => user,
+            Err(error) if is_verified_email_unique_violation(&error) => {
+                bail!(Error::new(
+                    "cannot verify email, another active user already owns it",
+                    ErrorType::UserExists,
+                ));
+            }
+            Err(error) => return Err(error).or_raise(make_error),
+        };
 
         // Run verification afterwards if the slug changed
         if user.slug != new_user.slug {
@@ -660,6 +707,31 @@ impl UserService {
         }
 
         Ok(new_user)
+    }
+
+    async fn verified_email_owner_exists(
+        ctx: &ServiceContext<'_>,
+        email: &str,
+        exclude_user_id: Option<i64>,
+    ) -> Result<bool> {
+        let mut condition = Condition::all()
+            .add(user::Column::Email.eq(email))
+            .add(user::Column::UserType.eq(UserType::Regular))
+            .add(user::Column::EmailVerifiedAt.is_not_null())
+            .add(user::Column::DeletedAt.is_null());
+
+        if let Some(user_id) = exclude_user_id {
+            condition = condition.add(user::Column::UserId.ne(user_id));
+        }
+
+        User::find()
+            .filter(condition)
+            .one(ctx.transaction())
+            .await
+            .map(|user| user.is_some())
+            .or_raise(|| {
+                Error::new("failed to check verified email ownership", ErrorType::User)
+            })
     }
 
     /// Updates the user's name, and performs the relevant accounting for it.
@@ -1041,6 +1113,14 @@ impl UserService {
             ));
         }
     }
+}
+
+fn is_verified_email_unique_violation(error: &DbErr) -> bool {
+    matches!(
+        error.sql_err(),
+        Some(SqlErr::UniqueConstraintViolation(message))
+            if message.contains(VERIFIED_EMAIL_UNIQUE_INDEX)
+    )
 }
 
 fn get_user_slug(name: &str, user_type: UserType) -> String {
