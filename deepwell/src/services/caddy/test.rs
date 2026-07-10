@@ -146,6 +146,95 @@ fn trim_string(s: &mut String) {
     }
 }
 
+/// Returns the body of a named Caddy snippet, including any nested blocks.
+fn snippet_body<'a>(caddyfile: &'a str, name: &str) -> &'a str {
+    let marker = format!("({name}) {{");
+    let marker_start = caddyfile
+        .find(&marker)
+        .unwrap_or_else(|| panic!("Caddy snippet {name:?} was not generated"));
+    let body = &caddyfile[marker_start + marker.len()..];
+    let mut depth = 1;
+
+    for (offset, character) in body.char_indices() {
+        match character {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return &body[..offset];
+                }
+            }
+            _ => {}
+        }
+    }
+
+    panic!("Caddy snippet {name:?} was not closed");
+}
+
+#[test]
+fn single_upstream_proxies_do_not_eject_their_only_backend() {
+    const FRAMERAIL_HOST: &str = "framerail:3393";
+    const WWS_HOST: &str = "wws:3466";
+
+    let config = build_config("wikijump.test", "wjfiles.test");
+    let (sites, _) = build_site_data();
+    let caddyfile = CaddyService::generate_with_data(
+        &config,
+        &CaddyfileOptions {
+            debug: false,
+            local: false,
+            http_port: None,
+            https_port: None,
+            wildcard_cert: None,
+            deploy_host: None,
+            framerail_host: cow!(FRAMERAIL_HOST),
+            wws_host: cow!(WWS_HOST),
+        },
+        &sites,
+    )
+    .expect("failed to generate Caddyfile");
+
+    for (snippet_name, expected_upstream) in [
+        ("reverse_proxy_framerail", FRAMERAIL_HOST),
+        ("reverse_proxy_wws", WWS_HOST),
+    ] {
+        let snippet = snippet_body(&caddyfile, snippet_name);
+        let upstreams = snippet
+            .lines()
+            .map(str::trim)
+            .find_map(|line| line.strip_prefix("to "))
+            .unwrap_or_else(|| panic!("Caddy snippet {snippet_name:?} has no upstream"))
+            .split_whitespace()
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            upstreams,
+            [expected_upstream],
+            "Caddy snippet {snippet_name:?} must keep exactly one direct upstream",
+        );
+
+        for line in snippet.lines() {
+            let Some(directive) = line.split_whitespace().next() else {
+                continue;
+            };
+            let is_health_directive = directive.starts_with("health_")
+                || matches!(
+                    directive,
+                    "fail_duration"
+                        | "max_fails"
+                        | "unhealthy_status"
+                        | "unhealthy_latency"
+                        | "unhealthy_request_count"
+                );
+
+            assert!(
+                !is_health_directive,
+                "single-upstream Caddy snippet {snippet_name:?} must not contain health-ejection directive {directive:?}",
+            );
+        }
+    }
+}
+
 /// Reads a `Caddyfile`, which represents the expected output of generation with certain settings.
 fn read_test_file(path: &str) -> String {
     let mut file = File::open(path).expect("Unable to open test file");
