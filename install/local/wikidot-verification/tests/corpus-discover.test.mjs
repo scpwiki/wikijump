@@ -6,6 +6,10 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import {
+  createCorpusFileReader,
+  openCorpusFileNoSymlinks,
+} from "../src/corpus-file-reader.mjs";
 
 const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,8 +19,8 @@ async function writeJson(filePath, value) {
   await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-async function runDiscover(args) {
-  return execFileAsync(process.execPath, [scriptPath, ...args]);
+async function runDiscover(args, options = {}) {
+  return execFileAsync(process.execPath, [scriptPath, ...args], options);
 }
 
 async function assertDiscoverFails(args, messagePattern) {
@@ -143,6 +147,163 @@ test("corpus-discover rejects symlinked page metadata files", async () => {
   await assert.rejects(fs.readFile(path.join(outputDir, "corpus-manifest.tsv"), "utf8"), {
     code: "ENOENT"
   });
+});
+
+test("corpus-discover rejects intermediate directory symlinks", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-dirlink-"));
+  const corpus = path.join(root, "corpus");
+  const outsidePages = path.join(root, "outside-pages");
+  const pageDir = path.join(outsidePages, "linked");
+  const outputDir = path.join(root, "out");
+
+  await fs.mkdir(corpus, { recursive: true });
+  await fs.mkdir(pageDir, { recursive: true });
+  await fs.writeFile(path.join(pageDir, "source.wikidot.txt"), "outside source\n");
+  await writeJson(path.join(pageDir, "meta.json"), { title: "Outside Fixture" });
+  await fs.writeFile(path.join(pageDir, "entity_id.txt"), "1001\n");
+  await fs.symlink(outsidePages, path.join(corpus, "pages"), "dir");
+
+  await assertDiscoverFails(
+    ["--corpus", corpus, "--output-dir", outputDir, "--canary-count", "1"],
+    /Corpus path must not contain symbolic links/,
+  );
+
+  await assert.rejects(fs.readFile(path.join(outputDir, "corpus-manifest.tsv"), "utf8"), {
+    code: "ENOENT",
+  });
+});
+
+test("corpus-discover rejects oversized metadata before reading it", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-oversized-"));
+  const corpus = path.join(root, "corpus");
+  const outputDir = path.join(root, "out");
+  const pageDir = path.join(corpus, "pages", "oversized");
+
+  await fs.mkdir(pageDir, { recursive: true });
+  await fs.writeFile(path.join(pageDir, "source.wikidot.txt"), "ordinary source\n");
+  await writeJson(path.join(pageDir, "meta.json"), { title: "Oversized Fixture" });
+  await fs.writeFile(path.join(pageDir, "entity_id.txt"), "x".repeat(257));
+
+  await assertDiscoverFails(
+    ["--corpus", corpus, "--output-dir", outputDir, "--canary-count", "1"],
+    /Corpus file exceeds 256 byte limit/,
+  );
+
+  await assert.rejects(fs.readFile(path.join(outputDir, "corpus-manifest.tsv"), "utf8"), {
+    code: "ENOENT",
+  });
+});
+
+test("corpus-discover promptly rejects FIFO metadata", { timeout: 5000 }, async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-fifo-"));
+  const corpus = path.join(root, "corpus");
+  const outputDir = path.join(root, "out");
+  const pageDir = path.join(corpus, "pages", "fifo");
+
+  await fs.mkdir(pageDir, { recursive: true });
+  await fs.writeFile(path.join(pageDir, "source.wikidot.txt"), "ordinary source\n");
+  await writeJson(path.join(pageDir, "meta.json"), { title: "FIFO Fixture" });
+  await execFileAsync("mkfifo", [path.join(pageDir, "entity_id.txt")]);
+
+  await assert.rejects(
+    runDiscover(
+      ["--corpus", corpus, "--output-dir", outputDir, "--canary-count", "1"],
+      { timeout: 2000 },
+    ),
+    (error) => {
+      assert.equal(error.killed, false);
+      assert.match(error.stderr, /Corpus path must be a regular file/);
+      return true;
+    },
+  );
+
+  await assert.rejects(fs.readFile(path.join(outputDir, "corpus-manifest.tsv"), "utf8"), {
+    code: "ENOENT",
+  });
+});
+
+test("corpus-discover rejects malformed metadata JSON without echoing its contents", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-discover-json-"));
+  const corpus = path.join(root, "corpus");
+  const outputDir = path.join(root, "out");
+  const pageDir = path.join(corpus, "pages", "malformed");
+  const contentMarker = "MALFORMED_JSON_CONTENT_MARKER";
+
+  await fs.mkdir(pageDir, { recursive: true });
+  await fs.writeFile(path.join(pageDir, "source.wikidot.txt"), "ordinary source\n");
+  await fs.writeFile(path.join(pageDir, "meta.json"), `{\"title\":\"${contentMarker}\"`);
+  await fs.writeFile(path.join(pageDir, "entity_id.txt"), "1001\n");
+
+  await assert.rejects(
+    runDiscover(["--corpus", corpus, "--output-dir", outputDir, "--canary-count", "1"]),
+    (error) => {
+      assert.match(error.stderr, /Invalid JSON in corpus file/);
+      assert.doesNotMatch(error.stderr, new RegExp(contentMarker));
+      return true;
+    },
+  );
+
+  await assert.rejects(fs.readFile(path.join(outputDir, "corpus-manifest.tsv"), "utf8"), {
+    code: "ENOENT",
+  });
+});
+
+test("descriptor reader rejects a deterministic pathname swap after open", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-reader-swap-"));
+  const corpus = path.join(root, "corpus");
+  const targetPath = path.join(corpus, "entity_id.txt");
+  const openedPath = path.join(corpus, "entity_id.opened.txt");
+  const replacementPath = path.join(corpus, "replacement.txt");
+  const replacementMarker = "PATH_SWAP_CONTENT_MARKER";
+
+  await fs.mkdir(corpus, { recursive: true });
+  await fs.writeFile(targetPath, "original-safe-value\n");
+  await fs.writeFile(replacementPath, `${replacementMarker}\n`);
+
+  const readWithSwap = createCorpusFileReader({
+    async openFile(corpusRoot, filePath, flags) {
+      const fileHandle = await openCorpusFileNoSymlinks(corpusRoot, filePath, flags);
+      await fs.rename(filePath, openedPath);
+      await fs.rename(replacementPath, filePath);
+      return fileHandle;
+    },
+  });
+
+  await assert.rejects(readWithSwap(corpus, targetPath, { maxBytes: 256 }), (error) => {
+    assert.match(error.message, /Corpus path changed while being read/);
+    assert.doesNotMatch(error.message, new RegExp(replacementMarker));
+    return true;
+  });
+
+  assert.equal(await fs.readFile(openedPath, "utf8"), "original-safe-value\n");
+  assert.equal(await fs.readFile(targetPath, "utf8"), `${replacementMarker}\n`);
+});
+
+test("descriptor reader rejects a pathname swapped to a symlink of the opened file", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-reader-link-swap-"));
+  const corpus = path.join(root, "corpus");
+  const targetPath = path.join(corpus, "entity_id.txt");
+  const openedPath = path.join(corpus, "entity_id.opened.txt");
+
+  await fs.mkdir(corpus, { recursive: true });
+  await fs.writeFile(targetPath, "original-safe-value\n");
+
+  const readWithSymlinkSwap = createCorpusFileReader({
+    async openFile(corpusRoot, filePath, flags) {
+      const fileHandle = await openCorpusFileNoSymlinks(corpusRoot, filePath, flags);
+      await fs.rename(filePath, openedPath);
+      await fs.symlink(path.basename(openedPath), filePath);
+      return fileHandle;
+    },
+  });
+
+  await assert.rejects(
+    readWithSymlinkSwap(corpus, targetPath, { maxBytes: 256 }),
+    /Corpus path changed while being read/,
+  );
+
+  assert.equal((await fs.lstat(targetPath)).isSymbolicLink(), true);
+  assert.equal(await fs.readFile(openedPath, "utf8"), "original-safe-value\n");
 });
 
 test("corpus-discover handles a corpus without pages directory", async () => {

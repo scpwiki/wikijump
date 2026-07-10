@@ -3,6 +3,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { isPathInside, readCorpusFile } from "../src/corpus-file-reader.mjs";
 
 const DEFAULT_CORPUS = "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/en";
 const CANARY_COUNT = 100;
@@ -64,41 +65,14 @@ async function pathExists(filePath) {
   }
 }
 
-function isPathInside(root, filePath) {
-  const relativePath = path.relative(root, filePath);
-  return relativePath === "" || (!relativePath.startsWith("..") && !path.isAbsolute(relativePath));
-}
-
-async function readCorpusFile(corpusRoot, filePath, { optional = false, maxBytes = 1024 * 1024 } = {}) {
-  let stats;
-  try {
-    stats = await fs.lstat(filePath);
-  } catch (error) {
-    if (optional && error.code === "ENOENT") return null;
-    throw error;
-  }
-
-  if (!stats.isFile()) {
-    throw new Error(`Corpus path must be a regular file: ${filePath}`);
-  }
-  if (stats.size > maxBytes) {
-    throw new Error(`Corpus file exceeds ${maxBytes} byte limit: ${filePath}`);
-  }
-
-  const [realCorpusRoot, realFilePath] = await Promise.all([
-    fs.realpath(corpusRoot),
-    fs.realpath(filePath),
-  ]);
-  if (!isPathInside(realCorpusRoot, realFilePath)) {
-    throw new Error(`Corpus file escapes corpus root: ${filePath}`);
-  }
-
-  return fs.readFile(filePath, "utf8");
-}
-
 async function readJsonIfPresent(corpusRoot, filePath) {
   const text = await readCorpusFile(corpusRoot, filePath, { optional: true });
-  return text === null ? null : JSON.parse(text);
+  if (text === null) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid JSON in corpus file: ${filePath}`);
+  }
 }
 
 async function readTextIfPresent(corpusRoot, filePath, options) {
