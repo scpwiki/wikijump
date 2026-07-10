@@ -101,10 +101,27 @@ jobs:
           );
           NODE
           )
+          signature_256=$(PAYLOAD="$payload" node <<'NODE'
+          const crypto = require('node:crypto');
 
-          curl --fail --silent --show-error --location --request POST \
+          process.stdout.write(
+            `sha256=${crypto
+              .createHmac('sha256', process.env.WEBHOOK_SECRET)
+              .update(process.env.PAYLOAD)
+              .digest('hex')}`,
+          );
+          NODE
+          )
+
+          curl --fail --silent --show-error \
+            --proto '=https' \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --request POST \
             --header 'Content-Type: application/json' \
             --header 'X-GitHub-Event: push' \
+            --header "X-GitHub-Delivery: ${{ github.run_id }}-${{ github.run_attempt }}" \
             --header "X-Hub-Signature: $signature" \
+            --header "X-Hub-Signature-256: $signature_256" \
             --data "$payload" \
             "$WEBHOOK_URL"
