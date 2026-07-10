@@ -36,6 +36,7 @@ mod list_pages;
 mod render_dependency;
 mod service;
 mod structs;
+mod wikidot_literal_regions;
 
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
