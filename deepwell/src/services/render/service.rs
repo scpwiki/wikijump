@@ -70,6 +70,7 @@ struct ViewableCountPagesRows {
     pages: FoundPages,
     metadata: PageQueryResultMetadata,
     view_permission_filtering_applied: bool,
+    raw_scan_cap_reached: bool,
 }
 
 #[derive(Debug)]
@@ -6518,6 +6519,7 @@ impl RenderService {
         };
 
         let mut count_pages_metadata = None;
+        let mut raw_scan_cap_reached = false;
         let pages = if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
@@ -6539,6 +6541,7 @@ impl RenderService {
                 found.metadata.clone(),
                 found.view_permission_filtering_applied,
             ));
+            raw_scan_cap_reached = found.raw_scan_cap_reached;
             found.pages
         };
         if let Some((metadata, view_permission_filtering_applied)) = count_pages_metadata
@@ -6561,13 +6564,10 @@ impl RenderService {
         let total = match count_pages_explicit_limit {
             Some(limit) => pages.take(limit.min(usize::MAX as u64) as usize).count(),
             None => {
-                let total = pages.count();
-                if count_pages_explicit_limit.is_none()
-                    && total >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize
-                {
+                if count_pages_unbounded_total_may_be_truncated(raw_scan_cap_reached) {
                     return Ok(original_module.to_owned());
                 }
-                total
+                pages.count()
             }
         };
 
@@ -6652,6 +6652,7 @@ impl RenderService {
         let mut raw_offset = 0;
         let mut metadata = None;
         let mut view_permission_filtering_applied = false;
+        let mut raw_scan_cap_reached = false;
 
         while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
             let mut query = query.clone();
@@ -6675,12 +6676,14 @@ impl RenderService {
                 break;
             }
             raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
+            raw_scan_cap_reached = raw_offset >= MAX_LISTPAGES_RENDER_SCAN_ROWS;
         }
 
         Ok(ViewableCountPagesRows {
             pages: FoundPages { pages },
             metadata: metadata.unwrap_or_default(),
             view_permission_filtering_applied,
+            raw_scan_cap_reached,
         })
     }
 
@@ -7509,6 +7512,10 @@ fn count_pages_exact_count_render_diagnostics(
             explicit_count_pages_bound_matches_sql_window,
         },
     )
+}
+
+fn count_pages_unbounded_total_may_be_truncated(raw_scan_cap_reached: bool) -> bool {
+    raw_scan_cap_reached
 }
 
 fn merge_render_page_query_metadata(
@@ -10245,8 +10252,8 @@ mod tests {
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
-        count_pages_should_remain_literal, include_error,
-        list_pages_body_is_no_visible_tracking_markup,
+        count_pages_should_remain_literal, count_pages_unbounded_total_may_be_truncated,
+        include_error, list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, native_list_page_link_default_label,
@@ -10855,6 +10862,12 @@ mod tests {
         assert!(!diagnostics.allowed);
         assert_eq!(diagnostics.denied_reason_code, Some("post_query_exclusion"));
         assert_eq!(diagnostics.denied_reason_detail, None);
+    }
+
+    #[test]
+    fn unbounded_count_pages_remains_literal_when_scan_cap_is_reached() {
+        assert!(count_pages_unbounded_total_may_be_truncated(true));
+        assert!(!count_pages_unbounded_total_may_be_truncated(false));
     }
 
     #[test]
