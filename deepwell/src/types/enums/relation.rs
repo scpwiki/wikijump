@@ -40,20 +40,31 @@ use strum_macros::{Display, EnumIter, EnumString};
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
 pub enum RelationType {
+    #[strum(to_string = "user", serialize = "site-user")]
     SiteUser,
+    #[strum(to_string = "ban", serialize = "site-ban")]
     SiteBan,
     #[allow(dead_code)] // TEMP
+    #[strum(to_string = "application", serialize = "site-application")]
     SiteApplication,
+    #[strum(to_string = "member", serialize = "site-member")]
     SiteMember,
+    #[strum(to_string = "star", serialize = "page-star")]
     PageStar,
+    #[strum(to_string = "watch", serialize = "page-watch")]
     PageWatch,
     PageAttribution,
+    #[strum(to_string = "follow", serialize = "user-follow")]
     UserFollow,
     #[allow(dead_code)] // TEMP
+    #[strum(to_string = "contact", serialize = "user-contact")]
     UserContact,
     #[allow(dead_code)] // TEMP
+    #[strum(to_string = "contact-request", serialize = "user-contact-request")]
     UserContactRequest,
+    #[strum(to_string = "block", serialize = "user-block")]
     UserBlock,
+    #[strum(to_string = "bot-owner", serialize = "user-bot-owner")]
     UserBotOwner,
 }
 
@@ -79,4 +90,70 @@ pub enum RelationObjectType {
     User,
     Page,
     File,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::RelationType;
+    use std::str::FromStr;
+
+    #[test]
+    fn relation_type_display_keeps_legacy_database_values() {
+        let cases = [
+            (RelationType::SiteUser, "user"),
+            (RelationType::SiteBan, "ban"),
+            (RelationType::SiteApplication, "application"),
+            (RelationType::SiteMember, "member"),
+            (RelationType::PageStar, "star"),
+            (RelationType::PageWatch, "watch"),
+            (RelationType::PageAttribution, "page-attribution"),
+            (RelationType::UserFollow, "follow"),
+            (RelationType::UserContact, "contact"),
+            (RelationType::UserContactRequest, "contact-request"),
+            (RelationType::UserBlock, "block"),
+            (RelationType::UserBotOwner, "bot-owner"),
+        ];
+
+        for (relation_type, database_value) in cases {
+            assert_eq!(relation_type.to_string(), database_value);
+        }
+    }
+
+    #[test]
+    fn relation_type_parses_legacy_and_variant_database_values() {
+        let cases = [
+            (RelationType::SiteUser, "user", "site-user"),
+            (RelationType::SiteBan, "ban", "site-ban"),
+            (
+                RelationType::SiteApplication,
+                "application",
+                "site-application",
+            ),
+            (RelationType::SiteMember, "member", "site-member"),
+            (RelationType::PageStar, "star", "page-star"),
+            (RelationType::PageWatch, "watch", "page-watch"),
+            (
+                RelationType::PageAttribution,
+                "page-attribution",
+                "page-attribution",
+            ),
+            (RelationType::UserFollow, "follow", "user-follow"),
+            (RelationType::UserContact, "contact", "user-contact"),
+            (
+                RelationType::UserContactRequest,
+                "contact-request",
+                "user-contact-request",
+            ),
+            (RelationType::UserBlock, "block", "user-block"),
+            (RelationType::UserBotOwner, "bot-owner", "user-bot-owner"),
+        ];
+
+        for (relation_type, legacy_value, variant_value) in cases {
+            assert_eq!(RelationType::from_str(legacy_value).unwrap(), relation_type);
+            assert_eq!(
+                RelationType::from_str(variant_value).unwrap(),
+                relation_type
+            );
+        }
+    }
 }
