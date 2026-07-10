@@ -3199,14 +3199,51 @@ impl RenderService {
     }
 
     fn restore_protected_wikidot_wikipedia_links(
-        mut html: String,
+        html: String,
         links: &[ProtectedWikidotWikipediaLink],
     ) -> String {
-        for (index, link) in links.iter().enumerate() {
-            let marker = format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{index}X");
-            html = html.replace(&marker, &link.anchor);
+        if links.is_empty() || !html.contains(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX) {
+            return html;
         }
-        html
+
+        let mut output = String::with_capacity(html.len());
+        let mut search_start = 0;
+        let mut last = 0;
+
+        while let Some(relative_start) =
+            html[search_start..].find(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX)
+        {
+            let marker_start = search_start + relative_start;
+            let digits_start =
+                marker_start + WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX.len();
+            let mut marker_end = digits_start;
+
+            while marker_end < html.len() && html.as_bytes()[marker_end].is_ascii_digit()
+            {
+                marker_end += 1;
+            }
+
+            if marker_end > digits_start
+                && html.as_bytes().get(marker_end) == Some(&b'X')
+                && let Ok(index) = html[digits_start..marker_end].parse::<usize>()
+                && let Some(link) = links.get(index)
+            {
+                output.push_str(&html[last..marker_start]);
+                output.push_str(&link.anchor);
+                search_start = marker_end + 1;
+                last = search_start;
+                continue;
+            }
+
+            search_start = digits_start;
+        }
+
+        if last == 0 {
+            return html;
+        }
+
+        output.push_str(&html[last..]);
+        output
     }
 
     fn record_protected_wikidot_wikipedia_backlinks(
