@@ -40,7 +40,6 @@ use strum_macros::{Display, EnumIter, EnumString};
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
 pub enum RelationType {
-    #[strum(to_string = "user", serialize = "site-user")]
     SiteUser,
     #[strum(to_string = "ban", serialize = "site-ban")]
     SiteBan,
@@ -95,34 +94,12 @@ pub enum RelationObjectType {
 #[cfg(test)]
 mod tests {
     use super::RelationType;
+    use sea_orm::{Value, sea_query::ValueType};
     use std::str::FromStr;
 
-    #[test]
-    fn relation_type_display_keeps_legacy_database_values() {
-        let cases = [
-            (RelationType::SiteUser, "user"),
-            (RelationType::SiteBan, "ban"),
-            (RelationType::SiteApplication, "application"),
-            (RelationType::SiteMember, "member"),
-            (RelationType::PageStar, "star"),
-            (RelationType::PageWatch, "watch"),
-            (RelationType::PageAttribution, "page-attribution"),
-            (RelationType::UserFollow, "follow"),
-            (RelationType::UserContact, "contact"),
-            (RelationType::UserContactRequest, "contact-request"),
-            (RelationType::UserBlock, "block"),
-            (RelationType::UserBotOwner, "bot-owner"),
-        ];
-
-        for (relation_type, database_value) in cases {
-            assert_eq!(relation_type.to_string(), database_value);
-        }
-    }
-
-    #[test]
-    fn relation_type_parses_legacy_and_variant_database_values() {
-        let cases = [
-            (RelationType::SiteUser, "user", "site-user"),
+    fn relation_cases() -> [(RelationType, &'static str, &'static str); 12] {
+        [
+            (RelationType::SiteUser, "site-user", "site-user"),
             (RelationType::SiteBan, "ban", "site-ban"),
             (
                 RelationType::SiteApplication,
@@ -146,14 +123,88 @@ mod tests {
             ),
             (RelationType::UserBlock, "block", "user-block"),
             (RelationType::UserBotOwner, "bot-owner", "user-bot-owner"),
+        ]
+    }
+
+    #[test]
+    fn relation_type_display_keeps_legacy_database_values() {
+        let cases = [
+            (RelationType::SiteUser, "site-user"),
+            (RelationType::SiteBan, "ban"),
+            (RelationType::SiteApplication, "application"),
+            (RelationType::SiteMember, "member"),
+            (RelationType::PageStar, "star"),
+            (RelationType::PageWatch, "watch"),
+            (RelationType::PageAttribution, "page-attribution"),
+            (RelationType::UserFollow, "follow"),
+            (RelationType::UserContact, "contact"),
+            (RelationType::UserContactRequest, "contact-request"),
+            (RelationType::UserBlock, "block"),
+            (RelationType::UserBotOwner, "bot-owner"),
         ];
 
-        for (relation_type, legacy_value, variant_value) in cases {
+        for (relation_type, database_value) in cases {
+            assert_eq!(relation_type.to_string(), database_value);
+        }
+    }
+
+    #[test]
+    fn relation_type_parses_legacy_and_variant_database_values() {
+        for (relation_type, legacy_value, variant_value) in relation_cases() {
             assert_eq!(RelationType::from_str(legacy_value).unwrap(), relation_type);
             assert_eq!(
                 RelationType::from_str(variant_value).unwrap(),
                 relation_type
             );
+        }
+
+        assert!(RelationType::from_str("user").is_err());
+    }
+
+    #[test]
+    fn relation_type_round_trips_sea_orm_values_with_legacy_display() {
+        for (relation_type, legacy_value, variant_value) in relation_cases() {
+            let value: Value = relation_type.into();
+            assert_eq!(
+                value,
+                Value::String(Some(Box::new(legacy_value.to_owned()))),
+            );
+            assert_eq!(
+                <RelationType as ValueType>::try_from(value)
+                    .expect("round-trip legacy relation database value"),
+                relation_type,
+            );
+            assert_eq!(
+                <RelationType as ValueType>::try_from(Value::String(Some(Box::new(
+                    variant_value.to_owned(),
+                ))))
+                .expect("read variant relation database value"),
+                relation_type,
+            );
+        }
+
+        assert!(<RelationType as ValueType>::try_from(Value::String(None)).is_err());
+        assert!(<RelationType as ValueType>::try_from(Value::Int(Some(1))).is_err());
+    }
+
+    #[test]
+    fn relation_type_json_contract_remains_variant_kebab_case() {
+        for (relation_type, legacy_value, variant_value) in relation_cases() {
+            let json =
+                serde_json::to_string(&relation_type).expect("serialize relation JSON");
+            assert_eq!(json, format!(r#""{variant_value}""#));
+            assert_eq!(
+                serde_json::from_str::<RelationType>(&json)
+                    .expect("deserialize canonical relation JSON"),
+                relation_type,
+            );
+            if legacy_value != variant_value {
+                assert!(
+                    serde_json::from_str::<RelationType>(&format!(r#""{legacy_value}""#))
+                        .is_err(),
+                    "legacy DB value leaked into JSON: {legacy_value}",
+                );
+            }
         }
     }
 }
