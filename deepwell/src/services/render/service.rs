@@ -1852,6 +1852,8 @@ impl RenderService {
         let mut last = 0usize;
         let mut changed = false;
 
+        let literal_regions = Self::wikidot_literal_region_mask(&source);
+
         for captures in WIKIDOT_MULTILINE_LABELED_LINK_REGEX.captures_iter(&source) {
             let Some(link_match) = captures.get(0) else {
                 continue;
@@ -1860,7 +1862,11 @@ impl RenderService {
             normalized.push_str(&source[last..link_match.start()]);
             last = link_match.end();
 
-            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+            if literal_regions
+                .get(link_match.start())
+                .copied()
+                .unwrap_or(false)
+            {
                 normalized.push_str(link_match.as_str());
                 continue;
             }
@@ -1892,6 +1898,64 @@ impl RenderService {
 
         normalized.push_str(&source[last..]);
         *wikitext = normalized;
+    }
+
+    fn wikidot_literal_region_mask(source: &str) -> Vec<bool> {
+        let mut mask = vec![false; source.len() + 1];
+
+        let mut line_start = 0usize;
+        let mut in_code = false;
+        let mut in_html = false;
+        for line in source.split_inclusive('\n') {
+            let line_end = line_start + line.len();
+            let marker = line.trim_start().to_ascii_lowercase();
+            if marker.starts_with("[[code") {
+                in_code = true;
+            } else if marker.starts_with("[[/code]]") {
+                in_code = false;
+            }
+            if marker.starts_with("[[html") {
+                in_html = true;
+            } else if marker.starts_with("[[/html]]") {
+                in_html = false;
+            }
+
+            if in_code || in_html {
+                mask[line_start..line_end].fill(true);
+            }
+            line_start = line_end;
+        }
+
+        let mut index = 0usize;
+        let mut escape_start = None;
+        while let Some(offset) = source[index..].find("@@") {
+            let token_start = index + offset;
+            let token_end = token_start + "@@".len();
+            if let Some(start) = escape_start.take() {
+                mask[start..token_end].fill(true);
+            } else {
+                escape_start = Some(token_start);
+            }
+            index = token_end;
+        }
+        if let Some(start) = escape_start {
+            mask[start..].fill(true);
+        }
+
+        let mut index = 0usize;
+        while let Some(open_offset) = source[index..].find("[!--") {
+            let comment_start = index + open_offset;
+            let content_start = comment_start + "[!--".len();
+            let comment_end = source[content_start..]
+                .find("--]")
+                .map_or(source.len(), |close_offset| {
+                    content_start + close_offset + "--]".len()
+                });
+            mask[comment_start..comment_end].fill(true);
+            index = comment_end;
+        }
+
+        mask
     }
 
     fn collapse_wikidot_inline_whitespace(value: &str) -> String {
@@ -14268,6 +14332,26 @@ mod tests {
         );
         assert!(rendered.contains("Creck Fection Contest 2 (TWO DAY EXTRAVAGANZA!)"));
         assert!(!rendered.contains("[[[an-incredibly-importanterest-announcement"));
+    }
+
+    #[test]
+    fn skips_multiline_page_links_inside_literal_regions() {
+        let mut wikitext = concat!(
+            "[[code]]\n[[[code-link|Nope\n]]]\n[[/code]]\n",
+            "[[html]]\n[[[html-link|Nope\n]]]\n[[/html]]\n",
+            "@@[[[escape-link|Nope\n]]]@@\n",
+            "[!-- [[[comment-link|Nope\n]]] --]\n",
+            "[[[page-link|Yes\nPlease]]]\n",
+        )
+        .to_owned();
+
+        RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
+
+        assert!(wikitext.contains("[[[code-link|Nope\n]]]"));
+        assert!(wikitext.contains("[[[html-link|Nope\n]]]"));
+        assert!(wikitext.contains("@@[[[escape-link|Nope\n]]]@@"));
+        assert!(wikitext.contains("[!-- [[[comment-link|Nope\n]]] --]"));
+        assert!(wikitext.contains("[[[page-link|Yes Please]]]"));
     }
 
     #[test]
