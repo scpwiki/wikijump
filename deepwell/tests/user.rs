@@ -240,8 +240,8 @@ async fn basic_update() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert!(output.user.email_validation_info.is_some());
-    assert!(output.user.email_validation_at.is_some());
+    assert!(user.email_validation_info.is_some());
+    assert!(user.email_validation_at.is_some());
     assert_eq!(user.user_id, user_id);
     assert_eq!(user.email, "jane@wikijump.dev");
     assert!(user.biography.is_none());
