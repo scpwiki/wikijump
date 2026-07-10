@@ -66,7 +66,7 @@ import {
 import type { PageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
 import type { Cookies, RequestEvent } from "@sveltejs/kit"
-import { getRequestContext } from "./request-ctx"
+import { getRequestContext, type RequestContext } from "./request-ctx"
 
 const DEEPWELL_PERMISSION_DENIED = 3106
 
@@ -464,9 +464,38 @@ const pageDeleteSchema = variant("option", [
 ])
 
 /* ----- Page Edit Check Permission ----- */
-export async function pageEditPermissionAction({ locals }: RequestEvent) {
+async function getPostedPageId(request: Request): Promise<FormDataEntryValue | null> {
+  const contentType = request.headers.get("content-type")
+  if (
+    !contentType?.startsWith("multipart/form-data") &&
+    contentType !== "application/x-www-form-urlencoded"
+  ) {
+    return null
+  }
+
+  return (await request.formData()).get("pageId")
+}
+
+function withPostedPageContext(
+  requestContext: RequestContext,
+  pageId: FormDataEntryValue | null
+): RequestContext {
+  if (requestContext?.page || typeof pageId !== "string") return requestContext
+
+  const parsedPageId = Number(pageId)
+  if (!Number.isInteger(parsedPageId)) return requestContext
+
+  return {
+    ...requestContext,
+    page: parsedPageId
+  }
+}
+
+export async function pageEditPermissionAction({ request, locals }: RequestEvent) {
   try {
-    const res = await pageEditPermission(getRequestContext(locals))
+    const res = await pageEditPermission(
+      withPostedPageContext(getRequestContext(locals), await getPostedPageId(request))
+    )
     return { res }
   } catch (e) {
     const error = e as DeepwellError

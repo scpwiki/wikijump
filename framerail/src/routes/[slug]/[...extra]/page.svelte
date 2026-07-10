@@ -45,9 +45,12 @@
 
   async function navigateEdit() {
     // Check edit permission first
+    const body = new FormData()
+    body.set("pageId", data.page.page_id.toString())
+
     const res = await fetch("?/editPermission", {
       method: "POST",
-      body: ""
+      body
     }).then((res) => res.text())
 
     const result = deserialize<
