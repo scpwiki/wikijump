@@ -28,4 +28,20 @@ describe("limitLocalePreferences", () => {
 
     assert.deepEqual(limitLocalePreferences(["", "  ", oversized, "ja"]), ["ja"])
   })
+
+  it("reserves capacity for required locales without reordering existing values", () => {
+    const preferences = Array.from(
+      { length: MAX_LOCALE_PREFERENCES },
+      (_, index) => `pref-${index}`
+    )
+
+    assert.deepEqual(
+      limitLocalePreferences([...preferences, "site", "en"], ["site", "en"]),
+      [...preferences.slice(0, MAX_LOCALE_PREFERENCES - 2), "site", "en"]
+    )
+    assert.deepEqual(
+      limitLocalePreferences(["en", ...preferences, "site"], ["site", "en"]),
+      ["en", ...preferences.slice(0, MAX_LOCALE_PREFERENCES - 2), "site"]
+    )
+  })
 })
