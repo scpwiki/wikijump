@@ -131,6 +131,12 @@ impl TextBlockService {
             return Ok(());
         }
 
+        // Validate the maximum 1-indexed block index before uploading
+        // anything to S3. S3 writes are external side effects and are not
+        // rolled back with the database transaction, so all deterministic
+        // range errors must happen before the first upload.
+        let max_index = max_text_block_index(blocks.len()).or_raise(make_error)?;
+
         // Upload the new text blocks to S3.
         // This also replaces any existing S3 objects with the same filename.
         //
@@ -140,16 +146,13 @@ impl TextBlockService {
         let mut models = Vec::with_capacity(blocks.len());
         let mut new_filenames = HashSet::with_capacity(blocks.len());
         let mut previous_block_names = HashSet::with_capacity(blocks.len());
-        for (index, block) in blocks.iter().enumerate() {
+        for (index, block) in (1..=max_index).zip(blocks.iter()) {
             let &TextBlock {
                 text,
                 text_type,
                 mime,
                 mut name,
             } = block;
-
-            // Text block indices are always 1-indexed
-            let index = (index + 1).try_into_i16().or_raise(make_error)?;
 
             // Upload text block to S3
             let filename = filename!(index);
@@ -384,6 +387,11 @@ fn block_type_name(block_type: TextBlockType) -> &'static str {
     }
 }
 
+/// Returns the largest 1-indexed text block index for this block count.
+fn max_text_block_index(count: usize) -> StdResult<i16, std::num::TryFromIntError> {
+    count.try_into_i16()
+}
+
 /// Ensures that this name can be used to reference a block.
 fn valid_block_name<'n>(previous: &mut HashSet<&'n str>, name: &'n str) -> bool {
     // To prevent shenanigans with excessively-long block aliases.
@@ -413,4 +421,16 @@ fn valid_block_name<'n>(previous: &mut HashSet<&'n str>, name: &'n str) -> bool 
     // Now that all checks have passed, add this as one of the already-used names.
     previous.insert(name);
     true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn text_block_count_must_fit_in_i16_indices() {
+        assert_eq!(max_text_block_index(0).unwrap(), 0);
+        assert_eq!(max_text_block_index(i16::MAX as usize).unwrap(), i16::MAX,);
+        assert!(max_text_block_index(i16::MAX as usize + 1).is_err());
+    }
 }
