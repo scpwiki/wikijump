@@ -416,7 +416,7 @@ WITH requested(site_id, slug) AS (
   ON CONFLICT (site_id, slug) DO UPDATE SET slug = EXCLUDED.slug
   RETURNING category_id, slug
 )
-SELECT slug || '|' || category_id::text
+SELECT encode(convert_to(slug, 'UTF8'), 'hex') || '|' || category_id::text
 FROM inserted
 ORDER BY slug;
 `;
@@ -426,12 +426,12 @@ function parsePrecreatedCategoryIds(output) {
   const ids = new Map();
   if (!output.trim()) return ids;
   for (const line of output.split('\n')) {
-    const [slug, categoryIdText, extra] = line.split('|');
+    const [slugHex, categoryIdText, extra] = line.split('|');
     const categoryId = Number.parseInt(categoryIdText, 10);
-    if (!slug || extra !== undefined || !Number.isInteger(categoryId)) {
+    if (extra !== undefined || !/^(?:[0-9a-f]{2})*$/u.test(slugHex) || !Number.isInteger(categoryId)) {
       throw new Error(`invalid category precreate output: ${line}`);
     }
-    ids.set(slug, categoryId);
+    ids.set(Buffer.from(slugHex, 'hex').toString('utf8'), categoryId);
   }
   return ids;
 }
