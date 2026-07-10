@@ -27,6 +27,22 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' && (github.event.action != 'labeled' || github.event.label.name == 'full-ci') }}
 
 jobs:
+  resize_iframe_javascript:
+    name: Resize iframe JavaScript
+    if: ${{ github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'full-ci' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Test
+        run: node --test wws/tests/resize-iframe.test.mjs
+
   binary_build_and_test:
     name: Build, Test and Coverage
     if: ${{ github.event_name != 'pull_request' || (contains(github.event.pull_request.labels.*.name, 'full-ci') && (github.event.action != 'labeled' || github.event.label.name == 'full-ci')) }}

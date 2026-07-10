@@ -129,13 +129,18 @@ const RESIZE_IFRAME_HTML: &str = r#"<!DOCTYPE html
 <title></title>
 <script type="text/javascript">
 
-var hash = location.hash.toString();
-var hash_a1 = hash.split('/');
-var hash_a2 = hash_a1[0].split('#');
-var id = hash_a1[1];
-var height = hash_a2[1];
+var hash_match = location.hash.toString().match(/^#([0-9]{1,6})\/([A-Za-z0-9._~!$&'()*+,;=:@%-]+)$/);
+if (hash_match) {
+    var height = parseInt(hash_match[1], 10);
+    var id = '/' + hash_match[2];
 
-parent.parent.$j('iframe.html-block-iframe[src$="/' + id + '"]').height(height + 'px');
+    if (height >= 0 && height <= 100000) {
+        parent.parent.$j('iframe.html-block-iframe').filter(function() {
+            var src = this.getAttribute('src') || '';
+            return src.slice(-id.length) === id;
+        }).height(height + 'px');
+    }
+}
 
 </script>
 </head>
@@ -278,7 +283,9 @@ mod tests {
         let body = body::to_bytes(response.into_body(), usize::MAX)
             .await
             .unwrap();
-        assert!(String::from_utf8_lossy(&body).contains("iframe.html-block-iframe"));
+        let body = String::from_utf8_lossy(&body);
+        assert!(body.contains("<script type=\"text/javascript\">"));
+        assert!(body.contains("iframe.html-block-iframe"));
     }
 
     #[tokio::test]
