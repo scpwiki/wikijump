@@ -1102,7 +1102,7 @@ async function canXmlRpcViewPage(
       site_id: siteId,
       locales: [],
       session_token: principal.sessionToken,
-      route: { slug: page, extra: null }
+      route: { slug: page, extra: "" }
     },
     {
       sessionToken: principal.sessionToken,
