@@ -7844,12 +7844,29 @@ fn push_list_pages_pager_target(
     label: &str,
 ) {
     output.push_str(r#"[[span class="target"]][/"#);
-    output.push_str(page_info.page.as_ref());
+    push_wikidot_link_target_path_segment(output, page_info.page.as_ref());
     output.push_str("/p/");
     output.push_str(&target_page.to_string());
     output.push(' ');
     output.push_str(label);
     output.push_str("][[/span]]");
+}
+
+fn push_wikidot_link_target_path_segment(output: &mut String, segment: &str) {
+    const HEX: &[u8; 16] = b"0123456789ABCDEF";
+
+    for byte in segment.bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
+                output.push(byte as char)
+            }
+            _ => {
+                output.push('%');
+                output.push(HEX[(byte >> 4) as usize] as char);
+                output.push(HEX[(byte & 0x0f) as usize] as char);
+            }
+        }
+    }
 }
 
 fn is_wikidot_content_separator_line(line: &str) -> bool {
@@ -11110,6 +11127,30 @@ mod tests {
         assert!(rendered.contains(r#"<span class="pager-no">page 1 of 3</span>"#));
         assert!(rendered.contains(r#"<a href="/scp-7243/p/2">2</a>"#));
         assert!(!rendered.contains("data-wikijump-compat-pager"));
+    }
+
+    #[test]
+    fn generated_list_pages_pager_escapes_page_slug_before_parsing() {
+        let page_info = fallback_test_page_info(
+            r#"foo] [[span class="owned"]]OWNED[[/span]] ["#,
+            "Missing page",
+        );
+        let mut wikitext = String::new();
+
+        push_list_pages_pager(&mut wikitext, &page_info, 0, 2, 5);
+
+        assert!(!wikitext.contains(r#"[[span class="owned"]]"#));
+        assert!(wikitext.contains(
+            "/foo%5D%20%5B%5Bspan%20class%3D%22owned%22%5D%5DOWNED%5B%5B%2Fspan%5D%5D%20%5B/p/2"
+        ));
+
+        let rendered = render_wikidot_page_body_after_compat_restore(&wikitext);
+
+        assert!(rendered.contains(r#"<div class="pager">"#));
+        assert!(!rendered.contains(r#"<span class="owned">OWNED</span>"#));
+        assert!(rendered.contains(
+            r#"<a href="/foo%5D%20%5B%5Bspan%20class%3D%22owned%22%5D%5DOWNED%5B%5B%2Fspan%5D%5D%20%5B/p/2">2</a>"#
+        ));
     }
 
     #[test]
