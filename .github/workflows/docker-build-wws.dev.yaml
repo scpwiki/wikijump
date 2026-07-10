@@ -19,5 +19,5 @@ jobs:
       image-name: wws
       tier: dev
     secrets:
-      aws-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY }}
-      aws-secret-key: ${{ secrets.AWS_ECR_SECRET_KEY }}
+      aws-access-key: unused-for-build-only-workflow
+      aws-secret-key: unused-for-build-only-workflow
