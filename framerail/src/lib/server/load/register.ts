@@ -74,7 +74,7 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
   const form = await superValidate(request, valibot(registerSchema))
 
   if (!form.valid) {
-    return fail(400, { form })
+    return fail(400, { form: clearRegisterPasswords(form) })
   }
 
   const ipAddress = getClientAddress()
@@ -90,15 +90,23 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
       ipAddress
     )
 
-    return { form, res, isRegistered: true }
+    return { form: clearRegisterPasswords(form), res, isRegistered: true }
   } catch (error) {
     return fail(500, {
-      form,
+      form: clearRegisterPasswords(form),
       message: error?.message,
       code: error?.code,
       data: error?.data
     })
   }
+}
+
+function clearRegisterPasswords<
+  T extends { data: { password?: string; confirmPassword?: string } }
+>(form: T): T {
+  form.data.password = ""
+  form.data.confirmPassword = ""
+  return form
 }
 
 const registerSchema = pipe(

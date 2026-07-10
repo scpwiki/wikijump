@@ -69,7 +69,10 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       typeof totpOrCode !== "string" ||
       totpOrCode.trim().length === 0
     ) {
-      return fail(400, { form, message: "MFA code is required" })
+      return fail(400, {
+        form: clearLoginPassword(form),
+        message: "MFA code is required"
+      })
     }
 
     try {
@@ -82,7 +85,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       await setSessionCookie(cookies, sessionToken)
 
       return {
-        form,
+        form: clearLoginPassword(form),
         session_token: undefined,
         needsMfa: false,
         isLoggedIn: true
@@ -90,7 +93,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
     } catch (error) {
       const deepwellError = getDeepwellError(error)
       return fail(500, {
-        form,
+        form: clearLoginPassword(form),
         message: deepwellError.message,
         code: deepwellError.code,
         data: deepwellError.data
@@ -101,7 +104,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
   const form = await superValidate(formData, valibot(loginSchema))
 
   if (!form.valid) {
-    return fail(400, { form })
+    return fail(400, { form: clearLoginPassword(form) })
   }
 
   try {
@@ -113,7 +116,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
     }
 
     return {
-      form,
+      form: clearLoginPassword(form),
       session_token: res.needs_mfa ? res.session_token : undefined,
       needsMfa: res.needs_mfa,
       isLoggedIn: !res.needs_mfa
@@ -121,7 +124,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
   } catch (error) {
     const deepwellError = getDeepwellError(error)
     return fail(500, {
-      form,
+      form: clearLoginPassword(form),
       message: deepwellError.message,
       code: deepwellError.code,
       data: deepwellError.data
@@ -133,6 +136,11 @@ const loginSchema = object({
   nameOrEmail: pipe(string(), minLength(1)),
   password: pipe(string(), minLength(1))
 })
+
+function clearLoginPassword<T extends { data: { password?: string } }>(form: T): T {
+  form.data.password = ""
+  return form
+}
 
 async function setSessionCookie(cookies: Cookies, sessionToken: string) {
   const session = await authGetSession(sessionToken)
