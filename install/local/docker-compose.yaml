@@ -64,6 +64,7 @@ services:
       - "S3_CUSTOM_ENDPOINT=http://files:9000"
       - "S3_ACCESS_KEY_ID=minio"
       - "S3_SECRET_ACCESS_KEY=defaultpassword"
+      - "DEEPWELL_BUILD_PROFILE=${DEEPWELL_BUILD_PROFILE:-debug}"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wikijump-health-check"]
@@ -88,6 +89,8 @@ services:
       - "3393:3393"
     environment:
       - "DEEPWELL_HOST=deepwell"
+      - "FRAMERAIL_MODE=${FRAMERAIL_MODE:-dev}"
+      - "REDIS_URL=redis://cache"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wikijump-health-check"]
@@ -95,6 +98,8 @@ services:
       timeout: 2s
       retries: 3
     depends_on:
+      cache:
+        condition: service_healthy
       deepwell:
         condition: service_started
 

@@ -97,14 +97,105 @@ function firstDifference(a, b, radius = 60) {
   };
 }
 
+function appliesToFixture(entry, fixtureId) {
+  return entry.fixture_ids?.includes(fixtureId) || entry.scope === '*';
+}
+
+function isGranularVisibleTextEntry(entry) {
+  return (
+    entry.category === 'visible_text_difference' &&
+    (typeof entry.source_text === 'string' || typeof entry.local_text === 'string')
+  );
+}
+
+function ledgerRef(entry) {
+  return `${entry.category}:${entry.scope}`;
+}
+
 export function matchLedgerEntry(ledger, fixtureId, category) {
   return (
     ledger.find(
       (entry) =>
         entry.category === category &&
-        (entry.fixture_ids?.includes(fixtureId) || entry.scope === '*'),
+        !isGranularVisibleTextEntry(entry) &&
+        appliesToFixture(entry, fixtureId),
     ) ?? null
   );
+}
+
+function replaceExpectedOccurrence(text, needle, token, expectedOccurrences) {
+  if (typeof needle !== 'string' || needle.length === 0) {
+    return { ok: false, count: 0, text };
+  }
+  const pieces = text.split(needle);
+  const count = pieces.length - 1;
+  if (count !== expectedOccurrences) {
+    return { ok: false, count, text };
+  }
+  return { ok: true, count, text: pieces.join(token) };
+}
+
+function expectedOccurrences(entry) {
+  return Number.isInteger(entry.expected_occurrences) && entry.expected_occurrences > 0
+    ? entry.expected_occurrences
+    : 1;
+}
+
+function applyGranularVisibleTextLedger(ledger, fixtureId, source, local) {
+  let transformedSource = source;
+  let transformedLocal = local;
+  const applied = [];
+  const unapplied = [];
+  const entries = ledger.filter(
+    (entry) => isGranularVisibleTextEntry(entry) && appliesToFixture(entry, fixtureId),
+  );
+
+  for (const [index, entry] of entries.entries()) {
+    const expected = expectedOccurrences(entry);
+    const token = `{{accepted-diff:${index}:${ledgerRef(entry)}}}`;
+    const sourceResult = replaceExpectedOccurrence(transformedSource, entry.source_text, token, expected);
+    const localResult = replaceExpectedOccurrence(transformedLocal, entry.local_text, token, expected);
+    if (sourceResult.ok && localResult.ok) {
+      transformedSource = sourceResult.text;
+      transformedLocal = localResult.text;
+      applied.push({
+        category: entry.category,
+        scope: entry.scope,
+        expected_occurrences: expected,
+        source_occurrences: sourceResult.count,
+        local_occurrences: localResult.count,
+      });
+    } else {
+      unapplied.push({
+        category: entry.category,
+        scope: entry.scope,
+        expected_occurrences: expected,
+        source_occurrences: sourceResult.count,
+        local_occurrences: localResult.count,
+      });
+    }
+  }
+
+  return {
+    accepted: applied.length > 0 && transformedSource === transformedLocal,
+    applied,
+    unapplied,
+    source: transformedSource,
+    local: transformedLocal,
+  };
+}
+
+function uniqueLedgerRefs(entries) {
+  const refs = [];
+  const seen = new Set();
+  for (const entry of entries) {
+    const ref = ledgerRef(entry);
+    if (!seen.has(ref)) {
+      seen.add(ref);
+      refs.push(ref);
+    }
+  }
+  return refs;
 }
 
 /**
@@ -125,6 +216,7 @@ export function comparePair(input) {
   const channels = { ...DEFAULT_CHANNELS, ...(input.channels ?? {}) };
   const ledger = input.ledger ?? [];
   const findings = [];
+  const acceptedLedgerRefs = [];
 
   if (input.sourceUrl && input.localUrl && input.sourceUrl === input.localUrl) {
     findings.push({ category: 'self_comparison', detail: `identical URLs: ${input.sourceUrl}` });
@@ -171,17 +263,38 @@ export function comparePair(input) {
         informational: true,
       });
     } else {
-      findings.push({
-        category: 'visible_text_difference',
-        detail: 'visible text differs after declared normalization',
-        ...firstDifference(normalizedSource.text, normalizedLocal.text),
-      });
+      const accepted = applyGranularVisibleTextLedger(
+        ledger,
+        input.fixtureId,
+        normalizedSource.text,
+        normalizedLocal.text,
+      );
+      if (accepted.accepted) {
+        findings.push({
+          category: 'visible_text_difference',
+          detail:
+            'visible text differs after declared normalization; exact ledger text edits explain the difference',
+          informational: true,
+          ...firstDifference(normalizedSource.text, normalizedLocal.text),
+          accepted_by_ledger: accepted.applied,
+        });
+        acceptedLedgerRefs.push(...accepted.applied);
+      } else {
+        findings.push({
+          category: 'visible_text_difference',
+          detail: 'visible text differs after declared normalization',
+          ...firstDifference(normalizedSource.text, normalizedLocal.text),
+          accepted_by_ledger: accepted.applied,
+          unapplied_ledger: accepted.unapplied,
+          remaining: firstDifference(accepted.source, accepted.local),
+        });
+      }
     }
   }
 
   const blocking = findings.filter((f) => !f.informational);
   let verdict = 'match';
-  let ledgerRefs = [];
+  let ledgerRefs = [...acceptedLedgerRefs];
   if (blocking.length > 0) {
     const unexplained = [];
     for (const finding of blocking) {
@@ -194,6 +307,8 @@ export function comparePair(input) {
       }
     }
     verdict = unexplained.length === 0 ? 'accepted-diff' : 'regression';
+  } else if (ledgerRefs.length > 0) {
+    verdict = 'accepted-diff';
   }
 
   return {
@@ -203,7 +318,7 @@ export function comparePair(input) {
     normalization_channels: Object.entries(channels)
       .filter(([, enabled]) => enabled)
       .map(([name]) => name),
-    ledger_refs: ledgerRefs.map((entry) => `${entry.category}:${entry.scope}`),
+    ledger_refs: uniqueLedgerRefs(ledgerRefs),
   };
 }
 

@@ -20,7 +20,8 @@
 
 use super::prelude::*;
 use crate::services::view::{
-    GetAdminView, GetAdminViewOutput, GetPageView, GetPageViewOutput, GetPreloadView,
+    GetAdminView, GetAdminViewOutput, GetArticleViewCacheMetadataOutput,
+    GetArticleViewOutput, GetPageView, GetPageViewOutput, GetPreloadView,
     GetPreloadViewOutput, GetUserView, GetUserViewOutput, ViewType,
 };
 
@@ -37,6 +38,38 @@ pub async fn preload_view(
             ErrorType::GetView(ViewType::Preload),
         )
     })
+}
+
+/// Returns common preload data plus page data for an article request.
+pub async fn article_view(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetArticleViewOutput> {
+    let input: GetPageView = parse!(params => ErrorType::GetView(ViewType::Page));
+
+    ViewService::article(ctx, input).await.or_raise(|| {
+        Error::new(
+            "failed to get article view",
+            ErrorType::GetView(ViewType::Page),
+        )
+    })
+}
+
+/// Returns the current fenced cache metadata for an anonymous article request.
+pub async fn article_view_cache_metadata(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<GetArticleViewCacheMetadataOutput> {
+    let input: GetPageView = parse!(params => ErrorType::GetView(ViewType::Page));
+
+    ViewService::article_cache_metadata(ctx, input)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to get article view cache metadata",
+                ErrorType::GetView(ViewType::Page),
+            )
+        })
 }
 
 /// Returns relevant context for rendering a page from a processed web request.

@@ -31,6 +31,8 @@ const LOCAL_FILE_IMAGE_SOURCES = ["https://*.wjfiles.localhost"]
 /** @type {CspSources} */
 const LOCAL_FILE_STYLE_SOURCES = ["https://*.wjfiles.localhost"]
 /** @type {CspSources} */
+const LOCAL_FILE_FRAME_SOURCES = ["https://*.wjfiles.localhost"]
+/** @type {CspSources} */
 const WIKIDOT_LEGACY_IMAGE_SOURCES = ["https://d3g0gp89917ko0.cloudfront.net"]
 /** @type {CspSources} */
 const WIKIDOT_IMAGE_SOURCES = [
@@ -94,6 +96,18 @@ function fontSources() {
   return ["self", "data:", ...WIKIDOT_FONT_SOURCES]
 }
 
+/** @returns {CspSources} */
+function frameSources() {
+  /** @type {CspSources} */
+  const sources = ["self"]
+
+  if (isLocalEnvironment()) {
+    sources.push(...LOCAL_FILE_FRAME_SOURCES)
+  }
+
+  return sources
+}
+
 /** @type {import("@sveltejs/kit").Config} */
 const config = {
   // Consult https://github.com/sveltejs/svelte-preprocess
@@ -118,6 +132,7 @@ const config = {
         "font-src": fontSources(),
         "style-src": styleSources(),
         "script-src": ["self"],
+        "frame-src": frameSources(),
         "connect-src": ["self"],
         "worker-src": ["self", "blob:"],
         "manifest-src": ["self"]

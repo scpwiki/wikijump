@@ -136,6 +136,9 @@ deploy{{ files_domain }} {
 		path /.well-known
 		path /.well-known/*
 		path /-/health-check
+		path /common--theme/base/css/html-block.css
+		path /common--javascript/html-block-iframe.js
+		path /common--javascript/resize-iframe.html
 	}
 	handle @proxy {
 		request_header X-Wikijump-Target-Server main

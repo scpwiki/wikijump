@@ -6,6 +6,7 @@
 - Use `docs/dom-compatibility.md` for DOM compatibility expectations.
 - Use `docs/compatibility-ids.md` for imported Wikidot id and URL compatibility.
 - Use `deepwell/README.md` for Deepwell's trusted-internal-API boundary.
+- Use `docs/ftml-boundary.md` for the FTML/Wikijump responsibility boundary, pin-bump canary rule, and syntax-shim deviation process.
 - Use `install/local/wikidot-verification/` for browser parity capture and validator tooling.
 
 ## Product language
@@ -18,7 +19,7 @@ Do not hide meaningful differences through CSS, broad normalization, source surg
 
 ## Architecture boundaries
 
-- FTML owns syntax parsing/rendering primitives. Wikijump owns runtime behavior that depends on site/page/query/import state.
+- FTML owns syntax parsing/rendering primitives. Wikijump owns runtime behavior that depends on site/page/query/import state. The frozen boundary contract, including the FTML pin-bump canary requirement and the deviation-note rule for new syntax-level shims in Deepwell render code, is `docs/ftml-boundary.md`.
 - For `ListPages` and `CountPages`, FTML should preserve delayed module structure; Wikijump should own selector parsing, query semantics, URL arguments, pagination, variable substitution, and runtime rendering.
 - Unsupported or unverified query/module shapes must fail closed, remain literal, or use an evidenced fallback. Do not silently drop selectors or widen queries.
 - Imported Wikidot uploaded files are data. Do not add real article/page uploaded assets to repository seed data as a parity fix. Use corpus file capture plus import/materialization into local Wikijump file state.

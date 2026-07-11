@@ -100,6 +100,46 @@ export async function pageView(
   })
 }
 
+export type ArticleView = Viewer & {
+  page: PageView
+  article_page_cache_key: Optional<string>
+  public_content_cache_fence: Optional<string>
+  anonymous_permission_cache_fence: Optional<string>
+}
+
+export async function articleView(
+  siteId: number,
+  locales: string[],
+  route: Nullable<PageRoute>,
+  sessionToken: Optional<string>
+): Promise<ArticleView> {
+  return client.request("article_view", {
+    site_id: siteId,
+    locales,
+    session_token: sessionToken,
+    route
+  })
+}
+
+export interface ArticleViewCacheMetadata {
+  article_page_cache_key: Optional<string>
+  public_content_cache_fence: Optional<string>
+  anonymous_permission_cache_fence: Optional<string>
+}
+
+export async function articleViewCacheMetadata(
+  siteId: number,
+  locales: string[],
+  route: Nullable<PageRoute>
+): Promise<ArticleViewCacheMetadata> {
+  return client.request("article_view_cache_metadata", {
+    site_id: siteId,
+    locales,
+    session_token: null,
+    route
+  })
+}
+
 /* ----- Admin View ----- */
 interface AdminViewSiteFound {
   type: "site_found"

@@ -211,12 +211,17 @@ impl PageRevisionService {
         // If nothing has changed, then don't create a new revision
         if changes.is_empty() {
             debug!("No changes in edit, only rerendering the page");
+            ctx.defer_public_content_cache_invalidate_site(site_id)
+                .or_raise(make_error)?;
             Self::rerender(ctx, id, RerenderDepth::default(), RerenderType::Full)
                 .await
                 .or_raise(make_error)?;
 
             return Ok(None);
         }
+
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
 
         // Get ancillary page data
         let (score_result, layout_result) = join!(
@@ -254,7 +259,8 @@ impl PageRevisionService {
                 compiled_side_bar_html_hash: new_side_bar_html_hash,
                 compiled_at: new_compiled_at,
                 compiled_generator: new_compiled_generator,
-            } = Self::render_and_update_links(ctx, id, wikitext, render_input).await?;
+            } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
+                .await?;
 
             // Update fields
             parser_errors = Some(errors);
@@ -415,6 +421,9 @@ impl PageRevisionService {
             )
         };
 
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
+
         // If the page creation doesn't specify a preferred layout,
         // use the default for the site.
         let layout = match layout {
@@ -451,7 +460,7 @@ impl PageRevisionService {
             compiled_side_bar_html_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render_and_update_links(ctx, id, wikitext, render_input)
+        } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
             .await
             .or_raise(make_error)?;
 
@@ -541,6 +550,9 @@ impl PageRevisionService {
             tags,
             ..
         } = previous;
+
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
 
         // Run outdater
         OutdateService::process_page_displace(
@@ -654,6 +666,9 @@ impl PageRevisionService {
             vec![str!("slug")]
         };
 
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
+
         // Get ancillary page data
         let (score_result, layout_result) = join!(
             ScoreService::score(ctx, page_id),
@@ -692,6 +707,7 @@ impl PageRevisionService {
             },
             wikitext,
             render_input,
+            false,
         )
         .await
         .or_raise(make_error)?;
@@ -761,6 +777,7 @@ impl PageRevisionService {
             score,
             tags,
         }: RenderPageInfo<'_>,
+        allow_corpus_dense_includes: bool,
     ) -> Result<RenderPageOutput> {
         // Get site
         let PageId {
@@ -797,9 +814,12 @@ impl PageRevisionService {
         };
 
         // Parse and render
-        let output = RenderService::render_page(ctx, wikitext, &page_info, layout, id)
-            .await
-            .or_raise(make_error)?;
+        let output = if allow_corpus_dense_includes {
+            RenderService::render_corpus_page(ctx, wikitext, &page_info, layout, id).await
+        } else {
+            RenderService::render_page(ctx, wikitext, &page_info, layout, id).await
+        }
+        .or_raise(make_error)?;
 
         // Update backlinks
         LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks)
@@ -821,6 +841,32 @@ impl PageRevisionService {
         id: PageId,
         depth: RerenderDepth,
         rerender_type: RerenderType,
+    ) -> Result<()> {
+        Self::rerender_inner(ctx, id, depth, rerender_type, true, false).await
+    }
+
+    /// Re-renders a trusted imported page for the corpus finalizer.
+    ///
+    /// The finalizer needs a corpus-provenanced include ceiling while normal
+    /// user-controlled renders retain the lower public safety limit.
+    pub(crate) async fn rerender_for_corpus_finalizer(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        depth: RerenderDepth,
+        rerender_type: RerenderType,
+        outdate_dependents: bool,
+    ) -> Result<()> {
+        Self::rerender_inner(ctx, id, depth, rerender_type, outdate_dependents, true)
+            .await
+    }
+
+    async fn rerender_inner(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        depth: RerenderDepth,
+        rerender_type: RerenderType,
+        outdate_dependents: bool,
+        allow_corpus_dense_includes: bool,
     ) -> Result<()> {
         let txn = ctx.transaction();
         let PageId {
@@ -874,6 +920,9 @@ impl PageRevisionService {
             }
         }
 
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
+
         // Get data for page
         let (wikitext, score, layout) = try_join!(
             TextService::get(ctx, &revision.wikitext_hash),
@@ -900,23 +949,31 @@ impl PageRevisionService {
             compiled_side_bar_html_hash,
             compiled_generator,
             ..
-        } = Self::render_and_update_links(ctx, id, wikitext, render_input)
-            .await
-            .or_raise(make_error)?;
+        } = Self::render_and_update_links(
+            ctx,
+            id,
+            wikitext,
+            render_input,
+            allow_corpus_dense_includes,
+        )
+        .await
+        .or_raise(make_error)?;
 
         let model = match rerender_type {
             RerenderType::Full => {
                 // Outdate all descendent pages and update body and nav pages
 
-                OutdateService::process_page_edit(
-                    ctx,
-                    site_id,
-                    page_id,
-                    &revision.slug,
-                    depth,
-                )
-                .await
-                .or_raise(make_error)?;
+                if outdate_dependents {
+                    OutdateService::process_page_edit(
+                        ctx,
+                        site_id,
+                        page_id,
+                        &revision.slug,
+                        depth,
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                }
 
                 page_revision::ActiveModel {
                     revision_id: Set(revision.revision_id),

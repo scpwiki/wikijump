@@ -671,7 +671,16 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         .or_raise(make_error)?;
     }
 
+    let post_commit_actions = ctx.drain_post_commit_actions().or_raise(make_error)?;
+
     txn.commit().await.or_raise(make_error)?;
+    if let Err(error) =
+        ServiceContext::run_post_commit_actions_for_state(state, post_commit_actions)
+            .await
+    {
+        error!("seeder committed but post-commit actions failed: {}", error);
+    }
+
     info!("Finished running seeder.");
     Ok(())
 }

@@ -25,6 +25,7 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod article_cache;
 mod options;
 mod service;
 mod structs;

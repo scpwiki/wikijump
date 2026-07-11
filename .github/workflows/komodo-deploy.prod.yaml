@@ -5,6 +5,9 @@ on:
     branches:
       - prod
 
+permissions:
+  contents: read
+
 jobs:
   # Wait for image push jobs to complete
   # See https://stackoverflow.com/a/75597437

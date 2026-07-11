@@ -1,5 +1,6 @@
 import defaults from "$lib/defaults"
 
+import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/article-response-cache"
 import { authGetSession } from "$lib/server/auth/getSession"
 import {
   pageDelete,
@@ -30,8 +31,14 @@ import {
   pageFileRollback
 } from "$lib/server/deepwell/pageFile"
 import { translate } from "$lib/server/deepwell/translate"
-import { pageView } from "$lib/server/deepwell/views"
+import { articleView } from "$lib/server/deepwell/views"
+import { buildPageLoadData } from "$lib/server/load/page-data"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
+import {
+  finalizePreloadData,
+  getPreloadBackendLocales,
+  getPreloadRequestLocales
+} from "$lib/server/load/preload"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
 import {
@@ -56,7 +63,7 @@ import {
   enum as vEnum
 } from "valibot"
 
-import type { PageView, PreloadDataAsync } from "$lib/server/deepwell/views"
+import type { PageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
 import type { Cookies, RequestEvent } from "@sveltejs/kit"
 import { getRequestContext } from "./request-ctx"
@@ -77,19 +84,20 @@ export async function loadPage(
   extra: Optional<string>,
   request: Request,
   cookies: Cookies,
-  preloadData: PreloadDataAsync
+  locals?: App.Locals
 ) {
   // Set up parameters
-  const { siteId } = loadSiteInfo(request.headers)
+  const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")
 
-  const parentData = await preloadData()
+  const requestLocales = getPreloadRequestLocales(request)
+  const backendLocales = getPreloadBackendLocales(requestLocales)
+  const articleResponse = await articleView(siteId, backendLocales, route, sessionToken)
+  const { page: response, ...preloadResponse } = articleResponse
+  const parentData = finalizePreloadData(preloadResponse, requestLocales)
   const locales = parentData.locales
   const siteLocale = parentData.site.locale
-
-  // Request data from backend
-  const response = await pageView(siteId, locales, route, sessionToken)
 
   // Process response, performing redirects etc
   const { data: responseData, type: responseType } = response
@@ -110,6 +118,21 @@ export async function loadPage(
       // Unexpected response type!
       // There is an inconsistency between here / DEEPWELL
       errorStatus = 500
+  }
+
+  if (locals && responseType === "found") {
+    const metadata = buildAnonymousArticleResponseCacheMetadata({
+      siteId,
+      siteSlug,
+      requestLocales,
+      backendLocales,
+      deepwellArticlePageCacheKey: articleResponse.article_page_cache_key,
+      publicContentFence: articleResponse.public_content_cache_fence,
+      permissionFence: articleResponse.anonymous_permission_cache_fence
+    })
+    if (metadata) {
+      locals.anonymousArticleResponseCacheMetadata = metadata
+    }
   }
 
   let translateKeys: TranslateKeys = {
@@ -308,7 +331,7 @@ export async function loadPage(
   }
 
   if (errorStatus !== null) {
-    error(errorStatus, { ...viewData, forms: errorForms })
+    error(errorStatus, buildPageLoadData(parentData, viewData, errorForms))
   }
 
   // TODO remove checkRedirect when errorStatus is fixed
@@ -317,7 +340,7 @@ export async function loadPage(
   }
 
   // Return to page for rendering
-  return { ...viewData, forms }
+  return buildPageLoadData(parentData, viewData, forms)
 }
 
 function runRedirect(

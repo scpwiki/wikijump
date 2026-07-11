@@ -31,6 +31,7 @@ use crate::models::message_draft::{self, Entity as MessageDraft};
 use crate::models::message_record::{self, Entity as MessageRecord};
 use crate::models::page_revision::{self, Entity as PageRevision};
 use crate::models::text::{self, Entity as Text};
+use sea_orm::sea_query::OnConflict;
 use sea_query::Query;
 
 #[derive(Debug)]
@@ -179,7 +180,15 @@ impl TextService {
                 contents: Set(contents),
             };
 
-            Text::insert(model).exec(txn).await.or_raise(make_error)?;
+            Text::insert(model)
+                .on_conflict(
+                    OnConflict::column(text::Column::Hash)
+                        .do_nothing()
+                        .to_owned(),
+                )
+                .exec_without_returning(txn)
+                .await
+                .or_raise(make_error)?;
         }
 
         Ok(hash)

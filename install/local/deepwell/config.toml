@@ -9,6 +9,8 @@ pid-file = "/run/deepwell.pid"
 [database]
 run-seeder = true
 seeder-path = "seeder"
+# Local-lab performance setting.
+sqlx-logging = false
 
 [security]
 authentication-fail-delay-ms = 100

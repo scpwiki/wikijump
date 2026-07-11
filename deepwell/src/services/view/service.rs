@@ -29,6 +29,7 @@
 //! The service also contains the core method `ViewService::get_viewer()`, which converts the
 //! requesting domain and session token into a site and user, respectively.
 
+use super::article_cache::ArticlePageCache;
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
@@ -62,6 +63,151 @@ use wikidot_normalize::normalize;
 pub struct ViewService;
 
 impl ViewService {
+    pub async fn article(
+        ctx: &ServiceContext<'_>,
+        mut input: GetPageView,
+    ) -> Result<GetArticleViewOutput> {
+        let preload = Self::preload(
+            ctx,
+            GetPreloadView {
+                site_id: input.site_id,
+                session_token: input.session_token.clone(),
+                locales: input.locales.clone(),
+            },
+        )
+        .await?;
+        if let Some(user_session) = &preload.viewer.user_session {
+            let mut locales = user_session.user.locales.clone();
+            locales.extend(
+                input
+                    .locales
+                    .iter()
+                    .filter(|locale| !user_session.user.locales.contains(locale))
+                    .cloned(),
+            );
+            input.locales = locales;
+        }
+        if !input.locales.contains(&preload.viewer.site.locale) {
+            input.locales.push(preload.viewer.site.locale.clone());
+        }
+        let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
+        if let Some(cache_key) =
+            cache_metadata.as_ref().map(|metadata| &metadata.cache_key)
+            && let Some(page) = ArticlePageCache::get(ctx, cache_key).await?
+            && Self::cached_article_page_visible_to_viewer(ctx, &preload.viewer, &input)
+                .await?
+        {
+            return Ok(GetArticleViewOutput {
+                viewer: preload.viewer,
+                page,
+                article_page_cache_key: Some(cache_key.clone()),
+                public_content_cache_fence: cache_metadata
+                    .as_ref()
+                    .map(|metadata| metadata.public_content_cache_fence.clone()),
+                anonymous_permission_cache_fence: cache_metadata
+                    .as_ref()
+                    .map(|metadata| metadata.anonymous_permission_cache_fence.clone()),
+            });
+        }
+
+        let page_view = Self::page(ctx, input).await?;
+        if let (Some(cache_key), GetPageViewOutput::Found { page, .. }) = (
+            cache_metadata.as_ref().map(|metadata| &metadata.cache_key),
+            &page_view,
+        ) && page.from_wikidot
+        {
+            ArticlePageCache::set(ctx, cache_key, &page_view).await?;
+        }
+
+        Ok(GetArticleViewOutput {
+            viewer: preload.viewer,
+            page: page_view,
+            article_page_cache_key: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.cache_key.clone()),
+            public_content_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.public_content_cache_fence.clone()),
+            anonymous_permission_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.anonymous_permission_cache_fence.clone()),
+        })
+    }
+
+    pub async fn article_cache_metadata(
+        ctx: &ServiceContext<'_>,
+        mut input: GetPageView,
+    ) -> Result<GetArticleViewCacheMetadataOutput> {
+        if !matches!(input.session_token.as_deref(), None | Some("")) {
+            return Ok(GetArticleViewCacheMetadataOutput {
+                article_page_cache_key: None,
+                public_content_cache_fence: None,
+                anonymous_permission_cache_fence: None,
+            });
+        }
+
+        let preload = Self::preload(
+            ctx,
+            GetPreloadView {
+                site_id: input.site_id,
+                session_token: None,
+                locales: input.locales.clone(),
+            },
+        )
+        .await?;
+        if !input.locales.contains(&preload.viewer.site.locale) {
+            input.locales.push(preload.viewer.site.locale);
+        }
+
+        let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
+
+        Ok(GetArticleViewCacheMetadataOutput {
+            article_page_cache_key: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.cache_key.clone()),
+            public_content_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.public_content_cache_fence.clone()),
+            anonymous_permission_cache_fence: cache_metadata
+                .as_ref()
+                .map(|metadata| metadata.anonymous_permission_cache_fence.clone()),
+        })
+    }
+
+    async fn cached_article_page_visible_to_viewer(
+        ctx: &ServiceContext<'_>,
+        viewer: &Viewer,
+        input: &GetPageView,
+    ) -> Result<bool> {
+        let page_full_slug = input
+            .route
+            .as_ref()
+            .map_or(viewer.site.default_page.as_str(), |route| {
+                route.slug.as_str()
+            });
+        let (category_slug, _) = split_category(page_full_slug);
+        let category_id =
+            Self::get_category_id(ctx, viewer.site.site_id, category_slug).await?;
+
+        PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id: viewer
+                    .user_session
+                    .as_ref()
+                    .map(|session| session.user.user_id),
+                site_id: viewer.site.site_id,
+                page_reference: None,
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: category_id.map(Reference::Id),
+                action: Action::View,
+            },
+        )
+        .await
+    }
+
     pub async fn preload(
         ctx: &ServiceContext<'_>,
         GetPreloadView {

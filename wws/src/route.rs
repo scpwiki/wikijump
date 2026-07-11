@@ -79,6 +79,26 @@ pub fn build_router(state: ServerState) -> Router {
         .route("/-/basic-error/{error_code}", any(handle_invalid_method))
         // General routes
         .route("/robots.txt", get(handle_robots_txt))
+        .route(
+            "/common--theme/base/css/html-block.css",
+            get(handle_html_block_css),
+        )
+        .route(
+            "/common--theme/{*path}",
+            get(handle_common_theme),
+        )
+        .route(
+            "/common--javascript/html-block-iframe.js",
+            get(handle_html_block_iframe_js),
+        )
+        .route(
+            "/common--javascript/resize-iframe.html",
+            get(handle_resize_iframe_html),
+        )
+        .route(
+            "/common--javascript/{*path}",
+            get(handle_common_javascript),
+        )
         .route("/.well-known", any(handle_well_known))
         .route("/.well-known/{*path}", any(handle_well_known))
         .fallback(redirect_to_main)

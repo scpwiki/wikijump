@@ -84,15 +84,23 @@
 
 <svelte:head>
   <title>{page.data.site?.name}</title>
+  {#if currentLayout === Layout.WIKIDOT}
+    <link
+      href="https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/css/style.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/css/pagerate/PageRateWidgetModule.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css"
+      rel="stylesheet"
+    />
+  {/if}
 </svelte:head>
 
 {#if currentLayout === Layout.WIKIDOT}
-  <style global>
-    /* Use Sigma 10 as default Wikidot theme for now */
-    @import url("https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/css/style.css");
-    @import url("https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/css/pagerate/PageRateWidgetModule.css");
-    @import url("https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css");
-  </style>
   {#if useSandboxWikidotChrome}
     <div id="navi-bar">
       <a href="http://www.wikidot.com"><span>Wikidot.com</span></a>
@@ -184,7 +192,9 @@
         <div class="options">
           {#each wikidotFooterLinks as link, index (link.label)}
             <a href={resolve(link.href, {})}>{link.label}</a
-            >{#if index < wikidotFooterLinks.length - 1}{" | "}{/if}
+            >{#if index < wikidotFooterLinks.length - 1}
+              |
+            {/if}
           {/each}
         </div>
         <div class="footer-powered-by">{WIKIDOT_POWERED_BY}</div>

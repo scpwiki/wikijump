@@ -813,6 +813,98 @@ test('apply-corpus-import-manifest accepts opt-in DB rerender dry-run', async ()
   });
 });
 
+test('apply-corpus-import-manifest accepts empty-DB assumption for DB dry-runs', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: '99999999-9999-4999-8999-999999999999',
+    source: 'SCP-173',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--slug',
+    'scp-173',
+    '--dry-run',
+    '--create-mode',
+    'db',
+    '--assume-empty-db-import',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.deepEqual(output, {
+    dry_run: true,
+    selected_rows: 1,
+    complete_inventory: false,
+  });
+});
+
+test('apply-corpus-import-manifest rejects unsafe empty-DB assumption combinations', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: '99999999-9999-4999-8999-999999999998',
+    source: 'SCP-173',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const rpcMode = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--assume-empty-db-import',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+  const adoptMode = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--create-mode',
+    'db',
+    '--assume-empty-db-import',
+    '--adopt-existing',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.notEqual(rpcMode.status, 0);
+  assert.match(rpcMode.stderr, /assume-empty-db-import requires --create-mode db/);
+  assert.notEqual(adoptMode.status, 0);
+  assert.match(adoptMode.stderr, /assume-empty-db-import cannot be combined with --adopt-existing or --replace-existing/);
+});
+
 test('apply-corpus-import-manifest rejects conflicting DB rerender flags', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
   writePage(root, 'en', 'scp-173', {
@@ -883,4 +975,256 @@ test('apply-corpus-import-manifest rejects conflicting attachments-only replacem
 
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /attachments-only-existing cannot be combined with --replace-existing/);
+});
+
+test('apply-corpus-import-manifest rejects conflicting skip attachment flags', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    source: 'SCP-173',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--attachments-only-existing',
+    '--skip-attachments',
+    '--dry-run',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /skip-attachments cannot be combined with --attachments-only-existing/);
+});
+
+test('apply-corpus-import-manifest dry-run accepts skipped attachments without a session token', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    source: '[[image https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png]]',
+  });
+  writePageAttachment(root, 'en', 'scp-173', {
+    filename: 'pixel.png',
+    bytes: Buffer.from([9, 8, 7]),
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--skip-attachments',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    env: { ...process.env, DEEPWELL_SESSION_TOKEN: '' },
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.deepEqual(output, {
+    dry_run: true,
+    selected_rows: 1,
+    complete_inventory: true,
+  });
+});
+
+test('apply-corpus-import-manifest dry-run direct attachment mode plans selected rows', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+    source: '[[image https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png]]',
+  });
+  writePage(root, 'en', 'scp-174', {
+    entityId: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+    meta: {
+      fullname: 'scp-174',
+      title: 'SCP-174',
+      title_shown: 'SCP-174',
+    },
+    source: '[[image https://scp-wiki.wikidot.com/local--files/scp-174/pixel.png]]',
+  });
+  writePageAttachment(root, 'en', 'scp-173', {
+    filename: 'pixel.png',
+    bytes: Buffer.from([1, 2, 3]),
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-173/pixel.png',
+  });
+  writePageAttachment(root, 'en', 'scp-174', {
+    filename: 'pixel.png',
+    bytes: Buffer.from([1, 2, 3]),
+    originalUrl: 'https://scp-wiki.wikidot.com/local--files/scp-174/pixel.png',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--attachment-create-mode',
+    'direct',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    env: { ...process.env, DEEPWELL_SESSION_TOKEN: '' },
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.deepEqual(output, {
+    dry_run: true,
+    selected_rows: 2,
+    complete_inventory: true,
+    attachment_direct_plan: {
+      attachments_requested: 2,
+      unique_blobs: 1,
+      duplicate_blobs: 1,
+      total_bytes: 6,
+      unique_bytes: 3,
+    },
+  });
+});
+
+test('apply-corpus-import-manifest rejects unsafe direct attachment mode combinations', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
+  writePage(root, 'en', 'scp-173', {
+    entityId: '12345678-1234-4234-8234-123456789abc',
+    source: 'SCP-173',
+  });
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+  });
+  const manifestPath = path.join(root, 'manifest.jsonl');
+  fs.writeFileSync(manifestPath, formatJsonl(rows));
+
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const scriptPath = path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs');
+  const directWriteWithoutDb = spawnSync(process.execPath, [
+    scriptPath,
+    '--manifest',
+    manifestPath,
+    '--attachment-create-mode',
+    'direct',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+  const directWriteWithoutActor = spawnSync(process.execPath, [
+    scriptPath,
+    '--manifest',
+    manifestPath,
+    '--attachment-create-mode',
+    'direct',
+    '--db-url',
+    'postgres://wikijump:wikijump@127.0.0.1:1/wikijump',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+  const skippedDirect = spawnSync(process.execPath, [
+    scriptPath,
+    '--manifest',
+    manifestPath,
+    '--dry-run',
+    '--skip-attachments',
+    '--attachment-create-mode',
+    'direct',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.notEqual(directWriteWithoutDb.status, 0);
+  assert.match(directWriteWithoutDb.stderr, /direct requires --db-url|direct requires --db-url or DEEPWELL_VERIFY_DB_URL/);
+  assert.notEqual(directWriteWithoutActor.status, 0);
+  assert.match(directWriteWithoutActor.stderr, /direct requires --attachment-user-id or non-default --user-id/);
+  assert.notEqual(skippedDirect.status, 0);
+  assert.match(skippedDirect.stderr, /skip-attachments cannot be combined with --attachment-create-mode direct/);
+});
+
+test('buildCorpusImportManifest fullnames filter selects only the named pages', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  writePage(root, 'en', 'scp-2000', { entityId: '16161616-1616-4161-8161-161616161616' });
+  writePage(root, 'en', 'scp-173', { entityId: '17171717-1717-4171-8171-171717171717' });
+  writePage(root, 'en', 'component:license-box', { entityId: '18181818-1818-4181-8181-181818181818' });
+
+  const rows = buildCorpusImportManifest({
+    corpusRoot: root,
+    branch: 'en',
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+    fullnames: ['scp-2000', 'component:license-box'],
+  });
+  assert.deepEqual(rows.map((row) => row.fullname), ['component:license-box', 'scp-2000']);
+});
+
+test('buildCorpusImportManifest fullnames filter fails closed on unknown pages', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-manifest-'));
+  writePage(root, 'en', 'scp-2000', { entityId: '19191919-1919-4191-8191-191919191919' });
+
+  assert.throws(
+    () => buildCorpusImportManifest({
+      corpusRoot: root,
+      branch: 'en',
+      sourceSite: 'scp-wiki',
+      sourceBranch: 'en',
+      fullnames: ['scp-2000', 'scp-404-not-there'],
+    }),
+    /fullnames not found in corpus .*scp-404-not-there/,
+  );
+  assert.throws(
+    () => buildCorpusImportManifest({
+      corpusRoot: root,
+      branch: 'en',
+      sourceSite: 'scp-wiki',
+      sourceBranch: 'en',
+      fullnames: [],
+    }),
+    /at least one page/,
+  );
 });

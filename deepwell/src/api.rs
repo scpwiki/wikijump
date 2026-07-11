@@ -96,7 +96,7 @@ pub async fn build_server_state(
 
     // Connect to databases
     info!("Connecting to PostgreSQL database");
-    let database = database::connect(&database_url)
+    let database = database::connect(&database_url, config.sqlx_logging)
         .await
         .or_raise(make_error)?;
 
@@ -311,6 +311,8 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
 
     // Web server
     register!("preload_view", preload_view);
+    register!("article_view", article_view);
+    register!("article_view_cache_metadata", article_view_cache_metadata);
     register!("page_view", page_view);
     register!("user_view", user_view);
     register!("admin_view", admin_view);

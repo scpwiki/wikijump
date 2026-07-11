@@ -30,6 +30,7 @@ use deepwell::models::file;
 use deepwell::models::page::{self, Entity as PageTable};
 use deepwell::models::page_category::{self, Entity as PageCategoryTable};
 use deepwell::models::page_revision::Entity as PageRevisionTable;
+use deepwell::models::role_permission::{self, Entity as RolePermissionTable};
 use deepwell::models::text_block;
 use deepwell::models::user::Entity as UserTable;
 use deepwell::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME};
@@ -43,18 +44,18 @@ use deepwell::services::page_query::{
     OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
     PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
-use deepwell::services::permission::PermissionService;
+use deepwell::services::permission::{PermissionCache, PermissionService};
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
 use deepwell::services::session::CreateSession;
-use deepwell::services::view::GetPageViewOutput;
+use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
     FileRevisionService, ForumPostService, ForumService, ForumThreadService,
     RenderService, RequestContext, SessionService,
 };
 use deepwell::types::{
-    Action, PageRevisionType, Permission, Reference, Resource, TextBlockType,
+    Action, PageId, PageRevisionType, Permission, Reference, Resource, TextBlockType,
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
@@ -321,6 +322,154 @@ async fn rerender_uses_latest_navigation_page_revision() {
 }
 
 #[tokio::test]
+async fn article_view_cache_respects_anonymous_permission_revocation() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+    let category_slug = "article-cache-permission-revocation";
+    let slug = "article-cache-permission-revocation:source";
+    let category_id =
+        CategoryService::get_or_create(runner.context(), site_id, category_slug)
+            .await
+            .expect("cache permission category should be created")
+            .category_id;
+    let root_role = RoleService::get(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed("root")),
+    )
+    .await
+    .expect("root role should exist");
+    let guest_role = RoleService::get(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed("guest")),
+    )
+    .await
+    .expect("guest role should exist");
+    for role_id in [root_role.role_id, guest_role.role_id] {
+        role_permission::ActiveModel {
+            role_id: Set(role_id),
+            site_id: Set(site_id),
+            resource_type: Set(Resource::Page),
+            resource_category_id: Set(Some(category_id)),
+            action: Set(Action::View),
+            ..Default::default()
+        }
+        .insert(runner.context().transaction())
+        .await
+        .expect("scoped cache test permission should be inserted");
+    }
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(slug)),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "cached anonymous article body",
+            "title": "Article cache permission revocation",
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "create cache permission page",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("page lookup should not fail")
+        .expect("created page should exist");
+    let mut page = page.into_active_model();
+    page.from_wikidot = Set(true);
+    page.update(runner.context().transaction())
+        .await
+        .expect("page should be marked imported");
+
+    let first = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {
+                "slug": slug,
+                "extra": "",
+            },
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let GetArticleViewOutput {
+        page: GetPageViewOutput::Found { .. },
+        article_page_cache_key: Some(first_cache_key),
+        ..
+    } = first
+    else {
+        panic!("first article view should populate the anonymous cache");
+    };
+    assert!(
+        first_cache_key.contains(":permission=site=")
+            && first_cache_key.contains(",user="),
+        "article cache key must include the anonymous permission fence: {first_cache_key}"
+    );
+
+    RolePermissionTable::delete_many()
+        .filter(role_permission::Column::RoleId.eq(guest_role.role_id))
+        .filter(role_permission::Column::SiteId.eq(site_id))
+        .filter(role_permission::Column::ResourceType.eq(Resource::Page))
+        .filter(role_permission::Column::ResourceCategoryId.eq(category_id))
+        .filter(role_permission::Column::Action.eq(Action::View))
+        .exec(runner.context().transaction())
+        .await
+        .expect("guest scoped view permission should be revoked");
+    PermissionCache::invalidate_site(runner.context(), site_id)
+        .await
+        .expect("permission cache invalidation should run");
+
+    let second = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {
+                "slug": slug,
+                "extra": "",
+            },
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let GetArticleViewOutput {
+        page: GetPageViewOutput::Permissions { banned: false, .. },
+        article_page_cache_key: Some(second_cache_key),
+        ..
+    } = second
+    else {
+        panic!(
+            "cached article data must not bypass revoked anonymous page:view permission"
+        );
+    };
+    assert!(
+        second_cache_key.contains(":permission=site=")
+            && second_cache_key.contains(",user="),
+        "permission revocation must move anonymous article cache reads to a new key: {second_cache_key}"
+    );
+    assert_ne!(
+        first_cache_key, second_cache_key,
+        "permission revocation must move anonymous article cache reads to a new key"
+    );
+}
+
+#[tokio::test]
 async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_include() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -397,6 +546,63 @@ async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_incl
     assert!(
         html.contains("#side-bar") && html.contains("display: none !important"),
         "compiled Basalt page should include Wikidot shell sidebar compatibility CSS: {html}"
+    );
+}
+
+#[tokio::test]
+async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let slug = "missing-remote-include-self-cycle";
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(slug)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": concat!(
+                "Before missing remote include.\n",
+                "[[include :missing-remote:missing-remote-include-self-cycle]]\n",
+                "After missing remote include.\n",
+            ),
+            "title": "Missing Remote Include",
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "create missing remote include regression",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site.site.site_id,
+            "page": slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("page with a missing remote include should still render");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(html.contains("Before missing remote include."), "{html}");
+    assert!(html.contains("After missing remote include."), "{html}");
+    assert!(
+        html.contains("No such page: :missing-remote:missing-remote-include-self-cycle"),
+        "{html}",
     );
 }
 
@@ -3961,6 +4167,92 @@ async fn create_listpages_test_page(
 }
 
 #[tokio::test]
+async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
+    const COMPONENT_SLUG: &str = "component:dense-include-cell";
+    const PAGE_SLUG: &str = "fixture-dense-includes";
+    const INCLUDE_COUNT: usize = 1_266;
+    const MARKER: &str = "DENSE_INCLUDE_CELL";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPONENT_SLUG,
+        "Dense Include Cell",
+        MARKER,
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        PAGE_SLUG,
+        "Dense Includes",
+        "placeholder",
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": PAGE_SLUG,
+        }),
+    )
+    .expect("dense include fixture should exist");
+
+    let wikitext = format!("[[include {COMPONENT_SLUG}]]\n").repeat(INCLUDE_COUNT);
+    let page_info = PageInfo {
+        page: Cow::Borrowed(PAGE_SLUG),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Dense Includes"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: page.page_category_id,
+        page_id: page.page_id,
+    };
+
+    let public_error = RenderService::render_page(
+        runner.context(),
+        wikitext.clone(),
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect_err("ordinary render must retain the public include ceiling");
+    assert!(
+        format!("{public_error:?}")
+            .contains("include expansion exceeded maximum total includes 256")
+    );
+
+    let output = RenderService::render_corpus_page(
+        runner.context(),
+        wikitext,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("trusted corpus render should accept the observed dense include shape");
+
+    assert_eq!(
+        output.html_output.body.matches(MARKER).count(),
+        INCLUDE_COUNT,
+        "every corpus-provenanced include occurrence should render",
+    );
+}
+
+#[tokio::test]
 async fn page_tags_select_filters_latest_page_tags() {
     const DEFAULT_SLUG: &str = "xmlrpc-tags-default-source";
     const NAV_SLUG: &str = "xmlrpc-tags-nav-source";
@@ -6250,6 +6542,175 @@ async fn page_query_score_order_returns_results() {
         [("fixture-score-order-zero".to_owned(), 0.0)],
         "score order should apply offset after computed-score sorting",
     );
+}
+
+#[tokio::test]
+async fn page_query_find_with_metadata_marks_sql_limited_results() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-page-query-metadata-sql";
+
+    for slug in [
+        "fixture-page-query-metadata-sql-a",
+        "fixture-page-query-metadata-sql-b",
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            "Fixture PageQuery Metadata SQL",
+            "Fixture PageQuery Metadata SQL marker.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[tag]).await;
+    }
+
+    let all_tags = [Cow::Borrowed(tag)];
+    let result = PageQueryService::find_with_metadata(
+        runner.context(),
+        PageQuery {
+            current_page_id: 0,
+            current_site_id: site_id,
+            queried_site_id: Some(site_id),
+            page_type: PageTypeSelector::All,
+            categories: CategoriesSelector {
+                included_categories: IncludedCategories::All,
+                excluded_categories: &[],
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &all_tags,
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            author: &[],
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            data_form_fields: &[],
+            order: Some(OrderBySelector {
+                property: OrderProperty::PageSlug,
+                ascending: true,
+            }),
+            candidate_limit: None,
+            pagination: PaginationSelector {
+                limit: Some(1),
+                ..Default::default()
+            },
+            variables: &[],
+            fields: FoundPageFields {
+                slug: true,
+                ..Default::default()
+            },
+        },
+    )
+    .await
+    .expect("metadata query should not fail");
+
+    assert_eq!(result.pages.total(), 1);
+    assert_eq!(result.metadata.candidate_count, Some(1));
+    assert!(result.metadata.sql_limit_offset_applied);
+    assert!(!result.metadata.filtering_deferred_to_rust);
+    assert!(!result.metadata.ordering_deferred_to_rust);
+    assert!(!result.metadata.cap_exceeded);
+    assert!(result.metadata.exact_count_safe);
+}
+
+#[tokio::test]
+async fn page_query_find_with_metadata_marks_deferred_score_ordering() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-page-query-metadata-score";
+
+    for slug in [
+        "fixture-page-query-metadata-score-a",
+        "fixture-page-query-metadata-score-b",
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            "Fixture PageQuery Metadata Score",
+            "Fixture PageQuery Metadata Score marker.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[tag]).await;
+    }
+
+    let all_tags = [Cow::Borrowed(tag)];
+    let result = PageQueryService::find_with_metadata(
+        runner.context(),
+        PageQuery {
+            current_page_id: 0,
+            current_site_id: site_id,
+            queried_site_id: Some(site_id),
+            page_type: PageTypeSelector::All,
+            categories: CategoriesSelector {
+                included_categories: IncludedCategories::All,
+                excluded_categories: &[],
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &all_tags,
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            author: &[],
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            data_form_fields: &[],
+            order: Some(OrderBySelector {
+                property: OrderProperty::Score,
+                ascending: true,
+            }),
+            candidate_limit: None,
+            pagination: PaginationSelector {
+                limit: Some(1),
+                ..Default::default()
+            },
+            variables: &[],
+            fields: FoundPageFields {
+                slug: true,
+                score: true,
+                ..Default::default()
+            },
+        },
+    )
+    .await
+    .expect("metadata query should not fail");
+
+    assert_eq!(result.pages.total(), 1);
+    assert_eq!(result.metadata.candidate_count, Some(2));
+    assert!(!result.metadata.sql_limit_offset_applied);
+    assert!(!result.metadata.filtering_deferred_to_rust);
+    assert!(result.metadata.ordering_deferred_to_rust);
+    assert!(!result.metadata.cap_exceeded);
+    assert!(!result.metadata.exact_count_safe);
 }
 
 #[tokio::test]
