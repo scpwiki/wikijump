@@ -316,6 +316,32 @@ def health_check(docker: Docker, container: str) -> bool:
     return result.returncode == 0
 
 
+def zombie_deepwell_process_count(docker: Docker, container: str) -> int:
+    """Count unreaped Deepwell processes left under a non-init cargo-watch PID 1."""
+
+    script = r"""
+count=0
+for process in /proc/[0-9]*; do
+    test -r "$process/comm" || continue
+    test -r "$process/stat" || continue
+    name=$(cat "$process/comm" 2>/dev/null || true)
+    test "$name" = deepwell || continue
+    read -r _ _ state _ < "$process/stat" || continue
+    if test "$state" = Z; then
+        count=$((count + 1))
+    fi
+done
+printf '%s\n' "$count"
+"""
+    result = exec_shell(docker, container, script)
+    try:
+        return int(result.stdout.strip())
+    except ValueError as error:
+        raise HotReloadError(
+            "failed to count zombie Deepwell processes in the container"
+        ) from error
+
+
 @contextmanager
 def container_lock(container: str):
     """Serialize copies per container; the OS releases this lock on exit."""
@@ -520,6 +546,8 @@ def run(arguments: argparse.Namespace, docker: Docker) -> dict:
 
         stage = f"/tmp/wikijump-deepwell-hot-reload-{uuid.uuid4().hex}"
         candidate_committed = False
+        container_restarted = False
+        zombies_after_replacement = None
         preserve_stage = False
         try:
             copy_inputs(docker, container, entries, stage)
@@ -535,6 +563,29 @@ def run(arguments: argparse.Namespace, docker: Docker) -> dict:
                         timeout=arguments.timeout,
                         settle=arguments.settle,
                     )
+                    zombies_after_replacement = zombie_deepwell_process_count(
+                        docker, container
+                    )
+                    if zombies_after_replacement:
+                        # cargo-watch is PID 1 in some prebuilt stacks and does
+                        # not reap the replaced daemon. Restarting preserves the
+                        # copied source and target cache while clearing zombies.
+                        restart_container(docker, container)
+                        container_restarted = True
+                        new_pid = wait_for_healthy_daemon(
+                            docker,
+                            container,
+                            timeout=arguments.timeout,
+                            settle=arguments.settle,
+                        )
+                        remaining_zombies = zombie_deepwell_process_count(
+                            docker, container
+                        )
+                        if remaining_zombies:
+                            raise HotReloadError(
+                                "Deepwell recovered after zombie cleanup but "
+                                f"{remaining_zombies} zombie process(es) remain"
+                            )
                 except HotReloadError as candidate_error:
                     try:
                         rollback_inputs(docker, container, stage)
@@ -597,6 +648,8 @@ def run(arguments: argparse.Namespace, docker: Docker) -> dict:
         **base,
         "status": "triggered" if arguments.no_wait else "healthy",
         "new_daemon_pid": new_pid,
+        "container_restarted": container_restarted,
+        "zombies_after_replacement": zombies_after_replacement,
         "elapsed_seconds": round(time.monotonic() - started, 3),
     }
 

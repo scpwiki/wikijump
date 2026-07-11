@@ -51,6 +51,11 @@ The normal successful path performs these checks and actions:
    replacement means deleted Rust files do not remain stale in the container.
 6. Wait for the old Deepwell PID to be replaced, then require the new PID to
    remain stable and pass the container's JSON-RPC health check.
+7. Detect an unreaped old Deepwell daemon. Some prebuilt stacks run
+   `cargo-watch` directly as PID 1, so no init process adopts and reaps the old
+   daemon. When this occurs, restart the container once, retain the copied
+   inputs and build cache, and require a stable healthy daemon with zero
+   remaining Deepwell zombies.
 
 On a compile or health failure the helper prints recent container logs and
 restores the previous build inputs. It also restores them when interrupted
@@ -59,7 +64,8 @@ container to terminate any superseded candidate build or daemon, require the
 recovered PID to remain stable and healthy, and return nonzero. If rollback
 itself fails, the error names the staging path and leaves its backup in the
 container for recovery. `--no-wait` is intentionally asynchronous and
-therefore cannot provide this verified rollback guarantee. Concurrent helper
+therefore cannot provide this verified rollback or zombie-cleanup guarantee.
+Concurrent helper
 runs against one container from the same host are rejected by an OS file lock
 that is automatically released even if the helper is interrupted. The daemon
 identity comes from Deepwell's PID file, so short-lived `render-replay` workers
