@@ -130,6 +130,7 @@ const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
 const LONG_NATIVE_LIST_RENDER_MIN_ITEMS: usize = 8;
+const MAX_NATIVE_LIST_COMPAT_DEPTH: usize = 64;
 const MAX_FTML_COMPAT_PARSE_BYTES: usize = 768_000;
 const MAX_FTML_COMPAT_DENSE_PARSE_SCORE: usize = 180_000;
 const MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS: usize = 48;
@@ -8676,10 +8677,15 @@ fn render_native_bullet_list(lines: &[&str]) -> String {
     output.push('\n');
 
     for (index, &(raw_depth, content)) in items.iter().enumerate() {
-        let depth = raw_depth.saturating_sub(base_depth);
-        let has_children = items
-            .get(index + 1)
-            .is_some_and(|(next_depth, _)| next_depth.saturating_sub(base_depth) > depth);
+        let depth = raw_depth
+            .saturating_sub(base_depth)
+            .min(MAX_NATIVE_LIST_COMPAT_DEPTH);
+        let has_children = items.get(index + 1).is_some_and(|(next_depth, _)| {
+            next_depth
+                .saturating_sub(base_depth)
+                .min(MAX_NATIVE_LIST_COMPAT_DEPTH)
+                > depth
+        });
 
         if depth > current_depth {
             while current_depth < depth {
@@ -8733,33 +8739,32 @@ fn find_balanced_ul_end(html: &str) -> Option<usize> {
     let mut depth = 0usize;
     let mut cursor = 0usize;
 
-    loop {
-        let next_open = html[cursor..].find("<ul").map(|offset| cursor + offset);
-        let next_close = html[cursor..].find("</ul>").map(|offset| cursor + offset);
+    while let Some(offset) = html[cursor..].find('<') {
+        cursor += offset;
 
-        match (next_open, next_close) {
-            (Some(open), Some(close)) if open < close => {
-                depth += 1;
-                cursor = open + 3;
-            }
-            (Some(open), None) => {
-                depth += 1;
-                cursor = open + 3;
-            }
-            (_, Some(close)) => {
-                if depth == 0 {
-                    return None;
-                }
-
-                depth -= 1;
-                cursor = close + "</ul>".len();
-                if depth == 0 {
-                    return Some(cursor);
-                }
-            }
-            (None, None) => return None,
+        if html[cursor..].starts_with("<ul") {
+            depth += 1;
+            cursor += "<ul".len();
+            continue;
         }
+
+        if html[cursor..].starts_with("</ul>") {
+            if depth == 0 {
+                return None;
+            }
+
+            depth -= 1;
+            cursor += "</ul>".len();
+            if depth == 0 {
+                return Some(cursor);
+            }
+            continue;
+        }
+
+        cursor += '<'.len_utf8();
     }
+
+    None
 }
 
 fn native_bullet_list_item(line: &str) -> Option<(usize, &str)> {
@@ -9155,24 +9160,24 @@ fn render_native_list_inline_wikidot_spans_at_depth(value: &str, depth: usize) -
         let marker = &marker_start[..marker_end + 2];
         let after_marker = &marker_start[marker_end + 2..];
 
-        let Some(close_start) = find_matching_wikidot_span_close(after_marker) else {
+        let Some(open_tag) = wikidot_inline_span_marker_open(marker) else {
             output.push_str(&escape_list_pages_html_text(marker));
             rest = after_marker;
             continue;
         };
 
-        if let Some(open_tag) = wikidot_inline_span_marker_open(marker) {
-            output.push_str(&open_tag);
-            output.push_str(&render_native_list_inline_wikidot_spans_at_depth(
-                &after_marker[..close_start],
-                depth + 1,
-            ));
-            output.push_str("</span>");
-            rest = &after_marker[close_start + "[[/span]]".len()..];
-        } else {
-            output.push_str(&escape_list_pages_html_text(marker));
-            rest = after_marker;
-        }
+        let Some(close_start) = find_matching_wikidot_span_close(after_marker) else {
+            output.push_str(&escape_list_pages_html_text(marker_start));
+            return output;
+        };
+
+        output.push_str(&open_tag);
+        output.push_str(&render_native_list_inline_wikidot_spans_at_depth(
+            &after_marker[..close_start],
+            depth + 1,
+        ));
+        output.push_str("</span>");
+        rest = &after_marker[close_start + "[[/span]]".len()..];
     }
 
     output.push_str(&escape_list_pages_html_text(rest));
@@ -10412,7 +10417,8 @@ mod tests {
         CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MAX_LISTPAGES_RENDER_SCAN_ROWS, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
+        MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
+        MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
         MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
         OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
@@ -10420,7 +10426,7 @@ mod tests {
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
-        count_pages_should_remain_literal, include_error,
+        count_pages_should_remain_literal, find_balanced_ul_end, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -10428,8 +10434,8 @@ mod tests {
         parse_list_pages_arguments, parse_wikidot_compat_color_descriptor,
         push_list_pages_pager, render_clone_module, render_list_pages_numbered_rows,
         render_list_pages_table_rows, render_members_module_placeholder,
-        render_native_list_page_link, render_new_page_module,
-        render_read_only_rate_module, render_tag_cloud_box,
+        render_native_list_inline_wikidot_spans, render_native_list_page_link,
+        render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
         resolve_list_pages_signed_abs_expressions,
         restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
@@ -11755,6 +11761,53 @@ mod tests {
         assert!(rendered.contains("<li><a href=\"javascript:;\">Parent\n</a><ul>"));
         assert!(!rendered.contains("<ul data-wikijump-compat-list=\"1\">\n<ul>"));
         assert!(!rendered.contains("</ul>\n</li>\n</li>"));
+    }
+
+    #[test]
+    fn caps_native_list_compat_nesting_depth() {
+        let source = [
+            "* Root\n".to_owned(),
+            format!(
+                "{}* Deep child\n",
+                " ".repeat(MAX_NATIVE_LIST_COMPAT_DEPTH + 512)
+            ),
+            "* Sibling\n".to_owned(),
+            "* Item 4\n".to_owned(),
+            "* Item 5\n".to_owned(),
+            "* Item 6\n".to_owned(),
+            "* Item 7\n".to_owned(),
+            "* Item 8\n".to_owned(),
+        ]
+        .join("");
+
+        let rendered = RenderService::render_long_native_list_runs(source);
+
+        assert_eq!(
+            rendered.matches("<ul>\n").count(),
+            MAX_NATIVE_LIST_COMPAT_DEPTH,
+        );
+        assert!(rendered.contains("<li>Deep child</li>"));
+        assert!(find_balanced_ul_end(&rendered).is_some());
+    }
+
+    #[test]
+    fn finds_balanced_ul_end_for_deep_lists_in_one_forward_pass() {
+        let mut html = String::from(
+            r#"<ul data-wikijump-compat-list="1">
+"#,
+        );
+        for _ in 0..(MAX_NATIVE_LIST_COMPAT_DEPTH + 128) {
+            html.push_str("<ul>\n");
+        }
+        for _ in 0..(MAX_NATIVE_LIST_COMPAT_DEPTH + 128) {
+            html.push_str("</ul>\n");
+        }
+        html.push_str("</ul>after");
+
+        let end =
+            find_balanced_ul_end(&html).expect("deep generated list should balance");
+
+        assert_eq!(&html[end..], "after");
     }
 
     #[test]
@@ -14858,6 +14911,21 @@ mod tests {
         assert!(rendered.contains("capped"));
         assert!(rendered.contains("[[span]]"));
         assert!(rendered.contains("[[/span]]"));
+    }
+
+    #[test]
+    fn leaves_many_unclosed_native_list_wikidot_spans_literal() {
+        let mut item = String::from("attack ");
+        for _ in 0..10_000 {
+            item.push_str(r#"[[span class="safe"]]"#);
+        }
+        item.push_str("text");
+
+        let rendered = render_native_list_inline_wikidot_spans(&item);
+
+        assert!(rendered.starts_with(r#"attack [[span class="safe"]]"#));
+        assert!(rendered.ends_with("text"));
+        assert!(!rendered.contains("<span"));
     }
 
     #[test]
