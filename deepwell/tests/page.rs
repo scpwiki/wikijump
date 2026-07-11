@@ -4167,6 +4167,139 @@ async fn create_listpages_test_page(
 }
 
 #[tokio::test]
+async fn listpages_content_shares_the_render_include_budget() {
+    const COMPONENT_SLUG: &str = "component:listpages-include-budget-cell";
+    const INDEX_SLUG: &str = "fixture-listpages-include-budget-index";
+    const INCLUDE_MARKER: &str = "LISTPAGES_INCLUDE_BUDGET_CELL";
+    const INCLUDES_PER_SOURCE: usize = 128;
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPONENT_SLUG,
+        "ListPages Include Budget Cell",
+        INCLUDE_MARKER,
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "ListPages Include Budget Index",
+        "placeholder",
+    )
+    .await;
+
+    let child_wikitext =
+        format!("[[include {COMPONENT_SLUG}]]\n").repeat(INCLUDES_PER_SOURCE);
+    for (slug, title) in [
+        (
+            "fixture-listpages-include-budget-child-a",
+            "ListPages Include Budget Child A",
+        ),
+        (
+            "fixture-listpages-include-budget-child-b",
+            "ListPages Include Budget Child B",
+        ),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, &child_wikitext)
+            .await;
+        set_listpages_test_parent(&mut runner, site_id, slug, INDEX_SLUG).await;
+    }
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+        }),
+    )
+    .expect("ListPages include-budget index should exist");
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(INDEX_SLUG))),
+    });
+
+    let page_info = PageInfo {
+        page: Cow::Borrowed(INDEX_SLUG),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("ListPages Include Budget Index"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: page.page_category_id,
+        page_id: page.page_id,
+    };
+    let direct_includes =
+        format!("[[include {COMPONENT_SLUG}]]\n").repeat(INCLUDES_PER_SOURCE);
+    let list_pages = |limit| {
+        format!(
+            "[[module ListPages parent=\".\" order=\"name\" limit=\"{limit}\"]]\n%%content%%\n[[/module]]"
+        )
+    };
+
+    let within_budget = format!("{direct_includes}{}", list_pages(1));
+    let output = RenderService::render_page(
+        runner.context(),
+        within_budget,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("128 direct and 128 ListPages includes should fit the public limit");
+    assert_eq!(
+        output.html_output.body.matches(INCLUDE_MARKER).count(),
+        256,
+        "the render at the public limit should expand every include",
+    );
+
+    let over_budget = format!("{direct_includes}{}", list_pages(2));
+    let error = RenderService::render_page(
+        runner.context(),
+        over_budget.clone(),
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect_err("ListPages child content must not reset the public include budget");
+    assert!(
+        format!("{error:?}")
+            .contains("include expansion exceeded maximum total includes 256"),
+        "the shared-budget failure should report the render's original public limit: {error:?}",
+    );
+
+    let output = RenderService::render_corpus_page(
+        runner.context(),
+        over_budget,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("the trusted corpus limit should remain available to ListPages content");
+    assert_eq!(
+        output.html_output.body.matches(INCLUDE_MARKER).count(),
+        384,
+        "the corpus render should expand direct includes and both ListPages rows",
+    );
+}
+
+#[tokio::test]
 async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
     const COMPONENT_SLUG: &str = "component:dense-include-cell";
     const PAGE_SLUG: &str = "fixture-dense-includes";

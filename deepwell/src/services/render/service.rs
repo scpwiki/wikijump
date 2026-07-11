@@ -698,6 +698,7 @@ impl RenderService {
             ),
             None => None,
         };
+        let mut include_budget = IncludeExpansionBudget::new(max_include_expansions);
 
         Self::remove_preview_component_separator_markers(&mut wikitext);
         let mut included_pages = if settings.enable_page_syntax {
@@ -709,7 +710,7 @@ impl RenderService {
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: expanded_included_pages,
-            ..
+            expanded_include_count,
         } = Self::expand_includes(
             ctx,
             wikitext,
@@ -719,13 +720,14 @@ impl RenderService {
             current_site_id,
             IncludeExpansionOptions {
                 expand_wikidot_image_blocks: true,
-                max_total_includes: max_include_expansions,
+                budget: include_budget,
             },
         )
         .await
         .or_raise(make_error)?;
         wikitext = expanded_wikitext;
         included_pages.extend(expanded_included_pages);
+        include_budget.consume(expanded_include_count);
         Self::remove_wikidot_metacomponent_documentation(&mut wikitext);
         remove_unresolved_include_comment_branches(&mut wikitext);
         Self::prepare_wikidot_conditionals_for_include_expansion(
@@ -743,6 +745,7 @@ impl RenderService {
             settings,
             current_site_id,
             current_page_id,
+            include_budget,
         )
         .await
         .or_raise(make_error)?;
@@ -3462,10 +3465,10 @@ impl RenderService {
                 page_info,
                 settings,
                 expand_wikidot_image_blocks: options.expand_wikidot_image_blocks,
-                max_total_includes: options.max_total_includes,
+                max_total_includes: options.budget.maximum,
             },
             0,
-            options.max_total_includes,
+            options.budget.remaining,
         )
         .await?;
         unprotect_include_variables(&mut expansion.wikitext);
@@ -3761,6 +3764,7 @@ impl RenderService {
         settings: &WikitextSettings,
         current_site_id: Option<i64>,
         current_page_id: Option<i64>,
+        mut include_budget: IncludeExpansionBudget,
     ) -> Result<IncludeExpansion> {
         let (Some(current_site_id), Some(current_page_id)) =
             (current_site_id, current_page_id)
@@ -3780,6 +3784,7 @@ impl RenderService {
             });
         }
 
+        let initial_remaining_include_expansions = include_budget.remaining;
         let mut expanded = String::with_capacity(wikitext.len());
         let mut included_pages = Vec::new();
         let mut cursor = 0;
@@ -3815,17 +3820,21 @@ impl RenderService {
             let IncludeExpansion {
                 wikitext: replacement,
                 included_pages: replacement_included_pages,
-                ..
+                expanded_include_count: replacement_expanded_include_count,
             } = Self::render_list_pages_block(
                 ctx,
-                current_site_id,
-                current_page_id,
+                ListPagesPageContext {
+                    site_id: current_site_id,
+                    page_id: current_page_id,
+                },
                 page_info,
                 settings,
                 arguments,
                 body,
+                include_budget,
             )
             .await?;
+            include_budget.consume(replacement_expanded_include_count);
             expanded.push_str(&replacement);
             included_pages.extend(replacement_included_pages);
             cursor = mtch.end();
@@ -3835,7 +3844,8 @@ impl RenderService {
         Ok(IncludeExpansion {
             wikitext: expanded,
             included_pages,
-            expanded_include_count: 0,
+            expanded_include_count: initial_remaining_include_expansions
+                .saturating_sub(include_budget.remaining),
         })
     }
 
@@ -6226,13 +6236,18 @@ impl RenderService {
 
     async fn render_list_pages_block(
         ctx: &ServiceContext<'_>,
-        current_site_id: i64,
-        current_page_id: i64,
+        page_context: ListPagesPageContext,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         arguments: ListPagesArguments,
         body: &str,
+        mut include_budget: IncludeExpansionBudget,
     ) -> Result<IncludeExpansion> {
+        let ListPagesPageContext {
+            site_id: current_site_id,
+            page_id: current_page_id,
+        } = page_context;
+        let initial_remaining_include_expansions = include_budget.remaining;
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -6491,10 +6506,11 @@ impl RenderService {
                             Some(page.site_id),
                             IncludeExpansionOptions {
                                 expand_wikidot_image_blocks: false,
-                                max_total_includes: MAX_INCLUDE_EXPANSION_TOTAL,
+                                budget: include_budget,
                             },
                         )
                         .await?;
+                        include_budget.consume(expansion.expanded_include_count);
                         included_pages.extend(expansion.included_pages);
                         Some(expansion.wikitext)
                     }
@@ -6542,7 +6558,8 @@ impl RenderService {
         Ok(IncludeExpansion {
             wikitext: output,
             included_pages,
-            expanded_include_count: 0,
+            expanded_include_count: initial_remaining_include_expansions
+                .saturating_sub(include_budget.remaining),
         })
     }
 
@@ -9919,7 +9936,32 @@ struct IncludeExpansion {
 #[derive(Clone, Copy, Debug)]
 struct IncludeExpansionOptions {
     expand_wikidot_image_blocks: bool,
-    max_total_includes: usize,
+    budget: IncludeExpansionBudget,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct IncludeExpansionBudget {
+    maximum: usize,
+    remaining: usize,
+}
+
+impl IncludeExpansionBudget {
+    fn new(maximum: usize) -> Self {
+        Self {
+            maximum,
+            remaining: maximum,
+        }
+    }
+
+    fn consume(&mut self, count: usize) {
+        self.remaining = self.remaining.saturating_sub(count);
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+struct ListPagesPageContext {
+    site_id: i64,
+    page_id: i64,
 }
 
 #[derive(Debug)]
