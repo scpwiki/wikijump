@@ -659,7 +659,7 @@ INSERT INTO wikidot_page_snapshot (
     runner.set_request_context(RequestContext::default());
     let visible_view = run_endpoint!(
         runner,
-        page_view,
+        article_view,
         json!({
             "site_id": site_id,
             "session_token": null,
@@ -667,12 +667,17 @@ INSERT INTO wikidot_page_snapshot (
             "locales": ["en-US", "en"],
         }),
     );
-    let visible_breadcrumbs = match visible_view {
-        GetPageViewOutput::Found {
-            wikidot_breadcrumbs,
+    let (visible_breadcrumbs, visible_cache_key) = match visible_view {
+        GetArticleViewOutput {
+            page:
+                GetPageViewOutput::Found {
+                    wikidot_breadcrumbs,
+                    ..
+                },
+            article_page_cache_key: Some(cache_key),
             ..
-        } => wikidot_breadcrumbs,
-        other => panic!("expected public imported page, got {other:?}"),
+        } => (wikidot_breadcrumbs, cache_key),
+        other => panic!("expected cached public imported page, got {other:?}"),
     };
     assert_eq!(visible_breadcrumbs.len(), 2);
     assert_eq!(visible_breadcrumbs[0].slug, PUBLIC_PARENT_SLUG);
@@ -692,7 +697,7 @@ INSERT INTO wikidot_page_snapshot (
 
     let deleted_parent_view = run_endpoint!(
         runner,
-        page_view,
+        article_view,
         json!({
             "site_id": site_id,
             "session_token": null,
@@ -700,13 +705,23 @@ INSERT INTO wikidot_page_snapshot (
             "locales": ["en-US", "en"],
         }),
     );
-    let deleted_parent_breadcrumbs = match deleted_parent_view {
-        GetPageViewOutput::Found {
-            wikidot_breadcrumbs,
+    let (deleted_parent_breadcrumbs, deleted_parent_cache_key) = match deleted_parent_view
+    {
+        GetArticleViewOutput {
+            page:
+                GetPageViewOutput::Found {
+                    wikidot_breadcrumbs,
+                    ..
+                },
+            article_page_cache_key: Some(cache_key),
             ..
-        } => wikidot_breadcrumbs,
-        other => panic!("expected child of deleted parent, got {other:?}"),
+        } => (wikidot_breadcrumbs, cache_key),
+        other => panic!("expected cached child of deleted parent, got {other:?}"),
     };
+    assert_eq!(
+        deleted_parent_cache_key, visible_cache_key,
+        "ancestor deletion should exercise the existing cached article response"
+    );
     assert!(
         deleted_parent_breadcrumbs.is_empty(),
         "deleted ancestor metadata must not be returned"
@@ -714,7 +729,7 @@ INSERT INTO wikidot_page_snapshot (
 
     let private_parent_view = run_endpoint!(
         runner,
-        page_view,
+        article_view,
         json!({
             "site_id": site_id,
             "session_token": null,
@@ -723,11 +738,15 @@ INSERT INTO wikidot_page_snapshot (
         }),
     );
     let private_parent_breadcrumbs = match private_parent_view {
-        GetPageViewOutput::Found {
-            wikidot_breadcrumbs,
+        GetArticleViewOutput {
+            page:
+                GetPageViewOutput::Found {
+                    wikidot_breadcrumbs,
+                    ..
+                },
             ..
         } => wikidot_breadcrumbs,
-        other => panic!("expected child of private parent, got {other:?}"),
+        other => panic!("expected cached child of private parent, got {other:?}"),
     };
     assert!(
         private_parent_breadcrumbs.is_empty(),

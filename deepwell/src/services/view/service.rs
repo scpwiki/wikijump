@@ -93,10 +93,30 @@ impl ViewService {
         let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
         if let Some(cache_key) =
             cache_metadata.as_ref().map(|metadata| &metadata.cache_key)
-            && let Some(page) = ArticlePageCache::get(ctx, cache_key).await?
+            && let Some(mut page) = ArticlePageCache::get(ctx, cache_key).await?
             && Self::cached_article_page_visible_to_viewer(ctx, &preload.viewer, &input)
                 .await?
         {
+            if let GetPageViewOutput::Found {
+                page: page_model,
+                wikidot_breadcrumbs,
+                ..
+            } = &mut page
+                && page_model.from_wikidot
+            {
+                *wikidot_breadcrumbs = Self::get_wikidot_breadcrumbs(
+                    ctx,
+                    page_model.site_id,
+                    preload
+                        .viewer
+                        .user_session
+                        .as_ref()
+                        .map(|session| session.user.user_id),
+                    page_model.page_id,
+                )
+                .await?;
+            }
+
             return Ok(GetArticleViewOutput {
                 viewer: preload.viewer,
                 page,
