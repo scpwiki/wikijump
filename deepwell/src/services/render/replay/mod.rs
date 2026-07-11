@@ -269,10 +269,11 @@ async fn minimize_cluster(
     let target_fingerprint = cluster.failure_fingerprint.clone();
     let base_for_probes = base.clone();
     let timeout = settings.timeout;
+    let probe_concurrency = minimization_probe_concurrency(cluster, settings.concurrency);
     let result = ddmin_lines(
         &base.wikitext,
         settings.ddmin_max_probes,
-        settings.concurrency,
+        probe_concurrency,
         move |candidate| {
             let mut expanded = base_for_probes.clone();
             expanded.wikitext = candidate;
@@ -306,40 +307,44 @@ async fn minimize_cluster(
         emit_prepared_path: Some(prepared_path.clone()),
     };
     let final_run = run_isolated_worker(&request, timeout).await;
-    if failure_cluster_fingerprint(&final_run.result) != cluster.failure_fingerprint {
-        bail!(Error::new(
-            format!(
-                "ddmin final verification changed failure cluster for {}",
-                cluster.cluster_id
-            ),
-            ErrorType::Render,
-        ));
-    }
-    if cluster.signature.stage >= ReplayStage::Tokenize && !prepared_path.exists() {
-        bail!(Error::new(
-            format!(
-                "ddmin final worker did not persist prepared input for {}",
-                cluster.cluster_id
-            ),
-            ErrorType::Render,
-        ));
-    }
+    let verification_failure_fingerprint = failure_cluster_fingerprint(&final_run.result);
+    let prepared_present = prepared_path.exists();
+    let verified = verification_failure_fingerprint == cluster.failure_fingerprint
+        && (cluster.signature.stage < ReplayStage::Tokenize || prepared_present);
 
     Ok(Some(ReplayMinimization {
         cluster_id: cluster.cluster_id.clone(),
         representative_case_id: cluster.representative_case_id.clone(),
+        probe_concurrency,
         original_lines: result.original_lines,
         minimized_lines: result.minimized_lines,
         probes: result.probes,
         cache_hits: result.cache_hits,
         budget_exhausted: result.budget_exhausted,
+        verified,
+        verification_failure_fingerprint,
+        verification_outcome: final_run.result.outcome,
         expanded_artifact: expanded_path.display().to_string(),
-        prepared_artifact: if prepared_path.exists() {
+        prepared_artifact: if prepared_present {
             prepared_path.display().to_string()
         } else {
             String::new()
         },
     }))
+}
+
+fn minimization_probe_concurrency(
+    cluster: &model::ReplayCluster,
+    requested: usize,
+) -> usize {
+    if cluster.signature.class == "timeout" {
+        // Wall-clock timeout probes contend for CPU when run together. That
+        // can turn a fast candidate into a false reproducer which immediately
+        // passes or changes class during the required single final check.
+        1
+    } else {
+        requested.max(1)
+    }
 }
 
 fn stage_measurements(events: &[WorkerEvent]) -> Vec<StageMeasurement> {
@@ -509,6 +514,33 @@ fn duration_millis(duration: Duration) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn test_cluster(class: &str) -> model::ReplayCluster {
+        model::ReplayCluster {
+            cluster_id: "cluster-test".to_owned(),
+            failure_fingerprint: "fingerprint".to_owned(),
+            signature: FailureSignature {
+                class: class.to_owned(),
+                stage: ReplayStage::Parse,
+                key: "key".to_owned(),
+            },
+            case_ids: vec!["page-1".to_owned()],
+            source_fullnames: vec!["example".to_owned()],
+            representative_case_id: "page-1".to_owned(),
+        }
+    }
+
+    #[test]
+    fn timeout_minimization_uses_one_worker_to_avoid_contention_false_positives() {
+        assert_eq!(
+            minimization_probe_concurrency(&test_cluster("timeout"), 16),
+            1
+        );
+        assert_eq!(
+            minimization_probe_concurrency(&test_cluster("parser_errors"), 16),
+            16,
+        );
+    }
 
     #[test]
     fn artifact_root_rejects_stale_files() {

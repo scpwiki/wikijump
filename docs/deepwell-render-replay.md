@@ -58,6 +58,14 @@ finishes. Expanded page bodies are then released; ddmin reloads only the next
 cluster representative from its capsule. A full replay therefore does not
 retain every expanded corpus page in memory.
 
+Parser-error ddmin probes use the requested replay concurrency. Timeout probes
+run one at a time because parallel wall-clock probes contend for CPU and can
+turn a fast candidate into a false timeout reproducer. Every minimized result
+is rerun once in isolation. The summary records its probe concurrency, final
+outcome and fingerprint, and `verified`; a timing-sensitive mismatch remains
+explicit evidence instead of aborting and discarding the complete replay
+summary.
+
 The `ftml_core_rendered_sha256` field hashes FTML's core HTML only. It is a
 diagnostic fingerprint, not proof of Deepwell post-render compatibility. After
 fixing a cluster, run the affected replay set and then perform one normal

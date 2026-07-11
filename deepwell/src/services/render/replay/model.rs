@@ -208,11 +208,15 @@ pub(crate) struct RenderReplaySummary {
 pub(crate) struct ReplayMinimization {
     pub cluster_id: String,
     pub representative_case_id: String,
+    pub probe_concurrency: usize,
     pub original_lines: usize,
     pub minimized_lines: usize,
     pub probes: usize,
     pub cache_hits: usize,
     pub budget_exhausted: bool,
+    pub verified: bool,
+    pub verification_failure_fingerprint: String,
+    pub verification_outcome: ReplayOutcome,
     pub expanded_artifact: String,
     pub prepared_artifact: String,
 }
