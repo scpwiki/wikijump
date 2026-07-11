@@ -362,11 +362,11 @@ fn starts_html_tag(bytes: &[u8], index: usize) -> bool {
 }
 
 fn push_opaque_range(ranges: &mut Vec<Range<usize>>, range: Range<usize>) {
-    if let Some(previous) = ranges.last_mut() {
-        if range.start <= previous.end {
-            previous.end = previous.end.max(range.end);
-            return;
-        }
+    if let Some(previous) = ranges.last_mut()
+        && range.start <= previous.end
+    {
+        previous.end = previous.end.max(range.end);
+        return;
     }
     ranges.push(range);
 }
@@ -382,13 +382,13 @@ fn restore_text_markers(
     while let Some(offset) = rest.find(SENTINEL_PREFIX) {
         output.push_str(&rest[..offset]);
         let marker_start = &rest[offset..];
-        if let Some(candidate) = marker_start.get(..SENTINEL_LENGTH) {
-            if let Some(replacement) = replacements.get(candidate) {
-                output.push_str(replacement);
-                rest = &marker_start[SENTINEL_LENGTH..];
-                replaced = true;
-                continue;
-            }
+        if let Some(candidate) = marker_start.get(..SENTINEL_LENGTH)
+            && let Some(replacement) = replacements.get(candidate)
+        {
+            output.push_str(replacement);
+            rest = &marker_start[SENTINEL_LENGTH..];
+            replaced = true;
+            continue;
         }
 
         output.push_str(SENTINEL_PREFIX);
