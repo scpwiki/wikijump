@@ -35,9 +35,11 @@ mod html_text;
 mod include_comment_branches;
 #[allow(dead_code)]
 mod list_pages;
+mod literal_regions;
 mod render_dependency;
 mod service;
 mod structs;
+mod wikidot_expression;
 
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
