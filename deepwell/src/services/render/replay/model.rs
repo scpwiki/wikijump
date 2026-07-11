@@ -201,7 +201,15 @@ pub(crate) struct RenderReplaySummary {
     pub clusters: Vec<ReplayCluster>,
     pub minimizations: Vec<ReplayMinimization>,
     pub unverified_minimizations: usize,
+    pub gate_passed: bool,
+    pub gate_failures: Vec<&'static str>,
     pub observations: Vec<ReplayCaseObservation>,
+}
+
+impl RenderReplaySummary {
+    pub(crate) fn gate_passed(&self) -> bool {
+        self.gate_passed
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

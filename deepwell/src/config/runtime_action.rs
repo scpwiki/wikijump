@@ -205,7 +205,7 @@ async fn run_render_replay() -> i32 {
         Ok(summary) => match serde_json::to_string(&summary) {
             Ok(json) => {
                 println!("{json}");
-                0
+                if summary.gate_passed() { 0 } else { 1 }
             }
             Err(error) => {
                 eprintln!("{error:?}");

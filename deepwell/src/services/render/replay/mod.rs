@@ -133,6 +133,19 @@ impl RenderReplayService {
                 + protocol_errors,
             candidate_count,
         );
+        let gate_failures = gate_failures(
+            import_run_id,
+            candidate_count,
+            passed,
+            compatibility_fallback,
+            parser_errors,
+            timed_out,
+            crashed,
+            preparation_errors,
+            protocol_errors,
+            unverified_minimizations,
+        );
+        let gate_passed = gate_failures.is_empty();
         let summary = RenderReplaySummary {
             schema: REPLAY_SCHEMA,
             import_run_id,
@@ -151,11 +164,52 @@ impl RenderReplayService {
             clusters,
             minimizations,
             unverified_minimizations,
+            gate_passed,
+            gate_failures,
             observations,
         };
         write_json(&settings.artifact_dir.join("summary.json"), &summary)?;
         Ok(summary)
     }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn gate_failures(
+    import_run_id: Option<i64>,
+    candidates: usize,
+    passed: usize,
+    compatibility_fallback: usize,
+    parser_errors: usize,
+    timed_out: usize,
+    crashed: usize,
+    preparation_errors: usize,
+    protocol_errors: usize,
+    unverified_minimizations: usize,
+) -> Vec<&'static str> {
+    let mut failures = Vec::new();
+    if import_run_id.is_none() {
+        failures.push("missing_import_run");
+    }
+    if candidates == 0 {
+        failures.push("empty_selection");
+    }
+    if passed != candidates {
+        failures.push("not_all_candidates_passed");
+    }
+    for (count, reason) in [
+        (compatibility_fallback, "compatibility_fallback"),
+        (parser_errors, "parser_errors"),
+        (timed_out, "timed_out"),
+        (crashed, "crashed"),
+        (preparation_errors, "preparation_errors"),
+        (protocol_errors, "protocol_errors"),
+        (unverified_minimizations, "unverified_minimizations"),
+    ] {
+        if count != 0 {
+            failures.push(reason);
+        }
+    }
+    failures
 }
 
 pub(crate) use self::worker::run_worker_action;
@@ -546,6 +600,23 @@ mod tests {
             minimization_probe_concurrency(&test_cluster("parser_errors"), 16),
             16,
         );
+    }
+
+    #[test]
+    fn replay_gate_fails_closed_for_empty_failure_and_unverified_runs() {
+        assert_eq!(
+            gate_failures(None, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            vec!["missing_import_run", "empty_selection"],
+        );
+        assert_eq!(
+            gate_failures(Some(217), 1, 0, 0, 0, 1, 0, 0, 0, 1),
+            vec![
+                "not_all_candidates_passed",
+                "timed_out",
+                "unverified_minimizations",
+            ],
+        );
+        assert!(gate_failures(Some(217), 1, 1, 0, 0, 0, 0, 0, 0, 0).is_empty(),);
     }
 
     #[test]

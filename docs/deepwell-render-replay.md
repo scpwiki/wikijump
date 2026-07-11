@@ -44,6 +44,13 @@ being mistaken for, or overwritten by, the current run.
 The action prints one `deepwell.render-replay.v1` JSON summary and writes the
 same summary to `summary.json`. The directory also contains:
 
+The summary's `gate_passed` field is true, and the process exits successfully,
+only when an explicit or selected import run yields a non-empty candidate set,
+every selected candidate passes through FTML without compatibility fallback,
+and every minimization is verified. Otherwise `gate_failures` lists stable
+machine-readable reasons and the process exits nonzero. This replay-local gate
+does not by itself certify that the selected states cover the full manifest.
+
 - `observations.jsonl`, with outcome, stable failure signature, syntax
   features, error positions, stage timings, and hashes per page;
 - `page-<id>.capsule.json` and `page-<id>.expanded.wikidot`;
