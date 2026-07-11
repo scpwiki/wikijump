@@ -217,6 +217,7 @@ pub(crate) struct ReplayMinimization {
     pub budget_exhausted: bool,
     pub verified: bool,
     pub verification_failure_fingerprint: String,
+    pub verification_signature: FailureSignature,
     pub verification_outcome: ReplayOutcome,
     pub expanded_artifact: String,
     pub prepared_artifact: String,

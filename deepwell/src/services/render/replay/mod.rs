@@ -328,6 +328,7 @@ async fn minimize_cluster(
         budget_exhausted: result.budget_exhausted,
         verified,
         verification_failure_fingerprint,
+        verification_signature: final_run.result.signature,
         verification_outcome: final_run.result.outcome,
         expanded_artifact: expanded_path.display().to_string(),
         prepared_artifact: if prepared_present {
