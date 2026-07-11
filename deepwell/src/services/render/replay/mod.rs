@@ -197,6 +197,7 @@ async fn run_case(
             });
         }
     };
+    let expand_elapsed_us = elapsed_micros(expand_started);
     let expanded_sha256 = sha256_hex(expanded.wikitext.as_bytes());
     let expanded_bytes = expanded.wikitext.len();
     let included_page_count = expanded.included_page_count();
@@ -219,7 +220,7 @@ async fn run_case(
     let run = run_isolated_worker(&request, deadline).await;
     let mut preparation_stages = vec![StageMeasurement {
         stage: ReplayStage::Expand,
-        elapsed_us: elapsed_micros(expand_started),
+        elapsed_us: expand_elapsed_us,
         input_bytes: 0,
         output_bytes: expanded_bytes,
     }];
