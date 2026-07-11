@@ -71,6 +71,40 @@ export function batchSlugs(slugs, batchSize) {
   return batches;
 }
 
+export async function resolveSessionToken({ sessionToken, rpcUrl, login }) {
+  if (sessionToken) return sessionToken;
+  return await login(rpcUrl);
+}
+
+export function buildApplyInvocation({
+  batchPath,
+  rpcUrl,
+  siteId,
+  attachmentUserId,
+  sessionToken,
+  adoptExisting = false,
+  dbContainer = null,
+  dryRun = false,
+}) {
+  const scriptArgs = [
+    '--manifest', batchPath,
+    '--create-mode', 'rpc',
+    '--api-url', rpcUrl,
+    '--site-id', String(siteId),
+    '--skip-existing-done',
+    '--attachment-user-id', attachmentUserId,
+    '--presign-host-alias', 'files=127.0.0.1',
+  ];
+  if (adoptExisting) scriptArgs.push('--adopt-existing');
+  if (dbContainer) scriptArgs.push('--db-container', dbContainer);
+  if (dryRun) scriptArgs.push('--dry-run');
+  return {
+    scriptName: 'apply-corpus-import-manifest.mjs',
+    scriptArgs,
+    env: { DEEPWELL_SESSION_TOKEN: sessionToken },
+  };
+}
+
 // Merge the per-batch apply summaries (each the `summary` object printed by
 // apply-corpus-import-manifest.mjs) into one additive summary.
 export function mergeApplySummaries(summaries) {

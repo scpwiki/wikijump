@@ -6,10 +6,12 @@ import { test } from 'node:test';
 
 import {
   batchSlugs,
+  buildApplyInvocation,
   corpusPageStatus,
   mergeApplySummaries,
   parseApplyOutput,
   planImportSet,
+  resolveSessionToken,
   slugFromDependencyLabel,
 } from '../src/import-page.mjs';
 
@@ -74,6 +76,76 @@ test('batchSlugs splits into fixed-size batches and rejects bad sizes', () => {
   assert.deepEqual(batchSlugs(['a', 'b', 'c'], 2), [['a', 'b'], ['c']]);
   assert.deepEqual(batchSlugs([], 40), []);
   assert.throws(() => batchSlugs(['a'], 0), /positive integer/);
+});
+
+test('apply invocation pairs a configured RPC URL with an explicit session token', async () => {
+  const rpcUrl = 'https://configured.example.test/jsonrpc';
+  let loginCalls = 0;
+  const sessionToken = await resolveSessionToken({
+    sessionToken: 'explicit-token',
+    rpcUrl,
+    login: async () => {
+      loginCalls += 1;
+      return 'unexpected-login-token';
+    },
+  });
+  const invocation = buildApplyInvocation({
+    batchPath: '/tmp/apply-batch-0.jsonl',
+    rpcUrl,
+    siteId: 6000005,
+    attachmentUserId: '-1',
+    sessionToken,
+  });
+
+  assert.equal(loginCalls, 0);
+  assert.deepEqual(invocation, {
+    scriptName: 'apply-corpus-import-manifest.mjs',
+    scriptArgs: [
+      '--manifest', '/tmp/apply-batch-0.jsonl',
+      '--create-mode', 'rpc',
+      '--api-url', rpcUrl,
+      '--site-id', '6000005',
+      '--skip-existing-done',
+      '--attachment-user-id', '-1',
+      '--presign-host-alias', 'files=127.0.0.1',
+    ],
+    env: { DEEPWELL_SESSION_TOKEN: 'explicit-token' },
+  });
+});
+
+test('apply invocation pairs a configured RPC URL with a login-issued token', async () => {
+  const rpcUrl = 'https://configured.example.test/jsonrpc';
+  const loginUrls = [];
+  const sessionToken = await resolveSessionToken({
+    sessionToken: null,
+    rpcUrl,
+    login: async (url) => {
+      loginUrls.push(url);
+      return 'login-issued-token';
+    },
+  });
+  const invocation = buildApplyInvocation({
+    batchPath: '/tmp/apply-batch-1.jsonl',
+    rpcUrl,
+    siteId: 6000005,
+    attachmentUserId: '-1',
+    sessionToken,
+  });
+
+  assert.deepEqual(loginUrls, [rpcUrl]);
+  assert.deepEqual(invocation, {
+    scriptName: 'apply-corpus-import-manifest.mjs',
+    scriptArgs: [
+      '--manifest', '/tmp/apply-batch-1.jsonl',
+      '--create-mode', 'rpc',
+      '--api-url', rpcUrl,
+      '--site-id', '6000005',
+      '--skip-existing-done',
+      '--attachment-user-id', '-1',
+      '--presign-host-alias', 'files=127.0.0.1',
+    ],
+    env: { DEEPWELL_SESSION_TOKEN: 'login-issued-token' },
+  });
 });
 
 test('mergeApplySummaries adds numeric fields across batches', () => {

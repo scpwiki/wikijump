@@ -35,10 +35,12 @@ import { spawnSync } from 'node:child_process';
 
 import {
   batchSlugs,
+  buildApplyInvocation,
   corpusPageStatus,
   mergeApplySummaries,
   parseApplyOutput,
   planImportSet,
+  resolveSessionToken,
 } from '../src/import-page.mjs';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -140,9 +142,8 @@ async function rpcCall(rpcUrl, method, params) {
   return body.result;
 }
 
-async function loginToken(args) {
-  if (args.sessionToken) return args.sessionToken;
-  const result = await rpcCall(args.rpcUrl, 'login', {
+async function loginToken(rpcUrl) {
+  const result = await rpcCall(rpcUrl, 'login', {
     name_or_email: process.env.WIKIDOT_VERIFY_ADMIN_EMAIL ?? 'admin@wikijump',
     password: process.env.WIKIDOT_VERIFY_ADMIN_PASS ?? 'wikijumpadmin1',
     ip_address: '127.0.0.1',
@@ -250,20 +251,23 @@ async function main() {
   for (const [index, batch] of batches.entries()) {
     const batchPath = out(`apply-batch-${index}.jsonl`);
     fs.writeFileSync(batchPath, `${batch.map((slug) => rowBySlug.get(slug)).join('\n')}\n`);
-    const token = await loginToken(args);
-    const applyArgs = [
-      '--manifest', batchPath,
-      '--create-mode', 'rpc',
-      '--site-id', String(siteId),
-      '--skip-existing-done',
-      '--attachment-user-id', args.attachmentUserId,
-      '--presign-host-alias', 'files=127.0.0.1',
-    ];
-    if (args.adoptExisting) applyArgs.push('--adopt-existing');
-    if (args.dbContainer) applyArgs.push('--db-container', args.dbContainer);
-    if (args.dryRun) applyArgs.push('--dry-run');
-    const apply = runNode('apply-corpus-import-manifest.mjs', applyArgs, {
-      env: { DEEPWELL_SESSION_TOKEN: token },
+    const sessionToken = await resolveSessionToken({
+      sessionToken: args.sessionToken,
+      rpcUrl: args.rpcUrl,
+      login: loginToken,
+    });
+    const invocation = buildApplyInvocation({
+      batchPath,
+      rpcUrl: args.rpcUrl,
+      siteId,
+      attachmentUserId: args.attachmentUserId,
+      sessionToken,
+      adoptExisting: args.adoptExisting,
+      dbContainer: args.dbContainer,
+      dryRun: args.dryRun,
+    });
+    const apply = runNode(invocation.scriptName, invocation.scriptArgs, {
+      env: invocation.env,
       logPath: out(`apply-batch-${index}.log`),
     });
     const parsed = parseApplyOutput(apply.stdout ?? '');
