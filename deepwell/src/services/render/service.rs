@@ -20,6 +20,10 @@
 
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::prelude::*;
+use super::wikidot_color_spans::{
+    self, ProtectedWikidotColorSpan,
+    parse_compat_color_descriptor as parse_wikidot_compat_color_descriptor,
+};
 use crate::hash::TextHash;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_revision;
@@ -93,12 +97,6 @@ struct ProtectedWikidotCompatLink {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct ProtectedWikidotColorSpan {
-    marker: String,
-    html: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 struct ProtectedWikidotInlineHtml {
     marker: String,
     html: String,
@@ -148,7 +146,6 @@ const WIKIDOT_CSS_MODULE_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCSSMODULE";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
-const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
 const WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX: &str =
     "WIKIJUMPWIKIDOTSTRAYBIBCITECLOSE";
@@ -291,9 +288,6 @@ static WIKIDOT_EXTERNAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[wikipedia:(?P<target>[^\s\]\n]+)(?:\s+(?P<label>[^\]\n]+))?\]")
         .unwrap()
-});
-static WIKIDOT_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?P<hashes>#{2,})(?P<color>[A-Za-z0-9_-]+)\s*\|(?P<body>.*?)##").unwrap()
 });
 static WIKIDOT_BOLD_UNDERLINE_SPAN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\*\*__(?P<body>[^\n]*?)\*\*__").unwrap());
@@ -4395,25 +4389,7 @@ impl RenderService {
             return Vec::new();
         }
 
-        let mut spans = Vec::new();
-        let protected = WIKIDOT_COLOR_SPAN_REGEX
-            .replace_all(wikitext, |captures: &regex::Captures<'_>| {
-                let Some(color) = parse_wikidot_compat_color_descriptor(
-                    &captures["hashes"],
-                    &captures["color"],
-                ) else {
-                    return captures[0].to_owned();
-                };
-                let marker = wikidot_color_span_marker();
-                spans.push(ProtectedWikidotColorSpan {
-                    marker: marker.clone(),
-                    html: render_wikidot_color_span_html(&color, &captures["body"]),
-                });
-                marker
-            })
-            .into_owned();
-        *wikitext = protected;
-        spans
+        wikidot_color_spans::protect(wikitext, render_wikidot_color_span_html)
     }
 
     fn protect_wikidot_inline_html_spans(
@@ -4497,13 +4473,10 @@ impl RenderService {
     }
 
     fn restore_protected_wikidot_color_spans(
-        mut html: String,
+        html: String,
         spans: &[ProtectedWikidotColorSpan],
     ) -> String {
-        for span in spans {
-            html = html.replace(&span.marker, &span.html);
-        }
-        html
+        wikidot_color_spans::restore(html, spans)
     }
 
     fn restore_protected_wikidot_inline_html(
@@ -8443,33 +8416,11 @@ fn wikidot_compat_link_marker() -> String {
     )
 }
 
-fn wikidot_color_span_marker() -> String {
-    format!(
-        "{WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX}{}X",
-        Uuid::new_v4().as_simple(),
-    )
-}
-
 fn wikidot_inline_html_marker() -> String {
     format!(
         "{WIKIDOT_INLINE_HTML_SENTINEL_PREFIX}{}X",
         Uuid::new_v4().as_simple(),
     )
-}
-
-fn parse_wikidot_compat_color_descriptor<'a>(
-    hashes: &str,
-    descriptor: &'a str,
-) -> Option<Cow<'a, str>> {
-    match hashes.len() {
-        2 => Some(Cow::Borrowed(descriptor)),
-        3 if matches!(descriptor.len(), 3 | 6)
-            && descriptor.bytes().all(|byte| byte.is_ascii_hexdigit()) =>
-        {
-            Some(Cow::Owned(format!("#{descriptor}")))
-        }
-        _ => None,
-    }
 }
 
 fn render_wikidot_color_span_html(color: &str, body: &str) -> String {
@@ -10397,6 +10348,7 @@ fn rendered_wikidot_mailform_attribute(head: &str, name: &str) -> Option<String>
 
 #[cfg(test)]
 mod tests {
+    use super::super::wikidot_color_spans::SENTINEL_PREFIX as WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX;
     use super::{
         CollectingIncluder, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
@@ -10404,8 +10356,8 @@ mod tests {
         MAX_LISTPAGES_RENDER_SCAN_ROWS, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
         MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
         OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
-        WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
-        WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
+        WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
+        WIKIDOT_CSS_MODULE_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
