@@ -42,6 +42,9 @@ use crate::types::TextBlockType;
 use sea_orm::ActiveEnum;
 use std::collections::HashSet;
 
+/// Keep each SeaORM insert well below PostgreSQL's 65,535 bind-parameter limit.
+const TEXT_BLOCK_INSERT_BATCH_SIZE: usize = 1_000;
+
 /// Write out the S3 filename for this hosted text block.
 ///
 /// This allows reusing a buffer, since we need to write out several
@@ -75,6 +78,20 @@ macro_rules! format_filename {
 pub struct TextBlockService;
 
 impl TextBlockService {
+    /// Validates both hosted text block collections for a page.
+    ///
+    /// Render preflights both counts together before writing either collection
+    /// to S3, so an invalid later collection cannot leave objects from the
+    /// earlier collection behind when the database transaction rolls back.
+    pub(crate) fn validate_page_block_counts(
+        html_count: usize,
+        code_count: usize,
+    ) -> StdResult<(), std::num::TryFromIntError> {
+        max_text_block_index(html_count)?;
+        max_text_block_index(code_count)?;
+        Ok(())
+    }
+
     /// Replaces the text blocks associated with this page with the ones given.
     ///
     /// This is to be run after ftml returns the lists of code and html blocks
@@ -202,9 +219,11 @@ impl TextBlockService {
             "Deleted row count does not match previous text block filename count",
         );
 
-        // Finally, insert the batch of new text block rows, then return.
-        if !models.is_empty() {
-            TextBlockTable::insert_many(models)
+        // Finally, insert the new text block rows in bounded batches. SeaORM
+        // emits one statement per insert_many call, so an unbounded batch can
+        // exceed PostgreSQL's bind limit after the S3 uploads have succeeded.
+        for models in models.chunks(TEXT_BLOCK_INSERT_BATCH_SIZE) {
+            TextBlockTable::insert_many(models.iter().cloned())
                 .exec(txn)
                 .await
                 .or_raise(make_error)?;
@@ -426,11 +445,40 @@ fn valid_block_name<'n>(previous: &mut HashSet<&'n str>, name: &'n str) -> bool 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use sea_orm::Iterable;
 
     #[test]
-    fn text_block_count_must_fit_in_i16_indices() {
+    fn text_block_count_and_index_range_fit_i16_boundaries() {
         assert_eq!(max_text_block_index(0).unwrap(), 0);
         assert_eq!(max_text_block_index(i16::MAX as usize).unwrap(), i16::MAX,);
         assert!(max_text_block_index(i16::MAX as usize + 1).is_err());
+
+        for count in [0, 1, i16::MAX as usize] {
+            let max_index = max_text_block_index(count).unwrap();
+            let indices = 1..=max_index;
+            let expected_first = (count > 0).then_some(1);
+            let expected_last = (count > 0).then_some(max_index);
+
+            assert_eq!(indices.clone().count(), count);
+            assert_eq!(indices.clone().next(), expected_first);
+            assert_eq!(indices.clone().next_back(), expected_last);
+        }
+    }
+
+    #[test]
+    fn page_block_counts_are_prevalidated_together() {
+        let max = i16::MAX as usize;
+
+        assert!(TextBlockService::validate_page_block_counts(max, max).is_ok());
+        assert!(TextBlockService::validate_page_block_counts(max + 1, 1).is_err());
+        assert!(TextBlockService::validate_page_block_counts(1, max + 1).is_err());
+    }
+
+    #[test]
+    fn insert_batch_stays_below_postgres_bind_limit() {
+        let bound_columns_per_row = text_block::Column::iter().count();
+        let bound_parameters = TEXT_BLOCK_INSERT_BATCH_SIZE * bound_columns_per_row;
+
+        assert!(bound_parameters <= u16::MAX as usize);
     }
 }
