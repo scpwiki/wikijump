@@ -275,11 +275,10 @@ impl MfaService {
             .duration_since(SystemTime::UNIX_EPOCH)
             .or_raise(make_error)?
             .as_secs();
-        let code_verified = verify_totp_at_with_seconds_skew(
+        let code_verified = verify_totp_at_with_seconds_offset(
             &totp,
             entered_totp,
             now,
-            config.totp_time_step,
             config.totp_time_skew,
         );
 
@@ -365,23 +364,20 @@ impl MfaService {
     }
 }
 
-fn verify_totp_at_with_seconds_skew(
+/// Applies the legacy signed-seconds offset and verifies exactly one TOTP step.
+/// The configured offset is not an acceptance window.
+fn verify_totp_at_with_seconds_offset(
     totp: &TOTP,
     code: u32,
     timestamp: u64,
-    time_step_seconds: u64,
-    time_skew_seconds: u32,
+    time_offset_seconds: i64,
 ) -> bool {
-    let time_skew_seconds = u64::from(time_skew_seconds);
-    let earliest = timestamp.saturating_sub(time_skew_seconds);
-    let latest = timestamp.saturating_add(time_skew_seconds);
-    let earliest_step = earliest / time_step_seconds;
-    let latest_step = latest / time_step_seconds;
+    let Some(adjusted_timestamp) = timestamp.checked_add_signed(time_offset_seconds)
+    else {
+        return false;
+    };
 
-    (earliest_step..=latest_step).any(|step| {
-        let timestamp_in_step = step.saturating_mul(time_step_seconds);
-        totp.verify_at(code, timestamp_in_step, 0)
-    })
+    totp.verify_at(code, adjusted_timestamp, 0)
 }
 
 #[cfg(test)]
@@ -399,48 +395,98 @@ mod tests {
     }
 
     #[test]
-    fn totp_time_skew_is_interpreted_as_seconds_not_windows() {
+    fn totp_time_offset_is_interpreted_as_seconds_not_steps() {
         let totp = test_totp();
+        // Twenty seconds into a 30-second TOTP step.
         let timestamp = 1_700_000_000;
+        let current_step_code = totp.generate_at(timestamp);
         let previous_step_code = totp.generate_at(timestamp - 30);
         let next_step_code = totp.generate_at(timestamp + 30);
+        let two_steps_ahead_code = totp.generate_at(timestamp + 60);
 
-        assert!(!verify_totp_at_with_seconds_skew(
+        assert!(verify_totp_at_with_seconds_offset(
+            &totp,
+            current_step_code,
+            timestamp,
+            1,
+        ));
+        assert!(!verify_totp_at_with_seconds_offset(
             &totp,
             previous_step_code,
             timestamp,
-            30,
             1,
         ));
-        assert!(!verify_totp_at_with_seconds_skew(
+        assert!(!verify_totp_at_with_seconds_offset(
             &totp,
             next_step_code,
             timestamp,
-            30,
             1,
+        ));
+        assert!(verify_totp_at_with_seconds_offset(
+            &totp,
+            two_steps_ahead_code,
+            timestamp,
+            60,
+        ));
+        assert!(!verify_totp_at_with_seconds_offset(
+            &totp,
+            next_step_code,
+            timestamp,
+            60,
         ));
     }
 
     #[test]
-    fn totp_time_skew_accepts_boundary_codes_within_seconds() {
+    fn totp_time_offset_selects_exactly_one_shifted_step() {
         let totp = test_totp();
-        let timestamp = 1_700_000_020;
+        // The previous and next step boundaries are 21 seconds behind and
+        // 10 seconds ahead of this timestamp, respectively.
+        let timestamp = 1_700_000_000;
+        let current_step_code = totp.generate_at(timestamp);
         let previous_step_code = totp.generate_at(timestamp - 21);
         let next_step_code = totp.generate_at(timestamp + 10);
 
-        assert!(verify_totp_at_with_seconds_skew(
+        assert!(verify_totp_at_with_seconds_offset(
             &totp,
             previous_step_code,
             timestamp,
-            30,
-            21,
+            -21,
         ));
-        assert!(verify_totp_at_with_seconds_skew(
+        assert!(!verify_totp_at_with_seconds_offset(
+            &totp,
+            current_step_code,
+            timestamp,
+            -21,
+        ));
+        assert!(verify_totp_at_with_seconds_offset(
             &totp,
             next_step_code,
             timestamp,
-            30,
             10,
+        ));
+        assert!(!verify_totp_at_with_seconds_offset(
+            &totp,
+            current_step_code,
+            timestamp,
+            10,
+        ));
+    }
+
+    #[test]
+    fn totp_time_offset_fails_closed_on_timestamp_overflow() {
+        let totp = test_totp();
+
+        assert!(!verify_totp_at_with_seconds_offset(
+            &totp,
+            totp.generate_at(0),
+            0,
+            -1,
+        ));
+        assert!(!verify_totp_at_with_seconds_offset(
+            &totp,
+            totp.generate_at(u64::MAX),
+            u64::MAX,
+            1,
         ));
     }
 }
