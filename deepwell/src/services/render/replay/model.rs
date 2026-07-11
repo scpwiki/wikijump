@@ -200,6 +200,7 @@ pub(crate) struct RenderReplaySummary {
     pub artifact_dir: String,
     pub clusters: Vec<ReplayCluster>,
     pub minimizations: Vec<ReplayMinimization>,
+    pub unverified_minimizations: usize,
     pub observations: Vec<ReplayCaseObservation>,
 }
 

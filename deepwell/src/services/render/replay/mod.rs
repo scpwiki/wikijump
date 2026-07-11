@@ -84,6 +84,10 @@ impl RenderReplayService {
         } else {
             Vec::new()
         };
+        let unverified_minimizations = minimizations
+            .iter()
+            .filter(|minimization| !minimization.verified)
+            .count();
 
         let passed = observations
             .iter()
@@ -146,6 +150,7 @@ impl RenderReplayService {
             artifact_dir: settings.artifact_dir.display().to_string(),
             clusters,
             minimizations,
+            unverified_minimizations,
             observations,
         };
         write_json(&settings.artifact_dir.join("summary.json"), &summary)?;
