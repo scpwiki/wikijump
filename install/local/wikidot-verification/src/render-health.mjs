@@ -15,16 +15,17 @@ export const RENDER_HEALTH_SCHEMA = 'wikijump_local_lab.render_health.v1';
 // render these literally; callers pass the page source so classification can
 // discount markers the author escaped on purpose.
 const LEAK_MARKERS = [
-  { pattern: /\[\[include\b/g, category: 'unresolved-include' },
-  { pattern: /\[\[module\s+\w+/g, category: 'leaked-marker', marker: 'module' },
-  { pattern: /\[\[\/module\]\]/g, category: 'leaked-marker', marker: 'module-close' },
-  { pattern: /\[\[image\b/g, category: 'leaked-marker', marker: 'image' },
-  { pattern: /\[\[collapsible\b/g, category: 'leaked-marker', marker: 'collapsible' },
-  { pattern: /\[\[tabview\b/g, category: 'leaked-marker', marker: 'tabview' },
-  { pattern: /\[\[div\b/g, category: 'leaked-marker', marker: 'div' },
-  { pattern: /\[\[span\b/g, category: 'leaked-marker', marker: 'span' },
-  { pattern: /\[\[iftags\b/g, category: 'leaked-marker', marker: 'iftags' },
-  { pattern: /%%content%%/g, category: 'leaked-marker', marker: 'content-variable' },
+  // Empty `[[include]]` text occurs as prose in real theme articles. Only an include with an argument can represent an unresolved directive.
+  { pattern: /\[\[include\s+[^\]\s]/gi, category: 'unresolved-include' },
+  { pattern: /\[\[module\s+\w+/gi, category: 'leaked-marker', marker: 'module' },
+  { pattern: /\[\[\/module\]\]/gi, category: 'leaked-marker', marker: 'module-close' },
+  { pattern: /\[\[image\b/gi, category: 'leaked-marker', marker: 'image' },
+  { pattern: /\[\[collapsible\b/gi, category: 'leaked-marker', marker: 'collapsible' },
+  { pattern: /\[\[tabview\b/gi, category: 'leaked-marker', marker: 'tabview' },
+  { pattern: /\[\[div\b/gi, category: 'leaked-marker', marker: 'div' },
+  { pattern: /\[\[span\b/gi, category: 'leaked-marker', marker: 'span' },
+  { pattern: /\[\[iftags\b/gi, category: 'leaked-marker', marker: 'iftags' },
+  { pattern: /%%content%%/gi, category: 'leaked-marker', marker: 'content-variable' },
 ];
 
 const CATEGORY_SEVERITY = {
@@ -56,13 +57,18 @@ function maxSeverity(a, b) {
   return SEVERITY_ORDER.indexOf(a) >= SEVERITY_ORDER.indexOf(b) ? a : b;
 }
 
-// Strip regions that legitimately contain raw markup: scripts, styles, and
-// rendered code blocks (pre/code and Wikidot's .code div output).
+const RENDERED_LITERAL_PATTERNS = [
+  /<span\b(?=[^>]*\bclass\s*=\s*(?:"[^"]*\bwj-raw\b[^"]*"|'[^']*\bwj-raw\b[^']*'))[^>]*>[\s\S]*?<\/span\s*>/gi,
+  /<span\b(?=[^>]*\bstyle\s*=\s*(?:"[^"]*\bwhite-space\s*:\s*pre-wrap\b[^"]*"|'[^']*\bwhite-space\s*:\s*pre-wrap\b[^']*'))[^>]*>[\s\S]*?<\/span\s*>/gi,
+];
+
+// Strip regions that legitimately contain raw markup: scripts, styles, rendered code blocks, and FTML's identifiable literal spans.
 const NON_CONTENT_PATTERNS = [
   /<script\b[\s\S]*?<\/script\b[^>]*>/gi,
   /<style\b[\s\S]*?<\/style\b[^>]*>/gi,
   /<pre\b[\s\S]*?<\/pre\b[^>]*>/gi,
   /<code\b[\s\S]*?<\/code\b[^>]*>/gi,
+  ...RENDERED_LITERAL_PATTERNS,
 ];
 
 export function stripNonContent(html) {
@@ -82,12 +88,12 @@ export function stripNonContent(html) {
 // Count occurrences of a marker in the source that the author escaped for
 // display (@@...@@ raw spans or code blocks). Those occurrences are expected
 // to appear literally in the rendered page and must not count as leaks.
-export function countEscapedOccurrences(source, pattern) {
+export function countEscapedOccurrences(source, pattern, {includeCodeBlocks = true} = {}) {
   if (!source) return 0;
   let count = 0;
   const escapedRegions = [
     ...source.matchAll(/@@([\s\S]*?)@@/g),
-    ...source.matchAll(/\[\[code[^\]]*\]\]([\s\S]*?)\[\[\/code\]\]/gi),
+    ...(includeCodeBlocks ? source.matchAll(/\[\[code[^\]]*\]\]([\s\S]*?)\[\[\/code\]\]/gi) : []),
   ];
   for (const region of escapedRegions) {
     const matches = region[1].match(new RegExp(pattern.source, pattern.flags));
@@ -100,6 +106,31 @@ function excerptAround(html, index, radius = 80) {
   const start = Math.max(0, index - radius);
   const end = Math.min(html.length, index + radius);
   return html.slice(start, end).replace(/\s+/g, ' ').trim();
+}
+
+export function findRawSyntaxLeaks({ html = '', source = '' } = {}) {
+  const content = stripNonContent(html);
+  const findings = [];
+  const renderedLiteralsIdentified = RENDERED_LITERAL_PATTERNS.some((pattern) => new RegExp(pattern.source, pattern.flags).test(html));
+
+  for (const { pattern, category, marker } of LEAK_MARKERS) {
+    const matches = [...content.matchAll(new RegExp(pattern.source, pattern.flags))];
+    if (matches.length === 0) continue;
+    const escaped = renderedLiteralsIdentified ? 0 : countEscapedOccurrences(source, pattern, {includeCodeBlocks: false});
+    const leaked = Math.max(0, matches.length - escaped);
+    if (leaked === 0) continue;
+    const firstLeak = matches[Math.min(escaped, matches.length - 1)];
+    findings.push({
+      category,
+      marker,
+      count: leaked,
+      pattern: pattern.source,
+      text: firstLeak[0],
+      context: excerptAround(content, firstLeak.index),
+    });
+  }
+
+  return findings;
 }
 
 /**
@@ -138,20 +169,12 @@ export function classifyRenderedPage(input) {
       findings.push({ category: 'empty-render', detail: 'rendered body empty for non-empty source' });
     }
 
-    for (const { pattern, category, marker } of LEAK_MARKERS) {
-      const matches = [...content.matchAll(new RegExp(pattern.source, pattern.flags))];
-      if (matches.length === 0) continue;
-      const escaped = countEscapedOccurrences(input.source, pattern);
-      const leaked = matches.length - escaped;
-      if (leaked > 0) {
-        findings.push({
-          category,
-          marker,
-          count: leaked,
-          detail: excerptAround(content, matches[0].index),
-        });
-      }
-    }
+    findings.push(...findRawSyntaxLeaks({ html, source: input.source }).map((finding) => ({
+      category: finding.category,
+      marker: finding.marker,
+      count: finding.count,
+      detail: finding.context,
+    })));
 
     for (const url of input.failedRequests ?? []) {
       const category = /\/local--files\//.test(url) ? 'missing-local-asset' : 'failed-request';
