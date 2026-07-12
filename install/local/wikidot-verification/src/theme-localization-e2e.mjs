@@ -76,7 +76,7 @@ const COMMON_PROBES = Object.freeze([
   Object.freeze({id: "side_bar", selector: "#side-bar", expectation: "required"}),
   Object.freeze({id: "main_content", selector: "#main-content", expectation: "required"}),
   Object.freeze({id: "page_content", selector: "#page-content", expectation: "required"}),
-  Object.freeze({id: "rate_widget", selector: ".page-rate-widget-box", expectation: "optional"}),
+  Object.freeze({id: "rate_widget", selector: ".page-rate-widget-box", expectation: "required"}),
   Object.freeze({id: "interwiki_frame", selector: "iframe.scpnet-interwiki-frame", expectation: "optional"}),
 ]);
 
@@ -95,7 +95,7 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
       Object.freeze({id: "header_subtitle", selector: "#header h2 span", expectation: "required"}),
       Object.freeze({id: "license_suffix", selector: "#license-area a", pseudo: "::after", expectation: "required"}),
       Object.freeze({id: "watchers_button", selector: "#watchers-button", expectation: "optional"}),
-      Object.freeze({id: "rate_points", selector: ".page-rate-widget-box .rate-points", expectation: "optional"}),
+      Object.freeze({id: "rate_points", selector: ".page-rate-widget-box .rate-points", expectation: "required"}),
     ]),
     interactions: Object.freeze([
       Object.freeze({

@@ -122,12 +122,13 @@ test("expected-absent probes gate unexpected presence and incomplete observation
   assert.deepEqual(incompleteCheck.invalid_observations.sort(), ["interwiki_frame", "watchers_button"]);
 });
 
-test("YOSSISTYLE feature-dependent probe gaps remain recorded without blocking either target", () => {
+test("YOSSISTYLE gates sourced Rate elements while allowing platform-dependent probe gaps", () => {
   const contract = {properties: ["display"], probes: THEME_LOCALIZATION_TIERS.find((tier) => tier.id === "yossistyle").computed_style_probes};
   const observations = (missing) => contract.probes.map((probe) => ({id: probe.id, expectation: probe.expectation, status: missing.has(probe.id) ? "missing" : "measured"}));
   const wikidot = evaluateStrictThemeVerdict(passingViewport({computed_styles: observations(new Set(["rate_widget", "interwiki_frame", "rate_points"]))}), THEME_PERFORMANCE_GATES, contract);
   const wikijump = evaluateStrictThemeVerdict(passingViewport({computed_styles: observations(new Set(["interwiki_frame", "watchers_button"]))}), THEME_PERFORMANCE_GATES, contract);
-  assert.equal(wikidot.status, "pass");
+  assert.equal(wikidot.status, "fail");
+  assert.deepEqual(wikidot.checks.find((check) => check.id === "computed_style_probes").required_missing, ["rate_widget", "rate_points"]);
   assert.equal(wikijump.status, "pass");
   assert.deepEqual(wikijump.checks.find((check) => check.id === "computed_style_probes").optional_missing, ["interwiki_frame", "watchers_button"]);
 });
