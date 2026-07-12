@@ -58,6 +58,11 @@ class DeepwellHotReloadTest(unittest.TestCase):
                 "wait_for_replacement",
                 side_effect=hot_reload.HotReloadError("candidate failed"),
             ),
+            "zombie_deepwell_process_count": patch.object(
+                hot_reload,
+                "zombie_deepwell_process_count",
+                return_value=0,
+            ),
             "rollback_inputs": patch.object(
                 hot_reload,
                 "rollback_inputs",
@@ -72,6 +77,78 @@ class DeepwellHotReloadTest(unittest.TestCase):
             "cleanup_stage": patch.object(hot_reload, "cleanup_stage"),
         }
         return patches
+
+    def test_success_restarts_when_cargo_watch_leaves_a_zombie_daemon(self):
+        patches = self.run_patches()
+        patches["wait_for_replacement"] = patch.object(
+            hot_reload,
+            "wait_for_replacement",
+            return_value=52,
+        )
+        patches["zombie_deepwell_process_count"] = patch.object(
+            hot_reload,
+            "zombie_deepwell_process_count",
+            side_effect=[1, 0],
+        )
+        with (
+            patches["validate_source_root"],
+            patches["discover_container"],
+            patches["validate_container"],
+            patches["preflight_runtime"],
+            patches["daemon_pid"],
+            patches["health_check"],
+            patches["copy_inputs"],
+            patches["commit_inputs"],
+            patches["wait_for_replacement"],
+            patches["zombie_deepwell_process_count"] as zombie_count,
+            patches["rollback_inputs"] as rollback,
+            patches["restart_container"] as restart,
+            patches["wait_for_healthy_daemon"] as wait_for_healthy,
+            patches["cleanup_stage"] as cleanup,
+        ):
+            result = hot_reload.run(self.hot_reload_arguments(), hot_reload.Docker())
+
+        rollback.assert_not_called()
+        restart.assert_called_once_with(ANY, "0123456789abcdef")
+        wait_for_healthy.assert_called_once()
+        self.assertEqual(zombie_count.call_count, 2)
+        cleanup.assert_called_once()
+        self.assertEqual(result["new_daemon_pid"], 73)
+        self.assertTrue(result["container_restarted"])
+        self.assertEqual(result["zombies_after_replacement"], 1)
+
+    def test_success_keeps_the_replacement_when_no_zombie_remains(self):
+        patches = self.run_patches()
+        patches["wait_for_replacement"] = patch.object(
+            hot_reload,
+            "wait_for_replacement",
+            return_value=52,
+        )
+        with (
+            patches["validate_source_root"],
+            patches["discover_container"],
+            patches["validate_container"],
+            patches["preflight_runtime"],
+            patches["daemon_pid"],
+            patches["health_check"],
+            patches["copy_inputs"],
+            patches["commit_inputs"],
+            patches["wait_for_replacement"],
+            patches["zombie_deepwell_process_count"],
+            patches["rollback_inputs"] as rollback,
+            patches["restart_container"] as restart,
+            patches["wait_for_healthy_daemon"] as wait_for_healthy,
+            patches["cleanup_stage"] as cleanup,
+        ):
+            result = hot_reload.run(self.hot_reload_arguments(), hot_reload.Docker())
+
+        rollback.assert_not_called()
+        restart.assert_not_called()
+        wait_for_healthy.assert_not_called()
+        cleanup.assert_called_once()
+        self.assertEqual(result["new_daemon_pid"], 52)
+        self.assertFalse(result["container_restarted"])
+        self.assertEqual(result["zombies_after_replacement"], 0)
 
     def test_paths_overlap_for_parent_child_and_exact_paths(self):
         self.assertTrue(hot_reload.paths_overlap("/src", "/src/deepwell/src"))

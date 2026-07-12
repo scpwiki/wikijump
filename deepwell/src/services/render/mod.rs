@@ -31,6 +31,8 @@ mod prelude {
     pub use ftml::{self};
 }
 
+mod compat_html_fragments;
+mod html_text;
 mod include_comment_branches;
 #[allow(dead_code)]
 mod list_pages;
