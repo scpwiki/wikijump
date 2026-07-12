@@ -44,13 +44,40 @@ const COMMON_STYLE_PROPERTIES = Object.freeze([
   "--header-subtitle",
 ]);
 
+export const THEME_STYLE_PROBE_EXPECTATIONS = Object.freeze(["required", "optional", "expected_absent"]);
+const THEME_STYLE_PROBE_EXPECTATION_SET = new Set(THEME_STYLE_PROBE_EXPECTATIONS);
+
+export function validateThemeComputedStyleContract(contract, {label = "theme computed-style contract"} = {}) {
+  if (!contract || !Array.isArray(contract.properties) || contract.properties.length === 0 || !Array.isArray(contract.probes) || contract.probes.length === 0) {
+    throw new Error(`${label} must define non-empty properties and probes`);
+  }
+  if (contract.properties.some((property) => typeof property !== "string" || !property.trim()) || new Set(contract.properties).size !== contract.properties.length) {
+    throw new Error(`${label} has invalid or duplicate properties`);
+  }
+  const ids = new Set();
+  for (const probe of contract.probes) {
+    if (!probe || typeof probe.id !== "string" || !/^[a-z0-9][a-z0-9_]{0,63}$/u.test(probe.id) || typeof probe.selector !== "string" || !probe.selector.trim()) {
+      throw new Error(`${label} has an invalid probe`);
+    }
+    if (ids.has(probe.id)) throw new Error(`${label} has duplicate probe id: ${probe.id}`);
+    ids.add(probe.id);
+    if (!THEME_STYLE_PROBE_EXPECTATION_SET.has(probe.expectation)) {
+      throw new Error(`${label} probe ${probe.id} has invalid expectation: ${String(probe.expectation)}`);
+    }
+    if (probe.pseudo !== undefined && (typeof probe.pseudo !== "string" || !/^::[a-z-]+$/u.test(probe.pseudo))) {
+      throw new Error(`${label} probe ${probe.id} has an invalid pseudo-element`);
+    }
+  }
+  return contract;
+}
+
 const COMMON_PROBES = Object.freeze([
-  Object.freeze({id: "header", selector: "#header"}),
-  Object.freeze({id: "side_bar", selector: "#side-bar"}),
-  Object.freeze({id: "main_content", selector: "#main-content"}),
-  Object.freeze({id: "page_content", selector: "#page-content"}),
-  Object.freeze({id: "rate_widget", selector: ".page-rate-widget-box"}),
-  Object.freeze({id: "interwiki_frame", selector: "iframe.scpnet-interwiki-frame"}),
+  Object.freeze({id: "header", selector: "#header", expectation: "required"}),
+  Object.freeze({id: "side_bar", selector: "#side-bar", expectation: "required"}),
+  Object.freeze({id: "main_content", selector: "#main-content", expectation: "required"}),
+  Object.freeze({id: "page_content", selector: "#page-content", expectation: "required"}),
+  Object.freeze({id: "rate_widget", selector: ".page-rate-widget-box", expectation: "optional"}),
+  Object.freeze({id: "interwiki_frame", selector: "iframe.scpnet-interwiki-frame", expectation: "optional"}),
 ]);
 
 export const THEME_LOCALIZATION_TIERS = Object.freeze([
@@ -65,10 +92,10 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     dependencies: Object.freeze({components: Object.freeze([]), assets: Object.freeze([]), remote_local_code: Object.freeze([])}),
     computed_style_probes: Object.freeze([
       ...COMMON_PROBES,
-      Object.freeze({id: "header_subtitle", selector: "#header h2 span"}),
-      Object.freeze({id: "license_suffix", selector: "#license-area a", pseudo: "::after"}),
-      Object.freeze({id: "watchers_button", selector: "#watchers-button"}),
-      Object.freeze({id: "rate_points", selector: ".page-rate-widget-box .rate-points"}),
+      Object.freeze({id: "header_subtitle", selector: "#header h2 span", expectation: "required"}),
+      Object.freeze({id: "license_suffix", selector: "#license-area a", pseudo: "::after", expectation: "required"}),
+      Object.freeze({id: "watchers_button", selector: "#watchers-button", expectation: "optional"}),
+      Object.freeze({id: "rate_points", selector: ".page-rate-widget-box .rate-points", expectation: "optional"}),
     ]),
     interactions: Object.freeze([
       Object.freeze({
@@ -95,11 +122,11 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     }),
     computed_style_probes: Object.freeze([
       ...COMMON_PROBES,
-      Object.freeze({id: "container", selector: "#container"}),
-      Object.freeze({id: "content_before", selector: "#content-wrap", pseudo: "::before"}),
-      Object.freeze({id: "content_after", selector: "#content-wrap", pseudo: "::after"}),
-      Object.freeze({id: "page_title", selector: "#page-title"}),
-      Object.freeze({id: "image_block", selector: ".scp-image-block, .image-block"}),
+      Object.freeze({id: "container", selector: "#container", expectation: "required"}),
+      Object.freeze({id: "content_before", selector: "#content-wrap", pseudo: "::before", expectation: "required"}),
+      Object.freeze({id: "content_after", selector: "#content-wrap", pseudo: "::after", expectation: "required"}),
+      Object.freeze({id: "page_title", selector: "#page-title", expectation: "required"}),
+      Object.freeze({id: "image_block", selector: ".scp-image-block, .image-block", expectation: "required"}),
     ]),
     interactions: Object.freeze([
       Object.freeze({
@@ -144,12 +171,12 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     }),
     computed_style_probes: Object.freeze([
       ...COMMON_PROBES,
-      Object.freeze({id: "basalt_logo", selector: "#header h1 a span", pseudo: "::before"}),
-      Object.freeze({id: "document", selector: ".document, .darkdocument"}),
-      Object.freeze({id: "memo", selector: "div[class$='_memo']"}),
-      Object.freeze({id: "memo_logo", selector: "div[class$='_memo']", pseudo: "::before"}),
-      Object.freeze({id: "tabview", selector: ".yui-navset"}),
-      Object.freeze({id: "style_frame", selector: "iframe[src*='styleFrame.html']"}),
+      Object.freeze({id: "basalt_logo", selector: "#header h1 a span", pseudo: "::before", expectation: "required"}),
+      Object.freeze({id: "document", selector: ".document, .darkdocument", expectation: "required"}),
+      Object.freeze({id: "memo", selector: "div[class$='_memo']", expectation: "required"}),
+      Object.freeze({id: "memo_logo", selector: "div[class$='_memo']", pseudo: "::before", expectation: "required"}),
+      Object.freeze({id: "tabview", selector: ".yui-navset", expectation: "required"}),
+      Object.freeze({id: "style_frame", selector: "iframe[src*='styleFrame.html']", expectation: "optional"}),
     ]),
     interactions: Object.freeze([
       Object.freeze({
@@ -451,6 +478,8 @@ export async function buildThemeLocalizationE2EPlan({
       resources.push(resource);
       return {...target, url: pageUrl(target.origin, slug), resource_id: resource.resource_id};
     });
+    const computedStyles = {properties: COMMON_STYLE_PROPERTIES, probes: tier.computed_style_probes};
+    validateThemeComputedStyleContract(computedStyles, {label: `${tier.id} computed-style contract`});
     plans.push({
       id: tier.id,
       order: tier.order,
@@ -462,7 +491,7 @@ export async function buildThemeLocalizationE2EPlan({
       targets,
       capture: {
         viewports: THEME_CAPTURE_VIEWPORTS,
-        computed_styles: {properties: COMMON_STYLE_PROPERTIES, probes: tier.computed_style_probes},
+        computed_styles: computedStyles,
         web_vitals: {gates: THEME_PERFORMANCE_GATES, navigation: "cold_context", settle_policy: "observer_buffered_through_lcp_budget"},
         interactions: tier.interactions,
         raw_syntax: {

@@ -9,6 +9,7 @@ import {
   THEME_LOCALIZATION_E2E_SCHEMA,
   assertLegacyRunOwnedSlug,
   assertRunOwnedSlug,
+  validateThemeComputedStyleContract,
   validateTargetOrigin,
 } from "./theme-localization-e2e.mjs";
 import {targetRoundTripSourceSha256} from "./theme-source-roundtrip.mjs";
@@ -36,6 +37,7 @@ function stableResources(plan, {allowLegacy = false} = {}) {
   const resources = [];
   for (const tier of plan.tiers) {
     (legacy ? assertLegacyRunOwnedSlug : assertRunOwnedSlug)(tier.run_owned_slug, plan.run.id, tier.id);
+    validateThemeComputedStyleContract(tier.capture?.computed_styles, {label: `${tier.id} computed-style contract`});
     if (tier.preflight.status !== "pass" || !tier.preflight.source.sha256) {
       throw new Error(`tier is not executable: ${tier.id}`);
     }
