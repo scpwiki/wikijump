@@ -8975,9 +8975,15 @@ fn register_generated_list_pages_html(
     value: String,
     compat_html: &mut CompatHtmlFragments,
 ) -> String {
+    let literal_regions = LiteralRegionIndex::new(&value);
     GENERATED_LISTPAGES_HTML_REGEX
         .replace_all(&value, |captures: &regex::Captures<'_>| {
-            compat_html.push(captures[0].to_owned())
+            let full_match = captures.get(0).expect("compat fragment capture exists");
+            if literal_regions.contains(full_match.start()) {
+                return full_match.as_str().to_owned();
+            }
+
+            compat_html.push(full_match.as_str().to_owned())
         })
         .into_owned()
 }
@@ -12060,6 +12066,29 @@ mod tests {
         let rendered = render_wikidot_page_body_after_compat_restore(&neutralized);
         assert!(!rendered.contains(r#"<img src=x onerror="alert(1)">"#));
         assert!(!rendered.contains(r#"<img src=x onerror="alert(2)">"#));
+    }
+
+    #[test]
+    fn list_pages_compat_registry_ignores_code_block_fragments() {
+        let source = concat!(
+            "[[code]]\n",
+            "<table class=\"wiki-content-table\" data-wikijump-compat-listpages=\"1\">",
+            "<tr><td><img src=x onerror=\"alert(document.domain)\"></td></tr>",
+            "</table>\n",
+            "<span class=\"odate time_1 format_%25e\" data-wikijump-compat-date=\"1\" ",
+            "style=\"cursor: help; display: inline;\">1 Jan 1970</span>\n",
+            "[[/code]]",
+        );
+        let mut fragments = CompatHtmlFragments::new(source);
+
+        let protected =
+            register_generated_list_pages_html(source.to_owned(), &mut fragments);
+
+        assert_eq!(protected, source);
+        assert_eq!(fragments.restore(&protected), protected);
+        let rendered = render_wikidot_page_body_after_compat_restore(&protected);
+        assert!(!rendered.contains(r#"<img src=x onerror="alert(document.domain)">"#));
+        assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
     }
 
     #[test]
