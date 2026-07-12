@@ -1,7 +1,11 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { parseAcceptLangHeader, withFallbackLocale } from "../src/lib/locales.js"
+import {
+  MAX_LOCALE_PREFERENCES,
+  parseAcceptLangHeader,
+  withFallbackLocale
+} from "../src/lib/locales.js"
 import { buildPageLoadData } from "../src/lib/server/load/page-data.js"
 
 const requestWithAcceptLanguage = (value) => {
@@ -22,6 +26,19 @@ test("Accept-Language parsing ignores wildcards and preserves ordered locales", 
       requestWithAcceptLanguage("en-US, en;q=0.9, *;q=0.1, en-US;q=0.5")
     ),
     ["en-US", "en"]
+  )
+})
+
+test("Accept-Language parsing bounds request locale preferences", () => {
+  const header = Array.from({ length: 50 }, (_, index) => {
+    const first = String.fromCharCode(97 + Math.floor(index / 26))
+    const second = String.fromCharCode(97 + (index % 26))
+    return `${first}${second}`
+  }).join(",")
+
+  assert.equal(
+    parseAcceptLangHeader(requestWithAcceptLanguage(header)).length,
+    MAX_LOCALE_PREFERENCES
   )
 })
 

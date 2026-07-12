@@ -24,6 +24,7 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod locale;
 mod service;
 mod structs;
 

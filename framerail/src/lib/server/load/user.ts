@@ -1,5 +1,6 @@
 import defaults from "$lib/defaults"
 
+import { limitLocalePreferences } from "$lib/locales"
 import { authGetSession } from "$lib/server/auth/getSession"
 import { getFileByHash } from "$lib/server/deepwell/file"
 import { translate } from "$lib/server/deepwell/translate"
@@ -202,10 +203,10 @@ export async function userEditAction({
       name,
       email,
       locales: locales
-        ?.replaceAll("_", "-")
-        .replaceAll(",", " ")
-        .split(" ")
-        .filter((v) => v.trim()),
+        ? limitLocalePreferences(
+            locales.replaceAll("_", "-").replaceAll(",", " ").split(" ")
+          )
+        : undefined,
       avatar,
       realName,
       gender,
