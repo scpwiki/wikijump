@@ -24,11 +24,21 @@ pub(super) struct LiteralRegionIndex {
 
 impl LiteralRegionIndex {
     pub(super) fn new(source: &str) -> Self {
+        Self::build(source, true)
+    }
+
+    pub(super) fn new_wikidot_syntax(source: &str) -> Self {
+        Self::build(source, false)
+    }
+
+    fn build(source: &str, include_rendered_html: bool) -> Self {
         let mut ranges = Vec::new();
         collect_wikidot_block_ranges(source, &mut ranges);
         collect_paired_ranges(source, "@@", "@@", &mut ranges);
         collect_paired_ranges(source, "[!--", "--]", &mut ranges);
-        collect_html_literal_ranges(source, &mut ranges);
+        if include_rendered_html {
+            collect_html_literal_ranges(source, &mut ranges);
+        }
 
         ranges.sort_unstable_by_key(|range| (range.start, range.end));
         let mut merged: Vec<Range<usize>> = Vec::with_capacity(ranges.len());
