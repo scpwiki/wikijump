@@ -2,3 +2,9 @@ allowBuilds:
   "@parcel/watcher": true
   esbuild: true
   svelte-preprocess: true
+minimumReleaseAgeExclude:
+  - "@sveltejs/kit@2.69.2"
+overrides:
+  brace-expansion: 5.0.6
+  cookie: 0.7.0
+  js-yaml: 4.2.0

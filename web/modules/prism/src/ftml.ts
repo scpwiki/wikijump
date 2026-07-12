@@ -1,7 +1,7 @@
 import type { Prism as PrismType } from "./index"
 
 /** Adds FTML syntax highlighting to a Prism instance. */
-export function prismFTML(Prism: PrismType) {
+export function prismFTML(Prism: PrismType, blockedLanguages = new Set<string>()) {
   function generateEmbedded(embed: string, start: string, end = start) {
     const pattern = new RegExp(
       `(\\[\\[\\s*${start}[^]*?\\]\\])([^]*?(?=\\[\\[\\/\\s*${end}\\s*\\]\\]))`,
@@ -25,7 +25,7 @@ export function prismFTML(Prism: PrismType) {
     "wikidot",
     "wikijump",
     "wikitext",
-    ...Object.keys(Prism.languages)
+    ...Object.keys(Prism.languages).filter(language => !blockedLanguages.has(language))
   ]
   // make a embedded highlighting rule for every language from the above list
   for (const language of highlightLanguages) {

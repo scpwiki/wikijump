@@ -1,0 +1,15 @@
+# Lab-only Postgres durability relaxations for bulk import performance.
+# FENCED TO THE DISPOSABLE LOCAL LAB: these settings can corrupt data on
+# crash. The local compose database uses an anonymous volume that is reset
+# on container recreation, so durability loss here is acceptable by
+# construction. Never use outside install/local.
+#
+# Usage:
+#   docker compose -f docker-compose.yaml -f docker-compose.postgres-perf.yaml up -d
+services:
+  database:
+    command: >-
+      postgres
+      -c synchronous_commit=off
+      -c fsync=off
+      -c full_page_writes=off

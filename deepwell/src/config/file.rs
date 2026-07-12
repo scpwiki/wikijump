@@ -87,6 +87,8 @@ struct Server {
 struct Database {
     run_seeder: bool,
     seeder_path: PathBuf,
+    #[serde(default = "default_true")]
+    sqlx_logging: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -214,6 +216,10 @@ struct Message {
     maximum_recipients: usize,
 }
 
+fn default_true() -> bool {
+    true
+}
+
 impl ConfigFile {
     pub fn load(path: PathBuf) -> Result<(Self, ExtraConfig)> {
         let make_error = || {
@@ -271,6 +277,7 @@ impl ConfigFile {
                 Database {
                     run_seeder,
                     seeder_path,
+                    sqlx_logging,
                 },
             security:
                 Security {
@@ -412,6 +419,7 @@ impl ConfigFile {
             watch_files: false, // Not set in config file. Always false by default.
             run_seeder,
             seeder_path,
+            sqlx_logging,
             localization_path,
             authentication_fail_delay: StdDuration::from_millis(
                 authentication_fail_delay_ms,
@@ -548,6 +556,7 @@ mod tests {
             database: Database {
                 run_seeder: true,
                 seeder_path: PathBuf::from("seeder"),
+                sqlx_logging: true,
             },
             security: Security {
                 authentication_fail_delay_ms: 250,
@@ -681,6 +690,7 @@ mod tests {
         assert!(!config.watch_files);
         assert!(config.run_seeder);
         assert_eq!(config.seeder_path, PathBuf::from("seeder"));
+        assert!(config.sqlx_logging);
         assert_eq!(config.localization_path, PathBuf::from("../locales"));
         assert_eq!(
             config.authentication_fail_delay,
@@ -740,6 +750,21 @@ mod tests {
         assert_eq!(config.maximum_message_subject_bytes, 128);
         assert_eq!(config.maximum_message_body_bytes, 10_000);
         assert_eq!(config.maximum_message_recipients, 3);
+    }
+
+    #[test]
+    fn database_sqlx_logging_defaults_true_and_accepts_false() {
+        let toml = toml::to_string(&sample_config_file()).unwrap();
+
+        let absent_toml = toml.replace("sqlx-logging = true\n", "");
+        assert_ne!(toml, absent_toml);
+        let absent_config: ConfigFile = toml::from_str(&absent_toml).unwrap();
+        assert!(absent_config.database.sqlx_logging);
+
+        let false_toml = toml.replace("sqlx-logging = true", "sqlx-logging = false");
+        assert_ne!(toml, false_toml);
+        let false_config: ConfigFile = toml::from_str(&false_toml).unwrap();
+        assert!(!false_config.database.sqlx_logging);
     }
 
     #[test]

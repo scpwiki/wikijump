@@ -21,6 +21,12 @@ test('attachment materialization requires an authenticated actor id when using a
   assert.doesNotThrow(() => validateAttachmentActorArgs({ sessionToken: 'token', userId: DEFAULT_IMPORT_USER_ID, attachmentUserId: DEFAULT_IMPORT_USER_ID }, rows));
 });
 
+test('skipped attachment materialization does not require an authenticated actor id', () => {
+  const rows = [{ fullname: 'scp-173', attachments: [{ filename: 'pixel.png' }] }];
+
+  assert.doesNotThrow(() => validateAttachmentActorArgs({ skipAttachments: true, sessionToken: 'token', userId: DEFAULT_IMPORT_USER_ID, attachmentUserId: null }, rows));
+});
+
 test('attachment actor id can differ from page import user id', () => {
   assert.equal(attachmentActorUserId({ userId: DEFAULT_IMPORT_USER_ID, attachmentUserId: 123 }), 123);
   assert.equal(attachmentActorUserId({ userId: 123, attachmentUserId: DEFAULT_IMPORT_USER_ID }), DEFAULT_IMPORT_USER_ID);

@@ -15,5 +15,8 @@ test("allows captured Wikidot legacy asset origins in local CSP", () => {
       (source) => source === "https://d3g0gp89917ko0.cloudfront.net"
     )
   )
+  assert(
+    directives["frame-src"]?.some((source) => source === "https://*.wjfiles.localhost")
+  )
   assert.deepEqual(directives["script-src"], ["self"])
 })

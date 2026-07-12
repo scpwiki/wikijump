@@ -17,6 +17,7 @@ function parseArgs(argv) {
     sourceBranch: null,
     output: null,
     summary: null,
+    fullnames: [],
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -35,8 +36,9 @@ function parseArgs(argv) {
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--output') args.output = next();
     else if (arg === '--summary') args.summary = next();
+    else if (arg === '--fullname') args.fullnames.push(next());
     else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: build-corpus-import-manifest.mjs (--corpus-root <path> [--branch en] | --source-bundle <path>) [--source-site site] [--source-branch branch] --output <manifest.jsonl> --summary <summary.json>');
+      console.log('Usage: build-corpus-import-manifest.mjs (--corpus-root <path> [--branch en] | --source-bundle <path>) [--source-site site] [--source-branch branch] [--fullname <page>...] --output <manifest.jsonl> --summary <summary.json>');
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -63,6 +65,7 @@ const manifestInput = {
   sourceSite: args.sourceSite,
 };
 if (args.sourceBranch !== null) manifestInput.sourceBranch = args.sourceBranch;
+if (args.fullnames.length > 0) manifestInput.fullnames = args.fullnames;
 const rows = buildCorpusImportManifest(manifestInput);
 const jsonl = formatJsonl(rows);
 const summary = buildManifestSummary(rows, jsonl);

@@ -26,7 +26,10 @@ use crate::error::prelude::*;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use std::time::Duration;
 
-pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnection> {
+pub async fn connect<S: Into<String>>(
+    database_uri: S,
+    sqlx_logging: bool,
+) -> Result<DatabaseConnection> {
     let make_error =
         || Error::new("failed to connect to database", ErrorType::DatabaseSetup);
 
@@ -37,7 +40,7 @@ pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnect
         .max_connections(100)
         .connect_timeout(Duration::from_secs(5))
         .idle_timeout(Duration::from_secs(10))
-        .sqlx_logging(true);
+        .sqlx_logging(sqlx_logging);
 
     let sea_orm_db = Database::connect(options).await.or_raise(make_error)?;
     Ok(sea_orm_db)

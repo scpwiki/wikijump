@@ -81,6 +81,9 @@ pub struct Config {
     /// This will only attempt to add the rows if the `user` table is empty.
     pub run_seeder: bool,
 
+    /// Whether to enable sqlx statement logging.
+    pub sqlx_logging: bool,
+
     /// The location where all the seeder files are kept.
     pub seeder_path: PathBuf,
 
@@ -293,6 +296,7 @@ impl Config {
             files_domain_no_dot: str!("wjfiles.com"),
             watch_files: false,
             run_seeder: false,
+            sqlx_logging: true,
             seeder_path: PathBuf::from("seeder"),
             localization_path: PathBuf::from("../locales"),
             authentication_fail_delay: StdDuration::from_millis(1),

@@ -7,6 +7,7 @@ export function rowsHaveAttachments(rows) {
 }
 
 export function validateAttachmentActorArgs(args, rows) {
+  if (args.skipAttachments) return;
   if (!rowsHaveAttachments(rows)) return;
   if (!args.sessionToken) return;
   if ((args.attachmentUserId ?? null) === null && args.userId === DEFAULT_IMPORT_USER_ID) {

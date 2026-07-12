@@ -2,11 +2,18 @@
 
 This `docker-compose.yaml` (and corresponding `docker-compose.dev.yaml`) file are used in standing up local instances of Wikijump. The convenience script `./deploy.py` is provided to make management easier, providing options for common variations.
 
+For disposable local bulk-import runs only, `docker-compose.postgres-perf.yaml` can be layered onto the base local compose file to relax Postgres durability settings for faster writes: `docker compose -f docker-compose.yaml -f docker-compose.postgres-perf.yaml up -d`. These settings can corrupt data after a crash and are fenced to `install/local`; do not use the override with persistent, shared, or production databases.
+
 There are two important things to note about the local tier:
 1. It runs its containers in "watch mode". This means that building the service takes place after container start, not at container build time, and that if you modify local watched files, the service will rebuild and restart.
 2. Which is related to the fact that several directories are instead *mapped* into the container rather than copied into it. This way, any local changes are reflected in the container.
 
 See `docs/development.md` for more information on local deployments.
+
+For prebuilt/no-dev lab runtimes that still contain `cargo-watch`, use
+`deepwell_hot_reload.py` to copy a Deepwell candidate into the running
+container without rebuilding its image. The guarded workflow and its
+limitations are documented in `docs/deepwell-container-hot-reload.md`.
 
 ## Local HTTPS certificates
 

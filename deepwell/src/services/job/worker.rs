@@ -310,8 +310,18 @@ impl JobWorker {
             }
         }
 
+        let post_commit_actions = ctx.drain_post_commit_actions().or_raise(make_error)?;
+
         trace!("Committing transaction, returning success");
         txn.commit().await.or_raise(make_error)?;
+        if let Err(error) = ServiceContext::run_post_commit_actions_for_state(
+            &self.state,
+            post_commit_actions,
+        )
+        .await
+        {
+            error!("job committed but post-commit actions failed: {}", error);
+        }
         Ok(JobProcessStatus::ReceivedJob)
     }
 }

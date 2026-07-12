@@ -347,6 +347,9 @@ impl SiteService {
             model.license = Set(license);
         }
 
+        ctx.defer_public_content_cache_invalidate_site(site.site_id)
+            .or_raise(make_error)?;
+
         // Update site
         model.updated_at = Set(Some(now()));
         let new_site = model.update(txn).await.or_raise(make_error)?;
