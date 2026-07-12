@@ -75,6 +75,7 @@ export async function pageFileCreate(
   name: Optional<string>,
   file: File,
   revisionComments: Optional<string>,
+  ipAddress: string,
   requestContext: RequestContext,
   bypass_filter = false
 ): Promise<PageFileCreate> {
@@ -91,6 +92,7 @@ export async function pageFileCreate(
       name: name ?? file.name,
       uploaded_blob_id: presign.pending_blob_id,
       revision_comments: revisionComments ?? "",
+      ip_address: ipAddress,
       bypass_filter: bypass_filter
     },
     requestContext
@@ -136,6 +138,7 @@ export async function pageFileEdit(
   file: Optional<File>,
   lastRevisionId: number,
   revisionComments: Optional<string>,
+  ipAddress: string,
   requestContext: RequestContext,
   bypassFilter = false
 ): Promise<PageFileCreate> {
@@ -158,6 +161,7 @@ export async function pageFileEdit(
       name,
       uploaded_blob_id: presignId,
       revision_comments: revisionComments,
+      ip_address: ipAddress,
       bypass_filter: bypassFilter
     },
     requestContext
@@ -267,6 +271,7 @@ export async function pageFileRollback(
   lastRevisionId: number,
   revisionNumber: number,
   revisionComments: Optional<string>,
+  ipAddress: string,
   requestContext: RequestContext,
   bypassFilter = false
 ): Promise<Nullable<PageFile>> {
@@ -280,6 +285,7 @@ export async function pageFileRollback(
       last_revision_id: lastRevisionId,
       revision_number: revisionNumber,
       revision_comments: revisionComments,
+      ip_address: ipAddress,
       bypass_filter: bypassFilter
     },
     requestContext
