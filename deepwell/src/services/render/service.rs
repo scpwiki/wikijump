@@ -151,6 +151,7 @@ pub(crate) struct CorpusReplayPreparedWikitext {
     pub features: CorpusReplaySyntaxFeatures,
     pub(super) wikidot_compat_html: CompatHtmlFragments,
     pub(super) wikidot_compat_text: CompatTextFragments,
+    native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
 }
 
 #[derive(Debug)]
@@ -167,13 +168,13 @@ struct ViewableListPagesRows {
     view_permission_filtering_applied: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct ProtectedWikidotWikipediaLink {
     link: WikidotWikipediaLink,
     marker: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct WikidotWikipediaLink {
     anchor: String,
     href: String,
@@ -256,6 +257,7 @@ struct OuterPreparedRenderWikitext {
     wikidot_color_spans: ProtectedWikidotColorSpans,
     wikidot_compat_html: CompatHtmlFragments,
     wikidot_compat_text: CompatTextFragments,
+    native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
     compatibility_fallback: bool,
     timings: CorpusReplayStageTimings,
 }
@@ -270,6 +272,7 @@ struct InnerPreparedRenderWikitext {
     wikidot_wikipedia_links: Vec<ProtectedWikidotWikipediaLink>,
     wikidot_compat_html: CompatHtmlFragments,
     wikidot_compat_text: CompatTextFragments,
+    native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
     wikidot_embed_iframes: Vec<String>,
     timings: CorpusReplayStageTimings,
 }
@@ -921,6 +924,7 @@ impl RenderService {
                 features,
                 wikidot_compat_html: outer.wikidot_compat_html,
                 wikidot_compat_text: outer.wikidot_compat_text,
+                native_list_wikipedia_links: outer.native_list_wikipedia_links,
             };
         }
 
@@ -939,6 +943,7 @@ impl RenderService {
             features,
             wikidot_compat_html: inner.wikidot_compat_html,
             wikidot_compat_text: inner.wikidot_compat_text,
+            native_list_wikipedia_links: inner.native_list_wikipedia_links,
         }
     }
 
@@ -1108,10 +1113,12 @@ impl RenderService {
             Self::protect_wikidot_color_spans(&mut expanded.wikitext, settings);
         expanded.wikitext =
             Self::escape_unrendered_wikidot_color_markers(expanded.wikitext, settings);
-        expanded.wikitext = Self::render_long_native_list_runs_with_registry(
-            expanded.wikitext,
-            &mut expanded.wikidot_compat_html,
-        );
+        let (rendered, native_list_wikipedia_links) =
+            Self::render_long_native_list_runs_with_registry(
+                expanded.wikitext,
+                &mut expanded.wikidot_compat_html,
+            );
+        expanded.wikitext = rendered;
         Self::protect_wikidot_css_modules(
             &mut expanded.wikitext,
             settings,
@@ -1134,6 +1141,7 @@ impl RenderService {
             wikidot_color_spans,
             wikidot_compat_html: expanded.wikidot_compat_html,
             wikidot_compat_text,
+            native_list_wikipedia_links,
             compatibility_fallback,
             timings,
         }
@@ -1179,6 +1187,7 @@ impl RenderService {
             wikidot_color_spans: outer.wikidot_color_spans,
             wikidot_compat_html: outer.wikidot_compat_html,
             wikidot_compat_text: outer.wikidot_compat_text,
+            native_list_wikipedia_links: outer.native_list_wikipedia_links,
             wikidot_compat_links,
             wikidot_wikipedia_links,
             wikidot_embed_iframes,
@@ -1231,11 +1240,16 @@ impl RenderService {
                 wikidot_color_spans,
                 wikidot_compat_html,
                 wikidot_compat_text,
+                native_list_wikipedia_links,
                 compatibility_fallback: _,
                 timings: _,
             } = outer;
             let mut backlinks = ftml::data::Backlinks::new();
             backlinks.included_pages.extend(included_pages);
+            Self::record_wikidot_wikipedia_backlinks(
+                &mut backlinks,
+                &native_list_wikipedia_links,
+            );
             let fallback_link_titles = if let Some(site_id) = current_site_id {
                 Self::load_wikidot_compat_fallback_link_titles(ctx, site_id, &wikitext)
                     .await
@@ -1340,6 +1354,7 @@ impl RenderService {
                 wikidot_wikipedia_links,
                 wikidot_compat_html,
                 wikidot_compat_text,
+                native_list_wikipedia_links,
                 wikidot_embed_iframes,
                 timings: _,
             } = Self::prepare_inner_render_wikitext(outer, &render_settings);
@@ -1374,6 +1389,10 @@ impl RenderService {
             Self::record_protected_wikidot_wikipedia_backlinks(
                 &mut html_output.backlinks,
                 &wikidot_wikipedia_links,
+            );
+            Self::record_wikidot_wikipedia_backlinks(
+                &mut html_output.backlinks,
+                &native_list_wikipedia_links,
             );
             html_output.body = Self::restore_wikidot_render_compatibility(
                 &html_output.body,
@@ -3799,6 +3818,15 @@ impl RenderService {
             .extend(links.iter().map(|link| Cow::Owned(link.link.href.clone())));
     }
 
+    fn record_wikidot_wikipedia_backlinks(
+        backlinks: &mut ftml::data::Backlinks<'_>,
+        links: &[WikidotWikipediaLink],
+    ) {
+        backlinks
+            .external_links
+            .extend(links.iter().map(|link| Cow::Owned(link.href.clone())));
+    }
+
     fn restore_wikidot_rendered_embed_iframes(html: &str) -> String {
         WIKIDOT_EMBED_PARAGRAPH_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
@@ -5103,9 +5131,10 @@ impl RenderService {
     fn render_long_native_list_runs_with_registry(
         wikitext: String,
         compat_html: &mut CompatHtmlFragments,
-    ) -> String {
+    ) -> (String, Vec<WikidotWikipediaLink>) {
         let lines = wikitext.split_inclusive('\n').collect::<Vec<_>>();
         let mut output = String::with_capacity(wikitext.len());
+        let mut wikipedia_links = Vec::new();
         let mut index = 0;
 
         while index < lines.len() {
@@ -5115,9 +5144,11 @@ impl RenderService {
             }
 
             if end - index >= LONG_NATIVE_LIST_RENDER_MIN_ITEMS {
-                output.push_str(
-                    &compat_html.push_html(render_native_bullet_list(&lines[index..end])),
+                let rendered = render_native_bullet_list_with_wikipedia_links(
+                    &lines[index..end],
+                    &mut wikipedia_links,
                 );
+                output.push_str(&compat_html.push_html(rendered));
                 index = end;
             } else {
                 output.push_str(lines[index]);
@@ -5125,13 +5156,13 @@ impl RenderService {
             }
         }
 
-        output
+        (output, wikipedia_links)
     }
 
     #[cfg(test)]
     fn render_long_native_list_runs(wikitext: String) -> String {
         let mut fragments = CompatHtmlFragments::new(&wikitext);
-        let protected =
+        let (protected, _) =
             Self::render_long_native_list_runs_with_registry(wikitext, &mut fragments);
         fragments.restore(&protected)
     }
@@ -9176,10 +9207,6 @@ fn wikidot_star_local_anchor(target: &str, label: &str) -> String {
     )
 }
 
-fn render_wikidot_wikipedia_link(target: &str, label: Option<&str>) -> String {
-    build_wikidot_wikipedia_link(target, label).anchor
-}
-
 fn build_wikidot_wikipedia_link(
     target: &str,
     label: Option<&str>,
@@ -9261,7 +9288,10 @@ fn percent_encode_list_pages_class(value: &str) -> String {
         .collect()
 }
 
-fn render_native_bullet_list(lines: &[&str]) -> String {
+fn render_native_bullet_list_with_wikipedia_links(
+    lines: &[&str],
+    wikipedia_links: &mut Vec<WikidotWikipediaLink>,
+) -> String {
     let items: Vec<_> = lines
         .iter()
         .filter_map(|line| native_bullet_list_item(line))
@@ -9304,7 +9334,11 @@ fn render_native_bullet_list(lines: &[&str]) -> String {
         }
 
         output.push_str("<li>");
-        output.push_str(&render_native_list_item_content(content, has_children));
+        output.push_str(&render_native_list_item_content(
+            content,
+            has_children,
+            wikipedia_links,
+        ));
         open_li = true;
     }
 
@@ -9321,8 +9355,13 @@ fn render_native_bullet_list(lines: &[&str]) -> String {
     output
 }
 
-fn render_native_list_item_content(content: &str, has_children: bool) -> String {
-    let rendered = render_native_list_inline_html(content);
+fn render_native_list_item_content(
+    content: &str,
+    has_children: bool,
+    wikipedia_links: &mut Vec<WikidotWikipediaLink>,
+) -> String {
+    let rendered =
+        render_native_list_inline_html_with_wikipedia_links(content, wikipedia_links);
     if has_children && !rendered.contains("<a ") {
         format!(
             r#"<a href="javascript:;">{rendered}
@@ -9515,9 +9554,32 @@ fn render_native_list_inline_html(value: &str) -> String {
     render_native_list_inline_html_with_titles(value, None)
 }
 
+fn render_native_list_inline_html_with_wikipedia_links(
+    value: &str,
+    wikipedia_links: &mut Vec<WikidotWikipediaLink>,
+) -> String {
+    render_native_list_inline_html_with_titles_and_wikipedia_links(
+        value,
+        None,
+        Some(wikipedia_links),
+    )
+}
+
 fn render_native_list_inline_html_with_titles(
     value: &str,
     link_titles: Option<&WikidotCompatLinkTitleMap>,
+) -> String {
+    render_native_list_inline_html_with_titles_and_wikipedia_links(
+        value,
+        link_titles,
+        None,
+    )
+}
+
+fn render_native_list_inline_html_with_titles_and_wikipedia_links(
+    value: &str,
+    link_titles: Option<&WikidotCompatLinkTitleMap>,
+    mut wikipedia_links: Option<&mut Vec<WikidotWikipediaLink>>,
 ) -> String {
     let escaped = render_native_list_inline_wikidot_spans(value);
     let with_quadruple_links = WIKIDOT_QUADRUPLE_LINK_REGEX
@@ -9555,10 +9617,15 @@ fn render_native_list_inline_html_with_titles(
         .into_owned();
     let with_wikipedia_links = WIKIDOT_WIKIPEDIA_LINK_REGEX
         .replace_all(&with_user_links, |captures: &regex::Captures<'_>| {
-            render_wikidot_wikipedia_link(
+            let link = build_wikidot_wikipedia_link(
                 &captures["target"],
                 captures.name("label").map(|matched| matched.as_str()),
-            )
+            );
+            let anchor = link.anchor.clone();
+            if let Some(links) = wikipedia_links.as_deref_mut() {
+                links.push(link);
+            }
+            anchor
         })
         .into_owned();
 
@@ -16327,11 +16394,12 @@ mod tests {
     #[test]
     fn renders_wikidot_wikipedia_links_with_language_and_default_label() {
         assert_eq!(
-            super::render_wikidot_wikipedia_link("it:Albert_Einstein", Some("Albert")),
+            super::build_wikidot_wikipedia_link("it:Albert_Einstein", Some("Albert"))
+                .anchor,
             r#"<a href="http://it.wikipedia.org/wiki/Albert_Einstein" onclick="window.open(this.href, '_blank'); return false;">Albert</a>"#,
         );
         assert_eq!(
-            super::render_wikidot_wikipedia_link("Canonical_bundle", None),
+            super::build_wikidot_wikipedia_link("Canonical_bundle", None).anchor,
             r#"<a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical bundle</a>"#,
         );
     }
@@ -16401,10 +16469,66 @@ mod tests {
         )
         .to_owned();
 
-        let rendered = RenderService::render_long_native_list_runs(wikitext);
+        let mut fragments = CompatHtmlFragments::new(&wikitext);
+        let (protected, links) =
+            RenderService::render_long_native_list_runs_with_registry(
+                wikitext,
+                &mut fragments,
+            );
+        let rendered = fragments.restore(&protected);
+        let mut backlinks = ftml::data::Backlinks::new();
+        RenderService::record_wikidot_wikipedia_backlinks(
+            &mut backlinks,
+            &links,
+        );
 
         assert!(rendered.contains(r#"<li>Source <a href="http://en.wikipedia.org/wiki/Canonical_bundle" onclick="window.open(this.href, '_blank'); return false;">Canonical Bundle</a></li>"#));
         assert!(!rendered.contains("[wikipedia:Canonical_bundle"));
+        assert_eq!(links.len(), 1);
+        assert_eq!(
+            backlinks.external_links,
+            vec![Cow::Borrowed(
+                "http://en.wikipedia.org/wiki/Canonical_bundle"
+            )],
+        );
+    }
+
+    #[test]
+    fn native_list_wikipedia_backlinks_follow_only_emitted_anchors() {
+        let wikitext = concat!(
+            "* Item 1\n",
+            "* Item 2\n",
+            "* Item 3\n",
+            "* Item 4\n",
+            "* Item 5\n",
+            "* Item 6\n",
+            "* Malformed [wikipedia:] and [wikipedia:Missing close\n",
+            "* Sources [wikipedia:fr:Paris Paris] [wikipedia:Rust_(lang)]\n",
+            "After [wikipedia:Not_emitted Outside]\n",
+        )
+        .to_owned();
+        let mut fragments = CompatHtmlFragments::new(&wikitext);
+
+        let (protected, links) =
+            RenderService::render_long_native_list_runs_with_registry(
+                wikitext,
+                &mut fragments,
+            );
+        let rendered = fragments.restore(&protected);
+
+        assert_eq!(
+            links
+                .iter()
+                .map(|link| link.href.as_str())
+                .collect::<Vec<_>>(),
+            vec![
+                "http://fr.wikipedia.org/wiki/Paris",
+                "http://en.wikipedia.org/wiki/Rust_(lang)",
+            ],
+        );
+        assert!(rendered.contains(">Paris</a>"));
+        assert!(rendered.contains(">Rust (lang)</a>"));
+        assert!(rendered.contains("After [wikipedia:Not_emitted Outside]"));
     }
 
     #[test]
