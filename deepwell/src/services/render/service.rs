@@ -1380,7 +1380,7 @@ impl RenderService {
                      }| CodeBlock {
                         contents: Cow::Owned(
                             Self::restore_wikidot_code_block_compatibility(
-                                contents,
+                                &wikidot_compat_html.restore_plain(contents),
                                 render_current_site.as_ref(),
                                 &render_config,
                             ),
@@ -4378,6 +4378,7 @@ impl RenderService {
                 max_include_expansions,
                 arguments,
                 body,
+                compat_html,
             )
             .await?;
             expanded.push_str(&register_generated_list_pages_html(
@@ -4496,7 +4497,7 @@ impl RenderService {
                 let group = wikidot_module_argument(head, "group")
                     .unwrap_or("members")
                     .trim();
-                compat_html.push(render_members_module_placeholder(group))
+                compat_html.push_html(render_members_module_placeholder(group))
             })
             .into_owned()
     }
@@ -4513,7 +4514,7 @@ impl RenderService {
         NEWPAGE_MODULE_REGEX
             .replace_all(&wikitext, |captures: &regex::Captures<'_>| {
                 let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-                compat_html.push(render_new_page_module(head))
+                compat_html.push_html(render_new_page_module(head))
             })
             .into_owned()
     }
@@ -4530,7 +4531,7 @@ impl RenderService {
         CLONE_MODULE_REGEX
             .replace_all(&wikitext, |captures: &regex::Captures<'_>| {
                 let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-                compat_html.push(render_clone_module(head))
+                compat_html.push_html(render_clone_module(head))
             })
             .into_owned()
     }
@@ -4641,7 +4642,8 @@ impl RenderService {
             let pages =
                 Self::load_backlinks_module_pages(ctx, current_site_id, current_page_id)
                     .await?;
-            expanded.push_str(&compat_html.push(render_backlinks_module_box(&pages)));
+            expanded
+                .push_str(&compat_html.push_html(render_backlinks_module_box(&pages)));
             cursor = mtch.end();
         }
 
@@ -4794,7 +4796,7 @@ impl RenderService {
             let body = source[open.end()..close.start()].trim_matches('\n');
             let body = Self::escape_wikidot_css_module_body(body);
             output.push_str(&source[cursor..open.start()]);
-            output.push_str(&compat_html.push(format!("<style>\n{body}\n</style>")));
+            output.push_str(&compat_html.push_html(format!("<style>\n{body}\n</style>")));
             cursor = close.end();
         }
         output.push_str(&source[cursor..]);
@@ -5084,7 +5086,7 @@ impl RenderService {
 
             if end - index >= LONG_NATIVE_LIST_RENDER_MIN_ITEMS {
                 output.push_str(
-                    &compat_html.push(render_native_bullet_list(&lines[index..end])),
+                    &compat_html.push_html(render_native_bullet_list(&lines[index..end])),
                 );
                 index = end;
             } else {
@@ -6749,6 +6751,7 @@ impl RenderService {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     async fn render_list_pages_block(
         ctx: &ServiceContext<'_>,
         current_page: (i64, i64),
@@ -6757,6 +6760,7 @@ impl RenderService {
         max_include_expansions: usize,
         arguments: ListPagesArguments,
         body: &str,
+        compat_html: &mut CompatHtmlFragments,
     ) -> Result<IncludeExpansion> {
         let (current_site_id, current_page_id) = current_page;
         let ListPagesArguments {
@@ -7043,12 +7047,13 @@ impl RenderService {
                 data_form_values: &data_form_values,
                 render_generated_html: list_pages_body_has_table_rows(body),
             };
-            let mut body = substitute_list_pages_variables(
+            let mut body = substitute_list_pages_variables_with_fragments(
                 body,
                 page,
                 index + 1,
                 total,
                 &substitution_context,
+                compat_html,
             );
             Self::neutralize_authored_wikidot_compat_markers(&mut body);
             if let Some(table) = render_list_pages_table_rows(&body) {
@@ -8583,12 +8588,13 @@ struct ListPagesSubstitutionContext<'a> {
     render_generated_html: bool,
 }
 
-fn substitute_list_pages_variables(
+fn substitute_list_pages_variables_with_fragments(
     template: &str,
     page: &FoundPageRow,
     index: usize,
     total: usize,
     context: &ListPagesSubstitutionContext<'_>,
+    compat_html: &mut CompatHtmlFragments,
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
     let title = page.title.as_deref().unwrap_or(slug);
@@ -8708,6 +8714,7 @@ fn substitute_list_pages_variables(
                     &visible_tags,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
+                    compat_html,
                 ),
                 "form_data" | "form_raw" => captures
                     .name("argument")
@@ -8739,6 +8746,26 @@ fn substitute_list_pages_variables(
     RenderService::resolve_wikidot_parser_functions(
         &resolve_list_pages_signed_abs_expressions(&substituted),
     )
+}
+
+#[cfg(test)]
+fn substitute_list_pages_variables(
+    template: &str,
+    page: &FoundPageRow,
+    index: usize,
+    total: usize,
+    context: &ListPagesSubstitutionContext<'_>,
+) -> String {
+    let mut compat_html = CompatHtmlFragments::new(template);
+    let protected = substitute_list_pages_variables_with_fragments(
+        template,
+        page,
+        index,
+        total,
+        context,
+        &mut compat_html,
+    );
+    compat_html.restore(&protected)
 }
 
 fn substitute_count_pages_variables(template: &str, total: usize) -> String {
@@ -8810,6 +8837,7 @@ fn render_list_pages_tags(
     tags: &[String],
     path_prefix: Option<&str>,
     render_as_html: bool,
+    compat_html: &mut CompatHtmlFragments,
 ) -> String {
     let path_prefix = path_prefix
         .filter(|prefix| !prefix.trim().is_empty())
@@ -8817,14 +8845,14 @@ fn render_list_pages_tags(
     tags.iter()
         .map(|tag| {
             let href = list_pages_tag_link_href(path_prefix, tag);
+            let label = compat_html.push_plain(tag);
             if render_as_html {
                 format!(
-                    r#"<a href="{href}">{tag}</a>"#,
+                    r#"<a href="{href}">{label}</a>"#,
                     href = escape_list_pages_html_attr(&href),
-                    tag = escape_list_pages_html_text(tag),
                 )
             } else {
-                format!("[{href} {tag}]", tag = escape_wikidot_link_text(tag))
+                format!("[{href} {label}]")
             }
         })
         .collect::<Vec<_>>()
@@ -8832,8 +8860,8 @@ fn render_list_pages_tags(
 }
 
 fn list_pages_tag_link_href(path_prefix: &str, tag: &str) -> String {
-    let path_prefix = path_prefix.trim();
-    let tag = tag.trim();
+    let path_prefix = percent_encode_list_pages_href_prefix(path_prefix.trim());
+    let tag = percent_encode_list_pages_path_segment(tag.trim());
     if path_prefix.starts_with("http://")
         || path_prefix.starts_with("https://")
         || path_prefix.starts_with('/')
@@ -8842,6 +8870,40 @@ fn list_pages_tag_link_href(path_prefix: &str, tag: &str) -> String {
     } else {
         format!("/{path_prefix}{tag}")
     }
+}
+
+fn percent_encode_list_pages_href_prefix(value: &str) -> String {
+    percent_encode_list_pages_href_bytes(value, |byte| {
+        matches!(
+            byte,
+            b':' | b'/' | b'?' | b'&' | b'=' | b',' | b'@' | b'%' | b'+' | b';'
+        )
+    })
+}
+
+fn percent_encode_list_pages_path_segment(value: &str) -> String {
+    percent_encode_list_pages_href_bytes(value, |_| false)
+}
+
+fn percent_encode_list_pages_href_bytes(
+    value: &str,
+    preserve_reserved: impl Fn(u8) -> bool,
+) -> String {
+    let mut encoded = String::with_capacity(value.len());
+    for byte in value.bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
+                encoded.push(byte as char);
+            }
+            _ if preserve_reserved(byte) => encoded.push(byte as char),
+            _ => {
+                use std::fmt::Write as _;
+                write!(&mut encoded, "%{byte:02X}")
+                    .expect("writing to a String cannot fail");
+            }
+        }
+    }
+    encoded
 }
 
 fn render_tag_cloud_box(tags: &[(String, usize)]) -> String {
@@ -8983,7 +9045,8 @@ fn register_generated_list_pages_html(
                 return full_match.as_str().to_owned();
             }
 
-            compat_html.push(full_match.as_str().to_owned())
+            let html = compat_html.restore(full_match.as_str());
+            compat_html.push_html(html)
         })
         .into_owned()
 }
@@ -9020,10 +9083,6 @@ fn resolve_list_pages_signed_abs_expressions(value: &str) -> String {
             format!("{sign}{magnitude}")
         })
         .into_owned()
-}
-
-fn escape_wikidot_link_text(value: &str) -> String {
-    value.replace(']', r"\]")
 }
 
 fn wikidot_compat_link_marker() -> String {
@@ -11075,15 +11134,16 @@ mod tests {
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
-        list_pages_has_unsupported_parent_selector, native_list_page_link_default_label,
-        parse_list_pages_arguments, parse_wikidot_compat_color_descriptor,
-        push_list_pages_pager, register_generated_list_pages_html, render_clone_module,
+        list_pages_has_unsupported_parent_selector, list_pages_tag_link_href,
+        native_list_page_link_default_label, parse_list_pages_arguments,
+        parse_wikidot_compat_color_descriptor, push_list_pages_pager,
+        register_generated_list_pages_html, render_clone_module,
         render_list_pages_numbered_rows, render_list_pages_table_rows,
-        render_members_module_placeholder, render_native_list_inline_wikidot_spans,
-        render_native_list_page_link, render_new_page_module,
-        render_read_only_rate_module, render_tag_cloud_box, requested_page_info_score,
-        resolve_list_pages_signed_abs_expressions, resolve_wikidot_numeric_ifexpr,
-        restore_list_pages_literal_ellipsis_markers,
+        render_list_pages_tags, render_members_module_placeholder,
+        render_native_list_inline_wikidot_spans, render_native_list_page_link,
+        render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
+        requested_page_info_score, resolve_list_pages_signed_abs_expressions,
+        resolve_wikidot_numeric_ifexpr, restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
         wikidot_content_section, wikidot_module_argument,
@@ -13482,6 +13542,55 @@ mod tests {
         assert!(rendered.ends_with("scp-2693"));
         assert!(!rendered.contains("%%updated_by%%"));
         assert!(!rendered.contains("%%tags_linked%%"));
+    }
+
+    #[test]
+    fn protects_list_pages_tag_labels_and_encodes_href_segments_independently() {
+        let tags =
+            vec![r#"safe] [[span class="owned"]]<img onerror='x'> 日本"#.to_owned()];
+        let mut fragments = CompatHtmlFragments::new("");
+        let protected = render_list_pages_tags(
+            &tags,
+            Some("/system:page-tags/tag/"),
+            false,
+            &mut fragments,
+        );
+
+        assert!(protected.contains("safe%5D%20%5B%5Bspan%20class%3D%22owned%22%5D%5D%3Cimg%20onerror%3D%27x%27%3E%20%E6%97%A5%E6%9C%AC"));
+        assert!(!protected.contains("<img"));
+        let restored = fragments.restore(&protected);
+        assert!(restored.contains("safe&#x5D;&#x20;&#x5B;&#x5B;span"));
+        assert!(!restored.contains("<img"));
+        assert_eq!(
+            fragments.restore_plain(&protected),
+            format!(
+                "[/system:page-tags/tag/safe%5D%20%5B%5Bspan%20class%3D%22owned%22%5D%5D%3Cimg%20onerror%3D%27x%27%3E%20%E6%97%A5%E6%9C%AC {}]",
+                tags[0]
+            )
+        );
+        assert_eq!(
+            list_pages_tag_link_href("/tag/] [[span/", "safe tag"),
+            "/tag/%5D%20%5B%5Bspan/safe%20tag",
+        );
+    }
+
+    #[test]
+    fn restores_dense_list_pages_labels_once_inside_registered_table_html() {
+        let tags = (0..10_000)
+            .map(|index| format!("tag-{index}]<"))
+            .collect::<Vec<_>>();
+        let mut fragments = CompatHtmlFragments::new("");
+        let links = render_list_pages_tags(&tags, None, true, &mut fragments);
+        let table = format!(
+            r#"<table class="wiki-content-table" data-wikijump-compat-listpages="1"><tr><td>{links}</td></tr></table>"#
+        );
+        let protected = register_generated_list_pages_html(table, &mut fragments);
+        let restored = fragments.restore(&protected);
+
+        assert_eq!(restored.matches("<a href=").count(), 10_000);
+        assert!(restored.contains(r#"href="/system:page-tags/tag/tag-9999%5D%3C""#));
+        assert!(restored.contains("tag-9999&#x5D;&#x3C;"));
+        assert!(!restored.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
     }
 
     #[test]

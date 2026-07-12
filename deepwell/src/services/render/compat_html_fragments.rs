@@ -1,6 +1,7 @@
 //! Render-local provenance for HTML produced by trusted runtime producers.
 
 use serde::{Deserialize, Serialize};
+use std::fmt::Write as _;
 use uuid::Uuid;
 
 pub(super) const COMPAT_HTML_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
@@ -8,7 +9,13 @@ pub(super) const COMPAT_HTML_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(super) struct CompatHtmlFragments {
     namespace: String,
-    fragments: Vec<String>,
+    fragments: Vec<CompatFragment>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+enum CompatFragment {
+    Html(String),
+    Plain { plain: String, html: String },
 }
 
 impl CompatHtmlFragments {
@@ -26,13 +33,42 @@ impl CompatHtmlFragments {
         }
     }
 
-    pub(super) fn push(&mut self, html: String) -> String {
+    pub(super) fn push_html(&mut self, html: String) -> String {
+        self.push_fragment(CompatFragment::Html(html))
+    }
+
+    pub(super) fn push_plain(&mut self, plain: &str) -> String {
+        self.push_fragment(CompatFragment::Plain {
+            plain: plain.to_owned(),
+            html: escape_in_any_html_context(plain),
+        })
+    }
+
+    fn push_fragment(&mut self, fragment: CompatFragment) -> String {
         let index = self.fragments.len();
-        self.fragments.push(html);
+        self.fragments.push(fragment);
         format!("{}{index}X", self.namespace)
     }
 
     pub(super) fn restore(&self, text: &str) -> String {
+        self.restore_with(text, |fragment| match fragment {
+            CompatFragment::Html(html) => Some(html.as_str()),
+            CompatFragment::Plain { html, .. } => Some(html.as_str()),
+        })
+    }
+
+    pub(super) fn restore_plain(&self, text: &str) -> String {
+        self.restore_with(text, |fragment| match fragment {
+            CompatFragment::Plain { plain, .. } => Some(plain.as_str()),
+            CompatFragment::Html(_) => None,
+        })
+    }
+
+    fn restore_with<'a>(
+        &'a self,
+        text: &str,
+        value: impl Fn(&'a CompatFragment) -> Option<&'a str>,
+    ) -> String {
         if self.fragments.is_empty() || !text.contains(&self.namespace) {
             return text.to_owned();
         }
@@ -42,8 +78,13 @@ impl CompatHtmlFragments {
             let start = cursor + offset;
             output.push_str(&text[cursor..start]);
             if let Some((index, len)) = self.marker_at(&text[start..]) {
-                output.push_str(&self.fragments[index]);
-                cursor = start + len;
+                if let Some(fragment) = value(&self.fragments[index]) {
+                    output.push_str(fragment);
+                    cursor = start + len;
+                } else {
+                    output.push_str(&text[start..start + len]);
+                    cursor = start + len;
+                }
             } else {
                 output.push_str(&self.namespace);
                 cursor = start + self.namespace.len();
@@ -65,6 +106,19 @@ impl CompatHtmlFragments {
     }
 }
 
+fn escape_in_any_html_context(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        if character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.') {
+            escaped.push(character);
+        } else {
+            write!(&mut escaped, "&#x{:X};", character as u32)
+                .expect("writing to a String cannot fail");
+        }
+    }
+    escaped
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -73,8 +127,8 @@ mod tests {
     fn restores_only_registered_in_range_fragments_without_recursion() {
         let mut fragments = CompatHtmlFragments::new("authored source");
         let marker_shaped = format!("{COMPAT_HTML_MARKER_PREFIX}deadbeefI0X");
-        let first = fragments.push(format!("<b>{marker_shaped}</b>"));
-        let second = fragments.push("<i>second</i>".to_owned());
+        let first = fragments.push_html(format!("<b>{marker_shaped}</b>"));
+        let second = fragments.push_html("<i>second</i>".to_owned());
         let foreign =
             format!("{COMPAT_HTML_MARKER_PREFIX}ffffffffffffffffffffffffffffffffI0X");
         assert_eq!(
@@ -86,11 +140,30 @@ mod tests {
     #[test]
     fn malformed_and_out_of_range_markers_remain_literal() {
         let mut fragments = CompatHtmlFragments::new("");
-        let valid = fragments.push("<b>trusted</b>".to_owned());
+        let valid = fragments.push_html("<b>trusted</b>".to_owned());
         let malformed = format!("{}nopeX", fragments.namespace);
         let out_of_range = format!("{}9X", fragments.namespace);
         assert_eq!(fragments.restore(&valid), "<b>trusted</b>");
         assert_eq!(fragments.restore(&malformed), malformed);
         assert_eq!(fragments.restore(&out_of_range), out_of_range);
+    }
+
+    #[test]
+    fn restores_plain_fragments_by_destination_without_recursion() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let forged = format!("{COMPAT_HTML_MARKER_PREFIX}deadbeefI0X");
+        let marker =
+            fragments.push_plain(&format!(r#"tag ] <img onerror='x'> {forged}"#));
+
+        assert_eq!(
+            fragments.restore(&marker),
+            format!(
+                "tag&#x20;&#x5D;&#x20;&#x3C;img&#x20;onerror&#x3D;&#x27;x&#x27;&#x3E;&#x20;{forged}"
+            ),
+        );
+        assert_eq!(
+            fragments.restore_plain(&marker),
+            format!(r#"tag ] <img onerror='x'> {forged}"#),
+        );
     }
 }
