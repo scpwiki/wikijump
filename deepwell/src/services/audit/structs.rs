@@ -169,7 +169,6 @@ pub enum AuditEvent<'a> {
         description: &'a str,
     },
     AuthorizationTokenVerify {
-        token: &'a str,
         token_id: i32,
         object_type: AuthorizedObject,
     },
@@ -623,7 +622,6 @@ impl<'a> AuditEvent<'a> {
                 }
             }
             AuditEvent::AuthorizationTokenVerify {
-                token,
                 token_id,
                 object_type,
             } => RawAuditEvent {
@@ -635,7 +633,7 @@ impl<'a> AuditEvent<'a> {
                 extra_id_1: Some(i64::from(token_id)),
                 extra_id_2: None,
                 extra_string_1: Some(Cow::Borrowed(object_type.name())),
-                extra_string_2: Some(Cow::Owned(str!(token))),
+                extra_string_2: None,
                 extra_number: None,
             },
         };
@@ -1087,13 +1085,12 @@ mod tests {
         assert_eq!(metadata["description"], "automation");
 
         let raw = extract(AuditEvent::AuthorizationTokenVerify {
-            token: "secret-token",
             token_id: 71,
             object_type: AuthorizedObject::Site,
         });
         assert_event_type(&raw, "authorization_token.verify");
         assert_eq!(raw.extra_id_1, Some(71));
         assert_eq!(raw.extra_string_1.as_deref(), Some("site"));
-        assert_eq!(raw.extra_string_2.as_deref(), Some("secret-token"));
+        assert_eq!(raw.extra_string_2, None);
     }
 }

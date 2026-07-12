@@ -9,8 +9,8 @@ services:
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
       - "POSTGRES_HOST_AUTH_METHOD=md5"
       - "POSTGRES_INITDB_ARGS=--locale en_US.UTF-8"
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wikijump-health-check"]
@@ -21,8 +21,8 @@ services:
   cache:
     build: valkey
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     healthcheck:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 10s
@@ -31,8 +31,8 @@ services:
 
   deepwell:
     image: 575596218155.dkr.ecr.us-east-2.amazonaws.com/wikijump/deepwell:dev
-    ports:
-      - "2747:2747"
+    expose:
+      - "2747"
     environment:
       - "DATABASE_URL=postgres://wikijump:${POSTGRES_PASSWORD}@database/wikijump"
       - "REDIS_URL=redis://cache"
@@ -54,8 +54,8 @@ services:
 
   framerail:
     image: 575596218155.dkr.ecr.us-east-2.amazonaws.com/wikijump/framerail:dev
-    ports:
-      - "3393:3393"
+    expose:
+      - "3393"
     environment:
       - "DEEPWELL_HOST=deepwell"
     restart: unless-stopped
@@ -67,8 +67,8 @@ services:
 
   wws:
     image: 575596218155.dkr.ecr.us-east-2.amazonaws.com/wikijump/wws:dev
-    ports:
-      - "3466:3466"
+    expose:
+      - "3466"
     environment:
       - "ADDRESS=[::]:3466"
       - "DEEPWELL_URL=http://deepwell:2747"
