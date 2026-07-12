@@ -108,13 +108,15 @@ test("missing interaction selectors return explicit missing evidence without cli
 
 test("viewport artifact writer emits the complete fixed artifact set", async () => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "theme-browser-artifacts-"));
-  await fs.writeFile(path.join(directory, "screenshot.png"), "png fixture");
+  await fs.writeFile(path.join(directory, "screenshot.png"), "png fixture", {mode: 0o600});
   const result = {...passingViewport(), dom: "<html><body>fixture</body></html>", navigation_timing: {response_start: 100}, verdict: {status: "pass"}};
   const artifacts = await writeThemeViewportArtifacts(directory, result);
   assert.equal(await fs.readFile(artifacts.dom, "utf8"), result.dom);
   assert.equal((await fs.stat(artifacts.screenshot)).isFile(), true);
   assert.equal(JSON.parse(await fs.readFile(artifacts.verdict, "utf8")).status, "pass");
   assert.deepEqual(Object.keys(artifacts).sort(), ["computed_styles", "dom", "interactions", "network_errors", "raw_syntax", "screenshot", "verdict", "web_vitals"]);
+  for (const filePath of Object.values(artifacts)) assert.equal((await fs.stat(filePath)).mode & 0o077, 0);
+  await assert.rejects(writeThemeViewportArtifacts(directory, result), /EEXIST/);
 });
 
 test("tier orchestration opens one cold context per target and viewport and is fully mockable", async () => {
@@ -161,4 +163,24 @@ test("tier orchestration opens one cold context per target and viewport and is f
   assert.equal(result.status, "fail");
   assert.deepEqual(result.targets[1].verdict.failed_viewports, ["mobile"]);
   assert.deepEqual(JSON.parse(await fs.readFile(result.result_path, "utf8")).targets[0].verdict, {status: "pass", failed_viewports: []});
+  assert.equal((await fs.stat(result.result_path)).mode & 0o077, 0);
+  for (const target of tier.targets) for (const viewport of tier.capture.viewports) assert.equal((await fs.stat(path.join(outputDir, tier.id, target.id, viewport.id))).mode & 0o077, 0);
+});
+
+test("a supplied run-owned browser session is not reopened or closed by tier capture", async () => {
+  const tier = fixtureTier();
+  const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), "theme-shared-browser-"));
+  let contexts = 0;
+  let closes = 0;
+  const browserSession = {
+    browser: {async newContext() { contexts += 1; return {async close() {}}; }},
+    async close() { closes += 1; },
+  };
+  await captureThemeTierBrowserEvidence({
+    tier, outputDir, source: "日本語のテーマ本文", browserSession,
+    async openBrowserImpl() { throw new Error("must not reopen shared browser"); },
+    async captureViewportImpl({viewport}) { return {viewport, verdict: {status: "pass"}}; },
+  });
+  assert.equal(contexts, tier.targets.length * tier.capture.viewports.length);
+  assert.equal(closes, 0);
 });

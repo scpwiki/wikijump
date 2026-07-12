@@ -73,7 +73,7 @@ export function validateThemeExecutionPlan(plan) {
 
 export function themeExecutionFingerprint(plan) {
   const resources = validateThemeExecutionPlan(plan);
-  return sha256(JSON.stringify({schema: plan.schema, run: plan.run, resources}));
+  return sha256(JSON.stringify({schema: plan.schema, execution: {mode: plan.mode ?? null, execute_supported: plan.safety?.execute_supported === true}, run: plan.run, resources}));
 }
 
 function parseEvents(text) {
@@ -223,6 +223,10 @@ function matchesExpected(actual, state) {
   return state.identity === undefined || actual.identity === state.identity;
 }
 
+function throwIfAborted(signal) {
+  if (signal?.aborted) throw signal.reason instanceof Error ? signal.reason : new Error("theme execution interrupted");
+}
+
 export async function cleanupThemeExecution({ledger, adapters}) {
   if (ledger.completed) return;
   const failures = [];
@@ -249,11 +253,13 @@ export async function cleanupThemeExecution({ledger, adapters}) {
   await ledger.complete();
 }
 
-export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, materialize, capture, now}) {
+export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, materialize, capture, now, signal}) {
   const resources = validateThemeExecutionPlan(plan);
   if (typeof materialize !== "function" || typeof capture !== "function") throw new Error("materialize and capture callbacks are required");
+  throwIfAborted(signal);
   for (const resource of resources) {
     if (await adapterFor(adapters, resource).inspect(resource) !== null) throw new Error(`preexisting page blocks execution: ${resource.resource_id}`);
+    throwIfAborted(signal);
   }
   const ledger = await ThemeExecutionLedger.create(ledgerPath, {runId: plan.run.id, fingerprint: themeExecutionFingerprint(plan), resources}, {now});
   let primaryError = null;
@@ -261,14 +267,19 @@ export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, mat
     for (const tier of plan.tiers) {
       const tierResources = resources.filter((resource) => resource.tier_id === tier.id);
       for (const resource of tierResources) {
+        throwIfAborted(signal);
         const payload = await materialize(resource);
+        throwIfAborted(signal);
         if (typeof payload?.source !== "string" || sha256(payload.source) !== resource.source_sha256) throw new Error(`accepted source changed after preflight: ${resource.resource_id}`);
         const expected = {source_sha256: resource.source_sha256, title: resource.title};
         await ledger.intent(resource, expected);
         const identity = await adapterFor(adapters, resource).create(resource, payload);
+        throwIfAborted(signal);
         await ledger.created(resource, identity);
       }
+      throwIfAborted(signal);
       await capture(tier, tierResources);
+      throwIfAborted(signal);
     }
   } catch (error) {
     primaryError = error;
