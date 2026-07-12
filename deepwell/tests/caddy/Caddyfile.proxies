@@ -32,6 +32,7 @@
 #
 
 deploy.wikijump.test {
+	import strip_headers
 	reverse_proxy komodo_host
 }
 

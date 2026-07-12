@@ -257,6 +257,52 @@ fn write_test_file(path: &str, caddyfile: &str) {
 }
 
 #[test]
+fn deploy_proxies_strip_internal_headers_in_generated_and_provisional_configs() {
+    let configs = [
+        (
+            "basic production fixture",
+            read_test_file(CADDYFILE_BASIC_PROD),
+        ),
+        (
+            "full production fixture",
+            read_test_file(CADDYFILE_FULL_PROD),
+        ),
+        (
+            "proxy fixture",
+            read_test_file(CADDYFILE_BASIC_DIFFERENT_PROXIES),
+        ),
+        (
+            "development provisional Caddyfile",
+            String::from(include_str!("../../../../install/dev/caddy/Caddyfile")),
+        ),
+        (
+            "production provisional Caddyfile",
+            String::from(include_str!("../../../../install/prod/caddy/Caddyfile")),
+        ),
+    ];
+
+    for (name, caddyfile) in configs {
+        let deploy_block = caddyfile
+            .split_once("deploy.")
+            .unwrap_or_else(|| panic!("{name} has no deploy host block"))
+            .1
+            .split_once('}')
+            .unwrap_or_else(|| panic!("{name} has an unterminated deploy host block"))
+            .0;
+
+        assert!(
+            deploy_block.contains("import strip_headers")
+                || deploy_block.contains("request_header -X-Wikijump-*"),
+            "{name} does not strip client-supplied Wikijump headers before proxying",
+        );
+        assert!(
+            deploy_block.contains("reverse_proxy"),
+            "{name} canary did not select the deploy proxy block",
+        );
+    }
+}
+
+#[test]
 fn generate_caddyfiles() {
     const DEPLOY_HOST: &str = "localhost:9120";
     const FRAMERAIL_HOST: &str = "framerail:3393";
@@ -414,4 +460,27 @@ UNIT TEST INFO:
             "UPDATE_TEST_FILES is set to true! Disable this flag before attempting to run CI"
         );
     }
+}
+
+#[test]
+fn caddyfile_options_debug_redacts_wildcard_cert() {
+    const DNS_WILDCARD_CANARY: &str = "provider WILDCARD_DEBUG_CANARY_12345";
+
+    let options = CaddyfileOptions {
+        debug: false,
+        local: false,
+        http_port: None,
+        https_port: None,
+        wildcard_cert: Some(cow!(DNS_WILDCARD_CANARY)),
+        deploy_host: Some(cow!("localhost:9120")),
+        framerail_host: cow!("framerail:3393"),
+        wws_host: cow!("wws:3466"),
+    };
+
+    let debug = format!("{options:#?}");
+
+    assert!(!debug.contains(DNS_WILDCARD_CANARY));
+    assert!(!debug.contains("WILDCARD_DEBUG_CANARY_12345"));
+    assert!(debug.contains("wildcard_cert"));
+    assert!(debug.contains("[redacted]"));
 }

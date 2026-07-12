@@ -105,6 +105,7 @@ www.{{ domain }} {
 #
 
 deploy{{ main_domain }} {
+	import strip_headers
 	reverse_proxy {{ deploy_host }}
 }
 

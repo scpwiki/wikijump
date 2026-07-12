@@ -21,8 +21,9 @@
 use sea_orm::FromQueryResult;
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::fmt;
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct CaddyfileOptions<'a> {
     /// Whether to enable debug logging in Caddy.
     ///
@@ -87,6 +88,24 @@ pub struct CaddyfileOptions<'a> {
 
     /// Specifies the WWS host to reverse proxy to.
     pub wws_host: Cow<'a, str>,
+}
+
+impl fmt::Debug for CaddyfileOptions<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("CaddyfileOptions")
+            .field("debug", &self.debug)
+            .field("local", &self.local)
+            .field("http_port", &self.http_port)
+            .field("https_port", &self.https_port)
+            .field(
+                "wildcard_cert",
+                &self.wildcard_cert.as_ref().map(|_| "[redacted]"),
+            )
+            .field("deploy_host", &self.deploy_host)
+            .field("framerail_host", &self.framerail_host)
+            .field("wws_host", &self.wws_host)
+            .finish()
+    }
 }
 
 #[derive(Deserialize, Debug, Clone)]
