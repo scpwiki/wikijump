@@ -12147,7 +12147,7 @@ mod tests {
             register_generated_list_pages_html(source.to_owned(), &mut fragments);
 
         assert_eq!(protected, source);
-        assert!(fragments.is_empty());
+        assert_eq!(fragments.restore(&protected), protected);
         let rendered = render_wikidot_page_body_after_compat_restore(&protected);
         assert!(!rendered.contains(r#"<img src=x onerror="alert(document.domain)">"#));
         assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
