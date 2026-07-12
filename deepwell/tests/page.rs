@@ -571,6 +571,19 @@ async fn imported_breadcrumbs_hide_private_and_deleted_ancestors() {
     PermissionCache::invalidate_site(runner.context(), site_id)
         .await
         .expect("breadcrumb permission cache should be invalidated");
+    RoleService::grant_role_to_user(
+        runner.context(),
+        GrantUserRoleInput {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            role_id: root_role.role_id,
+            assigning_user_id: SYSTEM_USER_ID,
+            expires_at: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("authenticated breadcrumb viewer should receive the root role");
 
     let public_parent_id = create_imported_breadcrumb_page(
         &mut runner,
