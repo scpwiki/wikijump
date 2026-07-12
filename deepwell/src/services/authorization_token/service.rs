@@ -128,10 +128,7 @@ impl AuthorizationTokenService {
         object_type: AuthorizedObject,
         ip_address: IpAddr,
     ) -> Result<()> {
-        info!(
-            "Verifying authorization token '{}' (scope {:?})",
-            token, object_type,
-        );
+        info!("Verifying authorization token for scope {:?}", object_type);
 
         if token.len() != AUTHORIZATION_TOKEN_LENGTH {
             bail!(Error::new(
@@ -162,32 +159,31 @@ impl AuthorizationTokenService {
         }
 
         let txn = ctx.transaction();
-        let token_id: i32 = AuthorizationToken::find()
-            .select_only()
-            .column(authorization_token::Column::TokenId)
-            .filter(authorization_token::Column::TokenValue.eq(token))
-            .into_tuple()
-            .one(txn)
-            .await
-            .or_raise(make_error)?
-            .ok_or_raise(make_error)?;
+        let deleted_tokens: Vec<AuthorizationTokenModel> =
+            AuthorizationToken::delete_many()
+                .filter(authorization_token::Column::TokenValue.eq(token))
+                .exec_with_returning(txn)
+                .await
+                .or_raise(make_error)?;
 
-        info!(
-            "Successfully matched token with row ID {}, will remove and return OK",
-            token_id,
-        );
+        let token_id = match deleted_tokens.as_slice() {
+            [deleted_token] => deleted_token.token_id,
+            _ => {
+                error!(
+                    "Authorization token consumption deleted {} rows instead of one",
+                    deleted_tokens.len(),
+                );
+                bail!(make_error());
+            }
+        };
 
-        AuthorizationToken::delete_by_id(token_id)
-            .exec(txn)
-            .await
-            .or_raise(make_error)?;
+        info!("Successfully consumed authorization token row ID {token_id}");
 
         AuditService::log(
             ctx,
             ip_address,
             AuditEvent::AuthorizationTokenVerify {
                 object_type,
-                token,
                 token_id,
             },
         )
