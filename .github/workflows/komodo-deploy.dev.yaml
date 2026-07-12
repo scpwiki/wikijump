@@ -70,7 +70,58 @@ jobs:
     needs: [caddy, deepwell, framerail, wws]
     steps:
       - name: Invoke deployment hook
-        uses: distributhor/workflow-webhook@v3
-        with:
-          webhook_url: ${{ secrets.KOMODO_DEPLOY_DEV_WEBHOOK_URL }}
-          webhook_secret: ${{ secrets.KOMODO_DEPLOY_DEV_WEBHOOK_SECRET }}
+        env:
+          WEBHOOK_URL: ${{ secrets.KOMODO_DEPLOY_DEV_WEBHOOK_URL }}
+          WEBHOOK_SECRET: ${{ secrets.KOMODO_DEPLOY_DEV_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+
+          payload=$(node <<'NODE'
+          const crypto = require('node:crypto');
+
+          process.stdout.write(JSON.stringify({
+            event: process.env.GITHUB_EVENT_NAME,
+            repository: process.env.GITHUB_REPOSITORY,
+            commit: process.env.GITHUB_SHA,
+            ref: process.env.GITHUB_REF,
+            head: process.env.GITHUB_HEAD_REF || '',
+            workflow: process.env.GITHUB_WORKFLOW,
+            requestID: crypto.randomUUID(),
+          }));
+          NODE
+          )
+          signature=$(PAYLOAD="$payload" node <<'NODE'
+          const crypto = require('node:crypto');
+
+          process.stdout.write(
+            `sha1=${crypto
+              .createHmac('sha1', process.env.WEBHOOK_SECRET)
+              .update(process.env.PAYLOAD)
+              .digest('hex')}`,
+          );
+          NODE
+          )
+          signature_256=$(PAYLOAD="$payload" node <<'NODE'
+          const crypto = require('node:crypto');
+
+          process.stdout.write(
+            `sha256=${crypto
+              .createHmac('sha256', process.env.WEBHOOK_SECRET)
+              .update(process.env.PAYLOAD)
+              .digest('hex')}`,
+          );
+          NODE
+          )
+
+          curl --fail --silent --show-error \
+            --proto '=https' \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            --header 'X-GitHub-Event: push' \
+            --header "X-GitHub-Delivery: ${{ github.run_id }}-${{ github.run_attempt }}" \
+            --header "X-Hub-Signature: $signature" \
+            --header "X-Hub-Signature-256: $signature_256" \
+            --data "$payload" \
+            "$WEBHOOK_URL"

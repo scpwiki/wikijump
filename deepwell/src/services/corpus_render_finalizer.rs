@@ -118,10 +118,14 @@ impl RenderFinalizerPass {
 
     fn candidate_filter(self) -> &'static str {
         match self {
-            Self::Pass1 => "item.state = 'render_pending'",
+            // Retry failed rows while attempts remain, and reclaim expired
+            // render_running rows abandoned by an interrupted worker.
+            Self::Pass1 => {
+                "item.state IN ('render_pending', 'render_failed', 'render_running')"
+            }
             Self::Pass2 => {
                 "
-                item.state = 'rendered'
+                item.state IN ('rendered', 'render_failed', 'render_running')
                 AND (
                     revision_text.contents ~* '\\[\\[module[[:space:]]+(backlinks|listpages|countpages|tagcloud)'
                     OR page.slug = '_template'
@@ -596,24 +600,15 @@ impl CorpusRenderFinalizerService {
         let txn = state.database.begin().await.or_raise(make_error)?;
         let result = async {
             let ctx = ServiceContext::new(state, &txn);
-            if pass.rerender_outdates_dependents() {
-                PageRevisionService::rerender(
-                    &ctx,
-                    id,
-                    RerenderDepth::default(),
-                    RerenderType::Full,
-                )
-                .await
-                .or_raise(make_error)?;
-            } else {
-                PageRevisionService::rerender_without_outdating(
-                    &ctx,
-                    id,
-                    RerenderDepth::default(),
-                )
-                .await
-                .or_raise(make_error)?;
-            }
+            PageRevisionService::rerender_for_corpus_finalizer(
+                &ctx,
+                id,
+                RerenderDepth::default(),
+                RerenderType::Full,
+                pass.rerender_outdates_dependents(),
+            )
+            .await
+            .or_raise(make_error)?;
             Self::mark_item_rendered(&txn, item, pass.success_state()).await?;
             ctx.drain_post_commit_actions().or_raise(make_error)
         }
@@ -647,6 +642,8 @@ impl CorpusRenderFinalizerService {
         item: &RenderFinalizerItem,
         success_state: &'static str,
     ) -> Result<()> {
+        // claim_candidates increments attempts atomically; matching it here
+        // fences out a stale worker after an expired lease is reclaimed.
         debug_assert!(matches!(success_state, "rendered" | "done"));
         let make_error = || {
             Error::new(
@@ -662,18 +659,20 @@ impl CorpusRenderFinalizerService {
             str!(
                 "
                 UPDATE wikidot_corpus_import_item
-                SET state = $3::text,
+                SET state = $4::text,
                     lease_until = NULL,
                     error = NULL,
                     updated_at = NOW()
                 WHERE import_run_id = $1
                 AND source_entity_id = $2::uuid
+                AND attempts = $3
                 AND state = 'render_running'
                 "
             ),
             [
                 Value::from(item.import_run_id),
                 Value::from(item.source_entity_id.clone()),
+                Value::from(item.attempts),
                 Value::from(success_state),
             ],
         );
@@ -698,6 +697,8 @@ impl CorpusRenderFinalizerService {
         message: &str,
         error_chain: &str,
     ) -> Result<()> {
+        // Use the same claim fence as the success path so a stale failure
+        // cannot overwrite the state of a newer attempt.
         let make_error = || {
             Error::new(
                 format!(
@@ -715,18 +716,20 @@ impl CorpusRenderFinalizerService {
                 SET state = 'render_failed',
                     lease_until = NULL,
                     error = jsonb_build_object(
-                        'message', $3::text,
-                        'error_chain', $4::text
+                        'message', $4::text,
+                        'error_chain', $5::text
                     ),
                     updated_at = NOW()
                 WHERE import_run_id = $1
                 AND source_entity_id = $2::uuid
+                AND attempts = $3
                 AND state = 'render_running'
                 "
             ),
             [
                 Value::from(item.import_run_id),
                 Value::from(item.source_entity_id.clone()),
+                Value::from(item.attempts),
                 Value::from(message.to_owned()),
                 Value::from(error_chain.to_owned()),
             ],
@@ -962,6 +965,15 @@ mod tests {
                 .candidate_reasons()
                 .contains("source_backlinks_module")
         );
+    }
+
+    #[test]
+    fn render_finalizer_passes_retry_failures_and_reclaim_expired_leases() {
+        for pass in [RenderFinalizerPass::Pass1, RenderFinalizerPass::Pass2] {
+            let filter = pass.candidate_filter();
+            assert!(filter.contains("'render_failed'"));
+            assert!(filter.contains("'render_running'"));
+        }
     }
 
     #[test]

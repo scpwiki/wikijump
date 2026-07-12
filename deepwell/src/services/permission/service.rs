@@ -234,17 +234,12 @@ impl PermissionService {
             human_readable_categories,
         }: GetRolePermissionsInput<'_>,
     ) -> Result<Vec<Permission<'static>>> {
-        let role_id = match role_reference {
-            Reference::Id(id) => id,
-            Reference::Slug(_) => {
-                RoleService::get(ctx, site_id, role_reference)
-                    .await
-                    .or_raise(|| {
-                        Error::new("failed to get role for permissions", ErrorType::Role)
-                    })?
-                    .role_id
-            }
-        };
+        let role_id = RoleService::get(ctx, site_id, role_reference)
+            .await
+            .or_raise(|| {
+                Error::new("failed to get role for permissions", ErrorType::Role)
+            })?
+            .role_id;
         let make_error = || {
             Error::new(
                 format!("failed to get permissions for role ID {}", role_id),
