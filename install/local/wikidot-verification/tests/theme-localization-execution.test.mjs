@@ -15,6 +15,7 @@ import {
   executeThemeRunOwnedPages,
   recoverThemeExecution,
   themeExecutionFingerprint,
+  validateRecoverableThemeExecutionPlan,
   validateThemeExecutionPlan,
 } from "../src/theme-localization-execution.mjs";
 import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
@@ -26,7 +27,7 @@ function sha256(value) {
 function fixturePlan({runId = "20260713-core", tiers = ["yossistyle", "ashes-to-ashes"]} = {}) {
   return {
     schema: THEME_LOCALIZATION_E2E_SCHEMA,
-    run: {id: runId, site_slug: ALLOWED_SITE_SLUG, owned_slug_prefix: `theme:codex-l10n-${runId}-`},
+    run: {id: runId, site_slug: ALLOWED_SITE_SLUG, owned_slug_prefix: `codex-l10n:${runId}-`},
     safety: {
       hard_allowlist: {
         site_slug: ALLOWED_SITE_SLUG,
@@ -50,6 +51,17 @@ function fixturePlan({runId = "20260713-core", tiers = ["yossistyle", "ashes-to-
       };
     }),
   };
+}
+
+function legacyFixturePlan(options = {}) {
+  const plan = fixturePlan(options);
+  plan.run.owned_slug_prefix = `theme:codex-l10n-${plan.run.id}-`;
+  for (const tier of plan.tiers) {
+    const slug = `theme:codex-l10n-${plan.run.id}-${tier.id}`;
+    tier.run_owned_slug = slug;
+    for (const target of tier.targets) target.url = `${target.origin}/${slug}`;
+  }
+  return plan;
 }
 
 class FakeAdapter {
@@ -107,6 +119,10 @@ test("execution plan accepts only run-owned resources on the corrected sandbox",
   const wrongSlug = structuredClone(plan);
   wrongSlug.tiers[0].run_owned_slug = "theme:yossistyle";
   assert.throws(() => validateThemeExecutionPlan(wrongSlug), /not owned by run/);
+
+  const legacy = legacyFixturePlan({tiers: ["yossistyle"]});
+  assert.throws(() => validateThemeExecutionPlan(legacy), /slug prefix is invalid/);
+  assert.equal(validateRecoverableThemeExecutionPlan(legacy).length, 2);
 
   const mirrorUrl = structuredClone(plan);
   mirrorUrl.tiers[0].targets[1].url = `https://scp-wiki.wikijump.localhost/${mirrorUrl.tiers[0].run_owned_slug}`;
@@ -190,6 +206,23 @@ test("recovery cleans a page created after a durable intent even with a partial 
 
   const result = await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
   assert.equal(result.status, "clean");
+  assert.equal(fx.adapters.wikidot.pages.size, 0);
+  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
+  assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
+});
+
+test("recovery alone accepts an exact legacy theme-category plan and remains idempotent after sealing", async () => {
+  const fx = await fixture();
+  fx.plan = legacyFixturePlan({tiers: ["yossistyle"]});
+  const resources = validateRecoverableThemeExecutionPlan(fx.plan);
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan, {allowLegacy: true}), resources});
+  const resource = resources[0];
+  const source = `日本語 source ${resource.tier_id}\n`;
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, source), title: resource.title};
+  await ledger.intent(resource, expected);
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "legacy-created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256});
+
+  assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
   assert.equal(fx.adapters.wikidot.pages.size, 0);
   assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
   assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");

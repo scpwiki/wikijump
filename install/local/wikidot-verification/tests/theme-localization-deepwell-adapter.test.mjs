@@ -11,7 +11,7 @@ function sha256(value) {
 
 function resource() {
   const source = "日本語 theme source\n";
-  const slug = "theme:codex-l10n-20260713-adapter-yossistyle";
+  const slug = "codex-l10n:20260713-adapter-yossistyle";
   return {resource: {resource_id: "yossistyle:wikijump", target: "wikijump", slug, url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${slug}`, source_sha256: sha256(source), title: "Theme localization canary: yossistyle"}, source};
 }
 
@@ -73,6 +73,11 @@ test("create is create-only, authenticated, and verifies the accepted source", a
   assert.equal(create.params.slug, fixture.resource.slug);
   await assert.rejects(adapter.create(fixture.resource, {source: fixture.source}), /preexisting/);
   await assert.rejects(adapter.create({...fixture.resource, slug: "scp-173"}, {source: fixture.source}), /run-owned/);
+  const legacySlug = "theme:codex-l10n-20260713-adapter-yossistyle";
+  const legacy = {...fixture.resource, slug: legacySlug, url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${legacySlug}`};
+  rpc.page = null;
+  assert.equal(await adapter.inspect(legacy), null);
+  await assert.rejects(adapter.create(legacy, {source: fixture.source}), /run-owned/);
 });
 
 test("parser errors fail after creation so the outer intent ledger can clean up", async () => {

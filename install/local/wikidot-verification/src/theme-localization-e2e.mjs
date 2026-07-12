@@ -6,6 +6,8 @@ export const THEME_LOCALIZATION_E2E_SCHEMA = "wikijump_local_lab.theme_localizat
 export const ALLOWED_SITE_SLUG = "scpaiueouiuiuiui";
 export const DEFAULT_WIKIDOT_ORIGIN = "http://scpaiueouiuiuiui.wikidot.com";
 export const DEFAULT_WIKIJUMP_ORIGIN = "https://scpaiueouiuiuiui.wikijump.localhost:18443";
+export const RUN_OWNED_SLUG_PREFIX = "codex-l10n:";
+export const LEGACY_RUN_OWNED_SLUG_PREFIX = "theme:codex-l10n-";
 
 export const THEME_CAPTURE_VIEWPORTS = Object.freeze([
   Object.freeze({id: "desktop", width: 1440, height: 1000}),
@@ -259,17 +261,52 @@ export function runOwnedSlug(runId, tierId) {
   if (!THEME_LOCALIZATION_TIERS.some((tier) => tier.id === tierId)) {
     throw new Error(`unknown theme tier: ${tierId}`);
   }
-  const slug = `theme:codex-l10n-${runId}-${tierId}`;
+  const slug = `${RUN_OWNED_SLUG_PREFIX}${runId}-${tierId}`;
   assertRunOwnedSlug(slug, runId, tierId);
   return slug;
 }
 
 export function assertRunOwnedSlug(slug, runId, tierId) {
-  const expected = `theme:codex-l10n-${validateRunId(runId)}-${tierId}`;
-  if (slug !== expected || slug.length > 100 || !/^theme:codex-l10n-[a-z0-9-]+$/u.test(slug)) {
+  if (!THEME_LOCALIZATION_TIERS.some((tier) => tier.id === tierId)) throw new Error(`unknown theme tier: ${tierId}`);
+  const expected = `${RUN_OWNED_SLUG_PREFIX}${validateRunId(runId)}-${tierId}`;
+  if (slug !== expected || slug.length > 100 || !/^codex-l10n:[a-z0-9-]+$/u.test(slug)) {
     throw new Error(`page slug is not owned by run ${runId}: ${slug}`);
   }
   return slug;
+}
+
+export function assertLegacyRunOwnedSlug(slug, runId, tierId) {
+  if (!THEME_LOCALIZATION_TIERS.some((tier) => tier.id === tierId)) throw new Error(`unknown theme tier: ${tierId}`);
+  const expected = `${LEGACY_RUN_OWNED_SLUG_PREFIX}${validateRunId(runId)}-${tierId}`;
+  if (slug !== expected || slug.length > 100 || !/^theme:codex-l10n-[a-z0-9-]+$/u.test(slug)) {
+    throw new Error(`legacy page slug is not owned by run ${runId}: ${slug}`);
+  }
+  return slug;
+}
+
+function isKnownRunOwnedSlug(slug, legacy) {
+  if (typeof slug !== "string" || slug.length > 100) return false;
+  const prefix = legacy ? LEGACY_RUN_OWNED_SLUG_PREFIX : RUN_OWNED_SLUG_PREFIX;
+  for (const tier of THEME_LOCALIZATION_TIERS) {
+    const suffix = `-${tier.id}`;
+    if (!slug.startsWith(prefix) || !slug.endsWith(suffix)) continue;
+    const runId = slug.slice(prefix.length, -suffix.length);
+    try {
+      (legacy ? assertLegacyRunOwnedSlug : assertRunOwnedSlug)(slug, runId, tier.id);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+export function isCurrentRunOwnedSlug(slug) {
+  return isKnownRunOwnedSlug(slug, false);
+}
+
+export function isRecoverableRunOwnedSlug(slug) {
+  return isKnownRunOwnedSlug(slug, false) || isKnownRunOwnedSlug(slug, true);
 }
 
 export function selectThemeTiers(requested = ["all"]) {
@@ -442,7 +479,7 @@ export async function buildThemeLocalizationE2EPlan({
   return {
     schema: THEME_LOCALIZATION_E2E_SCHEMA,
     mode,
-    run: {id: validatedRunId, site_slug: validatedSite, owned_slug_prefix: `theme:codex-l10n-${validatedRunId}-`},
+    run: {id: validatedRunId, site_slug: validatedSite, owned_slug_prefix: `${RUN_OWNED_SLUG_PREFIX}${validatedRunId}-`},
     safety: {
       page_mutations_performed: 0,
       hard_allowlist: {

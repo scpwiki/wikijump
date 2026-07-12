@@ -16,10 +16,10 @@ import {
 import {THEME_PERFORMANCE_GATES} from "../src/theme-localization-e2e.mjs";
 
 function fixtureTier() {
-  const slug = "theme:codex-l10n-capture-run-yossistyle";
+  const slug = "codex-l10n:capture-run-yossistyle";
   return {
-    url: "https://scpaiueouiuiuiui.wikijump.localhost:18443/theme:codex-l10n-test-yossistyle",
-    final_url: "https://scpaiueouiuiuiui.wikijump.localhost:18443/theme:codex-l10n-test-yossistyle",
+    url: "https://scpaiueouiuiuiui.wikijump.localhost:18443/codex-l10n:test-yossistyle",
+    final_url: "https://scpaiueouiuiuiui.wikijump.localhost:18443/codex-l10n:test-yossistyle",
     id: "yossistyle",
     run_owned_slug: slug,
     targets: [

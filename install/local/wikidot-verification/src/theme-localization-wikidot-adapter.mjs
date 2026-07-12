@@ -4,11 +4,10 @@ import path from "node:path";
 import readline from "node:readline";
 import {fileURLToPath} from "node:url";
 
-import {ALLOWED_SITE_SLUG} from "./theme-localization-e2e.mjs";
+import {ALLOWED_SITE_SLUG, isCurrentRunOwnedSlug, isRecoverableRunOwnedSlug} from "./theme-localization-e2e.mjs";
 import {targetRoundTripSourceSha256} from "./theme-source-roundtrip.mjs";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
-const RUN_OWNED_SLUG = /^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$/u;
 const SECRET_KEY = /password|cookie|credential|session|token/iu;
 const HELPER_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../scripts/wikidot-theme-page-helper.py");
 
@@ -16,8 +15,9 @@ function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
 
-function validateResource(resource) {
-  if (resource?.target !== "wikidot" || typeof resource.slug !== "string" || resource.slug.length > 100 || !RUN_OWNED_SLUG.test(resource.slug)) {
+function validateResource(resource, {allowLegacy = false} = {}) {
+  const validSlug = allowLegacy ? isRecoverableRunOwnedSlug(resource?.slug) : isCurrentRunOwnedSlug(resource?.slug);
+  if (resource?.target !== "wikidot" || !validSlug) {
     throw new Error("Wikidot adapter accepts only run-owned theme pages");
   }
   const url = new URL(resource.url);
@@ -190,7 +190,7 @@ export class WikidotThemePageAdapter {
   }
 
   async inspect(resource) {
-    validateResource(resource);
+    validateResource(resource, {allowLegacy: true});
     const result = await this.helper.request("inspect", {slug: resource.slug});
     const page = result?.page;
     if (page === null) return null;
@@ -213,7 +213,7 @@ export class WikidotThemePageAdapter {
   }
 
   async remove(resource, {expected, identity} = {}) {
-    validateResource(resource);
+    validateResource(resource, {allowLegacy: true});
     const actual = await this.inspect(resource);
     if (actual === null) return;
     if (actual.source_sha256 !== expected?.source_sha256 || actual.title !== expected?.title || (identity !== undefined && actual.identity !== identity)) {

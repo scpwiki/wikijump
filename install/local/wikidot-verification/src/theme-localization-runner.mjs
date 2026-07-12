@@ -7,7 +7,7 @@ import {fileURLToPath} from "node:url";
 import {openBrowser} from "../scripts/capture-browser-rendering.mjs";
 import {captureThemeTierBrowserEvidence, prepareThemeArtifactDirectory} from "./theme-browser-capture.mjs";
 import {DeepwellThemePageAdapter} from "./theme-localization-deepwell-adapter.mjs";
-import {executeThemeRunOwnedPages, recoverThemeExecution, themeExecutionFingerprint, validateThemeExecutionPlan} from "./theme-localization-execution.mjs";
+import {executeThemeRunOwnedPages, recoverThemeExecution, themeExecutionFingerprint, validateRecoverableThemeExecutionPlan, validateThemeExecutionPlan} from "./theme-localization-execution.mjs";
 import {WikidotThemePageAdapter} from "./theme-localization-wikidot-adapter.mjs";
 
 export const THEME_RUN_RESULT_SCHEMA = "wikijump_local_lab.theme_run_result.v1";
@@ -113,8 +113,8 @@ function installSignalBridge(signalSource) {
   return {signal: controller.signal, received: () => received, close() { for (const [name, listener] of listeners) signalSource.off(name, listener); }};
 }
 
-function validateExecutablePlan(plan) {
-  validateThemeExecutionPlan(plan);
+function validateExecutablePlan(plan, {recovery = false} = {}) {
+  (recovery ? validateRecoverableThemeExecutionPlan : validateThemeExecutionPlan)(plan);
   if (plan.mode !== "execute" || plan.safety?.execute_supported !== true) throw new Error("theme plan is not explicitly executable");
 }
 
@@ -157,7 +157,7 @@ function captureSummary(captures) {
 
 export async function runGuardedThemeAction({mode, plan, ledgerPath, resultPath, artifactDir, signalSource = process, dependencyFactory = createLiveThemeDependencies, dependencyOptions = {}, captureTierImpl = captureThemeTierBrowserEvidence}) {
   if (!new Set(["execute", "recover"]).has(mode)) throw new Error("theme action must be execute or recover");
-  validateExecutablePlan(plan);
+  validateExecutablePlan(plan, {recovery: mode === "recover"});
   if (!ledgerPath || !resultPath || (mode === "execute" && !artifactDir)) throw new Error("ledger, result, and execute artifact paths are required");
   if (mode === "execute") artifactDir = await prepareThemeArtifactDirectory(artifactDir);
   const resultFile = await reserveResult(path.resolve(resultPath));
@@ -191,7 +191,7 @@ export async function runGuardedThemeAction({mode, plan, ledgerPath, resultPath,
     try { await dependencies?.close?.(); } catch (error) { failure ??= error; }
   }
   const secrets = dependencies?.secrets ?? [];
-  const aggregate = {schema: THEME_RUN_RESULT_SCHEMA, status: failure ? "fail" : "pass", mode, run_id: plan.run.id, plan_fingerprint: themeExecutionFingerprint(plan), ledger_path: path.resolve(ledgerPath), signal: bridge.received(), captures: captureSummary(captures), operation, error: failure ? redact(failure.message ?? failure, secrets) : null};
+  const aggregate = {schema: THEME_RUN_RESULT_SCHEMA, status: failure ? "fail" : "pass", mode, run_id: plan.run.id, plan_fingerprint: themeExecutionFingerprint(plan, {allowLegacy: mode === "recover"}), ledger_path: path.resolve(ledgerPath), signal: bridge.received(), captures: captureSummary(captures), operation, error: failure ? redact(failure.message ?? failure, secrets) : null};
   try {
     await resultFile.write(aggregate);
   } catch (error) {

@@ -3,7 +3,7 @@ import path from "node:path";
 
 import {openBrowser} from "../scripts/capture-browser-rendering.mjs";
 import {findRawSyntaxLeaks} from "./render-health.mjs";
-import {assertRunOwnedSlug, validateTargetOrigin} from "./theme-localization-e2e.mjs";
+import {RUN_OWNED_SLUG_PREFIX, assertRunOwnedSlug, validateTargetOrigin} from "./theme-localization-e2e.mjs";
 
 export const THEME_BROWSER_CAPTURE_SCHEMA = "wikijump_local_lab.theme_browser_capture.v1";
 const DEFAULT_TIMEOUT_MS = 30_000;
@@ -58,7 +58,7 @@ async function waitForLcpObservationWindow(page, capture, settleMs) {
 
 export function validateThemeCaptureTarget({tier, target}) {
   safeId(tier.id, "tier id");
-  const prefix = "theme:codex-l10n-";
+  const prefix = RUN_OWNED_SLUG_PREFIX;
   const suffix = `-${tier.id}`;
   if (typeof tier.run_owned_slug !== "string" || !tier.run_owned_slug.startsWith(prefix) || !tier.run_owned_slug.endsWith(suffix)) throw new Error("tier does not carry a run-owned slug");
   assertRunOwnedSlug(tier.run_owned_slug, tier.run_owned_slug.slice(prefix.length, -suffix.length), tier.id);

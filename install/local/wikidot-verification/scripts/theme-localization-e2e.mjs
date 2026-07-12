@@ -118,6 +118,8 @@ function printHelp() {
   node install/local/wikidot-verification/scripts/theme-localization-e2e.mjs --execute --translation-root PATH --run-id ID --output PLAN --ledger FILE --result FILE --artifact-dir DIR [browser options] [--json]
   node install/local/wikidot-verification/scripts/theme-localization-e2e.mjs --recover --plan PLAN --ledger FILE --result FILE [--json]
 
+New plans reserve codex-l10n:<run-id>-<tier>; recovery also accepts exact legacy theme:codex-l10n-<run-id>-<tier> plans whose ledger fingerprint and resources match.
+
 The exact site allowlist is ${ALLOWED_SITE_SLUG}. Execute and recover require WIKIJUMP_THEME_RPC_URL=${GUARDED_THEME_WIKIJUMP_RPC_URL}. Credentials are accepted only through WIKIDOT_USERNAME, WIKIDOT_PASSWORD, WIKIJUMP_THEME_ADMIN_EMAIL, and WIKIJUMP_THEME_ADMIN_PASSWORD. Optional browser flags are --browser-root, --browser-executable or --cdp-endpoint, --wikidot-storage-state, --wikijump-storage-state, and --ignore-https-errors.`);
 }
 
