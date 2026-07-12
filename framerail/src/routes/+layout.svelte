@@ -19,6 +19,10 @@
     type PageLayoutContext
   } from "$lib/page-layout-context"
   import { resolveShellLayout } from "$lib/wikidot-shell"
+  import {
+    resolveCanonicalViewData,
+    resolveCanonicalViewMetadata
+  } from "$lib/view-data-decision.js"
   import { resolve } from "$app/paths"
   import {
     resolveWikidotSessionUserName,
@@ -43,23 +47,24 @@
       return Layout.WIKIJUMP
     }
 
-    return resolveShellLayout(page.error ?? page.data)
+    return resolveShellLayout(resolveCanonicalViewData(page.error, page.data))
   }
 
   const currentLayout = $derived.by(resolveCurrentLayout)
-  const isImportedWikidotLayout = $derived(isImportedWikidotView(page.data ?? page.error))
-  const wikidotLocale = $derived(page.data?.site?.locale ?? page.error?.site?.locale)
+  const canonicalView = $derived(resolveCanonicalViewMetadata(page.error, page.data))
+  const viewData = $derived(canonicalView.viewData)
+  const wikidotLocale = $derived(canonicalView.locale)
   const wikidotFooterLinks = $derived(buildWikidotFooterLinks(wikidotLocale))
   const wikidotLoginLabels = $derived(buildWikidotLoginLabels(wikidotLocale))
   const wikidotLicenseHtml = $derived(
     buildWikidotLicenseHtml({
-      licenseName: page.data?.license_name ?? page.error?.license_name,
-      licenseUrl: page.data?.license_url ?? page.error?.license_url,
+      licenseName: canonicalView.licenseName,
+      licenseUrl: canonicalView.licenseUrl,
       locale: wikidotLocale,
-      sourceSite: page.data?.wikidot_snapshot?.source_site
+      sourceSite: canonicalView.sourceSite
     })
   )
-  const viewData = $derived(page.data ?? page.error)
+  const isImportedWikidotLayout = $derived(isImportedWikidotView(viewData))
   const useSandboxWikidotChrome = $derived(shouldUseSandboxWikidotChrome(viewData))
   const wikidotSiteTitle = $derived(resolveWikidotSiteTitle(viewData))
   const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
@@ -83,7 +88,7 @@
 {/if}
 
 <svelte:head>
-  <title>{page.data.site?.name}</title>
+  <title>{viewData?.site?.name}</title>
   {#if currentLayout === Layout.WIKIDOT}
     <link
       href="https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/css/style.css"
@@ -153,7 +158,7 @@
       {#if useSandboxWikidotChrome}
         <a class="navbar-brand" href={resolve("/", {})}>Home</a>
       {/if}
-      {@html page.data?.compiled_top_bar_html ?? page.error?.compiled_top_bar_html ?? ""}
+      {@html viewData?.compiled_top_bar_html ?? ""}
     {/snippet}
 
     {#snippet loginStatus()}
@@ -164,7 +169,7 @@
           <span>My account</span>
           <span> ▼</span>
         </div>
-      {:else if !useSandboxWikidotChrome && !(page.data?.user_session ?? page.error?.user_session)}
+      {:else if !useSandboxWikidotChrome && !viewData?.user_session}
         <div id="login-status">
           <a class="login-status-create-account btn" href={resolve("/-/register", {})}
             >{wikidotLoginLabels.createAccount}</a
@@ -178,9 +183,7 @@
     {/snippet}
 
     {#snippet sideBar()}
-      {@html page.data?.compiled_side_bar_html ??
-        page.error?.compiled_side_bar_html ??
-        ""}
+      {@html viewData?.compiled_side_bar_html ?? ""}
     {/snippet}
 
     {#snippet content()}
@@ -200,29 +203,18 @@
         <div class="footer-powered-by">{WIKIDOT_POWERED_BY}</div>
       {:else}
         <div class="options">
-          <a href={resolve("/", {})}
-            >{page.data?.internationalization?.docs ??
-              page.error?.internationalization?.docs}</a
-          >
+          <a href={resolve("/", {})}>{viewData?.internationalization?.docs}</a>
           |
           <a href={resolve("/", {})}
-            >{page.data?.internationalization?.["terms-conditions"] ??
-              page.error?.internationalization?.["terms-conditions"]}</a
+            >{viewData?.internationalization?.["terms-conditions"]}</a
           >
           |
-          <a href={resolve("/", {})}
-            >{page.data?.internationalization?.privacy ??
-              page.error?.internationalization?.privacy}</a
-          >
+          <a href={resolve("/", {})}>{viewData?.internationalization?.privacy}</a>
           |
-          <a href={resolve("/", {})}
-            >{page.data?.internationalization?.security ??
-              page.error?.internationalization?.security}</a
-          >
+          <a href={resolve("/", {})}>{viewData?.internationalization?.security}</a>
         </div>
         <div class="footer-powered-by">
-          {page.data?.internationalization?.["footer-powered-by"] ??
-            page.error?.internationalization?.["footer-powered-by"]}
+          {viewData?.internationalization?.["footer-powered-by"]}
         </div>
       {/if}
     {/snippet}
@@ -230,8 +222,7 @@
       {#if isImportedWikidotLayout}
         {@html wikidotLicenseHtml}
       {:else}
-        {@html page.data?.internationalization?.["footer-license-unless"] ??
-          page.error?.internationalization?.["footer-license-unless"]}
+        {@html viewData?.internationalization?.["footer-license-unless"] ?? ""}
       {/if}
     {/snippet}
   </Wikidot>
@@ -242,7 +233,7 @@
     {/snippet}
 
     {#snippet topBar()}
-      {@html page.data?.compiled_top_bar_html ?? page.error?.compiled_top_bar_html ?? ""}
+      {@html viewData?.compiled_top_bar_html ?? ""}
     {/snippet}
 
     {#snippet content()}
@@ -254,32 +245,21 @@
         <ul class="footer-items">
           <li class="footer-item">
             <a href={resolve("/", {})}
-              >{page.data?.internationalization?.["terms-conditions"] ??
-                page.error?.internationalization?.["terms-conditions"]}</a
+              >{viewData?.internationalization?.["terms-conditions"]}</a
             >
           </li>
           <li class="footer-item">
-            <a href={resolve("/", {})}
-              >{page.data?.internationalization?.privacy ??
-                page.error?.internationalization?.privacy}</a
-            >
+            <a href={resolve("/", {})}>{viewData?.internationalization?.privacy}</a>
           </li>
           <li class="footer-item">
-            <a href={resolve("/", {})}
-              >{page.data?.internationalization?.docs ??
-                page.error?.internationalization?.docs}</a
-            >
+            <a href={resolve("/", {})}>{viewData?.internationalization?.docs}</a>
           </li>
           <li class="footer-item">
-            <a href={resolve("/", {})}
-              >{page.data?.internationalization?.security ??
-                page.error?.internationalization?.security}</a
-            >
+            <a href={resolve("/", {})}>{viewData?.internationalization?.security}</a>
           </li>
         </ul>
         <div class="footer-powered-by">
-          {page.data?.internationalization?.["footer-powered-by"] ??
-            page.error?.internationalization?.["footer-powered-by"]}
+          {viewData?.internationalization?.["footer-powered-by"]}
         </div>
       </div>
     {/snippet}
