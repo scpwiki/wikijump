@@ -3,7 +3,7 @@ import path from "node:path";
 
 import {openBrowser} from "../scripts/capture-browser-rendering.mjs";
 import {findRawSyntaxLeaks} from "./render-health.mjs";
-import {RUN_OWNED_SLUG_PREFIX, assertRunOwnedSlug, validateTargetOrigin} from "./theme-localization-e2e.mjs";
+import {RUN_OWNED_SLUG_PREFIX, assertRunOwnedSlug, validateTargetOrigin, validateThemeComputedStyleContract} from "./theme-localization-e2e.mjs";
 
 export const THEME_BROWSER_CAPTURE_SCHEMA = "wikijump_local_lab.theme_browser_capture.v1";
 const DEFAULT_TIMEOUT_MS = 30_000;
@@ -120,13 +120,14 @@ function startErrorCapture(page) {
 }
 
 export async function collectComputedStyles(page, contract) {
+  validateThemeComputedStyleContract(contract);
   return page.evaluate(({properties, probes}) => probes.map((probe) => {
     const element = document.querySelector(probe.selector);
-    if (!element) return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, status: "missing", properties: null, rect: null};
+    if (!element) return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, expectation: probe.expectation, status: "missing", properties: null, rect: null};
     const style = getComputedStyle(element, probe.pseudo ?? null);
     const values = Object.fromEntries(properties.map((property) => [property, style.getPropertyValue(property)]));
     const rect = element.getBoundingClientRect();
-    return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, status: "measured", properties: values, rect: {x: rect.x, y: rect.y, width: rect.width, height: rect.height}};
+    return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, expectation: probe.expectation, status: "measured", properties: values, rect: {x: rect.x, y: rect.y, width: rect.width, height: rect.height}};
   }), contract);
 }
 
@@ -249,7 +250,47 @@ function metricGate(id, actual, specification) {
   return {id, status: actual <= specification.value ? "pass" : "fail", actual, expected: specification};
 }
 
-export function evaluateStrictThemeVerdict(result, gates) {
+function computedStyleGate(observations, contract) {
+  validateThemeComputedStyleContract(contract);
+  const results = Array.isArray(observations) ? observations : [];
+  const byId = new Map();
+  const invalid = [];
+  for (const observation of results) {
+    if (!observation || typeof observation.id !== "string" || byId.has(observation.id)) {
+      invalid.push(observation?.id ?? null);
+      continue;
+    }
+    byId.set(observation.id, observation);
+  }
+  const plannedIds = new Set(contract.probes.map((probe) => probe.id));
+  const unexpected = [...byId.keys()].filter((id) => !plannedIds.has(id));
+  const requiredMissing = [];
+  const optionalMissing = [];
+  const expectedAbsentPresent = [];
+  const probeChecks = contract.probes.map((probe) => {
+    const observation = byId.get(probe.id);
+    const actual = observation?.status ?? "not_recorded";
+    let status = "pass";
+    if (!observation || observation.expectation !== probe.expectation || !new Set(["measured", "missing"]).has(actual)) {
+      status = "fail";
+      invalid.push(probe.id);
+    } else if (probe.expectation === "required" && actual === "missing") {
+      status = "missing";
+      requiredMissing.push(probe.id);
+    } else if (probe.expectation === "optional" && actual === "missing") {
+      optionalMissing.push(probe.id);
+    } else if (probe.expectation === "expected_absent" && actual === "measured") {
+      status = "fail";
+      expectedAbsentPresent.push(probe.id);
+    }
+    return {id: probe.id, expectation: probe.expectation, actual, status};
+  });
+  const uniqueInvalid = [...new Set(invalid)];
+  const status = uniqueInvalid.length || unexpected.length || expectedAbsentPresent.length ? "fail" : requiredMissing.length ? "missing" : "pass";
+  return {id: "computed_style_probes", status, required_missing: requiredMissing, optional_missing: optionalMissing, expected_absent_present: expectedAbsentPresent, invalid_observations: uniqueInvalid, unexpected_observations: unexpected, probes: probeChecks};
+}
+
+export function evaluateStrictThemeVerdict(result, gates, computedStyleContract) {
   const checks = [];
   checks.push({id: "http_status", status: result.http_status === 200 ? "pass" : Number.isInteger(result.http_status) ? "fail" : "missing", actual: result.http_status});
   checks.push({id: "navigation", status: result.navigation_error ? "fail" : "pass", reason: result.navigation_error ?? null});
@@ -258,8 +299,7 @@ export function evaluateStrictThemeVerdict(result, gates) {
   checks.push({id: "screenshot_artifact", status: result.screenshot_status === "captured" ? "pass" : "missing", actual: result.screenshot_status ?? null});
   checks.push({id: "capture_errors", status: result.capture_errors?.length ? "fail" : "pass", count: result.capture_errors?.length ?? 0});
   for (const key of ["ttfb_ms", "fcp_ms", "lcp_ms", "cls"]) checks.push(metricGate(key, result.web_vitals?.[key], gates[key]));
-  const missingProbes = (result.computed_styles ?? []).filter((probe) => probe.status !== "measured").map((probe) => probe.id);
-  checks.push({id: "computed_style_probes", status: missingProbes.length ? "missing" : "pass", missing: missingProbes});
+  checks.push(computedStyleGate(result.computed_styles, computedStyleContract));
   const browserErrors = [...(result.errors?.console ?? []), ...(result.errors?.page ?? [])];
   const networkErrors = [...(result.errors?.requests ?? []), ...(result.errors?.responses ?? [])];
   checks.push({id: "browser_errors", status: browserErrors.length ? "fail" : "pass", count: browserErrors.length});
@@ -319,7 +359,7 @@ export async function captureThemeViewport({context, target, viewport, capture, 
   try { dom = await page.content(); domStatus = "captured"; } catch (error) { captureErrors.push(`dom: ${error.message}`); }
   const computedStyles = await collectComputedStyles(page, capture.computed_styles).catch((error) => {
     captureErrors.push(`computed styles: ${error.message}`);
-    return capture.computed_styles.probes.map((probe) => ({id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, status: "missing", properties: null, rect: null}));
+    return capture.computed_styles.probes.map((probe) => ({id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, expectation: probe.expectation, status: "missing", properties: null, rect: null}));
   });
   const metrics = await collectNavigationMetrics(page).catch((error) => {
     captureErrors.push(`navigation metrics: ${error.message}`);
@@ -334,7 +374,7 @@ export async function captureThemeViewport({context, target, viewport, capture, 
   const capturedErrors = structuredClone(errors);
   await page.close().catch(() => {});
   const result = {viewport, url: target.url, final_url: finalUrl, http_status: response?.status() ?? null, navigation_error: navigationError, settle_status: settleStatus, observation_deadline_ms: observationDeadlineMs, dom_status: domStatus, screenshot_status: screenshotStatus, capture_errors: captureErrors, dom, computed_styles: computedStyles, navigation_timing: metrics.navigation_timing, web_vitals: metrics.web_vitals, errors: capturedErrors, raw_syntax: findRawSyntaxLeaks({html: dom, source}), interactions};
-  result.verdict = evaluateStrictThemeVerdict(result, capture.web_vitals.gates);
+  result.verdict = evaluateStrictThemeVerdict(result, capture.web_vitals.gates, capture.computed_styles);
   result.artifacts = await writeThemeViewportArtifacts(artifactDir, result);
   const {dom: _dom, ...summary} = result;
   return summary;
@@ -342,6 +382,7 @@ export async function captureThemeViewport({context, target, viewport, capture, 
 
 export async function captureThemeTierBrowserEvidence({tier, outputDir, source, chromium, browserExecutable, cdpEndpoint, browserSession = null, ignoreHttpsErrors = false, storageStates = {}, openBrowserImpl = openBrowser, captureViewportImpl = captureThemeViewport}) {
   if (!tier?.capture || typeof source !== "string" || !source.trim()) throw new Error("tier capture contract and non-empty source are required");
+  validateThemeComputedStyleContract(tier.capture.computed_styles, {label: `${tier.id} computed-style contract`});
   const tierId = safeId(tier.id, "tier id");
   const rootDirectory = await prepareThemeArtifactDirectory(outputDir);
   const tierDirectory = await prepareThemeArtifactDirectory(path.join(rootDirectory, tierId));
