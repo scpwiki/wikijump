@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Write as _;
 use uuid::Uuid;
 
+use super::literal_regions::LiteralRegionIndex;
+
 pub(super) const COMPAT_HTML_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,14 +53,22 @@ impl CompatHtmlFragments {
     }
 
     pub(super) fn restore(&self, text: &str) -> String {
-        self.restore_with(text, |fragment| match fragment {
+        self.restore_with(text, None, |fragment| match fragment {
+            CompatFragment::Html(html) => Some(html.as_str()),
+            CompatFragment::Plain { html, .. } => Some(html.as_str()),
+        })
+    }
+
+    pub(super) fn restore_outside_html_literals(&self, text: &str) -> String {
+        let literal_regions = LiteralRegionIndex::new_html_restoration(text);
+        self.restore_with(text, Some(&literal_regions), |fragment| match fragment {
             CompatFragment::Html(html) => Some(html.as_str()),
             CompatFragment::Plain { html, .. } => Some(html.as_str()),
         })
     }
 
     pub(super) fn restore_plain(&self, text: &str) -> String {
-        self.restore_with(text, |fragment| match fragment {
+        self.restore_with(text, None, |fragment| match fragment {
             CompatFragment::Plain { plain, .. } => Some(plain.as_str()),
             CompatFragment::Html(_) => None,
         })
@@ -67,6 +77,7 @@ impl CompatHtmlFragments {
     fn restore_with<'a>(
         &'a self,
         text: &str,
+        literal_regions: Option<&LiteralRegionIndex>,
         value: impl Fn(&'a CompatFragment) -> Option<&'a str>,
     ) -> String {
         if self.fragments.is_empty() || !text.contains(&self.namespace) {
@@ -77,7 +88,10 @@ impl CompatHtmlFragments {
         while let Some(offset) = text[cursor..].find(&self.namespace) {
             let start = cursor + offset;
             output.push_str(&text[cursor..start]);
-            if let Some((index, len)) = self.marker_at(&text[start..]) {
+            if literal_regions.is_some_and(|regions| regions.contains(start)) {
+                output.push_str(&self.namespace);
+                cursor = start + self.namespace.len();
+            } else if let Some((index, len)) = self.marker_at(&text[start..]) {
                 if let Some(fragment) = value(&self.fragments[index]) {
                     output.push_str(fragment);
                     cursor = start + len;
@@ -146,6 +160,21 @@ mod tests {
         assert_eq!(fragments.restore(&valid), "<b>trusted</b>");
         assert_eq!(fragments.restore(&malformed), malformed);
         assert_eq!(fragments.restore(&out_of_range), out_of_range);
+    }
+
+    #[test]
+    fn context_aware_restore_only_expands_markers_in_html_text_nodes() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_html("<b>trusted</b>".to_owned());
+        let html = format!(
+            "{marker}<a title=\"quoted > {marker}\">{marker}</a><!-- {marker} --><code>{marker}</code>",
+        );
+        assert_eq!(
+            fragments.restore_outside_html_literals(&html),
+            format!(
+                "<b>trusted</b><a title=\"quoted > {marker}\"><b>trusted</b></a><!-- {marker} --><code>{marker}</code>",
+            ),
+        );
     }
 
     #[test]

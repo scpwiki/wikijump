@@ -185,7 +185,44 @@ struct ProtectedWikidotCompatLink {
     marker: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug)]
+struct ProtectedWikidotColorSpans {
+    fragments: CompatHtmlFragments,
+    #[cfg(test)]
+    spans: Vec<ProtectedWikidotColorSpan>,
+}
+
+impl ProtectedWikidotColorSpans {
+    fn new(source: &str) -> Self {
+        Self {
+            fragments: CompatHtmlFragments::new(source),
+            #[cfg(test)]
+            spans: Vec::new(),
+        }
+    }
+
+    #[cfg(test)]
+    fn len(&self) -> usize {
+        self.spans.len()
+    }
+
+    #[cfg(test)]
+    fn iter(&self) -> impl Iterator<Item = &ProtectedWikidotColorSpan> {
+        self.spans.iter()
+    }
+}
+
+#[cfg(test)]
+impl std::ops::Index<usize> for ProtectedWikidotColorSpans {
+    type Output = ProtectedWikidotColorSpan;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.spans[index]
+    }
+}
+
+#[cfg(test)]
+#[derive(Debug)]
 struct ProtectedWikidotColorSpan {
     marker: String,
     html: String,
@@ -216,7 +253,7 @@ struct OuterPreparedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
     wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
-    wikidot_color_spans: Vec<ProtectedWikidotColorSpan>,
+    wikidot_color_spans: ProtectedWikidotColorSpans,
     wikidot_compat_html: CompatHtmlFragments,
     wikidot_compat_text: CompatTextFragments,
     compatibility_fallback: bool,
@@ -228,7 +265,7 @@ struct InnerPreparedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
     wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
-    wikidot_color_spans: Vec<ProtectedWikidotColorSpan>,
+    wikidot_color_spans: ProtectedWikidotColorSpans,
     wikidot_compat_links: Vec<ProtectedWikidotCompatLink>,
     wikidot_wikipedia_links: Vec<ProtectedWikidotWikipediaLink>,
     wikidot_compat_html: CompatHtmlFragments,
@@ -267,6 +304,7 @@ const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_NONCE_LEN: usize = 32;
+#[cfg(test)]
 const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
 const WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTRATEANCHOR";
@@ -4921,30 +4959,37 @@ impl RenderService {
     fn protect_wikidot_color_spans(
         wikitext: &mut String,
         settings: &WikitextSettings,
-    ) -> Vec<ProtectedWikidotColorSpan> {
+    ) -> ProtectedWikidotColorSpans {
+        let mut protected_spans = ProtectedWikidotColorSpans::new(wikitext);
         if !settings.enable_page_syntax {
-            return Vec::new();
+            return protected_spans;
         }
 
-        let mut spans = Vec::new();
+        let literal_regions = LiteralRegionIndex::new_wikidot_protection(wikitext);
         let protected = WIKIDOT_COLOR_SPAN_REGEX
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                let full_match = captures.get(0).expect("color span match should exist");
+                if literal_regions.contains(full_match.start()) {
+                    return full_match.as_str().to_owned();
+                }
                 let Some(color) = parse_wikidot_compat_color_descriptor(
                     &captures["hashes"],
                     &captures["color"],
                 ) else {
                     return captures[0].to_owned();
                 };
-                let marker = wikidot_color_span_marker();
-                spans.push(ProtectedWikidotColorSpan {
+                let html = render_wikidot_color_span_html(&color, &captures["body"]);
+                let marker = protected_spans.fragments.push_html(html.clone());
+                #[cfg(test)]
+                protected_spans.spans.push(ProtectedWikidotColorSpan {
                     marker: marker.clone(),
-                    html: render_wikidot_color_span_html(&color, &captures["body"]),
+                    html,
                 });
                 marker
             })
             .into_owned();
         *wikitext = protected;
-        spans
+        protected_spans
     }
 
     fn protect_wikidot_inline_html_spans(
@@ -5028,13 +5073,10 @@ impl RenderService {
     }
 
     fn restore_protected_wikidot_color_spans(
-        mut html: String,
-        spans: &[ProtectedWikidotColorSpan],
+        html: String,
+        spans: &ProtectedWikidotColorSpans,
     ) -> String {
-        for span in spans {
-            html = html.replace(&span.marker, &span.html);
-        }
-        html
+        spans.fragments.restore_outside_html_literals(&html)
     }
 
     fn restore_protected_wikidot_inline_html(
@@ -8996,13 +9038,6 @@ fn wikidot_compat_link_marker() -> String {
 fn wikidot_compat_html_marker() -> String {
     format!(
         "{WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX}{}X",
-        Uuid::new_v4().as_simple(),
-    )
-}
-
-fn wikidot_color_span_marker() -> String {
-    format!(
-        "{WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX}{}X",
         Uuid::new_v4().as_simple(),
     )
 }
@@ -13019,6 +13054,61 @@ mod tests {
             &settings,
         );
         assert_eq!(escaped, "&#35;&#35;&#35;&#35;blue|leftover&#35;&#35;");
+    }
+
+    #[test]
+    fn protects_colors_only_outside_authored_literal_and_attribute_regions() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source = concat!(
+            "##red|ordinary##\n",
+            "[[span data-color=\"##red|wikidot attribute##\"]]body[[/span]]\n",
+            "<span title='quoted > ##red|html attribute##'>body</span>\n",
+            "@@##red|escaped##@@\n",
+            "[!-- ##red|comment## --]\n",
+            "[[code]]\n##red|code##\n[[/code]]\n",
+            "[[html]]\n##red|html##\n[[/html]]\n",
+        )
+        .to_owned();
+
+        let spans = RenderService::protect_wikidot_color_spans(&mut source, &settings);
+
+        assert_eq!(spans.len(), 1);
+        assert!(source.starts_with(&spans[0].marker));
+        for literal in [
+            "##red|wikidot attribute##",
+            "##red|html attribute##",
+            "##red|escaped##",
+            "##red|comment##",
+            "##red|code##",
+            "##red|html##",
+        ] {
+            assert!(source.contains(literal), "missing literal {literal}");
+        }
+    }
+
+    #[test]
+    fn restores_registered_colors_only_in_rendered_html_text_nodes_linearly() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source = (0..2_048)
+            .map(|index| format!("##red|replacement-{index}##"))
+            .collect::<Vec<_>>()
+            .join("|");
+        let spans = RenderService::protect_wikidot_color_spans(&mut source, &settings);
+        assert_eq!(spans.len(), 2_048);
+
+        let protected_marker = spans[0].marker.clone();
+        let rendered = format!(
+            "{source}<a title=\"quoted > {protected_marker}\">attribute</a><!-- {protected_marker} --><pre>{protected_marker}</pre>",
+        );
+        let restored =
+            RenderService::restore_protected_wikidot_color_spans(rendered, &spans);
+
+        assert!(restored.starts_with(r#"<span style="color: red">replacement-0</span>"#));
+        assert_eq!(
+            restored.matches(r#"<span style="color: red">"#).count(),
+            2_048
+        );
+        assert_eq!(restored.matches(&protected_marker).count(), 3);
     }
 
     #[test]
