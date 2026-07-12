@@ -19,10 +19,6 @@
 		# TODO: support multiple upstreams
 		to framerail:3393
 
-		lb_policy least_conn
-
-		fail_duration 30s
-		unhealthy_latency 4s
 	}
 }
 
@@ -31,10 +27,6 @@
 		# TODO: support multiple upstreams
 		to wws:3466
 
-		lb_policy least_conn
-
-		health_uri /-/health-check
-		health_timeout 1s
 	}
 }
 #
