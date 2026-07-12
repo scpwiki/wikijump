@@ -1042,7 +1042,7 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
         },
         params: {
           locales: [],
-          route: { extra: null, slug: "scp-173" },
+          route: { extra: "", slug: "scp-173" },
           session_token: "fixture-session-token",
           site_id: 6000005
         }
@@ -1055,7 +1055,7 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
         },
         params: {
           locales: [],
-          route: { extra: null, slug: "scp-173" },
+          route: { extra: "", slug: "scp-173" },
           session_token: "fixture-session-token",
           site_id: 6000005
         }
