@@ -11,6 +11,7 @@ import {
   buildManifestSummary,
   formatJsonl,
 } from '../src/corpus-import-manifest.mjs';
+import { assertEmptyDbImportTarget } from '../src/corpus-import-empty-target.mjs';
 
 function writePage(root, branch, fullname, { entityId, meta = {}, source = 'content' } = {}) {
   const pageDir = path.join(root, branch, 'pages', fullname);
@@ -903,6 +904,83 @@ test('apply-corpus-import-manifest rejects unsafe empty-DB assumption combinatio
   assert.match(rpcMode.stderr, /assume-empty-db-import requires --create-mode db/);
   assert.notEqual(adoptMode.status, 0);
   assert.match(adoptMode.stderr, /assume-empty-db-import cannot be combined with --adopt-existing or --replace-existing/);
+});
+
+test('apply-corpus-import-manifest documents disabled empty-DB writes and dry-run planning', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--help',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Non-dry-run --assume-empty-db-import is disabled/);
+  assert.match(result.stdout, /dry-run accepts the flag for planning without probing or changing the target/);
+  assert.doesNotMatch(result.stdout, /database uniqueness fail closed/);
+});
+
+test('apply-corpus-import-manifest rejects the racy empty-DB fast path before side effects', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest', path.join(packageRoot, 'package.json'),
+    '--create-mode', 'db',
+    '--assume-empty-db-import',
+    '--text-hash-command', 'unused',
+  ], { cwd: packageRoot, encoding: 'utf8' });
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /disabled until its empty-target guard and DB shell writes are atomic/);
+  assert.doesNotMatch(result.stderr, /ENOENT|postgres|docker|S3/u);
+});
+
+test('apply-corpus-import-manifest empty-DB preflight fails closed on active pages', async () => {
+  const calls = [];
+  const sqlExecutor = {
+    async runSql(sql, options) {
+      calls.push({ sql, options });
+      return '42|existing-page';
+    },
+  };
+
+  await assertEmptyDbImportTarget({ assumeEmptyDbImport: false, siteId: 6000005 }, sqlExecutor);
+  assert.equal(calls.length, 0);
+
+  await assert.rejects(
+    assertEmptyDbImportTarget({ assumeEmptyDbImport: true, siteId: 6000005 }, sqlExecutor),
+    /requires an empty active page set for site 6000005; found page 42 \(existing-page\)/,
+  );
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].options, { capture: true });
+  assert.match(calls[0].sql, /WHERE site_id = 6000005/);
+  assert.match(calls[0].sql, /AND deleted_at IS NULL/);
+
+  const emptyExecutor = { runSql: async () => '' };
+  await assert.doesNotReject(
+    assertEmptyDbImportTarget({ assumeEmptyDbImport: true, siteId: 6000005 }, emptyExecutor),
+  );
+
+  for (const siteId of [NaN, 6000005.5, '6000005', null]) {
+    await assert.rejects(
+      assertEmptyDbImportTarget({ assumeEmptyDbImport: true, siteId }, sqlExecutor),
+      /expected integer site ID/,
+    );
+  }
+  assert.equal(calls.length, 1, 'malformed site IDs must fail before executing SQL');
+
+  const scriptPath = path.join(
+    path.dirname(path.dirname(fileURLToPath(import.meta.url))),
+    'scripts/apply-corpus-import-manifest.mjs',
+  );
+  const script = fs.readFileSync(scriptPath, 'utf8');
+  assert.match(script, /verify_empty_db_import_target/);
 });
 
 test('apply-corpus-import-manifest rejects conflicting DB rerender flags', async () => {
