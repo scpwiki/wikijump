@@ -21,14 +21,25 @@
 use super::prelude::*;
 use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
 use regex::RegexSet;
+use std::fmt;
 use std::net::IpAddr;
 
 /// Describes one filter which a `FilterMatcher` can verify against.
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
 pub struct FilterSummary {
     pub filter_id: i64,
     pub regex: String,
     pub description: String,
+}
+
+impl fmt::Debug for FilterSummary {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("FilterSummary")
+            .field("filter_id", &self.filter_id)
+            .field("regex", &"<redacted>")
+            .field("description", &"<redacted>")
+            .finish()
+    }
 }
 
 /// Wrapper structure which determines which filter(s) a string violates.
@@ -80,10 +91,7 @@ impl FilterMatcher {
         let mut failed = Vec::new();
         for index in matches {
             let info = &self.filter_data[index];
-            error!(
-                "String failed filter ID {} (regex '{}'): {}",
-                info.filter_id, info.regex, info.description,
-            );
+            error!("String failed filter: {info:?}");
 
             AuditService::log(
                 ctx,
@@ -130,5 +138,21 @@ mod tests {
 
         assert!(matcher.regex_set.is_match("forbidden word"));
         assert_eq!(matcher.filter_data[0].filter_id, 1);
+    }
+
+    #[test]
+    fn filter_summary_debug_redacts_private_filter_details() {
+        let summary = FilterSummary {
+            filter_id: 7,
+            regex: str!("SECRET_ADMIN_REGEX"),
+            description: str!("PRIVATE admin-only filter description"),
+        };
+
+        let debug = format!("{summary:?}");
+
+        assert!(debug.contains("filter_id: 7"));
+        assert!(debug.contains("<redacted>"));
+        assert!(!debug.contains("SECRET_ADMIN_REGEX"));
+        assert!(!debug.contains("PRIVATE admin-only filter description"));
     }
 }

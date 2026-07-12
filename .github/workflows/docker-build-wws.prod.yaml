@@ -18,6 +18,3 @@ jobs:
       image-repository: wikijump/wws
       image-name: wws
       tier: prod
-    secrets:
-      aws-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY }}
-      aws-secret-key: ${{ secrets.AWS_ECR_SECRET_KEY }}

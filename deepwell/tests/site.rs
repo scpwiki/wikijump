@@ -25,14 +25,23 @@ use self::common::TestRunner;
 use deepwell::constants::SYSTEM_USER_ID;
 use deepwell::error::prelude::*;
 use deepwell::license::License;
+use deepwell::models::alias::{self, Entity as AliasTable};
+use deepwell::models::site::Entity as SiteTable;
 use deepwell::services::RequestContext;
+use deepwell::services::alias::{AliasService, CreateAlias};
 use deepwell::services::permission::PermissionService;
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
-use deepwell::services::site::{CreateSite, SiteService};
+use deepwell::services::site::{CreateSite, SiteService, UpdateSiteBody};
 use deepwell::services::user::{CreateUser, UserService};
-use deepwell::types::{Action, Permission, Reference, Resource, UserType};
+use deepwell::types::{
+    Action, AliasType, Maybe, Permission, Reference, Resource, UserType,
+};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, PaginatorTrait,
+    QueryFilter, Set,
+};
 use serde_json::json;
 use std::sync::atomic::{AtomicU64, Ordering};
 use str_macro::str;
@@ -228,4 +237,118 @@ async fn site_update_allows_users_with_site_edit_permission() {
 
     assert_eq!(updated.site_id, site_id);
     assert_eq!(updated.name, "Authorized site rename");
+}
+
+#[tokio::test]
+async fn platform_hostname_policy_covers_site_and_alias_lifecycle_paths() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+
+    for reserved in ["acme", "DNS", "ｅｃｈ", "dns."] {
+        let error = SiteService::create(
+            runner.context(),
+            CreateSite {
+                slug: reserved.to_owned(),
+                name: format!("Reserved hostname {reserved}"),
+                tagline: String::new(),
+                description: String::new(),
+                default_page: None,
+                layout: None,
+                license: License::CcBySa40,
+                locale: String::from("en"),
+                ip_address: common::IP_ADDRESS,
+            },
+        )
+        .await
+        .expect_err("normalized platform hostname must not be creatable");
+        assert_contains_error!(error, ErrorType::BadRequest);
+    }
+
+    let site_id = create_site(&runner, n).await;
+    for (slug, bypass_filter) in [("ACME", false), ("ＤＮＳ.", true)] {
+        let error = AliasService::create(
+            runner.context(),
+            CreateAlias {
+                slug: slug.to_owned(),
+                alias_type: AliasType::Site,
+                target_id: site_id,
+                created_by: SYSTEM_USER_ID,
+                bypass_filter,
+                ip_address: common::IP_ADDRESS,
+            },
+        )
+        .await
+        .expect_err("direct site alias must enforce platform hostname policy");
+        assert_contains_error!(error, ErrorType::BadRequest);
+    }
+
+    let update_error = SiteService::update(
+        runner.context(),
+        Reference::Id(site_id),
+        UpdateSiteBody {
+            slug: Maybe::Set(String::from("ＥＣＨ.")),
+            ..Default::default()
+        },
+        SYSTEM_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect_err("site update must enforce normalized platform hostname policy");
+    assert_contains_error!(update_error, ErrorType::BadRequest);
+
+    let legacy_site = SiteTable::find_by_id(site_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("legacy site lookup should succeed")
+        .expect("legacy site should exist");
+    let mut legacy_site = legacy_site.into_active_model();
+    legacy_site.slug = Set(String::from("acme"));
+    legacy_site
+        .update(runner.context().transaction())
+        .await
+        .expect("legacy reserved slug fixture should be installed");
+
+    let renamed_slug = format!("released-platform-hostname-{n}");
+    let renamed = SiteService::update(
+        runner.context(),
+        Reference::Id(site_id),
+        UpdateSiteBody {
+            slug: Maybe::Set(renamed_slug.clone()),
+            ..Default::default()
+        },
+        SYSTEM_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("legacy reserved hostname should be releasable by rename");
+    assert_eq!(renamed.slug, renamed_slug);
+    assert_eq!(
+        AliasTable::find()
+            .filter(alias::Column::AliasType.eq(AliasType::Site))
+            .filter(alias::Column::Slug.eq("acme"))
+            .count(runner.context().transaction())
+            .await
+            .expect("legacy alias count should succeed"),
+        0,
+        "legacy platform hostname must not survive as an alias",
+    );
+
+    let unrelated_slug = format!("acme-tools-{n}");
+    let unrelated = SiteService::create(
+        runner.context(),
+        CreateSite {
+            slug: unrelated_slug.clone(),
+            name: format!("Unrelated hostname {n}"),
+            tagline: String::new(),
+            description: format!("Unrelated hostname {n}"),
+            default_page: None,
+            layout: None,
+            license: License::CcBySa40,
+            locale: String::from("en"),
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("unrelated slug containing a reserved word should remain valid");
+    assert_eq!(unrelated.slug, unrelated_slug);
 }

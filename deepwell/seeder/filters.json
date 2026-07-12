@@ -177,27 +177,6 @@
     },
     {
         "site": null,
-        "regex": "^acme$",
-        "description": "Reserved name (acme)",
-        "case-sensitive": false,
-        "user": false
-    },
-    {
-        "site": null,
-        "regex": "^dns$",
-        "description": "Reserved name (dns)",
-        "case-sensitive": false,
-        "user": false
-    },
-    {
-        "site": null,
-        "regex": "^ech$",
-        "description": "Reserved name (ech) (for Encrypted ClientHello)",
-        "case-sensitive": false,
-        "user": false
-    },
-    {
-        "site": null,
         "regex": "^se?rv(ices?)?$",
         "description": "Reserved name (srv / serv / service / services)",
         "case-sensitive": false,
