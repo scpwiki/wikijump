@@ -33,16 +33,6 @@ declare global {
       license_url: string
       /** Data about current logged in user. */
       user_session: {
-        session: {
-          session_token: string
-          user_id: number
-          created_at: string
-          expires_at: string
-          ip_address: string
-          user_agent: string
-          restricted: boolean
-          [anySession: any]: unknown
-        }
         user: {
           user_id: number
           user_type: string

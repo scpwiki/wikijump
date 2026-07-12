@@ -1,12 +1,17 @@
 import defaults from "$lib/defaults"
 
-import { parseAcceptLangHeader, uniqueLocales, withFallbackLocale } from "$lib/locales"
+import {
+  limitLocalePreferences,
+  parseAcceptLangHeader,
+  uniqueLocales
+} from "$lib/locales"
 
 import { preloadView } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
+import { buildPublicPreloadData } from "$lib/server/load/preload-data.js"
 import { sanitizeUserData } from "$lib/server/load/user"
 
-import type { Viewer } from "$lib/server/deepwell/views"
+import type { PreloadData, Viewer } from "$lib/server/deepwell/views"
 import type { Cookies } from "@sveltejs/kit"
 
 const PAGE_ROUTES_WITH_ARTICLE_PRELOAD = new Set(["/", "/[slug]/[...extra]"])
@@ -20,30 +25,35 @@ export function getPreloadRequestLocales(request: Request): string[] {
 }
 
 export function getPreloadBackendLocales(locales: string[]): string[] {
-  return withFallbackLocale(locales, defaults.fallbackLocale)
+  return limitLocalePreferences(
+    [...locales, defaults.fallbackLocale],
+    [defaults.fallbackLocale]
+  )
 }
 
-export function finalizePreloadData(response: Viewer, locales: string[]) {
+export function finalizePreloadData(response: Viewer, locales: string[]): PreloadData {
   let resolvedLocales = uniqueLocales(locales)
 
   if (response.user_session?.user.locales) {
     resolvedLocales = uniqueLocales([
-      ...response.user_session.user.locales,
+      ...limitLocalePreferences(response.user_session.user.locales),
       ...resolvedLocales
     ])
   }
 
-  if (response?.site?.locale) {
-    resolvedLocales = uniqueLocales([...resolvedLocales, response.site.locale])
-  }
+  const requiredLocales = [response?.site?.locale, defaults.fallbackLocale].filter(
+    (locale): locale is string => Boolean(locale)
+  )
+  resolvedLocales = limitLocalePreferences(
+    [...resolvedLocales, ...requiredLocales],
+    requiredLocales
+  )
 
-  resolvedLocales = withFallbackLocale(resolvedLocales, defaults.fallbackLocale)
+  const userSession = response.user_session
+    ? { user: sanitizeUserData(response.user_session.user, false) }
+    : null
 
-  if (response.user_session?.user) {
-    response.user_session.user = sanitizeUserData(response.user_session?.user, false)
-  }
-
-  return { ...response, locales: resolvedLocales }
+  return buildPublicPreloadData(response, userSession, resolvedLocales)
 }
 
 /**

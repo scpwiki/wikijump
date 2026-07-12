@@ -545,10 +545,19 @@ impl RoleService {
                 ));
             }
 
-            // Validate that the new parent role exists
-            Self::assert_exists(ctx, site_id, parent_id.into())
+            // Validate that the new parent role exists and is active.
+            let parent_role = Self::get(ctx, site_id, parent_id.into())
                 .await
                 .or_raise(make_error)?;
+            if parent_role.deleted_at.is_some() {
+                bail!(Error::new(
+                    format!(
+                        "role ID {} cannot be parented under deleted role ID {}",
+                        role_id, parent_id
+                    ),
+                    ErrorType::RoleNotFound,
+                ));
+            }
 
             let is_proper_subset =
                 Self::validate_child_role_subset_of_parent(ctx, role_id, parent_id)

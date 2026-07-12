@@ -186,6 +186,7 @@ async fn basic_update() {
     assert!(output.user.last_renamed_at.is_none());
     assert!(!output.user.password.is_empty());
     assert_eq!(output.user.email, "jane@private.me");
+    assert!(output.user.email_verified_at.is_none());
     assert!(output.user.email_validation_info.is_some());
     assert!(output.user.email_validation_at.is_some());
     assert_eq!(output.user.locales.len(), 1);
@@ -240,8 +241,8 @@ async fn basic_update() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert!(output.user.email_validation_info.is_some());
-    assert!(output.user.email_validation_at.is_some());
+    assert!(user.email_validation_info.is_some());
+    assert!(user.email_validation_at.is_some());
     assert_eq!(user.user_id, user_id);
     assert_eq!(user.email, "jane@wikijump.dev");
     assert!(user.biography.is_none());
@@ -272,6 +273,184 @@ async fn basic_update() {
         }),
     );
     assert_ne!(user.password, old_password);
+}
+
+#[tokio::test]
+async fn user_create_only_verified_email_blocks_conflict() {
+    let runner = TestRunner::setup().await;
+
+    let first = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "First Unverified Email User",
+            "email": "shared-unverified@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let second = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Second Unverified Email User",
+            "email": "shared-unverified@example.invalid",
+            "locales": ["en"],
+            "password": "letmein",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_ne!(first.user_id, second.user_id);
+
+    let error = run_endpoint_err!(
+        runner,
+        auth_login,
+        json!({
+            "name_or_email": "shared-unverified@example.invalid",
+            "password": "hunter2",
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "verified-email-test",
+        }),
+    );
+    assert_contains_error!(error, ErrorType::InvalidAuthentication);
+
+    let verified = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": first.user_id,
+            "email_verified": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(verified.email_verified_at.is_some());
+
+    let name_owner = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "shared-unverified@example.invalid",
+            "email": "name-owner@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_ne!(name_owner.user_id, first.user_id);
+
+    let login = run_endpoint!(
+        runner,
+        auth_login,
+        json!({
+            "name_or_email": "shared-unverified@example.invalid",
+            "password": "hunter2",
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "verified-email-test",
+        }),
+    );
+    let session = run_endpoint!(runner, auth_session_get, json!([login.session_token]),)
+        .expect("verified email login should create a session");
+    assert_eq!(session.user_id, first.user_id);
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": second.user_id,
+            "email_verified": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let error = run_endpoint_err!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Blocked Verified Email User",
+            "email": "shared-unverified@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    assert_contains_error!(error, ErrorType::UserExists);
+}
+
+#[tokio::test]
+async fn changing_email_clears_verified_ownership() {
+    let runner = TestRunner::setup().await;
+
+    let user = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Verified Email Change User",
+            "email": "verified-before-change@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let verified = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": user.user_id,
+            "email_verified": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(verified.email_verified_at.is_some());
+
+    let unchanged = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": user.user_id,
+            "email": "verified-before-change@example.invalid",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(unchanged.email_verified_at.is_some());
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": user.user_id,
+            "email": "unverified-after-change@example.invalid",
+            "email_verified": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::BadRequest);
+
+    let changed = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": user.user_id,
+            "email": "unverified-after-change@example.invalid",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(changed.email_verified_at.is_none());
 }
 
 // TODO test renames / rename tokens
