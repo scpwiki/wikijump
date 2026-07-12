@@ -461,3 +461,26 @@ UNIT TEST INFO:
         );
     }
 }
+
+#[test]
+fn caddyfile_options_debug_redacts_wildcard_cert() {
+    const DNS_WILDCARD_CANARY: &str = "provider WILDCARD_DEBUG_CANARY_12345";
+
+    let options = CaddyfileOptions {
+        debug: false,
+        local: false,
+        http_port: None,
+        https_port: None,
+        wildcard_cert: Some(cow!(DNS_WILDCARD_CANARY)),
+        deploy_host: Some(cow!("localhost:9120")),
+        framerail_host: cow!("framerail:3393"),
+        wws_host: cow!("wws:3466"),
+    };
+
+    let debug = format!("{options:#?}");
+
+    assert!(!debug.contains(DNS_WILDCARD_CANARY));
+    assert!(!debug.contains("WILDCARD_DEBUG_CANARY_12345"));
+    assert!(debug.contains("wildcard_cert"));
+    assert!(debug.contains("[redacted]"));
+}
