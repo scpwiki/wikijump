@@ -66,16 +66,18 @@ test("tier selection is deterministic and run-owned slugs cannot drift", () => {
 });
 
 test("target allowlist rejects mirror sites, paths, credentials, and wrong protocols", () => {
-  assert.equal(validateTargetOrigin("http://scpaiueouiuiui.wikidot.com", "wikidot"), "http://scpaiueouiuiui.wikidot.com");
-  assert.equal(validateTargetOrigin("https://scpaiueouiuiui.wikijump.localhost:18443", "wikijump"), "https://scpaiueouiuiui.wikijump.localhost:18443");
+  assert.equal(validateTargetOrigin("http://scpaiueouiuiuiui.wikidot.com", "wikidot"), "http://scpaiueouiuiuiui.wikidot.com");
+  assert.equal(validateTargetOrigin("https://scpaiueouiuiuiui.wikijump.localhost:18443", "wikijump"), "https://scpaiueouiuiuiui.wikijump.localhost:18443");
+  assert.throws(() => validateTargetOrigin("http://scpaiueouiuiui.wikidot.com", "wikidot"), /hard allowlist/);
+  assert.throws(() => validateTargetOrigin("https://scpaiueouiuiui.wikijump.localhost:18443", "wikijump"), /hard allowlist/);
   assert.throws(() => validateTargetOrigin("https://scp-wiki.wikijump.localhost", "wikijump"), /hard allowlist/);
   assert.throws(() => validateTargetOrigin("https://scp-jp.wikijump.localhost", "wikijump"), /hard allowlist/);
-  assert.throws(() => validateTargetOrigin("http://scpaiueouiuiui.wikidot.com/admin", "wikidot"), /hard allowlist/);
-  assert.throws(() => validateTargetOrigin("https://scpaiueouiuiui.wikidot.com", "wikidot"), /hard allowlist/);
-  assert.throws(() => validateTargetOrigin("https://user:pass@scpaiueouiuiui.wikijump.localhost", "wikijump"), /hard allowlist/);
-  assert.throws(() => validateTargetOrigin("http://scpaiueouiuiui.wikidot.com:9999", "wikidot"), /hard allowlist/);
-  assert.throws(() => validateTargetOrigin("https://scpaiueouiuiui.wikijump.localhost:2747", "wikijump"), /hard allowlist/);
-  assert.throws(() => validateTargetOrigin("https://scpaiueouiuiui.wikijump.localhost", "other"), /unknown target/);
+  assert.throws(() => validateTargetOrigin("http://scpaiueouiuiuiui.wikidot.com/admin", "wikidot"), /hard allowlist/);
+  assert.throws(() => validateTargetOrigin("https://scpaiueouiuiuiui.wikidot.com", "wikidot"), /hard allowlist/);
+  assert.throws(() => validateTargetOrigin("https://user:pass@scpaiueouiuiuiui.wikijump.localhost", "wikijump"), /hard allowlist/);
+  assert.throws(() => validateTargetOrigin("http://scpaiueouiuiuiui.wikidot.com:9999", "wikidot"), /hard allowlist/);
+  assert.throws(() => validateTargetOrigin("https://scpaiueouiuiuiui.wikijump.localhost:2747", "wikijump"), /hard allowlist/);
+  assert.throws(() => validateTargetOrigin("https://scpaiueouiuiuiui.wikijump.localhost", "other"), /unknown target/);
 });
 
 test("artifact leakage reports locations without copying identifiers", () => {
@@ -122,7 +124,7 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.deepEqual(first.tiers[0].capture.web_vitals.gates, THEME_PERFORMANCE_GATES);
   assert.ok(first.tiers[0].capture.computed_styles.probes.some((probe) => probe.pseudo === "::after"));
   assert.ok(first.tiers[2].capture.interactions.some((interaction) => interaction.id === "tab_switch"));
-  assert.ok(first.tiers.flatMap((tier) => tier.targets).every((target) => target.url.includes("scpaiueouiuiui")));
+  assert.ok(first.tiers.flatMap((tier) => tier.targets).every((target) => target.url.includes("scpaiueouiuiuiui")));
   assert.ok(first.tiers.flatMap((tier) => tier.preflight.dependency_files.assets).every((asset) => asset.status === "pass" && asset.sha256));
 });
 

@@ -3,9 +3,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 export const THEME_LOCALIZATION_E2E_SCHEMA = "wikijump_local_lab.theme_localization_e2e_plan.v1";
-export const ALLOWED_SITE_SLUG = "scpaiueouiuiui";
-export const DEFAULT_WIKIDOT_ORIGIN = "http://scpaiueouiuiui.wikidot.com";
-export const DEFAULT_WIKIJUMP_ORIGIN = "https://scpaiueouiuiui.wikijump.localhost:18443";
+export const ALLOWED_SITE_SLUG = "scpaiueouiuiuiui";
+export const DEFAULT_WIKIDOT_ORIGIN = "http://scpaiueouiuiuiui.wikidot.com";
+export const DEFAULT_WIKIJUMP_ORIGIN = "https://scpaiueouiuiuiui.wikijump.localhost:18443";
 
 export const THEME_CAPTURE_VIEWPORTS = Object.freeze([
   Object.freeze({id: "desktop", width: 1440, height: 1000}),

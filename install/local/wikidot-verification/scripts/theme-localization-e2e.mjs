@@ -75,7 +75,7 @@ export function parseArgs(argv) {
 function printHelpAndExit() {
   console.log(`Usage: node install/local/wikidot-verification/scripts/theme-localization-e2e.mjs --dry-run --translation-root PATH --run-id ID --output FILE [--tier yossistyle|ashes-to-ashes|basalt|all ...] [--site ${ALLOWED_SITE_SLUG}] [--wikidot-origin ${DEFAULT_WIKIDOT_ORIGIN}] [--wikijump-origin ${DEFAULT_WIKIJUMP_ORIGIN}] [--json]
 
-Builds a deterministic, mutation-free theme localization E2E plan. The runner rejects every site outside the dedicated scpaiueouiuiui sandbox, validates run-owned slugs and accepted translation artifacts, and emits capture and finally-cleanup contracts. Live execution is deliberately unavailable until both target adapters implement creation ledgers and verified cleanup.`);
+Builds a deterministic, mutation-free theme localization E2E plan. The runner rejects every site outside the dedicated scpaiueouiuiuiui sandbox, validates run-owned slugs and accepted translation artifacts, and emits capture and finally-cleanup contracts. Live execution is deliberately unavailable until both target adapters implement creation ledgers and verified cleanup.`);
   process.exit(0);
 }
 
