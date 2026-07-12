@@ -1,6 +1,7 @@
 import dns from "node:dns/promises";
 import http from "node:http";
 import net from "node:net";
+import { pipeline } from "node:stream";
 
 const METADATA = new Set(["169.254.169.254", "100.100.100.200"]);
 
@@ -89,6 +90,7 @@ export async function resolvePinned(
 }
 
 function deny(response, status = 403) {
+  if (response.destroyed || response.writableEnded) return;
   response.writeHead(status, {
     "content-type": "text/plain",
     connection: "close",
@@ -151,15 +153,28 @@ export async function startCaptureEgressProxy({
           family: net.isIPv6(address) ? 6 : 4,
         },
         (upstreamResponse) => {
+          upstreamResponse.on("error", () => response.destroy());
+          response.on("error", () => upstreamResponse.destroy());
           response.writeHead(
             upstreamResponse.statusCode ?? 502,
             upstreamResponse.headers,
           );
-          upstreamResponse.pipe(response);
+          pipeline(upstreamResponse, response, (error) => {
+            if (error) {
+              upstreamResponse.destroy();
+              response.destroy();
+            }
+          });
         },
       );
       upstream.on("error", () => deny(response, 502));
-      request.pipe(upstream);
+      request.on("error", () => upstream.destroy());
+      pipeline(request, upstream, (error) => {
+        if (error) {
+          upstream.destroy();
+          deny(response, 502);
+        }
+      });
     } catch {
       deny(response);
     }
@@ -178,12 +193,18 @@ export async function startCaptureEgressProxy({
         port,
         family: net.isIPv6(address) ? 6 : 4,
       });
+      const closeTunnel = () => {
+        client.destroy();
+        upstream.destroy();
+      };
+      client.on("error", closeTunnel);
+      upstream.on("error", closeTunnel);
       upstream.once("connect", () => {
         client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
         if (head.length) upstream.write(head);
-        client.pipe(upstream).pipe(client);
+        client.pipe(upstream);
+        upstream.pipe(client);
       });
-      upstream.once("error", () => client.destroy());
     } catch {
       client.end("HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n");
     }
