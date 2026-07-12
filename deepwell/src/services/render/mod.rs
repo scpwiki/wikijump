@@ -38,6 +38,7 @@ mod include_comment_branches;
 #[allow(dead_code)]
 mod list_pages;
 mod literal_regions;
+mod percent_encoding;
 mod render_dependency;
 mod service;
 mod structs;

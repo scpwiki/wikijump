@@ -23,6 +23,7 @@ use super::compat_text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragment
 use super::html_text::html_data_segments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::literal_regions::LiteralRegionIndex;
+use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
 use super::wikidot_expression::resolve_parser_functions;
 use super::wikidot_inline_markers::{
@@ -8559,7 +8560,7 @@ fn push_list_pages_pager_target(
     label: &str,
 ) {
     output.push_str(r#"[[span class="target"]][/"#);
-    output.push_str(page_info.page.as_ref());
+    output.push_str(&percent_encode_path_segment(page_info.page.as_ref()));
     output.push_str("/p/");
     output.push_str(&target_page.to_string());
     output.push(' ');
@@ -9034,7 +9035,7 @@ fn format_list_pages_created_at(
     let format = format.unwrap_or("%e %b %Y, %H:%M");
     let display_format = format.split('|').next().unwrap_or(format);
     let text = format_wikidot_list_pages_date(created_at, display_format);
-    let encoded_format = percent_encode_list_pages_class(format);
+    let encoded_format = percent_encode_path_segment(format);
     if render_as_html {
         format!(
             r#"<span class="odate time_{} format_{}" style="cursor: help; display: inline;">{}</span>"#,
@@ -9320,18 +9321,6 @@ fn format_wikidot_list_pages_date(
         }
     }
     output
-}
-
-fn percent_encode_list_pages_class(value: &str) -> String {
-    value
-        .bytes()
-        .map(|byte| match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'_' | b'-' | b'.' => {
-                (byte as char).to_string()
-            }
-            _ => format!("%{byte:02X}"),
-        })
-        .collect()
 }
 
 fn render_native_bullet_list_with_wikipedia_links(
@@ -12398,6 +12387,31 @@ mod tests {
         assert!(rendered.contains(r#"<span class="pager-no">page 1 of 3</span>"#));
         assert!(rendered.contains(r#"<a href="/scp-7243/p/2">2</a>"#));
         assert!(!rendered.contains("data-wikijump-compat-pager"));
+    }
+
+    #[test]
+    fn generated_list_pages_pager_keeps_untrusted_slug_inside_href() {
+        let page_info = fallback_test_page_info(
+            "日本語/already%2Fencoded] [[span class=\"owned\"]]OWNED[[/span]] [",
+            "Missing page",
+        );
+        let mut wikitext = String::new();
+
+        push_list_pages_pager(&mut wikitext, &page_info, 0, 2, 5);
+
+        let encoded_slug = concat!(
+            "%E6%97%A5%E6%9C%AC%E8%AA%9E%2Falready%252Fencoded%5D%20",
+            "%5B%5Bspan%20class%3D%22owned%22%5D%5DOWNED",
+            "%5B%5B%2Fspan%5D%5D%20%5B",
+        );
+        assert!(wikitext.contains(&format!("/{encoded_slug}/p/2")));
+        assert!(!wikitext.contains(r#"[[span class="owned"]]"#));
+
+        let rendered = render_wikidot_page_body_after_compat_restore(&wikitext);
+
+        assert!(rendered.contains(&format!(r#"<a href="/{encoded_slug}/p/2">2</a>"#)));
+        assert_eq!(rendered.matches(r#"class="owned""#).count(), 0);
+        assert_eq!(rendered.matches("<a href=").count(), 3);
     }
 
     #[test]
