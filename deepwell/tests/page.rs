@@ -51,11 +51,12 @@ use deepwell::services::role::{
 use deepwell::services::session::CreateSession;
 use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
-    FileRevisionService, ForumPostService, ForumService, ForumThreadService,
+    FileRevisionService, ForumPostService, ForumService, ForumThreadService, LinkService,
     RenderService, RequestContext, SessionService, TextService,
 };
 use deepwell::types::{
-    Action, PageId, PageRevisionType, Permission, Reference, Resource, TextBlockType,
+    Action, ConnectionType, PageId, PageRevisionType, Permission, Reference, Resource,
+    TextBlockType,
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, IntoActiveModel,
@@ -1015,6 +1016,221 @@ async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page(
     assert!(
         html.contains("No such page: :missing-remote:missing-remote-include-self-cycle"),
         "{html}",
+    );
+}
+
+#[tokio::test]
+async fn render_scoped_include_source_cache_preserves_occurrence_semantics() {
+    const SITE_SLUG: &str = "scp-wiki";
+    const COMPONENT_SLUG: &str = "component:include-source-cache-cell";
+    const CONSUMER_SLUG: &str = "fixture-include-source-cache-consumer";
+    const PRIVATE_COMPONENT_SLUG: &str = "component:include-source-cache-private";
+    const PRIVATE_CONSUMER_SLUG: &str = "fixture-include-source-cache-private-consumer";
+    const PRIVATE_CATEGORY_SLUG: &str = "fixture-include-source-cache-private";
+    const CYCLE_COMPONENT_SLUG: &str = "component:include-source-cache-cycle";
+    const CYCLE_CONSUMER_SLUG: &str = "fixture-include-source-cache-cycle-consumer";
+    const INCLUDE_COUNT: usize = 24;
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPONENT_SLUG,
+        "Include Source Cache Cell",
+        "CACHE-{$label}-END",
+    )
+    .await;
+    let repeated_includes = (0..INCLUDE_COUNT)
+        .map(|index| {
+            let target = match index % 3 {
+                0 => COMPONENT_SLUG.to_owned(),
+                1 => format!(":{SITE_SLUG}:{COMPONENT_SLUG}"),
+                _ => format!("{COMPONENT_SLUG}#variant-{index}"),
+            };
+            format!("[[include {target} | label=occurrence-{index}]]\n")
+        })
+        .collect::<String>();
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        CONSUMER_SLUG,
+        "Include Source Cache Consumer",
+        &repeated_includes,
+    )
+    .await;
+
+    let component = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": COMPONENT_SLUG,
+        }),
+    )
+    .expect("include source cache component should exist");
+    let consumer = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": CONSUMER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("include source cache consumer should exist");
+    let html = consumer
+        .compiled_body_html
+        .expect("include source cache consumer should have compiled HTML");
+    for index in 0..INCLUDE_COUNT {
+        let marker = format!("CACHE-occurrence-{index}-END");
+        assert!(
+            html.contains(&marker),
+            "each cached raw source clone should receive its own variables: missing {marker} in {html}",
+        );
+    }
+
+    let connections = LinkService::get_connections_from(
+        runner.context(),
+        consumer.page_id,
+        Some(&[ConnectionType::IncludeMessy]),
+    )
+    .await
+    .expect("include source cache consumer connections should load");
+    let include_connection = connections
+        .present
+        .iter()
+        .find(|connection| connection.to_page_id == component.page_id)
+        .expect("the repeated include target should have a present connection");
+    assert_eq!(
+        include_connection.count, INCLUDE_COUNT as i32,
+        "raw-source reuse must not deduplicate include occurrence backlinks",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        PRIVATE_COMPONENT_SLUG,
+        "Private Include Source Cache Cell",
+        "PRIVATE_INCLUDE_SOURCE_MUST_NOT_RENDER",
+    )
+    .await;
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY_SLUG)
+        .await;
+    set_listpages_test_category_slug(
+        &runner,
+        site_id,
+        PRIVATE_COMPONENT_SLUG,
+        PRIVATE_CATEGORY_SLUG,
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        PRIVATE_CONSUMER_SLUG,
+        "Private Include Source Cache Consumer",
+        &format!(
+            "Before private includes.\n[[include {PRIVATE_COMPONENT_SLUG}]]\n[[include {PRIVATE_COMPONENT_SLUG}]]\nAfter private includes.\n",
+        ),
+    )
+    .await;
+    let private_consumer = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": PRIVATE_CONSUMER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("private include source cache consumer should exist");
+    let private_html = private_consumer
+        .compiled_body_html
+        .expect("private include source cache consumer should have compiled HTML");
+    assert!(private_html.contains("Before private includes."));
+    assert!(private_html.contains("After private includes."));
+    assert!(!private_html.contains("PRIVATE_INCLUDE_SOURCE_MUST_NOT_RENDER"));
+    assert_eq!(
+        private_html.matches("No such page").count(),
+        2,
+        "a cached permission denial must still render each missing occurrence",
+    );
+
+    let cycle_revision_id = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        CYCLE_COMPONENT_SLUG,
+        "Include Source Cache Cycle",
+        "placeholder",
+    )
+    .await;
+    let cycle_wikitext = format!("[[include {CYCLE_COMPONENT_SLUG}]]\n");
+    let cycle_wikitext_hash = TextService::create(runner.context(), cycle_wikitext)
+        .await
+        .expect("cyclic include source should be stored");
+    let cycle_revision = PageRevisionTable::find_by_id(cycle_revision_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("cyclic include revision lookup should not fail")
+        .expect("cyclic include revision should exist");
+    let mut cycle_revision = cycle_revision.into_active_model();
+    cycle_revision.wikitext_hash = Set(cycle_wikitext_hash.to_vec());
+    cycle_revision
+        .update(runner.context().transaction())
+        .await
+        .expect("cyclic source should be attached without rendering it");
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        CYCLE_CONSUMER_SLUG,
+        "Include Source Cache Cycle Consumer",
+        "placeholder",
+    )
+    .await;
+    let cycle_consumer = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": CYCLE_CONSUMER_SLUG,
+        }),
+    )
+    .expect("include cycle consumer should exist");
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(CYCLE_CONSUMER_SLUG))),
+    });
+    let page_info = PageInfo {
+        page: Cow::Borrowed(CYCLE_CONSUMER_SLUG),
+        category: None,
+        site: Cow::Borrowed(SITE_SLUG),
+        title: Cow::Borrowed("Include Source Cache Cycle Consumer"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let cycle_error = RenderService::render_page(
+        runner.context(),
+        format!("[[include {CYCLE_COMPONENT_SLUG}]]\n"),
+        &page_info,
+        Layout::Wikidot,
+        PageId {
+            site_id,
+            category_id: cycle_consumer.page_category_id,
+            page_id: cycle_consumer.page_id,
+        },
+    )
+    .await
+    .expect_err("raw-source cache hits must not bypass include cycle depth checks");
+    assert!(
+        format!("{cycle_error:?}").contains("include expansion exceeded maximum depth 8"),
+        "cached recursion should retain the established depth failure: {cycle_error:?}",
     );
 }
 

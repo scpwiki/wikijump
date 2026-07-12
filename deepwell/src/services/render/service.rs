@@ -55,6 +55,7 @@ use crate::services::{
     TextService,
 };
 use crate::types::{Action, PageId, Permission, Resource, TextBlockType};
+use crate::utils::trim_default;
 use ftml::data::PageRef;
 use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::*;
@@ -62,7 +63,7 @@ use ftml::tree::{CodeBlock, VariableMap};
 use regex::Regex;
 use sea_orm::{FromQueryResult, Statement, Value};
 use std::borrow::Cow;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::future::Future;
 use std::ops::Range;
 use std::pin::Pin;
@@ -1047,6 +1048,7 @@ impl RenderService {
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
         let mut include_budget = IncludeExpansionBudget::new(max_include_expansions);
+        let mut include_source_cache = IncludeSourceCache::default();
         Self::remove_preview_component_separator_markers(&mut wikitext);
         let mut included_pages = if settings.enable_page_syntax {
             Self::expand_wikidot_image_block_includes(&mut wikitext, page_info)
@@ -1063,8 +1065,9 @@ impl RenderService {
             page_info,
             page_info.site.as_ref(),
             settings,
-            current_site_id,
             IncludeExpansionOptions {
+                current_site_id,
+                source_cache: &mut include_source_cache,
                 expand_wikidot_image_blocks: true,
                 budget: include_budget,
             },
@@ -1092,6 +1095,7 @@ impl RenderService {
             page_info,
             settings,
             &mut wikidot_compat_html,
+            &mut include_source_cache,
             ListPagesExpansionOptions {
                 current_site_id,
                 current_page_id,
@@ -4187,9 +4191,14 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         current_site_slug: &str,
         settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        options: IncludeExpansionOptions,
+        options: IncludeExpansionOptions<'_>,
     ) -> Result<IncludeExpansion> {
+        let IncludeExpansionOptions {
+            current_site_id,
+            source_cache,
+            expand_wikidot_image_blocks,
+            budget,
+        } = options;
         let Some(current_site_id) = current_site_id else {
             return Ok(IncludeExpansion {
                 wikitext,
@@ -4214,11 +4223,12 @@ impl RenderService {
                 current_site_slug: current_site_slug.to_owned(),
                 page_info,
                 settings,
-                expand_wikidot_image_blocks: options.expand_wikidot_image_blocks,
-                max_total_includes: options.budget.maximum,
+                expand_wikidot_image_blocks,
+                max_total_includes: budget.maximum,
             },
+            source_cache,
             0,
-            options.budget.remaining,
+            budget.remaining,
         )
         .await?;
         unprotect_include_variables(&mut expansion.wikitext);
@@ -4230,6 +4240,7 @@ impl RenderService {
         ctx: &'a ServiceContext<'_>,
         wikitext: String,
         expansion_context: IncludeExpansionContext<'a>,
+        include_source_cache: &'a mut IncludeSourceCache,
         depth: usize,
         mut remaining_includes: usize,
     ) -> Pin<Box<dyn Future<Output = Result<IncludeExpansion>> + Send + 'a>> {
@@ -4308,6 +4319,7 @@ impl RenderService {
                     expansion_context.current_site_id,
                     &expansion_context.current_site_slug,
                     include.page_ref(),
+                    include_source_cache,
                 )
                 .await?;
 
@@ -4334,6 +4346,7 @@ impl RenderService {
                             .expand_wikidot_image_blocks,
                         max_total_includes: expansion_context.max_total_includes,
                     },
+                    include_source_cache,
                     depth + 1,
                     remaining_includes,
                 )
@@ -4390,6 +4403,7 @@ impl RenderService {
         current_site_id: i64,
         current_site_slug: &str,
         page_ref: &PageRef,
+        include_source_cache: &mut IncludeSourceCache,
     ) -> Result<Option<IncludeSource>> {
         match page_ref.site() {
             Some(site_slug) if site_slug != current_site_slug => {
@@ -4416,6 +4430,7 @@ impl RenderService {
                         current_site_id,
                         current_site_slug,
                         page_ref.page(),
+                        include_source_cache,
                     )
                     .await?
                 {
@@ -4444,6 +4459,7 @@ impl RenderService {
                     site.site_id,
                     &site.slug,
                     page_ref.page(),
+                    include_source_cache,
                 )
                 .await
             }
@@ -4453,6 +4469,7 @@ impl RenderService {
                     current_site_id,
                     current_site_slug,
                     page_ref.page(),
+                    include_source_cache,
                 )
                 .await
             }
@@ -4464,47 +4481,49 @@ impl RenderService {
         site_id: i64,
         site_slug: &str,
         page_slug: &str,
+        include_source_cache: &mut IncludeSourceCache,
     ) -> Result<Option<IncludeSource>> {
-        let page_ref = Reference::from(page_slug);
-        let Some(page) =
-            PageService::get_optional(ctx, site_id, page_ref.clone()).await?
-        else {
-            return Ok(None);
-        };
+        let wikitext = include_source_cache
+            .get_or_try_insert_with(site_id, page_slug, || async {
+                let page_ref = Reference::from(page_slug);
+                let Some(page) =
+                    PageService::get_optional(ctx, site_id, page_ref.clone()).await?
+                else {
+                    return Ok(None);
+                };
 
-        let can_view = PermissionService::check_user_can(
-            ctx,
-            &CheckPermissionContext {
-                user_id: None,
-                site_id,
-                page_reference: Some(page_ref),
-            },
-            Permission {
-                resource_type: Resource::Page,
-                resource_category: Some(Reference::Id(page.page_category_id)),
-                action: Action::View,
-            },
-        )
-        .await?;
-        if !can_view {
-            return Ok(None);
-        }
+                let can_view = PermissionService::check_user_can(
+                    ctx,
+                    &CheckPermissionContext {
+                        user_id: None,
+                        site_id,
+                        page_reference: Some(page_ref),
+                    },
+                    Permission {
+                        resource_type: Resource::Page,
+                        resource_category: Some(Reference::Id(page.page_category_id)),
+                        action: Action::View,
+                    },
+                )
+                .await?;
+                if !can_view {
+                    return Ok(None);
+                }
 
-        if let Some(wikitext) = PageRevisionService::get_wikitext_optional(
-            ctx,
+                PageRevisionService::get_wikitext_optional(
+                    ctx,
+                    site_id,
+                    Reference::Id(page.page_id),
+                )
+                .await
+            })
+            .await?;
+
+        Ok(wikitext.map(|wikitext| IncludeSource {
             site_id,
-            Reference::Id(page.page_id),
-        )
-        .await?
-        {
-            return Ok(Some(IncludeSource {
-                site_id,
-                site_slug: site_slug.to_owned(),
-                wikitext,
-            }));
-        }
-
-        Ok(None)
+            site_slug: site_slug.to_owned(),
+            wikitext,
+        }))
     }
 
     async fn expand_list_pages(
@@ -4513,6 +4532,7 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         compat_html: &mut CompatHtmlFragments,
+        include_source_cache: &mut IncludeSourceCache,
         options: ListPagesExpansionOptions,
     ) -> Result<IncludeExpansion> {
         let ListPagesExpansionOptions {
@@ -4684,6 +4704,7 @@ impl RenderService {
                         &body,
                         include_budget,
                         Some(prefetched_pages),
+                        include_source_cache,
                     )
                     .await?;
                     include_budget.consume(replacement_expanded_include_count);
@@ -4721,6 +4742,7 @@ impl RenderService {
                         &body,
                         include_budget,
                         None,
+                        include_source_cache,
                     )
                     .await?;
                     include_budget.consume(replacement_expanded_include_count);
@@ -7102,6 +7124,7 @@ impl RenderService {
         body: &str,
         mut include_budget: IncludeExpansionBudget,
         mut prefetched_pages: Option<FoundPages>,
+        include_source_cache: &mut IncludeSourceCache,
     ) -> Result<IncludeExpansion> {
         let ListPagesPageContext {
             site_id: current_site_id,
@@ -7358,8 +7381,9 @@ impl RenderService {
                             page_info,
                             page_info.site.as_ref(),
                             settings,
-                            Some(page.site_id),
                             IncludeExpansionOptions {
+                                current_site_id: Some(page.site_id),
+                                source_cache: include_source_cache,
                                 expand_wikidot_image_blocks: false,
                                 budget: include_budget,
                             },
@@ -11254,8 +11278,10 @@ struct IncludeExpansion {
     expanded_include_count: usize,
 }
 
-#[derive(Clone, Copy, Debug)]
-struct IncludeExpansionOptions {
+#[derive(Debug)]
+struct IncludeExpansionOptions<'a> {
+    current_site_id: Option<i64>,
+    source_cache: &'a mut IncludeSourceCache,
     expand_wikidot_image_blocks: bool,
     budget: IncludeExpansionBudget,
 }
@@ -11307,6 +11333,62 @@ struct IncludeSource {
     site_id: i64,
     site_slug: String,
     wikitext: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum IncludeSourceCacheEntry {
+    Available(String),
+    Unavailable,
+}
+
+#[derive(Debug, Default)]
+struct IncludeSourceCache {
+    // This cache lives for one render only. Values never contain include-variable substitution or nested expansion, so every occurrence still follows the normal mutation, recursion, budget, and backlink paths.
+    sources_by_site: HashMap<i64, HashMap<String, IncludeSourceCacheEntry>>,
+}
+
+impl IncludeSourceCache {
+    fn get(&self, site_id: i64, page_slug: &str) -> Option<&IncludeSourceCacheEntry> {
+        self.sources_by_site
+            .get(&site_id)
+            .and_then(|sources| sources.get(page_slug))
+    }
+
+    async fn get_or_try_insert_with<F, Fut>(
+        &mut self,
+        site_id: i64,
+        page_slug: &str,
+        load: F,
+    ) -> Result<Option<String>>
+    where
+        F: FnOnce() -> Fut,
+        Fut: Future<Output = Result<Option<String>>>,
+    {
+        // PageRef already normalizes the slug and separates #section or /path. PageService also treats an explicit `_default:` category as canonical.
+        let page_slug = trim_default(page_slug);
+        if let Some(entry) = self.get(site_id, page_slug) {
+            return Ok(match entry {
+                IncludeSourceCacheEntry::Available(wikitext) => Some(wikitext.clone()),
+                IncludeSourceCacheEntry::Unavailable => None,
+            });
+        }
+
+        let wikitext = load().await?;
+        // Errors return above and are deliberately never cached. None is safe to retain within this render because missing, denied, and revision-less sources all have the same fail-closed include result.
+        let entry = match &wikitext {
+            Some(wikitext) => IncludeSourceCacheEntry::Available(wikitext.clone()),
+            None => IncludeSourceCacheEntry::Unavailable,
+        };
+        self.insert(site_id, page_slug, entry);
+        Ok(wikitext)
+    }
+
+    fn insert(&mut self, site_id: i64, page_slug: &str, entry: IncludeSourceCacheEntry) {
+        self.sources_by_site
+            .entry(site_id)
+            .or_default()
+            .insert(page_slug.to_owned(), entry);
+    }
 }
 
 #[derive(Debug)]
@@ -11770,7 +11852,7 @@ mod tests {
     use super::{
         COMPAT_TEXT_MARKER_PREFIX, CollectingIncluder, CompatHtmlFragments,
         CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-        CountPagesRawScanCompletion, ListPagesSnapshotDisplay,
+        CountPagesRawScanCompletion, IncludeSourceCache, ListPagesSnapshotDisplay,
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
@@ -16313,6 +16395,90 @@ mod tests {
             wikitext,
             concat!("\n", "[[include :scp-wiki:component:acs-animation]]\n",),
         );
+    }
+
+    #[tokio::test]
+    async fn include_source_cache_loads_each_canonical_page_once() {
+        let first_ref = PageRef::page_only("Component:Sybadge#first");
+        let second_ref = PageRef::page_only("component:sybadge/second");
+        assert_eq!(first_ref.page(), second_ref.page());
+
+        let mut cache = IncludeSourceCache::default();
+        let mut load_count = 0;
+        let mut first = cache
+            .get_or_try_insert_with(1, first_ref.page(), || {
+                load_count += 1;
+                async { Ok(Some("CACHE-{$label}-END".to_owned())) }
+            })
+            .await
+            .expect("the first include source load should succeed")
+            .expect("the first include source should be available");
+        let first_include = IncludeRef::new(
+            first_ref,
+            VariableMap::from([(Cow::Borrowed("label"), Cow::Borrowed("first"))]),
+        );
+        super::apply_include_variables(&mut first, &first_include);
+
+        let mut second = cache
+            .get_or_try_insert_with(1, second_ref.page(), || {
+                load_count += 1;
+                async { Ok(Some("CHANGED".to_owned())) }
+            })
+            .await
+            .expect("the cached include source load should succeed")
+            .expect("the cached include source should be available");
+        let second_include = IncludeRef::new(
+            second_ref,
+            VariableMap::from([(Cow::Borrowed("label"), Cow::Borrowed("second"))]),
+        );
+        super::apply_include_variables(&mut second, &second_include);
+
+        assert_eq!(load_count, 1);
+        assert_eq!(first, "CACHE-first-END");
+        assert_eq!(second, "CACHE-second-END");
+
+        let explicit_default = cache
+            .get_or_try_insert_with(1, "_default:home", || {
+                load_count += 1;
+                async { Ok(Some("DEFAULT-PAGE".to_owned())) }
+            })
+            .await
+            .expect("the explicit default-category source load should succeed");
+        let implicit_default = cache
+            .get_or_try_insert_with(1, "home", || {
+                load_count += 1;
+                async { Ok(Some("CHANGED-DEFAULT-PAGE".to_owned())) }
+            })
+            .await
+            .expect("the canonical default-category source load should succeed");
+        assert_eq!(explicit_default, implicit_default);
+
+        let other_site = cache
+            .get_or_try_insert_with(2, "component:sybadge", || {
+                load_count += 1;
+                async { Ok(Some("OTHER-SITE".to_owned())) }
+            })
+            .await
+            .expect("the other-site include source load should succeed");
+        assert_eq!(other_site.as_deref(), Some("OTHER-SITE"));
+
+        let unavailable = cache
+            .get_or_try_insert_with(1, "component:private", || {
+                load_count += 1;
+                async { Ok(None) }
+            })
+            .await
+            .expect("the unavailable include source load should succeed");
+        assert_eq!(unavailable, None);
+        let unavailable_again = cache
+            .get_or_try_insert_with(1, "component:private", || {
+                load_count += 1;
+                async { Ok(Some("PRIVATE".to_owned())) }
+            })
+            .await
+            .expect("the cached unavailable source load should succeed");
+        assert_eq!(unavailable_again, None);
+        assert_eq!(load_count, 4);
     }
 
     #[test]
