@@ -139,6 +139,7 @@ pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::services::filter::FilterSummary;
     use exn::ErrorExt;
     use sea_orm::{DbErr, TransactionError};
     use serde_json::json;
@@ -193,6 +194,37 @@ mod tests {
             data["code_trace"],
             json!([ErrorType::Page.code(), ErrorType::PageNotFound.code()]),
         );
+    }
+
+    #[test]
+    fn filter_violation_rpc_payload_and_call_trace_redact_filter_details() {
+        let regex = "PRIVATE_FILTER_REGEX_472";
+        let description = "ADMIN_ONLY_FILTER_DESCRIPTION_472";
+        let rpc = exn_error_to_rpc_error(
+            Error::new(
+                "filter rejected title",
+                ErrorType::FilterViolation {
+                    field: "title".to_owned(),
+                    value: "submitted title".to_owned(),
+                    failed: vec![FilterSummary {
+                        filter_id: 472,
+                        regex: regex.to_owned(),
+                        description: description.to_owned(),
+                    }],
+                },
+            )
+            .raise(),
+        );
+
+        let serialized = rpc.to_string();
+        let data: JsonValue = serde_json::from_str(rpc.data().unwrap().get()).unwrap();
+
+        assert_eq!(data["extra"][0]["failed_count"], 1);
+        assert_eq!(data["extra"][0]["field"], "title");
+        assert!(!serialized.contains(regex));
+        assert!(!serialized.contains(description));
+        assert!(!data["call_trace"].as_str().unwrap().contains(regex));
+        assert!(!data["call_trace"].as_str().unwrap().contains(description));
     }
 
     #[test]

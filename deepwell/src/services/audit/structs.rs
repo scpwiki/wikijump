@@ -961,6 +961,8 @@ mod tests {
             let metadata: serde_json::Value =
                 serde_json::from_str(raw.extra_string_1.as_deref().unwrap()).unwrap();
             assert_eq!(metadata["filter_id"], 30);
+            assert_eq!(metadata["regex"], "forbidden");
+            assert_eq!(metadata["description"], "blocked word");
             assert_eq!(metadata["field"], "title");
             assert_eq!(metadata["value"], "forbidden text");
         }

@@ -4,6 +4,10 @@ import { authGetSession } from "$lib/server/auth/getSession"
 import { authLogin } from "$lib/server/auth/login"
 import { authMfaVerify } from "$lib/server/auth/mfa"
 import { translate } from "$lib/server/deepwell/translate"
+import {
+  clearLoginPassword,
+  redactAuthActionPayload
+} from "$lib/server/load/auth-form-redaction.js"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -62,6 +66,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
 
   if (mfaSessionToken !== null || totpOrCode !== null) {
     const form = await superValidate(formData, valibot(loginSchema))
+    const submittedPassword = form.data.password
 
     if (
       typeof mfaSessionToken !== "string" ||
@@ -69,7 +74,16 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       typeof totpOrCode !== "string" ||
       totpOrCode.trim().length === 0
     ) {
-      return fail(400, { form, message: "MFA code is required" })
+      return fail(
+        400,
+        redactAuthActionPayload(
+          {
+            form: clearLoginPassword(form),
+            message: "MFA code is required"
+          },
+          [submittedPassword]
+        )
+      )
     }
 
     try {
@@ -81,27 +95,40 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       )
       await setSessionCookie(cookies, sessionToken)
 
-      return {
-        form,
-        session_token: undefined,
-        needsMfa: false,
-        isLoggedIn: true
-      }
+      return redactAuthActionPayload(
+        {
+          form: clearLoginPassword(form),
+          session_token: undefined,
+          needsMfa: false,
+          isLoggedIn: true
+        },
+        [submittedPassword]
+      )
     } catch (error) {
       const deepwellError = getDeepwellError(error)
-      return fail(500, {
-        form,
-        message: deepwellError.message,
-        code: deepwellError.code,
-        data: deepwellError.data
-      })
+      return fail(
+        500,
+        redactAuthActionPayload(
+          {
+            form: clearLoginPassword(form),
+            message: deepwellError.message,
+            code: deepwellError.code,
+            data: deepwellError.data
+          },
+          [submittedPassword]
+        )
+      )
     }
   }
 
   const form = await superValidate(formData, valibot(loginSchema))
+  const submittedPassword = form.data.password
 
   if (!form.valid) {
-    return fail(400, { form })
+    return fail(
+      400,
+      redactAuthActionPayload({ form: clearLoginPassword(form) }, [submittedPassword])
+    )
   }
 
   try {
@@ -112,20 +139,29 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       await setSessionCookie(cookies, res.session_token)
     }
 
-    return {
-      form,
-      session_token: res.needs_mfa ? res.session_token : undefined,
-      needsMfa: res.needs_mfa,
-      isLoggedIn: !res.needs_mfa
-    }
+    return redactAuthActionPayload(
+      {
+        form: clearLoginPassword(form),
+        session_token: res.needs_mfa ? res.session_token : undefined,
+        needsMfa: res.needs_mfa,
+        isLoggedIn: !res.needs_mfa
+      },
+      [submittedPassword]
+    )
   } catch (error) {
     const deepwellError = getDeepwellError(error)
-    return fail(500, {
-      form,
-      message: deepwellError.message,
-      code: deepwellError.code,
-      data: deepwellError.data
-    })
+    return fail(
+      500,
+      redactAuthActionPayload(
+        {
+          form: clearLoginPassword(form),
+          message: deepwellError.message,
+          code: deepwellError.code,
+          data: deepwellError.data
+        },
+        [submittedPassword]
+      )
+    )
   }
 }
 
