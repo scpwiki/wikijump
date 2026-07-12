@@ -25,6 +25,9 @@ use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::literal_regions::LiteralRegionIndex;
 use super::prelude::*;
 use super::wikidot_expression::resolve_parser_functions;
+use super::wikidot_inline_markers::{
+    WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
+};
 use crate::hash::TextHash;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_revision;
@@ -233,21 +236,6 @@ struct InnerPreparedRenderWikitext {
     wikidot_embed_iframes: Vec<String>,
     timings: CorpusReplayStageTimings,
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum WikidotCompatInlineMarkerKind {
-    Color,
-    Italic,
-    Underline,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct WikidotCompatInlineMarker {
-    start: usize,
-    end: usize,
-    kind: WikidotCompatInlineMarkerKind,
-}
-
 const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 // The frozen EN corpus contains a page with 1,266 direct includes. Only the
@@ -6487,7 +6475,7 @@ impl RenderService {
         let mut output = String::with_capacity(value.len());
         let mut rest = value;
 
-        while let Some(marker) = Self::next_wikidot_compat_inline_marker(rest) {
+        while let Some(marker) = next_wikidot_compat_inline_marker(rest) {
             let (before, marker_start) = rest.split_at(marker.start);
             output.push_str(&render_native_list_inline_html_with_titles(
                 before,
@@ -6546,94 +6534,6 @@ impl RenderService {
             link_titles,
         ));
         output
-    }
-
-    fn next_wikidot_compat_inline_marker(
-        value: &str,
-    ) -> Option<WikidotCompatInlineMarker> {
-        let color = Self::find_wikidot_compat_color_marker(value);
-        let italic = Self::find_wikidot_compat_delimited_marker(
-            value,
-            "//",
-            WikidotCompatInlineMarkerKind::Italic,
-        );
-        let underline = Self::find_wikidot_compat_delimited_marker(
-            value,
-            "__",
-            WikidotCompatInlineMarkerKind::Underline,
-        );
-
-        [color, italic, underline]
-            .into_iter()
-            .flatten()
-            .min_by_key(|marker| marker.start)
-    }
-
-    fn find_wikidot_compat_color_marker(
-        value: &str,
-    ) -> Option<WikidotCompatInlineMarker> {
-        let mut offset = 0;
-        while let Some(relative_start) = value[offset..].find("##") {
-            let start = offset + relative_start;
-            let marker_start = &value[start + 2..];
-            let Some(pipe_relative) = marker_start.find('|') else {
-                offset = start + 2;
-                continue;
-            };
-            let color = marker_start[..pipe_relative].trim();
-            if !Self::wikidot_compat_valid_color_value(color) {
-                offset = start + 2;
-                continue;
-            }
-            let content_start = start + 2 + pipe_relative + 1;
-            let Some(end_relative) = value[content_start..].find("##") else {
-                offset = start + 2;
-                continue;
-            };
-            return Some(WikidotCompatInlineMarker {
-                start,
-                end: content_start + end_relative + 2,
-                kind: WikidotCompatInlineMarkerKind::Color,
-            });
-        }
-
-        None
-    }
-
-    fn find_wikidot_compat_delimited_marker(
-        value: &str,
-        delimiter: &str,
-        kind: WikidotCompatInlineMarkerKind,
-    ) -> Option<WikidotCompatInlineMarker> {
-        let mut offset = 0;
-        while let Some(relative_start) = value[offset..].find(delimiter) {
-            let start = offset + relative_start;
-            if delimiter == "//" && value[..start].ends_with(':') {
-                offset = start + delimiter.len();
-                continue;
-            }
-            let content_start = start + delimiter.len();
-            let end_relative = value[content_start..].find(delimiter)?;
-            if end_relative == 0 {
-                offset = content_start + delimiter.len();
-                continue;
-            }
-            return Some(WikidotCompatInlineMarker {
-                start,
-                end: content_start + end_relative + delimiter.len(),
-                kind,
-            });
-        }
-
-        None
-    }
-
-    fn wikidot_compat_valid_color_value(value: &str) -> bool {
-        !value.is_empty()
-            && value.len() <= 32
-            && value
-                .chars()
-                .all(|character| character.is_ascii_alphanumeric() || character == '#')
     }
 
     fn wikidot_compat_color_value(value: &str) -> String {
@@ -14626,6 +14526,25 @@ mod tests {
         assert!(!html.contains("##ce005c"));
         assert!(!html.contains("//should//"));
         assert!(!html.contains("__10 October"));
+    }
+
+    #[test]
+    fn wikidot_compatibility_fallback_scans_dense_inline_markers_once() {
+        let mut source = String::from("**");
+        for _ in 0..2_000 {
+            source.push_str("//x//");
+        }
+        source.push_str("##not-a-color##");
+        for _ in 0..2_000 {
+            source.push_str("__y__");
+        }
+
+        let html =
+            RenderService::render_wikidot_compat_fallback_inline_markup(&source, None);
+
+        assert_eq!(html.matches("<em>x</em>").count(), 2_000);
+        assert_eq!(html.matches("<u>y</u>").count(), 2_000);
+        assert!(html.contains("##not-a-color##"));
     }
 
     #[test]
