@@ -5,6 +5,8 @@ import path from 'node:path';
 import { stableStringify } from './corpus-import-manifest.mjs';
 
 const CANONICAL_BRANCH_PATHS = new Set(['index.json', 'by-uuid', 'pages', 'posts']);
+const WIKIDOT_SITE_SLUG_RE = /[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/u;
+const WIKIDOT_TARGET_RE = /(?:https?:\/\/)?([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\.wikidot\.com\/?/u;
 
 function codePointCompare(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -40,21 +42,65 @@ function walkFiles(root, relativeRoot = '') {
   return output.sort((left, right) => codePointCompare(left.relative, right.relative));
 }
 
-function siteUnixFromIndex(index, branch) {
+function canonicalWikidotSiteSlug(value) {
+  const match = typeof value === 'string' ? WIKIDOT_SITE_SLUG_RE.exec(value) : null;
+  return typeof value === 'string'
+    && value.length <= 63
+    && match?.[0] === value
+    ? value
+    : null;
+}
+
+function siteSlugFromTargetWiki(value) {
+  const directSlug = canonicalWikidotSiteSlug(value);
+  if (directSlug !== null) return directSlug;
+  if (typeof value !== 'string') return null;
+  const match = WIKIDOT_TARGET_RE.exec(value);
+  return match === null || match[0] !== value ? null : canonicalWikidotSiteSlug(match[1]);
+}
+
+function sitePageUrl(site, hostnameSuffix, fullname) {
+  const url = new URL(`https://${site}.${hostnameSuffix}/`);
+  url.pathname = `/${fullname}`;
+  return url.href;
+}
+
+function sourceSiteFromIndex(index, branch) {
   const sites = new Set();
-  if (index?.by_site_created_at && typeof index.by_site_created_at === 'object') {
-    for (const key of Object.keys(index.by_site_created_at)) {
-      const separator = key.indexOf('|');
-      if (separator > 0) sites.add(key.slice(0, separator));
+  let hasUnverifiedCandidate = false;
+  const addCandidate = (value, normalizer = canonicalWikidotSiteSlug) => {
+    const site = normalizer(value);
+    if (site === null) hasUnverifiedCandidate = true;
+    else sites.add(site);
+  };
+
+  if (index?.by_site_created_at !== undefined) {
+    if (index.by_site_created_at === null
+      || typeof index.by_site_created_at !== 'object'
+      || Array.isArray(index.by_site_created_at)) {
+      hasUnverifiedCandidate = true;
+    } else {
+      for (const key of Object.keys(index.by_site_created_at)) {
+        const separator = key.indexOf('|');
+        if (separator <= 0) hasUnverifiedCandidate = true;
+        else addCandidate(key.slice(0, separator));
+      }
     }
   }
-  if (typeof index?.target_wiki === 'string' && index.target_wiki.length > 0) {
-    sites.add(index.target_wiki.replace(/^https?:\/\//u, '').replace(/\.wikidot\.com\/?$/u, ''));
+  if (index?.target_wiki !== undefined) {
+    addCandidate(index.target_wiki, siteSlugFromTargetWiki);
   }
+  const siteStatus = hasUnverifiedCandidate
+    ? 'unverified'
+    : sites.size === 1
+      ? 'resolved'
+      : sites.size === 0
+        ? 'missing'
+        : 'ambiguous';
   return {
-    source_site: sites.size === 1 ? [...sites][0] : null,
+    source_site: siteStatus === 'resolved' ? [...sites][0] : null,
     source_sites: [...sites].sort(codePointCompare),
-    site_status: sites.size === 1 ? 'resolved' : sites.size === 0 ? 'missing' : 'ambiguous',
+    site_status: siteStatus,
     branch,
   };
 }
@@ -119,8 +165,8 @@ function pageRow({
     source_branch: branch,
     source_site: sourceSite,
     local_site: sourceSite,
-    source_url: sourceSite === null ? null : `https://${sourceSite}.wikidot.com/${fullname}`,
-    local_https_url: sourceSite === null ? null : `https://${sourceSite}.wikijump.localhost/${fullname}`,
+    source_url: sourceSite === null ? null : sitePageUrl(sourceSite, 'wikidot.com', fullname),
+    local_https_url: sourceSite === null ? null : sitePageUrl(sourceSite, 'wikijump.localhost', fullname),
     source_artifact: fileByPath.has(sourcePath) ? path.join(corpusRoot, sourcePath) : null,
     source_path: fileByPath.has(sourcePath) ? path.join(corpusRoot, sourcePath) : null,
     source_sha256: fileByPath.get(sourcePath)?.sha256 ?? null,
@@ -181,7 +227,7 @@ export function buildCorpusSnapshot({
     const branchRoot = path.join(resolvedCorpusRoot, branch);
     const indexPath = path.join(branchRoot, 'index.json');
     const indexRead = fs.existsSync(indexPath) ? readJson(indexPath) : { value: null, error: 'missing index.json' };
-    const site = siteUnixFromIndex(indexRead.value, branch);
+    const site = sourceSiteFromIndex(indexRead.value, branch);
     const allFiles = [];
     for (const canonicalPath of CANONICAL_BRANCH_PATHS) {
       const absolute = path.join(branchRoot, canonicalPath);
