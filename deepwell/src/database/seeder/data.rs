@@ -279,6 +279,26 @@ mod tests {
     use std::path::Path;
 
     #[test]
+    fn scp_jp_seed_claims_only_its_local_development_domain() {
+        let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
+        let seed = SeedData::load(&seeder_path).expect("seed data should load");
+        let site = seed
+            .sites
+            .iter()
+            .find(|site| site.slug == "scp-jp")
+            .expect("scp-jp seed site");
+        let domains = site
+            .domains
+            .iter()
+            .map(|domain| domain.domain())
+            .collect::<Vec<_>>();
+
+        assert_eq!(site.preferred_domain.as_deref(), Some("scp-jp.localhost"));
+        assert_eq!(domains, ["scp-jp.localhost"]);
+        assert!(!domains.contains(&"scp-jp.wikijump.dev"));
+    }
+
+    #[test]
     fn loads_reserved_scp_wiki_mirror_pages() {
         let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
         let seed = SeedData::load(&seeder_path).expect("seed data should load");

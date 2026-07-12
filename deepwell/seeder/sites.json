@@ -47,7 +47,7 @@
     {
         "slug": "scp-jp",
         "name": "SCP-JP (Mirror)",
-        "domains": ["scp-jp.wikijump.dev", "scp-jp.localhost"],
+        "domains": ["scp-jp.localhost"],
         "preferred-domain": "scp-jp.localhost",
         "tagline": "SCP-JP mirror placeholder",
         "description": "Reserved mirror site for pages imported from real SCP-JP only.",

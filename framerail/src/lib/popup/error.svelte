@@ -2,6 +2,7 @@
   import { page } from "$app/state"
   import { getPageLayoutContext } from "$lib/page-layout-context"
   import { errorPopupState } from "$lib/stores.svelte"
+  import { publicErrorExtraMessage } from "$lib/popup/public-error-data.js"
   import { Layout } from "$lib/types"
 
   interface Props {
@@ -26,6 +27,10 @@
   const escKeydown = (event: KeyboardEvent) => {
     if (event.code.toLowerCase() === "escape") exitPrompt()
   }
+
+  const errorExtraMessage = $derived(
+    publicErrorExtraMessage(errorPopupState.current.data)
+  )
   $effect(() => {
     window.addEventListener("keydown", escKeydown)
     return () => window.removeEventListener("keydown", escKeydown)
@@ -57,11 +62,9 @@
         <h1 id="modal-title">
           {errorPopupState.current.message}
         </h1>
-        {#if errorPopupState.current.data}
+        {#if errorExtraMessage}
           <p id="model-message-extra" class="modal-message-extra">
-            {typeof errorPopupState.current.data === "string"
-              ? errorPopupState.current.data
-              : errorPopupState.current.data.call_trace}
+            {errorExtraMessage}
           </p>
         {/if}
       </div>
@@ -97,11 +100,9 @@
       <div id="modal-message" class="modal-message">
         {errorPopupState.current.message}
       </div>
-      {#if errorPopupState.current.data}
+      {#if errorExtraMessage}
         <div id="model-message-extra" class="modal-message-extra">
-          {typeof errorPopupState.current.data === "string"
-            ? errorPopupState.current.data
-            : errorPopupState.current.data.call_trace}
+          {errorExtraMessage}
         </div>
       {/if}
     </div>
