@@ -3,6 +3,16 @@ import test from "node:test"
 
 import { buildPublicPreloadData } from "../src/lib/server/load/preload-data.js"
 
+const assertBrowserSerializationIsPublic = (preloadData) => {
+  const serialized = JSON.stringify(preloadData)
+
+  assert.equal(serialized.includes("session_token"), false)
+  assert.equal(serialized.includes("secret-session"), false)
+  assert.equal(serialized.includes("article_page_cache_key"), false)
+  assert.equal(serialized.includes("public_content_cache_fence"), false)
+  assert.equal(serialized.includes("anonymous_permission_cache_fence"), false)
+}
+
 test("public preload data is an allowlisted DTO", () => {
   const response = {
     site: { site_id: 1, name: "Example" },
@@ -36,4 +46,24 @@ test("public preload data is an allowlisted DTO", () => {
   assert.equal("public_content_cache_fence" in result, false)
   assert.equal("anonymous_permission_cache_fence" in result, false)
   assert.equal("future_internal_field" in result, false)
+  assertBrowserSerializationIsPublic(result)
+})
+
+test("anonymous browser serialization excludes session and cache internals", () => {
+  const response = {
+    site: { site_id: 1, name: "Example" },
+    site_file_domain: "files.example",
+    license_name: "CC BY-SA 3.0",
+    license_url: "https://creativecommons.org/licenses/by-sa/3.0/",
+    user_session: null,
+    session_token: "secret-session",
+    article_page_cache_key: "private-cache-key",
+    public_content_cache_fence: "private-public-fence",
+    anonymous_permission_cache_fence: "private-permission-fence"
+  }
+
+  const result = buildPublicPreloadData(response, null, ["en"])
+
+  assert.equal(result.user_session, null)
+  assertBrowserSerializationIsPublic(result)
 })
