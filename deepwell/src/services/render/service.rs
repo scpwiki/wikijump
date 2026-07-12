@@ -159,6 +159,13 @@ struct ViewableCountPagesRows {
     pages: FoundPages,
     metadata: PageQueryResultMetadata,
     view_permission_filtering_applied: bool,
+    raw_scan_completion: CountPagesRawScanCompletion,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CountPagesRawScanCompletion {
+    Complete,
+    Capped,
 }
 
 #[derive(Debug)]
@@ -7192,6 +7199,7 @@ impl RenderService {
         };
 
         let mut count_pages_metadata = None;
+        let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
         let pages = if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
@@ -7213,6 +7221,7 @@ impl RenderService {
                 found.metadata.clone(),
                 found.view_permission_filtering_applied,
             ));
+            raw_scan_completion = found.raw_scan_completion;
             found.pages
         };
         if let Some((metadata, view_permission_filtering_applied)) = count_pages_metadata
@@ -7235,12 +7244,11 @@ impl RenderService {
         let total = match count_pages_explicit_limit {
             Some(limit) => pages.take(limit.min(usize::MAX as u64) as usize).count(),
             None => {
-                let total = pages.count();
-                if count_pages_explicit_limit.is_none()
-                    && total >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize
-                {
+                let Some(total) =
+                    count_pages_unbounded_total(raw_scan_completion, pages.count())
+                else {
                     return Ok(original_module.to_owned());
-                }
+                };
                 total
             }
         };
@@ -7326,6 +7334,7 @@ impl RenderService {
         let mut raw_offset = 0;
         let mut metadata = None;
         let mut view_permission_filtering_applied = false;
+        let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
 
         while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
             let mut query = query.clone();
@@ -7349,12 +7358,16 @@ impl RenderService {
                 break;
             }
             raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
+            if raw_offset >= MAX_LISTPAGES_RENDER_SCAN_ROWS {
+                raw_scan_completion = CountPagesRawScanCompletion::Capped;
+            }
         }
 
         Ok(ViewableCountPagesRows {
             pages: FoundPages { pages },
             metadata: metadata.unwrap_or_default(),
             view_permission_filtering_applied,
+            raw_scan_completion,
         })
     }
 
@@ -8194,6 +8207,16 @@ fn count_pages_exact_count_render_diagnostics(
             explicit_count_pages_bound_matches_sql_window,
         },
     )
+}
+
+fn count_pages_unbounded_total(
+    raw_scan_completion: CountPagesRawScanCompletion,
+    scanned_total: usize,
+) -> Option<usize> {
+    match raw_scan_completion {
+        CountPagesRawScanCompletion::Complete => Some(scanned_total),
+        CountPagesRawScanCompletion::Capped => None,
+    }
 }
 
 fn merge_render_page_query_metadata(
@@ -11174,20 +11197,21 @@ mod tests {
     use super::{
         COMPAT_TEXT_MARKER_PREFIX, CollectingIncluder, CompatHtmlFragments,
         CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-        LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay, ListPagesSubstitutionContext,
-        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
-        MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
-        MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
-        MAX_WIKIDOT_SIMPLE_IF_PASSES, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
-        MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
-        OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
+        CountPagesRawScanCompletion, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
+        ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
+        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
+        MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
+        MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MAX_WIKIDOT_SIMPLE_IF_PASSES,
+        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
+        MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
+        PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
-        count_pages_should_remain_literal, find_balanced_ul_end,
-        format_list_pages_created_at, include_error,
+        count_pages_should_remain_literal, count_pages_unbounded_total,
+        find_balanced_ul_end, format_list_pages_created_at, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -11832,6 +11856,18 @@ mod tests {
         assert!(!diagnostics.allowed);
         assert_eq!(diagnostics.denied_reason_code, Some("post_query_exclusion"));
         assert_eq!(diagnostics.denied_reason_detail, None);
+    }
+
+    #[test]
+    fn unbounded_count_pages_remains_literal_when_scan_cap_is_reached() {
+        assert_eq!(
+            count_pages_unbounded_total(CountPagesRawScanCompletion::Capped, 1_000),
+            None,
+        );
+        assert_eq!(
+            count_pages_unbounded_total(CountPagesRawScanCompletion::Complete, 17),
+            Some(17),
+        );
     }
 
     #[test]
