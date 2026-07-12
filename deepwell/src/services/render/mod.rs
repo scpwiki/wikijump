@@ -43,7 +43,6 @@ mod percent_encoding;
 mod render_dependency;
 mod service;
 mod structs;
-mod wikidot_expression;
 mod wikidot_inline_markers;
 
 pub(crate) use self::diagnostics::{

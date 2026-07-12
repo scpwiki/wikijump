@@ -29,7 +29,6 @@ use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
-use super::wikidot_expression::resolve_parser_functions;
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
@@ -310,7 +309,6 @@ const MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS: usize = 12;
 const MIN_FTML_COMPAT_TABBED_RENDER_BYTES: usize = 100_000;
 const MIN_FTML_COMPAT_TABBED_MARKERS: usize = 10;
 const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
-const MAX_WIKIDOT_SIMPLE_IF_PASSES: usize = 32;
 const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
 const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
@@ -519,12 +517,6 @@ static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
-static WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[#ifexpr\s+(?P<test>-?[0-9]+(?:\.[0-9]+)?)\s*>\s*-1\s*\|\s*\+\s*\|\s*-\s*\]\]\s*\[\[#expr\s+abs\(\s*(?P<abs>-?[0-9]+(?:\.[0-9]+)?)\s*\)\s*\]\]").unwrap()
-});
-static WIKIDOT_NUMERIC_IFEXPR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[#ifexpr\s+(?P<left>-?[0-9]+(?:\.[0-9]+)?)\s*(?P<op>>=|<=|==|!=|=|>|<)\s*(?P<right>-?[0-9]+(?:\.[0-9]+)?)\s*\|\s*(?P<when_true>.*?)\s*\|\s*(?P<when_false>.*?)\s*\]\]").unwrap()
-});
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
 static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> =
@@ -609,9 +601,6 @@ static WIKIDOT_SINGLE_LINE_IFTAGS_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static WIKIDOT_SIMPLE_IFTAGS_BLOCK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)\[\[iftags(?P<spec>\s+[^\]\n]+)\]\](?P<body>.*?)\[\[/iftags\]\]"#)
         .unwrap()
-});
-static WIKIDOT_SIMPLE_IF_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)\[\[#if\s+(?P<cond>1|0|true|false)\s*\|"#).unwrap()
 });
 static WIKIDOT_IMAGE_BLOCK_INCLUDE_START_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -1334,10 +1323,6 @@ impl RenderService {
             Self::protect_wikidot_wikipedia_links(&mut outer.wikitext, settings);
         let wikidot_embed_iframes =
             Self::protect_wikidot_embed_iframes(&mut outer.wikitext);
-        // Protection turns ambiguous branch constructs into opaque markers.
-        // Rerun the bounded conditional scanner so syntax that could not be
-        // selected safely during outer preparation does not leak into FTML.
-        outer.wikitext = Self::resolve_wikidot_simple_if_fragments(&outer.wikitext);
         outer.timings.inner_protection_us = elapsed_micros(started);
 
         observer(CorpusReplayPreparationStage::Preprocess);
@@ -1823,9 +1808,6 @@ impl RenderService {
         }
         if html.contains("wj-tabs") {
             html = Self::restore_wikidot_tabview_dom_compatibility(&html);
-        }
-        if WIKIDOT_SIMPLE_IF_OPEN_REGEX.is_match(&html) {
-            html = Self::resolve_wikidot_simple_if_fragments(&html);
         }
         if WIKIDOT_RENDERED_MAILFORM_REGEX.is_match(&html) {
             html = Self::restore_wikidot_mailform_compatibility(&html);
@@ -2622,7 +2604,7 @@ impl RenderService {
         Self::remove_unresolved_variable_iftags_blocks(wikitext);
         Self::resolve_single_line_wikidot_iftags_fragments(wikitext, page_info);
         Self::resolve_simple_wikidot_iftags_blocks(wikitext, page_info);
-        *wikitext = Self::resolve_wikidot_simple_if_fragments(wikitext);
+        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
     }
 
     fn resolve_single_line_wikidot_iftags_fragments(
@@ -2677,97 +2659,16 @@ impl RenderService {
         }
     }
 
-    fn resolve_wikidot_simple_if_fragments(html: &str) -> String {
-        let mut resolved = html.to_owned();
-
-        for _ in 0..MAX_WIKIDOT_SIMPLE_IF_PASSES {
-            let source = resolved.clone();
-            let literal_regions = LiteralRegionIndex::new(&source);
-            let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
-            let mut search_start = 0usize;
-
-            while let Some(captures) =
-                WIKIDOT_SIMPLE_IF_OPEN_REGEX.captures(&source[search_start..])
-            {
-                let full_open =
-                    captures.get(0).expect("simple-if opening capture exists");
-                let conditional_start = search_start + full_open.start();
-                let branch_start = search_start + full_open.end();
-                let Some((conditional_end, separator)) =
-                    Self::find_wikidot_simple_if_end(&source, branch_start)
-                else {
-                    search_start = branch_start;
-                    continue;
-                };
-                search_start = conditional_end;
-
-                if literal_regions.contains(conditional_start) {
-                    continue;
-                }
-
-                let condition = captures
-                    .name("cond")
-                    .expect("simple-if condition capture exists")
-                    .as_str();
-                let close_start = conditional_end - 2;
-                let selected = if condition.eq_ignore_ascii_case("1")
-                    || condition.eq_ignore_ascii_case("true")
-                {
-                    &source[branch_start..separator.unwrap_or(close_start)]
-                } else {
-                    separator.map_or("", |separator| &source[separator + 1..close_start])
-                };
-                replacements.push((
-                    conditional_start..conditional_end,
-                    selected.trim().to_owned(),
-                ));
-            }
-
-            if replacements.is_empty() {
-                return resolved;
-            }
-            for (range, replacement) in replacements.into_iter().rev() {
-                resolved.replace_range(range, &replacement);
-            }
-        }
-
-        resolved
-    }
-
-    fn find_wikidot_simple_if_end(
-        source: &str,
-        branch_start: usize,
-    ) -> Option<(usize, Option<usize>)> {
-        let bytes = source.as_bytes();
-        let mut cursor = branch_start;
-        let mut nested_wikidot_depth = 1usize;
-        let mut separator = None;
-
-        while cursor + 1 < bytes.len() {
-            if bytes[cursor..].starts_with(b"[[") {
-                nested_wikidot_depth += 1;
-                cursor += 2;
-                continue;
-            }
-            if bytes[cursor..].starts_with(b"]]") {
-                if nested_wikidot_depth == 1 {
-                    return Some((cursor + 2, separator));
-                }
-                nested_wikidot_depth -= 1;
-                cursor += 2;
-                continue;
-            }
-            if bytes[cursor] == b'|' && nested_wikidot_depth == 1 && separator.is_none() {
-                separator = Some(cursor);
-            }
-            cursor += 1;
-        }
-
-        None
-    }
-
     fn resolve_wikidot_parser_functions(value: &str) -> String {
-        resolve_parser_functions(value)
+        // Frozen ListPages rows use zero for a missing vote count. Preserve the
+        // evidenced operator-level result without maintaining another parser.
+        ftml::preproc::resolve_wikidot_parser_functions_with_options(
+            value,
+            ftml::preproc::WikidotParserFunctionOptions {
+                zero_operator_policy:
+                    ftml::preproc::WikidotZeroOperatorPolicy::ReplaceOperationWithZero,
+            },
+        )
     }
 
     fn normalize_wikidot_div_style_url_quotes(wikitext: &mut String) {
@@ -9258,9 +9159,7 @@ fn substitute_list_pages_rating_only(template: &str, page: &FoundPageRow) -> Str
             }
         })
         .into_owned();
-    RenderService::resolve_wikidot_parser_functions(
-        &resolve_list_pages_signed_abs_expressions(&substituted),
-    )
+    RenderService::resolve_wikidot_parser_functions(&substituted)
 }
 
 fn push_list_pages_pager(
@@ -9535,9 +9434,7 @@ fn substitute_list_pages_variables_with_fragments(
         })
         .into_owned();
 
-    RenderService::resolve_wikidot_parser_functions(
-        &resolve_list_pages_signed_abs_expressions(&substituted),
-    )
+    RenderService::resolve_wikidot_parser_functions(&substituted)
 }
 
 #[cfg(test)]
@@ -9573,56 +9470,9 @@ fn substitute_count_pages_variables(template: &str, total: usize) -> String {
             }
         })
         .into_owned();
-    let mut substituted = RenderService::resolve_wikidot_parser_functions(
-        &resolve_wikidot_numeric_ifexpr(&substituted),
-    );
+    let mut substituted = RenderService::resolve_wikidot_parser_functions(&substituted);
     RenderService::neutralize_authored_wikidot_compat_markers(&mut substituted);
     substituted
-}
-
-fn resolve_wikidot_numeric_ifexpr(value: &str) -> String {
-    let literal_regions = LiteralRegionIndex::new(value);
-    WIKIDOT_NUMERIC_IFEXPR_REGEX
-        .replace_all(value, |captures: &regex::Captures<'_>| {
-            let full_match = captures.get(0).expect("numeric ifexpr capture exists");
-            if literal_regions.contains(full_match.start()) {
-                return full_match.as_str().to_owned();
-            }
-            let left = captures["left"].parse::<f64>().ok();
-            let right = captures["right"].parse::<f64>().ok();
-            let Some(left) = left else {
-                return captures
-                    .get(0)
-                    .map_or("", |matched| matched.as_str())
-                    .to_owned();
-            };
-            let Some(right) = right else {
-                return captures
-                    .get(0)
-                    .map_or("", |matched| matched.as_str())
-                    .to_owned();
-            };
-            let matched = match &captures["op"] {
-                ">" => left > right,
-                ">=" => left >= right,
-                "<" => left < right,
-                "<=" => left <= right,
-                "=" | "==" => (left - right).abs() <= f64::EPSILON,
-                "!=" => (left - right).abs() > f64::EPSILON,
-                _ => {
-                    return captures
-                        .get(0)
-                        .map_or("", |matched| matched.as_str())
-                        .to_owned();
-                }
-            };
-            if matched {
-                captures["when_true"].trim().to_owned()
-            } else {
-                captures["when_false"].trim().to_owned()
-            }
-        })
-        .into_owned()
 }
 
 fn render_list_pages_tags(
@@ -9843,40 +9693,6 @@ fn register_generated_list_pages_html(
         .into_owned()
 }
 
-fn resolve_list_pages_signed_abs_expressions(value: &str) -> String {
-    let literal_regions = LiteralRegionIndex::new(value);
-    WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX
-        .replace_all(value, |captures: &regex::Captures<'_>| {
-            let original = captures.get(0).map_or("", |matched| matched.as_str());
-            let start = captures.get(0).map_or(0, |matched| matched.start());
-            if literal_regions.contains(start) {
-                return original.to_owned();
-            }
-            let Some(test_value) = captures
-                .name("test")
-                .and_then(|matched| matched.as_str().parse::<f64>().ok())
-            else {
-                return original.to_owned();
-            };
-            let Some(abs_value) = captures
-                .name("abs")
-                .and_then(|matched| matched.as_str().parse::<f64>().ok())
-            else {
-                return original.to_owned();
-            };
-            if (test_value - abs_value).abs() > f64::EPSILON
-                && (test_value.abs() - abs_value).abs() > f64::EPSILON
-            {
-                return original.to_owned();
-            }
-
-            let sign = if test_value > -1.0 { "+" } else { "-" };
-            let magnitude = format_list_pages_rating(Some(test_value.abs() as f32));
-            format!("{sign}{magnitude}")
-        })
-        .into_owned()
-}
-
 fn wikidot_compat_link_marker() -> String {
     format!(
         "{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X",
@@ -9957,7 +9773,7 @@ fn substitute_wikidot_protected_inline_typography(html: &str) -> String {
 
 fn substitute_wikidot_protected_inline_text_typography(value: &str) -> String {
     let mut text = value.to_owned();
-    ftml::preprocess(&mut text);
+    ftml::preproc::typography::substitute(&mut text);
     substitute_wikidot_protected_inline_dashes(&text)
 }
 
@@ -12030,10 +11846,9 @@ mod tests {
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
-        MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MAX_WIKIDOT_SIMPLE_IF_PASSES,
-        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
-        MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
-        PreparedIncluder, RenderContext, RenderService,
+        MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
+        MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
+        OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
@@ -12053,8 +11868,7 @@ mod tests {
         render_list_pages_tags, render_members_module_placeholder,
         render_native_list_inline_wikidot_spans, render_native_list_page_link,
         render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
-        requested_page_info_score, resolve_list_pages_signed_abs_expressions,
-        resolve_wikidot_numeric_ifexpr, restore_list_pages_literal_ellipsis_markers,
+        requested_page_info_score, restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
         wikidot_content_section, wikidot_module_argument,
@@ -14358,9 +14172,12 @@ mod tests {
         assert!(rendered.contains(
             r#"<strong><span style="color: #8e2c4d">Memetics and Countermemetics</span></strong>"#
         ));
-        assert!(rendered.contains(
-            r#"<strong><span style="color: #ce005c">I am… I <em>should</em> be…</span></strong>"#
-        ));
+        assert!(
+            rendered.contains(
+                r#"<strong><span style="color: #ce005c">I am… I <em>should</em> be…</span></strong>"#
+            ),
+            "{rendered}",
+        );
         assert!(rendered.contains(
             r#"<strong><span style="color: #c5000b">PATH uses North — heading for the arctic — red.</span></strong>"#
         ));
@@ -14987,28 +14804,6 @@ mod tests {
         assert!(!rendered.contains("[[#ifexpr"));
         assert!(!rendered.contains("[[#expr"));
         assert!(!rendered.contains("agohover[[/span]]"));
-    }
-
-    #[test]
-    fn resolves_wikidot_signed_abs_rating_expressions() {
-        assert_eq!(
-            resolve_list_pages_signed_abs_expressions(
-                "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]",
-            ),
-            "-3",
-        );
-        assert_eq!(
-            resolve_list_pages_signed_abs_expressions(
-                "[[#ifexpr 4.5 > -1 | + | - ]][[#expr abs(4.5)]]",
-            ),
-            "+4.5",
-        );
-        assert_eq!(
-            resolve_list_pages_signed_abs_expressions(
-                "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(4)]]",
-            ),
-            "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(4)]]",
-        );
     }
 
     #[test]
@@ -18463,124 +18258,6 @@ mod tests {
     }
 
     #[test]
-    fn resolves_residual_wikidot_simple_if_fragments_after_render() {
-        let html = concat!(
-            r#"<li class="[[#if 1 | folded | unfolded ]] [[#if 0 | colmod-collapsiblealt | active ]]">"#,
-            r#"<a href="javascript:;">+ Open</a>"#,
-            r#"[[#if 0 | | <a href="javascript:;">- Close</a> ]]"#,
-            r#"[[#if false | hidden | <span>Visible</span> ]]"#,
-            r#"[[#if true | <span>Shown</span> | hidden ]]"#,
-            r#"[[#if 1 | one-branch ]]"#,
-            r#"[[#if 0 | hidden-one-branch ]]"#,
-            "</li>",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(html);
-
-        assert_eq!(
-            restored,
-            r#"<li class="folded active"><a href="javascript:;">+ Open</a><a href="javascript:;">- Close</a><span>Visible</span><span>Shown</span>one-branch</li>"#,
-        );
-        assert!(!restored.contains("[[#if"));
-    }
-
-    #[test]
-    fn preserves_simple_if_fragments_in_wikidot_literal_regions() {
-        let source = concat!(
-            "[[code]]\n[[#if 1 | code-example ]]\n[[/code]]\n",
-            "@@[[#if 0 | escaped-example ]]@@\n",
-            "[[html]]\n[[#if true | html-example ]]\n[[/html]]\n",
-            "[!-- [[#if false | comment-example ]] --]\n",
-            "[[#if 1 | resolved ]]",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(source);
-
-        assert_eq!(
-            restored,
-            concat!(
-                "[[code]]\n[[#if 1 | code-example ]]\n[[/code]]\n",
-                "@@[[#if 0 | escaped-example ]]@@\n",
-                "[[html]]\n[[#if true | html-example ]]\n[[/html]]\n",
-                "[!-- [[#if false | comment-example ]] --]\n",
-                "resolved",
-            )
-        );
-    }
-
-    #[test]
-    fn preserves_simple_if_fragments_in_rendered_html_literal_regions() {
-        let html = concat!(
-            "<code>[[#if 1 | inline-code ]]</code>",
-            "<pre>[[#if 0 | preformatted ]]</pre>",
-            r#"<div class="code"><div>[[#if true | code-panel ]]</div></div>"#,
-            "<script>[[#if 1 | script-example ]]</script>",
-            "<style>[[#if 1 | style-example ]]</style>",
-            "<textarea>[[#if 1 | textarea-example ]]</textarea>",
-            "<p>[[#if 1 | resolved ]]</p>",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(html);
-
-        assert_eq!(
-            restored,
-            concat!(
-                "<code>[[#if 1 | inline-code ]]</code>",
-                "<pre>[[#if 0 | preformatted ]]</pre>",
-                r#"<div class="code"><div>[[#if true | code-panel ]]</div></div>"#,
-                "<script>[[#if 1 | script-example ]]</script>",
-                "<style>[[#if 1 | style-example ]]</style>",
-                "<textarea>[[#if 1 | textarea-example ]]</textarea>",
-                "<p>resolved</p>",
-            )
-        );
-    }
-
-    #[test]
-    fn resolves_simple_if_branches_with_balanced_wikidot_markup() {
-        let source = concat!(
-            "[[#if 1 | [[div]]shown[[/div]] | hidden ]]",
-            "[[#if 0 | hidden | [[span class=\"visible\"]]shown[[/span]] ]]",
-            "[[#if true | [[div]]one-branch[[/div]] ]]",
-            "[[#if 1 | [[#if 0 | no | nested ]] | outer-no ]]",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(source);
-
-        assert_eq!(
-            restored,
-            concat!(
-                "[[div]]shown[[/div]]",
-                "[[span class=\"visible\"]]shown[[/span]]",
-                "[[div]]one-branch[[/div]]",
-                "nested",
-            )
-        );
-    }
-
-    #[test]
-    fn resolves_many_sibling_simple_if_fragments_in_one_bounded_pass() {
-        let source = "[[#if 1 | x | y ]]".repeat(5_000);
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(&source);
-
-        assert_eq!(restored, "x".repeat(5_000));
-    }
-
-    #[test]
-    fn deeply_nested_simple_if_resolution_stops_at_the_pass_limit() {
-        let mut source = "leaf".to_owned();
-        for _ in 0..(MAX_WIKIDOT_SIMPLE_IF_PASSES + 8) {
-            source = format!("[[#if 1 | {source} | hidden ]]");
-        }
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(&source);
-
-        assert_eq!(restored.matches("[[#if").count(), 8);
-        assert!(restored.contains("leaf"));
-    }
-
-    #[test]
     fn resolves_parser_functions_only_outside_literal_regions() {
         let source = concat!(
             "[[code]]\n[[#expr 1+1]]\n[[/code]]\n",
@@ -18599,7 +18276,7 @@ mod tests {
                 "[[code]]\n[[#expr 1+1]]\n[[/code]]\n",
                 "@@[[#ifexpr 1 | escaped | hidden]]@@\n",
                 "[[html]]\n[[#expr 2+2]]\n[[/html]]\n",
-                "[!-- [[#expr 3+3]] --]\n",
+                "[!-- 6 --]\n",
                 "<code>[[#expr 4+4]]</code>\n",
                 "resolved 10",
             )
@@ -18607,13 +18284,12 @@ mod tests {
     }
 
     #[test]
-    fn list_pages_expression_prepasses_preserve_literal_examples() {
+    fn list_pages_parser_function_boundary_preserves_literal_examples() {
         let signed = concat!(
             "@@[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]@@ ",
             "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]",
         );
-        let signed = resolve_list_pages_signed_abs_expressions(signed);
-        let signed = RenderService::resolve_wikidot_parser_functions(&signed);
+        let signed = RenderService::resolve_wikidot_parser_functions(signed);
         assert_eq!(
             signed,
             "@@[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]@@ -3"
@@ -18624,7 +18300,7 @@ mod tests {
             "[[#ifexpr 2 > 1 | visible | hidden]]",
         );
         assert_eq!(
-            resolve_wikidot_numeric_ifexpr(numeric),
+            RenderService::resolve_wikidot_parser_functions(numeric),
             "[[code]]\n[[#ifexpr 2 > 1 | code | hidden]]\n[[/code]] visible"
         );
     }
@@ -18644,6 +18320,84 @@ mod tests {
         let tokens = ftml::tokenize(&source);
         let (_, errors) = ftml::parse(&tokens, &page_info, &settings).into();
         assert!(errors.is_empty(), "{errors:#?}");
+    }
+
+    #[test]
+    fn parser_functions_select_includes_before_include_collection() {
+        let mut source = concat!(
+            "[[#if 0 | [[include component:hidden-if]] | ",
+            "[[include component:visible-if]] ]]\n",
+            "[[#if aroace | [[include component:visible-string]] | ",
+            "[[include component:hidden-string]] ]]\n",
+            "[[#if {$code} | [[include component:visible-placeholder]] | ",
+            "[[include component:hidden-placeholder]] ]]\n",
+            "[[#ifexpr 2 > 1 | [[include component:visible-ifexpr]] | ",
+            "[[include component:hidden-ifexpr]] ]]\n",
+        )
+        .to_owned();
+        let page_info = fallback_test_page_info("conditional", "Conditional");
+
+        RenderService::prepare_wikidot_conditionals_for_include_expansion(
+            &mut source,
+            &page_info,
+        );
+
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut includes = Vec::new();
+        ftml::include(
+            &source,
+            &settings,
+            CollectingIncluder {
+                includes: &mut includes,
+            },
+            include_error,
+        )
+        .expect("selected includes should remain valid include syntax");
+
+        assert_eq!(
+            includes
+                .iter()
+                .map(|include| include.page_ref().page())
+                .collect::<Vec<_>>(),
+            [
+                "component:visible-if",
+                "component:visible-string",
+                "component:visible-placeholder",
+                "component:visible-ifexpr",
+            ],
+        );
+        assert!(!source.contains("component:hidden"));
+    }
+
+    #[test]
+    fn parser_functions_open_wikidot_comment_delimiters_before_ftml() {
+        // Live provenance:
+        // ftml-oracle-20260712T230555Z/run-parser-comment-delimiter.
+        let mut source = concat!(
+            "[!-- [[#if aroace | --] |  ]]OMEGA_TRUE[!-- --]\n",
+            "[!-- [[#if 0 | --] |  ]]OMEGA_FALSE[!-- --]\n",
+            "[!-- [[#expr 1+1]] OMEGA_COMMENT --]\n",
+            "OMEGA_AFTER",
+        )
+        .to_owned();
+        let page_info = fallback_test_page_info("conditional", "Conditional");
+
+        RenderService::prepare_wikidot_conditionals_for_include_expansion(
+            &mut source,
+            &page_info,
+        );
+        ftml::preprocess(&mut source);
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let tokens = ftml::tokenize(&source);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(html.contains("OMEGA_TRUE"), "{html}");
+        assert!(html.contains("OMEGA_AFTER"), "{html}");
+        for hidden in ["OMEGA_FALSE", "OMEGA_COMMENT", "[[#expr"] {
+            assert!(!html.contains(hidden), "{hidden}: {html}");
+        }
     }
 
     #[test]
