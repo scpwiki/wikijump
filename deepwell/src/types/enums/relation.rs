@@ -68,6 +68,32 @@ pub enum RelationType {
     UserBotOwner,
 }
 
+impl RelationType {
+    /// Returns all database spellings that may exist for this relation type.
+    ///
+    /// New writes keep using the legacy display value for compatibility with
+    /// imported Wikidot data, but deployments may still contain rows written
+    /// with the newer namespaced values. Relation lookups must check both.
+    pub fn database_values(self) -> &'static [&'static str] {
+        match self {
+            RelationType::SiteUser => &["site-user"],
+            RelationType::SiteBan => &["ban", "site-ban"],
+            RelationType::SiteApplication => &["application", "site-application"],
+            RelationType::SiteMember => &["member", "site-member"],
+            RelationType::PageStar => &["star", "page-star"],
+            RelationType::PageWatch => &["watch", "page-watch"],
+            RelationType::PageAttribution => &["page-attribution"],
+            RelationType::UserFollow => &["follow", "user-follow"],
+            RelationType::UserContact => &["contact", "user-contact"],
+            RelationType::UserContactRequest => {
+                &["contact-request", "user-contact-request"]
+            }
+            RelationType::UserBlock => &["block", "user-block"],
+            RelationType::UserBotOwner => &["bot-owner", "user-bot-owner"],
+        }
+    }
+}
+
 #[derive(
     EnumIter,
     Serialize,
@@ -184,6 +210,15 @@ mod tests {
 
         assert!(<RelationType as ValueType>::try_from(Value::String(None)).is_err());
         assert!(<RelationType as ValueType>::try_from(Value::Int(Some(1))).is_err());
+    }
+
+    #[test]
+    fn relation_type_database_values_include_lookup_aliases() {
+        for (relation_type, legacy_value, variant_value) in relation_cases() {
+            let values = relation_type.database_values();
+            assert_eq!(values[0], legacy_value);
+            assert!(values.contains(&variant_value));
+        }
     }
 
     #[test]
