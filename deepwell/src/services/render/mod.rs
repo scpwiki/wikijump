@@ -48,7 +48,8 @@ mod wikidot_expression;
 mod wikidot_inline_markers;
 
 pub(crate) use self::diagnostics::{
-    CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, StageGuard,
+    CORPUS_RENDER_BUDGET_US, CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage,
+    CorpusRenderTrace, CorpusRenderTraceSnapshot, StageGuard,
 };
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,

@@ -893,7 +893,6 @@ impl PageRevisionService {
     }
 
     /// Re-renders a trusted imported page and records corpus stage diagnostics.
-    #[allow(dead_code)]
     pub(crate) async fn rerender_for_corpus_finalizer_traced(
         ctx: &ServiceContext<'_>,
         id: PageId,
