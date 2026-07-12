@@ -220,7 +220,6 @@ struct InnerPreparedRenderWikitext {
     wikidot_compat_links: Vec<ProtectedWikidotCompatLink>,
     wikidot_wikipedia_links: Vec<ProtectedWikidotWikipediaLink>,
     wikidot_compat_html: CompatHtmlFragments,
-    wikidot_stray_bibcite_closers: usize,
     wikidot_embed_iframes: Vec<String>,
     timings: CorpusReplayStageTimings,
 }
@@ -271,8 +270,6 @@ const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
 const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
-const WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX: &str =
-    "WIKIJUMPWIKIDOTSTRAYBIBCITECLOSE";
 const WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTRATEANCHOR";
 const WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX: &str =
     "WIKIJUMPWIKIDOTLISTPAGESELLIPSIS";
@@ -1126,8 +1123,6 @@ impl RenderService {
             Self::protect_wikidot_compat_links(&mut outer.wikitext, settings);
         let wikidot_wikipedia_links =
             Self::protect_wikidot_wikipedia_links(&mut outer.wikitext, settings);
-        let wikidot_stray_bibcite_closers =
-            Self::protect_wikidot_stray_bibcite_closers(&mut outer.wikitext, settings);
         let wikidot_embed_iframes =
             Self::protect_wikidot_embed_iframes(&mut outer.wikitext);
         // Protection turns ambiguous branch constructs into opaque markers.
@@ -1149,7 +1144,6 @@ impl RenderService {
             wikidot_compat_html: outer.wikidot_compat_html,
             wikidot_compat_links,
             wikidot_wikipedia_links,
-            wikidot_stray_bibcite_closers,
             wikidot_embed_iframes,
             timings: outer.timings,
         }
@@ -1305,7 +1299,6 @@ impl RenderService {
                 wikidot_compat_links,
                 wikidot_wikipedia_links,
                 wikidot_compat_html,
-                wikidot_stray_bibcite_closers,
                 wikidot_embed_iframes,
                 timings: _,
             } = Self::prepare_inner_render_wikitext(outer, &render_settings);
@@ -1314,10 +1307,6 @@ impl RenderService {
             let (tree, errors) = result.into();
             let mut html_output =
                 HtmlRender.render(&tree, &render_page_info, &render_settings);
-            html_output.body = Self::restore_protected_wikidot_stray_bibcite_closers(
-                html_output.body,
-                wikidot_stray_bibcite_closers,
-            );
             html_output.body = Self::restore_protected_wikidot_embed_iframes(
                 html_output.body,
                 &wikidot_embed_iframes,
@@ -4852,127 +4841,6 @@ impl RenderService {
     ) -> String {
         for fragment in fragments {
             html = html.replace(&fragment.marker, &fragment.html);
-        }
-        html
-    }
-
-    fn protect_wikidot_stray_bibcite_closers(
-        wikitext: &mut String,
-        settings: &WikitextSettings,
-    ) -> usize {
-        if !settings.enable_page_syntax || !wikitext.contains("))") {
-            return 0;
-        }
-
-        let source = wikitext.as_str();
-        let mut output = String::with_capacity(source.len());
-        let mut protected_count = 0;
-        let mut in_code_block = false;
-
-        for line in source.split_inclusive('\n') {
-            let marker = line.trim_start().to_ascii_lowercase();
-            let opens_code_block = marker.starts_with("[[code");
-            let closes_code_block = marker.starts_with("[[/code]]");
-
-            if in_code_block || opens_code_block {
-                output.push_str(line);
-                if opens_code_block {
-                    in_code_block = true;
-                }
-                if closes_code_block {
-                    in_code_block = false;
-                }
-                continue;
-            }
-
-            Self::push_wikidot_stray_bibcite_protected_segment(
-                line,
-                &mut output,
-                &mut protected_count,
-            );
-        }
-
-        if protected_count > 0 {
-            *wikitext = output;
-        }
-
-        protected_count
-    }
-
-    fn push_wikidot_stray_bibcite_protected_segment(
-        source: &str,
-        output: &mut String,
-        protected_count: &mut usize,
-    ) {
-        let mut index = 0;
-
-        while index < source.len() {
-            let remaining = &source[index..];
-
-            if let Some(close_start) = Self::wikidot_bibcite_close_start(remaining) {
-                let close_end = close_start + "))".len();
-                output.push_str(&remaining[..close_end]);
-                index += close_end;
-                continue;
-            }
-
-            if remaining.starts_with("))") {
-                output.push_str(&format!(
-                    "{WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX}{protected_count}X"
-                ));
-                *protected_count += 1;
-                index += "))".len();
-                continue;
-            }
-
-            let character = remaining
-                .chars()
-                .next()
-                .expect("non-empty remaining source should have a next character");
-            output.push(character);
-            index += character.len_utf8();
-        }
-    }
-
-    fn wikidot_bibcite_close_start(source: &str) -> Option<usize> {
-        const PREFIX: &str = "((bibcite";
-
-        if !source.starts_with(PREFIX) {
-            return None;
-        }
-
-        let bytes = source.as_bytes();
-        let mut label_start = PREFIX.len();
-        if !matches!(bytes.get(label_start), Some(b' ' | b'\t')) {
-            return None;
-        }
-
-        while matches!(bytes.get(label_start), Some(b' ' | b'\t')) {
-            label_start += 1;
-        }
-
-        let close_start = source[label_start..].find("))")? + label_start;
-        if close_start == label_start {
-            return None;
-        }
-
-        if source[label_start..close_start]
-            .bytes()
-            .any(|byte| matches!(byte, b' ' | b'\t' | b'\n' | b'\r'))
-        {
-            return None;
-        }
-
-        Some(close_start)
-    }
-
-    fn restore_protected_wikidot_stray_bibcite_closers(
-        mut html: String,
-        protected_count: usize,
-    ) -> String {
-        for index in 0..protected_count {
-            let marker = format!("{WIKIDOT_STRAY_BIBCITE_CLOSE_SENTINEL_PREFIX}{index}X");
-            html = html.replace(&marker, "))");
         }
         html
     }
@@ -11210,21 +11078,11 @@ mod tests {
             &mut wikitext,
             &settings,
         );
-        let stray_bibcite_closers = RenderService::protect_wikidot_stray_bibcite_closers(
-            &mut wikitext,
-            &settings,
-        );
-
         ftml::preprocess(&mut wikitext);
         let tokens = ftml::tokenize(&wikitext);
         let result = ftml::parse(&tokens, &page_info, &settings);
         let (tree, _) = result.into();
         let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
-        let rendered = RenderService::restore_protected_wikidot_stray_bibcite_closers(
-            rendered,
-            stray_bibcite_closers,
-        );
-
         RenderService::restore_protected_generated_wikidot_compat_html(
             rendered, &fragments,
         )
@@ -11274,60 +11132,31 @@ mod tests {
     }
 
     #[test]
-    fn protects_stray_bibcite_closers_without_touching_valid_bibcite() {
-        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
-        let original =
-            "((bibcite alpha)) before (a (b)) after ((notbibcite beta))".to_owned();
-        let mut source = original.clone();
-
-        let protected_count =
-            RenderService::protect_wikidot_stray_bibcite_closers(&mut source, &settings);
-
-        assert_eq!(protected_count, 2);
-        assert!(source.contains("((bibcite alpha))"));
-        assert!(!source.contains("(a (b))"));
-        assert!(!source.contains("((notbibcite beta))"));
-        assert_eq!(
-            RenderService::restore_protected_wikidot_stray_bibcite_closers(
-                source,
-                protected_count,
-            ),
-            original,
-        );
-    }
-
-    #[test]
-    fn does_not_protect_parentheses_inside_wikidot_code_blocks() {
-        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
-        let original = concat!(
-            "[[code type=\"css\"]]\n",
-            "#header { background: rgb(var(--header-background-color)) 100%; }\n",
-            "[[/code]]\n",
-            "outside (a (b))",
-        )
-        .to_owned();
-        let mut source = original.clone();
-
-        let protected_count =
-            RenderService::protect_wikidot_stray_bibcite_closers(&mut source, &settings);
-
-        assert_eq!(protected_count, 1);
-        assert!(source.contains("rgb(var(--header-background-color)) 100%"));
-        assert!(!source.contains("rgb(var(--header-background-colorWIKIJUMP"));
-        assert_eq!(
-            RenderService::restore_protected_wikidot_stray_bibcite_closers(
-                source,
-                protected_count,
-            ),
-            original,
-        );
-    }
-
-    #[test]
-    fn renders_nested_plain_parentheses_before_ftml_parsing() {
+    fn renders_nested_plain_parentheses_directly_through_ftml() {
         let rendered =
             render_wikidot_page_body_after_compat_restore("before (a (b)) after");
 
+        assert!(rendered.contains("before (a (b)) after"));
+    }
+
+    #[test]
+    fn renders_maximum_dense_stray_bibcite_input_without_amplification() {
+        let source = "))".repeat(MAX_FTML_COMPAT_PARSE_BYTES / 2);
+        let rendered = render_wikidot_page_body_after_compat_restore(&source);
+
+        assert_eq!(source.len(), MAX_FTML_COMPAT_PARSE_BYTES);
+        assert!(rendered.contains(&source));
+        assert!(rendered.len() <= source.len() + 64);
+    }
+
+    #[test]
+    fn preserves_valid_bibcite_after_removing_stray_closer_protection() {
+        let rendered = render_wikidot_page_body_after_compat_restore(
+            "[[bibliography]]\n: alpha : Entry\n[[/bibliography]]\n\
+             ((bibcite alpha)) before (a (b)) after",
+        );
+
+        assert!(rendered.contains("wj-bibliography-ref"));
         assert!(rendered.contains("before (a (b)) after"));
     }
 
