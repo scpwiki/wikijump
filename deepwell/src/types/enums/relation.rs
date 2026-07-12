@@ -40,6 +40,7 @@ use strum_macros::{Display, EnumIter, EnumString};
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
 pub enum RelationType {
+    #[strum(to_string = "user", serialize = "site-user")]
     SiteUser,
     #[strum(to_string = "ban", serialize = "site-ban")]
     SiteBan,
@@ -65,6 +66,32 @@ pub enum RelationType {
     UserBlock,
     #[strum(to_string = "bot-owner", serialize = "user-bot-owner")]
     UserBotOwner,
+}
+
+impl RelationType {
+    /// Returns all database spellings that may exist for this relation type.
+    ///
+    /// New writes keep using the legacy display value for compatibility with
+    /// imported Wikidot data, but deployments may still contain rows written
+    /// with the newer namespaced values. Relation lookups must check both.
+    pub fn database_values(self) -> &'static [&'static str] {
+        match self {
+            RelationType::SiteUser => &["user", "site-user"],
+            RelationType::SiteBan => &["ban", "site-ban"],
+            RelationType::SiteApplication => &["application", "site-application"],
+            RelationType::SiteMember => &["member", "site-member"],
+            RelationType::PageStar => &["star", "page-star"],
+            RelationType::PageWatch => &["watch", "page-watch"],
+            RelationType::PageAttribution => &["page-attribution"],
+            RelationType::UserFollow => &["follow", "user-follow"],
+            RelationType::UserContact => &["contact", "user-contact"],
+            RelationType::UserContactRequest => {
+                &["contact-request", "user-contact-request"]
+            }
+            RelationType::UserBlock => &["block", "user-block"],
+            RelationType::UserBotOwner => &["bot-owner", "user-bot-owner"],
+        }
+    }
 }
 
 #[derive(
@@ -99,7 +126,7 @@ mod tests {
 
     fn relation_cases() -> [(RelationType, &'static str, &'static str); 12] {
         [
-            (RelationType::SiteUser, "site-user", "site-user"),
+            (RelationType::SiteUser, "user", "site-user"),
             (RelationType::SiteBan, "ban", "site-ban"),
             (
                 RelationType::SiteApplication,
@@ -129,7 +156,7 @@ mod tests {
     #[test]
     fn relation_type_display_keeps_legacy_database_values() {
         let cases = [
-            (RelationType::SiteUser, "site-user"),
+            (RelationType::SiteUser, "user"),
             (RelationType::SiteBan, "ban"),
             (RelationType::SiteApplication, "application"),
             (RelationType::SiteMember, "member"),
@@ -157,8 +184,6 @@ mod tests {
                 relation_type
             );
         }
-
-        assert!(RelationType::from_str("user").is_err());
     }
 
     #[test]
@@ -185,6 +210,15 @@ mod tests {
 
         assert!(<RelationType as ValueType>::try_from(Value::String(None)).is_err());
         assert!(<RelationType as ValueType>::try_from(Value::Int(Some(1))).is_err());
+    }
+
+    #[test]
+    fn relation_type_database_values_include_lookup_aliases() {
+        for (relation_type, legacy_value, variant_value) in relation_cases() {
+            let values = relation_type.database_values();
+            assert_eq!(values[0], legacy_value);
+            assert!(values.contains(&variant_value));
+        }
     }
 
     #[test]

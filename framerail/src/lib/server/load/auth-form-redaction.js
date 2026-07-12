@@ -47,7 +47,12 @@ export const redactAuthActionPayload = (payload, secrets) => {
 
     visited.add(value)
     for (const [key, nested] of Object.entries(value)) {
-      value[key] = key === "password" || key === "confirmPassword" ? "" : redact(nested)
+      value[key] =
+        key === "password" || key === "confirmPassword"
+          ? ""
+          : key === "session_token"
+            ? nested
+            : redact(nested)
     }
     return value
   }

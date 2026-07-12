@@ -336,7 +336,12 @@ impl<'txn> ServiceContext<'txn> {
 
         let perms = self.user_permissions().await.or_raise(make_error)?;
         PermissionService::permission_in_set_helper(
-            self, user_id, perms, site_id, permission,
+            self,
+            user_id,
+            perms,
+            site_id,
+            self.request_ctx.page_reference.is_some(),
+            permission,
         )
         .await
         .or_raise(make_error)

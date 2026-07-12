@@ -23,6 +23,7 @@ use super::compat_text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragment
 use super::html_text::html_data_segments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::literal_regions::LiteralRegionIndex;
+use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
 use super::wikidot_expression::resolve_parser_functions;
 use super::wikidot_inline_markers::{
@@ -159,6 +160,13 @@ struct ViewableCountPagesRows {
     pages: FoundPages,
     metadata: PageQueryResultMetadata,
     view_permission_filtering_applied: bool,
+    raw_scan_completion: CountPagesRawScanCompletion,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CountPagesRawScanCompletion {
+    Complete,
+    Capped,
 }
 
 #[derive(Debug)]
@@ -2106,21 +2114,22 @@ impl RenderService {
         let mut rest = html;
         let mut alignment_stack: Vec<&'static str> = Vec::new();
 
-        loop {
-            let Some((position, marker, alignment, replacement, is_close)) = MARKERS
+        while let Some(position) = rest.find('<') {
+            output.push_str(&rest[..position]);
+            rest = &rest[position..];
+
+            let Some((marker, alignment, replacement, is_close)) = MARKERS
                 .iter()
-                .filter_map(|(marker, alignment, replacement, is_close)| {
-                    rest.find(marker).map(|position| {
-                        (position, *marker, *alignment, *replacement, *is_close)
-                    })
+                .find(|(marker, ..)| rest.starts_with(marker))
+                .map(|(marker, alignment, replacement, is_close)| {
+                    (*marker, *alignment, *replacement, *is_close)
                 })
-                .min_by_key(|(position, ..)| *position)
             else {
-                output.push_str(rest);
-                return output;
+                output.push('<');
+                rest = &rest['<'.len_utf8()..];
+                continue;
             };
 
-            output.push_str(&rest[..position]);
             if is_close {
                 if alignment_stack.last().copied() == Some(alignment) {
                     alignment_stack.pop();
@@ -2132,8 +2141,11 @@ impl RenderService {
                 alignment_stack.push(alignment);
                 output.push_str(replacement);
             }
-            rest = &rest[position + marker.len()..];
+            rest = &rest[marker.len()..];
         }
+
+        output.push_str(rest);
+        output
     }
 
     fn residual_wikidot_alignment_open_replacement(
@@ -7192,6 +7204,7 @@ impl RenderService {
         };
 
         let mut count_pages_metadata = None;
+        let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
         let pages = if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
@@ -7213,6 +7226,7 @@ impl RenderService {
                 found.metadata.clone(),
                 found.view_permission_filtering_applied,
             ));
+            raw_scan_completion = found.raw_scan_completion;
             found.pages
         };
         if let Some((metadata, view_permission_filtering_applied)) = count_pages_metadata
@@ -7235,12 +7249,11 @@ impl RenderService {
         let total = match count_pages_explicit_limit {
             Some(limit) => pages.take(limit.min(usize::MAX as u64) as usize).count(),
             None => {
-                let total = pages.count();
-                if count_pages_explicit_limit.is_none()
-                    && total >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize
-                {
+                let Some(total) =
+                    count_pages_unbounded_total(raw_scan_completion, pages.count())
+                else {
                     return Ok(original_module.to_owned());
-                }
+                };
                 total
             }
         };
@@ -7326,6 +7339,7 @@ impl RenderService {
         let mut raw_offset = 0;
         let mut metadata = None;
         let mut view_permission_filtering_applied = false;
+        let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
 
         while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
             let mut query = query.clone();
@@ -7349,12 +7363,16 @@ impl RenderService {
                 break;
             }
             raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
+            if raw_offset >= MAX_LISTPAGES_RENDER_SCAN_ROWS {
+                raw_scan_completion = CountPagesRawScanCompletion::Capped;
+            }
         }
 
         Ok(ViewableCountPagesRows {
             pages: FoundPages { pages },
             metadata: metadata.unwrap_or_default(),
             view_permission_filtering_applied,
+            raw_scan_completion,
         })
     }
 
@@ -8196,6 +8214,16 @@ fn count_pages_exact_count_render_diagnostics(
     )
 }
 
+fn count_pages_unbounded_total(
+    raw_scan_completion: CountPagesRawScanCompletion,
+    scanned_total: usize,
+) -> Option<usize> {
+    match raw_scan_completion {
+        CountPagesRawScanCompletion::Complete => Some(scanned_total),
+        CountPagesRawScanCompletion::Capped => None,
+    }
+}
+
 fn merge_render_page_query_metadata(
     metadata: &mut Option<PageQueryResultMetadata>,
     next: PageQueryResultMetadata,
@@ -8536,7 +8564,7 @@ fn push_list_pages_pager_target(
     label: &str,
 ) {
     output.push_str(r#"[[span class="target"]][/"#);
-    output.push_str(page_info.page.as_ref());
+    output.push_str(&percent_encode_path_segment(page_info.page.as_ref()));
     output.push_str("/p/");
     output.push_str(&target_page.to_string());
     output.push(' ');
@@ -9011,7 +9039,7 @@ fn format_list_pages_created_at(
     let format = format.unwrap_or("%e %b %Y, %H:%M");
     let display_format = format.split('|').next().unwrap_or(format);
     let text = format_wikidot_list_pages_date(created_at, display_format);
-    let encoded_format = percent_encode_list_pages_class(format);
+    let encoded_format = percent_encode_path_segment(format);
     if render_as_html {
         format!(
             r#"<span class="odate time_{} format_{}" style="cursor: help; display: inline;">{}</span>"#,
@@ -9297,18 +9325,6 @@ fn format_wikidot_list_pages_date(
         }
     }
     output
-}
-
-fn percent_encode_list_pages_class(value: &str) -> String {
-    value
-        .bytes()
-        .map(|byte| match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'_' | b'-' | b'.' => {
-                (byte as char).to_string()
-            }
-            _ => format!("%{byte:02X}"),
-        })
-        .collect()
 }
 
 fn render_native_bullet_list_with_wikipedia_links(
@@ -11174,20 +11190,21 @@ mod tests {
     use super::{
         COMPAT_TEXT_MARKER_PREFIX, CollectingIncluder, CompatHtmlFragments,
         CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-        LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay, ListPagesSubstitutionContext,
-        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
-        MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
-        MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
-        MAX_WIKIDOT_SIMPLE_IF_PASSES, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
-        MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
-        OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
+        CountPagesRawScanCompletion, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
+        ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
+        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
+        MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
+        MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MAX_WIKIDOT_SIMPLE_IF_PASSES,
+        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
+        MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
+        PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
-        count_pages_should_remain_literal, find_balanced_ul_end,
-        format_list_pages_created_at, include_error,
+        count_pages_should_remain_literal, count_pages_unbounded_total,
+        find_balanced_ul_end, format_list_pages_created_at, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -11835,6 +11852,18 @@ mod tests {
     }
 
     #[test]
+    fn unbounded_count_pages_remains_literal_when_scan_cap_is_reached() {
+        assert_eq!(
+            count_pages_unbounded_total(CountPagesRawScanCompletion::Capped, 1_000),
+            None,
+        );
+        assert_eq!(
+            count_pages_unbounded_total(CountPagesRawScanCompletion::Complete, 17),
+            Some(17),
+        );
+    }
+
+    #[test]
     fn renders_wikidot_tag_cloud_box_links() {
         let html = render_tag_cloud_box(&[
             ("scp".to_owned(), 10),
@@ -12362,6 +12391,31 @@ mod tests {
         assert!(rendered.contains(r#"<span class="pager-no">page 1 of 3</span>"#));
         assert!(rendered.contains(r#"<a href="/scp-7243/p/2">2</a>"#));
         assert!(!rendered.contains("data-wikijump-compat-pager"));
+    }
+
+    #[test]
+    fn generated_list_pages_pager_keeps_untrusted_slug_inside_href() {
+        let page_info = fallback_test_page_info(
+            "日本語/already%2Fencoded] [[span class=\"owned\"]]OWNED[[/span]] [",
+            "Missing page",
+        );
+        let mut wikitext = String::new();
+
+        push_list_pages_pager(&mut wikitext, &page_info, 0, 2, 5);
+
+        let encoded_slug = concat!(
+            "%E6%97%A5%E6%9C%AC%E8%AA%9E%2Falready%252Fencoded%5D%20",
+            "%5B%5Bspan%20class%3D%22owned%22%5D%5DOWNED",
+            "%5B%5B%2Fspan%5D%5D%20%5B",
+        );
+        assert!(wikitext.contains(&format!("/{encoded_slug}/p/2")));
+        assert!(!wikitext.contains(r#"[[span class="owned"]]"#));
+
+        let rendered = render_wikidot_page_body_after_compat_restore(&wikitext);
+
+        assert!(rendered.contains(&format!(r#"<a href="/{encoded_slug}/p/2">2</a>"#)));
+        assert_eq!(rendered.matches(r#"class="owned""#).count(), 0);
+        assert_eq!(rendered.matches("<a href=").count(), 3);
     }
 
     #[test]
@@ -17126,6 +17180,99 @@ mod tests {
         assert!(restored.contains(r#"</details></span></div><br><span>after</span>"#));
         assert!(!restored.contains("[[=]]"));
         assert!(!restored.contains("[[/=]]"));
+    }
+
+    #[test]
+    fn restores_repeated_residual_wikidot_alignment_html_markers() {
+        let html = "<p>[[=]]</p>".repeat(1024);
+
+        let restored = RenderService::restore_residual_wikidot_alignment_markers(&html);
+
+        assert_eq!(
+            restored,
+            r#"<div style="text-align: center;">"#.repeat(1024)
+        );
+    }
+
+    #[test]
+    fn restores_every_residual_wikidot_alignment_html_marker() {
+        let open_cases = [
+            ("<p>[[=]]</p>", r#"<div style="text-align: center;">"#),
+            ("<p>[[<]]</p>", r#"<div style="text-align: left;">"#),
+            ("<p>[[&lt;]]</p>", r#"<div style="text-align: left;">"#),
+            ("<p>[[>]]</p>", r#"<div style="text-align: right;">"#),
+            ("<p>[[&gt;]]</p>", r#"<div style="text-align: right;">"#),
+        ];
+        for (marker, replacement) in open_cases {
+            assert_eq!(
+                RenderService::restore_residual_wikidot_alignment_html_markers(marker),
+                replacement,
+                "open marker {marker}",
+            );
+        }
+
+        let close_cases = [
+            ("<p>[[=]]</p>", "<p>[[/=]]</p>", "</div>"),
+            ("<p>[[=]]</p>", "<br>[[/=]]<br>", "</div><br>"),
+            ("<p>[[=]]</p>", "<br/>[[/=]]<br/>", "</div><br/>"),
+            ("<p>[[=]]</p>", "<br />[[/=]]<br />", "</div><br />"),
+            ("<p>[[<]]</p>", "<p>[[/<]]</p>", "</div>"),
+            ("<p>[[<]]</p>", "<p>[[/&lt;]]</p>", "</div>"),
+            ("<p>[[<]]</p>", "<br>[[/<]]<br>", "</div><br>"),
+            ("<p>[[<]]</p>", "<br>[[/&lt;]]<br>", "</div><br>"),
+            ("<p>[[>]]</p>", "<p>[[/>]]</p>", "</div>"),
+            ("<p>[[>]]</p>", "<p>[[/&gt;]]</p>", "</div>"),
+            ("<p>[[>]]</p>", "<br>[[/>]]<br>", "</div><br>"),
+            ("<p>[[>]]</p>", "<br>[[/&gt;]]<br>", "</div><br>"),
+        ];
+        for (open, close, close_replacement) in close_cases {
+            let input = format!("{open}body{close}");
+            let output =
+                RenderService::restore_residual_wikidot_alignment_html_markers(&input);
+            assert!(output.ends_with(close_replacement), "close marker {close}");
+            assert!(!output.contains(close), "close marker leaked: {close}");
+        }
+    }
+
+    #[test]
+    fn alignment_html_marker_scan_preserves_mismatches_and_partial_prefixes() {
+        let html = concat!(
+            "prefix<<<<<<",
+            "<p>[[=]]</p>",
+            "<p>[[/<]]</p>",
+            "<p>[[/=]]</p>",
+            "<p>[[=]</p>",
+            "<p>[[=]]</p",
+            "suffix",
+        );
+
+        let restored =
+            RenderService::restore_residual_wikidot_alignment_html_markers(html);
+
+        assert!(restored.starts_with("prefix<<<<<<"));
+        assert!(restored.contains("<p>[[/<]]</p>"));
+        assert!(restored.contains("<p>[[=]</p>"));
+        assert!(restored.contains("<p>[[=]]</p"));
+        assert!(restored.ends_with("suffix"));
+    }
+
+    #[test]
+    fn alignment_html_marker_scan_handles_dense_adversarial_input() {
+        const COUNT: usize = 4_096;
+        let mut html = String::new();
+        for index in 0..COUNT {
+            html.push_str("<not-a-marker data-index=\"");
+            html.push_str(&index.to_string());
+            html.push_str("\"><p>[[=]</p>");
+        }
+        html.push_str("<p>[[=]]</p>body<p>[[/=]]</p>");
+
+        let restored =
+            RenderService::restore_residual_wikidot_alignment_html_markers(&html);
+
+        assert_eq!(restored.matches("<not-a-marker").count(), COUNT);
+        assert_eq!(restored.matches("<p>[[=]</p>").count(), COUNT);
+        assert!(restored.ends_with(r#"<div style="text-align: center;">body</div>"#));
     }
 
     #[test]

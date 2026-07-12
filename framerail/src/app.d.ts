@@ -3,6 +3,7 @@
 // and what to do when importing types
 
 import type { Layout } from "$lib/types"
+import type { RequestContext } from "$lib/server/load/request-ctx"
 import type { Locales } from "./types"
 
 declare global {
