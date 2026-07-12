@@ -22,7 +22,7 @@ use super::compat_html_fragments::CompatHtmlFragments;
 use super::compat_text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragments};
 use super::html_text::html_data_segments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
-use super::literal_regions::LiteralRegionIndex;
+use super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
 use super::wikidot_expression::resolve_parser_functions;
@@ -4863,11 +4863,14 @@ impl RenderService {
         let source = wikitext.as_str();
         let literal_regions = LiteralRegionIndex::new(source);
         let syntax_literal_regions = LiteralRegionIndex::new_wikidot_syntax(source);
+        let native_quote_lines = WikidotNativeQuoteIndex::new(source);
         let mut output = String::with_capacity(source.len());
         let mut cursor = 0;
 
         while let Some(open) = CSS_MODULE_OPEN_REGEX.find_at(source, cursor) {
-            if literal_regions.contains(open.start()) {
+            if literal_regions.contains(open.start())
+                || native_quote_lines.contains(open.start())
+            {
                 output.push_str(&source[cursor..open.end()]);
                 cursor = open.end();
                 continue;
@@ -12988,6 +12991,28 @@ mod tests {
         assert!(restored.contains("<style>\n#u-change{"));
         assert!(restored.contains("display:none;"));
         assert!(!restored.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+    }
+
+    #[test]
+    fn leaves_quote_prefixed_css_modules_for_ftml_literal_rendering() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        for original in [
+            "> [[module CSS]]\n> .one { color: red; }\n> [[/module]]",
+            ">> [[module CSS]]\n>> .two { color: red; }\n>> [[/module]]",
+            "> > [[module CSS]]\n> > .inner { color: red; }\n> > [[/module]]",
+        ] {
+            let mut source = original.to_owned();
+            let mut fragments = CompatHtmlFragments::new(original);
+
+            RenderService::protect_wikidot_css_modules(
+                &mut source,
+                &settings,
+                &mut fragments,
+            );
+
+            assert_eq!(source, original);
+            assert_eq!(fragments.restore(&source), original);
+        }
     }
 
     #[test]

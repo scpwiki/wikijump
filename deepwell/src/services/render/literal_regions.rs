@@ -90,6 +90,44 @@ impl LiteralRegionIndex {
     }
 }
 
+/// Line ranges following a valid Wikidot native quote prefix.
+///
+/// Construction is linear and membership uses binary search so compatibility
+/// protectors can share quote-context checks without rescanning prefixes for
+/// every syntax candidate.
+#[derive(Debug, Default)]
+pub(super) struct WikidotNativeQuoteIndex {
+    ranges: Vec<Range<usize>>,
+}
+
+impl WikidotNativeQuoteIndex {
+    pub(super) fn new(source: &str) -> Self {
+        let mut ranges = Vec::new();
+        let mut line_start = 0;
+        for line in source.split_inclusive('\n') {
+            let bytes = line.as_bytes();
+            let mut cursor = 0;
+            while matches!(bytes.get(cursor), Some(b' ' | b'\t')) {
+                cursor += 1;
+            }
+            let quote_start = cursor;
+            while bytes.get(cursor) == Some(&b'>') {
+                cursor += 1;
+            }
+            if cursor > quote_start && matches!(bytes.get(cursor), Some(b' ' | b'\t')) {
+                ranges.push(line_start + cursor + 1..line_start + line.len());
+            }
+            line_start += line.len();
+        }
+        Self { ranges }
+    }
+
+    pub(super) fn contains(&self, offset: usize) -> bool {
+        let insertion = self.ranges.partition_point(|range| range.start <= offset);
+        insertion > 0 && offset < self.ranges[insertion - 1].end
+    }
+}
+
 fn collect_wikidot_tag_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
     let mut line_start = 0usize;
     for line in source.split_inclusive('\n') {
@@ -316,6 +354,29 @@ mod tests {
             "panel-example",
         ] {
             assert!(index.contains(source.find(needle).unwrap()), "{needle}");
+        }
+    }
+
+    #[test]
+    fn identifies_valid_wikidot_native_quote_lines() {
+        for source in [
+            "> [[module CSS]]",
+            ">> [[module CSS]]",
+            "> > [[module CSS]]",
+            " \t>> text [[module CSS]]",
+        ] {
+            let offset = source.find("[[module").unwrap();
+            let index = WikidotNativeQuoteIndex::new(source);
+            assert!(index.contains(offset), "{source:?}");
+        }
+        for source in [
+            ">[[module CSS]]",
+            "text [[module CSS]]",
+            " \t[[module CSS]]",
+        ] {
+            let offset = source.find("[[module").unwrap();
+            let index = WikidotNativeQuoteIndex::new(source);
+            assert!(!index.contains(offset), "{source:?}");
         }
     }
 
