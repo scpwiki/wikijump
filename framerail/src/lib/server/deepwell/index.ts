@@ -5,6 +5,7 @@ import { JSONRPCClient } from "json-rpc-2.0"
 import type { Nullable } from "$lib/types"
 import type { JSONRPCRequest } from "json-rpc-2.0"
 import type { RequestContext } from "../load/request-ctx"
+import { stripPrivateDeepwellErrorData } from "./public-error.js"
 
 export const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
 export const DEEPWELL_PORT = process.env.DEEPWELL_PORT || 2747
@@ -35,7 +36,7 @@ async function processRawRequest(
     body: JSON.stringify(request)
   })
 
-  const data = await response.json()
+  const data = stripPrivateDeepwellErrorData(await response.json())
   client.receive(data)
 }
 
