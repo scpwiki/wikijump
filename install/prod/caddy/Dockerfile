@@ -18,6 +18,13 @@ COPY ./install/prod/caddy/generate-caddyfile.sh /usr/local/bin/wikijump-generate
 COPY ./install/prod/caddy/update-caddyfile.sh /usr/local/bin/wikijump-update-caddyfile
 COPY ./install/prod/caddy/request.json /etc/caddy-request.json
 
+# Set up provisional Caddyfile
+# Ensure deploy host matches with request.json
+RUN deploy_host="$(jq -er '.params.deploy_host | strings | select(test("^[A-Za-z0-9.-]+:[0-9]+$"))' /etc/caddy-request.json)" && \
+    sed -i "s/<<DEPLOY_HOST>>/${deploy_host}/" /etc/caddy/Caddyfile && \
+    ! grep -q '<<DEPLOY_HOST>>' /etc/caddy/Caddyfile && \
+    caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
 # Set up cron
 COPY ./install/prod/caddy/crontab /etc/caddy/crontab
 RUN crontab -u daemon /etc/caddy/crontab && \
