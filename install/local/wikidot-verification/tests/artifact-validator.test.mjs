@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {execFile} from "node:child_process";
 import {createHash} from "node:crypto";
-import {mkdir, mkdtemp, rm, writeFile} from "node:fs/promises";
+import {mkdir, mkdtemp, rm, symlink, writeFile} from "node:fs/promises";
 import {promisify} from "node:util";
 import {fileURLToPath} from "node:url";
 import os from "node:os";
@@ -9,7 +9,9 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  MAX_METADATA_JSON_BYTES,
   artifactValidatorExitCode,
+  readBoundedFileHandle,
   validateArtifactDirectory,
 } from "../src/artifact-validator.mjs";
 
@@ -186,6 +188,119 @@ test("auto-detects Codex artifacts from assignment_id", async (t) => {
 
   assert.equal(report.status, "pass");
   assert.equal(report.artifact_kind, "codex");
+});
+
+test("quarantines symlinked metadata without leaking target contents", async (t) => {
+  const root = await temporaryDirectory(t);
+  const outside = path.join(await temporaryDirectory(t, "wikijump-artifact-outside-"), "secret.txt");
+  await writeFile(outside, "SECRET_RESULT_MARKER is not JSON\n");
+  await symlink(outside, path.join(root, "result.json"));
+  await writeManifest(root, []);
+
+  const report = await validateArtifactDirectory({artifactRoot: root, kind: "pro"});
+
+  assert.equal(report.status, "quarantine");
+  assert.ok(findingCodes(report).includes("result_not_regular"));
+  assert.ok(!JSON.stringify(report).includes("SECRET_RESULT_MARKER"));
+});
+
+test("quarantines oversized metadata before reading JSON", async (t) => {
+  const root = await temporaryDirectory(t);
+  await writeFile(path.join(root, "result.json"), `${"{"}${" ".repeat(1024 * 1024)}`);
+  await writeManifest(root, []);
+
+  const report = await validateArtifactDirectory({artifactRoot: root, kind: "pro"});
+
+  assert.equal(report.status, "quarantine");
+  assert.ok(findingCodes(report).includes("result_too_large"));
+  assert.ok(!findingCodes(report).includes("result_invalid_json"));
+});
+
+test("accepts metadata whose encoded length is exactly the byte limit", async (t) => {
+  const root = await temporaryDirectory(t);
+  const prefix = '{"padding":"';
+  const suffix = '"}';
+  const result = `${prefix}${"x".repeat(MAX_METADATA_JSON_BYTES - prefix.length - suffix.length)}${suffix}`;
+  assert.equal(Buffer.byteLength(result), MAX_METADATA_JSON_BYTES);
+  await writeFile(path.join(root, "result.json"), result);
+  await writeManifest(root, []);
+
+  const report = await validateArtifactDirectory({artifactRoot: root, kind: "pro"});
+
+  assert.ok(!findingCodes(report).includes("result_too_large"));
+  assert.ok(!findingCodes(report).includes("result_invalid_json"));
+});
+
+test("quarantines invalid UTF-8 metadata without replacement decoding", async (t) => {
+  const root = await temporaryDirectory(t);
+  await writeFile(
+    path.join(root, "result.json"),
+    Buffer.from([0x7b, 0x22, 0x78, 0x22, 0x3a, 0x22, 0xff, 0x22, 0x7d]),
+  );
+  await writeManifest(root, []);
+
+  const report = await validateArtifactDirectory({artifactRoot: root, kind: "pro"});
+
+  assert.equal(report.status, "quarantine");
+  assert.ok(findingCodes(report).includes("result_invalid_encoding"));
+  assert.ok(!findingCodes(report).includes("result_invalid_json"));
+});
+
+test("bounded metadata reads stop at the cap when a file grows after opening", async () => {
+  let source = Buffer.from('{"initially":"small"}');
+  let sourceOffset = 0;
+  let readCalls = 0;
+  let largestRequestedEnd = 0;
+  const grownSource = Buffer.alloc(MAX_METADATA_JSON_BYTES + 4096, 0x78);
+
+  const growingFileHandle = {
+    async read(target, offset, length) {
+      readCalls += 1;
+      largestRequestedEnd = Math.max(largestRequestedEnd, offset + length);
+
+      const chunkLength = Math.min(
+        readCalls === 1 ? 2 : 64 * 1024,
+        length,
+        source.length - sourceOffset,
+      );
+      source.copy(target, offset, sourceOffset, sourceOffset + chunkLength);
+      sourceOffset += chunkLength;
+
+      if (readCalls === 1) {
+        source = grownSource;
+        sourceOffset = 2;
+      }
+
+      return {bytesRead: chunkLength, buffer: target};
+    },
+  };
+
+  const result = await readBoundedFileHandle(growingFileHandle, MAX_METADATA_JSON_BYTES);
+
+  assert.equal(result.tooLarge, true);
+  assert.equal(result.bytesRead, MAX_METADATA_JSON_BYTES + 1);
+  assert.equal(result.bytes.length, MAX_METADATA_JSON_BYTES + 1);
+  assert.ok(readCalls > 2, "short reads must be retried until the bounded buffer is full");
+  assert.equal(largestRequestedEnd, MAX_METADATA_JSON_BYTES + 1);
+});
+
+test("bounded metadata reads propagate stream errors without returning partial bytes", async () => {
+  let calls = 0;
+  const failingFileHandle = {
+    async read(target) {
+      calls += 1;
+      if (calls === 1) {
+        target[0] = 0x7b;
+        return {bytesRead: 1, buffer: target};
+      }
+      throw new Error("simulated read failure");
+    },
+  };
+
+  await assert.rejects(
+    () => readBoundedFileHandle(failingFileHandle, MAX_METADATA_JSON_BYTES),
+    /simulated read failure/u,
+  );
 });
 
 test("quarantines invalid result JSON without trusting textual completion", async (t) => {
