@@ -231,12 +231,16 @@ inserted_first_revisions AS (
   ORDER BY sfrv.row_index
   RETURNING revision_id, file_id, page_id, revision_number
 )` : ''}
-SELECT
-  c.row_index, c.fullname, c.filename, c.action,
-  COALESCE(c.reason, '') AS reason,
-  COALESCE(c.page_id::text, '') AS page_id,
-  COALESCE(${commit ? 'inserted_file_rows.file_id::text, ' : ''}c.file_id::text, '') AS file_id,
-  COALESCE(${commit ? 'inserted_first_revisions.revision_number' : 'sfrv.revision_number'}::text, '') AS revision_number
+SELECT json_build_object(
+  'row_index', c.row_index,
+  'fullname', c.fullname,
+  'filename', c.filename,
+  'action', c.action,
+  'reason', c.reason,
+  'page_id', c.page_id,
+  'file_id', ${commit ? 'COALESCE(inserted_file_rows.file_id, c.file_id)' : 'c.file_id'},
+  'revision_number', ${commit ? 'inserted_first_revisions.revision_number' : 'sfrv.revision_number'}
+)::text AS result
 FROM classified c
 LEFT JOIN staged_file_rows sfr
   ON sfr.row_index = c.row_index
@@ -264,11 +268,13 @@ export function parseAttachmentStagingResults(output) {
 
   lines.forEach((line, index) => {
     const lineNumber = index + 1;
-    const parts = line.split('|');
-    if (parts.length !== 8) {
-      throw new Error(`line ${lineNumber}: expected 8 pipe-delimited fields, got ${parts.length}`);
+    let row;
+    try {
+      row = JSON.parse(line);
+    } catch (error) {
+      throw new Error(`line ${lineNumber}: expected JSON staging row: ${error.message}`);
     }
-    const [rowIndex, fullname, filename, action, reason, pageId, fileId, revisionNumber] = parts;
+    const { row_index: rowIndex, fullname, filename, action, reason, page_id: pageId, file_id: fileId, revision_number: revisionNumber } = row;
     if (!['insert', 'skip_existing', 'fail_closed'].includes(action)) {
       throw new Error(`line ${lineNumber}: unknown action ${action}`);
     }
@@ -276,14 +282,14 @@ export function parseAttachmentStagingResults(output) {
     summary.total += 1;
     summary[action] += 1;
     rows.push({
-      row_index: parseNullableInteger(rowIndex, 'row_index', lineNumber),
+      row_index: parseNullableInteger(String(rowIndex ?? ''), 'row_index', lineNumber),
       fullname,
       filename,
       action,
       reason: reason === '' ? null : reason,
-      page_id: parseNullableInteger(pageId, 'page_id', lineNumber),
-      file_id: parseNullableInteger(fileId, 'file_id', lineNumber),
-      revision_number: parseNullableInteger(revisionNumber, 'revision_number', lineNumber),
+      page_id: parseNullableInteger(String(pageId ?? ''), 'page_id', lineNumber),
+      file_id: parseNullableInteger(String(fileId ?? ''), 'file_id', lineNumber),
+      revision_number: parseNullableInteger(String(revisionNumber ?? ''), 'revision_number', lineNumber),
     });
   });
 

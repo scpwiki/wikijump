@@ -887,6 +887,9 @@ impl PageService {
             )
         };
 
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
+
         // Update in database
         let txn = ctx.transaction();
         let model = page::ActiveModel {

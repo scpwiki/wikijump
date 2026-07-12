@@ -70,6 +70,16 @@ pub struct GetArticleViewOutput {
     #[serde(flatten)]
     pub viewer: Viewer,
     pub page: GetPageViewOutput,
+    pub article_page_cache_key: Option<String>,
+    pub public_content_cache_fence: Option<String>,
+    pub anonymous_permission_cache_fence: Option<String>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetArticleViewCacheMetadataOutput {
+    pub article_page_cache_key: Option<String>,
+    pub public_content_cache_fence: Option<String>,
+    pub anonymous_permission_cache_fence: Option<String>,
 }
 
 /// Yield information for a page view, depending on the status of the page.
@@ -80,7 +90,7 @@ pub struct GetArticleViewOutput {
 ///
 /// Note that compiled_xxx_bar_html is Option because None means that this page
 /// does not have that nav bar / it is disabled in this context.
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetPageViewOutput {
     Found {
@@ -116,7 +126,7 @@ pub enum GetPageViewOutput {
     },
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WikidotPageSnapshotView {
     pub source_site: String,
     pub source_revision_count: i32,
@@ -128,7 +138,7 @@ pub struct WikidotPageSnapshotView {
     pub comments: Option<i32>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WikidotPageBreadcrumbView {
     pub slug: String,
     pub title: String,

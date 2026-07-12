@@ -39,6 +39,13 @@ pub struct PageQueryService;
 impl PageQueryService {
     pub async fn find(
         ctx: &ServiceContext<'_>,
+        query: PageQuery<'_>,
+    ) -> Result<FoundPages> {
+        Ok(Self::find_with_metadata(ctx, query).await?.pages)
+    }
+
+    pub async fn find_with_metadata(
+        ctx: &ServiceContext<'_>,
         PageQuery {
             current_page_id,
             current_site_id,
@@ -73,7 +80,7 @@ impl PageQueryService {
             variables,
             fields,
         }: PageQuery<'_>,
-    ) -> Result<FoundPages> {
+    ) -> Result<PageQueryResultEnvelope> {
         info!("Building ListPages query from specification");
 
         let make_error =
@@ -528,7 +535,11 @@ impl PageQueryService {
             }
         }
 
-        let defer_offset_limit = score_order || !data_form_fields.is_empty();
+        let filtering_deferred_to_rust = !data_form_fields.is_empty();
+        let ordering_deferred_to_rust = score_order;
+        let defer_offset_limit = ordering_deferred_to_rust || filtering_deferred_to_rust;
+        let sql_limit_offset_applied =
+            !defer_offset_limit && (offset > 0 || pagination.limit.is_some());
         if !defer_offset_limit {
             if offset > 0 {
                 debug!("Offsetting ListPages by {offset} pages");
@@ -561,6 +572,11 @@ impl PageQueryService {
 
         // Execute it!
         let mut pages = query.all(txn).await.or_raise(make_error)?;
+        let candidate_count = Some(pages.len());
+        let cap_exceeded = filtering_deferred_to_rust
+            && candidate_limit
+                .and_then(|limit| usize::try_from(limit).ok())
+                .is_some_and(|limit| pages.len() >= limit);
         if !data_form_fields.is_empty() {
             pages = filter_pages_by_data_form_fields(ctx, pages, data_form_fields)
                 .await
@@ -725,7 +741,31 @@ impl PageQueryService {
             })
             .collect();
 
-        Ok(FoundPages { pages: rows })
+        let pages = FoundPages { pages: rows };
+        if filtering_deferred_to_rust || ordering_deferred_to_rust || cap_exceeded {
+            return Ok(PageQueryResultEnvelope::deferred(
+                pages,
+                candidate_count,
+                filtering_deferred_to_rust,
+                ordering_deferred_to_rust,
+                cap_exceeded,
+            ));
+        }
+
+        let exact_count_safe =
+            !filtering_deferred_to_rust && !ordering_deferred_to_rust && !cap_exceeded;
+        Ok(PageQueryResultEnvelope {
+            pages,
+            metadata: PageQueryResultMetadata {
+                candidate_count,
+                cap_exceeded,
+                sql_limit_offset_applied,
+                filtering_deferred_to_rust,
+                ordering_deferred_to_rust,
+                exact_count_safe,
+                unsupported_reason: None,
+            },
+        })
     }
 }
 

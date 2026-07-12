@@ -90,6 +90,7 @@ services:
     environment:
       - "DEEPWELL_HOST=deepwell"
       - "FRAMERAIL_MODE=${FRAMERAIL_MODE:-dev}"
+      - "REDIS_URL=redis://cache"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wikijump-health-check"]
@@ -97,6 +98,8 @@ services:
       timeout: 2s
       retries: 3
     depends_on:
+      cache:
+        condition: service_healthy
       deepwell:
         condition: service_started
 

@@ -30,8 +30,8 @@ mod service;
 mod structs;
 
 pub use self::cache::{
-    PERMISSION_CACHE_FENCE_TTL_SECONDS, PERMISSION_CACHE_TTL_SECONDS, PermissionCache,
-    SetUserPermissionInput,
+    PERMISSION_CACHE_FENCE_TTL_SECONDS, PERMISSION_CACHE_INVALIDATION_CHANNEL,
+    PERMISSION_CACHE_TTL_SECONDS, PermissionCache, SetUserPermissionInput,
 };
 pub use self::resolvers::{
     CategoryResolver, PageCategoryResolver, resolve_category_reference,

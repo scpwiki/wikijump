@@ -20,11 +20,13 @@
 
 use super::prelude::*;
 use crate::api::ServerState;
-use crate::services::PageRevisionService;
+use crate::services::{PageRevisionService, page_revision::RerenderType};
 use crate::types::{PageId, RerenderDepth};
 use futures::{StreamExt, stream};
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, Value};
 use sea_orm::{DatabaseTransaction, TransactionTrait};
+use std::future::Future;
+use std::time::{Duration, Instant};
 use std::{collections::BTreeMap, env};
 
 const ACTION: &str = "render-finalize";
@@ -47,7 +49,7 @@ pub struct RenderFinalizerSettings {
     pub dry_run: bool,
 }
 
-#[derive(Debug, Serialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, PartialEq)]
 pub struct RenderFinalizerSummary {
     action: &'static str,
     dry_run: bool,
@@ -62,6 +64,8 @@ pub struct RenderFinalizerSummary {
     rendered: usize,
     done: usize,
     render_failed: usize,
+    elapsed_ms: u128,
+    rows_per_sec: f64,
     reason_counts: BTreeMap<String, usize>,
     items: Vec<RenderFinalizerItem>,
 }
@@ -80,6 +84,8 @@ struct RenderFinalizerItem {
     reasons: Vec<String>,
     outcome: Option<String>,
     error: Option<String>,
+    error_chain: Option<String>,
+    duration_ms: Option<u64>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -112,10 +118,14 @@ impl RenderFinalizerPass {
 
     fn candidate_filter(self) -> &'static str {
         match self {
-            Self::Pass1 => "item.state = 'render_pending'",
+            // Retry failed rows while attempts remain, and reclaim expired
+            // render_running rows abandoned by an interrupted worker.
+            Self::Pass1 => {
+                "item.state IN ('render_pending', 'render_failed', 'render_running')"
+            }
             Self::Pass2 => {
                 "
-                item.state = 'rendered'
+                item.state IN ('rendered', 'render_failed', 'render_running')
                 AND (
                     revision_text.contents ~* '\\[\\[module[[:space:]]+(backlinks|listpages|countpages|tagcloud)'
                     OR page.slug = '_template'
@@ -183,6 +193,13 @@ impl RenderFinalizerPass {
             Self::Pass2 => "done",
         }
     }
+
+    fn rerender_outdates_dependents(self) -> bool {
+        match self {
+            Self::Pass1 => false,
+            Self::Pass2 => true,
+        }
+    }
 }
 
 impl RenderFinalizerSettings {
@@ -231,6 +248,7 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         settings: RenderFinalizerSettings,
     ) -> Result<RenderFinalizerSummary> {
+        let started_at = Instant::now();
         let import_run_id = match settings.import_run_id {
             Some(import_run_id) => Some(import_run_id),
             None => Self::select_latest_import_run(state, &settings).await?,
@@ -248,37 +266,12 @@ impl CorpusRenderFinalizerService {
             }
             None => Vec::new(),
         };
-        let rendered = items
-            .iter()
-            .filter(|item| item.outcome.as_deref() == Some("rendered"))
-            .count();
-        let done = items
-            .iter()
-            .filter(|item| item.outcome.as_deref() == Some("done"))
-            .count();
-        let render_failed = items
-            .iter()
-            .filter(|item| item.outcome.as_deref() == Some("render_failed"))
-            .count();
-        let reason_counts = reason_counts(&items);
-
-        Ok(RenderFinalizerSummary {
-            action: ACTION,
-            dry_run: settings.dry_run,
+        Ok(RenderFinalizerSummary::from_items(
+            &settings,
             import_run_id,
-            pass: settings.pass.as_str(),
-            batch_size: settings.batch_size,
-            concurrency: settings.concurrency,
-            lease_seconds: settings.lease_seconds,
-            max_attempts: settings.max_attempts,
-            candidates: items.len(),
-            claimed: if settings.dry_run { 0 } else { items.len() },
-            rendered,
-            done,
-            render_failed,
-            reason_counts,
             items,
-        })
+            started_at.elapsed().as_millis(),
+        ))
     }
 
     async fn select_latest_import_run(
@@ -419,7 +412,7 @@ impl CorpusRenderFinalizerService {
                 AND item.attempts < $2
                 ORDER BY item.updated_at ASC, item.source_fullname ASC
                 LIMIT $3
-                FOR UPDATE SKIP LOCKED
+                FOR UPDATE OF item SKIP LOCKED
             )
             UPDATE wikidot_corpus_import_item AS item
             SET
@@ -496,6 +489,8 @@ impl CorpusRenderFinalizerService {
             reasons: row.try_get("", "reasons").or_raise(&make_error)?,
             outcome: None,
             error: None,
+            error_chain: None,
+            duration_ms: None,
         })
     }
 
@@ -505,12 +500,29 @@ impl CorpusRenderFinalizerService {
         items: Vec<RenderFinalizerItem>,
     ) -> Vec<RenderFinalizerItem> {
         let pass = settings.pass;
+        Self::render_items_concurrently(state, settings.concurrency, items, |state, item| {
+            async move { Self::render_claimed_item(&state, pass, item).await }
+        })
+        .await
+    }
+
+    async fn render_items_concurrently<State, Item, Fut>(
+        state: &State,
+        concurrency: usize,
+        items: Vec<Item>,
+        render: impl Fn(State, Item) -> Fut + Clone,
+    ) -> Vec<Item>
+    where
+        State: Clone,
+        Fut: Future<Output = Item>,
+    {
         stream::iter(items)
             .map(|item| {
                 let state = state.clone();
-                async move { Self::render_claimed_item(&state, pass, item).await }
+                let render = render.clone();
+                async move { render(state, item).await }
             })
-            .buffered(settings.concurrency)
+            .buffer_unordered(concurrency)
             .collect()
             .await
     }
@@ -520,6 +532,7 @@ impl CorpusRenderFinalizerService {
         pass: RenderFinalizerPass,
         mut item: RenderFinalizerItem,
     ) -> RenderFinalizerItem {
+        let started_at = Instant::now();
         let result = match (item.page_id, item.site_id, item.page_category_id) {
             (Some(page_id), Some(site_id), Some(page_category_id)) => {
                 Self::render_page(
@@ -530,7 +543,7 @@ impl CorpusRenderFinalizerService {
                         category_id: page_category_id,
                         page_id,
                     },
-                    pass.success_state(),
+                    pass,
                 )
                 .await
             }
@@ -547,19 +560,25 @@ impl CorpusRenderFinalizerService {
             }
             Err(error) => {
                 let message = error.to_string();
+                let error_chain = format!("{error:?}");
                 if let Err(update_error) =
-                    Self::mark_item_failed(state, &item, &message).await
+                    Self::mark_item_failed(state, &item, &message, &error_chain).await
                 {
                     item.error = Some(format!(
                         "{message}; failed to mark item failed: {update_error}"
                     ));
+                    item.error_chain = Some(format!(
+                        "{error_chain}; failed to mark item failed: {update_error:?}"
+                    ));
                 } else {
                     item.error = Some(message);
+                    item.error_chain = Some(error_chain);
                 }
                 item.outcome = Some(str!("render_failed"));
             }
         }
 
+        item.duration_ms = Some(duration_millis(started_at.elapsed()));
         item
     }
 
@@ -567,7 +586,7 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         item: &RenderFinalizerItem,
         id: PageId,
-        success_state: &'static str,
+        pass: RenderFinalizerPass,
     ) -> Result<()> {
         let make_error = || {
             Error::new(
@@ -581,14 +600,16 @@ impl CorpusRenderFinalizerService {
         let txn = state.database.begin().await.or_raise(make_error)?;
         let result = async {
             let ctx = ServiceContext::new(state, &txn);
-            PageRevisionService::rerender_without_outdating(
+            PageRevisionService::rerender_for_corpus_finalizer(
                 &ctx,
                 id,
                 RerenderDepth::default(),
+                RerenderType::Full,
+                pass.rerender_outdates_dependents(),
             )
             .await
             .or_raise(make_error)?;
-            Self::mark_item_rendered(&txn, item, success_state).await?;
+            Self::mark_item_rendered(&txn, item, pass.success_state()).await?;
             ctx.drain_post_commit_actions().or_raise(make_error)
         }
         .await;
@@ -621,6 +642,8 @@ impl CorpusRenderFinalizerService {
         item: &RenderFinalizerItem,
         success_state: &'static str,
     ) -> Result<()> {
+        // claim_candidates increments attempts atomically; matching it here
+        // fences out a stale worker after an expired lease is reclaimed.
         debug_assert!(matches!(success_state, "rendered" | "done"));
         let make_error = || {
             Error::new(
@@ -636,18 +659,20 @@ impl CorpusRenderFinalizerService {
             str!(
                 "
                 UPDATE wikidot_corpus_import_item
-                SET state = $3::text,
+                SET state = $4::text,
                     lease_until = NULL,
                     error = NULL,
                     updated_at = NOW()
                 WHERE import_run_id = $1
                 AND source_entity_id = $2::uuid
+                AND attempts = $3
                 AND state = 'render_running'
                 "
             ),
             [
                 Value::from(item.import_run_id),
                 Value::from(item.source_entity_id.clone()),
+                Value::from(item.attempts),
                 Value::from(success_state),
             ],
         );
@@ -670,7 +695,10 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         item: &RenderFinalizerItem,
         message: &str,
+        error_chain: &str,
     ) -> Result<()> {
+        // Use the same claim fence as the success path so a stale failure
+        // cannot overwrite the state of a newer attempt.
         let make_error = || {
             Error::new(
                 format!(
@@ -687,17 +715,23 @@ impl CorpusRenderFinalizerService {
                 UPDATE wikidot_corpus_import_item
                 SET state = 'render_failed',
                     lease_until = NULL,
-                    error = jsonb_build_object('message', $3::text),
+                    error = jsonb_build_object(
+                        'message', $4::text,
+                        'error_chain', $5::text
+                    ),
                     updated_at = NOW()
                 WHERE import_run_id = $1
                 AND source_entity_id = $2::uuid
+                AND attempts = $3
                 AND state = 'render_running'
                 "
             ),
             [
                 Value::from(item.import_run_id),
                 Value::from(item.source_entity_id.clone()),
+                Value::from(item.attempts),
                 Value::from(message.to_owned()),
+                Value::from(error_chain.to_owned()),
             ],
         );
         state
@@ -723,6 +757,54 @@ impl CorpusRenderFinalizerService {
     }
 }
 
+fn duration_millis(duration: Duration) -> u64 {
+    u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
+}
+
+impl RenderFinalizerSummary {
+    fn from_items(
+        settings: &RenderFinalizerSettings,
+        import_run_id: Option<i64>,
+        items: Vec<RenderFinalizerItem>,
+        elapsed_ms: u128,
+    ) -> Self {
+        let rendered = items
+            .iter()
+            .filter(|item| item.outcome.as_deref() == Some("rendered"))
+            .count();
+        let done = items
+            .iter()
+            .filter(|item| item.outcome.as_deref() == Some("done"))
+            .count();
+        let render_failed = items
+            .iter()
+            .filter(|item| item.outcome.as_deref() == Some("render_failed"))
+            .count();
+        let completed = rendered + done;
+        let reason_counts = reason_counts(&items);
+
+        Self {
+            action: ACTION,
+            dry_run: settings.dry_run,
+            import_run_id,
+            pass: settings.pass.as_str(),
+            batch_size: settings.batch_size,
+            concurrency: settings.concurrency,
+            lease_seconds: settings.lease_seconds,
+            max_attempts: settings.max_attempts,
+            candidates: items.len(),
+            claimed: if settings.dry_run { 0 } else { items.len() },
+            rendered,
+            done,
+            render_failed,
+            elapsed_ms,
+            rows_per_sec: calculate_rows_per_second(completed, elapsed_ms),
+            reason_counts,
+            items,
+        }
+    }
+}
+
 fn parse_optional_positive_i64(name: &str, value: Option<String>) -> Result<Option<i64>> {
     value
         .map(|value| parse_positive_i64(name, Some(value), 0))
@@ -735,6 +817,14 @@ fn reason_counts(items: &[RenderFinalizerItem]) -> BTreeMap<String, usize> {
         *counts.entry(reason.clone()).or_insert(0) += 1;
     }
     counts
+}
+
+fn calculate_rows_per_second(completed: usize, elapsed_ms: u128) -> f64 {
+    if completed == 0 || elapsed_ms == 0 {
+        0.0
+    } else {
+        completed as f64 / (elapsed_ms as f64 / 1_000.0)
+    }
 }
 
 fn parse_render_pass(name: &str, value: Option<String>) -> Result<RenderFinalizerPass> {
@@ -809,6 +899,8 @@ fn parse_boolish(name: &str, value: Option<String>) -> Result<Option<bool>> {
 mod tests {
     use super::*;
     use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
+    use tokio::sync::{mpsc, oneshot};
 
     fn settings_from_pairs(pairs: &[(&str, &str)]) -> Result<RenderFinalizerSettings> {
         let values: HashMap<&str, &str> = pairs.iter().copied().collect();
@@ -876,9 +968,24 @@ mod tests {
     }
 
     #[test]
+    fn render_finalizer_passes_retry_failures_and_reclaim_expired_leases() {
+        for pass in [RenderFinalizerPass::Pass1, RenderFinalizerPass::Pass2] {
+            let filter = pass.candidate_filter();
+            assert!(filter.contains("'render_failed'"));
+            assert!(filter.contains("'render_running'"));
+        }
+    }
+
+    #[test]
     fn render_finalizer_pass_success_state_tracks_pass_completion() {
         assert_eq!(RenderFinalizerPass::Pass1.success_state(), "rendered");
         assert_eq!(RenderFinalizerPass::Pass2.success_state(), "done");
+    }
+
+    #[test]
+    fn render_finalizer_pass_selects_rerender_outdating_mode() {
+        assert!(!RenderFinalizerPass::Pass1.rerender_outdates_dependents());
+        assert!(RenderFinalizerPass::Pass2.rerender_outdates_dependents());
     }
 
     #[test]
@@ -895,6 +1002,8 @@ mod tests {
                 reasons: vec![str!("nav_source"), str!("source_query_module")],
                 outcome: None,
                 error: None,
+                error_chain: None,
+                duration_ms: None,
             },
             RenderFinalizerItem {
                 import_run_id: 1,
@@ -907,6 +1016,8 @@ mod tests {
                 reasons: vec![str!("template_source"), str!("source_query_module")],
                 outcome: None,
                 error: None,
+                error_chain: None,
+                duration_ms: None,
             },
         ];
         let counts = reason_counts(&items);
@@ -914,5 +1025,158 @@ mod tests {
         assert_eq!(counts.get("nav_source"), Some(&1));
         assert_eq!(counts.get("template_source"), Some(&1));
         assert_eq!(counts.get("source_query_module"), Some(&2));
+    }
+
+    #[test]
+    fn duration_millis_returns_whole_milliseconds() {
+        assert_eq!(duration_millis(Duration::from_millis(42)), 42);
+        assert_eq!(duration_millis(Duration::from_micros(1_999)), 1);
+    }
+
+    #[test]
+    fn render_finalizer_item_serializes_diagnostics() {
+        let item = RenderFinalizerItem {
+            import_run_id: 1,
+            source_entity_id: str!("00000000-0000-4000-8000-000000000001"),
+            source_fullname: str!("error-page"),
+            page_id: Some(10),
+            site_id: Some(20),
+            page_category_id: Some(30),
+            attempts: 2,
+            reasons: vec![str!("source_query_module")],
+            outcome: Some(str!("render_failed")),
+            error: Some(str!("render failed")),
+            error_chain: Some(str!("render failed: caused by test")),
+            duration_ms: Some(123),
+        };
+
+        let value = serde_json::to_value(item).unwrap();
+
+        assert_eq!(value["source_fullname"], "error-page");
+        assert_eq!(value["error"], "render failed");
+        assert_eq!(value["error_chain"], "render failed: caused by test");
+        assert_eq!(value["duration_ms"], 123);
+        assert!(value.get("import_run_id").is_none());
+        assert!(value.get("source_entity_id").is_none());
+    }
+
+    #[test]
+    fn render_finalizer_rows_per_second_uses_rendered_and_done_counts() {
+        let summary = build_summary(
+            &RenderFinalizerSettings {
+                import_run_id: Some(42),
+                pass: RenderFinalizerPass::Pass2,
+                batch_size: 25,
+                concurrency: 8,
+                lease_seconds: 60,
+                max_attempts: 5,
+                dry_run: false,
+            },
+            vec![
+                test_item("alpha", Some("rendered"), &["source_query_module"]),
+                test_item("beta", Some("done"), &["nav_source"]),
+                test_item("gamma", Some("render_failed"), &["template_source"]),
+            ],
+            2_000,
+        );
+
+        assert_eq!(summary.elapsed_ms, 2_000);
+        assert_eq!(summary.rendered, 1);
+        assert_eq!(summary.done, 1);
+        assert_eq!(summary.rows_per_sec, 1.0);
+    }
+
+    #[test]
+    fn render_finalizer_rows_per_second_is_zero_for_zero_duration_or_zero_completed() {
+        let no_elapsed = calculate_rows_per_second(5, 0);
+        let no_completed = calculate_rows_per_second(0, 2_000);
+
+        assert_eq!(no_elapsed, 0.0);
+        assert_eq!(no_completed, 0.0);
+    }
+
+    #[tokio::test]
+    async fn render_items_concurrently_yields_completion_order() {
+        let (started_tx, mut started_rx) = mpsc::unbounded_channel();
+        let mut release_senders = HashMap::new();
+        let mut release_receivers = HashMap::new();
+        for item in [1, 2, 3] {
+            let (tx, rx) = oneshot::channel();
+            release_senders.insert(item, tx);
+            release_receivers.insert(item, rx);
+        }
+        let release_receivers = Arc::new(Mutex::new(release_receivers));
+
+        let task = tokio::spawn({
+            let release_receivers = Arc::clone(&release_receivers);
+            async move {
+                CorpusRenderFinalizerService::render_items_concurrently(
+                    &(),
+                    3,
+                    vec![1, 2, 3],
+                    move |(), item| {
+                        let started_tx = started_tx.clone();
+                        let release_receivers = Arc::clone(&release_receivers);
+                        async move {
+                            started_tx.send(item).unwrap();
+                            let rx =
+                                release_receivers.lock().unwrap().remove(&item).unwrap();
+                            rx.await.unwrap();
+                            item
+                        }
+                    },
+                )
+                .await
+            }
+        });
+
+        let mut started = vec![
+            started_rx.recv().await.unwrap(),
+            started_rx.recv().await.unwrap(),
+            started_rx.recv().await.unwrap(),
+        ];
+        started.sort_unstable();
+        assert_eq!(started, vec![1, 2, 3]);
+
+        release_senders.remove(&3).unwrap().send(()).unwrap();
+        release_senders.remove(&2).unwrap().send(()).unwrap();
+        release_senders.remove(&1).unwrap().send(()).unwrap();
+
+        let rendered = task.await.unwrap();
+        assert_eq!(rendered, vec![3, 2, 1]);
+    }
+
+    fn build_summary(
+        settings: &RenderFinalizerSettings,
+        items: Vec<RenderFinalizerItem>,
+        elapsed_ms: u128,
+    ) -> RenderFinalizerSummary {
+        RenderFinalizerSummary::from_items(
+            settings,
+            settings.import_run_id,
+            items,
+            elapsed_ms,
+        )
+    }
+
+    fn test_item(
+        source_fullname: &str,
+        outcome: Option<&str>,
+        reasons: &[&str],
+    ) -> RenderFinalizerItem {
+        RenderFinalizerItem {
+            import_run_id: 1,
+            source_entity_id: str!("00000000-0000-4000-8000-000000000001"),
+            source_fullname: source_fullname.to_string(),
+            page_id: Some(10),
+            site_id: Some(20),
+            page_category_id: Some(30),
+            attempts: 1,
+            reasons: reasons.iter().map(|reason| reason.to_string()).collect(),
+            outcome: outcome.map(str::to_string),
+            error: None,
+            error_chain: None,
+            duration_ms: None,
+        }
     }
 }

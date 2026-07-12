@@ -178,6 +178,15 @@ declare global {
 
     interface Locals {
       requestContext: RequestContext
+      anonymousArticleResponseCacheMetadata?: {
+        siteId: number
+        siteSlug: string
+        requestLocales: string[]
+        backendLocales: string[]
+        deepwellArticlePageCacheKey: string
+        publicContentFence: string
+        permissionFence: string
+      }
     }
   }
 }

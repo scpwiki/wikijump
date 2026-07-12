@@ -1,66 +1,123 @@
 // Hook that runs on every request, including form actions.
 
+import {
+  buildAnonymousArticleResponseCacheFences,
+  buildAnonymousArticleResponseCacheMetadata,
+  canConsiderAnonymousArticleResponseCache,
+  readAnonymousArticleResponseCacheFences,
+  readAnonymousArticleResponseCache,
+  readAnonymousArticleResponseToken,
+  writeAnonymousArticleResponseToken,
+  writeAnonymousArticleResponseCache
+} from "$lib/server/article-response-cache"
+import {
+  articleResponseCacheStore,
+  articleResponseTokenStore
+} from "$lib/server/article-response-cache-stores"
+import { articleViewCacheMetadata } from "$lib/server/deepwell/views"
+import {
+  getPreloadBackendLocales,
+  getPreloadRequestLocales
+} from "$lib/server/load/preload"
 import { storeRequestContext } from "$lib/server/load/request-ctx"
 import { loadSiteInfo } from "$lib/server/load/site-info"
-import type { Handle } from "@sveltejs/kit"
+import { applyStaticSecurityHeaders } from "$lib/server/security-headers"
+import type { Handle, RequestEvent } from "@sveltejs/kit"
 
-function isLocalEnvironment() {
-  return process.env.FRAMERAIL_ENV === "local" || process.env.NODE_ENV === "development"
-}
-
-const SECURITY_HEADERS = {
-  "cross-origin-opener-policy": "same-origin",
-  "permissions-policy": [
-    "accelerometer=()",
-    "autoplay=()",
-    "camera=()",
-    "display-capture=()",
-    "encrypted-media=()",
-    "fullscreen=(self)",
-    "geolocation=()",
-    "gyroscope=()",
-    "magnetometer=()",
-    "microphone=()",
-    "midi=()",
-    "payment=()",
-    "publickey-credentials-get=(self)",
-    "screen-wake-lock=()",
-    "usb=()",
-    "web-share=(self)",
-    "xr-spatial-tracking=()"
-  ].join(", "),
-  "referrer-policy": "strict-origin-when-cross-origin",
-  "x-content-type-options": "nosniff",
-  "x-frame-options": "DENY"
-}
-
-const HSTS_HEADER = "max-age=31536000; includeSubDomains"
 const SITE_CONTEXT_EXEMPT_PATHS = new Set(["/xml-rpc-api.php"])
-const LOCAL_WIKIDOT_INTERWIKI_FRAME_PATHS = new Set([
-  "/-/wikidot-interwiki/interwikiFrame.html",
-  "/-/wikidot-interwiki/styleFrame.html"
-])
 
-function shouldSetHsts() {
-  return !isLocalEnvironment()
+function getArticleRoute(event: RequestEvent) {
+  return event.params.slug || event.params.extra
+    ? { slug: event.params.slug, extra: event.params.extra }
+    : null
 }
 
-function allowsLocalWikidotInterwikiFrame(pathname: string) {
-  return isLocalEnvironment() && LOCAL_WIKIDOT_INTERWIKI_FRAME_PATHS.has(pathname)
+function canUseAnonymousArticleResponseCache(
+  event: RequestEvent,
+  siteId: number,
+  siteSlug: string
+) {
+  return canConsiderAnonymousArticleResponseCache({
+    method: event.request.method,
+    routeId: event.route.id,
+    url: event.url,
+    siteId,
+    siteSlug,
+    route: getArticleRoute(event),
+    cookieHeader: event.request.headers.get("cookie")
+  })
 }
 
-function applySecurityHeaders(response: Response, pathname: string) {
-  for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
-    response.headers.set(header, value)
+async function readAnonymousArticleResponseCacheForEvent(
+  event: RequestEvent,
+  siteId: number,
+  siteSlug: string
+) {
+  const route = getArticleRoute(event)
+  const requestLocales = getPreloadRequestLocales(event.request)
+  const backendLocales = getPreloadBackendLocales(requestLocales)
+  const gate = canUseAnonymousArticleResponseCache(event, siteId, siteSlug)
+
+  if (!gate.cacheable) return null
+
+  if (articleResponseTokenStore) {
+    try {
+      const fences = await readAnonymousArticleResponseCacheFences({
+        store: articleResponseTokenStore,
+        siteId
+      })
+      const tokenMetadata = buildAnonymousArticleResponseCacheFences({
+        siteId,
+        siteSlug,
+        route,
+        requestLocales,
+        backendLocales,
+        publicContentFence: fences?.publicContentFence,
+        permissionFence: fences?.permissionFence
+      })
+      const deepwellArticlePageCacheKey = await readAnonymousArticleResponseToken({
+        store: articleResponseTokenStore,
+        tokenMetadata
+      })
+      const metadata = buildAnonymousArticleResponseCacheMetadata({
+        siteId,
+        siteSlug,
+        requestLocales,
+        backendLocales,
+        deepwellArticlePageCacheKey,
+        publicContentFence: fences?.publicContentFence,
+        permissionFence: fences?.permissionFence
+      })
+
+      const cachedResponse = await readAnonymousArticleResponseCache({
+        store: articleResponseCacheStore,
+        metadata
+      })
+      if (cachedResponse) return cachedResponse
+    } catch {
+      // Fall through to Deepwell metadata.
+    }
   }
 
-  if (shouldSetHsts()) {
-    response.headers.set("strict-transport-security", HSTS_HEADER)
-  }
+  try {
+    const cacheMetadata = await articleViewCacheMetadata(siteId, backendLocales, route)
+    const metadata = buildAnonymousArticleResponseCacheMetadata({
+      siteId,
+      siteSlug,
+      requestLocales,
+      backendLocales,
+      deepwellArticlePageCacheKey: cacheMetadata.article_page_cache_key,
+      publicContentFence: cacheMetadata.public_content_cache_fence,
+      permissionFence: cacheMetadata.anonymous_permission_cache_fence
+    })
+    if (!metadata) return null
 
-  if (allowsLocalWikidotInterwikiFrame(pathname)) {
-    response.headers.delete("content-security-policy")
-    response.headers.delete("x-frame-options")
+    return readAnonymousArticleResponseCache({
+      store: articleResponseCacheStore,
+      metadata
+    })
+  } catch {
+    return null
   }
 }
 
@@ -69,21 +126,57 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (SITE_CONTEXT_EXEMPT_PATHS.has(event.url.pathname)) {
     const response = await resolve(event)
-    applySecurityHeaders(response, event.url.pathname)
+    applyStaticSecurityHeaders(response, event.url.pathname)
     return response
   }
 
   // Gather common request metadata into a shared context.
-  const { siteId } = loadSiteInfo(request.headers)
+  const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const page_slug = params.slug
   const sessionToken = cookies.get("wikijump_token")
 
   storeRequestContext(locals, sessionToken, siteId, page_slug)
 
+  const cachedResponse = await readAnonymousArticleResponseCacheForEvent(
+    event,
+    siteId,
+    siteSlug
+  )
+  if (cachedResponse) {
+    applyStaticSecurityHeaders(cachedResponse, event.url.pathname)
+    return cachedResponse
+  }
+
   // Continue processing the request
   const response = await resolve(event)
 
-  applySecurityHeaders(response, event.url.pathname)
+  applyStaticSecurityHeaders(response, event.url.pathname)
+
+  const writeGate = canUseAnonymousArticleResponseCache(event, siteId, siteSlug)
+  if (writeGate.cacheable) {
+    const wroteResponse = await writeAnonymousArticleResponseCache({
+      store: articleResponseCacheStore,
+      metadata: locals.anonymousArticleResponseCacheMetadata,
+      response
+    })
+    if (wroteResponse && articleResponseTokenStore) {
+      const metadata = locals.anonymousArticleResponseCacheMetadata
+      const tokenMetadata = buildAnonymousArticleResponseCacheFences({
+        siteId: metadata?.siteId,
+        siteSlug: metadata?.siteSlug,
+        route: getArticleRoute(event),
+        requestLocales: metadata?.requestLocales,
+        backendLocales: metadata?.backendLocales,
+        publicContentFence: metadata?.publicContentFence,
+        permissionFence: metadata?.permissionFence
+      })
+      await writeAnonymousArticleResponseToken({
+        store: articleResponseTokenStore,
+        tokenMetadata,
+        deepwellArticlePageCacheKey: metadata?.deepwellArticlePageCacheKey
+      })
+    }
+  }
 
   return response
 }
