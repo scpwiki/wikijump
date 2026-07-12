@@ -5471,7 +5471,7 @@ impl RenderService {
         html: String,
         spans: &ProtectedWikidotColorSpans,
     ) -> String {
-        spans.fragments.restore_outside_html_literals(&html)
+        spans.fragments.restore_outside_block_html_literals(&html)
     }
 
     fn restore_protected_wikidot_inline_html(
@@ -9611,15 +9611,17 @@ fn parse_wikidot_compat_color_descriptor<'a>(
     hashes: &str,
     descriptor: &'a str,
 ) -> Option<Cow<'a, str>> {
-    match hashes.len() {
-        2 => Some(Cow::Borrowed(descriptor)),
-        3 if matches!(descriptor.len(), 3 | 6)
-            && descriptor.bytes().all(|byte| byte.is_ascii_hexdigit()) =>
-        {
-            Some(Cow::Owned(format!("#{descriptor}")))
-        }
-        _ => None,
+    if !matches!(hashes.len(), 2 | 3) {
+        return None;
     }
+
+    let is_hex = matches!(descriptor.len(), 3 | 6)
+        && descriptor.bytes().all(|byte| byte.is_ascii_hexdigit());
+    if is_hex {
+        return Some(Cow::Owned(format!("#{}", descriptor.to_ascii_lowercase())));
+    }
+
+    (hashes.len() == 2).then_some(Cow::Borrowed(descriptor))
 }
 
 fn render_wikidot_color_span_html(color: &str, body: &str) -> String {
@@ -13645,14 +13647,14 @@ mod tests {
         assert!(!source.contains("**__10 October 2022**__"));
         assert_eq!(
             spans[0].html,
-            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+            r#"<strong><span style="color: #c5000b">That might be the reason.</span></strong>"#
         );
         assert_eq!(spans[1].html, r#"<strong><u>10 October 2022</u></strong>"#);
 
         let restored =
             RenderService::restore_protected_wikidot_inline_html(source, &spans);
         assert!(restored.contains(
-            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+            r#"<strong><span style="color: #c5000b">That might be the reason.</span></strong>"#
         ));
         assert!(restored.contains(r#"<strong><u>10 October 2022</u></strong>"#));
         assert!(restored.contains("**In which the finale is foreshadowed**"));
@@ -13754,7 +13756,7 @@ mod tests {
             r#"<strong><span style="color: green">a dense and mysterious forest</span></strong>"#
         )));
         assert!(inline_spans.iter().any(|span| span.html.contains(
-            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+            r#"<strong><span style="color: #c5000b">That might be the reason.</span></strong>"#
         )));
         assert!(color_spans.iter().any(|span| span.html.contains(
             r#"<span style="color: blue">the ghost of long-drowned sorrow</span>"#
@@ -13849,6 +13851,37 @@ mod tests {
     }
 
     #[test]
+    fn restores_color_inside_inline_monospace_from_ralliston_authorpage() {
+        let page_info =
+            fallback_test_page_info("ralliston-s-authorpage", "Ralliston's Authorpage");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = "//**{{##f24|the fun never ends.##}}**//".to_owned();
+
+        let inline_spans =
+            RenderService::protect_wikidot_inline_html_spans(&mut wikitext, &settings);
+        let color_spans =
+            RenderService::protect_wikidot_color_spans(&mut wikitext, &settings);
+        wikitext =
+            RenderService::escape_unrendered_wikidot_color_markers(wikitext, &settings);
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, errors) = result.into();
+        assert!(errors.is_empty(), "{errors:?}");
+
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        let rendered =
+            RenderService::restore_protected_wikidot_color_spans(rendered, &color_spans);
+        let rendered =
+            RenderService::restore_protected_wikidot_inline_html(rendered, &inline_spans);
+
+        assert!(rendered.contains(
+            r#"<em><strong><code class="wj-monospace"><span style="color: #f24">the fun never ends.</span></code></strong></em>"#,
+        ));
+        assert!(!rendered.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
+    }
+
+    #[test]
     fn protects_wikidot_hash_prefixed_hex_colors_without_shifted_matches() {
         let page_info = fallback_test_page_info("scp-6670", "SCP-6670");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -13899,7 +13932,7 @@ mod tests {
     }
 
     #[test]
-    fn wikidot_hash_prefixed_color_descriptor_accepts_only_three_or_six_hex_digits() {
+    fn wikidot_color_descriptor_normalizes_three_or_six_hex_digits() {
         assert_eq!(
             parse_wikidot_compat_color_descriptor("###", "abc").as_deref(),
             Some("#abc"),
@@ -13914,6 +13947,14 @@ mod tests {
         assert_eq!(
             parse_wikidot_compat_color_descriptor("##", "blue").as_deref(),
             Some("blue"),
+        );
+        assert_eq!(
+            parse_wikidot_compat_color_descriptor("##", "ABC").as_deref(),
+            Some("#abc"),
+        );
+        assert_eq!(
+            parse_wikidot_compat_color_descriptor("##", "8E2C4D").as_deref(),
+            Some("#8e2c4d"),
         );
     }
 
@@ -13944,19 +13985,19 @@ mod tests {
             RenderService::restore_protected_wikidot_color_spans(rendered, &spans);
 
         assert!(rendered.contains(
-            r#"<h1 id="toc0"><span style="color: 8E2C4D">Lillian S. Lillihammer</span></h1>"#
+            r#"<h1 id="toc0"><span style="color: #8e2c4d">Lillian S. Lillihammer</span></h1>"#
         ));
         assert!(rendered.contains(
-            r#"<strong><span style="color: 8E2C4D">Memetics and Countermemetics</span></strong>"#
+            r#"<strong><span style="color: #8e2c4d">Memetics and Countermemetics</span></strong>"#
         ));
         assert!(rendered.contains(
-            r#"<strong><span style="color: ce005c">I am… I <em>should</em> be…</span></strong>"#
+            r#"<strong><span style="color: #ce005c">I am… I <em>should</em> be…</span></strong>"#
         ));
         assert!(rendered.contains(
-            r#"<strong><span style="color: C5000B">PATH uses North — heading for the arctic — red.</span></strong>"#
+            r#"<strong><span style="color: #c5000b">PATH uses North — heading for the arctic — red.</span></strong>"#
         ));
         assert!(rendered.contains(
-            r#"<span style="color: C5000B"><strong>That might be the reason.</strong></span>"#
+            r#"<span style="color: #c5000b"><strong>That might be the reason.</strong></span>"#
         ));
         assert!(!rendered.contains("&lt;span"));
         assert!(!rendered.contains(WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX));

@@ -42,8 +42,23 @@ impl LiteralRegionIndex {
     }
 
     /// Rendered HTML regions where trusted-fragment markers must remain text.
+    #[cfg(test)]
     pub(super) fn new_html_restoration(source: &str) -> Self {
         let mut index = Self::build(source, true);
+        collect_html_tag_ranges(source, &mut index.ranges);
+        collect_paired_ranges(source, "<!--", "-->", &mut index.ranges);
+        index.merge_ranges();
+        index
+    }
+
+    /// Rendered HTML regions where color-fragment markers must remain text.
+    ///
+    /// Inline Wikidot monospace permits color syntax, so standalone `<code>`
+    /// contents are not literal for this restoration pass. Block code remains
+    /// protected by its enclosing `<pre>` or `<div class="code">` range.
+    pub(super) fn new_html_color_restoration(source: &str) -> Self {
+        let mut index = Self::build(source, false);
+        collect_html_literal_ranges(source, &mut index.ranges, false);
         collect_html_tag_ranges(source, &mut index.ranges);
         collect_paired_ranges(source, "<!--", "-->", &mut index.ranges);
         index.merge_ranges();
@@ -56,7 +71,7 @@ impl LiteralRegionIndex {
         collect_paired_ranges(source, "@@", "@@", &mut ranges);
         collect_paired_ranges(source, "[!--", "--]", &mut ranges);
         if include_rendered_html {
-            collect_html_literal_ranges(source, &mut ranges);
+            collect_html_literal_ranges(source, &mut ranges, true);
         }
 
         let mut index = Self { ranges };
@@ -242,7 +257,11 @@ fn collect_paired_ranges(
     }
 }
 
-fn collect_html_literal_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
+fn collect_html_literal_ranges(
+    source: &str,
+    ranges: &mut Vec<Range<usize>>,
+    standalone_code_is_literal: bool,
+) {
     let mut cursor = 0usize;
     let mut active: Option<(String, usize, usize)> = None;
 
@@ -269,7 +288,10 @@ fn collect_html_literal_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
                     *depth += 1;
                 }
             }
-        } else if !closing && !self_closing && html_tag_starts_literal(&name, tag) {
+        } else if !closing
+            && !self_closing
+            && html_tag_starts_literal(&name, tag, standalone_code_is_literal)
+        {
             active = Some((name, tag_end, 1));
         }
         cursor = tag_end;
@@ -316,8 +338,15 @@ fn html_tag_name(tag: &str) -> Option<(String, bool, bool)> {
     (!name.is_empty()).then(|| (name, closing, inner.ends_with('/')))
 }
 
-fn html_tag_starts_literal(name: &str, tag: &str) -> bool {
-    if matches!(name, "code" | "pre" | "script" | "style" | "textarea") {
+fn html_tag_starts_literal(
+    name: &str,
+    tag: &str,
+    standalone_code_is_literal: bool,
+) -> bool {
+    if name == "code" {
+        return standalone_code_is_literal;
+    }
+    if matches!(name, "pre" | "script" | "style" | "textarea") {
         return true;
     }
     if name != "div" {
@@ -354,6 +383,22 @@ mod tests {
             "panel-example",
         ] {
             assert!(index.contains(source.find(needle).unwrap()), "{needle}");
+        }
+    }
+
+    #[test]
+    fn color_restoration_treats_only_standalone_code_as_non_literal() {
+        let source = concat!(
+            r#"<code class="wj-monospace">inline-marker</code>"#,
+            "\n<pre><code>pre-marker</code></pre>",
+            "\n<div class=\"code\"><code>panel-marker</code></div>",
+            "\n<script>script-marker</script>",
+        );
+        let index = LiteralRegionIndex::new_html_color_restoration(source);
+
+        assert!(!index.contains(source.find("inline-marker").unwrap()));
+        for marker in ["pre-marker", "panel-marker", "script-marker"] {
+            assert!(index.contains(source.find(marker).unwrap()), "{marker}");
         }
     }
 
