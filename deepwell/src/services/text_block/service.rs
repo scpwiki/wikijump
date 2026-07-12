@@ -42,6 +42,9 @@ use crate::types::TextBlockType;
 use sea_orm::ActiveEnum;
 use std::collections::HashSet;
 
+/// Keep each SeaORM insert well below PostgreSQL's 65,535 bind-parameter limit.
+const TEXT_BLOCK_INSERT_BATCH_SIZE: usize = 1_000;
+
 /// Write out the S3 filename for this hosted text block.
 ///
 /// This allows reusing a buffer, since we need to write out several
@@ -75,6 +78,20 @@ macro_rules! format_filename {
 pub struct TextBlockService;
 
 impl TextBlockService {
+    /// Validates both hosted text block collections for a page.
+    ///
+    /// Render preflights both counts together before writing either collection
+    /// to S3, so an invalid later collection cannot leave objects from the
+    /// earlier collection behind when the database transaction rolls back.
+    pub(crate) fn validate_page_block_counts(
+        html_count: usize,
+        code_count: usize,
+    ) -> StdResult<(), std::num::TryFromIntError> {
+        max_text_block_index(html_count)?;
+        max_text_block_index(code_count)?;
+        Ok(())
+    }
+
     /// Replaces the text blocks associated with this page with the ones given.
     ///
     /// This is to be run after ftml returns the lists of code and html blocks
@@ -131,6 +148,12 @@ impl TextBlockService {
             return Ok(());
         }
 
+        // Validate the maximum 1-indexed block index before uploading
+        // anything to S3. S3 writes are external side effects and are not
+        // rolled back with the database transaction, so all deterministic
+        // range errors must happen before the first upload.
+        let max_index = max_text_block_index(blocks.len()).or_raise(make_error)?;
+
         // Upload the new text blocks to S3.
         // This also replaces any existing S3 objects with the same filename.
         //
@@ -140,16 +163,13 @@ impl TextBlockService {
         let mut models = Vec::with_capacity(blocks.len());
         let mut new_filenames = HashSet::with_capacity(blocks.len());
         let mut previous_block_names = HashSet::with_capacity(blocks.len());
-        for (index, block) in blocks.iter().enumerate() {
+        for (index, block) in (1..=max_index).zip(blocks.iter()) {
             let &TextBlock {
                 text,
                 text_type,
                 mime,
                 mut name,
             } = block;
-
-            // Text block indices are always 1-indexed
-            let index = (index + 1).try_into_i16().or_raise(make_error)?;
 
             // Upload text block to S3
             let filename = filename!(index);
@@ -199,9 +219,11 @@ impl TextBlockService {
             "Deleted row count does not match previous text block filename count",
         );
 
-        // Finally, insert the batch of new text block rows, then return.
-        if !models.is_empty() {
-            TextBlockTable::insert_many(models)
+        // Finally, insert the new text block rows in bounded batches. SeaORM
+        // emits one statement per insert_many call, so an unbounded batch can
+        // exceed PostgreSQL's bind limit after the S3 uploads have succeeded.
+        for range in text_block_insert_ranges(models.len()) {
+            TextBlockTable::insert_many(models[range].iter().cloned())
                 .exec(txn)
                 .await
                 .or_raise(make_error)?;
@@ -384,6 +406,19 @@ fn block_type_name(block_type: TextBlockType) -> &'static str {
     }
 }
 
+/// Returns the largest 1-indexed text block index for this block count.
+fn max_text_block_index(count: usize) -> StdResult<i16, std::num::TryFromIntError> {
+    count.try_into_i16()
+}
+
+fn text_block_insert_ranges(
+    count: usize,
+) -> impl Iterator<Item = std::ops::Range<usize>> {
+    (0..count)
+        .step_by(TEXT_BLOCK_INSERT_BATCH_SIZE)
+        .map(move |start| start..(start + TEXT_BLOCK_INSERT_BATCH_SIZE).min(count))
+}
+
 /// Ensures that this name can be used to reference a block.
 fn valid_block_name<'n>(previous: &mut HashSet<&'n str>, name: &'n str) -> bool {
     // To prevent shenanigans with excessively-long block aliases.
@@ -413,4 +448,96 @@ fn valid_block_name<'n>(previous: &mut HashSet<&'n str>, name: &'n str) -> bool 
     // Now that all checks have passed, add this as one of the already-used names.
     previous.insert(name);
     true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sea_orm::Iterable;
+
+    #[test]
+    fn text_block_count_and_index_range_fit_i16_boundaries() {
+        assert_eq!(max_text_block_index(0).unwrap(), 0);
+        assert_eq!(max_text_block_index(i16::MAX as usize).unwrap(), i16::MAX,);
+        assert!(max_text_block_index(i16::MAX as usize + 1).is_err());
+
+        for count in [0, 1, i16::MAX as usize] {
+            let max_index = max_text_block_index(count).unwrap();
+            let indices = 1..=max_index;
+            let expected_first = (count > 0).then_some(1);
+            let expected_last = (count > 0).then_some(max_index);
+
+            assert_eq!(indices.clone().count(), count);
+            assert_eq!(indices.clone().next(), expected_first);
+            assert_eq!(indices.clone().next_back(), expected_last);
+        }
+    }
+
+    #[test]
+    fn page_block_counts_are_prevalidated_together() {
+        let max = i16::MAX as usize;
+
+        assert!(TextBlockService::validate_page_block_counts(max, max).is_ok());
+        assert!(TextBlockService::validate_page_block_counts(max + 1, 1).is_err());
+        assert!(TextBlockService::validate_page_block_counts(1, max + 1).is_err());
+    }
+
+    #[test]
+    fn insert_batch_stays_below_postgres_bind_limit() {
+        let bound_columns_per_row = text_block::Column::iter().count();
+        let bound_parameters = TEXT_BLOCK_INSERT_BATCH_SIZE * bound_columns_per_row;
+
+        assert!(bound_parameters <= u16::MAX as usize);
+    }
+
+    #[test]
+    fn combined_overflow_preflight_has_zero_fake_s3_side_effects() {
+        let max = i16::MAX as usize;
+
+        for (html_count, code_count) in [(max + 1, 1), (1, max + 1)] {
+            let mut fake_s3_uploads = Vec::new();
+            let validation =
+                TextBlockService::validate_page_block_counts(html_count, code_count);
+            if validation.is_ok() {
+                fake_s3_uploads.extend(0..html_count);
+                fake_s3_uploads.extend(0..code_count);
+            }
+
+            assert!(validation.is_err());
+            assert!(fake_s3_uploads.is_empty());
+        }
+    }
+
+    #[test]
+    fn one_thousand_and_one_blocks_keep_indices_across_two_insert_batches() {
+        let count = TEXT_BLOCK_INSERT_BATCH_SIZE + 1;
+        let max_index = max_text_block_index(count).unwrap();
+        let indices = (1..=max_index).collect::<Vec<_>>();
+        let batches = text_block_insert_ranges(count).collect::<Vec<_>>();
+
+        assert_eq!(indices.len(), count);
+        assert_eq!(indices[0], 1);
+        assert_eq!(indices[999], 1_000);
+        assert_eq!(indices[1_000], 1_001);
+        assert_eq!(batches, [0..1_000, 1_000..1_001]);
+    }
+
+    #[test]
+    fn induced_second_batch_failure_stops_before_later_batches() {
+        let count = TEXT_BLOCK_INSERT_BATCH_SIZE * 2 + 1;
+        let mut attempted = Vec::new();
+        let result: StdResult<(), &'static str> = text_block_insert_ranges(count)
+            .enumerate()
+            .try_for_each(|(batch, range)| {
+                attempted.push(range);
+                if batch == 1 {
+                    return Err("induced second-batch database failure");
+                }
+                Ok(())
+            });
+
+        assert_eq!(result, Err("induced second-batch database failure"));
+        assert_eq!(attempted, [0..1_000, 1_000..2_000]);
+        assert!(!attempted.contains(&(2_000..2_001)));
+    }
 }
