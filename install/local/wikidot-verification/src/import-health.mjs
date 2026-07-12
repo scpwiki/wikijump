@@ -42,6 +42,15 @@ export function classifyFailure(error) {
   return null;
 }
 
+function unknownActionDetail(action) {
+  if (typeof action === 'string') return action;
+  try {
+    return JSON.stringify(action) ?? String(action);
+  } catch {
+    return Object.prototype.toString.call(action);
+  }
+}
+
 export function parseImportLog(logText) {
   const rows = [];
   let summary = null;
@@ -56,8 +65,11 @@ export function parseImportLog(logText) {
       continue;
     }
     buffer = '';
-    if (parsed.summary) summary = parsed.summary;
-    else if (parsed.slug && parsed.action) rows.push(parsed);
+    const isRecord = parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed);
+    if (isRecord && Object.hasOwn(parsed, 'summary')) summary = parsed.summary;
+    else if (isRecord && (Object.hasOwn(parsed, 'slug') || Object.hasOwn(parsed, 'action'))) {
+      rows.push(parsed);
+    }
   }
   return { rows, summary };
 }
@@ -68,12 +80,22 @@ export function buildImportHealthVerdict({ runId, family, rows, summary = null }
   let unclassified = 0;
   const failureCounts = {};
   for (const row of rows) {
+    if (typeof row?.slug !== 'string' || typeof row?.action !== 'string') {
+      unclassified += 1;
+      failures.push({
+        slug: typeof row?.slug === 'string' ? row.slug : null,
+        code: 'unclassified',
+        detail: `invalid import row action ${unknownActionDetail(row?.action)}`,
+      });
+      failureCounts.unclassified = (failureCounts.unclassified ?? 0) + 1;
+      continue;
+    }
     if (DONE_ACTIONS.has(row.action)) {
       done += 1;
       continue;
     }
-    const collision = COLLISION_ACTIONS[row.action];
-    if (collision) {
+    if (Object.hasOwn(COLLISION_ACTIONS, row.action)) {
+      const collision = COLLISION_ACTIONS[row.action];
       if (collision.done) done += 1;
       else {
         failures.push({ slug: row.slug, code: collision.code, detail: row.action });
@@ -94,7 +116,11 @@ export function buildImportHealthVerdict({ runId, family, rows, summary = null }
       continue;
     }
     unclassified += 1;
-    failures.push({ slug: row.slug, code: 'unclassified', detail: `unknown action ${row.action}` });
+    failures.push({
+      slug: row.slug,
+      code: 'unclassified',
+      detail: `unknown action ${unknownActionDetail(row.action)}`,
+    });
     failureCounts.unclassified = (failureCounts.unclassified ?? 0) + 1;
   }
 
