@@ -25,6 +25,7 @@ import {
   parseParentLinkSummary,
 } from '../src/corpus-import-parent-links.mjs';
 import { createSqlExecutor } from '../src/corpus-import-sql.mjs';
+import { parsePrecreatedCategoryIds } from '../src/corpus-precreated-categories.mjs';
 
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
@@ -416,30 +417,25 @@ WITH requested(site_id, slug) AS (
   ON CONFLICT (site_id, slug) DO UPDATE SET slug = EXCLUDED.slug
   RETURNING category_id, slug
 )
-SELECT slug || '|' || category_id::text
-FROM inserted
-ORDER BY slug;
+SELECT COALESCE(
+  json_agg(
+    json_build_object('slug', slug, 'category_id', category_id::text)
+    ORDER BY slug
+  ),
+  '[]'::json
+)::text
+FROM inserted;
 `;
-}
-
-function parsePrecreatedCategoryIds(output) {
-  const ids = new Map();
-  if (!output.trim()) return ids;
-  for (const line of output.split('\n')) {
-    const [slug, categoryIdText, extra] = line.split('|');
-    const categoryId = Number.parseInt(categoryIdText, 10);
-    if (!slug || extra !== undefined || !Number.isInteger(categoryId)) {
-      throw new Error(`invalid category precreate output: ${line}`);
-    }
-    ids.set(slug, categoryId);
-  }
-  return ids;
 }
 
 async function precreateDbShellCategories(args, sqlExecutor, selectedRows) {
   const sql = buildPrecreateDbShellCategoriesSql(args, selectedRows);
   if (sql === null) return;
   const ids = parsePrecreatedCategoryIds(await sqlExecutor.runSql(sql, { capture: true }));
+  const expected = new Set(selectedRows.map((row) => categoryName(row.fullname)));
+  if (ids.size !== expected.size || [...expected].some((slug) => !ids.has(slug))) {
+    throw new Error('category precreate output did not contain every requested category');
+  }
   for (const [slug, categoryId] of ids) {
     precreatedCategoryIds.set(slug, categoryId);
   }
