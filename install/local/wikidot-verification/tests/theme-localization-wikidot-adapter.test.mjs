@@ -21,7 +21,7 @@ function sha256(value) {
 
 function fixtureResource() {
   const source = "日本語 theme source\n";
-  const slug = "theme:codex-l10n-20260713-adapter-yossistyle";
+  const slug = "codex-l10n:20260713-adapter-yossistyle";
   return {source, resource: {resource_id: "yossistyle:wikidot", tier_id: "yossistyle", target: "wikidot", slug, url: `http://${SITE}.wikidot.com/${slug}`, source_sha256: sha256(source), title: "Theme localization canary: yossistyle"}};
 }
 
@@ -66,6 +66,10 @@ test("private-site adapter uses the execution interface without ListPages lookup
   assert.deepEqual(helper.calls.map(({action}) => action), ["inspect", "inspect", "create", "inspect", "remove", "inspect", "inspect"]);
   await assert.rejects(adapter.inspect({...resource, url: `http://scp-wiki.wikidot.com/${resource.slug}`}), /hard allowlist/);
   await assert.rejects(adapter.inspect({...resource, slug: "theme:yossistyle"}), /run-owned/);
+  const legacySlug = "theme:codex-l10n-20260713-adapter-yossistyle";
+  const legacy = {...resource, slug: legacySlug, url: `http://${SITE}.wikidot.com/${legacySlug}`};
+  assert.equal(await adapter.inspect(legacy), null);
+  await assert.rejects(adapter.create(legacy, {source}), /run-owned/);
 });
 
 test("durable create intent can clean a page after a post-save error", async () => {
@@ -118,7 +122,7 @@ backend.inspect = lambda slug: None
 backend._amc = lambda body: {"status": "ok", "lock_id": "lock", "lock_secret": "secret", "page_revision_id": 99}
 source = "fixture source"
 try:
-    backend.create("theme:codex-l10n-20260713-adapter-yossistyle", "fixture", source, module.sha256(source))
+    backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source))
 except module.PublicError as error:
     print(error.code)
 `;
@@ -144,6 +148,25 @@ print(module.wikidot_round_trip_sha256("fixture\n\n"))
   assert.deepEqual(result.stdout.trim().split("\n"), [sha256("fixture"), sha256("fixture"), sha256("fixture\n")]);
 });
 
+test("Python helper reserves new slugs for creates but retains exact legacy cleanup access", () => {
+  const program = String.raw`
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location("theme_helper", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+current = "codex-l10n:20260713-adapter-yossistyle"
+legacy = "theme:codex-l10n-20260713-adapter-yossistyle"
+print(module.validate_slug(current))
+print(module.validate_slug(legacy, allow_legacy=True))
+try: module.validate_slug(legacy)
+except module.PublicError as error: print(error.code)
+`;
+  const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, "");
+  assert.equal(result.stdout.trim(), "codex-l10n:20260713-adapter-yossistyle\ntheme:codex-l10n-20260713-adapter-yossistyle\nresource_not_allowed");
+});
+
 test("authenticated GET treats only HTTP 404 as page absence", () => {
   const program = String.raw`
 import importlib.util, sys
@@ -164,9 +187,9 @@ class Httpx:
 backend = object.__new__(module.WikidotBackend)
 backend.headers = {}
 backend.httpx = Httpx(Response(404, ""))
-print(backend._get("theme:codex-l10n-20260713-adapter-yossistyle") is None)
+print(backend._get("codex-l10n:20260713-adapter-yossistyle") is None)
 backend.httpx = Httpx(Response(200, ""))
-try: backend._get("theme:codex-l10n-20260713-adapter-yossistyle")
+try: backend._get("codex-l10n:20260713-adapter-yossistyle")
 except module.PublicError as error: print(error.code)
 `;
   const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});

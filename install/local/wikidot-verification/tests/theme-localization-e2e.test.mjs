@@ -12,6 +12,7 @@ import {
   THEME_CAPTURE_VIEWPORTS,
   THEME_LOCALIZATION_TIERS,
   THEME_PERFORMANCE_GATES,
+  assertLegacyRunOwnedSlug,
   assertRunOwnedSlug,
   buildThemeLocalizationE2EPlan,
   findSourceArtifactLeaks,
@@ -58,8 +59,10 @@ function acceptedFixtureSource(tier) {
 
 test("tier selection is deterministic and run-owned slugs cannot drift", () => {
   assert.deepEqual(selectThemeTiers(["basalt", "yossistyle", "basalt"]).map((tier) => tier.id), ["yossistyle", "basalt"]);
-  assert.equal(runOwnedSlug("20260713-smoke", "basalt"), "theme:codex-l10n-20260713-smoke-basalt");
-  assert.equal(assertRunOwnedSlug("theme:codex-l10n-20260713-smoke-basalt", "20260713-smoke", "basalt"), "theme:codex-l10n-20260713-smoke-basalt");
+  assert.equal(runOwnedSlug("20260713-smoke", "basalt"), "codex-l10n:20260713-smoke-basalt");
+  assert.equal(assertRunOwnedSlug("codex-l10n:20260713-smoke-basalt", "20260713-smoke", "basalt"), "codex-l10n:20260713-smoke-basalt");
+  assert.equal(assertLegacyRunOwnedSlug("theme:codex-l10n-20260713-smoke-basalt", "20260713-smoke", "basalt"), "theme:codex-l10n-20260713-smoke-basalt");
+  assert.throws(() => assertRunOwnedSlug("theme:codex-l10n-20260713-smoke-basalt", "20260713-smoke", "basalt"), /not owned by run/);
   assert.throws(() => assertRunOwnedSlug("theme:basalt", "20260713-smoke", "basalt"), /not owned by run/);
   assert.throws(() => runOwnedSlug("../../escape", "basalt"), /--run-id/);
   assert.throws(() => selectThemeTiers(["unknown"]), /unknown theme tier/);
@@ -114,6 +117,8 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.equal(first.safety.page_mutations_performed, 0);
   assert.equal(first.safety.execute_supported, false);
   assert.equal(first.run.site_slug, ALLOWED_SITE_SLUG);
+  assert.equal(first.run.owned_slug_prefix, "codex-l10n:20260713-contract-");
+  assert.ok(first.tiers.every((tier) => tier.run_owned_slug.startsWith(first.run.owned_slug_prefix)));
   assert.deepEqual(first.tiers.map((tier) => tier.id), ["yossistyle", "ashes-to-ashes", "basalt"]);
   assert.equal(first.cleanup.finally_required, true);
   assert.equal(first.cleanup.creation_ledger_required, true);

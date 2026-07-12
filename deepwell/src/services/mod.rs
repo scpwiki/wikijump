@@ -67,6 +67,10 @@ pub mod blueprint;
 pub mod caddy;
 pub mod category;
 pub mod corpus_render_finalizer;
+pub mod corpus_render_inventory;
+mod corpus_render_inventory_query;
+#[cfg(test)]
+mod corpus_render_inventory_tests;
 pub mod domain;
 pub mod email;
 pub mod file;

@@ -1,10 +1,9 @@
 import crypto from "node:crypto";
 
-import {ALLOWED_SITE_SLUG} from "./theme-localization-e2e.mjs";
+import {ALLOWED_SITE_SLUG, isCurrentRunOwnedSlug, isRecoverableRunOwnedSlug} from "./theme-localization-e2e.mjs";
 
 const DEFAULT_RPC_TIMEOUT_MS = 30_000;
 const IP_ADDRESS = "127.0.0.1";
-const RUN_OWNED_SLUG = /^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$/u;
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -18,8 +17,9 @@ export function validateLocalDeepwellRpcUrl(value) {
   return url.href;
 }
 
-function validateResource(resource) {
-  if (resource?.target !== "wikijump" || typeof resource.slug !== "string" || !RUN_OWNED_SLUG.test(resource.slug) || resource.slug.length > 100) {
+function validateResource(resource, {allowLegacy = false} = {}) {
+  const validSlug = allowLegacy ? isRecoverableRunOwnedSlug(resource?.slug) : isCurrentRunOwnedSlug(resource?.slug);
+  if (resource?.target !== "wikijump" || !validSlug) {
     throw new Error("Deepwell adapter accepts only run-owned Wikijump theme pages");
   }
   const url = new URL(resource.url);
@@ -99,7 +99,7 @@ export class DeepwellThemePageAdapter {
   }
 
   async inspect(resource) {
-    validateResource(resource);
+    validateResource(resource, {allowLegacy: true});
     const page = await this.rpc.call("page_get", {site_id: this.siteId, page: resource.slug, details: {wikitext: true, compiled: false}}, this.context(resource));
     if (page === null) return null;
     if (!Number.isSafeInteger(page.page_id) || !Number.isSafeInteger(page.revision_id) || typeof page.wikitext !== "string" || typeof page.title !== "string") {
@@ -131,7 +131,7 @@ export class DeepwellThemePageAdapter {
   }
 
   async remove(resource, {expected, identity} = {}) {
-    validateResource(resource);
+    validateResource(resource, {allowLegacy: true});
     const actual = await this.inspect(resource);
     if (actual === null) return;
     if (actual.source_sha256 !== expected?.source_sha256 || actual.title !== expected?.title || (identity !== undefined && actual.identity !== identity)) {

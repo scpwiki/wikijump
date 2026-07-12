@@ -4,7 +4,10 @@ import path from "node:path";
 
 import {
   ALLOWED_SITE_SLUG,
+  LEGACY_RUN_OWNED_SLUG_PREFIX,
+  RUN_OWNED_SLUG_PREFIX,
   THEME_LOCALIZATION_E2E_SCHEMA,
+  assertLegacyRunOwnedSlug,
   assertRunOwnedSlug,
   validateTargetOrigin,
 } from "./theme-localization-e2e.mjs";
@@ -25,10 +28,14 @@ async function syncParentDirectory(filePath) {
   }
 }
 
-function stableResources(plan) {
+function stableResources(plan, {allowLegacy = false} = {}) {
+  const currentPrefix = `${RUN_OWNED_SLUG_PREFIX}${plan.run.id}-`;
+  const legacyPrefix = `${LEGACY_RUN_OWNED_SLUG_PREFIX}${plan.run.id}-`;
+  const legacy = allowLegacy && plan.run.owned_slug_prefix === legacyPrefix;
+  if (plan.run.owned_slug_prefix !== currentPrefix && !legacy) throw new Error("theme localization plan run-owned slug prefix is invalid");
   const resources = [];
   for (const tier of plan.tiers) {
-    assertRunOwnedSlug(tier.run_owned_slug, plan.run.id, tier.id);
+    (legacy ? assertLegacyRunOwnedSlug : assertRunOwnedSlug)(tier.run_owned_slug, plan.run.id, tier.id);
     if (tier.preflight.status !== "pass" || !tier.preflight.source.sha256) {
       throw new Error(`tier is not executable: ${tier.id}`);
     }
@@ -57,7 +64,7 @@ function stableResources(plan) {
   return resources;
 }
 
-export function validateThemeExecutionPlan(plan) {
+function validatePlan(plan, {allowLegacy = false} = {}) {
   if (!plan || plan.schema !== THEME_LOCALIZATION_E2E_SCHEMA) throw new Error("invalid theme localization plan schema");
   if (plan.preflight?.status !== "pass") throw new Error("theme localization plan preflight did not pass");
   if (plan.run?.site_slug !== ALLOWED_SITE_SLUG) throw new Error("theme localization plan site is outside the hard allowlist");
@@ -65,15 +72,23 @@ export function validateThemeExecutionPlan(plan) {
   if (hardAllowlist?.site_slug !== ALLOWED_SITE_SLUG || hardAllowlist.wikidot_hostname !== `${ALLOWED_SITE_SLUG}.wikidot.com` || hardAllowlist.wikijump_hostname !== `${ALLOWED_SITE_SLUG}.wikijump.localhost`) {
     throw new Error("theme localization plan hard allowlist is invalid");
   }
-  const resources = stableResources(plan);
+  const resources = stableResources(plan, {allowLegacy});
   if (resources.length === 0) throw new Error("theme localization plan has no resources");
   const ids = new Set(resources.map((resource) => resource.resource_id));
   if (ids.size !== resources.length) throw new Error("theme localization plan has duplicate resource ids");
   return resources;
 }
 
-export function themeExecutionFingerprint(plan) {
-  const resources = validateThemeExecutionPlan(plan);
+export function validateThemeExecutionPlan(plan) {
+  return validatePlan(plan);
+}
+
+export function validateRecoverableThemeExecutionPlan(plan) {
+  return validatePlan(plan, {allowLegacy: true});
+}
+
+export function themeExecutionFingerprint(plan, {allowLegacy = false} = {}) {
+  const resources = allowLegacy ? validateRecoverableThemeExecutionPlan(plan) : validateThemeExecutionPlan(plan);
   return sha256(JSON.stringify({schema: plan.schema, execution: {mode: plan.mode ?? null, execute_supported: plan.safety?.execute_supported === true}, run: plan.run, resources}));
 }
 
@@ -309,9 +324,9 @@ export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, mat
 }
 
 export async function recoverThemeExecution({ledgerPath, plan, adapters, now}) {
-  const resources = validateThemeExecutionPlan(plan);
+  const resources = validateRecoverableThemeExecutionPlan(plan);
   const ledger = await ThemeExecutionLedger.load(ledgerPath, {now});
-  if (ledger.header.run_id !== plan.run.id || ledger.header.fingerprint !== themeExecutionFingerprint(plan) || JSON.stringify(ledger.header.resources) !== JSON.stringify(resources)) {
+  if (ledger.header.run_id !== plan.run.id || ledger.header.fingerprint !== themeExecutionFingerprint(plan, {allowLegacy: true}) || JSON.stringify(ledger.header.resources) !== JSON.stringify(resources)) {
     throw new Error("execution ledger does not match the requested plan");
   }
   await cleanupThemeExecution({ledger, adapters});

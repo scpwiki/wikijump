@@ -15,7 +15,8 @@ from typing import Any, TextIO
 ALLOWED_SITE = "scpaiueouiuiuiui"
 ALLOWED_DOMAIN = f"{ALLOWED_SITE}.wikidot.com"
 ALLOWED_ORIGIN = f"http://{ALLOWED_DOMAIN}"
-RUN_OWNED_SLUG = re.compile(r"^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
+CURRENT_RUN_OWNED_SLUG = re.compile(r"^codex-l10n:[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
+LEGACY_RUN_OWNED_SLUG = re.compile(r"^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
 PAGE_ID = re.compile(r"WIKIREQUEST\.info\.pageId\s*=\s*([0-9]+)\s*;")
 SITE_ID = re.compile(r"WIKIREQUEST\.info\.siteId\s*=\s*([0-9]+)\s*;")
 SITE_UNIX_NAME = re.compile(r'WIKIREQUEST\.info\.siteUnixName\s*=\s*"([^"]+)"\s*;')
@@ -39,8 +40,9 @@ def wikidot_round_trip_sha256(value: str) -> str:
     return sha256(value[:-1] if value.endswith("\n") else value)
 
 
-def validate_slug(value: object) -> str:
-    if not isinstance(value, str) or len(value) > 100 or RUN_OWNED_SLUG.fullmatch(value) is None:
+def validate_slug(value: object, *, allow_legacy: bool = False) -> str:
+    pattern = (CURRENT_RUN_OWNED_SLUG, LEGACY_RUN_OWNED_SLUG) if allow_legacy else (CURRENT_RUN_OWNED_SLUG,)
+    if not isinstance(value, str) or len(value) > 100 or not any(candidate.fullmatch(value) for candidate in pattern):
         raise PublicError("resource_not_allowed", "resource is not a run-owned theme page")
     return value
 
@@ -173,7 +175,7 @@ class WikidotBackend:
         return data
 
     def inspect(self, slug: str) -> dict[str, Any] | None:
-        html = self._get(validate_slug(slug))
+        html = self._get(validate_slug(slug, allow_legacy=True))
         if html is None:
             return None
         page_id_match = PAGE_ID.search(html)
@@ -254,7 +256,7 @@ class WikidotBackend:
         raise PublicError("create_not_visible", "created page was not visible after save")
 
     def remove(self, slug: str, expected: dict[str, Any]) -> dict[str, Any]:
-        slug = validate_slug(slug)
+        slug = validate_slug(slug, allow_legacy=True)
         actual = self.inspect(slug)
         if actual is None:
             return {"removed": False, "already_absent": True}
@@ -290,7 +292,7 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
         }, False
     if action == "shutdown":
         return {"closed": True}, True
-    slug = validate_slug(request.get("slug"))
+    slug = validate_slug(request.get("slug"), allow_legacy=action in ("inspect", "remove"))
     if action == "inspect":
         return {"page": backend.inspect(slug)}, False
     if action == "create":

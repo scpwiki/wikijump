@@ -8,8 +8,8 @@ import test from "node:test";
 
 import {parseArgs} from "../scripts/theme-localization-e2e.mjs";
 import {ALLOWED_SITE_SLUG, THEME_LOCALIZATION_E2E_SCHEMA, runOwnedSlug} from "../src/theme-localization-e2e.mjs";
-import {ThemeExecutionLedger, themeExecutionFingerprint, validateThemeExecutionPlan} from "../src/theme-localization-execution.mjs";
-import {THEME_RUN_RESULT_SCHEMA, runGuardedThemeAction, validateStorageState, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
+import {ThemeExecutionLedger, themeExecutionFingerprint, validateRecoverableThemeExecutionPlan, validateThemeExecutionPlan} from "../src/theme-localization-execution.mjs";
+import {GUARDED_THEME_WIKIJUMP_RPC_URL, THEME_RUN_RESULT_SCHEMA, createLiveThemeDependencies, runGuardedThemeAction, validateGuardedThemeRpcUrl, validateStorageState, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
 import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const digest = (value) => crypto.createHash("sha256").update(value).digest("hex");
@@ -54,7 +54,7 @@ async function fixture({onCreate, tierIds = ["yossistyle"]} = {}) {
   const plan = {
     schema: THEME_LOCALIZATION_E2E_SCHEMA,
     mode: "execute",
-    run: {id: runId, site_slug: ALLOWED_SITE_SLUG, owned_slug_prefix: `theme:codex-l10n-${runId}-`},
+    run: {id: runId, site_slug: ALLOWED_SITE_SLUG, owned_slug_prefix: `codex-l10n:${runId}-`},
     safety: {execute_supported: true, hard_allowlist: {site_slug: ALLOWED_SITE_SLUG, wikidot_hostname: `${ALLOWED_SITE_SLUG}.wikidot.com`, wikijump_hostname: `${ALLOWED_SITE_SLUG}.wikijump.localhost`}},
     preflight: {status: "pass"},
     tiers,
@@ -65,6 +65,17 @@ async function fixture({onCreate, tierIds = ["yossistyle"]} = {}) {
   const browserSession = {id: "shared-browser"};
   const dependencyFactory = async ({needsBrowser}) => ({adapters, secrets: ["swordfish-pass"], storageStates: {}, chromium: {}, browserSession: needsBrowser ? browserSession : null, async close() { closedAfterCleanup = adapters.wikidot.pages.size + adapters.wikijump.pages.size === 0; closed = true; }});
   return {root, plan, adapters, browserSession, dependencyFactory, closed: () => closed, closedAfterCleanup: () => closedAfterCleanup, ledgerPath: path.join(root, "ledger.jsonl"), resultPath: path.join(root, "result.json"), artifactDir: path.join(root, "artifacts")};
+}
+
+function legacyPlan(plan) {
+  const legacy = structuredClone(plan);
+  legacy.run.owned_slug_prefix = `theme:codex-l10n-${legacy.run.id}-`;
+  for (const tier of legacy.tiers) {
+    const slug = `theme:codex-l10n-${legacy.run.id}-${tier.id}`;
+    tier.run_owned_slug = slug;
+    for (const target of tier.targets) target.url = `${target.origin}/${slug}`;
+  }
+  return legacy;
 }
 
 function capture(status = "pass") {
@@ -136,6 +147,18 @@ test("CDP endpoint accepts only an uncredentialed loopback HTTP origin", () => {
   for (const endpoint of ["https://127.0.0.1:9222", "http://192.168.1.2:9222", "http://user:pass@127.0.0.1:9222", "http://127.0.0.1:9222/json", "http://127.0.0.1"]) assert.throws(() => validateThemeCdpEndpoint(endpoint), /loopback HTTP origin/);
 });
 
+test("guarded runner requires the exact runtime50x Deepwell RPC binding", () => {
+  assert.equal(validateGuardedThemeRpcUrl(GUARDED_THEME_WIKIJUMP_RPC_URL), GUARDED_THEME_WIKIJUMP_RPC_URL);
+  for (const endpoint of [undefined, "", "http://127.0.0.1:2747/jsonrpc", "http://localhost:12747/jsonrpc", "http://127.0.0.1:12747/jsonrpc/"]) {
+    assert.throws(() => validateGuardedThemeRpcUrl(endpoint), /must explicitly equal/);
+  }
+});
+
+test("live dependency construction cannot fall back to another Deepwell stack", async () => {
+  await assert.rejects(createLiveThemeDependencies({env: {}}), /WIKIJUMP_THEME_RPC_URL must explicitly equal/);
+  await assert.rejects(createLiveThemeDependencies({env: {WIKIJUMP_THEME_RPC_URL: "http://127.0.0.1:2747/jsonrpc"}}), /WIKIJUMP_THEME_RPC_URL must explicitly equal/);
+});
+
 test("insecure artifact root is rejected before adapters connect", async () => {
   const fx = await fixture();
   await fs.mkdir(fx.artifactDir, {mode: 0o755});
@@ -169,6 +192,26 @@ test("recovery accepts only the matching fingerprint and removes an intent-fence
   assert.equal(result.operation.status, "clean");
   assert.equal(fx.adapters.wikidot.pages.size, 0);
   assert.equal(browserRequested, false);
+});
+
+test("runner recovery preserves sealed legacy theme-category ledgers without enabling legacy execution", async () => {
+  const fx = await fixture();
+  fx.plan = legacyPlan(fx.plan);
+  const resources = validateRecoverableThemeExecutionPlan(fx.plan);
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan, {allowLegacy: true}), resources});
+  await ledger.complete();
+
+  const result = await runGuardedThemeAction({...fx, mode: "recover"});
+  assert.equal(result.status, "pass");
+  assert.equal(result.operation.status, "clean");
+  assert.equal(result.plan_fingerprint, themeExecutionFingerprint(fx.plan, {allowLegacy: true}));
+
+  const executeFx = await fixture();
+  executeFx.plan = legacyPlan(executeFx.plan);
+  let connected = false;
+  executeFx.dependencyFactory = async () => { connected = true; };
+  await assert.rejects(runGuardedThemeAction({...executeFx, mode: "execute"}), /slug prefix is invalid/);
+  assert.equal(connected, false);
 });
 
 test("SIGINT aborts at an operation boundary without bypassing cleanup", async () => {
