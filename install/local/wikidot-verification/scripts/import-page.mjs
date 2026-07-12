@@ -14,7 +14,7 @@
 //     [--inventory <corpus-inventory.lock.json>] [--branch en] [--family EN] \
 //     [--site scp-wiki] [--site-id <id>] [--source-site <site>] [--source-branch <branch>] \
 //     [--host <site>.wikijump.localhost] [--rpc-url http://127.0.0.1:2747/jsonrpc] \
-//     [--session-token <token>] [--db-container <name>] [--attachment-user-id -1] \
+//     [--db-container <name>] [--attachment-user-id -1] \
 //     [--batch-size 40] [--max-depth 8] [--adopt-existing] [--skip-health] [--dry-run]
 //
 // Fail-closed rules: requested slugs missing from the corpus abort the run
@@ -23,7 +23,7 @@
 // imported. Exit 0 means every requested page imported (or already present)
 // and the health check ran; import failures exit 1.
 //
-// Auth: pass --session-token / DEEPWELL_SESSION_TOKEN, or the runner logs in
+// Auth: set DEEPWELL_SESSION_TOKEN, or the runner logs in
 // per batch via the local Deepwell RPC using WIKIDOT_VERIFY_ADMIN_EMAIL /
 // WIKIDOT_VERIFY_ADMIN_PASS (defaults match the local seed admin, same as
 // preview-source.mjs). Tokens expire after ~5 minutes, hence per-batch login.
@@ -35,10 +35,14 @@ import { spawnSync } from 'node:child_process';
 
 import {
   batchSlugs,
+  buildApplyInvocation,
   corpusPageStatus,
   mergeApplySummaries,
   parseApplyOutput,
   planImportSet,
+  resolveSessionToken,
+  rpcCall,
+  validateRpcUrl,
 } from '../src/import-page.mjs';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -85,7 +89,6 @@ function parseArgs(argv) {
     else if (arg === '--source-branch') args.sourceBranch = next();
     else if (arg === '--host') args.host = next();
     else if (arg === '--rpc-url') args.rpcUrl = next();
-    else if (arg === '--session-token') args.sessionToken = next();
     else if (arg === '--db-container') args.dbContainer = next();
     else if (arg === '--attachment-user-id') args.attachmentUserId = next();
     else if (arg === '--batch-size') args.batchSize = Number.parseInt(next(), 10);
@@ -98,7 +101,7 @@ function parseArgs(argv) {
         'Usage: import-page.mjs --slug <page> [--slug <page>...] --corpus-root <path> --output-dir <dir> ' +
           '[--inventory <lock.json>] [--branch en] [--family EN] [--site scp-wiki] [--site-id <id>] ' +
           '[--source-site <site>] [--source-branch <branch>] [--host <domain>] [--rpc-url <url>] ' +
-          '[--session-token <token>] [--db-container <name>] [--attachment-user-id -1] ' +
+          '[--db-container <name>] [--attachment-user-id -1] ' +
           '[--batch-size 40] [--max-depth 8] [--adopt-existing] [--skip-health] [--dry-run]',
       );
       process.exit(0);
@@ -112,6 +115,9 @@ function parseArgs(argv) {
   args.sourceBranch ??= args.branch;
   args.family ??= args.branch.toUpperCase();
   args.host ??= `${args.site}.wikijump.localhost`;
+  const rpc = validateRpcUrl(args.rpcUrl);
+  args.rpcUrl = rpc.rpcUrl;
+  for (const warning of rpc.warnings) console.error(`WARN: ${warning}`);
   return args;
 }
 
@@ -128,21 +134,8 @@ function runNode(scriptName, scriptArgs, { env = {}, logPath = null } = {}) {
   return result;
 }
 
-async function rpcCall(rpcUrl, method, params) {
-  const response = await fetch(rpcUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
-  });
-  if (!response.ok) throw new Error(`${method}: RPC HTTP ${response.status}`);
-  const body = await response.json();
-  if (body.error) throw new Error(`${method}: ${JSON.stringify(body.error)}`);
-  return body.result;
-}
-
-async function loginToken(args) {
-  if (args.sessionToken) return args.sessionToken;
-  const result = await rpcCall(args.rpcUrl, 'login', {
+async function loginToken(rpcUrl) {
+  const result = await rpcCall(rpcUrl, 'login', {
     name_or_email: process.env.WIKIDOT_VERIFY_ADMIN_EMAIL ?? 'admin@wikijump',
     password: process.env.WIKIDOT_VERIFY_ADMIN_PASS ?? 'wikijumpadmin1',
     ip_address: '127.0.0.1',
@@ -250,20 +243,23 @@ async function main() {
   for (const [index, batch] of batches.entries()) {
     const batchPath = out(`apply-batch-${index}.jsonl`);
     fs.writeFileSync(batchPath, `${batch.map((slug) => rowBySlug.get(slug)).join('\n')}\n`);
-    const token = await loginToken(args);
-    const applyArgs = [
-      '--manifest', batchPath,
-      '--create-mode', 'rpc',
-      '--site-id', String(siteId),
-      '--skip-existing-done',
-      '--attachment-user-id', args.attachmentUserId,
-      '--presign-host-alias', 'files=127.0.0.1',
-    ];
-    if (args.adoptExisting) applyArgs.push('--adopt-existing');
-    if (args.dbContainer) applyArgs.push('--db-container', args.dbContainer);
-    if (args.dryRun) applyArgs.push('--dry-run');
-    const apply = runNode('apply-corpus-import-manifest.mjs', applyArgs, {
-      env: { DEEPWELL_SESSION_TOKEN: token },
+    const sessionToken = await resolveSessionToken({
+      sessionToken: args.sessionToken,
+      rpcUrl: args.rpcUrl,
+      login: loginToken,
+    });
+    const invocation = buildApplyInvocation({
+      batchPath,
+      rpcUrl: args.rpcUrl,
+      siteId,
+      attachmentUserId: args.attachmentUserId,
+      sessionToken,
+      adoptExisting: args.adoptExisting,
+      dbContainer: args.dbContainer,
+      dryRun: args.dryRun,
+    });
+    const apply = runNode(invocation.scriptName, invocation.scriptArgs, {
+      env: invocation.env,
       logPath: out(`apply-batch-${index}.log`),
     });
     const parsed = parseApplyOutput(apply.stdout ?? '');
