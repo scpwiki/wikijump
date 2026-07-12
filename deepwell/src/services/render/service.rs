@@ -967,8 +967,8 @@ impl RenderService {
             wikitext,
             page_info,
             settings,
-            current_site_id,
-            current_page_id,
+            (current_site_id, current_page_id),
+            max_include_expansions,
             &mut wikidot_compat_html,
         )
         .await
@@ -4240,13 +4240,11 @@ impl RenderService {
         wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
+        current_page: (Option<i64>, Option<i64>),
+        max_include_expansions: usize,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<IncludeExpansion> {
-        let (Some(current_site_id), Some(current_page_id)) =
-            (current_site_id, current_page_id)
-        else {
+        let (Some(current_site_id), Some(current_page_id)) = current_page else {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
@@ -4300,10 +4298,10 @@ impl RenderService {
                 ..
             } = Self::render_list_pages_block(
                 ctx,
-                current_site_id,
-                current_page_id,
+                (current_site_id, current_page_id),
                 page_info,
                 settings,
+                max_include_expansions,
                 arguments,
                 body,
             )
@@ -6679,13 +6677,14 @@ impl RenderService {
 
     async fn render_list_pages_block(
         ctx: &ServiceContext<'_>,
-        current_site_id: i64,
-        current_page_id: i64,
+        current_page: (i64, i64),
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
+        max_include_expansions: usize,
         arguments: ListPagesArguments,
         body: &str,
     ) -> Result<IncludeExpansion> {
+        let (current_site_id, current_page_id) = current_page;
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -6948,7 +6947,7 @@ impl RenderService {
                             Some(page.site_id),
                             IncludeExpansionOptions {
                                 expand_wikidot_image_blocks: false,
-                                max_total_includes: MAX_INCLUDE_EXPANSION_TOTAL,
+                                max_total_includes: max_include_expansions,
                             },
                         )
                         .await?;
