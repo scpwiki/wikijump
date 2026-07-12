@@ -23,8 +23,37 @@ function hasUndisposedGap(gapLedger) {
   return gapLedger.some((gap) => !["fixed", "not_applicable", "accepted_out_of_scope", "successor_issue"].includes(gap?.disposition));
 }
 
+function isUnresolvedPostMergeFinding(finding) {
+  if (finding === null || typeof finding !== "object" || Array.isArray(finding)) {
+    return true;
+  }
+  if (Object.hasOwn(finding, "needs_followup") && typeof finding.needs_followup !== "boolean") {
+    return true;
+  }
+  if (Object.hasOwn(finding, "disposition") && typeof finding.disposition !== "string") {
+    return true;
+  }
+  if (finding.disposition === "unresolved" || finding.needs_followup === true) {
+    return true;
+  }
+
+  const isMonitorFinding =
+    "source" in finding || "source_id" in finding || "controller_disposition" in finding;
+  if (!isMonitorFinding) return false;
+
+  return (
+    !Object.hasOwn(finding, "source") ||
+    !Object.hasOwn(finding, "source_id") ||
+    !Object.hasOwn(finding, "controller_disposition") ||
+    !["review", "comment"].includes(finding.source) ||
+    typeof finding.source_id !== "string" ||
+    finding.source_id.trim().length === 0 ||
+    finding.controller_disposition !== "verified"
+  );
+}
+
 function hasUnresolvedPostMergeFinding(postMergeFindings) {
-  return postMergeFindings.some((finding) => finding?.disposition === "unresolved" || finding?.needs_followup === true);
+  return postMergeFindings.some(isUnresolvedPostMergeFinding);
 }
 
 function ownerCommentContradictsClosure(issue) {
