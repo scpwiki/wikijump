@@ -8,6 +8,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
+import { assertEmptyDbImportTarget } from '../src/corpus-import-empty-target.mjs';
 import {
   DEFAULT_IMPORT_USER_ID,
   assertExistingAttachmentMatches,
@@ -179,7 +180,7 @@ function parseArgs(argv) {
     else if (arg === '--help' || arg === '-h') {
       console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--assume-empty-db-import] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-secret-access-key <secret>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Use --assume-empty-db-import only on a reset DB shell-import target; it skips per-row active-page probes and lets database uniqueness fail closed if the assumption is wrong. RPC attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with S3 config from --attachment-s3-* options or S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Non-dry-run --assume-empty-db-import is disabled until its site-level empty-page guard and DB shell writes are atomic; dry-run accepts the flag for planning without probing or changing the target. RPC attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with S3 config from --attachment-s3-* options or S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
       process.exit(0);
     } else {
       throw new Error(`unknown argument: ${arg}`);
@@ -222,6 +223,9 @@ Imports current corpus snapshot pages into a local Wikijump mirror. This is an o
   }
   if (args.assumeEmptyDbImport && (args.adoptExisting || args.replaceExisting)) {
     throw new Error('--assume-empty-db-import cannot be combined with --adopt-existing or --replace-existing');
+  }
+  if (args.assumeEmptyDbImport && !args.dryRun) {
+    throw new Error('--assume-empty-db-import is disabled until its empty-target guard and DB shell writes are atomic');
   }
   if (args.attachmentsOnlyExisting && args.replaceExisting) {
     throw new Error('--attachments-only-existing cannot be combined with --replace-existing');
@@ -1777,6 +1781,7 @@ async function main() {
     }
 
     timePhaseSync(phaseTimingsMs, 'precompute_db_text_hashes', () => precomputeDbTextHashes(args, selectedRows));
+    await timePhase(phaseTimingsMs, 'verify_empty_db_import_target', () => assertEmptyDbImportTarget(args, sqlExecutor));
     const importRunId = await timePhase(phaseTimingsMs, 'ensure_import_run', () => ensureImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory));
     await timePhase(phaseTimingsMs, 'precreate_db_shell_body_text', () => precreateDbShellBodyText(args, sqlExecutor, selectedRows));
     await timePhase(phaseTimingsMs, 'precreate_db_source_texts', () => precreateDbSourceTexts(args, sqlExecutor, selectedRows));
