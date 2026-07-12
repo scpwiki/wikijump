@@ -118,11 +118,12 @@ mfa-digits = 6
 # but short enough to make bruteforcing values impractical.
 time-step = 30
 
-# The allowed leniency value to account for clock skew.
+# The signed clock offset applied to account for clock skew.
 #
 # This represents the number of seconds (positive or negative)
 # that a TOTP is offset by in determining whether the authentication
-# was accepted.
+# was accepted. It is applied as one timestamp offset, not interpreted
+# as a number of TOTP steps or as a symmetric acceptance window.
 #
 # See https://github.com/TimDumol/rust-otp/blob/master/src/lib.rs#L56
 time-skew = 1
