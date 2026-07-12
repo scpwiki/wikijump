@@ -23,7 +23,9 @@ use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
 use crate::models::text::{self, Entity as Text, Model as TextModel};
-use crate::services::render::RenderPageOutput;
+use crate::services::render::{
+    CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, RenderPageOutput, StageGuard,
+};
 use crate::services::score::ScoreValue;
 use crate::services::{
     LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
@@ -259,8 +261,15 @@ impl PageRevisionService {
                 compiled_side_bar_html_hash: new_side_bar_html_hash,
                 compiled_at: new_compiled_at,
                 compiled_generator: new_compiled_generator,
-            } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
-                .await?;
+            } = Self::render_and_update_links(
+                ctx,
+                id,
+                wikitext,
+                render_input,
+                false,
+                None,
+            )
+            .await?;
 
             // Update fields
             parser_errors = Some(errors);
@@ -460,7 +469,7 @@ impl PageRevisionService {
             compiled_side_bar_html_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
+        } = Self::render_and_update_links(ctx, id, wikitext, render_input, false, None)
             .await
             .or_raise(make_error)?;
 
@@ -708,6 +717,7 @@ impl PageRevisionService {
             wikitext,
             render_input,
             false,
+            None,
         )
         .await
         .or_raise(make_error)?;
@@ -778,6 +788,7 @@ impl PageRevisionService {
             tags,
         }: RenderPageInfo<'_>,
         allow_corpus_dense_includes: bool,
+        trace: Option<&CorpusRenderTrace>,
     ) -> Result<RenderPageOutput> {
         // Get site
         let PageId {
@@ -814,7 +825,13 @@ impl PageRevisionService {
         };
 
         // Parse and render
-        let output = if allow_corpus_dense_includes {
+        let output = if let Some(trace) = trace {
+            debug_assert!(allow_corpus_dense_includes);
+            RenderService::render_corpus_page_traced(
+                ctx, wikitext, &page_info, layout, id, trace,
+            )
+            .await
+        } else if allow_corpus_dense_includes {
             RenderService::render_corpus_page(ctx, wikitext, &page_info, layout, id).await
         } else {
             RenderService::render_page(ctx, wikitext, &page_info, layout, id).await
@@ -822,9 +839,15 @@ impl PageRevisionService {
         .or_raise(make_error)?;
 
         // Update backlinks
-        LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks)
-            .await
-            .or_raise(make_error)?;
+        {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::LinkUpdate,
+            );
+            LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks)
+                .await
+                .or_raise(make_error)?;
+        }
 
         Ok(output)
     }
@@ -842,13 +865,14 @@ impl PageRevisionService {
         depth: RerenderDepth,
         rerender_type: RerenderType,
     ) -> Result<()> {
-        Self::rerender_inner(ctx, id, depth, rerender_type, true, false).await
+        Self::rerender_inner(ctx, id, depth, rerender_type, true, false, None).await
     }
 
     /// Re-renders a trusted imported page for the corpus finalizer.
     ///
     /// The finalizer needs a corpus-provenanced include ceiling while normal
     /// user-controlled renders retain the lower public safety limit.
+    #[allow(dead_code)]
     pub(crate) async fn rerender_for_corpus_finalizer(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -856,8 +880,38 @@ impl PageRevisionService {
         rerender_type: RerenderType,
         outdate_dependents: bool,
     ) -> Result<()> {
-        Self::rerender_inner(ctx, id, depth, rerender_type, outdate_dependents, true)
-            .await
+        Self::rerender_inner(
+            ctx,
+            id,
+            depth,
+            rerender_type,
+            outdate_dependents,
+            true,
+            None,
+        )
+        .await
+    }
+
+    /// Re-renders a trusted imported page and records corpus stage diagnostics.
+    #[allow(dead_code)]
+    pub(crate) async fn rerender_for_corpus_finalizer_traced(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        depth: RerenderDepth,
+        rerender_type: RerenderType,
+        outdate_dependents: bool,
+        trace: &CorpusRenderTrace,
+    ) -> Result<()> {
+        Self::rerender_inner(
+            ctx,
+            id,
+            depth,
+            rerender_type,
+            outdate_dependents,
+            true,
+            Some(trace),
+        )
+        .await
     }
 
     async fn rerender_inner(
@@ -867,6 +921,7 @@ impl PageRevisionService {
         rerender_type: RerenderType,
         outdate_dependents: bool,
         allow_corpus_dense_includes: bool,
+        trace: Option<&CorpusRenderTrace>,
     ) -> Result<()> {
         let txn = ctx.transaction();
         let PageId {
@@ -885,9 +940,15 @@ impl PageRevisionService {
             )
         };
 
-        let revision = Self::get_latest(ctx, site_id, page_id)
-            .await
-            .or_raise(make_error)?;
+        let revision = {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::RevisionLoad,
+            );
+            Self::get_latest(ctx, site_id, page_id)
+                .await
+                .or_raise(make_error)?
+        };
 
         info!(
             "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
@@ -924,11 +985,17 @@ impl PageRevisionService {
             .or_raise(make_error)?;
 
         // Get data for page
-        let (wikitext, score, layout) = try_join!(
-            TextService::get(ctx, &revision.wikitext_hash),
-            ScoreService::score(ctx, page_id),
-            SettingsService::get_layout(ctx, site_id, Some(page_id)),
-        )?;
+        let (wikitext, score, layout) = {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::RenderInputs,
+            );
+            try_join!(
+                TextService::get(ctx, &revision.wikitext_hash),
+                ScoreService::score(ctx, page_id),
+                SettingsService::get_layout(ctx, site_id, Some(page_id)),
+            )?
+        };
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
@@ -955,6 +1022,7 @@ impl PageRevisionService {
             wikitext,
             render_input,
             allow_corpus_dense_includes,
+            trace,
         )
         .await
         .or_raise(make_error)?;
@@ -964,6 +1032,10 @@ impl PageRevisionService {
                 // Outdate all descendent pages and update body and nav pages
 
                 if outdate_dependents {
+                    let _stage = StageGuard::new(
+                        trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                        CorpusRenderStage::Outdate,
+                    );
                     OutdateService::process_page_edit(
                         ctx,
                         site_id,
@@ -1006,7 +1078,13 @@ impl PageRevisionService {
             }
         };
 
-        model.update(txn).await.or_raise(make_error)?;
+        {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::RevisionUpdate,
+            );
+            model.update(txn).await.or_raise(make_error)?;
+        }
         Ok(())
     }
 

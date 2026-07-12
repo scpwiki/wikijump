@@ -20,6 +20,10 @@
 
 use super::compat_html_fragments::CompatHtmlFragments;
 use super::compat_text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragments};
+use super::diagnostics::{
+    CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
+    StageGuard,
+};
 use super::html_text::html_data_segments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
@@ -768,6 +772,7 @@ impl RenderService {
             settings,
             RenderContext::none(),
             MAX_INCLUDE_EXPANSION_TOTAL,
+            None,
         )
         .await
         .or_raise(make_error)?;
@@ -803,6 +808,7 @@ impl RenderService {
                 page_id,
             },
             MAX_INCLUDE_EXPANSION_TOTAL,
+            None,
         )
         .await
     }
@@ -824,6 +830,27 @@ impl RenderService {
             layout,
             id,
             MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+            None,
+        )
+        .await
+    }
+
+    pub(crate) async fn render_corpus_page_traced(
+        ctx: &ServiceContext<'_>,
+        wikitext: String,
+        page_info: &PageInfo<'_>,
+        layout: Layout,
+        id: PageId,
+        trace: &CorpusRenderTrace,
+    ) -> Result<RenderPageOutput> {
+        Self::render_page_with_include_limit(
+            ctx,
+            wikitext,
+            page_info,
+            layout,
+            id,
+            MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+            Some(trace),
         )
         .await
     }
@@ -839,6 +866,7 @@ impl RenderService {
             page_id,
         }: PageId,
         max_include_expansions: usize,
+        trace: Option<&CorpusRenderTrace>,
     ) -> Result<RenderPageOutput> {
         let page_settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let nav_settings = WikitextSettings::from_mode(WikitextMode::PageNav, layout);
@@ -869,6 +897,7 @@ impl RenderService {
             &page_settings,
             RenderContext::page(site_id, page_id),
             max_include_expansions,
+            trace.map(|trace| (trace, CorpusRenderScope::Body)),
         )
         .await
         .or_raise(make_error)?;
@@ -880,7 +909,8 @@ impl RenderService {
             .await
             .or_raise(make_error)?;
 
-        let render_nav_page = |wikitext| async {
+        let nav_settings = &nav_settings;
+        let render_nav_page = |wikitext, scope| async move {
             match wikitext {
                 Some(wikitext) => {
                     // Navigation pages render in the context of the viewed page, but
@@ -894,9 +924,10 @@ impl RenderService {
                         ctx,
                         wikitext,
                         page_info,
-                        &nav_settings,
+                        nav_settings,
                         RenderContext::page_nav(site_id, page_id),
                         max_include_expansions,
+                        trace.map(|trace| (trace, scope)),
                     )
                     .await;
 
@@ -914,8 +945,8 @@ impl RenderService {
         };
 
         let (top_bar_render_result, side_bar_render_result) = join!(
-            render_nav_page(top_bar_page_wikitext),
-            render_nav_page(side_bar_page_wikitext),
+            render_nav_page(top_bar_page_wikitext, CorpusRenderScope::TopNav),
+            render_nav_page(side_bar_page_wikitext, CorpusRenderScope::SideNav),
         );
         let (compiled_top_bar_html_hash, compiled_side_bar_html_hash) =
             raise_multiple!(top_bar_render_result, side_bar_render_result; make_error);
@@ -950,9 +981,12 @@ impl RenderService {
             wikitext,
             &page_info,
             &settings,
-            Some(id.site_id),
-            Some(id.page_id),
-            MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+            RenderExpansionOptions {
+                current_site_id: Some(id.site_id),
+                current_page_id: Some(id.page_id),
+                max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+                trace: None,
+            },
         )
         .await?;
 
@@ -1041,116 +1075,152 @@ impl RenderService {
         mut wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
-        max_include_expansions: usize,
+        options: RenderExpansionOptions<'_>,
     ) -> Result<ExpandedRenderWikitext> {
+        let RenderExpansionOptions {
+            current_site_id,
+            current_page_id,
+            max_include_expansions,
+            trace,
+        } = options;
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
         let mut include_budget = IncludeExpansionBudget::new(max_include_expansions);
         let mut include_source_cache = IncludeSourceCache::default();
         Self::remove_preview_component_separator_markers(&mut wikitext);
-        let mut included_pages = if settings.enable_page_syntax {
-            Self::expand_wikidot_image_block_includes(&mut wikitext, page_info)
-        } else {
-            Vec::new()
+        let mut included_pages = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::ImagePrelude);
+            if settings.enable_page_syntax {
+                Self::expand_wikidot_image_block_includes(&mut wikitext, page_info)
+            } else {
+                Vec::new()
+            }
         };
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: expanded_included_pages,
             expanded_include_count,
-        } = Self::expand_includes(
-            ctx,
-            wikitext,
-            page_info,
-            page_info.site.as_ref(),
-            settings,
-            IncludeExpansionOptions {
-                current_site_id,
-                source_cache: &mut include_source_cache,
-                expand_wikidot_image_blocks: true,
-                budget: include_budget,
-            },
-        )
-        .await
-        .or_raise(make_error)?;
+        } = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::Includes);
+            Self::expand_includes(
+                ctx,
+                wikitext,
+                page_info,
+                page_info.site.as_ref(),
+                settings,
+                IncludeExpansionOptions {
+                    current_site_id,
+                    source_cache: &mut include_source_cache,
+                    expand_wikidot_image_blocks: true,
+                    budget: include_budget,
+                },
+            )
+            .await
+            .or_raise(make_error)?
+        };
         wikitext = expanded_wikitext;
         included_pages.extend(expanded_included_pages);
         include_budget.consume(expanded_include_count);
-        Self::remove_wikidot_metacomponent_documentation(&mut wikitext);
-        remove_unresolved_include_comment_branches(&mut wikitext);
-        Self::prepare_wikidot_conditionals_for_include_expansion(
-            &mut wikitext,
-            page_info,
-        );
-        Self::neutralize_authored_wikidot_compat_markers(&mut wikitext);
+        {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::PostInclude);
+            Self::remove_wikidot_metacomponent_documentation(&mut wikitext);
+            remove_unresolved_include_comment_branches(&mut wikitext);
+            Self::prepare_wikidot_conditionals_for_include_expansion(
+                &mut wikitext,
+                page_info,
+            );
+            Self::neutralize_authored_wikidot_compat_markers(&mut wikitext);
+        }
         let mut wikidot_compat_html = CompatHtmlFragments::new(&wikitext);
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: list_pages_included_pages,
             ..
-        } = Self::expand_list_pages(
-            ctx,
-            wikitext,
-            page_info,
-            settings,
-            &mut wikidot_compat_html,
-            &mut include_source_cache,
-            ListPagesExpansionOptions {
-                current_site_id,
-                current_page_id,
-                include_budget,
-            },
-        )
-        .await
-        .or_raise(make_error)?;
+        } = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::ListPages);
+            Self::expand_list_pages(
+                ctx,
+                wikitext,
+                page_info,
+                settings,
+                &mut wikidot_compat_html,
+                &mut include_source_cache,
+                ListPagesExpansionOptions {
+                    current_site_id,
+                    current_page_id,
+                    include_budget,
+                },
+            )
+            .await
+            .or_raise(make_error)?
+        };
         wikitext = expanded_wikitext;
         included_pages.extend(list_pages_included_pages);
-        wikitext = Self::expand_count_pages(
-            ctx,
-            wikitext,
-            page_info,
-            settings,
-            current_site_id,
-            current_page_id,
-        )
-        .await
-        .or_raise(make_error)?;
-        wikitext = Self::expand_tag_cloud_modules(
-            ctx,
-            wikitext,
-            page_info,
-            current_site_id,
-            current_page_id,
-        )
-        .await
-        .or_raise(make_error)?;
-        wikitext = Self::expand_backlinks_modules(
-            ctx,
-            wikitext,
-            settings,
-            current_site_id,
-            current_page_id,
-            &mut wikidot_compat_html,
-        )
-        .await
-        .or_raise(make_error)?;
-        wikitext = Self::expand_members_modules_with_registry(
-            wikitext,
-            settings,
-            &mut wikidot_compat_html,
-        );
-        wikitext = Self::expand_new_page_modules_with_registry(
-            wikitext,
-            settings,
-            &mut wikidot_compat_html,
-        );
-        wikitext = Self::expand_clone_modules_with_registry(
-            wikitext,
-            settings,
-            &mut wikidot_compat_html,
-        );
-        wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::CountPages);
+            Self::expand_count_pages(
+                ctx,
+                wikitext,
+                page_info,
+                settings,
+                current_site_id,
+                current_page_id,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::TagCloud);
+            Self::expand_tag_cloud_modules(
+                ctx,
+                wikitext,
+                page_info,
+                current_site_id,
+                current_page_id,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::Backlinks);
+            Self::expand_backlinks_modules(
+                ctx,
+                wikitext,
+                settings,
+                current_site_id,
+                current_page_id,
+                &mut wikidot_compat_html,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::RegistryModules);
+            wikitext = Self::expand_members_modules_with_registry(
+                wikitext,
+                settings,
+                &mut wikidot_compat_html,
+            );
+            wikitext = Self::expand_new_page_modules_with_registry(
+                wikitext,
+                settings,
+                &mut wikidot_compat_html,
+            );
+            wikitext = Self::expand_clone_modules_with_registry(
+                wikitext,
+                settings,
+                &mut wikidot_compat_html,
+            );
+            wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
+        }
+
+        if let Some((trace, CorpusRenderScope::Body)) = trace {
+            trace.set_dimension(CorpusRenderDimension::ExpandedBytes, wikitext.len());
+            trace.set_dimension(
+                CorpusRenderDimension::IncludedPages,
+                included_pages.len(),
+            );
+        }
 
         Ok(ExpandedRenderWikitext {
             wikitext,
@@ -1297,6 +1367,7 @@ impl RenderService {
         settings: &WikitextSettings,
         render_context: RenderContext,
         max_include_expansions: usize,
+        trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
     ) -> Result<RenderInnerOutput> {
         let config = ctx.config();
         let RenderContext {
@@ -1305,15 +1376,22 @@ impl RenderService {
             text_block_page_id,
         } = render_context;
 
+        if let Some((trace, CorpusRenderScope::Body)) = trace {
+            trace.set_dimension(CorpusRenderDimension::SourceBytes, wikitext.len());
+        }
+
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
-        let current_site = match current_site_id {
-            Some(site_id) => Some(
-                SiteService::get(ctx, Reference::Id(site_id))
-                    .await
-                    .or_raise(make_error)?,
-            ),
-            None => None,
+        let current_site = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::SiteLoad);
+            match current_site_id {
+                Some(site_id) => Some(
+                    SiteService::get(ctx, Reference::Id(site_id))
+                        .await
+                        .or_raise(make_error)?,
+                ),
+                None => None,
+            }
         };
 
         let expanded = Self::expand_render_wikitext(
@@ -1321,12 +1399,32 @@ impl RenderService {
             wikitext,
             page_info,
             settings,
-            current_site_id,
-            current_page_id,
-            max_include_expansions,
+            RenderExpansionOptions {
+                current_site_id,
+                current_page_id,
+                max_include_expansions,
+                trace,
+            },
         )
         .await?;
         let outer = Self::prepare_outer_render_wikitext(expanded, page_info, settings);
+        if let Some((trace, scope)) = trace {
+            trace.add_us(
+                scope,
+                CorpusRenderStage::Normalization,
+                outer.timings.normalization_us,
+            );
+            trace.add_us(
+                scope,
+                CorpusRenderStage::OuterProtect,
+                outer.timings.outer_protection_us,
+            );
+            trace.add_us(
+                scope,
+                CorpusRenderStage::FallbackCheck,
+                outer.timings.fallback_check_us,
+            );
+        }
         if outer.compatibility_fallback {
             let OuterPreparedRenderWikitext {
                 wikitext,
@@ -1345,13 +1443,20 @@ impl RenderService {
                 &mut backlinks,
                 &native_list_wikipedia_links,
             );
-            let fallback_link_titles = if let Some(site_id) = current_site_id {
-                Self::load_wikidot_compat_fallback_link_titles(ctx, site_id, &wikitext)
+            let fallback_link_titles = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::FallbackTitles);
+                if let Some(site_id) = current_site_id {
+                    Self::load_wikidot_compat_fallback_link_titles(
+                        ctx, site_id, &wikitext,
+                    )
                     .await
                     .or_raise(make_error)?
-            } else {
-                WikidotCompatLinkTitleMap::new()
+                } else {
+                    WikidotCompatLinkTitleMap::new()
+                }
             };
+            let fallback_render_stage =
+                StageGuard::new(trace, CorpusRenderStage::FallbackRender);
             let fallback_output = Self::render_oversized_wikidot_compatibility_fallback(
                 &wikitext,
                 current_site.as_ref(),
@@ -1402,9 +1507,19 @@ impl RenderService {
                 styles: Vec::new(),
                 backlinks,
             };
-            let compiled_hash = TextService::create(ctx, html_output.body.clone())
-                .await
-                .or_raise(make_error)?;
+            drop(fallback_render_stage);
+            if let Some((trace, CorpusRenderScope::Body)) = trace {
+                trace.set_dimension(
+                    CorpusRenderDimension::OutputBytes,
+                    html_output.body.len(),
+                );
+            }
+            let compiled_hash = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::CompiledText);
+                TextService::create(ctx, html_output.body.clone())
+                    .await
+                    .or_raise(make_error)?
+            };
             if let Some(page_id) = text_block_page_id {
                 let html_blocks: Vec<TextBlock> = fallback_html_block_texts
                     .iter()
@@ -1416,6 +1531,7 @@ impl RenderService {
                     })
                     .collect();
 
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlBlocks);
                 TextBlockService::add_blocks(
                     ctx,
                     page_id,
@@ -1438,8 +1554,14 @@ impl RenderService {
         let render_current_site = current_site.clone();
         let render_timeout =
             Self::ftml_compat_render_timeout(&render_config, &outer.wikitext);
+        let worker_trace = trace.map(|(trace, scope)| (trace.clone(), scope));
+        let queued_at = worker_trace.as_ref().map(|_| Instant::now());
 
         let render_task = task::spawn_blocking(move || {
+            let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
+            if let (Some((trace, scope)), Some(queued_at)) = (trace, queued_at) {
+                trace.record_elapsed(scope, CorpusRenderStage::WorkerQueue, queued_at);
+            }
             let InnerPreparedRenderWikitext {
                 wikitext,
                 included_pages,
@@ -1451,89 +1573,109 @@ impl RenderService {
                 wikidot_compat_text,
                 native_list_wikipedia_links,
                 wikidot_embed_iframes,
-                timings: _,
+                timings,
             } = Self::prepare_inner_render_wikitext(outer, &render_settings);
-            let tokens = ftml::tokenize(&wikitext);
-            let result = ftml::parse(&tokens, &render_page_info, &render_settings);
+            if let Some((trace, scope)) = trace {
+                trace.add_us(
+                    scope,
+                    CorpusRenderStage::InnerProtect,
+                    timings.inner_protection_us,
+                );
+                trace.add_us(scope, CorpusRenderStage::Preprocess, timings.preprocess_us);
+            }
+            let tokens = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::Tokenize);
+                ftml::tokenize(&wikitext)
+            };
+            let result = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::Parse);
+                ftml::parse(&tokens, &render_page_info, &render_settings)
+            };
             let (tree, errors) = result.into();
-            let mut html_output =
-                HtmlRender.render(&tree, &render_page_info, &render_settings);
-            html_output.body = Self::restore_protected_wikidot_embed_iframes(
-                html_output.body,
-                &wikidot_embed_iframes,
-            );
-            html_output.body = Self::restore_protected_wikidot_color_spans(
-                html_output.body,
-                &wikidot_color_spans,
-            );
-            html_output.body = Self::restore_protected_wikidot_inline_html(
-                html_output.body,
-                &wikidot_inline_html,
-            );
-            html_output.body = wikidot_compat_html.restore(&html_output.body);
-            html_output.body = Self::restore_protected_wikidot_wikipedia_links(
-                html_output.body,
-                &wikidot_wikipedia_links,
-            );
-            html_output.body = Self::restore_protected_wikidot_compat_links(
-                html_output.body,
-                &wikidot_compat_links,
-            );
-            html_output.body =
-                restore_list_pages_literal_ellipsis_markers(&html_output.body);
-            Self::record_protected_wikidot_wikipedia_backlinks(
-                &mut html_output.backlinks,
-                &wikidot_wikipedia_links,
-            );
-            Self::record_wikidot_wikipedia_backlinks(
-                &mut html_output.backlinks,
-                &native_list_wikipedia_links,
-            );
-            html_output.body = Self::restore_wikidot_render_compatibility(
-                &html_output.body,
-                render_current_site.as_ref(),
-                &render_config,
-            );
-            apply_basalt_shell_compatibility(&mut html_output.body);
-            apply_blankstyle_shell_compatibility(&mut html_output.body);
-            html_output.body = wikidot_compat_text.restore(&html_output.body);
-            html_output.backlinks.included_pages.extend(included_pages);
-            let html_block_texts = tree
-                .html_blocks
-                .iter()
-                .map(|html| {
-                    let html = wikidot_compat_html.restore(html);
-                    let html = Self::localize_wikidot_local_file_urls(
-                        &html,
-                        render_current_site.as_ref(),
-                        &render_config,
-                    );
-                    wikidot_compat_text.restore(&html)
-                })
-                .collect();
-            let code_blocks = tree
-                .code_blocks
-                .iter()
-                .map(
-                    |CodeBlock {
-                         contents,
-                         language,
-                         name,
-                     }| CodeBlock {
-                        contents: Cow::Owned(wikidot_compat_text.restore(
-                            &Self::restore_wikidot_code_block_compatibility(
-                                &wikidot_compat_html.restore_plain(contents),
-                                render_current_site.as_ref(),
-                                &render_config,
-                            ),
-                        )),
-                        language: language
-                            .as_ref()
-                            .map(|language| Cow::Owned(language.to_string())),
-                        name: name.as_ref().map(|name| Cow::Owned(name.to_string())),
-                    },
-                )
-                .collect();
+            let mut html_output = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlRender);
+                HtmlRender.render(&tree, &render_page_info, &render_settings)
+            };
+            let (html_block_texts, code_blocks) = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlCompat);
+                html_output.body = Self::restore_protected_wikidot_embed_iframes(
+                    html_output.body,
+                    &wikidot_embed_iframes,
+                );
+                html_output.body = Self::restore_protected_wikidot_color_spans(
+                    html_output.body,
+                    &wikidot_color_spans,
+                );
+                html_output.body = Self::restore_protected_wikidot_inline_html(
+                    html_output.body,
+                    &wikidot_inline_html,
+                );
+                html_output.body = wikidot_compat_html.restore(&html_output.body);
+                html_output.body = Self::restore_protected_wikidot_wikipedia_links(
+                    html_output.body,
+                    &wikidot_wikipedia_links,
+                );
+                html_output.body = Self::restore_protected_wikidot_compat_links(
+                    html_output.body,
+                    &wikidot_compat_links,
+                );
+                html_output.body =
+                    restore_list_pages_literal_ellipsis_markers(&html_output.body);
+                Self::record_protected_wikidot_wikipedia_backlinks(
+                    &mut html_output.backlinks,
+                    &wikidot_wikipedia_links,
+                );
+                Self::record_wikidot_wikipedia_backlinks(
+                    &mut html_output.backlinks,
+                    &native_list_wikipedia_links,
+                );
+                html_output.body = Self::restore_wikidot_render_compatibility(
+                    &html_output.body,
+                    render_current_site.as_ref(),
+                    &render_config,
+                );
+                apply_basalt_shell_compatibility(&mut html_output.body);
+                apply_blankstyle_shell_compatibility(&mut html_output.body);
+                html_output.body = wikidot_compat_text.restore(&html_output.body);
+                html_output.backlinks.included_pages.extend(included_pages);
+                let html_block_texts = tree
+                    .html_blocks
+                    .iter()
+                    .map(|html| {
+                        let html = wikidot_compat_html.restore(html);
+                        let html = Self::localize_wikidot_local_file_urls(
+                            &html,
+                            render_current_site.as_ref(),
+                            &render_config,
+                        );
+                        wikidot_compat_text.restore(&html)
+                    })
+                    .collect();
+                let code_blocks = tree
+                    .code_blocks
+                    .iter()
+                    .map(
+                        |CodeBlock {
+                             contents,
+                             language,
+                             name,
+                         }| CodeBlock {
+                            contents: Cow::Owned(wikidot_compat_text.restore(
+                                &Self::restore_wikidot_code_block_compatibility(
+                                    &wikidot_compat_html.restore_plain(contents),
+                                    render_current_site.as_ref(),
+                                    &render_config,
+                                ),
+                            )),
+                            language: language
+                                .as_ref()
+                                .map(|language| Cow::Owned(language.to_string())),
+                            name: name.as_ref().map(|name| Cow::Owned(name.to_string())),
+                        },
+                    )
+                    .collect();
+                (html_block_texts, code_blocks)
+            };
 
             FtmlRenderOutput {
                 html_output,
@@ -1560,20 +1702,33 @@ impl RenderService {
                 Error::new("failed to join parse and render task", ErrorType::Render)
             })?;
 
+        if let Some((trace, CorpusRenderScope::Body)) = trace {
+            trace.set_dimension(
+                CorpusRenderDimension::OutputBytes,
+                html_output.body.len(),
+            );
+        }
+
         // Both hosted block collections must be valid before either one can
         // write to S3. Each add_blocks call also validates its own slice.
-        if text_block_page_id.is_some() {
-            TextBlockService::validate_page_block_counts(
-                html_block_texts.len(),
-                code_blocks.len(),
-            )
-            .or_raise(make_error)?;
+        {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::BlocksValidate);
+            if text_block_page_id.is_some() {
+                TextBlockService::validate_page_block_counts(
+                    html_block_texts.len(),
+                    code_blocks.len(),
+                )
+                .or_raise(make_error)?;
+            }
         }
 
         // Insert compiled HTML into text table
-        let compiled_hash = TextService::create(ctx, html_output.body.clone())
-            .await
-            .or_raise(make_error)?;
+        let compiled_hash = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::CompiledText);
+            TextService::create(ctx, html_output.body.clone())
+                .await
+                .or_raise(make_error)?
+        };
 
         // Set up the hosted text blocks
         //
@@ -1587,45 +1742,56 @@ impl RenderService {
             debug_assert_eq!(settings.mode, WikitextMode::Page);
 
             // [[html]]
-            let html_blocks: Vec<TextBlock> = html_block_texts
-                .iter()
-                .map(|html| TextBlock {
-                    text: html,
-                    text_type: None,
-                    mime: MIME_HTML,
-                    name: None,
-                })
-                .collect();
+            {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlBlocks);
+                let html_blocks: Vec<TextBlock> = html_block_texts
+                    .iter()
+                    .map(|html| TextBlock {
+                        text: html,
+                        text_type: None,
+                        mime: MIME_HTML,
+                        name: None,
+                    })
+                    .collect();
 
-            TextBlockService::add_blocks(ctx, page_id, TextBlockType::Html, &html_blocks)
+                TextBlockService::add_blocks(
+                    ctx,
+                    page_id,
+                    TextBlockType::Html,
+                    &html_blocks,
+                )
                 .await
                 .or_raise(make_error)?;
+            }
 
             // [[code]]
-            let code_text_blocks: Vec<TextBlock> = code_blocks
-                .iter()
-                .map(
-                    |CodeBlock {
-                         contents,
-                         language,
-                         name,
-                     }| TextBlock {
-                        text: contents,
-                        text_type: language.as_deref(),
-                        mime: mime_for_language(language),
-                        name: name.as_deref(),
-                    },
-                )
-                .collect();
+            {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::CodeBlocks);
+                let code_text_blocks: Vec<TextBlock> = code_blocks
+                    .iter()
+                    .map(
+                        |CodeBlock {
+                             contents,
+                             language,
+                             name,
+                         }| TextBlock {
+                            text: contents,
+                            text_type: language.as_deref(),
+                            mime: mime_for_language(language),
+                            name: name.as_deref(),
+                        },
+                    )
+                    .collect();
 
-            TextBlockService::add_blocks(
-                ctx,
-                page_id,
-                TextBlockType::Code,
-                &code_text_blocks,
-            )
-            .await
-            .or_raise(make_error)?;
+                TextBlockService::add_blocks(
+                    ctx,
+                    page_id,
+                    TextBlockType::Code,
+                    &code_text_blocks,
+                )
+                .await
+                .or_raise(make_error)?;
+            }
         }
 
         // Build and return
@@ -11243,6 +11409,14 @@ struct RenderContext {
     current_site_id: Option<i64>,
     current_page_id: Option<i64>,
     text_block_page_id: Option<i64>,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct RenderExpansionOptions<'a> {
+    current_site_id: Option<i64>,
+    current_page_id: Option<i64>,
+    max_include_expansions: usize,
+    trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
 }
 
 impl RenderContext {
