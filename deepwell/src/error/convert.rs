@@ -139,10 +139,12 @@ pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::services::caddy::CaddyfileOptions;
     use crate::services::filter::FilterSummary;
     use exn::ErrorExt;
     use sea_orm::{DbErr, TransactionError};
     use serde_json::json;
+    use std::borrow::Cow;
 
     #[test]
     fn unwraps_transaction_errors_without_rewriting_inner_error() {
@@ -225,6 +227,48 @@ mod tests {
         assert!(!serialized.contains(description));
         assert!(!data["call_trace"].as_str().unwrap().contains(regex));
         assert!(!data["call_trace"].as_str().unwrap().contains(description));
+    }
+
+    #[test]
+    fn caddy_options_rpc_trace_redacts_wildcard_secret_and_keeps_diagnostics() {
+        let canary = "provider WILDCARD_DEBUG_CANARY_434";
+        let options = CaddyfileOptions {
+            debug: true,
+            local: false,
+            http_port: Some(8080),
+            https_port: Some(8443),
+            wildcard_cert: Some(Cow::Borrowed(canary)),
+            deploy_host: Some(Cow::Borrowed("deploy.internal:9120")),
+            framerail_host: Cow::Borrowed("framerail.internal:3393"),
+            wws_host: Cow::Borrowed("wws.internal:3466"),
+        };
+        let error = Error::new(
+            format!("invalid Caddy options: {options:?}"),
+            ErrorType::Caddyfile,
+        )
+        .raise();
+
+        let rpc = exn_error_to_rpc_error(error);
+        let data: JsonValue = serde_json::from_str(rpc.data().unwrap().get()).unwrap();
+        let trace = data["call_trace"].as_str().unwrap();
+
+        assert!(!trace.contains(canary));
+        assert!(!trace.contains("WILDCARD_DEBUG_CANARY_434"));
+        assert!(trace.contains("[redacted]"));
+        for expected in [
+            "debug: true",
+            "local: false",
+            "http_port: Some(8080)",
+            "https_port: Some(8443)",
+            "deploy.internal:9120",
+            "framerail.internal:3393",
+            "wws.internal:3466",
+        ] {
+            assert!(
+                trace.contains(expected),
+                "missing diagnostic {expected}: {trace}"
+            );
+        }
     }
 
     #[test]
