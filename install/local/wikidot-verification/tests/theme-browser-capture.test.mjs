@@ -13,7 +13,16 @@ import {
   validateThemeCaptureTarget,
   writeThemeViewportArtifacts,
 } from "../src/theme-browser-capture.mjs";
-import {THEME_PERFORMANCE_GATES} from "../src/theme-localization-e2e.mjs";
+import {THEME_LOCALIZATION_TIERS, THEME_PERFORMANCE_GATES} from "../src/theme-localization-e2e.mjs";
+
+const COMPUTED_STYLE_CONTRACT = {
+  properties: ["display"],
+  probes: [
+    {id: "header", selector: "#header", expectation: "required"},
+    {id: "interwiki_frame", selector: "iframe.scpnet-interwiki-frame", expectation: "optional"},
+    {id: "watchers_button", selector: "#watchers-button", expectation: "expected_absent"},
+  ],
+};
 
 function fixtureTier() {
   const slug = "codex-l10n:capture-run-yossistyle";
@@ -28,7 +37,7 @@ function fixtureTier() {
     ],
     capture: {
       viewports: [{id: "desktop", width: 1440, height: 1000}, {id: "mobile", width: 390, height: 844}],
-      computed_styles: {properties: ["display"], probes: [{id: "header", selector: "#header"}]},
+      computed_styles: COMPUTED_STYLE_CONTRACT,
       web_vitals: {gates: THEME_PERFORMANCE_GATES},
       interactions: [],
     },
@@ -44,7 +53,11 @@ function passingViewport(overrides = {}) {
     capture_errors: [],
     settle_status: "networkidle",
     web_vitals: {ttfb_ms: 200, fcp_ms: 600, lcp_ms: 900, cls: 0.01},
-    computed_styles: [{id: "header", status: "measured"}],
+    computed_styles: [
+      {id: "header", expectation: "required", status: "measured"},
+      {id: "interwiki_frame", expectation: "optional", status: "missing"},
+      {id: "watchers_button", expectation: "expected_absent", status: "missing"},
+    ],
     errors: {console: [], page: [], requests: [], responses: []},
     raw_syntax: [],
     interactions: [{id: "toggle", status: "measured", visual_response_ms: 40, inp_equivalent: {formal_inp: false, status: "measured", duration_ms: 80}}],
@@ -61,17 +74,24 @@ test("capture target validation only accepts the exact run-owned sandbox URL", (
 });
 
 test("strict verdict applies every performance, browser, syntax, and interaction gate", () => {
-  const verdict = evaluateStrictThemeVerdict(passingViewport(), THEME_PERFORMANCE_GATES);
+  const verdict = evaluateStrictThemeVerdict(passingViewport(), THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
   assert.equal(verdict.status, "pass");
   assert.deepEqual(verdict.failed_gate_ids, []);
   assert.ok(verdict.checks.some((check) => check.id === "interaction:toggle:inp_equivalent_ms" && check.status === "pass"));
+  const styleCheck = verdict.checks.find((check) => check.id === "computed_style_probes");
+  assert.deepEqual(styleCheck.optional_missing, ["interwiki_frame"]);
+  assert.equal(styleCheck.probes.find((probe) => probe.id === "interwiki_frame").status, "pass");
 
   const failed = evaluateStrictThemeVerdict(passingViewport({
     web_vitals: {ttfb_ms: 801, fcp_ms: null, lcp_ms: 2501, cls: 0.11},
-    computed_styles: [{id: "header", status: "missing"}],
+    computed_styles: [
+      {id: "header", expectation: "required", status: "missing"},
+      {id: "interwiki_frame", expectation: "optional", status: "missing"},
+      {id: "watchers_button", expectation: "expected_absent", status: "missing"},
+    ],
     errors: {console: ["boom"], page: [], requests: [{url: "https://bad.invalid"}], responses: []},
     raw_syntax: [{category: "leaked-marker"}],
-  }), THEME_PERFORMANCE_GATES);
+  }), THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
   assert.equal(failed.status, "fail");
   assert.ok(failed.failed_gate_ids.includes("ttfb_ms"));
   assert.ok(failed.failed_gate_ids.includes("browser_errors"));
@@ -79,10 +99,38 @@ test("strict verdict applies every performance, browser, syntax, and interaction
   assert.ok(failed.missing_gate_ids.includes("fcp_ms"));
   assert.ok(failed.missing_gate_ids.includes("computed_style_probes"));
 
-  const redirected = evaluateStrictThemeVerdict(passingViewport({final_url: "https://scpaiueouiuiuiui.wikijump.localhost:18443/login", settle_status: "timeout"}), THEME_PERFORMANCE_GATES);
+  const redirected = evaluateStrictThemeVerdict(passingViewport({final_url: "https://scpaiueouiuiuiui.wikijump.localhost:18443/login", settle_status: "timeout"}), THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
   assert.equal(redirected.status, "fail");
   assert.ok(redirected.failed_gate_ids.includes("final_url"));
   assert.ok(!redirected.failed_gate_ids.includes("network_idle_settle"));
+});
+
+test("expected-absent probes gate unexpected presence and incomplete observations fail closed", () => {
+  const present = passingViewport({computed_styles: [
+    {id: "header", expectation: "required", status: "measured"},
+    {id: "interwiki_frame", expectation: "optional", status: "missing"},
+    {id: "watchers_button", expectation: "expected_absent", status: "measured"},
+  ]});
+  const presentVerdict = evaluateStrictThemeVerdict(present, THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
+  const presentCheck = presentVerdict.checks.find((check) => check.id === "computed_style_probes");
+  assert.equal(presentVerdict.status, "fail");
+  assert.deepEqual(presentCheck.expected_absent_present, ["watchers_button"]);
+
+  const incomplete = passingViewport({computed_styles: [{id: "header", expectation: "required", status: "measured"}]});
+  const incompleteCheck = evaluateStrictThemeVerdict(incomplete, THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT).checks.find((check) => check.id === "computed_style_probes");
+  assert.equal(incompleteCheck.status, "fail");
+  assert.deepEqual(incompleteCheck.invalid_observations.sort(), ["interwiki_frame", "watchers_button"]);
+});
+
+test("YOSSISTYLE gates sourced Rate elements while allowing platform-dependent probe gaps", () => {
+  const contract = {properties: ["display"], probes: THEME_LOCALIZATION_TIERS.find((tier) => tier.id === "yossistyle").computed_style_probes};
+  const observations = (missing) => contract.probes.map((probe) => ({id: probe.id, expectation: probe.expectation, status: missing.has(probe.id) ? "missing" : "measured"}));
+  const wikidot = evaluateStrictThemeVerdict(passingViewport({computed_styles: observations(new Set(["rate_widget", "interwiki_frame", "rate_points"]))}), THEME_PERFORMANCE_GATES, contract);
+  const wikijump = evaluateStrictThemeVerdict(passingViewport({computed_styles: observations(new Set(["interwiki_frame", "watchers_button"]))}), THEME_PERFORMANCE_GATES, contract);
+  assert.equal(wikidot.status, "fail");
+  assert.deepEqual(wikidot.checks.find((check) => check.id === "computed_style_probes").required_missing, ["rate_widget", "rate_points"]);
+  assert.equal(wikijump.status, "pass");
+  assert.deepEqual(wikijump.checks.find((check) => check.id === "computed_style_probes").optional_missing, ["interwiki_frame", "watchers_button"]);
 });
 
 test("capture observation window follows the LCP gate without waiting for network idle", () => {
@@ -92,7 +140,7 @@ test("capture observation window follows the LCP gate without waiting for networ
 
 test("a single interaction without PerformanceEventTiming fails closed and is not called formal INP", () => {
   const result = passingViewport({interactions: [{id: "toggle", status: "missing", visual_response_ms: 35, inp_equivalent: {formal_inp: false, status: "missing", duration_ms: null}, reason: "PerformanceEventTiming interaction entry missing"}]});
-  const verdict = evaluateStrictThemeVerdict(result, THEME_PERFORMANCE_GATES);
+  const verdict = evaluateStrictThemeVerdict(result, THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
   assert.equal(verdict.status, "fail");
   assert.ok(verdict.missing_gate_ids.includes("interaction:toggle:inp_equivalent_ms"));
   assert.equal(result.interactions[0].inp_equivalent.formal_inp, false);

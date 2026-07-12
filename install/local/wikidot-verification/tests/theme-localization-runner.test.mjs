@@ -48,7 +48,10 @@ async function fixture({onCreate, tierIds = ["yossistyle"]} = {}) {
         {id: "wikidot", resource_id: `${tierId}:wikidot`, origin: `http://${ALLOWED_SITE_SLUG}.wikidot.com`, url: `http://${ALLOWED_SITE_SLUG}.wikidot.com/${slug}`},
         {id: "wikijump", resource_id: `${tierId}:wikijump`, origin: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443`, url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${slug}`},
       ],
-      capture: {viewports: [{id: "desktop", width: 100, height: 100}]},
+      capture: {
+        viewports: [{id: "desktop", width: 100, height: 100}],
+        computed_styles: {properties: ["display"], probes: [{id: "header", selector: "#header", expectation: "required"}]},
+      },
     });
   }
   const plan = {

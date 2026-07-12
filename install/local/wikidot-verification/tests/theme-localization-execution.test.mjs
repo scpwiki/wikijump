@@ -44,6 +44,7 @@ function fixturePlan({runId = "20260713-core", tiers = ["yossistyle", "ashes-to-
         order: index + 1,
         run_owned_slug: slug,
         preflight: {status: "pass", source: {absolute_path: `/accepted/${id}.txt`, sha256: sha256(source)}},
+        capture: {computed_styles: {properties: ["display"], probes: [{id: "header", selector: "#header", expectation: "required"}]}},
         targets: [
           {id: "wikidot", resource_id: `${id}:wikidot`, origin: `http://${ALLOWED_SITE_SLUG}.wikidot.com`, url: `http://${ALLOWED_SITE_SLUG}.wikidot.com/${slug}`},
           {id: "wikijump", resource_id: `${id}:wikijump`, origin: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443`, url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${slug}`},
@@ -127,6 +128,10 @@ test("execution plan accepts only run-owned resources on the corrected sandbox",
   const mirrorUrl = structuredClone(plan);
   mirrorUrl.tiers[0].targets[1].url = `https://scp-wiki.wikijump.localhost/${mirrorUrl.tiers[0].run_owned_slug}`;
   assert.throws(() => validateThemeExecutionPlan(mirrorUrl), /outside the hard allowlist/);
+
+  const invalidExpectation = structuredClone(plan);
+  invalidExpectation.tiers[0].capture.computed_styles.probes[0].expectation = "sometimes";
+  assert.throws(() => validateThemeExecutionPlan(invalidExpectation), /invalid expectation: sometimes/);
 });
 
 test("successful execution records intents before creates and cleans in reverse order", async () => {

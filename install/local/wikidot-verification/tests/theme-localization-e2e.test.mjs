@@ -128,6 +128,9 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.deepEqual(first.tiers[0].capture.viewports, THEME_CAPTURE_VIEWPORTS);
   assert.deepEqual(first.tiers[0].capture.web_vitals.gates, THEME_PERFORMANCE_GATES);
   assert.ok(first.tiers[0].capture.computed_styles.probes.some((probe) => probe.pseudo === "::after"));
+  assert.ok(first.tiers.every((tier) => tier.capture.computed_styles.probes.every((probe) => ["required", "optional", "expected_absent"].includes(probe.expectation))));
+  assert.equal(first.tiers[0].capture.computed_styles.probes.find((probe) => probe.id === "interwiki_frame").expectation, "optional");
+  assert.equal(first.tiers[0].capture.computed_styles.probes.find((probe) => probe.id === "watchers_button").expectation, "optional");
   assert.ok(first.tiers[2].capture.interactions.some((interaction) => interaction.id === "tab_switch"));
   assert.ok(first.tiers.flatMap((tier) => tier.targets).every((target) => target.url.includes("scpaiueouiuiuiui")));
   assert.ok(first.tiers.flatMap((tier) => tier.preflight.dependency_files.assets).every((asset) => asset.status === "pass" && asset.sha256));
