@@ -404,6 +404,7 @@ impl PermissionService {
         let user_id = perm_ctx.user_id;
         let site_id = perm_ctx.site_id;
         let page_reference = perm_ctx.page_reference.clone();
+        let page_scoped_roles = page_reference.is_some();
 
         let make_error =
             || Error::new("failed to check permissions", ErrorType::Permission);
@@ -426,7 +427,7 @@ impl PermissionService {
                 user_id,
                 &user_permissions,
                 site_id,
-                page_reference.is_some(),
+                page_scoped_roles,
                 permission,
             )
             .await
