@@ -474,6 +474,7 @@ async function rpc(args, method, params, requestContext = {}) {
   try {
     response = await fetch(args.apiUrl, {
       method: 'POST',
+      redirect: 'error',
       headers,
       body: JSON.stringify({ jsonrpc: '2.0', id: rpcSequence, method, params }),
       signal: controller.signal,

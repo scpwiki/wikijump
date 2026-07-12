@@ -5,6 +5,45 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+export function validateRpcUrl(value) {
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error('RPC URL must be a valid absolute URL');
+  }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error('RPC URL scheme must be http or https');
+  }
+  if (url.username || url.password) {
+    throw new Error('RPC URL must not contain credentials');
+  }
+
+  const loopback = new Set(['127.0.0.1', '[::1]', 'localhost']);
+  if (url.protocol === 'http:' && !loopback.has(url.hostname)) {
+    throw new Error('RPC URL must use HTTPS for non-loopback hosts');
+  }
+  const warnings = [];
+  if (!loopback.has(url.hostname)) {
+    warnings.push(`session credentials will be sent only to RPC origin ${url.origin}`);
+  }
+  return {rpcUrl: url.href, warnings};
+}
+
+export async function rpcCall(rpcUrl, method, params, fetchImpl = fetch) {
+  const {rpcUrl: validatedUrl} = validateRpcUrl(rpcUrl);
+  const response = await fetchImpl(validatedUrl, {
+    method: 'POST',
+    redirect: 'error',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({jsonrpc: '2.0', id: 1, method, params}),
+  });
+  if (!response.ok) throw new Error(`${method}: RPC HTTP ${response.status}`);
+  const body = await response.json();
+  if (body.error) throw new Error(`${method}: ${JSON.stringify(body.error)}`);
+  return body.result;
+}
+
 export const CORPUS_PAGE_REQUIRED_FILES = ['source.wikidot.txt', 'meta.json', 'entity_id.txt'];
 
 // Corpus presence check for one page directory. Returns
@@ -69,6 +108,40 @@ export function batchSlugs(slugs, batchSize) {
     batches.push(slugs.slice(start, start + batchSize));
   }
   return batches;
+}
+
+export async function resolveSessionToken({ sessionToken, rpcUrl, login }) {
+  if (sessionToken) return sessionToken;
+  return await login(rpcUrl);
+}
+
+export function buildApplyInvocation({
+  batchPath,
+  rpcUrl,
+  siteId,
+  attachmentUserId,
+  sessionToken,
+  adoptExisting = false,
+  dbContainer = null,
+  dryRun = false,
+}) {
+  const scriptArgs = [
+    '--manifest', batchPath,
+    '--create-mode', 'rpc',
+    '--api-url', rpcUrl,
+    '--site-id', String(siteId),
+    '--skip-existing-done',
+    '--attachment-user-id', attachmentUserId,
+    '--presign-host-alias', 'files=127.0.0.1',
+  ];
+  if (adoptExisting) scriptArgs.push('--adopt-existing');
+  if (dbContainer) scriptArgs.push('--db-container', dbContainer);
+  if (dryRun) scriptArgs.push('--dry-run');
+  return {
+    scriptName: 'apply-corpus-import-manifest.mjs',
+    scriptArgs,
+    env: { DEEPWELL_SESSION_TOKEN: sessionToken },
+  };
 }
 
 // Merge the per-batch apply summaries (each the `summary` object printed by
