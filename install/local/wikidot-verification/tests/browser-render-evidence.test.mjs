@@ -165,6 +165,38 @@ test("default browser root is resolved from the repository, not cwd", () => {
   }
 });
 
+test("browser capture exits when Playwright cannot be loaded", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-missing-playwright-"));
+  const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-output-"));
+  const inventoryPath = path.join(root, "inventory.json");
+  await fs.writeFile(inventoryPath, JSON.stringify(inventory), "utf8");
+  await fs.writeFile(path.join(root, "package.json"), "{}", "utf8");
+
+  await assert.rejects(
+    () =>
+      execFileAsync(
+        process.execPath,
+        [
+          scriptPath,
+          "--inventory",
+          inventoryPath,
+          "--output-dir",
+          outputDir,
+          "--limit",
+          "1",
+          "--browser-root",
+          root,
+        ],
+        {timeout: 1_000},
+      ),
+    (error) => {
+      assert.equal(error.killed, false);
+      assert.match(error.stderr, /could not load playwright or @playwright\/test/);
+      return true;
+    },
+  );
+});
+
 test("openBrowser applies HTTPS ignore settings to a fresh CDP context", async () => {
   const newContextOptions = [];
   const closedContexts = [];
