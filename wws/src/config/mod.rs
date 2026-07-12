@@ -226,6 +226,34 @@ mod tests {
     }
 
     #[test]
+    fn example_listener_address_matches_the_default() {
+        let example = include_str!("../../.env.example");
+        let documented_addresses = example
+            .lines()
+            .filter_map(|line| line.strip_prefix("ADDRESS="))
+            .collect::<Vec<_>>();
+
+        assert_eq!(documented_addresses, [arguments().address.to_string()]);
+        assert_eq!(documented_addresses, ["[::]:3466"]);
+    }
+
+    #[test]
+    fn example_uses_the_required_bucket_variable_names_once() {
+        let example = include_str!("../../.env.example");
+        for name in ["S3_FILES_BUCKET", "S3_TEXT_BLOCKS_BUCKET"] {
+            assert_eq!(
+                example
+                    .lines()
+                    .filter(|line| line.starts_with(&format!("{name}=")))
+                    .count(),
+                1,
+                "{name}",
+            );
+        }
+        assert!(!example.lines().any(|line| line.starts_with("S3_BUCKET=")));
+    }
+
+    #[test]
     fn load_config_from_env_builds_custom_region_and_applies_overrides() {
         let vars = &[
             ("PID_FILE", "/tmp/wws.pid"),
