@@ -257,8 +257,7 @@ Or - it's local, in which case the certificates don't matter, so do that
 	import wildcard_tls
 	{%- endif %}
 {%- else -%}
-http://*{{ main_domain }},
-http://*{{ files_domain }} {
+http://*{{ main_domain }} {
 {%- endif %}
 	import strip_headers
 	request_header X-Wikijump-Basic-Error 1
@@ -266,6 +265,15 @@ http://*{{ files_domain }} {
 	rewrite * /-/basic-error/site-slug
 	import reverse_proxy_wws *
 }
+{%- if !should_use_wildcard %}
+http://*{{ files_domain }} {
+	import strip_headers
+	request_header X-Wikijump-Basic-Error 1
+	request_header X-Wikijump-Site-Slug {labels.{{ self::site_slug_split_index(files_domain) }}}
+	rewrite * /-/basic-error/site-slug
+	import reverse_proxy_wws *
+}
+{% endif %}
 
 # Missing custom domains
 {% if local -%}
