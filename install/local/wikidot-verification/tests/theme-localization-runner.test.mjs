@@ -9,7 +9,7 @@ import test from "node:test";
 import {parseArgs} from "../scripts/theme-localization-e2e.mjs";
 import {ALLOWED_SITE_SLUG, THEME_LOCALIZATION_E2E_SCHEMA, runOwnedSlug} from "../src/theme-localization-e2e.mjs";
 import {ThemeExecutionLedger, themeExecutionFingerprint, validateThemeExecutionPlan} from "../src/theme-localization-execution.mjs";
-import {THEME_RUN_RESULT_SCHEMA, runGuardedThemeAction, validateStorageState, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
+import {GUARDED_THEME_WIKIJUMP_RPC_URL, THEME_RUN_RESULT_SCHEMA, createLiveThemeDependencies, runGuardedThemeAction, validateGuardedThemeRpcUrl, validateStorageState, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
 import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const digest = (value) => crypto.createHash("sha256").update(value).digest("hex");
@@ -134,6 +134,18 @@ test("CDP endpoint accepts only an uncredentialed loopback HTTP origin", () => {
   assert.equal(validateThemeCdpEndpoint("http://127.0.0.1:9222"), "http://127.0.0.1:9222");
   assert.equal(validateThemeCdpEndpoint("http://localhost:9333/"), "http://localhost:9333");
   for (const endpoint of ["https://127.0.0.1:9222", "http://192.168.1.2:9222", "http://user:pass@127.0.0.1:9222", "http://127.0.0.1:9222/json", "http://127.0.0.1"]) assert.throws(() => validateThemeCdpEndpoint(endpoint), /loopback HTTP origin/);
+});
+
+test("guarded runner requires the exact runtime50x Deepwell RPC binding", () => {
+  assert.equal(validateGuardedThemeRpcUrl(GUARDED_THEME_WIKIJUMP_RPC_URL), GUARDED_THEME_WIKIJUMP_RPC_URL);
+  for (const endpoint of [undefined, "", "http://127.0.0.1:2747/jsonrpc", "http://localhost:12747/jsonrpc", "http://127.0.0.1:12747/jsonrpc/"]) {
+    assert.throws(() => validateGuardedThemeRpcUrl(endpoint), /must explicitly equal/);
+  }
+});
+
+test("live dependency construction cannot fall back to another Deepwell stack", async () => {
+  await assert.rejects(createLiveThemeDependencies({env: {}}), /WIKIJUMP_THEME_RPC_URL must explicitly equal/);
+  await assert.rejects(createLiveThemeDependencies({env: {WIKIJUMP_THEME_RPC_URL: "http://127.0.0.1:2747/jsonrpc"}}), /WIKIJUMP_THEME_RPC_URL must explicitly equal/);
 });
 
 test("insecure artifact root is rejected before adapters connect", async () => {
