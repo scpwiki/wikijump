@@ -2,6 +2,10 @@ import defaults from "$lib/defaults"
 
 import { translate } from "$lib/server/deepwell/translate"
 import { userCreate } from "$lib/server/deepwell/user"
+import {
+  clearRegisterPasswords,
+  redactAuthActionPayload
+} from "$lib/server/load/auth-form-redaction.js"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -72,9 +76,13 @@ export async function loadRegisterPage(
 
 export async function registerAction({ request, getClientAddress }: RequestEvent) {
   const form = await superValidate(request, valibot(registerSchema))
+  const submittedPasswords = [form.data.password, form.data.confirmPassword]
 
   if (!form.valid) {
-    return fail(400, { form })
+    return fail(
+      400,
+      redactAuthActionPayload({ form: clearRegisterPasswords(form) }, submittedPasswords)
+    )
   }
 
   const ipAddress = getClientAddress()
@@ -90,14 +98,23 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
       ipAddress
     )
 
-    return { form, res, isRegistered: true }
+    return redactAuthActionPayload(
+      { form: clearRegisterPasswords(form), res, isRegistered: true },
+      submittedPasswords
+    )
   } catch (error) {
-    return fail(500, {
-      form,
-      message: error?.message,
-      code: error?.code,
-      data: error?.data
-    })
+    return fail(
+      500,
+      redactAuthActionPayload(
+        {
+          form: clearRegisterPasswords(form),
+          message: error?.message,
+          code: error?.code,
+          data: error?.data
+        },
+        submittedPasswords
+      )
+    )
   }
 }
 
