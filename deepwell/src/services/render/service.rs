@@ -9037,34 +9037,41 @@ fn substitute_wikidot_protected_inline_text_typography(value: &str) -> String {
 }
 
 fn substitute_wikidot_protected_inline_dashes(value: &str) -> String {
+    substitute_wikidot_protected_inline_dashes_with_scan_count(value).0
+}
+
+fn substitute_wikidot_protected_inline_dashes_with_scan_count(
+    value: &str,
+) -> (String, usize) {
     let mut output = String::with_capacity(value.len());
     let mut rest = value;
+    let mut scanned_bytes = 0;
 
-    while !rest.is_empty() {
-        if rest.starts_with("[!--")
-            && let Some(comment_end) = rest.find("--]")
-        {
-            let comment_end = comment_end + "--]".len();
-            output.push_str(&rest[..comment_end]);
-            rest = &rest[comment_end..];
-            continue;
-        }
+    while let Some(comment_start) = rest.find("[!--") {
+        let (text, from_comment) = rest.split_at(comment_start);
+        output.push_str(&substitute_wikidot_protected_inline_dashes_in_text(text));
+        scanned_bytes += text.len();
 
-        if rest.starts_with("--") {
-            output.push('\u{2014}');
-            rest = &rest["--".len()..];
-            continue;
-        }
-
-        let character = rest
-            .chars()
-            .next()
-            .expect("non-empty string has next character");
-        output.push(character);
-        rest = &rest[character.len_utf8()..];
+        let Some(comment_end) = from_comment.find("--]") else {
+            output.push_str(&substitute_wikidot_protected_inline_dashes_in_text(
+                from_comment,
+            ));
+            scanned_bytes += from_comment.len();
+            return (output, scanned_bytes);
+        };
+        let comment_end = comment_end + "--]".len();
+        output.push_str(&from_comment[..comment_end]);
+        scanned_bytes += comment_end;
+        rest = &from_comment[comment_end..];
     }
 
-    output
+    output.push_str(&substitute_wikidot_protected_inline_dashes_in_text(rest));
+    scanned_bytes += rest.len();
+    (output, scanned_bytes)
+}
+
+fn substitute_wikidot_protected_inline_dashes_in_text(value: &str) -> String {
+    value.replace("--", "\u{2014}")
 }
 
 fn wikidot_named_anchor(name: &str) -> String {
@@ -13010,6 +13017,50 @@ mod tests {
         assert_eq!(
             rendered,
             r#"<a href="https://example.com/a--b">go — now…</a>"#
+        );
+    }
+
+    #[test]
+    fn protected_inline_dash_substitution_preserves_only_closed_comments() {
+        let rendered = super::substitute_wikidot_protected_inline_dashes(
+            "before -- [!-- keep -- unchanged --] after -- [!-- open -- tail",
+        );
+
+        assert_eq!(
+            rendered,
+            "before — [!-- keep -- unchanged --] after — [!— open — tail",
+        );
+    }
+
+    #[test]
+    fn protected_inline_dash_substitution_handles_adjacent_and_empty_comments() {
+        let rendered = super::substitute_wikidot_protected_inline_dashes(
+            "[!----][!-- a -- b --]--[!----]",
+        );
+
+        assert_eq!(rendered, "[!----][!-- a -- b --]—[!----]");
+    }
+
+    #[test]
+    fn malformed_comment_dash_substitution_has_deterministic_linear_scan_growth() {
+        fn exercise(marker_count: usize) -> (usize, usize) {
+            let input = format!("{}--tail", "[!--".repeat(marker_count));
+            let (rendered, scanned_bytes) =
+                super::substitute_wikidot_protected_inline_dashes_with_scan_count(&input);
+
+            assert_eq!(scanned_bytes, input.len());
+            assert!(rendered.ends_with("—tail"));
+            assert_eq!(rendered.matches("[!—").count(), marker_count);
+            (input.len(), scanned_bytes)
+        }
+
+        let (small_len, small_scanned) = exercise(10_000);
+        let (large_len, large_scanned) = exercise(20_000);
+
+        assert_eq!(large_len - "--tail".len(), 2 * (small_len - "--tail".len()));
+        assert_eq!(
+            large_scanned - "--tail".len(),
+            2 * (small_scanned - "--tail".len())
         );
     }
 
