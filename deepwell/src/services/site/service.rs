@@ -41,12 +41,18 @@ use wikidot_normalize::normalize;
 #[derive(Debug)]
 pub struct SiteService;
 
+const RESERVED_PLATFORM_HOSTNAME_SLUGS: &[&str] = &["acme", "dns", "ech"];
+
 #[allow(dead_code)] // TODO
 const DEFAULT_FORUM_MAX_NEST_LEVEL: i16 = 10;
 #[allow(dead_code)] // TODO
 const DEFAULT_FORUM_PER_PAGE_DISCUSSION: bool = false;
 
 impl SiteService {
+    pub(crate) fn is_reserved_platform_hostname_slug(slug: &str) -> bool {
+        is_reserved_platform_hostname_slug(slug)
+    }
+
     pub async fn create(
         ctx: &ServiceContext<'_>,
         CreateSite {
@@ -160,11 +166,18 @@ impl SiteService {
     pub async fn update(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
-        input: UpdateSiteBody,
+        mut input: UpdateSiteBody,
         updating_user_id: i64,
         ip_address: IpAddr,
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
+
+        // Site slugs use the same canonical representation on create and
+        // update. This must happen before audit capture and hostname policy.
+        if let Maybe::Set(slug) = &mut input.slug {
+            normalize(slug);
+        }
+
         let site = Self::get(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to update site data", ErrorType::Site))?;
@@ -387,6 +400,19 @@ impl SiteService {
         info!("Updating slug for site {}, adding alias", site.site_id);
         let old_slug = &site.slug;
 
+        if is_reserved_platform_hostname_slug(new_slug) {
+            error!(
+                "Cannot update site with reserved platform hostname slug '{new_slug}'"
+            );
+            bail!(Error::new(
+                format!(
+                    "cannot update site, site slug '{}' is reserved by the platform",
+                    new_slug
+                ),
+                ErrorType::BadRequest
+            ));
+        }
+
         let make_error = || {
             Error::new(
                 format!(
@@ -401,6 +427,19 @@ impl SiteService {
             .await
             .or_raise(make_error)?
         {
+            Some(_) if is_reserved_platform_hostname_slug(old_slug) => {
+                error!(
+                    "Cannot release reserved site slug '{old_slug}' while renaming to existing alias '{new_slug}'"
+                );
+                bail!(Error::new(
+                    format!(
+                        "cannot update site, an alias with slug '{}' already exists",
+                        new_slug
+                    ),
+                    ErrorType::SiteExists
+                ));
+            }
+
             // Swap alias with site's current slug
             //
             // Don't return a future, nothing to do after
@@ -412,6 +451,14 @@ impl SiteService {
             }
 
             // Return future that creates new alias at the old location
+            None if is_reserved_platform_hostname_slug(old_slug) => {
+                // Legacy data may predate this reservation. Release the
+                // infrastructure hostname instead of retaining it as an alias.
+                info!(
+                    "Releasing reserved platform hostname slug '{old_slug}' during site rename"
+                );
+            }
+
             None => {
                 debug!("Creating site alias for {old_slug}");
 
@@ -570,6 +617,17 @@ impl SiteService {
             ));
         }
 
+        if is_reserved_platform_hostname_slug(slug) {
+            error!("Cannot {action} site with reserved platform hostname slug '{slug}'");
+            bail!(Error::new(
+                format!(
+                    "cannot {}, site slug '{}' is reserved by the platform",
+                    action, slug
+                ),
+                ErrorType::BadRequest
+            ));
+        }
+
         let result = Site::find()
             .filter(
                 Condition::all()
@@ -593,5 +651,49 @@ impl SiteService {
                 ));
             }
         }
+    }
+}
+
+pub(crate) fn is_reserved_platform_hostname_slug(slug: &str) -> bool {
+    let mut canonical = slug.to_owned();
+    normalize(&mut canonical);
+    let canonical = canonical.trim_end_matches('.');
+    RESERVED_PLATFORM_HOSTNAME_SLUGS
+        .iter()
+        .any(|reserved| canonical.eq_ignore_ascii_case(reserved))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_reserved_platform_hostname_slug;
+    use wikidot_normalize::normalize;
+
+    #[test]
+    fn dns_related_platform_hostnames_are_reserved() {
+        for slug in ["acme", "dns", "ech", "ACME", "Dns", "ECh"] {
+            assert!(
+                is_reserved_platform_hostname_slug(slug),
+                "{slug} should be reserved",
+            );
+        }
+    }
+
+    #[test]
+    fn unrelated_site_slugs_are_not_reserved_hostnames() {
+        for slug in ["example", "secure", "static", "service"] {
+            assert!(
+                !is_reserved_platform_hostname_slug(slug),
+                "{slug} should not be reserved by the DNS hostname guard",
+            );
+        }
+    }
+
+    #[test]
+    fn canonical_dns_hostname_variants_are_reserved_after_slug_normalization() {
+        let mut slug = String::from("ｄｎｓ");
+        normalize(&mut slug);
+
+        assert_eq!(slug, "dns");
+        assert!(is_reserved_platform_hostname_slug(&slug));
     }
 }
