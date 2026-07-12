@@ -327,26 +327,52 @@ impl PageQueryService {
                 .add(page::Column::Slug.is_in(slugs.iter().map(|slug| slug.as_ref())));
         }
 
-        // Initial page author. ListPages' created_by selector refers to the
-        // earliest available revision, not necessarily revision 0. Imported or
-        // repaired pages can lack revision 0 while still having a deterministic
-        // creation author.
-        if !author.is_empty() {
-            let author_ids = author
-                .iter()
-                .filter_map(|author| author.as_ref().parse::<i64>().ok())
-                .collect::<Vec<_>>();
-            if author_ids.is_empty() {
+        // Initial page author. Local pages use the user ID on their earliest available revision. Corpus imports intentionally keep the Wikidot display name in wikidot_page_snapshot instead of fabricating local users, so the two representations are combined with OR semantics.
+        match author {
+            AuthorSelector::All => {}
+            AuthorSelector::None => {
                 condition = condition.add(SimpleExpr::Custom("FALSE".into()));
-            } else {
-                let author_ids = author_ids
-                    .into_iter()
-                    .map(|author_id| author_id.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                condition = condition.add(SimpleExpr::Custom(format!(
-                    "EXISTS (SELECT 1 FROM page_revision pr WHERE pr.page_id = page.page_id AND pr.user_id IN ({author_ids}) AND pr.revision_id = (SELECT pr2.revision_id FROM page_revision pr2 WHERE pr2.page_id = page.page_id ORDER BY pr2.revision_number ASC, pr2.revision_id ASC LIMIT 1))"
-                )));
+            }
+            AuthorSelector::Any {
+                user_ids,
+                wikidot_snapshot_names,
+            } => {
+                let normalized_snapshot_names = wikidot_snapshot_names
+                    .iter()
+                    .map(|name| normalize_wikidot_author_name(name))
+                    .filter(|name| !name.is_empty())
+                    .collect::<Vec<_>>();
+                let mut author_condition = Condition::any();
+                let mut has_author_condition = false;
+
+                if !user_ids.is_empty() {
+                    let placeholders = postgres_bind_placeholders(user_ids.len());
+                    author_condition = author_condition.add(Expr::cust_with_values(
+                        format!(
+                            "EXISTS (SELECT 1 FROM page_revision pr WHERE pr.page_id = page.page_id AND pr.user_id IN ({placeholders}) AND pr.revision_id = (SELECT pr2.revision_id FROM page_revision pr2 WHERE pr2.page_id = page.page_id ORDER BY pr2.revision_number ASC, pr2.revision_id ASC LIMIT 1))"
+                        ),
+                        user_ids.iter().copied(),
+                    ));
+                    has_author_condition = true;
+                }
+
+                if !normalized_snapshot_names.is_empty() {
+                    let placeholders =
+                        postgres_bind_placeholders(normalized_snapshot_names.len());
+                    author_condition = author_condition.add(Expr::cust_with_values(
+                        format!(
+                            "EXISTS (SELECT 1 FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = page.page_id AND replace(replace(lower(btrim(snapshot.created_by_name)), '_', '-'), ' ', '-') IN ({placeholders}))"
+                        ),
+                        normalized_snapshot_names,
+                    ));
+                    has_author_condition = true;
+                }
+
+                if has_author_condition {
+                    condition = condition.add(author_condition);
+                } else {
+                    condition = condition.add(SimpleExpr::Custom("FALSE".into()));
+                }
             }
         }
 
@@ -544,6 +570,10 @@ impl PageQueryService {
                 }
             };
             if !matches!(property, OrderProperty::Random | OrderProperty::Score) {
+                if !matches!(property, OrderProperty::PageSlug | OrderProperty::FullSlug)
+                {
+                    query = query.order_by(page::Column::Slug, Order::Asc);
+                }
                 query = query.order_by(page::Column::PageId, Order::Asc);
             }
         }
@@ -780,6 +810,13 @@ impl PageQueryService {
             },
         })
     }
+}
+
+fn postgres_bind_placeholders(count: usize) -> String {
+    (1..=count)
+        .map(|index| format!("${index}"))
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 fn score_to_f32(score: ScoreValue) -> f32 {

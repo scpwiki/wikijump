@@ -40,9 +40,9 @@ use deepwell::services::forum::{CreateForumCategory, CreateForumGroup};
 use deepwell::services::forum_post::CreateForumPost;
 use deepwell::services::forum_thread::CreateForumThread;
 use deepwell::services::page_query::{
-    CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
-    OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
+    IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
+    PageQueryService, PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
 use deepwell::services::permission::{PermissionCache, PermissionService};
 use deepwell::services::role::{
@@ -59,7 +59,7 @@ use deepwell::types::{
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, IntoActiveModel,
-    QueryFilter, Set, Statement,
+    QueryFilter, Set, Statement, Value,
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -1827,6 +1827,164 @@ async fn current_page_listpages_created_by_uses_creation_revision() {
     assert!(
         !html.contains("CREATED_BY=Admin Editor"),
         "range=. ListPages must not use the latest editor as created_by:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn imported_listpages_authors_use_snapshot_names_and_rerender_stably() {
+    const IMPORT_RUN_ID: i64 = 7_130_102;
+    const TAG: &str = "verification-imported-listpages-author";
+    const ALICE_SLUG: &str = "fixture-imported-listpages-author-alice";
+    const BOB_SLUG: &str = "fixture-imported-listpages-author-bob";
+    const INDEX_SLUG: &str = "fixture-imported-listpages-author-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (ALICE_SLUG, "Fixture Imported Author Alice"),
+        (BOB_SLUG, "Fixture Imported Author Bob"),
+    ] {
+        let revision =
+            create_listpages_test_page(&mut runner, site_id, slug, title, title).await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture Imported ListPages Author Index",
+        &format!(
+            concat!(
+                "[[module ListPages created_by=\"ALICE_EXAMPLE\" tags=\"+{tag}\" limit=\"20\"]]\n",
+                "LITERAL=%%fullname%%\n",
+                "[[/module]]\n",
+                "[[module ListPages created_by=\"=\" tags=\"+{tag}\" limit=\"20\"]]\n",
+                "CURRENT=%%fullname%%\n",
+                "[[/module]]\n",
+                "[[module ListPages created_by=\"No Such Wikidot Author\" tags=\"+{tag}\" limit=\"20\"]]\n",
+                "UNKNOWN=%%fullname%%\n",
+                "[[/module]]"
+            ),
+            tag = TAG,
+        ),
+    )
+    .await;
+
+    let alice_page_id = listpages_test_page_id(&runner, site_id, ALICE_SLUG).await;
+    let bob_page_id = listpages_test_page_id(&runner, site_id, BOB_SLUG).await;
+    let index_page_id = listpages_test_page_id(&runner, site_id, INDEX_SLUG).await;
+    create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 3).await;
+    for fixture in [
+        (alice_page_id, ALICE_SLUG, 11, "Alice Example"),
+        (bob_page_id, BOB_SLUG, 12, "Bob Example"),
+        (index_page_id, INDEX_SLUG, 13, "Alice Example"),
+    ] {
+        set_imported_author(&runner, site_id, IMPORT_RUN_ID, fixture).await;
+    }
+
+    let alice_names = [Cow::Borrowed("ALICE_EXAMPLE")];
+    let missing_names = [Cow::Borrowed("No Such Wikidot Author")];
+    let admin_ids = [ADMIN_USER_ID];
+    for (selector, expected) in [
+        (
+            AuthorSelector::Any {
+                user_ids: &[],
+                wikidot_snapshot_names: &alice_names,
+            },
+            &[ALICE_SLUG][..],
+        ),
+        (
+            AuthorSelector::Any {
+                user_ids: &[],
+                wikidot_snapshot_names: &missing_names,
+            },
+            &[][..],
+        ),
+        (
+            AuthorSelector::Any {
+                user_ids: &[],
+                wikidot_snapshot_names: &[],
+            },
+            &[][..],
+        ),
+        (AuthorSelector::None, &[][..]),
+        (
+            AuthorSelector::Any {
+                user_ids: &admin_ids,
+                wikidot_snapshot_names: &alice_names,
+            },
+            &[ALICE_SLUG, BOB_SLUG][..],
+        ),
+        (AuthorSelector::All, &[ALICE_SLUG, BOB_SLUG][..]),
+    ] {
+        assert_eq!(
+            query_listpages_test_author_slugs(&runner, site_id, TAG, selector).await,
+            expected,
+            "author selector {selector:?} should remain explicit and use ID/name OR semantics"
+        );
+    }
+
+    let index_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+        }),
+    )
+    .expect("imported author ListPages index should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": index_page.page_category_id,
+            "page_id": index_page_id,
+        }),
+    );
+
+    let first_html =
+        load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+
+    for expected in [
+        format!("LITERAL={ALICE_SLUG}"),
+        format!("CURRENT={ALICE_SLUG}"),
+    ] {
+        assert!(
+            first_html.contains(&expected),
+            "snapshot author ListPages should contain {expected:?}:\n{first_html}"
+        );
+    }
+    for forbidden in [
+        format!("LITERAL={BOB_SLUG}"),
+        format!("CURRENT={BOB_SLUG}"),
+        format!("UNKNOWN={ALICE_SLUG}"),
+        format!("UNKNOWN={BOB_SLUG}"),
+    ] {
+        assert!(
+            !first_html.contains(&forbidden),
+            "snapshot author ListPages should not contain {forbidden:?}:\n{first_html}"
+        );
+    }
+
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": index_page.page_category_id,
+            "page_id": index_page_id,
+        }),
+    );
+    let second_html =
+        load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert_eq!(
+        first_html, second_html,
+        "repeated snapshot-author rerenders should be byte-stable"
     );
 }
 
@@ -5494,6 +5652,187 @@ async fn set_listpages_test_revision_number(
         .expect("revision-number test update should not fail");
 }
 
+async fn create_listpages_test_import_run(
+    runner: &TestRunner,
+    site_id: i64,
+    import_run_id: i64,
+    row_count: i64,
+) {
+    let transaction = runner.context().transaction();
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            r#"
+INSERT INTO wikidot_corpus_import_run (
+    import_run_id, site_id, source_branch, source_site, manifest_sha256,
+    manifest_row_count, complete_inventory, state, summary
+) VALUES ($1, $2, 'author-selector-test', $3, decode(repeat('ab', 32), 'hex'), $4, false, 'metadata_done', '{}'::jsonb)
+"#,
+            [
+                Value::from(import_run_id),
+                Value::from(site_id),
+                Value::from(format!("author-selector-test-{import_run_id}")),
+                Value::from(row_count),
+            ],
+        ))
+        .await
+        .expect("author selector import run fixture should be inserted");
+}
+
+async fn set_imported_author(
+    runner: &TestRunner,
+    site_id: i64,
+    import_run_id: i64,
+    fixture: (i64, &str, u64, &str),
+) {
+    let (page_id, slug, source_entity_suffix, created_by_name) = fixture;
+    let page = PageTable::find()
+        .filter(
+            sea_orm::Condition::all()
+                .add(page::Column::SiteId.eq(site_id))
+                .add(page::Column::PageId.eq(page_id)),
+        )
+        .one(runner.context().transaction())
+        .await
+        .expect("author selector page lookup should not fail")
+        .expect("author selector page should exist");
+    let mut page = page.into_active_model();
+    page.from_wikidot = Set(true);
+    page.update(runner.context().transaction())
+        .await
+        .expect("author selector page should be marked as imported");
+
+    let transaction = runner.context().transaction();
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            r#"
+INSERT INTO wikidot_page_snapshot (
+    page_id, source_branch, source_site, source_entity_id, source_fullname,
+    source_created_at, source_updated_at, source_revision_count, imported_rating,
+    created_by_name, comments, source_sha256, meta_sha256, meta_json,
+    last_import_run_id
+) VALUES (
+    $1, 'author-selector-test', $2, $3::uuid, $4,
+    NOW(), NOW(), 1, 0, $5, 0, decode(repeat('bc', 32), 'hex'),
+    decode(repeat('cd', 32), 'hex'), '{}'::jsonb, $6
+)
+"#,
+            [
+                Value::from(page_id),
+                Value::from(format!("author-selector-test-{import_run_id}")),
+                Value::from(format!(
+                    "71300000-0000-4000-8000-{source_entity_suffix:012x}"
+                )),
+                Value::from(slug.to_owned()),
+                Value::from(created_by_name.to_owned()),
+                Value::from(import_run_id),
+            ],
+        ))
+        .await
+        .expect("author selector snapshot fixture should be inserted");
+}
+
+async fn listpages_test_page_id(runner: &TestRunner, site_id: i64, slug: &str) -> i64 {
+    PageTable::find()
+        .filter(
+            sea_orm::Condition::all()
+                .add(page::Column::SiteId.eq(site_id))
+                .add(page::Column::Slug.eq(slug)),
+        )
+        .one(runner.context().transaction())
+        .await
+        .expect("ListPages page ID lookup should not fail")
+        .expect("ListPages page ID fixture should exist")
+        .page_id
+}
+
+async fn load_listpages_test_compiled_html(
+    runner: &TestRunner,
+    site_id: i64,
+    slug: &str,
+) -> String {
+    run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("ListPages compiled HTML fixture should be readable")
+    .compiled_body_html
+    .expect("ListPages compiled HTML fixture should have compiled HTML")
+}
+
+async fn query_listpages_test_author_slugs(
+    runner: &TestRunner,
+    site_id: i64,
+    tag: &str,
+    author: AuthorSelector<'_>,
+) -> Vec<String> {
+    let all_tags = [Cow::Borrowed(tag)];
+    PageQueryService::find(
+        runner.context(),
+        PageQuery {
+            current_page_id: 0,
+            current_site_id: site_id,
+            queried_site_id: Some(site_id),
+            page_type: PageTypeSelector::All,
+            categories: CategoriesSelector {
+                included_categories: IncludedCategories::All,
+                excluded_categories: &[],
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &all_tags,
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            author,
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            slugs: &[],
+            data_form_fields: &[],
+            order: Some(OrderBySelector {
+                property: OrderProperty::FullSlug,
+                ascending: true,
+            }),
+            candidate_limit: None,
+            pagination: PaginationSelector {
+                limit: Some(20),
+                ..Default::default()
+            },
+            variables: &[],
+            fields: FoundPageFields {
+                slug: true,
+                ..Default::default()
+            },
+        },
+    )
+    .await
+    .expect("author selector PageQuery should succeed")
+    .pages
+    .into_iter()
+    .map(|page| {
+        page.slug
+            .expect("author selector query should request slug")
+    })
+    .collect()
+}
+
 #[tokio::test]
 async fn listpages_limit_two_caps_ordered_results() {
     let mut runner = TestRunner::setup().await;
@@ -6878,7 +7217,7 @@ async fn page_query_orders_by_page_slug_without_category_prefix() {
             update_date: DateSelector::FromPresent {
                 start: OffsetDateTime::UNIX_EPOCH,
             },
-            author: &[],
+            author: AuthorSelector::All,
             score: &[],
             votes: &[],
             offset: 0,
@@ -6964,7 +7303,7 @@ async fn page_query_created_by_uses_earliest_available_revision() {
             update_date: DateSelector::FromPresent {
                 start: OffsetDateTime::UNIX_EPOCH,
             },
-            author: &[],
+            author: AuthorSelector::All,
             score: &[],
             votes: &[],
             offset: 0,
@@ -7004,7 +7343,7 @@ async fn page_query_created_by_uses_earliest_available_revision() {
         "created_by should come from the earliest available revision, even when it is not revision 0",
     );
 
-    let author_filter = [Cow::Owned(ADMIN_USER_ID.to_string())];
+    let author_filter = [ADMIN_USER_ID];
     let filtered_pages = PageQueryService::find(
         runner.context(),
         PageQuery {
@@ -7029,7 +7368,10 @@ async fn page_query_created_by_uses_earliest_available_revision() {
             update_date: DateSelector::FromPresent {
                 start: OffsetDateTime::UNIX_EPOCH,
             },
-            author: &author_filter,
+            author: AuthorSelector::Any {
+                user_ids: &author_filter,
+                wikidot_snapshot_names: &[],
+            },
             score: &[],
             votes: &[],
             offset: 0,
@@ -7138,7 +7480,7 @@ async fn page_query_score_order_returns_results() {
         update_date: DateSelector::FromPresent {
             start: OffsetDateTime::UNIX_EPOCH,
         },
-        author: &[],
+        author: AuthorSelector::All,
         score: &[],
         votes: &[],
         offset: 0,
@@ -7283,7 +7625,7 @@ async fn page_query_find_with_metadata_marks_sql_limited_results() {
             update_date: DateSelector::FromPresent {
                 start: OffsetDateTime::UNIX_EPOCH,
             },
-            author: &[],
+            author: AuthorSelector::All,
             score: &[],
             votes: &[],
             offset: 0,
@@ -7368,7 +7710,7 @@ async fn page_query_find_with_metadata_marks_deferred_score_ordering() {
             update_date: DateSelector::FromPresent {
                 start: OffsetDateTime::UNIX_EPOCH,
             },
-            author: &[],
+            author: AuthorSelector::All,
             score: &[],
             votes: &[],
             offset: 0,
@@ -7412,12 +7754,20 @@ async fn listpages_deferred_forms_remain_unsupported() {
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
 
-    for (slug_suffix, module_head, body, raw_indicator) in [(
-        "unknown-variable",
-        r#"tags="+verification-list-negative-unknown-variable" limit="10" order="name""#,
-        "* %%unsupported_variable%%",
-        "%%unsupported_variable%%",
-    )] {
+    for (slug_suffix, module_head, body, raw_indicator) in [
+        (
+            "unknown-variable",
+            r#"tags="+verification-list-negative-unknown-variable" limit="10" order="name""#,
+            "* %%unsupported_variable%%",
+            "%%unsupported_variable%%",
+        ),
+        (
+            "not-current-author",
+            r#"created_by="-=" tags="+verification-list-negative-not-current-author" limit="10" order="name""#,
+            "NOT_CURRENT_AUTHOR=%%fullname%%",
+            "%%fullname%%",
+        ),
+    ] {
         let slug_prefix = format!("fixture-listpages-negative-{slug_suffix}");
         let tag = format!("verification-list-negative-{slug_suffix}");
         let html = render_listpages_test_fixture(

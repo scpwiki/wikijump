@@ -65,6 +65,24 @@ pub struct TagCondition<'a> {
     pub none_present: TagList<'a>,
 }
 
+/// Selects pages by their creation author without overloading an empty list.
+///
+/// Local Wikijump pages have a stable user ID on their earliest revision. Imported Wikidot snapshots can instead have only the source author's display name, so a query may match either representation. `Any` combines the two representations with OR semantics. An empty `Any` is treated like `None`, never like `All`.
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
+pub enum AuthorSelector<'a> {
+    #[default]
+    All,
+    Any {
+        user_ids: &'a [i64],
+        wikidot_snapshot_names: &'a [Cow<'a, str>],
+    },
+    None,
+}
+
+pub fn normalize_wikidot_author_name(value: &str) -> String {
+    value.trim().to_ascii_lowercase().replace(['_', ' '], "-")
+}
+
 /// The relationship of the pages being queried to their parent/child pages.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PageParentSelector<'a> {
@@ -328,7 +346,7 @@ pub struct PageQuery<'a> {
     pub contains_outgoing_links: &'a [Reference<'a>],
     pub creation_date: DateSelector,
     pub update_date: DateSelector,
-    pub author: &'a [Cow<'a, str>],
+    pub author: AuthorSelector<'a>,
     pub score: &'a [ScoreSelector], // 5-star rating selector
     pub votes: &'a [ScoreSelector], // upvote/downvote rating selector
     pub offset: u32,

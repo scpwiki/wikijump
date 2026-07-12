@@ -33,9 +33,9 @@ use crate::services::page::{
     SetPageLayout,
 };
 use crate::services::page_query::{
-    CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
-    OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
+    IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
+    PageQueryService, PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
 use crate::services::page_revision::RerenderType;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
@@ -404,15 +404,16 @@ pub async fn page_select(
     };
 
     let created_by = match created_by {
-        None => Vec::new(),
+        None => None,
         Some(created_by) => {
             let user_id = resolve_page_select_created_by(ctx, &created_by).await?;
             match user_id {
-                Some(user_id) => vec![Cow::Owned(user_id.to_string())],
+                Some(user_id) => Some(user_id),
                 None => return Ok(Vec::new()),
             }
         }
     };
+    let created_by_ids = created_by.into_iter().collect::<Vec<_>>();
 
     let categories = categories
         .unwrap_or_default()
@@ -475,7 +476,14 @@ pub async fn page_select(
             update_date: DateSelector::FromPresent {
                 start: OffsetDateTime::UNIX_EPOCH,
             },
-            author: &created_by,
+            author: if created_by_ids.is_empty() {
+                AuthorSelector::All
+            } else {
+                AuthorSelector::Any {
+                    user_ids: &created_by_ids,
+                    wikidot_snapshot_names: &[],
+                }
+            },
             score: &[],
             votes: &[],
             offset: 0,

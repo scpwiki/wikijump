@@ -36,14 +36,14 @@ use crate::models::site::Model as SiteModel;
 use crate::models::user::{self, Entity as UserTable};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::page_query::{
-    CategoriesSelector, CountPagesExactCountEligibilityDiagnostics,
+    AuthorSelector, CategoriesSelector, CountPagesExactCountEligibilityDiagnostics,
     CountPagesExactCountEligibilityInput, DataFormSelector, DateSelector,
     FoundPageFields, FoundPageRow, FoundPages, IncludedCategories,
     ListPagesRenderDiagnosticsInput, OrderBySelector, OrderProperty, PageParentSelector,
     PageQuery, PageQueryResultMetadata, PageTypeSelector, PaginationSelector,
     RangeSelector, TagCondition, count_pages_exact_count_eligibility_diagnostics,
-    list_pages_render_diagnostics, parse_static_wikidot_data_form_values,
-    static_wikidot_data_form_matches,
+    list_pages_render_diagnostics, normalize_wikidot_author_name,
+    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
@@ -60,7 +60,7 @@ use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::*;
 use ftml::tree::{CodeBlock, VariableMap};
 use regex::Regex;
-use sea_orm::{FromQueryResult, Statement};
+use sea_orm::{FromQueryResult, Statement, Value};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::future::Future;
@@ -306,7 +306,6 @@ const MIN_FTML_COMPAT_TABBED_RENDER_BYTES: usize = 100_000;
 const MIN_FTML_COMPAT_TABBED_MARKERS: usize = 10;
 const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
 const MAX_WIKIDOT_SIMPLE_IF_PASSES: usize = 32;
-const LISTPAGES_NO_MATCH_AUTHOR_ID: &str = "-9223372036854775808";
 const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
 const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
@@ -4565,7 +4564,9 @@ impl RenderService {
                 {
                     ListPagesBlockPlan::Static(module.original.to_owned())
                 } else if let Some(arguments) = parse_list_pages_arguments(head) {
-                    if list_pages_body_variables_supported(body) {
+                    if arguments.unsupported_author_filter {
+                        ListPagesBlockPlan::Static(module.original.to_owned())
+                    } else if list_pages_body_variables_supported(body) {
                         let batch_key = exact_name_list_pages_batch_key(
                             head,
                             body,
@@ -4787,7 +4788,7 @@ impl RenderService {
             update_date: DateSelector::FromPresent {
                 start: time::OffsetDateTime::UNIX_EPOCH,
             },
-            author: &[],
+            author: AuthorSelector::All,
             score: &[],
             votes: &[],
             offset: 0,
@@ -7119,6 +7120,7 @@ impl RenderService {
             default_tags,
             no_tags,
             authors,
+            author_filter_present,
             order,
             limit,
             count_pages_explicit_limit: _,
@@ -7130,6 +7132,7 @@ impl RenderService {
             slug,
             data_form_fields,
             prepend_line,
+            unsupported_author_filter: _,
             unsupported_count_pages_filter: _,
         } = arguments;
         any_tags.extend(default_tags);
@@ -7173,11 +7176,12 @@ impl RenderService {
             || list_pages_body_uses_variable(body, "updatedat");
         let wants_rating_votes = list_pages_body_uses_variable(body, "rating_votes")
             || list_pages_body_uses_variable(body, "ratingvotes");
-        let author_ids = Self::resolve_list_pages_author_ids(
+        let resolved_authors = Self::resolve_list_pages_authors(
             ctx,
             current_site_id,
             current_page_id,
             &authors,
+            author_filter_present,
         )
         .await?;
         let query = PageQuery {
@@ -7202,7 +7206,7 @@ impl RenderService {
             update_date: DateSelector::FromPresent {
                 start: time::OffsetDateTime::UNIX_EPOCH,
             },
-            author: &author_ids,
+            author: resolved_authors.as_selector(),
             score: &[],
             votes: &[],
             offset: 0,
@@ -7443,6 +7447,7 @@ impl RenderService {
             default_tags,
             no_tags,
             authors,
+            author_filter_present,
             order,
             limit,
             count_pages_explicit_limit,
@@ -7454,6 +7459,7 @@ impl RenderService {
             slug,
             prepend_line: _,
             data_form_fields,
+            unsupported_author_filter: _,
             unsupported_count_pages_filter: _,
         } = arguments;
         let count_pages_query_limit = count_pages_explicit_limit
@@ -7480,11 +7486,12 @@ impl RenderService {
         } else {
             IncludedCategories::List(&categories)
         };
-        let author_ids = Self::resolve_list_pages_author_ids(
+        let resolved_authors = Self::resolve_list_pages_authors(
             ctx,
             current_site_id,
             current_page_id,
             &authors,
+            author_filter_present,
         )
         .await?;
         let query = PageQuery {
@@ -7509,7 +7516,7 @@ impl RenderService {
             update_date: DateSelector::FromPresent {
                 start: time::OffsetDateTime::UNIX_EPOCH,
             },
-            author: &author_ids,
+            author: resolved_authors.as_selector(),
             score: &[],
             votes: &[],
             offset: 0,
@@ -8063,77 +8070,106 @@ impl RenderService {
             })
     }
 
-    async fn resolve_list_pages_author_ids(
+    async fn resolve_list_pages_authors(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
         current_page_id: i64,
         author_names: &[Cow<'static, str>],
-    ) -> Result<Vec<Cow<'static, str>>> {
-        if author_names.is_empty() {
-            return Ok(Vec::new());
+        author_filter_present: bool,
+    ) -> Result<ResolvedListPagesAuthors> {
+        if !author_filter_present {
+            return Ok(ResolvedListPagesAuthors::All);
         }
 
-        let mut literal_authors = Vec::new();
+        let mut snapshot_names = BTreeSet::new();
+        let mut user_ids = BTreeSet::new();
         let mut include_current_page_author = false;
         for author in author_names {
             if author.as_ref() == "=" {
                 include_current_page_author = true;
             } else {
-                literal_authors.push(author.clone());
+                let author = normalize_wikidot_author_name(author);
+                if !author.is_empty() {
+                    snapshot_names.insert(author);
+                }
             }
         }
 
-        let mut author_ids = if literal_authors.is_empty() {
-            Vec::new()
-        } else {
-            Self::load_wikidot_author_ids(ctx, &literal_authors).await?
-        };
-
         if include_current_page_author {
-            let make_error = || {
-                Error::new(
-                    "failed to load current page creation author for ListPages render",
-                    ErrorType::Render,
-                )
-            };
-            let creation_revision = PageRevisionService::get_optional(
+            let current_page_author = Self::load_current_page_author_source(
                 ctx,
                 current_site_id,
                 current_page_id,
-                0,
             )
-            .await
-            .or_raise(make_error)?;
-            if let Some(revision) = creation_revision {
-                author_ids.push(Cow::Owned(revision.user_id.to_string()));
-            } else if literal_authors.is_empty() {
-                author_ids.push(Cow::Borrowed(LISTPAGES_NO_MATCH_AUTHOR_ID));
+            .await?;
+            match current_page_author {
+                Some(CurrentPageAuthorSource {
+                    snapshot_present: true,
+                    created_by_name: Some(created_by_name),
+                    ..
+                }) => {
+                    let created_by_name = normalize_wikidot_author_name(&created_by_name);
+                    if !created_by_name.is_empty() {
+                        snapshot_names.insert(created_by_name);
+                    }
+                }
+                Some(CurrentPageAuthorSource {
+                    snapshot_present: true,
+                    created_by_name: None,
+                    ..
+                })
+                | Some(CurrentPageAuthorSource {
+                    from_wikidot: true,
+                    snapshot_present: false,
+                    ..
+                })
+                | None => {}
+                Some(CurrentPageAuthorSource {
+                    from_wikidot: false,
+                    snapshot_present: false,
+                    ..
+                }) => {
+                    if let Some(revision) = PageRevisionService::get_earliest_optional(
+                        ctx,
+                        current_site_id,
+                        current_page_id,
+                    )
+                    .await?
+                    {
+                        user_ids.insert(revision.user_id);
+                    }
+                }
             }
         }
 
-        author_ids.sort();
-        author_ids.dedup();
-        Ok(author_ids)
+        user_ids.extend(Self::load_wikidot_author_ids(ctx, &snapshot_names).await?);
+        if user_ids.is_empty() && snapshot_names.is_empty() {
+            Ok(ResolvedListPagesAuthors::None)
+        } else {
+            Ok(ResolvedListPagesAuthors::Any {
+                user_ids: user_ids.into_iter().collect(),
+                wikidot_snapshot_names: snapshot_names
+                    .into_iter()
+                    .map(Cow::Owned)
+                    .collect(),
+            })
+        }
     }
 
     async fn load_wikidot_author_ids(
         ctx: &ServiceContext<'_>,
-        author_names: &[Cow<'static, str>],
-    ) -> Result<Vec<Cow<'static, str>>> {
+        wanted: &BTreeSet<String>,
+    ) -> Result<Vec<i64>> {
+        if wanted.is_empty() {
+            return Ok(Vec::new());
+        }
+
         let make_error = || {
             Error::new(
                 "failed to load Wikidot author IDs for ListPages render",
                 ErrorType::Render,
             )
         };
-        let wanted = author_names
-            .iter()
-            .map(|name| normalize_list_pages_user_selector(name))
-            .collect::<BTreeSet<_>>();
-        if wanted.is_empty() {
-            return Ok(Vec::new());
-        }
-
         let users = WikidotUser::find()
             .all(ctx.transaction())
             .await
@@ -8143,19 +8179,42 @@ impl RenderService {
             .into_iter()
             .filter(|user| {
                 user.name.as_ref().is_some_and(|name| {
-                    wanted.contains(&normalize_list_pages_user_selector(name))
+                    wanted.contains(&normalize_wikidot_author_name(name))
                 }) || user.slug.as_ref().is_some_and(|slug| {
-                    wanted.contains(&normalize_list_pages_user_selector(slug))
+                    wanted.contains(&normalize_wikidot_author_name(slug))
                 })
             })
-            .map(|user| Cow::Owned(user.user_id.to_string()))
+            .map(|user| i64::from(user.user_id))
             .collect::<Vec<_>>();
 
-        if author_ids.is_empty() {
-            Ok(vec![Cow::Borrowed(LISTPAGES_NO_MATCH_AUTHOR_ID)])
-        } else {
-            Ok(author_ids)
-        }
+        Ok(author_ids)
+    }
+
+    async fn load_current_page_author_source(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+    ) -> Result<Option<CurrentPageAuthorSource>> {
+        let make_error = || {
+            Error::new(
+                "failed to load current page author provenance for ListPages render",
+                ErrorType::Render,
+            )
+        };
+        let txn = ctx.transaction();
+        let statement = Statement::from_sql_and_values(
+            txn.get_database_backend(),
+            "SELECT page.from_wikidot, snapshot.page_id IS NOT NULL AS snapshot_present, snapshot.created_by_name \
+             FROM page \
+             LEFT JOIN wikidot_page_snapshot snapshot ON snapshot.page_id = page.page_id \
+             WHERE page.site_id = $1 AND page.page_id = $2 AND page.deleted_at IS NULL",
+            [Value::from(current_site_id), Value::from(current_page_id)],
+        );
+
+        CurrentPageAuthorSource::find_by_statement(statement)
+            .one(txn)
+            .await
+            .or_raise(make_error)
     }
 }
 
@@ -8180,6 +8239,39 @@ struct ListPagesSnapshotDisplay {
 }
 
 #[derive(Debug, FromQueryResult)]
+struct CurrentPageAuthorSource {
+    from_wikidot: bool,
+    snapshot_present: bool,
+    created_by_name: Option<String>,
+}
+
+#[derive(Debug)]
+enum ResolvedListPagesAuthors {
+    All,
+    Any {
+        user_ids: Vec<i64>,
+        wikidot_snapshot_names: Vec<Cow<'static, str>>,
+    },
+    None,
+}
+
+impl ResolvedListPagesAuthors {
+    fn as_selector(&self) -> AuthorSelector<'_> {
+        match self {
+            Self::All => AuthorSelector::All,
+            Self::Any {
+                user_ids,
+                wikidot_snapshot_names,
+            } => AuthorSelector::Any {
+                user_ids,
+                wikidot_snapshot_names,
+            },
+            Self::None => AuthorSelector::None,
+        }
+    }
+}
+
+#[derive(Debug, FromQueryResult)]
 struct BacklinksModulePage {
     page_id: i64,
     page_category_id: i64,
@@ -8200,6 +8292,7 @@ struct ListPagesArguments {
     all_tags: Vec<Cow<'static, str>>,
     no_tags: Vec<Cow<'static, str>>,
     authors: Vec<Cow<'static, str>>,
+    author_filter_present: bool,
     order: Option<OrderBySelector>,
     limit: Option<u64>,
     count_pages_explicit_limit: Option<u64>,
@@ -8211,6 +8304,7 @@ struct ListPagesArguments {
     slug: Option<Cow<'static, str>>,
     data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
+    unsupported_author_filter: bool,
     unsupported_count_pages_filter: bool,
 }
 
@@ -8335,6 +8429,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut all_tags = Vec::new();
     let mut no_tags = Vec::new();
     let mut authors = Vec::new();
+    let mut author_filter_present = false;
     let mut order = None;
     let mut limit = None;
     let mut count_pages_explicit_limit = None;
@@ -8346,6 +8441,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut slug = None;
     let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
+    let mut unsupported_author_filter = false;
     let mut unsupported_count_pages_filter = false;
 
     for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
@@ -8506,6 +8602,12 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 }
             }
             "created_by" | "createdby" => {
+                author_filter_present = true;
+                if is_dynamic_list_pages_value(value)
+                    && list_pages_url_fallback(value).is_none()
+                {
+                    unsupported_author_filter = true;
+                }
                 let Some(value) = static_list_pages_selector(
                     value,
                     &mut unsupported_count_pages_filter,
@@ -8518,6 +8620,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     .trim_end_matches(']')
                     .trim();
                 if author == "-=" {
+                    unsupported_author_filter = true;
                     unsupported_count_pages_filter = true;
                     continue;
                 }
@@ -8581,6 +8684,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         all_tags,
         no_tags,
         authors,
+        author_filter_present,
         order,
         limit,
         count_pages_explicit_limit,
@@ -8592,6 +8696,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         slug,
         data_form_fields,
         prepend_line,
+        unsupported_author_filter,
         unsupported_count_pages_filter,
     })
 }
@@ -8600,7 +8705,8 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
     let count_pages_bound = arguments
         .count_pages_explicit_limit
         .or(arguments.count_pages_per_page);
-    arguments.unsupported_count_pages_filter
+    arguments.unsupported_author_filter
+        || arguments.unsupported_count_pages_filter
         || (count_pages_bound.is_none()
             && !arguments.current_page_only
             && !count_pages_has_static_filter(arguments))
@@ -8622,7 +8728,7 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
                 || !arguments.any_tags.is_empty()
                 || !arguments.all_tags.is_empty()
                 || !arguments.no_tags.is_empty()
-                || !arguments.authors.is_empty()
+                || arguments.author_filter_present
                 || !arguments.excluded_categories.is_empty()
                 || !arguments.data_form_fields.is_empty()
                 || arguments.slug.is_some()))
@@ -8633,7 +8739,7 @@ fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
         || !arguments.default_tags.is_empty()
         || !arguments.any_tags.is_empty()
         || !arguments.all_tags.is_empty()
-        || !arguments.authors.is_empty()
+        || arguments.author_filter_present
         || arguments.page_type != PageTypeSelector::Normal
         || arguments.page_parent != PageParentSelector::All
         || arguments.slug.is_some()
@@ -8808,10 +8914,6 @@ fn is_current_page_tag_selector(value: &str) -> bool {
 
 fn is_no_tags_selector(value: &str) -> bool {
     value.trim() == "-"
-}
-
-fn normalize_list_pages_user_selector(value: &str) -> String {
-    value.trim().to_ascii_lowercase().replace(['_', ' '], "-")
 }
 
 fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
@@ -12129,6 +12231,8 @@ mod tests {
         assert_eq!(arguments.count_pages_per_page, Some(20));
         assert_eq!(arguments.offset, 0);
         assert!(arguments.slug.is_none());
+        assert!(arguments.author_filter_present);
+        assert!(arguments.unsupported_author_filter);
 
         assert!(
             parse_list_pages_arguments(r#" parent="@URL""#).is_none(),
@@ -12218,11 +12322,19 @@ mod tests {
         .expect("bracketed Wikidot author selector should parse");
 
         assert_eq!(arguments.authors, vec![Cow::Borrowed("Congy")]);
+        assert!(arguments.author_filter_present);
         assert_eq!(
             arguments.excluded_categories,
             vec![Cow::Borrowed("deleted")]
         );
         assert_eq!(arguments.all_tags, vec![Cow::Borrowed("jp")]);
+
+        let not_current = parse_list_pages_arguments(r#" created_by="-=" limit="20""#)
+            .expect("not-current author selector should remain identifiable");
+        assert!(not_current.authors.is_empty());
+        assert!(not_current.author_filter_present);
+        assert!(not_current.unsupported_author_filter);
+        assert!(not_current.unsupported_count_pages_filter);
     }
 
     #[test]

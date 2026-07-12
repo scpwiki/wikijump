@@ -1128,6 +1128,37 @@ impl PageRevisionService {
         }
     }
 
+    /// Gets the earliest available revision of a page.
+    ///
+    /// Normal pages start at revision 0, but repaired or imported data may retain only a later revision number. Creation-author queries use the same earliest-available semantics.
+    pub async fn get_earliest_optional(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<Option<PageRevisionModel>> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to get earliest revision of page ID {} on site ID {}",
+                    page_id, site_id,
+                ),
+                ErrorType::PageRevision,
+            )
+        };
+
+        PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id)),
+            )
+            .order_by_asc(page_revision::Column::RevisionNumber)
+            .order_by_asc(page_revision::Column::RevisionId)
+            .one(ctx.transaction())
+            .await
+            .or_raise(make_error)
+    }
+
     /// Internal method for getting a text column for the latest revision of a page.
     async fn get_latest_text_optional(
         ctx: &ServiceContext<'_>,
