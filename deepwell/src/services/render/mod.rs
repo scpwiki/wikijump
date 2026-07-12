@@ -42,6 +42,7 @@ mod render_dependency;
 mod service;
 mod structs;
 mod wikidot_expression;
+mod wikidot_inline_markers;
 
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
