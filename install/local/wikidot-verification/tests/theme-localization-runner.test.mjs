@@ -10,6 +10,7 @@ import {parseArgs} from "../scripts/theme-localization-e2e.mjs";
 import {ALLOWED_SITE_SLUG, THEME_LOCALIZATION_E2E_SCHEMA, runOwnedSlug} from "../src/theme-localization-e2e.mjs";
 import {ThemeExecutionLedger, themeExecutionFingerprint, validateThemeExecutionPlan} from "../src/theme-localization-execution.mjs";
 import {THEME_RUN_RESULT_SCHEMA, runGuardedThemeAction, validateStorageState, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
+import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const digest = (value) => crypto.createHash("sha256").update(value).digest("hex");
 
@@ -23,7 +24,7 @@ class MemoryAdapter {
 
   async inspect(resource) { return this.pages.get(resource.slug) ?? null; }
   async create(resource, payload) {
-    const page = {identity: this.nextId++, title: resource.title, source_sha256: digest(payload.source)};
+    const page = {identity: this.nextId++, title: resource.title, source_sha256: targetRoundTripSourceSha256(resource.target, payload.source)};
     this.pages.set(resource.slug, page);
     this.onCreate?.();
     return page.identity;
@@ -161,9 +162,9 @@ test("recovery accepts only the matching fingerprint and removes an intent-fence
   const resources = validateThemeExecutionPlan(fx.plan);
   const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), resources});
   const resource = resources[0];
-  const expected = {source_sha256: resource.source_sha256, title: resource.title};
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, await fs.readFile(resource.source_path, "utf8")), title: resource.title};
   await ledger.intent(resource, expected);
-  fx.adapters.wikidot.pages.set(resource.slug, {identity: 42, ...expected});
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: 42, title: expected.title, source_sha256: expected.remote_source_sha256});
   const result = await runGuardedThemeAction({...fx, mode: "recover"});
   assert.equal(result.operation.status, "clean");
   assert.equal(fx.adapters.wikidot.pages.size, 0);
