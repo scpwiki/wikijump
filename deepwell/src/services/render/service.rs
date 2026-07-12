@@ -164,6 +164,12 @@ struct ViewableListPagesRows {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ProtectedWikidotWikipediaLink {
+    link: WikidotWikipediaLink,
+    marker: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct WikidotWikipediaLink {
     anchor: String,
     href: String,
 }
@@ -268,6 +274,7 @@ const WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTEMBEDIFRAME";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
+const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_NONCE_LEN: usize = 32;
 const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
 const WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTRATEANCHOR";
@@ -3424,6 +3431,8 @@ impl RenderService {
         let mut links = Vec::new();
         let mut output = String::with_capacity(source.len());
         let mut last = 0;
+        let marker_nonce = Uuid::new_v4().as_simple().to_string();
+        let literal_regions = LiteralRegionIndex::new_wikidot_syntax(&source);
 
         for captures in WIKIDOT_WIKIPEDIA_LINK_REGEX.captures_iter(&source) {
             let Some(link_match) = captures.get(0) else {
@@ -3439,16 +3448,21 @@ impl RenderService {
                 continue;
             };
 
-            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+            if literal_regions.contains(link_match.start()) {
                 output.push_str(link_match.as_str());
                 continue;
             }
 
             let label = captures.name("label").map(|matched| matched.as_str());
             let link = build_wikidot_wikipedia_link(target, label);
-            let marker =
-                format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{}X", links.len());
-            links.push(link);
+            let marker = format!(
+                "{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{marker_nonce}{}X",
+                links.len(),
+            );
+            links.push(ProtectedWikidotWikipediaLink {
+                link,
+                marker: marker.clone(),
+            });
             output.push_str(&marker);
         }
 
@@ -3680,14 +3694,73 @@ impl RenderService {
     }
 
     fn restore_protected_wikidot_wikipedia_links(
-        mut html: String,
+        html: String,
         links: &[ProtectedWikidotWikipediaLink],
     ) -> String {
-        for (index, link) in links.iter().enumerate() {
-            let marker = format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{index}X");
-            html = html.replace(&marker, &link.anchor);
+        if links.is_empty() || !html.contains(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX) {
+            return html;
         }
-        html
+
+        let mut output = String::with_capacity(html.len());
+        let mut last = 0;
+        let mut cursor = 0;
+        let mut in_tag = false;
+        let mut tag_quote = None;
+        let bytes = html.as_bytes();
+        let prefix = WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX.as_bytes();
+
+        while cursor < bytes.len() {
+            match bytes[cursor] {
+                b'<' if !in_tag => in_tag = true,
+                quote @ (b'\'' | b'"') if in_tag => match tag_quote {
+                    Some(open_quote) if open_quote == quote => tag_quote = None,
+                    None => tag_quote = Some(quote),
+                    _ => {}
+                },
+                b'>' if in_tag && tag_quote.is_none() => in_tag = false,
+                _ if !in_tag && bytes[cursor..].starts_with(prefix) => {
+                    let nonce_start = cursor + prefix.len();
+                    let nonce_end =
+                        nonce_start + WIKIDOT_WIKIPEDIA_LINK_SENTINEL_NONCE_LEN;
+                    if nonce_end >= bytes.len()
+                        || !bytes[nonce_start..nonce_end]
+                            .iter()
+                            .all(u8::is_ascii_hexdigit)
+                    {
+                        cursor += 1;
+                        continue;
+                    }
+
+                    let index_start = nonce_end;
+                    let mut marker_end = index_start;
+                    while marker_end < bytes.len() && bytes[marker_end].is_ascii_digit() {
+                        marker_end += 1;
+                    }
+
+                    if marker_end > index_start
+                        && bytes.get(marker_end) == Some(&b'X')
+                        && let Ok(index) = html[index_start..marker_end].parse::<usize>()
+                        && let Some(link) = links.get(index)
+                        && link.marker == html[cursor..=marker_end]
+                    {
+                        output.push_str(&html[last..cursor]);
+                        output.push_str(&link.link.anchor);
+                        cursor = marker_end + 1;
+                        last = cursor;
+                        continue;
+                    }
+                }
+                _ => {}
+            }
+            cursor += 1;
+        }
+
+        if last == 0 {
+            return html;
+        }
+
+        output.push_str(&html[last..]);
+        output
     }
 
     fn record_protected_wikidot_wikipedia_backlinks(
@@ -3696,7 +3769,7 @@ impl RenderService {
     ) {
         backlinks
             .external_links
-            .extend(links.iter().map(|link| Cow::Owned(link.href.clone())));
+            .extend(links.iter().map(|link| Cow::Owned(link.link.href.clone())));
     }
 
     fn restore_wikidot_rendered_embed_iframes(html: &str) -> String {
@@ -9109,7 +9182,7 @@ fn render_wikidot_wikipedia_link(target: &str, label: Option<&str>) -> String {
 fn build_wikidot_wikipedia_link(
     target: &str,
     label: Option<&str>,
-) -> ProtectedWikidotWikipediaLink {
+) -> WikidotWikipediaLink {
     let (language, page) = wikidot_wikipedia_target(target);
     let href = wikidot_wikipedia_href(language, page);
     let label = label
@@ -9121,7 +9194,7 @@ fn build_wikidot_wikipedia_link(
         href = escape_list_pages_html_attr(&href),
         label = escape_list_pages_html_text(&label),
     );
-    ProtectedWikidotWikipediaLink { anchor, href }
+    WikidotWikipediaLink { anchor, href }
 }
 
 fn wikidot_wikipedia_href(language: &str, page: &str) -> String {
@@ -15908,6 +15981,55 @@ mod tests {
                 "http://en.wikipedia.org/wiki/Canonical_bundle"
             )],
         );
+    }
+
+    #[test]
+    fn wikipedia_link_restoration_only_replaces_issued_text_markers() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = "[wikipedia:Canonical_bundle Canonical Bundle]".to_owned();
+        let links =
+            RenderService::protect_wikidot_wikipedia_links(&mut wikitext, &settings);
+
+        assert_eq!(links.len(), 1);
+        let marker = &links[0].marker;
+        let wrong_index = format!("{}9X", marker.strip_suffix("0X").unwrap());
+        let legacy_marker = format!("{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}0X");
+        let html = format!(
+            r#"<span data-double=">{marker}" data-single='>{marker}'>{marker}</span>{wrong_index}{legacy_marker}"#,
+        );
+
+        let restored =
+            RenderService::restore_protected_wikidot_wikipedia_links(html, &links);
+
+        assert!(restored.contains(&format!(
+            r#"<span data-double=">{marker}" data-single='>{marker}'>"#,
+        )));
+        assert!(restored.contains(&wrong_index));
+        assert!(restored.contains(&legacy_marker));
+        assert_eq!(restored.matches("<a href=").count(), 1);
+    }
+
+    #[test]
+    fn restores_dense_wikidot_wikipedia_links_without_repeated_scans() {
+        const LINK_COUNT: usize = 10_000;
+
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = String::with_capacity(LINK_COUNT * 64);
+        for index in 0..LINK_COUNT {
+            wikitext.push_str(&format!(
+                "[wikipedia:Canonical_bundle_{index} Canonical Bundle {index}]\n",
+            ));
+        }
+
+        let links =
+            RenderService::protect_wikidot_wikipedia_links(&mut wikitext, &settings);
+        assert_eq!(links.len(), LINK_COUNT);
+
+        let restored =
+            RenderService::restore_protected_wikidot_wikipedia_links(wikitext, &links);
+
+        assert_eq!(restored.matches("<a href=").count(), LINK_COUNT);
+        assert!(!restored.contains(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX));
     }
 
     #[test]
