@@ -32,6 +32,7 @@ mod prelude {
 }
 
 mod compat_html_fragments;
+mod compat_text_fragments;
 mod html_text;
 mod include_comment_branches;
 #[allow(dead_code)]
