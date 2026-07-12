@@ -28,6 +28,9 @@ use super::{Config, SetupConfig};
 use crate::services::corpus_render_finalizer::{
     CorpusRenderFinalizerService, RenderFinalizerSettings,
 };
+use crate::services::corpus_render_inventory::{
+    CorpusRenderInventoryService, RenderInventorySettings,
+};
 use crate::{api, database};
 use std::path::PathBuf;
 use std::{env, process};
@@ -44,6 +47,7 @@ pub async fn run_runtime_action() {
         "config" | "validate-config" => validate_config(),
         "seeder" | "run-seeder" => run_seeder().await,
         "render-finalize" => run_render_finalize().await,
+        "render-inventory" => run_render_inventory().await,
         _ => {
             eprintln!("Unknown runtime action: {action_name}");
             process::exit(1);
@@ -125,6 +129,42 @@ async fn run_render_finalize() -> i32 {
             Ok(json) => {
                 println!("{json}");
                 0
+            }
+            Err(error) => {
+                eprintln!("{error:?}");
+                1
+            }
+        },
+        Err(error) => {
+            eprintln!("{error:?}");
+            1
+        }
+    }
+}
+
+async fn run_render_inventory() -> i32 {
+    let settings = match RenderInventorySettings::from_env() {
+        Ok(settings) => settings,
+        Err(error) => {
+            eprintln!("{error:?}");
+            return 1;
+        }
+    };
+
+    let SetupConfig { secrets, config } = SetupConfig::load_only();
+    let app_state = match api::build_server_state(config, secrets).await {
+        Ok(app_state) => app_state,
+        Err(error) => {
+            eprintln!("{error:?}");
+            return 1;
+        }
+    };
+
+    match CorpusRenderInventoryService::run(&app_state, settings).await {
+        Ok(summary) => match serde_json::to_string(&summary) {
+            Ok(json) => {
+                println!("{json}");
+                if summary.passed() { 0 } else { 2 }
             }
             Err(error) => {
                 eprintln!("{error:?}");
