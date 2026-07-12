@@ -482,6 +482,7 @@ pub async fn page_select(
             range: RangeSelector::Current,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(order),
             candidate_limit: None,

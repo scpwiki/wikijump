@@ -665,6 +665,7 @@ async fn select_child_content_pages(
             range: RangeSelector::Others,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(order),
             candidate_limit: None,

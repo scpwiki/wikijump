@@ -335,6 +335,7 @@ pub struct PageQuery<'a> {
     pub range: RangeSelector,
     pub name: Option<Cow<'a, str>>,
     pub slug: Option<Cow<'a, str>>,
+    pub slugs: &'a [Cow<'a, str>],
     pub data_form_fields: &'a [DataFormSelector<'a>],
     pub order: Option<OrderBySelector>,
     pub candidate_limit: Option<u64>,

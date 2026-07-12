@@ -73,6 +73,7 @@ impl PageQueryService {
             range,
             name,
             slug,
+            slugs,
             data_form_fields,
             order,
             candidate_limit,
@@ -309,9 +310,21 @@ impl PageQueryService {
 
         // Slug
         if let Some(slug) = slug {
+            if !slugs.is_empty() {
+                return Err(Error::new(
+                    "page query cannot combine singular and plural slug selectors",
+                    ErrorType::PageQuery,
+                )
+                .into());
+            }
             let slug = slug.as_ref();
             debug!("Filtering based on slug {slug}");
             condition = condition.add(page::Column::Slug.eq(slug));
+        }
+        if !slugs.is_empty() {
+            debug!("Filtering based on {} exact slugs", slugs.len());
+            condition = condition
+                .add(page::Column::Slug.is_in(slugs.iter().map(|slug| slug.as_ref())));
         }
 
         // Initial page author. ListPages' created_by selector refers to the

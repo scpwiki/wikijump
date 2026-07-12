@@ -330,12 +330,93 @@ type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
 
 static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
-static LISTPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?is)\[\[module\s+ListPages(?P<head>(?:"[^"]*"|'[^']*'|[^\]])*)\]\](?P<body>.*?)\[\[/module\]\]"#,
-    )
-    .unwrap()
-});
+#[derive(Debug)]
+struct ListPagesModuleMatch<'a> {
+    start: usize,
+    end: usize,
+    head: &'a str,
+    body: &'a str,
+    original: &'a str,
+}
+
+fn find_list_pages_module_matches(source: &str) -> Vec<ListPagesModuleMatch<'_>> {
+    const MODULE_OPEN: &str = "[[module";
+    const MODULE_CLOSE: &str = "[[/module]]";
+
+    let lowercase = source.to_ascii_lowercase();
+    let mut matches = Vec::new();
+    let mut cursor = 0;
+    while let Some(relative_start) = lowercase[cursor..].find(MODULE_OPEN) {
+        let start = cursor + relative_start;
+        let Some(opening_end) = lowercase[start + MODULE_OPEN.len()..]
+            .find("]]")
+            .map(|offset| start + MODULE_OPEN.len() + offset)
+        else {
+            break;
+        };
+        let opening = &source[start + MODULE_OPEN.len()..opening_end];
+        let trimmed = opening.trim_start();
+        let name_end = trimmed.find(char::is_whitespace).unwrap_or(trimmed.len());
+        if !trimmed[..name_end].eq_ignore_ascii_case("listpages") {
+            cursor = opening_end + 2;
+            continue;
+        }
+        let head = trimmed[name_end..].trim_start();
+        let body_start = opening_end + 2;
+        let Some((closing_start, end)) = find_matching_list_pages_module_close(
+            &lowercase,
+            body_start,
+            MODULE_OPEN,
+            MODULE_CLOSE,
+        ) else {
+            break;
+        };
+        matches.push(ListPagesModuleMatch {
+            start,
+            end,
+            head,
+            body: &source[body_start..closing_start],
+            original: &source[start..end],
+        });
+        cursor = end;
+    }
+    matches
+}
+
+fn find_matching_list_pages_module_close(
+    lowercase: &str,
+    mut cursor: usize,
+    module_open: &str,
+    module_close: &str,
+) -> Option<(usize, usize)> {
+    let mut depth = 1usize;
+    loop {
+        let next_open = lowercase[cursor..]
+            .find(module_open)
+            .map(|offset| cursor + offset);
+        let next_close = lowercase[cursor..]
+            .find(module_close)
+            .map(|offset| cursor + offset);
+        match (next_open, next_close) {
+            (_, None) => return None,
+            (Some(open), Some(close)) if open < close => {
+                let opening_end = lowercase[open + module_open.len()..]
+                    .find("]]")
+                    .map(|offset| open + module_open.len() + offset)?;
+                depth += 1;
+                cursor = opening_end + 2;
+            }
+            (_, Some(close)) => {
+                depth -= 1;
+                let end = close + module_close.len();
+                if depth == 0 {
+                    return Some((close, end));
+                }
+                cursor = end;
+            }
+        }
+    }
+}
 static WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| {
         Regex::new(&format!(
@@ -967,14 +1048,12 @@ impl RenderService {
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
         let mut include_budget = IncludeExpansionBudget::new(max_include_expansions);
-
         Self::remove_preview_component_separator_markers(&mut wikitext);
         let mut included_pages = if settings.enable_page_syntax {
             Self::expand_wikidot_image_block_includes(&mut wikitext, page_info)
         } else {
             Vec::new()
         };
-
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: expanded_included_pages,
@@ -1414,13 +1493,6 @@ impl RenderService {
             );
             apply_basalt_shell_compatibility(&mut html_output.body);
             apply_blankstyle_shell_compatibility(&mut html_output.body);
-            html_output.body =
-                Self::remove_wikidot_compat_style_blocks(&html_output.body);
-            html_output.body = Self::localize_wikidot_local_file_urls(
-                &html_output.body,
-                render_current_site.as_ref(),
-                &render_config,
-            );
             html_output.body = wikidot_compat_text.restore(&html_output.body);
             html_output.backlinks.included_pages.extend(included_pages);
             let html_block_texts = tree
@@ -1566,29 +1638,85 @@ impl RenderService {
         current_site: Option<&SiteModel>,
         config: &Config,
     ) -> String {
-        let html = Self::restore_wikidot_rendered_embed_iframes(html);
-        let html = Self::restore_wikidot_email_obfuscation(&html);
-        let html = Self::remove_spurious_wikidot_email_classes(&html);
-        let html = Self::restore_wikidot_collapsible_compatibility(&html);
-        let html = Self::restore_wikidot_code_block_dom_compatibility(&html);
-        let html = Self::restore_wikidot_tabview_dom_compatibility(&html);
-        let html = Self::resolve_wikidot_simple_if_fragments(&html);
-        let html = Self::restore_wikidot_mailform_compatibility(&html);
-        let html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
-        let html = Self::restore_residual_wikidot_span_markers(&html);
-        let html = Self::restore_residual_wikidot_alignment_markers(&html);
-        let html = Self::restore_residual_wikidot_separator_markers(&html);
-        let html = Self::restore_residual_wikidot_heading_markers(&html);
-        let html = Self::remove_residual_wikidot_iftags_fragments(&html);
-        let html = Self::remove_wikijump_table_body_wrappers(&html);
-        let html = Self::remove_wikidot_compat_style_blocks(&html);
-        let html = Self::restore_wikidot_inline_math_compatibility(&html);
-        let html = Self::restore_wikidot_ta_badge_default_compatibility(&html);
-        let html = Self::restore_wikidot_text_ellipsis_compatibility(&html);
-        let html = Self::restore_wikidot_footnote_dom_compatibility(&html);
-        let html = Self::remove_wikijump_underline_wrappers(&html);
-        let html = Self::remove_wikidot_userkarma_background_styles(&html);
-        Self::localize_wikidot_local_file_urls(&html, current_site, config)
+        let mut html = html.to_owned();
+        if html.contains("[[embed]]") {
+            html = Self::restore_wikidot_rendered_embed_iframes(&html);
+        }
+        if html.contains("wiki-email") {
+            html = Self::restore_wikidot_email_obfuscation(&html);
+            html = Self::remove_spurious_wikidot_email_classes(&html);
+        }
+        if html.contains("wj-collapsible") {
+            html = Self::restore_wikidot_collapsible_compatibility(&html);
+        }
+        if html.contains("wj-code") {
+            html = Self::restore_wikidot_code_block_dom_compatibility(&html);
+        }
+        if html.contains("wj-tabs") {
+            html = Self::restore_wikidot_tabview_dom_compatibility(&html);
+        }
+        if WIKIDOT_SIMPLE_IF_OPEN_REGEX.is_match(&html) {
+            html = Self::resolve_wikidot_simple_if_fragments(&html);
+        }
+        if WIKIDOT_RENDERED_MAILFORM_REGEX.is_match(&html) {
+            html = Self::restore_wikidot_mailform_compatibility(&html);
+        }
+        if html.contains("[[div") || html.contains("[[/div") {
+            html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
+        }
+        if html.contains("[[span") || html.contains("[[/span") {
+            html = Self::restore_residual_wikidot_span_markers(&html);
+        }
+        if html.contains("[[=")
+            || html.contains("[[<")
+            || html.contains("[[>")
+            || html.contains("[[/=")
+            || html.contains("[[/<")
+            || html.contains("[[/>")
+        {
+            html = Self::restore_residual_wikidot_alignment_markers(&html);
+        }
+        if html.starts_with("----")
+            || html.contains("\n----")
+            || html.contains("@@ @@")
+            || html.contains("~~~~")
+        {
+            html = Self::restore_residual_wikidot_separator_markers(&html);
+        }
+        if html.starts_with('+') || html.contains("\n+") || html.contains("\n====") {
+            html = Self::restore_residual_wikidot_heading_markers(&html);
+        }
+        if WIKIDOT_RESIDUAL_IFTAGS_INLINE_REGEX.is_match(&html) {
+            html = Self::remove_residual_wikidot_iftags_fragments(&html);
+        }
+        if html.contains("<tbody>") || html.contains("</tbody>") {
+            html = Self::remove_wikijump_table_body_wrappers(&html);
+        }
+        if WIKIDOT_COMPAT_STYLE_BLOCK_REGEX.is_match(&html) {
+            html = Self::remove_wikidot_compat_style_blocks(&html);
+        }
+        if html.contains("wj-math-inline") {
+            html = Self::restore_wikidot_inline_math_compatibility(&html);
+        }
+        if html.contains("{$") {
+            html = Self::restore_wikidot_ta_badge_default_compatibility(&html);
+        }
+        if html.contains("...") {
+            html = Self::restore_wikidot_text_ellipsis_compatibility(&html);
+        }
+        if html.contains("wj-footnote") {
+            html = Self::restore_wikidot_footnote_dom_compatibility(&html);
+        }
+        if html.contains("<u>") || html.contains("</u>") {
+            html = Self::remove_wikijump_underline_wrappers(&html);
+        }
+        if html.contains("userkarma.php") {
+            html = Self::remove_wikidot_userkarma_background_styles(&html);
+        }
+        if html.contains("/local--") {
+            html = Self::localize_wikidot_local_file_urls(&html, current_site, config);
+        }
+        html
     }
 
     fn restore_wikidot_collapsible_compatibility(html: &str) -> String {
@@ -2952,6 +3080,7 @@ impl RenderService {
         page_info: &PageInfo<'_>,
     ) -> Vec<PageRef> {
         let source = wikitext.clone();
+        let literal_regions = LiteralRegionIndex::new_wikidot_syntax(&source);
         let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
         let mut included_pages = Vec::new();
         let mut search_start = 0;
@@ -2982,13 +3111,12 @@ impl RenderService {
 
             search_start = include_end;
 
-            if Self::should_skip_wikidot_image_block_include_expansion(
-                &source,
-                include_start,
-            ) || !Self::should_expand_wikidot_image_block_include(
-                captures.name("site").map(|site| site.as_str()),
-                page_info,
-            ) {
+            if literal_regions.contains(include_start)
+                || !Self::should_expand_wikidot_image_block_include(
+                    captures.name("site").map(|site| site.as_str()),
+                    page_info,
+                )
+            {
                 continue;
             }
 
@@ -3099,16 +3227,6 @@ impl RenderService {
             Some(site) => PageRef::page_and_site(site, page),
             None => PageRef::page_only(page),
         }
-    }
-
-    fn should_skip_wikidot_image_block_include_expansion(
-        source: &str,
-        start: usize,
-    ) -> bool {
-        Self::is_inside_wikidot_code_block(source, start)
-            || Self::is_inside_wikidot_escape(source, start)
-            || Self::is_inside_wikidot_html_block(source, start)
-            || Self::is_inside_wikidot_comment(source, start)
     }
 
     fn should_expand_wikidot_image_block_include(
@@ -4422,62 +4540,197 @@ impl RenderService {
         }
 
         let initial_remaining_include_expansions = include_budget.remaining;
+        enum ListPagesBlockPlan {
+            Static(String),
+            Render {
+                arguments: ListPagesArguments,
+                body: String,
+                batch_key: Option<ExactNameListPagesBatchKey>,
+            },
+        }
+        struct ListPagesBlock {
+            start: usize,
+            end: usize,
+            plan: ListPagesBlockPlan,
+        }
+
+        let current_category = Self::page_info_category_slug(page_info);
+        let blocks = find_list_pages_module_matches(&wikitext)
+            .into_iter()
+            .map(|module| {
+                let head = module.head;
+                let body = module.body;
+                let plan = if list_pages_has_unsupported_parent_selector(head)
+                    || list_pages_has_unsupported_page_type_selector(head)
+                {
+                    ListPagesBlockPlan::Static(module.original.to_owned())
+                } else if let Some(arguments) = parse_list_pages_arguments(head) {
+                    if list_pages_body_variables_supported(body) {
+                        let batch_key = exact_name_list_pages_batch_key(
+                            head,
+                            body,
+                            &arguments,
+                            current_category.as_ref(),
+                        );
+                        ListPagesBlockPlan::Render {
+                            arguments,
+                            body: body.to_owned(),
+                            batch_key,
+                        }
+                    } else {
+                        ListPagesBlockPlan::Static(unsupported_list_pages_replacement(
+                            module.original,
+                            body,
+                        ))
+                    }
+                } else {
+                    ListPagesBlockPlan::Static(unsupported_list_pages_replacement(
+                        module.original,
+                        body,
+                    ))
+                };
+                ListPagesBlock {
+                    start: module.start,
+                    end: module.end,
+                    plan,
+                }
+            })
+            .collect::<Vec<_>>();
+
         let mut expanded = String::with_capacity(wikitext.len());
         let mut included_pages = Vec::new();
         let mut cursor = 0;
+        let mut blocks = blocks.into_iter().peekable();
 
-        for captures in LISTPAGES_MODULE_REGEX.captures_iter(&wikitext) {
-            let mtch = captures.get(0).unwrap();
-            expanded.push_str(&wikitext[cursor..mtch.start()]);
-            let head = captures.name("head").unwrap().as_str();
-            let body = captures.name("body").unwrap().as_str();
-
-            if list_pages_has_unsupported_parent_selector(head)
-                || list_pages_has_unsupported_page_type_selector(head)
-            {
-                expanded.push_str(mtch.as_str());
-                cursor = mtch.end();
-                continue;
-            }
-
-            let Some(arguments) = parse_list_pages_arguments(head) else {
-                expanded
-                    .push_str(&unsupported_list_pages_replacement(mtch.as_str(), body));
-                cursor = mtch.end();
-                continue;
+        while let Some(block) = blocks.next() {
+            let batch_key = match &block.plan {
+                ListPagesBlockPlan::Render {
+                    batch_key: Some(key),
+                    ..
+                } => Some(key.clone()),
+                _ => None,
             };
+            if let Some(batch_key) = batch_key {
+                let mut batch = vec![block];
+                while batch.len() < MAX_LISTPAGES_RENDER_LIMIT as usize
+                    && blocks.peek().is_some_and(|next| {
+                        matches!(
+                            &next.plan,
+                            ListPagesBlockPlan::Render {
+                                batch_key: Some(key),
+                                ..
+                            } if key == &batch_key
+                        )
+                    })
+                {
+                    batch.push(blocks.next().unwrap());
+                }
 
-            if !list_pages_body_variables_supported(body) {
-                expanded
-                    .push_str(&unsupported_list_pages_replacement(mtch.as_str(), body));
-                cursor = mtch.end();
+                let mut unique_slugs = BTreeSet::new();
+                let mut fields = FoundPageFields::default();
+                for block in &batch {
+                    let ListPagesBlockPlan::Render {
+                        arguments, body, ..
+                    } = &block.plan
+                    else {
+                        unreachable!();
+                    };
+                    unique_slugs.insert(arguments.slug.as_ref().unwrap().to_string());
+                    union_found_page_fields(
+                        &mut fields,
+                        &list_pages_found_page_fields(body),
+                    );
+                }
+                let slugs = unique_slugs
+                    .iter()
+                    .map(|slug| Cow::Borrowed(slug.as_str()))
+                    .collect::<Vec<_>>();
+                let prefetched = Self::load_exact_name_list_pages_batch(
+                    ctx,
+                    current_site_id,
+                    current_page_id,
+                    &batch_key,
+                    &slugs,
+                    fields,
+                )
+                .await?;
+
+                for block in batch {
+                    expanded.push_str(&wikitext[cursor..block.start]);
+                    let ListPagesBlockPlan::Render {
+                        arguments, body, ..
+                    } = block.plan
+                    else {
+                        unreachable!();
+                    };
+                    let slug = arguments.slug.as_ref().unwrap().to_string();
+                    let prefetched_pages = FoundPages {
+                        pages: prefetched.get(&slug).cloned().into_iter().collect(),
+                    };
+                    let IncludeExpansion {
+                        wikitext: replacement,
+                        included_pages: replacement_included_pages,
+                        expanded_include_count: replacement_expanded_include_count,
+                    } = Self::render_list_pages_block(
+                        ctx,
+                        ListPagesPageContext {
+                            site_id: current_site_id,
+                            page_id: current_page_id,
+                        },
+                        page_info,
+                        settings,
+                        arguments,
+                        &body,
+                        include_budget,
+                        Some(prefetched_pages),
+                    )
+                    .await?;
+                    include_budget.consume(replacement_expanded_include_count);
+                    expanded.push_str(&register_generated_list_pages_html(
+                        replacement,
+                        compat_html,
+                    ));
+                    included_pages.extend(replacement_included_pages);
+                    cursor = block.end;
+                }
                 continue;
             }
 
-            let IncludeExpansion {
-                wikitext: replacement,
-                included_pages: replacement_included_pages,
-                expanded_include_count: replacement_expanded_include_count,
-            } = Self::render_list_pages_block(
-                ctx,
-                ListPagesPageContext {
-                    site_id: current_site_id,
-                    page_id: current_page_id,
-                },
-                page_info,
-                settings,
-                arguments,
-                body,
-                include_budget,
-            )
-            .await?;
-            include_budget.consume(replacement_expanded_include_count);
-            expanded.push_str(&register_generated_list_pages_html(
-                replacement,
-                compat_html,
-            ));
-            included_pages.extend(replacement_included_pages);
-            cursor = mtch.end();
+            expanded.push_str(&wikitext[cursor..block.start]);
+            match block.plan {
+                ListPagesBlockPlan::Static(replacement) => {
+                    expanded.push_str(&replacement);
+                }
+                ListPagesBlockPlan::Render {
+                    arguments, body, ..
+                } => {
+                    let IncludeExpansion {
+                        wikitext: replacement,
+                        included_pages: replacement_included_pages,
+                        expanded_include_count: replacement_expanded_include_count,
+                    } = Self::render_list_pages_block(
+                        ctx,
+                        ListPagesPageContext {
+                            site_id: current_site_id,
+                            page_id: current_page_id,
+                        },
+                        page_info,
+                        settings,
+                        arguments,
+                        &body,
+                        include_budget,
+                        None,
+                    )
+                    .await?;
+                    include_budget.consume(replacement_expanded_include_count);
+                    expanded.push_str(&register_generated_list_pages_html(
+                        replacement,
+                        compat_html,
+                    ));
+                    included_pages.extend(replacement_included_pages);
+                }
+            }
+            cursor = block.end;
         }
 
         expanded.push_str(&wikitext[cursor..]);
@@ -4487,6 +4740,79 @@ impl RenderService {
             expanded_include_count: initial_remaining_include_expansions
                 .saturating_sub(include_budget.remaining),
         })
+    }
+
+    async fn load_exact_name_list_pages_batch(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+        key: &ExactNameListPagesBatchKey,
+        slugs: &[Cow<'_, str>],
+        fields: FoundPageFields,
+    ) -> Result<BTreeMap<String, FoundPageRow>> {
+        let categories = key
+            .categories
+            .iter()
+            .map(|category| Cow::Borrowed(category.as_str()))
+            .collect::<Vec<_>>();
+        let excluded_categories = key
+            .excluded_categories
+            .iter()
+            .map(|category| Cow::Borrowed(category.as_str()))
+            .collect::<Vec<_>>();
+        let included_categories = if key.category_all {
+            IncludedCategories::All
+        } else {
+            IncludedCategories::List(&categories)
+        };
+        let query = PageQuery {
+            current_page_id,
+            current_site_id,
+            queried_site_id: None,
+            page_type: PageTypeSelector::Normal,
+            categories: CategoriesSelector {
+                included_categories,
+                excluded_categories: &excluded_categories,
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &[],
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            },
+            author: &[],
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            slugs,
+            data_form_fields: &[],
+            order: None,
+            candidate_limit: None,
+            pagination: PaginationSelector {
+                limit: Some(MAX_LISTPAGES_RENDER_LIMIT),
+                per_page: PaginationSelector::default().per_page,
+                reversed: false,
+            },
+            variables: &[],
+            fields,
+        };
+        let found = Self::find_viewable_list_pages_rows(ctx, query, slugs.len()).await?;
+        Ok(found
+            .pages
+            .pages
+            .into_iter()
+            .filter_map(|page| page.slug.clone().map(|slug| (slug, page)))
+            .collect())
     }
 
     async fn expand_count_pages(
@@ -6774,6 +7100,7 @@ impl RenderService {
         arguments: ListPagesArguments,
         body: &str,
         mut include_budget: IncludeExpansionBudget,
+        mut prefetched_pages: Option<FoundPages>,
     ) -> Result<IncludeExpansion> {
         let ListPagesPageContext {
             site_id: current_site_id,
@@ -6844,9 +7171,6 @@ impl RenderService {
             || list_pages_body_uses_variable(body, "updatedby");
         let wants_updated_at = list_pages_body_uses_variable(body, "updated_at")
             || list_pages_body_uses_variable(body, "updatedat");
-        let wants_tags = list_pages_body_uses_variable(body, "tags")
-            || list_pages_body_uses_variable(body, "tags_linked")
-            || list_pages_body_uses_variable(body, "tagslinked");
         let wants_rating_votes = list_pages_body_uses_variable(body, "rating_votes")
             || list_pages_body_uses_variable(body, "ratingvotes");
         let author_ids = Self::resolve_list_pages_author_ids(
@@ -6885,6 +7209,7 @@ impl RenderService {
             range: RangeSelector::Current,
             name: None,
             slug,
+            slugs: &[],
             data_form_fields: &data_form_fields,
             order,
             candidate_limit: if data_form_fields.is_empty() {
@@ -6898,19 +7223,7 @@ impl RenderService {
                 reversed: false,
             },
             variables: &[],
-            fields: FoundPageFields {
-                title: true,
-                slug: true,
-                page_category_id: true,
-                created_by: wants_created_by,
-                created_at: wants_created_at,
-                tags: wants_tags,
-                updated_by: wants_updated_by,
-                updated_at: wants_updated_at,
-                score: list_pages_body_uses_variable(body, "rating")
-                    || wants_rating_votes,
-                ..Default::default()
-            },
+            fields: list_pages_found_page_fields(body),
         };
 
         let mut list_pages_metadata = None;
@@ -6940,6 +7253,8 @@ impl RenderService {
             }
         } else if current_page_only {
             FoundPages { pages: Vec::new() }
+        } else if let Some(pages) = prefetched_pages.take() {
+            pages
         } else {
             let found = Self::find_viewable_list_pages_rows(
                 ctx,
@@ -7065,16 +7380,20 @@ impl RenderService {
                 data_form_values: &data_form_values,
                 render_generated_html: list_pages_body_has_table_rows(body),
             };
-            let mut generated_fragments = CompatHtmlFragments::new(body);
-            let body = substitute_list_pages_variables_with_fragments(
-                body,
-                page,
-                index + 1,
-                total,
-                &substitution_context,
-                &mut generated_fragments,
-            );
-            let mut body = generated_fragments.restore(&body);
+            let mut body = if list_pages_body_uses_only_rating_variable(body) {
+                substitute_list_pages_rating_only(body, page)
+            } else {
+                let mut generated_fragments = CompatHtmlFragments::new(body);
+                let body = substitute_list_pages_variables_with_fragments(
+                    body,
+                    page,
+                    index + 1,
+                    total,
+                    &substitution_context,
+                    &mut generated_fragments,
+                );
+                generated_fragments.restore(&body)
+            };
             Self::neutralize_authored_wikidot_compat_markers(&mut body);
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
@@ -7197,6 +7516,7 @@ impl RenderService {
             range: RangeSelector::Current,
             name: None,
             slug,
+            slugs: &[],
             data_form_fields: &data_form_fields,
             order,
             candidate_limit: if data_form_fields.is_empty() {
@@ -7279,21 +7599,33 @@ impl RenderService {
         pages: Vec<FoundPageRow>,
     ) -> Result<Vec<FoundPageRow>> {
         let mut viewable = Vec::with_capacity(pages.len());
+        let mut category_permissions = BTreeMap::new();
         for page in pages {
-            let can_view = PermissionService::check_user_can(
-                ctx,
-                &CheckPermissionContext {
-                    user_id: None,
-                    site_id: page.site_id,
-                    page_reference: Some(Reference::Id(page.page_id)),
-                },
-                Permission {
-                    resource_type: Resource::Page,
-                    resource_category: page.page_category_id.map(Reference::Id),
-                    action: Action::View,
-                },
-            )
-            .await?;
+            let permission_key = (page.site_id, page.page_category_id);
+            let can_view =
+                if let Some(can_view) = category_permissions.get(&permission_key) {
+                    *can_view
+                } else {
+                    // ListPages renders for an anonymous viewer. Anonymous users cannot
+                    // acquire the page-author virtual role, so page view permission is
+                    // determined by site and category and can be shared within this render.
+                    let can_view = PermissionService::check_user_can(
+                        ctx,
+                        &CheckPermissionContext {
+                            user_id: None,
+                            site_id: page.site_id,
+                            page_reference: Some(Reference::Id(page.page_id)),
+                        },
+                        Permission {
+                            resource_type: Resource::Page,
+                            resource_category: page.page_category_id.map(Reference::Id),
+                            action: Action::View,
+                        },
+                    )
+                    .await?;
+                    category_permissions.insert(permission_key, can_view);
+                    can_view
+                };
             if can_view {
                 viewable.push(page);
             }
@@ -7880,6 +8212,110 @@ struct ListPagesArguments {
     data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
     unsupported_count_pages_filter: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ExactNameListPagesBatchKey {
+    category_all: bool,
+    categories: Vec<String>,
+    excluded_categories: Vec<String>,
+}
+
+fn exact_name_list_pages_batch_key(
+    head: &str,
+    body: &str,
+    arguments: &ListPagesArguments,
+    current_category: &str,
+) -> Option<ExactNameListPagesBatchKey> {
+    let unparsed = LISTPAGES_ARGUMENT_REGEX.replace_all(head, "");
+    if !unparsed.trim().is_empty()
+        || list_pages_body_uses_content_variable(body)
+        || list_pages_body_uses_variable(body, "form_data")
+        || list_pages_body_uses_variable(body, "form_raw")
+    {
+        return None;
+    }
+
+    let mut name_arguments = 0;
+    for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
+        if captures.name("op").map_or("=", |matched| matched.as_str()) != "=" {
+            return None;
+        }
+        match captures["key"].to_ascii_lowercase().as_str() {
+            "name" => name_arguments += 1,
+            "category" => {}
+            _ => return None,
+        }
+    }
+    if name_arguments != 1 || arguments.slug.is_none() {
+        return None;
+    }
+
+    let mut categories = arguments
+        .categories
+        .iter()
+        .map(|category| category.to_string())
+        .collect::<Vec<_>>();
+    let category_all = if arguments.category_selector_present {
+        if arguments.include_current_category {
+            categories.push(current_category.to_owned());
+        }
+        arguments.category_all
+    } else {
+        categories.push(current_category.to_owned());
+        false
+    };
+
+    Some(ExactNameListPagesBatchKey {
+        category_all,
+        categories,
+        excluded_categories: arguments
+            .excluded_categories
+            .iter()
+            .map(|category| category.to_string())
+            .collect(),
+    })
+}
+
+fn list_pages_found_page_fields(body: &str) -> FoundPageFields {
+    let wants_rating_votes = list_pages_body_uses_variable(body, "rating_votes")
+        || list_pages_body_uses_variable(body, "ratingvotes");
+    FoundPageFields {
+        title: true,
+        slug: true,
+        page_category_id: true,
+        created_by: list_pages_body_uses_variable(body, "created_by")
+            || list_pages_body_uses_variable(body, "createdby")
+            || list_pages_body_uses_variable(body, "created_by_linked")
+            || list_pages_body_uses_variable(body, "createdbylinked")
+            || list_pages_body_uses_variable(body, "author"),
+        created_at: list_pages_body_uses_variable(body, "created_at")
+            || list_pages_body_uses_variable(body, "createdat")
+            || list_pages_body_uses_variable(body, "date"),
+        tags: list_pages_body_uses_variable(body, "tags")
+            || list_pages_body_uses_variable(body, "tags_linked")
+            || list_pages_body_uses_variable(body, "tagslinked"),
+        updated_by: list_pages_body_uses_variable(body, "updated_by")
+            || list_pages_body_uses_variable(body, "updatedby"),
+        updated_at: list_pages_body_uses_variable(body, "updated_at")
+            || list_pages_body_uses_variable(body, "updatedat"),
+        score: list_pages_body_uses_variable(body, "rating") || wants_rating_votes,
+        ..Default::default()
+    }
+}
+
+fn union_found_page_fields(left: &mut FoundPageFields, right: &FoundPageFields) {
+    left.title |= right.title;
+    left.alt_title |= right.alt_title;
+    left.slug |= right.slug;
+    left.page_category_id |= right.page_category_id;
+    left.page_revision_id |= right.page_revision_id;
+    left.tags |= right.tags;
+    left.created_at |= right.created_at;
+    left.created_by |= right.created_by;
+    left.updated_at |= right.updated_at;
+    left.updated_by |= right.updated_by;
+    left.score |= right.score;
 }
 
 fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
@@ -8506,6 +8942,33 @@ fn list_pages_body_uses_variable(body: &str, variable: &str) -> bool {
 
 fn list_pages_body_uses_content_variable(body: &str) -> bool {
     list_pages_body_uses_variable(body, "content")
+}
+
+fn list_pages_body_uses_only_rating_variable(body: &str) -> bool {
+    let mut saw_rating = false;
+    for captures in LISTPAGES_VARIABLE_REGEX.captures_iter(body) {
+        if !captures["name"].eq_ignore_ascii_case("rating") {
+            return false;
+        }
+        saw_rating = true;
+    }
+    saw_rating
+}
+
+fn substitute_list_pages_rating_only(template: &str, page: &FoundPageRow) -> String {
+    let rating = format_list_pages_rating(page.score);
+    let substituted = LISTPAGES_VARIABLE_REGEX
+        .replace_all(template, |captures: &regex::Captures<'_>| {
+            if captures["name"].eq_ignore_ascii_case("rating") {
+                rating.clone()
+            } else {
+                captures[0].to_owned()
+            }
+        })
+        .into_owned();
+    RenderService::resolve_wikidot_parser_functions(
+        &resolve_list_pages_signed_abs_expressions(&substituted),
+    )
 }
 
 fn push_list_pages_pager(
@@ -11203,7 +11666,7 @@ mod tests {
     use super::{
         COMPAT_TEXT_MARKER_PREFIX, CollectingIncluder, CompatHtmlFragments,
         CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-        CountPagesRawScanCompletion, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
+        CountPagesRawScanCompletion, ListPagesSnapshotDisplay,
         ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
         MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
         MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
@@ -11217,7 +11680,8 @@ mod tests {
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
         count_pages_should_remain_literal, count_pages_unbounded_total,
-        find_balanced_ul_end, format_list_pages_created_at, include_error,
+        exact_name_list_pages_batch_key, find_balanced_ul_end,
+        find_list_pages_module_matches, format_list_pages_created_at, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -11459,6 +11923,27 @@ mod tests {
     }
 
     #[test]
+    fn linear_list_pages_scanner_preserves_nested_modules_and_source_order() {
+        let source = concat!(
+            "before\n",
+            "[[module Listpages name=\"first\"]]A",
+            "[[module ListUsers users=\".\"]]nested[[/module]]",
+            "B[[/module]]\n",
+            "between\n",
+            "[[module LISTPAGES name=\"second\"]]C[[/module]]\n",
+            "after",
+        );
+        let modules = find_list_pages_module_matches(source);
+        assert_eq!(modules.len(), 2);
+        assert_eq!(modules[0].head, "name=\"first\"");
+        assert!(modules[0].body.contains("[[module ListUsers"));
+        assert!(modules[0].body.ends_with('B'));
+        assert_eq!(modules[1].head, "name=\"second\"");
+        assert_eq!(modules[1].body, "C");
+        assert!(modules[0].end < modules[1].start);
+    }
+
+    #[test]
     fn parses_other_pages_list_pages_range_selector() {
         let arguments = parse_list_pages_arguments(
             r#" category="*" created_by="=" tags="scp" perPage="15" range="others""#,
@@ -11518,6 +12003,49 @@ mod tests {
         assert_eq!(arguments.categories, vec![Cow::Borrowed("theme")]);
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("1998")]);
         assert_eq!(arguments.limit, Some(5));
+    }
+
+    #[test]
+    fn exact_name_list_pages_batch_classifier_is_deliberately_narrow() {
+        let default = parse_list_pages_arguments(r#" name="scp-173""#)
+            .expect("exact-name selector should parse");
+        let key = exact_name_list_pages_batch_key(
+            r#" name="scp-173""#,
+            "%%rating%%",
+            &default,
+            "_default",
+        )
+        .expect("simple exact-name block should batch");
+        assert!(!key.category_all);
+        assert_eq!(key.categories, ["_default"]);
+
+        let categorized =
+            parse_list_pages_arguments(r#" category="art" name="ralliston-portrait""#)
+                .expect("categorized exact-name selector should parse");
+        let key = exact_name_list_pages_batch_key(
+            r#" category="art" name="ralliston-portrait""#,
+            "%%rating%%",
+            &categorized,
+            "_default",
+        )
+        .expect("categorized exact-name block should batch");
+        assert_eq!(key.categories, ["art"]);
+
+        for (head, body) in [
+            (r#" name="scp-173" tags="scp""#, "%%rating%%"),
+            (r#" name="scp-173" limit="1""#, "%%rating%%"),
+            (r#" name="scp-173""#, "%%content%%"),
+            (r#" name="scp-173""#, "%%form_data%%"),
+            (r#" name="scp-173""#, "%%form_raw%%"),
+        ] {
+            let arguments = parse_list_pages_arguments(head)
+                .expect("supported non-batch selector should still parse");
+            assert!(
+                exact_name_list_pages_batch_key(head, body, &arguments, "_default")
+                    .is_none(),
+                "unexpectedly batchable: {head} / {body}",
+            );
+        }
     }
 
     #[test]
@@ -11676,13 +12204,11 @@ mod tests {
     #[test]
     fn parses_corpus_list_pages_created_by_argument() {
         let source = r#"[[module ListPages created_by="[Congy]" separate="no"]]%%title_linked%%[[/module]]"#;
-        let captures = LISTPAGES_MODULE_REGEX
-            .captures(source)
+        let modules = find_list_pages_module_matches(source);
+        let module = modules
+            .first()
             .expect("ListPages module with bracketed quoted author should match");
-        assert_eq!(
-            captures.name("head").unwrap().as_str().trim(),
-            r#"created_by="[Congy]" separate="no""#,
-        );
+        assert_eq!(module.head.trim(), r#"created_by="[Congy]" separate="no""#,);
 
         let arguments = parse_list_pages_arguments(
             r#" created_by="[Congy]" separate="no" tags="+jp" order="created" category="-deleted""#,

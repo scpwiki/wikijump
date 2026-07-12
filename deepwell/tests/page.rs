@@ -2217,6 +2217,89 @@ async fn listpages_fragment_content_expands_child_includes() {
 }
 
 #[tokio::test]
+async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        ("fixture-exact-batch-a", "Exact Batch A"),
+        ("fixture-exact-batch-b", "Exact Batch B"),
+        ("fixture-exact-batch-c", "Exact Batch C"),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, "target").await;
+    }
+
+    let private_category = "fixture-exact-batch-private-category";
+    make_listpages_test_category_admin_only(&runner, site_id, private_category).await;
+    let private_slug = "fixture-exact-batch-private";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        private_slug,
+        "Exact Batch Private",
+        "private target",
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, private_slug, private_category)
+        .await;
+
+    let index_slug = "fixture-exact-batch-index";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        index_slug,
+        "Exact Batch Index",
+        &format!(
+            concat!(
+                "[[module ListPages name=\"fixture-exact-batch-c\"]]C=%%slug%%[[/module]]\n",
+                "[[module ListPages name=\"fixture-exact-batch-a\"]]A1=%%slug%%[[/module]]\n",
+                "[[module ListPages name=\"fixture-exact-batch-b\"]]B=%%slug%%[[/module]]\n",
+                "[[module ListPages name=\"fixture-exact-batch-a\"]]A2=%%slug%%[[/module]]\n",
+                "[[module ListPages name=\"fixture-exact-batch-missing\"]]MISSING=%%slug%%[[/module]]\n",
+                "[[module ListPages category=\"{}\" name=\"{}\"]]PRIVATE=%%slug%%[[/module]]",
+            ),
+            private_category, private_slug,
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("exact-name batch index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let c = html.find("C=fixture-exact-batch-c").unwrap();
+    let a1 = html.find("A1=fixture-exact-batch-a").unwrap();
+    let b = html.find("B=fixture-exact-batch-b").unwrap();
+    let a2 = html.find("A2=fixture-exact-batch-a").unwrap();
+    assert!(
+        c < a1 && a1 < b && b < a2,
+        "batch output order changed:\n{html}"
+    );
+    assert!(
+        !html.contains("MISSING="),
+        "missing exact-name page rendered a row:\n{html}"
+    );
+    assert!(
+        !html.contains("PRIVATE="),
+        "private-category exact-name page was exposed:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_content_body_supports_bounded_ordered_child_results() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -6802,6 +6885,7 @@ async fn page_query_orders_by_page_slug_without_category_prefix() {
             range: RangeSelector::Current,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(OrderBySelector {
                 property: OrderProperty::PageSlug,
@@ -6887,6 +6971,7 @@ async fn page_query_created_by_uses_earliest_available_revision() {
             range: RangeSelector::Current,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(OrderBySelector {
                 property: OrderProperty::PageSlug,
@@ -6951,6 +7036,7 @@ async fn page_query_created_by_uses_earliest_available_revision() {
             range: RangeSelector::Current,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(OrderBySelector {
                 property: OrderProperty::PageSlug,
@@ -7059,6 +7145,7 @@ async fn page_query_score_order_returns_results() {
         range: RangeSelector::Current,
         name: None,
         slug: None,
+        slugs: &[],
         data_form_fields: &[],
         order: Some(OrderBySelector {
             property: OrderProperty::Score,
@@ -7203,6 +7290,7 @@ async fn page_query_find_with_metadata_marks_sql_limited_results() {
             range: RangeSelector::Current,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(OrderBySelector {
                 property: OrderProperty::PageSlug,
@@ -7287,6 +7375,7 @@ async fn page_query_find_with_metadata_marks_deferred_score_ordering() {
             range: RangeSelector::Current,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(OrderBySelector {
                 property: OrderProperty::Score,
