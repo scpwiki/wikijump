@@ -178,14 +178,21 @@ bar.wjfiles.host.site.somedomain.example.com {
 #
 
 # Missing canonical domains
-http://*.site.wikijump.com,
-http://*.wjfiles.host.site.somedomain.example.com {
+http://*.site.wikijump.com {
 	import strip_headers
 	request_header X-Wikijump-Basic-Error 1
 	request_header X-Wikijump-Site-Slug {labels.3}
 	rewrite * /-/basic-error/site-slug
 	import reverse_proxy_wws *
 }
+http://*.wjfiles.host.site.somedomain.example.com {
+	import strip_headers
+	request_header X-Wikijump-Basic-Error 1
+	request_header X-Wikijump-Site-Slug {labels.6}
+	rewrite * /-/basic-error/site-slug
+	import reverse_proxy_wws *
+}
+
 
 # Missing custom domains
 http://,
