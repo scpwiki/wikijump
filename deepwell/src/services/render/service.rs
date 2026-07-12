@@ -2482,6 +2482,7 @@ impl RenderService {
 
     fn normalize_wikidot_multiline_page_links(wikitext: &mut String) {
         let source = wikitext.clone();
+        let literal_regions = LiteralRegionIndex::new(&source);
         let mut normalized = String::with_capacity(source.len());
         let mut last = 0usize;
         let mut changed = false;
@@ -2494,7 +2495,7 @@ impl RenderService {
             normalized.push_str(&source[last..link_match.start()]);
             last = link_match.end();
 
-            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
+            if literal_regions.contains(link_match.start()) {
                 normalized.push_str(link_match.as_str());
                 continue;
             }
@@ -15604,6 +15605,80 @@ mod tests {
         );
         assert!(rendered.contains("Creck Fection Contest 2 (TWO DAY EXTRAVAGANZA!)"));
         assert!(!rendered.contains("[[[an-incredibly-importanterest-announcement"));
+    }
+
+    #[test]
+    fn multiline_page_links_respect_canonical_literal_regions() {
+        let mut wikitext = concat!(
+            "[[code]]\n[[[code-link|Nope\nPlease]]]\n[[/code]]\n",
+            "[[html]]\n[[[html-link|Nope\nPlease]]]\n[[/html]]\n",
+            "@@[[[escape-link|Nope\nPlease]]]@@\n",
+            "[!-- [[[comment-link|Nope\nPlease]]] --]\n",
+            "<pre>[[[pre-link|Nope\nPlease]]]</pre>\n",
+            "[[[page-link|Yes\nPlease]]]\n",
+        )
+        .to_owned();
+
+        RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
+
+        for literal in [
+            "[[[code-link|Nope\nPlease]]]",
+            "[[[html-link|Nope\nPlease]]]",
+            "@@[[[escape-link|Nope\nPlease]]]@@",
+            "[!-- [[[comment-link|Nope\nPlease]]] --]",
+            "<pre>[[[pre-link|Nope\nPlease]]]</pre>",
+        ] {
+            assert!(
+                wikitext.contains(literal),
+                "missing literal region: {literal}"
+            );
+        }
+        assert!(wikitext.contains("[[[page-link|Yes Please]]]"));
+    }
+
+    #[test]
+    fn multiline_page_links_preserve_malformed_and_unicode_input() {
+        let mut wikitext = concat!(
+            "[[[\u{30da}\u{30fc}\u{30b8}|\u{4e00}\u{884c}\u{76ee}\n\u{4e8c}\u{884c}\u{76ee}]]]\n",
+            "[[[missing-label|\n]]]\n",
+        )
+        .to_owned();
+
+        RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
+
+        assert!(wikitext.contains("[[[\u{30da}\u{30fc}\u{30b8}|\u{4e00}\u{884c}\u{76ee} \u{4e8c}\u{884c}\u{76ee}]]]"));
+        assert!(wikitext.contains("[[[missing-label|\n]]]"));
+
+        for malformed in [
+            "[[[missing-close|line one\nline two\n",
+            "[[[|empty target\nlabel]]]\n",
+        ] {
+            let mut value = malformed.to_owned();
+            RenderService::normalize_wikidot_multiline_page_links(&mut value);
+            assert_eq!(value, malformed);
+        }
+    }
+
+    #[test]
+    fn multiline_page_link_normalization_handles_dense_literal_regions_linearly() {
+        const COUNT: usize = 2_048;
+        let mut wikitext = String::new();
+        for index in 0..COUNT {
+            if index % 2 == 0 {
+                wikitext.push_str("[!-- [[[literal|");
+                wikitext.push_str(&index.to_string());
+                wikitext.push_str("\nvalue]]] --]\n");
+            } else {
+                wikitext.push_str("[[[page-");
+                wikitext.push_str(&index.to_string());
+                wikitext.push_str("|first\nsecond]]]\n");
+            }
+        }
+
+        RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
+
+        assert_eq!(wikitext.matches("\nvalue]]] --]").count(), COUNT / 2);
+        assert_eq!(wikitext.matches("|first second]]]").count(), COUNT / 2);
     }
 
     #[test]
