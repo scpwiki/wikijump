@@ -2114,21 +2114,22 @@ impl RenderService {
         let mut rest = html;
         let mut alignment_stack: Vec<&'static str> = Vec::new();
 
-        loop {
-            let Some((position, marker, alignment, replacement, is_close)) = MARKERS
+        while let Some(position) = rest.find('<') {
+            output.push_str(&rest[..position]);
+            rest = &rest[position..];
+
+            let Some((marker, alignment, replacement, is_close)) = MARKERS
                 .iter()
-                .filter_map(|(marker, alignment, replacement, is_close)| {
-                    rest.find(marker).map(|position| {
-                        (position, *marker, *alignment, *replacement, *is_close)
-                    })
+                .find(|(marker, ..)| rest.starts_with(marker))
+                .map(|(marker, alignment, replacement, is_close)| {
+                    (*marker, *alignment, *replacement, *is_close)
                 })
-                .min_by_key(|(position, ..)| *position)
             else {
-                output.push_str(rest);
-                return output;
+                output.push('<');
+                rest = &rest['<'.len_utf8()..];
+                continue;
             };
 
-            output.push_str(&rest[..position]);
             if is_close {
                 if alignment_stack.last().copied() == Some(alignment) {
                     alignment_stack.pop();
@@ -2140,8 +2141,11 @@ impl RenderService {
                 alignment_stack.push(alignment);
                 output.push_str(replacement);
             }
-            rest = &rest[position + marker.len()..];
+            rest = &rest[marker.len()..];
         }
+
+        output.push_str(rest);
+        output
     }
 
     fn residual_wikidot_alignment_open_replacement(
@@ -17176,6 +17180,99 @@ mod tests {
         assert!(restored.contains(r#"</details></span></div><br><span>after</span>"#));
         assert!(!restored.contains("[[=]]"));
         assert!(!restored.contains("[[/=]]"));
+    }
+
+    #[test]
+    fn restores_repeated_residual_wikidot_alignment_html_markers() {
+        let html = "<p>[[=]]</p>".repeat(1024);
+
+        let restored = RenderService::restore_residual_wikidot_alignment_markers(&html);
+
+        assert_eq!(
+            restored,
+            r#"<div style="text-align: center;">"#.repeat(1024)
+        );
+    }
+
+    #[test]
+    fn restores_every_residual_wikidot_alignment_html_marker() {
+        let open_cases = [
+            ("<p>[[=]]</p>", r#"<div style="text-align: center;">"#),
+            ("<p>[[<]]</p>", r#"<div style="text-align: left;">"#),
+            ("<p>[[&lt;]]</p>", r#"<div style="text-align: left;">"#),
+            ("<p>[[>]]</p>", r#"<div style="text-align: right;">"#),
+            ("<p>[[&gt;]]</p>", r#"<div style="text-align: right;">"#),
+        ];
+        for (marker, replacement) in open_cases {
+            assert_eq!(
+                RenderService::restore_residual_wikidot_alignment_html_markers(marker),
+                replacement,
+                "open marker {marker}",
+            );
+        }
+
+        let close_cases = [
+            ("<p>[[=]]</p>", "<p>[[/=]]</p>", "</div>"),
+            ("<p>[[=]]</p>", "<br>[[/=]]<br>", "</div><br>"),
+            ("<p>[[=]]</p>", "<br/>[[/=]]<br/>", "</div><br/>"),
+            ("<p>[[=]]</p>", "<br />[[/=]]<br />", "</div><br />"),
+            ("<p>[[<]]</p>", "<p>[[/<]]</p>", "</div>"),
+            ("<p>[[<]]</p>", "<p>[[/&lt;]]</p>", "</div>"),
+            ("<p>[[<]]</p>", "<br>[[/<]]<br>", "</div><br>"),
+            ("<p>[[<]]</p>", "<br>[[/&lt;]]<br>", "</div><br>"),
+            ("<p>[[>]]</p>", "<p>[[/>]]</p>", "</div>"),
+            ("<p>[[>]]</p>", "<p>[[/&gt;]]</p>", "</div>"),
+            ("<p>[[>]]</p>", "<br>[[/>]]<br>", "</div><br>"),
+            ("<p>[[>]]</p>", "<br>[[/&gt;]]<br>", "</div><br>"),
+        ];
+        for (open, close, close_replacement) in close_cases {
+            let input = format!("{open}body{close}");
+            let output =
+                RenderService::restore_residual_wikidot_alignment_html_markers(&input);
+            assert!(output.ends_with(close_replacement), "close marker {close}");
+            assert!(!output.contains(close), "close marker leaked: {close}");
+        }
+    }
+
+    #[test]
+    fn alignment_html_marker_scan_preserves_mismatches_and_partial_prefixes() {
+        let html = concat!(
+            "prefix<<<<<<",
+            "<p>[[=]]</p>",
+            "<p>[[/<]]</p>",
+            "<p>[[/=]]</p>",
+            "<p>[[=]</p>",
+            "<p>[[=]]</p",
+            "suffix",
+        );
+
+        let restored =
+            RenderService::restore_residual_wikidot_alignment_html_markers(html);
+
+        assert!(restored.starts_with("prefix<<<<<<"));
+        assert!(restored.contains("<p>[[/<]]</p>"));
+        assert!(restored.contains("<p>[[=]</p>"));
+        assert!(restored.contains("<p>[[=]]</p"));
+        assert!(restored.ends_with("suffix"));
+    }
+
+    #[test]
+    fn alignment_html_marker_scan_handles_dense_adversarial_input() {
+        const COUNT: usize = 4_096;
+        let mut html = String::new();
+        for index in 0..COUNT {
+            html.push_str("<not-a-marker data-index=\"");
+            html.push_str(&index.to_string());
+            html.push_str("\"><p>[[=]</p>");
+        }
+        html.push_str("<p>[[=]]</p>body<p>[[/=]]</p>");
+
+        let restored =
+            RenderService::restore_residual_wikidot_alignment_html_markers(&html);
+
+        assert_eq!(restored.matches("<not-a-marker").count(), COUNT);
+        assert_eq!(restored.matches("<p>[[=]</p>").count(), COUNT);
+        assert!(restored.ends_with(r#"<div style="text-align: center;">body</div>"#));
     }
 
     #[test]
