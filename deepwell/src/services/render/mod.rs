@@ -33,7 +33,6 @@ mod prelude {
 
 mod compat_html_fragments;
 mod compat_text_fragments;
-#[allow(dead_code)]
 mod diagnostics;
 mod html_text;
 mod include_comment_branches;
@@ -48,8 +47,9 @@ mod wikidot_expression;
 mod wikidot_inline_markers;
 
 pub(crate) use self::diagnostics::{
-    CORPUS_RENDER_BUDGET_US, CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage,
-    CorpusRenderTrace, CorpusRenderTraceSnapshot, StageGuard,
+    CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, CorpusRenderDimension,
+    CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, CorpusRenderTraceSnapshot,
+    StageGuard, is_corpus_render_timing,
 };
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
