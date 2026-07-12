@@ -237,6 +237,151 @@ test("anonymous article response cache fence helpers fail closed on malformed va
   )
 })
 
+test("Redis cache store times out unanswered commands", async () => {
+  const sockets = new Set()
+  const server = net.createServer((socket) => {
+    sockets.add(socket)
+    socket.on("close", () => sockets.delete(socket))
+    socket.on("data", () => {
+      // Keep the socket open while withholding a Redis response.
+    })
+  })
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const store = createRedisCacheStore(`redis://127.0.0.1:${address.port}`)
+
+  try {
+    await assert.rejects(store.get("deepwell:public-content:site:6000005:version"), {
+      message: "Redis command timed out"
+    })
+  } finally {
+    for (const socket of sockets) {
+      socket.destroy()
+    }
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
+})
+
+test("Redis cache store reconnects after a command timeout", async () => {
+  const sockets = new Set()
+  let connections = 0
+  const server = net.createServer((socket) => {
+    connections += 1
+    sockets.add(socket)
+    socket.on("close", () => sockets.delete(socket))
+    socket.on("data", () => {
+      if (connections > 1) socket.write("$5\r\nvalue\r\n")
+    })
+  })
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const store = createRedisCacheStore(`redis://127.0.0.1:${address.port}`)
+
+  try {
+    await assert.rejects(store.get("cache-key"), { message: "Redis command timed out" })
+    assert.equal(await store.get("cache-key"), "value")
+    assert.equal(connections, 2)
+  } finally {
+    for (const socket of sockets) socket.destroy()
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
+})
+
+test("Redis cache store authenticates and selects a database before commands", async () => {
+  const sockets = new Set()
+  let authReceivedResolve
+  const authReceived = new Promise((resolve) => {
+    authReceivedResolve = resolve
+  })
+  let allowAuthResolve
+  const allowAuth = new Promise((resolve) => {
+    allowAuthResolve = resolve
+  })
+  let commands = 0
+  const server = net.createServer((socket) => {
+    sockets.add(socket)
+    socket.on("close", () => sockets.delete(socket))
+    socket.on("data", (chunk) => {
+      commands += 1
+      const command = chunk.toString("utf8")
+      if (commands === 1) {
+        assert.match(command, /AUTH.*cache-password/s)
+        authReceivedResolve()
+        void allowAuth.then(() => socket.write("+OK\r\n"))
+      } else if (commands === 2) {
+        assert.match(command, /SELECT.*2/s)
+        socket.write("+OK\r\n")
+      } else {
+        assert.match(command, /GET.*cache-key/s)
+        const getCount = command.match(/\r\nGET\r\n/g)?.length ?? 0
+        socket.write("$5\r\nvalue\r\n".repeat(getCount))
+      }
+    })
+  })
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const store = createRedisCacheStore(
+    `redis://:cache-password@127.0.0.1:${address.port}/2`
+  )
+
+  try {
+    const firstRead = store.get("cache-key")
+    await authReceived
+    const concurrentRead = store.get("cache-key")
+    await new Promise((resolve) => setImmediate(resolve))
+    const commandsBeforeAuth = commands
+    allowAuthResolve()
+    assert.equal(
+      commandsBeforeAuth,
+      1,
+      "concurrent command bypassed Redis initialization"
+    )
+    assert.deepEqual(await Promise.all([firstRead, concurrentRead]), ["value", "value"])
+  } finally {
+    for (const socket of sockets) {
+      socket.destroy()
+    }
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
+})
+
+test("Redis cache store times out unanswered authentication", async () => {
+  const sockets = new Set()
+  const server = net.createServer((socket) => {
+    sockets.add(socket)
+    socket.on("close", () => sockets.delete(socket))
+    socket.on("data", () => {
+      // Keep the socket open while withholding the AUTH response.
+    })
+  })
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const store = createRedisCacheStore(`redis://:cache-password@127.0.0.1:${address.port}`)
+
+  try {
+    await assert.rejects(store.get("cache-key"), {
+      message: "Redis command timed out"
+    })
+  } finally {
+    for (const socket of sockets) {
+      socket.destroy()
+    }
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
+})
+
 test("Redis article response fence subscriber retries after initial subscribe failure", async () => {
   const channel = "test:article-response-fence"
   const port = await getUnusedPort()
