@@ -3,6 +3,11 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { isPathInside, readCorpusFile } from "../src/corpus-file-reader.mjs";
+import {
+  openCorpusOutputDirectory,
+  writeCorpusOutputFile,
+} from "../src/corpus-output-writer.mjs";
 
 const DEFAULT_CORPUS = "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/en";
 const CANARY_COUNT = 100;
@@ -57,21 +62,41 @@ function printHelpAndExit() {
 
 async function pathExists(filePath) {
   try {
-    await fs.access(filePath);
+    await fs.lstat(filePath);
     return true;
   } catch {
     return false;
   }
 }
 
-async function readJsonIfPresent(filePath) {
-  if (!(await pathExists(filePath))) return null;
-  return JSON.parse(await fs.readFile(filePath, "utf8"));
+async function readJsonIfPresent(corpusRoot, filePath) {
+  const text = await readCorpusFile(corpusRoot, filePath, { optional: true });
+  if (text === null) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid JSON in corpus file: ${filePath}`);
+  }
 }
 
-async function readTextIfPresent(filePath) {
-  if (!(await pathExists(filePath))) return "";
-  return fs.readFile(filePath, "utf8");
+async function readTextIfPresent(corpusRoot, filePath, options) {
+  return (await readCorpusFile(corpusRoot, filePath, { optional: true, ...options })) ?? "";
+}
+
+function validateEntityId(entityId, sourceLabel) {
+  if (!entityId) return "";
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(entityId)) {
+    throw new Error(`Invalid entity id value in ${sourceLabel}`);
+  }
+  return entityId;
+}
+
+function entityIdFromText(text, filePath) {
+  return validateEntityId(text.trim(), filePath);
+}
+
+function entityIdFromMeta(meta, filePath) {
+  return validateEntityId(String(meta?.entity_id ?? "").trim(), filePath);
 }
 
 async function walkFiles(root) {
@@ -236,12 +261,12 @@ async function buildManifest(corpusRoot) {
     const metadataPath = path.join(pageDir, "meta.json");
     const entityIdPath = path.join(pageDir, "entity_id.txt");
     const [source, meta, entityIdText] = await Promise.all([
-      fs.readFile(sourcePath, "utf8"),
-      readJsonIfPresent(metadataPath),
-      readTextIfPresent(entityIdPath),
+      readCorpusFile(corpusRoot, sourcePath, { maxBytes: 10 * 1024 * 1024 }),
+      readJsonIfPresent(corpusRoot, metadataPath),
+      readTextIfPresent(corpusRoot, entityIdPath, { maxBytes: 256 }),
     ]);
 
-    const pageId = entityIdText.trim() || meta?.entity_id || "";
+    const pageId = entityIdFromText(entityIdText, entityIdPath) || entityIdFromMeta(meta, metadataPath);
     const bytes = Buffer.byteLength(source);
     const lineCount = source.length ? source.split(/\r?\n/).length : 0;
     const tags = uniqueSorted(Array.isArray(meta?.tags) ? meta.tags : []);
@@ -389,20 +414,21 @@ Notes:
 
 async function main() {
   const args = parseArgs(process.argv);
-  const relativeOutput = path.relative(args.corpus, args.outputDir);
-  const outputInsideCorpus =
-    relativeOutput === "" || (!relativeOutput.startsWith("..") && !path.isAbsolute(relativeOutput));
+  const outputInsideCorpus = isPathInside(args.corpus, args.outputDir);
   if (outputInsideCorpus) {
     throw new Error("--output-dir must be outside --corpus to avoid self-inventory");
   }
-  await fs.mkdir(args.outputDir, { recursive: true });
+  const outputDirectoryHandle = await openCorpusOutputDirectory(args.corpus, args.outputDir);
+  let summary;
+
+  try {
 
   const files = await walkFiles(args.corpus);
   const fileInventory = await buildFileInventory(args.corpus, files);
   const manifestRows = await buildManifest(args.corpus);
   const canaries = chooseCanaries(manifestRows, args.canaryCount);
 
-  await fs.writeFile(path.join(args.outputDir, "corpus-file-inventory.tsv"), writeTsv(fileInventory.rows, [
+  await writeCorpusOutputFile(outputDirectoryHandle, "corpus-file-inventory.tsv", writeTsv(fileInventory.rows, [
     "path",
     "size_bytes",
     "extension",
@@ -413,7 +439,7 @@ async function main() {
     "notes",
   ]));
 
-  await fs.writeFile(path.join(args.outputDir, "corpus-manifest.tsv"), writeTsv(manifestRows, [
+  await writeCorpusOutputFile(outputDirectoryHandle, "corpus-manifest.tsv", writeTsv(manifestRows, [
     "page_id",
     "slug",
     "title",
@@ -429,7 +455,7 @@ async function main() {
     "notes",
   ]));
 
-  await fs.writeFile(path.join(args.outputDir, "canary-pages.tsv"), writeTsv(canaries.map(({ row, reason, priority }) => ({
+  await writeCorpusOutputFile(outputDirectoryHandle, "canary-pages.tsv", writeTsv(canaries.map(({ row, reason, priority }) => ({
     page_id: row.page_id,
     slug: row.slug,
     source_path: row.source_path,
@@ -445,9 +471,9 @@ async function main() {
     "priority",
   ]));
 
-  await fs.writeFile(path.join(args.outputDir, "corpus-discovery-summary.md"), summaryMarkdown(args, fileInventory, manifestRows, canaries));
+  await writeCorpusOutputFile(outputDirectoryHandle, "corpus-discovery-summary.md", summaryMarkdown(args, fileInventory, manifestRows, canaries));
 
-  const summary = {
+  summary = {
     corpus: args.corpus,
     outputDir: args.outputDir,
     filesInventoried: fileInventory.rows.length,
@@ -458,7 +484,10 @@ async function main() {
     constructCounts: Object.fromEntries(summarizeConstructs(manifestRows)),
   };
 
-  await fs.writeFile(path.join(args.outputDir, "corpus-discovery-summary.json"), JSON.stringify(summary, null, 2) + "\n");
+  await writeCorpusOutputFile(outputDirectoryHandle, "corpus-discovery-summary.json", JSON.stringify(summary, null, 2) + "\n");
+  } finally {
+    await outputDirectoryHandle.close();
+  }
   console.log(JSON.stringify(summary, null, 2));
 }
 
