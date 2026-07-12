@@ -58,7 +58,8 @@ use deepwell::types::{
     Action, PageId, PageRevisionType, Permission, Reference, Resource, TextBlockType,
 };
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, IntoActiveModel,
+    QueryFilter, Set, Statement,
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -81,6 +82,50 @@ fn set_mutation_request_context(
         site_id: Some(site_id),
         page_reference: Some(page_reference),
     });
+}
+
+async fn create_imported_breadcrumb_page(
+    runner: &mut TestRunner,
+    site_id: i64,
+    category_id: i64,
+    slug: &str,
+    title: &str,
+) -> i64 {
+    set_mutation_request_context(
+        runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Owned(slug.to_owned())),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "Imported breadcrumb fixture",
+            "title": title,
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "create imported breadcrumb fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("breadcrumb page lookup should not fail")
+        .expect("created breadcrumb page should exist");
+    let mut page = page.into_active_model();
+    page.page_category_id = Set(category_id);
+    page.from_wikidot = Set(true);
+    page.update(runner.context().transaction())
+        .await
+        .expect("breadcrumb page should be marked as imported");
+
+    created.page_id
 }
 
 #[tokio::test]
@@ -467,6 +512,360 @@ async fn article_view_cache_respects_anonymous_permission_revocation() {
         first_cache_key, second_cache_key,
         "permission revocation must move anonymous article cache reads to a new key"
     );
+}
+
+#[tokio::test]
+async fn imported_breadcrumbs_hide_private_and_deleted_ancestors() {
+    const IMPORT_RUN_ID: i64 = 7_700_398;
+    const PUBLIC_PARENT_SLUG: &str = "breadcrumb-public:visible-parent";
+    const PUBLIC_CHILD_SLUG: &str = "breadcrumb-public:deleted-parent-child";
+    const PRIVATE_PARENT_SLUG: &str = "breadcrumb-private:secret-parent";
+    const PRIVATE_CHILD_SLUG: &str = "breadcrumb-public:private-parent-child";
+    const PRIVATE_ROOT_SLUG: &str = "breadcrumb-public:visible-root";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+    let public_category =
+        CategoryService::get_or_create(runner.context(), site_id, "breadcrumb-public")
+            .await
+            .expect("public breadcrumb category should be created");
+    let private_category =
+        CategoryService::get_or_create(runner.context(), site_id, "breadcrumb-private")
+            .await
+            .expect("private breadcrumb category should be created");
+    let root_role = RoleService::get(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed("root")),
+    )
+    .await
+    .expect("root role should exist");
+    let guest_role = RoleService::get(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed("guest")),
+    )
+    .await
+    .expect("guest role should exist");
+
+    for (role_id, category_id) in [
+        (root_role.role_id, public_category.category_id),
+        (guest_role.role_id, public_category.category_id),
+        (root_role.role_id, private_category.category_id),
+        (guest_role.role_id, private_category.category_id),
+    ] {
+        role_permission::ActiveModel {
+            role_id: Set(role_id),
+            site_id: Set(site_id),
+            resource_type: Set(Resource::Page),
+            resource_category_id: Set(Some(category_id)),
+            action: Set(Action::View),
+            ..Default::default()
+        }
+        .insert(runner.context().transaction())
+        .await
+        .expect("breadcrumb view permission should be inserted");
+    }
+    PermissionCache::invalidate_site(runner.context(), site_id)
+        .await
+        .expect("breadcrumb permission cache should be invalidated");
+
+    let public_parent_id = create_imported_breadcrumb_page(
+        &mut runner,
+        site_id,
+        public_category.category_id,
+        PUBLIC_PARENT_SLUG,
+        "Visible Parent",
+    )
+    .await;
+    let public_child_id = create_imported_breadcrumb_page(
+        &mut runner,
+        site_id,
+        public_category.category_id,
+        PUBLIC_CHILD_SLUG,
+        "Public Child",
+    )
+    .await;
+    let private_parent_id = create_imported_breadcrumb_page(
+        &mut runner,
+        site_id,
+        private_category.category_id,
+        PRIVATE_PARENT_SLUG,
+        "Private Parent Secret",
+    )
+    .await;
+    let private_child_id = create_imported_breadcrumb_page(
+        &mut runner,
+        site_id,
+        public_category.category_id,
+        PRIVATE_CHILD_SLUG,
+        "Private Parent Child",
+    )
+    .await;
+    let private_root_id = create_imported_breadcrumb_page(
+        &mut runner,
+        site_id,
+        public_category.category_id,
+        PRIVATE_ROOT_SLUG,
+        "Visible Root Above Private Parent",
+    )
+    .await;
+
+    let transaction = runner.context().transaction();
+    for sql in [
+        format!(
+            r#"
+INSERT INTO wikidot_corpus_import_run (
+    import_run_id, site_id, source_branch, source_site, manifest_sha256,
+    manifest_row_count, complete_inventory, state, summary
+) VALUES (
+    {IMPORT_RUN_ID}, {site_id}, 'test', 'test',
+    decode(repeat('00', 32), 'hex'), 5, false, 'metadata_done', '{{}}'::jsonb
+)
+"#,
+        ),
+        format!(
+            r#"
+INSERT INTO wikidot_page_snapshot (
+    page_id, source_branch, source_site, source_entity_id, source_fullname,
+    source_created_at, source_updated_at, source_revision_count,
+    imported_rating, title_shown, parent_fullname, comments, source_sha256,
+    meta_sha256, meta_json, last_import_run_id
+) VALUES
+    ({public_parent_id}, 'test', 'test',
+     '39800000-0000-4000-8000-000000000001', '{PUBLIC_PARENT_SLUG}',
+     NOW(), NOW(), 1, 0, 'Visible Parent', NULL, 0,
+     decode(repeat('01', 32), 'hex'), decode(repeat('11', 32), 'hex'),
+     '{{}}'::jsonb, {IMPORT_RUN_ID}),
+    ({public_child_id}, 'test', 'test',
+     '39800000-0000-4000-8000-000000000002', '{PUBLIC_CHILD_SLUG}',
+     NOW(), NOW(), 1, 0, 'Public Child', '{PUBLIC_PARENT_SLUG}', 0,
+     decode(repeat('02', 32), 'hex'), decode(repeat('12', 32), 'hex'),
+     '{{}}'::jsonb, {IMPORT_RUN_ID}),
+    ({private_parent_id}, 'test', 'test',
+     '39800000-0000-4000-8000-000000000003', '{PRIVATE_PARENT_SLUG}',
+     NOW(), NOW(), 1, 0, 'Private Parent Secret', '{PRIVATE_ROOT_SLUG}', 0,
+     decode(repeat('03', 32), 'hex'), decode(repeat('13', 32), 'hex'),
+     '{{}}'::jsonb, {IMPORT_RUN_ID}),
+    ({private_child_id}, 'test', 'test',
+     '39800000-0000-4000-8000-000000000004', '{PRIVATE_CHILD_SLUG}',
+     NOW(), NOW(), 1, 0, 'Private Parent Child', '{PRIVATE_PARENT_SLUG}', 0,
+     decode(repeat('04', 32), 'hex'), decode(repeat('14', 32), 'hex'),
+     '{{}}'::jsonb, {IMPORT_RUN_ID}),
+    ({private_root_id}, 'test', 'test',
+     '39800000-0000-4000-8000-000000000005', '{PRIVATE_ROOT_SLUG}',
+     NOW(), NOW(), 1, 0, 'Visible Root Above Private Parent', NULL, 0,
+     decode(repeat('05', 32), 'hex'), decode(repeat('15', 32), 'hex'),
+     '{{}}'::jsonb, {IMPORT_RUN_ID})
+"#,
+        ),
+    ] {
+        transaction
+            .execute(Statement::from_string(
+                transaction.get_database_backend(),
+                sql,
+            ))
+            .await
+            .expect("breadcrumb snapshot fixture SQL should succeed");
+    }
+
+    runner.set_request_context(RequestContext::default());
+    let visible_view = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": PUBLIC_CHILD_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let (visible_breadcrumbs, visible_cache_key) = match visible_view {
+        GetArticleViewOutput {
+            page:
+                GetPageViewOutput::Found {
+                    wikidot_breadcrumbs,
+                    ..
+                },
+            article_page_cache_key: Some(cache_key),
+            ..
+        } => (wikidot_breadcrumbs, cache_key),
+        other => panic!("expected cached public imported page, got {other:?}"),
+    };
+    assert_eq!(visible_breadcrumbs.len(), 2);
+    assert_eq!(visible_breadcrumbs[0].slug, PUBLIC_PARENT_SLUG);
+    assert_eq!(visible_breadcrumbs[0].title, "Visible Parent");
+
+    let public_parent = PageTable::find_by_id(public_parent_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("public parent lookup should not fail")
+        .expect("public parent should exist");
+    let mut public_parent = public_parent.into_active_model();
+    public_parent.deleted_at = Set(Some(OffsetDateTime::now_utc()));
+    public_parent
+        .update(runner.context().transaction())
+        .await
+        .expect("public parent should be soft-deleted");
+
+    let deleted_parent_view = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": PUBLIC_CHILD_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let (deleted_parent_breadcrumbs, deleted_parent_cache_key) = match deleted_parent_view
+    {
+        GetArticleViewOutput {
+            page:
+                GetPageViewOutput::Found {
+                    wikidot_breadcrumbs,
+                    ..
+                },
+            article_page_cache_key: Some(cache_key),
+            ..
+        } => (wikidot_breadcrumbs, cache_key),
+        other => panic!("expected cached child of deleted parent, got {other:?}"),
+    };
+    assert_eq!(
+        deleted_parent_cache_key, visible_cache_key,
+        "ancestor deletion should exercise the existing cached article response"
+    );
+    assert!(
+        deleted_parent_breadcrumbs.is_empty(),
+        "deleted ancestor metadata must not be returned"
+    );
+
+    let private_parent_view = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let (private_parent_breadcrumbs, private_cache_key) = match private_parent_view {
+        GetArticleViewOutput {
+            page:
+                GetPageViewOutput::Found {
+                    wikidot_breadcrumbs,
+                    ..
+                },
+            article_page_cache_key: Some(cache_key),
+            ..
+        } => (wikidot_breadcrumbs, cache_key),
+        other => panic!("expected cached child of private parent, got {other:?}"),
+    };
+    assert_eq!(
+        private_parent_breadcrumbs
+            .iter()
+            .map(|breadcrumb| breadcrumb.slug.as_str())
+            .collect::<Vec<_>>(),
+        [PRIVATE_ROOT_SLUG, PRIVATE_PARENT_SLUG, PRIVATE_CHILD_SLUG],
+    );
+
+    let admin_session_token = SessionService::create(
+        runner.context(),
+        CreateSession {
+            user_id: ADMIN_USER_ID,
+            ip_address: common::IP_ADDRESS,
+            user_agent: "breadcrumb privacy test".to_owned(),
+            restricted: false,
+        },
+    )
+    .await
+    .expect("admin session should be created");
+    let authenticated_before = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": admin_session_token,
+            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(matches!(
+        authenticated_before,
+        GetArticleViewOutput {
+            page: GetPageViewOutput::Found { ref wikidot_breadcrumbs, .. },
+            ..
+        } if wikidot_breadcrumbs.len() == 3
+    ));
+
+    RolePermissionTable::delete_many()
+        .filter(role_permission::Column::RoleId.eq(guest_role.role_id))
+        .filter(role_permission::Column::SiteId.eq(site_id))
+        .filter(role_permission::Column::ResourceType.eq(Resource::Page))
+        .filter(
+            role_permission::Column::ResourceCategoryId.eq(private_category.category_id),
+        )
+        .filter(role_permission::Column::Action.eq(Action::View))
+        .exec(runner.context().transaction())
+        .await
+        .expect("guest private breadcrumb permission should be revoked");
+    PermissionCache::invalidate_site(runner.context(), site_id)
+        .await
+        .expect("breadcrumb permission cache should be invalidated after revocation");
+
+    let anonymous_after = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    match anonymous_after {
+        GetArticleViewOutput {
+            page:
+                GetPageViewOutput::Found {
+                    wikidot_breadcrumbs,
+                    ..
+                },
+            article_page_cache_key: Some(cache_key),
+            ..
+        } => {
+            assert!(wikidot_breadcrumbs.is_empty());
+            assert!(
+                !wikidot_breadcrumbs
+                    .iter()
+                    .any(|item| item.slug == PRIVATE_ROOT_SLUG)
+            );
+            assert_ne!(cache_key, private_cache_key);
+        }
+        other => {
+            panic!("expected anonymous cached child after revocation, got {other:?}")
+        }
+    }
+
+    let authenticated_after = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": admin_session_token,
+            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(matches!(
+        authenticated_after,
+        GetArticleViewOutput {
+            page: GetPageViewOutput::Found { ref wikidot_breadcrumbs, .. },
+            ..
+        } if wikidot_breadcrumbs.len() == 3
+    ));
 }
 
 #[tokio::test]
