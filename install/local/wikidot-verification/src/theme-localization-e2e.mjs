@@ -424,7 +424,7 @@ export async function buildThemeLocalizationE2EPlan({
       capture: {
         viewports: THEME_CAPTURE_VIEWPORTS,
         computed_styles: {properties: COMMON_STYLE_PROPERTIES, probes: tier.computed_style_probes},
-        web_vitals: {gates: THEME_PERFORMANCE_GATES, navigation: "cold_context", settle_policy: "observer_buffered_then_network_idle_budget"},
+        web_vitals: {gates: THEME_PERFORMANCE_GATES, navigation: "cold_context", settle_policy: "observer_buffered_through_lcp_budget"},
         interactions: tier.interactions,
         raw_syntax: {
           detector: "install/local/wikidot-verification/src/render-health.mjs#findRawSyntaxLeaks",

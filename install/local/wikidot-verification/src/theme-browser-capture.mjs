@@ -1,0 +1,346 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+
+import {openBrowser} from "../scripts/capture-browser-rendering.mjs";
+import {findRawSyntaxLeaks} from "./render-health.mjs";
+import {assertRunOwnedSlug, validateTargetOrigin} from "./theme-localization-e2e.mjs";
+
+export const THEME_BROWSER_CAPTURE_SCHEMA = "wikijump_local_lab.theme_browser_capture.v1";
+const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_SETTLE_MS = 250;
+const DEFAULT_INTERACTION_TIMEOUT_MS = 1_000;
+
+function safeId(value, label) {
+  if (typeof value !== "string" || !/^[a-z0-9][a-z0-9-]{0,63}$/u.test(value)) throw new Error(`${label} is not a safe artifact identifier`);
+  return value;
+}
+
+export function lcpObservationDeadlineMs(capture, settleMs = DEFAULT_SETTLE_MS) {
+  const gate = capture?.web_vitals?.gates?.lcp_ms;
+  if (gate?.operator !== "lte" || !Number.isFinite(gate.value) || gate.value <= 0 || !Number.isFinite(settleMs) || settleMs < 0) {
+    throw new Error("theme capture requires a positive LCP upper bound and non-negative settle interval");
+  }
+  return gate.value + settleMs;
+}
+
+async function waitForLcpObservationWindow(page, capture, settleMs) {
+  const deadlineMs = lcpObservationDeadlineMs(capture, settleMs);
+  await page.evaluate(async (deadline) => {
+    const remaining = deadline - performance.now();
+    if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
+  }, deadlineMs);
+  return deadlineMs;
+}
+
+export function validateThemeCaptureTarget({tier, target}) {
+  safeId(tier.id, "tier id");
+  const prefix = "theme:codex-l10n-";
+  const suffix = `-${tier.id}`;
+  if (typeof tier.run_owned_slug !== "string" || !tier.run_owned_slug.startsWith(prefix) || !tier.run_owned_slug.endsWith(suffix)) throw new Error("tier does not carry a run-owned slug");
+  assertRunOwnedSlug(tier.run_owned_slug, tier.run_owned_slug.slice(prefix.length, -suffix.length), tier.id);
+  if (!target || !["wikidot", "wikijump"].includes(target.id)) throw new Error("capture target must be wikidot or wikijump");
+  const url = new URL(target.url);
+  validateTargetOrigin(url.origin, target.id);
+  if (url.username || url.password || url.search || url.hash || decodeURIComponent(url.pathname) !== `/${tier.run_owned_slug}`) {
+    throw new Error(`capture URL does not identify the run-owned ${tier.id} page`);
+  }
+  return url.href;
+}
+
+function performanceObserverBootstrap() {
+  const state = {fcp: null, lcp: null, cls: null, eventEntries: [], observers: [], support: {paint: false, lcp: false, cls: false, event: false}};
+  window.__wjThemeMetrics = state;
+  const supported = new Set(globalThis.PerformanceObserver?.supportedEntryTypes ?? []);
+  const observe = (type, callback, options = {}) => {
+    if (!supported.has(type)) return false;
+    try {
+      const observer = new PerformanceObserver((list) => callback(list.getEntries()));
+      observer.observe({type, buffered: true, ...options});
+      state.observers.push(observer);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  state.support.paint = observe("paint", (entries) => {
+    const entry = entries.find((candidate) => candidate.name === "first-contentful-paint");
+    if (entry) state.fcp = entry.startTime;
+  });
+  state.support.lcp = observe("largest-contentful-paint", (entries) => {
+    if (entries.length) state.lcp = entries.at(-1).startTime;
+  });
+  state.support.cls = observe("layout-shift", (entries) => {
+    if (state.cls === null) state.cls = 0;
+    for (const entry of entries) if (!entry.hadRecentInput) state.cls += entry.value;
+  });
+  if (state.support.cls && state.cls === null) state.cls = 0;
+  state.support.event = observe("event", (entries) => {
+    for (const entry of entries) state.eventEntries.push({name: entry.name, startTime: entry.startTime, duration: entry.duration, interactionId: entry.interactionId ?? 0});
+  }, {durationThreshold: 16});
+}
+
+function startErrorCapture(page) {
+  const errors = {console: [], page: [], requests: [], responses: []};
+  const append = (list, value) => {
+    if (list.length < 200) list.push(value);
+  };
+  page.on("console", (message) => {
+    if (message.type() === "error") append(errors.console, message.text().slice(0, 1_000));
+  });
+  page.on("pageerror", (error) => append(errors.page, (error.message ?? String(error)).slice(0, 1_000)));
+  page.on("requestfailed", (request) => append(errors.requests, {url: request.url(), error: request.failure()?.errorText ?? "unknown"}));
+  page.on("response", (response) => {
+    if (response.status() >= 400) append(errors.responses, {url: response.url(), status: response.status(), resource_type: response.request().resourceType()});
+  });
+  return errors;
+}
+
+export async function collectComputedStyles(page, contract) {
+  return page.evaluate(({properties, probes}) => probes.map((probe) => {
+    const element = document.querySelector(probe.selector);
+    if (!element) return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, status: "missing", properties: null, rect: null};
+    const style = getComputedStyle(element, probe.pseudo ?? null);
+    const values = Object.fromEntries(properties.map((property) => [property, style.getPropertyValue(property)]));
+    const rect = element.getBoundingClientRect();
+    return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, status: "measured", properties: values, rect: {x: rect.x, y: rect.y, width: rect.width, height: rect.height}};
+  }), contract);
+}
+
+export async function collectNavigationMetrics(page) {
+  return page.evaluate(() => {
+    const state = window.__wjThemeMetrics ?? {support: {}};
+    const navigation = performance.getEntriesByType("navigation")[0] ?? null;
+    const fcp = state.fcp ?? performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? null;
+    const pick = (entry, names) => entry ? Object.fromEntries(names.map((name) => [name.replace(/[A-Z]/gu, (letter) => `_${letter.toLowerCase()}`), entry[name]])) : null;
+    const navigationTiming = pick(navigation, ["startTime", "duration", "redirectStart", "redirectEnd", "fetchStart", "domainLookupStart", "domainLookupEnd", "connectStart", "connectEnd", "requestStart", "responseStart", "responseEnd", "domInteractive", "domContentLoadedEventEnd", "loadEventEnd", "transferSize", "encodedBodySize", "decodedBodySize"]);
+    return {
+      navigation_timing: navigationTiming,
+      web_vitals: {
+        ttfb_ms: navigation ? navigation.responseStart - navigation.startTime : null,
+        fcp_ms: fcp,
+        lcp_ms: state.lcp,
+        cls: state.cls,
+        support: state.support,
+      },
+    };
+  });
+}
+
+async function visibleLocator(page, selectors) {
+  for (const selector of selectors) {
+    const locator = page.locator(selector);
+    const count = await locator.count();
+    for (let index = 0; index < count; index += 1) if (await locator.nth(index).isVisible()) return {selector, index, locator: locator.nth(index)};
+  }
+  return null;
+}
+
+async function prepareInteraction(page, target, postcondition) {
+  return page.evaluate(({selector, index, postcondition}) => {
+    const element = document.querySelectorAll(selector)[index];
+    if (!element) return false;
+    const signature = () => {
+      if (postcondition === "expanded_state_changes") {
+        const root = element.closest("details, .collapsible-block") ?? element.parentElement;
+        const folded = root?.querySelector?.(".collapsible-block-folded");
+        const unfolded = root?.querySelector?.(".collapsible-block-unfolded");
+        return JSON.stringify({open: root?.open ?? null, aria: element.getAttribute("aria-expanded"), root_class: root?.className ?? null, folded: folded ? getComputedStyle(folded).display : null, unfolded: unfolded ? getComputedStyle(unfolded).display : null});
+      }
+      const root = element.closest(".yui-navset") ?? element.parentElement;
+      const all = [...root.querySelectorAll("*")];
+      return JSON.stringify([...root.querySelectorAll(".selected, .active, [aria-selected='true']")].map((node) => ({index: all.indexOf(node), tag: node.tagName, id: node.id, class: node.className, aria: node.getAttribute("aria-selected"), href: node.getAttribute("href")})));
+    };
+    const state = {element, before: signature(), clickedAt: null, eventOffset: window.__wjThemeMetrics?.eventEntries.length ?? 0, signature};
+    element.addEventListener("click", () => { state.clickedAt = performance.now(); }, {capture: true, once: true});
+    window.__wjThemeInteraction = state;
+    return true;
+  }, {selector: target.selector, index: target.index, postcondition});
+}
+
+async function readInteraction(page, timeoutMs) {
+  return page.evaluate(async (timeout) => {
+    const state = window.__wjThemeInteraction;
+    if (!state?.clickedAt) return {changed: false, visual_response_ms: null, event_timing: null, reason: "click event was not observed"};
+    const deadline = state.clickedAt + timeout;
+    let changedAt = null;
+    while (performance.now() <= deadline) {
+      if (state.signature() !== state.before) {
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        changedAt = performance.now();
+        break;
+      }
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const entries = (window.__wjThemeMetrics?.eventEntries ?? []).slice(state.eventOffset).filter((entry) => entry.interactionId > 0 && entry.startTime >= state.clickedAt - 100);
+    const duration = entries.length ? Math.max(...entries.map((entry) => entry.duration)) : null;
+    return {changed: changedAt !== null, visual_response_ms: changedAt === null ? null : changedAt - state.clickedAt, event_timing: duration === null ? null : {duration_ms: duration, interaction_ids: [...new Set(entries.map((entry) => entry.interactionId))]}, reason: changedAt === null ? "postcondition did not change" : duration === null ? "PerformanceEventTiming interaction entry missing" : null};
+  }, timeoutMs);
+}
+
+export async function captureInteraction(page, interaction, {timeoutMs = DEFAULT_INTERACTION_TIMEOUT_MS} = {}) {
+  let target;
+  try {
+    target = await visibleLocator(page, interaction.target_selectors);
+  } catch (error) {
+    return {id: interaction.id, status: "fail", selector: null, visual_response_ms: null, inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null}, reason: error.message};
+  }
+  if (!target) return {id: interaction.id, status: "missing", selector: null, visual_response_ms: null, inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null}, reason: "no visible target selector"};
+  let prepared;
+  try {
+    prepared = await prepareInteraction(page, target, interaction.postcondition);
+  } catch (error) {
+    return {id: interaction.id, status: "fail", selector: target.selector, visual_response_ms: null, inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null}, reason: error.message};
+  }
+  if (!prepared) return {id: interaction.id, status: "missing", selector: target.selector, visual_response_ms: null, inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null}, reason: "target detached before measurement"};
+  const beforeUrl = new URL(page.url());
+  try {
+    await target.locator.click({timeout: timeoutMs});
+  } catch (error) {
+    return {id: interaction.id, status: "fail", selector: target.selector, visual_response_ms: null, inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null}, reason: error.message};
+  }
+  const afterUrl = new URL(page.url());
+  if (afterUrl.origin !== beforeUrl.origin || afterUrl.pathname !== beforeUrl.pathname || afterUrl.search !== beforeUrl.search) {
+    return {id: interaction.id, status: "fail", selector: target.selector, visual_response_ms: null, inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null}, reason: "interaction navigated away from the capture page"};
+  }
+  let measured;
+  try {
+    measured = await readInteraction(page, timeoutMs);
+  } catch (error) {
+    return {id: interaction.id, status: "fail", selector: target.selector, visual_response_ms: null, inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null}, reason: error.message};
+  }
+  return {
+    id: interaction.id,
+    status: measured.changed && measured.event_timing ? "measured" : measured.changed ? "missing" : "fail",
+    selector: target.selector,
+    visual_response_ms: measured.visual_response_ms,
+    inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: measured.event_timing ? "measured" : "missing", duration_ms: measured.event_timing?.duration_ms ?? null, interaction_ids: measured.event_timing?.interaction_ids ?? []},
+    reason: measured.reason,
+  };
+}
+
+function metricGate(id, actual, specification) {
+  if (!Number.isFinite(actual)) return {id, status: "missing", actual: null, expected: specification};
+  if (specification?.operator !== "lte" || !Number.isFinite(specification.value)) return {id, status: "fail", actual, expected: specification, reason: "unsupported gate specification"};
+  return {id, status: actual <= specification.value ? "pass" : "fail", actual, expected: specification};
+}
+
+export function evaluateStrictThemeVerdict(result, gates) {
+  const checks = [];
+  checks.push({id: "http_status", status: result.http_status === 200 ? "pass" : Number.isInteger(result.http_status) ? "fail" : "missing", actual: result.http_status});
+  checks.push({id: "navigation", status: result.navigation_error ? "fail" : "pass", reason: result.navigation_error ?? null});
+  checks.push({id: "final_url", status: result.final_url === result.url ? "pass" : "fail", actual: result.final_url, expected: result.url});
+  checks.push({id: "dom_artifact", status: result.dom_status === "captured" ? "pass" : "missing", actual: result.dom_status ?? null});
+  checks.push({id: "screenshot_artifact", status: result.screenshot_status === "captured" ? "pass" : "missing", actual: result.screenshot_status ?? null});
+  checks.push({id: "capture_errors", status: result.capture_errors?.length ? "fail" : "pass", count: result.capture_errors?.length ?? 0});
+  for (const key of ["ttfb_ms", "fcp_ms", "lcp_ms", "cls"]) checks.push(metricGate(key, result.web_vitals?.[key], gates[key]));
+  const missingProbes = (result.computed_styles ?? []).filter((probe) => probe.status !== "measured").map((probe) => probe.id);
+  checks.push({id: "computed_style_probes", status: missingProbes.length ? "missing" : "pass", missing: missingProbes});
+  const browserErrors = [...(result.errors?.console ?? []), ...(result.errors?.page ?? [])];
+  const networkErrors = [...(result.errors?.requests ?? []), ...(result.errors?.responses ?? [])];
+  checks.push({id: "browser_errors", status: browserErrors.length ? "fail" : "pass", count: browserErrors.length});
+  checks.push({id: "network_errors", status: networkErrors.length ? "fail" : "pass", count: networkErrors.length});
+  checks.push({id: "raw_syntax", status: result.raw_syntax?.length ? "fail" : "pass", count: result.raw_syntax?.length ?? 0});
+  for (const interaction of result.interactions ?? []) {
+    checks.push({id: `interaction:${interaction.id}:postcondition`, status: interaction.status === "measured" ? "pass" : interaction.status === "missing" ? "missing" : "fail", reason: interaction.reason ?? null});
+    checks.push(metricGate(`interaction:${interaction.id}:visual_response_ms`, interaction.visual_response_ms, gates.visual_response_ms));
+    checks.push(metricGate(`interaction:${interaction.id}:inp_equivalent_ms`, interaction.inp_equivalent?.status === "measured" ? interaction.inp_equivalent.duration_ms : null, gates.inp_ms));
+  }
+  const blocking = checks.filter((check) => check.status !== "pass");
+  return {status: blocking.length ? "fail" : "pass", checks, failed_gate_ids: blocking.map((check) => check.id), missing_gate_ids: blocking.filter((check) => check.status === "missing").map((check) => check.id)};
+}
+
+async function writeJson(filePath, value) {
+  await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+export async function writeThemeViewportArtifacts(directory, result) {
+  await fs.mkdir(directory, {recursive: true});
+  const artifacts = {
+    dom: path.join(directory, "dom.html"), screenshot: path.join(directory, "screenshot.png"), computed_styles: path.join(directory, "computed-styles.json"), web_vitals: path.join(directory, "web-vitals.json"), interactions: path.join(directory, "interactions.json"), network_errors: path.join(directory, "network-errors.json"), raw_syntax: path.join(directory, "raw-syntax.json"), verdict: path.join(directory, "verdict.json"),
+  };
+  await fs.writeFile(artifacts.dom, result.dom ?? "", "utf8");
+  await Promise.all([
+    writeJson(artifacts.computed_styles, result.computed_styles), writeJson(artifacts.web_vitals, {navigation_timing: result.navigation_timing, web_vitals: result.web_vitals}), writeJson(artifacts.interactions, result.interactions), writeJson(artifacts.network_errors, result.errors), writeJson(artifacts.raw_syntax, result.raw_syntax), writeJson(artifacts.verdict, result.verdict),
+  ]);
+  return artifacts;
+}
+
+export async function captureThemeViewport({context, target, viewport, capture, artifactDir, source, timeoutMs = DEFAULT_TIMEOUT_MS, settleMs = DEFAULT_SETTLE_MS, interactionTimeoutMs = DEFAULT_INTERACTION_TIMEOUT_MS}) {
+  await fs.mkdir(artifactDir, {recursive: true});
+  const page = await context.newPage();
+  await page.addInitScript(performanceObserverBootstrap);
+  const errors = startErrorCapture(page);
+  let response = null;
+  let navigationError = null;
+  let settleStatus = "missing";
+  let observationDeadlineMs = null;
+  const captureErrors = [];
+  try {
+    response = await page.goto(target.url, {waitUntil: "domcontentloaded", timeout: timeoutMs});
+    try {
+      observationDeadlineMs = await waitForLcpObservationWindow(page, capture, settleMs);
+      settleStatus = "lcp_observation_window";
+    } catch (error) {
+      settleStatus = "observation_error";
+      captureErrors.push(`LCP observation window: ${error.message}`);
+    }
+  } catch (error) {
+    navigationError = error.message;
+  }
+  let dom = "";
+  let domStatus = "missing";
+  try { dom = await page.content(); domStatus = "captured"; } catch (error) { captureErrors.push(`dom: ${error.message}`); }
+  const computedStyles = await collectComputedStyles(page, capture.computed_styles).catch((error) => {
+    captureErrors.push(`computed styles: ${error.message}`);
+    return capture.computed_styles.probes.map((probe) => ({id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, status: "missing", properties: null, rect: null}));
+  });
+  const metrics = await collectNavigationMetrics(page).catch((error) => {
+    captureErrors.push(`navigation metrics: ${error.message}`);
+    return {navigation_timing: null, web_vitals: {ttfb_ms: null, fcp_ms: null, lcp_ms: null, cls: null, support: {}}};
+  });
+  const screenshotPath = path.join(artifactDir, "screenshot.png");
+  let screenshotStatus = "missing";
+  try { await page.screenshot({path: screenshotPath, fullPage: true}); screenshotStatus = "captured"; } catch (error) { captureErrors.push(`screenshot: ${error.message}`); }
+  const interactions = [];
+  for (const interaction of capture.interactions) interactions.push(await captureInteraction(page, interaction, {timeoutMs: interactionTimeoutMs}));
+  const finalUrl = page.url();
+  const capturedErrors = structuredClone(errors);
+  await page.close().catch(() => {});
+  const result = {viewport, url: target.url, final_url: finalUrl, http_status: response?.status() ?? null, navigation_error: navigationError, settle_status: settleStatus, observation_deadline_ms: observationDeadlineMs, dom_status: domStatus, screenshot_status: screenshotStatus, capture_errors: captureErrors, dom, computed_styles: computedStyles, navigation_timing: metrics.navigation_timing, web_vitals: metrics.web_vitals, errors: capturedErrors, raw_syntax: findRawSyntaxLeaks({html: dom, source}), interactions};
+  result.verdict = evaluateStrictThemeVerdict(result, capture.web_vitals.gates);
+  result.artifacts = await writeThemeViewportArtifacts(artifactDir, result);
+  const {dom: _dom, ...summary} = result;
+  return summary;
+}
+
+export async function captureThemeTierBrowserEvidence({tier, outputDir, source, chromium, browserExecutable, ignoreHttpsErrors = false, storageStates = {}, openBrowserImpl = openBrowser, captureViewportImpl = captureThemeViewport}) {
+  if (!tier?.capture || typeof source !== "string" || !source.trim()) throw new Error("tier capture contract and non-empty source are required");
+  const tierId = safeId(tier.id, "tier id");
+  const session = await openBrowserImpl({chromium, browserExecutable, ignoreHttpsErrors, createInitialContexts: false});
+  const targets = [];
+  try {
+    for (const target of tier.targets) {
+      validateThemeCaptureTarget({tier, target});
+      const targetResult = {id: target.id, url: target.url, viewports: []};
+      for (const viewport of tier.capture.viewports) {
+        safeId(viewport.id, "viewport id");
+        const context = await session.browser.newContext({ignoreHTTPSErrors: ignoreHttpsErrors, viewport: {width: viewport.width, height: viewport.height}, ...(storageStates[target.id] ? {storageState: storageStates[target.id]} : {})});
+        try {
+          targetResult.viewports.push(await captureViewportImpl({context, target, viewport, capture: tier.capture, artifactDir: path.join(outputDir, tierId, target.id, viewport.id), source}));
+        } finally {
+          await context.close();
+        }
+      }
+      targetResult.verdict = {status: targetResult.viewports.every((item) => item.verdict.status === "pass") ? "pass" : "fail", failed_viewports: targetResult.viewports.filter((item) => item.verdict.status !== "pass").map((item) => item.viewport.id)};
+      targets.push(targetResult);
+    }
+  } finally {
+    await session.close();
+  }
+  const result = {schema: THEME_BROWSER_CAPTURE_SCHEMA, tier_id: tierId, status: targets.every((target) => target.verdict.status === "pass") ? "pass" : "fail", targets};
+  const resultPath = path.join(outputDir, tierId, "browser-capture.json");
+  await fs.mkdir(path.dirname(resultPath), {recursive: true});
+  await writeJson(resultPath, result);
+  return {...result, result_path: resultPath};
+}
