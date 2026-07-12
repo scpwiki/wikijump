@@ -3065,6 +3065,11 @@ impl RenderService {
                     offset += 2 + close_offset + 2;
                     continue;
                 }
+            } else if bytes[offset] == b'[' {
+                if let Some(close_offset) = source[offset + 1..].find(']') {
+                    offset += 1 + close_offset + 1;
+                    continue;
+                }
             } else if bytes[offset..].starts_with(b"]]") {
                 return Some(offset + 2);
             }
@@ -3233,6 +3238,11 @@ impl RenderService {
             } else if args[offset..].starts_with("[[") {
                 if let Some(close_offset) = args[offset + 2..].find("]]") {
                     offset += 2 + close_offset + 2;
+                    continue;
+                }
+            } else if args[offset..].starts_with('[') {
+                if let Some(close_offset) = args[offset + 1..].find(']') {
+                    offset += 1 + close_offset + 1;
                     continue;
                 }
             } else if args[offset..].starts_with('|') {
@@ -15673,6 +15683,26 @@ mod tests {
                 PageRef::page_and_site("scp-wiki", "component:image-block-base"),
             ],
         );
+    }
+
+    #[test]
+    fn expands_image_block_caption_with_external_link_without_stealing_its_bracket() {
+        // Reduced from EN:ralliston-s-authorpage. The final external-link `]`
+        // adjacent to the include `]]` must not be treated as the include end.
+        let mut wikitext = concat!(
+            "[[include component:image-block ",
+            "name=linked.jpg|caption=[https://example.com/path Linked label] by ",
+            "[[*user Example User]]]]\n",
+        )
+        .to_owned();
+        let page_info = fallback_test_page_info("author-page", "Author Page");
+
+        RenderService::expand_wikidot_image_block_includes(&mut wikitext, &page_info);
+
+        assert!(wikitext.contains("[https://example.com/path Linked label]"));
+        assert!(wikitext.contains("[[*user Example User]]"));
+        assert!(wikitext.ends_with("[[/div]]\n"), "{wikitext}");
+        assert!(!wikitext.contains("[[/div]]]"), "{wikitext}");
     }
 
     #[test]
