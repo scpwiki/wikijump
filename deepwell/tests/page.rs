@@ -4582,6 +4582,7 @@ async fn create_listpages_test_page(
 async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
     const COMPONENT_SLUG: &str = "component:dense-include-cell";
     const PAGE_SLUG: &str = "fixture-dense-includes";
+    const CHILD_SLUG: &str = "fixture-dense-listpages-child";
     const INCLUDE_COUNT: usize = 1_266;
     const MARKER: &str = "DENSE_INCLUDE_CELL";
 
@@ -4617,6 +4618,15 @@ async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
     .expect("dense include fixture should exist");
 
     let wikitext = format!("[[include {COMPONENT_SLUG}]]\n").repeat(INCLUDE_COUNT);
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        CHILD_SLUG,
+        "Dense ListPages Child",
+        &wikitext,
+    )
+    .await;
+    set_listpages_test_parent(&mut runner, site_id, CHILD_SLUG, PAGE_SLUG).await;
     let page_info = PageInfo {
         page: Cow::Borrowed(PAGE_SLUG),
         category: None,
@@ -4661,6 +4671,41 @@ async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
         output.html_output.body.matches(MARKER).count(),
         INCLUDE_COUNT,
         "every corpus-provenanced include occurrence should render",
+    );
+
+    let list_pages_wikitext = concat!(
+        "[[module ListPages parent=\".\" limit=\"1\"]]",
+        "%%content%%",
+        "[[/module]]",
+    )
+    .to_owned();
+    let public_list_pages_error = RenderService::render_page(
+        runner.context(),
+        list_pages_wikitext.clone(),
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect_err("ordinary ListPages content must retain the public include ceiling");
+    assert!(
+        format!("{public_list_pages_error:?}")
+            .contains("include expansion exceeded maximum total includes 256")
+    );
+
+    let list_pages_output = RenderService::render_corpus_page(
+        runner.context(),
+        list_pages_wikitext,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("trusted ListPages content should inherit the corpus include ceiling");
+    assert_eq!(
+        list_pages_output.html_output.body.matches(MARKER).count(),
+        INCLUDE_COUNT,
+        "ListPages %%content%% should render every corpus-provenanced include",
     );
 }
 
