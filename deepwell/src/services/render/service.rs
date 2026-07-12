@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::html_text::html_data_segments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::literal_regions::LiteralRegionIndex;
 use super::prelude::*;
@@ -1835,81 +1836,70 @@ impl RenderService {
     }
 
     fn restore_residual_wikidot_span_markers(html: &str) -> String {
-        let mut output = String::with_capacity(html.len());
-        let mut raw_text_depth = 0usize;
-        let mut unprotected_segment = String::new();
+        let mut open_markers: Vec<(Range<usize>, String)> = Vec::new();
+        let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
 
-        for line in html.split_inclusive('\n') {
-            let (line_body, line_end) = line
-                .strip_suffix('\n')
-                .map_or((line, ""), |body| (body, "\n"));
-            let protected = raw_text_depth > 0;
-
-            if protected {
-                if !unprotected_segment.is_empty() {
-                    output.push_str(
-                        &Self::restore_residual_wikidot_span_markers_in_segment(
-                            &unprotected_segment,
-                        ),
-                    );
-                    unprotected_segment.clear();
-                }
-                output.push_str(line_body);
-                output.push_str(line_end);
-            } else {
-                unprotected_segment.push_str(line_body);
-                unprotected_segment.push_str(line_end);
+        for segment in html_data_segments(html) {
+            if !segment.continues_from_previous {
+                open_markers.clear();
             }
-            raw_text_depth =
-                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
+            let data_range = segment.range;
+            let data = &html[data_range.clone()];
+            let mut cursor = 0;
+            while cursor < data.len() {
+                let open = data[cursor..].find("[[span");
+                let close = data[cursor..].find("[[/span]]");
+                let (offset, closing) = match (open, close) {
+                    (Some(open), Some(close)) if close < open => (close, true),
+                    (Some(open), _) => (open, false),
+                    (None, Some(close)) => (close, true),
+                    (None, None) => break,
+                };
+                let start = cursor + offset;
+
+                if closing {
+                    let end = start + "[[/span]]".len();
+                    if let Some((open_range, open_tag)) = open_markers.pop() {
+                        replacements.push((open_range, open_tag));
+                        replacements.push((
+                            data_range.start + start..data_range.start + end,
+                            "</span>".to_owned(),
+                        ));
+                    }
+                    cursor = end;
+                    continue;
+                }
+
+                let marker_start = &data[start..];
+                let Some(relative_end) = marker_start.find("]]") else {
+                    break;
+                };
+                let end = start + relative_end + 2;
+                let marker = &data[start..end];
+                let decoded_marker = Self::decode_residual_wikidot_marker_quotes(marker);
+                if let Some(open_tag) = wikidot_inline_span_marker_open(&decoded_marker) {
+                    open_markers.push((
+                        data_range.start + start..data_range.start + end,
+                        open_tag,
+                    ));
+                }
+                cursor = end;
+            }
         }
 
-        if !unprotected_segment.is_empty() {
-            output.push_str(&Self::restore_residual_wikidot_span_markers_in_segment(
-                &unprotected_segment,
-            ));
+        if replacements.is_empty() {
+            return html.to_owned();
         }
+        replacements.sort_by_key(|(range, _)| range.start);
 
-        output
-    }
-
-    fn restore_residual_wikidot_span_markers_in_segment(segment: &str) -> String {
-        let mut output = String::with_capacity(segment.len());
-        let mut rest = segment;
-
-        while let Some(start) = rest.find("[[span") {
-            let (before, marker_start) = rest.split_at(start);
-            output.push_str(before);
-
-            let Some(marker_end) = marker_start.find("]]") else {
-                output.push_str(marker_start);
-                return output;
-            };
-            let marker = &marker_start[..marker_end + 2];
-            let decoded_marker = Self::decode_residual_wikidot_marker_quotes(marker);
-            let after_marker = &marker_start[marker_end + 2..];
-
-            let Some(open_tag) = wikidot_inline_span_marker_open(&decoded_marker) else {
-                output.push_str(marker);
-                rest = after_marker;
-                continue;
-            };
-
-            let Some(close_start) = find_matching_wikidot_span_close(after_marker) else {
-                output.push_str(marker);
-                rest = after_marker;
-                continue;
-            };
-
-            output.push_str(&open_tag);
-            output.push_str(&Self::restore_residual_wikidot_span_markers_in_segment(
-                &after_marker[..close_start],
-            ));
-            output.push_str("</span>");
-            rest = &after_marker[close_start + "[[/span]]".len()..];
+        let mut output = String::with_capacity(html.len());
+        let mut cursor = 0;
+        for (range, replacement) in replacements {
+            output.push_str(&html[cursor..range.start]);
+            output.push_str(&replacement);
+            cursor = range.end;
         }
-
-        output.push_str(rest);
+        output.push_str(&html[cursor..]);
         output
     }
 
@@ -16218,6 +16208,71 @@ mod tests {
         let restored = RenderService::restore_residual_wikidot_span_markers(html);
 
         assert_eq!(restored, html);
+    }
+
+    #[test]
+    fn leaves_residual_span_markers_inside_quoted_tag_attributes() {
+        let html = concat!(
+            r#"<img src=x alt="safe > [[span class=&quot;x onerror=alert(1)//&quot;]]broken[[/span]]">"#,
+            r#" [[span class=&quot;safe&quot;]]body[[/span]]"#,
+        );
+
+        let restored = RenderService::restore_residual_wikidot_span_markers(html);
+
+        assert!(restored.contains(
+            r#"<img src=x alt="safe > [[span class=&quot;x onerror=alert(1)//&quot;]]broken[[/span]]">"#,
+        ));
+        assert!(restored.contains(r#"<span class="safe">body</span>"#));
+        assert!(!restored.contains(r#"<span class="x onerror=alert(1)//">"#));
+    }
+
+    #[test]
+    fn restores_residual_spans_across_safe_html_elements_only() {
+        let html = concat!(
+            r#"[[span class=&quot;outer&quot;]]before <strong>bold</strong> "#,
+            r#"[[span class=&quot;inner&quot;]]inside[[/span]] after[[/span]]"#,
+        );
+
+        assert_eq!(
+            RenderService::restore_residual_wikidot_span_markers(html),
+            r#"<span class="outer">before <strong>bold</strong> <span class="inner">inside</span> after</span>"#,
+        );
+    }
+
+    #[test]
+    fn leaves_residual_span_markers_in_comments_and_raw_or_foreign_elements() {
+        let html = concat!(
+            "<!-- [[span class=&quot;comment&quot;]]x[[/span]] -->",
+            "<style>[[span class=&quot;style&quot;]]x[[/span]]</style>",
+            "<ScRiPt>[[span class=&quot;script&quot;]]x[[/span]]</sCrIpT>",
+            "<svg><text>[[span class=&quot;svg&quot;]]x[[/span]]</text></svg>",
+        );
+
+        assert_eq!(
+            RenderService::restore_residual_wikidot_span_markers(html),
+            html
+        );
+    }
+
+    #[test]
+    fn does_not_pair_residual_spans_across_opaque_or_comment_boundaries() {
+        for boundary in [
+            "<style>body { color: red; }</style>",
+            "<script>void 0</script>",
+            "<pre>literal</pre>",
+            "<svg><text>foreign</text></svg>",
+            "<!-- comment -->",
+        ] {
+            let html = format!(
+                r#"[[span class=&quot;outer&quot;]]before{boundary}after[[/span]]"#,
+            );
+
+            assert_eq!(
+                RenderService::restore_residual_wikidot_span_markers(&html),
+                html,
+                "boundary {boundary}",
+            );
+        }
     }
 
     #[test]
