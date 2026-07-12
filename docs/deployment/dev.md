@@ -5,9 +5,8 @@ See the [deployment concepts document](concepts.md) for an introduction to our d
 1. Create a Virtual Private Server with Ubuntu 24.04 LTS.
 2. Set up a non-root administrator account:
 ```
-# adduser --disabled-password maintainer
+# adduser maintainer
 # gpasswd -a maintainer sudo
-# passwd -d maintainer
 ```
 3. Add SSH keys to enable login as `maintainer`:
 ```
@@ -17,12 +16,14 @@ $ mkdir -m700 .ssh
 $ nano .ssh/authorized_keys
 $ chmod 600 .ssh/authorized_keys
 ```
-Then, ensure you can SSH to the machine as `maintainer`. The remaining instructions assume you are logged in as `maintainer`, not `root`.
+Choose a strong password when prompted; do not leave the sudo-capable `maintainer` account with an empty password. Then, ensure you can SSH to the machine as `maintainer`. The remaining instructions assume you are logged in as `maintainer`, not `root`.
 4. Disable password-based SSH (if not already disabled):
 ```
 $ sudoedit /etc/ssh/sshd_config
 PasswordAuthentication no
+KbdInteractiveAuthentication no
 PermitEmptyPasswords no
+$ sudo sshd -t
 $ sudo systemctl reload ssh.service
 ```
 5. Install Docker and other dependencies:
