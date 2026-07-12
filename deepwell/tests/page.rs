@@ -52,7 +52,7 @@ use deepwell::services::session::CreateSession;
 use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
     FileRevisionService, ForumPostService, ForumService, ForumThreadService,
-    RenderService, RequestContext, SessionService,
+    RenderService, RequestContext, SessionService, TextService,
 };
 use deepwell::types::{
     Action, PageId, PageRevisionType, Permission, Reference, Resource, TextBlockType,
@@ -4618,14 +4618,28 @@ async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
     .expect("dense include fixture should exist");
 
     let wikitext = format!("[[include {COMPONENT_SLUG}]]\n").repeat(INCLUDE_COUNT);
-    create_listpages_test_page(
+    let child_revision_id = create_listpages_test_page(
         &mut runner,
         site_id,
         CHILD_SLUG,
         "Dense ListPages Child",
-        &wikitext,
+        "placeholder",
     )
     .await;
+    let wikitext_hash = TextService::create(runner.context(), wikitext.clone())
+        .await
+        .expect("dense child source should be stored");
+    let child_revision = PageRevisionTable::find_by_id(child_revision_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("dense child revision lookup should not fail")
+        .expect("dense child revision should exist");
+    let mut child_revision = child_revision.into_active_model();
+    child_revision.wikitext_hash = Set(wikitext_hash.to_vec());
+    child_revision
+        .update(runner.context().transaction())
+        .await
+        .expect("dense child source should be attached without public rendering");
     set_listpages_test_parent(&mut runner, site_id, CHILD_SLUG, PAGE_SLUG).await;
     let page_info = PageInfo {
         page: Cow::Borrowed(PAGE_SLUG),
