@@ -7,7 +7,7 @@
 
   let { data }: PageProps = $props()
 
-  const userData: InferOutput<typeof userEditSchema> = {
+  const userData: InferOutput<typeof userEditSchema> = $derived({
     name: data.user?.name ?? "",
     realName: data.user?.real_name ?? "",
     email: data.user?.email ?? "",
@@ -18,7 +18,7 @@
     userPage: data.user?.user_page ?? "",
     biography: data.user?.biography ?? "",
     locales: data.user?.locales?.join(" ") ?? ""
-  }
+  })
 </script>
 
 <Page {data} {userData} />
