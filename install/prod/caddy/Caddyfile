@@ -10,6 +10,8 @@
 # Variables (denoted by '<<NAME>>') are replaced in the image build.
 
 deploy.wikijump.com {
+	# Never forward client-supplied Wikijump trust headers to Komodo.
+	request_header -X-Wikijump-*
 	reverse_proxy <<DEPLOY_HOST>>
 }
 
