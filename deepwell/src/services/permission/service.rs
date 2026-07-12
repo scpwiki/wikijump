@@ -404,6 +404,7 @@ impl PermissionService {
         let user_id = perm_ctx.user_id;
         let site_id = perm_ctx.site_id;
         let page_reference = perm_ctx.page_reference.clone();
+        let page_scoped_roles = page_reference.is_some();
 
         let make_error =
             || Error::new("failed to check permissions", ErrorType::Permission);
@@ -426,6 +427,7 @@ impl PermissionService {
                 user_id,
                 &user_permissions,
                 site_id,
+                page_scoped_roles,
                 permission,
             )
             .await
@@ -441,6 +443,7 @@ impl PermissionService {
         user_id: Option<i64>,
         user_permissions: &HashSet<Permission<'static>>,
         site_id: i64,
+        page_scoped_roles: bool,
         Permission {
             resource_type: resource,
             resource_category,
@@ -457,7 +460,11 @@ impl PermissionService {
 
         // Active bans are time-dependent and may lapse without a write, so
         // cached view decisions must be bypassed while a ban is active.
+        // `page_reference` can add page-specific virtual roles (for example,
+        // PageAuthor). Those decisions cannot safely use the category-wide
+        // permission cache key.
         let cacheable = PermissionCache::is_cacheable(resource, action)
+            && !page_scoped_roles
             && !Self::active_site_ban_suppresses_cache(ctx, site_id, user_id)
                 .await
                 .or_raise(make_error)?;

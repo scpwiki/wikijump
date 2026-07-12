@@ -75,6 +75,13 @@ impl RelationReference {
     }
 }
 
+pub fn relation_type_condition(relation_type: RelationType) -> Condition {
+    Condition::any().add(
+        relation::Column::RelationType
+            .is_in(relation_type.database_values().iter().copied()),
+    )
+}
+
 pub fn relation_condition(
     relation_type: RelationType,
     dest: RelationObject,
@@ -84,7 +91,7 @@ pub fn relation_condition(
     let (from_type, from_id) = from.into();
 
     Condition::all()
-        .add(relation::Column::RelationType.eq(relation_type))
+        .add(relation_type_condition(relation_type))
         .add(relation::Column::DestType.eq(dest_type))
         .add(relation::Column::DestId.eq(dest_id))
         .add(relation::Column::FromType.eq(from_type))
@@ -149,5 +156,29 @@ impl RelationType {
             RelationType::UserBlock => t!(User, User),
             RelationType::UserBotOwner => t!(User, User),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{RelationObject, RelationType, relation_condition};
+    use crate::models::relation;
+    use sea_orm::{DatabaseBackend, EntityTrait, QueryFilter, QueryTrait};
+
+    #[test]
+    fn relation_condition_matches_legacy_and_namespaced_database_values() {
+        let statement = relation::Entity::find()
+            .filter(relation_condition(
+                RelationType::SiteBan,
+                RelationObject::Site(42),
+                RelationObject::User(7),
+            ))
+            .build(DatabaseBackend::Postgres);
+
+        let sql = statement.to_string();
+        assert!(
+            sql.contains(r#""relation"."relation_type" IN ('ban', 'site-ban')"#),
+            "{sql}"
+        );
     }
 }

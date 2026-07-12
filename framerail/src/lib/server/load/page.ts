@@ -31,7 +31,7 @@ import {
   pageFileRollback
 } from "$lib/server/deepwell/pageFile"
 import { translate } from "$lib/server/deepwell/translate"
-import { articleView } from "$lib/server/deepwell/views"
+import { articleView, preloadView } from "$lib/server/deepwell/views"
 import { buildPageLoadData } from "$lib/server/load/page-data"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import {
@@ -66,7 +66,7 @@ import {
 import type { PageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
 import type { Cookies, RequestEvent } from "@sveltejs/kit"
-import { getRequestContext } from "./request-ctx"
+import { getRequestContext, withDefaultPageContext } from "./request-ctx"
 
 const DEEPWELL_PERMISSION_DENIED = 3106
 
@@ -464,9 +464,24 @@ const pageDeleteSchema = variant("option", [
 ])
 
 /* ----- Page Edit Check Permission ----- */
-export async function pageEditPermissionAction({ locals }: RequestEvent) {
+export async function pageEditPermissionAction({
+  request,
+  cookies,
+  locals
+}: RequestEvent) {
   try {
-    const res = await pageEditPermission(getRequestContext(locals))
+    let requestContext = getRequestContext(locals)
+
+    if (requestContext?.page === undefined) {
+      const { siteId } = loadSiteInfo(request.headers)
+      const requestLocales = getPreloadRequestLocales(request)
+      const backendLocales = getPreloadBackendLocales(requestLocales)
+      const sessionToken = cookies.get("wikijump_token")
+      const { site } = await preloadView(siteId, backendLocales, sessionToken)
+      requestContext = withDefaultPageContext(requestContext, site.default_page)
+    }
+
+    const res = await pageEditPermission(requestContext)
     return { res }
   } catch (e) {
     const error = e as DeepwellError
