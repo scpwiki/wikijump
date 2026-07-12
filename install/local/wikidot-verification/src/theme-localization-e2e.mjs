@@ -386,12 +386,14 @@ function pageUrl(origin, slug) {
 export async function buildThemeLocalizationE2EPlan({
   translationRoot,
   runId,
+  mode = "dry-run",
   siteSlug = ALLOWED_SITE_SLUG,
   wikidotOrigin = DEFAULT_WIKIDOT_ORIGIN,
   wikijumpOrigin = DEFAULT_WIKIJUMP_ORIGIN,
   tiers = ["all"],
 } = {}) {
   if (!translationRoot) throw new Error("translationRoot is required");
+  if (!new Set(["dry-run", "execute"]).has(mode)) throw new Error("theme plan mode must be dry-run or execute");
   const validatedRunId = validateRunId(runId);
   const validatedSite = validateSiteSlug(siteSlug);
   const validatedWikidotOrigin = validateTargetOrigin(wikidotOrigin, "wikidot");
@@ -439,7 +441,7 @@ export async function buildThemeLocalizationE2EPlan({
   const failedTiers = plans.filter((tier) => tier.preflight.status === "fail").map((tier) => tier.id);
   return {
     schema: THEME_LOCALIZATION_E2E_SCHEMA,
-    mode: "dry-run",
+    mode,
     run: {id: validatedRunId, site_slug: validatedSite, owned_slug_prefix: `theme:codex-l10n-${validatedRunId}-`},
     safety: {
       page_mutations_performed: 0,
@@ -449,7 +451,7 @@ export async function buildThemeLocalizationE2EPlan({
         wikijump_hostname: `${ALLOWED_SITE_SLUG}.wikijump.localhost`,
       },
       mirror_sites_are_forbidden: true,
-      execute_supported: false,
+      execute_supported: mode === "execute",
     },
     translation_root: resolvedTranslationRoot,
     preflight: {status: failedTiers.length === 0 ? "pass" : "fail", selected_tiers: plans.length, failed_tiers: failedTiers},

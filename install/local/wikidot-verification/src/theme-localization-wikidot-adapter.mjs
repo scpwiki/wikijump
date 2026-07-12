@@ -5,6 +5,7 @@ import readline from "node:readline";
 import {fileURLToPath} from "node:url";
 
 import {ALLOWED_SITE_SLUG} from "./theme-localization-e2e.mjs";
+import {targetRoundTripSourceSha256} from "./theme-source-roundtrip.mjs";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const RUN_OWNED_SLUG = /^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$/u;
@@ -205,7 +206,7 @@ export class WikidotThemePageAdapter {
     if (await this.inspect(resource) !== null) throw new Error("Wikidot create-only guard found a preexisting page");
     const result = await this.helper.request("create", {slug: resource.slug, title: resource.title, source: payload.source, source_sha256: resource.source_sha256});
     const page = result?.page;
-    if (!Number.isSafeInteger(page?.identity) || page.title !== resource.title || page.source_sha256 !== resource.source_sha256) {
+    if (!Number.isSafeInteger(page?.identity) || page.title !== resource.title || page.source_sha256 !== targetRoundTripSourceSha256("wikidot", payload.source)) {
       throw new Error("Wikidot page did not round-trip after create");
     }
     return page.identity;

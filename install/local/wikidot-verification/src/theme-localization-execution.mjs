@@ -8,6 +8,7 @@ import {
   assertRunOwnedSlug,
   validateTargetOrigin,
 } from "./theme-localization-e2e.mjs";
+import {targetRoundTripSourceSha256} from "./theme-source-roundtrip.mjs";
 
 export const THEME_EXECUTION_LEDGER_SCHEMA = "wikijump_local_lab.theme_execution_ledger.v1";
 
@@ -73,7 +74,7 @@ export function validateThemeExecutionPlan(plan) {
 
 export function themeExecutionFingerprint(plan) {
   const resources = validateThemeExecutionPlan(plan);
-  return sha256(JSON.stringify({schema: plan.schema, run: plan.run, resources}));
+  return sha256(JSON.stringify({schema: plan.schema, execution: {mode: plan.mode ?? null, execute_supported: plan.safety?.execute_supported === true}, run: plan.run, resources}));
 }
 
 function parseEvents(text) {
@@ -217,10 +218,24 @@ function adapterFor(adapters, resource) {
   return adapter;
 }
 
-function matchesExpected(actual, state) {
-  if (actual.source_sha256 !== state.expected.source_sha256) return false;
+function matchesExpected(actual, state, remoteSourceSha256) {
+  if (actual.source_sha256 !== remoteSourceSha256) return false;
   if (actual.title !== state.expected.title) return false;
   return state.identity === undefined || actual.identity === state.identity;
+}
+
+async function expectedRemoteSourceSha256(resource, expected) {
+  if (typeof expected.remote_source_sha256 === "string") return expected.remote_source_sha256;
+  if (resource.target !== "wikidot") return expected.source_sha256;
+  const stat = await fs.lstat(resource.source_path);
+  if (!stat.isFile() || stat.isSymbolicLink()) throw new Error("accepted source is not a regular file during recovery");
+  const source = await fs.readFile(resource.source_path, "utf8");
+  if (sha256(source) !== expected.source_sha256) throw new Error("accepted source changed before recovery");
+  return targetRoundTripSourceSha256(resource.target, source);
+}
+
+function throwIfAborted(signal) {
+  if (signal?.aborted) throw signal.reason instanceof Error ? signal.reason : new Error("theme execution interrupted");
 }
 
 export async function cleanupThemeExecution({ledger, adapters}) {
@@ -235,8 +250,11 @@ export async function cleanupThemeExecution({ledger, adapters}) {
         await ledger.cleaned(resource, "already_absent");
         continue;
       }
-      if (!matchesExpected(actual, state)) throw new Error("remote identity or source hash changed");
-      await adapter.remove(resource, {expected: state.expected, identity: state.identity});
+      const remoteSourceSha256 = await expectedRemoteSourceSha256(resource, state.expected);
+      if (!matchesExpected(actual, state, remoteSourceSha256)) throw new Error("remote identity or source hash changed");
+      const remoteExpected = {...state.expected, source_sha256: remoteSourceSha256};
+      delete remoteExpected.remote_source_sha256;
+      await adapter.remove(resource, {expected: remoteExpected, identity: state.identity});
       if (await adapter.inspect(resource) !== null) throw new Error("page remains after delete");
       await ledger.cleaned(resource, "deleted_and_verified_absent");
     } catch (error) {
@@ -249,11 +267,13 @@ export async function cleanupThemeExecution({ledger, adapters}) {
   await ledger.complete();
 }
 
-export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, materialize, capture, now}) {
+export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, materialize, capture, now, signal}) {
   const resources = validateThemeExecutionPlan(plan);
   if (typeof materialize !== "function" || typeof capture !== "function") throw new Error("materialize and capture callbacks are required");
+  throwIfAborted(signal);
   for (const resource of resources) {
     if (await adapterFor(adapters, resource).inspect(resource) !== null) throw new Error(`preexisting page blocks execution: ${resource.resource_id}`);
+    throwIfAborted(signal);
   }
   const ledger = await ThemeExecutionLedger.create(ledgerPath, {runId: plan.run.id, fingerprint: themeExecutionFingerprint(plan), resources}, {now});
   let primaryError = null;
@@ -261,14 +281,19 @@ export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, mat
     for (const tier of plan.tiers) {
       const tierResources = resources.filter((resource) => resource.tier_id === tier.id);
       for (const resource of tierResources) {
+        throwIfAborted(signal);
         const payload = await materialize(resource);
+        throwIfAborted(signal);
         if (typeof payload?.source !== "string" || sha256(payload.source) !== resource.source_sha256) throw new Error(`accepted source changed after preflight: ${resource.resource_id}`);
-        const expected = {source_sha256: resource.source_sha256, title: resource.title};
+        const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, payload.source), title: resource.title};
         await ledger.intent(resource, expected);
         const identity = await adapterFor(adapters, resource).create(resource, payload);
+        throwIfAborted(signal);
         await ledger.created(resource, identity);
       }
+      throwIfAborted(signal);
       await capture(tier, tierResources);
+      throwIfAborted(signal);
     }
   } catch (error) {
     primaryError = error;

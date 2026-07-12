@@ -10,6 +10,30 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_SETTLE_MS = 250;
 const DEFAULT_INTERACTION_TIMEOUT_MS = 1_000;
 
+export async function prepareThemeArtifactDirectory(directory) {
+  const absolute = path.resolve(directory);
+  await fs.mkdir(absolute, {recursive: true, mode: 0o700});
+  const stat = await fs.lstat(absolute);
+  if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error("theme artifact path must be a real directory");
+  if ((stat.mode & 0o077) !== 0) throw new Error("theme artifact directory permissions must deny group and other access");
+  return absolute;
+}
+
+async function writePrivateFile(filePath, contents) {
+  const handle = await fs.open(filePath, "wx", 0o600);
+  try {
+    await handle.writeFile(contents);
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
+async function assertPrivateFile(filePath) {
+  const stat = await fs.lstat(filePath);
+  if (!stat.isFile() || stat.isSymbolicLink() || (stat.mode & 0o077) !== 0) throw new Error("theme artifact file must be a private regular file");
+}
+
 function safeId(value, label) {
   if (typeof value !== "string" || !/^[a-z0-9][a-z0-9-]{0,63}$/u.test(value)) throw new Error(`${label} is not a safe artifact identifier`);
   return value;
@@ -251,15 +275,17 @@ export function evaluateStrictThemeVerdict(result, gates) {
 }
 
 async function writeJson(filePath, value) {
-  await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await writePrivateFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 export async function writeThemeViewportArtifacts(directory, result) {
-  await fs.mkdir(directory, {recursive: true});
+  directory = await prepareThemeArtifactDirectory(directory);
   const artifacts = {
     dom: path.join(directory, "dom.html"), screenshot: path.join(directory, "screenshot.png"), computed_styles: path.join(directory, "computed-styles.json"), web_vitals: path.join(directory, "web-vitals.json"), interactions: path.join(directory, "interactions.json"), network_errors: path.join(directory, "network-errors.json"), raw_syntax: path.join(directory, "raw-syntax.json"), verdict: path.join(directory, "verdict.json"),
   };
-  await fs.writeFile(artifacts.dom, result.dom ?? "", "utf8");
+  if (result.screenshot_status !== "captured") throw new Error("theme screenshot artifact was not created");
+  await assertPrivateFile(artifacts.screenshot);
+  await writePrivateFile(artifacts.dom, result.dom ?? "");
   await Promise.all([
     writeJson(artifacts.computed_styles, result.computed_styles), writeJson(artifacts.web_vitals, {navigation_timing: result.navigation_timing, web_vitals: result.web_vitals}), writeJson(artifacts.interactions, result.interactions), writeJson(artifacts.network_errors, result.errors), writeJson(artifacts.raw_syntax, result.raw_syntax), writeJson(artifacts.verdict, result.verdict),
   ]);
@@ -267,7 +293,7 @@ export async function writeThemeViewportArtifacts(directory, result) {
 }
 
 export async function captureThemeViewport({context, target, viewport, capture, artifactDir, source, timeoutMs = DEFAULT_TIMEOUT_MS, settleMs = DEFAULT_SETTLE_MS, interactionTimeoutMs = DEFAULT_INTERACTION_TIMEOUT_MS}) {
-  await fs.mkdir(artifactDir, {recursive: true});
+  artifactDir = await prepareThemeArtifactDirectory(artifactDir);
   const page = await context.newPage();
   await page.addInitScript(performanceObserverBootstrap);
   const errors = startErrorCapture(page);
@@ -301,7 +327,7 @@ export async function captureThemeViewport({context, target, viewport, capture, 
   });
   const screenshotPath = path.join(artifactDir, "screenshot.png");
   let screenshotStatus = "missing";
-  try { await page.screenshot({path: screenshotPath, fullPage: true}); screenshotStatus = "captured"; } catch (error) { captureErrors.push(`screenshot: ${error.message}`); }
+  try { await writePrivateFile(screenshotPath, await page.screenshot({fullPage: true})); screenshotStatus = "captured"; } catch (error) { captureErrors.push(`screenshot: ${error.message}`); }
   const interactions = [];
   for (const interaction of capture.interactions) interactions.push(await captureInteraction(page, interaction, {timeoutMs: interactionTimeoutMs}));
   const finalUrl = page.url();
@@ -314,20 +340,26 @@ export async function captureThemeViewport({context, target, viewport, capture, 
   return summary;
 }
 
-export async function captureThemeTierBrowserEvidence({tier, outputDir, source, chromium, browserExecutable, ignoreHttpsErrors = false, storageStates = {}, openBrowserImpl = openBrowser, captureViewportImpl = captureThemeViewport}) {
+export async function captureThemeTierBrowserEvidence({tier, outputDir, source, chromium, browserExecutable, cdpEndpoint, browserSession = null, ignoreHttpsErrors = false, storageStates = {}, openBrowserImpl = openBrowser, captureViewportImpl = captureThemeViewport}) {
   if (!tier?.capture || typeof source !== "string" || !source.trim()) throw new Error("tier capture contract and non-empty source are required");
   const tierId = safeId(tier.id, "tier id");
-  const session = await openBrowserImpl({chromium, browserExecutable, ignoreHttpsErrors, createInitialContexts: false});
+  const rootDirectory = await prepareThemeArtifactDirectory(outputDir);
+  const tierDirectory = await prepareThemeArtifactDirectory(path.join(rootDirectory, tierId));
+  const ownsSession = browserSession === null;
+  const session = browserSession ?? await openBrowserImpl({chromium, cdpEndpoint, browserExecutable, ignoreHttpsErrors, createInitialContexts: false});
   const targets = [];
   try {
     for (const target of tier.targets) {
       validateThemeCaptureTarget({tier, target});
+      safeId(target.id, "target id");
+      const targetDirectory = await prepareThemeArtifactDirectory(path.join(tierDirectory, target.id));
       const targetResult = {id: target.id, url: target.url, viewports: []};
       for (const viewport of tier.capture.viewports) {
         safeId(viewport.id, "viewport id");
         const context = await session.browser.newContext({ignoreHTTPSErrors: ignoreHttpsErrors, viewport: {width: viewport.width, height: viewport.height}, ...(storageStates[target.id] ? {storageState: storageStates[target.id]} : {})});
         try {
-          targetResult.viewports.push(await captureViewportImpl({context, target, viewport, capture: tier.capture, artifactDir: path.join(outputDir, tierId, target.id, viewport.id), source}));
+          const viewportDirectory = await prepareThemeArtifactDirectory(path.join(targetDirectory, viewport.id));
+          targetResult.viewports.push(await captureViewportImpl({context, target, viewport, capture: tier.capture, artifactDir: viewportDirectory, source}));
         } finally {
           await context.close();
         }
@@ -336,11 +368,10 @@ export async function captureThemeTierBrowserEvidence({tier, outputDir, source, 
       targets.push(targetResult);
     }
   } finally {
-    await session.close();
+    if (ownsSession) await session.close();
   }
   const result = {schema: THEME_BROWSER_CAPTURE_SCHEMA, tier_id: tierId, status: targets.every((target) => target.verdict.status === "pass") ? "pass" : "fail", targets};
-  const resultPath = path.join(outputDir, tierId, "browser-capture.json");
-  await fs.mkdir(path.dirname(resultPath), {recursive: true});
+  const resultPath = path.join(tierDirectory, "browser-capture.json");
   await writeJson(resultPath, result);
   return {...result, result_path: resultPath};
 }

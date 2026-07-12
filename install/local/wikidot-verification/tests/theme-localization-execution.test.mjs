@@ -17,6 +17,7 @@ import {
   themeExecutionFingerprint,
   validateThemeExecutionPlan,
 } from "../src/theme-localization-execution.mjs";
+import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -68,7 +69,7 @@ class FakeAdapter {
     this.events.push(`create:${resource.resource_id}`);
     if (this.pages.has(resource.slug)) throw new Error("create-only collision");
     const identity = `${this.target}-${this.nextId++}`;
-    this.pages.set(resource.slug, {identity, source_sha256: sha256(payload.source), title: resource.title});
+    this.pages.set(resource.slug, {identity, source_sha256: targetRoundTripSourceSha256(resource.target, payload.source), title: resource.title});
     return identity;
   }
 
@@ -182,9 +183,9 @@ test("recovery cleans a page created after a durable intent even with a partial 
   const resources = validateThemeExecutionPlan(fx.plan);
   const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), resources});
   const resource = resources[0];
-  const expected = {source_sha256: resource.source_sha256, title: resource.title};
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, `日本語 source ${resource.tier_id}\n`), title: resource.title};
   await ledger.intent(resource, expected);
-  fx.adapters.wikidot.pages.set(resource.slug, {identity: "created-before-crash", ...expected});
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256});
   await fs.appendFile(fx.ledgerPath, "{partial", "utf8");
 
   const result = await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
@@ -192,6 +193,25 @@ test("recovery cleans a page created after a durable intent even with a partial 
   assert.equal(fx.adapters.wikidot.pages.size, 0);
   assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
   assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
+});
+
+test("legacy intent derives the narrow Wikidot terminal-LF round-trip hash from an unchanged accepted source", async () => {
+  const fx = await fixture();
+  fx.plan = fixturePlan({tiers: ["yossistyle"]});
+  const source = "日本語 source yossistyle\n";
+  const sourcePath = path.join(fx.root, "accepted.wikidot.txt");
+  await fs.writeFile(sourcePath, source);
+  fx.plan.tiers[0].preflight.source.absolute_path = sourcePath;
+  const resources = validateThemeExecutionPlan(fx.plan);
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), resources});
+  const resource = resources[0];
+  const expected = {source_sha256: resource.source_sha256, title: resource.title};
+  await ledger.intent(resource, expected);
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "saved-before-crash", title: expected.title, source_sha256: sha256(source.slice(0, -1))});
+
+  await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
+  assert.equal(fx.adapters.wikidot.pages.size, 0);
+  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
 });
 
 test("recovery refuses a ledger from another plan", async () => {

@@ -34,6 +34,11 @@ def sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def wikidot_round_trip_sha256(value: str) -> str:
+    # Live Wikidot removes exactly one terminal LF when saving page source.
+    return sha256(value[:-1] if value.endswith("\n") else value)
+
+
 def validate_slug(value: object) -> str:
     if not isinstance(value, str) or len(value) > 100 or RUN_OWNED_SLUG.fullmatch(value) is None:
         raise PublicError("resource_not_allowed", "resource is not a run-owned theme page")
@@ -239,7 +244,7 @@ class WikidotBackend:
         for _ in range(5):
             actual = self.inspect(slug)
             if actual is not None:
-                if actual["title"] != title or actual["source_sha256"] != expected_hash:
+                if actual["title"] != title or actual["source_sha256"] != wikidot_round_trip_sha256(source):
                     raise PublicError(
                         "round_trip_mismatch",
                         "created page did not match the accepted title and source",

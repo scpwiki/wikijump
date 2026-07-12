@@ -9,6 +9,7 @@ import {fileURLToPath} from "node:url";
 
 import {ThemeExecutionLedger, cleanupThemeExecution} from "../src/theme-localization-execution.mjs";
 import {WikidotJsonlHelperClient, WikidotThemePageAdapter} from "../src/theme-localization-wikidot-adapter.mjs";
+import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const HELPER_PATH = path.resolve(HERE, "../scripts/wikidot-theme-page-helper.py");
@@ -38,7 +39,7 @@ class FakeHelper {
     this.calls.push({action, fields});
     if (action === "inspect") return {page: this.pages.get(fields.slug) ?? null};
     if (action === "create") {
-      const page = {identity: 1234, title: fields.title, source_sha256: fields.source_sha256};
+      const page = {identity: 1234, title: fields.title, source_sha256: targetRoundTripSourceSha256("wikidot", fields.source)};
       this.pages.set(fields.slug, page);
       if (this.failAfterCreate) throw new Error("simulated post-save transport failure");
       return {page};
@@ -60,7 +61,7 @@ test("private-site adapter uses the execution interface without ListPages lookup
   assert.equal(await adapter.inspect(resource), null);
   const identity = await adapter.create(resource, {source});
   assert.equal(identity, 1234);
-  await adapter.remove(resource, {expected: {title: resource.title, source_sha256: resource.source_sha256}, identity});
+  await adapter.remove(resource, {expected: {title: resource.title, source_sha256: targetRoundTripSourceSha256("wikidot", source)}, identity});
   assert.equal(await adapter.inspect(resource), null);
   assert.deepEqual(helper.calls.map(({action}) => action), ["inspect", "inspect", "create", "inspect", "remove", "inspect", "inspect"]);
   await assert.rejects(adapter.inspect({...resource, url: `http://scp-wiki.wikidot.com/${resource.slug}`}), /hard allowlist/);
@@ -73,7 +74,7 @@ test("durable create intent can clean a page after a post-save error", async () 
   const adapter = new WikidotThemePageAdapter({helperClient: helper});
   const {resource, source} = fixtureResource();
   const ledger = await ThemeExecutionLedger.create(path.join(root, "ledger.jsonl"), {runId: "20260713-adapter", fingerprint: "fixture", resources: [resource]});
-  const expected = {title: resource.title, source_sha256: resource.source_sha256};
+  const expected = {title: resource.title, source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256("wikidot", source)};
   await ledger.intent(resource, expected);
   await assert.rejects(adapter.create(resource, {source}), /post-save/);
   assert.notEqual(await adapter.inspect(resource), null);
@@ -125,6 +126,22 @@ except module.PublicError as error:
   assert.equal(result.status, 0);
   assert.equal(result.stdout.trim(), "page_exists");
   assert.equal(result.stderr, "");
+});
+
+test("Wikidot round-trip hash removes only one observed terminal LF", () => {
+  const program = String.raw`
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location("theme_helper", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+print(module.wikidot_round_trip_sha256("fixture\n"))
+print(module.wikidot_round_trip_sha256("fixture"))
+print(module.wikidot_round_trip_sha256("fixture\n\n"))
+`;
+  const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, "");
+  assert.deepEqual(result.stdout.trim().split("\n"), [sha256("fixture"), sha256("fixture"), sha256("fixture\n")]);
 });
 
 test("authenticated GET treats only HTTP 404 as page absence", () => {
