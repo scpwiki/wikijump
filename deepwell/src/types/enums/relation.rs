@@ -76,7 +76,7 @@ impl RelationType {
     /// with the newer namespaced values. Relation lookups must check both.
     pub fn database_values(self) -> &'static [&'static str] {
         match self {
-            RelationType::SiteUser => &["site-user"],
+            RelationType::SiteUser => &["user", "site-user"],
             RelationType::SiteBan => &["ban", "site-ban"],
             RelationType::SiteApplication => &["application", "site-application"],
             RelationType::SiteMember => &["member", "site-member"],

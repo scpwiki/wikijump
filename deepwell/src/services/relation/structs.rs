@@ -163,8 +163,7 @@ impl RelationType {
 mod tests {
     use super::{RelationObject, RelationType, relation_condition};
     use crate::models::relation;
-    use sea_orm::sea_query::PostgresQueryBuilder;
-    use sea_orm::{EntityTrait, QueryFilter, QueryTrait};
+    use sea_orm::{DatabaseBackend, EntityTrait, QueryFilter, QueryTrait};
 
     #[test]
     fn relation_condition_matches_legacy_and_namespaced_database_values() {
@@ -174,7 +173,7 @@ mod tests {
                 RelationObject::Site(42),
                 RelationObject::User(7),
             ))
-            .build(PostgresQueryBuilder);
+            .build(DatabaseBackend::Postgres);
 
         let sql = statement.to_string();
         assert!(
