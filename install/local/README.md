@@ -10,6 +10,11 @@ There are two important things to note about the local tier:
 
 See `docs/development.md` for more information on local deployments.
 
+For prebuilt/no-dev lab runtimes that still contain `cargo-watch`, use
+`deepwell_hot_reload.py` to copy a Deepwell candidate into the running
+container without rebuilding its image. The guarded workflow and its
+limitations are documented in `docs/deepwell-container-hot-reload.md`.
+
 ## Local HTTPS certificates
 
 The local Caddy container terminates HTTPS for `*.wikijump.localhost` and `*.wjfiles.localhost` using Caddy's local certificate authority. The Caddy data and config directories are stored in named Docker volumes:
