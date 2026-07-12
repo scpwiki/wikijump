@@ -24,6 +24,7 @@ import {
   buildParentLinkSql,
   parseParentLinkParentPages,
   parseParentLinkSummary,
+  shouldProcessParentLinks,
 } from '../src/corpus-import-parent-links.mjs';
 import { createSqlExecutor } from '../src/corpus-import-sql.mjs';
 import { parsePrecreatedCategoryIds } from '../src/corpus-precreated-categories.mjs';
@@ -1559,7 +1560,7 @@ ORDER BY row_index;
 }
 
 async function importRow(args, sqlExecutor, row, importRunId) {
-  if (args.attachmentsOnlyExisting) {
+  if (!shouldProcessParentLinks(args)) {
     const existing = await getPage(args, row.fullname);
     if (existing === null) {
       if (!args.dryRun) {
@@ -1730,6 +1731,19 @@ WHERE import_run_id = ${sqlInt(importRunId)};
 }
 
 async function upsertParentLinks(args, sqlExecutor, selectedRows) {
+  // Attachment-only imports do not change page snapshots or page topology. The
+  // selected rows can include existing pages whose include graph is outside
+  // this run, so parent-link work must not rerender those pages after the file
+  // rows have already been committed.
+  if (args.attachmentsOnlyExisting) {
+    return {
+      parent_link_requested: 0,
+      parent_link_ready: 0,
+      parent_link_inserted: 0,
+      parent_link_missing_parent: 0,
+      parent_link_missing_child: 0,
+    };
+  }
   const sql = buildParentLinkSql(args, selectedRows);
   if (sql === null) {
     return {
@@ -1744,7 +1758,7 @@ async function upsertParentLinks(args, sqlExecutor, selectedRows) {
 }
 
 async function rerenderParentLinkPages(args, sqlExecutor, selectedRows) {
-  if (args.skipRerender) return { parent_link_parent_rerendered: 0 };
+  if (args.skipRerender || !shouldProcessParentLinks(args)) return { parent_link_parent_rerendered: 0 };
   const sql = buildParentLinkParentPagesSql(args, selectedRows);
   if (sql === null) return { parent_link_parent_rerendered: 0 };
   const pages = parseParentLinkParentPages(await sqlExecutor.runSql(sql, { capture: true }));

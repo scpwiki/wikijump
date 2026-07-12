@@ -23,6 +23,10 @@ export function manifestRowsWithParents(rows) {
   return rows.filter((row) => typeof row.parent_fullname === 'string' && row.parent_fullname.length > 0);
 }
 
+export function shouldProcessParentLinks(args) {
+  return !args.attachmentsOnlyExisting;
+}
+
 export function buildParentLinkSql(args, rows) {
   const rowsWithParents = manifestRowsWithParents(rows);
   if (rowsWithParents.length === 0) return null;
