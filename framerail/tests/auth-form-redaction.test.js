@@ -56,6 +56,22 @@ test("auth action payload serialization removes nested credentials on every path
   assert.match(JSON.stringify(paths.mfa), new RegExp(mfaSessionToken))
 })
 
+test("auth action payload redaction preserves MFA session tokens containing passwords", () => {
+  const password = "w"
+  const mfaSessionToken =
+    "wj:ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwx"
+  const payload = {
+    form: { data: { password } },
+    session_token: mfaSessionToken,
+    needsMfa: true
+  }
+
+  const redacted = redactAuthActionPayload(payload, [password])
+
+  assert.equal(redacted.session_token, mfaSessionToken)
+  assert.equal(redacted.form.data.password, "")
+})
+
 test("registration action forms clear both password fields", () => {
   const form = {
     valid: false,
