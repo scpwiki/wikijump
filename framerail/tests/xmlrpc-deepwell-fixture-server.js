@@ -425,7 +425,7 @@ const server = createServer((request, response) => {
       request.headers["x-deepwell-site-id"] === "6000005" &&
       hasExactKeys(rpcRequest.params.route, ["extra", "slug"]) &&
       typeof rpcRequest.params.route.slug === "string" &&
-      rpcRequest.params.route.extra === null
+      rpcRequest.params.route.extra === ""
     ) {
       pageReadRequests.pageView.push({
         headers: requestContextHeaders(request),
