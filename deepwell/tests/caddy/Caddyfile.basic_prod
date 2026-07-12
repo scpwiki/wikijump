@@ -40,6 +40,7 @@
 #
 
 deploy.wikijump.test {
+	import strip_headers
 	reverse_proxy localhost:9120
 }
 
