@@ -1410,6 +1410,16 @@ impl RenderService {
                 Error::new("failed to join parse and render task", ErrorType::Render)
             })?;
 
+        // Both hosted block collections must be valid before either one can
+        // write to S3. Each add_blocks call also validates its own slice.
+        if text_block_page_id.is_some() {
+            TextBlockService::validate_page_block_counts(
+                html_block_texts.len(),
+                code_blocks.len(),
+            )
+            .or_raise(make_error)?;
+        }
+
         // Insert compiled HTML into text table
         let compiled_hash = TextService::create(ctx, html_output.body.clone())
             .await
