@@ -115,7 +115,7 @@ struct Mfa {
     recovery_code_length: usize,
     mfa_digits: u32,
     time_step: u64,
-    time_skew: u32,
+    time_skew: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -571,7 +571,7 @@ mod tests {
                     recovery_code_length: 12,
                     mfa_digits: 6,
                     time_step: 30,
-                    time_skew: 1,
+                    time_skew: -1,
                 },
             },
             locale: Locale {
@@ -704,7 +704,7 @@ mod tests {
         assert_eq!(config.recovery_code_length, 12);
         assert_eq!(config.totp_digits, 6);
         assert_eq!(config.totp_time_step, 30);
-        assert_eq!(config.totp_time_skew, 1);
+        assert_eq!(config.totp_time_skew, -1);
         assert_eq!(config.job_workers, NonZeroU16::new(3).unwrap());
         assert_eq!(config.job_max_attempts, 4);
         assert_eq!(config.job_work_delay, StdDuration::from_millis(50));

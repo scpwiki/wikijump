@@ -996,6 +996,63 @@ async fn role_reparent() {
 }
 
 #[tokio::test]
+async fn role_reparent_deleted_parent_rejected() {
+    let mut runner = TestRunner::setup().await;
+    let f = RoleFixture::setup(&mut runner).await;
+
+    // Deleted parent keeps its permission rows, so reparent validation must
+    // explicitly require an active parent instead of relying on permission checks.
+    let deleted_parent = create_role(&runner, f.site_id, "Deleted Parent", None).await;
+    set_role_perms(
+        &runner,
+        f.site_id,
+        deleted_parent.role_id,
+        &["view", "edit"],
+        false,
+    )
+    .await;
+
+    let child = create_role(&runner, f.site_id, "Child", None).await;
+    set_role_perms(&runner, f.site_id, child.role_id, &["view"], false).await;
+
+    run_endpoint!(
+        runner,
+        role_delete,
+        json!({
+            "site_id": f.site_id,
+            "role_id": deleted_parent.role_id,
+            "deleting_user_id": SYSTEM_USER_ID,
+            "reparent_children": false,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let err = run_endpoint_err!(
+        runner,
+        role_reparent,
+        json!({
+            "site_id": f.site_id,
+            "role_id": child.role_id,
+            "new_parent_id": deleted_parent.role_id,
+            "reparenting_user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    assert_contains_error!(err, ErrorType::RoleNotFound);
+
+    let roles = run_endpoint!(runner, list_site_roles, json!({ "site_id": f.site_id }),);
+    let child_record = roles
+        .iter()
+        .find(|r| r.role_id == child.role_id)
+        .expect("Child role not found in listing");
+    assert_eq!(
+        child_record.parent_role_id, None,
+        "Child should not be parented under a deleted role"
+    );
+}
+
+#[tokio::test]
 async fn role_reparent_cycle_rejected() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;

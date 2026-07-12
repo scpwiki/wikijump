@@ -23,6 +23,7 @@ mod common;
 
 use self::common::TestRunner;
 use deepwell::constants::SYSTEM_USER_ID;
+use deepwell::error::ErrorType;
 use deepwell::license::License;
 use deepwell::services::category::CategoryService;
 use deepwell::services::permission::{
@@ -35,8 +36,9 @@ use deepwell::services::relation::{
     SiteMemberAccepted, SiteMemberData,
 };
 use deepwell::services::role::{
-    GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput, RevokeUserRoleInput,
-    RoleService, UpdateRolePermissionsInput,
+    GetRolePermissionsInput, GetUserRolesInput, GrantUserRoleInput,
+    InternalCreateRoleInput, RevokeUserRoleInput, RoleService,
+    UpdateRolePermissionsInput,
 };
 use deepwell::services::site::{CreateSite, SiteService};
 use deepwell::services::user::{CreateUser, UserService};
@@ -1545,6 +1547,58 @@ async fn role_update_permissions_and_get() {
         edit_perm.resource_category,
         Some(Reference::Slug(OTHER_CATEGORY_NAME.into()))
     );
+}
+
+#[tokio::test]
+async fn get_permissions_for_role_rejects_cross_site_numeric_role_id() {
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
+    let ctx = runner.context();
+    let n = next_n();
+
+    let other_site = SiteService::create(
+        ctx,
+        CreateSite {
+            slug: format!("perm-other-{n}"),
+            name: format!("Other permission test site {n}"),
+            tagline: String::new(),
+            description: format!("Other permission test site {n}"),
+            default_page: None,
+            layout: None,
+            license: License::CcBySa40,
+            locale: String::from("en"),
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("Failed to create other test site");
+
+    let other_role_id =
+        create_role(ctx, other_site.site_id, "Other Site Role", None).await;
+    add_perms_to_role(
+        ctx,
+        other_site.site_id,
+        other_role_id,
+        vec![Permission {
+            resource_type: Resource::Page,
+            resource_category: None,
+            action: Action::View,
+        }],
+    )
+    .await;
+
+    let err = PermissionService::get_permissions_for_role(
+        ctx,
+        GetRolePermissionsInput {
+            site_id: f.site_id,
+            role_reference: Reference::Id(other_role_id),
+            human_readable_categories: false,
+        },
+    )
+    .await
+    .expect_err("cross-site numeric role IDs must not resolve permissions");
+
+    assert_contains_error!(err, ErrorType::Role);
 }
 
 #[tokio::test]

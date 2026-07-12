@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import {fileURLToPath} from "node:url";
+import {startCaptureEgressProxy} from "../src/capture-egress-proxy.mjs";
 import {
   buildEvidenceRecord,
   readJson,
@@ -167,22 +168,31 @@ export function resolveStorageStates({storageState = null, sourceStorageState = 
   };
 }
 
-export function browserContextOptions({ignoreHttpsErrors, storageState = null}) {
+export function browserContextOptions({ignoreHttpsErrors, storageState = null, proxyServer = null}) {
   return {
     ignoreHTTPSErrors: ignoreHttpsErrors,
     ...(storageState ? {storageState} : {}),
+    ...(proxyServer ? {proxy: {server: proxyServer, bypass: "<-loopback>"}} : {}),
   };
 }
 
-async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, localStorageState}) {
+async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer}) {
   let sourceContext = null;
   let localContext = null;
   try {
     sourceContext = await browser.newContext(
-      browserContextOptions({ignoreHttpsErrors, storageState: sourceStorageState})
+      browserContextOptions({
+        ignoreHttpsErrors,
+        storageState: sourceStorageState,
+        proxyServer: sourceProxyServer,
+      }),
     );
     localContext = await browser.newContext(
-      browserContextOptions({ignoreHttpsErrors, storageState: localStorageState})
+      browserContextOptions({
+        ignoreHttpsErrors,
+        storageState: localStorageState,
+        proxyServer: localProxyServer,
+      }),
     );
     return {sourceContext, localContext};
   } catch (error) {
@@ -205,7 +215,7 @@ async function closeContextPair({sourceContext, localContext}) {
   }
 }
 
-function browserSession({browser, sourceContext, localContext, ignoreHttpsErrors, sourceStorageState, localStorageState}) {
+function browserSession({browser, sourceContext, localContext, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer}) {
   return {
     browser,
     context: sourceContext,
@@ -217,6 +227,8 @@ function browserSession({browser, sourceContext, localContext, ignoreHttpsErrors
         ignoreHttpsErrors,
         sourceStorageState,
         localStorageState,
+        sourceProxyServer,
+        localProxyServer,
       });
     },
     async close() {
@@ -235,10 +247,13 @@ export async function openBrowser({
   sourceStorageState = null,
   localStorageState = null,
   createInitialContexts = true,
+  sourceProxyServer = null,
+  localProxyServer = null,
 }) {
   const resolvedStates = resolveStorageStates({storageState, sourceStorageState, localStorageState});
   let browser = null;
   if (cdpEndpoint) {
+    if (sourceProxyServer || localProxyServer) throw new Error("CDP capture cannot enforce the owned egress proxy");
     browser = await chromium.connectOverCDP(cdpEndpoint);
   } else {
     browser = await chromium.launch({
@@ -253,6 +268,8 @@ export async function openBrowser({
           ignoreHttpsErrors,
           sourceStorageState: resolvedStates.sourceStorageState,
           localStorageState: resolvedStates.localStorageState,
+          sourceProxyServer,
+          localProxyServer,
         })
       : {sourceContext: null, localContext: null};
     return browserSession({
@@ -261,6 +278,8 @@ export async function openBrowser({
       ignoreHttpsErrors,
       sourceStorageState: resolvedStates.sourceStorageState,
       localStorageState: resolvedStates.localStorageState,
+      sourceProxyServer,
+      localProxyServer,
     });
   } catch (error) {
     if (browser) {
@@ -461,17 +480,40 @@ async function run() {
   }
 
   await fs.mkdir(args.outputDir, {recursive: true});
-  const {chromium} = requirePlaywright(args.browserRoot);
-  const browserSession = await openBrowser({
-    chromium,
-    cdpEndpoint: args.cdpEndpoint,
-    browserExecutable: args.browserExecutable,
-    ignoreHttpsErrors: args.ignoreHttpsErrors,
-    storageState: args.storageState,
-    sourceStorageState: args.sourceStorageState,
-    localStorageState: args.localStorageState,
-    createInitialContexts: false,
+  if (args.cdpEndpoint) {
+    throw new Error("--cdp-endpoint is disabled because capture egress cannot be pinned");
+  }
+  const localOrigins = selectedRows.flatMap((row) => {
+    const value = rowLocalUrl(row, args.localUrlField);
+    if (!value) return [];
+    try {
+      return [new URL(value).origin];
+    } catch {
+      throw new Error(`invalid local capture URL for ${row.fixture_id}`);
+    }
   });
+  const sourceEgressProxy = await startCaptureEgressProxy();
+  const localEgressProxy = await startCaptureEgressProxy({
+    allowedLocalOrigins: localOrigins,
+  });
+  const {chromium} = requirePlaywright(args.browserRoot);
+  let browserSession;
+  try {
+    browserSession = await openBrowser({
+      chromium,
+      browserExecutable: args.browserExecutable,
+      ignoreHttpsErrors: args.ignoreHttpsErrors,
+      storageState: args.storageState,
+      sourceStorageState: args.sourceStorageState,
+      localStorageState: args.localStorageState,
+      createInitialContexts: false,
+      sourceProxyServer: sourceEgressProxy.url,
+      localProxyServer: localEgressProxy.url,
+    });
+  } catch (error) {
+    await Promise.all([sourceEgressProxy.close(), localEgressProxy.close()]);
+    throw error;
+  }
   const resolvedStorageStates = resolveStorageStates({
     storageState: args.storageState,
     sourceStorageState: args.sourceStorageState,
@@ -531,6 +573,7 @@ async function run() {
     }
   } finally {
     await browserSession.close();
+    await Promise.all([sourceEgressProxy.close(), localEgressProxy.close()]);
   }
 
   const result = {

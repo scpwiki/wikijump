@@ -93,10 +93,30 @@ impl ViewService {
         let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
         if let Some(cache_key) =
             cache_metadata.as_ref().map(|metadata| &metadata.cache_key)
-            && let Some(page) = ArticlePageCache::get(ctx, cache_key).await?
+            && let Some(mut page) = ArticlePageCache::get(ctx, cache_key).await?
             && Self::cached_article_page_visible_to_viewer(ctx, &preload.viewer, &input)
                 .await?
         {
+            if let GetPageViewOutput::Found {
+                page: page_model,
+                wikidot_breadcrumbs,
+                ..
+            } = &mut page
+                && page_model.from_wikidot
+            {
+                *wikidot_breadcrumbs = Self::get_wikidot_breadcrumbs(
+                    ctx,
+                    page_model.site_id,
+                    preload
+                        .viewer
+                        .user_session
+                        .as_ref()
+                        .map(|session| session.user.user_id),
+                    page_model.page_id,
+                )
+                .await?;
+            }
+
             return Ok(GetArticleViewOutput {
                 viewer: preload.viewer,
                 page,
@@ -444,10 +464,14 @@ impl ViewService {
                         Self::get_wikidot_snapshot_page_info(ctx, page.page_id)
                             .await
                             .or_raise(make_error)?;
-                    let wikidot_breadcrumbs =
-                        Self::get_wikidot_breadcrumbs(ctx, page.page_id)
-                            .await
-                            .or_raise(make_error)?;
+                    let wikidot_breadcrumbs = Self::get_wikidot_breadcrumbs(
+                        ctx,
+                        site_id,
+                        user_session.as_ref().map(|s| s.user.user_id),
+                        page.page_id,
+                    )
+                    .await
+                    .or_raise(make_error)?;
 
                     PageReturn {
                         page_status: PageStatus::Found {
@@ -680,12 +704,15 @@ impl ViewService {
 
     async fn get_wikidot_breadcrumbs(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
+        user_id: Option<i64>,
         page_id: i64,
     ) -> Result<Vec<WikidotPageBreadcrumbView>> {
         #[derive(FromQueryResult, Debug)]
         struct WikidotBreadcrumbRow {
             source_fullname: String,
             title_shown: Option<String>,
+            page_category_id: Option<i64>,
         }
 
         let txn = ctx.transaction();
@@ -694,13 +721,14 @@ impl ViewService {
             format!(
                 r#"
 WITH RECURSIVE
-breadcrumb_chain(depth, source_site, source_fullname, title_shown, parent_fullname) AS (
-  SELECT 0, source_site, source_fullname, title_shown, parent_fullname
+breadcrumb_chain(depth, page_id, source_site, source_fullname, title_shown, parent_fullname) AS (
+  SELECT 0, page_id, source_site, source_fullname, title_shown, parent_fullname
   FROM wikidot_page_snapshot
   WHERE page_id = {page_id}
   UNION ALL
   SELECT
     breadcrumb_chain.depth + 1,
+    parent.page_id,
     parent.source_site,
     parent.source_fullname,
     parent.title_shown,
@@ -712,14 +740,20 @@ breadcrumb_chain(depth, source_site, source_fullname, title_shown, parent_fullna
   WHERE breadcrumb_chain.parent_fullname IS NOT NULL
     AND breadcrumb_chain.depth < 12
 )
-SELECT source_fullname, title_shown
+SELECT
+  breadcrumb_chain.source_fullname,
+  breadcrumb_chain.title_shown,
+  page.page_category_id
 FROM breadcrumb_chain
-ORDER BY depth DESC
+LEFT JOIN page
+  ON page.page_id = breadcrumb_chain.page_id
+ AND page.deleted_at IS NULL
+ORDER BY breadcrumb_chain.depth ASC
 "#,
             ),
         );
 
-        let mut rows = WikidotBreadcrumbRow::find_by_statement(statement)
+        let rows = WikidotBreadcrumbRow::find_by_statement(statement)
             .all(txn)
             .await
             .or_raise(|| {
@@ -727,24 +761,53 @@ ORDER BY depth DESC
                     "failed to load imported Wikidot page breadcrumb chain",
                     ErrorType::GetView(ViewType::Page),
                 )
-            })?
-            .into_iter()
-            .map(
-                |WikidotBreadcrumbRow {
-                     source_fullname,
-                     title_shown,
-                 }| WikidotPageBreadcrumbView {
-                    title: title_shown.unwrap_or_else(|| source_fullname.clone()),
-                    slug: source_fullname,
+            })?;
+
+        let mut breadcrumbs = Vec::new();
+        for WikidotBreadcrumbRow {
+            source_fullname,
+            title_shown,
+            page_category_id,
+        } in rows
+        {
+            let Some(page_category_id) = page_category_id else {
+                break;
+            };
+            let user_can_view_ancestor = PermissionService::check_user_can(
+                ctx,
+                &CheckPermissionContext {
+                    user_id,
+                    site_id,
+                    // View permissions are cached per category, not per page.
+                    // Supplying an ancestor ID would make page-author roles leak
+                    // one page-specific decision into other ancestors.
+                    page_reference: None,
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(page_category_id)),
+                    action: Action::View,
                 },
             )
-            .collect::<Vec<_>>();
+            .await?;
 
-        if rows.len() <= 1 {
-            rows.clear();
+            if !user_can_view_ancestor {
+                break;
+            }
+
+            breadcrumbs.push(WikidotPageBreadcrumbView {
+                title: title_shown.unwrap_or_else(|| source_fullname.clone()),
+                slug: source_fullname,
+            });
         }
 
-        Ok(rows)
+        breadcrumbs.reverse();
+
+        if breadcrumbs.len() <= 1 {
+            breadcrumbs.clear();
+        }
+
+        Ok(breadcrumbs)
     }
 
     pub async fn user(

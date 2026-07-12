@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::locale::validate_locales;
 use super::prelude::*;
 use crate::models::known_user::{self, Entity as KnownUser, Model as KnownUserModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
@@ -165,7 +166,7 @@ impl UserService {
         }
 
         // Validate locales for this type
-        Self::validate_locales(user_type, &locales).or_raise(make_error)?;
+        validate_locales(user_type, &locales).or_raise(make_error)?;
 
         // Check for name conflicts
         let result = User::find()
@@ -621,7 +622,7 @@ impl UserService {
         }
 
         if let Maybe::Set(locales) = input.locales {
-            Self::validate_locales(user.user_type, &locales)?;
+            validate_locales(user.user_type, &locales)?;
             model.locales = Set(locales);
         }
 
@@ -1073,45 +1074,6 @@ impl UserService {
             .or_raise(make_error)?;
 
         Ok(())
-    }
-
-    fn validate_locales<S: AsRef<str>>(user_type: UserType, locales: &[S]) -> Result<()> {
-        use crate::utils::validate_locale;
-
-        debug!(
-            "Validating locales ({}) for user type {:?}",
-            locales.len(),
-            user_type,
-        );
-
-        let make_error =
-            || Error::new("failed to validate list of locales", ErrorType::User);
-
-        // Ensure values are valid
-        for locale in locales {
-            validate_locale(locale.as_ref()).or_raise(make_error)?;
-        }
-
-        // Invariants for locale lists
-        let valid = match user_type {
-            // System users should have no locales set
-            UserType::System => locales.is_empty(),
-
-            // Site users should have one locale set
-            UserType::Site => locales.len() == 1,
-
-            // Regular, should have a nonzero number of locales
-            _ => !locales.is_empty(),
-        };
-
-        if valid {
-            Ok(())
-        } else {
-            bail!(Error::new(
-                "one or more locales are invalid",
-                ErrorType::BadRequest
-            ));
-        }
     }
 }
 
