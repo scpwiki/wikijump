@@ -26,6 +26,9 @@ use super::diagnostics::{
 };
 use super::html_text::html_data_segments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
+use super::list_pages_template::{
+    LISTPAGES_VARIABLE_REGEX, ListPagesOutputShape, ListPagesTemplatePlan,
+};
 use super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
@@ -510,12 +513,6 @@ static WIKIJUMP_FOOTNOTE_DATA_ID_REGEX: LazyLock<Regex> =
 static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)(?P<key>[A-Za-z_][A-Za-z0-9_\-]*)\s*(?P<op>!?=)\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
         .unwrap()
-});
-static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r"%%(?P<name>[A-Za-z0-9_]+)(?:\{(?P<argument>[A-Za-z0-9_-]+)\})?(?:\|(?P<format>.*?))?%%",
-    )
-    .unwrap()
 });
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
@@ -4630,7 +4627,7 @@ impl RenderService {
             Static(String),
             Render {
                 arguments: ListPagesArguments,
-                body: String,
+                template: ListPagesTemplatePlan,
                 batch_key: Option<ExactNameListPagesBatchKey>,
             },
         }
@@ -4653,16 +4650,16 @@ impl RenderService {
                 } else if let Some(arguments) = parse_list_pages_arguments(head) {
                     if arguments.unsupported_author_filter {
                         ListPagesBlockPlan::Static(module.original.to_owned())
-                    } else if list_pages_body_variables_supported(body) {
+                    } else if let Some(template) = ListPagesTemplatePlan::compile(body) {
                         let batch_key = exact_name_list_pages_batch_key(
                             head,
-                            body,
+                            &template,
                             &arguments,
                             current_category.as_ref(),
                         );
                         ListPagesBlockPlan::Render {
                             arguments,
-                            body: body.to_owned(),
+                            template,
                             batch_key,
                         }
                     } else {
@@ -4718,16 +4715,15 @@ impl RenderService {
                 let mut fields = FoundPageFields::default();
                 for block in &batch {
                     let ListPagesBlockPlan::Render {
-                        arguments, body, ..
+                        arguments,
+                        template,
+                        ..
                     } = &block.plan
                     else {
                         unreachable!();
                     };
                     unique_slugs.insert(arguments.slug.as_ref().unwrap().to_string());
-                    union_found_page_fields(
-                        &mut fields,
-                        &list_pages_found_page_fields(body),
-                    );
+                    union_found_page_fields(&mut fields, &template.fields());
                 }
                 let slugs = unique_slugs
                     .iter()
@@ -4746,7 +4742,9 @@ impl RenderService {
                 for block in batch {
                     expanded.push_str(&wikitext[cursor..block.start]);
                     let ListPagesBlockPlan::Render {
-                        arguments, body, ..
+                        arguments,
+                        template,
+                        ..
                     } = block.plan
                     else {
                         unreachable!();
@@ -4768,7 +4766,7 @@ impl RenderService {
                         page_info,
                         settings,
                         arguments,
-                        &body,
+                        &template,
                         include_budget,
                         Some(prefetched_pages),
                         include_source_cache,
@@ -4791,7 +4789,9 @@ impl RenderService {
                     expanded.push_str(&replacement);
                 }
                 ListPagesBlockPlan::Render {
-                    arguments, body, ..
+                    arguments,
+                    template,
+                    ..
                 } => {
                     let IncludeExpansion {
                         wikitext: replacement,
@@ -4806,7 +4806,7 @@ impl RenderService {
                         page_info,
                         settings,
                         arguments,
-                        &body,
+                        &template,
                         include_budget,
                         None,
                         include_source_cache,
@@ -7188,7 +7188,7 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         arguments: ListPagesArguments,
-        body: &str,
+        template: &ListPagesTemplatePlan,
         mut include_budget: IncludeExpansionBudget,
         mut prefetched_pages: Option<FoundPages>,
         include_source_cache: &mut IncludeSourceCache,
@@ -7252,20 +7252,11 @@ impl RenderService {
             IncludedCategories::List(&categories)
         };
 
-        let wants_created_by = list_pages_body_uses_variable(body, "created_by")
-            || list_pages_body_uses_variable(body, "createdby")
-            || list_pages_body_uses_variable(body, "created_by_linked")
-            || list_pages_body_uses_variable(body, "createdbylinked")
-            || list_pages_body_uses_variable(body, "author");
-        let wants_created_at = list_pages_body_uses_variable(body, "created_at")
-            || list_pages_body_uses_variable(body, "createdat")
-            || list_pages_body_uses_variable(body, "date");
-        let wants_updated_by = list_pages_body_uses_variable(body, "updated_by")
-            || list_pages_body_uses_variable(body, "updatedby");
-        let wants_updated_at = list_pages_body_uses_variable(body, "updated_at")
-            || list_pages_body_uses_variable(body, "updatedat");
-        let wants_rating_votes = list_pages_body_uses_variable(body, "rating_votes")
-            || list_pages_body_uses_variable(body, "ratingvotes");
+        let wants_created_by = template.uses_created_by();
+        let wants_created_at = template.uses_created_at();
+        let wants_updated_by = template.uses_updated_by();
+        let wants_updated_at = template.uses_updated_at();
+        let wants_rating_votes = template.uses_rating_votes();
         let resolved_authors = Self::resolve_list_pages_authors(
             ctx,
             current_site_id,
@@ -7317,7 +7308,7 @@ impl RenderService {
                 reversed: false,
             },
             variables: &[],
-            fields: list_pages_found_page_fields(body),
+            fields: template.fields(),
         };
 
         let mut list_pages_metadata = None;
@@ -7391,11 +7382,9 @@ impl RenderService {
         } else {
             BTreeMap::new()
         };
-        let wants_comments = list_pages_body_uses_variable(body, "comments");
-        let wants_commented_by = list_pages_body_uses_variable(body, "commented_by")
-            || list_pages_body_uses_variable(body, "commentedby");
-        let wants_commented_at = list_pages_body_uses_variable(body, "commented_at")
-            || list_pages_body_uses_variable(body, "commentedat");
+        let wants_comments = template.uses_comments();
+        let wants_commented_by = template.uses_commented_by();
+        let wants_commented_at = template.uses_commented_at();
         let snapshot_displays = if wants_created_by
             || wants_updated_by
             || wants_created_at
@@ -7416,9 +7405,11 @@ impl RenderService {
             output.push('\n');
         }
 
-        let wants_content = list_pages_body_uses_content_variable(body);
-        let wants_data_form_values = list_pages_body_uses_variable(body, "form_data")
-            || list_pages_body_uses_variable(body, "form_raw");
+        let body = template.body();
+        let wants_content = template.uses_content();
+        let wants_data_form_values = template.uses_data_form();
+        let render_generated_html =
+            template.output_shape() == ListPagesOutputShape::TableRows;
         for (index, page) in pages.iter().enumerate() {
             output.push_str("[[div class=\"list-pages-item\"]]\n");
             let page_wikitext = if wants_content || wants_data_form_values {
@@ -7473,9 +7464,9 @@ impl RenderService {
                     .as_deref()
                     .or(page_wikitext.as_deref()),
                 data_form_values: &data_form_values,
-                render_generated_html: list_pages_body_has_table_rows(body),
+                render_generated_html,
             };
-            let mut body = if list_pages_body_uses_only_rating_variable(body) {
+            let mut body = if template.uses_only_rating() {
                 substitute_list_pages_rating_only(body, page)
             } else {
                 let mut generated_fragments = CompatHtmlFragments::new(body);
@@ -8408,15 +8399,12 @@ struct ExactNameListPagesBatchKey {
 
 fn exact_name_list_pages_batch_key(
     head: &str,
-    body: &str,
+    template: &ListPagesTemplatePlan,
     arguments: &ListPagesArguments,
     current_category: &str,
 ) -> Option<ExactNameListPagesBatchKey> {
     let unparsed = LISTPAGES_ARGUMENT_REGEX.replace_all(head, "");
-    if !unparsed.trim().is_empty()
-        || list_pages_body_uses_content_variable(body)
-        || list_pages_body_uses_variable(body, "form_data")
-        || list_pages_body_uses_variable(body, "form_raw")
+    if !unparsed.trim().is_empty() || template.uses_content() || template.uses_data_form()
     {
         return None;
     }
@@ -8460,33 +8448,6 @@ fn exact_name_list_pages_batch_key(
             .map(|category| category.to_string())
             .collect(),
     })
-}
-
-fn list_pages_found_page_fields(body: &str) -> FoundPageFields {
-    let wants_rating_votes = list_pages_body_uses_variable(body, "rating_votes")
-        || list_pages_body_uses_variable(body, "ratingvotes");
-    FoundPageFields {
-        title: true,
-        slug: true,
-        page_category_id: true,
-        created_by: list_pages_body_uses_variable(body, "created_by")
-            || list_pages_body_uses_variable(body, "createdby")
-            || list_pages_body_uses_variable(body, "created_by_linked")
-            || list_pages_body_uses_variable(body, "createdbylinked")
-            || list_pages_body_uses_variable(body, "author"),
-        created_at: list_pages_body_uses_variable(body, "created_at")
-            || list_pages_body_uses_variable(body, "createdat")
-            || list_pages_body_uses_variable(body, "date"),
-        tags: list_pages_body_uses_variable(body, "tags")
-            || list_pages_body_uses_variable(body, "tags_linked")
-            || list_pages_body_uses_variable(body, "tagslinked"),
-        updated_by: list_pages_body_uses_variable(body, "updated_by")
-            || list_pages_body_uses_variable(body, "updatedby"),
-        updated_at: list_pages_body_uses_variable(body, "updated_at")
-            || list_pages_body_uses_variable(body, "updatedat"),
-        score: list_pages_body_uses_variable(body, "rating") || wants_rating_votes,
-        ..Default::default()
-    }
 }
 
 fn union_found_page_fields(left: &mut FoundPageFields, right: &FoundPageFields) {
@@ -9066,23 +9027,9 @@ fn parse_list_pages_page_type(value: &str) -> Option<PageTypeSelector> {
     }
 }
 
+#[cfg(test)]
 fn list_pages_body_variables_supported(body: &str) -> bool {
-    LISTPAGES_VARIABLE_REGEX
-        .captures_iter(body)
-        .all(
-            |captures| match captures["name"].to_ascii_lowercase().as_str() {
-                "title_linked" | "linked_title" | "title" | "name" | "slug"
-                | "page_unix_name" | "fullname" | "full_slug" | "link" | "created_by"
-                | "createdby" | "created_by_linked" | "createdbylinked" | "author"
-                | "created_at" | "createdat" | "date" | "updated_by" | "updatedby"
-                | "updated_at" | "updatedat" | "commented_at" | "commentedat"
-                | "commented_by" | "commentedby" | "rating" | "rating_votes"
-                | "ratingvotes" | "comments" | "tags" | "tags_linked" | "tagslinked"
-                | "content" | "index" | "total" | "limit" => true,
-                "form_data" | "form_raw" => captures.name("argument").is_some(),
-                _ => false,
-            },
-        )
+    ListPagesTemplatePlan::compile(body).is_some()
 }
 
 fn unsupported_list_pages_replacement(module_source: &str, body: &str) -> String {
@@ -9127,25 +9074,9 @@ fn list_pages_body_is_no_visible_tracking_markup(body: &str) -> bool {
     saw_tracking_markup
 }
 
-fn list_pages_body_uses_variable(body: &str, variable: &str) -> bool {
-    LISTPAGES_VARIABLE_REGEX
-        .captures_iter(body)
-        .any(|captures| captures["name"].eq_ignore_ascii_case(variable))
-}
-
+#[cfg(test)]
 fn list_pages_body_uses_content_variable(body: &str) -> bool {
-    list_pages_body_uses_variable(body, "content")
-}
-
-fn list_pages_body_uses_only_rating_variable(body: &str) -> bool {
-    let mut saw_rating = false;
-    for captures in LISTPAGES_VARIABLE_REGEX.captures_iter(body) {
-        if !captures["name"].eq_ignore_ascii_case("rating") {
-            return false;
-        }
-        saw_rating = true;
-    }
-    saw_rating
+    ListPagesTemplatePlan::compile(body).is_some_and(|plan| plan.uses_content())
 }
 
 fn substitute_list_pages_rating_only(template: &str, page: &FoundPageRow) -> String {
@@ -11843,12 +11774,13 @@ mod tests {
         COMPAT_TEXT_MARKER_PREFIX, CollectingIncluder, CompatHtmlFragments,
         CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
         CountPagesRawScanCompletion, IncludeSourceCache, ListPagesSnapshotDisplay,
-        ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
-        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
-        MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
-        MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
-        OrderBySelector, OrderProperty, PreparedIncluder, RenderContext, RenderService,
+        ListPagesSubstitutionContext, ListPagesTemplatePlan,
+        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
+        MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
+        MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
+        MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
+        MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
+        PreparedIncluder, RenderContext, RenderService,
         WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX,
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
@@ -12183,9 +12115,11 @@ mod tests {
     fn exact_name_list_pages_batch_classifier_is_deliberately_narrow() {
         let default = parse_list_pages_arguments(r#" name="scp-173""#)
             .expect("exact-name selector should parse");
+        let default_template = ListPagesTemplatePlan::compile("%%rating%%")
+            .expect("rating body should compile");
         let key = exact_name_list_pages_batch_key(
             r#" name="scp-173""#,
-            "%%rating%%",
+            &default_template,
             &default,
             "_default",
         )
@@ -12196,9 +12130,11 @@ mod tests {
         let categorized =
             parse_list_pages_arguments(r#" category="art" name="ralliston-portrait""#)
                 .expect("categorized exact-name selector should parse");
+        let categorized_template = ListPagesTemplatePlan::compile("%%rating%%")
+            .expect("rating body should compile");
         let key = exact_name_list_pages_batch_key(
             r#" category="art" name="ralliston-portrait""#,
-            "%%rating%%",
+            &categorized_template,
             &categorized,
             "_default",
         )
@@ -12215,7 +12151,10 @@ mod tests {
             let arguments = parse_list_pages_arguments(head)
                 .expect("supported non-batch selector should still parse");
             assert!(
-                exact_name_list_pages_batch_key(head, body, &arguments, "_default")
+                ListPagesTemplatePlan::compile(body)
+                    .and_then(|template| exact_name_list_pages_batch_key(
+                        head, &template, &arguments, "_default",
+                    ))
                     .is_none(),
                 "unexpectedly batchable: {head} / {body}",
             );
