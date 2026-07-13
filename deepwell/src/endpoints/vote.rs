@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_vote::Model as PageVoteModel;
+use crate::services::MutationAuthorization;
 use crate::services::vote::{
     CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
 };
@@ -55,6 +56,7 @@ pub async fn vote_set(
     let input: CreateVote = parse!(params, PageVote);
     let page_id = input.page_id;
     let user_id = input.user_id;
+    MutationAuthorization::require_matching_actor(ctx, user_id, "cast a page vote")?;
 
     info!("Casting vote cast by {} on page {}", user_id, page_id,);
 
@@ -76,6 +78,7 @@ pub async fn vote_remove(
     let input: GetVote = parse!(params, PageVote);
     let page_id = input.page_id;
     let user_id = input.user_id;
+    MutationAuthorization::require_matching_actor(ctx, user_id, "remove a page vote")?;
 
     info!("Removing vote cast by {} on page {}", user_id, page_id,);
 
@@ -100,6 +103,15 @@ pub async fn vote_action(
         enable,
         acting_user_id,
     } = parse!(params, PageVote);
+    let actor_user_id =
+        MutationAuthorization::require_platform_staff(ctx, "moderate a page vote")?;
+    if acting_user_id != actor_user_id {
+        return Err(Error::new(
+            "request actor does not match the page vote moderator attribution",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
 
     // e.g. enable or disable a vote
     let key = GetVote { page_id, user_id };
