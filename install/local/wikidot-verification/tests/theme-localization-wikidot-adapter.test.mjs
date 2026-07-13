@@ -22,7 +22,7 @@ function sha256(value) {
 function fixtureResource() {
   const source = "日本語 theme source\n";
   const slug = "codex-l10n:20260713-adapter-yossistyle";
-  return {source, resource: {resource_id: "yossistyle:wikidot", tier_id: "yossistyle", target: "wikidot", slug, url: `http://${SITE}.wikidot.com/${slug}`, source_sha256: sha256(source), title: "Theme localization canary: yossistyle"}};
+  return {source, resource: {resource_id: "yossistyle:wikidot", tier_id: "yossistyle", target: "wikidot", slug, url: `http://${SITE}.wikidot.com/${slug}`, source_sha256: sha256(source), title: "Theme localization canary: yossistyle", tags: ["テーマ"]}};
 }
 
 class FakeHelper {
@@ -64,6 +64,7 @@ test("private-site adapter uses the execution interface without ListPages lookup
   await adapter.remove(resource, {expected: {title: resource.title, source_sha256: targetRoundTripSourceSha256("wikidot", source)}, identity});
   assert.equal(await adapter.inspect(resource), null);
   assert.deepEqual(helper.calls.map(({action}) => action), ["inspect", "inspect", "create", "inspect", "remove", "inspect", "inspect"]);
+  assert.deepEqual(helper.calls.find(({action}) => action === "create").fields.tags, ["テーマ"]);
   await assert.rejects(adapter.inspect({...resource, url: `http://scp-wiki.wikidot.com/${resource.slug}`}), /hard allowlist/);
   await assert.rejects(adapter.inspect({...resource, slug: "theme:yossistyle"}), /run-owned/);
   const legacySlug = "theme:codex-l10n-20260713-adapter-yossistyle";
@@ -103,6 +104,7 @@ test("Python helper contains only direct authenticated page primitives", async (
   assert.match(source, /viewsource\/ViewSourceModule/);
   assert.match(source, /edit\/PageEditModule/);
   assert.match(source, /"event": "deletePage"/);
+  assert.match(source, /"event": "saveTags"/);
   assert.match(source, /ALLOWED_ORIGIN}\/ajax-module-connector\.php/);
   assert.match(source, /page_revision_id/);
   assert.doesNotMatch(source, /ListPagesModule/);
@@ -122,7 +124,7 @@ backend.inspect = lambda slug: None
 backend._amc = lambda body: {"status": "ok", "lock_id": "lock", "lock_secret": "secret", "page_revision_id": 99}
 source = "fixture source"
 try:
-    backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source))
+    backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source), [])
 except module.PublicError as error:
     print(error.code)
 `;
@@ -130,6 +132,33 @@ except module.PublicError as error:
   assert.equal(result.status, 0);
   assert.equal(result.stdout.trim(), "page_exists");
   assert.equal(result.stderr, "");
+});
+
+test("create-only backend saves and verifies the deterministic run-owned tag", () => {
+  const program = String.raw`
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location("theme_helper", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+backend = object.__new__(module.WikidotBackend)
+source = "fixture source"
+actual = {"identity": 7, "title": "fixture", "source_sha256": module.sha256(source)}
+inspections = iter([None, actual])
+backend.inspect = lambda slug: next(inspections)
+events = []
+def amc(body):
+    events.append(body.get("event", body.get("moduleName")))
+    if body.get("moduleName") == "edit/PageEditModule": return {"status": "ok", "lock_id": "lock", "lock_secret": "secret"}
+    return {"status": "ok"}
+backend._amc = amc
+backend.page_tags = lambda slug: ["テーマ"]
+print(backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source), ["テーマ"])["identity"])
+print(",".join(events))
+`;
+  const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, "");
+  assert.equal(result.stdout.trim(), "7\nedit/PageEditModule,savePage,saveTags");
 });
 
 test("Wikidot round-trip hash removes only one observed terminal LF", () => {

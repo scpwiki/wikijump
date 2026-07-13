@@ -278,11 +278,21 @@ export async function installTimingObserver(page) {
 export async function installLayoutShiftObserver(page) {
   await page.addInitScript(() => {
     window.__wikijumpLayoutShifts = [];
-    if (typeof PerformanceObserver !== "function") return;
+    window.__wikijumpLayoutShiftsTruncated = false;
+    window.__wikijumpLayoutShiftTotal = 0;
+    if (typeof PerformanceObserver !== "function") {
+      window.__wikijumpLayoutShiftsUnsupported = true;
+      return;
+    }
     try {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (entry.hadRecentInput) continue;
+          window.__wikijumpLayoutShiftTotal += Number(entry.value ?? 0);
+          if (window.__wikijumpLayoutShifts.length >= 200) {
+            window.__wikijumpLayoutShiftsTruncated = true;
+            continue;
+          }
           window.__wikijumpLayoutShifts.push({
             value: entry.value,
             startTime: entry.startTime,
@@ -422,7 +432,8 @@ export async function collectLayoutShifts(page) {
   return await page.evaluate(() => ({
     supported: !window.__wikijumpLayoutShiftsUnsupported,
     entries: window.__wikijumpLayoutShifts ?? [],
-    cls: (window.__wikijumpLayoutShifts ?? []).reduce((sum, entry) => sum + Number(entry.value ?? 0), 0),
+    cls: window.__wikijumpLayoutShiftTotal ?? (window.__wikijumpLayoutShifts ?? []).reduce((sum, entry) => sum + Number(entry.value ?? 0), 0),
+    truncated: window.__wikijumpLayoutShiftsTruncated === true,
   }));
 }
 

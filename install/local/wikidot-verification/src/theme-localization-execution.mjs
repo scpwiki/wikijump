@@ -41,6 +41,11 @@ function stableResources(plan, {allowLegacy = false} = {}) {
     if (tier.preflight.status !== "pass" || !tier.preflight.source.sha256) {
       throw new Error(`tier is not executable: ${tier.id}`);
     }
+    const expectedTags = tier.id === "yossistyle" ? ["テーマ"] : [];
+    if (!allowLegacy && tier.run_owned_tags === undefined) throw new Error(`tier is missing run-owned tags: ${tier.id}`);
+    if (tier.run_owned_tags !== undefined && JSON.stringify(tier.run_owned_tags) !== JSON.stringify(expectedTags)) {
+      throw new Error(`tier has invalid run-owned tags: ${tier.id}`);
+    }
     for (const target of tier.targets) {
       if (!new Set(["wikidot", "wikijump"]).has(target.id)) {
         throw new Error(`unknown execution target: ${target.id}`);
@@ -60,6 +65,7 @@ function stableResources(plan, {allowLegacy = false} = {}) {
         source_path: tier.preflight.source.absolute_path,
         source_sha256: tier.preflight.source.sha256,
         title: `Theme localization canary: ${tier.id}`,
+        ...(tier.run_owned_tags === undefined ? {} : {tags: [...tier.run_owned_tags]}),
       });
     }
   }

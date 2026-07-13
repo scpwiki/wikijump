@@ -43,6 +43,7 @@ async function fixture({onCreate, tierIds = ["yossistyle"]} = {}) {
     await fs.writeFile(sourcePath, source);
     tiers.push({
       id: tierId, order: index + 1, run_owned_slug: slug,
+      run_owned_tags: tierId === "yossistyle" ? ["テーマ"] : [],
       preflight: {status: "pass", source: {absolute_path: sourcePath, sha256: digest(source)}},
       targets: [
         {id: "wikidot", resource_id: `${tierId}:wikidot`, origin: `http://${ALLOWED_SITE_SLUG}.wikidot.com`, url: `http://${ALLOWED_SITE_SLUG}.wikidot.com/${slug}`},

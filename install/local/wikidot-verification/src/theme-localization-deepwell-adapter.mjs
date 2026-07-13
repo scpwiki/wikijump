@@ -26,6 +26,8 @@ function validateResource(resource, {allowLegacy = false} = {}) {
   if (url.protocol !== "https:" || url.hostname !== `${ALLOWED_SITE_SLUG}.wikijump.localhost` || !new Set(["", "18443"]).has(url.port) || url.pathname !== `/${resource.slug}` || url.search || url.hash) {
     throw new Error("Deepwell adapter resource URL is outside the hard allowlist");
   }
+  const expectedTags = resource.slug.endsWith("-yossistyle") ? ["テーマ"] : [];
+  if (!allowLegacy && JSON.stringify(resource.tags ?? []) !== JSON.stringify(expectedTags)) throw new Error("Deepwell adapter resource tags are outside the run-owned contract");
 }
 
 export class DeepwellJsonRpcClient {
@@ -102,10 +104,10 @@ export class DeepwellThemePageAdapter {
     validateResource(resource, {allowLegacy: true});
     const page = await this.rpc.call("page_get", {site_id: this.siteId, page: resource.slug, details: {wikitext: true, compiled: false}}, this.context(resource));
     if (page === null) return null;
-    if (!Number.isSafeInteger(page.page_id) || !Number.isSafeInteger(page.revision_id) || typeof page.wikitext !== "string" || typeof page.title !== "string") {
+    if (!Number.isSafeInteger(page.page_id) || !Number.isSafeInteger(page.revision_id) || typeof page.wikitext !== "string" || typeof page.title !== "string" || !Array.isArray(page.tags) || page.tags.some((tag) => typeof tag !== "string")) {
       throw new Error("Deepwell page inspection returned an incomplete page");
     }
-    return {identity: page.page_id, source_sha256: sha256(page.wikitext), title: page.title, revision_id: page.revision_id};
+    return {identity: page.page_id, source_sha256: sha256(page.wikitext), title: page.title, revision_id: page.revision_id, tags: page.tags};
   }
 
   async create(resource, payload) {
@@ -122,11 +124,11 @@ export class DeepwellThemePageAdapter {
       revision_comments: "run-owned theme localization E2E create",
       user_id: this.actorUserId,
       ip_address: IP_ADDRESS,
-      tags: [],
+      tags: resource.tags ?? [],
     }, this.context(resource));
     if (result?.parser_errors?.length) throw new Error(`Deepwell page_create reported ${result.parser_errors.length} parser errors`);
     const actual = await this.inspect(resource);
-    if (actual === null || actual.source_sha256 !== resource.source_sha256 || actual.title !== resource.title) throw new Error("Deepwell page did not round-trip after create");
+    if (actual === null || actual.source_sha256 !== resource.source_sha256 || actual.title !== resource.title || JSON.stringify(actual.tags) !== JSON.stringify(resource.tags ?? [])) throw new Error("Deepwell page did not round-trip after create");
     return actual.identity;
   }
 

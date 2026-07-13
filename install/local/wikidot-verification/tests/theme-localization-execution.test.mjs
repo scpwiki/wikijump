@@ -43,6 +43,7 @@ function fixturePlan({runId = "20260713-core", tiers = ["yossistyle", "ashes-to-
         id,
         order: index + 1,
         run_owned_slug: slug,
+        run_owned_tags: id === "yossistyle" ? ["テーマ"] : [],
         preflight: {status: "pass", source: {absolute_path: `/accepted/${id}.txt`, sha256: sha256(source)}},
         capture: {computed_styles: {properties: ["display"], probes: [{id: "header", selector: "#header", expectation: "required"}]}},
         targets: [
@@ -132,6 +133,10 @@ test("execution plan accepts only run-owned resources on the corrected sandbox",
   const invalidExpectation = structuredClone(plan);
   invalidExpectation.tiers[0].capture.computed_styles.probes[0].expectation = "sometimes";
   assert.throws(() => validateThemeExecutionPlan(invalidExpectation), /invalid expectation: sometimes/);
+
+  const missingTags = structuredClone(plan);
+  delete missingTags.tiers[0].run_owned_tags;
+  assert.throws(() => validateThemeExecutionPlan(missingTags), /missing run-owned tags/);
 });
 
 test("successful execution records intents before creates and cleans in reverse order", async () => {

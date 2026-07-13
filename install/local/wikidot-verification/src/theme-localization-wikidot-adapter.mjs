@@ -24,6 +24,8 @@ function validateResource(resource, {allowLegacy = false} = {}) {
   if (url.protocol !== "http:" || url.hostname !== `${ALLOWED_SITE_SLUG}.wikidot.com` || url.port || url.pathname !== `/${resource.slug}` || url.search || url.hash || url.username || url.password) {
     throw new Error("Wikidot adapter resource URL is outside the hard allowlist");
   }
+  const expectedTags = resource.slug.endsWith("-yossistyle") ? ["テーマ"] : [];
+  if (!allowLegacy && JSON.stringify(resource.tags ?? []) !== JSON.stringify(expectedTags)) throw new Error("Wikidot adapter resource tags are outside the run-owned contract");
 }
 
 function containsSecretField(value) {
@@ -204,7 +206,7 @@ export class WikidotThemePageAdapter {
     validateResource(resource);
     if (typeof payload?.source !== "string" || sha256(payload.source) !== resource.source_sha256) throw new Error("Wikidot create source does not match the accepted source hash");
     if (await this.inspect(resource) !== null) throw new Error("Wikidot create-only guard found a preexisting page");
-    const result = await this.helper.request("create", {slug: resource.slug, title: resource.title, source: payload.source, source_sha256: resource.source_sha256});
+    const result = await this.helper.request("create", {slug: resource.slug, title: resource.title, source: payload.source, source_sha256: resource.source_sha256, tags: resource.tags ?? []});
     const page = result?.page;
     if (!Number.isSafeInteger(page?.identity) || page.title !== resource.title || page.source_sha256 !== targetRoundTripSourceSha256("wikidot", payload.source)) {
       throw new Error("Wikidot page did not round-trip after create");

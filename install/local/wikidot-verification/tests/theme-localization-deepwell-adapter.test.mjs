@@ -12,7 +12,7 @@ function sha256(value) {
 function resource() {
   const source = "日本語 theme source\n";
   const slug = "codex-l10n:20260713-adapter-yossistyle";
-  return {resource: {resource_id: "yossistyle:wikijump", target: "wikijump", slug, url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${slug}`, source_sha256: sha256(source), title: "Theme localization canary: yossistyle"}, source};
+  return {resource: {resource_id: "yossistyle:wikijump", target: "wikijump", slug, url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${slug}`, source_sha256: sha256(source), title: "Theme localization canary: yossistyle", tags: ["テーマ"]}, source};
 }
 
 class FakeRpc {
@@ -30,7 +30,7 @@ class FakeRpc {
     if (method === "page_get") return this.page;
     if (method === "page_create") {
       if (this.page) throw new Error("collision");
-      this.page = {page_id: 100, revision_id: 200, wikitext: params.wikitext, title: params.title};
+      this.page = {page_id: 100, revision_id: 200, wikitext: params.wikitext, title: params.title, tags: params.tags};
       return {parser_errors: this.parserErrors};
     }
     if (method === "page_delete") {
@@ -71,6 +71,7 @@ test("create is create-only, authenticated, and verifies the accepted source", a
   assert.equal(create.context.sessionToken, "secret-session-token");
   assert.equal(create.context.siteId, 42);
   assert.equal(create.params.slug, fixture.resource.slug);
+  assert.deepEqual(create.params.tags, ["テーマ"]);
   await assert.rejects(adapter.create(fixture.resource, {source: fixture.source}), /preexisting/);
   await assert.rejects(adapter.create({...fixture.resource, slug: "scp-173"}, {source: fixture.source}), /run-owned/);
   const legacySlug = "theme:codex-l10n-20260713-adapter-yossistyle";

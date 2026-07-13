@@ -53,6 +53,12 @@ def require_text(value: object, field: str, maximum: int) -> str:
     return value
 
 
+def validate_tags(value: object) -> list[str]:
+    if value not in ([], ["テーマ"]):
+        raise PublicError("invalid_request", "run-owned page tags are invalid")
+    return list(value)
+
+
 def reject_secret_fields(value: object) -> None:
     if isinstance(value, dict):
         for key, child in value.items():
@@ -205,10 +211,17 @@ class WikidotBackend:
             "source_sha256": sha256(source),
         }
 
-    def create(self, slug: str, title: str, source: str, expected_hash: str) -> dict[str, Any]:
+    def page_tags(self, slug: str) -> list[str] | None:
+        html = self._get(validate_slug(slug))
+        if html is None:
+            return None
+        return [element.get_text(" ", strip=True) for element in self.soup(html, "html.parser").select(".page-tags a")]
+
+    def create(self, slug: str, title: str, source: str, expected_hash: str, tags: list[str]) -> dict[str, Any]:
         slug = validate_slug(slug)
         title = require_text(title, "title", 200)
         source = require_text(source, "source", 500_000)
+        tags = validate_tags(tags)
         if not re.fullmatch(r"[0-9a-f]{64}", expected_hash) or sha256(source) != expected_hash:
             raise PublicError(
                 "source_hash_mismatch",
@@ -251,6 +264,24 @@ class WikidotBackend:
                         "round_trip_mismatch",
                         "created page did not match the accepted title and source",
                     )
+                if tags:
+                    tagged = self._amc(
+                        {
+                            "tags": " ".join(tags),
+                            "action": "WikiPageAction",
+                            "event": "saveTags",
+                            "pageId": actual["identity"],
+                            "moduleName": "Empty",
+                        }
+                    )
+                    if tagged.get("status") not in (None, "ok"):
+                        raise PublicError("save_tags_failed", "Wikidot page tags were not saved")
+                    for _ in range(5):
+                        if self.page_tags(slug) == tags:
+                            break
+                        time.sleep(0.4)
+                    else:
+                        raise PublicError("save_tags_not_visible", "Wikidot page tags did not round-trip")
                 return actual
             time.sleep(0.4)
         raise PublicError("create_not_visible", "created page was not visible after save")
@@ -302,6 +333,7 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
                 request.get("title"),
                 request.get("source"),
                 request.get("source_sha256"),
+                request.get("tags"),
             )
         }, False
     if action == "remove":

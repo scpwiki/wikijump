@@ -46,6 +46,13 @@ const COMMON_STYLE_PROPERTIES = Object.freeze([
 
 export const THEME_STYLE_PROBE_EXPECTATIONS = Object.freeze(["required", "optional", "expected_absent"]);
 const THEME_STYLE_PROBE_EXPECTATION_SET = new Set(THEME_STYLE_PROBE_EXPECTATIONS);
+const THEME_STYLE_PROPERTY_OPERATORS = new Set(["eq", "one_of"]);
+
+export function themeComputedStyleProperties(contract) {
+  const properties = [...(contract?.properties ?? [])];
+  for (const probe of contract?.probes ?? []) properties.push(...Object.keys(probe.expected_properties ?? {}));
+  return [...new Set(properties)];
+}
 
 export function validateThemeComputedStyleContract(contract, {label = "theme computed-style contract"} = {}) {
   if (!contract || !Array.isArray(contract.properties) || contract.properties.length === 0 || !Array.isArray(contract.probes) || contract.probes.length === 0) {
@@ -67,6 +74,23 @@ export function validateThemeComputedStyleContract(contract, {label = "theme com
     if (probe.pseudo !== undefined && (typeof probe.pseudo !== "string" || !/^::[a-z-]+$/u.test(probe.pseudo))) {
       throw new Error(`${label} probe ${probe.id} has an invalid pseudo-element`);
     }
+    const expectedProperties = probe.expected_properties;
+    if (expectedProperties === undefined) continue;
+    if (!expectedProperties || Array.isArray(expectedProperties) || typeof expectedProperties !== "object" || Object.keys(expectedProperties).length === 0) {
+      throw new Error(`${label} probe ${probe.id} has invalid expected_properties`);
+    }
+    if (probe.expectation === "expected_absent") throw new Error(`${label} probe ${probe.id} cannot assert properties while expected absent`);
+    for (const [property, specification] of Object.entries(expectedProperties)) {
+      if (!/^(?:--)?[a-z][a-z0-9-]*$/u.test(property) || !specification || typeof specification !== "object" || Array.isArray(specification) || !THEME_STYLE_PROPERTY_OPERATORS.has(specification.operator)) {
+        throw new Error(`${label} probe ${probe.id} has an invalid expected property: ${property}`);
+      }
+      const keys = Object.keys(specification).sort();
+      if (specification.operator === "eq") {
+        if (keys.join(",") !== "operator,value" || typeof specification.value !== "string") throw new Error(`${label} probe ${probe.id} has an invalid eq expectation: ${property}`);
+      } else if (keys.join(",") !== "operator,values" || !Array.isArray(specification.values) || specification.values.length === 0 || specification.values.some((value) => typeof value !== "string") || new Set(specification.values).size !== specification.values.length) {
+        throw new Error(`${label} probe ${probe.id} has an invalid one_of expectation: ${property}`);
+      }
+    }
   }
   return contract;
 }
@@ -87,15 +111,18 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     risk: "baseline",
     article_slug: "theme:yossistyle",
     accepted_source: "translations/jp/en/pages/theme:yossistyle/source.wikidot.txt",
+    run_owned_tags: Object.freeze(["テーマ"]),
     minimum_shape: Object.freeze({bytes: 9000, logical_lines: 180, css_modules: 1, code_blocks: 1}),
     required_markers: Object.freeze(["[[module Rate]]", "#header h2 span", "[[collapsible"]),
     dependencies: Object.freeze({components: Object.freeze([]), assets: Object.freeze([]), remote_local_code: Object.freeze([])}),
     computed_style_probes: Object.freeze([
-      ...COMMON_PROBES,
-      Object.freeze({id: "header_subtitle", selector: "#header h2 span", expectation: "required"}),
-      Object.freeze({id: "license_suffix", selector: "#license-area a", pseudo: "::after", expectation: "required"}),
-      Object.freeze({id: "watchers_button", selector: "#watchers-button", expectation: "optional"}),
-      Object.freeze({id: "rate_points", selector: ".page-rate-widget-box .rate-points", expectation: "required"}),
+      ...COMMON_PROBES.map((probe) => probe.id === "side_bar" ? Object.freeze({...probe, expected_properties: Object.freeze({"animation-name": Object.freeze({operator: "eq", value: "sbs"}), "animation-duration": Object.freeze({operator: "eq", value: "20000s"}), "animation-iteration-count": Object.freeze({operator: "eq", value: "infinite"})})}) : probe),
+      Object.freeze({id: "header_subtitle", selector: "#header h2 span", expectation: "required", expected_properties: Object.freeze({"margin-left": Object.freeze({operator: "eq", value: "1px"})})}),
+      Object.freeze({id: "content_link", selector: "#page-content a[href='https://www.youtube.com/watch?v=rRPQs_kM_nw']", expectation: "required", expected_properties: Object.freeze({color: Object.freeze({operator: "eq", value: "rgb(187, 1, 17)"})})}),
+      Object.freeze({id: "license_suffix", selector: "#license-area a", pseudo: "::after", expectation: "required", expected_properties: Object.freeze({content: Object.freeze({operator: "eq", value: "\".\""})})}),
+      Object.freeze({id: "watchers_button", selector: "#watchers-button", expectation: "optional", expected_properties: Object.freeze({display: Object.freeze({operator: "eq", value: "none"})})}),
+      Object.freeze({id: "rate_points", selector: ".page-rate-widget-box .rate-points", expectation: "required", expected_properties: Object.freeze({"text-transform": Object.freeze({operator: "eq", value: "capitalize"})})}),
+      Object.freeze({id: "theme_tag", selector: "a[href='/system:page-tags/tag/テーマ#pages']", expectation: "required", expected_properties: Object.freeze({"font-weight": Object.freeze({operator: "one_of", values: Object.freeze(["700", "bold"])})})}),
     ]),
     interactions: Object.freeze([
       Object.freeze({
@@ -478,7 +505,7 @@ export async function buildThemeLocalizationE2EPlan({
       resources.push(resource);
       return {...target, url: pageUrl(target.origin, slug), resource_id: resource.resource_id};
     });
-    const computedStyles = {properties: COMMON_STYLE_PROPERTIES, probes: tier.computed_style_probes};
+    const computedStyles = {properties: themeComputedStyleProperties({properties: COMMON_STYLE_PROPERTIES, probes: tier.computed_style_probes}), probes: tier.computed_style_probes};
     validateThemeComputedStyleContract(computedStyles, {label: `${tier.id} computed-style contract`});
     plans.push({
       id: tier.id,
@@ -487,6 +514,7 @@ export async function buildThemeLocalizationE2EPlan({
       article_slug: tier.article_slug,
       run_owned_slug: slug,
       preflight,
+      run_owned_tags: tier.run_owned_tags ?? [],
       dependencies: tier.dependencies,
       targets,
       capture: {
@@ -499,7 +527,7 @@ export async function buildThemeLocalizationE2EPlan({
           ignore_rendered_elements: ["script", "style", "pre", "code", ".wj-raw", "span[style*='white-space: pre-wrap']"],
           ignore_source_regions: ["@@...@@", "[[code]]...[[/code]]"],
         },
-        artifacts: ["dom.html", "screenshot.png", "computed-styles.json", "web-vitals.json", "interactions.json", "network-errors.json"],
+        artifacts: ["dom.html", "screenshot.png", "computed-styles.json", "web-vitals.json", "performance-attribution.json", "interactions.json", "network-errors.json"],
       },
     });
   }

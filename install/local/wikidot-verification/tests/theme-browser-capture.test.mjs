@@ -6,8 +6,11 @@ import test from "node:test";
 
 import {
   THEME_BROWSER_CAPTURE_SCHEMA,
+  THEME_PERFORMANCE_ATTRIBUTION_SCHEMA,
   captureInteraction,
   captureThemeTierBrowserEvidence,
+  collectComputedStyles,
+  collectThemePerformanceAttribution,
   evaluateStrictThemeVerdict,
   lcpObservationDeadlineMs,
   validateThemeCaptureTarget,
@@ -124,7 +127,7 @@ test("expected-absent probes gate unexpected presence and incomplete observation
 
 test("YOSSISTYLE gates sourced Rate elements while allowing platform-dependent probe gaps", () => {
   const contract = {properties: ["display"], probes: THEME_LOCALIZATION_TIERS.find((tier) => tier.id === "yossistyle").computed_style_probes};
-  const observations = (missing) => contract.probes.map((probe) => ({id: probe.id, expectation: probe.expectation, status: missing.has(probe.id) ? "missing" : "measured"}));
+  const observations = (missing) => contract.probes.map((probe) => ({id: probe.id, expectation: probe.expectation, status: missing.has(probe.id) ? "missing" : "measured", properties: Object.fromEntries(Object.entries(probe.expected_properties ?? {}).map(([property, specification]) => [property, specification.value ?? specification.values[0]]))}));
   const wikidot = evaluateStrictThemeVerdict(passingViewport({computed_styles: observations(new Set(["rate_widget", "interwiki_frame", "rate_points"]))}), THEME_PERFORMANCE_GATES, contract);
   const wikijump = evaluateStrictThemeVerdict(passingViewport({computed_styles: observations(new Set(["interwiki_frame", "watchers_button"]))}), THEME_PERFORMANCE_GATES, contract);
   assert.equal(wikidot.status, "fail");
@@ -133,17 +136,42 @@ test("YOSSISTYLE gates sourced Rate elements while allowing platform-dependent p
   assert.deepEqual(wikijump.checks.find((check) => check.id === "computed_style_probes").optional_missing, ["interwiki_frame", "watchers_button"]);
 });
 
+test("computed style expectations fail closed with exact mismatch diagnostics", () => {
+  const contract = {properties: ["display"], probes: [{id: "header", selector: "#header", expectation: "required", expected_properties: {display: {operator: "eq", value: "block"}, "font-weight": {operator: "one_of", values: ["700", "bold"]}}}]};
+  const result = passingViewport({computed_styles: [{id: "header", expectation: "required", status: "measured", properties: {display: "block", "font-weight": "400"}}]});
+  const check = evaluateStrictThemeVerdict(result, THEME_PERFORMANCE_GATES, contract).checks.find((item) => item.id === "computed_style_probes");
+  assert.equal(check.status, "fail");
+  assert.deepEqual(check.property_mismatches, [{probe_id: "header", property: "font-weight", actual: "400", expected: {operator: "one_of", values: ["700", "bold"]}}]);
+  assert.equal(check.probes[0].property_checks[0].status, "pass");
+  assert.equal(check.probes[0].property_checks[1].status, "fail");
+});
+
+test("computed style collection captures the union of common and expected properties", async () => {
+  let argument;
+  const page = {async evaluate(_fn, value) { argument = value; return []; }};
+  await collectComputedStyles(page, {properties: ["display"], probes: [{id: "header", selector: "#header", expectation: "required", expected_properties: {"margin-left": {operator: "eq", value: "1px"}}}]});
+  assert.deepEqual(argument.properties, ["display", "margin-left"]);
+});
+
 test("capture observation window follows the LCP gate without waiting for network idle", () => {
   assert.equal(lcpObservationDeadlineMs({web_vitals: {gates: THEME_PERFORMANCE_GATES}}, 250), 2750);
   assert.throws(() => lcpObservationDeadlineMs({web_vitals: {gates: {lcp_ms: {operator: "gte", value: 2500}}}}, 250), /positive LCP upper bound/u);
 });
 
-test("a single interaction without PerformanceEventTiming fails closed and is not called formal INP", () => {
-  const result = passingViewport({interactions: [{id: "toggle", status: "missing", visual_response_ms: 35, inp_equivalent: {formal_inp: false, status: "missing", duration_ms: null}, reason: "PerformanceEventTiming interaction entry missing"}]});
+test("supported EventTiming absence below its threshold is bounded and passes", () => {
+  const result = passingViewport({interactions: [{id: "toggle", status: "measured", visual_response_ms: 35, inp_equivalent: {formal_inp: false, status: "bounded_below_threshold", duration_ms: null, upper_bound_ms: 16}}]});
+  const verdict = evaluateStrictThemeVerdict(result, THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
+  assert.equal(verdict.status, "pass");
+  assert.deepEqual(verdict.checks.find((check) => check.id === "interaction:toggle:inp_equivalent_ms").actual, {operator: "lt", value: 16});
+  assert.equal(result.interactions[0].inp_equivalent.formal_inp, false);
+});
+
+test("unsupported EventTiming remains missing without invalidating a successful postcondition", () => {
+  const result = passingViewport({interactions: [{id: "toggle", status: "measured", visual_response_ms: 35, inp_equivalent: {formal_inp: false, status: "missing", duration_ms: null}, reason: "PerformanceEventTiming unsupported"}]});
   const verdict = evaluateStrictThemeVerdict(result, THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
   assert.equal(verdict.status, "fail");
+  assert.equal(verdict.checks.find((check) => check.id === "interaction:toggle:postcondition").status, "pass");
   assert.ok(verdict.missing_gate_ids.includes("interaction:toggle:inp_equivalent_ms"));
-  assert.equal(result.interactions[0].inp_equivalent.formal_inp, false);
 });
 
 test("missing interaction selectors return explicit missing evidence without clicking", async () => {
@@ -157,14 +185,32 @@ test("missing interaction selectors return explicit missing evidence without cli
 test("viewport artifact writer emits the complete fixed artifact set", async () => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "theme-browser-artifacts-"));
   await fs.writeFile(path.join(directory, "screenshot.png"), "png fixture", {mode: 0o600});
-  const result = {...passingViewport(), dom: "<html><body>fixture</body></html>", navigation_timing: {response_start: 100}, verdict: {status: "pass"}};
+  const result = {...passingViewport(), dom: "<html><body>fixture</body></html>", navigation_timing: {response_start: 100}, performance_attribution: {schema: THEME_PERFORMANCE_ATTRIBUTION_SCHEMA}, verdict: {status: "pass"}};
   const artifacts = await writeThemeViewportArtifacts(directory, result);
   assert.equal(await fs.readFile(artifacts.dom, "utf8"), result.dom);
   assert.equal((await fs.stat(artifacts.screenshot)).isFile(), true);
   assert.equal(JSON.parse(await fs.readFile(artifacts.verdict, "utf8")).status, "pass");
-  assert.deepEqual(Object.keys(artifacts).sort(), ["computed_styles", "dom", "interactions", "network_errors", "raw_syntax", "screenshot", "verdict", "web_vitals"]);
+  assert.deepEqual(Object.keys(artifacts).sort(), ["computed_styles", "dom", "interactions", "network_errors", "performance_attribution", "raw_syntax", "screenshot", "verdict", "web_vitals"]);
   for (const filePath of Object.values(artifacts)) assert.equal((await fs.stat(filePath)).mode & 0o077, 0);
   await assert.rejects(writeThemeViewportArtifacts(directory, result), /EEXIST/);
+});
+
+test("performance attribution bounds resources and layout-shift sources without adding gates", async () => {
+  let call = 0;
+  const page = {async evaluate() {
+    call += 1;
+    if (call === 1) return {supported: true, cls: 0.2, entries: [{value: 0.1, startTime: 100, sources: [{selector_hint: "div#one"}, {selector_hint: "div#two"}]}, {value: 0.1, startTime: 200, sources: []}]};
+    return {supported: true, navigation: null, marks: [], resources: [{name: "/one.css", initiatorType: "link", responseEnd: 80}, {name: "/two.js", initiatorType: "script", responseEnd: 90}]};
+  }};
+  const result = await collectThemePerformanceAttribution(page, {lcp_attribution: {selector_hint: "main#page-content"}}, {maxLayoutShifts: 1, maxSourcesPerShift: 1, maxResources: 1});
+  assert.equal(result.schema, THEME_PERFORMANCE_ATTRIBUTION_SCHEMA);
+  assert.equal(result.layout_shifts.truncated, true);
+  assert.deepEqual(result.layout_shifts.entries[0].sources, [{selector_hint: "div#one"}]);
+  assert.equal(result.resource_timing.resources.length, 1);
+  assert.equal(result.lcp_element.selector_hint, "main#page-content");
+  const verdict = evaluateStrictThemeVerdict(passingViewport({diagnostic_errors: ["resource timing unsupported"]}), THEME_PERFORMANCE_GATES, COMPUTED_STYLE_CONTRACT);
+  assert.equal(verdict.status, "pass");
+  assert.ok(!verdict.failed_gate_ids.includes("performance_attribution"));
 });
 
 test("tier orchestration opens one cold context per target and viewport and is fully mockable", async () => {

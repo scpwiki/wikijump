@@ -2,10 +2,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import {openBrowser} from "../scripts/capture-browser-rendering.mjs";
+import {collectLayoutShifts, collectTimingDiagnostics, installLayoutShiftObserver, installTimingObserver} from "./layout-diagnostics.mjs";
 import {findRawSyntaxLeaks} from "./render-health.mjs";
-import {RUN_OWNED_SLUG_PREFIX, assertRunOwnedSlug, validateTargetOrigin, validateThemeComputedStyleContract} from "./theme-localization-e2e.mjs";
+import {RUN_OWNED_SLUG_PREFIX, assertRunOwnedSlug, themeComputedStyleProperties, validateTargetOrigin, validateThemeComputedStyleContract} from "./theme-localization-e2e.mjs";
 
 export const THEME_BROWSER_CAPTURE_SCHEMA = "wikijump_local_lab.theme_browser_capture.v1";
+export const THEME_PERFORMANCE_ATTRIBUTION_SCHEMA = "wikijump_local_lab.theme_performance_attribution.v1";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_SETTLE_MS = 250;
 const DEFAULT_INTERACTION_TIMEOUT_MS = 1_000;
@@ -72,7 +74,7 @@ export function validateThemeCaptureTarget({tier, target}) {
 }
 
 function performanceObserverBootstrap() {
-  const state = {fcp: null, lcp: null, cls: null, eventEntries: [], observers: [], support: {paint: false, lcp: false, cls: false, event: false}};
+  const state = {fcp: null, lcp: null, lcpAttribution: null, cls: null, eventEntries: [], eventThresholdMs: 16, observers: [], support: {paint: false, lcp: false, cls: false, event: false}};
   window.__wjThemeMetrics = state;
   const supported = new Set(globalThis.PerformanceObserver?.supportedEntryTypes ?? []);
   const observe = (type, callback, options = {}) => {
@@ -91,7 +93,16 @@ function performanceObserverBootstrap() {
     if (entry) state.fcp = entry.startTime;
   });
   state.support.lcp = observe("largest-contentful-paint", (entries) => {
-    if (entries.length) state.lcp = entries.at(-1).startTime;
+    if (!entries.length) return;
+    const entry = entries.at(-1);
+    state.lcp = entry.startTime;
+    const element = entry.element;
+    const tag = element?.tagName?.toLowerCase?.() ?? null;
+    const id = bounded(element?.id, 120);
+    const safeId = cssToken(id);
+    const classes = [...(element?.classList ?? [])].map(cssToken).filter(Boolean).slice(0, 6);
+    const selector = safeId ? `${tag ?? "node"}#${safeId}` : `${tag ?? "node"}${classes.slice(0, 3).map((name) => `.${name}`).join("")}`;
+    state.lcpAttribution = {selector_hint: selector.slice(0, 240), tag, id, classes, url: bounded(entry.url, 500), size: Number.isFinite(entry.size) ? entry.size : null};
   });
   state.support.cls = observe("layout-shift", (entries) => {
     if (state.cls === null) state.cls = 0;
@@ -100,7 +111,16 @@ function performanceObserverBootstrap() {
   if (state.support.cls && state.cls === null) state.cls = 0;
   state.support.event = observe("event", (entries) => {
     for (const entry of entries) state.eventEntries.push({name: entry.name, startTime: entry.startTime, duration: entry.duration, interactionId: entry.interactionId ?? 0});
-  }, {durationThreshold: 16});
+  }, {durationThreshold: state.eventThresholdMs});
+
+  function bounded(value, maximum) {
+    const text = String(value ?? "").replace(/\s+/gu, " ").trim();
+    return text ? text.slice(0, maximum) : null;
+  }
+
+  function cssToken(value) {
+    return bounded(value, 80)?.replace(/\s+/gu, "-").replace(/[^a-zA-Z0-9_-]/gu, "") || null;
+  }
 }
 
 function startErrorCapture(page) {
@@ -121,6 +141,7 @@ function startErrorCapture(page) {
 
 export async function collectComputedStyles(page, contract) {
   validateThemeComputedStyleContract(contract);
+  const properties = themeComputedStyleProperties(contract);
   return page.evaluate(({properties, probes}) => probes.map((probe) => {
     const element = document.querySelector(probe.selector);
     if (!element) return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, expectation: probe.expectation, status: "missing", properties: null, rect: null};
@@ -128,7 +149,7 @@ export async function collectComputedStyles(page, contract) {
     const values = Object.fromEntries(properties.map((property) => [property, style.getPropertyValue(property)]));
     const rect = element.getBoundingClientRect();
     return {id: probe.id, selector: probe.selector, pseudo: probe.pseudo ?? null, expectation: probe.expectation, status: "measured", properties: values, rect: {x: rect.x, y: rect.y, width: rect.width, height: rect.height}};
-  }), contract);
+  }), {properties, probes: contract.probes});
 }
 
 export async function collectNavigationMetrics(page) {
@@ -144,6 +165,7 @@ export async function collectNavigationMetrics(page) {
         ttfb_ms: navigation ? navigation.responseStart - navigation.startTime : null,
         fcp_ms: fcp,
         lcp_ms: state.lcp,
+        lcp_attribution: state.lcpAttribution,
         cls: state.cls,
         support: state.support,
       },
@@ -197,13 +219,14 @@ async function readInteraction(page, timeoutMs) {
       await new Promise((resolve) => requestAnimationFrame(resolve));
     }
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const entries = (window.__wjThemeMetrics?.eventEntries ?? []).slice(state.eventOffset).filter((entry) => entry.interactionId > 0 && entry.startTime >= state.clickedAt - 100);
+    const metrics = window.__wjThemeMetrics ?? {};
+    const entries = (metrics.eventEntries ?? []).slice(state.eventOffset).filter((entry) => entry.interactionId > 0 && entry.startTime >= state.clickedAt - 100);
     const duration = entries.length ? Math.max(...entries.map((entry) => entry.duration)) : null;
-    return {changed: changedAt !== null, visual_response_ms: changedAt === null ? null : changedAt - state.clickedAt, event_timing: duration === null ? null : {duration_ms: duration, interaction_ids: [...new Set(entries.map((entry) => entry.interactionId))]}, reason: changedAt === null ? "postcondition did not change" : duration === null ? "PerformanceEventTiming interaction entry missing" : null};
+    return {changed: changedAt !== null, visual_response_ms: changedAt === null ? null : changedAt - state.clickedAt, event_supported: metrics.support?.event === true, event_threshold_ms: metrics.eventThresholdMs ?? 16, event_timing: duration === null ? null : {duration_ms: duration, interaction_ids: [...new Set(entries.map((entry) => entry.interactionId))]}, reason: changedAt === null ? "postcondition did not change" : null};
   }, timeoutMs);
 }
 
-export async function captureInteraction(page, interaction, {timeoutMs = DEFAULT_INTERACTION_TIMEOUT_MS} = {}) {
+export async function captureInteraction(page, interaction, {timeoutMs = DEFAULT_INTERACTION_TIMEOUT_MS, visualResponseGateMs = null} = {}) {
   let target;
   try {
     target = await visibleLocator(page, interaction.target_selectors);
@@ -236,11 +259,11 @@ export async function captureInteraction(page, interaction, {timeoutMs = DEFAULT
   }
   return {
     id: interaction.id,
-    status: measured.changed && measured.event_timing ? "measured" : measured.changed ? "missing" : "fail",
+    status: measured.changed ? "measured" : "fail",
     selector: target.selector,
     visual_response_ms: measured.visual_response_ms,
-    inp_equivalent: {metric: "single_interaction_event_timing", formal_inp: false, status: measured.event_timing ? "measured" : "missing", duration_ms: measured.event_timing?.duration_ms ?? null, interaction_ids: measured.event_timing?.interaction_ids ?? []},
-    reason: measured.reason,
+    inp_equivalent: measured.event_timing ? {metric: "single_interaction_event_timing", formal_inp: false, status: "measured", duration_ms: measured.event_timing.duration_ms, interaction_ids: measured.event_timing.interaction_ids} : measured.event_supported && Number.isFinite(visualResponseGateMs) && measured.visual_response_ms <= visualResponseGateMs ? {metric: "single_interaction_event_timing", formal_inp: false, status: "bounded_below_threshold", duration_ms: null, upper_bound_ms: measured.event_threshold_ms, interaction_ids: []} : {metric: "single_interaction_event_timing", formal_inp: false, status: "missing", duration_ms: null, interaction_ids: []},
+    reason: measured.reason ?? (measured.event_supported ? "No EventTiming entry at or above the observer threshold" : "PerformanceEventTiming unsupported"),
   };
 }
 
@@ -248,6 +271,18 @@ function metricGate(id, actual, specification) {
   if (!Number.isFinite(actual)) return {id, status: "missing", actual: null, expected: specification};
   if (specification?.operator !== "lte" || !Number.isFinite(specification.value)) return {id, status: "fail", actual, expected: specification, reason: "unsupported gate specification"};
   return {id, status: actual <= specification.value ? "pass" : "fail", actual, expected: specification};
+}
+
+function boundedMetricGate(id, evidence, specification) {
+  if (evidence?.status === "measured") return metricGate(id, evidence.duration_ms, specification);
+  if (evidence?.status !== "bounded_below_threshold" || !Number.isFinite(evidence.upper_bound_ms)) return metricGate(id, null, specification);
+  if (specification?.operator !== "lte" || !Number.isFinite(specification.value)) return {id, status: "fail", actual: {operator: "lt", value: evidence.upper_bound_ms}, expected: specification, reason: "unsupported gate specification"};
+  return {id, status: evidence.upper_bound_ms <= specification.value ? "pass" : "fail", actual: {operator: "lt", value: evidence.upper_bound_ms}, expected: specification};
+}
+
+function propertyExpectationPass(actual, specification) {
+  if (typeof actual !== "string") return false;
+  return specification.operator === "eq" ? actual === specification.value : specification.values.includes(actual);
 }
 
 function computedStyleGate(observations, contract) {
@@ -267,6 +302,7 @@ function computedStyleGate(observations, contract) {
   const requiredMissing = [];
   const optionalMissing = [];
   const expectedAbsentPresent = [];
+  const propertyMismatches = [];
   const probeChecks = contract.probes.map((probe) => {
     const observation = byId.get(probe.id);
     const actual = observation?.status ?? "not_recorded";
@@ -283,11 +319,23 @@ function computedStyleGate(observations, contract) {
       status = "fail";
       expectedAbsentPresent.push(probe.id);
     }
-    return {id: probe.id, expectation: probe.expectation, actual, status};
+    const propertyChecks = [];
+    if (actual === "measured" && probe.expectation !== "expected_absent") {
+      for (const [property, specification] of Object.entries(probe.expected_properties ?? {})) {
+        const propertyActual = observation.properties?.[property];
+        const propertyStatus = propertyExpectationPass(propertyActual, specification) ? "pass" : "fail";
+        propertyChecks.push({property, status: propertyStatus, actual: propertyActual ?? null, expected: specification});
+        if (propertyStatus === "fail") {
+          status = "fail";
+          propertyMismatches.push({probe_id: probe.id, property, actual: propertyActual ?? null, expected: specification});
+        }
+      }
+    }
+    return {id: probe.id, expectation: probe.expectation, actual, status, property_checks: propertyChecks};
   });
   const uniqueInvalid = [...new Set(invalid)];
-  const status = uniqueInvalid.length || unexpected.length || expectedAbsentPresent.length ? "fail" : requiredMissing.length ? "missing" : "pass";
-  return {id: "computed_style_probes", status, required_missing: requiredMissing, optional_missing: optionalMissing, expected_absent_present: expectedAbsentPresent, invalid_observations: uniqueInvalid, unexpected_observations: unexpected, probes: probeChecks};
+  const status = uniqueInvalid.length || unexpected.length || expectedAbsentPresent.length || propertyMismatches.length ? "fail" : requiredMissing.length ? "missing" : "pass";
+  return {id: "computed_style_probes", status, required_missing: requiredMissing, optional_missing: optionalMissing, expected_absent_present: expectedAbsentPresent, property_mismatches: propertyMismatches, invalid_observations: uniqueInvalid, unexpected_observations: unexpected, probes: probeChecks};
 }
 
 export function evaluateStrictThemeVerdict(result, gates, computedStyleContract) {
@@ -308,10 +356,18 @@ export function evaluateStrictThemeVerdict(result, gates, computedStyleContract)
   for (const interaction of result.interactions ?? []) {
     checks.push({id: `interaction:${interaction.id}:postcondition`, status: interaction.status === "measured" ? "pass" : interaction.status === "missing" ? "missing" : "fail", reason: interaction.reason ?? null});
     checks.push(metricGate(`interaction:${interaction.id}:visual_response_ms`, interaction.visual_response_ms, gates.visual_response_ms));
-    checks.push(metricGate(`interaction:${interaction.id}:inp_equivalent_ms`, interaction.inp_equivalent?.status === "measured" ? interaction.inp_equivalent.duration_ms : null, gates.inp_ms));
+    checks.push(boundedMetricGate(`interaction:${interaction.id}:inp_equivalent_ms`, interaction.inp_equivalent, gates.inp_ms));
   }
   const blocking = checks.filter((check) => check.status !== "pass");
   return {status: blocking.length ? "fail" : "pass", checks, failed_gate_ids: blocking.map((check) => check.id), missing_gate_ids: blocking.filter((check) => check.status === "missing").map((check) => check.id)};
+}
+
+export async function collectThemePerformanceAttribution(page, webVitals, {maxLayoutShifts = 80, maxSourcesPerShift = 8, maxResources = 200} = {}) {
+  const rawLayoutShifts = await collectLayoutShifts(page);
+  const entries = (rawLayoutShifts.entries ?? []).slice(0, maxLayoutShifts).map((entry) => ({...entry, sources: (entry.sources ?? []).slice(0, maxSourcesPerShift)}));
+  const layoutShifts = {...rawLayoutShifts, entries, truncated: rawLayoutShifts.truncated === true || (rawLayoutShifts.entries?.length ?? 0) > entries.length};
+  const resourceTiming = await collectTimingDiagnostics(page, layoutShifts, {maxResources});
+  return {schema: THEME_PERFORMANCE_ATTRIBUTION_SCHEMA, lcp_element: webVitals?.lcp_attribution ?? null, layout_shifts: layoutShifts, resource_timing: resourceTiming};
 }
 
 async function writeJson(filePath, value) {
@@ -321,13 +377,13 @@ async function writeJson(filePath, value) {
 export async function writeThemeViewportArtifacts(directory, result) {
   directory = await prepareThemeArtifactDirectory(directory);
   const artifacts = {
-    dom: path.join(directory, "dom.html"), screenshot: path.join(directory, "screenshot.png"), computed_styles: path.join(directory, "computed-styles.json"), web_vitals: path.join(directory, "web-vitals.json"), interactions: path.join(directory, "interactions.json"), network_errors: path.join(directory, "network-errors.json"), raw_syntax: path.join(directory, "raw-syntax.json"), verdict: path.join(directory, "verdict.json"),
+    dom: path.join(directory, "dom.html"), screenshot: path.join(directory, "screenshot.png"), computed_styles: path.join(directory, "computed-styles.json"), web_vitals: path.join(directory, "web-vitals.json"), performance_attribution: path.join(directory, "performance-attribution.json"), interactions: path.join(directory, "interactions.json"), network_errors: path.join(directory, "network-errors.json"), raw_syntax: path.join(directory, "raw-syntax.json"), verdict: path.join(directory, "verdict.json"),
   };
   if (result.screenshot_status !== "captured") throw new Error("theme screenshot artifact was not created");
   await assertPrivateFile(artifacts.screenshot);
   await writePrivateFile(artifacts.dom, result.dom ?? "");
   await Promise.all([
-    writeJson(artifacts.computed_styles, result.computed_styles), writeJson(artifacts.web_vitals, {navigation_timing: result.navigation_timing, web_vitals: result.web_vitals}), writeJson(artifacts.interactions, result.interactions), writeJson(artifacts.network_errors, result.errors), writeJson(artifacts.raw_syntax, result.raw_syntax), writeJson(artifacts.verdict, result.verdict),
+    writeJson(artifacts.computed_styles, result.computed_styles), writeJson(artifacts.web_vitals, {navigation_timing: result.navigation_timing, web_vitals: result.web_vitals}), writeJson(artifacts.performance_attribution, result.performance_attribution), writeJson(artifacts.interactions, result.interactions), writeJson(artifacts.network_errors, result.errors), writeJson(artifacts.raw_syntax, result.raw_syntax), writeJson(artifacts.verdict, result.verdict),
   ]);
   return artifacts;
 }
@@ -335,7 +391,10 @@ export async function writeThemeViewportArtifacts(directory, result) {
 export async function captureThemeViewport({context, target, viewport, capture, artifactDir, source, timeoutMs = DEFAULT_TIMEOUT_MS, settleMs = DEFAULT_SETTLE_MS, interactionTimeoutMs = DEFAULT_INTERACTION_TIMEOUT_MS}) {
   artifactDir = await prepareThemeArtifactDirectory(artifactDir);
   const page = await context.newPage();
+  const diagnosticErrors = [];
   await page.addInitScript(performanceObserverBootstrap);
+  await installTimingObserver(page).catch((error) => diagnosticErrors.push(`timing observer: ${error.message}`));
+  await installLayoutShiftObserver(page).catch((error) => diagnosticErrors.push(`layout-shift observer: ${error.message}`));
   const errors = startErrorCapture(page);
   let response = null;
   let navigationError = null;
@@ -365,15 +424,20 @@ export async function captureThemeViewport({context, target, viewport, capture, 
     captureErrors.push(`navigation metrics: ${error.message}`);
     return {navigation_timing: null, web_vitals: {ttfb_ms: null, fcp_ms: null, lcp_ms: null, cls: null, support: {}}};
   });
+  const performanceAttribution = await collectThemePerformanceAttribution(page, metrics.web_vitals).catch((error) => {
+    diagnosticErrors.push(`performance attribution: ${error.message}`);
+    return {schema: THEME_PERFORMANCE_ATTRIBUTION_SCHEMA, lcp_element: metrics.web_vitals?.lcp_attribution ?? null, layout_shifts: {supported: false, entries: [], cls: null, truncated: false}, resource_timing: {supported: false, resources: [], layout_shift_correlations: []}};
+  });
+  performanceAttribution.errors = diagnosticErrors;
   const screenshotPath = path.join(artifactDir, "screenshot.png");
   let screenshotStatus = "missing";
   try { await writePrivateFile(screenshotPath, await page.screenshot({fullPage: true})); screenshotStatus = "captured"; } catch (error) { captureErrors.push(`screenshot: ${error.message}`); }
   const interactions = [];
-  for (const interaction of capture.interactions) interactions.push(await captureInteraction(page, interaction, {timeoutMs: interactionTimeoutMs}));
+  for (const interaction of capture.interactions) interactions.push(await captureInteraction(page, interaction, {timeoutMs: interactionTimeoutMs, visualResponseGateMs: capture.web_vitals.gates.visual_response_ms.value}));
   const finalUrl = page.url();
   const capturedErrors = structuredClone(errors);
   await page.close().catch(() => {});
-  const result = {viewport, url: target.url, final_url: finalUrl, http_status: response?.status() ?? null, navigation_error: navigationError, settle_status: settleStatus, observation_deadline_ms: observationDeadlineMs, dom_status: domStatus, screenshot_status: screenshotStatus, capture_errors: captureErrors, dom, computed_styles: computedStyles, navigation_timing: metrics.navigation_timing, web_vitals: metrics.web_vitals, errors: capturedErrors, raw_syntax: findRawSyntaxLeaks({html: dom, source}), interactions};
+  const result = {viewport, url: target.url, final_url: finalUrl, http_status: response?.status() ?? null, navigation_error: navigationError, settle_status: settleStatus, observation_deadline_ms: observationDeadlineMs, dom_status: domStatus, screenshot_status: screenshotStatus, capture_errors: captureErrors, diagnostic_errors: diagnosticErrors, dom, computed_styles: computedStyles, navigation_timing: metrics.navigation_timing, web_vitals: metrics.web_vitals, performance_attribution: performanceAttribution, errors: capturedErrors, raw_syntax: findRawSyntaxLeaks({html: dom, source}), interactions};
   result.verdict = evaluateStrictThemeVerdict(result, capture.web_vitals.gates, capture.computed_styles);
   result.artifacts = await writeThemeViewportArtifacts(artifactDir, result);
   const {dom: _dom, ...summary} = result;

@@ -19,6 +19,8 @@ import {
   inventoryThemeSource,
   runOwnedSlug,
   selectThemeTiers,
+  themeComputedStyleProperties,
+  validateThemeComputedStyleContract,
   validateTargetOrigin,
 } from "../src/theme-localization-e2e.mjs";
 
@@ -131,6 +133,12 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.ok(first.tiers.every((tier) => tier.capture.computed_styles.probes.every((probe) => ["required", "optional", "expected_absent"].includes(probe.expectation))));
   assert.equal(first.tiers[0].capture.computed_styles.probes.find((probe) => probe.id === "interwiki_frame").expectation, "optional");
   assert.equal(first.tiers[0].capture.computed_styles.probes.find((probe) => probe.id === "watchers_button").expectation, "optional");
+  assert.deepEqual(first.tiers[0].run_owned_tags, ["テーマ"]);
+  assert.ok(first.tiers.slice(1).every((tier) => tier.run_owned_tags.length === 0));
+  assert.ok(first.tiers[0].capture.computed_styles.properties.includes("margin-left"));
+  assert.ok(first.tiers[0].capture.computed_styles.properties.includes("animation-name"));
+  assert.ok(first.tiers[0].capture.computed_styles.properties.includes("text-transform"));
+  assert.ok(first.tiers[0].capture.artifacts.includes("performance-attribution.json"));
   assert.ok(first.tiers[2].capture.interactions.some((interaction) => interaction.id === "tab_switch"));
   assert.ok(first.tiers.flatMap((tier) => tier.targets).every((target) => target.url.includes("scpaiueouiuiuiui")));
   assert.ok(first.tiers.flatMap((tier) => tier.preflight.dependency_files.assets).every((asset) => asset.status === "pass" && asset.sha256));
@@ -139,6 +147,15 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.equal(executable.mode, "execute");
   assert.equal(executable.safety.execute_supported, true);
   assert.equal(first.mode, "dry-run");
+});
+
+test("computed-style contracts accept only exact eq and one_of specifications", () => {
+  const contract = {properties: ["display"], probes: [{id: "header", selector: "#header", expectation: "required", expected_properties: {"margin-left": {operator: "eq", value: "1px"}, "font-weight": {operator: "one_of", values: ["700", "bold"]}}}]};
+  assert.equal(validateThemeComputedStyleContract(contract), contract);
+  assert.deepEqual(themeComputedStyleProperties(contract), ["display", "margin-left", "font-weight"]);
+  assert.throws(() => validateThemeComputedStyleContract({properties: ["display"], probes: [{...contract.probes[0], expected_properties: {display: {operator: "matches", value: "block"}}}]}), /invalid expected property/);
+  assert.throws(() => validateThemeComputedStyleContract({properties: ["display"], probes: [{...contract.probes[0], expected_properties: {display: {operator: "one_of", values: []}}}]}), /invalid one_of/);
+  assert.throws(() => validateThemeComputedStyleContract({properties: ["display"], probes: [{id: "gone", selector: ".gone", expectation: "expected_absent", expected_properties: {display: {operator: "eq", value: "none"}}}]}), /cannot assert properties/);
 });
 
 test("dependency preflight fails closed when an attachment is absent", async () => {
