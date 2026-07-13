@@ -38,6 +38,7 @@ mod html_text;
 mod include_comment_branches;
 #[allow(dead_code)]
 mod list_pages;
+mod list_pages_template;
 mod literal_regions;
 mod percent_encoding;
 mod render_dependency;
