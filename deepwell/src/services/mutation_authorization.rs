@@ -20,6 +20,8 @@
 
 use super::prelude::*;
 use crate::constants::ADMIN_USER_ID;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::types::Permission;
 
 /// Common actor checks for mutation boundaries.
 ///
@@ -76,6 +78,41 @@ impl MutationAuthorization {
         if actor_user_id != ADMIN_USER_ID {
             return Err(Error::new(
                 format!("{action} requires a platform staff user"),
+                ErrorType::PermissionDenied,
+            )
+            .into());
+        }
+        Ok(actor_user_id)
+    }
+
+    pub async fn require_permission<'a>(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_reference: Option<Reference<'a>>,
+        permission: Permission<'a>,
+        action: &str,
+    ) -> Result<i64> {
+        let actor_user_id = Self::require_authenticated(ctx, action)?;
+        let permitted = PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id: Some(actor_user_id),
+                site_id,
+                page_reference,
+            },
+            permission,
+        )
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!("failed to check permission to {action}"),
+                ErrorType::Permission,
+            )
+        })?;
+
+        if !permitted {
+            return Err(Error::new(
+                format!("user does not have permission to {action}"),
                 ErrorType::PermissionDenied,
             )
             .into());

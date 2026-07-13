@@ -21,13 +21,13 @@
 use super::page::{ensure_page_edit_permission, require_authenticated_mutation_actor};
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
-use crate::services::TextService;
 use crate::services::page::GetPageReference;
 use crate::services::page_revision::{
     CountPageRevisions, GetPageRevisionDetails, GetPageRevisionRangeDetails,
     PageRevisionCountOutput, PageRevisionModelFiltered, UpdatePageRevisionDetails,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::{MutationAuthorization, TextService};
 use crate::types::{Action, PageDetails, Permission, Reference, Resource};
 
 pub async fn page_revision_count(
@@ -99,6 +99,23 @@ pub async fn page_revision_edit(
     params: Params<'static>,
 ) -> Result<PageRevisionModelFiltered> {
     let UpdatePageRevisionDetails { input, details } = parse!(params, PageRevision);
+    MutationAuthorization::require_matching_actor(
+        ctx,
+        input.user_id,
+        "edit page revision visibility",
+    )?;
+    MutationAuthorization::require_permission(
+        ctx,
+        input.site_id,
+        Some(Reference::Id(input.page_id)),
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: None,
+            action: Action::Edit,
+        },
+        "edit page revision visibility",
+    )
+    .await?;
 
     info!(
         "Editing revision ID {} for page ID {} in site ID {}",

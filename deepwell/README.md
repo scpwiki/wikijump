@@ -14,10 +14,22 @@
   -->
 </p>
 
-DEEPWELL is an internal backend system to provide core wiki operations for Wikijump.
-This is intended as an internal API consumed by the web server as part of its logical tasks,
-and as such it is the job of the web server to verify that the calling user has the permissions
-to perform the given task. DEEPWELL will assume all requests are trusted and perform them.
+DEEPWELL is an internal backend system that provides core wiki operations for Wikijump. It is deployed behind Framerail rather than exposed as a public API, but network placement is not its authorization boundary.
+
+### Authorization boundary
+
+Framerail owns browser-facing policy and must reject unauthorized actions before calling DEEPWELL. DEEPWELL independently enforces every registered JSON-RPC mutation as a defense-in-depth boundary. The request actor comes from `RequestContext`, which is built from a verified session token; actor IDs in request payloads are attribution data and must match that request actor unless the endpoint explicitly permits platform-staff action. Resource mutations then check the relevant site, page, role, or ownership permission before invoking their service.
+
+The registered mutation inventory is grouped by authorization model:
+
+* Public account entry points: `login` and regular `user_create`. Public user creation rejects non-regular user types, explicit IDs, filter bypasses, and verification bypasses; those fields require platform staff.
+* Token-bound account operations: logout, session renewal and invalidation, and MFA operations authorize possession of the affected session or MFA token in their authentication services.
+* Authenticated self-service operations: user profile mutation, blob upload lifecycle, message drafts, ordinary votes, and bot attribution validate exact request-actor ownership. User deletion permits the target user or platform staff.
+* Resource-permission operations: site settings and custom domains, membership and roles, pages and files, revision visibility, parents, page attribution, rerendering, and page locks require the corresponding site/page/role permission. Payload attribution is validated separately where present.
+* Platform-staff operations: authorization-token issuance, imported or privileged user creation, name-change token grants, vote moderation, raw text creation, and blob blacklist or hard-deletion operations require the platform staff request actor.
+* In-process maintenance: the seeder, importer, and service-to-service compositions may call service methods directly inside a transaction. Those calls are not JSON-RPC exceptions and must establish their own trusted job inputs; adding a registered mutation requires assigning one of the authorization models above.
+
+Read endpoints still rely on their resource-specific visibility rules. Keeping DEEPWELL on the private application network remains required, but it does not replace endpoint authorization.
 
 The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code.
 

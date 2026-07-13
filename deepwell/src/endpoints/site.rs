@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::site::Model as SiteModel;
+use crate::services::MutationAuthorization;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::site::{
     CreateSite, CreateSiteOutput, GetSite, GetSiteOutput, UpdateSite,
@@ -31,6 +32,7 @@ pub async fn site_create(
     params: Params<'static>,
 ) -> Result<CreateSiteOutput> {
     let input: CreateSite = parse!(params, Site);
+    MutationAuthorization::require_authenticated(ctx, "create a site")?;
 
     SiteService::create(ctx, input)
         .await

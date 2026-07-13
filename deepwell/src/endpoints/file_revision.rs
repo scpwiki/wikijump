@@ -20,11 +20,13 @@
 
 use super::prelude::*;
 use crate::models::file_revision::Model as FileRevisionModel;
+use crate::services::MutationAuthorization;
 use crate::services::file::GetFile;
 use crate::services::file_revision::{
     CountFileRevisions, FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange,
     UpdateFileRevision,
 };
+use crate::types::{Action, Permission, Reference, Resource};
 
 pub async fn file_revision_count(
     ctx: &ServiceContext<'_>,
@@ -104,6 +106,23 @@ pub async fn file_revision_edit(
     params: Params<'static>,
 ) -> Result<FileRevisionModel> {
     let input: UpdateFileRevision = parse!(params, FileRevision);
+    MutationAuthorization::require_matching_actor(
+        ctx,
+        input.user_id,
+        "edit file revision visibility",
+    )?;
+    MutationAuthorization::require_permission(
+        ctx,
+        input.site_id,
+        Some(Reference::Id(input.page_id)),
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: None,
+            action: Action::Edit,
+        },
+        "edit file revision visibility",
+    )
+    .await?;
 
     info!(
         "Editing file revision ID {} for file ID {} on page {}",

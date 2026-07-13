@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::constants::ADMIN_USER_ID;
+use crate::services::MutationAuthorization;
 use crate::services::authorization_token::{AuthorizationTokenService, AuthorizedObject};
 use crate::services::relation::{
     CreateSingleUserBotOwner, RelationService, RemoveUserBotOwner, UserBotMetadata,
@@ -64,6 +66,38 @@ pub struct CreateBotUserOwners {
     pub created_by: i64,
 }
 
+async fn require_bot_owner_or_platform_staff(
+    ctx: &ServiceContext<'_>,
+    bot_user_id: i64,
+    submitted_user_id: i64,
+    action: &str,
+) -> Result<i64> {
+    let actor_user_id =
+        MutationAuthorization::require_matching_actor(ctx, submitted_user_id, action)?;
+    if actor_user_id == ADMIN_USER_ID {
+        return Ok(actor_user_id);
+    }
+
+    let is_owner = RelationService::get_owners_for_bot(ctx, bot_user_id)
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!("failed to authorize {action}"),
+                ErrorType::UserBotOwner,
+            )
+        })?
+        .iter()
+        .any(|owner| owner.owner_user_id == actor_user_id);
+    if !is_owner {
+        return Err(Error::new(
+            format!("user does not have permission to {action}"),
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    Ok(actor_user_id)
+}
+
 // Endpoints
 
 pub async fn bot_user_create(
@@ -83,6 +117,8 @@ pub async fn bot_user_create(
         bypass_email_verification,
         ip_address,
     } = parse!(params, UserBotOwner);
+
+    MutationAuthorization::require_matching_actor(ctx, created_by, "create a bot user")?;
 
     info!("Creating new bot user with name '{name}'");
 
@@ -249,6 +285,13 @@ pub async fn bot_user_owner_set(
     params: Params<'static>,
 ) -> Result<()> {
     let input: CreateBotUserOwners = parse!(params, UserBotOwner);
+    require_bot_owner_or_platform_staff(
+        ctx,
+        input.bot_user_id,
+        input.created_by,
+        "change bot owners",
+    )
+    .await?;
     info!(
         "Adding or updating bot owners for {} ({} new owners)",
         input.bot_user_id,
@@ -288,6 +331,13 @@ pub async fn bot_user_owner_remove(
     params: Params<'static>,
 ) -> Result<()> {
     let input: RemoveUserBotOwner = parse!(params, UserBotOwner);
+    require_bot_owner_or_platform_staff(
+        ctx,
+        input.bot_user,
+        input.removed_by,
+        "remove a bot owner",
+    )
+    .await?;
 
     info!(
         "Remove bot owner ({} <- {})",

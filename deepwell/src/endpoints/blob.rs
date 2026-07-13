@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::hash::slice_to_blob_hash;
+use crate::services::MutationAuthorization;
 use crate::services::blob::{
     BlobMetadata, CancelBlobUpload, GetBlobOutput, HardDelete, HardDeleteOutput,
     StartBlobUpload, StartBlobUploadOutput,
@@ -69,6 +70,11 @@ pub async fn blob_cancel(
         user_id,
         pending_blob_id,
     } = parse!(params, Blob);
+    MutationAuthorization::require_matching_actor(
+        ctx,
+        user_id,
+        "cancel a pending blob upload",
+    )?;
 
     BlobService::cancel_upload(ctx, user_id, &pending_blob_id)
         .await
@@ -90,6 +96,11 @@ pub async fn blob_upload(
 ) -> Result<StartBlobUploadOutput> {
     info!("Creating new pending blob upload");
     let input: StartBlobUpload = parse!(params, Blob);
+    MutationAuthorization::require_matching_actor(
+        ctx,
+        input.user_id,
+        "start a blob upload",
+    )?;
 
     BlobService::start_upload(ctx, input)
         .await

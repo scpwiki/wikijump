@@ -22,13 +22,19 @@
 mod common;
 
 use self::common::TestRunner;
+use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::prelude::*;
 use deepwell::hash::{k12_hash, text_hash_to_hex};
+use deepwell::services::RequestContext;
 use serde_json::json;
 
 #[tokio::test]
 async fn text() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
 
     // The string to use
 

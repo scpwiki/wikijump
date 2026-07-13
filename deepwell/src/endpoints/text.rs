@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::services::MutationAuthorization;
 use crate::types::Bytes;
 
 pub async fn text_create(
@@ -26,6 +27,7 @@ pub async fn text_create(
     params: Params<'static>,
 ) -> Result<Bytes<'static>> {
     let contents: String = parse_one!(params, Text);
+    MutationAuthorization::require_platform_staff(ctx, "create a raw text object")?;
     let content_len = contents.len();
     info!("Inserting new stored text (bytes {content_len})");
 

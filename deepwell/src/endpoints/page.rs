@@ -23,7 +23,6 @@ use crate::models::file::Model as FileModel;
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::models::page_revision;
-use crate::services::TextService;
 use crate::services::file::{GetFileOutput, GetPageFiles};
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
@@ -39,6 +38,7 @@ use crate::services::page_query::{
 };
 use crate::services::page_revision::RerenderType;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::{MutationAuthorization, TextService};
 use crate::types::{
     Action, AliasType, Bytes, FileOrder, PageDetails, PageId, Permission, Reference,
     RerenderDepth, Resource,
@@ -873,6 +873,18 @@ pub async fn page_rerender(
     params: Params<'static>,
 ) -> Result<()> {
     let input: PageId = parse!(params, Page);
+    let actor_user_id =
+        MutationAuthorization::require_authenticated(ctx, "rerender a page")?;
+    ensure_page_edit_permission(
+        ctx,
+        input.site_id,
+        Reference::Id(input.page_id),
+        actor_user_id,
+    )
+    .await
+    .or_raise(|| {
+        Error::new("failed to check page rerender permission", ErrorType::Page)
+    })?;
     info!(
         "Re-rendering page ID {} in site ID {}",
         input.page_id, input.site_id,

@@ -62,6 +62,29 @@ async fn payload_actor_cannot_spoof_vote_or_message_attribution() {
         }),
     );
     assert_contains_error!(message_error, ErrorType::PermissionDenied);
+
+    let blob_error = run_endpoint_err!(
+        runner,
+        blob_upload,
+        json!({
+            "user_id": SAMPLE_USER_ID,
+            "blob_size": 128,
+        }),
+    );
+    assert_contains_error!(blob_error, ErrorType::PermissionDenied);
+
+    let revision_error = run_endpoint_err!(
+        runner,
+        page_revision_edit,
+        json!({
+            "site_id": 1,
+            "page_id": 1,
+            "revision_id": 1,
+            "user_id": SAMPLE_USER_ID,
+            "hidden": [],
+        }),
+    );
+    assert_contains_error!(revision_error, ErrorType::PermissionDenied);
 }
 
 #[tokio::test]
@@ -98,4 +121,16 @@ async fn vote_moderation_requires_staff_and_matching_attribution() {
         }),
     );
     assert_contains_error!(spoofed_staff_error, ErrorType::PermissionDenied);
+}
+
+#[tokio::test]
+async fn raw_storage_mutation_requires_platform_staff() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(SAMPLE_USER_ID),
+        ..Default::default()
+    });
+
+    let error = run_endpoint_err!(runner, text_create, json!(["untrusted raw text"]),);
+    assert_contains_error!(error, ErrorType::PermissionDenied);
 }
