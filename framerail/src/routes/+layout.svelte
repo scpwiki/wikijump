@@ -4,7 +4,7 @@
   import ErrorPopup from "$lib/popup/error.svelte"
 
   import { page } from "$app/state"
-  import { setContext } from "svelte"
+  import { onMount, setContext } from "svelte"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
   import {
@@ -74,6 +74,18 @@
   })
 
   setContext(PAGE_LAYOUT_CONTEXT_KEY, pageLayoutContext)
+
+  onMount(() => {
+    let disposed = false
+    let stop: (() => void) | undefined
+    void import("$lib/wikidot-code-highlighting").then((module) => {
+      if (!disposed) stop = module.observeWikidotCodeBlocks(document)
+    })
+    return () => {
+      disposed = true
+      stop?.()
+    }
+  })
 
   // Keep existing child components synchronized after hydration while the
   // top-level shell decision is available during SSR through request-local context.

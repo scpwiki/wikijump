@@ -569,7 +569,10 @@ static WIKIDOT_ESCAPED_NBSP_REGEX: LazyLock<Regex> =
 static WIKIJUMP_CODE_BLOCK_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-code-panel">.*?</div>"#).unwrap());
 static WIKIJUMP_CODE_BLOCK_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)<wj-code class="wj-code(?:\s+wj-language-[^"]*)?">"#).unwrap()
+    Regex::new(
+        r#"(?is)<wj-code class="wj-code(?:\s+wj-language-(?P<language>[^"\s]+))?">"#,
+    )
+    .unwrap()
 });
 static WIKIJUMP_TAB_BUTTON_LIST_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)<div class="wj-tabs-button-list"[^>]*>(?P<body>.*?)</div>"#)
@@ -1953,8 +1956,16 @@ impl RenderService {
 
     fn restore_wikidot_code_block_dom_compatibility(html: &str) -> String {
         let html = WIKIJUMP_CODE_BLOCK_PANEL_REGEX.replace_all(html, "");
-        let html =
-            WIKIJUMP_CODE_BLOCK_OPEN_REGEX.replace_all(&html, r#"<div class="code">"#);
+        let html = WIKIJUMP_CODE_BLOCK_OPEN_REGEX.replace_all(
+            &html,
+            |captures: &regex::Captures<'_>| match captures.name("language") {
+                Some(language) => format!(
+                    r#"<div class="code" data-wj-language="{}">"#,
+                    language.as_str(),
+                ),
+                None => r#"<div class="code">"#.to_owned(),
+            },
+        );
         html.replace("</wj-code>", "</div>")
     }
 
@@ -2056,8 +2067,8 @@ impl RenderService {
             r#"<div class="wj-footnote-list footnotes-footer">"#,
         )
         .replace(
-            r#"<div class="wj-title">Footnotes</div>"#,
-            r#"<div class="wj-title title">Footnotes</div>"#,
+            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title">"#,
+            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">"#,
         )
     }
 
@@ -17662,11 +17673,23 @@ mod tests {
 
         let restored = RenderService::restore_wikidot_code_block_dom_compatibility(html);
 
-        assert!(restored.contains(r#"<div class="code">"#));
+        assert!(restored.contains(r#"<div class="code" data-wj-language="css">"#));
         assert!(restored.contains("<pre><code>.x { color: red; }</code></pre>"));
         assert!(!restored.contains("wj-code"));
         assert!(!restored.contains("wj-code-copy"));
         assert!(!restored.contains("wj-code-language"));
+    }
+
+    #[test]
+    fn restores_language_free_wikidot_code_blocks_without_highlight_metadata() {
+        let html = r#"<wj-code class="wj-code"><pre><code>plain</code></pre></wj-code>"#;
+
+        let restored = RenderService::restore_wikidot_code_block_dom_compatibility(html);
+
+        assert_eq!(
+            restored,
+            r#"<div class="code"><pre><code>plain</code></pre></div>"#
+        );
     }
 
     #[test]
@@ -18562,6 +18585,50 @@ mod tests {
         ));
         assert!(!restored.contains("wj-footnote-ref-tooltip"));
         assert!(!restored.contains("hidden note"));
+    }
+
+    #[test]
+    fn restores_wikidot_footnote_title_class_without_assuming_english_text() {
+        for title in ["脚注", "The feet-noten"] {
+            let html = format!(
+                r#"<div class="wj-footnote-list"><div class="wj-title">{title}</div></div>"#
+            );
+
+            let restored =
+                RenderService::restore_wikidot_footnote_dom_compatibility(&html);
+
+            assert_eq!(
+                restored,
+                format!(
+                    r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">{title}</div></div>"#
+                )
+            );
+        }
+    }
+
+    #[test]
+    fn pinned_ftml_localizes_japanese_footnotes_before_dom_compatibility_restore() {
+        let mut page_info =
+            fallback_test_page_info("localized-footnote", "Localized footnote");
+        page_info.language = Cow::Borrowed("ja-JP");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = "本文[[footnote]]注記[[/footnote]]".to_owned();
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(rendered.contains(r#"aria-label="脚注 1.""#));
+        assert!(rendered.contains(r#"<div class="wj-title">脚注</div>"#));
+
+        let restored =
+            RenderService::restore_wikidot_footnote_dom_compatibility(&rendered);
+
+        assert!(restored.contains(
+            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">脚注</div>"#
+        ));
+        assert!(!restored.contains(">Footnotes<"));
     }
 
     #[test]
