@@ -19,15 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::models::page::{self, Entity as Page};
+use super::resolver::resolve_connection_counts;
+use crate::models::page;
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
-use crate::models::site::Model as SiteModel;
-use crate::services::{PageService, SiteService};
+use crate::services::PageService;
 use crate::types::ConnectionType;
-use crate::utils::trim_default;
-use ftml::data::{Backlinks, PageRef};
+use ftml::data::Backlinks;
 use sea_orm::NotSet;
 use sea_orm::sea_query::OnConflict;
 use std::collections::HashMap;
@@ -307,10 +306,6 @@ impl LinkService {
         page_id: i64,
         backlinks: &Backlinks<'_>,
     ) -> Result<()> {
-        let mut connections = HashMap::new();
-        let mut connections_missing = HashMap::new();
-        let mut external_links = HashMap::new();
-
         let make_error = || {
             Error::new(
                 format!(
@@ -320,29 +315,20 @@ impl LinkService {
                 ErrorType::PageLink,
             )
         };
-
-        count_connection_batch(
+        let mut connection_counts = resolve_connection_counts(
             ctx,
             site_id,
-            &backlinks.included_pages,
-            // TODO: update Backlinks so that it also tracks other kinds of includes and components
-            ConnectionType::IncludeMessy,
-            &mut connections,
-            &mut connections_missing,
+            [
+                (
+                    backlinks.included_pages.as_slice(),
+                    ConnectionType::IncludeMessy,
+                ),
+                (backlinks.internal_links.as_slice(), ConnectionType::Link),
+            ],
         )
         .await
         .or_raise(make_error)?;
-
-        count_connection_batch(
-            ctx,
-            site_id,
-            &backlinks.internal_links,
-            ConnectionType::Link,
-            &mut connections,
-            &mut connections_missing,
-        )
-        .await
-        .or_raise(make_error)?;
+        let mut external_links = HashMap::new();
 
         // Gather external URL link stats
         for url in &backlinks.external_links {
@@ -352,8 +338,8 @@ impl LinkService {
 
         // Update records
         let (result1, result2, result3) = join!(
-            update_connections(ctx, page_id, &mut connections),
-            update_connections_missing(ctx, page_id, &mut connections_missing),
+            update_connections(ctx, page_id, &mut connection_counts.present),
+            update_connections_missing(ctx, page_id, &mut connection_counts.missing),
             update_external_links(ctx, page_id, &mut external_links),
         );
         raise_multiple!(result1, result2, result3; make_error);
@@ -363,97 +349,6 @@ impl LinkService {
 }
 
 // Update link helpers
-
-async fn count_connection_batch(
-    ctx: &ServiceContext<'_>,
-    site_id: i64,
-    page_refs: &[PageRef],
-    connection_type: ConnectionType,
-    connections: &mut HashMap<(i64, ConnectionType), i32>,
-    connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
-) -> Result<()> {
-    let txn = ctx.transaction();
-    let mut current_site_counts = HashMap::new();
-
-    for page_ref in page_refs {
-        if page_ref.site.is_none() {
-            count_current_site_reference(&page_ref.page, &mut current_site_counts);
-        } else {
-            count_connections(
-                ctx,
-                site_id,
-                page_ref,
-                connection_type,
-                connections,
-                connections_missing,
-            )
-            .await?;
-        }
-    }
-
-    if current_site_counts.is_empty() {
-        return Ok(());
-    }
-
-    let make_error = || {
-        Error::new(
-            format!(
-                "failed to batch count {} current-site connections for site ID {}",
-                connection_type, site_id,
-            ),
-            ErrorType::PageLink,
-        )
-    };
-
-    let lookup_slugs = current_site_counts.keys().cloned().collect::<Vec<_>>();
-    let pages = Page::find()
-        .filter(
-            Condition::all()
-                .add(page::Column::SiteId.eq(site_id))
-                .add(page::Column::DeletedAt.is_null())
-                .add(page::Column::Slug.is_in(lookup_slugs)),
-        )
-        .all(txn)
-        .await
-        .or_raise(make_error)?;
-
-    let mut pages_by_slug = pages
-        .into_iter()
-        .map(|page| (page.slug.clone(), page.page_id))
-        .collect::<HashMap<_, _>>();
-
-    for (lookup_slug, original_slug_counts) in current_site_counts {
-        match pages_by_slug.remove(&lookup_slug) {
-            Some(to_page_id) => {
-                let count = original_slug_counts.values().sum::<i32>();
-                let entry = connections
-                    .entry((to_page_id, connection_type))
-                    .or_insert(0);
-                *entry += count;
-            }
-            None => {
-                for (original_slug, count) in original_slug_counts {
-                    let entry = connections_missing
-                        .entry((site_id, original_slug, connection_type))
-                        .or_insert(0);
-                    *entry += count;
-                }
-            }
-        }
-    }
-
-    Ok(())
-}
-
-fn count_current_site_reference(
-    page_slug: &str,
-    counts: &mut HashMap<String, HashMap<String, i32>>,
-) {
-    let lookup_slug = str!(trim_default(page_slug));
-    let original_slug_counts = counts.entry(lookup_slug).or_default();
-    let count = original_slug_counts.entry(str!(page_slug)).or_insert(0);
-    *count += 1;
-}
 
 async fn update_connections(
     ctx: &ServiceContext<'_>,
@@ -723,112 +618,4 @@ async fn update_external_links(
     }
 
     Ok(())
-}
-
-async fn count_connections(
-    ctx: &ServiceContext<'_>,
-    site_id: i64,
-    PageRef {
-        site: site_slug,
-        page: page_slug,
-        extra: _,
-    }: &PageRef,
-    connection_type: ConnectionType,
-    connections: &mut HashMap<(i64, ConnectionType), i32>,
-    connections_missing: &mut HashMap<(i64, String, ConnectionType), i32>,
-) -> Result<()> {
-    let make_error = || {
-        Error::new(
-            format!(
-                "failed to count {} connections from site '{}' page '{}' for site ID {}",
-                connection_type,
-                match site_slug {
-                    Some(s) => s.as_str(),
-                    None => "<current>",
-                },
-                page_slug,
-                site_id,
-            ),
-            ErrorType::PageLink,
-        )
-    };
-
-    let to_site_id = match site_slug {
-        None => site_id,
-        Some(slug) => {
-            let reference = Reference::Slug(cow!(slug));
-            let Some(SiteModel { site_id, .. }) =
-                SiteService::get_optional(ctx, reference)
-                    .await
-                    .or_raise(make_error)?
-            else {
-                let missing_slug =
-                    format!("\u{1f}wikijump-cross-site\u{1f}{slug}\u{1f}{page_slug}");
-                let entry = connections_missing
-                    .entry((site_id, missing_slug, connection_type))
-                    .or_insert(0);
-                *entry += 1;
-                return Ok(());
-            };
-
-            site_id
-        }
-    };
-
-    let page = {
-        let reference = Reference::Slug(cow!(page_slug));
-        PageService::get_optional(ctx, to_site_id, reference)
-            .await
-            .or_raise(make_error)?
-    };
-
-    match page {
-        Some(to_page) => {
-            let entry = connections
-                .entry((to_page.page_id, connection_type))
-                .or_insert(0);
-
-            *entry += 1;
-        }
-        None => {
-            let entry = connections_missing
-                .entry((to_site_id, str!(page_slug), connection_type))
-                .or_insert(0);
-
-            *entry += 1;
-        }
-    }
-
-    Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn current_site_reference_counts_trim_default_for_lookup_only() {
-        let mut counts = HashMap::new();
-
-        count_current_site_reference("_default:target", &mut counts);
-        count_current_site_reference("target", &mut counts);
-
-        let original_counts =
-            counts.get("target").expect("lookup slug should be trimmed");
-        assert_eq!(original_counts.get("_default:target"), Some(&1));
-        assert_eq!(original_counts.get("target"), Some(&1));
-    }
-
-    #[test]
-    fn current_site_reference_counts_preserve_non_default_categories() {
-        let mut counts = HashMap::new();
-
-        count_current_site_reference("component:target", &mut counts);
-        count_current_site_reference("component:target", &mut counts);
-
-        let original_counts = counts
-            .get("component:target")
-            .expect("non-default category should be kept");
-        assert_eq!(original_counts.get("component:target"), Some(&2));
-    }
 }

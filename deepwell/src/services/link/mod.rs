@@ -41,6 +41,7 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod resolver;
 mod service;
 mod structs;
 
