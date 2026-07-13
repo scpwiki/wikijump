@@ -599,8 +599,10 @@ static WIKIDOT_SINGLE_LINE_IFTAGS_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     .unwrap()
 });
 static WIKIDOT_SIMPLE_IFTAGS_BLOCK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)\[\[iftags(?P<spec>\s+[^\]\n]+)\]\](?P<body>.*?)\[\[/iftags\]\]"#)
-        .unwrap()
+    Regex::new(
+        r#"(?is)\[\[iftags(?P<spec>(?:[ \t]+[^\]\r\n]*)?)\]\](?P<body>.*?)\[\[/iftags\]\]"#,
+    )
+    .unwrap()
 });
 static WIKIDOT_IMAGE_BLOCK_INCLUDE_START_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -2632,9 +2634,9 @@ impl RenderService {
         page_info: &ftml::data::PageInfo<'_>,
     ) {
         Self::remove_unresolved_variable_iftags_blocks(wikitext);
+        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         Self::resolve_single_line_wikidot_iftags_fragments(wikitext, page_info);
         Self::resolve_simple_wikidot_iftags_blocks(wikitext, page_info);
-        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
     }
 
     fn resolve_single_line_wikidot_iftags_fragments(
@@ -18698,6 +18700,56 @@ mod tests {
         assert!(!wikidot_tag_conditions_match("+alpha -alpha", &tags));
         assert!(!wikidot_tag_conditions_match("", &tags));
         assert!(wikidot_tag_conditions_match("-", &tags));
+    }
+
+    #[test]
+    fn resolves_parser_generated_iftags_predicates_before_tag_matching() {
+        // Frozen theme sources use this exact nested #ifexpr-in-iftags shape.
+        // The live tagged preview and saved-page matrix is retained under
+        // ftml-oracle-20260713T042816Z/run-iftags-parser-predicate.
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("alpha")],
+            ..fallback_test_page_info("tagged-page", "Tagged Page")
+        };
+        let mut wikitext = concat!(
+            "[[iftags [[#ifexpr 1 == 1 | - ]]]]\n",
+            "OMEGA_TRUE_MINUS\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 0 | - ]]]]\n",
+            "OMEGA_FALSE_EMPTY\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]\n",
+            "OMEGA_TRUE_ALPHA\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 0 | +alpha | +beta ]]]]\n",
+            "OMEGA_FALSE_BETA\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#if 1 | alpha beta | +gamma ]]]]\n",
+            "OMEGA_BARE_OR\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#if 0 | +gamma | -alpha ]]]]\n",
+            "OMEGA_FALSE_MINUS_ALPHA\n",
+            "[[/iftags]]\n",
+        )
+        .to_owned();
+
+        RenderService::prepare_wikidot_conditionals_for_include_expansion(
+            &mut wikitext,
+            &page_info,
+        );
+
+        for visible in ["OMEGA_TRUE_MINUS", "OMEGA_TRUE_ALPHA", "OMEGA_BARE_OR"] {
+            assert!(wikitext.contains(visible), "{visible}: {wikitext}");
+        }
+        for hidden in [
+            "OMEGA_FALSE_EMPTY",
+            "OMEGA_FALSE_BETA",
+            "OMEGA_FALSE_MINUS_ALPHA",
+        ] {
+            assert!(!wikitext.contains(hidden), "{hidden}: {wikitext}");
+        }
+        assert!(!wikitext.contains("[[iftags"), "{wikitext}");
+        assert!(!wikitext.contains("[[#if"), "{wikitext}");
     }
 
     #[test]
