@@ -35,6 +35,7 @@ mod compat_html_fragments;
 mod compat_text_fragments;
 mod diagnostics;
 mod html_text;
+mod iftags;
 mod include_comment_branches;
 #[allow(dead_code)]
 mod list_pages;
