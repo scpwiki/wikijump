@@ -7652,48 +7652,55 @@ impl RenderService {
             } else {
                 BTreeMap::new()
             };
-            let expanded_page_wikitext = if wants_content {
-                if let Some(cached) = content_cache.expanded_wikitext.get(&cache_key) {
-                    cached.clone()
-                } else {
-                    let expanded = match page_wikitext.as_deref() {
-                        Some(wikitext) => {
-                            let expansion = Self::expand_includes(
-                                ctx,
-                                wikitext.to_owned(),
-                                page_info,
-                                page_info.site.as_ref(),
-                                settings,
-                                IncludeExpansionOptions {
-                                    current_site_id: Some(page.site_id),
-                                    source_cache: include_source_cache,
-                                    compat_text,
-                                    expand_wikidot_image_blocks: false,
-                                    budget: include_budget,
-                                },
-                            )
-                            .await?;
-                            include_budget.consume(expansion.expanded_include_count);
-                            included_pages.extend(expansion.included_pages);
-                            Some(expansion.wikitext)
-                        }
-                        None => None,
+            let mut expanded_content = BTreeMap::new();
+            if wants_content {
+                for &section in template.content_sections() {
+                    let expanded_cache_key = (page.site_id, page.page_id, section);
+                    let expanded = if let Some(cached) =
+                        content_cache.expanded_content.get(&expanded_cache_key)
+                    {
+                        cached.clone()
+                    } else {
+                        let expanded = match page_wikitext.as_deref() {
+                            Some(wikitext) => {
+                                let selected = wikidot_content_section(wikitext, section);
+                                let expansion = Self::expand_includes(
+                                    ctx,
+                                    selected,
+                                    page_info,
+                                    page_info.site.as_ref(),
+                                    settings,
+                                    IncludeExpansionOptions {
+                                        current_site_id: Some(page.site_id),
+                                        source_cache: include_source_cache,
+                                        compat_text,
+                                        expand_wikidot_image_blocks: false,
+                                        budget: include_budget,
+                                    },
+                                )
+                                .await?;
+                                include_budget.consume(expansion.expanded_include_count);
+                                included_pages.extend(expansion.included_pages);
+                                Some(expansion.wikitext)
+                            }
+                            None => None,
+                        };
+                        content_cache
+                            .expanded_content
+                            .insert(expanded_cache_key, expanded.clone());
+                        expanded
                     };
-                    content_cache
-                        .expanded_wikitext
-                        .insert(cache_key, expanded.clone());
-                    expanded
+                    if let Some(expanded) = expanded {
+                        expanded_content.insert(section, expanded);
+                    }
                 }
-            } else {
-                None
-            };
+            }
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
                 user_displays,
                 snapshot_displays,
-                page_wikitext: expanded_page_wikitext
-                    .as_deref()
-                    .or(page_wikitext.as_deref()),
+                page_wikitext: None,
+                expanded_content: Some(&expanded_content),
                 data_form_values: &data_form_values,
                 render_generated_html,
             };
@@ -9463,6 +9470,7 @@ struct ListPagesSubstitutionContext<'a> {
     user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
     snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
     page_wikitext: Option<&'a str>,
+    expanded_content: Option<&'a BTreeMap<Option<usize>, String>>,
     data_form_values: &'a BTreeMap<String, String>,
     render_generated_html: bool,
 }
@@ -9600,17 +9608,20 @@ fn substitute_list_pages_variables_with_fragments(
                     .and_then(|matched| context.data_form_values.get(matched.as_str()))
                     .cloned()
                     .unwrap_or_default(),
-                "content" => context
-                    .page_wikitext
-                    .map(|wikitext| {
-                        wikidot_content_section(
-                            wikitext,
-                            captures
-                                .name("argument")
-                                .and_then(|matched| matched.as_str().parse().ok()),
-                        )
-                    })
-                    .unwrap_or_default(),
+                "content" => {
+                    let section = captures
+                        .name("argument")
+                        .and_then(|matched| matched.as_str().parse().ok());
+                    context
+                        .expanded_content
+                        .and_then(|content| content.get(&section).cloned())
+                        .or_else(|| {
+                            context.page_wikitext.map(|wikitext| {
+                                wikidot_content_section(wikitext, section)
+                            })
+                        })
+                        .unwrap_or_default()
+                }
                 "index" => index.clone(),
                 "total" => total.clone(),
                 "limit" => rendered_limit.clone(),
@@ -11496,7 +11507,7 @@ struct ListPagesPageContext {
 #[derive(Debug, Default)]
 struct ListPagesContentCache {
     wikitext: BTreeMap<(i64, i64), Option<String>>,
-    expanded_wikitext: BTreeMap<(i64, i64), Option<String>>,
+    expanded_content: BTreeMap<(i64, i64, Option<usize>), Option<String>>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -12101,6 +12112,7 @@ mod tests {
             user_displays,
             snapshot_displays,
             page_wikitext,
+            expanded_content: None,
             data_form_values,
             render_generated_html,
         }

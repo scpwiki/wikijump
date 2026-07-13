@@ -5244,6 +5244,7 @@ async fn create_listpages_test_page(
 async fn listpages_content_shares_the_render_include_budget() {
     const COMPONENT_SLUG: &str = "component:listpages-include-budget-cell";
     const INDEX_SLUG: &str = "fixture-listpages-include-budget-index";
+    const SECTION_CHILD_SLUG: &str = "fixture-listpages-include-budget-section-child";
     const INCLUDE_MARKER: &str = "LISTPAGES_INCLUDE_BUDGET_CELL";
     const INCLUDES_PER_SOURCE: usize = 128;
 
@@ -5285,6 +5286,18 @@ async fn listpages_content_shares_the_render_include_budget() {
             .await;
         set_listpages_test_parent(&mut runner, site_id, slug, INDEX_SLUG).await;
     }
+    let section_child_wikitext = format!(
+        "{}=====\n[[include {COMPONENT_SLUG}]]\n",
+        format!("[[include {COMPONENT_SLUG}]]\n").repeat(255),
+    );
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        SECTION_CHILD_SLUG,
+        "ListPages Include Budget Section Child",
+        &section_child_wikitext,
+    )
+    .await;
 
     let page = run_endpoint!(
         runner,
@@ -5317,6 +5330,24 @@ async fn listpages_content_shares_the_render_include_budget() {
         category_id: page.page_category_id,
         page_id: page.page_id,
     };
+    let selected_section = format!(
+        "[[include {COMPONENT_SLUG}]]\n[[module ListPages name=\"{SECTION_CHILD_SLUG}\"]]\n%%content{{2}}%%\n[[/module]]"
+    );
+    let output = RenderService::render_page(
+        runner.context(),
+        selected_section,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("ListPages should expand only the requested content section");
+    assert_eq!(
+        output.html_output.body.matches(INCLUDE_MARKER).count(),
+        2,
+        "includes outside the requested content section must not consume the render budget",
+    );
+
     let direct_includes =
         format!("[[include {COMPONENT_SLUG}]]\n").repeat(INCLUDES_PER_SOURCE);
     let list_pages = |limit| {
