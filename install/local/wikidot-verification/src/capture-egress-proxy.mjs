@@ -181,6 +181,13 @@ export async function startCaptureEgressProxy({
   });
 
   server.on("connect", async (request, client, head) => {
+    let upstream;
+    const closeTunnel = () => {
+      client.destroy();
+      upstream?.destroy();
+    };
+    client.on("error", closeTunnel);
+    client.on("close", () => upstream?.destroy());
     try {
       const { hostname, port } = parseAuthority(request.url, 443);
       const address = await resolvePinned(hostname, port, {
@@ -188,16 +195,12 @@ export async function startCaptureEgressProxy({
         protocol: "https:",
         allowedTargets,
       });
-      const upstream = net.connect({
+      if (client.destroyed) return;
+      upstream = net.connect({
         host: address,
         port,
         family: net.isIPv6(address) ? 6 : 4,
       });
-      const closeTunnel = () => {
-        client.destroy();
-        upstream.destroy();
-      };
-      client.on("error", closeTunnel);
       upstream.on("error", closeTunnel);
       upstream.once("connect", () => {
         client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
