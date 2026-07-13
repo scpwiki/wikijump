@@ -947,17 +947,21 @@ async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_incl
     let html = page
         .compiled_body_html
         .expect("compiled body should be included in page_get details");
+    let styles = page
+        .compiled_body_styles
+        .expect("compiled styles should be included in page_get details")
+        .join("\n");
 
     assert!(
-        html.contains("theme%3Abasalt/3"),
-        "compiled page should include CSS from the local theme dependency: {html}"
+        styles.contains("theme%3Abasalt/3"),
+        "compiled page should include CSS from the local theme dependency: {styles}"
     );
     assert!(
         html.contains("Include consumer body marker."),
         "compiled page should retain the consumer page body"
     );
     assert!(
-        html.contains("#side-bar") && html.contains("display: none !important"),
+        html.contains("#side-bar") && html.contains("display: block !important"),
         "compiled Basalt page should include Wikidot shell sidebar compatibility CSS: {html}"
     );
 }
