@@ -6096,41 +6096,70 @@ impl RenderService {
             return Ok(WikidotCompatLinkTitleMap::new());
         }
 
+        let references = slugs
+            .iter()
+            .map(|slug| Reference::Slug(Cow::Borrowed(slug.as_str())))
+            .collect::<Vec<_>>();
+        let pages = PageService::get_pages(ctx, site_id, &references).await?;
+        let mut category_permissions = BTreeMap::new();
+        let mut viewable_pages = Vec::with_capacity(pages.len());
+        for page in pages {
+            let can_view = if let Some(can_view) =
+                category_permissions.get(&page.page_category_id)
+            {
+                *can_view
+            } else {
+                let can_view = PermissionService::check_user_can(
+                    ctx,
+                    &CheckPermissionContext {
+                        user_id: None,
+                        site_id,
+                        page_reference: Some(Reference::Id(page.page_id)),
+                    },
+                    Permission {
+                        resource_type: Resource::Page,
+                        resource_category: Some(Reference::Id(page.page_category_id)),
+                        action: Action::View,
+                    },
+                )
+                .await?;
+                category_permissions.insert(page.page_category_id, can_view);
+                can_view
+            };
+            if can_view && page.latest_revision_id.is_some() {
+                viewable_pages.push(page);
+            }
+        }
+
+        let revision_ids = viewable_pages
+            .iter()
+            .filter_map(|page| page.latest_revision_id)
+            .collect::<Vec<_>>();
+        let revisions = page_revision::Entity::find()
+            .filter(page_revision::Column::RevisionId.is_in(revision_ids))
+            .all(ctx.transaction())
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to batch fallback link titles",
+                    ErrorType::PageRevision,
+                )
+            })?
+            .into_iter()
+            .map(|revision| (revision.revision_id, revision.title))
+            .collect::<BTreeMap<_, _>>();
+
         let mut titles = WikidotCompatLinkTitleMap::new();
-        for slug in slugs {
-            let Some(page) =
-                PageService::get_optional(ctx, site_id, Reference::from(slug.as_str()))
-                    .await?
+        for page in viewable_pages {
+            let Some(title) = page
+                .latest_revision_id
+                .and_then(|revision_id| revisions.get(&revision_id))
+                .map(|title| title.trim())
+                .filter(|title| !title.is_empty())
             else {
                 continue;
             };
-
-            let can_view = PermissionService::check_user_can(
-                ctx,
-                &CheckPermissionContext {
-                    user_id: None,
-                    site_id,
-                    page_reference: Some(Reference::Id(page.page_id)),
-                },
-                Permission {
-                    resource_type: Resource::Page,
-                    resource_category: Some(Reference::Id(page.page_category_id)),
-                    action: Action::View,
-                },
-            )
-            .await?;
-            if !can_view {
-                continue;
-            }
-
-            let Some(revision_id) = page.latest_revision_id else {
-                continue;
-            };
-            let revision = PageRevisionService::get_direct(ctx, revision_id).await?;
-            let title = revision.title.trim();
-            if !title.is_empty() {
-                titles.insert(slug, title.to_owned());
-            }
+            titles.insert(page.slug, title.to_owned());
         }
 
         Ok(titles)
