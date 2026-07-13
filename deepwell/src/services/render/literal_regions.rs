@@ -194,44 +194,85 @@ fn collect_html_tag_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
 }
 
 #[derive(Clone, Copy)]
-enum WikidotLiteralBlock {
-    Code,
-    Html,
-}
-
-impl WikidotLiteralBlock {
-    fn closing_marker(self) -> &'static str {
-        match self {
-            Self::Code => "[[/code]]",
-            Self::Html => "[[/html]]",
-        }
-    }
+struct WikidotLiteralBlock {
+    close: &'static str,
+    quote_depth: usize,
+    start: usize,
 }
 
 fn collect_wikidot_block_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
     let mut offset = 0usize;
-    let mut active: Option<(WikidotLiteralBlock, usize)> = None;
+    let mut active: Option<WikidotLiteralBlock> = None;
 
     for line in source.split_inclusive('\n') {
-        let trimmed = line.trim_start();
-        let marker_start = offset + (line.len() - trimmed.len());
-        let marker = trimmed.to_ascii_lowercase();
-        if let Some((kind, start)) = active {
-            if marker.starts_with(kind.closing_marker()) {
-                ranges.push(start..marker_start + kind.closing_marker().len());
+        let body = line.strip_suffix('\n').unwrap_or(line);
+        let (quote_depth, logical) = quote_depth_and_body(body);
+        let logical_start = offset + body.len() - logical.len();
+        let lower = logical.to_ascii_lowercase();
+
+        if let Some(block) = active {
+            if block.quote_depth > 0 && quote_depth < block.quote_depth {
+                ranges.push(block.start..offset);
                 active = None;
+            } else {
+                let close_depth_matches =
+                    block.quote_depth == 0 || quote_depth == block.quote_depth;
+                if close_depth_matches && let Some(close_start) = lower.find(block.close)
+                {
+                    ranges.push(
+                        block.start..logical_start + close_start + block.close.len(),
+                    );
+                    active = None;
+                }
+                offset += line.len();
+                continue;
             }
-        } else if marker.starts_with("[[code") {
-            active = Some((WikidotLiteralBlock::Code, marker_start));
-        } else if marker.starts_with("[[html") {
-            active = Some((WikidotLiteralBlock::Html, marker_start));
+        }
+
+        if let Some((close, opener_end)) = wikidot_literal_block(&lower) {
+            let block = WikidotLiteralBlock {
+                close,
+                quote_depth,
+                start: logical_start,
+            };
+            if let Some(relative_close) = lower[opener_end..].find(close) {
+                ranges.push(
+                    logical_start
+                        ..logical_start + opener_end + relative_close + close.len(),
+                );
+            } else {
+                active = Some(block);
+            }
         }
         offset += line.len();
     }
 
-    if let Some((_, start)) = active {
-        ranges.push(start..source.len());
+    if let Some(block) = active {
+        ranges.push(block.start..source.len());
     }
+}
+
+fn quote_depth_and_body(mut body: &str) -> (usize, &str) {
+    let mut quote_depth = 0;
+    body = body.trim_start_matches([' ', '\t']);
+    while let Some(rest) = body.strip_prefix('>') {
+        quote_depth += 1;
+        body = rest.trim_start_matches([' ', '\t']);
+    }
+    (quote_depth, body)
+}
+
+fn wikidot_literal_block(lower: &str) -> Option<(&'static str, usize)> {
+    let marker = lower.strip_prefix("[[")?.trim_start();
+    let (head, _) = marker.split_once("]]")?;
+    let opener_end = lower.find("]]")? + 2;
+    let close = match head.trim_end().split_ascii_whitespace().next()? {
+        "code" => "[[/code]]",
+        "html" => "[[/html]]",
+        "raw" => "[[/raw]]",
+        _ => return None,
+    };
+    Some((close, opener_end))
 }
 
 fn collect_paired_ranges(
@@ -368,6 +409,7 @@ mod tests {
             "@@escaped-example@@\n",
             "[!-- comment-example --]\n",
             "[[html]]\nhtml-example\n[[/html]]\n",
+            "> [[raw]]\n> raw-example\n> [[/raw]]\n",
             "<pre>pre-example</pre>\n",
             r#"<div class="code"><div>panel-example</div></div>"#,
         );
@@ -379,6 +421,7 @@ mod tests {
             "escaped-example",
             "comment-example",
             "html-example",
+            "raw-example",
             "pre-example",
             "panel-example",
         ] {
@@ -442,6 +485,15 @@ mod tests {
 
         assert!(index.contains(source.find("inside").unwrap()));
         assert!(!index.contains(source.find("[[#expr").unwrap()));
+    }
+
+    #[test]
+    fn shallower_quote_ends_unclosed_wikidot_literal_block() {
+        let source = "> [[raw]]\n> inside\noutside";
+        let index = LiteralRegionIndex::new_wikidot_syntax(source);
+
+        assert!(index.contains(source.find("inside").unwrap()));
+        assert!(!index.contains(source.find("outside").unwrap()));
     }
 
     #[test]

@@ -2654,9 +2654,14 @@ impl RenderService {
         wikitext: &mut String,
         page_info: &ftml::data::PageInfo<'_>,
     ) {
+        let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
         let resolved = WIKIDOT_SINGLE_LINE_IFTAGS_REGEX.replace_all(
             wikitext,
             |captures: &regex::Captures<'_>| {
+                let full_match = captures.get(0).expect("iftags full match");
+                if literal_regions.contains(full_match.start()) {
+                    return full_match.as_str().to_owned();
+                }
                 if wikidot_tag_conditions_match(&captures["spec"], &page_info.tags) {
                     captures["body"].to_owned()
                 } else {
@@ -2674,15 +2679,17 @@ impl RenderService {
         page_info: &ftml::data::PageInfo<'_>,
     ) {
         loop {
+            let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
             let resolved = WIKIDOT_SIMPLE_IFTAGS_BLOCK_REGEX.replace_all(
                 wikitext,
                 |captures: &regex::Captures<'_>| {
+                    let full_match = captures.get(0).expect("iftags full match");
+                    if literal_regions.contains(full_match.start()) {
+                        return full_match.as_str().to_owned();
+                    }
                     let body = captures.name("body").map_or("", |mtch| mtch.as_str());
                     if body.contains("[[iftags") {
-                        return captures
-                            .get(0)
-                            .map_or("", |mtch| mtch.as_str())
-                            .to_owned();
+                        return full_match.as_str().to_owned();
                     }
 
                     let spec = captures.name("spec").map_or("", |mtch| mtch.as_str());
@@ -18927,6 +18934,56 @@ mod tests {
         }
         assert!(!wikitext.contains("[[iftags"), "{wikitext}");
         assert!(!wikitext.contains("[[#if"), "{wikitext}");
+    }
+
+    #[test]
+    fn preserves_parser_generated_iftags_inside_literal_regions() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T051411Z/run-iftags-quoted-generated.
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("alpha")],
+            ..fallback_test_page_info("tagged-page", "Tagged Page")
+        };
+        let mut wikitext = concat!(
+            "[[code]]\n",
+            ">[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]\n",
+            "OMEGA_CODE_BODY\n",
+            ">[[/iftags]]\n",
+            "[[/code]]\n",
+            "@@[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_ESCAPE_BODY[[/iftags]]@@\n",
+            "> [[raw]]\n",
+            "> [[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]\n",
+            "> OMEGA_RAW_BODY\n",
+            "> [[/iftags]]\n",
+            "> [[/raw]]\n",
+            "[!-- [[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_COMMENT_BODY[[/iftags]] --]\n",
+            "[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_VISIBLE_BODY[[/iftags]]\n",
+        )
+        .to_owned();
+
+        RenderService::prepare_wikidot_conditionals_for_include_expansion(
+            &mut wikitext,
+            &page_info,
+        );
+
+        for literal in [
+            ">[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_CODE_BODY",
+            "@@[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_ESCAPE_BODY",
+            "> [[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_RAW_BODY",
+        ] {
+            assert!(wikitext.contains(literal), "{literal}: {wikitext}");
+        }
+        assert!(
+            wikitext.contains("[!-- [[iftags +alpha]]OMEGA_COMMENT_BODY[[/iftags]] --]"),
+            "{wikitext}",
+        );
+        assert!(wikitext.contains("OMEGA_VISIBLE_BODY"), "{wikitext}");
     }
 
     #[test]
