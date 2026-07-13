@@ -25,7 +25,11 @@ use super::diagnostics::{
     StageGuard,
 };
 use super::html_text::html_data_segments;
-use super::iftags::{resolve_outermost_wikidot_iftags, wikidot_tag_conditions_match};
+use super::iftags::{
+    resolve_outermost_wikidot_iftags,
+    resolve_outermost_wikidot_iftags_before_include_expansion,
+    wikidot_tag_conditions_match,
+};
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::list_pages_template::{
     LISTPAGES_VARIABLE_REGEX, ListPagesOutputShape, ListPagesTemplatePlan,
@@ -2638,6 +2642,22 @@ impl RenderService {
         Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
     }
 
+    fn prepare_wikidot_conditionals_before_include_expansion(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+        preserved: &mut CompatTextFragments,
+    ) {
+        // Keep incomplete boundaries available for adjacent caller/include
+        // source while still pruning self-contained inactive gates early.
+        Self::remove_unresolved_variable_iftags_blocks(wikitext);
+        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
+        resolve_outermost_wikidot_iftags_before_include_expansion(
+            wikitext,
+            &page_info.tags,
+            preserved,
+        );
+    }
+
     fn resolve_wikidot_iftags(
         wikitext: &mut String,
         page_info: &ftml::data::PageInfo<'_>,
@@ -4307,7 +4327,7 @@ impl RenderService {
         Box::pin(async move {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
-            Self::prepare_wikidot_conditionals_for_include_expansion(
+            Self::prepare_wikidot_conditionals_before_include_expansion(
                 &mut wikitext,
                 expansion_context.page_info,
                 compat_text,
@@ -11948,6 +11968,19 @@ mod tests {
         *wikitext = preserved.restore(wikitext);
     }
 
+    fn prepare_test_wikidot_conditionals_before_include_expansion(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+    ) {
+        let mut preserved = CompatTextFragments::new(wikitext);
+        RenderService::prepare_wikidot_conditionals_before_include_expansion(
+            wikitext,
+            page_info,
+            &mut preserved,
+        );
+        *wikitext = preserved.restore(wikitext);
+    }
+
     fn resolve_test_wikidot_iftags(
         wikitext: &mut String,
         page_info: &ftml::data::PageInfo<'_>,
@@ -18828,7 +18861,10 @@ mod tests {
         )
         .to_owned();
 
-        prepare_test_wikidot_conditionals(&mut wikitext, &page_info);
+        prepare_test_wikidot_conditionals_before_include_expansion(
+            &mut wikitext,
+            &page_info,
+        );
 
         for visible in ["OMEGA_TRUE_MINUS", "OMEGA_TRUE_ALPHA", "OMEGA_BARE_OR"] {
             assert!(wikitext.contains(visible), "{visible}: {wikitext}");
@@ -19022,7 +19058,10 @@ mod tests {
         )
         .to_owned();
 
-        prepare_test_wikidot_conditionals(&mut wikitext, &page_info);
+        prepare_test_wikidot_conditionals_before_include_expansion(
+            &mut wikitext,
+            &page_info,
+        );
 
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut includes = Vec::new();

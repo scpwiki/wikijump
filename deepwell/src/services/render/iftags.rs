@@ -34,10 +34,46 @@ struct Replacement {
     text: String,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum UnmatchedBoundaryMode {
+    Defer,
+    Preserve,
+}
+
 pub(super) fn resolve_outermost_wikidot_iftags(
     wikitext: &mut String,
     tags: &[Cow<'_, str>],
     preserved: &mut CompatTextFragments,
+) {
+    resolve_outermost_wikidot_iftags_with_mode(
+        wikitext,
+        tags,
+        preserved,
+        UnmatchedBoundaryMode::Preserve,
+    );
+}
+
+pub(super) fn resolve_outermost_wikidot_iftags_before_include_expansion(
+    wikitext: &mut String,
+    tags: &[Cow<'_, str>],
+    preserved: &mut CompatTextFragments,
+) {
+    // An included target can open a gate that a later caller token closes (and
+    // vice versa). Resolve only self-contained roots here; the caller-level
+    // pass finalizes recovery or literal protection after textual expansion.
+    resolve_outermost_wikidot_iftags_with_mode(
+        wikitext,
+        tags,
+        preserved,
+        UnmatchedBoundaryMode::Defer,
+    );
+}
+
+fn resolve_outermost_wikidot_iftags_with_mode(
+    wikitext: &mut String,
+    tags: &[Cow<'_, str>],
+    preserved: &mut CompatTextFragments,
+    unmatched_mode: UnmatchedBoundaryMode,
 ) {
     let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
     let mut stack = Vec::<OpenGate>::new();
@@ -76,10 +112,12 @@ pub(super) fn resolve_outermost_wikidot_iftags(
         }
 
         let Some(outer) = stack.pop() else {
-            replacements.push(Replacement {
-                range: token.start()..token.end(),
-                text: preserved.push(&escape_html(token.as_str())),
-            });
+            if unmatched_mode == UnmatchedBoundaryMode::Preserve {
+                replacements.push(Replacement {
+                    range: token.start()..token.end(),
+                    text: preserved.push(&escape_html(token.as_str())),
+                });
+            }
             continue;
         };
         let text = if wikidot_tag_conditions_match(&outer.spec, tags) {
@@ -98,7 +136,7 @@ pub(super) fn resolve_outermost_wikidot_iftags(
         });
     }
 
-    if !stack.is_empty() {
+    if !stack.is_empty() && unmatched_mode == UnmatchedBoundaryMode::Preserve {
         let root = stack.remove(0);
         if let Some(recovery_closer) = root.last_nested_closer {
             let nested_tokens = root
@@ -316,6 +354,92 @@ mod tests {
             ),
         );
         assert_eq!(resolve(source, &["beta"], 3), "\nroot-after\n");
+    }
+
+    #[test]
+    fn include_prepass_defers_openers_and_closer_until_the_sources_are_joined() {
+        let tags = [Cow::Borrowed("alpha")];
+        let mut preserved = CompatTextFragments::new("");
+        let mut target = concat!(
+            "target-before\n",
+            "[[iftags +alpha]]outer\n",
+            "[[iftags +beta]]inner\n",
+            "target-end\n",
+        )
+        .to_owned();
+        let mut caller_suffix = "caller-between\n[[/iftags]]\ncaller-after\n".to_owned();
+
+        resolve_outermost_wikidot_iftags_before_include_expansion(
+            &mut target,
+            &tags,
+            &mut preserved,
+        );
+        resolve_outermost_wikidot_iftags_before_include_expansion(
+            &mut caller_suffix,
+            &tags,
+            &mut preserved,
+        );
+        assert!(target.contains("[[iftags +alpha]]"));
+        assert!(caller_suffix.contains("[[/iftags]]"));
+
+        let mut expanded = format!("{target}{caller_suffix}");
+        resolve_outermost_wikidot_iftags(&mut expanded, &tags, &mut preserved);
+        let expanded = preserved.restore(&expanded);
+        assert_eq!(
+            expanded,
+            concat!(
+                "target-before\n",
+                "outer\n",
+                "[[iftags +beta]]inner\n",
+                "target-end\n",
+                "caller-between\n\n",
+                "caller-after\n",
+            ),
+        );
+    }
+
+    #[test]
+    fn include_prepass_defers_eof_recovery_when_a_caller_closer_can_balance_the_root() {
+        let tags = [Cow::Borrowed("alpha")];
+        let mut preserved = CompatTextFragments::new("");
+        let mut target =
+            "[[iftags +alpha]]outer [[iftags +beta]]inner[[/iftags]]".to_owned();
+
+        resolve_outermost_wikidot_iftags_before_include_expansion(
+            &mut target,
+            &tags,
+            &mut preserved,
+        );
+        assert_eq!(
+            target,
+            "[[iftags +alpha]]outer [[iftags +beta]]inner[[/iftags]]",
+        );
+
+        target.push_str(" caller[[/iftags]] after");
+        resolve_outermost_wikidot_iftags(&mut target, &tags, &mut preserved);
+        let target = preserved.restore(&target);
+        assert_eq!(
+            target,
+            "outer [[iftags +beta]]inner[[/iftags]] caller after",
+        );
+    }
+
+    #[test]
+    fn include_prepass_still_resolves_self_contained_balanced_gates() {
+        let tags = [Cow::Borrowed("alpha")];
+        let mut preserved = CompatTextFragments::new("");
+        let mut source = concat!(
+            "[[iftags -alpha]][[include hidden]][[/iftags]]\n",
+            "[[include visible]]\n",
+        )
+        .to_owned();
+
+        resolve_outermost_wikidot_iftags_before_include_expansion(
+            &mut source,
+            &tags,
+            &mut preserved,
+        );
+        assert_eq!(source, "\n[[include visible]]\n");
     }
 
     #[test]
