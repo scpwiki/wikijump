@@ -11,6 +11,7 @@
     getPageFontPreloadHrefs
   } from "$lib/generated-page-styles"
   import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
+  import { wikidotTabviews } from "$lib/wikidot-tabviews"
 
   import type { PageProps } from "./$types"
   import type { Optional } from "$lib/types"
@@ -201,7 +202,7 @@
     </div>
   {/if}
 
-  <div id="page-content">
+  <div id="page-content" use:wikidotTabviews>
     {#if data.options?.debug}
       <textarea class="debug">{JSON.stringify(page, null, 2)}</textarea>
     {:else if data.options?.no_render}

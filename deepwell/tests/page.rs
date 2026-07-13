@@ -3813,6 +3813,101 @@ async fn page_mutations_require_page_permissions() {
 }
 
 #[tokio::test]
+async fn page_delete_ignores_deleted_include_consumers_during_outdating() {
+    let mut runner = TestRunner::setup().await;
+    const SITE_SLUG: &str = "scp-wiki";
+    const SOURCE_SLUG: &str = "component:fixture-delete-after-consumer-source";
+    const CONSUMER_SLUG: &str = "fixture-delete-before-included-source";
+
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("Seeded site not found");
+    let site_id = site.site.site_id;
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(SOURCE_SLUG)),
+    );
+    let source = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "Included source body",
+            "title": "Included Source",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create included source",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(CONSUMER_SLUG)),
+    );
+    let consumer = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": format!("[[include {SOURCE_SLUG}]]"),
+            "title": "Include Consumer",
+            "alt_title": null,
+            "slug": CONSUMER_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create include consumer",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(consumer.parser_errors.is_empty());
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Id(consumer.page_id),
+    );
+    run_endpoint!(
+        runner,
+        page_delete,
+        json!({
+            "site_id": site_id,
+            "page": consumer.page_id,
+            "last_revision_id": consumer.revision_id,
+            "revision_comments": "delete include consumer first",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Id(source.page_id),
+    );
+    run_endpoint!(
+        runner,
+        page_delete,
+        json!({
+            "site_id": site_id,
+            "page": source.page_id,
+            "last_revision_id": source.revision_id,
+            "revision_comments": "delete included source after consumer",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+}
+
+#[tokio::test]
 async fn page_move_requires_destination_create_permission() {
     let mut runner = TestRunner::setup().await;
     const SITE_SLUG: &str = "scp-wiki";

@@ -6,15 +6,18 @@ import {
   ALLOWED_SITE_SLUG,
   LEGACY_RUN_OWNED_SLUG_PREFIX,
   RUN_OWNED_SLUG_PREFIX,
+  THEME_CURRENT_SITE_DEPENDENCIES,
   THEME_LOCALIZATION_E2E_SCHEMA,
+  THEME_LOCALIZATION_TIERS,
   assertLegacyRunOwnedSlug,
   assertRunOwnedSlug,
+  currentSiteDependencyOwnershipToken,
   validateThemeComputedStyleContract,
   validateTargetOrigin,
 } from "./theme-localization-e2e.mjs";
 import {targetRoundTripSourceSha256} from "./theme-source-roundtrip.mjs";
 
-export const THEME_EXECUTION_LEDGER_SCHEMA = "wikijump_local_lab.theme_execution_ledger.v1";
+export const THEME_EXECUTION_LEDGER_SCHEMA = "wikijump_local_lab.theme_execution_ledger.v2";
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -29,23 +32,41 @@ async function syncParentDirectory(filePath) {
   }
 }
 
-function stableResources(plan, {allowLegacy = false} = {}) {
+function same(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  return JSON.stringify(value);
+}
+
+function stableExecutionContract(plan, {allowLegacy = false} = {}) {
   const currentPrefix = `${RUN_OWNED_SLUG_PREFIX}${plan.run.id}-`;
   const legacyPrefix = `${LEGACY_RUN_OWNED_SLUG_PREFIX}${plan.run.id}-`;
   const legacy = allowLegacy && plan.run.owned_slug_prefix === legacyPrefix;
   if (plan.run.owned_slug_prefix !== currentPrefix && !legacy) throw new Error("theme localization plan run-owned slug prefix is invalid");
   const resources = [];
+  const mainResources = [];
+  const prerequisites = [];
+  const expectedDependencySlugs = [];
   for (const tier of plan.tiers) {
+    const configuredTier = THEME_LOCALIZATION_TIERS.find((candidate) => candidate.id === tier.id);
+    if (!configuredTier) throw new Error(`unknown theme tier: ${tier.id}`);
     (legacy ? assertLegacyRunOwnedSlug : assertRunOwnedSlug)(tier.run_owned_slug, plan.run.id, tier.id);
     validateThemeComputedStyleContract(tier.capture?.computed_styles, {label: `${tier.id} computed-style contract`});
     if (tier.preflight.status !== "pass" || !tier.preflight.source.sha256) {
       throw new Error(`tier is not executable: ${tier.id}`);
     }
-    const expectedTags = tier.id === "yossistyle" ? ["テーマ"] : [];
+    const expectedTags = [...(configuredTier.run_owned_tags ?? [])];
     if (!allowLegacy && tier.run_owned_tags === undefined) throw new Error(`tier is missing run-owned tags: ${tier.id}`);
     if (tier.run_owned_tags !== undefined && JSON.stringify(tier.run_owned_tags) !== JSON.stringify(expectedTags)) {
       throw new Error(`tier has invalid run-owned tags: ${tier.id}`);
     }
+    const expectedChain = [...configuredTier.current_site_dependency_chain];
+    if (!same(tier.current_site_dependency_chain ?? [], expectedChain)) throw new Error(`tier has invalid current-site dependency chain: ${tier.id}`);
+    for (const slug of expectedChain) if (!expectedDependencySlugs.includes(slug)) expectedDependencySlugs.push(slug);
     for (const target of tier.targets) {
       if (!new Set(["wikidot", "wikijump"]).has(target.id)) {
         throw new Error(`unknown execution target: ${target.id}`);
@@ -56,8 +77,9 @@ function stableResources(plan, {allowLegacy = false} = {}) {
       if (url.origin !== expectedOrigin || url.pathname !== `/${tier.run_owned_slug}` || url.search || url.hash || url.username || url.password) {
         throw new Error(`execution target URL is outside the hard allowlist: ${target.resource_id}`);
       }
-      resources.push({
+      mainResources.push({
         resource_id: target.resource_id,
+        kind: "theme_page",
         tier_id: tier.id,
         target: target.id,
         slug: tier.run_owned_slug,
@@ -69,7 +91,56 @@ function stableResources(plan, {allowLegacy = false} = {}) {
       });
     }
   }
-  return resources;
+
+  if (!same((plan.current_site_dependencies ?? []).map((dependency) => dependency.slug), expectedDependencySlugs)) {
+    throw new Error("theme localization plan has an invalid current-site dependency order");
+  }
+  for (const dependency of plan.current_site_dependencies ?? []) {
+    const definition = THEME_CURRENT_SITE_DEPENDENCIES.find((candidate) => candidate.slug === dependency.slug);
+    if (!definition) throw new Error(`unknown current-site dependency: ${dependency.slug}`);
+    const consumers = plan.tiers.filter((tier) => tier.current_site_dependency_chain.includes(dependency.slug)).map((tier) => tier.id);
+    const preflight = plan.tiers.flatMap((tier) => tier.preflight.dependency_files?.current_site ?? []).find((candidate) => candidate.name === dependency.slug);
+    if (!same(dependency.consumers, consumers) || preflight?.status !== "pass" || dependency.source_path !== preflight.absolute_path || dependency.accepted_source_sha256 !== definition.accepted_source_sha256 || dependency.source_sha256 !== definition.materialized_source_sha256 || !same(dependency.source_transform, definition.source_transform)) {
+      throw new Error(`current-site dependency did not pass its exact source contract: ${dependency.slug}`);
+    }
+    const ownershipToken = currentSiteDependencyOwnershipToken(plan.run.id, dependency.slug);
+    const expectedReference = {
+      resource_id: `prerequisite:${dependency.slug}:wikidot`,
+      kind: "reference_prerequisite",
+      target: "wikidot",
+      url: new URL(`/${dependency.slug}`, validateTargetOrigin(plan.tiers[0].targets.find((target) => target.id === "wikidot").origin, "wikidot")).href,
+      title: definition.title,
+      tags: [...definition.reference_tags],
+    };
+    const expectedCandidate = {
+      resource_id: `dependency:${dependency.slug}:wikijump`,
+      kind: "component_dependency",
+      target: "wikijump",
+      url: new URL(`/${dependency.slug}`, validateTargetOrigin(plan.tiers[0].targets.find((target) => target.id === "wikijump").origin, "wikijump")).href,
+      title: definition.title,
+      ownership_token: ownershipToken,
+      tags: [`codex-l10n-owner-${ownershipToken}`, "component"],
+    };
+    if (!same(dependency.reference, expectedReference) || !same(dependency.candidate, expectedCandidate)) throw new Error(`current-site dependency target contract is invalid: ${dependency.slug}`);
+    prerequisites.push({...expectedReference, slug: dependency.slug, source_sha256: dependency.source_sha256});
+    resources.push({
+      ...expectedCandidate,
+      slug: dependency.slug,
+      consumers,
+      source_path: dependency.source_path,
+      accepted_source_sha256: dependency.accepted_source_sha256,
+      source_transform: dependency.source_transform,
+      source_sha256: dependency.source_sha256,
+    });
+  }
+  resources.push(...mainResources);
+  const remoteKeys = new Set();
+  for (const resource of [...prerequisites, ...resources]) {
+    const key = `${resource.target}\0${new URL(resource.url).href}`;
+    if (remoteKeys.has(key)) throw new Error(`theme localization plan has duplicate remote page ownership: ${resource.resource_id}`);
+    remoteKeys.add(key);
+  }
+  return {prerequisites, resources};
 }
 
 function validatePlan(plan, {allowLegacy = false} = {}) {
@@ -80,7 +151,7 @@ function validatePlan(plan, {allowLegacy = false} = {}) {
   if (hardAllowlist?.site_slug !== ALLOWED_SITE_SLUG || hardAllowlist.wikidot_hostname !== `${ALLOWED_SITE_SLUG}.wikidot.com` || hardAllowlist.wikijump_hostname !== `${ALLOWED_SITE_SLUG}.wikijump.localhost`) {
     throw new Error("theme localization plan hard allowlist is invalid");
   }
-  const resources = stableResources(plan, {allowLegacy});
+  const {resources} = stableExecutionContract(plan, {allowLegacy});
   if (resources.length === 0) throw new Error("theme localization plan has no resources");
   const ids = new Set(resources.map((resource) => resource.resource_id));
   if (ids.size !== resources.length) throw new Error("theme localization plan has duplicate resource ids");
@@ -96,8 +167,9 @@ export function validateRecoverableThemeExecutionPlan(plan) {
 }
 
 export function themeExecutionFingerprint(plan, {allowLegacy = false} = {}) {
-  const resources = allowLegacy ? validateRecoverableThemeExecutionPlan(plan) : validateThemeExecutionPlan(plan);
-  return sha256(JSON.stringify({schema: plan.schema, execution: {mode: plan.mode ?? null, execute_supported: plan.safety?.execute_supported === true}, run: plan.run, resources}));
+  if (allowLegacy) validateRecoverableThemeExecutionPlan(plan); else validateThemeExecutionPlan(plan);
+  const {prerequisites, resources} = stableExecutionContract(plan, {allowLegacy});
+  return sha256(canonicalJson({schema: plan.schema, execution: {mode: plan.mode ?? null, execute_supported: plan.safety?.execute_supported === true}, run: plan.run, prerequisites, resources}));
 }
 
 function parseEvents(text) {
@@ -118,7 +190,7 @@ function parseEvents(text) {
 
 function reduceEvents(events) {
   const header = events[0];
-  if (header.type !== "header" || header.schema !== THEME_EXECUTION_LEDGER_SCHEMA || !Array.isArray(header.resources)) {
+  if (header.type !== "header" || header.schema !== THEME_EXECUTION_LEDGER_SCHEMA || !Array.isArray(header.resources) || !Array.isArray(header.prerequisites)) {
     throw new Error("invalid execution ledger header");
   }
   const known = new Map(header.resources.map((resource) => [resource.resource_id, resource]));
@@ -142,6 +214,9 @@ function reduceEvents(events) {
     } else if (event.type === "created") {
       if (previous?.phase !== "intent") throw new Error(`created event without intent: ${event.resource_id}`);
       states.set(event.resource_id, {...previous, phase: "created", identity: event.identity});
+    } else if (event.type === "verified") {
+      if (previous?.phase !== "created") throw new Error(`verified event without created identity: ${event.resource_id}`);
+      states.set(event.resource_id, {...previous, phase: "verified"});
     } else if (event.type === "cleaned") {
       if (!previous || previous.phase === "cleaned") throw new Error(`invalid cleaned event: ${event.resource_id}`);
       states.set(event.resource_id, {...previous, phase: "cleaned"});
@@ -163,9 +238,9 @@ export class ThemeExecutionLedger {
     Object.assign(this, reduceEvents(events));
   }
 
-  static async create(filePath, {runId, fingerprint, resources}, {now} = {}) {
+  static async create(filePath, {runId, fingerprint, prerequisites, resources}, {now} = {}) {
     await fs.mkdir(path.dirname(filePath), {recursive: true});
-    const header = {seq: 0, type: "header", schema: THEME_EXECUTION_LEDGER_SCHEMA, run_id: runId, fingerprint, resources, recorded_at: (now ?? (() => new Date().toISOString()))()};
+    const header = {seq: 0, type: "header", schema: THEME_EXECUTION_LEDGER_SCHEMA, run_id: runId, fingerprint, prerequisites, resources, recorded_at: (now ?? (() => new Date().toISOString()))()};
     const handle = await fs.open(filePath, "wx", 0o600);
     try {
       await handle.writeFile(`${JSON.stringify(header)}\n`, "utf8");
@@ -218,6 +293,10 @@ export class ThemeExecutionLedger {
     await this.append({type: "created", resource_id: resource.resource_id, identity});
   }
 
+  async verified(resource) {
+    await this.append({type: "verified", resource_id: resource.resource_id});
+  }
+
   async cleaned(resource, reason) {
     await this.append({type: "cleaned", resource_id: resource.resource_id, reason});
   }
@@ -244,6 +323,7 @@ function adapterFor(adapters, resource) {
 function matchesExpected(actual, state, remoteSourceSha256) {
   if (actual.source_sha256 !== remoteSourceSha256) return false;
   if (actual.title !== state.expected.title) return false;
+  if (!same(actual.tags, state.expected.tags)) return false;
   return state.identity === undefined || actual.identity === state.identity;
 }
 
@@ -275,9 +355,16 @@ export async function cleanupThemeExecution({ledger, adapters}) {
       }
       const remoteSourceSha256 = await expectedRemoteSourceSha256(resource, state.expected);
       if (!matchesExpected(actual, state, remoteSourceSha256)) throw new Error("remote identity or source hash changed");
+      if (state.phase === "intent") {
+        await ledger.created(resource, actual.identity);
+        await ledger.verified(resource);
+      } else if (state.phase === "created") {
+        await ledger.verified(resource);
+      }
+      const verifiedState = ledger.states.get(resource.resource_id);
       const remoteExpected = {...state.expected, source_sha256: remoteSourceSha256};
       delete remoteExpected.remote_source_sha256;
-      await adapter.remove(resource, {expected: remoteExpected, identity: state.identity});
+      await adapter.remove(resource, {expected: remoteExpected, identity: verifiedState.identity});
       if (await adapter.inspect(resource) !== null) throw new Error("page remains after delete");
       await ledger.cleaned(resource, "deleted_and_verified_absent");
     } catch (error) {
@@ -287,33 +374,62 @@ export async function cleanupThemeExecution({ledger, adapters}) {
     }
   }
   if (failures.length) throw new AggregateError(failures, "theme execution cleanup left residual resources");
+  const unexpected = [];
+  for (const resource of ledger.header.resources) {
+    try {
+      if (await adapterFor(adapters, resource).inspect(resource) !== null) unexpected.push(resource.resource_id);
+    } catch (error) {
+      unexpected.push(`${resource.resource_id}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  if (unexpected.length) throw new Error(`theme execution final absence barrier failed: ${unexpected.join(", ")}`);
   await ledger.complete();
 }
 
 export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, materialize, capture, now, signal}) {
-  const resources = validateThemeExecutionPlan(plan);
+  validateThemeExecutionPlan(plan);
+  const {prerequisites, resources} = stableExecutionContract(plan);
   if (typeof materialize !== "function" || typeof capture !== "function") throw new Error("materialize and capture callbacks are required");
   throwIfAborted(signal);
+  for (const prerequisite of prerequisites) {
+    const actual = await adapterFor(adapters, prerequisite).inspect(prerequisite);
+    if (actual === null || actual.title !== prerequisite.title || actual.source_sha256 !== prerequisite.source_sha256 || !same(actual.tags, prerequisite.tags)) {
+      throw new Error(`reference prerequisite mismatch: ${prerequisite.resource_id}`);
+    }
+    throwIfAborted(signal);
+  }
   for (const resource of resources) {
     if (await adapterFor(adapters, resource).inspect(resource) !== null) throw new Error(`preexisting page blocks execution: ${resource.resource_id}`);
     throwIfAborted(signal);
   }
-  const ledger = await ThemeExecutionLedger.create(ledgerPath, {runId: plan.run.id, fingerprint: themeExecutionFingerprint(plan), resources}, {now});
+  const ledger = await ThemeExecutionLedger.create(ledgerPath, {runId: plan.run.id, fingerprint: themeExecutionFingerprint(plan), prerequisites, resources}, {now});
   let primaryError = null;
   try {
-    for (const tier of plan.tiers) {
-      const tierResources = resources.filter((resource) => resource.tier_id === tier.id);
-      for (const resource of tierResources) {
-        throwIfAborted(signal);
-        const payload = await materialize(resource);
-        throwIfAborted(signal);
-        if (typeof payload?.source !== "string" || sha256(payload.source) !== resource.source_sha256) throw new Error(`accepted source changed after preflight: ${resource.resource_id}`);
-        const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, payload.source), title: resource.title};
-        await ledger.intent(resource, expected);
-        const identity = await adapterFor(adapters, resource).create(resource, payload);
-        throwIfAborted(signal);
-        await ledger.created(resource, identity);
+    const createAndVerify = async (resource) => {
+      throwIfAborted(signal);
+      const payload = await materialize(resource);
+      throwIfAborted(signal);
+      if (typeof payload?.source !== "string" || sha256(payload.source) !== resource.source_sha256) throw new Error(`accepted source changed after preflight: ${resource.resource_id}`);
+      const expected = {
+        source_sha256: resource.source_sha256,
+        remote_source_sha256: targetRoundTripSourceSha256(resource.target, payload.source),
+        title: resource.title,
+        tags: [...resource.tags],
+      };
+      await ledger.intent(resource, expected);
+      const identity = await adapterFor(adapters, resource).create(resource, payload);
+      throwIfAborted(signal);
+      await ledger.created(resource, identity);
+      const actual = await adapterFor(adapters, resource).inspect(resource);
+      if (actual === null || !matchesExpected(actual, ledger.states.get(resource.resource_id), expected.remote_source_sha256)) {
+        throw new Error(`created page failed authoritative verification: ${resource.resource_id}`);
       }
+      await ledger.verified(resource);
+    };
+    for (const dependency of resources.filter((resource) => resource.kind === "component_dependency")) await createAndVerify(dependency);
+    for (const tier of plan.tiers) {
+      const tierResources = resources.filter((resource) => resource.kind === "theme_page" && resource.tier_id === tier.id);
+      for (const resource of tierResources) await createAndVerify(resource);
       throwIfAborted(signal);
       await capture(tier, tierResources);
       throwIfAborted(signal);
@@ -332,9 +448,10 @@ export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, mat
 }
 
 export async function recoverThemeExecution({ledgerPath, plan, adapters, now}) {
-  const resources = validateRecoverableThemeExecutionPlan(plan);
+  validateRecoverableThemeExecutionPlan(plan);
+  const {prerequisites, resources} = stableExecutionContract(plan, {allowLegacy: true});
   const ledger = await ThemeExecutionLedger.load(ledgerPath, {now});
-  if (ledger.header.run_id !== plan.run.id || ledger.header.fingerprint !== themeExecutionFingerprint(plan, {allowLegacy: true}) || JSON.stringify(ledger.header.resources) !== JSON.stringify(resources)) {
+  if (ledger.header.run_id !== plan.run.id || ledger.header.fingerprint !== themeExecutionFingerprint(plan, {allowLegacy: true}) || !same(ledger.header.prerequisites, prerequisites) || !same(ledger.header.resources, resources)) {
     throw new Error("execution ledger does not match the requested plan");
   }
   await cleanupThemeExecution({ledger, adapters});

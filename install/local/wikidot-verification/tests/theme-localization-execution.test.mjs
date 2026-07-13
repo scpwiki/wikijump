@@ -7,11 +7,14 @@ import test from "node:test";
 
 import {
   ALLOWED_SITE_SLUG,
+  THEME_CURRENT_SITE_DEPENDENCIES,
   THEME_LOCALIZATION_E2E_SCHEMA,
+  currentSiteDependencyOwnershipToken,
   runOwnedSlug,
 } from "../src/theme-localization-e2e.mjs";
 import {
   ThemeExecutionLedger,
+  cleanupThemeExecution,
   executeThemeRunOwnedPages,
   recoverThemeExecution,
   themeExecutionFingerprint,
@@ -25,7 +28,7 @@ function sha256(value) {
 }
 
 function fixturePlan({runId = "20260713-core", tiers = ["yossistyle", "ashes-to-ashes"]} = {}) {
-  return {
+  const plan = {
     schema: THEME_LOCALIZATION_E2E_SCHEMA,
     run: {id: runId, site_slug: ALLOWED_SITE_SLUG, owned_slug_prefix: `codex-l10n:${runId}-`},
     safety: {
@@ -43,8 +46,23 @@ function fixturePlan({runId = "20260713-core", tiers = ["yossistyle", "ashes-to-
         id,
         order: index + 1,
         run_owned_slug: slug,
-        run_owned_tags: id === "yossistyle" ? ["テーマ"] : [],
-        preflight: {status: "pass", source: {absolute_path: `/accepted/${id}.txt`, sha256: sha256(source)}},
+        run_owned_tags: id === "yossistyle" ? ["テーマ"] : ["theme"],
+        current_site_dependency_chain: id === "ashes-to-ashes" ? ["component:image-block-base", "component:image-block"] : [],
+        preflight: {
+          status: "pass",
+          source: {absolute_path: `/accepted/${id}.txt`, sha256: sha256(source)},
+          dependency_files: {
+            components: id === "ashes-to-ashes" ? [{name: "component:image-block", absolute_path: "/accepted/component:image-block.txt", status: "pass", sha256: "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"}] : [],
+            current_site: id === "ashes-to-ashes" ? THEME_CURRENT_SITE_DEPENDENCIES.map((dependency) => ({
+              name: dependency.slug,
+              absolute_path: `/accepted/${dependency.slug}.txt`,
+              status: "pass",
+              sha256: dependency.accepted_source_sha256,
+              materialized_source_sha256: dependency.materialized_source_sha256,
+              source_transform: dependency.source_transform,
+            })) : [],
+          },
+        },
         capture: {computed_styles: {properties: ["display"], probes: [{id: "header", selector: "#header", expectation: "required"}]}},
         targets: [
           {id: "wikidot", resource_id: `${id}:wikidot`, origin: `http://${ALLOWED_SITE_SLUG}.wikidot.com`, url: `http://${ALLOWED_SITE_SLUG}.wikidot.com/${slug}`},
@@ -53,6 +71,22 @@ function fixturePlan({runId = "20260713-core", tiers = ["yossistyle", "ashes-to-
       };
     }),
   };
+  const selectedDependencies = THEME_CURRENT_SITE_DEPENDENCIES.filter((dependency) => plan.tiers.some((tier) => tier.current_site_dependency_chain.includes(dependency.slug)));
+  plan.current_site_dependencies = selectedDependencies.map((dependency) => {
+    const ownershipToken = currentSiteDependencyOwnershipToken(runId, dependency.slug);
+    return {
+      slug: dependency.slug,
+      title: dependency.title,
+      consumers: plan.tiers.filter((tier) => tier.current_site_dependency_chain.includes(dependency.slug)).map((tier) => tier.id),
+      source_path: `/accepted/${dependency.slug}.txt`,
+      accepted_source_sha256: dependency.accepted_source_sha256,
+      source_transform: dependency.source_transform,
+      source_sha256: dependency.materialized_source_sha256,
+      reference: {resource_id: `prerequisite:${dependency.slug}:wikidot`, kind: "reference_prerequisite", target: "wikidot", url: `http://${ALLOWED_SITE_SLUG}.wikidot.com/${dependency.slug}`, title: dependency.title, tags: [...dependency.reference_tags]},
+      candidate: {resource_id: `dependency:${dependency.slug}:wikijump`, kind: "component_dependency", target: "wikijump", url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${dependency.slug}`, title: dependency.title, ownership_token: ownershipToken, tags: [`codex-l10n-owner-${ownershipToken}`, "component"]},
+    };
+  });
+  return plan;
 }
 
 function legacyFixturePlan(options = {}) {
@@ -66,6 +100,10 @@ function legacyFixturePlan(options = {}) {
   return plan;
 }
 
+function fixturePrerequisites(plan) {
+  return plan.current_site_dependencies.map((dependency) => ({...dependency.reference, slug: dependency.slug, source_sha256: dependency.source_sha256}));
+}
+
 class FakeAdapter {
   constructor(target, events) {
     this.target = target;
@@ -76,6 +114,7 @@ class FakeAdapter {
 
   async inspect(resource) {
     this.events.push(`inspect:${resource.resource_id}`);
+    if (resource.kind === "reference_prerequisite") return {identity: `reference-${resource.slug}`, source_sha256: resource.source_sha256, title: resource.title, tags: [...resource.tags]};
     return this.pages.get(resource.slug) ?? null;
   }
 
@@ -83,7 +122,7 @@ class FakeAdapter {
     this.events.push(`create:${resource.resource_id}`);
     if (this.pages.has(resource.slug)) throw new Error("create-only collision");
     const identity = `${this.target}-${this.nextId++}`;
-    this.pages.set(resource.slug, {identity, source_sha256: targetRoundTripSourceSha256(resource.target, payload.source), title: resource.title});
+    this.pages.set(resource.slug, {identity, source_sha256: targetRoundTripSourceSha256(resource.target, payload.source), title: resource.title, tags: [...resource.tags]});
     return identity;
   }
 
@@ -105,13 +144,13 @@ async function fixture() {
     events,
     adapters,
     ledgerPath: path.join(root, "creation-ledger.jsonl"),
-    materialize: async (resource) => ({source: sources.get(resource.tier_id)}),
+    materialize: async (resource) => ({source: resource.kind === "component_dependency" ? resource.slug === "component:image-block-base" ? "[[div class=\"scp-image-block block-{$align}\" style=\"width:{$width};\"]]\n[[image {$name} {$alt}=\"{$alt-text}\" link={$link}]]\n[[div class=\"scp-image-caption\"]]\n{$caption}\n[[/div]]\n[[/div]]" : "[[include component:image-block-base name={$name}|caption={$caption}|width={$width}|width=300px|link={$link}|link=#|align={$align}|align=right|alt={$alt}|alt-text={$alt-text}]]" : sources.get(resource.tier_id)}),
   };
 }
 
 test("execution plan accepts only run-owned resources on the corrected sandbox", () => {
   const plan = fixturePlan();
-  assert.equal(validateThemeExecutionPlan(plan).length, 4);
+  assert.equal(validateThemeExecutionPlan(plan).length, 6);
   assert.equal(themeExecutionFingerprint(plan).length, 64);
 
   const wrongHost = structuredClone(plan);
@@ -137,6 +176,14 @@ test("execution plan accepts only run-owned resources on the corrected sandbox",
   const missingTags = structuredClone(plan);
   delete missingTags.tiers[0].run_owned_tags;
   assert.throws(() => validateThemeExecutionPlan(missingTags), /missing run-owned tags/);
+
+  const wrongAshesTags = structuredClone(plan);
+  wrongAshesTags.tiers.find((tier) => tier.id === "ashes-to-ashes").run_owned_tags = [];
+  assert.throws(() => validateThemeExecutionPlan(wrongAshesTags), /invalid run-owned tags/);
+
+  const missingMaterializedComponent = structuredClone(plan);
+  missingMaterializedComponent.tiers.find((tier) => tier.id === "ashes-to-ashes").current_site_dependency_chain = [];
+  assert.throws(() => validateThemeExecutionPlan(missingMaterializedComponent), /invalid current-site dependency chain/);
 });
 
 test("successful execution records intents before creates and cleans in reverse order", async () => {
@@ -145,21 +192,38 @@ test("successful execution records intents before creates and cleans in reverse 
   const result = await executeThemeRunOwnedPages({...fx, capture: async (tier) => captured.push(tier.id), now: () => "2026-07-13T00:00:00.000Z"});
 
   assert.deepEqual(captured, ["yossistyle", "ashes-to-ashes"]);
-  assert.equal(result.resources_created, 4);
+  assert.equal(result.resources_created, 6);
   assert.equal([...fx.adapters.wikidot.pages, ...fx.adapters.wikijump.pages].length, 0);
   const ledger = await ThemeExecutionLedger.load(fx.ledgerPath);
   assert.equal(ledger.completed, true);
   assert.equal(ledger.outstandingReverse().length, 0);
-  assert.deepEqual(fx.events.filter((event) => event.startsWith("remove:")), ["remove:ashes-to-ashes:wikijump", "remove:ashes-to-ashes:wikidot", "remove:yossistyle:wikijump", "remove:yossistyle:wikidot"]);
+  assert.deepEqual(fx.events.filter((event) => event.startsWith("remove:")), [
+    "remove:ashes-to-ashes:wikijump",
+    "remove:ashes-to-ashes:wikidot",
+    "remove:yossistyle:wikijump",
+    "remove:yossistyle:wikidot",
+    "remove:dependency:component:image-block:wikijump",
+    "remove:dependency:component:image-block-base:wikijump",
+  ]);
   assert.equal((await fs.stat(fx.ledgerPath)).mode & 0o077, 0);
 });
 
 test("global preexisting-page guard performs no creates and writes no ledger", async () => {
   const fx = await fixture();
-  const blocked = validateThemeExecutionPlan(fx.plan).at(-1);
+  const blocked = validateThemeExecutionPlan(fx.plan).find((resource) => resource.kind === "component_dependency" && resource.target === "wikijump");
   fx.adapters.wikijump.pages.set(blocked.slug, {identity: "foreign", source_sha256: "foreign", title: "foreign"});
 
   await assert.rejects(executeThemeRunOwnedPages({...fx, capture: async () => {}}), /preexisting page blocks execution/);
+  assert.equal(fx.events.some((event) => event.startsWith("create:")), false);
+  await assert.rejects(fs.stat(fx.ledgerPath), /ENOENT/);
+});
+
+test("reference prerequisite mismatch aborts before ledger or candidate writes", async () => {
+  const fx = await fixture();
+  fx.plan = fixturePlan({tiers: ["ashes-to-ashes"]});
+  const inspect = fx.adapters.wikidot.inspect.bind(fx.adapters.wikidot);
+  fx.adapters.wikidot.inspect = async (resource) => resource.kind === "reference_prerequisite" ? {...await inspect(resource), tags: ["changed"]} : inspect(resource);
+  await assert.rejects(executeThemeRunOwnedPages({...fx, capture: async () => {}}), /reference prerequisite mismatch/);
   assert.equal(fx.events.some((event) => event.startsWith("create:")), false);
   await assert.rejects(fs.stat(fx.ledgerPath), /ENOENT/);
 });
@@ -188,7 +252,7 @@ test("changed remote content fails closed while cleanup still attempts other res
       ...fx,
       capture: async (tier, resources) => {
         if (tier.id === "ashes-to-ashes") {
-          const resource = resources[0];
+          const resource = resources.find((candidate) => candidate.kind === "theme_page" && candidate.target === "wikidot");
           const current = fx.adapters.wikidot.pages.get(resource.slug);
           fx.adapters.wikidot.pages.set(resource.slug, {...current, source_sha256: "changed"});
         }
@@ -207,11 +271,11 @@ test("recovery cleans a page created after a durable intent even with a partial 
   const fx = await fixture();
   fx.plan = fixturePlan({tiers: ["yossistyle"]});
   const resources = validateThemeExecutionPlan(fx.plan);
-  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), resources});
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), prerequisites: fixturePrerequisites(fx.plan), resources});
   const resource = resources[0];
-  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, `日本語 source ${resource.tier_id}\n`), title: resource.title};
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, `日本語 source ${resource.tier_id}\n`), title: resource.title, tags: resource.tags};
   await ledger.intent(resource, expected);
-  fx.adapters.wikidot.pages.set(resource.slug, {identity: "created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256});
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256, tags: expected.tags});
   await fs.appendFile(fx.ledgerPath, "{partial", "utf8");
 
   const result = await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
@@ -221,16 +285,58 @@ test("recovery cleans a page created after a durable intent even with a partial 
   assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
 });
 
+test("recovery cleans an intent-fenced stable component dependency", async () => {
+  const fx = await fixture();
+  fx.plan = fixturePlan({tiers: ["ashes-to-ashes"]});
+  const resources = validateThemeExecutionPlan(fx.plan);
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), prerequisites: fixturePrerequisites(fx.plan), resources});
+  const resource = resources.find((candidate) => candidate.kind === "component_dependency" && candidate.target === "wikijump");
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: resource.source_sha256, title: resource.title, tags: resource.tags};
+  await ledger.intent(resource, expected);
+  fx.adapters.wikijump.pages.set(resource.slug, {identity: "component-created-before-crash", title: expected.title, source_sha256: expected.source_sha256, tags: expected.tags});
+
+  const result = await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
+  assert.equal(result.status, "clean");
+  assert.equal(fx.adapters.wikijump.pages.size, 0);
+  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
+});
+
+test("intent-only dependency with a wrong ownership tag is retained as an unowned residual", async () => {
+  const fx = await fixture();
+  fx.plan = fixturePlan({tiers: ["ashes-to-ashes"]});
+  const resources = validateThemeExecutionPlan(fx.plan);
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), prerequisites: fixturePrerequisites(fx.plan), resources});
+  const resource = resources.find((candidate) => candidate.kind === "component_dependency");
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: resource.source_sha256, title: resource.title, tags: resource.tags};
+  await ledger.intent(resource, expected);
+  fx.adapters.wikijump.pages.set(resource.slug, {identity: "foreign-lookalike", title: expected.title, source_sha256: expected.source_sha256, tags: ["component"]});
+  await assert.rejects(recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters}), /cleanup left residual resources/);
+  assert.equal(fx.adapters.wikijump.pages.get(resource.slug).identity, "foreign-lookalike");
+  assert.equal(fx.events.some((event) => event === `remove:${resource.resource_id}`), false);
+});
+
+test("final absence barrier reports a header resource that appeared without an intent and never deletes it", async () => {
+  const fx = await fixture();
+  fx.plan = fixturePlan({tiers: ["yossistyle"]});
+  const resources = validateThemeExecutionPlan(fx.plan);
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), prerequisites: [], resources});
+  const resource = resources[0];
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "unowned", title: resource.title, source_sha256: resource.source_sha256, tags: resource.tags});
+  await assert.rejects(cleanupThemeExecution({ledger, adapters: fx.adapters}), /final absence barrier failed/);
+  assert.equal(fx.adapters.wikidot.pages.get(resource.slug).identity, "unowned");
+  assert.equal(fx.events.some((event) => event === `remove:${resource.resource_id}`), false);
+});
+
 test("recovery alone accepts an exact legacy theme-category plan and remains idempotent after sealing", async () => {
   const fx = await fixture();
   fx.plan = legacyFixturePlan({tiers: ["yossistyle"]});
   const resources = validateRecoverableThemeExecutionPlan(fx.plan);
-  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan, {allowLegacy: true}), resources});
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan, {allowLegacy: true}), prerequisites: fixturePrerequisites(fx.plan), resources});
   const resource = resources[0];
   const source = `日本語 source ${resource.tier_id}\n`;
-  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, source), title: resource.title};
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, source), title: resource.title, tags: resource.tags};
   await ledger.intent(resource, expected);
-  fx.adapters.wikidot.pages.set(resource.slug, {identity: "legacy-created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256});
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "legacy-created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256, tags: expected.tags});
 
   assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
   assert.equal(fx.adapters.wikidot.pages.size, 0);
@@ -246,11 +352,11 @@ test("legacy intent derives the narrow Wikidot terminal-LF round-trip hash from 
   await fs.writeFile(sourcePath, source);
   fx.plan.tiers[0].preflight.source.absolute_path = sourcePath;
   const resources = validateThemeExecutionPlan(fx.plan);
-  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), resources});
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), prerequisites: fixturePrerequisites(fx.plan), resources});
   const resource = resources[0];
-  const expected = {source_sha256: resource.source_sha256, title: resource.title};
+  const expected = {source_sha256: resource.source_sha256, title: resource.title, tags: resource.tags};
   await ledger.intent(resource, expected);
-  fx.adapters.wikidot.pages.set(resource.slug, {identity: "saved-before-crash", title: expected.title, source_sha256: sha256(source.slice(0, -1))});
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "saved-before-crash", title: expected.title, source_sha256: sha256(source.slice(0, -1)), tags: expected.tags});
 
   await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
   assert.equal(fx.adapters.wikidot.pages.size, 0);
@@ -260,7 +366,7 @@ test("legacy intent derives the narrow Wikidot terminal-LF round-trip hash from 
 test("recovery refuses a ledger from another plan", async () => {
   const fx = await fixture();
   const resources = validateThemeExecutionPlan(fx.plan);
-  await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), resources});
+  await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), prerequisites: fixturePrerequisites(fx.plan), resources});
   const otherPlan = fixturePlan({runId: "20260713-other"});
   await assert.rejects(recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: otherPlan, adapters: fx.adapters}), /does not match the requested plan/);
 });

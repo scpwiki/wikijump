@@ -746,7 +746,7 @@ async function savePageOne(
     finalPageReference = renameAs
   }
 
-  return buildXmlRpcPage(site, siteId, finalPageReference, requestIp)
+  return buildXmlRpcPage(site, siteId, finalPageReference, requestIp, writeContext)
 }
 
 async function selectFiles(call: XmlRpcCall): Promise<string[]> {
@@ -1056,13 +1056,14 @@ async function buildXmlRpcPage(
   site: string,
   siteId: number,
   pageReference: string,
-  requestIp: string
+  requestIp: string,
+  principal?: Pick<XmlRpcWriteContext, "sessionToken" | "userId">
 ): Promise<Record<string, XmlRpcValue>> {
   const pageMetadata = await getDeepwellPage(siteId, pageReference, false)
   if (!pageMetadata) {
     throw new XmlRpcFault(406, "Argument page invalid: page does not exist")
   }
-  if (!(await canXmlRpcViewPage(siteId, pageMetadata.slug, requestIp))) {
+  if (!(await canXmlRpcViewPage(siteId, pageMetadata.slug, requestIp, principal))) {
     throw new XmlRpcFault(403, "XML-RPC user is not allowed to view this page", 403)
   }
 
@@ -1094,9 +1095,10 @@ async function buildXmlRpcPage(
 async function canXmlRpcViewPage(
   siteId: number,
   page: string,
-  requestIp: string
+  requestIp: string,
+  authenticatedPrincipal?: Pick<XmlRpcWriteContext, "sessionToken" | "userId">
 ): Promise<boolean> {
-  const principal = await getXmlRpcWritePrincipal(requestIp)
+  const principal = authenticatedPrincipal ?? (await getXmlRpcWritePrincipal(requestIp))
   const view = await requestDeepwell(
     "page_view",
     {

@@ -73,6 +73,25 @@ export function validateThemeCaptureTarget({tier, target}) {
   return url.href;
 }
 
+export async function installLocalFilePortRoute(context, target) {
+  if (target?.id !== "wikijump") return false;
+  const targetUrl = new URL(target.url);
+  validateTargetOrigin(targetUrl.origin, target.id);
+  if (!targetUrl.port) return false;
+  const port = targetUrl.port;
+  await context.route("https://*.wjfiles.localhost/**", async (route) => {
+    const requestUrl = new URL(route.request().url());
+    if (requestUrl.port || !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.wjfiles\.localhost$/u.test(requestUrl.hostname)) {
+      await route.continue();
+      return;
+    }
+    requestUrl.port = port;
+    const response = await route.fetch({url: requestUrl.href});
+    await route.fulfill({response});
+  });
+  return true;
+}
+
 function performanceObserverBootstrap() {
   const state = {fcp: null, lcp: null, lcpAttribution: null, cls: null, eventEntries: [], eventThresholdMs: 16, observers: [], support: {paint: false, lcp: false, cls: false, event: false}};
   window.__wjThemeMetrics = state;
@@ -463,6 +482,7 @@ export async function captureThemeTierBrowserEvidence({tier, outputDir, source, 
         safeId(viewport.id, "viewport id");
         const context = await session.browser.newContext({ignoreHTTPSErrors: ignoreHttpsErrors, viewport: {width: viewport.width, height: viewport.height}, ...(storageStates[target.id] ? {storageState: storageStates[target.id]} : {})});
         try {
+          await installLocalFilePortRoute(context, target);
           const viewportDirectory = await prepareThemeArtifactDirectory(path.join(targetDirectory, viewport.id));
           targetResult.viewports.push(await captureViewportImpl({context, target, viewport, capture: tier.capture, artifactDir: viewportDirectory, source}));
         } finally {

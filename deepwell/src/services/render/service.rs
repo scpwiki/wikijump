@@ -1277,6 +1277,7 @@ impl RenderService {
                 page_info,
                 &mut wikidot_compat_text,
             );
+            Self::normalize_wikidot_cross_closed_div_collapsibles(&mut expanded.wikitext);
             Self::normalize_wikidot_div_style_url_quotes(&mut expanded.wikitext);
             Self::protect_wikidot_marker_class_include_variables(
                 &mut expanded.wikitext,
@@ -1476,6 +1477,12 @@ impl RenderService {
                 page_info.page.as_ref(),
                 Some(&fallback_link_titles),
             );
+            let mut wikidot_css_modules = wikidot_css_modules;
+            Self::localize_wikidot_generated_styles(
+                &mut wikidot_css_modules,
+                current_site.as_ref(),
+                config,
+            );
             let fallback_html_block_texts: Vec<String> = fallback_output
                 .html_block_texts
                 .iter()
@@ -1615,7 +1622,18 @@ impl RenderService {
             if !wikidot_css_modules.is_empty() {
                 let mut styles = wikidot_css_modules;
                 styles.append(&mut html_output.styles);
+                Self::localize_wikidot_generated_styles(
+                    &mut styles,
+                    render_current_site.as_ref(),
+                    &render_config,
+                );
                 html_output.styles = styles;
+            } else {
+                Self::localize_wikidot_generated_styles(
+                    &mut html_output.styles,
+                    render_current_site.as_ref(),
+                    &render_config,
+                );
             }
             let (html_block_texts, code_blocks) = {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlCompat);
@@ -2640,6 +2658,95 @@ impl RenderService {
         Self::remove_unresolved_variable_iftags_blocks(wikitext);
         *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
+    }
+
+    fn normalize_wikidot_cross_closed_div_collapsibles(wikitext: &mut String) {
+        #[derive(Clone, Copy, PartialEq, Eq)]
+        enum Block {
+            Div,
+            Collapsible,
+        }
+
+        #[derive(Clone, Copy, PartialEq, Eq)]
+        enum Marker {
+            OpenDiv,
+            CloseDiv,
+            OpenCollapsible,
+            CloseCollapsible,
+        }
+
+        fn marker_kind(marker: &str) -> Option<Marker> {
+            let marker = marker.to_ascii_lowercase();
+            if marker == "[[/div]]" {
+                return Some(Marker::CloseDiv);
+            }
+            if marker == "[[/collapsible]]" {
+                return Some(Marker::CloseCollapsible);
+            }
+            if marker.ends_with("]]")
+                && (marker == "[[div]]"
+                    || marker.starts_with("[[div ")
+                    || marker == "[[div_]]"
+                    || marker.starts_with("[[div_ "))
+            {
+                return Some(Marker::OpenDiv);
+            }
+            if marker.ends_with("]]")
+                && (marker == "[[collapsible]]" || marker.starts_with("[[collapsible "))
+            {
+                return Some(Marker::OpenCollapsible);
+            }
+            None
+        }
+
+        let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
+        let markers = Self::wikitext_line_ranges(wikitext)
+            .into_iter()
+            .filter_map(|(start, _, line)| {
+                let marker = Self::trim_wikitext_line(line);
+                let relative_start = line.find(marker)?;
+                let marker_start = start + relative_start;
+                if literal_regions.contains(marker_start) {
+                    return None;
+                }
+                marker_kind(marker)
+                    .map(|kind| (kind, marker_start..marker_start + marker.len()))
+            })
+            .collect::<Vec<_>>();
+
+        let mut stack = Vec::new();
+        let mut replacements = Vec::new();
+        let mut index = 0usize;
+        while index < markers.len() {
+            let (kind, range) = &markers[index];
+            match kind {
+                Marker::OpenDiv => stack.push(Block::Div),
+                Marker::OpenCollapsible => stack.push(Block::Collapsible),
+                Marker::CloseDiv
+                    if stack.ends_with(&[Block::Div, Block::Collapsible])
+                        && markers.get(index + 1).is_some_and(|(next, _)| {
+                            *next == Marker::CloseCollapsible
+                        }) =>
+                {
+                    replacements.push((range.clone(), "[[/collapsible]]"));
+                    replacements.push((markers[index + 1].1.clone(), "[[/div]]"));
+                    stack.truncate(stack.len() - 2);
+                    index += 1;
+                }
+                Marker::CloseDiv if stack.last() == Some(&Block::Div) => {
+                    stack.pop();
+                }
+                Marker::CloseCollapsible if stack.last() == Some(&Block::Collapsible) => {
+                    stack.pop();
+                }
+                Marker::CloseDiv | Marker::CloseCollapsible => {}
+            }
+            index += 1;
+        }
+
+        for (range, replacement) in replacements.into_iter().rev() {
+            wikitext.replace_range(range, replacement);
+        }
     }
 
     fn prepare_wikidot_conditionals_before_include_expansion(
@@ -4211,6 +4318,16 @@ impl RenderService {
             .into_owned()
     }
 
+    fn localize_wikidot_generated_styles(
+        styles: &mut [String],
+        current_site: Option<&SiteModel>,
+        config: &Config,
+    ) {
+        for style in styles {
+            *style = Self::localize_wikidot_local_file_urls(style, current_site, config);
+        }
+    }
+
     fn localized_wikidot_local_file_url(
         host: &str,
         path: &str,
@@ -4218,15 +4335,20 @@ impl RenderService {
         config: &Config,
     ) -> Option<String> {
         let site_slug = local_file_host_site_slug(host, config)?;
-        if !site_accepts_wikidot_local_asset_slug(current_site, &site_slug)
-            && !site_accepts_cross_site_wdfiles_local_file(current_site, host, path)
-        {
-            return None;
-        }
+        let target_site_slug =
+            if site_accepts_wikidot_local_asset_slug(current_site, &site_slug)
+                || site_accepts_cross_site_wdfiles_local_file(current_site, host, path)
+            {
+                current_site.slug.as_str()
+            } else if local_lab_has_reserved_scp_asset_mirror(config, &site_slug) {
+                site_slug.as_str()
+            } else {
+                return None;
+            };
 
         Some(format!(
             "https://{}{}{}",
-            current_site.slug, config.files_domain, path,
+            target_site_slug, config.files_domain, path,
         ))
     }
 
@@ -11708,6 +11830,17 @@ fn site_accepts_cross_site_wdfiles_local_file(
     host.ends_with(".wdfiles.com") && site_is_wikidot_local_asset_mirror(site)
 }
 
+fn local_lab_has_reserved_scp_asset_mirror(config: &Config, site_slug: &str) -> bool {
+    config
+        .files_domain_no_dot
+        .to_ascii_lowercase()
+        .ends_with(".localhost")
+        && matches!(
+            site_slug.to_ascii_lowercase().as_str(),
+            "scp-wiki" | "scp-jp"
+        )
+}
+
 fn site_is_wikidot_local_asset_mirror(site: &SiteModel) -> bool {
     site.from_wikidot
         || site.slug.eq_ignore_ascii_case("scp-wiki")
@@ -15015,6 +15148,54 @@ mod tests {
                 r#"<img src="https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png">"#,
                 r#"<style>@import "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme%3Abasalt/1";</style>"#,
             ),
+        );
+    }
+
+    #[test]
+    fn localizes_reserved_scp_source_assets_to_read_only_local_lab_mirrors() {
+        let mut site = wikidot_site("scpaiueouiuiuiui", None);
+        site.from_wikidot = false;
+        let mut config = Config::integration_testing();
+        config.files_domain = ".wjfiles.localhost".to_owned();
+        config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        let html = concat!(
+            r#"<style>.en{background:url(https://scp-wiki.wikidot.com/local--files/theme:ashes-to-ashes/parchment.webp)}</style>"#,
+            r#"<img src="https://scp-jp.wdfiles.com/local--files/theme:black-highlighter-theme/logo.svg">"#,
+            r#"<img src="https://wanderers-library.wikidot.com/local--files/theme/image.png">"#,
+        );
+
+        assert_eq!(
+            RenderService::localize_wikidot_local_file_urls(html, Some(&site), &config),
+            concat!(
+                r#"<style>.en{background:url(https://scp-wiki.wjfiles.localhost/local--files/theme:ashes-to-ashes/parchment.webp)}</style>"#,
+                r#"<img src="https://scp-jp.wjfiles.localhost/local--files/theme:black-highlighter-theme/logo.svg">"#,
+                r#"<img src="https://wanderers-library.wikidot.com/local--files/theme/image.png">"#,
+            ),
+        );
+    }
+
+    #[test]
+    fn localizes_reserved_scp_source_assets_in_generated_page_styles() {
+        let mut site = wikidot_site("scpaiueouiuiuiui", None);
+        site.from_wikidot = false;
+        let mut config = Config::integration_testing();
+        config.files_domain = ".wjfiles.localhost".to_owned();
+        config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        let mut styles = vec![
+            ":root { --paper: url(https://scp-wiki.wikidot.com/local--files/theme:ashes-to-ashes/parchment.webp); }".to_owned(),
+        ];
+
+        RenderService::localize_wikidot_generated_styles(
+            &mut styles,
+            Some(&site),
+            &config,
+        );
+
+        assert_eq!(
+            styles,
+            [
+                ":root { --paper: url(https://scp-wiki.wjfiles.localhost/local--files/theme:ashes-to-ashes/parchment.webp); }"
+            ],
         );
     }
 
@@ -18970,6 +19151,72 @@ mod tests {
         assert!(!wikitext.contains("multiline"));
         assert!(!wikitext.contains("display: flex"));
         assert!(!wikitext.contains("hidden"));
+    }
+
+    #[test]
+    fn prepares_wikidot_unicode_iftags_component_with_cross_closed_collapsible() {
+        // scp-jp:component:centered-header-bhl uses this close order; Wikidot renders the outer div around the complete collapsible despite the cross-closed source markers.
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("theme")],
+            language: Cow::Borrowed("ja-JP"),
+            ..fallback_test_page_info("ashes-to-ashes", "Ashes to Ashes")
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let source = concat!(
+            "[[iftags +コンポーネント]]documentation[[/iftags]]\n",
+            "[[div [[iftags -コンポーネント]]style=\"display: none\"[[/iftags]]]]\n",
+            "-----\n",
+            "[[collapsible show=\"+ show\" hide=\"- hide\"]]\n",
+            "[[module CSS show=\"true\"]]\n",
+            ".example { color: red; }\n",
+            "[[/module]]\n",
+            "[[/div]]\n",
+            "[[/collapsible]]\n",
+        )
+        .to_owned();
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikidot_compat_html: CompatHtmlFragments::new(&source),
+                wikidot_compat_text: CompatTextFragments::new(&source),
+                wikitext: source,
+                included_pages: Vec::new(),
+            },
+            &page_info,
+            &settings,
+        );
+        let prepared = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&prepared.wikitext);
+        let (_, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+
+        assert!(errors.is_empty(), "{errors:#?}\n{}", prepared.wikitext);
+    }
+
+    #[test]
+    fn preserves_wikidot_properly_nested_div_collapsible_markers() {
+        let mut source = concat!(
+            "[[div class=\"outer\"]]\n",
+            "[[collapsible show=\"show\" hide=\"hide\"]]\n",
+            "outer body\n",
+            "[[/collapsible]]\n",
+            "[[/div]]\n",
+            "[[collapsible show=\"show\" hide=\"hide\"]]\n",
+            "[[div class=\"inner\"]]\n",
+            "inner body\n",
+            "[[/div]]\n",
+            "[[/collapsible]]\n",
+            "[[code]]\n",
+            "[[div]]\n",
+            "[[collapsible]]\n",
+            "[[/div]]\n",
+            "[[/collapsible]]\n",
+            "[[/code]]\n",
+        )
+        .to_owned();
+        let expected = source.clone();
+
+        RenderService::normalize_wikidot_cross_closed_div_collapsibles(&mut source);
+
+        assert_eq!(source, expected);
     }
 
     #[test]

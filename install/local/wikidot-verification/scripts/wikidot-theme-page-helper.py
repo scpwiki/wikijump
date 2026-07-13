@@ -17,11 +17,13 @@ ALLOWED_DOMAIN = f"{ALLOWED_SITE}.wikidot.com"
 ALLOWED_ORIGIN = f"http://{ALLOWED_DOMAIN}"
 CURRENT_RUN_OWNED_SLUG = re.compile(r"^codex-l10n:[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
 LEGACY_RUN_OWNED_SLUG = re.compile(r"^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
+REFERENCE_PREREQUISITE_SLUGS = {"component:image-block-base", "component:image-block"}
 PAGE_ID = re.compile(r"WIKIREQUEST\.info\.pageId\s*=\s*([0-9]+)\s*;")
 SITE_ID = re.compile(r"WIKIREQUEST\.info\.siteId\s*=\s*([0-9]+)\s*;")
 SITE_UNIX_NAME = re.compile(r'WIKIREQUEST\.info\.siteUnixName\s*=\s*"([^"]+)"\s*;')
 SITE_DOMAIN = re.compile(r'WIKIREQUEST\.info\.domain\s*=\s*"([^"]+)"\s*;')
 MAX_REQUEST_BYTES = 1_000_000
+WIKIDOT_PAGE_SLUG_MAX_LENGTH = 60
 
 
 class PublicError(Exception):
@@ -40,9 +42,20 @@ def wikidot_round_trip_sha256(value: str) -> str:
     return sha256(value[:-1] if value.endswith("\n") else value)
 
 
-def validate_slug(value: object, *, allow_legacy: bool = False) -> str:
+def validate_kind(value: object) -> str:
+    if value not in ("theme_page", "reference_prerequisite"):
+        raise PublicError("resource_not_allowed", "resource kind is outside the theme execution contract")
+    return str(value)
+
+
+def validate_slug(value: object, *, kind: str = "theme_page", allow_legacy: bool = False) -> str:
+    kind = validate_kind(kind)
+    if kind == "reference_prerequisite":
+        if value not in REFERENCE_PREREQUISITE_SLUGS:
+            raise PublicError("resource_not_allowed", "reference prerequisite is outside the read-only contract")
+        return str(value)
     pattern = (CURRENT_RUN_OWNED_SLUG, LEGACY_RUN_OWNED_SLUG) if allow_legacy else (CURRENT_RUN_OWNED_SLUG,)
-    if not isinstance(value, str) or len(value) > 100 or not any(candidate.fullmatch(value) for candidate in pattern):
+    if not isinstance(value, str) or len(value) > WIKIDOT_PAGE_SLUG_MAX_LENGTH or not any(candidate.fullmatch(value) for candidate in pattern):
         raise PublicError("resource_not_allowed", "resource is not a run-owned theme page")
     return value
 
@@ -53,8 +66,9 @@ def require_text(value: object, field: str, maximum: int) -> str:
     return value
 
 
-def validate_tags(value: object) -> list[str]:
-    if value not in ([], ["テーマ"]):
+def validate_tags(value: object, slug: str, kind: str) -> list[str]:
+    expected = ["テーマ"] if slug.endswith("-yossistyle") else ["theme"]
+    if value != expected:
         raise PublicError("invalid_request", "run-owned page tags are invalid")
     return list(value)
 
@@ -180,8 +194,8 @@ class WikidotBackend:
             raise PublicError("malformed_response", "Wikidot returned a malformed response")
         return data
 
-    def inspect(self, slug: str) -> dict[str, Any] | None:
-        html = self._get(validate_slug(slug, allow_legacy=True))
+    def inspect(self, slug: str, kind: str = "theme_page") -> dict[str, Any] | None:
+        html = self._get(validate_slug(slug, kind=kind, allow_legacy=True))
         if html is None:
             return None
         page_id_match = PAGE_ID.search(html)
@@ -209,25 +223,32 @@ class WikidotBackend:
             "identity": page_id,
             "title": title_element.get_text(" ", strip=True),
             "source_sha256": sha256(source),
+            "tags": [
+                element.get_text(" ", strip=True)
+                for element in self.soup(html, "html.parser").select(".page-tags a")
+            ],
         }
 
-    def page_tags(self, slug: str) -> list[str] | None:
-        html = self._get(validate_slug(slug))
+    def page_tags(self, slug: str, kind: str = "theme_page") -> list[str] | None:
+        html = self._get(validate_slug(slug, kind=kind))
         if html is None:
             return None
         return [element.get_text(" ", strip=True) for element in self.soup(html, "html.parser").select(".page-tags a")]
 
-    def create(self, slug: str, title: str, source: str, expected_hash: str, tags: list[str]) -> dict[str, Any]:
-        slug = validate_slug(slug)
+    def create(self, slug: str, title: str, source: str, expected_hash: str, tags: list[str], kind: str = "theme_page") -> dict[str, Any]:
+        kind = validate_kind(kind)
+        slug = validate_slug(slug, kind=kind)
         title = require_text(title, "title", 200)
+        if kind != "theme_page":
+            raise PublicError("resource_not_allowed", "reference prerequisites are read-only")
         source = require_text(source, "source", 500_000)
-        tags = validate_tags(tags)
+        tags = validate_tags(tags, slug, kind)
         if not re.fullmatch(r"[0-9a-f]{64}", expected_hash) or sha256(source) != expected_hash:
             raise PublicError(
                 "source_hash_mismatch",
                 "submitted source does not match its accepted hash",
             )
-        if self.inspect(slug) is not None:
+        if self.inspect(slug, kind) is not None:
             raise PublicError("page_exists", "create-only preflight found an existing page")
         lock = self._amc({"mode": "page", "wiki_page": slug, "moduleName": "edit/PageEditModule"})
         if lock.get("status") not in (None, "ok") or lock.get("locked") or lock.get("other_locks"):
@@ -257,7 +278,7 @@ class WikidotBackend:
         if saved.get("status") != "ok":
             raise PublicError("save_failed", "Wikidot create-only save failed")
         for _ in range(5):
-            actual = self.inspect(slug)
+            actual = self.inspect(slug, kind)
             if actual is not None:
                 if actual["title"] != title or actual["source_sha256"] != wikidot_round_trip_sha256(source):
                     raise PublicError(
@@ -277,7 +298,7 @@ class WikidotBackend:
                     if tagged.get("status") not in (None, "ok"):
                         raise PublicError("save_tags_failed", "Wikidot page tags were not saved")
                     for _ in range(5):
-                        if self.page_tags(slug) == tags:
+                        if self.page_tags(slug, kind) == tags:
                             break
                         time.sleep(0.4)
                     else:
@@ -286,9 +307,10 @@ class WikidotBackend:
             time.sleep(0.4)
         raise PublicError("create_not_visible", "created page was not visible after save")
 
-    def remove(self, slug: str, expected: dict[str, Any]) -> dict[str, Any]:
-        slug = validate_slug(slug, allow_legacy=True)
-        actual = self.inspect(slug)
+    def remove(self, slug: str, expected: dict[str, Any], kind: str = "theme_page") -> dict[str, Any]:
+        kind = validate_kind(kind)
+        slug = validate_slug(slug, kind=kind, allow_legacy=True)
+        actual = self.inspect(slug, kind)
         if actual is None:
             return {"removed": False, "already_absent": True}
         if actual != expected:
@@ -307,7 +329,7 @@ class WikidotBackend:
         if deleted.get("status") not in (None, "ok"):
             raise PublicError("delete_failed", "Wikidot deletePage failed")
         for _ in range(5):
-            if self.inspect(slug) is None:
+            if self.inspect(slug, kind) is None:
                 return {"removed": True, "already_absent": False}
             time.sleep(0.4)
         raise PublicError("delete_not_confirmed", "deleted page did not become absent")
@@ -323,9 +345,12 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
         }, False
     if action == "shutdown":
         return {"closed": True}, True
-    slug = validate_slug(request.get("slug"), allow_legacy=action in ("inspect", "remove"))
+    kind = validate_kind(request.get("kind", "theme_page"))
+    slug = validate_slug(request.get("slug"), kind=kind, allow_legacy=action in ("inspect", "remove"))
     if action == "inspect":
-        return {"page": backend.inspect(slug)}, False
+        return {"page": backend.inspect(slug, kind)}, False
+    if kind != "theme_page":
+        raise PublicError("resource_not_allowed", "reference prerequisites are read-only")
     if action == "create":
         return {
             "page": backend.create(
@@ -334,6 +359,7 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
                 request.get("source"),
                 request.get("source_sha256"),
                 request.get("tags"),
+                kind,
             )
         }, False
     if action == "remove":
@@ -342,12 +368,13 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
             "identity",
             "title",
             "source_sha256",
+            "tags",
         }:
             raise PublicError(
                 "invalid_request",
-                "remove requires exact expected identity, title, and source hash",
+                "remove requires exact expected identity, title, tags, and source hash",
             )
-        return backend.remove(slug, expected), False
+        return backend.remove(slug, expected, kind), False
     raise PublicError("invalid_action", "unknown helper action")
 
 

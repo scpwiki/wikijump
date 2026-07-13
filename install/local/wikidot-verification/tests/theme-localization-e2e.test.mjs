@@ -10,6 +10,7 @@ import {promisify} from "node:util";
 import {
   ALLOWED_SITE_SLUG,
   THEME_CAPTURE_VIEWPORTS,
+  THEME_CURRENT_SITE_DEPENDENCIES,
   THEME_LOCALIZATION_TIERS,
   THEME_PERFORMANCE_GATES,
   assertLegacyRunOwnedSlug,
@@ -45,6 +46,15 @@ async function fixtureTranslationRoot() {
       await fs.writeFile(assetPath, `asset:${tier.id}:${asset}\n`, "utf8");
     }
   }
+  const currentSiteSources = new Map([
+    ["component:image-block-base", "[[div class=\"scp-image-block block-{$align}\" style=\"width:{$width};\"]]\n[[image {$name} {$alt}=\"{$alt-text}\" link={$link}]]\n[[div class=\"scp-image-caption\"]]\n{$caption}\n[[/div]]\n[[/div]]"],
+    ["component:image-block", "[[include :scp-wiki:component:image-block-base name={$name}|caption={$caption}|width={$width}|width=300px|link={$link}|link=#|align={$align}|align=right|alt={$alt}|alt-text={$alt-text}]]"],
+  ]);
+  for (const dependency of THEME_CURRENT_SITE_DEPENDENCIES) {
+    const dependencyPath = path.join(root, dependency.accepted_source);
+    await fs.mkdir(path.dirname(dependencyPath), {recursive: true});
+    await fs.writeFile(dependencyPath, currentSiteSources.get(dependency.slug), "utf8");
+  }
   return root;
 }
 
@@ -62,6 +72,8 @@ function acceptedFixtureSource(tier) {
 test("tier selection is deterministic and run-owned slugs cannot drift", () => {
   assert.deepEqual(selectThemeTiers(["basalt", "yossistyle", "basalt"]).map((tier) => tier.id), ["yossistyle", "basalt"]);
   assert.equal(runOwnedSlug("20260713-smoke", "basalt"), "codex-l10n:20260713-smoke-basalt");
+  assert.equal(runOwnedSlug("a".repeat(34), "ashes-to-ashes").length, 60);
+  assert.throws(() => runOwnedSlug("a".repeat(35), "ashes-to-ashes"), /page slug is not owned/);
   assert.equal(assertRunOwnedSlug("codex-l10n:20260713-smoke-basalt", "20260713-smoke", "basalt"), "codex-l10n:20260713-smoke-basalt");
   assert.equal(assertLegacyRunOwnedSlug("theme:codex-l10n-20260713-smoke-basalt", "20260713-smoke", "basalt"), "theme:codex-l10n-20260713-smoke-basalt");
   assert.throws(() => assertRunOwnedSlug("theme:codex-l10n-20260713-smoke-basalt", "20260713-smoke", "basalt"), /not owned by run/);
@@ -124,7 +136,7 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.deepEqual(first.tiers.map((tier) => tier.id), ["yossistyle", "ashes-to-ashes", "basalt"]);
   assert.equal(first.cleanup.finally_required, true);
   assert.equal(first.cleanup.creation_ledger_required, true);
-  assert.equal(first.cleanup.resources.length, 6);
+  assert.equal(first.cleanup.resources.length, 8);
   assert.equal(first.cleanup.resources[0].resource_id, "basalt:wikijump");
   assert.ok(first.cleanup.resources.every((resource) => resource.preexisting_policy === "abort_before_write"));
   assert.deepEqual(first.tiers[0].capture.viewports, THEME_CAPTURE_VIEWPORTS);
@@ -134,7 +146,11 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.equal(first.tiers[0].capture.computed_styles.probes.find((probe) => probe.id === "interwiki_frame").expectation, "optional");
   assert.equal(first.tiers[0].capture.computed_styles.probes.find((probe) => probe.id === "watchers_button").expectation, "optional");
   assert.deepEqual(first.tiers[0].run_owned_tags, ["テーマ"]);
-  assert.ok(first.tiers.slice(1).every((tier) => tier.run_owned_tags.length === 0));
+  assert.ok(first.tiers.slice(1).every((tier) => JSON.stringify(tier.run_owned_tags) === JSON.stringify(["theme"])));
+  assert.deepEqual(first.tiers[1].current_site_dependency_chain, ["component:image-block-base", "component:image-block"]);
+  assert.deepEqual(first.current_site_dependencies.map((dependency) => dependency.slug), ["component:image-block-base", "component:image-block"]);
+  assert.ok(first.cleanup.resources.some((resource) => resource.resource_id === "dependency:component:image-block:wikijump"));
+  assert.ok(first.current_site_dependencies.every((dependency) => dependency.reference.kind === "reference_prerequisite" && dependency.candidate.ownership_token.length === 32));
   assert.ok(first.tiers[0].capture.computed_styles.properties.includes("margin-left"));
   assert.ok(first.tiers[0].capture.computed_styles.properties.includes("animation-name"));
   assert.ok(first.tiers[0].capture.computed_styles.properties.includes("text-transform"));
@@ -142,6 +158,7 @@ test("plan is deterministic, mutation-free, and carries cleanup and capture cont
   assert.ok(first.tiers[2].capture.interactions.some((interaction) => interaction.id === "tab_switch"));
   assert.ok(first.tiers.flatMap((tier) => tier.targets).every((target) => target.url.includes("scpaiueouiuiuiui")));
   assert.ok(first.tiers.flatMap((tier) => tier.preflight.dependency_files.assets).every((asset) => asset.status === "pass" && asset.sha256));
+  assert.ok(first.tiers.flatMap((tier) => tier.preflight.dependency_files.components).every((component) => component.status === "pass" && component.sha256 && component.absolute_path));
 
   const executable = await buildThemeLocalizationE2EPlan({...options, mode: "execute"});
   assert.equal(executable.mode, "execute");
@@ -165,6 +182,17 @@ test("dependency preflight fails closed when an attachment is absent", async () 
   const plan = await buildThemeLocalizationE2EPlan({translationRoot, runId: "20260713-missing", tiers: [tier.id]});
   assert.equal(plan.preflight.status, "fail");
   assert.equal(plan.tiers[0].preflight.dependency_files.assets[0].status, "fail");
+});
+
+test("current-site dependency chain is transform-bound and fails closed when absent", async () => {
+  const translationRoot = await fixtureTranslationRoot();
+  const tier = THEME_LOCALIZATION_TIERS.find((candidate) => candidate.id === "ashes-to-ashes");
+  const component = tier.current_site_dependency_chain[0];
+  const definition = THEME_CURRENT_SITE_DEPENDENCIES.find((candidate) => candidate.slug === component);
+  await fs.unlink(path.join(translationRoot, definition.accepted_source));
+  const plan = await buildThemeLocalizationE2EPlan({translationRoot, runId: "20260713-missing-component", tiers: [tier.id]});
+  assert.equal(plan.preflight.status, "fail");
+  assert.equal(plan.tiers[0].preflight.dependency_files.current_site.find((candidate) => candidate.name === component).status, "fail");
 });
 
 test("accepted source preflight fails closed on artifact leakage", async () => {

@@ -1267,6 +1267,11 @@ test("XML-RPC endpoint returns page comment summaries and forum posts", async ({
 test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename", async ({
   request
 }) => {
+  const resetWriteRequests = await request.get(
+    "http://127.0.0.1:42747/last-page-write-requests"
+  )
+  expect(resetWriteRequests.status()).toBe(200)
+
   const slug = `fixture-xmlrpc-save-${randomUUID()}`
   const renamedSlug = `${slug}-renamed`
 

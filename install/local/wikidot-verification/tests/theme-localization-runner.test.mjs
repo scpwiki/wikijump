@@ -7,9 +7,9 @@ import path from "node:path";
 import test from "node:test";
 
 import {parseArgs} from "../scripts/theme-localization-e2e.mjs";
-import {ALLOWED_SITE_SLUG, THEME_LOCALIZATION_E2E_SCHEMA, runOwnedSlug} from "../src/theme-localization-e2e.mjs";
+import {ALLOWED_SITE_SLUG, THEME_CURRENT_SITE_DEPENDENCIES, THEME_LOCALIZATION_E2E_SCHEMA, currentSiteDependencyOwnershipToken, runOwnedSlug} from "../src/theme-localization-e2e.mjs";
 import {ThemeExecutionLedger, themeExecutionFingerprint, validateRecoverableThemeExecutionPlan, validateThemeExecutionPlan} from "../src/theme-localization-execution.mjs";
-import {GUARDED_THEME_WIKIJUMP_RPC_URL, THEME_RUN_RESULT_SCHEMA, createLiveThemeDependencies, runGuardedThemeAction, validateGuardedThemeRpcUrl, validateStorageState, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
+import {GUARDED_THEME_WIKIJUMP_RPC_URL, THEME_RUN_RESULT_SCHEMA, acquireThemeExecutionLock, createLiveThemeDependencies, runGuardedThemeAction, validateGuardedThemeRpcUrl, validateStorageState, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
 import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const digest = (value) => crypto.createHash("sha256").update(value).digest("hex");
@@ -22,9 +22,12 @@ class MemoryAdapter {
     this.nextId = 1;
   }
 
-  async inspect(resource) { return this.pages.get(resource.slug) ?? null; }
+  async inspect(resource) {
+    if (resource.kind === "reference_prerequisite") return {identity: `reference-${resource.slug}`, title: resource.title, source_sha256: resource.source_sha256, tags: [...resource.tags]};
+    return this.pages.get(resource.slug) ?? null;
+  }
   async create(resource, payload) {
-    const page = {identity: this.nextId++, title: resource.title, source_sha256: targetRoundTripSourceSha256(resource.target, payload.source)};
+    const page = {identity: this.nextId++, title: resource.title, source_sha256: targetRoundTripSourceSha256(resource.target, payload.source), tags: [...resource.tags]};
     this.pages.set(resource.slug, page);
     this.onCreate?.();
     return page.identity;
@@ -43,8 +46,16 @@ async function fixture({onCreate, tierIds = ["yossistyle"]} = {}) {
     await fs.writeFile(sourcePath, source);
     tiers.push({
       id: tierId, order: index + 1, run_owned_slug: slug,
-      run_owned_tags: tierId === "yossistyle" ? ["テーマ"] : [],
-      preflight: {status: "pass", source: {absolute_path: sourcePath, sha256: digest(source)}},
+      run_owned_tags: tierId === "yossistyle" ? ["テーマ"] : ["theme"],
+      current_site_dependency_chain: tierId === "ashes-to-ashes" ? ["component:image-block-base", "component:image-block"] : [],
+      preflight: {
+        status: "pass",
+        source: {absolute_path: sourcePath, sha256: digest(source)},
+        dependency_files: {
+          components: tierId === "ashes-to-ashes" ? [{name: "component:image-block", absolute_path: path.join(root, "component:image-block-jp.txt"), status: "pass", sha256: "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"}] : [],
+          current_site: [],
+        },
+      },
       targets: [
         {id: "wikidot", resource_id: `${tierId}:wikidot`, origin: `http://${ALLOWED_SITE_SLUG}.wikidot.com`, url: `http://${ALLOWED_SITE_SLUG}.wikidot.com/${slug}`},
         {id: "wikijump", resource_id: `${tierId}:wikijump`, origin: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443`, url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${slug}`},
@@ -63,6 +74,30 @@ async function fixture({onCreate, tierIds = ["yossistyle"]} = {}) {
     preflight: {status: "pass"},
     tiers,
   };
+  const acceptedDependencySources = new Map([
+    ["component:image-block-base", "[[div class=\"scp-image-block block-{$align}\" style=\"width:{$width};\"]]\n[[image {$name} {$alt}=\"{$alt-text}\" link={$link}]]\n[[div class=\"scp-image-caption\"]]\n{$caption}\n[[/div]]\n[[/div]]"],
+    ["component:image-block", "[[include :scp-wiki:component:image-block-base name={$name}|caption={$caption}|width={$width}|width=300px|link={$link}|link=#|align={$align}|align=right|alt={$alt}|alt-text={$alt-text}]]"],
+  ]);
+  plan.current_site_dependencies = [];
+  for (const dependency of THEME_CURRENT_SITE_DEPENDENCIES.filter((candidate) => tiers.some((tier) => tier.current_site_dependency_chain.includes(candidate.slug)))) {
+    const sourcePath = path.join(root, `${dependency.slug}.txt`);
+    await fs.writeFile(sourcePath, acceptedDependencySources.get(dependency.slug));
+    for (const tier of tiers.filter((candidate) => candidate.current_site_dependency_chain.includes(dependency.slug))) {
+      tier.preflight.dependency_files.current_site.push({name: dependency.slug, absolute_path: sourcePath, status: "pass", sha256: dependency.accepted_source_sha256, materialized_source_sha256: dependency.materialized_source_sha256, source_transform: dependency.source_transform});
+    }
+    const ownershipToken = currentSiteDependencyOwnershipToken(runId, dependency.slug);
+    plan.current_site_dependencies.push({
+      slug: dependency.slug,
+      title: dependency.title,
+      consumers: tiers.filter((tier) => tier.current_site_dependency_chain.includes(dependency.slug)).map((tier) => tier.id),
+      source_path: sourcePath,
+      accepted_source_sha256: dependency.accepted_source_sha256,
+      source_transform: dependency.source_transform,
+      source_sha256: dependency.materialized_source_sha256,
+      reference: {resource_id: `prerequisite:${dependency.slug}:wikidot`, kind: "reference_prerequisite", target: "wikidot", url: `http://${ALLOWED_SITE_SLUG}.wikidot.com/${dependency.slug}`, title: dependency.title, tags: [...dependency.reference_tags]},
+      candidate: {resource_id: `dependency:${dependency.slug}:wikijump`, kind: "component_dependency", target: "wikijump", url: `https://${ALLOWED_SITE_SLUG}.wikijump.localhost:18443/${dependency.slug}`, title: dependency.title, ownership_token: ownershipToken, tags: [`codex-l10n-owner-${ownershipToken}`, "component"]},
+    });
+  }
   const adapters = {wikidot: new MemoryAdapter("wikidot", onCreate), wikijump: new MemoryAdapter("wikijump")};
   let closed = false;
   let closedAfterCleanup = false;
@@ -136,6 +171,19 @@ test("executable plan persistence is exclusive, durable, and private", async () 
   assert.equal(JSON.parse(await fs.readFile(planPath, "utf8")).run.id, fx.plan.run.id);
 });
 
+test("site-scoped execution lock is exclusive and stale-owner recoverable", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "theme-runner-lock-"));
+  const lockPath = path.join(root, "site.lock");
+  const first = await acquireThemeExecutionLock({lockPath, runId: "first", fingerprint: "a".repeat(64)});
+  await assert.rejects(acquireThemeExecutionLock({lockPath, runId: "second", fingerprint: "b".repeat(64)}), /held by run first/);
+  await first.release();
+  await fs.mkdir(lockPath, {mode: 0o700});
+  await fs.writeFile(path.join(lockPath, "owner.json"), `${JSON.stringify({schema: "wikijump_local_lab.theme_execution_lock.v1", pid: 2147483647, run_id: "stale", fingerprint: "c".repeat(64)})}\n`, {mode: 0o600});
+  const recovered = await acquireThemeExecutionLock({lockPath, runId: "replacement", fingerprint: "d".repeat(64)});
+  assert.equal(JSON.parse(await fs.readFile(path.join(lockPath, "owner.json"), "utf8")).run_id, "replacement");
+  await recovered.release();
+});
+
 test("browser storage state denies group and other access", async () => {
   const fx = await fixture();
   const storageState = path.join(fx.root, "storage.json");
@@ -187,11 +235,11 @@ test("recovery accepts only the matching fingerprint and removes an intent-fence
   const dependencyFactory = fx.dependencyFactory;
   fx.dependencyFactory = async (options) => { browserRequested = options.needsBrowser; return dependencyFactory(options); };
   const resources = validateThemeExecutionPlan(fx.plan);
-  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), resources});
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan), prerequisites: [], resources});
   const resource = resources[0];
-  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, await fs.readFile(resource.source_path, "utf8")), title: resource.title};
+  const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, await fs.readFile(resource.source_path, "utf8")), title: resource.title, tags: resource.tags};
   await ledger.intent(resource, expected);
-  fx.adapters.wikidot.pages.set(resource.slug, {identity: 42, title: expected.title, source_sha256: expected.remote_source_sha256});
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: 42, title: expected.title, source_sha256: expected.remote_source_sha256, tags: expected.tags});
   const result = await runGuardedThemeAction({...fx, mode: "recover"});
   assert.equal(result.operation.status, "clean");
   assert.equal(fx.adapters.wikidot.pages.size, 0);
@@ -202,7 +250,7 @@ test("runner recovery preserves sealed legacy theme-category ledgers without ena
   const fx = await fixture();
   fx.plan = legacyPlan(fx.plan);
   const resources = validateRecoverableThemeExecutionPlan(fx.plan);
-  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan, {allowLegacy: true}), resources});
+  const ledger = await ThemeExecutionLedger.create(fx.ledgerPath, {runId: fx.plan.run.id, fingerprint: themeExecutionFingerprint(fx.plan, {allowLegacy: true}), prerequisites: [], resources});
   await ledger.complete();
 
   const result = await runGuardedThemeAction({...fx, mode: "recover"});

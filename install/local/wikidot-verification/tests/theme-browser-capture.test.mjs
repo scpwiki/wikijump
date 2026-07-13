@@ -12,6 +12,7 @@ import {
   collectComputedStyles,
   collectThemePerformanceAttribution,
   evaluateStrictThemeVerdict,
+  installLocalFilePortRoute,
   lcpObservationDeadlineMs,
   validateThemeCaptureTarget,
   writeThemeViewportArtifacts,
@@ -74,6 +75,27 @@ test("capture target validation only accepts the exact run-owned sandbox URL", (
   assert.throws(() => validateThemeCaptureTarget({tier, target: {id: "wikijump", url: `https://scp-wiki.wikijump.localhost/${tier.run_owned_slug}`}}), /hard allowlist/);
   assert.throws(() => validateThemeCaptureTarget({tier, target: {...tier.targets[0], url: `${tier.targets[0].url}?capture=1`}}), /does not identify/);
   assert.throws(() => validateThemeCaptureTarget({tier, target: {...tier.targets[0], url: "http://scpaiueouiuiuiui.wikidot.com/theme:other"}}), /does not identify/);
+});
+
+test("local file routing preserves the candidate canary port without widening hosts", async () => {
+  let pattern;
+  let handler;
+  const context = {async route(value, callback) { pattern = value; handler = callback; }};
+  const target = {id: "wikijump", url: "https://scpaiueouiuiuiui.wikijump.localhost:18443/codex-l10n:test-yossistyle"};
+  assert.equal(await installLocalFilePortRoute(context, target), true);
+  assert.equal(pattern, "https://*.wjfiles.localhost/**");
+
+  let fetchOptions;
+  let fulfillment;
+  const response = {status: 200};
+  await handler({request() { return {url() { return "https://scp-wiki.wjfiles.localhost/local--files/theme:ashes-to-ashes/fire.webp"; }}; }, async fetch(options) { fetchOptions = options; return response; }, async fulfill(options) { fulfillment = options; }});
+  assert.equal(fetchOptions.url, "https://scp-wiki.wjfiles.localhost:18443/local--files/theme:ashes-to-ashes/fire.webp");
+  assert.deepEqual(fulfillment, {response});
+
+  let continuation = "unset";
+  await handler({request() { return {url() { return "https://example.com/local--files/theme/fire.webp"; }}; }, async continue(options) { continuation = options; }});
+  assert.equal(continuation, undefined);
+  assert.equal(await installLocalFilePortRoute(context, {id: "wikidot", url: "http://scpaiueouiuiuiui.wikidot.com/page"}), false);
 });
 
 test("strict verdict applies every performance, browser, syntax, and interaction gate", () => {
@@ -233,7 +255,7 @@ test("tier orchestration opens one cold context per target and viewport and is f
           async newContext(contextOption) {
             const id = contextOptions.length;
             contextOptions.push(contextOption);
-            return {id, async close() { closedContexts.push(id); }};
+            return {id, async route() {}, async close() { closedContexts.push(id); }};
           },
         },
         async close() { closedSession = true; },
@@ -267,7 +289,7 @@ test("a supplied run-owned browser session is not reopened or closed by tier cap
   let contexts = 0;
   let closes = 0;
   const browserSession = {
-    browser: {async newContext() { contexts += 1; return {async close() {}}; }},
+    browser: {async newContext() { contexts += 1; return {async route() {}, async close() {}}; }},
     async close() { closes += 1; },
   };
   await captureThemeTierBrowserEvidence({

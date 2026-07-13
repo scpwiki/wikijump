@@ -10,22 +10,32 @@ import {targetRoundTripSourceSha256} from "./theme-source-roundtrip.mjs";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const SECRET_KEY = /password|cookie|credential|session|token/iu;
 const HELPER_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../scripts/wikidot-theme-page-helper.py");
+const REFERENCE_PREREQUISITE_TITLES = new Map([
+  ["component:image-block-base", "Image Block Base"],
+  ["component:image-block", "Image Block"],
+]);
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
 
 function validateResource(resource, {allowLegacy = false} = {}) {
-  const validSlug = allowLegacy ? isRecoverableRunOwnedSlug(resource?.slug) : isCurrentRunOwnedSlug(resource?.slug);
+  const kind = resource?.kind ?? "theme_page";
+  const prerequisite = kind === "reference_prerequisite" && REFERENCE_PREREQUISITE_TITLES.has(resource?.slug);
+  const validSlug = prerequisite || (kind === "theme_page" && (allowLegacy ? isRecoverableRunOwnedSlug(resource?.slug) : isCurrentRunOwnedSlug(resource?.slug)));
   if (resource?.target !== "wikidot" || !validSlug) {
-    throw new Error("Wikidot adapter accepts only run-owned theme pages");
+    throw new Error("Wikidot adapter accepts only validated theme execution pages");
   }
   const url = new URL(resource.url);
   if (url.protocol !== "http:" || url.hostname !== `${ALLOWED_SITE_SLUG}.wikidot.com` || url.port || url.pathname !== `/${resource.slug}` || url.search || url.hash || url.username || url.password) {
     throw new Error("Wikidot adapter resource URL is outside the hard allowlist");
   }
-  const expectedTags = resource.slug.endsWith("-yossistyle") ? ["テーマ"] : [];
-  if (!allowLegacy && JSON.stringify(resource.tags ?? []) !== JSON.stringify(expectedTags)) throw new Error("Wikidot adapter resource tags are outside the run-owned contract");
+  if (prerequisite && (resource.title !== REFERENCE_PREREQUISITE_TITLES.get(resource.slug) || resource.resource_id !== `prerequisite:${resource.slug}:wikidot`)) {
+    throw new Error("Wikidot adapter prerequisite is outside the read-only contract");
+  }
+  const expectedTags = prerequisite ? ["codex-source-parity-redo", "component"] : resource.slug.endsWith("-yossistyle") ? ["テーマ"] : resource.slug.endsWith("-ashes-to-ashes") || resource.slug.endsWith("-basalt") ? ["theme"] : [];
+  if ((!allowLegacy || prerequisite) && JSON.stringify(resource.tags ?? []) !== JSON.stringify(expectedTags)) throw new Error("Wikidot adapter resource tags are outside the run-owned contract");
+  return kind;
 }
 
 function containsSecretField(value) {
@@ -74,6 +84,9 @@ export class WikidotJsonlHelperClient {
     this.env = null;
     this.child = this.spawnImpl(this.command, this.commandArgs, {env: childEnvironment, stdio: ["pipe", "pipe", "ignore"]});
     this.exitPromise = new Promise((resolve) => this.child.once("exit", resolve));
+    this.child.stdin.on("error", () => {
+      if (!this.closing) this.failAll(new Error("Wikidot helper request transport failed"));
+    });
     const lines = readline.createInterface({input: this.child.stdout, crlfDelay: Infinity});
     lines.on("line", (line) => this.handleLine(line));
     this.child.on("error", () => this.failAll(new Error("Wikidot helper process could not start")));
@@ -192,21 +205,22 @@ export class WikidotThemePageAdapter {
   }
 
   async inspect(resource) {
-    validateResource(resource, {allowLegacy: true});
-    const result = await this.helper.request("inspect", {slug: resource.slug});
+    const kind = validateResource(resource, {allowLegacy: true});
+    const result = await this.helper.request("inspect", {slug: resource.slug, kind});
     const page = result?.page;
     if (page === null) return null;
-    if (!Number.isSafeInteger(page?.identity) || typeof page.title !== "string" || !/^[0-9a-f]{64}$/u.test(page.source_sha256)) {
+    if (!Number.isSafeInteger(page?.identity) || typeof page.title !== "string" || !/^[0-9a-f]{64}$/u.test(page.source_sha256) || !Array.isArray(page.tags) || page.tags.some((tag) => typeof tag !== "string")) {
       throw new Error("Wikidot helper returned an incomplete page identity");
     }
     return page;
   }
 
   async create(resource, payload) {
-    validateResource(resource);
+    const kind = validateResource(resource);
+    if (kind !== "theme_page") throw new Error("Wikidot reference prerequisites are read-only");
     if (typeof payload?.source !== "string" || sha256(payload.source) !== resource.source_sha256) throw new Error("Wikidot create source does not match the accepted source hash");
     if (await this.inspect(resource) !== null) throw new Error("Wikidot create-only guard found a preexisting page");
-    const result = await this.helper.request("create", {slug: resource.slug, title: resource.title, source: payload.source, source_sha256: resource.source_sha256, tags: resource.tags ?? []});
+    const result = await this.helper.request("create", {slug: resource.slug, kind, title: resource.title, source: payload.source, source_sha256: resource.source_sha256, tags: resource.tags ?? []});
     const page = result?.page;
     if (!Number.isSafeInteger(page?.identity) || page.title !== resource.title || page.source_sha256 !== targetRoundTripSourceSha256("wikidot", payload.source)) {
       throw new Error("Wikidot page did not round-trip after create");
@@ -215,13 +229,13 @@ export class WikidotThemePageAdapter {
   }
 
   async remove(resource, {expected, identity} = {}) {
-    validateResource(resource, {allowLegacy: true});
+    const kind = validateResource(resource, {allowLegacy: true});
     const actual = await this.inspect(resource);
     if (actual === null) return;
-    if (actual.source_sha256 !== expected?.source_sha256 || actual.title !== expected?.title || (identity !== undefined && actual.identity !== identity)) {
+    if (actual.source_sha256 !== expected?.source_sha256 || actual.title !== expected?.title || JSON.stringify(actual.tags) !== JSON.stringify(expected?.tags) || (identity !== undefined && actual.identity !== identity)) {
       throw new Error("Wikidot delete refused a page whose identity, title, or source changed");
     }
-    await this.helper.request("remove", {slug: resource.slug, expected: {identity: identity ?? actual.identity, title: expected.title, source_sha256: expected.source_sha256}});
+    await this.helper.request("remove", {slug: resource.slug, kind, expected: {identity: identity ?? actual.identity, title: expected.title, source_sha256: expected.source_sha256, tags: expected.tags}});
     if (await this.inspect(resource) !== null) throw new Error("Wikidot page remains after delete");
   }
 

@@ -2,12 +2,38 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-export const THEME_LOCALIZATION_E2E_SCHEMA = "wikijump_local_lab.theme_localization_e2e_plan.v1";
+export const THEME_LOCALIZATION_E2E_SCHEMA = "wikijump_local_lab.theme_localization_e2e_plan.v2";
 export const ALLOWED_SITE_SLUG = "scpaiueouiuiuiui";
 export const DEFAULT_WIKIDOT_ORIGIN = "http://scpaiueouiuiuiui.wikidot.com";
 export const DEFAULT_WIKIJUMP_ORIGIN = "https://scpaiueouiuiuiui.wikijump.localhost:18443";
 export const RUN_OWNED_SLUG_PREFIX = "codex-l10n:";
 export const LEGACY_RUN_OWNED_SLUG_PREFIX = "theme:codex-l10n-";
+export const WIKIDOT_PAGE_SLUG_MAX_LENGTH = 60;
+
+export const THEME_CURRENT_SITE_DEPENDENCIES = Object.freeze([
+  Object.freeze({
+    slug: "component:image-block-base",
+    title: "Image Block Base",
+    accepted_source: "corpus/en/pages/component:image-block-base/source.wikidot.txt",
+    accepted_source_sha256: "0bb0988ec9094851e9fd09a8bb1d1ec499df9912056daaaaae3bd020712350d3",
+    source_transform: null,
+    materialized_source_sha256: "0bb0988ec9094851e9fd09a8bb1d1ec499df9912056daaaaae3bd020712350d3",
+    reference_tags: Object.freeze(["codex-source-parity-redo", "component"]),
+  }),
+  Object.freeze({
+    slug: "component:image-block",
+    title: "Image Block",
+    accepted_source: "corpus/en/pages/component:image-block/source.wikidot.txt",
+    accepted_source_sha256: "8621baf34484b27a1202c117ea91b4172866a6a74d5d14d0f11fa1859ba03948",
+    source_transform: Object.freeze({
+      type: "replace_exact_once",
+      from: ":scp-wiki:component:image-block-base",
+      to: "component:image-block-base",
+    }),
+    materialized_source_sha256: "f6ad31d621b9ff520c5273733c00f50a468b054ba712138ad84099b8dd5594e7",
+    reference_tags: Object.freeze(["codex-source-parity-redo", "component"]),
+  }),
+]);
 
 export const THEME_CAPTURE_VIEWPORTS = Object.freeze([
   Object.freeze({id: "desktop", width: 1440, height: 1000}),
@@ -135,6 +161,7 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     minimum_shape: Object.freeze({bytes: 9000, logical_lines: 180, css_modules: 1, code_blocks: 1}),
     required_markers: Object.freeze(["[[module Rate]]", "#header h2 span", "[[collapsible"]),
     dependencies: Object.freeze({components: Object.freeze([]), assets: Object.freeze([]), remote_local_code: Object.freeze([])}),
+    current_site_dependency_chain: Object.freeze([]),
     computed_style_probes: Object.freeze([
       ...COMMON_PROBES.map(yossistyleCommonProbe),
       Object.freeze({id: "header_subtitle", selector: "#header h2 span", expectation: "required", expected_properties: Object.freeze({"margin-left": Object.freeze({operator: "eq", value: "1px"}), "font-family": Object.freeze({operator: "eq", value: '"Trebuchet MS", Trebuchet, Verdana, Arial, Helvetica'}), "font-size": Object.freeze({operator: "eq", value: "13.44px"}), "line-height": Object.freeze({operator: "eq", value: "0px"})})}),
@@ -160,6 +187,7 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     risk: "dependency-canary",
     article_slug: "theme:ashes-to-ashes",
     accepted_source: "translations/jp/en/pages/theme:ashes-to-ashes/source.wikidot.txt",
+    run_owned_tags: Object.freeze(["theme"]),
     minimum_shape: Object.freeze({bytes: 5500, logical_lines: 200, css_modules: 2, executable_includes: 4, local_resource_references: 4}),
     required_markers: Object.freeze(["component:toggle-sidebar-bhl", "overseer4.webp", "--head-prelude"]),
     dependencies: Object.freeze({
@@ -167,6 +195,7 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
       assets: Object.freeze(["fire.webp", "bamboo.webp", "parchment.webp", "overseer4.webp"]),
       remote_local_code: Object.freeze([]),
     }),
+    current_site_dependency_chain: Object.freeze(["component:image-block-base", "component:image-block"]),
     computed_style_probes: Object.freeze([
       ...COMMON_PROBES,
       Object.freeze({id: "container", selector: "#container", expectation: "required"}),
@@ -191,6 +220,7 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     risk: "stress",
     article_slug: "theme:basalt",
     accepted_source: "translations/jp/en/pages/theme:basalt/source.wikidot.txt",
+    run_owned_tags: Object.freeze(["theme"]),
     minimum_shape: Object.freeze({bytes: 45000, logical_lines: 1700, css_modules: 7, code_blocks: 6, executable_includes: 16, local_resource_references: 18}),
     required_markers: Object.freeze(["component:interwiki-style", "basalt_scp_logo-for_darkmode.svg", "[[tabview]]"]),
     dependencies: Object.freeze({
@@ -216,6 +246,7 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
       ]),
       remote_local_code: Object.freeze(["theme:basalt/1", "theme:basalt/2", "theme:basalt/3", "theme:basalt/4", "theme:basalt/5", "theme:basalt/6"]),
     }),
+    current_site_dependency_chain: Object.freeze([]),
     computed_style_probes: Object.freeze([
       ...COMMON_PROBES,
       Object.freeze({id: "basalt_logo", selector: "#header h1 a span", pseudo: "::before", expectation: "required"}),
@@ -340,10 +371,18 @@ export function runOwnedSlug(runId, tierId) {
   return slug;
 }
 
+export function currentSiteDependencyOwnershipToken(runId, slug) {
+  validateRunId(runId);
+  if (!THEME_CURRENT_SITE_DEPENDENCIES.some((dependency) => dependency.slug === slug)) {
+    throw new Error(`unknown current-site dependency: ${slug}`);
+  }
+  return sha256(`wikijump-theme-localization-owner-v1\0${runId}\0${slug}`).slice(0, 32);
+}
+
 export function assertRunOwnedSlug(slug, runId, tierId) {
   if (!THEME_LOCALIZATION_TIERS.some((tier) => tier.id === tierId)) throw new Error(`unknown theme tier: ${tierId}`);
   const expected = `${RUN_OWNED_SLUG_PREFIX}${validateRunId(runId)}-${tierId}`;
-  if (slug !== expected || slug.length > 100 || !/^codex-l10n:[a-z0-9-]+$/u.test(slug)) {
+  if (slug !== expected || slug.length > WIKIDOT_PAGE_SLUG_MAX_LENGTH || !/^codex-l10n:[a-z0-9-]+$/u.test(slug)) {
     throw new Error(`page slug is not owned by run ${runId}: ${slug}`);
   }
   return slug;
@@ -352,14 +391,14 @@ export function assertRunOwnedSlug(slug, runId, tierId) {
 export function assertLegacyRunOwnedSlug(slug, runId, tierId) {
   if (!THEME_LOCALIZATION_TIERS.some((tier) => tier.id === tierId)) throw new Error(`unknown theme tier: ${tierId}`);
   const expected = `${LEGACY_RUN_OWNED_SLUG_PREFIX}${validateRunId(runId)}-${tierId}`;
-  if (slug !== expected || slug.length > 100 || !/^theme:codex-l10n-[a-z0-9-]+$/u.test(slug)) {
+  if (slug !== expected || slug.length > WIKIDOT_PAGE_SLUG_MAX_LENGTH || !/^theme:codex-l10n-[a-z0-9-]+$/u.test(slug)) {
     throw new Error(`legacy page slug is not owned by run ${runId}: ${slug}`);
   }
   return slug;
 }
 
 function isKnownRunOwnedSlug(slug, legacy) {
-  if (typeof slug !== "string" || slug.length > 100) return false;
+  if (typeof slug !== "string" || slug.length > WIKIDOT_PAGE_SLUG_MAX_LENGTH) return false;
   const prefix = legacy ? LEGACY_RUN_OWNED_SLUG_PREFIX : RUN_OWNED_SLUG_PREFIX;
   for (const tier of THEME_LOCALIZATION_TIERS) {
     const suffix = `-${tier.id}`;
@@ -427,7 +466,7 @@ async function acceptedSourcePreflight(translationRoot, tier) {
     checks.push({id: "artifact_leakage", status: artifactLeaks.length === 0 ? "pass" : "fail", findings: artifactLeaks});
   }
 
-  const dependencyFiles = {components: [], assets: []};
+  const dependencyFiles = {components: [], assets: [], current_site: []};
   for (const component of tier.dependencies.components) {
     const relativePath = path.join("corpus", "jp", "pages", component, "source.wikidot.txt");
     const result = await inspectDependencyFile(translationRoot, relativePath, component);
@@ -439,6 +478,13 @@ async function acceptedSourcePreflight(translationRoot, tier) {
     const result = await inspectDependencyFile(translationRoot, relativePath, asset);
     dependencyFiles.assets.push(result);
     checks.push({id: `dependency_asset:${asset}`, status: result.status});
+  }
+  for (const slug of tier.current_site_dependency_chain) {
+    const definition = THEME_CURRENT_SITE_DEPENDENCIES.find((candidate) => candidate.slug === slug);
+    if (!definition) throw new Error(`unknown current-site dependency: ${slug}`);
+    const result = await inspectCurrentSiteDependency(translationRoot, definition);
+    dependencyFiles.current_site.push(result);
+    checks.push({id: `current_site_dependency:${slug}`, status: result.status});
   }
 
   const failed = checks.filter((check) => check.status === "fail");
@@ -455,6 +501,53 @@ async function acceptedSourcePreflight(translationRoot, tier) {
   };
 }
 
+function materializeCurrentSiteDependencySource(source, definition) {
+  const transform = definition.source_transform;
+  if (transform === null) return source;
+  if (transform?.type !== "replace_exact_once" || typeof transform.from !== "string" || typeof transform.to !== "string") {
+    throw new Error(`unsupported current-site dependency transform: ${definition.slug}`);
+  }
+  const first = source.indexOf(transform.from);
+  if (first < 0 || source.indexOf(transform.from, first + transform.from.length) >= 0) {
+    throw new Error(`current-site dependency transform input is not unique: ${definition.slug}`);
+  }
+  return `${source.slice(0, first)}${transform.to}${source.slice(first + transform.from.length)}`;
+}
+
+async function inspectCurrentSiteDependency(translationRoot, definition) {
+  const result = await inspectDependencyFile(translationRoot, definition.accepted_source, definition.slug);
+  if (result.status !== "pass" || result.sha256 !== definition.accepted_source_sha256) {
+    return {...result, status: "fail", materialized_source_sha256: null, source_transform: definition.source_transform};
+  }
+  try {
+    const acceptedSource = await fs.readFile(result.absolute_path, "utf8");
+    const materializedSource = materializeCurrentSiteDependencySource(acceptedSource, definition);
+    const materializedHash = sha256(materializedSource);
+    return {
+      ...result,
+      status: materializedHash === definition.materialized_source_sha256 ? "pass" : "fail",
+      materialized_source_sha256: materializedHash,
+      source_transform: definition.source_transform,
+    };
+  } catch {
+    return {...result, status: "fail", materialized_source_sha256: null, source_transform: definition.source_transform};
+  }
+}
+
+export async function readCurrentSiteDependencySource(resource) {
+  const definition = THEME_CURRENT_SITE_DEPENDENCIES.find((candidate) => candidate.slug === resource?.slug);
+  if (!definition || resource?.source_path === undefined || resource.source_sha256 !== definition.materialized_source_sha256) {
+    throw new Error("resource is outside the current-site dependency source contract");
+  }
+  const stat = await fs.lstat(resource.source_path);
+  if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(`current-site dependency source is not a regular file: ${resource.slug}`);
+  const acceptedSource = await fs.readFile(resource.source_path, "utf8");
+  if (sha256(acceptedSource) !== definition.accepted_source_sha256) throw new Error(`current-site dependency accepted source changed: ${resource.slug}`);
+  const materializedSource = materializeCurrentSiteDependencySource(acceptedSource, definition);
+  if (sha256(materializedSource) !== definition.materialized_source_sha256) throw new Error(`current-site dependency materialization changed: ${resource.slug}`);
+  return materializedSource;
+}
+
 async function inspectDependencyFile(translationRoot, relativePath, name) {
   const filePath = path.resolve(translationRoot, relativePath);
   const relative = path.relative(translationRoot, filePath);
@@ -463,7 +556,7 @@ async function inspectDependencyFile(translationRoot, relativePath, name) {
     const stat = await fs.lstat(filePath);
     if (!stat.isFile() || stat.isSymbolicLink()) return {name, relative_path: relativePath, status: "fail", sha256: null, bytes: 0};
     const contents = await fs.readFile(filePath);
-    return {name, relative_path: relativePath, status: "pass", sha256: sha256(contents), bytes: contents.byteLength};
+    return {name, relative_path: relativePath, absolute_path: filePath, status: "pass", sha256: sha256(contents), bytes: contents.byteLength};
   } catch {
     return {name, relative_path: relativePath, status: "fail", sha256: null, bytes: 0};
   }
@@ -517,13 +610,13 @@ export async function buildThemeLocalizationE2EPlan({
   for (const tier of selectedTiers) {
     const slug = runOwnedSlug(validatedRunId, tier.id);
     const preflight = await acceptedSourcePreflight(resolvedTranslationRoot, tier);
-    const targets = [
+    const targetDefinitions = [
       {id: "wikidot", role: "reference", origin: validatedWikidotOrigin},
       {id: "wikijump", role: "candidate", origin: validatedWikijumpOrigin},
-    ].map((target) => {
-      const resource = {resource_id: `${tier.id}:${target.id}`, target: target.id, slug};
-      resources.push(resource);
-      return {...target, url: pageUrl(target.origin, slug), resource_id: resource.resource_id};
+    ];
+    const targets = targetDefinitions.map((target) => {
+      const resourceId = `${tier.id}:${target.id}`;
+      return {...target, url: pageUrl(target.origin, slug), resource_id: resourceId};
     });
     const computedStyles = {properties: themeComputedStyleProperties({properties: COMMON_STYLE_PROPERTIES, probes: tier.computed_style_probes}), probes: tier.computed_style_probes};
     validateThemeComputedStyleContract(computedStyles, {label: `${tier.id} computed-style contract`});
@@ -536,6 +629,7 @@ export async function buildThemeLocalizationE2EPlan({
       preflight,
       run_owned_tags: tier.run_owned_tags ?? [],
       dependencies: tier.dependencies,
+      current_site_dependency_chain: tier.current_site_dependency_chain,
       targets,
       capture: {
         viewports: THEME_CAPTURE_VIEWPORTS,
@@ -550,6 +644,46 @@ export async function buildThemeLocalizationE2EPlan({
         artifacts: ["dom.html", "screenshot.png", "computed-styles.json", "web-vitals.json", "performance-attribution.json", "interactions.json", "network-errors.json"],
       },
     });
+  }
+
+  const dependencySlugs = [...new Set(plans.flatMap((tier) => tier.current_site_dependency_chain))];
+  const currentSiteDependencies = dependencySlugs.map((slug) => {
+    const definition = THEME_CURRENT_SITE_DEPENDENCIES.find((candidate) => candidate.slug === slug);
+    const preflight = plans.flatMap((tier) => tier.preflight.dependency_files.current_site).find((candidate) => candidate.name === slug);
+    if (!definition || !preflight) throw new Error(`current-site dependency preflight is missing: ${slug}`);
+    const ownershipToken = currentSiteDependencyOwnershipToken(validatedRunId, slug);
+    return {
+      slug,
+      title: definition.title,
+      consumers: plans.filter((tier) => tier.current_site_dependency_chain.includes(slug)).map((tier) => tier.id),
+      source_path: preflight.absolute_path,
+      accepted_source_sha256: definition.accepted_source_sha256,
+      source_transform: definition.source_transform,
+      source_sha256: definition.materialized_source_sha256,
+      reference: {
+        resource_id: `prerequisite:${slug}:wikidot`,
+        kind: "reference_prerequisite",
+        target: "wikidot",
+        url: pageUrl(validatedWikidotOrigin, slug),
+        title: definition.title,
+        tags: [...definition.reference_tags],
+      },
+      candidate: {
+        resource_id: `dependency:${slug}:wikijump`,
+        kind: "component_dependency",
+        target: "wikijump",
+        url: pageUrl(validatedWikijumpOrigin, slug),
+        title: definition.title,
+        ownership_token: ownershipToken,
+        tags: [`codex-l10n-owner-${ownershipToken}`, "component"],
+      },
+    };
+  });
+  for (const dependency of currentSiteDependencies) {
+    resources.push({resource_id: dependency.candidate.resource_id, kind: dependency.candidate.kind, target: "wikijump", slug: dependency.slug});
+  }
+  for (const tier of plans) {
+    for (const target of tier.targets) resources.push({resource_id: target.resource_id, kind: "theme_page", target: target.id, slug: tier.run_owned_slug});
   }
 
   const failedTiers = plans.filter((tier) => tier.preflight.status === "fail").map((tier) => tier.id);
@@ -570,6 +704,7 @@ export async function buildThemeLocalizationE2EPlan({
     translation_root: resolvedTranslationRoot,
     preflight: {status: failedTiers.length === 0 ? "pass" : "fail", selected_tiers: plans.length, failed_tiers: failedTiers},
     tiers: plans,
+    current_site_dependencies: currentSiteDependencies,
     cleanup: buildCleanupContract(resources),
     reuse: {
       local_page_adapter: "install/local/wikidot-verification/scripts/preview-source.mjs",
