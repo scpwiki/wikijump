@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import {openBrowser} from "../scripts/capture-browser-rendering.mjs";
+import {browserContextOptions, openBrowser} from "../scripts/capture-browser-rendering.mjs";
+import {startCaptureEgressProxy} from "./capture-egress-proxy.mjs";
 import {collectLayoutShifts, collectTimingDiagnostics, installLayoutShiftObserver, installTimingObserver} from "./layout-diagnostics.mjs";
 import {findRawSyntaxLeaks} from "./render-health.mjs";
 import {RUN_OWNED_SLUG_PREFIX, assertRunOwnedSlug, themeComputedStyleProperties, validateTargetOrigin, validateThemeComputedStyleContract} from "./theme-localization-e2e.mjs";
@@ -463,24 +464,35 @@ export async function captureThemeViewport({context, target, viewport, capture, 
   return summary;
 }
 
-export async function captureThemeTierBrowserEvidence({tier, outputDir, source, chromium, browserExecutable, cdpEndpoint, browserSession = null, ignoreHttpsErrors = false, storageStates = {}, openBrowserImpl = openBrowser, captureViewportImpl = captureThemeViewport}) {
+export async function captureThemeTierBrowserEvidence({tier, outputDir, source, chromium, browserExecutable, cdpEndpoint, browserSession = null, ignoreHttpsErrors = false, storageStates = {}, openBrowserImpl = openBrowser, captureViewportImpl = captureThemeViewport, startEgressProxyImpl = startCaptureEgressProxy}) {
   if (!tier?.capture || typeof source !== "string" || !source.trim()) throw new Error("tier capture contract and non-empty source are required");
   validateThemeComputedStyleContract(tier.capture.computed_styles, {label: `${tier.id} computed-style contract`});
   const tierId = safeId(tier.id, "tier id");
   const rootDirectory = await prepareThemeArtifactDirectory(outputDir);
   const tierDirectory = await prepareThemeArtifactDirectory(path.join(rootDirectory, tierId));
+  const validatedTargets = tier.targets.map((target) => ({...target, url: validateThemeCaptureTarget({tier, target})}));
+  const egressProxy = await startEgressProxyImpl({
+    allowedLocalOrigins: [...new Set(validatedTargets.map((target) => new URL(target.url).origin))],
+  });
   const ownsSession = browserSession === null;
-  const session = browserSession ?? await openBrowserImpl({chromium, cdpEndpoint, browserExecutable, ignoreHttpsErrors, createInitialContexts: false});
+  let session = browserSession;
   const targets = [];
   try {
-    for (const target of tier.targets) {
-      validateThemeCaptureTarget({tier, target});
+    session ??= await openBrowserImpl({chromium, cdpEndpoint, browserExecutable, ignoreHttpsErrors, createInitialContexts: false});
+    for (const target of validatedTargets) {
       safeId(target.id, "target id");
       const targetDirectory = await prepareThemeArtifactDirectory(path.join(tierDirectory, target.id));
       const targetResult = {id: target.id, url: target.url, viewports: []};
       for (const viewport of tier.capture.viewports) {
         safeId(viewport.id, "viewport id");
-        const context = await session.browser.newContext({ignoreHTTPSErrors: ignoreHttpsErrors, viewport: {width: viewport.width, height: viewport.height}, ...(storageStates[target.id] ? {storageState: storageStates[target.id]} : {})});
+        const context = await session.browser.newContext({
+          ...browserContextOptions({
+            ignoreHttpsErrors,
+            storageState: storageStates[target.id] ?? null,
+            proxyServer: egressProxy.url,
+          }),
+          viewport: {width: viewport.width, height: viewport.height},
+        });
         try {
           await installLocalFilePortRoute(context, target);
           const viewportDirectory = await prepareThemeArtifactDirectory(path.join(targetDirectory, viewport.id));
@@ -493,7 +505,8 @@ export async function captureThemeTierBrowserEvidence({tier, outputDir, source, 
       targets.push(targetResult);
     }
   } finally {
-    if (ownsSession) await session.close();
+    if (ownsSession && session) await session.close();
+    await egressProxy.close();
   }
   const result = {schema: THEME_BROWSER_CAPTURE_SCHEMA, tier_id: tierId, status: targets.every((target) => target.verdict.status === "pass") ? "pass" : "fail", targets};
   const resultPath = path.join(tierDirectory, "browser-capture.json");
