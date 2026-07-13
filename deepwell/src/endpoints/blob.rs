@@ -103,22 +103,15 @@ pub async fn blob_blacklist_add(
     #[derive(Deserialize, Debug)]
     struct AddBlacklist {
         s3_hash: Bytes<'static>,
-        user_id: i64,
     }
 
     let make_error =
         || Error::new("failed to add a blob to the blacklist", ErrorType::Blob);
 
-    let AddBlacklist { s3_hash, user_id } = params.parse().or_raise(make_error)?;
+    let AddBlacklist { s3_hash } = params.parse().or_raise(make_error)?;
     let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
 
-    BlobService::check_hash_not_empty(s3_hash).or_raise(make_error)?;
-
-    BlobService::check_hash_in_use(ctx, s3_hash)
-        .await
-        .or_raise(make_error)?;
-
-    BlobService::add_blacklist(ctx, s3_hash, user_id)
+    BlobService::add_blacklist(ctx, s3_hash)
         .await
         .or_raise(make_error)
 }
