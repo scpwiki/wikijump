@@ -4827,6 +4827,7 @@ impl RenderService {
         let mut expanded = String::with_capacity(wikitext.len());
         let mut included_pages = Vec::new();
         let mut content_cache = ListPagesContentCache::default();
+        let mut permission_cache = BTreeMap::new();
         let mut cursor = 0;
         let mut blocks = blocks.into_iter().peekable();
 
@@ -4882,6 +4883,7 @@ impl RenderService {
                     &batch_key,
                     &slugs,
                     fields,
+                    &mut permission_cache,
                 )
                 .await?;
                 let prefetched_rows = prefetched.values().cloned().collect::<Vec<_>>();
@@ -4925,6 +4927,7 @@ impl RenderService {
                         Some(&prefetched_displays),
                         include_source_cache,
                         &mut content_cache,
+                        &mut permission_cache,
                         compat_text,
                     )
                     .await?;
@@ -4968,6 +4971,7 @@ impl RenderService {
                         None,
                         include_source_cache,
                         &mut content_cache,
+                        &mut permission_cache,
                         compat_text,
                     )
                     .await?;
@@ -4998,6 +5002,7 @@ impl RenderService {
         key: &ExactNameListPagesBatchKey,
         slugs: &[Cow<'_, str>],
         fields: FoundPageFields,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
     ) -> Result<BTreeMap<String, FoundPageRow>> {
         let categories = key
             .categories
@@ -5055,7 +5060,13 @@ impl RenderService {
             variables: &[],
             fields,
         };
-        let found = Self::find_viewable_list_pages_rows(ctx, query, slugs.len()).await?;
+        let found = Self::find_viewable_list_pages_rows(
+            ctx,
+            query,
+            slugs.len(),
+            permission_cache,
+        )
+        .await?;
         Ok(found
             .pages
             .pages
@@ -5105,6 +5116,7 @@ impl RenderService {
 
         let mut expanded = String::with_capacity(wikitext.len());
         let mut cursor = 0;
+        let mut permission_cache = BTreeMap::new();
 
         for captures in COUNTPAGES_MODULE_REGEX.captures_iter(&wikitext) {
             let mtch = captures.get(0).unwrap();
@@ -5138,12 +5150,15 @@ impl RenderService {
 
             let replacement = Self::render_count_pages_block(
                 ctx,
-                current_site_id,
-                current_page_id,
+                ListPagesPageContext {
+                    site_id: current_site_id,
+                    page_id: current_page_id,
+                },
                 page_info,
                 arguments,
                 body,
                 mtch.as_str(),
+                &mut permission_cache,
             )
             .await?;
             expanded.push_str(&replacement);
@@ -7378,6 +7393,7 @@ impl RenderService {
         prefetched_displays: Option<&ListPagesBatchDisplays>,
         include_source_cache: &mut IncludeSourceCache,
         content_cache: &mut ListPagesContentCache,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
         compat_text: &mut CompatTextFragments,
     ) -> Result<IncludeExpansion> {
         let ListPagesPageContext {
@@ -7534,6 +7550,7 @@ impl RenderService {
                 ctx,
                 query,
                 query_limit.min(usize::MAX as u64) as usize,
+                permission_cache,
             )
             .await?;
             list_pages_metadata = Some((
@@ -7750,13 +7767,17 @@ impl RenderService {
 
     async fn render_count_pages_block(
         ctx: &ServiceContext<'_>,
-        current_site_id: i64,
-        current_page_id: i64,
+        page_context: ListPagesPageContext,
         page_info: &PageInfo<'_>,
         arguments: ListPagesArguments,
         body: &str,
         original_module: &str,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
     ) -> Result<String> {
+        let ListPagesPageContext {
+            site_id: current_site_id,
+            page_id: current_page_id,
+        } = page_context;
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -7882,8 +7903,13 @@ impl RenderService {
             FoundPages { pages: Vec::new() }
         } else {
             let target_count = count_pages_query_limit.min(usize::MAX as u64) as usize;
-            let found =
-                Self::find_viewable_count_pages_rows(ctx, query, target_count).await?;
+            let found = Self::find_viewable_count_pages_rows(
+                ctx,
+                query,
+                target_count,
+                permission_cache,
+            )
+            .await?;
             count_pages_metadata = Some((
                 found.metadata.clone(),
                 found.view_permission_filtering_applied,
@@ -7926,9 +7952,9 @@ impl RenderService {
     async fn filter_viewable_list_pages_rows(
         ctx: &ServiceContext<'_>,
         pages: Vec<FoundPageRow>,
+        category_permissions: &mut BTreeMap<(i64, Option<i64>), bool>,
     ) -> Result<Vec<FoundPageRow>> {
         let mut viewable = Vec::with_capacity(pages.len());
-        let mut category_permissions = BTreeMap::new();
         for page in pages {
             let permission_key = (page.site_id, page.page_category_id);
             let can_view =
@@ -7967,6 +7993,7 @@ impl RenderService {
         ctx: &ServiceContext<'_>,
         query: PageQuery<'_>,
         target_count: usize,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
     ) -> Result<ViewableListPagesRows> {
         let mut pages = Vec::new();
         let mut raw_offset = 0;
@@ -7986,8 +8013,12 @@ impl RenderService {
             if raw_count == 0 {
                 break;
             }
-            let viewable =
-                Self::filter_viewable_list_pages_rows(ctx, found.pages.pages).await?;
+            let viewable = Self::filter_viewable_list_pages_rows(
+                ctx,
+                found.pages.pages,
+                permission_cache,
+            )
+            .await?;
             view_permission_filtering_applied |= viewable.len() != raw_count;
             pages.extend(viewable);
             if raw_count < batch_limit as usize {
@@ -8007,6 +8038,7 @@ impl RenderService {
         ctx: &ServiceContext<'_>,
         query: PageQuery<'_>,
         target_count: usize,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
     ) -> Result<ViewableCountPagesRows> {
         let mut pages = Vec::new();
         let mut raw_offset = 0;
@@ -8027,8 +8059,12 @@ impl RenderService {
             if raw_count == 0 {
                 break;
             }
-            let viewable =
-                Self::filter_viewable_list_pages_rows(ctx, found.pages.pages).await?;
+            let viewable = Self::filter_viewable_list_pages_rows(
+                ctx,
+                found.pages.pages,
+                permission_cache,
+            )
+            .await?;
             view_permission_filtering_applied |= viewable.len() != raw_count;
             pages.extend(viewable);
             if raw_count < batch_limit as usize {
