@@ -60,7 +60,7 @@ If you would like to volunteer some of your time to Wikijump development, join t
 
 (This section will be rewritten as the Framerail migration continues)
 
-See [development.md](docs/development.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology used by developers and API consumers, and [contributing.md](docs/contributing.md) if you're interested in contributing to the project.
+See [development.md](docs/development.md) for information on running a local instance of Wikijump, [CodexCloudEnvironment.md](docs/CodexCloudEnvironment.md) for the reviewed Codex Cloud setup and maintenance procedure, the [Wikijump Glossary](docs/glossary.md) for terminology used by developers and API consumers, and [contributing.md](docs/contributing.md) if you're interested in contributing to the project.
 
 ## Sponsors
 

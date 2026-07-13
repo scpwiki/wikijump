@@ -12731,6 +12731,33 @@ mod tests {
         )
     }
 
+    fn render_wikidot_conditionals_with_tags(wikitext: &str, tags: &[&str]) -> String {
+        let page_info = ftml::data::PageInfo {
+            tags: tags
+                .iter()
+                .map(|tag| Cow::Owned((*tag).to_owned()))
+                .collect(),
+            ..fallback_test_page_info("conditional", "Conditional")
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikidot_compat_html: CompatHtmlFragments::new(wikitext),
+                wikidot_compat_text: CompatTextFragments::new(wikitext),
+                wikitext: wikitext.to_owned(),
+                included_pages: Vec::new(),
+            },
+            &page_info,
+            &settings,
+        );
+        let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&inner.wikitext);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{wikitext:?}: {errors:#?}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+        inner.wikidot_compat_text.restore(&html)
+    }
+
     fn render_wikidot_fallback_after_generated_compat_restore(wikitext: &str) -> String {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut wikitext = wikitext.to_owned();
@@ -19720,6 +19747,146 @@ mod tests {
         }
         assert!(!wikitext.contains("[[iftags"), "{wikitext}");
         assert!(!wikitext.contains("[[#if"), "{wikitext}");
+    }
+
+    #[test]
+    fn parser_generated_name_and_bracket_fragments_form_iftags_boundaries() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
+        for (source, body) in [
+            (
+                concat!(
+                    "[[if[[#if 1 | tags +alpha | tags +beta]]]]\n",
+                    "OMEGA_KEYWORD_OPENER\n",
+                    "[[/iftags]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_KEYWORD_OPENER",
+            ),
+            (
+                concat!(
+                    "[[iftags +alpha]]\n",
+                    "OMEGA_KEYWORD_CLOSER\n",
+                    "[[/if[[#if 1 | tags | nope]]]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_KEYWORD_CLOSER",
+            ),
+            (
+                concat!(
+                    "[[iftags +alpha[[#if 1 | ] | X]]]\n",
+                    "OMEGA_RIGHT_BRACKET_OPENER\n",
+                    "[[/iftags]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_RIGHT_BRACKET_OPENER",
+            ),
+            (
+                concat!(
+                    "[[iftags +alpha]]\n",
+                    "OMEGA_LEFT_BRACKET_CLOSER\n",
+                    "[[[#if 1 | [/iftags | [/div]]]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_LEFT_BRACKET_CLOSER",
+            ),
+        ] {
+            for (tags, active) in [(&["alpha"][..], true), (&[][..], false)] {
+                let html = render_wikidot_conditionals_with_tags(source, tags);
+
+                assert_eq!(html.contains(body), active, "{source:?}: {html}");
+                assert!(html.contains("OMEGA_AFTER"), "{source:?}: {html}");
+                assert!(!html.contains("[[#if"), "{source:?}: {html}");
+                assert!(!html.contains("[[iftags"), "{source:?}: {html}");
+                assert!(!html.contains("[[/iftags]]"), "{source:?}: {html}");
+            }
+        }
+    }
+
+    #[test]
+    fn parser_generated_boundaries_participate_in_partial_iftags_recovery() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
+        for source in [
+            concat!(
+                "[[iftags +alpha]]\n",
+                "OMEGA_OUTER\n",
+                "[[if[[#if 1 | tags +beta | tags +gamma]]]]\n",
+                "OMEGA_INNER\n",
+                "[[/iftags]]\n",
+                "OMEGA_AFTER",
+            ),
+            concat!(
+                "[[iftags +alpha]]\n",
+                "OMEGA_OUTER\n",
+                "[[iftags +beta]]\n",
+                "OMEGA_INNER\n",
+                "[[/if[[#if 1 | tags | nope]]]]\n",
+                "OMEGA_AFTER",
+            ),
+        ] {
+            let active = render_wikidot_conditionals_with_tags(source, &["alpha"]);
+            assert!(active.contains("OMEGA_OUTER"), "{active}");
+            assert!(active.contains("OMEGA_INNER"), "{active}");
+            assert!(active.contains("[[iftags +beta]]"), "{active}");
+            assert!(active.contains("OMEGA_AFTER"), "{active}");
+            assert!(!active.contains("[[#if"), "{active}");
+            assert!(!active.contains("[[/iftags]]"), "{active}");
+
+            let inactive = render_wikidot_conditionals_with_tags(source, &[]);
+            assert!(!inactive.contains("OMEGA_OUTER"), "{inactive}");
+            assert!(!inactive.contains("OMEGA_INNER"), "{inactive}");
+            assert!(!inactive.contains("[[iftags"), "{inactive}");
+            assert!(inactive.contains("OMEGA_AFTER"), "{inactive}");
+            assert!(!inactive.contains("[[#if"), "{inactive}");
+            assert!(!inactive.contains("[[/iftags]]"), "{inactive}");
+        }
+    }
+
+    #[test]
+    fn parser_generated_partial_recovery_preserves_native_quote_depth() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
+        for (source, depth) in [
+            (
+                concat!(
+                    "> [[iftags +alpha]]\n",
+                    "> OMEGA_OUTER\n",
+                    "> [[iftags +beta]]\n",
+                    "> OMEGA_INNER\n",
+                    "> [[/if[[#if 1 | tags | nope]]]]\n",
+                    "OMEGA_AFTER",
+                ),
+                1,
+            ),
+            (
+                concat!(
+                    ">> [[iftags +alpha]]\n",
+                    ">> OMEGA_OUTER\n",
+                    ">> [[if[[#if 1 | tags +beta | tags +gamma]]]]\n",
+                    ">> OMEGA_INNER\n",
+                    ">> [[/iftags]]\n",
+                    "OMEGA_AFTER",
+                ),
+                2,
+            ),
+        ] {
+            let active = render_wikidot_conditionals_with_tags(source, &["alpha"]);
+            assert!(active.contains("OMEGA_OUTER"), "{active}");
+            assert!(active.contains("OMEGA_INNER"), "{active}");
+            assert!(active.contains("OMEGA_AFTER"), "{active}");
+            assert_eq!(active.matches("<blockquote>").count(), depth, "{active}");
+            assert!(!active.contains("[[#if"), "{active}");
+            assert!(!active.contains("[[/iftags]]"), "{active}");
+
+            let inactive = render_wikidot_conditionals_with_tags(source, &[]);
+            assert!(!inactive.contains("OMEGA_OUTER"), "{inactive}");
+            assert!(!inactive.contains("OMEGA_INNER"), "{inactive}");
+            assert!(inactive.contains("OMEGA_AFTER"), "{inactive}");
+            assert_eq!(inactive.matches("<blockquote>").count(), 0, "{inactive}");
+            assert!(!inactive.contains("[[#if"), "{inactive}");
+            assert!(!inactive.contains("[[/iftags]]"), "{inactive}");
+        }
     }
 
     #[test]

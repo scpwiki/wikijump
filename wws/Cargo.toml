@@ -11,6 +11,7 @@ exclude = [".gitignore"]
 version = "2026.3.21"
 authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
 edition = "2024"
+rust-version = "1.95.0"
 
 [dependencies]
 accept-language = "3"

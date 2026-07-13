@@ -1,0 +1,37 @@
+name: '[ci] Codex Cloud scripts'
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/codex-cloud.yaml'
+      - 'docs/CodexCloudEnvironment.md'
+      - 'scripts/codex-cloud-*.sh'
+      - 'scripts/codex_cloud_test.py'
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/codex-cloud.yaml'
+      - 'docs/CodexCloudEnvironment.md'
+      - 'scripts/codex-cloud-*.sh'
+      - 'scripts/codex_cloud_test.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scripts:
+    name: Validate scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate Bash
+        run: |
+          bash -n scripts/codex-cloud-setup.sh scripts/codex-cloud-maintenance.sh
+          shellcheck scripts/codex-cloud-setup.sh scripts/codex-cloud-maintenance.sh
+
+      - name: Run regression tests
+        run: python3 -m unittest scripts/codex_cloud_test.py
