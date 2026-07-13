@@ -2703,6 +2703,9 @@ impl RenderService {
     }
 
     fn resolve_wikidot_parser_functions(value: &str) -> String {
+        if !value.contains("[[#") {
+            return value.to_owned();
+        }
         // Frozen ListPages rows use zero for a missing vote count. Preserve the
         // evidenced operator-level result without maintaining another parser.
         ftml::preproc::resolve_wikidot_parser_functions_with_options(
@@ -4759,6 +4762,8 @@ impl RenderService {
 
                 let mut unique_slugs = BTreeSet::new();
                 let mut fields = FoundPageFields::default();
+                let mut display_requirements =
+                    ListPagesBatchDisplayRequirements::default();
                 for block in &batch {
                     let ListPagesBlockPlan::Render {
                         arguments,
@@ -4770,6 +4775,7 @@ impl RenderService {
                     };
                     unique_slugs.insert(arguments.slug.as_ref().unwrap().to_string());
                     union_found_page_fields(&mut fields, &template.fields());
+                    display_requirements.include(template);
                 }
                 let slugs = unique_slugs
                     .iter()
@@ -4782,6 +4788,13 @@ impl RenderService {
                     &batch_key,
                     &slugs,
                     fields,
+                )
+                .await?;
+                let prefetched_rows = prefetched.values().cloned().collect::<Vec<_>>();
+                let prefetched_displays = Self::load_list_pages_batch_displays(
+                    ctx,
+                    &prefetched_rows,
+                    display_requirements,
                 )
                 .await?;
 
@@ -4815,6 +4828,7 @@ impl RenderService {
                         &template,
                         include_budget,
                         Some(prefetched_pages),
+                        Some(&prefetched_displays),
                         include_source_cache,
                     )
                     .await?;
@@ -4854,6 +4868,7 @@ impl RenderService {
                         arguments,
                         &template,
                         include_budget,
+                        None,
                         None,
                         include_source_cache,
                     )
@@ -4949,6 +4964,27 @@ impl RenderService {
             .into_iter()
             .filter_map(|page| page.slug.clone().map(|slug| (slug, page)))
             .collect())
+    }
+
+    async fn load_list_pages_batch_displays(
+        ctx: &ServiceContext<'_>,
+        pages: &[FoundPageRow],
+        requirements: ListPagesBatchDisplayRequirements,
+    ) -> Result<ListPagesBatchDisplays> {
+        let user_displays = if requirements.users {
+            Self::load_wikidot_user_displays(ctx, pages).await?
+        } else {
+            BTreeMap::new()
+        };
+        let snapshot_displays = if requirements.snapshots {
+            Self::load_list_pages_snapshot_displays(ctx, pages).await?
+        } else {
+            BTreeMap::new()
+        };
+        Ok(ListPagesBatchDisplays {
+            user_displays,
+            snapshot_displays,
+        })
     }
 
     async fn expand_count_pages(
@@ -5366,6 +5402,9 @@ impl RenderService {
     }
 
     fn neutralize_authored_wikidot_compat_markers(wikitext: &mut String) {
+        if !AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX.is_match(wikitext) {
+            return;
+        }
         let source = wikitext.clone();
         let literal_regions = LiteralRegionIndex::new(&source);
         let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
@@ -7238,6 +7277,7 @@ impl RenderService {
         template: &ListPagesTemplatePlan,
         mut include_budget: IncludeExpansionBudget,
         mut prefetched_pages: Option<FoundPages>,
+        prefetched_displays: Option<&ListPagesBatchDisplays>,
         include_source_cache: &mut IncludeSourceCache,
     ) -> Result<IncludeExpansion> {
         let ListPagesPageContext {
@@ -7424,27 +7464,39 @@ impl RenderService {
             .take(requested_limit as usize)
             .collect::<Vec<_>>();
         let total = pages.len();
-        let user_displays = if wants_created_by || wants_updated_by {
-            Self::load_wikidot_user_displays(ctx, &pages).await?
-        } else {
-            BTreeMap::new()
-        };
+        let loaded_user_displays =
+            if (wants_created_by || wants_updated_by) && prefetched_displays.is_none() {
+                Some(Self::load_wikidot_user_displays(ctx, &pages).await?)
+            } else {
+                None
+            };
+        let empty_user_displays = BTreeMap::new();
+        let user_displays = prefetched_displays
+            .map(|displays| &displays.user_displays)
+            .or(loaded_user_displays.as_ref())
+            .unwrap_or(&empty_user_displays);
         let wants_comments = template.uses_comments();
         let wants_commented_by = template.uses_commented_by();
         let wants_commented_at = template.uses_commented_at();
-        let snapshot_displays = if wants_created_by
+        let wants_snapshot_displays = wants_created_by
             || wants_updated_by
             || wants_created_at
             || wants_updated_at
             || wants_comments
             || wants_commented_by
             || wants_commented_at
-            || wants_rating_votes
-        {
-            Self::load_list_pages_snapshot_displays(ctx, &pages).await?
-        } else {
-            BTreeMap::new()
-        };
+            || wants_rating_votes;
+        let loaded_snapshot_displays =
+            if wants_snapshot_displays && prefetched_displays.is_none() {
+                Some(Self::load_list_pages_snapshot_displays(ctx, &pages).await?)
+            } else {
+                None
+            };
+        let empty_snapshot_displays = BTreeMap::new();
+        let snapshot_displays = prefetched_displays
+            .map(|displays| &displays.snapshot_displays)
+            .or(loaded_snapshot_displays.as_ref())
+            .unwrap_or(&empty_snapshot_displays);
         let mut output = String::from("[[div class=\"list-pages-box\"]]\n");
         let mut included_pages = Vec::new();
         if let Some(prepend_line) = prepend_line {
@@ -7505,8 +7557,8 @@ impl RenderService {
             };
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
-                user_displays: &user_displays,
-                snapshot_displays: &snapshot_displays,
+                user_displays,
+                snapshot_displays,
                 page_wikitext: expanded_page_wikitext
                     .as_deref()
                     .or(page_wikitext.as_deref()),
@@ -8442,6 +8494,32 @@ struct ExactNameListPagesBatchKey {
     category_all: bool,
     categories: Vec<String>,
     excluded_categories: Vec<String>,
+}
+
+#[derive(Debug, Default)]
+struct ListPagesBatchDisplays {
+    user_displays: BTreeMap<i64, WikidotUserDisplay>,
+    snapshot_displays: BTreeMap<i64, ListPagesSnapshotDisplay>,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct ListPagesBatchDisplayRequirements {
+    users: bool,
+    snapshots: bool,
+}
+
+impl ListPagesBatchDisplayRequirements {
+    fn include(&mut self, template: &ListPagesTemplatePlan) {
+        let users = template.uses_created_by() || template.uses_updated_by();
+        self.users |= users;
+        self.snapshots |= users
+            || template.uses_created_at()
+            || template.uses_updated_at()
+            || template.uses_comments()
+            || template.uses_commented_by()
+            || template.uses_commented_at()
+            || template.uses_rating_votes();
+    }
 }
 
 fn exact_name_list_pages_batch_key(
@@ -9657,6 +9735,9 @@ fn register_generated_list_pages_html(
     value: String,
     compat_html: &mut CompatHtmlFragments,
 ) -> String {
+    if !value.contains("data-wikijump-compat-") {
+        return value;
+    }
     let literal_regions = LiteralRegionIndex::new(&value);
     GENERATED_LISTPAGES_HTML_REGEX
         .replace_all(&value, |captures: &regex::Captures<'_>| {
@@ -11824,7 +11905,8 @@ mod tests {
     use super::{
         COMPAT_TEXT_MARKER_PREFIX, CollectingIncluder, CompatHtmlFragments,
         CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-        CountPagesRawScanCompletion, IncludeSourceCache, ListPagesSnapshotDisplay,
+        CountPagesRawScanCompletion, IncludeSourceCache,
+        ListPagesBatchDisplayRequirements, ListPagesSnapshotDisplay,
         ListPagesSubstitutionContext, ListPagesTemplatePlan,
         MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
         MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
@@ -12206,6 +12288,34 @@ mod tests {
                 "unexpectedly batchable: {head} / {body}",
             );
         }
+    }
+
+    #[test]
+    fn list_pages_batch_display_requirements_union_template_metadata() {
+        let mut requirements = ListPagesBatchDisplayRequirements::default();
+        requirements.include(
+            &ListPagesTemplatePlan::compile("%%title_linked%% %%rating_votes%%")
+                .expect("rating-vote template should compile"),
+        );
+        assert_eq!(
+            requirements,
+            ListPagesBatchDisplayRequirements {
+                users: false,
+                snapshots: true,
+            }
+        );
+
+        requirements.include(
+            &ListPagesTemplatePlan::compile("%%created_by%% %%comments%%")
+                .expect("author and comments template should compile"),
+        );
+        assert_eq!(
+            requirements,
+            ListPagesBatchDisplayRequirements {
+                users: true,
+                snapshots: true,
+            }
+        );
     }
 
     #[test]

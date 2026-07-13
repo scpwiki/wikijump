@@ -2697,6 +2697,7 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
+    set_test_user_name(&runner, ADMIN_USER_ID, "Exact Batch Author").await;
 
     for (slug, title) in [
         ("fixture-exact-batch-a", "Exact Batch A"),
@@ -2729,9 +2730,9 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
         &format!(
             concat!(
                 "[[module ListPages name=\"fixture-exact-batch-c\"]]C=%%slug%%[[/module]]\n",
-                "[[module ListPages name=\"fixture-exact-batch-a\"]]A1=%%slug%%[[/module]]\n",
+                "[[module ListPages name=\"fixture-exact-batch-a\"]]A1=%%slug%%|%%created_by%%[[/module]]\n",
                 "[[module ListPages name=\"fixture-exact-batch-b\"]]B=%%slug%%[[/module]]\n",
-                "[[module ListPages name=\"fixture-exact-batch-a\"]]A2=%%slug%%[[/module]]\n",
+                "[[module ListPages name=\"fixture-exact-batch-a\"]]A2=%%slug%%|%%rating_votes%%[[/module]]\n",
                 "[[module ListPages name=\"fixture-exact-batch-missing\"]]MISSING=%%slug%%[[/module]]\n",
                 "[[module ListPages category=\"{}\" name=\"{}\"]]PRIVATE=%%slug%%[[/module]]",
             ),
@@ -2763,6 +2764,14 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
     assert!(
         c < a1 && a1 < b && b < a2,
         "batch output order changed:\n{html}"
+    );
+    assert!(
+        html.contains("A1=fixture-exact-batch-a|Exact Batch Author"),
+        "batched user display metadata was not substituted:\n{html}"
+    );
+    assert!(
+        html.contains("A2=fixture-exact-batch-a|0"),
+        "batched absent snapshot metadata did not use the zero-vote state:\n{html}"
     );
     assert!(
         !html.contains("MISSING="),
