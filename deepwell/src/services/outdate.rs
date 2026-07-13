@@ -133,9 +133,16 @@ impl OutdateService {
             )
         };
 
-        let page = PageService::get_direct(ctx, page_id, false)
+        let Some(page) = PageService::get_direct_optional(ctx, page_id, false)
             .await
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+        else {
+            debug!(
+                "Skipping outdate for missing or deleted page ID {} (depth {})",
+                page_id, depth,
+            );
+            return Ok(());
+        };
 
         let id = PageId::from_page_model(&page);
         JobService::queue_rerender_page(ctx, id, depth.plus_one())

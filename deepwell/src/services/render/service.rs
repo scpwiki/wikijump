@@ -20,12 +20,23 @@
 
 use super::compat_html_fragments::CompatHtmlFragments;
 use super::compat_text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragments};
+use super::diagnostics::{
+    CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
+    StageGuard,
+};
 use super::html_text::html_data_segments;
+use super::iftags::{
+    resolve_outermost_wikidot_iftags,
+    resolve_outermost_wikidot_iftags_before_include_expansion,
+    wikidot_tag_conditions_match,
+};
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
-use super::literal_regions::LiteralRegionIndex;
+use super::list_pages_template::{
+    LISTPAGES_VARIABLE_REGEX, ListPagesOutputShape, ListPagesTemplatePlan,
+};
+use super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
-use super::wikidot_expression::resolve_parser_functions;
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
@@ -36,14 +47,14 @@ use crate::models::site::Model as SiteModel;
 use crate::models::user::{self, Entity as UserTable};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::page_query::{
-    CategoriesSelector, CountPagesExactCountEligibilityDiagnostics,
+    AuthorSelector, CategoriesSelector, CountPagesExactCountEligibilityDiagnostics,
     CountPagesExactCountEligibilityInput, DataFormSelector, DateSelector,
     FoundPageFields, FoundPageRow, FoundPages, IncludedCategories,
     ListPagesRenderDiagnosticsInput, OrderBySelector, OrderProperty, PageParentSelector,
     PageQuery, PageQueryResultMetadata, PageTypeSelector, PaginationSelector,
     RangeSelector, TagCondition, count_pages_exact_count_eligibility_diagnostics,
-    list_pages_render_diagnostics, parse_static_wikidot_data_form_values,
-    static_wikidot_data_form_matches,
+    list_pages_render_diagnostics, normalize_wikidot_author_name,
+    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
@@ -55,14 +66,15 @@ use crate::services::{
     TextService,
 };
 use crate::types::{Action, PageId, Permission, Resource, TextBlockType};
+use crate::utils::trim_default;
 use ftml::data::PageRef;
 use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::*;
 use ftml::tree::{CodeBlock, VariableMap};
 use regex::Regex;
-use sea_orm::{FromQueryResult, Statement};
+use sea_orm::{FromQueryResult, Statement, Value};
 use std::borrow::Cow;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::future::Future;
 use std::ops::Range;
 use std::pin::Pin;
@@ -90,6 +102,7 @@ pub(crate) struct CorpusReplayExpandedWikitext {
     pub id: PageId,
     pub included_pages: Vec<PageRef>,
     pub(super) wikidot_compat_html: CompatHtmlFragments,
+    pub(super) wikidot_compat_text: CompatTextFragments,
 }
 
 impl CorpusReplayExpandedWikitext {
@@ -150,6 +163,7 @@ pub(crate) struct CorpusReplayPreparedWikitext {
     pub preprocessed: bool,
     pub timings: CorpusReplayStageTimings,
     pub features: CorpusReplaySyntaxFeatures,
+    pub(super) wikidot_css_modules: Vec<String>,
     pub(super) wikidot_compat_html: CompatHtmlFragments,
     pub(super) wikidot_compat_text: CompatTextFragments,
     native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
@@ -255,12 +269,14 @@ struct ExpandedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
     wikidot_compat_html: CompatHtmlFragments,
+    wikidot_compat_text: CompatTextFragments,
 }
 
 #[derive(Debug)]
 struct OuterPreparedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
+    wikidot_css_modules: Vec<String>,
     wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
     wikidot_color_spans: ProtectedWikidotColorSpans,
     wikidot_compat_html: CompatHtmlFragments,
@@ -274,6 +290,7 @@ struct OuterPreparedRenderWikitext {
 struct InnerPreparedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
+    wikidot_css_modules: Vec<String>,
     wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
     wikidot_color_spans: ProtectedWikidotColorSpans,
     wikidot_compat_links: Vec<ProtectedWikidotCompatLink>,
@@ -305,8 +322,6 @@ const MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS: usize = 12;
 const MIN_FTML_COMPAT_TABBED_RENDER_BYTES: usize = 100_000;
 const MIN_FTML_COMPAT_TABBED_MARKERS: usize = 10;
 const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
-const MAX_WIKIDOT_SIMPLE_IF_PASSES: usize = 32;
-const LISTPAGES_NO_MATCH_AUTHOR_ID: &str = "-9223372036854775808";
 const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
 const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
@@ -330,12 +345,93 @@ type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
 
 static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
-static LISTPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?is)\[\[module\s+ListPages(?P<head>(?:"[^"]*"|'[^']*'|[^\]])*)\]\](?P<body>.*?)\[\[/module\]\]"#,
-    )
-    .unwrap()
-});
+#[derive(Debug)]
+struct ListPagesModuleMatch<'a> {
+    start: usize,
+    end: usize,
+    head: &'a str,
+    body: &'a str,
+    original: &'a str,
+}
+
+fn find_list_pages_module_matches(source: &str) -> Vec<ListPagesModuleMatch<'_>> {
+    const MODULE_OPEN: &str = "[[module";
+    const MODULE_CLOSE: &str = "[[/module]]";
+
+    let lowercase = source.to_ascii_lowercase();
+    let mut matches = Vec::new();
+    let mut cursor = 0;
+    while let Some(relative_start) = lowercase[cursor..].find(MODULE_OPEN) {
+        let start = cursor + relative_start;
+        let Some(opening_end) = lowercase[start + MODULE_OPEN.len()..]
+            .find("]]")
+            .map(|offset| start + MODULE_OPEN.len() + offset)
+        else {
+            break;
+        };
+        let opening = &source[start + MODULE_OPEN.len()..opening_end];
+        let trimmed = opening.trim_start();
+        let name_end = trimmed.find(char::is_whitespace).unwrap_or(trimmed.len());
+        if !trimmed[..name_end].eq_ignore_ascii_case("listpages") {
+            cursor = opening_end + 2;
+            continue;
+        }
+        let head = trimmed[name_end..].trim_start();
+        let body_start = opening_end + 2;
+        let Some((closing_start, end)) = find_matching_list_pages_module_close(
+            &lowercase,
+            body_start,
+            MODULE_OPEN,
+            MODULE_CLOSE,
+        ) else {
+            break;
+        };
+        matches.push(ListPagesModuleMatch {
+            start,
+            end,
+            head,
+            body: &source[body_start..closing_start],
+            original: &source[start..end],
+        });
+        cursor = end;
+    }
+    matches
+}
+
+fn find_matching_list_pages_module_close(
+    lowercase: &str,
+    mut cursor: usize,
+    module_open: &str,
+    module_close: &str,
+) -> Option<(usize, usize)> {
+    let mut depth = 1usize;
+    loop {
+        let next_open = lowercase[cursor..]
+            .find(module_open)
+            .map(|offset| cursor + offset);
+        let next_close = lowercase[cursor..]
+            .find(module_close)
+            .map(|offset| cursor + offset);
+        match (next_open, next_close) {
+            (_, None) => return None,
+            (Some(open), Some(close)) if open < close => {
+                let opening_end = lowercase[open + module_open.len()..]
+                    .find("]]")
+                    .map(|offset| open + module_open.len() + offset)?;
+                depth += 1;
+                cursor = opening_end + 2;
+            }
+            (_, Some(close)) => {
+                depth -= 1;
+                let end = close + module_close.len();
+                if depth == 0 {
+                    return Some((close, end));
+                }
+                cursor = end;
+            }
+        }
+    }
+}
 static WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| {
         Regex::new(&format!(
@@ -428,18 +524,6 @@ static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)(?P<key>[A-Za-z_][A-Za-z0-9_\-]*)\s*(?P<op>!?=)\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
         .unwrap()
 });
-static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r"%%(?P<name>[A-Za-z0-9_]+)(?:\{(?P<argument>[A-Za-z0-9_-]+)\})?(?:\|(?P<format>.*?))?%%",
-    )
-    .unwrap()
-});
-static WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[#ifexpr\s+(?P<test>-?[0-9]+(?:\.[0-9]+)?)\s*>\s*-1\s*\|\s*\+\s*\|\s*-\s*\]\]\s*\[\[#expr\s+abs\(\s*(?P<abs>-?[0-9]+(?:\.[0-9]+)?)\s*\)\s*\]\]").unwrap()
-});
-static WIKIDOT_NUMERIC_IFEXPR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[#ifexpr\s+(?P<left>-?[0-9]+(?:\.[0-9]+)?)\s*(?P<op>>=|<=|==|!=|=|>|<)\s*(?P<right>-?[0-9]+(?:\.[0-9]+)?)\s*\|\s*(?P<when_true>.*?)\s*\|\s*(?P<when_false>.*?)\s*\]\]").unwrap()
-});
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
 static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> =
@@ -492,7 +576,10 @@ static WIKIDOT_ESCAPED_NBSP_REGEX: LazyLock<Regex> =
 static WIKIJUMP_CODE_BLOCK_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-code-panel">.*?</div>"#).unwrap());
 static WIKIJUMP_CODE_BLOCK_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)<wj-code class="wj-code(?:\s+wj-language-[^"]*)?">"#).unwrap()
+    Regex::new(
+        r#"(?is)<wj-code class="wj-code(?:\s+wj-language-(?P<language>[^"\s]+))?">"#,
+    )
+    .unwrap()
 });
 static WIKIJUMP_TAB_BUTTON_LIST_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)<div class="wj-tabs-button-list"[^>]*>(?P<body>.*?)</div>"#)
@@ -512,22 +599,6 @@ static WIKIJUMP_TAB_BUTTON_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static WIKIJUMP_TAB_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-tabs-panel"[^>]*>"#).unwrap());
-static WIKIDOT_RESIDUAL_IFTAGS_INLINE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?i)\[\[iftags[^\]\n]*\]\][^\[\]\n]*\[\[/iftags\]\]"#).unwrap()
-});
-static WIKIDOT_SINGLE_LINE_IFTAGS_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?i)\[\[iftags(?P<spec>[^\]\n]*)\]\](?P<body>[^\[\]\n]*)\[\[/iftags\]\]"#,
-    )
-    .unwrap()
-});
-static WIKIDOT_SIMPLE_IFTAGS_BLOCK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)\[\[iftags(?P<spec>\s+[^\]\n]+)\]\](?P<body>.*?)\[\[/iftags\]\]"#)
-        .unwrap()
-});
-static WIKIDOT_SIMPLE_IF_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)\[\[#if\s+(?P<cond>1|0|true|false)\s*\|"#).unwrap()
-});
 static WIKIDOT_IMAGE_BLOCK_INCLUDE_START_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?is)\[\[include\s+(?::(?P<site>[A-Za-z0-9_-]+):)?component:image-block(?P<after>\s|\||\]\])"#,
@@ -687,6 +758,7 @@ impl RenderService {
             settings,
             RenderContext::none(),
             MAX_INCLUDE_EXPANSION_TOTAL,
+            None,
         )
         .await
         .or_raise(make_error)?;
@@ -722,6 +794,7 @@ impl RenderService {
                 page_id,
             },
             MAX_INCLUDE_EXPANSION_TOTAL,
+            None,
         )
         .await
     }
@@ -743,6 +816,27 @@ impl RenderService {
             layout,
             id,
             MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+            None,
+        )
+        .await
+    }
+
+    pub(crate) async fn render_corpus_page_traced(
+        ctx: &ServiceContext<'_>,
+        wikitext: String,
+        page_info: &PageInfo<'_>,
+        layout: Layout,
+        id: PageId,
+        trace: &CorpusRenderTrace,
+    ) -> Result<RenderPageOutput> {
+        Self::render_page_with_include_limit(
+            ctx,
+            wikitext,
+            page_info,
+            layout,
+            id,
+            MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+            Some(trace),
         )
         .await
     }
@@ -758,6 +852,7 @@ impl RenderService {
             page_id,
         }: PageId,
         max_include_expansions: usize,
+        trace: Option<&CorpusRenderTrace>,
     ) -> Result<RenderPageOutput> {
         let page_settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let nav_settings = WikitextSettings::from_mode(WikitextMode::PageNav, layout);
@@ -778,7 +873,7 @@ impl RenderService {
         };
 
         let RenderInnerOutput {
-            html_output,
+            mut html_output,
             errors,
             compiled_hash: compiled_body_html_hash,
         } = Self::render_inner(
@@ -788,6 +883,7 @@ impl RenderService {
             &page_settings,
             RenderContext::page(site_id, page_id),
             max_include_expansions,
+            trace.map(|trace| (trace, CorpusRenderScope::Body)),
         )
         .await
         .or_raise(make_error)?;
@@ -799,7 +895,8 @@ impl RenderService {
             .await
             .or_raise(make_error)?;
 
-        let render_nav_page = |wikitext| async {
+        let nav_settings = &nav_settings;
+        let render_nav_page = |wikitext, scope| async move {
             match wikitext {
                 Some(wikitext) => {
                     // Navigation pages render in the context of the viewed page, but
@@ -813,16 +910,19 @@ impl RenderService {
                         ctx,
                         wikitext,
                         page_info,
-                        &nav_settings,
+                        nav_settings,
                         RenderContext::page_nav(site_id, page_id),
                         max_include_expansions,
+                        trace.map(|trace| (trace, scope)),
                     )
                     .await;
 
                     match result {
-                        Ok(RenderInnerOutput { compiled_hash, .. }) => {
-                            Ok(Some(compiled_hash))
-                        }
+                        Ok(RenderInnerOutput {
+                            html_output,
+                            compiled_hash,
+                            ..
+                        }) => Ok(Some((compiled_hash, html_output.styles))),
                         Err(error) => Err(error),
                     }
                 }
@@ -833,16 +933,33 @@ impl RenderService {
         };
 
         let (top_bar_render_result, side_bar_render_result) = join!(
-            render_nav_page(top_bar_page_wikitext),
-            render_nav_page(side_bar_page_wikitext),
+            render_nav_page(top_bar_page_wikitext, CorpusRenderScope::TopNav),
+            render_nav_page(side_bar_page_wikitext, CorpusRenderScope::SideNav),
         );
-        let (compiled_top_bar_html_hash, compiled_side_bar_html_hash) =
+        let (top_bar_render, side_bar_render) =
             raise_multiple!(top_bar_render_result, side_bar_render_result; make_error);
+        let (compiled_top_bar_html_hash, top_bar_styles) = top_bar_render
+            .map(|(hash, styles)| (Some(hash), styles))
+            .unwrap_or_default();
+        let (compiled_side_bar_html_hash, side_bar_styles) = side_bar_render
+            .map(|(hash, styles)| (Some(hash), styles))
+            .unwrap_or_default();
+
+        let body_styles = std::mem::take(&mut html_output.styles);
+        html_output.styles = top_bar_styles;
+        html_output.styles.extend(side_bar_styles);
+        html_output.styles.extend(body_styles);
+        let styles_json =
+            serde_json::to_string(&html_output.styles).or_raise(make_error)?;
+        let compiled_body_styles_hash = TextService::create(ctx, styles_json)
+            .await
+            .or_raise(make_error)?;
 
         Ok(RenderPageOutput {
             html_output,
             errors,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_at: now(),
@@ -869,9 +986,12 @@ impl RenderService {
             wikitext,
             &page_info,
             &settings,
-            Some(id.site_id),
-            Some(id.page_id),
-            MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+            RenderExpansionOptions {
+                current_site_id: Some(id.site_id),
+                current_page_id: Some(id.page_id),
+                max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+                trace: None,
+            },
         )
         .await?;
 
@@ -882,6 +1002,7 @@ impl RenderService {
             id,
             included_pages: expanded.included_pages,
             wikidot_compat_html: expanded.wikidot_compat_html,
+            wikidot_compat_text: expanded.wikidot_compat_text,
         })
     }
 
@@ -905,11 +1026,13 @@ impl RenderService {
             id,
             included_pages,
             wikidot_compat_html,
+            wikidot_compat_text,
         } = input;
         let expanded = ExpandedRenderWikitext {
             wikitext,
             included_pages,
             wikidot_compat_html,
+            wikidot_compat_text,
         };
         let outer = Self::prepare_outer_render_wikitext_observed(
             expanded,
@@ -930,6 +1053,7 @@ impl RenderService {
                 preprocessed: false,
                 timings: outer.timings,
                 features,
+                wikidot_css_modules: outer.wikidot_css_modules,
                 wikidot_compat_html: outer.wikidot_compat_html,
                 wikidot_compat_text: outer.wikidot_compat_text,
                 native_list_wikipedia_links: outer.native_list_wikipedia_links,
@@ -949,6 +1073,7 @@ impl RenderService {
             preprocessed: true,
             timings: inner.timings,
             features,
+            wikidot_css_modules: inner.wikidot_css_modules,
             wikidot_compat_html: inner.wikidot_compat_html,
             wikidot_compat_text: inner.wikidot_compat_text,
             native_list_wikipedia_links: inner.native_list_wikipedia_links,
@@ -960,120 +1085,162 @@ impl RenderService {
         mut wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
-        max_include_expansions: usize,
+        options: RenderExpansionOptions<'_>,
     ) -> Result<ExpandedRenderWikitext> {
+        let RenderExpansionOptions {
+            current_site_id,
+            current_page_id,
+            max_include_expansions,
+            trace,
+        } = options;
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
         let mut include_budget = IncludeExpansionBudget::new(max_include_expansions);
-
+        let mut include_source_cache = IncludeSourceCache::default();
+        let mut wikidot_compat_text = CompatTextFragments::new(&wikitext);
         Self::remove_preview_component_separator_markers(&mut wikitext);
-        let mut included_pages = if settings.enable_page_syntax {
-            Self::expand_wikidot_image_block_includes(&mut wikitext, page_info)
-        } else {
-            Vec::new()
+        let mut included_pages = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::ImagePrelude);
+            if settings.enable_page_syntax {
+                Self::expand_wikidot_image_block_includes(&mut wikitext, page_info)
+            } else {
+                Vec::new()
+            }
         };
-
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: expanded_included_pages,
             expanded_include_count,
-        } = Self::expand_includes(
-            ctx,
-            wikitext,
-            page_info,
-            page_info.site.as_ref(),
-            settings,
-            current_site_id,
-            IncludeExpansionOptions {
-                expand_wikidot_image_blocks: true,
-                budget: include_budget,
-            },
-        )
-        .await
-        .or_raise(make_error)?;
+        } = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::Includes);
+            Self::expand_includes(
+                ctx,
+                wikitext,
+                page_info,
+                page_info.site.as_ref(),
+                settings,
+                IncludeExpansionOptions {
+                    current_site_id,
+                    source_cache: &mut include_source_cache,
+                    compat_text: &mut wikidot_compat_text,
+                    expand_wikidot_image_blocks: true,
+                    budget: include_budget,
+                },
+            )
+            .await
+            .or_raise(make_error)?
+        };
         wikitext = expanded_wikitext;
         included_pages.extend(expanded_included_pages);
         include_budget.consume(expanded_include_count);
-        Self::remove_wikidot_metacomponent_documentation(&mut wikitext);
-        remove_unresolved_include_comment_branches(&mut wikitext);
-        Self::prepare_wikidot_conditionals_for_include_expansion(
-            &mut wikitext,
-            page_info,
-        );
-        Self::neutralize_authored_wikidot_compat_markers(&mut wikitext);
+        {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::PostInclude);
+            Self::remove_wikidot_metacomponent_documentation(&mut wikitext);
+            remove_unresolved_include_comment_branches(&mut wikitext);
+            Self::prepare_wikidot_conditionals_for_include_expansion(
+                &mut wikitext,
+                page_info,
+                &mut wikidot_compat_text,
+            );
+            Self::neutralize_authored_wikidot_compat_markers(&mut wikitext);
+        }
         let mut wikidot_compat_html = CompatHtmlFragments::new(&wikitext);
         let IncludeExpansion {
             wikitext: expanded_wikitext,
             included_pages: list_pages_included_pages,
             ..
-        } = Self::expand_list_pages(
-            ctx,
-            wikitext,
-            page_info,
-            settings,
-            &mut wikidot_compat_html,
-            ListPagesExpansionOptions {
-                current_site_id,
-                current_page_id,
-                include_budget,
-            },
-        )
-        .await
-        .or_raise(make_error)?;
+        } = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::ListPages);
+            Self::expand_list_pages(
+                ctx,
+                wikitext,
+                page_info,
+                settings,
+                &mut wikidot_compat_html,
+                &mut include_source_cache,
+                &mut wikidot_compat_text,
+                ListPagesExpansionOptions {
+                    current_site_id,
+                    current_page_id,
+                    include_budget,
+                },
+            )
+            .await
+            .or_raise(make_error)?
+        };
         wikitext = expanded_wikitext;
         included_pages.extend(list_pages_included_pages);
-        wikitext = Self::expand_count_pages(
-            ctx,
-            wikitext,
-            page_info,
-            settings,
-            current_site_id,
-            current_page_id,
-        )
-        .await
-        .or_raise(make_error)?;
-        wikitext = Self::expand_tag_cloud_modules(
-            ctx,
-            wikitext,
-            page_info,
-            current_site_id,
-            current_page_id,
-        )
-        .await
-        .or_raise(make_error)?;
-        wikitext = Self::expand_backlinks_modules(
-            ctx,
-            wikitext,
-            settings,
-            current_site_id,
-            current_page_id,
-            &mut wikidot_compat_html,
-        )
-        .await
-        .or_raise(make_error)?;
-        wikitext = Self::expand_members_modules_with_registry(
-            wikitext,
-            settings,
-            &mut wikidot_compat_html,
-        );
-        wikitext = Self::expand_new_page_modules_with_registry(
-            wikitext,
-            settings,
-            &mut wikidot_compat_html,
-        );
-        wikitext = Self::expand_clone_modules_with_registry(
-            wikitext,
-            settings,
-            &mut wikidot_compat_html,
-        );
-        wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::CountPages);
+            Self::expand_count_pages(
+                ctx,
+                wikitext,
+                page_info,
+                settings,
+                current_site_id,
+                current_page_id,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::TagCloud);
+            Self::expand_tag_cloud_modules(
+                ctx,
+                wikitext,
+                page_info,
+                current_site_id,
+                current_page_id,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::Backlinks);
+            Self::expand_backlinks_modules(
+                ctx,
+                wikitext,
+                settings,
+                current_site_id,
+                current_page_id,
+                &mut wikidot_compat_html,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::RegistryModules);
+            wikitext = Self::expand_members_modules_with_registry(
+                wikitext,
+                settings,
+                &mut wikidot_compat_html,
+            );
+            wikitext = Self::expand_new_page_modules_with_registry(
+                wikitext,
+                settings,
+                &mut wikidot_compat_html,
+            );
+            wikitext = Self::expand_clone_modules_with_registry(
+                wikitext,
+                settings,
+                &mut wikidot_compat_html,
+            );
+            wikitext = Self::expand_rate_modules(wikitext, page_info, settings);
+        }
+
+        if let Some((trace, CorpusRenderScope::Body)) = trace {
+            trace.set_dimension(CorpusRenderDimension::ExpandedBytes, wikitext.len());
+            trace.set_dimension(
+                CorpusRenderDimension::IncludedPages,
+                included_pages.len(),
+            );
+        }
 
         Ok(ExpandedRenderWikitext {
             wikitext,
             included_pages,
             wikidot_compat_html,
+            wikidot_compat_text,
         })
     }
 
@@ -1097,7 +1264,7 @@ impl RenderService {
         observer: &mut impl FnMut(CorpusReplayPreparationStage),
     ) -> OuterPreparedRenderWikitext {
         let mut timings = CorpusReplayStageTimings::default();
-        let mut wikidot_compat_text = CompatTextFragments::new(&expanded.wikitext);
+        let mut wikidot_compat_text = expanded.wikidot_compat_text;
 
         observer(CorpusReplayPreparationStage::Normalization);
         let started = Instant::now();
@@ -1108,7 +1275,9 @@ impl RenderService {
             Self::prepare_wikidot_conditionals_for_include_expansion(
                 &mut expanded.wikitext,
                 page_info,
+                &mut wikidot_compat_text,
             );
+            Self::normalize_wikidot_cross_closed_div_collapsibles(&mut expanded.wikitext);
             Self::normalize_wikidot_div_style_url_quotes(&mut expanded.wikitext);
             Self::protect_wikidot_marker_class_include_variables(
                 &mut expanded.wikitext,
@@ -1132,11 +1301,8 @@ impl RenderService {
                 &mut expanded.wikidot_compat_html,
             );
         expanded.wikitext = rendered;
-        Self::protect_wikidot_css_modules(
-            &mut expanded.wikitext,
-            settings,
-            &mut expanded.wikidot_compat_html,
-        );
+        let wikidot_css_modules =
+            Self::extract_wikidot_css_modules(&mut expanded.wikitext, settings);
         timings.outer_protection_us = elapsed_micros(started);
 
         observer(CorpusReplayPreparationStage::FallbackCheck);
@@ -1150,6 +1316,7 @@ impl RenderService {
         OuterPreparedRenderWikitext {
             wikitext: expanded.wikitext,
             included_pages: expanded.included_pages,
+            wikidot_css_modules,
             wikidot_inline_html,
             wikidot_color_spans,
             wikidot_compat_html: expanded.wikidot_compat_html,
@@ -1182,10 +1349,6 @@ impl RenderService {
             Self::protect_wikidot_wikipedia_links(&mut outer.wikitext, settings);
         let wikidot_embed_iframes =
             Self::protect_wikidot_embed_iframes(&mut outer.wikitext);
-        // Protection turns ambiguous branch constructs into opaque markers.
-        // Rerun the bounded conditional scanner so syntax that could not be
-        // selected safely during outer preparation does not leak into FTML.
-        outer.wikitext = Self::resolve_wikidot_simple_if_fragments(&outer.wikitext);
         outer.timings.inner_protection_us = elapsed_micros(started);
 
         observer(CorpusReplayPreparationStage::Preprocess);
@@ -1196,6 +1359,7 @@ impl RenderService {
         InnerPreparedRenderWikitext {
             wikitext: outer.wikitext,
             included_pages: outer.included_pages,
+            wikidot_css_modules: outer.wikidot_css_modules,
             wikidot_inline_html: outer.wikidot_inline_html,
             wikidot_color_spans: outer.wikidot_color_spans,
             wikidot_compat_html: outer.wikidot_compat_html,
@@ -1215,6 +1379,7 @@ impl RenderService {
         settings: &WikitextSettings,
         render_context: RenderContext,
         max_include_expansions: usize,
+        trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
     ) -> Result<RenderInnerOutput> {
         let config = ctx.config();
         let RenderContext {
@@ -1223,15 +1388,22 @@ impl RenderService {
             text_block_page_id,
         } = render_context;
 
+        if let Some((trace, CorpusRenderScope::Body)) = trace {
+            trace.set_dimension(CorpusRenderDimension::SourceBytes, wikitext.len());
+        }
+
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
-        let current_site = match current_site_id {
-            Some(site_id) => Some(
-                SiteService::get(ctx, Reference::Id(site_id))
-                    .await
-                    .or_raise(make_error)?,
-            ),
-            None => None,
+        let current_site = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::SiteLoad);
+            match current_site_id {
+                Some(site_id) => Some(
+                    SiteService::get(ctx, Reference::Id(site_id))
+                        .await
+                        .or_raise(make_error)?,
+                ),
+                None => None,
+            }
         };
 
         let expanded = Self::expand_render_wikitext(
@@ -1239,16 +1411,37 @@ impl RenderService {
             wikitext,
             page_info,
             settings,
-            current_site_id,
-            current_page_id,
-            max_include_expansions,
+            RenderExpansionOptions {
+                current_site_id,
+                current_page_id,
+                max_include_expansions,
+                trace,
+            },
         )
         .await?;
         let outer = Self::prepare_outer_render_wikitext(expanded, page_info, settings);
+        if let Some((trace, scope)) = trace {
+            trace.add_us(
+                scope,
+                CorpusRenderStage::Normalization,
+                outer.timings.normalization_us,
+            );
+            trace.add_us(
+                scope,
+                CorpusRenderStage::OuterProtect,
+                outer.timings.outer_protection_us,
+            );
+            trace.add_us(
+                scope,
+                CorpusRenderStage::FallbackCheck,
+                outer.timings.fallback_check_us,
+            );
+        }
         if outer.compatibility_fallback {
             let OuterPreparedRenderWikitext {
                 wikitext,
                 included_pages,
+                wikidot_css_modules,
                 wikidot_inline_html,
                 wikidot_color_spans,
                 wikidot_compat_html,
@@ -1263,19 +1456,32 @@ impl RenderService {
                 &mut backlinks,
                 &native_list_wikipedia_links,
             );
-            let fallback_link_titles = if let Some(site_id) = current_site_id {
-                Self::load_wikidot_compat_fallback_link_titles(ctx, site_id, &wikitext)
+            let fallback_link_titles = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::FallbackTitles);
+                if let Some(site_id) = current_site_id {
+                    Self::load_wikidot_compat_fallback_link_titles(
+                        ctx, site_id, &wikitext,
+                    )
                     .await
                     .or_raise(make_error)?
-            } else {
-                WikidotCompatLinkTitleMap::new()
+                } else {
+                    WikidotCompatLinkTitleMap::new()
+                }
             };
+            let fallback_render_stage =
+                StageGuard::new(trace, CorpusRenderStage::FallbackRender);
             let fallback_output = Self::render_oversized_wikidot_compatibility_fallback(
                 &wikitext,
                 current_site.as_ref(),
                 config,
                 page_info.page.as_ref(),
                 Some(&fallback_link_titles),
+            );
+            let mut wikidot_css_modules = wikidot_css_modules;
+            Self::localize_wikidot_generated_styles(
+                &mut wikidot_css_modules,
+                current_site.as_ref(),
+                config,
             );
             let fallback_html_block_texts: Vec<String> = fallback_output
                 .html_block_texts
@@ -1317,12 +1523,22 @@ impl RenderService {
                     wikidot_compat_text.restore(&body)
                 },
                 meta: Vec::new(),
-                styles: Vec::new(),
+                styles: wikidot_css_modules,
                 backlinks,
             };
-            let compiled_hash = TextService::create(ctx, html_output.body.clone())
-                .await
-                .or_raise(make_error)?;
+            drop(fallback_render_stage);
+            if let Some((trace, CorpusRenderScope::Body)) = trace {
+                trace.set_dimension(
+                    CorpusRenderDimension::OutputBytes,
+                    html_output.body.len(),
+                );
+            }
+            let compiled_hash = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::CompiledText);
+                TextService::create(ctx, html_output.body.clone())
+                    .await
+                    .or_raise(make_error)?
+            };
             if let Some(page_id) = text_block_page_id {
                 let html_blocks: Vec<TextBlock> = fallback_html_block_texts
                     .iter()
@@ -1334,6 +1550,7 @@ impl RenderService {
                     })
                     .collect();
 
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlBlocks);
                 TextBlockService::add_blocks(
                     ctx,
                     page_id,
@@ -1356,11 +1573,18 @@ impl RenderService {
         let render_current_site = current_site.clone();
         let render_timeout =
             Self::ftml_compat_render_timeout(&render_config, &outer.wikitext);
+        let worker_trace = trace.map(|(trace, scope)| (trace.clone(), scope));
+        let queued_at = worker_trace.as_ref().map(|_| Instant::now());
 
         let render_task = task::spawn_blocking(move || {
+            let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
+            if let (Some((trace, scope)), Some(queued_at)) = (trace, queued_at) {
+                trace.record_elapsed(scope, CorpusRenderStage::WorkerQueue, queued_at);
+            }
             let InnerPreparedRenderWikitext {
                 wikitext,
                 included_pages,
+                wikidot_css_modules,
                 wikidot_inline_html,
                 wikidot_color_spans,
                 wikidot_compat_links,
@@ -1369,96 +1593,128 @@ impl RenderService {
                 wikidot_compat_text,
                 native_list_wikipedia_links,
                 wikidot_embed_iframes,
-                timings: _,
+                timings,
             } = Self::prepare_inner_render_wikitext(outer, &render_settings);
-            let tokens = ftml::tokenize(&wikitext);
-            let result = ftml::parse(&tokens, &render_page_info, &render_settings);
+            if let Some((trace, scope)) = trace {
+                trace.add_us(
+                    scope,
+                    CorpusRenderStage::InnerProtect,
+                    timings.inner_protection_us,
+                );
+                trace.add_us(scope, CorpusRenderStage::Preprocess, timings.preprocess_us);
+            }
+            let tokens = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::Tokenize);
+                ftml::tokenize(&wikitext)
+            };
+            let result = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::Parse);
+                ftml::parse(&tokens, &render_page_info, &render_settings)
+            };
             let (tree, errors) = result.into();
-            let mut html_output =
-                HtmlRender.render(&tree, &render_page_info, &render_settings);
-            html_output.body = Self::restore_protected_wikidot_embed_iframes(
-                html_output.body,
-                &wikidot_embed_iframes,
-            );
-            html_output.body = Self::restore_protected_wikidot_color_spans(
-                html_output.body,
-                &wikidot_color_spans,
-            );
-            html_output.body = Self::restore_protected_wikidot_inline_html(
-                html_output.body,
-                &wikidot_inline_html,
-            );
-            html_output.body = wikidot_compat_html.restore(&html_output.body);
-            html_output.body = Self::restore_protected_wikidot_wikipedia_links(
-                html_output.body,
-                &wikidot_wikipedia_links,
-            );
-            html_output.body = Self::restore_protected_wikidot_compat_links(
-                html_output.body,
-                &wikidot_compat_links,
-            );
-            html_output.body =
-                restore_list_pages_literal_ellipsis_markers(&html_output.body);
-            Self::record_protected_wikidot_wikipedia_backlinks(
-                &mut html_output.backlinks,
-                &wikidot_wikipedia_links,
-            );
-            Self::record_wikidot_wikipedia_backlinks(
-                &mut html_output.backlinks,
-                &native_list_wikipedia_links,
-            );
-            html_output.body = Self::restore_wikidot_render_compatibility(
-                &html_output.body,
-                render_current_site.as_ref(),
-                &render_config,
-            );
-            apply_basalt_shell_compatibility(&mut html_output.body);
-            apply_blankstyle_shell_compatibility(&mut html_output.body);
-            html_output.body =
-                Self::remove_wikidot_compat_style_blocks(&html_output.body);
-            html_output.body = Self::localize_wikidot_local_file_urls(
-                &html_output.body,
-                render_current_site.as_ref(),
-                &render_config,
-            );
-            html_output.body = wikidot_compat_text.restore(&html_output.body);
-            html_output.backlinks.included_pages.extend(included_pages);
-            let html_block_texts = tree
-                .html_blocks
-                .iter()
-                .map(|html| {
-                    let html = wikidot_compat_html.restore(html);
-                    let html = Self::localize_wikidot_local_file_urls(
-                        &html,
-                        render_current_site.as_ref(),
-                        &render_config,
-                    );
-                    wikidot_compat_text.restore(&html)
-                })
-                .collect();
-            let code_blocks = tree
-                .code_blocks
-                .iter()
-                .map(
-                    |CodeBlock {
-                         contents,
-                         language,
-                         name,
-                     }| CodeBlock {
-                        contents: Cow::Owned(wikidot_compat_text.restore(
-                            &Self::restore_wikidot_code_block_compatibility(
-                                &wikidot_compat_html.restore_plain(contents),
-                                render_current_site.as_ref(),
-                                &render_config,
-                            ),
-                        )),
-                        language: language
-                            .as_ref()
-                            .map(|language| Cow::Owned(language.to_string())),
-                        name: name.as_ref().map(|name| Cow::Owned(name.to_string())),
-                    },
-                )
-                .collect();
+            let mut html_output = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlRender);
+                HtmlRender.render(&tree, &render_page_info, &render_settings)
+            };
+            // Deepwell's Wikidot compatibility scanner identifies actual CSS module
+            // syntax before raw HTML fragments are restored. Keeping that typed
+            // provenance separate ensures authored <style> HTML stays in the body.
+            if !wikidot_css_modules.is_empty() {
+                let mut styles = wikidot_css_modules;
+                styles.append(&mut html_output.styles);
+                Self::localize_wikidot_generated_styles(
+                    &mut styles,
+                    render_current_site.as_ref(),
+                    &render_config,
+                );
+                html_output.styles = styles;
+            } else {
+                Self::localize_wikidot_generated_styles(
+                    &mut html_output.styles,
+                    render_current_site.as_ref(),
+                    &render_config,
+                );
+            }
+            let (html_block_texts, code_blocks) = {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlCompat);
+                html_output.body = Self::restore_protected_wikidot_embed_iframes(
+                    html_output.body,
+                    &wikidot_embed_iframes,
+                );
+                html_output.body = Self::restore_protected_wikidot_color_spans(
+                    html_output.body,
+                    &wikidot_color_spans,
+                );
+                html_output.body = Self::restore_protected_wikidot_inline_html(
+                    html_output.body,
+                    &wikidot_inline_html,
+                );
+                html_output.body = wikidot_compat_html.restore(&html_output.body);
+                html_output.body = Self::restore_protected_wikidot_wikipedia_links(
+                    html_output.body,
+                    &wikidot_wikipedia_links,
+                );
+                html_output.body = Self::restore_protected_wikidot_compat_links(
+                    html_output.body,
+                    &wikidot_compat_links,
+                );
+                html_output.body =
+                    restore_list_pages_literal_ellipsis_markers(&html_output.body);
+                Self::record_protected_wikidot_wikipedia_backlinks(
+                    &mut html_output.backlinks,
+                    &wikidot_wikipedia_links,
+                );
+                Self::record_wikidot_wikipedia_backlinks(
+                    &mut html_output.backlinks,
+                    &native_list_wikipedia_links,
+                );
+                html_output.body = Self::restore_wikidot_render_compatibility(
+                    &html_output.body,
+                    render_current_site.as_ref(),
+                    &render_config,
+                );
+                apply_basalt_shell_compatibility(&mut html_output.body);
+                apply_blankstyle_shell_compatibility(&mut html_output.body);
+                html_output.body = wikidot_compat_text.restore(&html_output.body);
+                html_output.backlinks.included_pages.extend(included_pages);
+                let html_block_texts = tree
+                    .html_blocks
+                    .iter()
+                    .map(|html| {
+                        let html = wikidot_compat_html.restore(html);
+                        let html = Self::localize_wikidot_local_file_urls(
+                            &html,
+                            render_current_site.as_ref(),
+                            &render_config,
+                        );
+                        wikidot_compat_text.restore(&html)
+                    })
+                    .collect();
+                let code_blocks = tree
+                    .code_blocks
+                    .iter()
+                    .map(
+                        |CodeBlock {
+                             contents,
+                             language,
+                             name,
+                         }| CodeBlock {
+                            contents: Cow::Owned(wikidot_compat_text.restore(
+                                &Self::restore_wikidot_code_block_compatibility(
+                                    &wikidot_compat_html.restore_plain(contents),
+                                    render_current_site.as_ref(),
+                                    &render_config,
+                                ),
+                            )),
+                            language: language
+                                .as_ref()
+                                .map(|language| Cow::Owned(language.to_string())),
+                            name: name.as_ref().map(|name| Cow::Owned(name.to_string())),
+                        },
+                    )
+                    .collect();
+                (html_block_texts, code_blocks)
+            };
 
             FtmlRenderOutput {
                 html_output,
@@ -1485,20 +1741,33 @@ impl RenderService {
                 Error::new("failed to join parse and render task", ErrorType::Render)
             })?;
 
+        if let Some((trace, CorpusRenderScope::Body)) = trace {
+            trace.set_dimension(
+                CorpusRenderDimension::OutputBytes,
+                html_output.body.len(),
+            );
+        }
+
         // Both hosted block collections must be valid before either one can
         // write to S3. Each add_blocks call also validates its own slice.
-        if text_block_page_id.is_some() {
-            TextBlockService::validate_page_block_counts(
-                html_block_texts.len(),
-                code_blocks.len(),
-            )
-            .or_raise(make_error)?;
+        {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::BlocksValidate);
+            if text_block_page_id.is_some() {
+                TextBlockService::validate_page_block_counts(
+                    html_block_texts.len(),
+                    code_blocks.len(),
+                )
+                .or_raise(make_error)?;
+            }
         }
 
         // Insert compiled HTML into text table
-        let compiled_hash = TextService::create(ctx, html_output.body.clone())
-            .await
-            .or_raise(make_error)?;
+        let compiled_hash = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::CompiledText);
+            TextService::create(ctx, html_output.body.clone())
+                .await
+                .or_raise(make_error)?
+        };
 
         // Set up the hosted text blocks
         //
@@ -1512,45 +1781,56 @@ impl RenderService {
             debug_assert_eq!(settings.mode, WikitextMode::Page);
 
             // [[html]]
-            let html_blocks: Vec<TextBlock> = html_block_texts
-                .iter()
-                .map(|html| TextBlock {
-                    text: html,
-                    text_type: None,
-                    mime: MIME_HTML,
-                    name: None,
-                })
-                .collect();
+            {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlBlocks);
+                let html_blocks: Vec<TextBlock> = html_block_texts
+                    .iter()
+                    .map(|html| TextBlock {
+                        text: html,
+                        text_type: None,
+                        mime: MIME_HTML,
+                        name: None,
+                    })
+                    .collect();
 
-            TextBlockService::add_blocks(ctx, page_id, TextBlockType::Html, &html_blocks)
+                TextBlockService::add_blocks(
+                    ctx,
+                    page_id,
+                    TextBlockType::Html,
+                    &html_blocks,
+                )
                 .await
                 .or_raise(make_error)?;
+            }
 
             // [[code]]
-            let code_text_blocks: Vec<TextBlock> = code_blocks
-                .iter()
-                .map(
-                    |CodeBlock {
-                         contents,
-                         language,
-                         name,
-                     }| TextBlock {
-                        text: contents,
-                        text_type: language.as_deref(),
-                        mime: mime_for_language(language),
-                        name: name.as_deref(),
-                    },
-                )
-                .collect();
+            {
+                let _stage = StageGuard::new(trace, CorpusRenderStage::CodeBlocks);
+                let code_text_blocks: Vec<TextBlock> = code_blocks
+                    .iter()
+                    .map(
+                        |CodeBlock {
+                             contents,
+                             language,
+                             name,
+                         }| TextBlock {
+                            text: contents,
+                            text_type: language.as_deref(),
+                            mime: mime_for_language(language),
+                            name: name.as_deref(),
+                        },
+                    )
+                    .collect();
 
-            TextBlockService::add_blocks(
-                ctx,
-                page_id,
-                TextBlockType::Code,
-                &code_text_blocks,
-            )
-            .await
-            .or_raise(make_error)?;
+                TextBlockService::add_blocks(
+                    ctx,
+                    page_id,
+                    TextBlockType::Code,
+                    &code_text_blocks,
+                )
+                .await
+                .or_raise(make_error)?;
+            }
         }
 
         // Build and return
@@ -1566,29 +1846,79 @@ impl RenderService {
         current_site: Option<&SiteModel>,
         config: &Config,
     ) -> String {
-        let html = Self::restore_wikidot_rendered_embed_iframes(html);
-        let html = Self::restore_wikidot_email_obfuscation(&html);
-        let html = Self::remove_spurious_wikidot_email_classes(&html);
-        let html = Self::restore_wikidot_collapsible_compatibility(&html);
-        let html = Self::restore_wikidot_code_block_dom_compatibility(&html);
-        let html = Self::restore_wikidot_tabview_dom_compatibility(&html);
-        let html = Self::resolve_wikidot_simple_if_fragments(&html);
-        let html = Self::restore_wikidot_mailform_compatibility(&html);
-        let html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
-        let html = Self::restore_residual_wikidot_span_markers(&html);
-        let html = Self::restore_residual_wikidot_alignment_markers(&html);
-        let html = Self::restore_residual_wikidot_separator_markers(&html);
-        let html = Self::restore_residual_wikidot_heading_markers(&html);
-        let html = Self::remove_residual_wikidot_iftags_fragments(&html);
-        let html = Self::remove_wikijump_table_body_wrappers(&html);
-        let html = Self::remove_wikidot_compat_style_blocks(&html);
-        let html = Self::restore_wikidot_inline_math_compatibility(&html);
-        let html = Self::restore_wikidot_ta_badge_default_compatibility(&html);
-        let html = Self::restore_wikidot_text_ellipsis_compatibility(&html);
-        let html = Self::restore_wikidot_footnote_dom_compatibility(&html);
-        let html = Self::remove_wikijump_underline_wrappers(&html);
-        let html = Self::remove_wikidot_userkarma_background_styles(&html);
-        Self::localize_wikidot_local_file_urls(&html, current_site, config)
+        let mut html = html.to_owned();
+        if html.contains("[[embed]]") {
+            html = Self::restore_wikidot_rendered_embed_iframes(&html);
+        }
+        if html.contains("wiki-email") {
+            html = Self::restore_wikidot_email_obfuscation(&html);
+            html = Self::remove_spurious_wikidot_email_classes(&html);
+        }
+        if html.contains("wj-collapsible") {
+            html = Self::restore_wikidot_collapsible_compatibility(&html);
+        }
+        if html.contains("wj-code") {
+            html = Self::restore_wikidot_code_block_dom_compatibility(&html);
+        }
+        if html.contains("wj-tabs") {
+            html = Self::restore_wikidot_tabview_dom_compatibility(&html);
+        }
+        if WIKIDOT_RENDERED_MAILFORM_REGEX.is_match(&html) {
+            html = Self::restore_wikidot_mailform_compatibility(&html);
+        }
+        if html.contains("[[div") || html.contains("[[/div") {
+            html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
+        }
+        if html.contains("[[span") || html.contains("[[/span") {
+            html = Self::restore_residual_wikidot_span_markers(&html);
+        }
+        if html.contains("[[=")
+            || html.contains("[[<")
+            || html.contains("[[>")
+            || html.contains("[[/=")
+            || html.contains("[[/<")
+            || html.contains("[[/>")
+        {
+            html = Self::restore_residual_wikidot_alignment_markers(&html);
+        }
+        if html.starts_with("----")
+            || html.contains("\n----")
+            || html.contains("@@ @@")
+            || html.contains("~~~~")
+        {
+            html = Self::restore_residual_wikidot_separator_markers(&html);
+        }
+        if html.starts_with('+') || html.contains("\n+") || html.contains("\n====") {
+            html = Self::restore_residual_wikidot_heading_markers(&html);
+        }
+        if html.contains("<tbody>") || html.contains("</tbody>") {
+            html = Self::remove_wikijump_table_body_wrappers(&html);
+        }
+        if WIKIDOT_COMPAT_STYLE_BLOCK_REGEX.is_match(&html) {
+            html = Self::remove_wikidot_compat_style_blocks(&html);
+        }
+        if html.contains("wj-math-inline") {
+            html = Self::restore_wikidot_inline_math_compatibility(&html);
+        }
+        if html.contains("{$") {
+            html = Self::restore_wikidot_ta_badge_default_compatibility(&html);
+        }
+        if html.contains("...") {
+            html = Self::restore_wikidot_text_ellipsis_compatibility(&html);
+        }
+        if html.contains("wj-footnote") {
+            html = Self::restore_wikidot_footnote_dom_compatibility(&html);
+        }
+        if html.contains("<u>") || html.contains("</u>") {
+            html = Self::remove_wikijump_underline_wrappers(&html);
+        }
+        if html.contains("userkarma.php") {
+            html = Self::remove_wikidot_userkarma_background_styles(&html);
+        }
+        if html.contains("/local--") {
+            html = Self::localize_wikidot_local_file_urls(&html, current_site, config);
+        }
+        html
     }
 
     fn restore_wikidot_collapsible_compatibility(html: &str) -> String {
@@ -1642,8 +1972,16 @@ impl RenderService {
 
     fn restore_wikidot_code_block_dom_compatibility(html: &str) -> String {
         let html = WIKIJUMP_CODE_BLOCK_PANEL_REGEX.replace_all(html, "");
-        let html =
-            WIKIJUMP_CODE_BLOCK_OPEN_REGEX.replace_all(&html, r#"<div class="code">"#);
+        let html = WIKIJUMP_CODE_BLOCK_OPEN_REGEX.replace_all(
+            &html,
+            |captures: &regex::Captures<'_>| match captures.name("language") {
+                Some(language) => format!(
+                    r#"<div class="code" data-wj-language="{}">"#,
+                    language.as_str(),
+                ),
+                None => r#"<div class="code">"#.to_owned(),
+            },
+        );
         html.replace("</wj-code>", "</div>")
     }
 
@@ -1745,8 +2083,8 @@ impl RenderService {
             r#"<div class="wj-footnote-list footnotes-footer">"#,
         )
         .replace(
-            r#"<div class="wj-title">Footnotes</div>"#,
-            r#"<div class="wj-title title">Footnotes</div>"#,
+            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title">"#,
+            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">"#,
         )
     }
 
@@ -2312,165 +2650,142 @@ impl RenderService {
         Some((level, body))
     }
 
-    fn remove_residual_wikidot_iftags_fragments(html: &str) -> String {
-        WIKIDOT_RESIDUAL_IFTAGS_INLINE_REGEX
-            .replace_all(html, "")
-            .into_owned()
-    }
-
     fn prepare_wikidot_conditionals_for_include_expansion(
         wikitext: &mut String,
         page_info: &ftml::data::PageInfo<'_>,
+        preserved: &mut CompatTextFragments,
     ) {
         Self::remove_unresolved_variable_iftags_blocks(wikitext);
-        Self::resolve_single_line_wikidot_iftags_fragments(wikitext, page_info);
-        Self::resolve_simple_wikidot_iftags_blocks(wikitext, page_info);
-        *wikitext = Self::resolve_wikidot_simple_if_fragments(wikitext);
+        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
+        Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
     }
 
-    fn resolve_single_line_wikidot_iftags_fragments(
-        wikitext: &mut String,
-        page_info: &ftml::data::PageInfo<'_>,
-    ) {
-        let resolved = WIKIDOT_SINGLE_LINE_IFTAGS_REGEX.replace_all(
-            wikitext,
-            |captures: &regex::Captures<'_>| {
-                if wikidot_tag_conditions_match(&captures["spec"], &page_info.tags) {
-                    captures["body"].to_owned()
-                } else {
-                    String::new()
-                }
-            },
-        );
-        if let Cow::Owned(resolved) = resolved {
-            *wikitext = resolved;
+    fn normalize_wikidot_cross_closed_div_collapsibles(wikitext: &mut String) {
+        #[derive(Clone, Copy, PartialEq, Eq)]
+        enum Block {
+            Div,
+            Collapsible,
         }
-    }
 
-    fn resolve_simple_wikidot_iftags_blocks(
-        wikitext: &mut String,
-        page_info: &ftml::data::PageInfo<'_>,
-    ) {
-        loop {
-            let resolved = WIKIDOT_SIMPLE_IFTAGS_BLOCK_REGEX.replace_all(
-                wikitext,
-                |captures: &regex::Captures<'_>| {
-                    let body = captures.name("body").map_or("", |mtch| mtch.as_str());
-                    if body.contains("[[iftags") {
-                        return captures
-                            .get(0)
-                            .map_or("", |mtch| mtch.as_str())
-                            .to_owned();
-                    }
+        #[derive(Clone, Copy, PartialEq, Eq)]
+        enum Marker {
+            OpenDiv,
+            CloseDiv,
+            OpenCollapsible,
+            CloseCollapsible,
+        }
 
-                    let spec = captures.name("spec").map_or("", |mtch| mtch.as_str());
-                    if wikidot_tag_conditions_match(spec, &page_info.tags) {
-                        body.to_owned()
-                    } else {
-                        String::new()
-                    }
-                },
-            );
-
-            match resolved {
-                Cow::Borrowed(_) => return,
-                Cow::Owned(resolved) if resolved == *wikitext => return,
-                Cow::Owned(resolved) => *wikitext = resolved,
+        fn marker_kind(marker: &str) -> Option<Marker> {
+            let marker = marker.to_ascii_lowercase();
+            if marker == "[[/div]]" {
+                return Some(Marker::CloseDiv);
             }
-        }
-    }
-
-    fn resolve_wikidot_simple_if_fragments(html: &str) -> String {
-        let mut resolved = html.to_owned();
-
-        for _ in 0..MAX_WIKIDOT_SIMPLE_IF_PASSES {
-            let source = resolved.clone();
-            let literal_regions = LiteralRegionIndex::new(&source);
-            let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
-            let mut search_start = 0usize;
-
-            while let Some(captures) =
-                WIKIDOT_SIMPLE_IF_OPEN_REGEX.captures(&source[search_start..])
+            if marker == "[[/collapsible]]" {
+                return Some(Marker::CloseCollapsible);
+            }
+            if marker.ends_with("]]")
+                && (marker == "[[div]]"
+                    || marker.starts_with("[[div ")
+                    || marker == "[[div_]]"
+                    || marker.starts_with("[[div_ "))
             {
-                let full_open =
-                    captures.get(0).expect("simple-if opening capture exists");
-                let conditional_start = search_start + full_open.start();
-                let branch_start = search_start + full_open.end();
-                let Some((conditional_end, separator)) =
-                    Self::find_wikidot_simple_if_end(&source, branch_start)
-                else {
-                    search_start = branch_start;
-                    continue;
-                };
-                search_start = conditional_end;
-
-                if literal_regions.contains(conditional_start) {
-                    continue;
-                }
-
-                let condition = captures
-                    .name("cond")
-                    .expect("simple-if condition capture exists")
-                    .as_str();
-                let close_start = conditional_end - 2;
-                let selected = if condition.eq_ignore_ascii_case("1")
-                    || condition.eq_ignore_ascii_case("true")
-                {
-                    &source[branch_start..separator.unwrap_or(close_start)]
-                } else {
-                    separator.map_or("", |separator| &source[separator + 1..close_start])
-                };
-                replacements.push((
-                    conditional_start..conditional_end,
-                    selected.trim().to_owned(),
-                ));
+                return Some(Marker::OpenDiv);
             }
-
-            if replacements.is_empty() {
-                return resolved;
+            if marker.ends_with("]]")
+                && (marker == "[[collapsible]]" || marker.starts_with("[[collapsible "))
+            {
+                return Some(Marker::OpenCollapsible);
             }
-            for (range, replacement) in replacements.into_iter().rev() {
-                resolved.replace_range(range, &replacement);
-            }
+            None
         }
 
-        resolved
+        let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
+        let markers = Self::wikitext_line_ranges(wikitext)
+            .into_iter()
+            .filter_map(|(start, _, line)| {
+                let marker = Self::trim_wikitext_line(line);
+                let relative_start = line.find(marker)?;
+                let marker_start = start + relative_start;
+                if literal_regions.contains(marker_start) {
+                    return None;
+                }
+                marker_kind(marker)
+                    .map(|kind| (kind, marker_start..marker_start + marker.len()))
+            })
+            .collect::<Vec<_>>();
+
+        let mut stack = Vec::new();
+        let mut replacements = Vec::new();
+        let mut index = 0usize;
+        while index < markers.len() {
+            let (kind, range) = &markers[index];
+            match kind {
+                Marker::OpenDiv => stack.push(Block::Div),
+                Marker::OpenCollapsible => stack.push(Block::Collapsible),
+                Marker::CloseDiv
+                    if stack.ends_with(&[Block::Div, Block::Collapsible])
+                        && markers.get(index + 1).is_some_and(|(next, _)| {
+                            *next == Marker::CloseCollapsible
+                        }) =>
+                {
+                    replacements.push((range.clone(), "[[/collapsible]]"));
+                    replacements.push((markers[index + 1].1.clone(), "[[/div]]"));
+                    stack.truncate(stack.len() - 2);
+                    index += 1;
+                }
+                Marker::CloseDiv if stack.last() == Some(&Block::Div) => {
+                    stack.pop();
+                }
+                Marker::CloseCollapsible if stack.last() == Some(&Block::Collapsible) => {
+                    stack.pop();
+                }
+                Marker::CloseDiv | Marker::CloseCollapsible => {}
+            }
+            index += 1;
+        }
+
+        for (range, replacement) in replacements.into_iter().rev() {
+            wikitext.replace_range(range, replacement);
+        }
     }
 
-    fn find_wikidot_simple_if_end(
-        source: &str,
-        branch_start: usize,
-    ) -> Option<(usize, Option<usize>)> {
-        let bytes = source.as_bytes();
-        let mut cursor = branch_start;
-        let mut nested_wikidot_depth = 1usize;
-        let mut separator = None;
+    fn prepare_wikidot_conditionals_before_include_expansion(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+        preserved: &mut CompatTextFragments,
+    ) {
+        // Keep incomplete boundaries available for adjacent caller/include
+        // source while still pruning self-contained inactive gates early.
+        Self::remove_unresolved_variable_iftags_blocks(wikitext);
+        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
+        resolve_outermost_wikidot_iftags_before_include_expansion(
+            wikitext,
+            &page_info.tags,
+            preserved,
+        );
+    }
 
-        while cursor + 1 < bytes.len() {
-            if bytes[cursor..].starts_with(b"[[") {
-                nested_wikidot_depth += 1;
-                cursor += 2;
-                continue;
-            }
-            if bytes[cursor..].starts_with(b"]]") {
-                if nested_wikidot_depth == 1 {
-                    return Some((cursor + 2, separator));
-                }
-                nested_wikidot_depth -= 1;
-                cursor += 2;
-                continue;
-            }
-            if bytes[cursor] == b'|' && nested_wikidot_depth == 1 && separator.is_none() {
-                separator = Some(cursor);
-            }
-            cursor += 1;
-        }
-
-        None
+    fn resolve_wikidot_iftags(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+        preserved: &mut CompatTextFragments,
+    ) {
+        resolve_outermost_wikidot_iftags(wikitext, &page_info.tags, preserved);
     }
 
     fn resolve_wikidot_parser_functions(value: &str) -> String {
-        resolve_parser_functions(value)
+        if !value.contains("[[#") {
+            return value.to_owned();
+        }
+        // Frozen ListPages rows use zero for a missing vote count. Preserve the
+        // evidenced operator-level result without maintaining another parser.
+        ftml::preproc::resolve_wikidot_parser_functions_with_options(
+            value,
+            ftml::preproc::WikidotParserFunctionOptions {
+                zero_operator_policy:
+                    ftml::preproc::WikidotZeroOperatorPolicy::ReplaceOperationWithZero,
+            },
+        )
     }
 
     fn normalize_wikidot_div_style_url_quotes(wikitext: &mut String) {
@@ -2952,6 +3267,7 @@ impl RenderService {
         page_info: &PageInfo<'_>,
     ) -> Vec<PageRef> {
         let source = wikitext.clone();
+        let literal_regions = LiteralRegionIndex::new_wikidot_syntax(&source);
         let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
         let mut included_pages = Vec::new();
         let mut search_start = 0;
@@ -2982,13 +3298,12 @@ impl RenderService {
 
             search_start = include_end;
 
-            if Self::should_skip_wikidot_image_block_include_expansion(
-                &source,
-                include_start,
-            ) || !Self::should_expand_wikidot_image_block_include(
-                captures.name("site").map(|site| site.as_str()),
-                page_info,
-            ) {
+            if literal_regions.contains(include_start)
+                || !Self::should_expand_wikidot_image_block_include(
+                    captures.name("site").map(|site| site.as_str()),
+                    page_info,
+                )
+            {
                 continue;
             }
 
@@ -3099,16 +3414,6 @@ impl RenderService {
             Some(site) => PageRef::page_and_site(site, page),
             None => PageRef::page_only(page),
         }
-    }
-
-    fn should_skip_wikidot_image_block_include_expansion(
-        source: &str,
-        start: usize,
-    ) -> bool {
-        Self::is_inside_wikidot_code_block(source, start)
-            || Self::is_inside_wikidot_escape(source, start)
-            || Self::is_inside_wikidot_html_block(source, start)
-            || Self::is_inside_wikidot_comment(source, start)
     }
 
     fn should_expand_wikidot_image_block_include(
@@ -4013,6 +4318,16 @@ impl RenderService {
             .into_owned()
     }
 
+    fn localize_wikidot_generated_styles(
+        styles: &mut [String],
+        current_site: Option<&SiteModel>,
+        config: &Config,
+    ) {
+        for style in styles {
+            *style = Self::localize_wikidot_local_file_urls(style, current_site, config);
+        }
+    }
+
     fn localized_wikidot_local_file_url(
         host: &str,
         path: &str,
@@ -4020,15 +4335,20 @@ impl RenderService {
         config: &Config,
     ) -> Option<String> {
         let site_slug = local_file_host_site_slug(host, config)?;
-        if !site_accepts_wikidot_local_asset_slug(current_site, &site_slug)
-            && !site_accepts_cross_site_wdfiles_local_file(current_site, host, path)
-        {
-            return None;
-        }
+        let target_site_slug =
+            if site_accepts_wikidot_local_asset_slug(current_site, &site_slug)
+                || site_accepts_cross_site_wdfiles_local_file(current_site, host, path)
+            {
+                current_site.slug.as_str()
+            } else if local_lab_has_reserved_scp_asset_mirror(config, &site_slug) {
+                site_slug.as_str()
+            } else {
+                return None;
+            };
 
         Some(format!(
             "https://{}{}{}",
-            current_site.slug, config.files_domain, path,
+            target_site_slug, config.files_domain, path,
         ))
     }
 
@@ -4070,9 +4390,15 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         current_site_slug: &str,
         settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        options: IncludeExpansionOptions,
+        options: IncludeExpansionOptions<'_>,
     ) -> Result<IncludeExpansion> {
+        let IncludeExpansionOptions {
+            current_site_id,
+            source_cache,
+            compat_text,
+            expand_wikidot_image_blocks,
+            budget,
+        } = options;
         let Some(current_site_id) = current_site_id else {
             return Ok(IncludeExpansion {
                 wikitext,
@@ -4097,11 +4423,13 @@ impl RenderService {
                 current_site_slug: current_site_slug.to_owned(),
                 page_info,
                 settings,
-                expand_wikidot_image_blocks: options.expand_wikidot_image_blocks,
-                max_total_includes: options.budget.maximum,
+                expand_wikidot_image_blocks,
+                max_total_includes: budget.maximum,
             },
+            source_cache,
+            compat_text,
             0,
-            options.budget.remaining,
+            budget.remaining,
         )
         .await?;
         unprotect_include_variables(&mut expansion.wikitext);
@@ -4113,15 +4441,18 @@ impl RenderService {
         ctx: &'a ServiceContext<'_>,
         wikitext: String,
         expansion_context: IncludeExpansionContext<'a>,
+        include_source_cache: &'a mut IncludeSourceCache,
+        compat_text: &'a mut CompatTextFragments,
         depth: usize,
         mut remaining_includes: usize,
     ) -> Pin<Box<dyn Future<Output = Result<IncludeExpansion>> + Send + 'a>> {
         Box::pin(async move {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
-            Self::prepare_wikidot_conditionals_for_include_expansion(
+            Self::prepare_wikidot_conditionals_before_include_expansion(
                 &mut wikitext,
                 expansion_context.page_info,
+                compat_text,
             );
             Self::mask_wikidot_comment_include_markers(&mut wikitext);
             let image_block_included_pages = if expansion_context
@@ -4191,6 +4522,7 @@ impl RenderService {
                     expansion_context.current_site_id,
                     &expansion_context.current_site_slug,
                     include.page_ref(),
+                    include_source_cache,
                 )
                 .await?;
 
@@ -4217,6 +4549,8 @@ impl RenderService {
                             .expand_wikidot_image_blocks,
                         max_total_includes: expansion_context.max_total_includes,
                     },
+                    include_source_cache,
+                    compat_text,
                     depth + 1,
                     remaining_includes,
                 )
@@ -4273,6 +4607,7 @@ impl RenderService {
         current_site_id: i64,
         current_site_slug: &str,
         page_ref: &PageRef,
+        include_source_cache: &mut IncludeSourceCache,
     ) -> Result<Option<IncludeSource>> {
         match page_ref.site() {
             Some(site_slug) if site_slug != current_site_slug => {
@@ -4299,6 +4634,7 @@ impl RenderService {
                         current_site_id,
                         current_site_slug,
                         page_ref.page(),
+                        include_source_cache,
                     )
                     .await?
                 {
@@ -4327,6 +4663,7 @@ impl RenderService {
                     site.site_id,
                     &site.slug,
                     page_ref.page(),
+                    include_source_cache,
                 )
                 .await
             }
@@ -4336,6 +4673,7 @@ impl RenderService {
                     current_site_id,
                     current_site_slug,
                     page_ref.page(),
+                    include_source_cache,
                 )
                 .await
             }
@@ -4347,55 +4685,60 @@ impl RenderService {
         site_id: i64,
         site_slug: &str,
         page_slug: &str,
+        include_source_cache: &mut IncludeSourceCache,
     ) -> Result<Option<IncludeSource>> {
-        let page_ref = Reference::from(page_slug);
-        let Some(page) =
-            PageService::get_optional(ctx, site_id, page_ref.clone()).await?
-        else {
-            return Ok(None);
-        };
+        let wikitext = include_source_cache
+            .get_or_try_insert_with(site_id, page_slug, || async {
+                let page_ref = Reference::from(page_slug);
+                let Some(page) =
+                    PageService::get_optional(ctx, site_id, page_ref.clone()).await?
+                else {
+                    return Ok(None);
+                };
 
-        let can_view = PermissionService::check_user_can(
-            ctx,
-            &CheckPermissionContext {
-                user_id: None,
-                site_id,
-                page_reference: Some(page_ref),
-            },
-            Permission {
-                resource_type: Resource::Page,
-                resource_category: Some(Reference::Id(page.page_category_id)),
-                action: Action::View,
-            },
-        )
-        .await?;
-        if !can_view {
-            return Ok(None);
-        }
+                let can_view = PermissionService::check_user_can(
+                    ctx,
+                    &CheckPermissionContext {
+                        user_id: None,
+                        site_id,
+                        page_reference: Some(page_ref),
+                    },
+                    Permission {
+                        resource_type: Resource::Page,
+                        resource_category: Some(Reference::Id(page.page_category_id)),
+                        action: Action::View,
+                    },
+                )
+                .await?;
+                if !can_view {
+                    return Ok(None);
+                }
 
-        if let Some(wikitext) = PageRevisionService::get_wikitext_optional(
-            ctx,
+                PageRevisionService::get_wikitext_optional(
+                    ctx,
+                    site_id,
+                    Reference::Id(page.page_id),
+                )
+                .await
+            })
+            .await?;
+
+        Ok(wikitext.map(|wikitext| IncludeSource {
             site_id,
-            Reference::Id(page.page_id),
-        )
-        .await?
-        {
-            return Ok(Some(IncludeSource {
-                site_id,
-                site_slug: site_slug.to_owned(),
-                wikitext,
-            }));
-        }
-
-        Ok(None)
+            site_slug: site_slug.to_owned(),
+            wikitext,
+        }))
     }
 
+    #[allow(clippy::too_many_arguments)]
     async fn expand_list_pages(
         ctx: &ServiceContext<'_>,
         wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         compat_html: &mut CompatHtmlFragments,
+        include_source_cache: &mut IncludeSourceCache,
+        compat_text: &mut CompatTextFragments,
         options: ListPagesExpansionOptions,
     ) -> Result<IncludeExpansion> {
         let ListPagesExpansionOptions {
@@ -4422,62 +4765,218 @@ impl RenderService {
         }
 
         let initial_remaining_include_expansions = include_budget.remaining;
+        enum ListPagesBlockPlan {
+            Static(String),
+            Render {
+                arguments: ListPagesArguments,
+                template: ListPagesTemplatePlan,
+                batch_key: Option<ExactNameListPagesBatchKey>,
+            },
+        }
+        struct ListPagesBlock {
+            start: usize,
+            end: usize,
+            plan: ListPagesBlockPlan,
+        }
+
+        let current_category = Self::page_info_category_slug(page_info);
+        let blocks = find_list_pages_module_matches(&wikitext)
+            .into_iter()
+            .map(|module| {
+                let head = module.head;
+                let body = module.body;
+                let plan = if list_pages_has_unsupported_parent_selector(head)
+                    || list_pages_has_unsupported_page_type_selector(head)
+                {
+                    ListPagesBlockPlan::Static(module.original.to_owned())
+                } else if let Some(arguments) = parse_list_pages_arguments(head) {
+                    if arguments.unsupported_author_filter {
+                        ListPagesBlockPlan::Static(module.original.to_owned())
+                    } else if let Some(template) = ListPagesTemplatePlan::compile(body) {
+                        let batch_key = exact_name_list_pages_batch_key(
+                            head,
+                            &template,
+                            &arguments,
+                            current_category.as_ref(),
+                        );
+                        ListPagesBlockPlan::Render {
+                            arguments,
+                            template,
+                            batch_key,
+                        }
+                    } else {
+                        ListPagesBlockPlan::Static(unsupported_list_pages_replacement(
+                            module.original,
+                            body,
+                        ))
+                    }
+                } else {
+                    ListPagesBlockPlan::Static(unsupported_list_pages_replacement(
+                        module.original,
+                        body,
+                    ))
+                };
+                ListPagesBlock {
+                    start: module.start,
+                    end: module.end,
+                    plan,
+                }
+            })
+            .collect::<Vec<_>>();
+
         let mut expanded = String::with_capacity(wikitext.len());
         let mut included_pages = Vec::new();
         let mut cursor = 0;
+        let mut blocks = blocks.into_iter().peekable();
 
-        for captures in LISTPAGES_MODULE_REGEX.captures_iter(&wikitext) {
-            let mtch = captures.get(0).unwrap();
-            expanded.push_str(&wikitext[cursor..mtch.start()]);
-            let head = captures.name("head").unwrap().as_str();
-            let body = captures.name("body").unwrap().as_str();
-
-            if list_pages_has_unsupported_parent_selector(head)
-                || list_pages_has_unsupported_page_type_selector(head)
-            {
-                expanded.push_str(mtch.as_str());
-                cursor = mtch.end();
-                continue;
-            }
-
-            let Some(arguments) = parse_list_pages_arguments(head) else {
-                expanded
-                    .push_str(&unsupported_list_pages_replacement(mtch.as_str(), body));
-                cursor = mtch.end();
-                continue;
+        while let Some(block) = blocks.next() {
+            let batch_key = match &block.plan {
+                ListPagesBlockPlan::Render {
+                    batch_key: Some(key),
+                    ..
+                } => Some(key.clone()),
+                _ => None,
             };
+            if let Some(batch_key) = batch_key {
+                let mut batch = vec![block];
+                while batch.len() < MAX_LISTPAGES_RENDER_LIMIT as usize
+                    && blocks.peek().is_some_and(|next| {
+                        matches!(
+                            &next.plan,
+                            ListPagesBlockPlan::Render {
+                                batch_key: Some(key),
+                                ..
+                            } if key == &batch_key
+                        )
+                    })
+                {
+                    batch.push(blocks.next().unwrap());
+                }
 
-            if !list_pages_body_variables_supported(body) {
-                expanded
-                    .push_str(&unsupported_list_pages_replacement(mtch.as_str(), body));
-                cursor = mtch.end();
+                let mut unique_slugs = BTreeSet::new();
+                let mut fields = FoundPageFields::default();
+                let mut display_requirements =
+                    ListPagesBatchDisplayRequirements::default();
+                for block in &batch {
+                    let ListPagesBlockPlan::Render {
+                        arguments,
+                        template,
+                        ..
+                    } = &block.plan
+                    else {
+                        unreachable!();
+                    };
+                    unique_slugs.insert(arguments.slug.as_ref().unwrap().to_string());
+                    union_found_page_fields(&mut fields, &template.fields());
+                    display_requirements.include(template);
+                }
+                let slugs = unique_slugs
+                    .iter()
+                    .map(|slug| Cow::Borrowed(slug.as_str()))
+                    .collect::<Vec<_>>();
+                let prefetched = Self::load_exact_name_list_pages_batch(
+                    ctx,
+                    current_site_id,
+                    current_page_id,
+                    &batch_key,
+                    &slugs,
+                    fields,
+                )
+                .await?;
+                let prefetched_rows = prefetched.values().cloned().collect::<Vec<_>>();
+                let prefetched_displays = Self::load_list_pages_batch_displays(
+                    ctx,
+                    &prefetched_rows,
+                    display_requirements,
+                )
+                .await?;
+
+                for block in batch {
+                    expanded.push_str(&wikitext[cursor..block.start]);
+                    let ListPagesBlockPlan::Render {
+                        arguments,
+                        template,
+                        ..
+                    } = block.plan
+                    else {
+                        unreachable!();
+                    };
+                    let slug = arguments.slug.as_ref().unwrap().to_string();
+                    let prefetched_pages = FoundPages {
+                        pages: prefetched.get(&slug).cloned().into_iter().collect(),
+                    };
+                    let IncludeExpansion {
+                        wikitext: replacement,
+                        included_pages: replacement_included_pages,
+                        expanded_include_count: replacement_expanded_include_count,
+                    } = Self::render_list_pages_block(
+                        ctx,
+                        ListPagesPageContext {
+                            site_id: current_site_id,
+                            page_id: current_page_id,
+                        },
+                        page_info,
+                        settings,
+                        arguments,
+                        &template,
+                        include_budget,
+                        Some(prefetched_pages),
+                        Some(&prefetched_displays),
+                        include_source_cache,
+                        compat_text,
+                    )
+                    .await?;
+                    include_budget.consume(replacement_expanded_include_count);
+                    expanded.push_str(&register_generated_list_pages_html(
+                        replacement,
+                        compat_html,
+                    ));
+                    included_pages.extend(replacement_included_pages);
+                    cursor = block.end;
+                }
                 continue;
             }
 
-            let IncludeExpansion {
-                wikitext: replacement,
-                included_pages: replacement_included_pages,
-                expanded_include_count: replacement_expanded_include_count,
-            } = Self::render_list_pages_block(
-                ctx,
-                ListPagesPageContext {
-                    site_id: current_site_id,
-                    page_id: current_page_id,
-                },
-                page_info,
-                settings,
-                arguments,
-                body,
-                include_budget,
-            )
-            .await?;
-            include_budget.consume(replacement_expanded_include_count);
-            expanded.push_str(&register_generated_list_pages_html(
-                replacement,
-                compat_html,
-            ));
-            included_pages.extend(replacement_included_pages);
-            cursor = mtch.end();
+            expanded.push_str(&wikitext[cursor..block.start]);
+            match block.plan {
+                ListPagesBlockPlan::Static(replacement) => {
+                    expanded.push_str(&replacement);
+                }
+                ListPagesBlockPlan::Render {
+                    arguments,
+                    template,
+                    ..
+                } => {
+                    let IncludeExpansion {
+                        wikitext: replacement,
+                        included_pages: replacement_included_pages,
+                        expanded_include_count: replacement_expanded_include_count,
+                    } = Self::render_list_pages_block(
+                        ctx,
+                        ListPagesPageContext {
+                            site_id: current_site_id,
+                            page_id: current_page_id,
+                        },
+                        page_info,
+                        settings,
+                        arguments,
+                        &template,
+                        include_budget,
+                        None,
+                        None,
+                        include_source_cache,
+                        compat_text,
+                    )
+                    .await?;
+                    include_budget.consume(replacement_expanded_include_count);
+                    expanded.push_str(&register_generated_list_pages_html(
+                        replacement,
+                        compat_html,
+                    ));
+                    included_pages.extend(replacement_included_pages);
+                }
+            }
+            cursor = block.end;
         }
 
         expanded.push_str(&wikitext[cursor..]);
@@ -4486,6 +4985,100 @@ impl RenderService {
             included_pages,
             expanded_include_count: initial_remaining_include_expansions
                 .saturating_sub(include_budget.remaining),
+        })
+    }
+
+    async fn load_exact_name_list_pages_batch(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+        key: &ExactNameListPagesBatchKey,
+        slugs: &[Cow<'_, str>],
+        fields: FoundPageFields,
+    ) -> Result<BTreeMap<String, FoundPageRow>> {
+        let categories = key
+            .categories
+            .iter()
+            .map(|category| Cow::Borrowed(category.as_str()))
+            .collect::<Vec<_>>();
+        let excluded_categories = key
+            .excluded_categories
+            .iter()
+            .map(|category| Cow::Borrowed(category.as_str()))
+            .collect::<Vec<_>>();
+        let included_categories = if key.category_all {
+            IncludedCategories::All
+        } else {
+            IncludedCategories::List(&categories)
+        };
+        let query = PageQuery {
+            current_page_id,
+            current_site_id,
+            queried_site_id: None,
+            page_type: PageTypeSelector::Normal,
+            categories: CategoriesSelector {
+                included_categories,
+                excluded_categories: &excluded_categories,
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &[],
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            },
+            author: AuthorSelector::All,
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            slugs,
+            data_form_fields: &[],
+            order: None,
+            candidate_limit: None,
+            pagination: PaginationSelector {
+                limit: Some(MAX_LISTPAGES_RENDER_LIMIT),
+                per_page: PaginationSelector::default().per_page,
+                reversed: false,
+            },
+            variables: &[],
+            fields,
+        };
+        let found = Self::find_viewable_list_pages_rows(ctx, query, slugs.len()).await?;
+        Ok(found
+            .pages
+            .pages
+            .into_iter()
+            .filter_map(|page| page.slug.clone().map(|slug| (slug, page)))
+            .collect())
+    }
+
+    async fn load_list_pages_batch_displays(
+        ctx: &ServiceContext<'_>,
+        pages: &[FoundPageRow],
+        requirements: ListPagesBatchDisplayRequirements,
+    ) -> Result<ListPagesBatchDisplays> {
+        let user_displays = if requirements.users {
+            Self::load_wikidot_user_displays(ctx, pages).await?
+        } else {
+            BTreeMap::new()
+        };
+        let snapshot_displays = if requirements.snapshots {
+            Self::load_list_pages_snapshot_displays(ctx, pages).await?
+        } else {
+            BTreeMap::new()
+        };
+        Ok(ListPagesBatchDisplays {
+            user_displays,
+            snapshot_displays,
         })
     }
 
@@ -4851,23 +5444,26 @@ impl RenderService {
         Ok(counts.into_iter().collect())
     }
 
-    fn protect_wikidot_css_modules(
+    fn extract_wikidot_css_modules(
         wikitext: &mut String,
         settings: &WikitextSettings,
-        compat_html: &mut CompatHtmlFragments,
-    ) {
+    ) -> Vec<String> {
         if !settings.enable_page_syntax {
-            return;
+            return Vec::new();
         }
 
         let source = wikitext.as_str();
         let literal_regions = LiteralRegionIndex::new(source);
         let syntax_literal_regions = LiteralRegionIndex::new_wikidot_syntax(source);
+        let native_quote_lines = WikidotNativeQuoteIndex::new(source);
         let mut output = String::with_capacity(source.len());
+        let mut styles = Vec::new();
         let mut cursor = 0;
 
         while let Some(open) = CSS_MODULE_OPEN_REGEX.find_at(source, cursor) {
-            if literal_regions.contains(open.start()) {
+            if literal_regions.contains(open.start())
+                || native_quote_lines.contains(open.start())
+            {
                 output.push_str(&source[cursor..open.end()]);
                 cursor = open.end();
                 continue;
@@ -4878,7 +5474,7 @@ impl RenderService {
                 else {
                     output.push_str(&source[cursor..]);
                     *wikitext = output;
-                    return;
+                    return styles;
                 };
                 if !syntax_literal_regions.contains(candidate.start()) {
                     break candidate;
@@ -4888,11 +5484,12 @@ impl RenderService {
             let body = source[open.end()..close.start()].trim_matches('\n');
             let body = Self::escape_wikidot_css_module_body(body);
             output.push_str(&source[cursor..open.start()]);
-            output.push_str(&compat_html.push_html(format!("<style>\n{body}\n</style>")));
+            styles.push(body);
             cursor = close.end();
         }
         output.push_str(&source[cursor..]);
         *wikitext = output;
+        styles
     }
 
     fn escape_wikidot_css_module_body(body: &str) -> String {
@@ -4900,6 +5497,9 @@ impl RenderService {
     }
 
     fn neutralize_authored_wikidot_compat_markers(wikitext: &mut String) {
+        if !AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX.is_match(wikitext) {
+            return;
+        }
         let source = wikitext.clone();
         let literal_regions = LiteralRegionIndex::new(&source);
         let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
@@ -5142,7 +5742,7 @@ impl RenderService {
         html: String,
         spans: &ProtectedWikidotColorSpans,
     ) -> String {
-        spans.fragments.restore_outside_html_literals(&html)
+        spans.fragments.restore_outside_block_html_literals(&html)
     }
 
     fn restore_protected_wikidot_inline_html(
@@ -6769,8 +7369,12 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         arguments: ListPagesArguments,
-        body: &str,
+        template: &ListPagesTemplatePlan,
         mut include_budget: IncludeExpansionBudget,
+        mut prefetched_pages: Option<FoundPages>,
+        prefetched_displays: Option<&ListPagesBatchDisplays>,
+        include_source_cache: &mut IncludeSourceCache,
+        compat_text: &mut CompatTextFragments,
     ) -> Result<IncludeExpansion> {
         let ListPagesPageContext {
             site_id: current_site_id,
@@ -6789,6 +7393,7 @@ impl RenderService {
             default_tags,
             no_tags,
             authors,
+            author_filter_present,
             order,
             limit,
             count_pages_explicit_limit: _,
@@ -6800,6 +7405,7 @@ impl RenderService {
             slug,
             data_form_fields,
             prepend_line,
+            unsupported_author_filter: _,
             unsupported_count_pages_filter: _,
         } = arguments;
         any_tags.extend(default_tags);
@@ -6829,28 +7435,17 @@ impl RenderService {
             IncludedCategories::List(&categories)
         };
 
-        let wants_created_by = list_pages_body_uses_variable(body, "created_by")
-            || list_pages_body_uses_variable(body, "createdby")
-            || list_pages_body_uses_variable(body, "created_by_linked")
-            || list_pages_body_uses_variable(body, "createdbylinked")
-            || list_pages_body_uses_variable(body, "author");
-        let wants_created_at = list_pages_body_uses_variable(body, "created_at")
-            || list_pages_body_uses_variable(body, "createdat")
-            || list_pages_body_uses_variable(body, "date");
-        let wants_updated_by = list_pages_body_uses_variable(body, "updated_by")
-            || list_pages_body_uses_variable(body, "updatedby");
-        let wants_updated_at = list_pages_body_uses_variable(body, "updated_at")
-            || list_pages_body_uses_variable(body, "updatedat");
-        let wants_tags = list_pages_body_uses_variable(body, "tags")
-            || list_pages_body_uses_variable(body, "tags_linked")
-            || list_pages_body_uses_variable(body, "tagslinked");
-        let wants_rating_votes = list_pages_body_uses_variable(body, "rating_votes")
-            || list_pages_body_uses_variable(body, "ratingvotes");
-        let author_ids = Self::resolve_list_pages_author_ids(
+        let wants_created_by = template.uses_created_by();
+        let wants_created_at = template.uses_created_at();
+        let wants_updated_by = template.uses_updated_by();
+        let wants_updated_at = template.uses_updated_at();
+        let wants_rating_votes = template.uses_rating_votes();
+        let resolved_authors = Self::resolve_list_pages_authors(
             ctx,
             current_site_id,
             current_page_id,
             &authors,
+            author_filter_present,
         )
         .await?;
         let query = PageQuery {
@@ -6875,13 +7470,14 @@ impl RenderService {
             update_date: DateSelector::FromPresent {
                 start: time::OffsetDateTime::UNIX_EPOCH,
             },
-            author: &author_ids,
+            author: resolved_authors.as_selector(),
             score: &[],
             votes: &[],
             offset: 0,
             range: RangeSelector::Current,
             name: None,
             slug,
+            slugs: &[],
             data_form_fields: &data_form_fields,
             order,
             candidate_limit: if data_form_fields.is_empty() {
@@ -6895,19 +7491,7 @@ impl RenderService {
                 reversed: false,
             },
             variables: &[],
-            fields: FoundPageFields {
-                title: true,
-                slug: true,
-                page_category_id: true,
-                created_by: wants_created_by,
-                created_at: wants_created_at,
-                tags: wants_tags,
-                updated_by: wants_updated_by,
-                updated_at: wants_updated_at,
-                score: list_pages_body_uses_variable(body, "rating")
-                    || wants_rating_votes,
-                ..Default::default()
-            },
+            fields: template.fields(),
         };
 
         let mut list_pages_metadata = None;
@@ -6937,6 +7521,8 @@ impl RenderService {
             }
         } else if current_page_only {
             FoundPages { pages: Vec::new() }
+        } else if let Some(pages) = prefetched_pages.take() {
+            pages
         } else {
             let found = Self::find_viewable_list_pages_rows(
                 ctx,
@@ -6974,29 +7560,39 @@ impl RenderService {
             .take(requested_limit as usize)
             .collect::<Vec<_>>();
         let total = pages.len();
-        let user_displays = if wants_created_by || wants_updated_by {
-            Self::load_wikidot_user_displays(ctx, &pages).await?
-        } else {
-            BTreeMap::new()
-        };
-        let wants_comments = list_pages_body_uses_variable(body, "comments");
-        let wants_commented_by = list_pages_body_uses_variable(body, "commented_by")
-            || list_pages_body_uses_variable(body, "commentedby");
-        let wants_commented_at = list_pages_body_uses_variable(body, "commented_at")
-            || list_pages_body_uses_variable(body, "commentedat");
-        let snapshot_displays = if wants_created_by
+        let loaded_user_displays =
+            if (wants_created_by || wants_updated_by) && prefetched_displays.is_none() {
+                Some(Self::load_wikidot_user_displays(ctx, &pages).await?)
+            } else {
+                None
+            };
+        let empty_user_displays = BTreeMap::new();
+        let user_displays = prefetched_displays
+            .map(|displays| &displays.user_displays)
+            .or(loaded_user_displays.as_ref())
+            .unwrap_or(&empty_user_displays);
+        let wants_comments = template.uses_comments();
+        let wants_commented_by = template.uses_commented_by();
+        let wants_commented_at = template.uses_commented_at();
+        let wants_snapshot_displays = wants_created_by
             || wants_updated_by
             || wants_created_at
             || wants_updated_at
             || wants_comments
             || wants_commented_by
             || wants_commented_at
-            || wants_rating_votes
-        {
-            Self::load_list_pages_snapshot_displays(ctx, &pages).await?
-        } else {
-            BTreeMap::new()
-        };
+            || wants_rating_votes;
+        let loaded_snapshot_displays =
+            if wants_snapshot_displays && prefetched_displays.is_none() {
+                Some(Self::load_list_pages_snapshot_displays(ctx, &pages).await?)
+            } else {
+                None
+            };
+        let empty_snapshot_displays = BTreeMap::new();
+        let snapshot_displays = prefetched_displays
+            .map(|displays| &displays.snapshot_displays)
+            .or(loaded_snapshot_displays.as_ref())
+            .unwrap_or(&empty_snapshot_displays);
         let mut output = String::from("[[div class=\"list-pages-box\"]]\n");
         let mut included_pages = Vec::new();
         if let Some(prepend_line) = prepend_line {
@@ -7004,9 +7600,11 @@ impl RenderService {
             output.push('\n');
         }
 
-        let wants_content = list_pages_body_uses_content_variable(body);
-        let wants_data_form_values = list_pages_body_uses_variable(body, "form_data")
-            || list_pages_body_uses_variable(body, "form_raw");
+        let body = template.body();
+        let wants_content = template.uses_content();
+        let wants_data_form_values = template.uses_data_form();
+        let render_generated_html =
+            template.output_shape() == ListPagesOutputShape::TableRows;
         for (index, page) in pages.iter().enumerate() {
             output.push_str("[[div class=\"list-pages-item\"]]\n");
             let page_wikitext = if wants_content || wants_data_form_values {
@@ -7036,8 +7634,10 @@ impl RenderService {
                             page_info,
                             page_info.site.as_ref(),
                             settings,
-                            Some(page.site_id),
                             IncludeExpansionOptions {
+                                current_site_id: Some(page.site_id),
+                                source_cache: include_source_cache,
+                                compat_text,
                                 expand_wikidot_image_blocks: false,
                                 budget: include_budget,
                             },
@@ -7054,24 +7654,28 @@ impl RenderService {
             };
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
-                user_displays: &user_displays,
-                snapshot_displays: &snapshot_displays,
+                user_displays,
+                snapshot_displays,
                 page_wikitext: expanded_page_wikitext
                     .as_deref()
                     .or(page_wikitext.as_deref()),
                 data_form_values: &data_form_values,
-                render_generated_html: list_pages_body_has_table_rows(body),
+                render_generated_html,
             };
-            let mut generated_fragments = CompatHtmlFragments::new(body);
-            let body = substitute_list_pages_variables_with_fragments(
-                body,
-                page,
-                index + 1,
-                total,
-                &substitution_context,
-                &mut generated_fragments,
-            );
-            let mut body = generated_fragments.restore(&body);
+            let mut body = if template.uses_only_rating() {
+                substitute_list_pages_rating_only(body, page)
+            } else {
+                let mut generated_fragments = CompatHtmlFragments::new(body);
+                let body = substitute_list_pages_variables_with_fragments(
+                    body,
+                    page,
+                    index + 1,
+                    total,
+                    &substitution_context,
+                    &mut generated_fragments,
+                );
+                generated_fragments.restore(&body)
+            };
             Self::neutralize_authored_wikidot_compat_markers(&mut body);
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
@@ -7121,6 +7725,7 @@ impl RenderService {
             default_tags,
             no_tags,
             authors,
+            author_filter_present,
             order,
             limit,
             count_pages_explicit_limit,
@@ -7132,6 +7737,7 @@ impl RenderService {
             slug,
             prepend_line: _,
             data_form_fields,
+            unsupported_author_filter: _,
             unsupported_count_pages_filter: _,
         } = arguments;
         let count_pages_query_limit = count_pages_explicit_limit
@@ -7158,11 +7764,12 @@ impl RenderService {
         } else {
             IncludedCategories::List(&categories)
         };
-        let author_ids = Self::resolve_list_pages_author_ids(
+        let resolved_authors = Self::resolve_list_pages_authors(
             ctx,
             current_site_id,
             current_page_id,
             &authors,
+            author_filter_present,
         )
         .await?;
         let query = PageQuery {
@@ -7187,13 +7794,14 @@ impl RenderService {
             update_date: DateSelector::FromPresent {
                 start: time::OffsetDateTime::UNIX_EPOCH,
             },
-            author: &author_ids,
+            author: resolved_authors.as_selector(),
             score: &[],
             votes: &[],
             offset: 0,
             range: RangeSelector::Current,
             name: None,
             slug,
+            slugs: &[],
             data_form_fields: &data_form_fields,
             order,
             candidate_limit: if data_form_fields.is_empty() {
@@ -7276,21 +7884,33 @@ impl RenderService {
         pages: Vec<FoundPageRow>,
     ) -> Result<Vec<FoundPageRow>> {
         let mut viewable = Vec::with_capacity(pages.len());
+        let mut category_permissions = BTreeMap::new();
         for page in pages {
-            let can_view = PermissionService::check_user_can(
-                ctx,
-                &CheckPermissionContext {
-                    user_id: None,
-                    site_id: page.site_id,
-                    page_reference: Some(Reference::Id(page.page_id)),
-                },
-                Permission {
-                    resource_type: Resource::Page,
-                    resource_category: page.page_category_id.map(Reference::Id),
-                    action: Action::View,
-                },
-            )
-            .await?;
+            let permission_key = (page.site_id, page.page_category_id);
+            let can_view =
+                if let Some(can_view) = category_permissions.get(&permission_key) {
+                    *can_view
+                } else {
+                    // ListPages renders for an anonymous viewer. Anonymous users cannot
+                    // acquire the page-author virtual role, so page view permission is
+                    // determined by site and category and can be shared within this render.
+                    let can_view = PermissionService::check_user_can(
+                        ctx,
+                        &CheckPermissionContext {
+                            user_id: None,
+                            site_id: page.site_id,
+                            page_reference: Some(Reference::Id(page.page_id)),
+                        },
+                        Permission {
+                            resource_type: Resource::Page,
+                            resource_category: page.page_category_id.map(Reference::Id),
+                            action: Action::View,
+                        },
+                    )
+                    .await?;
+                    category_permissions.insert(permission_key, can_view);
+                    can_view
+                };
             if can_view {
                 viewable.push(page);
             }
@@ -7728,77 +8348,106 @@ impl RenderService {
             })
     }
 
-    async fn resolve_list_pages_author_ids(
+    async fn resolve_list_pages_authors(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
         current_page_id: i64,
         author_names: &[Cow<'static, str>],
-    ) -> Result<Vec<Cow<'static, str>>> {
-        if author_names.is_empty() {
-            return Ok(Vec::new());
+        author_filter_present: bool,
+    ) -> Result<ResolvedListPagesAuthors> {
+        if !author_filter_present {
+            return Ok(ResolvedListPagesAuthors::All);
         }
 
-        let mut literal_authors = Vec::new();
+        let mut snapshot_names = BTreeSet::new();
+        let mut user_ids = BTreeSet::new();
         let mut include_current_page_author = false;
         for author in author_names {
             if author.as_ref() == "=" {
                 include_current_page_author = true;
             } else {
-                literal_authors.push(author.clone());
+                let author = normalize_wikidot_author_name(author);
+                if !author.is_empty() {
+                    snapshot_names.insert(author);
+                }
             }
         }
 
-        let mut author_ids = if literal_authors.is_empty() {
-            Vec::new()
-        } else {
-            Self::load_wikidot_author_ids(ctx, &literal_authors).await?
-        };
-
         if include_current_page_author {
-            let make_error = || {
-                Error::new(
-                    "failed to load current page creation author for ListPages render",
-                    ErrorType::Render,
-                )
-            };
-            let creation_revision = PageRevisionService::get_optional(
+            let current_page_author = Self::load_current_page_author_source(
                 ctx,
                 current_site_id,
                 current_page_id,
-                0,
             )
-            .await
-            .or_raise(make_error)?;
-            if let Some(revision) = creation_revision {
-                author_ids.push(Cow::Owned(revision.user_id.to_string()));
-            } else if literal_authors.is_empty() {
-                author_ids.push(Cow::Borrowed(LISTPAGES_NO_MATCH_AUTHOR_ID));
+            .await?;
+            match current_page_author {
+                Some(CurrentPageAuthorSource {
+                    snapshot_present: true,
+                    created_by_name: Some(created_by_name),
+                    ..
+                }) => {
+                    let created_by_name = normalize_wikidot_author_name(&created_by_name);
+                    if !created_by_name.is_empty() {
+                        snapshot_names.insert(created_by_name);
+                    }
+                }
+                Some(CurrentPageAuthorSource {
+                    snapshot_present: true,
+                    created_by_name: None,
+                    ..
+                })
+                | Some(CurrentPageAuthorSource {
+                    from_wikidot: true,
+                    snapshot_present: false,
+                    ..
+                })
+                | None => {}
+                Some(CurrentPageAuthorSource {
+                    from_wikidot: false,
+                    snapshot_present: false,
+                    ..
+                }) => {
+                    if let Some(revision) = PageRevisionService::get_earliest_optional(
+                        ctx,
+                        current_site_id,
+                        current_page_id,
+                    )
+                    .await?
+                    {
+                        user_ids.insert(revision.user_id);
+                    }
+                }
             }
         }
 
-        author_ids.sort();
-        author_ids.dedup();
-        Ok(author_ids)
+        user_ids.extend(Self::load_wikidot_author_ids(ctx, &snapshot_names).await?);
+        if user_ids.is_empty() && snapshot_names.is_empty() {
+            Ok(ResolvedListPagesAuthors::None)
+        } else {
+            Ok(ResolvedListPagesAuthors::Any {
+                user_ids: user_ids.into_iter().collect(),
+                wikidot_snapshot_names: snapshot_names
+                    .into_iter()
+                    .map(Cow::Owned)
+                    .collect(),
+            })
+        }
     }
 
     async fn load_wikidot_author_ids(
         ctx: &ServiceContext<'_>,
-        author_names: &[Cow<'static, str>],
-    ) -> Result<Vec<Cow<'static, str>>> {
+        wanted: &BTreeSet<String>,
+    ) -> Result<Vec<i64>> {
+        if wanted.is_empty() {
+            return Ok(Vec::new());
+        }
+
         let make_error = || {
             Error::new(
                 "failed to load Wikidot author IDs for ListPages render",
                 ErrorType::Render,
             )
         };
-        let wanted = author_names
-            .iter()
-            .map(|name| normalize_list_pages_user_selector(name))
-            .collect::<BTreeSet<_>>();
-        if wanted.is_empty() {
-            return Ok(Vec::new());
-        }
-
         let users = WikidotUser::find()
             .all(ctx.transaction())
             .await
@@ -7808,19 +8457,42 @@ impl RenderService {
             .into_iter()
             .filter(|user| {
                 user.name.as_ref().is_some_and(|name| {
-                    wanted.contains(&normalize_list_pages_user_selector(name))
+                    wanted.contains(&normalize_wikidot_author_name(name))
                 }) || user.slug.as_ref().is_some_and(|slug| {
-                    wanted.contains(&normalize_list_pages_user_selector(slug))
+                    wanted.contains(&normalize_wikidot_author_name(slug))
                 })
             })
-            .map(|user| Cow::Owned(user.user_id.to_string()))
+            .map(|user| i64::from(user.user_id))
             .collect::<Vec<_>>();
 
-        if author_ids.is_empty() {
-            Ok(vec![Cow::Borrowed(LISTPAGES_NO_MATCH_AUTHOR_ID)])
-        } else {
-            Ok(author_ids)
-        }
+        Ok(author_ids)
+    }
+
+    async fn load_current_page_author_source(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+    ) -> Result<Option<CurrentPageAuthorSource>> {
+        let make_error = || {
+            Error::new(
+                "failed to load current page author provenance for ListPages render",
+                ErrorType::Render,
+            )
+        };
+        let txn = ctx.transaction();
+        let statement = Statement::from_sql_and_values(
+            txn.get_database_backend(),
+            "SELECT page.from_wikidot, snapshot.page_id IS NOT NULL AS snapshot_present, snapshot.created_by_name \
+             FROM page \
+             LEFT JOIN wikidot_page_snapshot snapshot ON snapshot.page_id = page.page_id \
+             WHERE page.site_id = $1 AND page.page_id = $2 AND page.deleted_at IS NULL",
+            [Value::from(current_site_id), Value::from(current_page_id)],
+        );
+
+        CurrentPageAuthorSource::find_by_statement(statement)
+            .one(txn)
+            .await
+            .or_raise(make_error)
     }
 }
 
@@ -7845,6 +8517,39 @@ struct ListPagesSnapshotDisplay {
 }
 
 #[derive(Debug, FromQueryResult)]
+struct CurrentPageAuthorSource {
+    from_wikidot: bool,
+    snapshot_present: bool,
+    created_by_name: Option<String>,
+}
+
+#[derive(Debug)]
+enum ResolvedListPagesAuthors {
+    All,
+    Any {
+        user_ids: Vec<i64>,
+        wikidot_snapshot_names: Vec<Cow<'static, str>>,
+    },
+    None,
+}
+
+impl ResolvedListPagesAuthors {
+    fn as_selector(&self) -> AuthorSelector<'_> {
+        match self {
+            Self::All => AuthorSelector::All,
+            Self::Any {
+                user_ids,
+                wikidot_snapshot_names,
+            } => AuthorSelector::Any {
+                user_ids,
+                wikidot_snapshot_names,
+            },
+            Self::None => AuthorSelector::None,
+        }
+    }
+}
+
+#[derive(Debug, FromQueryResult)]
 struct BacklinksModulePage {
     page_id: i64,
     page_category_id: i64,
@@ -7865,6 +8570,7 @@ struct ListPagesArguments {
     all_tags: Vec<Cow<'static, str>>,
     no_tags: Vec<Cow<'static, str>>,
     authors: Vec<Cow<'static, str>>,
+    author_filter_present: bool,
     order: Option<OrderBySelector>,
     limit: Option<u64>,
     count_pages_explicit_limit: Option<u64>,
@@ -7876,7 +8582,108 @@ struct ListPagesArguments {
     slug: Option<Cow<'static, str>>,
     data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
+    unsupported_author_filter: bool,
     unsupported_count_pages_filter: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ExactNameListPagesBatchKey {
+    category_all: bool,
+    categories: Vec<String>,
+    excluded_categories: Vec<String>,
+}
+
+#[derive(Debug, Default)]
+struct ListPagesBatchDisplays {
+    user_displays: BTreeMap<i64, WikidotUserDisplay>,
+    snapshot_displays: BTreeMap<i64, ListPagesSnapshotDisplay>,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct ListPagesBatchDisplayRequirements {
+    users: bool,
+    snapshots: bool,
+}
+
+impl ListPagesBatchDisplayRequirements {
+    fn include(&mut self, template: &ListPagesTemplatePlan) {
+        let users = template.uses_created_by() || template.uses_updated_by();
+        self.users |= users;
+        self.snapshots |= users
+            || template.uses_created_at()
+            || template.uses_updated_at()
+            || template.uses_comments()
+            || template.uses_commented_by()
+            || template.uses_commented_at()
+            || template.uses_rating_votes();
+    }
+}
+
+fn exact_name_list_pages_batch_key(
+    head: &str,
+    template: &ListPagesTemplatePlan,
+    arguments: &ListPagesArguments,
+    current_category: &str,
+) -> Option<ExactNameListPagesBatchKey> {
+    let unparsed = LISTPAGES_ARGUMENT_REGEX.replace_all(head, "");
+    if !unparsed.trim().is_empty() || template.uses_content() || template.uses_data_form()
+    {
+        return None;
+    }
+
+    let mut name_arguments = 0;
+    for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
+        if captures.name("op").map_or("=", |matched| matched.as_str()) != "=" {
+            return None;
+        }
+        match captures["key"].to_ascii_lowercase().as_str() {
+            "name" => name_arguments += 1,
+            "category" => {}
+            _ => return None,
+        }
+    }
+    if name_arguments != 1 || arguments.slug.is_none() {
+        return None;
+    }
+
+    let mut categories = arguments
+        .categories
+        .iter()
+        .map(|category| category.to_string())
+        .collect::<Vec<_>>();
+    let category_all = if arguments.category_selector_present {
+        if arguments.include_current_category {
+            categories.push(current_category.to_owned());
+        }
+        arguments.category_all
+    } else {
+        categories.push(current_category.to_owned());
+        false
+    };
+
+    Some(ExactNameListPagesBatchKey {
+        category_all,
+        categories,
+        excluded_categories: arguments
+            .excluded_categories
+            .iter()
+            .map(|category| category.to_string())
+            .collect(),
+    })
+}
+
+fn union_found_page_fields(left: &mut FoundPageFields, right: &FoundPageFields) {
+    left.title |= right.title;
+    left.alt_title |= right.alt_title;
+    left.slug |= right.slug;
+    left.page_category_id |= right.page_category_id;
+    left.page_revision_id |= right.page_revision_id;
+    left.tags |= right.tags;
+    left.created_at |= right.created_at;
+    left.created_by |= right.created_by;
+    left.updated_at |= right.updated_at;
+    left.updated_by |= right.updated_by;
+    left.score |= right.score;
 }
 
 fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
@@ -7896,6 +8703,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut all_tags = Vec::new();
     let mut no_tags = Vec::new();
     let mut authors = Vec::new();
+    let mut author_filter_present = false;
     let mut order = None;
     let mut limit = None;
     let mut count_pages_explicit_limit = None;
@@ -7907,6 +8715,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut slug = None;
     let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
+    let mut unsupported_author_filter = false;
     let mut unsupported_count_pages_filter = false;
 
     for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
@@ -8067,6 +8876,12 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 }
             }
             "created_by" | "createdby" => {
+                author_filter_present = true;
+                if is_dynamic_list_pages_value(value)
+                    && list_pages_url_fallback(value).is_none()
+                {
+                    unsupported_author_filter = true;
+                }
                 let Some(value) = static_list_pages_selector(
                     value,
                     &mut unsupported_count_pages_filter,
@@ -8079,6 +8894,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     .trim_end_matches(']')
                     .trim();
                 if author == "-=" {
+                    unsupported_author_filter = true;
                     unsupported_count_pages_filter = true;
                     continue;
                 }
@@ -8142,6 +8958,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         all_tags,
         no_tags,
         authors,
+        author_filter_present,
         order,
         limit,
         count_pages_explicit_limit,
@@ -8153,6 +8970,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         slug,
         data_form_fields,
         prepend_line,
+        unsupported_author_filter,
         unsupported_count_pages_filter,
     })
 }
@@ -8161,7 +8979,8 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
     let count_pages_bound = arguments
         .count_pages_explicit_limit
         .or(arguments.count_pages_per_page);
-    arguments.unsupported_count_pages_filter
+    arguments.unsupported_author_filter
+        || arguments.unsupported_count_pages_filter
         || (count_pages_bound.is_none()
             && !arguments.current_page_only
             && !count_pages_has_static_filter(arguments))
@@ -8183,7 +9002,7 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
                 || !arguments.any_tags.is_empty()
                 || !arguments.all_tags.is_empty()
                 || !arguments.no_tags.is_empty()
-                || !arguments.authors.is_empty()
+                || arguments.author_filter_present
                 || !arguments.excluded_categories.is_empty()
                 || !arguments.data_form_fields.is_empty()
                 || arguments.slug.is_some()))
@@ -8194,7 +9013,7 @@ fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
         || !arguments.default_tags.is_empty()
         || !arguments.any_tags.is_empty()
         || !arguments.all_tags.is_empty()
-        || !arguments.authors.is_empty()
+        || arguments.author_filter_present
         || arguments.page_type != PageTypeSelector::Normal
         || arguments.page_parent != PageParentSelector::All
         || arguments.slug.is_some()
@@ -8371,10 +9190,6 @@ fn is_no_tags_selector(value: &str) -> bool {
     value.trim() == "-"
 }
 
-fn normalize_list_pages_user_selector(value: &str) -> String {
-    value.trim().to_ascii_lowercase().replace(['_', ' '], "-")
-}
-
 fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
     let (value, ascending) = match value.split_once(char::is_whitespace) {
         Some((property, direction)) => {
@@ -8434,23 +9249,9 @@ fn parse_list_pages_page_type(value: &str) -> Option<PageTypeSelector> {
     }
 }
 
+#[cfg(test)]
 fn list_pages_body_variables_supported(body: &str) -> bool {
-    LISTPAGES_VARIABLE_REGEX
-        .captures_iter(body)
-        .all(
-            |captures| match captures["name"].to_ascii_lowercase().as_str() {
-                "title_linked" | "linked_title" | "title" | "name" | "slug"
-                | "page_unix_name" | "fullname" | "full_slug" | "link" | "created_by"
-                | "createdby" | "created_by_linked" | "createdbylinked" | "author"
-                | "created_at" | "createdat" | "date" | "updated_by" | "updatedby"
-                | "updated_at" | "updatedat" | "commented_at" | "commentedat"
-                | "commented_by" | "commentedby" | "rating" | "rating_votes"
-                | "ratingvotes" | "comments" | "tags" | "tags_linked" | "tagslinked"
-                | "content" | "index" | "total" | "limit" => true,
-                "form_data" | "form_raw" => captures.name("argument").is_some(),
-                _ => false,
-            },
-        )
+    ListPagesTemplatePlan::compile(body).is_some()
 }
 
 fn unsupported_list_pages_replacement(module_source: &str, body: &str) -> String {
@@ -8495,14 +9296,23 @@ fn list_pages_body_is_no_visible_tracking_markup(body: &str) -> bool {
     saw_tracking_markup
 }
 
-fn list_pages_body_uses_variable(body: &str, variable: &str) -> bool {
-    LISTPAGES_VARIABLE_REGEX
-        .captures_iter(body)
-        .any(|captures| captures["name"].eq_ignore_ascii_case(variable))
+#[cfg(test)]
+fn list_pages_body_uses_content_variable(body: &str) -> bool {
+    ListPagesTemplatePlan::compile(body).is_some_and(|plan| plan.uses_content())
 }
 
-fn list_pages_body_uses_content_variable(body: &str) -> bool {
-    list_pages_body_uses_variable(body, "content")
+fn substitute_list_pages_rating_only(template: &str, page: &FoundPageRow) -> String {
+    let rating = format_list_pages_rating(page.score);
+    let substituted = LISTPAGES_VARIABLE_REGEX
+        .replace_all(template, |captures: &regex::Captures<'_>| {
+            if captures["name"].eq_ignore_ascii_case("rating") {
+                rating.clone()
+            } else {
+                captures[0].to_owned()
+            }
+        })
+        .into_owned();
+    RenderService::resolve_wikidot_parser_functions(&substituted)
 }
 
 fn push_list_pages_pager(
@@ -8777,9 +9587,7 @@ fn substitute_list_pages_variables_with_fragments(
         })
         .into_owned();
 
-    RenderService::resolve_wikidot_parser_functions(
-        &resolve_list_pages_signed_abs_expressions(&substituted),
-    )
+    RenderService::resolve_wikidot_parser_functions(&substituted)
 }
 
 #[cfg(test)]
@@ -8815,56 +9623,9 @@ fn substitute_count_pages_variables(template: &str, total: usize) -> String {
             }
         })
         .into_owned();
-    let mut substituted = RenderService::resolve_wikidot_parser_functions(
-        &resolve_wikidot_numeric_ifexpr(&substituted),
-    );
+    let mut substituted = RenderService::resolve_wikidot_parser_functions(&substituted);
     RenderService::neutralize_authored_wikidot_compat_markers(&mut substituted);
     substituted
-}
-
-fn resolve_wikidot_numeric_ifexpr(value: &str) -> String {
-    let literal_regions = LiteralRegionIndex::new(value);
-    WIKIDOT_NUMERIC_IFEXPR_REGEX
-        .replace_all(value, |captures: &regex::Captures<'_>| {
-            let full_match = captures.get(0).expect("numeric ifexpr capture exists");
-            if literal_regions.contains(full_match.start()) {
-                return full_match.as_str().to_owned();
-            }
-            let left = captures["left"].parse::<f64>().ok();
-            let right = captures["right"].parse::<f64>().ok();
-            let Some(left) = left else {
-                return captures
-                    .get(0)
-                    .map_or("", |matched| matched.as_str())
-                    .to_owned();
-            };
-            let Some(right) = right else {
-                return captures
-                    .get(0)
-                    .map_or("", |matched| matched.as_str())
-                    .to_owned();
-            };
-            let matched = match &captures["op"] {
-                ">" => left > right,
-                ">=" => left >= right,
-                "<" => left < right,
-                "<=" => left <= right,
-                "=" | "==" => (left - right).abs() <= f64::EPSILON,
-                "!=" => (left - right).abs() > f64::EPSILON,
-                _ => {
-                    return captures
-                        .get(0)
-                        .map_or("", |matched| matched.as_str())
-                        .to_owned();
-                }
-            };
-            if matched {
-                captures["when_true"].trim().to_owned()
-            } else {
-                captures["when_false"].trim().to_owned()
-            }
-        })
-        .into_owned()
 }
 
 fn render_list_pages_tags(
@@ -9071,6 +9832,9 @@ fn register_generated_list_pages_html(
     value: String,
     compat_html: &mut CompatHtmlFragments,
 ) -> String {
+    if !value.contains("data-wikijump-compat-") {
+        return value;
+    }
     let literal_regions = LiteralRegionIndex::new(&value);
     GENERATED_LISTPAGES_HTML_REGEX
         .replace_all(&value, |captures: &regex::Captures<'_>| {
@@ -9081,40 +9845,6 @@ fn register_generated_list_pages_html(
 
             let html = compat_html.restore(full_match.as_str());
             compat_html.push_html(html)
-        })
-        .into_owned()
-}
-
-fn resolve_list_pages_signed_abs_expressions(value: &str) -> String {
-    let literal_regions = LiteralRegionIndex::new(value);
-    WIKIDOT_LISTPAGES_SIGNED_ABS_EXPR_REGEX
-        .replace_all(value, |captures: &regex::Captures<'_>| {
-            let original = captures.get(0).map_or("", |matched| matched.as_str());
-            let start = captures.get(0).map_or(0, |matched| matched.start());
-            if literal_regions.contains(start) {
-                return original.to_owned();
-            }
-            let Some(test_value) = captures
-                .name("test")
-                .and_then(|matched| matched.as_str().parse::<f64>().ok())
-            else {
-                return original.to_owned();
-            };
-            let Some(abs_value) = captures
-                .name("abs")
-                .and_then(|matched| matched.as_str().parse::<f64>().ok())
-            else {
-                return original.to_owned();
-            };
-            if (test_value - abs_value).abs() > f64::EPSILON
-                && (test_value.abs() - abs_value).abs() > f64::EPSILON
-            {
-                return original.to_owned();
-            }
-
-            let sign = if test_value > -1.0 { "+" } else { "-" };
-            let magnitude = format_list_pages_rating(Some(test_value.abs() as f32));
-            format!("{sign}{magnitude}")
         })
         .into_owned()
 }
@@ -9145,15 +9875,17 @@ fn parse_wikidot_compat_color_descriptor<'a>(
     hashes: &str,
     descriptor: &'a str,
 ) -> Option<Cow<'a, str>> {
-    match hashes.len() {
-        2 => Some(Cow::Borrowed(descriptor)),
-        3 if matches!(descriptor.len(), 3 | 6)
-            && descriptor.bytes().all(|byte| byte.is_ascii_hexdigit()) =>
-        {
-            Some(Cow::Owned(format!("#{descriptor}")))
-        }
-        _ => None,
+    if !matches!(hashes.len(), 2 | 3) {
+        return None;
     }
+
+    let is_hex = matches!(descriptor.len(), 3 | 6)
+        && descriptor.bytes().all(|byte| byte.is_ascii_hexdigit());
+    if is_hex {
+        return Some(Cow::Owned(format!("#{}", descriptor.to_ascii_lowercase())));
+    }
+
+    (hashes.len() == 2).then_some(Cow::Borrowed(descriptor))
 }
 
 fn render_wikidot_color_span_html(color: &str, body: &str) -> String {
@@ -9197,7 +9929,7 @@ fn substitute_wikidot_protected_inline_typography(html: &str) -> String {
 
 fn substitute_wikidot_protected_inline_text_typography(value: &str) -> String {
     let mut text = value.to_owned();
-    ftml::preprocess(&mut text);
+    ftml::preproc::typography::substitute(&mut text);
     substitute_wikidot_protected_inline_dashes(&text)
 }
 
@@ -10651,6 +11383,14 @@ struct RenderContext {
     text_block_page_id: Option<i64>,
 }
 
+#[derive(Clone, Copy, Debug)]
+struct RenderExpansionOptions<'a> {
+    current_site_id: Option<i64>,
+    current_page_id: Option<i64>,
+    max_include_expansions: usize,
+    trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
+}
+
 impl RenderContext {
     fn none() -> Self {
         Self {
@@ -10684,8 +11424,11 @@ struct IncludeExpansion {
     expanded_include_count: usize,
 }
 
-#[derive(Clone, Copy, Debug)]
-struct IncludeExpansionOptions {
+#[derive(Debug)]
+struct IncludeExpansionOptions<'a> {
+    current_site_id: Option<i64>,
+    source_cache: &'a mut IncludeSourceCache,
+    compat_text: &'a mut CompatTextFragments,
     expand_wikidot_image_blocks: bool,
     budget: IncludeExpansionBudget,
 }
@@ -10737,6 +11480,62 @@ struct IncludeSource {
     site_id: i64,
     site_slug: String,
     wikitext: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum IncludeSourceCacheEntry {
+    Available(String),
+    Unavailable,
+}
+
+#[derive(Debug, Default)]
+struct IncludeSourceCache {
+    // This cache lives for one render only. Values never contain include-variable substitution or nested expansion, so every occurrence still follows the normal mutation, recursion, budget, and backlink paths.
+    sources_by_site: HashMap<i64, HashMap<String, IncludeSourceCacheEntry>>,
+}
+
+impl IncludeSourceCache {
+    fn get(&self, site_id: i64, page_slug: &str) -> Option<&IncludeSourceCacheEntry> {
+        self.sources_by_site
+            .get(&site_id)
+            .and_then(|sources| sources.get(page_slug))
+    }
+
+    async fn get_or_try_insert_with<F, Fut>(
+        &mut self,
+        site_id: i64,
+        page_slug: &str,
+        load: F,
+    ) -> Result<Option<String>>
+    where
+        F: FnOnce() -> Fut,
+        Fut: Future<Output = Result<Option<String>>>,
+    {
+        // PageRef already normalizes the slug and separates #section or /path. PageService also treats an explicit `_default:` category as canonical.
+        let page_slug = trim_default(page_slug);
+        if let Some(entry) = self.get(site_id, page_slug) {
+            return Ok(match entry {
+                IncludeSourceCacheEntry::Available(wikitext) => Some(wikitext.clone()),
+                IncludeSourceCacheEntry::Unavailable => None,
+            });
+        }
+
+        let wikitext = load().await?;
+        // Errors return above and are deliberately never cached. None is safe to retain within this render because missing, denied, and revision-less sources all have the same fail-closed include result.
+        let entry = match &wikitext {
+            Some(wikitext) => IncludeSourceCacheEntry::Available(wikitext.clone()),
+            None => IncludeSourceCacheEntry::Unavailable,
+        };
+        self.insert(site_id, page_slug, entry);
+        Ok(wikitext)
+    }
+
+    fn insert(&mut self, site_id: i64, page_slug: &str, entry: IncludeSourceCacheEntry) {
+        self.sources_by_site
+            .entry(site_id)
+            .or_default()
+            .insert(page_slug.to_owned(), entry);
+    }
 }
 
 #[derive(Debug)]
@@ -10911,38 +11710,6 @@ fn unprotect_include_variables(content: &mut String) {
         .replace(INCLUDE_VARIABLE_CLOSE_SENTINEL, "}");
 }
 
-fn wikidot_tag_conditions_match(spec: &str, tags: &[Cow<'_, str>]) -> bool {
-    let mut required = true;
-    let mut prohibited = true;
-    let mut present = false;
-    let mut had_present = false;
-
-    for raw_condition in spec.split_whitespace() {
-        let (operator, tag) = raw_condition.split_at(usize::from(
-            raw_condition.starts_with('+') || raw_condition.starts_with('-'),
-        ));
-        if tag.is_empty() {
-            continue;
-        }
-
-        let has_tag = tags.iter().any(|value| value.as_ref() == tag);
-        match operator {
-            "+" => required &= has_tag,
-            "-" => prohibited &= !has_tag,
-            _ => {
-                had_present = true;
-                present |= has_tag;
-            }
-        }
-    }
-
-    if !had_present {
-        present = true;
-    }
-
-    required && prohibited && present
-}
-
 fn apply_basalt_shell_compatibility(html: &mut String) {
     if !html.contains("theme%3Abasalt") && !html.contains("basalt-bedrock-min.css") {
         return;
@@ -11061,6 +11828,17 @@ fn site_accepts_cross_site_wdfiles_local_file(
 
     let host = host.trim().trim_end_matches('.').to_ascii_lowercase();
     host.ends_with(".wdfiles.com") && site_is_wikidot_local_asset_mirror(site)
+}
+
+fn local_lab_has_reserved_scp_asset_mirror(config: &Config, site_slug: &str) -> bool {
+    config
+        .files_domain_no_dot
+        .to_ascii_lowercase()
+        .ends_with(".localhost")
+        && matches!(
+            site_slug.to_ascii_lowercase().as_str(),
+            "scp-wiki" | "scp-jp"
+        )
 }
 
 fn site_is_wikidot_local_asset_mirror(site: &SiteModel) -> bool {
@@ -11200,11 +11978,12 @@ mod tests {
     use super::{
         COMPAT_TEXT_MARKER_PREFIX, CollectingIncluder, CompatHtmlFragments,
         CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-        CountPagesRawScanCompletion, LISTPAGES_MODULE_REGEX, ListPagesSnapshotDisplay,
-        ListPagesSubstitutionContext, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
-        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-        MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
-        MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MAX_WIKIDOT_SIMPLE_IF_PASSES,
+        CountPagesRawScanCompletion, IncludeSourceCache,
+        ListPagesBatchDisplayRequirements, ListPagesSnapshotDisplay,
+        ListPagesSubstitutionContext, ListPagesTemplatePlan,
+        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
+        MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
+        MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
         MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, OrderBySelector, OrderProperty,
         PreparedIncluder, RenderContext, RenderService,
@@ -11214,7 +11993,8 @@ mod tests {
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
         count_pages_should_remain_literal, count_pages_unbounded_total,
-        find_balanced_ul_end, format_list_pages_created_at, include_error,
+        exact_name_list_pages_batch_key, find_balanced_ul_end,
+        find_list_pages_module_matches, format_list_pages_created_at, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -11226,12 +12006,11 @@ mod tests {
         render_list_pages_tags, render_members_module_placeholder,
         render_native_list_inline_wikidot_spans, render_native_list_page_link,
         render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
-        requested_page_info_score, resolve_list_pages_signed_abs_expressions,
-        resolve_wikidot_numeric_ifexpr, restore_list_pages_literal_ellipsis_markers,
+        requested_page_info_score, restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
         wikidot_content_section, wikidot_module_argument,
-        wikidot_no_such_include_replacement,
+        wikidot_no_such_include_replacement, wikidot_tag_conditions_match,
     };
     use crate::config::Config;
     use crate::constants::ADMIN_USER_ID;
@@ -11309,6 +12088,41 @@ mod tests {
         }
     }
 
+    fn prepare_test_wikidot_conditionals(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+    ) {
+        let mut preserved = CompatTextFragments::new(wikitext);
+        RenderService::prepare_wikidot_conditionals_for_include_expansion(
+            wikitext,
+            page_info,
+            &mut preserved,
+        );
+        *wikitext = preserved.restore(wikitext);
+    }
+
+    fn prepare_test_wikidot_conditionals_before_include_expansion(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+    ) {
+        let mut preserved = CompatTextFragments::new(wikitext);
+        RenderService::prepare_wikidot_conditionals_before_include_expansion(
+            wikitext,
+            page_info,
+            &mut preserved,
+        );
+        *wikitext = preserved.restore(wikitext);
+    }
+
+    fn resolve_test_wikidot_iftags(
+        wikitext: &mut String,
+        page_info: &ftml::data::PageInfo<'_>,
+    ) {
+        let mut preserved = CompatTextFragments::new(wikitext);
+        RenderService::resolve_wikidot_iftags(wikitext, page_info, &mut preserved);
+        *wikitext = preserved.restore(wikitext);
+    }
+
     #[test]
     fn page_info_full_slug_uses_render_target_category() {
         let default = fallback_test_page_info("restored", "Restored");
@@ -11347,6 +12161,33 @@ mod tests {
         )
     }
 
+    fn render_wikidot_conditionals_with_tags(wikitext: &str, tags: &[&str]) -> String {
+        let page_info = ftml::data::PageInfo {
+            tags: tags
+                .iter()
+                .map(|tag| Cow::Owned((*tag).to_owned()))
+                .collect(),
+            ..fallback_test_page_info("conditional", "Conditional")
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikidot_compat_html: CompatHtmlFragments::new(wikitext),
+                wikidot_compat_text: CompatTextFragments::new(wikitext),
+                wikitext: wikitext.to_owned(),
+                included_pages: Vec::new(),
+            },
+            &page_info,
+            &settings,
+        );
+        let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&inner.wikitext);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{wikitext:?}: {errors:#?}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+        inner.wikidot_compat_text.restore(&html)
+    }
+
     fn render_wikidot_fallback_after_generated_compat_restore(wikitext: &str) -> String {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut wikitext = wikitext.to_owned();
@@ -11364,19 +12205,15 @@ mod tests {
         )
     }
 
-    fn render_wikidot_css_after_registry_restore(
+    fn render_wikidot_css_after_extraction(
         wikitext: &str,
         fallback: bool,
-    ) -> String {
+    ) -> (String, Vec<String>) {
         let page_info = fallback_test_page_info("css", "CSS");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut protected = wikitext.to_owned();
-        let mut fragments = CompatHtmlFragments::new(wikitext);
-        RenderService::protect_wikidot_css_modules(
-            &mut protected,
-            &settings,
-            &mut fragments,
-        );
+        let styles =
+            RenderService::extract_wikidot_css_modules(&mut protected, &settings);
         let rendered = if fallback {
             RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
                 &protected,
@@ -11387,7 +12224,7 @@ mod tests {
             let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
             HtmlRender.render(&tree, &page_info, &settings).body
         };
-        fragments.restore(&rendered)
+        (rendered, styles)
     }
 
     #[test]
@@ -11456,6 +12293,27 @@ mod tests {
     }
 
     #[test]
+    fn linear_list_pages_scanner_preserves_nested_modules_and_source_order() {
+        let source = concat!(
+            "before\n",
+            "[[module Listpages name=\"first\"]]A",
+            "[[module ListUsers users=\".\"]]nested[[/module]]",
+            "B[[/module]]\n",
+            "between\n",
+            "[[module LISTPAGES name=\"second\"]]C[[/module]]\n",
+            "after",
+        );
+        let modules = find_list_pages_module_matches(source);
+        assert_eq!(modules.len(), 2);
+        assert_eq!(modules[0].head, "name=\"first\"");
+        assert!(modules[0].body.contains("[[module ListUsers"));
+        assert!(modules[0].body.ends_with('B'));
+        assert_eq!(modules[1].head, "name=\"second\"");
+        assert_eq!(modules[1].body, "C");
+        assert!(modules[0].end < modules[1].start);
+    }
+
+    #[test]
     fn parses_other_pages_list_pages_range_selector() {
         let arguments = parse_list_pages_arguments(
             r#" category="*" created_by="=" tags="scp" perPage="15" range="others""#,
@@ -11515,6 +12373,84 @@ mod tests {
         assert_eq!(arguments.categories, vec![Cow::Borrowed("theme")]);
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("1998")]);
         assert_eq!(arguments.limit, Some(5));
+    }
+
+    #[test]
+    fn exact_name_list_pages_batch_classifier_is_deliberately_narrow() {
+        let default = parse_list_pages_arguments(r#" name="scp-173""#)
+            .expect("exact-name selector should parse");
+        let default_template = ListPagesTemplatePlan::compile("%%rating%%")
+            .expect("rating body should compile");
+        let key = exact_name_list_pages_batch_key(
+            r#" name="scp-173""#,
+            &default_template,
+            &default,
+            "_default",
+        )
+        .expect("simple exact-name block should batch");
+        assert!(!key.category_all);
+        assert_eq!(key.categories, ["_default"]);
+
+        let categorized =
+            parse_list_pages_arguments(r#" category="art" name="ralliston-portrait""#)
+                .expect("categorized exact-name selector should parse");
+        let categorized_template = ListPagesTemplatePlan::compile("%%rating%%")
+            .expect("rating body should compile");
+        let key = exact_name_list_pages_batch_key(
+            r#" category="art" name="ralliston-portrait""#,
+            &categorized_template,
+            &categorized,
+            "_default",
+        )
+        .expect("categorized exact-name block should batch");
+        assert_eq!(key.categories, ["art"]);
+
+        for (head, body) in [
+            (r#" name="scp-173" tags="scp""#, "%%rating%%"),
+            (r#" name="scp-173" limit="1""#, "%%rating%%"),
+            (r#" name="scp-173""#, "%%content%%"),
+            (r#" name="scp-173""#, "%%form_data%%"),
+            (r#" name="scp-173""#, "%%form_raw%%"),
+        ] {
+            let arguments = parse_list_pages_arguments(head)
+                .expect("supported non-batch selector should still parse");
+            assert!(
+                ListPagesTemplatePlan::compile(body)
+                    .and_then(|template| exact_name_list_pages_batch_key(
+                        head, &template, &arguments, "_default",
+                    ))
+                    .is_none(),
+                "unexpectedly batchable: {head} / {body}",
+            );
+        }
+    }
+
+    #[test]
+    fn list_pages_batch_display_requirements_union_template_metadata() {
+        let mut requirements = ListPagesBatchDisplayRequirements::default();
+        requirements.include(
+            &ListPagesTemplatePlan::compile("%%title_linked%% %%rating_votes%%")
+                .expect("rating-vote template should compile"),
+        );
+        assert_eq!(
+            requirements,
+            ListPagesBatchDisplayRequirements {
+                users: false,
+                snapshots: true,
+            }
+        );
+
+        requirements.include(
+            &ListPagesTemplatePlan::compile("%%created_by%% %%comments%%")
+                .expect("author and comments template should compile"),
+        );
+        assert_eq!(
+            requirements,
+            ListPagesBatchDisplayRequirements {
+                users: true,
+                snapshots: true,
+            }
+        );
     }
 
     #[test]
@@ -11596,6 +12532,8 @@ mod tests {
         assert_eq!(arguments.count_pages_per_page, Some(20));
         assert_eq!(arguments.offset, 0);
         assert!(arguments.slug.is_none());
+        assert!(arguments.author_filter_present);
+        assert!(arguments.unsupported_author_filter);
 
         assert!(
             parse_list_pages_arguments(r#" parent="@URL""#).is_none(),
@@ -11673,13 +12611,11 @@ mod tests {
     #[test]
     fn parses_corpus_list_pages_created_by_argument() {
         let source = r#"[[module ListPages created_by="[Congy]" separate="no"]]%%title_linked%%[[/module]]"#;
-        let captures = LISTPAGES_MODULE_REGEX
-            .captures(source)
+        let modules = find_list_pages_module_matches(source);
+        let module = modules
+            .first()
             .expect("ListPages module with bracketed quoted author should match");
-        assert_eq!(
-            captures.name("head").unwrap().as_str().trim(),
-            r#"created_by="[Congy]" separate="no""#,
-        );
+        assert_eq!(module.head.trim(), r#"created_by="[Congy]" separate="no""#,);
 
         let arguments = parse_list_pages_arguments(
             r#" created_by="[Congy]" separate="no" tags="+jp" order="created" category="-deleted""#,
@@ -11687,11 +12623,19 @@ mod tests {
         .expect("bracketed Wikidot author selector should parse");
 
         assert_eq!(arguments.authors, vec![Cow::Borrowed("Congy")]);
+        assert!(arguments.author_filter_present);
         assert_eq!(
             arguments.excluded_categories,
             vec![Cow::Borrowed("deleted")]
         );
         assert_eq!(arguments.all_tags, vec![Cow::Borrowed("jp")]);
+
+        let not_current = parse_list_pages_arguments(r#" created_by="-=" limit="20""#)
+            .expect("not-current author selector should remain identifiable");
+        assert!(not_current.authors.is_empty());
+        assert!(not_current.author_filter_present);
+        assert!(not_current.unsupported_author_filter);
+        assert!(not_current.unsupported_count_pages_filter);
     }
 
     #[test]
@@ -12960,7 +13904,7 @@ mod tests {
     }
 
     #[test]
-    fn renders_css_modules_before_ftml_parsing() {
+    fn extracts_css_modules_before_ftml_parsing() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut source = concat!(
             "before\n",
@@ -12973,21 +13917,29 @@ mod tests {
         )
         .to_owned();
 
-        let mut fragments = CompatHtmlFragments::new(&source);
-        RenderService::protect_wikidot_css_modules(
-            &mut source,
-            &settings,
-            &mut fragments,
-        );
+        let styles = RenderService::extract_wikidot_css_modules(&mut source, &settings);
 
-        assert!(source.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+        assert_eq!(styles, ["#u-change{\n    display:none;\n}"]);
+        assert!(!source.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
         assert!(!source.contains("[[module css]]"));
         assert!(!source.contains("#u-change"));
+    }
 
-        let restored = fragments.restore(&source);
-        assert!(restored.contains("<style>\n#u-change{"));
-        assert!(restored.contains("display:none;"));
-        assert!(!restored.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+    #[test]
+    fn leaves_quote_prefixed_css_modules_for_ftml_literal_rendering() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        for original in [
+            "> [[module CSS]]\n> .one { color: red; }\n> [[/module]]",
+            ">> [[module CSS]]\n>> .two { color: red; }\n>> [[/module]]",
+            "> > [[module CSS]]\n> > .inner { color: red; }\n> > [[/module]]",
+        ] {
+            let mut source = original.to_owned();
+            let styles =
+                RenderService::extract_wikidot_css_modules(&mut source, &settings);
+
+            assert_eq!(source, original);
+            assert!(styles.is_empty());
+        }
     }
 
     #[test]
@@ -13000,24 +13952,11 @@ mod tests {
         )
         .to_owned();
 
-        let mut fragments = CompatHtmlFragments::new(&source);
-        RenderService::protect_wikidot_css_modules(
-            &mut source,
-            &settings,
-            &mut fragments,
-        );
-        let restored = fragments.restore(&source);
+        let styles = RenderService::extract_wikidot_css_modules(&mut source, &settings);
 
-        assert!(
-            restored.starts_with("<style>\n"),
-            "unexpected restored CSS module: {restored:?}",
-        );
-        assert!(
-            restored.trim_end().ends_with("\n</style>"),
-            "unexpected restored CSS module suffix: {restored:?}",
-        );
-        assert!(!restored.contains("</style><img"));
-        assert!(restored.contains(r"\3C /style>\3C img"));
+        assert_eq!(styles.len(), 1);
+        assert!(!styles[0].contains("</style><img"));
+        assert!(styles[0].contains(r"\3C /style>\3C img"));
     }
 
     #[test]
@@ -13034,33 +13973,22 @@ mod tests {
             "[[module css]]\n.unclosed { display: none; }\n",
         );
         let mut protected = source.to_owned();
-        let mut fragments = CompatHtmlFragments::new(source);
+        let styles =
+            RenderService::extract_wikidot_css_modules(&mut protected, &settings);
 
-        RenderService::protect_wikidot_css_modules(
-            &mut protected,
-            &settings,
-            &mut fragments,
-        );
-        let restored = fragments.restore(&protected);
-
-        assert_eq!(
-            protected
-                .matches(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
-                .count(),
-            3,
-        );
-        assert!(restored.contains("<style>\n.first { color: red; }\n</style>"));
-        assert!(restored.contains("<style>\n.second { color: blue; }\n</style>"));
-        assert!(restored.contains(".spanning { color: black; }"));
-        assert!(restored.contains(".end { color: white; }"));
-        assert!(restored.contains(".comment { color: bad; }"));
-        assert!(restored.contains("[[html]]\n[[module css]]\n.html"));
-        assert!(restored.contains("[[module css]]\n.unclosed"));
-        assert!(!restored.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+        assert_eq!(styles.len(), 3);
+        assert!(styles[0].contains(".first { color: red; }"));
+        assert!(styles[1].contains(".second { color: blue; }"));
+        assert!(styles[2].contains(".spanning { color: black; }"));
+        assert!(styles[2].contains(".end { color: white; }"));
+        assert!(protected.contains(".comment { color: bad; }"));
+        assert!(protected.contains("[[html]]\n[[module css]]\n.html"));
+        assert!(protected.contains("[[module css]]\n.unclosed"));
+        assert!(!protected.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
     }
 
     #[test]
-    fn css_registry_restores_normal_and_fallback_outputs_without_marker_leakage() {
+    fn css_extraction_keeps_normal_and_fallback_outputs_free_of_style_wrappers() {
         let source = concat!(
             "before\n",
             "[[module css]]\n.a { color: red; }\n[[/module]]\n",
@@ -13069,10 +13997,11 @@ mod tests {
         );
 
         for fallback in [false, true] {
-            let html = render_wikidot_css_after_registry_restore(source, fallback);
-            assert!(html.contains("<style>\n.a { color: red; }\n</style>"));
-            assert!(html.contains(r#".b::after { content: "\3C /style>"; }"#));
-            assert!(!html.contains("</style>\"; }"));
+            let (html, styles) = render_wikidot_css_after_extraction(source, fallback);
+            assert_eq!(styles.len(), 2);
+            assert!(styles[0].contains(".a { color: red; }"));
+            assert!(styles[1].contains(r#".b::after { content: "\3C /style>"; }"#));
+            assert!(!html.contains("<style"));
             assert!(!html.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
             assert!(!html.contains("[[module css]]"));
         }
@@ -13094,14 +14023,14 @@ mod tests {
         assert!(!source.contains("**__10 October 2022**__"));
         assert_eq!(
             spans[0].html,
-            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+            r#"<strong><span style="color: #c5000b">That might be the reason.</span></strong>"#
         );
         assert_eq!(spans[1].html, r#"<strong><u>10 October 2022</u></strong>"#);
 
         let restored =
             RenderService::restore_protected_wikidot_inline_html(source, &spans);
         assert!(restored.contains(
-            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+            r#"<strong><span style="color: #c5000b">That might be the reason.</span></strong>"#
         ));
         assert!(restored.contains(r#"<strong><u>10 October 2022</u></strong>"#));
         assert!(restored.contains("**In which the finale is foreshadowed**"));
@@ -13203,7 +14132,7 @@ mod tests {
             r#"<strong><span style="color: green">a dense and mysterious forest</span></strong>"#
         )));
         assert!(inline_spans.iter().any(|span| span.html.contains(
-            r#"<strong><span style="color: C5000B">That might be the reason.</span></strong>"#
+            r#"<strong><span style="color: #c5000b">That might be the reason.</span></strong>"#
         )));
         assert!(color_spans.iter().any(|span| span.html.contains(
             r#"<span style="color: blue">the ghost of long-drowned sorrow</span>"#
@@ -13298,6 +14227,37 @@ mod tests {
     }
 
     #[test]
+    fn restores_color_inside_inline_monospace_from_ralliston_authorpage() {
+        let page_info =
+            fallback_test_page_info("ralliston-s-authorpage", "Ralliston's Authorpage");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = "//**{{##f24|the fun never ends.##}}**//".to_owned();
+
+        let inline_spans =
+            RenderService::protect_wikidot_inline_html_spans(&mut wikitext, &settings);
+        let color_spans =
+            RenderService::protect_wikidot_color_spans(&mut wikitext, &settings);
+        wikitext =
+            RenderService::escape_unrendered_wikidot_color_markers(wikitext, &settings);
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, errors) = result.into();
+        assert!(errors.is_empty(), "{errors:?}");
+
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        let rendered =
+            RenderService::restore_protected_wikidot_color_spans(rendered, &color_spans);
+        let rendered =
+            RenderService::restore_protected_wikidot_inline_html(rendered, &inline_spans);
+
+        assert!(rendered.contains(
+            r#"<em><strong><code class="wj-monospace"><span style="color: #f24">the fun never ends.</span></code></strong></em>"#,
+        ));
+        assert!(!rendered.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
+    }
+
+    #[test]
     fn protects_wikidot_hash_prefixed_hex_colors_without_shifted_matches() {
         let page_info = fallback_test_page_info("scp-6670", "SCP-6670");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -13348,7 +14308,7 @@ mod tests {
     }
 
     #[test]
-    fn wikidot_hash_prefixed_color_descriptor_accepts_only_three_or_six_hex_digits() {
+    fn wikidot_color_descriptor_normalizes_three_or_six_hex_digits() {
         assert_eq!(
             parse_wikidot_compat_color_descriptor("###", "abc").as_deref(),
             Some("#abc"),
@@ -13363,6 +14323,14 @@ mod tests {
         assert_eq!(
             parse_wikidot_compat_color_descriptor("##", "blue").as_deref(),
             Some("blue"),
+        );
+        assert_eq!(
+            parse_wikidot_compat_color_descriptor("##", "ABC").as_deref(),
+            Some("#abc"),
+        );
+        assert_eq!(
+            parse_wikidot_compat_color_descriptor("##", "8E2C4D").as_deref(),
+            Some("#8e2c4d"),
         );
     }
 
@@ -13393,19 +14361,22 @@ mod tests {
             RenderService::restore_protected_wikidot_color_spans(rendered, &spans);
 
         assert!(rendered.contains(
-            r#"<h1 id="toc0"><span style="color: 8E2C4D">Lillian S. Lillihammer</span></h1>"#
+            r#"<h1 id="toc0"><span style="color: #8e2c4d">Lillian S. Lillihammer</span></h1>"#
         ));
         assert!(rendered.contains(
-            r#"<strong><span style="color: 8E2C4D">Memetics and Countermemetics</span></strong>"#
+            r#"<strong><span style="color: #8e2c4d">Memetics and Countermemetics</span></strong>"#
+        ));
+        assert!(
+            rendered.contains(
+                r#"<strong><span style="color: #ce005c">I am… I <em>should</em> be…</span></strong>"#
+            ),
+            "{rendered}",
+        );
+        assert!(rendered.contains(
+            r#"<strong><span style="color: #c5000b">PATH uses North — heading for the arctic — red.</span></strong>"#
         ));
         assert!(rendered.contains(
-            r#"<strong><span style="color: ce005c">I am… I <em>should</em> be…</span></strong>"#
-        ));
-        assert!(rendered.contains(
-            r#"<strong><span style="color: C5000B">PATH uses North — heading for the arctic — red.</span></strong>"#
-        ));
-        assert!(rendered.contains(
-            r#"<span style="color: C5000B"><strong>That might be the reason.</strong></span>"#
+            r#"<span style="color: #c5000b"><strong>That might be the reason.</strong></span>"#
         ));
         assert!(!rendered.contains("&lt;span"));
         assert!(!rendered.contains(WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX));
@@ -14030,28 +15001,6 @@ mod tests {
     }
 
     #[test]
-    fn resolves_wikidot_signed_abs_rating_expressions() {
-        assert_eq!(
-            resolve_list_pages_signed_abs_expressions(
-                "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]",
-            ),
-            "-3",
-        );
-        assert_eq!(
-            resolve_list_pages_signed_abs_expressions(
-                "[[#ifexpr 4.5 > -1 | + | - ]][[#expr abs(4.5)]]",
-            ),
-            "+4.5",
-        );
-        assert_eq!(
-            resolve_list_pages_signed_abs_expressions(
-                "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(4)]]",
-            ),
-            "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(4)]]",
-        );
-    }
-
-    #[test]
     fn moves_sentence_punctuation_outside_wikidot_email_anchor() {
         let html = concat!(
             r#"<p>For more information, contact "#,
@@ -14230,6 +15179,54 @@ mod tests {
     }
 
     #[test]
+    fn localizes_reserved_scp_source_assets_to_read_only_local_lab_mirrors() {
+        let mut site = wikidot_site("scpaiueouiuiuiui", None);
+        site.from_wikidot = false;
+        let mut config = Config::integration_testing();
+        config.files_domain = ".wjfiles.localhost".to_owned();
+        config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        let html = concat!(
+            r#"<style>.en{background:url(https://scp-wiki.wikidot.com/local--files/theme:ashes-to-ashes/parchment.webp)}</style>"#,
+            r#"<img src="https://scp-jp.wdfiles.com/local--files/theme:black-highlighter-theme/logo.svg">"#,
+            r#"<img src="https://wanderers-library.wikidot.com/local--files/theme/image.png">"#,
+        );
+
+        assert_eq!(
+            RenderService::localize_wikidot_local_file_urls(html, Some(&site), &config),
+            concat!(
+                r#"<style>.en{background:url(https://scp-wiki.wjfiles.localhost/local--files/theme:ashes-to-ashes/parchment.webp)}</style>"#,
+                r#"<img src="https://scp-jp.wjfiles.localhost/local--files/theme:black-highlighter-theme/logo.svg">"#,
+                r#"<img src="https://wanderers-library.wikidot.com/local--files/theme/image.png">"#,
+            ),
+        );
+    }
+
+    #[test]
+    fn localizes_reserved_scp_source_assets_in_generated_page_styles() {
+        let mut site = wikidot_site("scpaiueouiuiuiui", None);
+        site.from_wikidot = false;
+        let mut config = Config::integration_testing();
+        config.files_domain = ".wjfiles.localhost".to_owned();
+        config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+        let mut styles = vec![
+            ":root { --paper: url(https://scp-wiki.wikidot.com/local--files/theme:ashes-to-ashes/parchment.webp); }".to_owned(),
+        ];
+
+        RenderService::localize_wikidot_generated_styles(
+            &mut styles,
+            Some(&site),
+            &config,
+        );
+
+        assert_eq!(
+            styles,
+            [
+                ":root { --paper: url(https://scp-wiki.wjfiles.localhost/local--files/theme:ashes-to-ashes/parchment.webp); }"
+            ],
+        );
+    }
+
+    #[test]
     fn localizes_cross_site_wdfiles_local_file_urls_for_imported_corpus_files() {
         let mut site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
         site.from_wikidot = false;
@@ -14359,6 +15356,7 @@ mod tests {
             },
             included_pages: vec![PageRef::page_only("component:fixture")],
             wikidot_compat_html: CompatHtmlFragments::new(""),
+            wikidot_compat_text: CompatTextFragments::new(""),
         };
         let encoded = serde_json::to_string(&input).expect("serialize replay input");
         let decoded = serde_json::from_str(&encoded).expect("deserialize replay input");
@@ -14378,13 +15376,14 @@ mod tests {
                 .wikitext
                 .contains(WIKIDOT_INLINE_HTML_SENTINEL_PREFIX)
         );
+        assert_eq!(prepared.wikidot_css_modules, [".x { color: red; }"]);
         assert!(
-            prepared
+            !prepared
                 .wikitext
                 .contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
         );
         assert_eq!(prepared.features.bytes, prepared.wikitext.len());
-        assert!(prepared.features.lines >= 3);
+        assert_eq!(prepared.features.lines, 2);
 
         let decoded = serde_json::from_str(&encoded).expect("deserialize replay input");
         let mut stages = Vec::new();
@@ -14423,6 +15422,7 @@ mod tests {
             },
             included_pages: Vec::new(),
             wikidot_compat_html: CompatHtmlFragments::new(""),
+            wikidot_compat_text: CompatTextFragments::new(""),
         };
 
         let prepared = RenderService::prepare_corpus_replay_wikitext(input);
@@ -14606,11 +15606,11 @@ mod tests {
             "Visible body\n",
             "[[/div]]\n",
         );
-        let html = render_wikidot_css_after_registry_restore(source, true);
+        let (html, styles) = render_wikidot_css_after_extraction(source, true);
 
         assert!(html.contains(r#"<div class="wikidot-compat-fallback">"#));
         assert!(html.contains(r#"<div><p>Visible body</p></div>"#));
-        assert!(html.contains(".theme { display: block; }"));
+        assert_eq!(styles, [".theme { display: block; }"]);
         assert!(!html.contains("Usage:"));
         assert!(!html.contains("[[include :scp-wiki:component:interwiki-style"));
         assert!(!html.contains("[!--"));
@@ -14866,7 +15866,7 @@ mod tests {
     }
 
     #[test]
-    fn wikidot_compatibility_fallback_renders_css_modules_and_style_divs() {
+    fn wikidot_compatibility_fallback_separates_css_modules_and_renders_style_divs() {
         let source = concat!(
             "[[module CSS]]\n",
             ".scp-pride { display: block; }\n",
@@ -14875,13 +15875,13 @@ mod tests {
             "[https://example.com keep coming]\n",
             "[[/div]]\n",
         );
-        let html = render_wikidot_css_after_registry_restore(source, true);
+        let (html, styles) = render_wikidot_css_after_extraction(source, true);
 
         assert!(
-            html.contains("<style>"),
+            !html.contains("<style>"),
             "unexpected fallback HTML: {html:?}"
         );
-        assert!(html.contains(".scp-pride { display: block; }"));
+        assert_eq!(styles, [".scp-pride { display: block; }"]);
         assert!(html.contains(r#"<div style="font-weight: bold; text-align: center;">"#));
         assert!(!html.contains("[[module CSS"));
         assert!(!html.contains("[[/module]]"));
@@ -14898,10 +15898,10 @@ mod tests {
             "body\n",
             "[[/collapsible]]\n",
         );
-        let html = render_wikidot_css_after_registry_restore(source, true);
+        let (html, styles) = render_wikidot_css_after_extraction(source, true);
 
-        assert!(html.contains("<style>"));
-        assert!(html.contains(r"\3C /style>\3C img"));
+        assert!(!html.contains("<style>"));
+        assert!(styles[0].contains(r"\3C /style>\3C img"));
         assert!(!html.contains("</style><img"));
         assert!(!html.contains("<img src=x"));
     }
@@ -15609,6 +16609,90 @@ mod tests {
             wikitext,
             concat!("\n", "[[include :scp-wiki:component:acs-animation]]\n",),
         );
+    }
+
+    #[tokio::test]
+    async fn include_source_cache_loads_each_canonical_page_once() {
+        let first_ref = PageRef::page_only("Component:Sybadge#first");
+        let second_ref = PageRef::page_only("component:sybadge/second");
+        assert_eq!(first_ref.page(), second_ref.page());
+
+        let mut cache = IncludeSourceCache::default();
+        let mut load_count = 0;
+        let mut first = cache
+            .get_or_try_insert_with(1, first_ref.page(), || {
+                load_count += 1;
+                async { Ok(Some("CACHE-{$label}-END".to_owned())) }
+            })
+            .await
+            .expect("the first include source load should succeed")
+            .expect("the first include source should be available");
+        let first_include = IncludeRef::new(
+            first_ref,
+            VariableMap::from([(Cow::Borrowed("label"), Cow::Borrowed("first"))]),
+        );
+        super::apply_include_variables(&mut first, &first_include);
+
+        let mut second = cache
+            .get_or_try_insert_with(1, second_ref.page(), || {
+                load_count += 1;
+                async { Ok(Some("CHANGED".to_owned())) }
+            })
+            .await
+            .expect("the cached include source load should succeed")
+            .expect("the cached include source should be available");
+        let second_include = IncludeRef::new(
+            second_ref,
+            VariableMap::from([(Cow::Borrowed("label"), Cow::Borrowed("second"))]),
+        );
+        super::apply_include_variables(&mut second, &second_include);
+
+        assert_eq!(load_count, 1);
+        assert_eq!(first, "CACHE-first-END");
+        assert_eq!(second, "CACHE-second-END");
+
+        let explicit_default = cache
+            .get_or_try_insert_with(1, "_default:home", || {
+                load_count += 1;
+                async { Ok(Some("DEFAULT-PAGE".to_owned())) }
+            })
+            .await
+            .expect("the explicit default-category source load should succeed");
+        let implicit_default = cache
+            .get_or_try_insert_with(1, "home", || {
+                load_count += 1;
+                async { Ok(Some("CHANGED-DEFAULT-PAGE".to_owned())) }
+            })
+            .await
+            .expect("the canonical default-category source load should succeed");
+        assert_eq!(explicit_default, implicit_default);
+
+        let other_site = cache
+            .get_or_try_insert_with(2, "component:sybadge", || {
+                load_count += 1;
+                async { Ok(Some("OTHER-SITE".to_owned())) }
+            })
+            .await
+            .expect("the other-site include source load should succeed");
+        assert_eq!(other_site.as_deref(), Some("OTHER-SITE"));
+
+        let unavailable = cache
+            .get_or_try_insert_with(1, "component:private", || {
+                load_count += 1;
+                async { Ok(None) }
+            })
+            .await
+            .expect("the unavailable include source load should succeed");
+        assert_eq!(unavailable, None);
+        let unavailable_again = cache
+            .get_or_try_insert_with(1, "component:private", || {
+                load_count += 1;
+                async { Ok(Some("PRIVATE".to_owned())) }
+            })
+            .await
+            .expect("the cached unavailable source load should succeed");
+        assert_eq!(unavailable_again, None);
+        assert_eq!(load_count, 4);
     }
 
     #[test]
@@ -16884,11 +17968,23 @@ mod tests {
 
         let restored = RenderService::restore_wikidot_code_block_dom_compatibility(html);
 
-        assert!(restored.contains(r#"<div class="code">"#));
+        assert!(restored.contains(r#"<div class="code" data-wj-language="css">"#));
         assert!(restored.contains("<pre><code>.x { color: red; }</code></pre>"));
         assert!(!restored.contains("wj-code"));
         assert!(!restored.contains("wj-code-copy"));
         assert!(!restored.contains("wj-code-language"));
+    }
+
+    #[test]
+    fn restores_language_free_wikidot_code_blocks_without_highlight_metadata() {
+        let html = r#"<wj-code class="wj-code"><pre><code>plain</code></pre></wj-code>"#;
+
+        let restored = RenderService::restore_wikidot_code_block_dom_compatibility(html);
+
+        assert_eq!(
+            restored,
+            r#"<div class="code"><pre><code>plain</code></pre></div>"#
+        );
     }
 
     #[test]
@@ -17401,142 +18497,6 @@ mod tests {
     }
 
     #[test]
-    fn removes_residual_wikidot_iftags_fragments_after_render() {
-        let html = concat!(
-            r#"<div class="modalbox-title [[iftags 殿堂入り]]heritage[[/iftags]]">"#,
-            "title</div>",
-            r#"<a href="/[[iftags +en]]target[[/iftags]]">link</a>"#,
-        );
-
-        let restored = RenderService::remove_residual_wikidot_iftags_fragments(html);
-
-        assert_eq!(
-            restored,
-            r#"<div class="modalbox-title ">title</div><a href="/">link</a>"#,
-        );
-        assert!(!restored.contains("[[iftags"));
-        assert!(!restored.contains("[[/iftags]]"));
-    }
-
-    #[test]
-    fn resolves_residual_wikidot_simple_if_fragments_after_render() {
-        let html = concat!(
-            r#"<li class="[[#if 1 | folded | unfolded ]] [[#if 0 | colmod-collapsiblealt | active ]]">"#,
-            r#"<a href="javascript:;">+ Open</a>"#,
-            r#"[[#if 0 | | <a href="javascript:;">- Close</a> ]]"#,
-            r#"[[#if false | hidden | <span>Visible</span> ]]"#,
-            r#"[[#if true | <span>Shown</span> | hidden ]]"#,
-            r#"[[#if 1 | one-branch ]]"#,
-            r#"[[#if 0 | hidden-one-branch ]]"#,
-            "</li>",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(html);
-
-        assert_eq!(
-            restored,
-            r#"<li class="folded active"><a href="javascript:;">+ Open</a><a href="javascript:;">- Close</a><span>Visible</span><span>Shown</span>one-branch</li>"#,
-        );
-        assert!(!restored.contains("[[#if"));
-    }
-
-    #[test]
-    fn preserves_simple_if_fragments_in_wikidot_literal_regions() {
-        let source = concat!(
-            "[[code]]\n[[#if 1 | code-example ]]\n[[/code]]\n",
-            "@@[[#if 0 | escaped-example ]]@@\n",
-            "[[html]]\n[[#if true | html-example ]]\n[[/html]]\n",
-            "[!-- [[#if false | comment-example ]] --]\n",
-            "[[#if 1 | resolved ]]",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(source);
-
-        assert_eq!(
-            restored,
-            concat!(
-                "[[code]]\n[[#if 1 | code-example ]]\n[[/code]]\n",
-                "@@[[#if 0 | escaped-example ]]@@\n",
-                "[[html]]\n[[#if true | html-example ]]\n[[/html]]\n",
-                "[!-- [[#if false | comment-example ]] --]\n",
-                "resolved",
-            )
-        );
-    }
-
-    #[test]
-    fn preserves_simple_if_fragments_in_rendered_html_literal_regions() {
-        let html = concat!(
-            "<code>[[#if 1 | inline-code ]]</code>",
-            "<pre>[[#if 0 | preformatted ]]</pre>",
-            r#"<div class="code"><div>[[#if true | code-panel ]]</div></div>"#,
-            "<script>[[#if 1 | script-example ]]</script>",
-            "<style>[[#if 1 | style-example ]]</style>",
-            "<textarea>[[#if 1 | textarea-example ]]</textarea>",
-            "<p>[[#if 1 | resolved ]]</p>",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(html);
-
-        assert_eq!(
-            restored,
-            concat!(
-                "<code>[[#if 1 | inline-code ]]</code>",
-                "<pre>[[#if 0 | preformatted ]]</pre>",
-                r#"<div class="code"><div>[[#if true | code-panel ]]</div></div>"#,
-                "<script>[[#if 1 | script-example ]]</script>",
-                "<style>[[#if 1 | style-example ]]</style>",
-                "<textarea>[[#if 1 | textarea-example ]]</textarea>",
-                "<p>resolved</p>",
-            )
-        );
-    }
-
-    #[test]
-    fn resolves_simple_if_branches_with_balanced_wikidot_markup() {
-        let source = concat!(
-            "[[#if 1 | [[div]]shown[[/div]] | hidden ]]",
-            "[[#if 0 | hidden | [[span class=\"visible\"]]shown[[/span]] ]]",
-            "[[#if true | [[div]]one-branch[[/div]] ]]",
-            "[[#if 1 | [[#if 0 | no | nested ]] | outer-no ]]",
-        );
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(source);
-
-        assert_eq!(
-            restored,
-            concat!(
-                "[[div]]shown[[/div]]",
-                "[[span class=\"visible\"]]shown[[/span]]",
-                "[[div]]one-branch[[/div]]",
-                "nested",
-            )
-        );
-    }
-
-    #[test]
-    fn resolves_many_sibling_simple_if_fragments_in_one_bounded_pass() {
-        let source = "[[#if 1 | x | y ]]".repeat(5_000);
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(&source);
-
-        assert_eq!(restored, "x".repeat(5_000));
-    }
-
-    #[test]
-    fn deeply_nested_simple_if_resolution_stops_at_the_pass_limit() {
-        let mut source = "leaf".to_owned();
-        for _ in 0..(MAX_WIKIDOT_SIMPLE_IF_PASSES + 8) {
-            source = format!("[[#if 1 | {source} | hidden ]]");
-        }
-
-        let restored = RenderService::resolve_wikidot_simple_if_fragments(&source);
-
-        assert_eq!(restored.matches("[[#if").count(), 8);
-        assert!(restored.contains("leaf"));
-    }
-
-    #[test]
     fn resolves_parser_functions_only_outside_literal_regions() {
         let source = concat!(
             "[[code]]\n[[#expr 1+1]]\n[[/code]]\n",
@@ -17555,7 +18515,7 @@ mod tests {
                 "[[code]]\n[[#expr 1+1]]\n[[/code]]\n",
                 "@@[[#ifexpr 1 | escaped | hidden]]@@\n",
                 "[[html]]\n[[#expr 2+2]]\n[[/html]]\n",
-                "[!-- [[#expr 3+3]] --]\n",
+                "[!-- 6 --]\n",
                 "<code>[[#expr 4+4]]</code>\n",
                 "resolved 10",
             )
@@ -17563,13 +18523,12 @@ mod tests {
     }
 
     #[test]
-    fn list_pages_expression_prepasses_preserve_literal_examples() {
+    fn list_pages_parser_function_boundary_preserves_literal_examples() {
         let signed = concat!(
             "@@[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]@@ ",
             "[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]",
         );
-        let signed = resolve_list_pages_signed_abs_expressions(signed);
-        let signed = RenderService::resolve_wikidot_parser_functions(&signed);
+        let signed = RenderService::resolve_wikidot_parser_functions(signed);
         assert_eq!(
             signed,
             "@@[[#ifexpr -3 > -1 | + | - ]][[#expr abs(-3)]]@@ -3"
@@ -17580,7 +18539,7 @@ mod tests {
             "[[#ifexpr 2 > 1 | visible | hidden]]",
         );
         assert_eq!(
-            resolve_wikidot_numeric_ifexpr(numeric),
+            RenderService::resolve_wikidot_parser_functions(numeric),
             "[[code]]\n[[#ifexpr 2 > 1 | code | hidden]]\n[[/code]] visible"
         );
     }
@@ -17590,16 +18549,85 @@ mod tests {
         let mut source = r#"[[div class="[[#if 1 | folded | unfolded ]] [[#if 0 | inactive | active ]]"]]body[[/div]]"#.to_owned();
         let page_info = fallback_test_page_info("conditional", "Conditional");
 
-        RenderService::prepare_wikidot_conditionals_for_include_expansion(
-            &mut source,
-            &page_info,
-        );
+        prepare_test_wikidot_conditionals(&mut source, &page_info);
 
         assert_eq!(source, r#"[[div class="folded active"]]body[[/div]]"#);
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let tokens = ftml::tokenize(&source);
         let (_, errors) = ftml::parse(&tokens, &page_info, &settings).into();
         assert!(errors.is_empty(), "{errors:#?}");
+    }
+
+    #[test]
+    fn parser_functions_select_includes_before_include_collection() {
+        let mut source = concat!(
+            "[[#if 0 | [[include component:hidden-if]] | ",
+            "[[include component:visible-if]] ]]\n",
+            "[[#if aroace | [[include component:visible-string]] | ",
+            "[[include component:hidden-string]] ]]\n",
+            "[[#if {$code} | [[include component:visible-placeholder]] | ",
+            "[[include component:hidden-placeholder]] ]]\n",
+            "[[#ifexpr 2 > 1 | [[include component:visible-ifexpr]] | ",
+            "[[include component:hidden-ifexpr]] ]]\n",
+        )
+        .to_owned();
+        let page_info = fallback_test_page_info("conditional", "Conditional");
+
+        prepare_test_wikidot_conditionals(&mut source, &page_info);
+
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut includes = Vec::new();
+        ftml::include(
+            &source,
+            &settings,
+            CollectingIncluder {
+                includes: &mut includes,
+            },
+            include_error,
+        )
+        .expect("selected includes should remain valid include syntax");
+
+        assert_eq!(
+            includes
+                .iter()
+                .map(|include| include.page_ref().page())
+                .collect::<Vec<_>>(),
+            [
+                "component:visible-if",
+                "component:visible-string",
+                "component:visible-placeholder",
+                "component:visible-ifexpr",
+            ],
+        );
+        assert!(!source.contains("component:hidden"));
+    }
+
+    #[test]
+    fn parser_functions_open_wikidot_comment_delimiters_before_ftml() {
+        // Live provenance:
+        // ftml-oracle-20260712T230555Z/run-parser-comment-delimiter.
+        let mut source = concat!(
+            "[!-- [[#if aroace | --] |  ]]OMEGA_TRUE[!-- --]\n",
+            "[!-- [[#if 0 | --] |  ]]OMEGA_FALSE[!-- --]\n",
+            "[!-- [[#expr 1+1]] OMEGA_COMMENT --]\n",
+            "OMEGA_AFTER",
+        )
+        .to_owned();
+        let page_info = fallback_test_page_info("conditional", "Conditional");
+
+        prepare_test_wikidot_conditionals(&mut source, &page_info);
+        ftml::preprocess(&mut source);
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let tokens = ftml::tokenize(&source);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(html.contains("OMEGA_TRUE"), "{html}");
+        assert!(html.contains("OMEGA_AFTER"), "{html}");
+        for hidden in ["OMEGA_FALSE", "OMEGA_COMMENT", "[[#expr"] {
+            assert!(!html.contains(hidden), "{hidden}: {html}");
+        }
     }
 
     #[test]
@@ -17616,6 +18644,7 @@ mod tests {
                 .to_owned(),
                 included_pages: Vec::new(),
                 wikidot_compat_html: CompatHtmlFragments::new(""),
+                wikidot_compat_text: CompatTextFragments::new(""),
             },
             &page_info,
             &settings,
@@ -17828,6 +18857,50 @@ mod tests {
     }
 
     #[test]
+    fn restores_wikidot_footnote_title_class_without_assuming_english_text() {
+        for title in ["脚注", "The feet-noten"] {
+            let html = format!(
+                r#"<div class="wj-footnote-list"><div class="wj-title">{title}</div></div>"#
+            );
+
+            let restored =
+                RenderService::restore_wikidot_footnote_dom_compatibility(&html);
+
+            assert_eq!(
+                restored,
+                format!(
+                    r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">{title}</div></div>"#
+                )
+            );
+        }
+    }
+
+    #[test]
+    fn pinned_ftml_localizes_japanese_footnotes_before_dom_compatibility_restore() {
+        let mut page_info =
+            fallback_test_page_info("localized-footnote", "Localized footnote");
+        page_info.language = Cow::Borrowed("ja-JP");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = "本文[[footnote]]注記[[/footnote]]".to_owned();
+        ftml::preprocess(&mut wikitext);
+        let tokens = ftml::tokenize(&wikitext);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, _) = result.into();
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+
+        assert!(rendered.contains(r#"aria-label="脚注 1.""#));
+        assert!(rendered.contains(r#"<div class="wj-title">脚注</div>"#));
+
+        let restored =
+            RenderService::restore_wikidot_footnote_dom_compatibility(&rendered);
+
+        assert!(restored.contains(
+            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">脚注</div>"#
+        ));
+        assert!(!restored.contains(">Footnotes<"));
+    }
+
+    #[test]
     fn restores_wikidot_footnote_refs_without_source_spacing() {
         let html = concat!(
             r#"<p>behaviour. <span class="wj-footnote-ref">"#,
@@ -17949,6 +19022,274 @@ mod tests {
     }
 
     #[test]
+    fn matches_live_wikidot_tag_predicate_matrix() {
+        let tags = [Cow::Borrowed("alpha")];
+
+        assert!(wikidot_tag_conditions_match("+alpha", &tags));
+        assert!(!wikidot_tag_conditions_match("+beta", &tags));
+        assert!(!wikidot_tag_conditions_match("-alpha", &tags));
+        assert!(wikidot_tag_conditions_match("-beta", &tags));
+        assert!(wikidot_tag_conditions_match("alpha beta", &tags));
+        assert!(!wikidot_tag_conditions_match("beta gamma", &tags));
+        assert!(!wikidot_tag_conditions_match("+alpha +beta", &tags));
+        assert!(wikidot_tag_conditions_match("+alpha -beta", &tags));
+        assert!(!wikidot_tag_conditions_match("+alpha -alpha", &tags));
+        assert!(!wikidot_tag_conditions_match("", &tags));
+        assert!(wikidot_tag_conditions_match("-", &tags));
+    }
+
+    #[test]
+    fn resolves_parser_generated_iftags_predicates_before_tag_matching() {
+        // Frozen theme sources use this exact nested #ifexpr-in-iftags shape.
+        // The live tagged preview and saved-page matrix is retained under
+        // ftml-oracle-20260713T042816Z/run-iftags-parser-predicate.
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("alpha")],
+            ..fallback_test_page_info("tagged-page", "Tagged Page")
+        };
+        let mut wikitext = concat!(
+            "[[iftags [[#ifexpr 1 == 1 | - ]]]]\n",
+            "OMEGA_TRUE_MINUS\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 0 | - ]]]]\n",
+            "OMEGA_FALSE_EMPTY\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]\n",
+            "OMEGA_TRUE_ALPHA\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 0 | +alpha | +beta ]]]]\n",
+            "OMEGA_FALSE_BETA\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#if 1 | alpha beta | +gamma ]]]]\n",
+            "OMEGA_BARE_OR\n",
+            "[[/iftags]]\n",
+            "[[iftags [[#if 0 | +gamma | -alpha ]]]]\n",
+            "OMEGA_FALSE_MINUS_ALPHA\n",
+            "[[/iftags]]\n",
+        )
+        .to_owned();
+
+        prepare_test_wikidot_conditionals_before_include_expansion(
+            &mut wikitext,
+            &page_info,
+        );
+
+        for visible in ["OMEGA_TRUE_MINUS", "OMEGA_TRUE_ALPHA", "OMEGA_BARE_OR"] {
+            assert!(wikitext.contains(visible), "{visible}: {wikitext}");
+        }
+        for hidden in [
+            "OMEGA_FALSE_EMPTY",
+            "OMEGA_FALSE_BETA",
+            "OMEGA_FALSE_MINUS_ALPHA",
+        ] {
+            assert!(!wikitext.contains(hidden), "{hidden}: {wikitext}");
+        }
+        assert!(!wikitext.contains("[[iftags"), "{wikitext}");
+        assert!(!wikitext.contains("[[#if"), "{wikitext}");
+    }
+
+    #[test]
+    fn parser_generated_name_and_bracket_fragments_form_iftags_boundaries() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
+        for (source, body) in [
+            (
+                concat!(
+                    "[[if[[#if 1 | tags +alpha | tags +beta]]]]\n",
+                    "OMEGA_KEYWORD_OPENER\n",
+                    "[[/iftags]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_KEYWORD_OPENER",
+            ),
+            (
+                concat!(
+                    "[[iftags +alpha]]\n",
+                    "OMEGA_KEYWORD_CLOSER\n",
+                    "[[/if[[#if 1 | tags | nope]]]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_KEYWORD_CLOSER",
+            ),
+            (
+                concat!(
+                    "[[iftags +alpha[[#if 1 | ] | X]]]\n",
+                    "OMEGA_RIGHT_BRACKET_OPENER\n",
+                    "[[/iftags]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_RIGHT_BRACKET_OPENER",
+            ),
+            (
+                concat!(
+                    "[[iftags +alpha]]\n",
+                    "OMEGA_LEFT_BRACKET_CLOSER\n",
+                    "[[[#if 1 | [/iftags | [/div]]]]\n",
+                    "OMEGA_AFTER",
+                ),
+                "OMEGA_LEFT_BRACKET_CLOSER",
+            ),
+        ] {
+            for (tags, active) in [(&["alpha"][..], true), (&[][..], false)] {
+                let html = render_wikidot_conditionals_with_tags(source, tags);
+
+                assert_eq!(html.contains(body), active, "{source:?}: {html}");
+                assert!(html.contains("OMEGA_AFTER"), "{source:?}: {html}");
+                assert!(!html.contains("[[#if"), "{source:?}: {html}");
+                assert!(!html.contains("[[iftags"), "{source:?}: {html}");
+                assert!(!html.contains("[[/iftags]]"), "{source:?}: {html}");
+            }
+        }
+    }
+
+    #[test]
+    fn parser_generated_boundaries_participate_in_partial_iftags_recovery() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
+        for source in [
+            concat!(
+                "[[iftags +alpha]]\n",
+                "OMEGA_OUTER\n",
+                "[[if[[#if 1 | tags +beta | tags +gamma]]]]\n",
+                "OMEGA_INNER\n",
+                "[[/iftags]]\n",
+                "OMEGA_AFTER",
+            ),
+            concat!(
+                "[[iftags +alpha]]\n",
+                "OMEGA_OUTER\n",
+                "[[iftags +beta]]\n",
+                "OMEGA_INNER\n",
+                "[[/if[[#if 1 | tags | nope]]]]\n",
+                "OMEGA_AFTER",
+            ),
+        ] {
+            let active = render_wikidot_conditionals_with_tags(source, &["alpha"]);
+            assert!(active.contains("OMEGA_OUTER"), "{active}");
+            assert!(active.contains("OMEGA_INNER"), "{active}");
+            assert!(active.contains("[[iftags +beta]]"), "{active}");
+            assert!(active.contains("OMEGA_AFTER"), "{active}");
+            assert!(!active.contains("[[#if"), "{active}");
+            assert!(!active.contains("[[/iftags]]"), "{active}");
+
+            let inactive = render_wikidot_conditionals_with_tags(source, &[]);
+            assert!(!inactive.contains("OMEGA_OUTER"), "{inactive}");
+            assert!(!inactive.contains("OMEGA_INNER"), "{inactive}");
+            assert!(!inactive.contains("[[iftags"), "{inactive}");
+            assert!(inactive.contains("OMEGA_AFTER"), "{inactive}");
+            assert!(!inactive.contains("[[#if"), "{inactive}");
+            assert!(!inactive.contains("[[/iftags]]"), "{inactive}");
+        }
+    }
+
+    #[test]
+    fn parser_generated_partial_recovery_preserves_native_quote_depth() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
+        for (source, depth) in [
+            (
+                concat!(
+                    "> [[iftags +alpha]]\n",
+                    "> OMEGA_OUTER\n",
+                    "> [[iftags +beta]]\n",
+                    "> OMEGA_INNER\n",
+                    "> [[/if[[#if 1 | tags | nope]]]]\n",
+                    "OMEGA_AFTER",
+                ),
+                1,
+            ),
+            (
+                concat!(
+                    ">> [[iftags +alpha]]\n",
+                    ">> OMEGA_OUTER\n",
+                    ">> [[if[[#if 1 | tags +beta | tags +gamma]]]]\n",
+                    ">> OMEGA_INNER\n",
+                    ">> [[/iftags]]\n",
+                    "OMEGA_AFTER",
+                ),
+                2,
+            ),
+        ] {
+            let active = render_wikidot_conditionals_with_tags(source, &["alpha"]);
+            assert!(active.contains("OMEGA_OUTER"), "{active}");
+            assert!(active.contains("OMEGA_INNER"), "{active}");
+            assert!(active.contains("OMEGA_AFTER"), "{active}");
+            assert_eq!(active.matches("<blockquote>").count(), depth, "{active}");
+            assert!(!active.contains("[[#if"), "{active}");
+            assert!(!active.contains("[[/iftags]]"), "{active}");
+
+            let inactive = render_wikidot_conditionals_with_tags(source, &[]);
+            assert!(!inactive.contains("OMEGA_OUTER"), "{inactive}");
+            assert!(!inactive.contains("OMEGA_INNER"), "{inactive}");
+            assert!(inactive.contains("OMEGA_AFTER"), "{inactive}");
+            assert_eq!(inactive.matches("<blockquote>").count(), 0, "{inactive}");
+            assert!(!inactive.contains("[[#if"), "{inactive}");
+            assert!(!inactive.contains("[[/iftags]]"), "{inactive}");
+        }
+    }
+
+    #[test]
+    fn preserves_parser_generated_iftags_inside_literal_regions() {
+        // Live preview and saved-page observations are retained under
+        // ftml-oracle-20260713T051411Z/run-iftags-quoted-generated.
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("alpha")],
+            ..fallback_test_page_info("tagged-page", "Tagged Page")
+        };
+        let mut wikitext = concat!(
+            "[[code]]\n",
+            ">[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]\n",
+            "OMEGA_CODE_BODY\n",
+            ">[[/iftags]]\n",
+            "[[/code]]\n",
+            "@@[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_ESCAPE_BODY[[/iftags]]@@\n",
+            "> [[raw]]\n",
+            "> [[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]\n",
+            "> OMEGA_RAW_BODY\n",
+            "> [[/iftags]]\n",
+            "> [[/raw]]\n",
+            "[!-- [[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_COMMENT_BODY[[/iftags]] --]\n",
+            "[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_VISIBLE_BODY[[/iftags]]\n",
+        )
+        .to_owned();
+
+        prepare_test_wikidot_conditionals(&mut wikitext, &page_info);
+
+        for literal in [
+            ">[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_CODE_BODY",
+            "@@[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_ESCAPE_BODY",
+            "> [[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]",
+            "OMEGA_RAW_BODY",
+        ] {
+            assert!(wikitext.contains(literal), "{literal}: {wikitext}");
+        }
+        assert!(
+            wikitext.contains("[!-- [[iftags +alpha]]OMEGA_COMMENT_BODY[[/iftags]] --]"),
+            "{wikitext}",
+        );
+        assert!(wikitext.contains("OMEGA_VISIBLE_BODY"), "{wikitext}");
+    }
+
+    #[test]
+    fn resolves_empty_and_empty_negative_iftags_like_saved_wikidot() {
+        let page_info = fallback_test_page_info("tagged-page", "Tagged Page");
+        let mut wikitext = concat!(
+            "[[iftags]]OMEGA_NO_ARGUMENT[[/iftags]]\n",
+            "[[iftags -]]OMEGA_EMPTY_NEGATIVE[[/iftags]]\n",
+        )
+        .to_owned();
+
+        resolve_test_wikidot_iftags(&mut wikitext, &page_info);
+
+        assert_eq!(wikitext, "\nOMEGA_EMPTY_NEGATIVE\n");
+    }
+
+    #[test]
     fn resolves_single_line_wikidot_iftags_fragments_in_source() {
         let page_info = ftml::data::PageInfo {
             page: Cow::Borrowed("some-page"),
@@ -17970,16 +19311,79 @@ mod tests {
         )
         .to_owned();
 
-        RenderService::resolve_single_line_wikidot_iftags_fragments(
-            &mut wikitext,
-            &page_info,
-        );
+        resolve_test_wikidot_iftags(&mut wikitext, &page_info);
 
         assert!(wikitext.contains("[[div_  class=\"Dendo\"]]"));
         assert!(wikitext.contains("[[span class=\"visible \"]]body[[/span]]"));
-        assert!(wikitext.contains("[[iftags +missing]]\nmultiline\n[[/iftags]]"));
+        assert!(!wikitext.contains("multiline"));
         assert!(!wikitext.contains("display: flex"));
         assert!(!wikitext.contains("hidden"));
+    }
+
+    #[test]
+    fn prepares_wikidot_unicode_iftags_component_with_cross_closed_collapsible() {
+        // scp-jp:component:centered-header-bhl uses this close order; Wikidot renders the outer div around the complete collapsible despite the cross-closed source markers.
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("theme")],
+            language: Cow::Borrowed("ja-JP"),
+            ..fallback_test_page_info("ashes-to-ashes", "Ashes to Ashes")
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let source = concat!(
+            "[[iftags +コンポーネント]]documentation[[/iftags]]\n",
+            "[[div [[iftags -コンポーネント]]style=\"display: none\"[[/iftags]]]]\n",
+            "-----\n",
+            "[[collapsible show=\"+ show\" hide=\"- hide\"]]\n",
+            "[[module CSS show=\"true\"]]\n",
+            ".example { color: red; }\n",
+            "[[/module]]\n",
+            "[[/div]]\n",
+            "[[/collapsible]]\n",
+        )
+        .to_owned();
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikidot_compat_html: CompatHtmlFragments::new(&source),
+                wikidot_compat_text: CompatTextFragments::new(&source),
+                wikitext: source,
+                included_pages: Vec::new(),
+            },
+            &page_info,
+            &settings,
+        );
+        let prepared = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&prepared.wikitext);
+        let (_, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+
+        assert!(errors.is_empty(), "{errors:#?}\n{}", prepared.wikitext);
+    }
+
+    #[test]
+    fn preserves_wikidot_properly_nested_div_collapsible_markers() {
+        let mut source = concat!(
+            "[[div class=\"outer\"]]\n",
+            "[[collapsible show=\"show\" hide=\"hide\"]]\n",
+            "outer body\n",
+            "[[/collapsible]]\n",
+            "[[/div]]\n",
+            "[[collapsible show=\"show\" hide=\"hide\"]]\n",
+            "[[div class=\"inner\"]]\n",
+            "inner body\n",
+            "[[/div]]\n",
+            "[[/collapsible]]\n",
+            "[[code]]\n",
+            "[[div]]\n",
+            "[[collapsible]]\n",
+            "[[/div]]\n",
+            "[[/collapsible]]\n",
+            "[[/code]]\n",
+        )
+        .to_owned();
+        let expected = source.clone();
+
+        RenderService::normalize_wikidot_cross_closed_div_collapsibles(&mut source);
+
+        assert_eq!(source, expected);
     }
 
     #[test]
@@ -18001,7 +19405,7 @@ mod tests {
         )
         .to_owned();
 
-        RenderService::resolve_simple_wikidot_iftags_blocks(&mut wikitext, &page_info);
+        resolve_test_wikidot_iftags(&mut wikitext, &page_info);
 
         assert!(wikitext.contains("[[module css]]"));
         assert!(wikitext.contains(".a { color: red; }"));
@@ -18026,7 +19430,7 @@ mod tests {
         )
         .to_owned();
 
-        RenderService::resolve_simple_wikidot_iftags_blocks(&mut wikitext, &page_info);
+        resolve_test_wikidot_iftags(&mut wikitext, &page_info);
 
         assert!(wikitext.contains("[[module css]]"));
         assert!(wikitext.contains(".a { color: red; }"));
@@ -18046,7 +19450,7 @@ mod tests {
         )
         .to_owned();
 
-        RenderService::resolve_simple_wikidot_iftags_blocks(&mut wikitext, &page_info);
+        resolve_test_wikidot_iftags(&mut wikitext, &page_info);
 
         assert!(wikitext.contains("before\n"));
         assert!(wikitext.contains("after\n"));
@@ -18068,7 +19472,7 @@ mod tests {
         )
         .to_owned();
 
-        RenderService::prepare_wikidot_conditionals_for_include_expansion(
+        prepare_test_wikidot_conditionals_before_include_expansion(
             &mut wikitext,
             &page_info,
         );
@@ -18094,7 +19498,7 @@ mod tests {
     }
 
     #[test]
-    fn leaves_nested_multiline_wikidot_iftags_blocks_for_later_handling() {
+    fn active_outer_preserves_nested_multiline_wikidot_iftags_literal() {
         let page_info = fallback_test_page_info("black-queen-hub", "Black Queen Hub");
         let mut wikitext = concat!(
             "[[iftags -component]]\n",
@@ -18103,10 +19507,107 @@ mod tests {
         )
         .to_owned();
 
-        RenderService::resolve_simple_wikidot_iftags_blocks(&mut wikitext, &page_info);
+        resolve_test_wikidot_iftags(&mut wikitext, &page_info);
 
-        assert!(wikitext.contains("[[iftags -component]]"));
+        assert!(!wikitext.contains("[[iftags -component]]"));
         assert!(wikitext.contains("[[iftags +theme]]nested[[/iftags]]"));
+    }
+
+    #[test]
+    fn repeated_render_preparation_preserves_nested_iftags_for_ftml() {
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("alpha")],
+            ..fallback_test_page_info("nested", "Nested")
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "[[iftags +alpha]]\n",
+            "outer-before\n",
+            "[[iftags +beta]]inner[[/iftags]]\n",
+            "outer-after\n",
+            "[[/iftags]]\n",
+            "root-after\n",
+        )
+        .to_owned();
+        let mut wikidot_compat_text = CompatTextFragments::new(&wikitext);
+        for _ in 0..2 {
+            RenderService::prepare_wikidot_conditionals_for_include_expansion(
+                &mut wikitext,
+                &page_info,
+                &mut wikidot_compat_text,
+            );
+        }
+        assert!(wikitext.contains(COMPAT_TEXT_MARKER_PREFIX), "{wikitext}");
+
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikitext,
+                included_pages: Vec::new(),
+                wikidot_compat_html: CompatHtmlFragments::new(""),
+                wikidot_compat_text,
+            },
+            &page_info,
+            &settings,
+        );
+        assert!(!outer.wikitext.contains("[[iftags +alpha]]"));
+        assert!(outer.wikitext.contains(COMPAT_TEXT_MARKER_PREFIX));
+        assert!(outer.wikitext.contains("root-after"));
+
+        let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&inner.wikitext);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+        let html = inner.wikidot_compat_text.restore(&html);
+        assert!(html.contains("[[iftags +beta]]inner[[/iftags]]"), "{html}");
+        assert!(html.contains("root-after"), "{html}");
+    }
+
+    #[test]
+    fn malformed_iftags_remain_literal_without_ftml_parser_errors() {
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("alpha")],
+            ..fallback_test_page_info("malformed", "Malformed")
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "[[/iftags]]\n",
+            "[[iftags +alpha]]selected[[/iftags]]\n",
+            "[[iftags +alpha]]unclosed\n",
+            "[[iftags -alpha]]repeated\n",
+        )
+        .to_owned();
+        let mut wikidot_compat_text = CompatTextFragments::new(&wikitext);
+        for _ in 0..2 {
+            RenderService::prepare_wikidot_conditionals_for_include_expansion(
+                &mut wikitext,
+                &page_info,
+                &mut wikidot_compat_text,
+            );
+        }
+
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikitext,
+                included_pages: Vec::new(),
+                wikidot_compat_html: CompatHtmlFragments::new(""),
+                wikidot_compat_text,
+            },
+            &page_info,
+            &settings,
+        );
+        let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&inner.wikitext);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+        let html = inner.wikidot_compat_text.restore(&html);
+        for literal in ["[[/iftags]]", "[[iftags +alpha]]", "[[iftags -alpha]]"] {
+            assert!(html.contains(literal), "{literal}: {html}");
+        }
+        for marker in ["selected", "unclosed", "repeated"] {
+            assert!(html.contains(marker), "{marker}: {html}");
+        }
     }
 
     fn wikidot_site(slug: &str, preferred_domain: Option<&str>) -> SiteModel {

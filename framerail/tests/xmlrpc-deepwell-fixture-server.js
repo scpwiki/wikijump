@@ -11,6 +11,7 @@ import { createServer } from "node:http"
  *
  * @typedef {{
  *   compiled_body_html: string
+ *   compiled_body_styles?: string[]
  *   creator_user_id: number
  *   page_created_at: string
  *   page_id: number
@@ -192,8 +193,138 @@ const pages = {
     rating: 5,
     wikitext: "XML-RPC post fixture page.",
     compiled_body_html: "<p>XML-RPC post fixture page.</p>"
+  },
+  "theme:yossistyle": {
+    page_id: 3000310,
+    revision_id: 9000310,
+    page_created_at: "2026-07-13T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-13T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "YOSSISTYLE",
+    slug: "theme:yossistyle",
+    tags: ["theme"],
+    rating: 0,
+    wikitext:
+      "[[module CSS]]\n#header h2 span { margin-left: 1px; }\n[[/module]]\nXML-RPC theme body marker.",
+    compiled_body_html: "<p>XML-RPC theme body marker.</p>",
+    compiled_body_styles: ["#header h2 span { margin-left: 1px; }"]
+  },
+  "wikidot-tabview": {
+    page_id: 3000320,
+    revision_id: 9000320,
+    page_created_at: "2026-07-13T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-13T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Wikidot Tabview",
+    slug: "wikidot-tabview",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext:
+      "[[tabview]]\n[[tab First]]First panel[[/tab]]\n[[tab Second]]Second panel[[/tab]]\n[[/tabview]]",
+    compiled_body_html:
+      '<div class="yui-navset"><ul class="yui-nav"><li class="selected"><a href="javascript:;">First</a></li><li><a href="javascript:;">Second</a></li></ul><div class="yui-content"><div style="display: block;"><p>First panel</p></div><div style="display:none"><p>Second panel</p></div></div></div><script type="text/javascript"></script>'
   }
 }
+
+/** @param {FixturePage} page */
+const toArticleViewResult = (page) => ({
+  site: {
+    site_id: 6000005,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: null,
+    deleted_at: null,
+    from_wikidot: false,
+    slug: "scp-wiki",
+    name: "SCP Foundation",
+    tagline: "Secure, Contain, Protect",
+    description: "Fixture site",
+    locale: "en",
+    default_page: "main",
+    top_bar_page: null,
+    side_bar_page: null,
+    preferred_domain: null,
+    layout: "wikidot",
+    license: "cc-by-sa-3.0"
+  },
+  site_file_domain: "scp-wiki.wjfiles.localhost",
+  license_name: "CC BY-SA 3.0",
+  license_url: "https://creativecommons.org/licenses/by-sa/3.0/",
+  user_session: null,
+  article_page_cache_key: null,
+  public_content_cache_fence: null,
+  anonymous_permission_cache_fence: null,
+  page: {
+    type: "found",
+    data: {
+      options: {
+        edit: false,
+        title: null,
+        parent: null,
+        tags: null,
+        no_redirect: false,
+        no_render: false,
+        debug: false,
+        renderer: false,
+        comments: false,
+        history: false,
+        offset: null,
+        data: ""
+      },
+      redirect_page: null,
+      wikitext: page.wikitext,
+      compiled_body_html: page.compiled_body_html,
+      compiled_body_styles: page.compiled_body_styles ?? [],
+      compiled_top_bar_html: null,
+      compiled_side_bar_html: null,
+      page: {
+        page_id: page.page_id,
+        created_at: page.page_created_at,
+        updated_at: page.page_updated_at,
+        deleted_at: null,
+        from_wikidot: false,
+        site_id: 6000005,
+        latest_revision_id: page.revision_id,
+        page_category_id: 1,
+        slug: page.slug,
+        discussion_thread_id: null,
+        layout: "wikidot"
+      },
+      page_revision: {
+        revision_id: page.revision_id,
+        revision_type: "create",
+        created_at: page.revision_created_at,
+        updated_at: null,
+        revision_number: page.page_revision_count - 1,
+        page_id: page.page_id,
+        site_id: 6000005,
+        user_id: page.revision_user_id,
+        from_wikidot: false,
+        changes: [],
+        wikitext_hash: [],
+        compiled_body_html_hash: [],
+        compiled_top_bar_html_hash: null,
+        compiled_side_bar_html_hash: null,
+        compiled_at: page.revision_created_at,
+        compiled_generator: "fixture",
+        comments: "",
+        hidden: [],
+        title: page.title,
+        alt_title: null,
+        slug: page.slug,
+        tags: page.tags
+      },
+      wikidot_snapshot: null,
+      wikidot_breadcrumbs: [],
+      attributions: []
+    }
+  }
+})
 /** @type {Record<string, FixtureForumPost[]>} */
 const forumPostsByPage = {
   "xmlrpc-post-page": [
@@ -247,6 +378,7 @@ const toPageResult = (page, details) => {
   }
   if (details.compiled_html) {
     result.compiled_body_html = page.compiled_body_html
+    result.compiled_body_styles = page.compiled_body_styles ?? []
   }
 
   return result
@@ -415,6 +547,36 @@ const server = createServer((request, response) => {
     ) {
       pageReadRequests.siteGet.push(rpcRequest.params)
       result = rpcRequest.params.site === "scp-wiki" ? { site_id: 6000005 } : null
+    } else if (
+      rpcRequest.method === "article_view" &&
+      ((hasExactKeys(rpcRequest.params, ["locales", "route", "site_id"]) &&
+        rpcRequest.params.session_token === undefined) ||
+        (hasExactKeys(rpcRequest.params, [
+          "locales",
+          "route",
+          "session_token",
+          "site_id"
+        ]) &&
+          rpcRequest.params.session_token === "fixture-session-token")) &&
+      rpcRequest.params.site_id === 6000005 &&
+      Array.isArray(rpcRequest.params.locales) &&
+      hasExactKeys(rpcRequest.params.route, ["extra", "slug"]) &&
+      typeof rpcRequest.params.route.slug === "string" &&
+      rpcRequest.params.route.extra === "" &&
+      pages[rpcRequest.params.route.slug]
+    ) {
+      result = toArticleViewResult(pages[rpcRequest.params.route.slug])
+    } else if (
+      rpcRequest.method === "translate" &&
+      hasExactKeys(rpcRequest.params, ["locales", "messages", "strip_message_keys"]) &&
+      Array.isArray(rpcRequest.params.locales) &&
+      typeof rpcRequest.params.messages === "object" &&
+      rpcRequest.params.messages !== null &&
+      Array.isArray(rpcRequest.params.strip_message_keys)
+    ) {
+      result = Object.fromEntries(
+        Object.keys(rpcRequest.params.messages).map((key) => [key, key])
+      )
     } else if (
       rpcRequest.method === "page_view" &&
       hasExactKeys(rpcRequest.params, ["locales", "route", "session_token", "site_id"]) &&
@@ -971,11 +1133,25 @@ const server = createServer((request, response) => {
         revision_id: existing.revision_id
       }
     } else {
+      const requestShape =
+        rpcRequest.method === "article_view"
+          ? ` ${JSON.stringify({
+              paramKeys: Object.keys(rpcRequest.params ?? {}).sort(),
+              route: rpcRequest.params?.route,
+              sessionTokenType:
+                rpcRequest.params?.session_token === null
+                  ? "null"
+                  : typeof rpcRequest.params?.session_token,
+              siteId: rpcRequest.params?.site_id,
+              headerSiteId: request.headers["x-deepwell-site-id"],
+              hasHeaderSessionToken: Boolean(request.headers["x-deepwell-session-token"])
+            })}`
+          : ""
       response.writeHead(200, { "content-type": "application/json" }).end(
         JSON.stringify({
           error: {
             code: -32601,
-            message: `Unexpected Deepwell fixture request: ${rpcRequest.method}`
+            message: `Unexpected Deepwell fixture request: ${rpcRequest.method}${requestShape}`
           },
           id: rpcRequest.id,
           jsonrpc: "2.0"

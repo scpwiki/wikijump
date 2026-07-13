@@ -3,19 +3,11 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import {findRawSyntaxLeaks} from "../src/render-health.mjs";
 
 const ADMIN_USER_ID = -1;
 const IP_ADDRESS = "127.0.0.1";
 const DEFAULT_RPC_TIMEOUT_MS = 10_000;
-const RAW_SYNTAX_PATTERNS = [
-  /\[\[include\b/gi,
-  /\[\[module\s+ListPages\b/gi,
-  /\[\[image\b/gi,
-  /\[\[collapsible\b/gi,
-  /\[\[tabview\b/gi,
-  /\[\[\/module\]\]/gi,
-  /%%content%%/gi,
-];
 
 function parseArgs(argv) {
   const args = {
@@ -271,24 +263,7 @@ function inferAssets(source) {
   return [...new Set(assets)];
 }
 
-function findRawSyntaxLeaks(html) {
-  const leaks = [];
-  for (const pattern of RAW_SYNTAX_PATTERNS) {
-    for (const match of html.matchAll(pattern)) {
-      const start = Math.max(0, match.index - 60);
-      const end = Math.min(html.length, match.index + match[0].length + 60);
-      leaks.push({
-        pattern: pattern.source,
-        text: match[0],
-        context: html.slice(start, end).replace(/\s+/g, " ").trim(),
-      });
-      if (leaks.length >= 20) return leaks;
-    }
-  }
-  return leaks;
-}
-
-function classifyPreview({ html, parserErrors, includes, assets, importError }) {
+function classifyPreview({ html, source, parserErrors, includes, assets, importError }) {
   if (importError) {
     return {
       status: "failed-import",
@@ -315,7 +290,7 @@ function classifyPreview({ html, parserErrors, includes, assets, importError }) 
     };
   }
 
-  const rawSyntaxLeaks = findRawSyntaxLeaks(html);
+  const rawSyntaxLeaks = findRawSyntaxLeaks({html, source});
   const missingIncludes = /No such page|no such page|Missing include/i.test(html)
     ? includes
     : [];
@@ -432,6 +407,7 @@ async function main() {
 
     classification = classifyPreview({
       html: imported.page.compiled_body_html || "",
+      source,
       parserErrors: imported.parserErrors,
       includes,
       assets,
@@ -439,6 +415,7 @@ async function main() {
   } catch (error) {
     classification = classifyPreview({
       html: "",
+      source,
       parserErrors: [],
       includes,
       assets,

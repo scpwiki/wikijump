@@ -9,9 +9,9 @@ set -e
 # This will recompile and restart the deepwell daemon on any source changes
 # The commandline being run for the daemon is "deepwell /etc/deepwell.toml".
 
-PROFILE_FLAG=""
+RUN_COMMAND="run --locked -- /etc/deepwell.toml"
 if [ "${DEEPWELL_BUILD_PROFILE:-debug}" = "release" ]; then
-    PROFILE_FLAG="--release"
+    RUN_COMMAND="run --locked --release -- /etc/deepwell.toml"
 fi
 
 exec /usr/bin/env RUST_BACKTRACE=1 \
@@ -20,4 +20,4 @@ exec /usr/bin/env RUST_BACKTRACE=1 \
         -w /src/deepwell \
         -w /opt/locales \
         -w /etc/deepwell.toml \
-        -x "run $PROFILE_FLAG -- /etc/deepwell.toml"
+        -x "$RUN_COMMAND"

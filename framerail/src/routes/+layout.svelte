@@ -4,7 +4,7 @@
   import ErrorPopup from "$lib/popup/error.svelte"
 
   import { page } from "$app/state"
-  import { setContext } from "svelte"
+  import { onMount, setContext } from "svelte"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
   import {
@@ -75,6 +75,18 @@
 
   setContext(PAGE_LAYOUT_CONTEXT_KEY, pageLayoutContext)
 
+  onMount(() => {
+    let disposed = false
+    let stop: (() => void) | undefined
+    void import("$lib/wikidot-code-highlighting").then((module) => {
+      if (!disposed) stop = module.observeWikidotCodeBlocks(document)
+    })
+    return () => {
+      disposed = true
+      stop?.()
+    }
+  })
+
   // Keep existing child components synchronized after hydration while the
   // top-level shell decision is available during SSR through request-local context.
   $effect.pre(() => {
@@ -90,18 +102,9 @@
 <svelte:head>
   <title>{viewData?.site?.name}</title>
   {#if currentLayout === Layout.WIKIDOT}
-    <link
-      href="https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/css/style.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/css/pagerate/PageRateWidgetModule.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css"
-      rel="stylesheet"
-    />
+    <link href="/wikidot/styles/wikidot-base-c76c6921c8d6.css" rel="stylesheet" />
+    <link href="/wikidot/styles/pagerate-db0bffe086ed.css" rel="stylesheet" />
+    <link href="/wikidot/styles/sigma-fe5388a32e12.css" rel="stylesheet" />
   {/if}
 </svelte:head>
 

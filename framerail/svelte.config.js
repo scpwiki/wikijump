@@ -36,6 +36,9 @@ const LOCAL_FILE_FRAME_SOURCES = ["https://*.wjfiles.localhost"]
 const WIKIDOT_LEGACY_IMAGE_SOURCES = ["https://d3g0gp89917ko0.cloudfront.net"]
 /** @type {CspSources} */
 const WIKIDOT_IMAGE_SOURCES = [
+  "https://scp-wiki.wikidot.com",
+  "https://scp-jp-storage.wikidot.com",
+  "https://scpsandboxcn.wikidot.com",
   "https://*.wdfiles.com",
   "https://cdn.scpwiki.com",
   "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com"
@@ -47,7 +50,9 @@ const WIKIDOT_STYLE_SOURCES = [
   "https://cdn.jsdelivr.net",
   "https://d3g0gp89917ko0.cloudfront.net",
   "https://fonts.bunny.net",
+  "https://fonts.googleapis.com",
   "https://maxcdn.bootstrapcdn.com",
+  "https://nu-scptheme.github.io",
   "https://rsms.me",
   "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com"
 ]
@@ -57,7 +62,9 @@ const WIKIDOT_FONT_SOURCES = [
   "https://cdn.scpwiki.com",
   "https://cdn.jsdelivr.net",
   "https://fonts.bunny.net",
+  "https://fonts.gstatic.com",
   "https://maxcdn.bootstrapcdn.com",
+  "https://nu-scptheme.github.io",
   "https://rsms.me",
   "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com"
 ]

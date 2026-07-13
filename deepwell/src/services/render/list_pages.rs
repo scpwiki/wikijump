@@ -21,9 +21,9 @@
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page};
 use crate::services::page_query::{
-    CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
-    OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageTypeSelector,
-    PaginationSelector, RangeSelector, TagCondition,
+    AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
+    IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
+    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::score::ScoreValue;
@@ -658,13 +658,14 @@ async fn select_child_content_pages(
             contains_outgoing_links: &[],
             creation_date: unbounded_date,
             update_date: unbounded_date,
-            author: &[],
+            author: AuthorSelector::All,
             score: &[],
             votes: &[],
             offset,
             range: RangeSelector::Others,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(order),
             candidate_limit: None,

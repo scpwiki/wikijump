@@ -5,6 +5,7 @@ import {
   aggregateVerdict,
   classifyRenderedPage,
   countEscapedOccurrences,
+  findRawSyntaxLeaks,
   renderDashboardHtml,
   stripNonContent,
   RENDER_HEALTH_SCHEMA,
@@ -76,6 +77,56 @@ test('code blocks are stripped from content scanning', () => {
   assert.ok(!stripNonContent(html).includes('[[module'));
   const page = classifyRenderedPage({ fixtureId: 'EN:code', httpStatus: 200, html, source: 'x' });
   assert.equal(page.status, 'pass');
+});
+
+test('raw syntax scanning ignores source literals and rendered code but catches visible directives', () => {
+  const source = '@@[[include component:literal]]@@\n[[code]][[image literal.png]][[/code]]';
+  assert.deepEqual(findRawSyntaxLeaks({
+    html: '<body><p>[[include component:literal]]</p><pre>[[image literal.png]]</pre></body>',
+    source,
+  }), []);
+  const leaks = findRawSyntaxLeaks({
+    html: '<body><code>[[collapsible]]</code><p>[[include component:broken]]</p></body>',
+    source: '[[include component:broken]]',
+  });
+  assert.equal(leaks.length, 1);
+  assert.equal(leaks[0].category, 'unresolved-include');
+});
+
+test('identified FTML literal spans cannot hide a separate visible leak', () => {
+  const source = '@@[[include component:literal]]@@\n[[include component:broken]]';
+  const leaks = findRawSyntaxLeaks({
+    html: '<p><span class="wj-raw">[[include component:literal]]</span></p><p>[[include component:broken]]</p>',
+    source,
+  });
+  assert.equal(leaks.length, 1);
+  assert.equal(leaks[0].count, 1);
+  assert.match(leaks[0].context, /component:broken/);
+});
+
+test('split FTML literal spans do not form a raw-syntax leak', () => {
+  const html = '<p><span class="wj-raw">[[include </span><span style="opacity: 70%"><span style="white-space: pre-wrap;">:scp-jp:</span></span><span class="wj-raw">theme:basalt]]</span></p>';
+  assert.deepEqual(findRawSyntaxLeaks({html, source: '@@[[include @@...@@theme:basalt]]@@'}), []);
+});
+
+test('source code blocks do not discount a separate visible leak', () => {
+  const source = '[[code]][[include component:literal]][[/code]]\n[[include component:broken]]';
+  const html = '<pre><code>[[include component:literal]]</code></pre><p>[[include component:broken]]</p>';
+  const leaks = findRawSyntaxLeaks({html, source});
+  assert.equal(leaks.length, 1);
+  assert.equal(leaks[0].count, 1);
+  assert.match(leaks[0].context, /component:broken/);
+});
+
+test('empty include prose is not an unresolved directive', () => {
+  const page = classifyRenderedPage({fixtureId: 'JP:prose', httpStatus: 200, html: '<p>膨大な[[include]]の費用</p>', source: '膨大な[[include]]の費用'});
+  assert.equal(page.status, 'pass');
+});
+
+test('raw syntax scanning is case insensitive like Wikidot directives', () => {
+  const leaks = findRawSyntaxLeaks({html: '<p>[[INCLUDE component:broken]]</p>', source: '[[INCLUDE component:broken]]'});
+  assert.equal(leaks.length, 1);
+  assert.equal(leaks[0].category, 'unresolved-include');
 });
 
 test('404 is route-missing S4', () => {

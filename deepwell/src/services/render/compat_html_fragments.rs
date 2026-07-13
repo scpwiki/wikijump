@@ -59,8 +59,17 @@ impl CompatHtmlFragments {
         })
     }
 
+    #[cfg(test)]
     pub(super) fn restore_outside_html_literals(&self, text: &str) -> String {
         let literal_regions = LiteralRegionIndex::new_html_restoration(text);
+        self.restore_with(text, Some(&literal_regions), |fragment| match fragment {
+            CompatFragment::Html(html) => Some(html.as_str()),
+            CompatFragment::Plain { html, .. } => Some(html.as_str()),
+        })
+    }
+
+    pub(super) fn restore_outside_block_html_literals(&self, text: &str) -> String {
+        let literal_regions = LiteralRegionIndex::new_html_color_restoration(text);
         self.restore_with(text, Some(&literal_regions), |fragment| match fragment {
             CompatFragment::Html(html) => Some(html.as_str()),
             CompatFragment::Plain { html, .. } => Some(html.as_str()),
@@ -173,6 +182,22 @@ mod tests {
             fragments.restore_outside_html_literals(&html),
             format!(
                 "<b>trusted</b><a title=\"quoted > {marker}\"><b>trusted</b></a><!-- {marker} --><code>{marker}</code>",
+            ),
+        );
+    }
+
+    #[test]
+    fn color_restore_expands_inline_code_but_preserves_block_literals() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_html("<span>trusted</span>".to_owned());
+        let html = format!(
+            "<code class=\"wj-monospace\">{marker}</code><pre><code>{marker}</code></pre><div class=\"code\"><code>{marker}</code></div><script>{marker}</script>",
+        );
+
+        assert_eq!(
+            fragments.restore_outside_block_html_literals(&html),
+            format!(
+                "<code class=\"wj-monospace\"><span>trusted</span></code><pre><code>{marker}</code></pre><div class=\"code\"><code>{marker}</code></div><script>{marker}</script>",
             ),
         );
     }

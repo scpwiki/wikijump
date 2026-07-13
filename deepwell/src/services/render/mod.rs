@@ -33,18 +33,25 @@ mod prelude {
 
 mod compat_html_fragments;
 mod compat_text_fragments;
+mod diagnostics;
 mod html_text;
+mod iftags;
 mod include_comment_branches;
 #[allow(dead_code)]
 mod list_pages;
+mod list_pages_template;
 mod literal_regions;
 mod percent_encoding;
 mod render_dependency;
 mod service;
 mod structs;
-mod wikidot_expression;
 mod wikidot_inline_markers;
 
+pub(crate) use self::diagnostics::{
+    CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, CorpusRenderDimension,
+    CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, CorpusRenderTraceSnapshot,
+    StageGuard, is_corpus_render_timing,
+};
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
 };

@@ -1132,6 +1132,29 @@ test("XML-RPC endpoint enforces page view ACLs for page reads", async ({ request
   ).toBe(false)
 })
 
+test("XML-RPC page HTML omits generated CSS that browser views place in head", async ({
+  request
+}) => {
+  const response = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetOneForPageRequest("theme:yossistyle"),
+    headers: xmlRpcHeaders
+  })
+  expect(response.status()).toBe(200)
+
+  const body = await response.text()
+  expect(body).toContain("XML-RPC theme body marker.")
+  const htmlMember = /<name>html<\/name><value><string>(.*?)<\/string><\/value>/s.exec(
+    body
+  )?.[1]
+  expect(htmlMember).toBeDefined()
+  expect(htmlMember).toContain("XML-RPC theme body marker.")
+  expect(htmlMember).not.toContain("#header h2 span")
+  expect(htmlMember).not.toContain("&lt;style")
+
+  const reset = await request.get("http://127.0.0.1:42747/last-page-read-requests")
+  expect(reset.status()).toBe(200)
+})
+
 test("XML-RPC endpoint returns page comment summaries and forum posts", async ({
   request
 }) => {
@@ -1244,6 +1267,11 @@ test("XML-RPC endpoint returns page comment summaries and forum posts", async ({
 test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename", async ({
   request
 }) => {
+  const resetWriteRequests = await request.get(
+    "http://127.0.0.1:42747/last-page-write-requests"
+  )
+  expect(resetWriteRequests.status()).toBe(200)
+
   const slug = `fixture-xmlrpc-save-${randomUUID()}`
   const renamedSlug = `${slug}-renamed`
 

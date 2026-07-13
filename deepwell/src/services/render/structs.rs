@@ -38,6 +38,7 @@ pub struct RenderPageOutput {
     pub html_output: HtmlOutput,
     pub errors: Vec<ParseError>,
     pub compiled_body_html_hash: TextHash,
+    pub compiled_body_styles_hash: TextHash,
     pub compiled_top_bar_html_hash: Option<TextHash>,
     pub compiled_side_bar_html_hash: Option<TextHash>,
 

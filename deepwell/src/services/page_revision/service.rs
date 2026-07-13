@@ -23,7 +23,9 @@ use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
 use crate::models::text::{self, Entity as Text, Model as TextModel};
-use crate::services::render::RenderPageOutput;
+use crate::services::render::{
+    CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, RenderPageOutput, StageGuard,
+};
 use crate::services::score::ScoreValue;
 use crate::services::{
     LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
@@ -137,6 +139,7 @@ impl PageRevisionService {
         let PageRevisionModel {
             mut wikitext_hash,
             mut compiled_body_html_hash,
+            mut compiled_body_styles_hash,
             mut compiled_top_bar_html_hash,
             mut compiled_side_bar_html_hash,
             mut compiled_at,
@@ -255,16 +258,25 @@ impl PageRevisionService {
                 html_output: _,
                 errors,
                 compiled_body_html_hash: new_body_html_hash,
+                compiled_body_styles_hash: new_body_styles_hash,
                 compiled_top_bar_html_hash: new_top_bar_html_hash,
                 compiled_side_bar_html_hash: new_side_bar_html_hash,
                 compiled_at: new_compiled_at,
                 compiled_generator: new_compiled_generator,
-            } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
-                .await?;
+            } = Self::render_and_update_links(
+                ctx,
+                id,
+                wikitext,
+                render_input,
+                false,
+                None,
+            )
+            .await?;
 
             // Update fields
             parser_errors = Some(errors);
             replace_hash(&mut compiled_body_html_hash, &new_body_html_hash);
+            replace_hash_opt(&mut compiled_body_styles_hash, Some(new_body_styles_hash));
             replace_hash_opt(&mut compiled_top_bar_html_hash, new_top_bar_html_hash);
             replace_hash_opt(&mut compiled_side_bar_html_hash, new_side_bar_html_hash);
             compiled_generator = new_compiled_generator;
@@ -360,6 +372,7 @@ impl PageRevisionService {
             changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_body_html_hash: Set(compiled_body_html_hash),
+            compiled_body_styles_hash: Set(compiled_body_styles_hash),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash),
             compiled_at: Set(compiled_at),
@@ -456,11 +469,12 @@ impl PageRevisionService {
             html_output: _,
             errors,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render_and_update_links(ctx, id, wikitext, render_input, false)
+        } = Self::render_and_update_links(ctx, id, wikitext, render_input, false, None)
             .await
             .or_raise(make_error)?;
 
@@ -485,6 +499,7 @@ impl PageRevisionService {
             changes: Set(ALL_CHANGES.clone()),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+            compiled_body_styles_hash: Set(Some(compiled_body_styles_hash.to_vec())),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash.map(Vec::from)),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash.map(Vec::from)),
             compiled_at: Set(compiled_at),
@@ -540,6 +555,7 @@ impl PageRevisionService {
         let PageRevisionModel {
             wikitext_hash,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_at,
@@ -580,6 +596,7 @@ impl PageRevisionService {
             changes: Set(vec![]),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+            compiled_body_styles_hash: Set(compiled_body_styles_hash),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash),
             compiled_at: Set(compiled_at),
@@ -650,6 +667,7 @@ impl PageRevisionService {
         let PageRevisionModel {
             wikitext_hash,
             mut compiled_body_html_hash,
+            mut compiled_body_styles_hash,
             mut compiled_top_bar_html_hash,
             mut compiled_side_bar_html_hash,
             hidden,
@@ -694,6 +712,7 @@ impl PageRevisionService {
             html_output: _,
             errors,
             compiled_body_html_hash: new_body_html_hash,
+            compiled_body_styles_hash: new_body_styles_hash,
             compiled_top_bar_html_hash: new_top_bar_html_hash,
             compiled_side_bar_html_hash: new_side_bar_html_hash,
             compiled_at,
@@ -708,11 +727,13 @@ impl PageRevisionService {
             wikitext,
             render_input,
             false,
+            None,
         )
         .await
         .or_raise(make_error)?;
 
         replace_hash(&mut compiled_body_html_hash, &new_body_html_hash);
+        replace_hash_opt(&mut compiled_body_styles_hash, Some(new_body_styles_hash));
         replace_hash_opt(&mut compiled_top_bar_html_hash, new_top_bar_html_hash);
         replace_hash_opt(&mut compiled_side_bar_html_hash, new_side_bar_html_hash);
 
@@ -737,6 +758,7 @@ impl PageRevisionService {
             changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+            compiled_body_styles_hash: Set(compiled_body_styles_hash),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash),
             compiled_at: Set(compiled_at),
@@ -778,6 +800,7 @@ impl PageRevisionService {
             tags,
         }: RenderPageInfo<'_>,
         allow_corpus_dense_includes: bool,
+        trace: Option<&CorpusRenderTrace>,
     ) -> Result<RenderPageOutput> {
         // Get site
         let PageId {
@@ -814,7 +837,13 @@ impl PageRevisionService {
         };
 
         // Parse and render
-        let output = if allow_corpus_dense_includes {
+        let output = if let Some(trace) = trace {
+            debug_assert!(allow_corpus_dense_includes);
+            RenderService::render_corpus_page_traced(
+                ctx, wikitext, &page_info, layout, id, trace,
+            )
+            .await
+        } else if allow_corpus_dense_includes {
             RenderService::render_corpus_page(ctx, wikitext, &page_info, layout, id).await
         } else {
             RenderService::render_page(ctx, wikitext, &page_info, layout, id).await
@@ -822,9 +851,15 @@ impl PageRevisionService {
         .or_raise(make_error)?;
 
         // Update backlinks
-        LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks)
-            .await
-            .or_raise(make_error)?;
+        {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::LinkUpdate,
+            );
+            LinkService::update(ctx, site_id, page_id, &output.html_output.backlinks)
+                .await
+                .or_raise(make_error)?;
+        }
 
         Ok(output)
     }
@@ -842,13 +877,14 @@ impl PageRevisionService {
         depth: RerenderDepth,
         rerender_type: RerenderType,
     ) -> Result<()> {
-        Self::rerender_inner(ctx, id, depth, rerender_type, true, false).await
+        Self::rerender_inner(ctx, id, depth, rerender_type, true, false, None).await
     }
 
     /// Re-renders a trusted imported page for the corpus finalizer.
     ///
     /// The finalizer needs a corpus-provenanced include ceiling while normal
     /// user-controlled renders retain the lower public safety limit.
+    #[allow(dead_code)]
     pub(crate) async fn rerender_for_corpus_finalizer(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -856,8 +892,37 @@ impl PageRevisionService {
         rerender_type: RerenderType,
         outdate_dependents: bool,
     ) -> Result<()> {
-        Self::rerender_inner(ctx, id, depth, rerender_type, outdate_dependents, true)
-            .await
+        Self::rerender_inner(
+            ctx,
+            id,
+            depth,
+            rerender_type,
+            outdate_dependents,
+            true,
+            None,
+        )
+        .await
+    }
+
+    /// Re-renders a trusted imported page and records corpus stage diagnostics.
+    pub(crate) async fn rerender_for_corpus_finalizer_traced(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        depth: RerenderDepth,
+        rerender_type: RerenderType,
+        outdate_dependents: bool,
+        trace: &CorpusRenderTrace,
+    ) -> Result<()> {
+        Self::rerender_inner(
+            ctx,
+            id,
+            depth,
+            rerender_type,
+            outdate_dependents,
+            true,
+            Some(trace),
+        )
+        .await
     }
 
     async fn rerender_inner(
@@ -867,6 +932,7 @@ impl PageRevisionService {
         rerender_type: RerenderType,
         outdate_dependents: bool,
         allow_corpus_dense_includes: bool,
+        trace: Option<&CorpusRenderTrace>,
     ) -> Result<()> {
         let txn = ctx.transaction();
         let PageId {
@@ -885,9 +951,15 @@ impl PageRevisionService {
             )
         };
 
-        let revision = Self::get_latest(ctx, site_id, page_id)
-            .await
-            .or_raise(make_error)?;
+        let revision = {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::RevisionLoad,
+            );
+            Self::get_latest(ctx, site_id, page_id)
+                .await
+                .or_raise(make_error)?
+        };
 
         info!(
             "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
@@ -924,11 +996,17 @@ impl PageRevisionService {
             .or_raise(make_error)?;
 
         // Get data for page
-        let (wikitext, score, layout) = try_join!(
-            TextService::get(ctx, &revision.wikitext_hash),
-            ScoreService::score(ctx, page_id),
-            SettingsService::get_layout(ctx, site_id, Some(page_id)),
-        )?;
+        let (wikitext, score, layout) = {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::RenderInputs,
+            );
+            try_join!(
+                TextService::get(ctx, &revision.wikitext_hash),
+                ScoreService::score(ctx, page_id),
+                SettingsService::get_layout(ctx, site_id, Some(page_id)),
+            )?
+        };
 
         // This is necessary until we are able to replace the
         // 'tags' column with TEXT[] instead of JSON.
@@ -945,6 +1023,7 @@ impl PageRevisionService {
         let RenderPageOutput {
             html_output: _,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_generator,
@@ -955,6 +1034,7 @@ impl PageRevisionService {
             wikitext,
             render_input,
             allow_corpus_dense_includes,
+            trace,
         )
         .await
         .or_raise(make_error)?;
@@ -964,6 +1044,10 @@ impl PageRevisionService {
                 // Outdate all descendent pages and update body and nav pages
 
                 if outdate_dependents {
+                    let _stage = StageGuard::new(
+                        trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                        CorpusRenderStage::Outdate,
+                    );
                     OutdateService::process_page_edit(
                         ctx,
                         site_id,
@@ -979,6 +1063,9 @@ impl PageRevisionService {
                     revision_id: Set(revision.revision_id),
                     updated_at: Set(Some(now())),
                     compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+                    compiled_body_styles_hash: Set(Some(
+                        compiled_body_styles_hash.to_vec(),
+                    )),
                     compiled_top_bar_html_hash: Set(
                         compiled_top_bar_html_hash.map(Vec::from)
                     ),
@@ -994,6 +1081,9 @@ impl PageRevisionService {
                 page_revision::ActiveModel {
                     revision_id: Set(revision.revision_id),
                     updated_at: Set(Some(now())),
+                    compiled_body_styles_hash: Set(Some(
+                        compiled_body_styles_hash.to_vec(),
+                    )),
                     compiled_top_bar_html_hash: Set(
                         compiled_top_bar_html_hash.map(Vec::from)
                     ),
@@ -1006,7 +1096,13 @@ impl PageRevisionService {
             }
         };
 
-        model.update(txn).await.or_raise(make_error)?;
+        {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::RevisionUpdate,
+            );
+            model.update(txn).await.or_raise(make_error)?;
+        }
         Ok(())
     }
 
@@ -1126,6 +1222,37 @@ impl PageRevisionService {
                 ErrorType::PageRevisionNotFound,
             )),
         }
+    }
+
+    /// Gets the earliest available revision of a page.
+    ///
+    /// Normal pages start at revision 0, but repaired or imported data may retain only a later revision number. Creation-author queries use the same earliest-available semantics.
+    pub async fn get_earliest_optional(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<Option<PageRevisionModel>> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to get earliest revision of page ID {} on site ID {}",
+                    page_id, site_id,
+                ),
+                ErrorType::PageRevision,
+            )
+        };
+
+        PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id)),
+            )
+            .order_by_asc(page_revision::Column::RevisionNumber)
+            .order_by_asc(page_revision::Column::RevisionId)
+            .one(ctx.transaction())
+            .await
+            .or_raise(make_error)
     }
 
     /// Internal method for getting a text column for the latest revision of a page.

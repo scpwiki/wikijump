@@ -20,11 +20,16 @@
 
 use super::prelude::*;
 use crate::api::ServerState;
+use crate::services::render::{
+    CORPUS_RENDER_BUDGET_US, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
+    CorpusRenderTraceSnapshot, StageGuard,
+};
 use crate::services::{PageRevisionService, page_revision::RerenderType};
 use crate::types::{PageId, RerenderDepth};
 use futures::{StreamExt, stream};
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, Value};
 use sea_orm::{DatabaseTransaction, TransactionTrait};
+use sha2::{Digest, Sha256};
 use std::future::Future;
 use std::time::{Duration, Instant};
 use std::{collections::BTreeMap, env};
@@ -86,6 +91,33 @@ struct RenderFinalizerItem {
     error: Option<String>,
     error_chain: Option<String>,
     duration_ms: Option<u64>,
+    #[serde(skip_serializing)]
+    observation_completion: Option<RenderObservationCompletion>,
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+struct RenderObservationCompletion {
+    import_run_id: i64,
+    source_entity_id: String,
+    pass: &'static str,
+    attempt: i32,
+    outcome: &'static str,
+    total_us: i64,
+    dominant_scope: Option<String>,
+    dominant_stage: Option<String>,
+    terminal_scope: Option<String>,
+    terminal_stage: Option<String>,
+    timings: BTreeMap<String, u64>,
+    dimensions: BTreeMap<String, u64>,
+}
+
+#[derive(Debug)]
+enum RenderPageOutcome {
+    Completed(RenderObservationCompletion),
+    PostCommitFailed {
+        message: String,
+        error_chain: String,
+    },
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -121,11 +153,71 @@ impl RenderFinalizerPass {
             // Retry failed rows while attempts remain, and reclaim expired
             // render_running rows abandoned by an interrupted worker.
             Self::Pass1 => {
-                "item.state IN ('render_pending', 'render_failed', 'render_running')"
+                "
+                (
+                    item.state = 'render_pending'
+                    OR (
+                        item.state IN ('render_failed', 'render_running')
+                        AND (
+                            EXISTS (
+                                SELECT 1
+                                FROM wikidot_corpus_render_observation AS observation
+                                WHERE observation.import_run_id = item.import_run_id
+                                AND observation.source_entity_id = item.source_entity_id
+                                AND observation.pass = 'pass1'
+                                AND observation.attempt = item.attempts
+                                AND (
+                                    (
+                                        item.state = 'render_failed'
+                                        AND observation.outcome = 'render_failed'
+                                        AND observation.complete = TRUE
+                                    )
+                                    OR (
+                                        item.state = 'render_running'
+                                        AND observation.outcome IN ('running', 'rendered')
+                                        AND observation.complete = FALSE
+                                    )
+                                )
+                            )
+                            OR NOT EXISTS (
+                                SELECT 1
+                                FROM wikidot_corpus_render_observation AS observation
+                                WHERE observation.import_run_id = item.import_run_id
+                                AND observation.source_entity_id = item.source_entity_id
+                            )
+                        )
+                    )
+                )
+                "
             }
             Self::Pass2 => {
                 "
-                item.state IN ('rendered', 'render_failed', 'render_running')
+                (
+                    item.state = 'rendered'
+                    OR (
+                        item.state IN ('render_failed', 'render_running')
+                        AND EXISTS (
+                            SELECT 1
+                            FROM wikidot_corpus_render_observation AS observation
+                            WHERE observation.import_run_id = item.import_run_id
+                            AND observation.source_entity_id = item.source_entity_id
+                            AND observation.pass = 'pass2'
+                            AND observation.attempt = item.attempts
+                            AND (
+                                (
+                                    item.state = 'render_failed'
+                                    AND observation.outcome = 'render_failed'
+                                    AND observation.complete = TRUE
+                                )
+                                OR (
+                                    item.state = 'render_running'
+                                    AND observation.outcome IN ('running', 'done')
+                                    AND observation.complete = FALSE
+                                )
+                            )
+                        )
+                    )
+                )
                 AND (
                     revision_text.contents ~* '\\[\\[module[[:space:]]+(backlinks|listpages|countpages|tagcloud)'
                     OR page.slug = '_template'
@@ -261,7 +353,7 @@ impl CorpusRenderFinalizerService {
                 } else {
                     let claimed =
                         Self::claim_candidates(state, import_run_id, &settings).await?;
-                    Self::render_claimed_items(state, &settings, claimed).await
+                    Self::render_claimed_items(state, &settings, claimed).await?
                 }
             }
             None => Vec::new(),
@@ -414,35 +506,67 @@ impl CorpusRenderFinalizerService {
                 LIMIT $3
                 FOR UPDATE OF item SKIP LOCKED
             )
-            UPDATE wikidot_corpus_import_item AS item
-            SET
-                state = 'render_running',
-                attempts = item.attempts + 1,
-                lease_until = NOW() + ($4::bigint * INTERVAL '1 second'),
-                error = NULL,
-                updated_at = NOW()
-            FROM candidates
-            WHERE item.import_run_id = candidates.import_run_id
-            AND item.source_entity_id = candidates.source_entity_id
-            RETURNING
-                item.source_entity_id::text AS source_entity_id,
-                item.import_run_id,
-                item.source_fullname,
-                item.page_id,
+            , claimed AS (
+                UPDATE wikidot_corpus_import_item AS item
+                SET
+                    state = 'render_running',
+                    attempts = item.attempts + 1,
+                    lease_until = NOW() + ($4::bigint * INTERVAL '1 second'),
+                    error = NULL,
+                    updated_at = NOW()
+                FROM candidates
+                WHERE item.import_run_id = candidates.import_run_id
+                AND item.source_entity_id = candidates.source_entity_id
+                RETURNING
+                    item.source_entity_id,
+                    item.import_run_id,
+                    item.source_fullname,
+                    item.page_id,
+                    item.attempts,
+                    candidates.reasons
+            ), observations AS (
+                INSERT INTO wikidot_corpus_render_observation (
+                    import_run_id,
+                    source_entity_id,
+                    pass,
+                    attempt,
+                    page_id,
+                    outcome
+                )
+                SELECT
+                    import_run_id,
+                    source_entity_id,
+                    $5::text,
+                    attempts,
+                    page_id,
+                    'running'
+                FROM claimed
+                RETURNING import_run_id, source_entity_id, pass, attempt
+            )
+            SELECT
+                claimed.source_entity_id::text AS source_entity_id,
+                claimed.import_run_id,
+                claimed.source_fullname,
+                claimed.page_id,
                 (
                     SELECT page.site_id
                     FROM page
-                    WHERE page.page_id = item.page_id
+                    WHERE page.page_id = claimed.page_id
                     AND page.deleted_at IS NULL
                 ) AS site_id,
                 (
                     SELECT page.page_category_id
                     FROM page
-                    WHERE page.page_id = item.page_id
+                    WHERE page.page_id = claimed.page_id
                     AND page.deleted_at IS NULL
                 ) AS page_category_id,
-                item.attempts,
-                candidates.reasons
+                claimed.attempts,
+                claimed.reasons
+            FROM claimed
+            JOIN observations
+                ON observations.import_run_id = claimed.import_run_id
+                AND observations.source_entity_id = claimed.source_entity_id
+                AND observations.attempt = claimed.attempts
             ",
             settings.pass.candidate_reasons(),
             settings.pass.candidate_joins(),
@@ -457,6 +581,7 @@ impl CorpusRenderFinalizerService {
                 Value::from(settings.max_attempts),
                 Value::from(settings.batch_size),
                 Value::from(settings.lease_seconds),
+                Value::from(settings.pass.as_str()),
             ],
         );
 
@@ -491,6 +616,7 @@ impl CorpusRenderFinalizerService {
             error: None,
             error_chain: None,
             duration_ms: None,
+            observation_completion: None,
         })
     }
 
@@ -498,12 +624,20 @@ impl CorpusRenderFinalizerService {
         state: &ServerState,
         settings: &RenderFinalizerSettings,
         items: Vec<RenderFinalizerItem>,
-    ) -> Vec<RenderFinalizerItem> {
+    ) -> Result<Vec<RenderFinalizerItem>> {
         let pass = settings.pass;
-        Self::render_items_concurrently(state, settings.concurrency, items, |state, item| {
-            async move { Self::render_claimed_item(&state, pass, item).await }
-        })
-        .await
+        let items =
+            Self::render_items_concurrently(
+                state,
+                settings.concurrency,
+                items,
+                |state, item| async move {
+                    Self::render_claimed_item(&state, pass, item).await
+                },
+            )
+            .await;
+        Self::complete_observations_batch(state, &items).await?;
+        Ok(items)
     }
 
     async fn render_items_concurrently<State, Item, Fut>(
@@ -533,6 +667,7 @@ impl CorpusRenderFinalizerService {
         mut item: RenderFinalizerItem,
     ) -> RenderFinalizerItem {
         let started_at = Instant::now();
+        let trace = CorpusRenderTrace::new();
         let result = match (item.page_id, item.site_id, item.page_category_id) {
             (Some(page_id), Some(site_id), Some(page_category_id)) => {
                 Self::render_page(
@@ -544,6 +679,7 @@ impl CorpusRenderFinalizerService {
                         page_id,
                     },
                     pass,
+                    &trace,
                 )
                 .await
             }
@@ -555,14 +691,30 @@ impl CorpusRenderFinalizerService {
         };
 
         match result {
-            Ok(()) => {
+            Ok(RenderPageOutcome::Completed(completion)) => {
                 item.outcome = Some(str!(pass.success_state()));
+                item.observation_completion = Some(completion);
+            }
+            Ok(RenderPageOutcome::PostCommitFailed {
+                message,
+                error_chain,
+            }) => {
+                item.error = Some(message);
+                item.error_chain = Some(error_chain);
+                item.outcome = Some(str!("render_failed"));
             }
             Err(error) => {
                 let message = error.to_string();
                 let error_chain = format!("{error:?}");
-                if let Err(update_error) =
-                    Self::mark_item_failed(state, &item, &message, &error_chain).await
+                if let Err(update_error) = Self::mark_item_failed(
+                    state,
+                    &item,
+                    pass,
+                    &message,
+                    &error_chain,
+                    &trace,
+                )
+                .await
                 {
                     item.error = Some(format!(
                         "{message}; failed to mark item failed: {update_error}"
@@ -587,7 +739,8 @@ impl CorpusRenderFinalizerService {
         item: &RenderFinalizerItem,
         id: PageId,
         pass: RenderFinalizerPass,
-    ) -> Result<()> {
+        trace: &CorpusRenderTrace,
+    ) -> Result<RenderPageOutcome> {
         let make_error = || {
             Error::new(
                 format!(
@@ -597,38 +750,117 @@ impl CorpusRenderFinalizerService {
                 ErrorType::Render,
             )
         };
-        let txn = state.database.begin().await.or_raise(make_error)?;
+        let txn = {
+            let _stage = StageGuard::new(
+                Some((trace, CorpusRenderScope::Finalizer)),
+                CorpusRenderStage::TxBegin,
+            );
+            state.database.begin().await.or_raise(make_error)?
+        };
         let result = async {
             let ctx = ServiceContext::new(state, &txn);
-            PageRevisionService::rerender_for_corpus_finalizer(
+            PageRevisionService::rerender_for_corpus_finalizer_traced(
                 &ctx,
                 id,
                 RerenderDepth::default(),
                 RerenderType::Full,
                 pass.rerender_outdates_dependents(),
+                trace,
             )
             .await
             .or_raise(make_error)?;
-            Self::mark_item_rendered(&txn, item, pass.success_state()).await?;
+            let core_snapshot = trace.snapshot();
+            {
+                let _stage = StageGuard::new(
+                    Some((trace, CorpusRenderScope::Finalizer)),
+                    CorpusRenderStage::Mark,
+                );
+                Self::record_observation_core(
+                    &txn,
+                    item,
+                    pass.as_str(),
+                    pass.success_state(),
+                    &core_snapshot,
+                )
+                .await?;
+            }
             ctx.drain_post_commit_actions().or_raise(make_error)
         }
         .await;
 
         match result {
             Ok(post_commit_actions) => {
-                txn.commit().await.or_raise(make_error)?;
-                if let Err(error) = ServiceContext::run_post_commit_actions_for_state(
-                    state,
-                    post_commit_actions,
-                )
-                .await
                 {
+                    let _stage = StageGuard::new(
+                        Some((trace, CorpusRenderScope::Finalizer)),
+                        CorpusRenderStage::Commit,
+                    );
+                    txn.commit().await.or_raise(make_error)?;
+                }
+                let post_commit_error = {
+                    let _stage = StageGuard::new(
+                        Some((trace, CorpusRenderScope::Finalizer)),
+                        CorpusRenderStage::PostCommit,
+                    );
+                    ServiceContext::run_post_commit_actions_for_state(
+                        state,
+                        post_commit_actions,
+                    )
+                    .await
+                    .err()
+                };
+                if let Some(error) = &post_commit_error {
                     warn!(
                         "render-finalize committed page {} but post-commit actions failed: {}",
                         item.source_fullname, error,
                     );
+                    let message = format!("post-commit actions failed: {error}");
+                    let error_chain = format!("post-commit actions failed: {error:?}");
+                    Self::mark_item_failed(
+                        state,
+                        item,
+                        pass,
+                        &message,
+                        &error_chain,
+                        trace,
+                    )
+                    .await?;
+                    return Ok(RenderPageOutcome::PostCommitFailed {
+                        message,
+                        error_chain,
+                    });
                 }
-                Ok(())
+                let final_snapshot = trace.snapshot();
+                if final_snapshot.pipeline_us > CORPUS_RENDER_BUDGET_US as u64 {
+                    warn!(
+                        "render-finalize page {} exceeded the {}us budget: {}us (dominant={}.{})",
+                        item.source_fullname,
+                        CORPUS_RENDER_BUDGET_US,
+                        final_snapshot.pipeline_us,
+                        final_snapshot
+                            .dominant_scope
+                            .as_deref()
+                            .unwrap_or("unknown"),
+                        final_snapshot
+                            .dominant_stage
+                            .as_deref()
+                            .unwrap_or("unknown"),
+                    );
+                }
+                Ok(RenderPageOutcome::Completed(RenderObservationCompletion {
+                    import_run_id: item.import_run_id,
+                    source_entity_id: item.source_entity_id.clone(),
+                    pass: pass.as_str(),
+                    attempt: item.attempts,
+                    outcome: pass.success_state(),
+                    total_us: pg_micros(final_snapshot.pipeline_us),
+                    dominant_scope: final_snapshot.dominant_scope,
+                    dominant_stage: final_snapshot.dominant_stage,
+                    terminal_scope: final_snapshot.terminal_scope,
+                    terminal_stage: final_snapshot.terminal_stage,
+                    timings: final_snapshot.timings,
+                    dimensions: final_snapshot.dimensions,
+                }))
             }
             Err(error) => {
                 txn.rollback().await.or_raise(make_error)?;
@@ -637,10 +869,12 @@ impl CorpusRenderFinalizerService {
         }
     }
 
-    async fn mark_item_rendered(
+    async fn record_observation_core(
         txn: &DatabaseTransaction,
         item: &RenderFinalizerItem,
+        pass: &'static str,
         success_state: &'static str,
+        snapshot: &CorpusRenderTraceSnapshot,
     ) -> Result<()> {
         // claim_candidates increments attempts atomically; matching it here
         // fences out a stale worker after an expired lease is reclaimed.
@@ -648,7 +882,7 @@ impl CorpusRenderFinalizerService {
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to mark render-finalize item {} {}",
+                    "failed to record render-finalize core observation for {} {}",
                     item.source_fullname, success_state,
                 ),
                 ErrorType::DatabaseQuery,
@@ -658,15 +892,37 @@ impl CorpusRenderFinalizerService {
             DatabaseBackend::Postgres,
             str!(
                 "
-                UPDATE wikidot_corpus_import_item
-                SET state = $4::text,
-                    lease_until = NULL,
-                    error = NULL,
-                    updated_at = NOW()
-                WHERE import_run_id = $1
-                AND source_entity_id = $2::uuid
-                AND attempts = $3
-                AND state = 'render_running'
+                WITH item_guard AS (
+                    SELECT page_id
+                    FROM wikidot_corpus_import_item
+                    WHERE import_run_id = $1
+                    AND source_entity_id = $2::uuid
+                    AND attempts = $3
+                    AND state = 'render_running'
+                    FOR UPDATE
+                ), observation_update AS (
+                    UPDATE wikidot_corpus_render_observation
+                    SET outcome = $4::text,
+                        page_id = item_guard.page_id,
+                        pipeline_us = $6,
+                        dominant_scope = $7,
+                        dominant_stage = $8,
+                        terminal_scope = $9,
+                        terminal_stage = $10,
+                        timings = $11::jsonb,
+                        dimensions = $12::jsonb
+                    FROM item_guard
+                    WHERE import_run_id = $1
+                    AND source_entity_id = $2::uuid
+                    AND pass = $5::text
+                    AND attempt = $3
+                    AND outcome = 'running'
+                    AND complete = FALSE
+                    RETURNING 1
+                )
+                SELECT
+                    (SELECT COUNT(*) FROM item_guard)::bigint AS item_count,
+                    (SELECT COUNT(*) FROM observation_update)::bigint AS observation_count
                 "
             ),
             [
@@ -674,15 +930,29 @@ impl CorpusRenderFinalizerService {
                 Value::from(item.source_entity_id.clone()),
                 Value::from(item.attempts),
                 Value::from(success_state),
+                Value::from(pass),
+                Value::from(pg_micros(snapshot.pipeline_us)),
+                Value::from(snapshot.dominant_scope.clone()),
+                Value::from(snapshot.dominant_stage.clone()),
+                Value::from(snapshot.terminal_scope.clone()),
+                Value::from(snapshot.terminal_stage.clone()),
+                json_db_value(&snapshot.timings),
+                json_db_value(&snapshot.dimensions),
             ],
         );
-        let result = txn.execute(statement).await.or_raise(make_error)?;
-        if result.rows_affected() != 1 {
+        let row = txn
+            .query_one(statement)
+            .await
+            .or_raise(make_error)?
+            .ok_or_else(make_error)?;
+        let item_count: i64 = row.try_get("", "item_count").or_raise(make_error)?;
+        let observation_count: i64 =
+            row.try_get("", "observation_count").or_raise(make_error)?;
+        if item_count != 1 || observation_count != 1 {
             return Err(Error::new(
                 format!(
-                    "expected to mark one render-finalize item {}, marked {}",
-                    success_state,
-                    result.rows_affected(),
+                    "expected one render-finalize item guard and core observation {}, found item={} observation={}",
+                    success_state, item_count, observation_count,
                 ),
                 ErrorType::DatabaseQuery,
             )
@@ -694,8 +964,10 @@ impl CorpusRenderFinalizerService {
     async fn mark_item_failed(
         state: &ServerState,
         item: &RenderFinalizerItem,
+        pass: RenderFinalizerPass,
         message: &str,
         error_chain: &str,
+        trace: &CorpusRenderTrace,
     ) -> Result<()> {
         // Use the same claim fence as the success path so a stale failure
         // cannot overwrite the state of a newer attempt.
@@ -708,22 +980,75 @@ impl CorpusRenderFinalizerService {
                 ErrorType::DatabaseQuery,
             )
         };
+        let snapshot = trace.snapshot();
+        let txn = state.database.begin().await.or_raise(make_error)?;
         let statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
             str!(
                 "
-                UPDATE wikidot_corpus_import_item
-                SET state = 'render_failed',
-                    lease_until = NULL,
-                    error = jsonb_build_object(
-                        'message', $4::text,
-                        'error_chain', $5::text
-                    ),
-                    updated_at = NOW()
-                WHERE import_run_id = $1
-                AND source_entity_id = $2::uuid
-                AND attempts = $3
-                AND state = 'render_running'
+                WITH eligible AS (
+                    SELECT item.page_id
+                    FROM wikidot_corpus_import_item AS item
+                    JOIN wikidot_corpus_render_observation AS observation
+                        ON observation.import_run_id = item.import_run_id
+                        AND observation.source_entity_id = item.source_entity_id
+                        AND observation.pass = $6::text
+                        AND observation.attempt = item.attempts
+                        AND observation.outcome IN (
+                            'running',
+                            CASE $6::text WHEN 'pass1' THEN 'rendered' ELSE 'done' END
+                        )
+                        AND observation.complete = FALSE
+                    WHERE item.import_run_id = $1
+                    AND item.source_entity_id = $2::uuid
+                    AND item.attempts = $3
+                    AND item.state = 'render_running'
+                    FOR UPDATE OF item, observation
+                ), item_update AS (
+                    UPDATE wikidot_corpus_import_item
+                    SET state = 'render_failed',
+                        lease_until = NULL,
+                        error = jsonb_build_object(
+                            'message', $4::text,
+                            'error_chain', $5::text
+                        ),
+                        updated_at = NOW()
+                    FROM eligible
+                    WHERE import_run_id = $1
+                    AND source_entity_id = $2::uuid
+                    AND attempts = $3
+                    AND state = 'render_running'
+                    RETURNING wikidot_corpus_import_item.page_id
+                ), observation_update AS (
+                    UPDATE wikidot_corpus_render_observation
+                    SET outcome = 'render_failed',
+                        page_id = item_update.page_id,
+                        pipeline_us = $7,
+                        total_us = $8,
+                        complete = TRUE,
+                        dominant_scope = $9,
+                        dominant_stage = $10,
+                        terminal_scope = $11,
+                        terminal_stage = $12,
+                        timings = $13::jsonb,
+                        dimensions = $14::jsonb,
+                        error_fingerprint = $15,
+                        post_commit_error = FALSE,
+                        finished_at = NOW()
+                    FROM item_update
+                    WHERE import_run_id = $1
+                    AND source_entity_id = $2::uuid
+                    AND pass = $6::text
+                    AND attempt = $3
+                    AND outcome IN (
+                        'running',
+                        CASE $6::text WHEN 'pass1' THEN 'rendered' ELSE 'done' END
+                    )
+                    RETURNING 1
+                )
+                SELECT
+                    (SELECT COUNT(*) FROM item_update)::bigint AS item_count,
+                    (SELECT COUNT(*) FROM observation_update)::bigint AS observation_count
                 "
             ),
             [
@@ -732,29 +1057,180 @@ impl CorpusRenderFinalizerService {
                 Value::from(item.attempts),
                 Value::from(message.to_owned()),
                 Value::from(error_chain.to_owned()),
+                Value::from(pass.as_str()),
+                Value::from(pg_micros(snapshot.pipeline_us)),
+                Value::from(pg_micros(snapshot.pipeline_us)),
+                Value::from(snapshot.dominant_scope.clone()),
+                Value::from(snapshot.dominant_stage.clone()),
+                Value::from(snapshot.terminal_scope.clone()),
+                Value::from(snapshot.terminal_stage.clone()),
+                json_db_value(&snapshot.timings),
+                json_db_value(&snapshot.dimensions),
+                Value::from(error_fingerprint(error_chain)),
             ],
         );
-        state
-            .database
-            .execute(statement)
+        let row = txn
+            .query_one(statement)
             .await
-            .or_raise(make_error)
-            .and_then(|result| {
-                if result.rows_affected() == 1 {
-                    Ok(())
-                } else {
-                    Err(Error::new(
-                        format!(
-                            "expected to mark one render-finalize item failed, marked {}",
-                            result.rows_affected(),
-                        ),
-                        ErrorType::DatabaseQuery,
-                    )
-                    .into())
-                }
-            })?;
+            .or_raise(make_error)?
+            .ok_or_else(make_error)?;
+        let item_count: i64 = row.try_get("", "item_count").or_raise(make_error)?;
+        let observation_count: i64 =
+            row.try_get("", "observation_count").or_raise(make_error)?;
+        if item_count != 1 || observation_count != 1 {
+            txn.rollback().await.or_raise(make_error)?;
+            return Err(Error::new(
+                format!(
+                    "expected to mark one render-finalize item and observation failed, marked item={} observation={}",
+                    item_count, observation_count,
+                ),
+                ErrorType::DatabaseQuery,
+            )
+            .into());
+        }
+        txn.commit().await.or_raise(make_error)?;
         Ok(())
     }
+
+    async fn complete_observations_batch(
+        state: &ServerState,
+        items: &[RenderFinalizerItem],
+    ) -> Result<()> {
+        let completions: Vec<&RenderObservationCompletion> = items
+            .iter()
+            .filter_map(|item| item.observation_completion.as_ref())
+            .collect();
+        if completions.is_empty() {
+            return Ok(());
+        }
+        let make_error = || {
+            Error::new(
+                "failed to complete render-finalize performance observations",
+                ErrorType::DatabaseQuery,
+            )
+        };
+        let payload = serde_json::to_value(&completions).or_raise(make_error)?;
+        let statement = Statement::from_sql_and_values(
+            DatabaseBackend::Postgres,
+            str!(
+                "
+                WITH patches AS (
+                    SELECT *
+                    FROM jsonb_to_recordset($1::jsonb) AS patch (
+                        import_run_id bigint,
+                        source_entity_id text,
+                        pass text,
+                        attempt integer,
+                        outcome text,
+                        total_us bigint,
+                        dominant_scope text,
+                        dominant_stage text,
+                        terminal_scope text,
+                        terminal_stage text,
+                        timings jsonb,
+                        dimensions jsonb
+                    )
+                ), item_update AS (
+                    UPDATE wikidot_corpus_import_item AS item
+                    SET state = patches.outcome,
+                        lease_until = NULL,
+                        error = NULL,
+                        updated_at = NOW()
+                    FROM patches
+                    WHERE item.import_run_id = patches.import_run_id
+                    AND item.source_entity_id = patches.source_entity_id::uuid
+                    AND item.attempts = patches.attempt
+                    AND item.state = 'render_running'
+                    AND EXISTS (
+                        SELECT 1
+                        FROM wikidot_corpus_render_observation AS observation
+                        WHERE observation.import_run_id = item.import_run_id
+                        AND observation.source_entity_id = item.source_entity_id
+                        AND observation.pass = patches.pass
+                        AND observation.attempt = item.attempts
+                        AND observation.outcome = patches.outcome
+                        AND observation.complete = FALSE
+                    )
+                    RETURNING
+                        item.import_run_id,
+                        item.source_entity_id,
+                        item.attempts,
+                        patches.pass,
+                        patches.outcome,
+                        patches.total_us,
+                        patches.dominant_scope,
+                        patches.dominant_stage,
+                        patches.terminal_scope,
+                        patches.terminal_stage,
+                        patches.timings,
+                        patches.dimensions
+                ), observation_update AS (
+                    UPDATE wikidot_corpus_render_observation AS observation
+                    SET outcome = item_update.outcome,
+                        total_us = item_update.total_us,
+                        complete = TRUE,
+                        dominant_scope = item_update.dominant_scope,
+                        dominant_stage = item_update.dominant_stage,
+                        terminal_scope = item_update.terminal_scope,
+                        terminal_stage = item_update.terminal_stage,
+                        timings = item_update.timings,
+                        dimensions = item_update.dimensions,
+                        post_commit_error = FALSE,
+                        finished_at = NOW()
+                    FROM item_update
+                    WHERE observation.import_run_id = item_update.import_run_id
+                    AND observation.source_entity_id = item_update.source_entity_id
+                    AND observation.pass = item_update.pass
+                    AND observation.attempt = item_update.attempts
+                    AND observation.outcome = item_update.outcome
+                    AND observation.complete = FALSE
+                    RETURNING 1
+                )
+                SELECT
+                    (SELECT COUNT(*) FROM item_update)::bigint AS item_count,
+                    (SELECT COUNT(*) FROM observation_update)::bigint AS observation_count
+                "
+            ),
+            [Value::Json(Some(Box::new(payload)))],
+        );
+        let txn = state.database.begin().await.or_raise(make_error)?;
+        let row = txn
+            .query_one(statement)
+            .await
+            .or_raise(make_error)?
+            .ok_or_else(make_error)?;
+        let item_count: i64 = row.try_get("", "item_count").or_raise(make_error)?;
+        let observation_count: i64 =
+            row.try_get("", "observation_count").or_raise(make_error)?;
+        let expected = i64::try_from(completions.len()).unwrap_or(i64::MAX);
+        if item_count != expected || observation_count != expected {
+            txn.rollback().await.or_raise(make_error)?;
+            return Err(Error::new(
+                format!(
+                    "expected to complete {} render items and observations, completed item={} observation={}",
+                    expected, item_count, observation_count,
+                ),
+                ErrorType::DatabaseQuery,
+            )
+            .into());
+        }
+        txn.commit().await.or_raise(make_error)?;
+        Ok(())
+    }
+}
+
+fn pg_micros(value: u64) -> i64 {
+    i64::try_from(value).unwrap_or(i64::MAX)
+}
+
+fn json_db_value(value: &BTreeMap<String, u64>) -> Value {
+    Value::Json(Some(Box::new(
+        serde_json::to_value(value).expect("render trace maps always serialize"),
+    )))
+}
+
+fn error_fingerprint(error_chain: &str) -> String {
+    hex::encode(Sha256::digest(error_chain.as_bytes()))
 }
 
 fn duration_millis(duration: Duration) -> u64 {
@@ -1004,6 +1480,7 @@ mod tests {
                 error: None,
                 error_chain: None,
                 duration_ms: None,
+                observation_completion: None,
             },
             RenderFinalizerItem {
                 import_run_id: 1,
@@ -1018,6 +1495,7 @@ mod tests {
                 error: None,
                 error_chain: None,
                 duration_ms: None,
+                observation_completion: None,
             },
         ];
         let counts = reason_counts(&items);
@@ -1048,6 +1526,7 @@ mod tests {
             error: Some(str!("render failed")),
             error_chain: Some(str!("render failed: caused by test")),
             duration_ms: Some(123),
+            observation_completion: None,
         };
 
         let value = serde_json::to_value(item).unwrap();
@@ -1177,6 +1656,7 @@ mod tests {
             error: None,
             error_chain: None,
             duration_ms: None,
+            observation_completion: None,
         }
     }
 }

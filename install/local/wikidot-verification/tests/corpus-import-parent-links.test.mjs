@@ -7,7 +7,13 @@ import {
   manifestRowsWithParents,
   parseParentLinkParentPages,
   parseParentLinkSummary,
+  shouldProcessParentLinks,
 } from '../src/corpus-import-parent-links.mjs';
+
+test('attachment-only imports do not alter or rerender parent links', () => {
+  assert.equal(shouldProcessParentLinks({ attachmentsOnlyExisting: true }), false);
+  assert.equal(shouldProcessParentLinks({ attachmentsOnlyExisting: false }), true);
+});
 
 test('corpus import builds parent links from manifest parent_fullname metadata', () => {
   const rows = [

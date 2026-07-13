@@ -33,9 +33,9 @@ use crate::services::page::{
     SetPageLayout,
 };
 use crate::services::page_query::{
-    CategoriesSelector, DateSelector, FoundPageFields, IncludedCategories,
-    OrderBySelector, OrderProperty, PageParentSelector, PageQuery, PageQueryService,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
+    IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
+    PageQueryService, PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
 };
 use crate::services::page_revision::RerenderType;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
@@ -404,15 +404,16 @@ pub async fn page_select(
     };
 
     let created_by = match created_by {
-        None => Vec::new(),
+        None => None,
         Some(created_by) => {
             let user_id = resolve_page_select_created_by(ctx, &created_by).await?;
             match user_id {
-                Some(user_id) => vec![Cow::Owned(user_id.to_string())],
+                Some(user_id) => Some(user_id),
                 None => return Ok(Vec::new()),
             }
         }
     };
+    let created_by_ids = created_by.into_iter().collect::<Vec<_>>();
 
     let categories = categories
         .unwrap_or_default()
@@ -475,13 +476,21 @@ pub async fn page_select(
             update_date: DateSelector::FromPresent {
                 start: OffsetDateTime::UNIX_EPOCH,
             },
-            author: &created_by,
+            author: if created_by_ids.is_empty() {
+                AuthorSelector::All
+            } else {
+                AuthorSelector::Any {
+                    user_ids: &created_by_ids,
+                    wikidot_snapshot_names: &[],
+                }
+            },
             score: &[],
             votes: &[],
             offset: 0,
             range: RangeSelector::Current,
             name: None,
             slug: None,
+            slugs: &[],
             data_form_fields: &[],
             order: Some(order),
             candidate_limit: None,
@@ -1117,16 +1126,32 @@ async fn build_page_output(
             .or_raise(make_error)?;
 
     // Get text data, if requested
-    let (wikitext, compiled_body_html) = join!(
+    let (wikitext, compiled_body_html, compiled_body_styles) = join!(
         TextService::get_conditional(ctx, details.wikitext, &revision.wikitext_hash),
         TextService::get_conditional(
             ctx,
             details.compiled_html,
             &revision.compiled_body_html_hash,
         ),
+        TextService::get_conditional_option(
+            ctx,
+            details.compiled_html,
+            &revision.compiled_body_styles_hash,
+        ),
     );
-    let (wikitext, compiled_body_html) =
-        raise_multiple!(wikitext, compiled_body_html; make_error);
+    let (wikitext, compiled_body_html, compiled_body_styles) =
+        raise_multiple!(wikitext, compiled_body_html, compiled_body_styles; make_error);
+    let compiled_body_styles = if details.compiled_html {
+        Some(
+            compiled_body_styles
+                .map(|styles| serde_json::from_str(&styles))
+                .transpose()
+                .or_raise(make_error)?
+                .unwrap_or_default(),
+        )
+    } else {
+        None
+    };
 
     // Calculate score and determine layout
     let (rating, layout) = join!(
@@ -1153,6 +1178,7 @@ async fn build_page_output(
         revision_user_id: revision.user_id,
         wikitext,
         compiled_body_html,
+        compiled_body_styles,
         compiled_at: revision.compiled_at,
         compiled_generator: revision.compiled_generator,
         revision_comments: revision.comments,

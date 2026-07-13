@@ -61,6 +61,16 @@
     --col-accent-2: #0068b5;
   }
 
+  #skrollr-body {
+    --font-sans: verdana, arial, helvetica, sans-serif;
+    --font-display: "Trebuchet MS", Trebuchet, Verdana, Arial, Helvetica;
+    --font-mono: monospace;
+    font-family: var(--font-sans);
+    font-size: 0.8em;
+    line-height: normal;
+    text-rendering: auto;
+  }
+
   .clickable {
     cursor: pointer;
     user-select: none;

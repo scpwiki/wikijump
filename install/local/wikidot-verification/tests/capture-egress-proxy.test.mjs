@@ -126,6 +126,46 @@ test("a DNS rebinding answer is revalidated and denied before connection", async
   assert.equal(lookupCount, 2);
 });
 
+test("an aborted streamed response does not crash the proxy", async () => {
+  const upstream = await listen((request, response) => {
+    if (request.url === "/ok") return response.end("OK");
+    response.write("first");
+    setTimeout(() => response.end("second"), 25);
+  });
+  const proxy = await startCaptureEgressProxy({
+    allowedLocalOrigins: [`http://fixture.test:${upstream.port}`],
+    lookup: async () => [{ address: "127.0.0.1" }],
+  });
+  try {
+    const proxyUrl = new URL(proxy.url);
+    await new Promise((resolve, reject) => {
+      const request = http.get(
+        {
+          host: proxyUrl.hostname,
+          port: proxyUrl.port,
+          path: `http://fixture.test:${upstream.port}/stream`,
+        },
+        (response) => {
+          response.once("data", () => {
+            response.destroy();
+            resolve();
+          });
+          response.once("error", reject);
+        },
+      );
+      request.once("error", reject);
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.deepEqual(
+      await proxyRequest(proxy.url, `http://fixture.test:${upstream.port}/ok`),
+      { status: 200, body: "OK" },
+    );
+  } finally {
+    await proxy.close();
+    await close(upstream.server);
+  }
+});
+
 test("CONNECT rejects a private destination unless its exact origin is allowed", async () => {
   const proxy = await startCaptureEgressProxy();
   const address = new URL(proxy.url);
@@ -145,6 +185,112 @@ test("CONNECT rejects a private destination unless its exact origin is allowed",
     assert.match(reply, /^HTTP\/1\.1 403/u);
   } finally {
     await proxy.close();
+  }
+});
+
+test("an aborted CONNECT tunnel does not crash the proxy", async () => {
+  const upstream = net.createServer((socket) => socket.on("error", () => {}));
+  await new Promise((resolve) => upstream.listen(0, "127.0.0.1", resolve));
+  const upstreamPort = upstream.address().port;
+  const proxy = await startCaptureEgressProxy({
+    allowedLocalOrigins: [`https://fixture.test:${upstreamPort}`],
+    lookup: async () => [{ address: "127.0.0.1" }],
+  });
+  const proxyUrl = new URL(proxy.url);
+  try {
+    await new Promise((resolve, reject) => {
+      const socket = net.connect(Number(proxyUrl.port), proxyUrl.hostname, () =>
+        socket.write(
+          `CONNECT fixture.test:${upstreamPort} HTTP/1.1\r\nHost: fixture.test\r\n\r\n`,
+        ),
+      );
+      socket.once("data", (data) => {
+        assert.match(data.toString(), /^HTTP\/1\.1 200/u);
+        if (typeof socket.resetAndDestroy === "function")
+          socket.resetAndDestroy();
+        else socket.destroy();
+        resolve();
+      });
+      socket.once("error", reject);
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const reply = await new Promise((resolve, reject) => {
+      const socket = net.connect(Number(proxyUrl.port), proxyUrl.hostname, () =>
+        socket.write(
+          `CONNECT fixture.test:${upstreamPort} HTTP/1.1\r\nHost: fixture.test\r\n\r\n`,
+        ),
+      );
+      socket.once("data", (data) => {
+        resolve(data.toString());
+        socket.destroy();
+      });
+      socket.once("error", reject);
+    });
+    assert.match(reply, /^HTTP\/1\.1 200/u);
+  } finally {
+    await proxy.close();
+    await new Promise((resolve) => upstream.close(resolve));
+  }
+});
+
+test("an early CONNECT reset during DNS resolution does not crash the proxy or dial upstream", async () => {
+  let upstreamConnections = 0;
+  const upstream = net.createServer((socket) => {
+    upstreamConnections += 1;
+    socket.on("error", () => {});
+  });
+  await new Promise((resolve) => upstream.listen(0, "127.0.0.1", resolve));
+  const upstreamPort = upstream.address().port;
+  let releaseFirstLookup;
+  const firstLookupStarted = Promise.withResolvers();
+  let lookupCount = 0;
+  const proxy = await startCaptureEgressProxy({
+    allowedLocalOrigins: [`https://fixture.test:${upstreamPort}`],
+    lookup: async () => {
+      lookupCount += 1;
+      if (lookupCount === 1) {
+        firstLookupStarted.resolve();
+        await new Promise((resolve) => {
+          releaseFirstLookup = resolve;
+        });
+      }
+      return [{ address: "127.0.0.1" }];
+    },
+  });
+  const proxyUrl = new URL(proxy.url);
+  try {
+    const socket = net.connect(Number(proxyUrl.port), proxyUrl.hostname, () =>
+      socket.write(
+        `CONNECT fixture.test:${upstreamPort} HTTP/1.1\r\nHost: fixture.test\r\n\r\n`,
+      ),
+    );
+    socket.on("error", () => {});
+    await firstLookupStarted.promise;
+    if (typeof socket.resetAndDestroy === "function") socket.resetAndDestroy();
+    else socket.destroy();
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    releaseFirstLookup();
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    assert.equal(upstreamConnections, 0);
+
+    const reply = await new Promise((resolve, reject) => {
+      const next = net.connect(Number(proxyUrl.port), proxyUrl.hostname, () =>
+        next.write(
+          `CONNECT fixture.test:${upstreamPort} HTTP/1.1\r\nHost: fixture.test\r\n\r\n`,
+        ),
+      );
+      next.once("data", (data) => {
+        resolve(data.toString());
+        next.destroy();
+      });
+      next.once("error", reject);
+    });
+    assert.match(reply, /^HTTP\/1\.1 200/u);
+  } finally {
+    releaseFirstLookup?.();
+    await proxy.close();
+    await new Promise((resolve) => upstream.close(resolve));
   }
 });
 
