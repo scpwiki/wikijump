@@ -7428,11 +7428,13 @@ impl RenderService {
             .unwrap_or(DEFAULT_LISTPAGES_RENDER_LIMIT)
             .min(MAX_LISTPAGES_RENDER_LIMIT)
             .min(limit.unwrap_or(u64::MAX));
-        let query_limit = limit
-            .unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
-            .saturating_add(u64::from(offset))
-            .saturating_add(u64::from(exclude_current_page))
-            .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
+        let query_limit = list_pages_row_scan_target(
+            requested_limit,
+            limit,
+            count_pages_per_page,
+            offset,
+            exclude_current_page,
+        );
         let included_categories = if category_all {
             IncludedCategories::All
         } else {
@@ -7974,10 +7976,9 @@ impl RenderService {
         while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
             let mut query = query.clone();
             query.offset = raw_offset;
-            query.pagination.limit = Some(
-                MAX_LISTPAGES_RENDER_LIMIT
-                    .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS - raw_offset)),
-            );
+            let batch_limit =
+                render_page_query_batch_limit(target_count, pages.len(), raw_offset);
+            query.pagination.limit = Some(batch_limit);
 
             let found = PageQueryService::find_with_metadata(ctx, query).await?;
             merge_render_page_query_metadata(&mut metadata, found.metadata);
@@ -7989,10 +7990,10 @@ impl RenderService {
                 Self::filter_viewable_list_pages_rows(ctx, found.pages.pages).await?;
             view_permission_filtering_applied |= viewable.len() != raw_count;
             pages.extend(viewable);
-            if raw_count < MAX_LISTPAGES_RENDER_LIMIT as usize {
+            if raw_count < batch_limit as usize {
                 break;
             }
-            raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
+            raw_offset = raw_offset.saturating_add(raw_count as u32);
         }
 
         Ok(ViewableListPagesRows {
@@ -8016,10 +8017,9 @@ impl RenderService {
         while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
             let mut query = query.clone();
             query.offset = raw_offset;
-            query.pagination.limit = Some(
-                MAX_LISTPAGES_RENDER_LIMIT
-                    .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS - raw_offset)),
-            );
+            let batch_limit =
+                render_page_query_batch_limit(target_count, pages.len(), raw_offset);
+            query.pagination.limit = Some(batch_limit);
 
             let found = PageQueryService::find_with_metadata(ctx, query).await?;
             merge_render_page_query_metadata(&mut metadata, found.metadata);
@@ -8031,10 +8031,10 @@ impl RenderService {
                 Self::filter_viewable_list_pages_rows(ctx, found.pages.pages).await?;
             view_permission_filtering_applied |= viewable.len() != raw_count;
             pages.extend(viewable);
-            if raw_count < MAX_LISTPAGES_RENDER_LIMIT as usize {
+            if raw_count < batch_limit as usize {
                 break;
             }
-            raw_offset = raw_offset.saturating_add(MAX_LISTPAGES_RENDER_LIMIT as u32);
+            raw_offset = raw_offset.saturating_add(raw_count as u32);
             if raw_offset >= MAX_LISTPAGES_RENDER_SCAN_ROWS {
                 raw_scan_completion = CountPagesRawScanCompletion::Capped;
             }
@@ -9093,6 +9093,35 @@ fn count_pages_unbounded_total(
         CountPagesRawScanCompletion::Complete => Some(scanned_total),
         CountPagesRawScanCompletion::Capped => None,
     }
+}
+
+fn list_pages_row_scan_target(
+    requested_limit: u64,
+    overall_limit: Option<u64>,
+    per_page: Option<u64>,
+    offset: u32,
+    exclude_current_page: bool,
+) -> u64 {
+    let rows = if per_page.is_some() {
+        overall_limit.unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
+    } else {
+        requested_limit
+    };
+    rows.saturating_add(u64::from(offset))
+        .saturating_add(u64::from(exclude_current_page))
+        .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
+}
+
+fn render_page_query_batch_limit(
+    target_count: usize,
+    viewable_count: usize,
+    raw_offset: u32,
+) -> u64 {
+    let needed = target_count.saturating_sub(viewable_count);
+    let remaining = (MAX_LISTPAGES_RENDER_SCAN_ROWS - raw_offset) as usize;
+    needed
+        .max(MAX_LISTPAGES_RENDER_LIMIT as usize)
+        .min(remaining) as u64
 }
 
 fn merge_render_page_query_metadata(
@@ -12050,15 +12079,16 @@ mod tests {
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
-        list_pages_has_unsupported_parent_selector, list_pages_tag_link_href,
-        native_list_page_link_default_label, parse_list_pages_arguments,
-        parse_wikidot_compat_color_descriptor, push_list_pages_pager,
-        register_generated_list_pages_html, render_clone_module,
+        list_pages_has_unsupported_parent_selector, list_pages_row_scan_target,
+        list_pages_tag_link_href, native_list_page_link_default_label,
+        parse_list_pages_arguments, parse_wikidot_compat_color_descriptor,
+        push_list_pages_pager, register_generated_list_pages_html, render_clone_module,
         render_list_pages_numbered_rows, render_list_pages_table_rows,
         render_list_pages_tags, render_members_module_placeholder,
         render_native_list_inline_wikidot_spans, render_native_list_page_link,
-        render_new_page_module, render_read_only_rate_module, render_tag_cloud_box,
-        requested_page_info_score, restore_list_pages_literal_ellipsis_markers,
+        render_new_page_module, render_page_query_batch_limit,
+        render_read_only_rate_module, render_tag_cloud_box, requested_page_info_score,
+        restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
         wikidot_content_section, wikidot_module_argument,
@@ -12841,6 +12871,28 @@ mod tests {
             count_pages_unbounded_total(CountPagesRawScanCompletion::Complete, 17),
             Some(17),
         );
+    }
+
+    #[test]
+    fn list_pages_scan_target_skips_full_inventory_without_a_pager() {
+        assert_eq!(list_pages_row_scan_target(100, None, None, 0, false), 100);
+        assert_eq!(list_pages_row_scan_target(100, None, None, 25, true), 126,);
+        assert_eq!(
+            list_pages_row_scan_target(250, None, Some(250), 0, false),
+            u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS),
+        );
+        assert_eq!(
+            list_pages_row_scan_target(250, Some(1_000), Some(250), 250, false),
+            1_250,
+        );
+    }
+
+    #[test]
+    fn render_page_query_batches_match_the_remaining_scan_window() {
+        assert_eq!(render_page_query_batch_limit(100, 0, 0), 250);
+        assert_eq!(render_page_query_batch_limit(5_000, 0, 0), 5_000);
+        assert_eq!(render_page_query_batch_limit(300, 250, 250), 250);
+        assert_eq!(render_page_query_batch_limit(5_000, 4_000, 4_000), 1_000);
     }
 
     #[test]
