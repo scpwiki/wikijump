@@ -9313,11 +9313,16 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
 fn count_pages_required_tag_batch_selector(
     arguments: &ListPagesArguments,
 ) -> Option<&str> {
+    let required_tag = match (
+        arguments.default_tags.as_slice(),
+        arguments.all_tags.as_slice(),
+    ) {
+        ([tag], []) | ([], [tag]) => tag.as_ref(),
+        _ => return None,
+    };
     if arguments.current_page_only
         || arguments.category_selector_present
-        || !arguments.default_tags.is_empty()
         || !arguments.any_tags.is_empty()
-        || arguments.all_tags.len() != 1
         || arguments.author_filter_present
         || arguments.order.is_some()
         || arguments.limit.is_some()
@@ -9345,7 +9350,7 @@ fn count_pages_required_tag_batch_selector(
         return None;
     }
 
-    Some(arguments.all_tags[0].as_ref())
+    Some(required_tag)
 }
 
 fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
@@ -13135,7 +13140,7 @@ mod tests {
     #[test]
     fn batches_only_simple_unbounded_required_tag_counts() {
         let arguments = parse_list_pages_arguments(
-            r#" tags="+third-law -hub -artwork -artist" wrapper="no""#,
+            r#" tags="third-law -hub -artwork -artist" wrapper="no""#,
         )
         .expect("activity-marker CountPages selectors should parse");
         assert_eq!(
