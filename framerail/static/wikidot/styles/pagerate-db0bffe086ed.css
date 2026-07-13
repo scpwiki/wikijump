@@ -1,0 +1,25 @@
+.page-rate-widget-box{
+
+}
+
+.page-rate-widget-box .rate-points{
+	background-color: #666;
+	color: #FFF;
+	font-weight: bold;
+	padding: 0 10px;
+	-moz-border-radius: 4px 0 0 4px;
+}	
+
+.page-rate-widget-box a{
+	text-decoration: none;
+	color: #000;
+	background-color: #DDD;
+	padding: 0 5px;
+}
+.page-rate-widget-box a:hover{
+	background-color: #EEE;
+}
+
+.page-rate-widget-box .cancel, .page-rate-widget-box .cancel a{
+	-moz-border-radius:  0 4px 4px  0;
+}

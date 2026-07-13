@@ -4,19 +4,12 @@
   import { getPageLayoutContext } from "$lib/page-layout-context"
   import { errorPopupState } from "$lib/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
-  import {
-    EditorPane,
-    FilePane,
-    HistoryPane,
-    LayoutPane,
-    MovePane,
-    ParentPane,
-    VotePane,
-    DeletePane
-  } from "."
   import { resolve } from "$app/paths"
   import { buildWikidotPageTagsHtml } from "$lib/wikidot-page-tags"
-  import { buildGeneratedPageStylesHead } from "$lib/generated-page-styles"
+  import {
+    buildGeneratedPageStylesHead,
+    getPageFontPreloadHrefs
+  } from "$lib/generated-page-styles"
   import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
 
   import type { PageProps } from "./$types"
@@ -33,6 +26,14 @@
   let showRevision = $state<boolean>(false)
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
   let pagePaneState = $state<PagePane>(PagePane.None)
+  let DeletePane = $state<typeof import("./DeletePane.svelte").default>()
+  let EditorPane = $state<typeof import("./EditorPane.svelte").default>()
+  let FilePane = $state<typeof import("./FilePane.svelte").default>()
+  let HistoryPane = $state<typeof import("./HistoryPane.svelte").default>()
+  let LayoutPane = $state<typeof import("./LayoutPane.svelte").default>()
+  let MovePane = $state<typeof import("./MovePane.svelte").default>()
+  let ParentPane = $state<typeof import("./ParentPane.svelte").default>()
+  let VotePane = $state<typeof import("./VotePane.svelte").default>()
   let wikidotPageActions = $derived(data.wikidot_page_actions)
   let wikidotPageWatch = $derived(data.wikidot_page_watch)
   let isDirectWikidotFragmentPage = $derived(
@@ -43,14 +44,24 @@
       isWikidotFragmentPage(data.page_revision?.tags)
   )
   const breadcrumbSeparator = " » "
-  let compiledBodyStylesHead = $derived(
-    buildGeneratedPageStylesHead(
-      data.options?.debug || data.options?.no_render
-        ? []
-        : showRevision
-          ? (revision?.compiled_body_styles ?? [])
-          : (data.compiled_body_styles ?? [])
-    )
+  let compiledBodyStyles = $derived(
+    data.options?.debug || data.options?.no_render
+      ? []
+      : showRevision
+        ? (revision?.compiled_body_styles ?? [])
+        : (data.compiled_body_styles ?? [])
+  )
+  let compiledBodyStylesHead = $derived(buildGeneratedPageStylesHead(compiledBodyStyles))
+  let renderedBodyHtml = $derived(
+    showRevision ? revision?.compiled_body_html : data.compiled_body_html
+  )
+  let pageFontPreloadHrefs = $derived(
+    pageLayoutContext.current === Layout.WIKIDOT
+      ? []
+      : getPageFontPreloadHrefs(data.site.locale, renderedBodyHtml, [
+          data.page_revision?.title,
+          ...compiledBodyStyles
+        ])
   )
 
   async function navigateEdit() {
@@ -108,15 +119,65 @@
     revision = rev
   }
 
+  async function ensureEditorPane() {
+    EditorPane ??= (await import("./EditorPane.svelte")).default
+  }
+
+  async function ensurePagePane(pane: PagePane) {
+    switch (pane) {
+      case PagePane.Delete:
+        DeletePane ??= (await import("./DeletePane.svelte")).default
+        break
+      case PagePane.File:
+        FilePane ??= (await import("./FilePane.svelte")).default
+        break
+      case PagePane.History:
+        HistoryPane ??= (await import("./HistoryPane.svelte")).default
+        break
+      case PagePane.Layout:
+        LayoutPane ??= (await import("./LayoutPane.svelte")).default
+        break
+      case PagePane.Move:
+        MovePane ??= (await import("./MovePane.svelte")).default
+        break
+      case PagePane.Parent:
+        ParentPane ??= (await import("./ParentPane.svelte")).default
+        break
+      case PagePane.Vote:
+        VotePane ??= (await import("./VotePane.svelte")).default
+        break
+    }
+  }
+
+  function activatePagePane(pane: PagePane) {
+    showSource = false
+    pagePaneState = pane
+    void ensurePagePane(pane)
+  }
+
   $effect(() => {
+    if (data.options?.edit) {
+      void ensureEditorPane()
+    }
+
     if (data.options?.history) {
       pagePaneState = PagePane.History
+      void ensurePagePane(PagePane.History)
     }
   })
 </script>
 
 <svelte:head>
   <title>{data.page_revision?.title} | {data.site.name}</title>
+  {#each pageFontPreloadHrefs as fontHref (fontHref)}
+    <link
+      as="font"
+      crossorigin="anonymous"
+      href={fontHref}
+      rel="preload"
+      type="font/woff2"
+    />
+  {/each}
   {@html compiledBodyStylesHead}
 </svelte:head>
 
@@ -188,7 +249,11 @@
       </div>
     </div>
     <div id="action-area">
-      <EditorPane {...props} />
+      {#if EditorPane}
+        <EditorPane {...props} />
+      {:else}
+        <p class="pane-loading" aria-live="polite">Loading…</p>
+      {/if}
     </div>
   {:else}
     <div id="page-options-container">
@@ -230,10 +295,7 @@
             id="pagerate-button"
             class="btn btn-default"
             href="javascript:;"
-            onclick={() => {
-              showSource = false
-              pagePaneState = PagePane.Vote
-            }}
+            onclick={() => activatePagePane(PagePane.Vote)}
             type="button"
           >
             {#if wikidotPageActions?.ratingText}
@@ -266,10 +328,7 @@
           id="history-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.History
-          }}
+          onclick={() => activatePagePane(PagePane.History)}
           type="button"
         >
           {wikidotPageActions?.history ?? data.internationalization?.history}
@@ -279,10 +338,7 @@
           id="files-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.File
-          }}
+          onclick={() => activatePagePane(PagePane.File)}
           type="button"
         >
           {wikidotPageActions?.files ?? data.internationalization?.files}
@@ -334,10 +390,7 @@
           id="layout-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.Layout
-          }}
+          onclick={() => activatePagePane(PagePane.Layout)}
           type="button"
         >
           {data.internationalization?.layout}
@@ -347,10 +400,7 @@
           id="parent-page-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.Parent
-          }}
+          onclick={() => activatePagePane(PagePane.Parent)}
           type="button"
         >
           {data.internationalization?.parents}
@@ -360,10 +410,7 @@
           id="rename-move-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.Move
-          }}
+          onclick={() => activatePagePane(PagePane.Move)}
           type="button"
         >
           {data.internationalization?.move}
@@ -373,10 +420,7 @@
           id="delete-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.Delete
-          }}
+          onclick={() => activatePagePane(PagePane.Delete)}
           type="button"
         >
           {data.internationalization?.delete}
@@ -406,19 +450,47 @@
         </h1>
         <div class="page-source">{data.wikitext ?? ""}</div>
       {:else if pagePaneState === PagePane.Move}
-        <MovePane bind:pagePaneState {...props} />
+        {#if MovePane}
+          <MovePane bind:pagePaneState {...props} />
+        {:else}
+          <p class="pane-loading" aria-live="polite">Loading…</p>
+        {/if}
       {:else if pagePaneState === PagePane.Layout}
-        <LayoutPane bind:pagePaneState {...props} />
+        {#if LayoutPane}
+          <LayoutPane bind:pagePaneState {...props} />
+        {:else}
+          <p class="pane-loading" aria-live="polite">Loading…</p>
+        {/if}
       {:else if pagePaneState === PagePane.Parent}
-        <ParentPane bind:pagePaneState {...props} />
+        {#if ParentPane}
+          <ParentPane bind:pagePaneState {...props} />
+        {:else}
+          <p class="pane-loading" aria-live="polite">Loading…</p>
+        {/if}
       {:else if pagePaneState === PagePane.Vote}
-        <VotePane {...props} />
+        {#if VotePane}
+          <VotePane {...props} />
+        {:else}
+          <p class="pane-loading" aria-live="polite">Loading…</p>
+        {/if}
       {:else if pagePaneState === PagePane.File}
-        <FilePane {...props} />
+        {#if FilePane}
+          <FilePane {...props} />
+        {:else}
+          <p class="pane-loading" aria-live="polite">Loading…</p>
+        {/if}
       {:else if pagePaneState === PagePane.History}
-        <HistoryPane {setRevision} {setShowRevision} {...props} />
+        {#if HistoryPane}
+          <HistoryPane {setRevision} {setShowRevision} {...props} />
+        {:else}
+          <p class="pane-loading" aria-live="polite">Loading…</p>
+        {/if}
       {:else if pagePaneState === PagePane.Delete}
-        <DeletePane bind:pagePaneState {...props} />
+        {#if DeletePane}
+          <DeletePane bind:pagePaneState {...props} />
+        {:else}
+          <p class="pane-loading" aria-live="polite">Loading…</p>
+        {/if}
       {/if}
     </div>
   {/if}
@@ -472,33 +544,37 @@
   </div>
 
   {#if data.options?.edit}
-    <EditorPane {...props} />
+    {#if EditorPane}
+      <EditorPane {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {:else}
     <div class="action-row editor-actions">
       <button
         class="action-button editor-button button-move clickable"
-        onclick={() => (pagePaneState = PagePane.Move)}
+        onclick={() => activatePagePane(PagePane.Move)}
         type="button"
       >
         {data.internationalization?.move}
       </button>
       <button
         class="action-button editor-button button-layout clickable"
-        onclick={() => (pagePaneState = PagePane.Layout)}
+        onclick={() => activatePagePane(PagePane.Layout)}
         type="button"
       >
         {data.internationalization?.layout}
       </button>
       <button
         class="action-button editor-button button-parents clickable"
-        onclick={() => (pagePaneState = PagePane.Parent)}
+        onclick={() => activatePagePane(PagePane.Parent)}
         type="button"
       >
         {data.internationalization?.parents}
       </button>
       <button
         class="action-button editor-button button-delete clickable"
-        onclick={() => (pagePaneState = PagePane.Delete)}
+        onclick={() => activatePagePane(PagePane.Delete)}
         type="button"
       >
         {data.internationalization?.delete}
@@ -521,21 +597,21 @@
       </button>
       <button
         class="action-button button-history clickable"
-        onclick={() => (pagePaneState = PagePane.History)}
+        onclick={() => activatePagePane(PagePane.History)}
         type="button"
       >
         {data.internationalization?.history}
       </button>
       <button
         class="action-button button-vote clickable"
-        onclick={() => (pagePaneState = PagePane.Vote)}
+        onclick={() => activatePagePane(PagePane.Vote)}
         type="button"
       >
         {data.internationalization?.vote}
       </button>
       <button
         class="action-button button-files clickable"
-        onclick={() => (pagePaneState = PagePane.File)}
+        onclick={() => activatePagePane(PagePane.File)}
         type="button"
       >
         {data.internationalization?.files}
@@ -551,19 +627,47 @@
   {/if}
 
   {#if pagePaneState === PagePane.Move}
-    <MovePane bind:pagePaneState {...props} />
+    {#if MovePane}
+      <MovePane bind:pagePaneState {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {:else if pagePaneState === PagePane.Layout}
-    <LayoutPane bind:pagePaneState {...props} />
+    {#if LayoutPane}
+      <LayoutPane bind:pagePaneState {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {:else if pagePaneState === PagePane.Parent}
-    <ParentPane bind:pagePaneState {...props} />
+    {#if ParentPane}
+      <ParentPane bind:pagePaneState {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {:else if pagePaneState === PagePane.Vote}
-    <VotePane {...props} />
+    {#if VotePane}
+      <VotePane {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {:else if pagePaneState === PagePane.File}
-    <FilePane {...props} />
+    {#if FilePane}
+      <FilePane {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {:else if pagePaneState === PagePane.History}
-    <HistoryPane {setRevision} {setShowRevision} {...props} />
+    {#if HistoryPane}
+      <HistoryPane {setRevision} {setShowRevision} {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {:else if pagePaneState === PagePane.Delete}
-    <DeletePane bind:pagePaneState {...props} />
+    {#if DeletePane}
+      <DeletePane bind:pagePaneState {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
   {/if}
 {/if}
 

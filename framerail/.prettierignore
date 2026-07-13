@@ -3,6 +3,7 @@ node_modules
 /build
 /.svelte-kit
 /package
+/static/wikidot/styles/*.css
 .env
 .env.*
 !.env.example

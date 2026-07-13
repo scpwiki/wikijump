@@ -104,6 +104,26 @@ const COMMON_PROBES = Object.freeze([
   Object.freeze({id: "interwiki_frame", selector: "iframe.scpnet-interwiki-frame", expectation: "optional"}),
 ]);
 
+const WIKIDOT_BASELINE_PROBE_IDS = new Set(["header", "side_bar", "main_content", "page_content", "rate_widget"]);
+const WIKIDOT_BASELINE_TYPOGRAPHY = Object.freeze({
+  "font-family": Object.freeze({operator: "eq", value: "verdana, arial, helvetica, sans-serif"}),
+  "font-size": Object.freeze({operator: "one_of", values: Object.freeze(["12.8px", "11.52px"])}),
+  "line-height": Object.freeze({operator: "eq", value: "normal"}),
+});
+
+function yossistyleCommonProbe(probe) {
+  if (!WIKIDOT_BASELINE_PROBE_IDS.has(probe.id)) return probe;
+  const expectedProperties = {...WIKIDOT_BASELINE_TYPOGRAPHY};
+  if (probe.id === "side_bar") {
+    Object.assign(expectedProperties, {
+      "animation-name": Object.freeze({operator: "eq", value: "sbs"}),
+      "animation-duration": Object.freeze({operator: "eq", value: "20000s"}),
+      "animation-iteration-count": Object.freeze({operator: "eq", value: "infinite"}),
+    });
+  }
+  return Object.freeze({...probe, expected_properties: Object.freeze(expectedProperties)});
+}
+
 export const THEME_LOCALIZATION_TIERS = Object.freeze([
   Object.freeze({
     id: "yossistyle",
@@ -116,9 +136,9 @@ export const THEME_LOCALIZATION_TIERS = Object.freeze([
     required_markers: Object.freeze(["[[module Rate]]", "#header h2 span", "[[collapsible"]),
     dependencies: Object.freeze({components: Object.freeze([]), assets: Object.freeze([]), remote_local_code: Object.freeze([])}),
     computed_style_probes: Object.freeze([
-      ...COMMON_PROBES.map((probe) => probe.id === "side_bar" ? Object.freeze({...probe, expected_properties: Object.freeze({"animation-name": Object.freeze({operator: "eq", value: "sbs"}), "animation-duration": Object.freeze({operator: "eq", value: "20000s"}), "animation-iteration-count": Object.freeze({operator: "eq", value: "infinite"})})}) : probe),
-      Object.freeze({id: "header_subtitle", selector: "#header h2 span", expectation: "required", expected_properties: Object.freeze({"margin-left": Object.freeze({operator: "eq", value: "1px"})})}),
-      Object.freeze({id: "content_link", selector: "#page-content a[href='https://www.youtube.com/watch?v=rRPQs_kM_nw']", expectation: "required", expected_properties: Object.freeze({color: Object.freeze({operator: "eq", value: "rgb(187, 1, 17)"})})}),
+      ...COMMON_PROBES.map(yossistyleCommonProbe),
+      Object.freeze({id: "header_subtitle", selector: "#header h2 span", expectation: "required", expected_properties: Object.freeze({"margin-left": Object.freeze({operator: "eq", value: "1px"}), "font-family": Object.freeze({operator: "eq", value: '"Trebuchet MS", Trebuchet, Verdana, Arial, Helvetica'}), "font-size": Object.freeze({operator: "eq", value: "13.44px"}), "line-height": Object.freeze({operator: "eq", value: "0px"})})}),
+      Object.freeze({id: "content_link", selector: "#page-content a[href='https://www.youtube.com/watch?v=rRPQs_kM_nw']", expectation: "required", expected_properties: Object.freeze({color: Object.freeze({operator: "eq", value: "rgb(187, 1, 17)"}), "font-family": Object.freeze({operator: "eq", value: "verdana, arial, helvetica, sans-serif"}), "font-size": Object.freeze({operator: "one_of", values: Object.freeze(["12.8px", "11.52px"])})})}),
       Object.freeze({id: "license_suffix", selector: "#license-area a", pseudo: "::after", expectation: "required", expected_properties: Object.freeze({content: Object.freeze({operator: "eq", value: "\".\""})})}),
       Object.freeze({id: "watchers_button", selector: "#watchers-button", expectation: "optional", expected_properties: Object.freeze({display: Object.freeze({operator: "eq", value: "none"})})}),
       Object.freeze({id: "rate_points", selector: ".page-rate-widget-box .rate-points", expectation: "required", expected_properties: Object.freeze({"text-transform": Object.freeze({operator: "eq", value: "capitalize"})})}),
