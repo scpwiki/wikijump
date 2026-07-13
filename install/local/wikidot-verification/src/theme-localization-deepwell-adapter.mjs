@@ -94,10 +94,10 @@ export class DeepwellJsonRpcClient {
 }
 
 export class DeepwellThemePageAdapter {
-  constructor({rpcClient, rpcUrl, timeoutMs, adminEmail, adminPassword, actorUserId = -1, siteSlug = ALLOWED_SITE_SLUG} = {}) {
+  constructor({rpcClient, rpcUrl, timeoutMs, adminEmail, adminPassword, actorUserId = null, siteSlug = ALLOWED_SITE_SLUG} = {}) {
     if (siteSlug !== ALLOWED_SITE_SLUG) throw new Error("Deepwell adapter site is outside the hard allowlist");
     if (typeof adminEmail !== "string" || !adminEmail || typeof adminPassword !== "string" || !adminPassword) throw new Error("Deepwell adapter credentials are required");
-    if (!Number.isSafeInteger(actorUserId)) throw new Error("Deepwell adapter actor user id must be an integer");
+    if (actorUserId !== null && !Number.isSafeInteger(actorUserId)) throw new Error("Deepwell adapter actor user id must be an integer");
     this.rpc = rpcClient ?? new DeepwellJsonRpcClient({rpcUrl, timeoutMs});
     this.siteSlug = siteSlug;
     this.adminEmail = adminEmail;
@@ -114,8 +114,12 @@ export class DeepwellThemePageAdapter {
     const login = await this.rpc.call("login", {name_or_email: this.adminEmail, password: this.adminPassword, ip_address: IP_ADDRESS, user_agent: "wikijump-theme-localization-e2e/0.1"});
     if (login?.needs_mfa !== false) throw new Error("Deepwell adapter does not accept an incomplete MFA login");
     if (typeof login?.session_token !== "string" || !login.session_token) throw new Error("Deepwell login did not return a session token");
+    const session = await this.rpc.call("session_get", [login.session_token]);
+    if (!Number.isSafeInteger(session?.user_id)) throw new Error("Deepwell session lookup did not return an integer user id");
+    if (this.actorUserId !== null && this.actorUserId !== session.user_id) throw new Error("Deepwell adapter actor user id does not match authenticated session user");
     this.siteId = site.site_id;
     this.sessionToken = login.session_token;
+    this.actorUserId = session.user_id;
     this.adminPassword = null;
     return this;
   }
