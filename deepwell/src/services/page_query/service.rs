@@ -29,7 +29,7 @@ use crate::models::{page_revision, text};
 use crate::services::score::ScoreValue;
 use crate::services::{PageService, ParentService, ScoreService};
 use sea_query::extension::postgres::PgBinOper;
-use sea_query::{Expr, Query, SimpleExpr};
+use sea_query::{Expr, Query, SimpleExpr, Value};
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
 
@@ -420,7 +420,8 @@ impl PageQueryService {
             update_date,
         ));
         for selector in score {
-            condition = condition.add(score_selector_condition(selector));
+            condition =
+                condition.add(score_selector_condition(selector, queried_site_id));
         }
         if !votes.is_empty() {
             return Err(Error::new(
@@ -943,7 +944,7 @@ fn date_span_bounds(
     (start, end)
 }
 
-fn score_selector_condition(selector: &ScoreSelector) -> SimpleExpr {
+fn score_selector_condition(selector: &ScoreSelector, site_id: i64) -> SimpleExpr {
     let comparison = match selector.comparison {
         ComparisonOperation::GreaterThan => ">",
         ComparisonOperation::LessThan => "<",
@@ -958,9 +959,23 @@ fn score_selector_condition(selector: &ScoreSelector) -> SimpleExpr {
     };
     Expr::cust_with_values(
         format!(
-            "(COALESCE((SELECT snapshot.imported_rating FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = page.page_id), 0) + COALESCE((SELECT SUM(vote.value) FROM page_vote vote WHERE vote.page_id = page.page_id AND vote.deleted_at IS NULL AND vote.disabled_at IS NULL AND (vote.from_wikidot = FALSE OR NOT EXISTS (SELECT 1 FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = page.page_id))), 0)) {comparison} $1"
+            "page.page_id IN (\
+                SELECT scored_page.page_id \
+                FROM page scored_page \
+                LEFT JOIN wikidot_page_snapshot score_snapshot \
+                    ON score_snapshot.page_id = scored_page.page_id \
+                LEFT JOIN page_vote score_vote \
+                    ON score_vote.page_id = scored_page.page_id \
+                    AND score_vote.deleted_at IS NULL \
+                    AND score_vote.disabled_at IS NULL \
+                    AND (score_snapshot.imported_rating IS NULL OR score_vote.from_wikidot = FALSE) \
+                WHERE scored_page.site_id = $1 \
+                    AND scored_page.deleted_at IS NULL \
+                GROUP BY scored_page.page_id, score_snapshot.imported_rating \
+                HAVING (COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value), 0)) {comparison} $2\
+            )"
         ),
-        [score],
+        [Value::BigInt(Some(site_id)), Value::Double(Some(score))],
     )
 }
 
@@ -1033,8 +1048,13 @@ async fn filter_pages_by_data_form_fields(
 
 #[cfg(test)]
 mod tests {
-    use super::{date_span_bounds, wikidot_name_pattern};
-    use crate::services::page_query::DateTimeResolution;
+    use super::{date_span_bounds, score_selector_condition, wikidot_name_pattern};
+    use crate::models::page;
+    use crate::services::page_query::{
+        ComparisonOperation, DateTimeResolution, ScoreSelector,
+    };
+    use crate::services::score::ScoreValue;
+    use sea_orm::{DatabaseBackend, EntityTrait, QueryFilter, QueryTrait};
 
     #[test]
     fn wikidot_name_patterns_translate_both_wildcard_spellings() {
@@ -1061,5 +1081,36 @@ mod tests {
         );
         assert_eq!(start.time(), time::Time::MIDNIGHT);
         assert_eq!(end.time(), time::Time::MIDNIGHT);
+    }
+
+    #[test]
+    fn score_filter_aggregates_site_votes_once_instead_of_per_candidate() {
+        let selector = ScoreSelector {
+            score: ScoreValue::Integer(90),
+            comparison: ComparisonOperation::Equal,
+        };
+        let statement = page::Entity::find()
+            .filter(score_selector_condition(&selector, 6_000_006))
+            .build(DatabaseBackend::Postgres);
+
+        assert!(
+            statement
+                .sql
+                .contains("page.page_id IN (SELECT scored_page.page_id")
+        );
+        assert!(statement.sql.contains("WHERE scored_page.site_id = $1"));
+        assert!(
+            statement
+                .sql
+                .contains("GROUP BY scored_page.page_id, score_snapshot.imported_rating")
+        );
+        assert!(statement.sql.contains(
+            "HAVING (COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value), 0)) = $2"
+        ));
+        assert!(
+            !statement
+                .sql
+                .contains("WHERE snapshot.page_id = page.page_id")
+        );
     }
 }
