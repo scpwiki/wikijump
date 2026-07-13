@@ -27,7 +27,7 @@ use redis::AsyncCommands;
 use sea_orm::{DatabaseBackend, FromQueryResult, Statement, Value};
 use time::OffsetDateTime;
 
-const ARTICLE_VIEW_PAGE_CACHE_PREFIX: &str = "deepwell:article-view:page:v1";
+const ARTICLE_VIEW_PAGE_CACHE_PREFIX: &str = "deepwell:article-view:page:v2";
 
 pub(super) struct ArticlePageCache;
 
@@ -61,6 +61,7 @@ impl ArticlePageCache {
             latest_revision_id: Option<i64>,
             from_wikidot: bool,
             compiled_body_html_hash: Option<Vec<u8>>,
+            compiled_body_styles_hash: Option<Vec<u8>>,
             compiled_top_bar_html_hash: Option<Vec<u8>>,
             compiled_side_bar_html_hash: Option<Vec<u8>>,
             source_contents: Option<String>,
@@ -77,6 +78,7 @@ impl ArticlePageCache {
                     page.latest_revision_id,
                     page.from_wikidot,
                     revision.compiled_body_html_hash,
+                    revision.compiled_body_styles_hash,
                     revision.compiled_top_bar_html_hash,
                     revision.compiled_side_bar_html_hash,
                     source_text.contents AS source_contents
@@ -137,6 +139,7 @@ impl ArticlePageCache {
                 page_updated_at,
                 permission_fence: &permission_fence,
                 compiled_body_html_hash: row.compiled_body_html_hash.as_deref(),
+                compiled_body_styles_hash: row.compiled_body_styles_hash.as_deref(),
                 compiled_top_bar_html_hash: row.compiled_top_bar_html_hash.as_deref(),
                 compiled_side_bar_html_hash: row.compiled_side_bar_html_hash.as_deref(),
                 route_slug,
@@ -210,6 +213,7 @@ struct ArticlePageCacheKeyParts<'a> {
     page_updated_at: i128,
     permission_fence: &'a str,
     compiled_body_html_hash: Option<&'a [u8]>,
+    compiled_body_styles_hash: Option<&'a [u8]>,
     compiled_top_bar_html_hash: Option<&'a [u8]>,
     compiled_side_bar_html_hash: Option<&'a [u8]>,
     route_slug: &'a str,
@@ -219,17 +223,19 @@ struct ArticlePageCacheKeyParts<'a> {
 
 fn format_article_page_cache_key(parts: ArticlePageCacheKeyParts<'_>) -> String {
     let body_hash = optional_hash_hex(parts.compiled_body_html_hash);
+    let styles_hash = optional_hash_hex(parts.compiled_body_styles_hash);
     let top_bar_hash = optional_hash_hex(parts.compiled_top_bar_html_hash);
     let side_bar_hash = optional_hash_hex(parts.compiled_side_bar_html_hash);
 
     format!(
-        "{ARTICLE_VIEW_PAGE_CACHE_PREFIX}:site={}:page={}:rev={}:updated={}:permission={}:body={}:top={}:side={}:slug={}:extra={}:locales={}",
+        "{ARTICLE_VIEW_PAGE_CACHE_PREFIX}:site={}:page={}:rev={}:updated={}:permission={}:body={}:styles={}:top={}:side={}:slug={}:extra={}:locales={}",
         parts.site_id,
         parts.page_id,
         parts.latest_revision_id,
         parts.page_updated_at,
         parts.permission_fence,
         body_hash,
+        styles_hash,
         top_bar_hash,
         side_bar_hash,
         hex::encode(parts.route_slug),
@@ -276,6 +282,7 @@ mod tests {
             page_updated_at: 17,
             permission_fence: "site=19,user=23",
             compiled_body_html_hash: Some(&[0x01, 0x23]),
+            compiled_body_styles_hash: Some(&[0x34]),
             compiled_top_bar_html_hash: Some(&[0x45]),
             compiled_side_bar_html_hash: Some(&[0x67]),
             route_slug: "start",
@@ -285,7 +292,7 @@ mod tests {
 
         assert_eq!(
             key,
-            "deepwell:article-view:page:v1:site=7:page=11:rev=13:updated=17:permission=site=19,user=23:body=0123:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61",
+            "deepwell:article-view:page:v2:site=7:page=11:rev=13:updated=17:permission=site=19,user=23:body=0123:styles=34:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61",
         );
     }
 
@@ -308,6 +315,7 @@ mod tests {
                     page_updated_at: 17,
                     permission_fence: "site=19,user=23",
                     compiled_body_html_hash: Some(&[0x01, 0x23]),
+                    compiled_body_styles_hash: Some(&[0x34]),
                     compiled_top_bar_html_hash: Some(&[0x45]),
                     compiled_side_bar_html_hash: Some(&[0x67]),
                     route_slug: "start",
@@ -319,7 +327,7 @@ mod tests {
             assert_eq!(
                 key.as_deref(),
                 Some(
-                    "deepwell:article-view:page:v1:site=7:page=11:rev=13:updated=17:permission=site=19,user=23:body=0123:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61"
+                    "deepwell:article-view:page:v2:site=7:page=11:rev=13:updated=17:permission=site=19,user=23:body=0123:styles=34:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61"
                 ),
                 "{source}",
             );
@@ -335,6 +343,7 @@ mod tests {
             page_updated_at: 17,
             permission_fence: "site=19,user=23",
             compiled_body_html_hash: None,
+            compiled_body_styles_hash: None,
             compiled_top_bar_html_hash: None,
             compiled_side_bar_html_hash: None,
             route_slug: "start",
@@ -361,6 +370,7 @@ mod tests {
                 page_updated_at: 17,
                 permission_fence: "site=19,user=23",
                 compiled_body_html_hash: None,
+                compiled_body_styles_hash: None,
                 compiled_top_bar_html_hash: None,
                 compiled_side_bar_html_hash: None,
                 route_slug: "start",

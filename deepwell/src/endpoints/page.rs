@@ -1126,16 +1126,32 @@ async fn build_page_output(
             .or_raise(make_error)?;
 
     // Get text data, if requested
-    let (wikitext, compiled_body_html) = join!(
+    let (wikitext, compiled_body_html, compiled_body_styles) = join!(
         TextService::get_conditional(ctx, details.wikitext, &revision.wikitext_hash),
         TextService::get_conditional(
             ctx,
             details.compiled_html,
             &revision.compiled_body_html_hash,
         ),
+        TextService::get_conditional_option(
+            ctx,
+            details.compiled_html,
+            &revision.compiled_body_styles_hash,
+        ),
     );
-    let (wikitext, compiled_body_html) =
-        raise_multiple!(wikitext, compiled_body_html; make_error);
+    let (wikitext, compiled_body_html, compiled_body_styles) =
+        raise_multiple!(wikitext, compiled_body_html, compiled_body_styles; make_error);
+    let compiled_body_styles = if details.compiled_html {
+        Some(
+            compiled_body_styles
+                .map(|styles| serde_json::from_str(&styles))
+                .transpose()
+                .or_raise(make_error)?
+                .unwrap_or_default(),
+        )
+    } else {
+        None
+    };
 
     // Calculate score and determine layout
     let (rating, layout) = join!(
@@ -1162,6 +1178,7 @@ async fn build_page_output(
         revision_user_id: revision.user_id,
         wikitext,
         compiled_body_html,
+        compiled_body_styles,
         compiled_at: revision.compiled_at,
         compiled_generator: revision.compiled_generator,
         revision_comments: revision.comments,

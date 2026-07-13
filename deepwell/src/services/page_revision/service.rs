@@ -139,6 +139,7 @@ impl PageRevisionService {
         let PageRevisionModel {
             mut wikitext_hash,
             mut compiled_body_html_hash,
+            mut compiled_body_styles_hash,
             mut compiled_top_bar_html_hash,
             mut compiled_side_bar_html_hash,
             mut compiled_at,
@@ -257,6 +258,7 @@ impl PageRevisionService {
                 html_output: _,
                 errors,
                 compiled_body_html_hash: new_body_html_hash,
+                compiled_body_styles_hash: new_body_styles_hash,
                 compiled_top_bar_html_hash: new_top_bar_html_hash,
                 compiled_side_bar_html_hash: new_side_bar_html_hash,
                 compiled_at: new_compiled_at,
@@ -274,6 +276,7 @@ impl PageRevisionService {
             // Update fields
             parser_errors = Some(errors);
             replace_hash(&mut compiled_body_html_hash, &new_body_html_hash);
+            replace_hash_opt(&mut compiled_body_styles_hash, Some(new_body_styles_hash));
             replace_hash_opt(&mut compiled_top_bar_html_hash, new_top_bar_html_hash);
             replace_hash_opt(&mut compiled_side_bar_html_hash, new_side_bar_html_hash);
             compiled_generator = new_compiled_generator;
@@ -369,6 +372,7 @@ impl PageRevisionService {
             changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_body_html_hash: Set(compiled_body_html_hash),
+            compiled_body_styles_hash: Set(compiled_body_styles_hash),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash),
             compiled_at: Set(compiled_at),
@@ -465,6 +469,7 @@ impl PageRevisionService {
             html_output: _,
             errors,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_at,
@@ -494,6 +499,7 @@ impl PageRevisionService {
             changes: Set(ALL_CHANGES.clone()),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+            compiled_body_styles_hash: Set(Some(compiled_body_styles_hash.to_vec())),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash.map(Vec::from)),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash.map(Vec::from)),
             compiled_at: Set(compiled_at),
@@ -549,6 +555,7 @@ impl PageRevisionService {
         let PageRevisionModel {
             wikitext_hash,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_at,
@@ -589,6 +596,7 @@ impl PageRevisionService {
             changes: Set(vec![]),
             wikitext_hash: Set(wikitext_hash.to_vec()),
             compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+            compiled_body_styles_hash: Set(compiled_body_styles_hash),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash),
             compiled_at: Set(compiled_at),
@@ -659,6 +667,7 @@ impl PageRevisionService {
         let PageRevisionModel {
             wikitext_hash,
             mut compiled_body_html_hash,
+            mut compiled_body_styles_hash,
             mut compiled_top_bar_html_hash,
             mut compiled_side_bar_html_hash,
             hidden,
@@ -703,6 +712,7 @@ impl PageRevisionService {
             html_output: _,
             errors,
             compiled_body_html_hash: new_body_html_hash,
+            compiled_body_styles_hash: new_body_styles_hash,
             compiled_top_bar_html_hash: new_top_bar_html_hash,
             compiled_side_bar_html_hash: new_side_bar_html_hash,
             compiled_at,
@@ -723,6 +733,7 @@ impl PageRevisionService {
         .or_raise(make_error)?;
 
         replace_hash(&mut compiled_body_html_hash, &new_body_html_hash);
+        replace_hash_opt(&mut compiled_body_styles_hash, Some(new_body_styles_hash));
         replace_hash_opt(&mut compiled_top_bar_html_hash, new_top_bar_html_hash);
         replace_hash_opt(&mut compiled_side_bar_html_hash, new_side_bar_html_hash);
 
@@ -747,6 +758,7 @@ impl PageRevisionService {
             changes: Set(changes),
             wikitext_hash: Set(wikitext_hash),
             compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+            compiled_body_styles_hash: Set(compiled_body_styles_hash),
             compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash),
             compiled_side_bar_html_hash: Set(compiled_side_bar_html_hash),
             compiled_at: Set(compiled_at),
@@ -1011,6 +1023,7 @@ impl PageRevisionService {
         let RenderPageOutput {
             html_output: _,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_generator,
@@ -1050,6 +1063,9 @@ impl PageRevisionService {
                     revision_id: Set(revision.revision_id),
                     updated_at: Set(Some(now())),
                     compiled_body_html_hash: Set(compiled_body_html_hash.to_vec()),
+                    compiled_body_styles_hash: Set(Some(
+                        compiled_body_styles_hash.to_vec(),
+                    )),
                     compiled_top_bar_html_hash: Set(
                         compiled_top_bar_html_hash.map(Vec::from)
                     ),
@@ -1065,6 +1081,9 @@ impl PageRevisionService {
                 page_revision::ActiveModel {
                     revision_id: Set(revision.revision_id),
                     updated_at: Set(Some(now())),
+                    compiled_body_styles_hash: Set(Some(
+                        compiled_body_styles_hash.to_vec(),
+                    )),
                     compiled_top_bar_html_hash: Set(
                         compiled_top_bar_html_hash.map(Vec::from)
                     ),

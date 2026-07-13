@@ -157,6 +157,7 @@ pub(crate) struct CorpusReplayPreparedWikitext {
     pub preprocessed: bool,
     pub timings: CorpusReplayStageTimings,
     pub features: CorpusReplaySyntaxFeatures,
+    pub(super) wikidot_css_modules: Vec<String>,
     pub(super) wikidot_compat_html: CompatHtmlFragments,
     pub(super) wikidot_compat_text: CompatTextFragments,
     native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
@@ -268,6 +269,7 @@ struct ExpandedRenderWikitext {
 struct OuterPreparedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
+    wikidot_css_modules: Vec<String>,
     wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
     wikidot_color_spans: ProtectedWikidotColorSpans,
     wikidot_compat_html: CompatHtmlFragments,
@@ -281,6 +283,7 @@ struct OuterPreparedRenderWikitext {
 struct InnerPreparedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
+    wikidot_css_modules: Vec<String>,
     wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
     wikidot_color_spans: ProtectedWikidotColorSpans,
     wikidot_compat_links: Vec<ProtectedWikidotCompatLink>,
@@ -873,7 +876,7 @@ impl RenderService {
         };
 
         let RenderInnerOutput {
-            html_output,
+            mut html_output,
             errors,
             compiled_hash: compiled_body_html_hash,
         } = Self::render_inner(
@@ -918,9 +921,11 @@ impl RenderService {
                     .await;
 
                     match result {
-                        Ok(RenderInnerOutput { compiled_hash, .. }) => {
-                            Ok(Some(compiled_hash))
-                        }
+                        Ok(RenderInnerOutput {
+                            html_output,
+                            compiled_hash,
+                            ..
+                        }) => Ok(Some((compiled_hash, html_output.styles))),
                         Err(error) => Err(error),
                     }
                 }
@@ -934,13 +939,30 @@ impl RenderService {
             render_nav_page(top_bar_page_wikitext, CorpusRenderScope::TopNav),
             render_nav_page(side_bar_page_wikitext, CorpusRenderScope::SideNav),
         );
-        let (compiled_top_bar_html_hash, compiled_side_bar_html_hash) =
+        let (top_bar_render, side_bar_render) =
             raise_multiple!(top_bar_render_result, side_bar_render_result; make_error);
+        let (compiled_top_bar_html_hash, top_bar_styles) = top_bar_render
+            .map(|(hash, styles)| (Some(hash), styles))
+            .unwrap_or_default();
+        let (compiled_side_bar_html_hash, side_bar_styles) = side_bar_render
+            .map(|(hash, styles)| (Some(hash), styles))
+            .unwrap_or_default();
+
+        let body_styles = std::mem::take(&mut html_output.styles);
+        html_output.styles = top_bar_styles;
+        html_output.styles.extend(side_bar_styles);
+        html_output.styles.extend(body_styles);
+        let styles_json =
+            serde_json::to_string(&html_output.styles).or_raise(make_error)?;
+        let compiled_body_styles_hash = TextService::create(ctx, styles_json)
+            .await
+            .or_raise(make_error)?;
 
         Ok(RenderPageOutput {
             html_output,
             errors,
             compiled_body_html_hash,
+            compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
             compiled_at: now(),
@@ -1031,6 +1053,7 @@ impl RenderService {
                 preprocessed: false,
                 timings: outer.timings,
                 features,
+                wikidot_css_modules: outer.wikidot_css_modules,
                 wikidot_compat_html: outer.wikidot_compat_html,
                 wikidot_compat_text: outer.wikidot_compat_text,
                 native_list_wikipedia_links: outer.native_list_wikipedia_links,
@@ -1050,6 +1073,7 @@ impl RenderService {
             preprocessed: true,
             timings: inner.timings,
             features,
+            wikidot_css_modules: inner.wikidot_css_modules,
             wikidot_compat_html: inner.wikidot_compat_html,
             wikidot_compat_text: inner.wikidot_compat_text,
             native_list_wikipedia_links: inner.native_list_wikipedia_links,
@@ -1270,11 +1294,8 @@ impl RenderService {
                 &mut expanded.wikidot_compat_html,
             );
         expanded.wikitext = rendered;
-        Self::protect_wikidot_css_modules(
-            &mut expanded.wikitext,
-            settings,
-            &mut expanded.wikidot_compat_html,
-        );
+        let wikidot_css_modules =
+            Self::extract_wikidot_css_modules(&mut expanded.wikitext, settings);
         timings.outer_protection_us = elapsed_micros(started);
 
         observer(CorpusReplayPreparationStage::FallbackCheck);
@@ -1288,6 +1309,7 @@ impl RenderService {
         OuterPreparedRenderWikitext {
             wikitext: expanded.wikitext,
             included_pages: expanded.included_pages,
+            wikidot_css_modules,
             wikidot_inline_html,
             wikidot_color_spans,
             wikidot_compat_html: expanded.wikidot_compat_html,
@@ -1330,6 +1352,7 @@ impl RenderService {
         InnerPreparedRenderWikitext {
             wikitext: outer.wikitext,
             included_pages: outer.included_pages,
+            wikidot_css_modules: outer.wikidot_css_modules,
             wikidot_inline_html: outer.wikidot_inline_html,
             wikidot_color_spans: outer.wikidot_color_spans,
             wikidot_compat_html: outer.wikidot_compat_html,
@@ -1411,6 +1434,7 @@ impl RenderService {
             let OuterPreparedRenderWikitext {
                 wikitext,
                 included_pages,
+                wikidot_css_modules,
                 wikidot_inline_html,
                 wikidot_color_spans,
                 wikidot_compat_html,
@@ -1486,7 +1510,7 @@ impl RenderService {
                     wikidot_compat_text.restore(&body)
                 },
                 meta: Vec::new(),
-                styles: Vec::new(),
+                styles: wikidot_css_modules,
                 backlinks,
             };
             drop(fallback_render_stage);
@@ -1547,6 +1571,7 @@ impl RenderService {
             let InnerPreparedRenderWikitext {
                 wikitext,
                 included_pages,
+                wikidot_css_modules,
                 wikidot_inline_html,
                 wikidot_color_spans,
                 wikidot_compat_links,
@@ -1578,6 +1603,14 @@ impl RenderService {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlRender);
                 HtmlRender.render(&tree, &render_page_info, &render_settings)
             };
+            // Deepwell's Wikidot compatibility scanner identifies actual CSS module
+            // syntax before raw HTML fragments are restored. Keeping that typed
+            // provenance separate ensures authored <style> HTML stays in the body.
+            if !wikidot_css_modules.is_empty() {
+                let mut styles = wikidot_css_modules;
+                styles.append(&mut html_output.styles);
+                html_output.styles = styles;
+            }
             let (html_block_texts, code_blocks) = {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlCompat);
                 html_output.body = Self::restore_protected_wikidot_embed_iframes(
@@ -5267,13 +5300,12 @@ impl RenderService {
         Ok(counts.into_iter().collect())
     }
 
-    fn protect_wikidot_css_modules(
+    fn extract_wikidot_css_modules(
         wikitext: &mut String,
         settings: &WikitextSettings,
-        compat_html: &mut CompatHtmlFragments,
-    ) {
+    ) -> Vec<String> {
         if !settings.enable_page_syntax {
-            return;
+            return Vec::new();
         }
 
         let source = wikitext.as_str();
@@ -5281,6 +5313,7 @@ impl RenderService {
         let syntax_literal_regions = LiteralRegionIndex::new_wikidot_syntax(source);
         let native_quote_lines = WikidotNativeQuoteIndex::new(source);
         let mut output = String::with_capacity(source.len());
+        let mut styles = Vec::new();
         let mut cursor = 0;
 
         while let Some(open) = CSS_MODULE_OPEN_REGEX.find_at(source, cursor) {
@@ -5297,7 +5330,7 @@ impl RenderService {
                 else {
                     output.push_str(&source[cursor..]);
                     *wikitext = output;
-                    return;
+                    return styles;
                 };
                 if !syntax_literal_regions.contains(candidate.start()) {
                     break candidate;
@@ -5307,11 +5340,12 @@ impl RenderService {
             let body = source[open.end()..close.start()].trim_matches('\n');
             let body = Self::escape_wikidot_css_module_body(body);
             output.push_str(&source[cursor..open.start()]);
-            output.push_str(&compat_html.push_html(format!("<style>\n{body}\n</style>")));
+            styles.push(body);
             cursor = close.end();
         }
         output.push_str(&source[cursor..]);
         *wikitext = output;
+        styles
     }
 
     fn escape_wikidot_css_module_body(body: &str) -> String {
@@ -11941,19 +11975,15 @@ mod tests {
         )
     }
 
-    fn render_wikidot_css_after_registry_restore(
+    fn render_wikidot_css_after_extraction(
         wikitext: &str,
         fallback: bool,
-    ) -> String {
+    ) -> (String, Vec<String>) {
         let page_info = fallback_test_page_info("css", "CSS");
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut protected = wikitext.to_owned();
-        let mut fragments = CompatHtmlFragments::new(wikitext);
-        RenderService::protect_wikidot_css_modules(
-            &mut protected,
-            &settings,
-            &mut fragments,
-        );
+        let styles =
+            RenderService::extract_wikidot_css_modules(&mut protected, &settings);
         let rendered = if fallback {
             RenderService::render_wikidot_compatibility_fallback_with_code_blocks(
                 &protected,
@@ -11964,7 +11994,7 @@ mod tests {
             let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
             HtmlRender.render(&tree, &page_info, &settings).body
         };
-        fragments.restore(&rendered)
+        (rendered, styles)
     }
 
     #[test]
@@ -13616,7 +13646,7 @@ mod tests {
     }
 
     #[test]
-    fn renders_css_modules_before_ftml_parsing() {
+    fn extracts_css_modules_before_ftml_parsing() {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut source = concat!(
             "before\n",
@@ -13629,21 +13659,12 @@ mod tests {
         )
         .to_owned();
 
-        let mut fragments = CompatHtmlFragments::new(&source);
-        RenderService::protect_wikidot_css_modules(
-            &mut source,
-            &settings,
-            &mut fragments,
-        );
+        let styles = RenderService::extract_wikidot_css_modules(&mut source, &settings);
 
-        assert!(source.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+        assert_eq!(styles, ["#u-change{\n    display:none;\n}"]);
+        assert!(!source.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
         assert!(!source.contains("[[module css]]"));
         assert!(!source.contains("#u-change"));
-
-        let restored = fragments.restore(&source);
-        assert!(restored.contains("<style>\n#u-change{"));
-        assert!(restored.contains("display:none;"));
-        assert!(!restored.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
     }
 
     #[test]
@@ -13655,16 +13676,11 @@ mod tests {
             "> > [[module CSS]]\n> > .inner { color: red; }\n> > [[/module]]",
         ] {
             let mut source = original.to_owned();
-            let mut fragments = CompatHtmlFragments::new(original);
-
-            RenderService::protect_wikidot_css_modules(
-                &mut source,
-                &settings,
-                &mut fragments,
-            );
+            let styles =
+                RenderService::extract_wikidot_css_modules(&mut source, &settings);
 
             assert_eq!(source, original);
-            assert_eq!(fragments.restore(&source), original);
+            assert!(styles.is_empty());
         }
     }
 
@@ -13678,24 +13694,11 @@ mod tests {
         )
         .to_owned();
 
-        let mut fragments = CompatHtmlFragments::new(&source);
-        RenderService::protect_wikidot_css_modules(
-            &mut source,
-            &settings,
-            &mut fragments,
-        );
-        let restored = fragments.restore(&source);
+        let styles = RenderService::extract_wikidot_css_modules(&mut source, &settings);
 
-        assert!(
-            restored.starts_with("<style>\n"),
-            "unexpected restored CSS module: {restored:?}",
-        );
-        assert!(
-            restored.trim_end().ends_with("\n</style>"),
-            "unexpected restored CSS module suffix: {restored:?}",
-        );
-        assert!(!restored.contains("</style><img"));
-        assert!(restored.contains(r"\3C /style>\3C img"));
+        assert_eq!(styles.len(), 1);
+        assert!(!styles[0].contains("</style><img"));
+        assert!(styles[0].contains(r"\3C /style>\3C img"));
     }
 
     #[test]
@@ -13712,33 +13715,22 @@ mod tests {
             "[[module css]]\n.unclosed { display: none; }\n",
         );
         let mut protected = source.to_owned();
-        let mut fragments = CompatHtmlFragments::new(source);
+        let styles =
+            RenderService::extract_wikidot_css_modules(&mut protected, &settings);
 
-        RenderService::protect_wikidot_css_modules(
-            &mut protected,
-            &settings,
-            &mut fragments,
-        );
-        let restored = fragments.restore(&protected);
-
-        assert_eq!(
-            protected
-                .matches(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
-                .count(),
-            3,
-        );
-        assert!(restored.contains("<style>\n.first { color: red; }\n</style>"));
-        assert!(restored.contains("<style>\n.second { color: blue; }\n</style>"));
-        assert!(restored.contains(".spanning { color: black; }"));
-        assert!(restored.contains(".end { color: white; }"));
-        assert!(restored.contains(".comment { color: bad; }"));
-        assert!(restored.contains("[[html]]\n[[module css]]\n.html"));
-        assert!(restored.contains("[[module css]]\n.unclosed"));
-        assert!(!restored.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+        assert_eq!(styles.len(), 3);
+        assert!(styles[0].contains(".first { color: red; }"));
+        assert!(styles[1].contains(".second { color: blue; }"));
+        assert!(styles[2].contains(".spanning { color: black; }"));
+        assert!(styles[2].contains(".end { color: white; }"));
+        assert!(protected.contains(".comment { color: bad; }"));
+        assert!(protected.contains("[[html]]\n[[module css]]\n.html"));
+        assert!(protected.contains("[[module css]]\n.unclosed"));
+        assert!(!protected.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
     }
 
     #[test]
-    fn css_registry_restores_normal_and_fallback_outputs_without_marker_leakage() {
+    fn css_extraction_keeps_normal_and_fallback_outputs_free_of_style_wrappers() {
         let source = concat!(
             "before\n",
             "[[module css]]\n.a { color: red; }\n[[/module]]\n",
@@ -13747,10 +13739,11 @@ mod tests {
         );
 
         for fallback in [false, true] {
-            let html = render_wikidot_css_after_registry_restore(source, fallback);
-            assert!(html.contains("<style>\n.a { color: red; }\n</style>"));
-            assert!(html.contains(r#".b::after { content: "\3C /style>"; }"#));
-            assert!(!html.contains("</style>\"; }"));
+            let (html, styles) = render_wikidot_css_after_extraction(source, fallback);
+            assert_eq!(styles.len(), 2);
+            assert!(styles[0].contains(".a { color: red; }"));
+            assert!(styles[1].contains(r#".b::after { content: "\3C /style>"; }"#));
+            assert!(!html.contains("<style"));
             assert!(!html.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
             assert!(!html.contains("[[module css]]"));
         }
@@ -15076,13 +15069,14 @@ mod tests {
                 .wikitext
                 .contains(WIKIDOT_INLINE_HTML_SENTINEL_PREFIX)
         );
+        assert_eq!(prepared.wikidot_css_modules, [".x { color: red; }"]);
         assert!(
-            prepared
+            !prepared
                 .wikitext
                 .contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
         );
         assert_eq!(prepared.features.bytes, prepared.wikitext.len());
-        assert!(prepared.features.lines >= 3);
+        assert_eq!(prepared.features.lines, 2);
 
         let decoded = serde_json::from_str(&encoded).expect("deserialize replay input");
         let mut stages = Vec::new();
@@ -15304,11 +15298,11 @@ mod tests {
             "Visible body\n",
             "[[/div]]\n",
         );
-        let html = render_wikidot_css_after_registry_restore(source, true);
+        let (html, styles) = render_wikidot_css_after_extraction(source, true);
 
         assert!(html.contains(r#"<div class="wikidot-compat-fallback">"#));
         assert!(html.contains(r#"<div><p>Visible body</p></div>"#));
-        assert!(html.contains(".theme { display: block; }"));
+        assert_eq!(styles, [".theme { display: block; }"]);
         assert!(!html.contains("Usage:"));
         assert!(!html.contains("[[include :scp-wiki:component:interwiki-style"));
         assert!(!html.contains("[!--"));
@@ -15564,7 +15558,7 @@ mod tests {
     }
 
     #[test]
-    fn wikidot_compatibility_fallback_renders_css_modules_and_style_divs() {
+    fn wikidot_compatibility_fallback_separates_css_modules_and_renders_style_divs() {
         let source = concat!(
             "[[module CSS]]\n",
             ".scp-pride { display: block; }\n",
@@ -15573,13 +15567,13 @@ mod tests {
             "[https://example.com keep coming]\n",
             "[[/div]]\n",
         );
-        let html = render_wikidot_css_after_registry_restore(source, true);
+        let (html, styles) = render_wikidot_css_after_extraction(source, true);
 
         assert!(
-            html.contains("<style>"),
+            !html.contains("<style>"),
             "unexpected fallback HTML: {html:?}"
         );
-        assert!(html.contains(".scp-pride { display: block; }"));
+        assert_eq!(styles, [".scp-pride { display: block; }"]);
         assert!(html.contains(r#"<div style="font-weight: bold; text-align: center;">"#));
         assert!(!html.contains("[[module CSS"));
         assert!(!html.contains("[[/module]]"));
@@ -15596,10 +15590,10 @@ mod tests {
             "body\n",
             "[[/collapsible]]\n",
         );
-        let html = render_wikidot_css_after_registry_restore(source, true);
+        let (html, styles) = render_wikidot_css_after_extraction(source, true);
 
-        assert!(html.contains("<style>"));
-        assert!(html.contains(r"\3C /style>\3C img"));
+        assert!(!html.contains("<style>"));
+        assert!(styles[0].contains(r"\3C /style>\3C img"));
         assert!(!html.contains("</style><img"));
         assert!(!html.contains("<img src=x"));
     }

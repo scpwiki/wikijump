@@ -52,6 +52,7 @@ interface DeepwellPage {
   rating: number
   wikitext?: string | null
   compiled_body_html?: string | null
+  compiled_body_styles?: string[] | null
 }
 
 interface DeepwellPageRevision {
@@ -1447,7 +1448,9 @@ function isDeepwellPage(value: unknown, includeBody: boolean): value is Deepwell
     (!includeBody ||
       ((typeof value.wikitext === "string" || value.wikitext === null) &&
         (typeof value.compiled_body_html === "string" ||
-          value.compiled_body_html === null)))
+          value.compiled_body_html === null) &&
+        Array.isArray(value.compiled_body_styles) &&
+        value.compiled_body_styles.every((style) => typeof style === "string")))
   )
 }
 

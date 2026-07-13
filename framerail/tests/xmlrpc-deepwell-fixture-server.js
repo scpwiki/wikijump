@@ -11,6 +11,7 @@ import { createServer } from "node:http"
  *
  * @typedef {{
  *   compiled_body_html: string
+ *   compiled_body_styles?: string[]
  *   creator_user_id: number
  *   page_created_at: string
  *   page_id: number
@@ -192,6 +193,24 @@ const pages = {
     rating: 5,
     wikitext: "XML-RPC post fixture page.",
     compiled_body_html: "<p>XML-RPC post fixture page.</p>"
+  },
+  "theme:yossistyle": {
+    page_id: 3000310,
+    revision_id: 9000310,
+    page_created_at: "2026-07-13T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-13T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "YOSSISTYLE",
+    slug: "theme:yossistyle",
+    tags: ["theme"],
+    rating: 0,
+    wikitext:
+      "[[module CSS]]\n#header h2 span { margin-left: 1px; }\n[[/module]]\nXML-RPC theme body marker.",
+    compiled_body_html: "<p>XML-RPC theme body marker.</p>",
+    compiled_body_styles: ["#header h2 span { margin-left: 1px; }"]
   }
 }
 /** @type {Record<string, FixtureForumPost[]>} */
@@ -247,6 +266,7 @@ const toPageResult = (page, details) => {
   }
   if (details.compiled_html) {
     result.compiled_body_html = page.compiled_body_html
+    result.compiled_body_styles = page.compiled_body_styles ?? []
   }
 
   return result

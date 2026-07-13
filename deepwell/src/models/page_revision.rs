@@ -25,6 +25,8 @@ pub struct Model {
     #[sea_orm(column_type = "VarBinary(StringLen::None)")]
     pub compiled_body_html_hash: Vec<u8>,
     #[sea_orm(column_type = "VarBinary(StringLen::None)", nullable)]
+    pub compiled_body_styles_hash: Option<Vec<u8>>,
+    #[sea_orm(column_type = "VarBinary(StringLen::None)", nullable)]
     pub compiled_top_bar_html_hash: Option<Vec<u8>>,
     #[sea_orm(column_type = "VarBinary(StringLen::None)", nullable)]
     pub compiled_side_bar_html_hash: Option<Vec<u8>>,
@@ -78,6 +80,14 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Text4,
+    #[sea_orm(
+        belongs_to = "super::text::Entity",
+        from = "Column::CompiledBodyStylesHash",
+        to = "super::text::Column::Hash",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Text5,
     #[sea_orm(
         belongs_to = "super::text::Entity",
         from = "Column::CompiledSideBarHtmlHash",

@@ -216,6 +216,7 @@ async fn filter_and_populate_revision(
         changes,
         wikitext_hash,
         compiled_body_html_hash,
+        compiled_body_styles_hash,
         compiled_top_bar_html_hash,
         compiled_side_bar_html_hash,
         compiled_at,
@@ -257,12 +258,23 @@ async fn filter_and_populate_revision(
     }
 
     // Get text data, if requested
-    let (wikitext, compiled_body_html, compiled_top_bar_html, compiled_side_bar_html) = join!(
+    let (
+        wikitext,
+        compiled_body_html,
+        compiled_body_styles,
+        compiled_top_bar_html,
+        compiled_side_bar_html,
+    ) = join!(
         TextService::get_conditional(ctx, details.wikitext, &wikitext_hash),
         TextService::get_conditional(
             ctx,
             details.compiled_html,
             &compiled_body_html_hash,
+        ),
+        TextService::get_conditional_option(
+            ctx,
+            details.compiled_html,
+            &compiled_body_styles_hash,
         ),
         TextService::get_conditional_option(
             ctx,
@@ -278,6 +290,18 @@ async fn filter_and_populate_revision(
 
     let wikitext = wikitext.or_raise(make_error)?;
     let compiled_body_html = compiled_body_html.or_raise(make_error)?;
+    let compiled_body_styles = compiled_body_styles.or_raise(make_error)?;
+    let compiled_body_styles = if details.compiled_html {
+        Some(
+            compiled_body_styles
+                .map(|styles| serde_json::from_str(&styles))
+                .transpose()
+                .or_raise(make_error)?
+                .unwrap_or_default(),
+        )
+    } else {
+        None
+    };
     let compiled_top_bar_html = compiled_top_bar_html.or_raise(make_error)?;
     let compiled_side_bar_html = compiled_side_bar_html.or_raise(make_error)?;
 
@@ -294,6 +318,7 @@ async fn filter_and_populate_revision(
         changes,
         wikitext,
         compiled_body_html,
+        compiled_body_styles,
         compiled_top_bar_html,
         compiled_side_bar_html,
         compiled_at,

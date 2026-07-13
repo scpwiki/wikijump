@@ -16,6 +16,7 @@
   } from "."
   import { resolve } from "$app/paths"
   import { buildWikidotPageTagsHtml } from "$lib/wikidot-page-tags"
+  import { buildGeneratedPageStylesHead } from "$lib/generated-page-styles"
   import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
 
   import type { PageProps } from "./$types"
@@ -42,6 +43,15 @@
       isWikidotFragmentPage(data.page_revision?.tags)
   )
   const breadcrumbSeparator = " » "
+  let compiledBodyStylesHead = $derived(
+    buildGeneratedPageStylesHead(
+      data.options?.debug || data.options?.no_render
+        ? []
+        : showRevision
+          ? (revision?.compiled_body_styles ?? [])
+          : (data.compiled_body_styles ?? [])
+    )
+  )
 
   async function navigateEdit() {
     // Check edit permission first
@@ -107,6 +117,7 @@
 
 <svelte:head>
   <title>{data.page_revision?.title} | {data.site.name}</title>
+  {@html compiledBodyStylesHead}
 </svelte:head>
 
 {#if pageLayoutContext.current === Layout.WIKIDOT}

@@ -123,6 +123,7 @@ declare global {
       internationalization?: Locales
       /** Compiled HTML */
       compiled_body_html?: string
+      compiled_body_styles?: string[]
       compiled_top_bar_html?: string | null
       compiled_side_bar_html?: string | null
       /** Page revision */
@@ -139,6 +140,7 @@ declare global {
         changes: string[]
         wikitext: string | null
         compiled_html: string | null
+        compiled_body_styles: string[] | null
         compiled_at: string | null
         compiled_generator: string
         comments: string

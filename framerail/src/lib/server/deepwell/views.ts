@@ -72,6 +72,7 @@ interface PageViewDataBase {
   redirect_page: Nullable<string>
   wikitext: string
   compiled_body_html: string
+  compiled_body_styles: string[]
   compiled_top_bar_html: Optional<string>
   compiled_side_bar_html: Optional<string>
 }

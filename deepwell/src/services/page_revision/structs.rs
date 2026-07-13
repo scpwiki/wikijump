@@ -175,6 +175,7 @@ pub struct PageRevisionModelFiltered {
     pub changes: Vec<String>,
     pub wikitext: Option<String>,
     pub compiled_body_html: Option<String>,
+    pub compiled_body_styles: Option<Vec<String>>,
     pub compiled_top_bar_html: Option<String>,
     pub compiled_side_bar_html: Option<String>,
 

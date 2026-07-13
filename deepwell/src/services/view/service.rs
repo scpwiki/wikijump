@@ -349,6 +349,7 @@ impl ViewService {
             page_status: PageStatus,
             wikitext: String,
             compiled_body_html: String,
+            compiled_body_styles: Vec<String>,
             compiled_top_bar_html: Option<String>,
             compiled_side_bar_html: Option<String>,
         }
@@ -358,6 +359,7 @@ impl ViewService {
             page_status,
             wikitext,
             compiled_body_html,
+            compiled_body_styles,
             compiled_top_bar_html,
             compiled_side_bar_html,
         } = match PageService::get_optional(
@@ -428,11 +430,16 @@ impl ViewService {
                     let (
                         wikitext_result,
                         compiled_body_result,
+                        compiled_body_styles_result,
                         compiled_top_bar_result,
                         compiled_side_bar_result,
                     ) = join!(
                         TextService::get(ctx, &page_revision.wikitext_hash),
                         TextService::get(ctx, &page_revision.compiled_body_html_hash),
+                        TextService::get_option(
+                            ctx,
+                            &page_revision.compiled_body_styles_hash,
+                        ),
                         TextService::get_option(
                             ctx,
                             &page_revision.compiled_top_bar_html_hash,
@@ -446,9 +453,15 @@ impl ViewService {
                     let (
                         wikitext,
                         compiled_body_html,
+                        compiled_body_styles,
                         compiled_top_bar_html,
                         compiled_side_bar_html,
-                    ) = raise_multiple!(wikitext_result, compiled_body_result, compiled_top_bar_result, compiled_side_bar_result; make_error);
+                    ) = raise_multiple!(wikitext_result, compiled_body_result, compiled_body_styles_result, compiled_top_bar_result, compiled_side_bar_result; make_error);
+                    let compiled_body_styles = compiled_body_styles
+                        .map(|styles| serde_json::from_str(&styles))
+                        .transpose()
+                        .or_raise(make_error)?
+                        .unwrap_or_default();
 
                     let attributions = RelationService::get_page_attributions(
                         ctx,
@@ -483,6 +496,7 @@ impl ViewService {
                         },
                         wikitext,
                         compiled_body_html,
+                        compiled_body_styles,
                         compiled_top_bar_html,
                         compiled_side_bar_html,
                     }
@@ -529,6 +543,7 @@ impl ViewService {
                         html_output:
                             HtmlOutput {
                                 body: compiled_body_html,
+                                styles: compiled_body_styles,
                                 ..
                             },
                         ..
@@ -553,6 +568,7 @@ impl ViewService {
                         page_status,
                         wikitext,
                         compiled_body_html,
+                        compiled_body_styles,
                         compiled_top_bar_html,
                         compiled_side_bar_html,
                     }
@@ -578,6 +594,7 @@ impl ViewService {
                     html_output:
                         HtmlOutput {
                             body: compiled_body_html,
+                            styles: compiled_body_styles,
                             ..
                         },
                     ..
@@ -594,6 +611,7 @@ impl ViewService {
                     page_status: PageStatus::Missing,
                     wikitext,
                     compiled_body_html,
+                    compiled_body_styles,
                     compiled_top_bar_html,
                     compiled_side_bar_html,
                 }
@@ -619,6 +637,7 @@ impl ViewService {
                 redirect_page,
                 wikitext,
                 compiled_body_html,
+                compiled_body_styles,
                 compiled_top_bar_html,
                 compiled_side_bar_html,
             },
@@ -627,6 +646,7 @@ impl ViewService {
                 redirect_page,
                 wikitext,
                 compiled_body_html,
+                compiled_body_styles,
                 compiled_top_bar_html,
                 compiled_side_bar_html,
             },
@@ -634,6 +654,7 @@ impl ViewService {
                 options,
                 redirect_page,
                 compiled_body_html,
+                compiled_body_styles,
                 compiled_top_bar_html,
                 compiled_side_bar_html,
                 banned: false,
@@ -642,6 +663,7 @@ impl ViewService {
                 options,
                 redirect_page,
                 compiled_body_html,
+                compiled_body_styles,
                 compiled_top_bar_html,
                 compiled_side_bar_html,
                 banned: true,

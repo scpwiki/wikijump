@@ -963,6 +963,107 @@ async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_incl
 }
 
 #[tokio::test]
+async fn page_view_separates_generated_css_modules_from_compiled_body_html() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+    let slug = "generated-css-head-fixture";
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(slug)),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": concat!(
+                "[[module CSS]]\n.first { color: red; }\n[[/module]]\n",
+                "Generated CSS body marker.\n",
+                "[[module CSS]]\n",
+                ".second::after { content: \"</style><meta name=forged>\"; }\n",
+                "[[/module]]\n",
+                "[[html]]\n<style>.authored { color: green; }</style>\n[[/html]]\n",
+            ),
+            "title": "Generated CSS Head Fixture",
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "create generated CSS head fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(created.parser_errors.is_empty());
+
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let (compiled_body_html, compiled_body_styles) = match view {
+        GetPageViewOutput::Found {
+            compiled_body_html,
+            compiled_body_styles,
+            ..
+        } => (compiled_body_html, compiled_body_styles),
+        other => panic!("expected found page view, got {other:?}"),
+    };
+
+    assert!(compiled_body_html.contains("Generated CSS body marker."));
+    assert!(!compiled_body_html.contains("<style"));
+    assert_eq!(compiled_body_styles.len(), 2);
+    assert!(compiled_body_styles[0].contains(".first { color: red; }"));
+    assert!(compiled_body_styles[1].contains(r"\3C /style>\3C meta"));
+    assert!(
+        !compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".authored"))
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("fixture page should exist");
+    assert_eq!(
+        page.compiled_body_html.as_deref(),
+        Some(compiled_body_html.as_str())
+    );
+    assert_eq!(
+        page.compiled_body_styles.as_ref(),
+        Some(&compiled_body_styles),
+    );
+
+    let revision = run_endpoint!(
+        runner,
+        page_revision_get,
+        json!({
+            "site_id": site_id,
+            "page_id": created.page_id,
+            "revision_number": 0,
+            "details": {"compiled_html": true},
+        }),
+    )
+    .expect("fixture revision should exist");
+    assert_eq!(revision.compiled_body_styles, Some(compiled_body_styles));
+}
+
+#[tokio::test]
 async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

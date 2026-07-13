@@ -106,6 +106,7 @@ export interface PageRevisionModelFiltered {
   changes: string[]
   wikitext: Nullable<string>
   compiled_body_html: Nullable<string>
+  compiled_body_styles: Nullable<string[]>
   compiled_top_bar_html: Nullable<string>
   compiled_side_bar_html: Nullable<string>
   compiled_at: number
