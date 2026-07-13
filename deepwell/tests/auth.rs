@@ -37,6 +37,7 @@ use rust_otp::{Algorithm as TotpAlgorithm, TOTP};
 use sea_orm::{ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
 use serde_json::json;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{SystemTime, UNIX_EPOCH};
 use str_macro::str;
 
 static FIXTURE_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -293,12 +294,18 @@ async fn mfa_setup_reset_disable_and_totp_login_flow() {
         .time_step(runner.config().totp_time_step)
         .build()
         .expect("TOTP builder should accept Deepwell configuration");
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("test clock should be after the Unix epoch")
+        .as_secs()
+        .checked_add_signed(runner.config().totp_time_skew)
+        .expect("configured TOTP time offset should produce a valid timestamp");
     let session_token = run_endpoint!(
         runner,
         auth_mfa_verify,
         json!({
             "session_token": mfa_login.session_token,
-            "totp_or_code": totp.generate_current().unwrap().to_string(),
+            "totp_or_code": totp.generate_at(timestamp).to_string(),
             "ip_address": common::IP_ADDRESS,
             "user_agent": "deepwell-auth-test-totp",
         }),

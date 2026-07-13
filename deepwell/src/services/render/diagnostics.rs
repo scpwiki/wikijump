@@ -262,7 +262,7 @@ impl CorpusRenderTrace {
         micros: u64,
     ) {
         let timing = &self.0.timings[timing_index(scope, stage)];
-        let _ = timing.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
+        let _ = timing.try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
             Some(value.saturating_add(micros))
         });
     }

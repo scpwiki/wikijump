@@ -1673,8 +1673,14 @@ impl RenderService {
                     render_current_site.as_ref(),
                     &render_config,
                 );
-                apply_basalt_shell_compatibility(&mut html_output.body);
-                apply_blankstyle_shell_compatibility(&mut html_output.body);
+                apply_basalt_shell_compatibility(
+                    &mut html_output.body,
+                    &html_output.styles,
+                );
+                apply_blankstyle_shell_compatibility(
+                    &mut html_output.body,
+                    &html_output.styles,
+                );
                 html_output.body = wikidot_compat_text.restore(&html_output.body);
                 html_output.backlinks.included_pages.extend(included_pages);
                 let html_block_texts = tree
@@ -11710,8 +11716,13 @@ fn unprotect_include_variables(content: &mut String) {
         .replace(INCLUDE_VARIABLE_CLOSE_SENTINEL, "}");
 }
 
-fn apply_basalt_shell_compatibility(html: &mut String) {
-    if !html.contains("theme%3Abasalt") && !html.contains("basalt-bedrock-min.css") {
+fn apply_basalt_shell_compatibility(html: &mut String, styles: &[String]) {
+    if !html.contains("theme%3Abasalt")
+        && !html.contains("basalt-bedrock-min.css")
+        && !styles.iter().any(|style| {
+            style.contains("theme%3Abasalt") || style.contains("basalt-bedrock-min.css")
+        })
+    {
         return;
     }
 
@@ -11767,10 +11778,15 @@ fn apply_basalt_shell_compatibility(html: &mut String) {
     );
 }
 
-fn apply_blankstyle_shell_compatibility(html: &mut String) {
+fn apply_blankstyle_shell_compatibility(html: &mut String, styles: &[String]) {
     if !html.contains("theme%3Ablankstyle")
         && !html.contains("theme:blankstyle")
         && !html.contains("43Head.png")
+        && !styles.iter().any(|style| {
+            style.contains("theme%3Ablankstyle")
+                || style.contains("theme:blankstyle")
+                || style.contains("43Head.png")
+        })
     {
         return;
     }
@@ -18739,7 +18755,7 @@ mod tests {
     fn preserves_basalt_shell_compatibility_style_after_render() {
         let mut html = r#"<p><iframe src="/-/wikidot-interwiki/styleFrame.html?theme=https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/1&css={$css}" style="display: none"></iframe></p>"#.to_owned();
 
-        super::apply_basalt_shell_compatibility(&mut html);
+        super::apply_basalt_shell_compatibility(&mut html, &[]);
         let restored = RenderService::remove_wikidot_compat_style_blocks(&html);
 
         assert!(restored.contains("#side-bar"));
@@ -18763,6 +18779,20 @@ mod tests {
     }
 
     #[test]
+    fn basalt_shell_compatibility_detects_extracted_css_modules() {
+        let mut html = r#"<p>body</p>"#.to_owned();
+        let styles = vec![
+            "@import url(https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/3)"
+                .to_owned(),
+        ];
+
+        super::apply_basalt_shell_compatibility(&mut html, &styles);
+
+        assert!(html.contains("#side-bar"));
+        assert!(html.contains("display: block !important"));
+    }
+
+    #[test]
     fn preserves_blankstyle_open_menu_compatibility_style_after_render() {
         let mut html = concat!(
             r#"<p><style>div#extra-div-1{background:url("https://scp-wiki.wjfiles.localhost/local--files/theme%3Ablankstyle/43Head.png");}</style></p>"#,
@@ -18770,7 +18800,7 @@ mod tests {
         )
         .to_owned();
 
-        super::apply_blankstyle_shell_compatibility(&mut html);
+        super::apply_blankstyle_shell_compatibility(&mut html, &[]);
         let restored = RenderService::remove_wikidot_compat_style_blocks(&html);
 
         assert!(restored.contains("#top-bar .mobile-top-bar"));
@@ -18786,9 +18816,23 @@ mod tests {
     fn blankstyle_open_menu_compatibility_ignores_unrelated_pages() {
         let mut html = r#"<p>ordinary page body</p>"#.to_owned();
 
-        super::apply_blankstyle_shell_compatibility(&mut html);
+        super::apply_blankstyle_shell_compatibility(&mut html, &[]);
 
         assert_eq!(html, r#"<p>ordinary page body</p>"#);
+    }
+
+    #[test]
+    fn blankstyle_shell_compatibility_detects_extracted_css_modules() {
+        let mut html = r#"<p>body</p>"#.to_owned();
+        let styles = vec![
+            "@import url(https://scp-wiki.wdfiles.com/local--code/theme%3Ablankstyle/1)"
+                .to_owned(),
+        ];
+
+        super::apply_blankstyle_shell_compatibility(&mut html, &styles);
+
+        assert!(html.contains("#top-bar .mobile-top-bar"));
+        assert!(html.contains("display: block !important"));
     }
 
     #[test]
