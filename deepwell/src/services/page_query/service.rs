@@ -527,8 +527,7 @@ impl PageQueryService {
                 OrderProperty::Size => {
                     debug!("Ordering by page size");
                     join_text!();
-                    let col = Expr::col(text::Column::Contents);
-                    let expr = SimpleExpr::FunctionCall(Func::char_length(col));
+                    let expr = SimpleExpr::Custom("text.character_count".into());
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Score => {
