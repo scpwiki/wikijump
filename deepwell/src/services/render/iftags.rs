@@ -25,6 +25,7 @@ struct OpenGate {
     end: usize,
     spec: String,
     nested_tokens: Vec<Range<usize>>,
+    last_nested_closer: Option<Range<usize>>,
 }
 
 #[derive(Debug)]
@@ -60,16 +61,16 @@ pub(super) fn resolve_outermost_wikidot_iftags(
                     .map_or("", |value| value.as_str())
                     .to_owned(),
                 nested_tokens: Vec::new(),
+                last_nested_closer: None,
             });
             continue;
         }
 
         if stack.len() > 1 {
-            stack
-                .first_mut()
-                .expect("nested iftags has outer gate")
-                .nested_tokens
-                .push(token.start()..token.end());
+            let range = token.start()..token.end();
+            let outer = stack.first_mut().expect("nested iftags has outer gate");
+            outer.nested_tokens.push(range.clone());
+            outer.last_nested_closer = Some(range);
             stack.pop();
             continue;
         }
@@ -97,11 +98,41 @@ pub(super) fn resolve_outermost_wikidot_iftags(
         });
     }
 
-    for unclosed in stack {
-        replacements.push(Replacement {
-            range: unclosed.start..unclosed.end,
-            text: preserved.push(&escape_html(&wikitext[unclosed.start..unclosed.end])),
-        });
+    if !stack.is_empty() {
+        let root = stack.remove(0);
+        if let Some(recovery_closer) = root.last_nested_closer {
+            let nested_tokens = root
+                .nested_tokens
+                .iter()
+                .filter(|token| token.start < recovery_closer.start)
+                .cloned()
+                .collect::<Vec<_>>();
+            let text = if wikidot_tag_conditions_match(&root.spec, tags) {
+                preserve_nested_tokens(
+                    wikitext,
+                    root.end..recovery_closer.start,
+                    &nested_tokens,
+                    preserved,
+                )
+            } else {
+                String::new()
+            };
+            replacements.push(Replacement {
+                range: root.start..recovery_closer.end,
+                text,
+            });
+            stack.retain(|unclosed| unclosed.start >= recovery_closer.end);
+        } else {
+            stack.insert(0, root);
+        }
+
+        for unclosed in stack {
+            replacements.push(Replacement {
+                range: unclosed.start..unclosed.end,
+                text: preserved
+                    .push(&escape_html(&wikitext[unclosed.start..unclosed.end])),
+            });
+        }
     }
 
     if replacements.is_empty() {
@@ -256,9 +287,35 @@ mod tests {
     }
 
     #[test]
-    fn unbalanced_outer_remains_unchanged() {
+    fn partially_balanced_outer_recovers_the_final_closer() {
         let source = "[[iftags +alpha]]outer [[iftags +beta]]inner[[/iftags]]";
-        assert_eq!(resolve(source, &["alpha", "beta"], 1), source);
+        assert_eq!(
+            resolve(source, &["alpha", "beta"], 3),
+            "outer [[iftags +beta]]inner",
+        );
+        assert_eq!(resolve(source, &["beta"], 3), "");
+    }
+
+    #[test]
+    fn partially_balanced_outer_consumes_only_the_final_available_closer() {
+        let source = concat!(
+            "[[iftags +alpha]]outer\n",
+            "[[iftags +beta]]inner[[/iftags]]\n",
+            "between\n",
+            "[[iftags -beta]]following[[/iftags]]\n",
+            "root-after\n",
+        );
+        assert_eq!(
+            resolve(source, &["alpha", "beta"], 3),
+            concat!(
+                "outer\n",
+                "[[iftags +beta]]inner[[/iftags]]\n",
+                "between\n",
+                "[[iftags -beta]]following\n",
+                "root-after\n",
+            ),
+        );
+        assert_eq!(resolve(source, &["beta"], 3), "\nroot-after\n");
     }
 
     #[test]
@@ -323,5 +380,20 @@ mod tests {
         source = preserved.restore(&source);
         assert_eq!(source.matches("selected-").count(), 10_000);
         assert_eq!(source.matches("[[iftags +alpha]]").count(), 10_000);
+
+        let mut source = String::from("[[iftags +alpha]]");
+        for _ in 0..10_000 {
+            source.push_str("[[iftags +beta]]");
+        }
+        for _ in 0..9_999 {
+            source.push_str("[[/iftags]]");
+        }
+        let mut preserved = CompatTextFragments::new(&source);
+        let started = Instant::now();
+        resolve_outermost_wikidot_iftags(&mut source, &tags, &mut preserved);
+        assert!(started.elapsed() < Duration::from_secs(2));
+        source = preserved.restore(&source);
+        assert_eq!(source.matches("[[iftags +beta]]").count(), 10_000);
+        assert_eq!(source.matches("[[/iftags]]").count(), 9_998);
     }
 }
