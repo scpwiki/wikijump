@@ -91,7 +91,7 @@ test("private-site adapter exposes exact read-only reference prerequisites", asy
   await assert.rejects(adapter.inspect({...resource, title: "changed"}), /read-only contract/);
 });
 
-test("durable create intent can clean a page after a post-save error", async () => {
+test("durable create intent retains a page after a post-save error without a recorded identity", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "theme-wikidot-intent-"));
   const helper = new FakeHelper({failAfterCreate: true});
   const adapter = new WikidotThemePageAdapter({helperClient: helper});
@@ -101,9 +101,11 @@ test("durable create intent can clean a page after a post-save error", async () 
   await ledger.intent(resource, expected);
   await assert.rejects(adapter.create(resource, {source}), /post-save/);
   assert.notEqual(await adapter.inspect(resource), null);
-  await cleanupThemeExecution({ledger, adapters: {wikidot: adapter}});
-  assert.equal(helper.pages.size, 0);
-  assert.equal((await ThemeExecutionLedger.load(ledger.filePath)).completed, true);
+  await assert.rejects(cleanupThemeExecution({ledger, adapters: {wikidot: adapter}}), /cleanup left residual resources/);
+  assert.equal(helper.pages.size, 1);
+  const recovered = await ThemeExecutionLedger.load(ledger.filePath);
+  assert.equal(recovered.completed, false);
+  assert.equal(recovered.states.get(resource.resource_id).phase, "residual");
 });
 
 test("cleanup refuses content or identity changed after creation", async () => {

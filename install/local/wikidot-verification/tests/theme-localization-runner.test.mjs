@@ -229,7 +229,7 @@ test("a strict capture failure remains primary after verified cleanup", async ()
   assert.equal(result.captures[0].status, "fail");
 });
 
-test("recovery accepts only the matching fingerprint and removes an intent-fenced page", async () => {
+test("recovery refuses an intent-fenced page without a recorded creation identity", async () => {
   const fx = await fixture();
   let browserRequested = null;
   const dependencyFactory = fx.dependencyFactory;
@@ -240,9 +240,11 @@ test("recovery accepts only the matching fingerprint and removes an intent-fence
   const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, await fs.readFile(resource.source_path, "utf8")), title: resource.title, tags: resource.tags};
   await ledger.intent(resource, expected);
   fx.adapters.wikidot.pages.set(resource.slug, {identity: 42, title: expected.title, source_sha256: expected.remote_source_sha256, tags: expected.tags});
-  const result = await runGuardedThemeAction({...fx, mode: "recover"});
-  assert.equal(result.operation.status, "clean");
-  assert.equal(fx.adapters.wikidot.pages.size, 0);
+  await assert.rejects(runGuardedThemeAction({...fx, mode: "recover"}), /cleanup left residual resources/);
+  assert.equal(fx.adapters.wikidot.pages.size, 1);
+  const recovered = await ThemeExecutionLedger.load(fx.ledgerPath);
+  assert.equal(recovered.completed, false);
+  assert.equal(recovered.states.get(resource.resource_id).phase, "residual");
   assert.equal(browserRequested, false);
 });
 

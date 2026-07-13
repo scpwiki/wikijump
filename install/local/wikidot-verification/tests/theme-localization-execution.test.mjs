@@ -267,7 +267,7 @@ test("changed remote content fails closed while cleanup still attempts other res
   assert.ok(fx.events.includes("remove:yossistyle:wikidot"));
 });
 
-test("recovery cleans a page created after a durable intent even with a partial last event", async () => {
+test("recovery refuses to delete a matching page without a recorded creation identity", async () => {
   const fx = await fixture();
   fx.plan = fixturePlan({tiers: ["yossistyle"]});
   const resources = validateThemeExecutionPlan(fx.plan);
@@ -275,17 +275,17 @@ test("recovery cleans a page created after a durable intent even with a partial 
   const resource = resources[0];
   const expected = {source_sha256: resource.source_sha256, remote_source_sha256: targetRoundTripSourceSha256(resource.target, `日本語 source ${resource.tier_id}\n`), title: resource.title, tags: resource.tags};
   await ledger.intent(resource, expected);
-  fx.adapters.wikidot.pages.set(resource.slug, {identity: "created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256, tags: expected.tags});
+  fx.adapters.wikidot.pages.set(resource.slug, {identity: "foreign-created-after-intent", title: expected.title, source_sha256: expected.remote_source_sha256, tags: expected.tags});
   await fs.appendFile(fx.ledgerPath, "{partial", "utf8");
 
-  const result = await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
-  assert.equal(result.status, "clean");
-  assert.equal(fx.adapters.wikidot.pages.size, 0);
-  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
-  assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
+  await assert.rejects(recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters}), /cleanup left residual resources/);
+  assert.equal(fx.adapters.wikidot.pages.size, 1);
+  const recovered = await ThemeExecutionLedger.load(fx.ledgerPath);
+  assert.equal(recovered.completed, false);
+  assert.deepEqual(recovered.outstandingReverse().map((outstanding) => outstanding.resource_id), [resource.resource_id]);
 });
 
-test("recovery cleans an intent-fenced stable component dependency", async () => {
+test("recovery refuses an intent-fenced component dependency without a recorded creation identity", async () => {
   const fx = await fixture();
   fx.plan = fixturePlan({tiers: ["ashes-to-ashes"]});
   const resources = validateThemeExecutionPlan(fx.plan);
@@ -295,10 +295,9 @@ test("recovery cleans an intent-fenced stable component dependency", async () =>
   await ledger.intent(resource, expected);
   fx.adapters.wikijump.pages.set(resource.slug, {identity: "component-created-before-crash", title: expected.title, source_sha256: expected.source_sha256, tags: expected.tags});
 
-  const result = await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
-  assert.equal(result.status, "clean");
-  assert.equal(fx.adapters.wikijump.pages.size, 0);
-  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
+  await assert.rejects(recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters}), /cleanup left residual resources/);
+  assert.equal(fx.adapters.wikijump.pages.size, 1);
+  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, false);
 });
 
 test("intent-only dependency with a wrong ownership tag is retained as an unowned residual", async () => {
@@ -327,7 +326,7 @@ test("final absence barrier reports a header resource that appeared without an i
   assert.equal(fx.events.some((event) => event === `remove:${resource.resource_id}`), false);
 });
 
-test("recovery alone accepts an exact legacy theme-category plan and remains idempotent after sealing", async () => {
+test("recovery refuses matching legacy pages without a recorded creation identity", async () => {
   const fx = await fixture();
   fx.plan = legacyFixturePlan({tiers: ["yossistyle"]});
   const resources = validateRecoverableThemeExecutionPlan(fx.plan);
@@ -338,10 +337,9 @@ test("recovery alone accepts an exact legacy theme-category plan and remains ide
   await ledger.intent(resource, expected);
   fx.adapters.wikidot.pages.set(resource.slug, {identity: "legacy-created-before-crash", title: expected.title, source_sha256: expected.remote_source_sha256, tags: expected.tags});
 
-  assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
-  assert.equal(fx.adapters.wikidot.pages.size, 0);
-  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
-  assert.equal((await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters})).status, "clean");
+  await assert.rejects(recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters}), /cleanup left residual resources/);
+  assert.equal(fx.adapters.wikidot.pages.size, 1);
+  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, false);
 });
 
 test("legacy intent derives the narrow Wikidot terminal-LF round-trip hash from an unchanged accepted source", async () => {
@@ -358,9 +356,25 @@ test("legacy intent derives the narrow Wikidot terminal-LF round-trip hash from 
   await ledger.intent(resource, expected);
   fx.adapters.wikidot.pages.set(resource.slug, {identity: "saved-before-crash", title: expected.title, source_sha256: sha256(source.slice(0, -1)), tags: expected.tags});
 
-  await recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters});
-  assert.equal(fx.adapters.wikidot.pages.size, 0);
-  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, true);
+  await assert.rejects(recoverThemeExecution({ledgerPath: fx.ledgerPath, plan: fx.plan, adapters: fx.adapters}), /cleanup left residual resources/);
+  assert.equal(fx.adapters.wikidot.pages.size, 1);
+  assert.equal((await ThemeExecutionLedger.load(fx.ledgerPath)).completed, false);
+});
+
+test("create adapters must return a cleanup identity before cleanup can delete", async () => {
+  const fx = await fixture();
+  const resource = validateThemeExecutionPlan(fx.plan).find((candidate) => candidate.target === "wikidot");
+  fx.adapters.wikidot.create = async (createdResource, payload) => {
+    fx.events.push(`create:${createdResource.resource_id}`);
+    fx.adapters.wikidot.pages.set(createdResource.slug, {identity: "actual-but-not-recorded", source_sha256: targetRoundTripSourceSha256(createdResource.target, payload.source), title: createdResource.title});
+    return undefined;
+  };
+
+  await assert.rejects(executeThemeRunOwnedPages({...fx, capture: async () => {}}), /theme execution and cleanup both failed/);
+  assert.equal(fx.adapters.wikidot.pages.has(resource.slug), true);
+  const ledger = await ThemeExecutionLedger.load(fx.ledgerPath);
+  assert.equal(ledger.completed, false);
+  assert.equal(ledger.states.get(resource.resource_id).phase, "residual");
 });
 
 test("recovery refuses a ledger from another plan", async () => {
