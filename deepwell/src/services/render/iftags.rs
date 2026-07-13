@@ -75,6 +75,10 @@ pub(super) fn resolve_outermost_wikidot_iftags(
         }
 
         let Some(outer) = stack.pop() else {
+            replacements.push(Replacement {
+                range: token.start()..token.end(),
+                text: preserved.push(&escape_html(token.as_str())),
+            });
             continue;
         };
         let text = if wikidot_tag_conditions_match(&outer.spec, tags) {
@@ -93,9 +97,17 @@ pub(super) fn resolve_outermost_wikidot_iftags(
         });
     }
 
+    for unclosed in stack {
+        replacements.push(Replacement {
+            range: unclosed.start..unclosed.end,
+            text: preserved.push(&escape_html(&wikitext[unclosed.start..unclosed.end])),
+        });
+    }
+
     if replacements.is_empty() {
         return;
     }
+    replacements.sort_unstable_by_key(|replacement| replacement.range.start);
     let mut output = String::with_capacity(wikitext.len());
     let mut cursor = 0;
     for replacement in replacements {
@@ -250,6 +262,27 @@ mod tests {
     }
 
     #[test]
+    fn unclosed_openers_and_extra_closers_remain_literal_across_passes() {
+        let source = concat!(
+            "[[/iftags]]\n",
+            "[[iftags +alpha]]selected[[/iftags]]\n",
+            "[[/iftags]]\n",
+            "[[iftags -alpha]]unclosed\n",
+            "[[iftags +beta]]repeated\n",
+        );
+        assert_eq!(
+            resolve(source, &["alpha"], 3),
+            concat!(
+                "[[/iftags]]\n",
+                "selected\n",
+                "[[/iftags]]\n",
+                "[[iftags -alpha]]unclosed\n",
+                "[[iftags +beta]]repeated\n",
+            ),
+        );
+    }
+
+    #[test]
     fn literal_region_tokens_do_not_change_pairing() {
         let source = concat!(
             "[[code]]\n[[iftags +alpha]]literal[[/iftags]]\n[[/code]]\n",
@@ -287,6 +320,7 @@ mod tests {
         let started = Instant::now();
         resolve_outermost_wikidot_iftags(&mut source, &tags, &mut preserved);
         assert!(started.elapsed() < Duration::from_secs(2));
+        source = preserved.restore(&source);
         assert_eq!(source.matches("selected-").count(), 10_000);
         assert_eq!(source.matches("[[iftags +alpha]]").count(), 10_000);
     }

@@ -19110,6 +19110,53 @@ mod tests {
         assert!(html.contains("root-after"), "{html}");
     }
 
+    #[test]
+    fn malformed_iftags_remain_literal_without_ftml_parser_errors() {
+        let page_info = ftml::data::PageInfo {
+            tags: vec![Cow::Borrowed("alpha")],
+            ..fallback_test_page_info("malformed", "Malformed")
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut wikitext = concat!(
+            "[[/iftags]]\n",
+            "[[iftags +alpha]]selected[[/iftags]]\n",
+            "[[iftags +alpha]]unclosed\n",
+            "[[iftags -alpha]]repeated\n",
+        )
+        .to_owned();
+        let mut wikidot_compat_text = CompatTextFragments::new(&wikitext);
+        for _ in 0..2 {
+            RenderService::prepare_wikidot_conditionals_for_include_expansion(
+                &mut wikitext,
+                &page_info,
+                &mut wikidot_compat_text,
+            );
+        }
+
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikitext,
+                included_pages: Vec::new(),
+                wikidot_compat_html: CompatHtmlFragments::new(""),
+                wikidot_compat_text,
+            },
+            &page_info,
+            &settings,
+        );
+        let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&inner.wikitext);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+        let html = inner.wikidot_compat_text.restore(&html);
+        for literal in ["[[/iftags]]", "[[iftags +alpha]]", "[[iftags -alpha]]"] {
+            assert!(html.contains(literal), "{literal}: {html}");
+        }
+        for marker in ["selected", "unclosed", "repeated"] {
+            assert!(html.contains(marker), "{marker}: {html}");
+        }
+    }
+
     fn wikidot_site(slug: &str, preferred_domain: Option<&str>) -> SiteModel {
         SiteModel {
             site_id: 1,
