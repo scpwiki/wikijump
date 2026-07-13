@@ -11485,6 +11485,10 @@ fn unprotect_include_variables(content: &mut String) {
 }
 
 fn wikidot_tag_conditions_match(spec: &str, tags: &[Cow<'_, str>]) -> bool {
+    if spec.trim().is_empty() {
+        return false;
+    }
+
     let mut required = true;
     let mut prohibited = true;
     let mut present = false;
@@ -11804,7 +11808,7 @@ mod tests {
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
         wikidot_content_section, wikidot_module_argument,
-        wikidot_no_such_include_replacement,
+        wikidot_no_such_include_replacement, wikidot_tag_conditions_match,
     };
     use crate::config::Config;
     use crate::constants::ADMIN_USER_ID;
@@ -18683,6 +18687,40 @@ mod tests {
         RenderService::remove_unresolved_variable_iftags_blocks(&mut wikitext);
 
         assert_eq!(wikitext, "[[iftags +theme]]\nbody\n[[/iftags]]\n");
+    }
+
+    #[test]
+    fn matches_live_wikidot_tag_predicate_matrix() {
+        let tags = [Cow::Borrowed("alpha")];
+
+        assert!(wikidot_tag_conditions_match("+alpha", &tags));
+        assert!(!wikidot_tag_conditions_match("+beta", &tags));
+        assert!(!wikidot_tag_conditions_match("-alpha", &tags));
+        assert!(wikidot_tag_conditions_match("-beta", &tags));
+        assert!(wikidot_tag_conditions_match("alpha beta", &tags));
+        assert!(!wikidot_tag_conditions_match("beta gamma", &tags));
+        assert!(!wikidot_tag_conditions_match("+alpha +beta", &tags));
+        assert!(wikidot_tag_conditions_match("+alpha -beta", &tags));
+        assert!(!wikidot_tag_conditions_match("+alpha -alpha", &tags));
+        assert!(!wikidot_tag_conditions_match("", &tags));
+        assert!(wikidot_tag_conditions_match("-", &tags));
+    }
+
+    #[test]
+    fn resolves_empty_and_empty_negative_iftags_like_saved_wikidot() {
+        let page_info = fallback_test_page_info("tagged-page", "Tagged Page");
+        let mut wikitext = concat!(
+            "[[iftags]]OMEGA_NO_ARGUMENT[[/iftags]]\n",
+            "[[iftags -]]OMEGA_EMPTY_NEGATIVE[[/iftags]]\n",
+        )
+        .to_owned();
+
+        RenderService::resolve_single_line_wikidot_iftags_fragments(
+            &mut wikitext,
+            &page_info,
+        );
+
+        assert_eq!(wikitext, "\nOMEGA_EMPTY_NEGATIVE\n");
     }
 
     #[test]
