@@ -326,6 +326,11 @@ impl PageQueryService {
             condition = condition
                 .add(page::Column::Slug.is_in(slugs.iter().map(|slug| slug.as_ref())));
         }
+        if let Some(name) = name {
+            let pattern = wikidot_name_pattern(name.as_ref());
+            debug!("Filtering based on page name pattern {pattern}");
+            condition = condition.add(page::Column::Slug.like(pattern));
+        }
 
         // Initial page author. Local pages use the user ID on their earliest available revision. Corpus imports intentionally keep the Wikidot display name in wikidot_page_snapshot instead of fabricating local users, so the two representations are combined with OR semantics.
         match author {
@@ -404,6 +409,25 @@ impl PageQueryService {
                         .to_owned(),
                 ),
             );
+        }
+
+        condition = condition.add(date_selector_condition(
+            page::Column::CreatedAt,
+            creation_date,
+        ));
+        condition = condition.add(date_selector_condition(
+            page::Column::UpdatedAt,
+            update_date,
+        ));
+        for selector in score {
+            condition = condition.add(score_selector_condition(selector));
+        }
+        if !votes.is_empty() {
+            return Err(Error::new(
+                "ListPages vote-count filtering is not implemented",
+                ErrorType::PageQuery,
+            )
+            .into());
         }
 
         // Build the final query
@@ -811,6 +835,135 @@ impl PageQueryService {
     }
 }
 
+fn wikidot_name_pattern(value: &str) -> String {
+    let mut pattern = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '*' | '%' => pattern.push('%'),
+            '_' => pattern.push_str("\\_"),
+            '\\' => pattern.push_str("\\\\"),
+            _ => pattern.push(character),
+        }
+    }
+    pattern
+}
+
+fn date_selector_condition(column: page::Column, selector: DateSelector) -> Condition {
+    match selector {
+        DateSelector::FromPresent { start }
+            if start == time::OffsetDateTime::UNIX_EPOCH =>
+        {
+            Condition::all()
+        }
+        DateSelector::FromPresent { start } => Condition::all().add(column.gte(start)),
+        DateSelector::Span {
+            timestamp,
+            resolution,
+            comparison,
+        } => {
+            let (start, end) = date_span_bounds(timestamp, resolution);
+            match comparison {
+                ComparisonOperation::GreaterThan => Condition::all().add(column.gte(end)),
+                ComparisonOperation::LessThan => Condition::all().add(column.lt(start)),
+                ComparisonOperation::GreaterOrEqualThan => {
+                    Condition::all().add(column.gte(start))
+                }
+                ComparisonOperation::LessOrEqualThan => {
+                    Condition::all().add(column.lt(end))
+                }
+                ComparisonOperation::Equal => {
+                    Condition::all().add(column.gte(start)).add(column.lt(end))
+                }
+                ComparisonOperation::NotEqual => {
+                    Condition::any().add(column.lt(start)).add(column.gte(end))
+                }
+            }
+        }
+    }
+}
+
+fn date_span_bounds(
+    timestamp: time::OffsetDateTime,
+    resolution: DateTimeResolution,
+) -> (time::OffsetDateTime, time::OffsetDateTime) {
+    let start = match resolution {
+        DateTimeResolution::Second => timestamp.replace_nanosecond(0).unwrap(),
+        DateTimeResolution::Minute => timestamp
+            .replace_second(0)
+            .unwrap()
+            .replace_nanosecond(0)
+            .unwrap(),
+        DateTimeResolution::Hour => timestamp
+            .replace_minute(0)
+            .unwrap()
+            .replace_second(0)
+            .unwrap()
+            .replace_nanosecond(0)
+            .unwrap(),
+        DateTimeResolution::Day => timestamp
+            .date()
+            .with_time(time::Time::MIDNIGHT)
+            .assume_offset(timestamp.offset()),
+        DateTimeResolution::Month => {
+            time::Date::from_calendar_date(timestamp.year(), timestamp.month(), 1)
+                .unwrap()
+                .with_time(time::Time::MIDNIGHT)
+                .assume_offset(timestamp.offset())
+        }
+        DateTimeResolution::Year => {
+            time::Date::from_calendar_date(timestamp.year(), time::Month::January, 1)
+                .unwrap()
+                .with_time(time::Time::MIDNIGHT)
+                .assume_offset(timestamp.offset())
+        }
+    };
+    let end = match resolution {
+        DateTimeResolution::Second => start + time::Duration::SECOND,
+        DateTimeResolution::Minute => start + time::Duration::MINUTE,
+        DateTimeResolution::Hour => start + time::Duration::HOUR,
+        DateTimeResolution::Day => start + time::Duration::DAY,
+        DateTimeResolution::Month => {
+            let (year, month) = if start.month() == time::Month::December {
+                (start.year() + 1, time::Month::January)
+            } else {
+                (start.year(), start.month().next())
+            };
+            time::Date::from_calendar_date(year, month, 1)
+                .unwrap()
+                .with_time(time::Time::MIDNIGHT)
+                .assume_offset(start.offset())
+        }
+        DateTimeResolution::Year => {
+            time::Date::from_calendar_date(start.year() + 1, time::Month::January, 1)
+                .unwrap()
+                .with_time(time::Time::MIDNIGHT)
+                .assume_offset(start.offset())
+        }
+    };
+    (start, end)
+}
+
+fn score_selector_condition(selector: &ScoreSelector) -> SimpleExpr {
+    let comparison = match selector.comparison {
+        ComparisonOperation::GreaterThan => ">",
+        ComparisonOperation::LessThan => "<",
+        ComparisonOperation::GreaterOrEqualThan => ">=",
+        ComparisonOperation::LessOrEqualThan => "<=",
+        ComparisonOperation::Equal => "=",
+        ComparisonOperation::NotEqual => "!=",
+    };
+    let score = match selector.score {
+        ScoreValue::Integer(value) => value as f64,
+        ScoreValue::Float(value) => value,
+    };
+    Expr::cust_with_values(
+        format!(
+            "(COALESCE((SELECT snapshot.imported_rating FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = page.page_id), 0) + COALESCE((SELECT SUM(vote.value) FROM page_vote vote WHERE vote.page_id = page.page_id AND vote.deleted_at IS NULL AND vote.disabled_at IS NULL AND (vote.from_wikidot = FALSE OR NOT EXISTS (SELECT 1 FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = page.page_id))), 0)) {comparison} $1"
+        ),
+        [score],
+    )
+}
+
 fn postgres_bind_placeholders(count: usize) -> String {
     (1..=count)
         .map(|index| format!("${index}"))
@@ -876,4 +1029,37 @@ async fn filter_pages_by_data_form_fields(
             static_wikidot_data_form_matches(&values, selectors)
         })
         .collect())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{date_span_bounds, wikidot_name_pattern};
+    use crate::services::page_query::DateTimeResolution;
+
+    #[test]
+    fn wikidot_name_patterns_translate_both_wildcard_spellings() {
+        assert_eq!(wikidot_name_pattern("scp-*"), "scp-%");
+        assert_eq!(wikidot_name_pattern("fragment:part%"), "fragment:part%");
+        assert_eq!(wikidot_name_pattern("literal_name"), "literal\\_name");
+    }
+
+    #[test]
+    fn month_date_spans_use_calendar_boundaries() {
+        let timestamp = time::Date::from_calendar_date(2026, time::Month::June, 17)
+            .unwrap()
+            .with_time(time::Time::from_hms(12, 34, 56).unwrap())
+            .assume_utc();
+        let (start, end) = date_span_bounds(timestamp, DateTimeResolution::Month);
+
+        assert_eq!(
+            start.date(),
+            time::Date::from_calendar_date(2026, time::Month::June, 1).unwrap(),
+        );
+        assert_eq!(
+            end.date(),
+            time::Date::from_calendar_date(2026, time::Month::July, 1).unwrap(),
+        );
+        assert_eq!(start.time(), time::Time::MIDNIGHT);
+        assert_eq!(end.time(), time::Time::MIDNIGHT);
+    }
 }

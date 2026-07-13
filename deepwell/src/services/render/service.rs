@@ -47,14 +47,15 @@ use crate::models::site::Model as SiteModel;
 use crate::models::user::{self, Entity as UserTable};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::page_query::{
-    AuthorSelector, CategoriesSelector, CountPagesExactCountEligibilityDiagnostics,
-    CountPagesExactCountEligibilityInput, DataFormSelector, DateSelector,
-    FoundPageFields, FoundPageRow, FoundPages, IncludedCategories,
-    ListPagesRenderDiagnosticsInput, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQuery, PageQueryResultMetadata, PageTypeSelector, PaginationSelector,
-    RangeSelector, TagCondition, count_pages_exact_count_eligibility_diagnostics,
-    list_pages_render_diagnostics, normalize_wikidot_author_name,
-    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
+    AuthorSelector, CategoriesSelector, ComparisonOperation,
+    CountPagesExactCountEligibilityDiagnostics, CountPagesExactCountEligibilityInput,
+    DataFormSelector, DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow,
+    FoundPages, IncludedCategories, ListPagesRenderDiagnosticsInput, OrderBySelector,
+    OrderProperty, PageParentSelector, PageQuery, PageQueryResultMetadata,
+    PageTypeSelector, PaginationSelector, RangeSelector, ScoreSelector, TagCondition,
+    count_pages_exact_count_eligibility_diagnostics, list_pages_render_diagnostics,
+    normalize_wikidot_author_name, parse_static_wikidot_data_form_values,
+    static_wikidot_data_form_matches,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
@@ -188,6 +189,12 @@ struct ViewableListPagesRows {
     pages: FoundPages,
     metadata: PageQueryResultMetadata,
     view_permission_filtering_applied: bool,
+}
+
+#[derive(Debug, FromQueryResult)]
+struct CountPagesRequiredTagTotal {
+    tag: String,
+    total: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -5117,6 +5124,16 @@ impl RenderService {
         let mut expanded = String::with_capacity(wikitext.len());
         let mut cursor = 0;
         let mut permission_cache = BTreeMap::new();
+        let batched_required_tag_totals = Self::load_count_pages_required_tag_totals(
+            ctx,
+            &wikitext,
+            page_info,
+            current_site_id,
+            current_page_id,
+            &mut permission_cache,
+        )
+        .await?;
+        let mut replacement_cache = BTreeMap::<(String, String), String>::new();
 
         for captures in COUNTPAGES_MODULE_REGEX.captures_iter(&wikitext) {
             let mtch = captures.get(0).unwrap();
@@ -5148,6 +5165,26 @@ impl RenderService {
                 continue;
             }
 
+            let cache_key = (head.to_owned(), body.to_owned());
+            if let Some(replacement) = replacement_cache.get(&cache_key) {
+                expanded.push_str(replacement);
+                cursor = mtch.end();
+                continue;
+            }
+
+            if let Some(tag) = count_pages_required_tag_batch_selector(&arguments)
+                && let Some(total) = batched_required_tag_totals.get(&(
+                    arguments.no_tags.iter().map(ToString::to_string).collect(),
+                    tag.to_owned(),
+                ))
+            {
+                let replacement = substitute_count_pages_variables(body, *total);
+                expanded.push_str(&replacement);
+                replacement_cache.insert(cache_key, replacement);
+                cursor = mtch.end();
+                continue;
+            }
+
             let replacement = Self::render_count_pages_block(
                 ctx,
                 ListPagesPageContext {
@@ -5162,11 +5199,142 @@ impl RenderService {
             )
             .await?;
             expanded.push_str(&replacement);
+            replacement_cache.insert(cache_key, replacement);
             cursor = mtch.end();
         }
 
         expanded.push_str(&wikitext[cursor..]);
         Ok(expanded)
+    }
+
+    async fn load_count_pages_required_tag_totals(
+        ctx: &ServiceContext<'_>,
+        wikitext: &str,
+        page_info: &PageInfo<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
+    ) -> Result<BTreeMap<(Vec<String>, String), usize>> {
+        let mut tags_by_exclusions = BTreeMap::<Vec<String>, BTreeSet<String>>::new();
+        for captures in COUNTPAGES_MODULE_REGEX.captures_iter(wikitext) {
+            let mtch = captures.get(0).unwrap();
+            if Self::is_inside_wikidot_literal_region(wikitext, mtch.start()) {
+                continue;
+            }
+            let head = captures.name("head").unwrap().as_str();
+            let Some(arguments) = parse_list_pages_arguments(head) else {
+                continue;
+            };
+            let Some(tag) = count_pages_required_tag_batch_selector(&arguments) else {
+                continue;
+            };
+            tags_by_exclusions
+                .entry(arguments.no_tags.iter().map(ToString::to_string).collect())
+                .or_default()
+                .insert(tag.to_owned());
+        }
+        tags_by_exclusions.retain(|_, required_tags| required_tags.len() >= 2);
+        if tags_by_exclusions.is_empty() {
+            return Ok(BTreeMap::new());
+        }
+
+        let category_slug = Self::page_info_category_slug(page_info);
+        let category = CategoryService::get(
+            ctx,
+            current_site_id,
+            Reference::Slug(Cow::Borrowed(category_slug.as_ref())),
+        )
+        .await?;
+        let permission_key = (current_site_id, Some(category.category_id));
+        let can_view = if let Some(can_view) = permission_cache.get(&permission_key) {
+            *can_view
+        } else {
+            let can_view = PermissionService::check_user_can(
+                ctx,
+                &CheckPermissionContext {
+                    user_id: None,
+                    site_id: current_site_id,
+                    page_reference: Some(Reference::Id(current_page_id)),
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(category.category_id)),
+                    action: Action::View,
+                },
+            )
+            .await?;
+            permission_cache.insert(permission_key, can_view);
+            can_view
+        };
+
+        let mut totals = BTreeMap::new();
+        for (excluded_tags, required_tags) in tags_by_exclusions {
+            if !can_view {
+                totals.extend(
+                    required_tags
+                        .into_iter()
+                        .map(|tag| ((excluded_tags.clone(), tag), 0)),
+                );
+                continue;
+            }
+
+            let mut values = Vec::new();
+            let required_values = required_tags
+                .iter()
+                .enumerate()
+                .map(|(index, tag)| {
+                    values.push(Value::from(tag.clone()));
+                    format!("(${}::TEXT, {})", values.len(), index)
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            values.push(Value::from(current_site_id));
+            let site_parameter = values.len();
+            values.push(Value::from(category.category_id));
+            let category_parameter = values.len();
+            let exclusion_predicates = excluded_tags
+                .iter()
+                .map(|tag| {
+                    values.push(Value::from(tag.clone()));
+                    format!("AND NOT (revision.tags @> ARRAY[${}::TEXT])", values.len())
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+            let sql = format!(
+                "WITH requested(tag, ordinal) AS (VALUES {required_values}) \
+                 SELECT requested.tag, COUNT(page.page_id)::BIGINT AS total \
+                 FROM requested \
+                 LEFT JOIN page_revision revision \
+                   ON revision.tags @> ARRAY[requested.tag]::TEXT[] \
+                 LEFT JOIN page \
+                   ON page.latest_revision_id = revision.revision_id \
+                  AND page.site_id = ${site_parameter} \
+                  AND page.page_category_id = ${category_parameter} \
+                  AND page.deleted_at IS NULL \
+                  AND regexp_replace(page.slug, '^.*:', '') NOT LIKE '\\_%' ESCAPE '\\' \
+                  {exclusion_predicates} \
+                 GROUP BY requested.tag, requested.ordinal \
+                 ORDER BY requested.ordinal"
+            );
+            let txn = ctx.transaction();
+            let statement =
+                Statement::from_sql_and_values(txn.get_database_backend(), sql, values);
+            let rows = CountPagesRequiredTagTotal::find_by_statement(statement)
+                .all(txn)
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        "failed to batch CountPages required-tag totals",
+                        ErrorType::Render,
+                    )
+                })?;
+            for row in rows {
+                totals
+                    .insert((excluded_tags.clone(), row.tag), row.total.max(0) as usize);
+            }
+        }
+
+        Ok(totals)
     }
 
     fn expand_rate_modules(
@@ -7422,7 +7590,11 @@ impl RenderService {
             exclude_current_page,
             page_type,
             page_parent,
+            creation_date,
+            update_date,
+            score,
             slug,
+            name_pattern,
             data_form_fields,
             prepend_line,
             unsupported_author_filter: _,
@@ -7486,18 +7658,14 @@ impl RenderService {
             },
             page_parent,
             contains_outgoing_links: &[],
-            creation_date: DateSelector::FromPresent {
-                start: time::OffsetDateTime::UNIX_EPOCH,
-            },
-            update_date: DateSelector::FromPresent {
-                start: time::OffsetDateTime::UNIX_EPOCH,
-            },
+            creation_date,
+            update_date,
             author: resolved_authors.as_selector(),
-            score: &[],
+            score: &score,
             votes: &[],
             offset: 0,
             range: RangeSelector::Current,
-            name: None,
+            name: name_pattern,
             slug,
             slugs: &[],
             data_form_fields: &data_form_fields,
@@ -7799,7 +7967,11 @@ impl RenderService {
             exclude_current_page,
             page_type,
             page_parent,
+            creation_date,
+            update_date,
+            score,
             slug,
+            name_pattern,
             prepend_line: _,
             data_form_fields,
             unsupported_author_filter: _,
@@ -7853,18 +8025,14 @@ impl RenderService {
             },
             page_parent,
             contains_outgoing_links: &[],
-            creation_date: DateSelector::FromPresent {
-                start: time::OffsetDateTime::UNIX_EPOCH,
-            },
-            update_date: DateSelector::FromPresent {
-                start: time::OffsetDateTime::UNIX_EPOCH,
-            },
+            creation_date,
+            update_date,
             author: resolved_authors.as_selector(),
-            score: &[],
+            score: &score,
             votes: &[],
             offset: 0,
             range: RangeSelector::Current,
-            name: None,
+            name: name_pattern,
             slug,
             slugs: &[],
             data_form_fields: &data_form_fields,
@@ -8657,7 +8825,11 @@ struct ListPagesArguments {
     exclude_current_page: bool,
     page_type: PageTypeSelector,
     page_parent: PageParentSelector<'static>,
+    creation_date: DateSelector,
+    update_date: DateSelector,
+    score: Vec<ScoreSelector>,
     slug: Option<Cow<'static, str>>,
+    name_pattern: Option<Cow<'static, str>>,
     data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
     unsupported_author_filter: bool,
@@ -8790,7 +8962,15 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut exclude_current_page = false;
     let mut page_type = PageTypeSelector::Normal;
     let mut page_parent = PageParentSelector::All;
+    let mut creation_date = DateSelector::FromPresent {
+        start: time::OffsetDateTime::UNIX_EPOCH,
+    };
+    let mut update_date = DateSelector::FromPresent {
+        start: time::OffsetDateTime::UNIX_EPOCH,
+    };
+    let mut score = Vec::new();
     let mut slug = None;
+    let mut name_pattern = None;
     let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
     let mut unsupported_author_filter = false;
@@ -8939,7 +9119,12 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     current_page_only = true;
                     limit = Some(1);
                 } else if !is_dynamic_list_pages_value(value) {
-                    slug = Some(Cow::Owned(wikidot_list_pages_name_slug(value)));
+                    let value = wikidot_list_pages_name_slug(value);
+                    if value.contains(['*', '%']) {
+                        name_pattern = Some(Cow::Owned(value));
+                    } else {
+                        slug = Some(Cow::Owned(value));
+                    }
                 }
             }
             // These inputs need additional data or Wikidot semantics that are not
@@ -8994,9 +9179,34 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 _ => {}
             },
             "wrapper" => {}
-            "rating" | "score" | "votes" | "form" | "link_to" | "linkto"
-            | "urlattrprefix" | "created_at" | "createdat" | "updated_at"
-            | "updatedat" => {
+            "rating" | "score" => {
+                let Some(value) = static_list_pages_selector(
+                    value,
+                    &mut unsupported_count_pages_filter,
+                ) else {
+                    continue;
+                };
+                score.push(parse_list_pages_score_selector(value)?);
+            }
+            "created_at" | "createdat" => {
+                let Some(value) = static_list_pages_selector(
+                    value,
+                    &mut unsupported_count_pages_filter,
+                ) else {
+                    continue;
+                };
+                creation_date = parse_list_pages_date_selector(value)?;
+            }
+            "updated_at" | "updatedat" => {
+                let Some(value) = static_list_pages_selector(
+                    value,
+                    &mut unsupported_count_pages_filter,
+                ) else {
+                    continue;
+                };
+                update_date = parse_list_pages_date_selector(value)?;
+            }
+            "votes" | "form" | "link_to" | "linkto" | "urlattrprefix" => {
                 unsupported_count_pages_filter = true;
                 // These filters need Wikidot-specific query semantics that are not
                 // fully implemented here. Parsing them keeps real corpus modules
@@ -9045,7 +9255,11 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         exclude_current_page,
         page_type,
         page_parent,
+        creation_date,
+        update_date,
+        score,
         slug,
+        name_pattern,
         data_form_fields,
         prepend_line,
         unsupported_author_filter,
@@ -9082,8 +9296,56 @@ fn count_pages_should_remain_literal(arguments: &ListPagesArguments) -> bool {
                 || !arguments.no_tags.is_empty()
                 || arguments.author_filter_present
                 || !arguments.excluded_categories.is_empty()
+                || arguments.creation_date
+                    != (DateSelector::FromPresent {
+                        start: time::OffsetDateTime::UNIX_EPOCH,
+                    })
+                || arguments.update_date
+                    != (DateSelector::FromPresent {
+                        start: time::OffsetDateTime::UNIX_EPOCH,
+                    })
+                || !arguments.score.is_empty()
                 || !arguments.data_form_fields.is_empty()
-                || arguments.slug.is_some()))
+                || arguments.slug.is_some()
+                || arguments.name_pattern.is_some()))
+}
+
+fn count_pages_required_tag_batch_selector(
+    arguments: &ListPagesArguments,
+) -> Option<&str> {
+    if arguments.current_page_only
+        || arguments.category_selector_present
+        || !arguments.default_tags.is_empty()
+        || !arguments.any_tags.is_empty()
+        || arguments.all_tags.len() != 1
+        || arguments.author_filter_present
+        || arguments.order.is_some()
+        || arguments.limit.is_some()
+        || arguments.count_pages_explicit_limit.is_some()
+        || arguments.count_pages_per_page.is_some()
+        || arguments.offset != 0
+        || arguments.exclude_current_page
+        || arguments.page_type != PageTypeSelector::Normal
+        || arguments.page_parent != PageParentSelector::All
+        || arguments.creation_date
+            != (DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            })
+        || arguments.update_date
+            != (DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            })
+        || !arguments.score.is_empty()
+        || arguments.slug.is_some()
+        || arguments.name_pattern.is_some()
+        || !arguments.data_form_fields.is_empty()
+        || arguments.unsupported_author_filter
+        || arguments.unsupported_count_pages_filter
+    {
+        return None;
+    }
+
+    Some(arguments.all_tags[0].as_ref())
 }
 
 fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
@@ -9094,7 +9356,17 @@ fn count_pages_has_static_filter(arguments: &ListPagesArguments) -> bool {
         || arguments.author_filter_present
         || arguments.page_type != PageTypeSelector::Normal
         || arguments.page_parent != PageParentSelector::All
+        || arguments.creation_date
+            != (DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            })
+        || arguments.update_date
+            != (DateSelector::FromPresent {
+                start: time::OffsetDateTime::UNIX_EPOCH,
+            })
+        || !arguments.score.is_empty()
         || arguments.slug.is_some()
+        || arguments.name_pattern.is_some()
         || !arguments.data_form_fields.is_empty()
 }
 
@@ -9204,6 +9476,148 @@ fn parse_list_pages_numeric_argument(value: &str) -> Option<u64> {
     }
 
     value.parse().ok()
+}
+
+fn parse_list_pages_score_selector(value: &str) -> Option<ScoreSelector> {
+    let (comparison, value) = parse_list_pages_comparison(value);
+    let score = if let Ok(value) = value.parse::<i64>() {
+        ftml::data::ScoreValue::Integer(value)
+    } else {
+        ftml::data::ScoreValue::Float(value.parse().ok()?)
+    };
+    Some(ScoreSelector { score, comparison })
+}
+
+fn parse_list_pages_date_selector(value: &str) -> Option<DateSelector> {
+    let value = value.trim();
+    let words = value.split_whitespace().collect::<Vec<_>>();
+    if words.len() == 3
+        && words[0].eq_ignore_ascii_case("older")
+        && words[1].eq_ignore_ascii_case("than")
+    {
+        let amount = words[2].parse().ok()?;
+        return Some(DateSelector::Span {
+            timestamp: subtract_wikidot_relative_time(
+                time::OffsetDateTime::now_utc(),
+                amount,
+                "day",
+            )?,
+            resolution: DateTimeResolution::Second,
+            comparison: ComparisonOperation::LessThan,
+        });
+    }
+    if words.len() == 4
+        && words[0].eq_ignore_ascii_case("older")
+        && words[1].eq_ignore_ascii_case("than")
+    {
+        let amount = words[2].parse().ok()?;
+        return Some(DateSelector::Span {
+            timestamp: subtract_wikidot_relative_time(
+                time::OffsetDateTime::now_utc(),
+                amount,
+                words[3],
+            )?,
+            resolution: DateTimeResolution::Second,
+            comparison: ComparisonOperation::LessThan,
+        });
+    }
+    if words.len() == 4
+        && words[0].eq_ignore_ascii_case("newer")
+        && words[1].eq_ignore_ascii_case("than")
+    {
+        let amount = words[2].parse().ok()?;
+        return Some(DateSelector::Span {
+            timestamp: subtract_wikidot_relative_time(
+                time::OffsetDateTime::now_utc(),
+                amount,
+                words[3],
+            )?,
+            resolution: DateTimeResolution::Second,
+            comparison: ComparisonOperation::GreaterThan,
+        });
+    }
+    if words.len() == 3 && words[0].eq_ignore_ascii_case("last") {
+        let amount = words[1].parse().ok()?;
+        return Some(DateSelector::FromPresent {
+            start: subtract_wikidot_relative_time(
+                time::OffsetDateTime::now_utc(),
+                amount,
+                words[2],
+            )?,
+        });
+    }
+
+    let (comparison, date) = parse_list_pages_comparison(value);
+    let parts = date.split('.').collect::<Vec<_>>();
+    if parts.is_empty() || parts.len() > 3 {
+        return None;
+    }
+    let year = parts[0].trim().parse::<i32>().ok()?;
+    let month_number = parts
+        .get(1)
+        .map_or(Some(1), |part| part.trim().parse::<u8>().ok())?;
+    let day = parts
+        .get(2)
+        .map_or(Some(1), |part| part.trim().parse::<u8>().ok())?;
+    let month = time::Month::try_from(month_number).ok()?;
+    let date = time::Date::from_calendar_date(year, month, day).ok()?;
+    let timestamp = date.with_time(time::Time::MIDNIGHT).assume_utc();
+    let resolution = match parts.len() {
+        1 => DateTimeResolution::Year,
+        2 => DateTimeResolution::Month,
+        3 => DateTimeResolution::Day,
+        _ => unreachable!(),
+    };
+    Some(DateSelector::Span {
+        timestamp,
+        resolution,
+        comparison,
+    })
+}
+
+fn parse_list_pages_comparison(value: &str) -> (ComparisonOperation, &str) {
+    for (prefix, comparison) in [
+        (">=", ComparisonOperation::GreaterOrEqualThan),
+        ("<=", ComparisonOperation::LessOrEqualThan),
+        ("!=", ComparisonOperation::NotEqual),
+        (">", ComparisonOperation::GreaterThan),
+        ("<", ComparisonOperation::LessThan),
+        ("=", ComparisonOperation::Equal),
+    ] {
+        if let Some(value) = value.trim().strip_prefix(prefix) {
+            return (comparison, value.trim());
+        }
+    }
+    (ComparisonOperation::Equal, value.trim())
+}
+
+fn subtract_wikidot_relative_time(
+    timestamp: time::OffsetDateTime,
+    amount: i64,
+    unit: &str,
+) -> Option<time::OffsetDateTime> {
+    let unit = unit.trim_end_matches('s').to_ascii_lowercase();
+    match unit.as_str() {
+        "second" => timestamp.checked_sub(time::Duration::seconds(amount)),
+        "minute" => timestamp.checked_sub(time::Duration::minutes(amount)),
+        "hour" => timestamp.checked_sub(time::Duration::hours(amount)),
+        "day" => timestamp.checked_sub(time::Duration::days(amount)),
+        "week" => timestamp.checked_sub(time::Duration::weeks(amount)),
+        "month" | "year" => {
+            let months = amount.checked_mul(if unit == "year" { 12 } else { 1 })?;
+            let month_index = i64::from(timestamp.year())
+                .checked_mul(12)?
+                .checked_add(i64::from(u8::from(timestamp.month())) - 1)?
+                .checked_sub(months)?;
+            let year = i32::try_from(month_index.div_euclid(12)).ok()?;
+            let month =
+                time::Month::try_from((month_index.rem_euclid(12) + 1) as u8).ok()?;
+            let day = timestamp.day().min(month.length(year));
+            let date = time::Date::from_calendar_date(year, month, day).ok()?;
+            Some(timestamp.replace_date(date))
+        }
+        _ => None,
+    }
 }
 
 fn is_dynamic_list_pages_value(value: &str) -> bool {
@@ -12109,16 +12523,18 @@ mod tests {
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
         WikidotUserDisplay, count_pages_exact_count_render_diagnostics,
-        count_pages_should_remain_literal, count_pages_unbounded_total,
-        exact_name_list_pages_batch_key, find_balanced_ul_end,
-        find_list_pages_module_matches, format_list_pages_created_at, include_error,
+        count_pages_required_tag_batch_selector, count_pages_should_remain_literal,
+        count_pages_unbounded_total, exact_name_list_pages_batch_key,
+        find_balanced_ul_end, find_list_pages_module_matches,
+        format_list_pages_created_at, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, list_pages_row_scan_target,
         list_pages_tag_link_href, native_list_page_link_default_label,
-        parse_list_pages_arguments, parse_wikidot_compat_color_descriptor,
-        push_list_pages_pager, register_generated_list_pages_html, render_clone_module,
+        parse_list_pages_arguments, parse_list_pages_date_selector,
+        parse_wikidot_compat_color_descriptor, push_list_pages_pager,
+        register_generated_list_pages_html, render_clone_module,
         render_list_pages_numbered_rows, render_list_pages_table_rows,
         render_list_pages_tags, render_members_module_placeholder,
         render_native_list_inline_wikidot_spans, render_native_list_page_link,
@@ -12134,8 +12550,9 @@ mod tests {
     use crate::constants::ADMIN_USER_ID;
     use crate::models::site::Model as SiteModel;
     use crate::services::page_query::{
-        DataFormSelector, FoundPageRow, PageQueryResultMetadata,
-        parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
+        ComparisonOperation, DataFormSelector, DateSelector, DateTimeResolution,
+        FoundPageRow, PageQueryResultMetadata, parse_static_wikidot_data_form_values,
+        static_wikidot_data_form_matches,
     };
     use crate::types::{License, PageId};
     use crate::utils::now;
@@ -12660,6 +13077,75 @@ mod tests {
 
         assert_eq!(arguments.slug.as_deref(), Some("scp-655-jp"));
         assert!(!arguments.current_page_only);
+    }
+
+    #[test]
+    fn parses_site_news_name_date_and_rating_selectors() {
+        let arguments = parse_list_pages_arguments(
+            r#" name="scp-*" created_at="2026.06" rating=">=-4" perPage="250""#,
+        )
+        .expect("site-news selectors should parse");
+
+        assert!(arguments.slug.is_none());
+        assert_eq!(arguments.name_pattern.as_deref(), Some("scp-*"));
+        assert!(matches!(
+            arguments.creation_date,
+            DateSelector::Span {
+                resolution: DateTimeResolution::Month,
+                comparison: ComparisonOperation::Equal,
+                ..
+            }
+        ));
+        assert_eq!(arguments.score.len(), 1);
+        assert_eq!(
+            arguments.score[0].comparison,
+            ComparisonOperation::GreaterOrEqualThan,
+        );
+        assert_eq!(
+            arguments.score[0].score,
+            ftml::data::ScoreValue::Integer(-4),
+        );
+        assert!(!arguments.unsupported_count_pages_filter);
+    }
+
+    #[test]
+    fn parses_relative_and_comparison_date_selectors() {
+        assert!(matches!(
+            parse_list_pages_date_selector("older than 2 month"),
+            Some(DateSelector::Span {
+                resolution: DateTimeResolution::Second,
+                comparison: ComparisonOperation::LessThan,
+                ..
+            })
+        ));
+        assert!(matches!(
+            parse_list_pages_date_selector(">2022.08"),
+            Some(DateSelector::Span {
+                resolution: DateTimeResolution::Month,
+                comparison: ComparisonOperation::GreaterThan,
+                ..
+            })
+        ));
+        assert!(matches!(
+            parse_list_pages_date_selector("last 180 days"),
+            Some(DateSelector::FromPresent { .. })
+        ));
+    }
+
+    #[test]
+    fn batches_only_simple_unbounded_required_tag_counts() {
+        let arguments = parse_list_pages_arguments(
+            r#" tags="+third-law -hub -artwork -artist" wrapper="no""#,
+        )
+        .expect("activity-marker CountPages selectors should parse");
+        assert_eq!(
+            count_pages_required_tag_batch_selector(&arguments),
+            Some("third-law"),
+        );
+
+        let bounded = parse_list_pages_arguments(r#" tags="+third-law" limit="1""#)
+            .expect("bounded selector should parse");
+        assert_eq!(count_pages_required_tag_batch_selector(&bounded), None);
     }
 
     #[test]

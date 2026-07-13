@@ -6917,34 +6917,32 @@ async fn countpages_artwork_hub_url_fallback_ignores_display_options() {
 }
 
 #[tokio::test]
-async fn countpages_unsupported_filters_remain_literal() {
+async fn countpages_rating_filters_apply_scores() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
     let html = render_countpages_test_fixture_with_targets(
         &mut runner,
         site.site.site_id,
-        "fixture-countpages-rating-literal",
-        "verification-count-rating-literal",
-        r#"tags="+verification-count-rating-literal" rating=">0" limit="20""#,
+        "fixture-countpages-rating-filter",
+        "verification-count-rating-filter",
+        r#"tags="+verification-count-rating-filter" rating=">0" limit="20""#,
         "RATING_FILTER_COUNT=%%total%%",
         &[(
             "target-a",
-            "Fixture CountPages Rating Literal Target",
-            "Fixture CountPages rating literal marker.",
+            "Fixture CountPages Rating Filter Target",
+            "Fixture CountPages rating filter marker.",
         )],
     )
     .await;
 
     assert!(
-        html.contains("RATING_FILTER_COUNT=%%total%%")
-            || html.contains("[[module CountPages")
-            || html.contains("module CountPages"),
-        "CountPages with unsupported filters should remain literal/degraded:\n{html}"
+        html.contains("RATING_FILTER_COUNT=0"),
+        "CountPages should apply the rating selector to the zero-score target:\n{html}"
     );
     assert!(
-        !html.contains("RATING_FILTER_COUNT=1"),
-        "CountPages with unsupported filters must not substitute a partial count:\n{html}"
+        !html.contains("%%total%%") && !html.contains("[[module CountPages"),
+        "CountPages should substitute a complete rating-filtered count:\n{html}"
     );
 }
 
@@ -7386,13 +7384,13 @@ async fn first_revision_rerenders_tag_dependent_countpages() {
 }
 
 #[tokio::test]
-async fn first_revision_countpages_unsupported_filter_remains_literal() {
+async fn first_revision_countpages_rating_filter_renders_exact_count() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
-    let slug = "fixture-countpages-first-revision-unsupported-literal";
-    let tag = "verification-count-first-revision-unsupported-literal";
+    let slug = "fixture-countpages-first-revision-rating-filter";
+    let tag = "verification-count-first-revision-rating-filter";
 
     set_mutation_request_context(
         &mut runner,
@@ -7408,12 +7406,12 @@ async fn first_revision_countpages_unsupported_filter_remains_literal() {
             "wikitext": format!(
                 "CountPages first-revision unsupported marker.\n\n[[module CountPages tags=\"+{tag}\" rating=\">0\" limit=\"20\"]]\nFIRST_REVISION_UNSUPPORTED_COUNT=%%total%%\n[[/module]]"
             ),
-            "title": "Fixture CountPages First Revision Unsupported Literal",
+            "title": "Fixture CountPages First Revision Rating Filter",
             "alt_title": null,
             "tags": [tag],
             "slug": slug,
             "layout": "wikidot",
-            "revision_comments": "create first revision unsupported CountPages test page",
+            "revision_comments": "create first revision rating-filtered CountPages test page",
             "user_id": ADMIN_USER_ID,
             "ip_address": common::IP_ADDRESS,
         }),
@@ -7437,14 +7435,12 @@ async fn first_revision_countpages_unsupported_filter_remains_literal() {
         .expect("compiled body should be included in page_get details");
 
     assert!(
-        html.contains("FIRST_REVISION_UNSUPPORTED_COUNT=%%total%%")
-            || html.contains("[[module CountPages")
-            || html.contains("module CountPages"),
-        "unsupported CountPages filters should remain literal after first-revision rerender:\n{html}"
+        html.contains("FIRST_REVISION_UNSUPPORTED_COUNT=0"),
+        "the first revision should render the exact rating-filtered count:\n{html}"
     );
     assert!(
-        !html.contains("FIRST_REVISION_UNSUPPORTED_COUNT=1"),
-        "unsupported CountPages filters must not substitute a partial first-revision count:\n{html}"
+        !html.contains("%%total%%") && !html.contains("[[module CountPages"),
+        "the first revision should not retain literal CountPages syntax:\n{html}"
     );
 }
 
