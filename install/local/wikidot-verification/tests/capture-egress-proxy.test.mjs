@@ -234,6 +234,66 @@ test("an aborted CONNECT tunnel does not crash the proxy", async () => {
   }
 });
 
+test("an early CONNECT reset during DNS resolution does not crash the proxy or dial upstream", async () => {
+  let upstreamConnections = 0;
+  const upstream = net.createServer((socket) => {
+    upstreamConnections += 1;
+    socket.on("error", () => {});
+  });
+  await new Promise((resolve) => upstream.listen(0, "127.0.0.1", resolve));
+  const upstreamPort = upstream.address().port;
+  let releaseFirstLookup;
+  const firstLookupStarted = Promise.withResolvers();
+  let lookupCount = 0;
+  const proxy = await startCaptureEgressProxy({
+    allowedLocalOrigins: [`https://fixture.test:${upstreamPort}`],
+    lookup: async () => {
+      lookupCount += 1;
+      if (lookupCount === 1) {
+        firstLookupStarted.resolve();
+        await new Promise((resolve) => {
+          releaseFirstLookup = resolve;
+        });
+      }
+      return [{ address: "127.0.0.1" }];
+    },
+  });
+  const proxyUrl = new URL(proxy.url);
+  try {
+    const socket = net.connect(Number(proxyUrl.port), proxyUrl.hostname, () =>
+      socket.write(
+        `CONNECT fixture.test:${upstreamPort} HTTP/1.1\r\nHost: fixture.test\r\n\r\n`,
+      ),
+    );
+    socket.on("error", () => {});
+    await firstLookupStarted.promise;
+    if (typeof socket.resetAndDestroy === "function") socket.resetAndDestroy();
+    else socket.destroy();
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    releaseFirstLookup();
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    assert.equal(upstreamConnections, 0);
+
+    const reply = await new Promise((resolve, reject) => {
+      const next = net.connect(Number(proxyUrl.port), proxyUrl.hostname, () =>
+        next.write(
+          `CONNECT fixture.test:${upstreamPort} HTTP/1.1\r\nHost: fixture.test\r\n\r\n`,
+        ),
+      );
+      next.once("data", (data) => {
+        resolve(data.toString());
+        next.destroy();
+      });
+      next.once("error", reject);
+    });
+    assert.match(reply, /^HTTP\/1\.1 200/u);
+  } finally {
+    releaseFirstLookup?.();
+    await proxy.close();
+    await new Promise((resolve) => upstream.close(resolve));
+  }
+});
+
 test(
   "real Chromium allows same-origin iframe/fetch/POST and blocks redirect to another local origin",
   { timeout: 30_000 },
