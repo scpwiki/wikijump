@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::models::page::{self, Entity as Page};
 use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
@@ -38,6 +39,7 @@ use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
 use sea_query::{Order, Query};
+use std::collections::BTreeMap;
 use std::num::NonZeroI32;
 use std::sync::LazyLock;
 
@@ -1321,6 +1323,47 @@ impl PageRevisionService {
             page_revision::Column::WikitextHash,
         )
         .await
+    }
+
+    /// Gets the latest wikitext for several page IDs in one query.
+    pub async fn get_wikitext_optional_batch(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_ids: &[i64],
+    ) -> Result<BTreeMap<i64, Option<String>>> {
+        let mut wikitext = page_ids
+            .iter()
+            .copied()
+            .map(|page_id| (page_id, None))
+            .collect::<BTreeMap<_, _>>();
+        if page_ids.is_empty() {
+            return Ok(wikitext);
+        }
+
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to get latest wikitext for {} pages in site ID {}",
+                    page_ids.len(),
+                    site_id,
+                ),
+                ErrorType::PageRevision,
+            )
+        };
+        let rows = Page::find()
+            .select_only()
+            .column(page::Column::PageId)
+            .column(text::Column::Contents)
+            .join(JoinType::LeftJoin, page::Relation::PageRevision.def())
+            .join(JoinType::LeftJoin, page_revision::Relation::Text1.def())
+            .filter(page::Column::SiteId.eq(site_id))
+            .filter(page::Column::PageId.is_in(page_ids.iter().copied()))
+            .into_tuple::<(i64, Option<String>)>()
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+        wikitext.extend(rows);
+        Ok(wikitext)
     }
 
     /// Gets the wikitext from the latest revision of a page.

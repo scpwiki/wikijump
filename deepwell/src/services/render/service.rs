@@ -7564,6 +7564,32 @@ impl RenderService {
             .take(requested_limit as usize)
             .collect::<Vec<_>>();
         let total = pages.len();
+        let body = template.body();
+        let wants_content = template.uses_content();
+        let wants_data_form_values = template.uses_data_form();
+        if wants_content || wants_data_form_values {
+            let mut missing_by_site = BTreeMap::<i64, Vec<i64>>::new();
+            for page in &pages {
+                let cache_key = (page.site_id, page.page_id);
+                if !content_cache.wikitext.contains_key(&cache_key) {
+                    missing_by_site
+                        .entry(page.site_id)
+                        .or_default()
+                        .push(page.page_id);
+                }
+            }
+            for (site_id, page_ids) in missing_by_site {
+                let loaded = PageRevisionService::get_wikitext_optional_batch(
+                    ctx, site_id, &page_ids,
+                )
+                .await?;
+                content_cache.wikitext.extend(
+                    loaded
+                        .into_iter()
+                        .map(|(page_id, wikitext)| ((site_id, page_id), wikitext)),
+                );
+            }
+        }
         let loaded_user_displays =
             if (wants_created_by || wants_updated_by) && prefetched_displays.is_none() {
                 Some(Self::load_wikidot_user_displays(ctx, &pages).await?)
@@ -7604,27 +7630,17 @@ impl RenderService {
             output.push('\n');
         }
 
-        let body = template.body();
-        let wants_content = template.uses_content();
-        let wants_data_form_values = template.uses_data_form();
         let render_generated_html =
             template.output_shape() == ListPagesOutputShape::TableRows;
         for (index, page) in pages.iter().enumerate() {
             output.push_str("[[div class=\"list-pages-item\"]]\n");
             let cache_key = (page.site_id, page.page_id);
             let page_wikitext = if wants_content || wants_data_form_values {
-                if let Some(cached) = content_cache.wikitext.get(&cache_key) {
-                    cached.clone()
-                } else {
-                    let loaded = PageRevisionService::get_wikitext_optional(
-                        ctx,
-                        page.site_id,
-                        Reference::Id(page.page_id),
-                    )
-                    .await?;
-                    content_cache.wikitext.insert(cache_key, loaded.clone());
-                    loaded
-                }
+                content_cache
+                    .wikitext
+                    .get(&cache_key)
+                    .cloned()
+                    .unwrap_or_default()
             } else {
                 None
             };
