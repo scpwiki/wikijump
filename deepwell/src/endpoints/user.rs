@@ -25,8 +25,50 @@ use crate::models::wikidot_user::Entity as WikidotUser;
 use crate::services::user::{
     CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
 };
-use crate::types::AliasType;
+use crate::types::{AliasType, Reference, UserType};
 use sea_orm::EntityTrait;
+
+fn require_platform_staff(ctx: &ServiceContext<'_>, action: &str) -> Result<i64> {
+    let actor_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            format!("{action} requires an authenticated platform staff user"),
+            ErrorType::PermissionDenied,
+        )
+    })?;
+
+    if actor_user_id != ADMIN_USER_ID {
+        return Err(Error::new(
+            format!("{action} requires a platform staff user"),
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
+    Ok(actor_user_id)
+}
+
+fn require_self_or_platform_staff(
+    ctx: &ServiceContext<'_>,
+    target_user_id: i64,
+    action: &str,
+) -> Result<i64> {
+    let actor_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            format!("{action} requires an authenticated user"),
+            ErrorType::PermissionDenied,
+        )
+    })?;
+
+    if actor_user_id != target_user_id && actor_user_id != ADMIN_USER_ID {
+        return Err(Error::new(
+            format!("user does not have permission to {action}"),
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
+    Ok(actor_user_id)
+}
 
 pub async fn user_create(
     ctx: &ServiceContext<'_>,
@@ -34,6 +76,14 @@ pub async fn user_create(
 ) -> Result<CreateUserOutput> {
     info!("Creating new regular user");
     let input: CreateUser = parse!(params, User);
+
+    let privileged_creation = input.user_type != UserType::Regular
+        || input.bypass_filter
+        || input.bypass_email_verification
+        || input.override_user_id.is_some();
+    if privileged_creation {
+        require_platform_staff(ctx, "privileged user creation")?;
+    }
 
     UserService::create(ctx, input)
         .await
@@ -60,13 +110,7 @@ pub async fn user_import(
         )
     })?;
 
-    if ctx.request().user_id().ok() != Some(ADMIN_USER_ID) {
-        return Err(Error::new(
-            "Wikidot user import requires an admin request context",
-            ErrorType::PermissionDenied,
-        )
-        .into());
-    }
+    require_platform_staff(ctx, "Wikidot user import")?;
 
     let make_error = || {
         Error::new(
@@ -133,8 +177,23 @@ pub async fn user_edit(
         body,
     } = parse!(params, User);
 
-    info!("Updating user {reference:?}");
-    UserService::update(ctx, reference, ip_address, body)
+    let target = UserService::get(ctx, reference)
+        .await
+        .or_raise(|| Error::new("failed to authorize user update", ErrorType::User))?;
+    let actor_user_id =
+        require_self_or_platform_staff(ctx, target.user_id, "update this user")?;
+    if actor_user_id != ADMIN_USER_ID
+        && (body.email_verified.is_set() || body.bypass_filter)
+    {
+        return Err(Error::new(
+            "only platform staff may set user verification or filter bypass fields",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+
+    info!("Updating user ID {}", target.user_id);
+    UserService::update(ctx, Reference::Id(target.user_id), ip_address, body)
         .await
         .or_raise(|| Error::new("failed to update user", ErrorType::User))
 }
@@ -144,8 +203,13 @@ pub async fn user_delete(
     params: Params<'static>,
 ) -> Result<UserModel> {
     let GetUser { user: reference } = parse!(params, User);
-    info!("Deleting user {reference:?}");
-    UserService::delete(ctx, reference)
+    let target = UserService::get(ctx, reference)
+        .await
+        .or_raise(|| Error::new("failed to authorize user deletion", ErrorType::User))?;
+    require_self_or_platform_staff(ctx, target.user_id, "delete this user")?;
+
+    info!("Deleting user ID {}", target.user_id);
+    UserService::delete(ctx, Reference::Id(target.user_id))
         .await
         .or_raise(|| Error::new("failed to delete user", ErrorType::User))
 }
@@ -156,6 +220,8 @@ pub async fn user_add_name_change(
 ) -> Result<i16> {
     let GetUser { user: reference } = parse!(params, User);
     let make_error = || Error::new("failed to add name change to user", ErrorType::User);
+
+    require_platform_staff(ctx, "granting a user name-change token")?;
 
     info!("Adding user name change token to {reference:?}");
     let user = UserService::get(ctx, reference)

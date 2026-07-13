@@ -114,7 +114,11 @@ async fn user_import_requires_admin_request_context() {
 
 #[tokio::test]
 async fn user_create_rejects_existing_override_user_id() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
     let user_id = 700_002_i64;
 
     known_user::ActiveModel {
@@ -144,7 +148,7 @@ async fn user_create_rejects_existing_override_user_id() {
 
 #[tokio::test]
 async fn basic_update() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
 
     const USER_NAME: &str = "Jane Doe";
     const USER_SLUG: &str = "jane-doe";
@@ -171,6 +175,10 @@ async fn basic_update() {
     );
     let user_id = user.user_id;
     assert_eq!(user.slug, USER_SLUG);
+    runner.set_request_context(RequestContext {
+        user_id: Some(user_id),
+        ..Default::default()
+    });
 
     // Get via slug
 
@@ -277,7 +285,11 @@ async fn basic_update() {
 
 #[tokio::test]
 async fn user_create_only_verified_email_blocks_conflict() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
 
     let first = run_endpoint!(
         runner,
@@ -391,7 +403,11 @@ async fn user_create_only_verified_email_blocks_conflict() {
 
 #[tokio::test]
 async fn changing_email_clears_verified_ownership() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
 
     let user = run_endpoint!(
         runner,
@@ -451,6 +467,139 @@ async fn changing_email_clears_verified_ownership() {
         }),
     );
     assert!(changed.email_verified_at.is_none());
+}
+
+#[tokio::test]
+async fn user_mutations_enforce_request_actor_and_staff_only_fields() {
+    let mut runner = TestRunner::setup().await;
+
+    let target = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Mutation Target User",
+            "email": "mutation-target@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let other = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Other Mutation User",
+            "email": "other-mutation-user@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": target.user_id,
+            "biography": "unauthenticated edit",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(other.user_id),
+        ..Default::default()
+    });
+    let error = run_endpoint_err!(runner, user_delete, json!({"user": target.user_id}),);
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(target.user_id),
+        ..Default::default()
+    });
+    let updated = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": target.user_id,
+            "biography": "self-service edit",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_str_eq!(updated.biography, Some("self-service edit"));
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": target.user_id,
+            "email_verified": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    let error = run_endpoint_err!(
+        runner,
+        user_add_name_change,
+        json!({"user": target.user_id}),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+    let name_changes = run_endpoint!(
+        runner,
+        user_add_name_change,
+        json!({"user": target.user_id}),
+    );
+    assert_eq!(name_changes, 3);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(target.user_id),
+        ..Default::default()
+    });
+    let deleted = run_endpoint!(runner, user_delete, json!({"user": target.user_id}),);
+    assert_eq!(deleted.user_id, target.user_id);
+    assert!(deleted.deleted_at.is_some());
+}
+
+#[tokio::test]
+async fn public_user_creation_rejects_privileged_fields() {
+    let runner = TestRunner::setup().await;
+
+    for privileged_fields in [
+        json!({"bypass_filter": true}),
+        json!({"bypass_email_verification": true}),
+        json!({"override_user_id": 700_100_i64}),
+        json!({"user_type": "system"}),
+    ] {
+        let mut input = json!({
+            "user_type": "regular",
+            "name": "Privileged Public User",
+            "email": "privileged-public-user@example.invalid",
+            "locales": ["en"],
+            "password": "hunter2",
+            "ip_address": common::IP_ADDRESS,
+        });
+        input
+            .as_object_mut()
+            .expect("fixture input should be an object")
+            .extend(
+                privileged_fields
+                    .as_object()
+                    .expect("fixture fields should be an object")
+                    .clone(),
+            );
+
+        let error = run_endpoint_err!(runner, user_create, input);
+        assert_contains_error!(error, ErrorType::PermissionDenied);
+    }
 }
 
 // TODO test renames / rename tokens
