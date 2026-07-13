@@ -5341,6 +5341,22 @@ async fn listpages_content_shares_the_render_include_budget() {
         "the render at the public limit should expand every include",
     );
 
+    let repeated_child = format!("{direct_includes}{}{}", list_pages(1), list_pages(1),);
+    let output = RenderService::render_page(
+        runner.context(),
+        repeated_child,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("repeated ListPages content should reuse one include expansion");
+    assert_eq!(
+        output.html_output.body.matches(INCLUDE_MARKER).count(),
+        384,
+        "cached content must still render at every ListPages occurrence",
+    );
+
     let over_budget = format!("{direct_includes}{}", list_pages(2));
     let error = RenderService::render_page(
         runner.context(),

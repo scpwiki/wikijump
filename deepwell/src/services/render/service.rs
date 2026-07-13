@@ -4826,6 +4826,7 @@ impl RenderService {
 
         let mut expanded = String::with_capacity(wikitext.len());
         let mut included_pages = Vec::new();
+        let mut content_cache = ListPagesContentCache::default();
         let mut cursor = 0;
         let mut blocks = blocks.into_iter().peekable();
 
@@ -4923,6 +4924,7 @@ impl RenderService {
                         Some(prefetched_pages),
                         Some(&prefetched_displays),
                         include_source_cache,
+                        &mut content_cache,
                         compat_text,
                     )
                     .await?;
@@ -4965,6 +4967,7 @@ impl RenderService {
                         None,
                         None,
                         include_source_cache,
+                        &mut content_cache,
                         compat_text,
                     )
                     .await?;
@@ -7374,6 +7377,7 @@ impl RenderService {
         mut prefetched_pages: Option<FoundPages>,
         prefetched_displays: Option<&ListPagesBatchDisplays>,
         include_source_cache: &mut IncludeSourceCache,
+        content_cache: &mut ListPagesContentCache,
         compat_text: &mut CompatTextFragments,
     ) -> Result<IncludeExpansion> {
         let ListPagesPageContext {
@@ -7607,13 +7611,20 @@ impl RenderService {
             template.output_shape() == ListPagesOutputShape::TableRows;
         for (index, page) in pages.iter().enumerate() {
             output.push_str("[[div class=\"list-pages-item\"]]\n");
+            let cache_key = (page.site_id, page.page_id);
             let page_wikitext = if wants_content || wants_data_form_values {
-                PageRevisionService::get_wikitext_optional(
-                    ctx,
-                    page.site_id,
-                    Reference::Id(page.page_id),
-                )
-                .await?
+                if let Some(cached) = content_cache.wikitext.get(&cache_key) {
+                    cached.clone()
+                } else {
+                    let loaded = PageRevisionService::get_wikitext_optional(
+                        ctx,
+                        page.site_id,
+                        Reference::Id(page.page_id),
+                    )
+                    .await?;
+                    content_cache.wikitext.insert(cache_key, loaded.clone());
+                    loaded
+                }
             } else {
                 None
             };
@@ -7626,28 +7637,36 @@ impl RenderService {
                 BTreeMap::new()
             };
             let expanded_page_wikitext = if wants_content {
-                match page_wikitext.as_deref() {
-                    Some(wikitext) => {
-                        let expansion = Self::expand_includes(
-                            ctx,
-                            wikitext.to_owned(),
-                            page_info,
-                            page_info.site.as_ref(),
-                            settings,
-                            IncludeExpansionOptions {
-                                current_site_id: Some(page.site_id),
-                                source_cache: include_source_cache,
-                                compat_text,
-                                expand_wikidot_image_blocks: false,
-                                budget: include_budget,
-                            },
-                        )
-                        .await?;
-                        include_budget.consume(expansion.expanded_include_count);
-                        included_pages.extend(expansion.included_pages);
-                        Some(expansion.wikitext)
-                    }
-                    None => None,
+                if let Some(cached) = content_cache.expanded_wikitext.get(&cache_key) {
+                    cached.clone()
+                } else {
+                    let expanded = match page_wikitext.as_deref() {
+                        Some(wikitext) => {
+                            let expansion = Self::expand_includes(
+                                ctx,
+                                wikitext.to_owned(),
+                                page_info,
+                                page_info.site.as_ref(),
+                                settings,
+                                IncludeExpansionOptions {
+                                    current_site_id: Some(page.site_id),
+                                    source_cache: include_source_cache,
+                                    compat_text,
+                                    expand_wikidot_image_blocks: false,
+                                    budget: include_budget,
+                                },
+                            )
+                            .await?;
+                            include_budget.consume(expansion.expanded_include_count);
+                            included_pages.extend(expansion.included_pages);
+                            Some(expansion.wikitext)
+                        }
+                        None => None,
+                    };
+                    content_cache
+                        .expanded_wikitext
+                        .insert(cache_key, expanded.clone());
+                    expanded
                 }
             } else {
                 None
@@ -11456,6 +11475,12 @@ impl IncludeExpansionBudget {
 struct ListPagesPageContext {
     site_id: i64,
     page_id: i64,
+}
+
+#[derive(Debug, Default)]
+struct ListPagesContentCache {
+    wikitext: BTreeMap<(i64, i64), Option<String>>,
+    expanded_wikitext: BTreeMap<(i64, i64), Option<String>>,
 }
 
 #[derive(Clone, Copy, Debug)]
