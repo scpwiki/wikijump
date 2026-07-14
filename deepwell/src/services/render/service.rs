@@ -8546,6 +8546,15 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         fields: &FoundPageFields,
     ) -> Result<FoundPages> {
+        if let Some(row) = current_page_info_list_pages_row(
+            current_site_id,
+            current_page_id,
+            page_info,
+            fields,
+        ) {
+            return Ok(FoundPages { pages: vec![row] });
+        }
+
         let make_error = || {
             Error::new(
                 "failed to load current page for ListPages render",
@@ -9839,6 +9848,47 @@ fn requested_page_info_score(
     page_info: &PageInfo<'_>,
 ) -> Option<f32> {
     fields.score.then(|| page_info.score.to_f64() as f32)
+}
+
+fn current_page_info_list_pages_row(
+    current_site_id: i64,
+    current_page_id: i64,
+    page_info: &PageInfo<'_>,
+    fields: &FoundPageFields,
+) -> Option<FoundPageRow> {
+    if fields.page_category_id
+        || fields.page_revision_id
+        || fields.created_at
+        || fields.created_by
+        || fields.updated_at
+        || fields.updated_by
+    {
+        return None;
+    }
+
+    Some(FoundPageRow {
+        page_id: current_page_id,
+        site_id: current_site_id,
+        title: fields.title.then(|| page_info.title.to_string()),
+        alt_title: fields
+            .alt_title
+            .then_some(page_info.alt_title.as_ref())
+            .flatten()
+            .map(ToString::to_string),
+        slug: fields
+            .slug
+            .then(|| RenderService::page_info_full_slug(page_info)),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: fields
+            .tags
+            .then(|| page_info.tags.iter().map(ToString::to_string).collect()),
+        created_at: None,
+        created_by: None,
+        updated_at: None,
+        updated_by: None,
+        score: requested_page_info_score(fields, page_info),
+    })
 }
 
 fn parse_list_pages_numeric_argument(value: &str) -> Option<u64> {
@@ -12954,9 +13004,10 @@ mod tests {
         count_pages_exact_count_render_diagnostics, count_pages_raw_scan_completion,
         count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
         count_pages_scan_requires_preservation, count_pages_should_remain_literal,
-        count_pages_unbounded_total, exact_name_list_pages_batch_key,
-        find_balanced_ul_end, find_list_pages_module_matches,
-        format_list_pages_created_at, has_count_pages_module_opening_candidate,
+        count_pages_unbounded_total, current_page_info_list_pages_row,
+        exact_name_list_pages_batch_key, find_balanced_ul_end,
+        find_list_pages_module_matches, format_list_pages_created_at,
+        has_count_pages_module_opening_candidate,
         has_list_pages_module_opening_candidate, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
@@ -12984,8 +13035,8 @@ mod tests {
     use crate::models::site::Model as SiteModel;
     use crate::services::page_query::{
         ComparisonOperation, DataFormSelector, DateSelector, DateTimeResolution,
-        FoundPageRow, PageQueryResultMetadata, parse_static_wikidot_data_form_values,
-        static_wikidot_data_form_matches,
+        FoundPageFields, FoundPageRow, PageQueryResultMetadata,
+        parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
     };
     use crate::types::{License, PageId};
     use crate::utils::now;
@@ -13259,6 +13310,49 @@ mod tests {
 
         assert!(arguments.current_page_only);
         assert_eq!(arguments.limit, Some(1));
+    }
+
+    #[test]
+    fn builds_current_page_list_pages_metadata_without_database_fields() {
+        let page_info = ftml::data::PageInfo {
+            page: Cow::Borrowed("some-page"),
+            category: None,
+            site: Cow::Borrowed("sandbox"),
+            title: Cow::Borrowed("A page for the age"),
+            alt_title: None,
+            score: ftml::data::ScoreValue::Float(69.0),
+            tags: vec![Cow::Borrowed("tale"), Cow::Borrowed("_cc")],
+            language: Cow::Borrowed("default"),
+        };
+        let fields = FoundPageFields {
+            title: true,
+            alt_title: true,
+            slug: true,
+            tags: true,
+            score: true,
+            ..Default::default()
+        };
+
+        let row = current_page_info_list_pages_row(7, 11, &page_info, &fields)
+            .expect("PageInfo-backed fields should not require a database load");
+
+        assert_eq!(row.site_id, 7);
+        assert_eq!(row.page_id, 11);
+        assert_eq!(row.title.as_deref(), Some("A page for the age"));
+        assert_eq!(row.slug.as_deref(), Some("some-page"));
+        assert_eq!(
+            row.tags.as_deref(),
+            Some(["tale".to_owned(), "_cc".to_owned()].as_slice())
+        );
+
+        let database_fields = FoundPageFields {
+            created_at: true,
+            ..Default::default()
+        };
+        assert!(
+            current_page_info_list_pages_row(7, 11, &page_info, &database_fields)
+                .is_none()
+        );
     }
     #[test]
     fn parses_other_pages_list_pages_range_selector() {
