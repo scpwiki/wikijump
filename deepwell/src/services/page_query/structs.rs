@@ -25,6 +25,8 @@ use super::prelude::*;
 use crate::services::score::ScoreValue;
 use sea_orm::prelude::TimeDateTimeWithTimeZone;
 use std::borrow::Cow;
+
+pub(crate) const MAX_PAGE_QUERY_SCORE_SELECTORS: usize = 64;
 use std::collections::BTreeMap;
 use time::OffsetDateTime;
 

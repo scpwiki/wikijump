@@ -10,7 +10,49 @@
  * (at your option) any later version.
  */
 
+mod anchor_candidates;
+mod base_candidates;
+mod block_candidates;
+mod common;
+mod count_pages;
+#[allow(dead_code)]
+mod downstream_protectors;
+pub(in crate::services::render) mod list_pages;
+mod parser_candidates;
+mod text_owners;
+mod token_boundaries;
+mod wikidot;
+
+use self::common::{collect_wikidot_block_ranges, collect_wikidot_tag_ranges};
+use self::count_pages::collect_count_pages_literal_ranges;
+#[allow(unused_imports)]
+pub(in crate::services::render) use self::downstream_protectors::{
+    DownstreamProtectorFamily, DownstreamProtectorRange,
+    collect_downstream_protector_ranges,
+};
+pub(in crate::services::render) use self::list_pages::ListPagesSourceProjection;
+#[cfg(test)]
+use self::list_pages::collect_list_pages_runtime_recovery_ranges;
+pub(super) use self::list_pages::project_list_pages_typography_in_place;
+use self::list_pages::{
+    collect_already_projected_list_pages_literal_ranges,
+    collect_list_pages_downstream_css_ranges, collect_list_pages_literal_ranges,
+};
+pub(super) use self::token_boundaries::{
+    TextTokenCursor, WikidotArgumentValueKind, WikidotTagArgumentScan,
+    WikidotWholeHeadScan, left_block_start_in_run, right_bracket_token,
+    rollback_start_in_left_run, scan_wikidot_whole_head_value,
+    wikidot_right_bracket_token, wikidot_trimmed_name,
+};
+pub(super) use self::wikidot::{double_quote_ends_wikidot_argument, quote_is_escaped};
+use regex::Regex;
 use std::ops::Range;
+use std::sync::LazyLock;
+
+static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\[\[#\s+(?P<name>[^\]\n]+)\]\]")
+        .expect("the Wikidot anchor marker regex is valid")
+});
 
 /// Precomputed literal regions for compatibility transforms.
 ///
@@ -22,6 +64,13 @@ pub(super) struct LiteralRegionIndex {
     ranges: Vec<Range<usize>>,
 }
 
+pub(super) struct LiteralRegionCursor<'a> {
+    ranges: &'a [Range<usize>],
+    index: usize,
+    last_offset: Option<usize>,
+    advances: usize,
+}
+
 impl LiteralRegionIndex {
     pub(super) fn new(source: &str) -> Self {
         Self::build(source, true)
@@ -31,13 +80,67 @@ impl LiteralRegionIndex {
         Self::build(source, false)
     }
 
+    /// Legacy literal ownership used while expanding CountPages modules.
+    ///
+    /// This preserves the former fail-closed line-prefix rules while replacing their per-capture prefix rescans with one linear index build.
+    pub(super) fn new_count_pages_syntax(source: &str) -> Self {
+        Self {
+            ranges: collect_count_pages_literal_ranges(source),
+        }
+    }
+
+    /// Test oracle for the complete runtime-protection index.
+    ///
+    /// The structural scanner deliberately uses `new_list_pages_scanner_syntax`
+    /// so recovery barriers remain visible to its own rollback logic.
+    #[cfg(test)]
+    pub(super) fn new_list_pages_syntax(source: &str) -> Self {
+        let mut index = Self {
+            ranges: collect_list_pages_literal_ranges(source),
+        };
+        index.merge_sorted_ranges(collect_list_pages_runtime_recovery_ranges(source));
+        index.merge_sorted_ranges(collect_wikidot_anchor_ranges(source));
+        index
+    }
+
+    pub(super) fn new_list_pages_scanner_syntax(source: &str) -> Self {
+        let mut index = Self {
+            ranges: collect_list_pages_literal_ranges(source),
+        };
+        index.merge_sorted_ranges(collect_wikidot_anchor_ranges(source));
+        index
+    }
+
+    pub(super) fn new_already_projected_list_pages_syntax(source: &str) -> Self {
+        let mut index = Self {
+            ranges: collect_already_projected_list_pages_literal_ranges(source),
+        };
+        index.merge_sorted_ranges(collect_wikidot_anchor_ranges(source));
+        index
+    }
+
+    pub(super) fn new_list_pages_anchor_syntax(source: &str) -> Self {
+        Self {
+            ranges: collect_wikidot_anchor_ranges(source),
+        }
+    }
+
+    pub(super) fn new_list_pages_downstream_css_syntax(source: &str) -> Self {
+        Self {
+            ranges: collect_list_pages_downstream_css_ranges(source),
+        }
+    }
+
     /// Literal and tag regions where a pre-FTML compatibility protector must
     /// not recognize authored syntax.
     pub(super) fn new_wikidot_protection(source: &str) -> Self {
         let mut index = Self::build(source, false);
-        collect_wikidot_tag_ranges(source, &mut index.ranges);
-        collect_html_tag_ranges(source, &mut index.ranges);
-        index.merge_ranges();
+        let mut ranges = Vec::new();
+        collect_wikidot_tag_ranges(source, &mut ranges);
+        index.merge_sorted_ranges(ranges);
+        let mut ranges = Vec::new();
+        collect_html_tag_ranges(source, &mut ranges);
+        index.merge_sorted_ranges(ranges);
         index
     }
 
@@ -45,9 +148,12 @@ impl LiteralRegionIndex {
     #[cfg(test)]
     pub(super) fn new_html_restoration(source: &str) -> Self {
         let mut index = Self::build(source, true);
-        collect_html_tag_ranges(source, &mut index.ranges);
-        collect_paired_ranges(source, "<!--", "-->", &mut index.ranges);
-        index.merge_ranges();
+        let mut ranges = Vec::new();
+        collect_html_tag_ranges(source, &mut ranges);
+        index.merge_sorted_ranges(ranges);
+        let mut ranges = Vec::new();
+        collect_paired_ranges(source, "<!--", "-->", &mut ranges);
+        index.merge_sorted_ranges(ranges);
         index
     }
 
@@ -58,50 +164,171 @@ impl LiteralRegionIndex {
     /// protected by its enclosing `<pre>` or `<div class="code">` range.
     pub(super) fn new_html_color_restoration(source: &str) -> Self {
         let mut index = Self::build(source, false);
-        collect_html_literal_ranges(source, &mut index.ranges, false);
-        collect_html_tag_ranges(source, &mut index.ranges);
-        collect_paired_ranges(source, "<!--", "-->", &mut index.ranges);
-        index.merge_ranges();
+        let mut ranges = Vec::new();
+        collect_html_literal_ranges(source, &mut ranges, false);
+        index.merge_sorted_ranges(ranges);
+        let mut ranges = Vec::new();
+        collect_html_tag_ranges(source, &mut ranges);
+        index.merge_sorted_ranges(ranges);
+        let mut ranges = Vec::new();
+        collect_paired_ranges(source, "<!--", "-->", &mut ranges);
+        index.merge_sorted_ranges(ranges);
         index
     }
 
     fn build(source: &str, include_rendered_html: bool) -> Self {
-        let mut ranges = Vec::new();
-        collect_wikidot_block_ranges(source, &mut ranges);
-        collect_paired_ranges(source, "@@", "@@", &mut ranges);
-        collect_paired_ranges(source, "[!--", "--]", &mut ranges);
+        let mut block_ranges = Vec::new();
+        collect_wikidot_block_ranges(source, &mut block_ranges);
+        let mut raw_ranges = Vec::new();
+        collect_paired_ranges(source, "@@", "@@", &mut raw_ranges);
+        let mut comment_ranges = Vec::new();
+        collect_paired_ranges(source, "[!--", "--]", &mut comment_ranges);
+        let mut ranges =
+            select_owned_ranges([&block_ranges, &raw_ranges, &comment_ranges]);
         if include_rendered_html {
-            collect_html_literal_ranges(source, &mut ranges, true);
+            let mut html_ranges = Vec::new();
+            collect_html_literal_ranges(source, &mut html_ranges, true);
+            ranges = merge_sorted_ranges(ranges, html_ranges);
         }
 
-        let mut index = Self { ranges };
-        index.merge_ranges();
-        index
+        Self {
+            ranges: coalesce_sorted_ranges(ranges),
+        }
     }
 
-    fn merge_ranges(&mut self) {
-        self.ranges
-            .sort_unstable_by_key(|range| (range.start, range.end));
-        let mut merged: Vec<Range<usize>> = Vec::with_capacity(self.ranges.len());
-        for range in self
-            .ranges
-            .drain(..)
-            .filter(|range| range.start < range.end)
-        {
-            if let Some(previous) = merged.last_mut()
-                && range.start <= previous.end
-            {
-                previous.end = previous.end.max(range.end);
-            } else {
-                merged.push(range);
-            }
-        }
-        self.ranges = merged;
+    fn merge_sorted_ranges(&mut self, ranges: Vec<Range<usize>>) {
+        self.ranges = merge_sorted_ranges(std::mem::take(&mut self.ranges), ranges);
     }
 
     pub(super) fn contains(&self, offset: usize) -> bool {
         let insertion = self.ranges.partition_point(|range| range.start <= offset);
         insertion > 0 && offset < self.ranges[insertion - 1].end
+    }
+
+    pub(super) fn monotone_cursor(&self) -> LiteralRegionCursor<'_> {
+        LiteralRegionCursor {
+            ranges: &self.ranges,
+            index: 0,
+            last_offset: None,
+            advances: 0,
+        }
+    }
+}
+
+fn collect_wikidot_anchor_ranges(source: &str) -> Vec<Range<usize>> {
+    WIKIDOT_ANCHOR_MARKER_REGEX
+        .find_iter(source)
+        .map(|matched| matched.range())
+        .collect()
+}
+
+fn select_owned_ranges<const N: usize>(
+    streams: [&[Range<usize>]; N],
+) -> Vec<Range<usize>> {
+    let mut indices = [0usize; N];
+    let capacity = streams.iter().map(|stream| stream.len()).sum();
+    let mut selected = Vec::with_capacity(capacity);
+
+    loop {
+        let next = streams
+            .iter()
+            .enumerate()
+            .filter_map(|(stream, ranges)| {
+                ranges.get(indices[stream]).map(|range| (stream, range))
+            })
+            .min_by_key(|(stream, range)| (range.start, range.end, *stream));
+        let Some((stream, range)) = next else {
+            break;
+        };
+        indices[stream] += 1;
+
+        if selected
+            .last()
+            .is_none_or(|previous: &Range<usize>| previous.end <= range.start)
+        {
+            selected.push(range.clone());
+        }
+    }
+
+    selected
+}
+
+impl LiteralRegionCursor<'_> {
+    #[cfg(test)]
+    pub(super) fn contains(&mut self, offset: usize) -> bool {
+        self.containing_end(offset).is_some()
+    }
+
+    pub(super) fn containing_end(&mut self, offset: usize) -> Option<usize> {
+        debug_assert!(
+            self.last_offset.is_none_or(|previous| previous <= offset),
+            "literal-region cursor offsets must be monotone",
+        );
+        self.last_offset = Some(offset);
+        while self
+            .ranges
+            .get(self.index)
+            .is_some_and(|range| range.end <= offset)
+        {
+            self.index += 1;
+            self.advances += 1;
+        }
+        self.ranges
+            .get(self.index)
+            .filter(|range| range.start <= offset && offset < range.end)
+            .map(|range| range.end)
+    }
+
+    pub(super) fn advances(&self) -> usize {
+        self.advances
+    }
+}
+
+fn merge_sorted_ranges(
+    left: Vec<Range<usize>>,
+    right: Vec<Range<usize>>,
+) -> Vec<Range<usize>> {
+    let mut left = left.into_iter().peekable();
+    let mut right = right.into_iter().peekable();
+    let mut merged = Vec::with_capacity(left.len() + right.len());
+
+    while left.peek().is_some() || right.peek().is_some() {
+        let take_left = match (left.peek(), right.peek()) {
+            (Some(left), Some(right)) => {
+                (left.start, left.end) <= (right.start, right.end)
+            }
+            (Some(_), None) => true,
+            (None, Some(_)) => false,
+            (None, None) => break,
+        };
+        let range = if take_left {
+            left.next().expect("left range exists")
+        } else {
+            right.next().expect("right range exists")
+        };
+        push_coalesced_range(&mut merged, range);
+    }
+    merged
+}
+
+fn coalesce_sorted_ranges(ranges: Vec<Range<usize>>) -> Vec<Range<usize>> {
+    let mut merged = Vec::with_capacity(ranges.len());
+    for range in ranges {
+        push_coalesced_range(&mut merged, range);
+    }
+    merged
+}
+
+fn push_coalesced_range(ranges: &mut Vec<Range<usize>>, range: Range<usize>) {
+    if range.start >= range.end {
+        return;
+    }
+    if let Some(previous) = ranges.last_mut()
+        && range.start <= previous.end
+    {
+        previous.end = previous.end.max(range.end);
+    } else {
+        ranges.push(range);
     }
 }
 
@@ -143,43 +370,6 @@ impl WikidotNativeQuoteIndex {
     }
 }
 
-fn collect_wikidot_tag_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
-    let mut line_start = 0usize;
-    for line in source.split_inclusive('\n') {
-        let bytes = line.as_bytes();
-        let mut cursor = 0usize;
-        while let Some(offset) = line[cursor..].find("[[") {
-            let relative_start = cursor + offset;
-            let start = line_start + relative_start;
-            let mut relative_end = relative_start + 2;
-            let mut quote = None;
-            while relative_end + 1 < bytes.len() {
-                match (quote, bytes[relative_end]) {
-                    (Some(expected), actual) if expected == actual => {
-                        quote = None;
-                        relative_end += 1;
-                    }
-                    (None, b'\'' | b'"') => {
-                        quote = Some(bytes[relative_end]);
-                        relative_end += 1;
-                    }
-                    (None, b']') if bytes[relative_end + 1] == b']' => {
-                        relative_end += 2;
-                        break;
-                    }
-                    _ => relative_end += 1,
-                }
-            }
-            if relative_end + 1 >= bytes.len() {
-                relative_end = line.len();
-            }
-            ranges.push(start..line_start + relative_end);
-            cursor = relative_end;
-        }
-        line_start += line.len();
-    }
-}
-
 fn collect_html_tag_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
     let mut cursor = 0usize;
     while let Some(relative_start) = source[cursor..].find('<') {
@@ -191,88 +381,6 @@ fn collect_html_tag_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
         ranges.push(start..end);
         cursor = end;
     }
-}
-
-#[derive(Clone, Copy)]
-struct WikidotLiteralBlock {
-    close: &'static str,
-    quote_depth: usize,
-    start: usize,
-}
-
-fn collect_wikidot_block_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
-    let mut offset = 0usize;
-    let mut active: Option<WikidotLiteralBlock> = None;
-
-    for line in source.split_inclusive('\n') {
-        let body = line.strip_suffix('\n').unwrap_or(line);
-        let (quote_depth, logical) = quote_depth_and_body(body);
-        let logical_start = offset + body.len() - logical.len();
-        let lower = logical.to_ascii_lowercase();
-
-        if let Some(block) = active {
-            if block.quote_depth > 0 && quote_depth < block.quote_depth {
-                ranges.push(block.start..offset);
-                active = None;
-            } else {
-                let close_depth_matches =
-                    block.quote_depth == 0 || quote_depth == block.quote_depth;
-                if close_depth_matches && let Some(close_start) = lower.find(block.close)
-                {
-                    ranges.push(
-                        block.start..logical_start + close_start + block.close.len(),
-                    );
-                    active = None;
-                }
-                offset += line.len();
-                continue;
-            }
-        }
-
-        if let Some((close, opener_end)) = wikidot_literal_block(&lower) {
-            let block = WikidotLiteralBlock {
-                close,
-                quote_depth,
-                start: logical_start,
-            };
-            if let Some(relative_close) = lower[opener_end..].find(close) {
-                ranges.push(
-                    logical_start
-                        ..logical_start + opener_end + relative_close + close.len(),
-                );
-            } else {
-                active = Some(block);
-            }
-        }
-        offset += line.len();
-    }
-
-    if let Some(block) = active {
-        ranges.push(block.start..source.len());
-    }
-}
-
-fn quote_depth_and_body(mut body: &str) -> (usize, &str) {
-    let mut quote_depth = 0;
-    body = body.trim_start_matches([' ', '\t']);
-    while let Some(rest) = body.strip_prefix('>') {
-        quote_depth += 1;
-        body = rest.trim_start_matches([' ', '\t']);
-    }
-    (quote_depth, body)
-}
-
-fn wikidot_literal_block(lower: &str) -> Option<(&'static str, usize)> {
-    let marker = lower.strip_prefix("[[")?.trim_start();
-    let (head, _) = marker.split_once("]]")?;
-    let opener_end = lower.find("]]")? + 2;
-    let close = match head.trim_end().split_ascii_whitespace().next()? {
-        "code" => "[[/code]]",
-        "html" => "[[/html]]",
-        "raw" => "[[/raw]]",
-        _ => return None,
-    };
-    Some((close, opener_end))
 }
 
 fn collect_paired_ranges(
@@ -398,131 +506,4 @@ fn html_tag_starts_literal(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn indexes_wikidot_and_rendered_html_literal_regions() {
-        let source = concat!(
-            "outside\n",
-            "[[code]]\ncode-example\n[[/code]]\n",
-            "@@escaped-example@@\n",
-            "[!-- comment-example --]\n",
-            "[[html]]\nhtml-example\n[[/html]]\n",
-            "> [[raw]]\n> raw-example\n> [[/raw]]\n",
-            "<pre>pre-example</pre>\n",
-            r#"<div class="code"><div>panel-example</div></div>"#,
-        );
-        let index = LiteralRegionIndex::new(source);
-
-        assert!(!index.contains(source.find("outside").unwrap()));
-        for needle in [
-            "code-example",
-            "escaped-example",
-            "comment-example",
-            "html-example",
-            "raw-example",
-            "pre-example",
-            "panel-example",
-        ] {
-            assert!(index.contains(source.find(needle).unwrap()), "{needle}");
-        }
-    }
-
-    #[test]
-    fn color_restoration_treats_only_standalone_code_as_non_literal() {
-        let source = concat!(
-            r#"<code class="wj-monospace">inline-marker</code>"#,
-            "\n<pre><code>pre-marker</code></pre>",
-            "\n<div class=\"code\"><code>panel-marker</code></div>",
-            "\n<script>script-marker</script>",
-        );
-        let index = LiteralRegionIndex::new_html_color_restoration(source);
-
-        assert!(!index.contains(source.find("inline-marker").unwrap()));
-        for marker in ["pre-marker", "panel-marker", "script-marker"] {
-            assert!(index.contains(source.find(marker).unwrap()), "{marker}");
-        }
-    }
-
-    #[test]
-    fn identifies_valid_wikidot_native_quote_lines() {
-        for source in [
-            "> [[module CSS]]",
-            ">> [[module CSS]]",
-            "> > [[module CSS]]",
-            " \t>> text [[module CSS]]",
-        ] {
-            let offset = source.find("[[module").unwrap();
-            let index = WikidotNativeQuoteIndex::new(source);
-            assert!(index.contains(offset), "{source:?}");
-        }
-        for source in [
-            ">[[module CSS]]",
-            "text [[module CSS]]",
-            " \t[[module CSS]]",
-        ] {
-            let offset = source.find("[[module").unwrap();
-            let index = WikidotNativeQuoteIndex::new(source);
-            assert!(!index.contains(offset), "{source:?}");
-        }
-    }
-
-    #[test]
-    fn leaves_html_opening_attributes_outside_the_literal_body() {
-        let source = r#"<code data-example="marker">body</code> tail"#;
-        let index = LiteralRegionIndex::new(source);
-
-        assert!(!index.contains(source.find("marker").unwrap()));
-        assert!(index.contains(source.find("body").unwrap()));
-        assert!(!index.contains(source.find("tail").unwrap()));
-    }
-
-    #[test]
-    fn ends_wikidot_blocks_at_the_closing_marker() {
-        let source = "[[code]]\ninside\n[[/code]] [[#expr 1+1]]";
-        let index = LiteralRegionIndex::new(source);
-
-        assert!(index.contains(source.find("inside").unwrap()));
-        assert!(!index.contains(source.find("[[#expr").unwrap()));
-    }
-
-    #[test]
-    fn shallower_quote_ends_unclosed_wikidot_literal_block() {
-        let source = "> [[raw]]\n> inside\noutside";
-        let index = LiteralRegionIndex::new_wikidot_syntax(source);
-
-        assert!(index.contains(source.find("inside").unwrap()));
-        assert!(!index.contains(source.find("outside").unwrap()));
-    }
-
-    #[test]
-    fn protection_index_includes_wikidot_and_html_tag_attributes() {
-        let source = concat!(
-            "outside ##red|yes##\n",
-            "[[span data-value=\"##red|no]] yet##\"]]body[[/span]]\n",
-            "<span title='quoted > ##red|no##'>body</span>",
-        );
-        let index = LiteralRegionIndex::new_wikidot_protection(source);
-        assert!(!index.contains(source.find("##red|yes").unwrap()));
-        for offset in source.match_indices("##red|no").map(|(offset, _)| offset) {
-            assert!(index.contains(offset));
-        }
-    }
-
-    #[test]
-    fn html_restoration_index_includes_tags_comments_and_raw_text() {
-        let source =
-            "marker <a title='marker'>marker</a><!-- marker --><code>marker</code>";
-        let index = LiteralRegionIndex::new_html_restoration(source);
-        let offsets = source
-            .match_indices("marker")
-            .map(|(offset, _)| offset)
-            .collect::<Vec<_>>();
-        assert!(!index.contains(offsets[0]));
-        assert!(index.contains(offsets[1]));
-        assert!(!index.contains(offsets[2]));
-        assert!(index.contains(offsets[3]));
-        assert!(index.contains(offsets[4]));
-    }
-}
+mod tests;

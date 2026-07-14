@@ -20,11 +20,30 @@
 
 //! Conservative, non-reserializing discovery of HTML data-state ranges.
 
+mod scanner;
+
+use scanner::{
+    TagKind, element_name, is_foreign_self_closing, is_global_tree_builder_barrier,
+    opaque_element_end, protected_construct_end, tag_kind,
+};
+
 use std::ops::Range;
 
 const OPAQUE_ELEMENTS: &[&str] = &[
-    "code", "iframe", "math", "noembed", "noframes", "pre", "script", "style", "svg",
-    "textarea", "title", "xmp",
+    "code",
+    "iframe",
+    "math",
+    "noembed",
+    "noframes",
+    "noscript",
+    "plaintext",
+    "pre",
+    "script",
+    "style",
+    "svg",
+    "textarea",
+    "title",
+    "xmp",
 ];
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -34,6 +53,19 @@ pub(super) struct HtmlDataSegment {
 }
 
 pub(super) fn html_data_segments(html: &str) -> Vec<HtmlDataSegment> {
+    html_data_segments_with_options(html, false)
+}
+
+/// Discovers data ranges while allowing canonical generated inline monospace contents.
+/// Every other code element and opaque element remains protected.
+pub(super) fn html_data_segments_with_inline_code(html: &str) -> Vec<HtmlDataSegment> {
+    html_data_segments_with_options(html, true)
+}
+
+fn html_data_segments_with_options(
+    html: &str,
+    inline_code_is_data: bool,
+) -> Vec<HtmlDataSegment> {
     let mut segments = Vec::new();
     let mut data_start = 0;
     let mut cursor = 0;
@@ -55,12 +87,20 @@ pub(super) fn html_data_segments(html: &str) -> Vec<HtmlDataSegment> {
             return segments;
         };
 
+        let tag = &html[tag_start..tag_end];
+        let name = matches!(kind, TagKind::Element { .. })
+            .then(|| element_name(tag))
+            .flatten();
+        if name.as_deref().is_some_and(is_global_tree_builder_barrier) {
+            return segments;
+        }
         if let TagKind::Element { closing: false } = kind
-            && let Some(name) = element_name(&html[tag_start..tag_end])
-            && OPAQUE_ELEMENTS.contains(&name.as_str())
-            && !is_self_closing(&html[tag_start..tag_end])
+            && let Some(name) = name.as_deref()
+            && OPAQUE_ELEMENTS.contains(&name)
+            && !(inline_code_is_data && is_generated_inline_code(name, tag))
+            && !is_foreign_self_closing(name, tag)
         {
-            let Some(close_end) = opaque_element_end(html, tag_end, &name) else {
+            let Some(close_end) = opaque_element_end(html, tag_end, name) else {
                 return segments;
             };
             cursor = close_end;
@@ -85,126 +125,8 @@ pub(super) fn html_data_segments(html: &str) -> Vec<HtmlDataSegment> {
     segments
 }
 
-#[derive(Clone, Copy, Debug)]
-enum TagKind {
-    Comment,
-    Cdata,
-    Declaration,
-    Element { closing: bool },
-}
-
-fn tag_kind(input: &str) -> Option<TagKind> {
-    let bytes = input.as_bytes();
-    debug_assert_eq!(bytes.first(), Some(&b'<'));
-    match bytes.get(1).copied()? {
-        b'!' if input.starts_with("<!--") => Some(TagKind::Comment),
-        b'!' if input.starts_with("<![CDATA[") => Some(TagKind::Cdata),
-        b'!' | b'?' => Some(TagKind::Declaration),
-        b'/' if bytes.get(2).is_some_and(|byte| byte.is_ascii_alphabetic()) => {
-            Some(TagKind::Element { closing: true })
-        }
-        byte if byte.is_ascii_alphabetic() => Some(TagKind::Element { closing: false }),
-        _ => None,
-    }
-}
-
-fn protected_construct_end(html: &str, start: usize, kind: TagKind) -> Option<usize> {
-    match kind {
-        TagKind::Comment => html[start + 4..]
-            .find("-->")
-            .map(|offset| start + 4 + offset + 3),
-        TagKind::Cdata => html[start + 9..]
-            .find("]]>")
-            .map(|offset| start + 9 + offset + 3),
-        TagKind::Declaration | TagKind::Element { .. } => {
-            quote_aware_tag_end(html, start)
-        }
-    }
-}
-
-fn quote_aware_tag_end(html: &str, start: usize) -> Option<usize> {
-    let mut quote = None;
-    for (offset, byte) in html.as_bytes()[start + 1..].iter().copied().enumerate() {
-        match (quote, byte) {
-            (Some(active), current) if current == active => quote = None,
-            (None, b'\'' | b'"') => quote = Some(byte),
-            (None, b'>') => return Some(start + 1 + offset + 1),
-            _ => {}
-        }
-    }
-    None
-}
-
-fn opaque_element_end(html: &str, mut cursor: usize, name: &str) -> Option<usize> {
-    let raw_text = matches!(
-        name,
-        "iframe"
-            | "noembed"
-            | "noframes"
-            | "script"
-            | "style"
-            | "textarea"
-            | "title"
-            | "xmp"
-    );
-    if raw_text {
-        while let Some(relative) = html[cursor..].find('<') {
-            let start = cursor + relative;
-            if matches!(
-                tag_kind(&html[start..]),
-                Some(TagKind::Element { closing: true })
-            ) {
-                let end = quote_aware_tag_end(html, start)?;
-                if element_name(&html[start..end]).as_deref() == Some(name) {
-                    return Some(end);
-                }
-            }
-            cursor = start + 1;
-        }
-        return None;
-    }
-
-    let mut depth = 1usize;
-
-    while let Some(relative) = html[cursor..].find('<') {
-        let start = cursor + relative;
-        let Some(kind) = tag_kind(&html[start..]) else {
-            cursor = start + 1;
-            continue;
-        };
-        let end = protected_construct_end(html, start, kind)?;
-        if let TagKind::Element { closing } = kind
-            && element_name(&html[start..end]).as_deref() == Some(name)
-        {
-            if closing {
-                depth -= 1;
-                if depth == 0 {
-                    return Some(end);
-                }
-            } else if !is_self_closing(&html[start..end]) {
-                depth += 1;
-            }
-        }
-        cursor = end;
-    }
-    None
-}
-
-fn element_name(tag: &str) -> Option<String> {
-    let bytes = tag.as_bytes();
-    let mut start = 1;
-    if bytes.get(start) == Some(&b'/') {
-        start += 1;
-    }
-    let end = bytes[start..]
-        .iter()
-        .position(|byte| !byte.is_ascii_alphanumeric() && !matches!(*byte, b'-' | b':'))
-        .map_or(bytes.len(), |offset| start + offset);
-    (end > start).then(|| tag[start..end].to_ascii_lowercase())
-}
-
-fn is_self_closing(tag: &str) -> bool {
-    tag[..tag.len() - 1].trim_end().ends_with('/')
+fn is_generated_inline_code(name: &str, tag: &str) -> bool {
+    name == "code" && tag == r#"<code class="wj-monospace">"#
 }
 
 fn push_nonempty_segment(
@@ -249,17 +171,180 @@ mod tests {
     }
 
     #[test]
-    fn excludes_comments_cdata_and_opaque_element_bodies() {
+    fn treats_quotes_in_malformed_attribute_names_as_name_characters() {
+        let html = r#"before<span foo"= "x > MARKER">after"#;
+        assert_eq!(data(html), "before|after");
+    }
+
+    #[test]
+    fn excludes_comments_and_opaque_element_bodies() {
         let html = concat!(
-            "a<!-- hidden > -->b<![CDATA[hidden <tag>]]>c",
-            "<ScRiPt>hidden </not-script></sCrIpT>d",
-            "<pre>hidden <b>too</b></pre>e",
-            "<svg><text>hidden</text></svg>f",
+            "a<!-- hidden > -->b",
+            "<ScRiPt>hidden </not-script></sCrIpT>c",
+            "<pre>hidden <b>too</b></pre>d",
+            "<svg><text>hidden</text></svg>e",
         );
-        assert_eq!(data(html), "a|b|c|d|e|f");
+        assert_eq!(data(html), "a|b|c|d|e");
+        assert_eq!(continuity(html), vec![true, false, false, false, false],);
+    }
+
+    #[test]
+    fn follows_html_comment_abrupt_and_alternative_endings() {
+        assert_eq!(data("a<!-->MARKER"), "a|MARKER");
+        assert_eq!(data("a<!--->MARKER"), "a|MARKER");
+        for html in [
+            r#"a<!--><div title="<-->MARKER">b"#,
+            "a<!--><script><-->MARKER</script>b",
+            r#"a<!---><span title="MARKER">b"#,
+            r#"a<!-- hidden --!><span title="MARKER">b"#,
+        ] {
+            assert_eq!(data(html), "a|b", "html: {html}");
+        }
+    }
+
+    #[test]
+    fn protects_bogus_comments_from_invalid_end_tag_opens() {
+        for html in [
+            "a</ bogus MARKER <img src=x>>b",
+            "a</\tMARKER <img src=x>>b",
+            "a</?MARKER <img src=x>>b",
+            "a</\0MARKER <img src=x>>b",
+            "a</éMARKER <img src=x>>b",
+        ] {
+            assert_eq!(data(html), "a|>b", "html: {html:?}");
+        }
+
+        for html in ["a</ bogus MARKER", "a</1MARKER <img"] {
+            assert_eq!(data(html), "a", "html: {html:?}");
+        }
+
+        assert_eq!(data("a</ bogus hidden>MARKER"), "a|MARKER");
+        assert_eq!(data("a</>MARKER"), "a</>MARKER");
+        assert_eq!(data("a</"), "a</");
+    }
+
+    #[test]
+    fn fails_closed_at_cdata_declarations_and_processing_instructions() {
+        for html in [
+            "a<![CDATA[hidden]]>MARKER",
+            r#"a<!bogus "><script>MARKER</script>">"#,
+            "a<!DOCTYPE html>MARKER",
+            r#"a<?pi "><script>MARKER</script>">"#,
+        ] {
+            assert_eq!(data(html), "a", "html: {html}");
+        }
+    }
+
+    #[test]
+    fn ignores_opaque_parent_end_tags_inside_nested_script_data() {
+        let html = "a<pre><script></pre>MARKER</script></pre>b";
+        assert_eq!(data(html), "a|b");
+    }
+
+    #[test]
+    fn fails_closed_at_unmodeled_tree_builder_boundaries() {
+        for html in [
+            "a<select><pre></select><script></pre>MARKER</script>",
+            "a<template>MARKER</template>b",
+            "a<object>MARKER</object>b",
+            "a<applet>MARKER</applet>b",
+            "a<marquee>MARKER</marquee>b",
+            "a<noscript><script></noscript>MARKER</script></noscript>b",
+            "a<foreignObject>MARKER</foreignObject>b",
+            "a<annotation-xml>MARKER</annotation-xml>b",
+        ] {
+            assert_eq!(data(html), "a", "html: {html}");
+        }
+    }
+
+    #[test]
+    fn preserves_canonical_tables_but_not_tables_inside_opaque_matching() {
+        let canonical = "<table><tbody><tr><td>cell</td></tr></tbody></table>MARKER";
+        assert_eq!(data(canonical), "cell|MARKER");
+
+        let unsafe_nesting = "a<pre><table><tr><td></pre>MARKER</td></tr></table></pre>b";
+        assert_eq!(data(unsafe_nesting), "a");
+        assert_eq!(data("a<pre><select></pre></select>MARKER</pre>b"), "a",);
+    }
+
+    #[test]
+    fn fails_closed_at_foreign_content_integration_points() {
+        let svg = "a<svg><foreignObject><textarea></svg>MARKER</textarea></foreignObject></svg>b";
+        let math = "a<math><mtext><textarea></math>MARKER</textarea></mtext></math>b";
+        assert_eq!(data(svg), "a");
+        assert_eq!(data(math), "a");
+    }
+
+    #[test]
+    fn fails_closed_instead_of_lexically_counting_nested_opaque_names() {
+        assert_eq!(data("a<pre><pre></pre>MARKER</pre>b"), "a");
+        assert_eq!(data("a<code><code></code>MARKER</code>b"), "a");
+        assert_eq!(data("a<svg><svg></svg>MARKER</svg>b"), "a");
+        assert_eq!(data("a<math><math></math>MARKER</math>b"), "a");
+    }
+
+    #[test]
+    fn ignores_self_closing_slashes_on_html_opaque_elements() {
+        let html = "a<script/>hidden</script>b<pre/>hidden</pre>c<code/>hidden</code>d";
+        assert_eq!(data(html), "a|b|c|d");
+    }
+
+    #[test]
+    fn honors_self_closing_slashes_only_on_foreign_opaque_elements() {
+        assert_eq!(data("a<svg/>b<math />c"), "a|b|c");
+        assert_eq!(data(r#"a<svg viewBox="0 0 1 1"/>b"#), "a|b");
+        assert_eq!(data("a<math display=block />b"), "a|b");
+        assert_eq!(data("a<svg / >hidden</svg>b"), "a|b");
+        assert_eq!(data("a<svg data=x/>hidden</svg>b"), "a|b");
+        assert_eq!(data("a<math data=/>hidden</math>b"), "a|b");
+    }
+
+    #[test]
+    fn requires_a_tag_name_delimiter_for_raw_text_end_tags() {
+        let html = "a<script>hidden</script.foo>still hidden</script>b<style>hidden</style:foo>still hidden</style>c";
+        assert_eq!(data(html), "a|b|c");
+    }
+
+    #[test]
+    fn follows_script_double_escaped_end_transitions() {
+        let html = "a<script><!--<script>hidden</script>still hidden</script>b";
+        assert_eq!(data(html), "a|b");
+    }
+
+    #[test]
+    fn treats_plaintext_as_opaque_to_eof() {
+        assert_eq!(data("a<plaintext>hidden</plaintext>b"), "a");
+    }
+
+    #[test]
+    fn allows_only_canonical_generated_inline_code_data() {
+        let inline = r#"a<code class="wj-monospace">visible</code>b"#;
+        let authored = r#"a<code class="wj-monospace" >hidden</code>b"#;
+        let uppercase = r#"a<CODE class="wj-monospace">hidden</CODE>b"#;
+
         assert_eq!(
-            continuity(html),
-            vec![true, false, false, false, false, false],
+            html_data_segments_with_inline_code(inline)
+                .into_iter()
+                .map(|segment| &inline[segment.range])
+                .collect::<Vec<_>>()
+                .join("|"),
+            "a|visible|b",
+        );
+        assert_eq!(
+            html_data_segments_with_inline_code(authored)
+                .into_iter()
+                .map(|segment| &authored[segment.range])
+                .collect::<Vec<_>>()
+                .join("|"),
+            "a|b",
+        );
+        assert_eq!(
+            html_data_segments_with_inline_code(uppercase)
+                .into_iter()
+                .map(|segment| &uppercase[segment.range])
+                .collect::<Vec<_>>()
+                .join("|"),
+            "a|b",
         );
     }
 

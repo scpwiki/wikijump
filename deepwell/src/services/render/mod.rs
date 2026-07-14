@@ -37,8 +37,10 @@ mod diagnostics;
 mod html_text;
 mod iftags;
 mod include_comment_branches;
+mod issued_markers;
 #[allow(dead_code)]
 mod list_pages;
+mod list_pages_scanner;
 mod list_pages_template;
 mod literal_regions;
 mod percent_encoding;

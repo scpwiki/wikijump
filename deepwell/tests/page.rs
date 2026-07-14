@@ -40,19 +40,23 @@ use deepwell::services::forum::{CreateForumCategory, CreateForumGroup};
 use deepwell::services::forum_post::CreateForumPost;
 use deepwell::services::forum_thread::CreateForumThread;
 use deepwell::services::page_query::{
-    AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
-    IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
-    PageQueryService, PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    AuthorSelector, CategoriesSelector, ComparisonOperation, DataFormSelector,
+    DateSelector, FoundPageFields, IncludedCategories, OrderBySelector, OrderProperty,
+    PageParentSelector, PageQuery, PageQueryService, PageTypeSelector,
+    PaginationSelector, RangeSelector, ScoreSelector, TagCondition,
 };
-use deepwell::services::permission::{PermissionCache, PermissionService};
+use deepwell::services::permission::{
+    CheckPermissionContext, PermissionCache, PermissionService,
+};
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
+use deepwell::services::score::ScoreValue as QueryScoreValue;
 use deepwell::services::session::CreateSession;
 use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
     FileRevisionService, ForumPostService, ForumService, ForumThreadService, LinkService,
-    RenderService, RequestContext, SessionService, TextService,
+    PageService, RenderService, RequestContext, SessionService, TextService,
 };
 use deepwell::types::{
     Action, ConnectionType, PageId, PageRevisionType, Permission, Reference, Resource,
@@ -127,6 +131,24 @@ async fn create_imported_breadcrumb_page(
         .expect("breadcrumb page should be marked as imported");
 
     created.page_id
+}
+
+async fn imported_breadcrumb_article_view(
+    runner: &mut TestRunner,
+    site_id: i64,
+    slug: &str,
+    session_token: Option<&str>,
+) -> GetArticleViewOutput {
+    run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": session_token,
+            "route": {"slug": slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    )
 }
 
 #[tokio::test]
@@ -525,112 +547,120 @@ async fn imported_breadcrumbs_hide_private_and_deleted_ancestors() {
     const PRIVATE_ROOT_SLUG: &str = "breadcrumb-public:visible-root";
 
     let mut runner = TestRunner::setup().await;
-    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
-        .expect("seeded test site should exist");
-    let site_id = site.site.site_id;
-    let public_category =
-        CategoryService::get_or_create(runner.context(), site_id, "breadcrumb-public")
+    let (site_id, public_parent_id, guest_role_id, private_category_id) =
+        Box::pin(async {
+            let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+                .expect("seeded test site should exist");
+            let site_id = site.site.site_id;
+            let public_category = CategoryService::get_or_create(
+                runner.context(),
+                site_id,
+                "breadcrumb-public",
+            )
             .await
             .expect("public breadcrumb category should be created");
-    let private_category =
-        CategoryService::get_or_create(runner.context(), site_id, "breadcrumb-private")
+            let private_category = CategoryService::get_or_create(
+                runner.context(),
+                site_id,
+                "breadcrumb-private",
+            )
             .await
             .expect("private breadcrumb category should be created");
-    let root_role = RoleService::get(
-        runner.context(),
-        site_id,
-        Reference::Slug(Cow::Borrowed("root")),
-    )
-    .await
-    .expect("root role should exist");
-    let guest_role = RoleService::get(
-        runner.context(),
-        site_id,
-        Reference::Slug(Cow::Borrowed("guest")),
-    )
-    .await
-    .expect("guest role should exist");
+            let root_role = RoleService::get(
+                runner.context(),
+                site_id,
+                Reference::Slug(Cow::Borrowed("root")),
+            )
+            .await
+            .expect("root role should exist");
+            let guest_role = RoleService::get(
+                runner.context(),
+                site_id,
+                Reference::Slug(Cow::Borrowed("guest")),
+            )
+            .await
+            .expect("guest role should exist");
 
-    for (role_id, category_id) in [
-        (root_role.role_id, public_category.category_id),
-        (guest_role.role_id, public_category.category_id),
-        (root_role.role_id, private_category.category_id),
-        (guest_role.role_id, private_category.category_id),
-    ] {
-        role_permission::ActiveModel {
-            role_id: Set(role_id),
-            site_id: Set(site_id),
-            resource_type: Set(Resource::Page),
-            resource_category_id: Set(Some(category_id)),
-            action: Set(Action::View),
-            ..Default::default()
-        }
-        .insert(runner.context().transaction())
-        .await
-        .expect("breadcrumb view permission should be inserted");
-    }
-    PermissionCache::invalidate_site(runner.context(), site_id)
-        .await
-        .expect("breadcrumb permission cache should be invalidated");
-    RoleService::grant_role_to_user(
-        runner.context(),
-        GrantUserRoleInput {
-            site_id,
-            user_id: ADMIN_USER_ID,
-            role_id: root_role.role_id,
-            assigning_user_id: SYSTEM_USER_ID,
-            expires_at: None,
-            ip_address: common::IP_ADDRESS,
-        },
-    )
-    .await
-    .expect("authenticated breadcrumb viewer should receive the root role");
+            for (role_id, category_id) in [
+                (root_role.role_id, public_category.category_id),
+                (guest_role.role_id, public_category.category_id),
+                (root_role.role_id, private_category.category_id),
+                (guest_role.role_id, private_category.category_id),
+            ] {
+                role_permission::ActiveModel {
+                    role_id: Set(role_id),
+                    site_id: Set(site_id),
+                    resource_type: Set(Resource::Page),
+                    resource_category_id: Set(Some(category_id)),
+                    action: Set(Action::View),
+                    ..Default::default()
+                }
+                .insert(runner.context().transaction())
+                .await
+                .expect("breadcrumb view permission should be inserted");
+            }
+            PermissionCache::invalidate_site(runner.context(), site_id)
+                .await
+                .expect("breadcrumb permission cache should be invalidated");
+            RoleService::grant_role_to_user(
+                runner.context(),
+                GrantUserRoleInput {
+                    site_id,
+                    user_id: ADMIN_USER_ID,
+                    role_id: root_role.role_id,
+                    assigning_user_id: SYSTEM_USER_ID,
+                    expires_at: None,
+                    ip_address: common::IP_ADDRESS,
+                },
+            )
+            .await
+            .expect("authenticated breadcrumb viewer should receive the root role");
 
-    let public_parent_id = create_imported_breadcrumb_page(
-        &mut runner,
-        site_id,
-        public_category.category_id,
-        PUBLIC_PARENT_SLUG,
-        "Visible Parent",
-    )
-    .await;
-    let public_child_id = create_imported_breadcrumb_page(
-        &mut runner,
-        site_id,
-        public_category.category_id,
-        PUBLIC_CHILD_SLUG,
-        "Public Child",
-    )
-    .await;
-    let private_parent_id = create_imported_breadcrumb_page(
-        &mut runner,
-        site_id,
-        private_category.category_id,
-        PRIVATE_PARENT_SLUG,
-        "Private Parent Secret",
-    )
-    .await;
-    let private_child_id = create_imported_breadcrumb_page(
-        &mut runner,
-        site_id,
-        public_category.category_id,
-        PRIVATE_CHILD_SLUG,
-        "Private Parent Child",
-    )
-    .await;
-    let private_root_id = create_imported_breadcrumb_page(
-        &mut runner,
-        site_id,
-        public_category.category_id,
-        PRIVATE_ROOT_SLUG,
-        "Visible Root Above Private Parent",
-    )
-    .await;
+            let public_parent_id = create_imported_breadcrumb_page(
+                &mut runner,
+                site_id,
+                public_category.category_id,
+                PUBLIC_PARENT_SLUG,
+                "Visible Parent",
+            )
+            .await;
+            let public_child_id = create_imported_breadcrumb_page(
+                &mut runner,
+                site_id,
+                public_category.category_id,
+                PUBLIC_CHILD_SLUG,
+                "Public Child",
+            )
+            .await;
+            let private_parent_id = create_imported_breadcrumb_page(
+                &mut runner,
+                site_id,
+                private_category.category_id,
+                PRIVATE_PARENT_SLUG,
+                "Private Parent Secret",
+            )
+            .await;
+            let private_child_id = create_imported_breadcrumb_page(
+                &mut runner,
+                site_id,
+                public_category.category_id,
+                PRIVATE_CHILD_SLUG,
+                "Private Parent Child",
+            )
+            .await;
+            let private_root_id = create_imported_breadcrumb_page(
+                &mut runner,
+                site_id,
+                public_category.category_id,
+                PRIVATE_ROOT_SLUG,
+                "Visible Root Above Private Parent",
+            )
+            .await;
 
-    let transaction = runner.context().transaction();
-    for sql in [
-        format!(
-            r#"
+            let transaction = runner.context().transaction();
+            for sql in [
+                format!(
+                    r#"
 INSERT INTO wikidot_corpus_import_run (
     import_run_id, site_id, source_branch, source_site, manifest_sha256,
     manifest_row_count, complete_inventory, state, summary
@@ -639,9 +669,9 @@ INSERT INTO wikidot_corpus_import_run (
     decode(repeat('00', 32), 'hex'), 5, false, 'metadata_done', '{{}}'::jsonb
 )
 "#,
-        ),
-        format!(
-            r#"
+                ),
+                format!(
+                    r#"
 INSERT INTO wikidot_page_snapshot (
     page_id, source_branch, source_site, source_entity_id, source_fullname,
     source_created_at, source_updated_at, source_revision_count,
@@ -674,212 +704,207 @@ INSERT INTO wikidot_page_snapshot (
      decode(repeat('05', 32), 'hex'), decode(repeat('15', 32), 'hex'),
      '{{}}'::jsonb, {IMPORT_RUN_ID})
 "#,
-        ),
-    ] {
-        transaction
-            .execute(Statement::from_string(
-                transaction.get_database_backend(),
-                sql,
-            ))
-            .await
-            .expect("breadcrumb snapshot fixture SQL should succeed");
-    }
+                ),
+            ] {
+                transaction
+                    .execute(Statement::from_string(
+                        transaction.get_database_backend(),
+                        sql,
+                    ))
+                    .await
+                    .expect("breadcrumb snapshot fixture SQL should succeed");
+            }
 
-    runner.set_request_context(RequestContext::default());
-    let visible_view = run_endpoint!(
-        runner,
-        article_view,
-        json!({
-            "site_id": site_id,
-            "session_token": null,
-            "route": {"slug": PUBLIC_CHILD_SLUG, "extra": ""},
-            "locales": ["en-US", "en"],
-        }),
-    );
-    let (visible_breadcrumbs, visible_cache_key) = match visible_view {
-        GetArticleViewOutput {
-            page:
-                GetPageViewOutput::Found {
-                    wikidot_breadcrumbs,
-                    ..
-                },
-            article_page_cache_key: Some(cache_key),
-            ..
-        } => (wikidot_breadcrumbs, cache_key),
-        other => panic!("expected cached public imported page, got {other:?}"),
-    };
-    assert_eq!(visible_breadcrumbs.len(), 2);
-    assert_eq!(visible_breadcrumbs[0].slug, PUBLIC_PARENT_SLUG);
-    assert_eq!(visible_breadcrumbs[0].title, "Visible Parent");
+            (
+                site_id,
+                public_parent_id,
+                guest_role.role_id,
+                private_category.category_id,
+            )
+        })
+        .await;
 
-    let public_parent = PageTable::find_by_id(public_parent_id)
-        .one(runner.context().transaction())
-        .await
-        .expect("public parent lookup should not fail")
-        .expect("public parent should exist");
-    let mut public_parent = public_parent.into_active_model();
-    public_parent.deleted_at = Set(Some(OffsetDateTime::now_utc()));
-    public_parent
-        .update(runner.context().transaction())
-        .await
-        .expect("public parent should be soft-deleted");
-
-    let deleted_parent_view = run_endpoint!(
-        runner,
-        article_view,
-        json!({
-            "site_id": site_id,
-            "session_token": null,
-            "route": {"slug": PUBLIC_CHILD_SLUG, "extra": ""},
-            "locales": ["en-US", "en"],
-        }),
-    );
-    let (deleted_parent_breadcrumbs, deleted_parent_cache_key) = match deleted_parent_view
-    {
-        GetArticleViewOutput {
-            page:
-                GetPageViewOutput::Found {
-                    wikidot_breadcrumbs,
-                    ..
-                },
-            article_page_cache_key: Some(cache_key),
-            ..
-        } => (wikidot_breadcrumbs, cache_key),
-        other => panic!("expected cached child of deleted parent, got {other:?}"),
-    };
-    assert_eq!(
-        deleted_parent_cache_key, visible_cache_key,
-        "ancestor deletion should exercise the existing cached article response"
-    );
-    assert!(
-        deleted_parent_breadcrumbs.is_empty(),
-        "deleted ancestor metadata must not be returned"
-    );
-
-    let private_parent_view = run_endpoint!(
-        runner,
-        article_view,
-        json!({
-            "site_id": site_id,
-            "session_token": null,
-            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
-            "locales": ["en-US", "en"],
-        }),
-    );
-    let (private_parent_breadcrumbs, private_cache_key) = match private_parent_view {
-        GetArticleViewOutput {
-            page:
-                GetPageViewOutput::Found {
-                    wikidot_breadcrumbs,
-                    ..
-                },
-            article_page_cache_key: Some(cache_key),
-            ..
-        } => (wikidot_breadcrumbs, cache_key),
-        other => panic!("expected cached child of private parent, got {other:?}"),
-    };
-    assert_eq!(
-        private_parent_breadcrumbs
-            .iter()
-            .map(|breadcrumb| breadcrumb.slug.as_str())
-            .collect::<Vec<_>>(),
-        [PRIVATE_ROOT_SLUG, PRIVATE_PARENT_SLUG, PRIVATE_CHILD_SLUG],
-    );
-
-    let admin_session_token = SessionService::create(
-        runner.context(),
-        CreateSession {
-            user_id: ADMIN_USER_ID,
-            ip_address: common::IP_ADDRESS,
-            user_agent: "breadcrumb privacy test".to_owned(),
-            restricted: false,
-        },
-    )
-    .await
-    .expect("admin session should be created");
-    let authenticated_before = run_endpoint!(
-        runner,
-        article_view,
-        json!({
-            "site_id": site_id,
-            "session_token": admin_session_token,
-            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
-            "locales": ["en-US", "en"],
-        }),
-    );
-    assert!(matches!(
-        authenticated_before,
-        GetArticleViewOutput {
-            page: GetPageViewOutput::Found { ref wikidot_breadcrumbs, .. },
-            ..
-        } if wikidot_breadcrumbs.len() == 3
-    ));
-
-    RolePermissionTable::delete_many()
-        .filter(role_permission::Column::RoleId.eq(guest_role.role_id))
-        .filter(role_permission::Column::SiteId.eq(site_id))
-        .filter(role_permission::Column::ResourceType.eq(Resource::Page))
-        .filter(
-            role_permission::Column::ResourceCategoryId.eq(private_category.category_id),
+    Box::pin(async {
+        runner.set_request_context(RequestContext::default());
+        let visible_view = imported_breadcrumb_article_view(
+            &mut runner,
+            site_id,
+            PUBLIC_CHILD_SLUG,
+            None,
         )
-        .filter(role_permission::Column::Action.eq(Action::View))
-        .exec(runner.context().transaction())
-        .await
-        .expect("guest private breadcrumb permission should be revoked");
-    PermissionCache::invalidate_site(runner.context(), site_id)
-        .await
-        .expect("breadcrumb permission cache should be invalidated after revocation");
+        .await;
+        let (visible_breadcrumbs, visible_cache_key) = match visible_view {
+            GetArticleViewOutput {
+                page:
+                    GetPageViewOutput::Found {
+                        wikidot_breadcrumbs,
+                        ..
+                    },
+                article_page_cache_key: Some(cache_key),
+                ..
+            } => (wikidot_breadcrumbs, cache_key),
+            other => panic!("expected cached public imported page, got {other:?}"),
+        };
+        assert_eq!(visible_breadcrumbs.len(), 2);
+        assert_eq!(visible_breadcrumbs[0].slug, PUBLIC_PARENT_SLUG);
+        assert_eq!(visible_breadcrumbs[0].title, "Visible Parent");
 
-    let anonymous_after = run_endpoint!(
-        runner,
-        article_view,
-        json!({
-            "site_id": site_id,
-            "session_token": null,
-            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
-            "locales": ["en-US", "en"],
-        }),
-    );
-    match anonymous_after {
-        GetArticleViewOutput {
-            page:
-                GetPageViewOutput::Found {
-                    wikidot_breadcrumbs,
+        let public_parent = PageTable::find_by_id(public_parent_id)
+            .one(runner.context().transaction())
+            .await
+            .expect("public parent lookup should not fail")
+            .expect("public parent should exist");
+        let mut public_parent = public_parent.into_active_model();
+        public_parent.deleted_at = Set(Some(OffsetDateTime::now_utc()));
+        public_parent
+            .update(runner.context().transaction())
+            .await
+            .expect("public parent should be soft-deleted");
+
+        let deleted_parent_view = imported_breadcrumb_article_view(
+            &mut runner,
+            site_id,
+            PUBLIC_CHILD_SLUG,
+            None,
+        )
+        .await;
+        let (deleted_parent_breadcrumbs, deleted_parent_cache_key) =
+            match deleted_parent_view {
+                GetArticleViewOutput {
+                    page:
+                        GetPageViewOutput::Found {
+                            wikidot_breadcrumbs,
+                            ..
+                        },
+                    article_page_cache_key: Some(cache_key),
                     ..
-                },
-            article_page_cache_key: Some(cache_key),
-            ..
-        } => {
-            assert!(wikidot_breadcrumbs.is_empty());
-            assert!(
-                !wikidot_breadcrumbs
-                    .iter()
-                    .any(|item| item.slug == PRIVATE_ROOT_SLUG)
-            );
-            assert_ne!(cache_key, private_cache_key);
-        }
-        other => {
-            panic!("expected anonymous cached child after revocation, got {other:?}")
-        }
-    }
+                } => (wikidot_breadcrumbs, cache_key),
+                other => panic!("expected cached child of deleted parent, got {other:?}"),
+            };
+        assert_eq!(
+            deleted_parent_cache_key, visible_cache_key,
+            "ancestor deletion should exercise the existing cached article response"
+        );
+        assert!(
+            deleted_parent_breadcrumbs.is_empty(),
+            "deleted ancestor metadata must not be returned"
+        );
+    })
+    .await;
 
-    let authenticated_after = run_endpoint!(
-        runner,
-        article_view,
-        json!({
-            "site_id": site_id,
-            "session_token": admin_session_token,
-            "route": {"slug": PRIVATE_CHILD_SLUG, "extra": ""},
-            "locales": ["en-US", "en"],
-        }),
-    );
-    assert!(matches!(
-        authenticated_after,
-        GetArticleViewOutput {
-            page: GetPageViewOutput::Found { ref wikidot_breadcrumbs, .. },
-            ..
-        } if wikidot_breadcrumbs.len() == 3
-    ));
+    Box::pin(async {
+        let private_parent_view = imported_breadcrumb_article_view(
+            &mut runner,
+            site_id,
+            PRIVATE_CHILD_SLUG,
+            None,
+        )
+        .await;
+        let (private_parent_breadcrumbs, private_cache_key) = match private_parent_view {
+            GetArticleViewOutput {
+                page:
+                    GetPageViewOutput::Found {
+                        wikidot_breadcrumbs,
+                        ..
+                    },
+                article_page_cache_key: Some(cache_key),
+                ..
+            } => (wikidot_breadcrumbs, cache_key),
+            other => panic!("expected cached child of private parent, got {other:?}"),
+        };
+        assert_eq!(
+            private_parent_breadcrumbs
+                .iter()
+                .map(|breadcrumb| breadcrumb.slug.as_str())
+                .collect::<Vec<_>>(),
+            [PRIVATE_ROOT_SLUG, PRIVATE_PARENT_SLUG, PRIVATE_CHILD_SLUG],
+        );
+
+        let admin_session_token = SessionService::create(
+            runner.context(),
+            CreateSession {
+                user_id: ADMIN_USER_ID,
+                ip_address: common::IP_ADDRESS,
+                user_agent: "breadcrumb privacy test".to_owned(),
+                restricted: false,
+            },
+        )
+        .await
+        .expect("admin session should be created");
+        let authenticated_before = imported_breadcrumb_article_view(
+            &mut runner,
+            site_id,
+            PRIVATE_CHILD_SLUG,
+            Some(&admin_session_token),
+        )
+        .await;
+        assert!(matches!(
+            authenticated_before,
+            GetArticleViewOutput {
+                page: GetPageViewOutput::Found { ref wikidot_breadcrumbs, .. },
+                ..
+            } if wikidot_breadcrumbs.len() == 3
+        ));
+
+        RolePermissionTable::delete_many()
+            .filter(role_permission::Column::RoleId.eq(guest_role_id))
+            .filter(role_permission::Column::SiteId.eq(site_id))
+            .filter(role_permission::Column::ResourceType.eq(Resource::Page))
+            .filter(role_permission::Column::ResourceCategoryId.eq(private_category_id))
+            .filter(role_permission::Column::Action.eq(Action::View))
+            .exec(runner.context().transaction())
+            .await
+            .expect("guest private breadcrumb permission should be revoked");
+        PermissionCache::invalidate_site(runner.context(), site_id)
+            .await
+            .expect("breadcrumb permission cache should be invalidated after revocation");
+
+        let anonymous_after = imported_breadcrumb_article_view(
+            &mut runner,
+            site_id,
+            PRIVATE_CHILD_SLUG,
+            None,
+        )
+        .await;
+        match anonymous_after {
+            GetArticleViewOutput {
+                page:
+                    GetPageViewOutput::Found {
+                        wikidot_breadcrumbs,
+                        ..
+                    },
+                article_page_cache_key: Some(cache_key),
+                ..
+            } => {
+                assert!(wikidot_breadcrumbs.is_empty());
+                assert!(
+                    !wikidot_breadcrumbs
+                        .iter()
+                        .any(|item| item.slug == PRIVATE_ROOT_SLUG)
+                );
+                assert_ne!(cache_key, private_cache_key);
+            }
+            other => {
+                panic!("expected anonymous cached child after revocation, got {other:?}")
+            }
+        }
+
+        let authenticated_after = imported_breadcrumb_article_view(
+            &mut runner,
+            site_id,
+            PRIVATE_CHILD_SLUG,
+            Some(&admin_session_token),
+        )
+        .await;
+        assert!(matches!(
+            authenticated_after,
+            GetArticleViewOutput {
+                page: GetPageViewOutput::Found { ref wikidot_breadcrumbs, .. },
+                ..
+            } if wikidot_breadcrumbs.len() == 3
+        ));
+    })
+    .await;
 }
 
 #[tokio::test]
@@ -1088,6 +1113,7 @@ async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page(
             "wikitext": concat!(
                 "Before missing remote include.\n",
                 "[[include :missing-remote:missing-remote-include-self-cycle]]\n",
+                "[[include :missing-remote:missing-remote-include-self-cycle]]\n",
                 "After missing remote include.\n",
             ),
             "title": "Missing Remote Include",
@@ -1118,8 +1144,10 @@ async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page(
 
     assert!(html.contains("Before missing remote include."), "{html}");
     assert!(html.contains("After missing remote include."), "{html}");
-    assert!(
-        html.contains("No such page: :missing-remote:missing-remote-include-self-cycle"),
+    assert_eq!(
+        html.matches("No such page: :missing-remote:missing-remote-include-self-cycle")
+            .count(),
+        2,
         "{html}",
     );
 }
@@ -2711,6 +2739,25 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
         create_listpages_test_page(&mut runner, site_id, slug, title, "target").await;
     }
 
+    let duplicate_insert = runner
+        .context()
+        .transaction()
+        .execute(Statement::from_sql_and_values(
+            runner.context().transaction().get_database_backend(),
+            "INSERT INTO page (created_at, from_wikidot, site_id, page_category_id, slug, layout) SELECT TIMESTAMPTZ '2030-01-01 00:00:00+00' + duplicates.duplicate_number * INTERVAL '1 minute', source.from_wikidot, source.site_id, source.page_category_id, source.slug, source.layout FROM page AS source CROSS JOIN generate_series(1, 1000) AS duplicates(duplicate_number) WHERE source.site_id = $1 AND source.slug = $2 AND source.deleted_at IS NULL",
+            [
+                Value::from(site_id),
+                Value::from("fixture-exact-batch-a".to_owned()),
+            ],
+        ))
+        .await
+        .expect("duplicate live exact-name pages should be inserted");
+    assert_eq!(
+        duplicate_insert.rows_affected(),
+        1000,
+        "exact-name duplicate fixture should fill the combined batch window before later slugs",
+    );
+
     let private_category = "fixture-exact-batch-private-category";
     make_listpages_test_category_admin_only(&runner, site_id, private_category).await;
     let private_slug = "fixture-exact-batch-private";
@@ -2733,12 +2780,12 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
         "Exact Batch Index",
         &format!(
             concat!(
-                "[[module ListPages name=\"fixture-exact-batch-c\"]]C=%%slug%%[[/module]]\n",
-                "[[module ListPages name=\"fixture-exact-batch-a\"]]A1=%%slug%%|%%created_by%%[[/module]]\n",
-                "[[module ListPages name=\"fixture-exact-batch-b\"]]B=%%slug%%[[/module]]\n",
+                "[[module ListPages fullname=\"fixture-exact-batch-c\"]]C=%%slug%%|%%created_by%%[[/module]]\n",
+                "[[module ListPages full_slug=\"fixture-exact-batch-a\"]]A1=%%slug%%@%%created_at|%Y %b %d %H:%M%%[[/module]]\n",
+                "[[module ListPages fullslug=\"fixture-exact-batch-b\"]]B=%%slug%%[[/module]]\n",
                 "[[module ListPages name=\"fixture-exact-batch-a\"]]A2=%%slug%%|%%rating_votes%%[[/module]]\n",
-                "[[module ListPages name=\"fixture-exact-batch-missing\"]]MISSING=%%slug%%[[/module]]\n",
-                "[[module ListPages category=\"{}\" name=\"{}\"]]PRIVATE=%%slug%%[[/module]]",
+                "[[module ListPages fullname=\"fixture-exact-batch-missing\"]]MISSING=%%slug%%[[/module]]\n",
+                "[[module ListPages category=\"{}\" fullname=\"{}\"]]PRIVATE=%%slug%%[[/module]]",
             ),
             private_category, private_slug,
         ),
@@ -2769,8 +2816,19 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
         c < a1 && a1 < b && b < a2,
         "batch output order changed:\n{html}"
     );
+    assert_eq!(
+        html.matches("A1=fixture-exact-batch-a@").count(),
+        100,
+        "batched duplicate rows should preserve the normal default ListPages limit instead of collapsing to one row:\n{html}",
+    );
+    let newest_duplicate = html.find("2030 Jan 02 01:40").unwrap();
+    let next_duplicate = html.find("2030 Jan 02 01:39").unwrap();
     assert!(
-        html.contains("A1=fixture-exact-batch-a|Exact Batch Author"),
+        newest_duplicate < next_duplicate,
+        "batched duplicate rows should retain PageQuery order:\n{html}"
+    );
+    assert!(
+        html.contains("C=fixture-exact-batch-c|Exact Batch Author"),
         "batched user display metadata was not substituted:\n{html}"
     );
     assert!(
@@ -2785,6 +2843,194 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
         !html.contains("PRIVATE="),
         "private-category exact-name page was exposed:\n{html}"
     );
+}
+
+#[tokio::test]
+async fn fallback_link_title_batch_preserves_singular_duplicate_permission() {
+    const TARGET_SLUG: &str = "fixture-fallback-title-duplicate";
+    const FIRST_TITLE: &str = "Fallback duplicate first title";
+    const SECOND_SLUG: &str = "fixture-fallback-title-duplicate-source";
+    const SECOND_TITLE: &str = "Fallback duplicate second title";
+    const FIRST_CATEGORY: &str = "fixture-fallback-title-first";
+    const SECOND_CATEGORY: &str = "fixture-fallback-title-second";
+    const INDEX_SLUG: &str = "fixture-fallback-title-index";
+    const DEFAULT_LABEL: &str = "Fixture Fallback Title Duplicate";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        FIRST_TITLE,
+        "first duplicate target",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        SECOND_SLUG,
+        SECOND_TITLE,
+        "second duplicate target",
+    )
+    .await;
+
+    let first_page = PageTable::find()
+        .filter(
+            sea_orm::Condition::all()
+                .add(page::Column::SiteId.eq(site_id))
+                .add(page::Column::Slug.eq(TARGET_SLUG)),
+        )
+        .one(runner.context().transaction())
+        .await
+        .expect("first fallback target lookup should not fail")
+        .expect("first fallback target should exist");
+    let second_page = PageTable::find()
+        .filter(
+            sea_orm::Condition::all()
+                .add(page::Column::SiteId.eq(site_id))
+                .add(page::Column::Slug.eq(SECOND_SLUG)),
+        )
+        .one(runner.context().transaction())
+        .await
+        .expect("second fallback target lookup should not fail")
+        .expect("second fallback target should exist");
+    let first_page_id = first_page.page_id;
+    let second_page_id = second_page.page_id;
+    let first_category =
+        CategoryService::get_or_create(runner.context(), site_id, FIRST_CATEGORY)
+            .await
+            .expect("first fallback category should be created");
+    let second_category =
+        CategoryService::get_or_create(runner.context(), site_id, SECOND_CATEGORY)
+            .await
+            .expect("second fallback category should be created");
+    let mut first_page = first_page.into_active_model();
+    first_page.page_category_id = Set(first_category.category_id);
+    first_page
+        .update(runner.context().transaction())
+        .await
+        .expect("first fallback target should move to its category");
+    let mut second_page = second_page.into_active_model();
+    second_page.slug = Set(TARGET_SLUG.to_owned());
+    second_page.page_category_id = Set(second_category.category_id);
+    second_page
+        .update(runner.context().transaction())
+        .await
+        .expect("second fallback target should become an active duplicate");
+
+    let selected = PageService::get_optional(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed(TARGET_SLUG)),
+    )
+    .await
+    .expect("singular duplicate lookup should not fail")
+    .expect("singular duplicate lookup should select a page");
+    let selected_page_id = selected.page_id;
+
+    let (selected_category_slug, selected_category_id, other_page_id, other_category_id) =
+        if selected_page_id == first_page_id {
+            (
+                FIRST_CATEGORY,
+                first_category.category_id,
+                second_page_id,
+                second_category.category_id,
+            )
+        } else {
+            assert_eq!(selected_page_id, second_page_id);
+            (
+                SECOND_CATEGORY,
+                second_category.category_id,
+                first_page_id,
+                first_category.category_id,
+            )
+        };
+    make_listpages_test_category_admin_only(&runner, site_id, selected_category_slug)
+        .await;
+
+    let selected_again = PageService::get_optional(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed(TARGET_SLUG)),
+    )
+    .await
+    .expect("repeated singular duplicate lookup should not fail")
+    .expect("repeated singular duplicate lookup should select a page");
+    assert_eq!(selected_again.page_id, selected_page_id);
+    let can_view_selected = PermissionService::check_user_can(
+        runner.context(),
+        &CheckPermissionContext {
+            user_id: None,
+            site_id,
+            page_reference: Some(Reference::Id(selected_page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(selected_category_id)),
+            action: Action::View,
+        },
+    )
+    .await
+    .expect("anonymous duplicate permission check should not fail");
+    assert!(!can_view_selected);
+    let can_view_other = PermissionService::check_user_can(
+        runner.context(),
+        &CheckPermissionContext {
+            user_id: None,
+            site_id,
+            page_reference: Some(Reference::Id(other_page_id)),
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(other_category_id)),
+            action: Action::View,
+        },
+    )
+    .await
+    .expect("anonymous non-selected duplicate permission check should not fail");
+    assert!(can_view_other);
+
+    let mut source = format!("[[[{TARGET_SLUG}|]]]\n");
+    for index in 0..64 {
+        source.push_str(&format!(
+            "[[collapsible show=\"+ {index}\" hide=\"- {index}\"]]\nbody\n[[/collapsible]]\n"
+        ));
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fallback duplicate title index",
+        &source,
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("fallback duplicate title index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled fallback body should be included in page_get details");
+
+    assert!(
+        html.contains(&format!(r#"<a href="/{TARGET_SLUG}">{DEFAULT_LABEL}</a>"#)),
+        "fallback title batch should use the singular lookup's denied permission decision:\n{html}",
+    );
+    assert!(!html.contains(FIRST_TITLE), "{html}");
+    assert!(!html.contains(SECOND_TITLE), "{html}");
 }
 
 #[tokio::test]
@@ -5248,7 +5494,8 @@ async fn create_listpages_test_page(
 async fn listpages_content_shares_the_render_include_budget() {
     const COMPONENT_SLUG: &str = "component:listpages-include-budget-cell";
     const INDEX_SLUG: &str = "fixture-listpages-include-budget-index";
-    const SECTION_CHILD_SLUG: &str = "fixture-listpages-include-budget-section-child";
+    const SAME_ROW_CHILD_SLUG: &str = "fixture-listpages-include-budget-same-row-child";
+    const COMMENT_CHILD_SLUG: &str = "fixture-listpages-include-budget-comment-child";
     const INCLUDE_MARKER: &str = "LISTPAGES_INCLUDE_BUDGET_CELL";
     const INCLUDES_PER_SOURCE: usize = 128;
 
@@ -5290,16 +5537,24 @@ async fn listpages_content_shares_the_render_include_budget() {
             .await;
         set_listpages_test_parent(&mut runner, site_id, slug, INDEX_SLUG).await;
     }
-    let section_child_wikitext = format!(
-        "{}=====\n[[include {COMPONENT_SLUG}]]\n",
-        format!("[[include {COMPONENT_SLUG}]]\n").repeat(255),
-    );
+    let same_row_child_wikitext =
+        format!("[[include {COMPONENT_SLUG}]]\n=====\nPLAIN_SECTION\n");
     create_listpages_test_page(
         &mut runner,
         site_id,
-        SECTION_CHILD_SLUG,
-        "ListPages Include Budget Section Child",
-        &section_child_wikitext,
+        SAME_ROW_CHILD_SLUG,
+        "ListPages Include Budget Same Row Child",
+        &same_row_child_wikitext,
+    )
+    .await;
+    let comment_child_wikitext =
+        format!("[!--\n=====\n[[include {COMPONENT_SLUG}]]\n--]\n");
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMMENT_CHILD_SLUG,
+        "ListPages Include Budget Comment Child",
+        &comment_child_wikitext,
     )
     .await;
 
@@ -5334,22 +5589,71 @@ async fn listpages_content_shares_the_render_include_budget() {
         category_id: page.page_category_id,
         page_id: page.page_id,
     };
-    let selected_section = format!(
-        "[[include {COMPONENT_SLUG}]]\n[[module ListPages name=\"{SECTION_CHILD_SLUG}\"]]\n%%content{{2}}%%\n[[/module]]"
+    let comment_section = format!(
+        "[[module ListPages name=\"{COMMENT_CHILD_SLUG}\"]]\nCOMMENT_ROW_RENDERED %%content{{2}}%%\n[[/module]]"
     );
     let output = RenderService::render_page(
         runner.context(),
-        selected_section,
+        comment_section,
         &page_info,
         Layout::Wikidot,
         page_id,
     )
     .await
-    .expect("ListPages should expand only the requested content section");
+    .expect(
+        "ListPages should preserve whole-page literal context before selecting a section",
+    );
+    assert!(
+        output.html_output.body.contains("COMMENT_ROW_RENDERED"),
+        "the comment-boundary fixture must select and render its ListPages row",
+    );
+    assert!(
+        !output.html_output.body.contains(INCLUDE_MARKER),
+        "an include inside a comment spanning the selected section must remain inactive: {}",
+        output.html_output.body,
+    );
+    assert_eq!(
+        output
+            .html_output
+            .backlinks
+            .included_pages
+            .iter()
+            .filter(|page| page.page() == COMPONENT_SLUG)
+            .count(),
+        0,
+        "an inactive include crossing a section boundary must not create a backlink",
+    );
+
+    let direct_to_public_limit = format!("[[include {COMPONENT_SLUG}]]\n").repeat(255);
+    let full_and_first_section = format!(
+        "{direct_to_public_limit}[[module ListPages name=\"{SAME_ROW_CHILD_SLUG}\"]]\n%%content%%%%content{{1}}%%\n[[/module]]"
+    );
+    let output = RenderService::render_page(
+        runner.context(),
+        full_and_first_section,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect(
+        "full content and a section in one row should share one child include expansion",
+    );
     assert_eq!(
         output.html_output.body.matches(INCLUDE_MARKER).count(),
-        2,
-        "includes outside the requested content section must not consume the render budget",
+        257,
+        "the once-expanded child include should render through both content variables",
+    );
+    assert_eq!(
+        output
+            .html_output
+            .backlinks
+            .included_pages
+            .iter()
+            .filter(|page| page.page() == COMPONENT_SLUG)
+            .count(),
+        256,
+        "overlapping content variables in one row must charge and record the child include once",
     );
 
     let direct_includes =
@@ -5377,7 +5681,21 @@ async fn listpages_content_shares_the_render_include_budget() {
     );
 
     let repeated_child = format!("{direct_includes}{}{}", list_pages(1), list_pages(1),);
-    let output = RenderService::render_page(
+    let error = RenderService::render_page(
+        runner.context(),
+        repeated_child.clone(),
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect_err("separate ListPages blocks must charge the repeated child occurrence");
+    assert!(
+        format!("{error:?}")
+            .contains("include expansion exceeded maximum total includes 256"),
+        "separate ListPages blocks must share the public include ceiling: {error:?}",
+    );
+    let output = RenderService::render_corpus_page(
         runner.context(),
         repeated_child,
         &page_info,
@@ -5385,11 +5703,22 @@ async fn listpages_content_shares_the_render_include_budget() {
         page_id,
     )
     .await
-    .expect("repeated ListPages content should reuse one include expansion");
+    .expect("the corpus budget should allow both repeated ListPages block occurrences");
     assert_eq!(
         output.html_output.body.matches(INCLUDE_MARKER).count(),
         384,
-        "cached content must still render at every ListPages occurrence",
+        "the child content must render at every ListPages block occurrence",
+    );
+    assert_eq!(
+        output
+            .html_output
+            .backlinks
+            .included_pages
+            .iter()
+            .filter(|page| page.page() == COMPONENT_SLUG)
+            .count(),
+        384,
+        "separate ListPages blocks must record every child include occurrence",
     );
 
     let over_budget = format!("{direct_includes}{}", list_pages(2));
@@ -5421,6 +5750,17 @@ async fn listpages_content_shares_the_render_include_budget() {
         output.html_output.body.matches(INCLUDE_MARKER).count(),
         384,
         "the corpus render should expand direct includes and both ListPages rows",
+    );
+    assert_eq!(
+        output
+            .html_output
+            .backlinks
+            .included_pages
+            .iter()
+            .filter(|page| page.page() == COMPONENT_SLUG)
+            .count(),
+        384,
+        "separate ListPages rows must record every child include occurrence",
     );
 }
 
@@ -8046,6 +8386,363 @@ async fn page_query_score_order_returns_results() {
 }
 
 #[tokio::test]
+async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantics() {
+    const IMPORT_RUN_ID: i64 = 7_130_558;
+    const PREFIX: &str = "fixture-score-filter-plan";
+    const HIGH: &str = "fixture-score-filter-plan-high";
+    const ZERO: &str = "fixture-score-filter-plan-zero";
+    const LOW: &str = "fixture-score-filter-plan-low";
+    const IMPORTED: &str = "fixture-score-filter-plan-imported";
+    const LARGE_INTEGER: &str = "fixture-score-filter-plan-large-integer";
+    const INACTIVE_VOTES: &str = "fixture-score-filter-plan-inactive-votes";
+    const LEGACY_IMPORTED_VOTE: &str = "fixture-score-filter-plan-legacy-imported-vote";
+    const DELETED_PAGE: &str = "fixture-score-filter-plan-soft-deleted";
+    const DUMMY_PREFIX: &str = "fixture-score-filter-plan-dummy-";
+    const LARGE_INTEGER_SCORE: i64 = 9_007_199_254_740_993;
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (HIGH, "Score Filter Plan High"),
+        (ZERO, "Score Filter Plan Zero"),
+        (LOW, "Score Filter Plan Low"),
+        (IMPORTED, "Score Filter Plan Imported"),
+        (LARGE_INTEGER, "Score Filter Plan Large Integer"),
+        (INACTIVE_VOTES, "Score Filter Plan Inactive Votes"),
+        (LEGACY_IMPORTED_VOTE, "Score Filter Plan Legacy Vote"),
+        (DELETED_PAGE, "Score Filter Plan Soft Deleted"),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "Score filter plan fixture.",
+        )
+        .await;
+    }
+
+    let high_id = listpages_test_page_id(&runner, site_id, HIGH).await;
+    let low_id = listpages_test_page_id(&runner, site_id, LOW).await;
+    let imported_id = listpages_test_page_id(&runner, site_id, IMPORTED).await;
+    let large_integer_id = listpages_test_page_id(&runner, site_id, LARGE_INTEGER).await;
+    let inactive_votes_id =
+        listpages_test_page_id(&runner, site_id, INACTIVE_VOTES).await;
+    let legacy_imported_vote_id =
+        listpages_test_page_id(&runner, site_id, LEGACY_IMPORTED_VOTE).await;
+    let deleted_page_id = listpages_test_page_id(&runner, site_id, DELETED_PAGE).await;
+
+    for (page_id, value) in [
+        (high_id, 5),
+        (low_id, -2),
+        (imported_id, 2),
+        (inactive_votes_id, 9),
+        (deleted_page_id, 20),
+    ] {
+        run_endpoint!(
+            runner,
+            vote_set,
+            json!({
+                "page_id": page_id,
+                "user_id": ADMIN_USER_ID,
+                "value": value,
+            }),
+        );
+    }
+
+    create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 2).await;
+    set_imported_author(
+        &runner,
+        site_id,
+        IMPORT_RUN_ID,
+        (imported_id, IMPORTED, 558, "Imported Score Author"),
+    )
+    .await;
+    set_imported_author(
+        &runner,
+        site_id,
+        IMPORT_RUN_ID,
+        (
+            large_integer_id,
+            LARGE_INTEGER,
+            559,
+            "Large Integer Score Author",
+        ),
+    )
+    .await;
+
+    let transaction = runner.context().transaction();
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE wikidot_page_snapshot SET imported_rating = 7 WHERE page_id = $1",
+            [Value::from(imported_id)],
+        ))
+        .await
+        .expect("imported score fixture should receive its snapshot rating");
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE wikidot_page_snapshot SET imported_rating = $1 WHERE page_id = $2",
+            [
+                Value::from(LARGE_INTEGER_SCORE),
+                Value::from(large_integer_id),
+            ],
+        ))
+        .await
+        .expect("large integer score fixture should receive its snapshot rating");
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (true, $1, $2, -5), (true, $3, $2, 3)",
+            [
+                Value::from(imported_id),
+                Value::from(SAMPLE_USER_ID),
+                Value::from(legacy_imported_vote_id),
+            ],
+        ))
+        .await
+        .expect("Wikidot vote fixtures should be inserted");
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (page_id, user_id, value, deleted_at, disabled_at, disabled_by) VALUES ($1, $2, -20, NOW(), NULL, NULL), ($1, $3, -20, NULL, NOW(), $4)",
+            [
+                Value::from(inactive_votes_id),
+                Value::from(SAMPLE_USER_ID),
+                Value::from(SYSTEM_USER_ID),
+                Value::from(ADMIN_USER_ID),
+            ],
+        ))
+        .await
+        .expect("inactive score fixtures should be inserted");
+
+    let deleted_page = PageTable::find_by_id(deleted_page_id)
+        .one(transaction)
+        .await
+        .expect("soft-deleted score fixture lookup should succeed")
+        .expect("soft-deleted score fixture should exist");
+    let mut deleted_page = deleted_page.into_active_model();
+    deleted_page.deleted_at = Set(Some(OffsetDateTime::now_utc()));
+    deleted_page
+        .update(transaction)
+        .await
+        .expect("score fixture page should be soft-deleted");
+
+    let category_id = PageTable::find_by_id(high_id)
+        .one(transaction)
+        .await
+        .expect("score fixture category lookup should succeed")
+        .expect("score fixture page should exist")
+        .page_category_id;
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page (site_id, page_category_id, slug) SELECT $1, $2, $3 || '-' || value FROM generate_series(1, 513) AS value",
+            [
+                Value::from(site_id),
+                Value::from(category_id),
+                Value::from(format!("{PREFIX}-dummy")),
+            ],
+        ))
+        .await
+        .expect("broad score-plan probe fixtures should be inserted");
+
+    let base_query = PageQuery {
+        current_page_id: 0,
+        current_site_id: site_id,
+        queried_site_id: Some(site_id),
+        page_type: PageTypeSelector::All,
+        categories: CategoriesSelector {
+            included_categories: IncludedCategories::All,
+            excluded_categories: &[],
+        },
+        tags: TagCondition {
+            any_present: &[],
+            all_present: &[],
+            none_present: &[],
+        },
+        page_parent: PageParentSelector::All,
+        contains_outgoing_links: &[],
+        creation_date: DateSelector::FromPresent {
+            start: OffsetDateTime::UNIX_EPOCH,
+        },
+        update_date: DateSelector::FromPresent {
+            start: OffsetDateTime::UNIX_EPOCH,
+        },
+        author: AuthorSelector::All,
+        score: &[],
+        votes: &[],
+        offset: 0,
+        range: RangeSelector::Current,
+        name: None,
+        slug: None,
+        slugs: &[],
+        data_form_fields: &[],
+        order: Some(OrderBySelector {
+            property: OrderProperty::PageSlug,
+            ascending: true,
+        }),
+        candidate_limit: None,
+        pagination: PaginationSelector {
+            limit: Some(1_000),
+            ..PaginationSelector::default()
+        },
+        variables: &[],
+        fields: FoundPageFields {
+            slug: true,
+            ..FoundPageFields::default()
+        },
+    };
+    let fixture_slugs = [
+        Cow::Borrowed(HIGH),
+        Cow::Borrowed(ZERO),
+        Cow::Borrowed(LOW),
+        Cow::Borrowed(IMPORTED),
+        Cow::Borrowed(LARGE_INTEGER),
+        Cow::Borrowed(INACTIVE_VOTES),
+        Cow::Borrowed(LEGACY_IMPORTED_VOTE),
+        Cow::Borrowed(DELETED_PAGE),
+    ];
+
+    fn selected_slugs(pages: deepwell::services::page_query::FoundPages) -> Vec<String> {
+        pages
+            .pages
+            .into_iter()
+            .map(|page| page.slug.expect("score filter query requested slugs"))
+            .collect()
+    }
+
+    for (threshold, comparison, expected) in [
+        (
+            0,
+            ComparisonOperation::GreaterThan,
+            vec![
+                HIGH.to_owned(),
+                IMPORTED.to_owned(),
+                INACTIVE_VOTES.to_owned(),
+                LARGE_INTEGER.to_owned(),
+                LEGACY_IMPORTED_VOTE.to_owned(),
+            ],
+        ),
+        (0, ComparisonOperation::LessThan, vec![LOW.to_owned()]),
+        (
+            8,
+            ComparisonOperation::GreaterThan,
+            vec![
+                IMPORTED.to_owned(),
+                INACTIVE_VOTES.to_owned(),
+                LARGE_INTEGER.to_owned(),
+            ],
+        ),
+        (0, ComparisonOperation::Equal, vec![ZERO.to_owned()]),
+    ] {
+        let score = [ScoreSelector {
+            score: QueryScoreValue::Integer(threshold),
+            comparison,
+        }];
+
+        let mut correlated_query = base_query.clone();
+        correlated_query.score = &score;
+        correlated_query.slugs = &fixture_slugs;
+        let correlated = PageQueryService::find(runner.context(), correlated_query)
+            .await
+            .expect("candidate-correlated score filter should succeed");
+
+        let mut site_wide_query = base_query.clone();
+        site_wide_query.score = &score;
+        site_wide_query.name = Some(Cow::Owned(format!("{PREFIX}-*")));
+        let site_wide = PageQueryService::find(runner.context(), site_wide_query)
+            .await
+            .expect("site-wide score filter should succeed");
+
+        assert_eq!(selected_slugs(correlated), expected);
+        assert_eq!(
+            selected_slugs(site_wide)
+                .into_iter()
+                .filter(|slug| !slug.starts_with(DUMMY_PREFIX))
+                .collect::<Vec<_>>(),
+            expected,
+        );
+    }
+
+    let bounded_score = [
+        ScoreSelector {
+            score: QueryScoreValue::Integer(0),
+            comparison: ComparisonOperation::GreaterOrEqualThan,
+        },
+        ScoreSelector {
+            score: QueryScoreValue::Integer(5),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        },
+    ];
+    let expected_bounded = vec![
+        HIGH.to_owned(),
+        LEGACY_IMPORTED_VOTE.to_owned(),
+        ZERO.to_owned(),
+    ];
+
+    let mut correlated_query = base_query.clone();
+    correlated_query.score = &bounded_score;
+    correlated_query.slugs = &fixture_slugs;
+    let correlated = PageQueryService::find(runner.context(), correlated_query)
+        .await
+        .expect("candidate-correlated repeated score filters should succeed");
+
+    let mut site_wide_query = base_query.clone();
+    site_wide_query.score = &bounded_score;
+    site_wide_query.name = Some(Cow::Owned(format!("{PREFIX}-*")));
+    let site_wide = PageQueryService::find(runner.context(), site_wide_query)
+        .await
+        .expect("site-wide repeated score filters should succeed");
+
+    assert_eq!(selected_slugs(correlated), expected_bounded);
+    assert_eq!(
+        selected_slugs(site_wide)
+            .into_iter()
+            .filter(|slug| !slug.starts_with(DUMMY_PREFIX))
+            .collect::<Vec<_>>(),
+        expected_bounded,
+    );
+
+    for (threshold, expected) in [
+        (LARGE_INTEGER_SCORE - 1, Vec::new()),
+        (LARGE_INTEGER_SCORE, vec![LARGE_INTEGER.to_owned()]),
+    ] {
+        let score = [ScoreSelector {
+            score: QueryScoreValue::Integer(threshold),
+            comparison: ComparisonOperation::Equal,
+        }];
+
+        let mut correlated_query = base_query.clone();
+        correlated_query.score = &score;
+        correlated_query.slugs = &fixture_slugs;
+        let correlated = PageQueryService::find(runner.context(), correlated_query)
+            .await
+            .expect("large integer candidate-correlated score filter should succeed");
+
+        let mut site_wide_query = base_query.clone();
+        site_wide_query.score = &score;
+        site_wide_query.name = Some(Cow::Owned(format!("{PREFIX}-*")));
+        let site_wide = PageQueryService::find(runner.context(), site_wide_query)
+            .await
+            .expect("large integer site-wide score filter should succeed");
+
+        assert_eq!(selected_slugs(correlated), expected);
+        assert_eq!(
+            selected_slugs(site_wide)
+                .into_iter()
+                .filter(|slug| !slug.starts_with(DUMMY_PREFIX))
+                .collect::<Vec<_>>(),
+            expected,
+        );
+    }
+}
+
+#[tokio::test]
 async fn page_query_find_with_metadata_marks_sql_limited_results() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -8217,6 +8914,92 @@ async fn page_query_find_with_metadata_marks_deferred_score_ordering() {
 }
 
 #[tokio::test]
+async fn page_query_data_form_candidate_cap_marks_partial_result_incomplete() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-page-query-data-form-cap";
+
+    for suffix in ["a", "b"] {
+        let slug = format!("fixture-page-query-data-form-cap-{suffix}");
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            &slug,
+            "Fixture PageQuery data form cap",
+            "status: wanted\n\nFixture PageQuery data form cap marker.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &[tag]).await;
+    }
+
+    let all_tags = [Cow::Borrowed(tag)];
+    let data_form_fields = [DataFormSelector {
+        field: Cow::Borrowed("status"),
+        value: Cow::Borrowed("wanted"),
+        negated: false,
+    }];
+    let result = PageQueryService::find_with_metadata(
+        runner.context(),
+        PageQuery {
+            current_page_id: 0,
+            current_site_id: site_id,
+            queried_site_id: Some(site_id),
+            page_type: PageTypeSelector::All,
+            categories: CategoriesSelector {
+                included_categories: IncludedCategories::All,
+                excluded_categories: &[],
+            },
+            tags: TagCondition {
+                any_present: &[],
+                all_present: &all_tags,
+                none_present: &[],
+            },
+            page_parent: PageParentSelector::All,
+            contains_outgoing_links: &[],
+            creation_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            update_date: DateSelector::FromPresent {
+                start: OffsetDateTime::UNIX_EPOCH,
+            },
+            author: AuthorSelector::All,
+            score: &[],
+            votes: &[],
+            offset: 0,
+            range: RangeSelector::Current,
+            name: None,
+            slug: None,
+            slugs: &[],
+            data_form_fields: &data_form_fields,
+            order: Some(OrderBySelector {
+                property: OrderProperty::PageSlug,
+                ascending: true,
+            }),
+            candidate_limit: Some(1),
+            pagination: PaginationSelector {
+                limit: Some(20),
+                ..Default::default()
+            },
+            variables: &[],
+            fields: FoundPageFields {
+                slug: true,
+                ..Default::default()
+            },
+        },
+    )
+    .await
+    .expect("capped data form query should return an explicitly incomplete result");
+
+    assert_eq!(result.pages.total(), 1);
+    assert_eq!(result.metadata.candidate_count, Some(1));
+    assert!(result.metadata.cap_exceeded);
+    assert!(result.metadata.filtering_deferred_to_rust);
+    assert!(!result.metadata.exact_count_safe);
+}
+
+#[tokio::test]
 async fn listpages_deferred_forms_remain_unsupported() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -8261,6 +9044,410 @@ async fn listpages_deferred_forms_remain_unsupported() {
             "unsupported ListPages case {slug_suffix} must not silently render accepted title/slug rows:\n{html}"
         );
     }
+}
+
+#[tokio::test]
+async fn excessive_score_selectors_preserve_listpages_and_countpages_modules() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let excessive_selectors = r#" score=">=0""#.repeat(65);
+    let forged_marker = "WIKIJUMPWIKIDOTCOMPATTEXTffffffffffffffffffffffffffffffffI0X";
+    let target_slug = "fixture-score-selector-cap-target";
+    let target_tag = "verification-score-selector-cap";
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target_slug,
+        "Fixture Score Selector Cap Target",
+        "Fixture score selector cap target marker.",
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        target_slug,
+        target_revision,
+        &[target_tag],
+    )
+    .await;
+
+    let list_head = format!(r#"tags="+{target_tag}" limit="20"{excessive_selectors}"#);
+    let count_head = format!(r#"tags="+{target_tag}" limit="20"{excessive_selectors}"#);
+    let index_slug = "fixture-score-selector-cap-index";
+    let index_source = format!(
+        "[[module ListPages {list_head}]]\nSCORE_SELECTOR_CAP_LIST=%%slug%% <script>&\"' {forged_marker}\n[[/module]]\n\n[[module CountPages {count_head}]]\nSCORE_SELECTOR_CAP_COUNT=%%total%% <script>&\"' {forged_marker}\n[[/module]]",
+    );
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        index_slug,
+        "Fixture Score Selector Cap Index",
+        &index_source,
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("score selector cap index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("score selector cap index should include compiled HTML");
+
+    assert!(
+        html.contains("SCORE_SELECTOR_CAP_LIST=%%slug%%"),
+        "ListPages must preserve an excessive score-selector module instead of running a truncated query:\n{html}",
+    );
+    assert!(
+        html.contains("SCORE_SELECTOR_CAP_COUNT=%%total%%"),
+        "CountPages must preserve an excessive score-selector module instead of returning a partial count:\n{html}",
+    );
+    assert!(
+        !html.contains(target_slug),
+        "capped modules must not query rows:\n{html}"
+    );
+    assert_eq!(
+        html.matches("&lt;script&gt;&amp;&quot;&#39;").count(),
+        2,
+        "both preserved modules must restore dangerous text only after HTML escaping:\n{html}",
+    );
+    assert!(
+        !html.contains("<script>"),
+        "preserved syntax must stay inert:\n{html}"
+    );
+    assert_eq!(
+        html.matches(forged_marker).count(),
+        2,
+        "authored marker-shaped text must not resolve through the shared registry:\n{html}",
+    );
+}
+
+#[tokio::test]
+async fn countpages_does_not_execute_modules_owned_by_ftml_text_constructs() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-countpages-ftml-text-owner";
+    let target_slug = "fixture-countpages-ftml-text-owner-target";
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target_slug,
+        "Fixture CountPages FTML Text Owner Target",
+        "Fixture CountPages FTML text owner target marker.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, target_slug, target_revision, &[tag])
+        .await;
+
+    let hidden_module = |marker: &str| {
+        format!(r#"[[module CountPages tags="+{tag}"]]{marker}=%%total%%[[/module]]"#,)
+    };
+    let owned_markers = [
+        "ownedlabelsingle",
+        "ownedlabeltriple",
+        "ownedlabelanchor",
+        "ownedquotedhead",
+        "ownedtargetsingle",
+        "ownedtargetanchor",
+        "ownedtargettriple",
+    ];
+    let count_only =
+        format!(r#"[[module CountPages tags="+{tag}"]]%%total%%[[/module]]"#,);
+    let source = format!(
+        "[https://e.test/ {} label]\n\n\
+         [[[target|{} label]]]\n\n\
+         [#toc {} label]\n\n\
+         [[span title='{} label']]body[[/span]]\n\n\
+         [https://e.test/{} label]\n\n\
+         [#toc{} label]\n\n\
+         [[[target {} suffix]]]\n\n\
+         ##rgb(1,2,{count_only})|owned color body##\n\n\
+         [[module CountPages tags=\"+{tag}\"]]ownedlive=%%total%%[[/module]]",
+        hidden_module(owned_markers[0]),
+        hidden_module(owned_markers[1]),
+        hidden_module(owned_markers[2]),
+        hidden_module(owned_markers[3]),
+        hidden_module(owned_markers[4]),
+        hidden_module(owned_markers[5]),
+        hidden_module(owned_markers[6]),
+    );
+    let index_slug = "fixture-countpages-ftml-text-owner-index";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        index_slug,
+        "Fixture CountPages FTML Text Owner Index",
+        &source,
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("CountPages FTML text owner index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("CountPages FTML text owner index should include compiled HTML");
+
+    assert!(
+        html.contains("ownedlive=1"),
+        "a CountPages module outside FTML-owned text must still execute:\n{html}",
+    );
+    for marker in owned_markers {
+        assert!(
+            html.contains(marker),
+            "FTML-owned CountPages source should remain represented in rendered output for {marker}:\n{html}",
+        );
+        assert!(
+            !html.contains(&format!("{marker}=1")),
+            "CountPages must not execute inside an FTML-owned text construct for {marker}:\n{html}",
+        );
+    }
+    assert!(
+        html.contains("owned color body"),
+        "the pinned-valid color construct should render its body:\n{html}",
+    );
+    assert!(
+        !html.contains("rgb(1,2,1)"),
+        "CountPages must not execute while FTML owns the color descriptor:\n{html}",
+    );
+}
+
+#[tokio::test]
+async fn countpages_preserves_runtime_unsafe_outer_heads_without_executing_inner_modules()
+{
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-countpages-runtime-unsafe-head";
+    let target_slug = "fixture-countpages-runtime-unsafe-head-target";
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target_slug,
+        "Fixture CountPages Runtime Unsafe Head Target",
+        "Fixture CountPages runtime unsafe head target marker.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, target_slug, target_revision, &[tag])
+        .await;
+
+    let nested_module = |head: &str, marker: &str| {
+        format!(
+            "[[module CountPages {head}]]\n\
+             {marker}outer=%%total%% <script>&\"'\n\
+             [[module CountPages tags=\"+{tag}\"]]{marker}inner=%%total%%[[/module]]\n\
+             [[/module]]",
+        )
+    };
+    let cases = [
+        (
+            "ownedquote",
+            nested_module(r#"name = "secret@site.example" wrapper=no"#, "ownedquote"),
+        ),
+        (
+            "embeddedquote",
+            nested_module(r#"name = "secret"wrapper="no""#, "embeddedquote"),
+        ),
+        (
+            "escapedquote",
+            nested_module(r#"name = "secret\" wrapper=no"#, "escapedquote"),
+        ),
+        (
+            "unicodeseparator",
+            nested_module("limit\\\n\u{00a0}=\"1\"", "unicodeseparator"),
+        ),
+    ];
+    let source = format!(
+        "{}\n\n{}\n\n{}\n\n{}\n\n\
+         [[module CountPages tags=\"+{tag}\"]]nestedlive=%%total%%[[/module]]",
+        cases[0].1, cases[1].1, cases[2].1, cases[3].1,
+    );
+    let index_slug = "fixture-countpages-runtime-unsafe-head-index";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        index_slug,
+        "Fixture CountPages Runtime Unsafe Head Index",
+        &source,
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("CountPages runtime unsafe head index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("CountPages runtime unsafe head index should include compiled HTML");
+
+    assert!(
+        html.contains("nestedlive=1"),
+        "an outside CountPages module must still execute:\n{html}",
+    );
+    for (marker, _) in cases {
+        for suffix in ["outer", "inner"] {
+            assert!(
+                html.contains(&format!("{marker}{suffix}=%%total%%")),
+                "the original {marker} {suffix} module text must remain preserved:\n{html}",
+            );
+            assert!(
+                !html.contains(&format!("{marker}{suffix}=1")),
+                "neither the runtime-unsafe outer module nor its valid inner module may execute for {marker}:\n{html}",
+            );
+        }
+    }
+    assert_eq!(
+        html.matches("&lt;script&gt;&amp;&quot;&#39;").count(),
+        4,
+        "every preserved unsafe outer module must restore authored text only after escaping:\n{html}",
+    );
+    assert!(
+        !html.contains("<script>"),
+        "preserved runtime-unsafe module syntax must stay inert:\n{html}",
+    );
+}
+
+#[tokio::test]
+async fn score_selectors_at_limit_render_listpages_normally() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let selectors_at_limit = r#" score=">=0""#.repeat(64);
+    let list_tag = "verification-list-score-selector-limit";
+    let list_head = format!(r#"tags="+{list_tag}" limit="20"{selectors_at_limit}"#);
+    let target_slug = "fixture-list-score-selector-limit-target";
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target_slug,
+        "Fixture ListPages Score Selector Limit Target",
+        "Fixture ListPages score selector limit marker.",
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        target_slug,
+        target_revision,
+        &[list_tag],
+    )
+    .await;
+    let index_slug = "fixture-list-score-selector-limit-index";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        index_slug,
+        "Fixture ListPages Score Selector Limit Index",
+        &format!(
+            "[[module ListPages {list_head}]]\nSCORE_SELECTOR_LIMIT_LIST=%%slug%%\n[[/module]]"
+        ),
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("ListPages score selector limit index should exist");
+    let list_html = page
+        .compiled_body_html
+        .expect("ListPages score selector limit index should include compiled HTML");
+    assert!(
+        list_html.contains(&format!("SCORE_SELECTOR_LIMIT_LIST={target_slug}")),
+        "ListPages selectors at the limit must still execute normally:\n{list_html}",
+    );
+}
+
+#[tokio::test]
+async fn score_selectors_at_limit_render_countpages_normally() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let selectors_at_limit = r#" score=">=0""#.repeat(64);
+    let count_tag = "verification-count-score-selector-limit";
+    let count_head = format!(r#"tags="+{count_tag}" limit="20"{selectors_at_limit}"#);
+    let target_slug = "fixture-count-score-selector-limit-target";
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target_slug,
+        "Fixture CountPages Score Selector Limit Target",
+        "Fixture CountPages score selector limit marker.",
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        target_slug,
+        target_revision,
+        &[count_tag],
+    )
+    .await;
+    let index_slug = "fixture-count-score-selector-limit-index";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        index_slug,
+        "Fixture CountPages Score Selector Limit Index",
+        &format!(
+            "[[module CountPages {count_head}]]\nSCORE_SELECTOR_LIMIT_COUNT=%%total%%\n[[/module]]"
+        ),
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": index_slug,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("CountPages score selector limit index should exist");
+    let count_html = page
+        .compiled_body_html
+        .expect("CountPages score selector limit index should include compiled HTML");
+    assert!(
+        count_html.contains("SCORE_SELECTOR_LIMIT_COUNT=1"),
+        "CountPages selectors at the limit must still execute normally:\n{count_html}",
+    );
 }
 
 #[tokio::test]
