@@ -19,11 +19,11 @@
  */
 
 use super::literal_regions::{
-    ListPagesSourceProjection, LiteralRegionCursor, LiteralRegionIndex, TextTokenCursor,
-    WikidotArgumentValueKind, WikidotTagArgumentScan, WikidotWholeHeadScan,
-    double_quote_ends_wikidot_argument, left_block_start_in_run,
-    project_list_pages_typography_in_place, quote_is_escaped, right_bracket_token,
-    rollback_start_in_left_run, scan_wikidot_whole_head_value,
+    ListPagesScannerLiteralIndexes, ListPagesSourceProjection, LiteralRegionCursor,
+    LiteralRegionIndex, TextTokenCursor, WikidotArgumentValueKind,
+    WikidotTagArgumentScan, WikidotWholeHeadScan, double_quote_ends_wikidot_argument,
+    left_block_start_in_run, project_list_pages_typography_in_place, quote_is_escaped,
+    right_bracket_token, rollback_start_in_left_run, scan_wikidot_whole_head_value,
     wikidot_right_bracket_token, wikidot_trimmed_name,
 };
 mod count_reachability;
@@ -1649,8 +1649,12 @@ fn find_list_pages_module_matches_with_cursor_work(
     let projected_lowercase = projection
         .as_ref()
         .map(|projection| projection.source().to_ascii_lowercase());
-    let direct_literal_regions =
-        LiteralRegionIndex::new_list_pages_scanner_syntax(source);
+    let ListPagesScannerLiteralIndexes {
+        direct: direct_literal_regions,
+        projected: projected_literal_regions,
+        original_css: original_css_regions,
+        original_anchors: original_anchor_regions,
+    } = LiteralRegionIndex::new_list_pages_scanner_indexes(source, projection.as_ref());
     let direct_scanner =
         ModuleEventScanner::new(source, &lowercase, &direct_literal_regions);
     let (
@@ -1700,14 +1704,13 @@ fn find_list_pages_module_matches_with_cursor_work(
             let projected_lowercase = projected_lowercase
                 .as_ref()
                 .expect("projected lowercase accompanies a source projection");
-            let projected_literal_regions =
-                LiteralRegionIndex::new_already_projected_list_pages_syntax(
-                    projection.source(),
-                );
+            let projected_literal_regions = projected_literal_regions
+                .as_ref()
+                .expect("projected literal regions accompany a source projection");
             let projected_scanner = ModuleEventScanner::new(
                 projection.source(),
                 projected_lowercase,
-                &projected_literal_regions,
+                projected_literal_regions,
             );
             let (
                 projected_events,
@@ -1722,11 +1725,13 @@ fn find_list_pages_module_matches_with_cursor_work(
                     direct_literal_advances + projected_literal_advances,
                 );
             }
-            let original_css_regions =
-                LiteralRegionIndex::new_list_pages_downstream_css_syntax(source);
+            let original_css_regions = original_css_regions
+                .as_ref()
+                .expect("original CSS regions accompany a source projection");
             let mut original_css_cursor = original_css_regions.monotone_cursor();
-            let original_anchor_regions =
-                LiteralRegionIndex::new_list_pages_anchor_syntax(source);
+            let original_anchor_regions = original_anchor_regions
+                .as_ref()
+                .expect("original anchor regions accompany a source projection");
             let mut original_anchor_cursor = original_anchor_regions.monotone_cursor();
             let mut events = Vec::with_capacity(projected_events.len());
             for event in projected_events {

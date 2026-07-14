@@ -95,6 +95,51 @@ fn monotone_cursor_advances_each_literal_range_at_most_once() {
 }
 
 #[test]
+fn shared_list_pages_scanner_indexes_match_independent_builds() {
+    for source in [
+        concat!(
+            "\n[[module css]]\n.example { content: '[[module ListPages]]'; }\n[[/module]]\n",
+            "[[# anchor]]\n[[module ListPages range=\".\"]]body[[/module]]",
+        ),
+        concat!(
+            "\t> quoted [[module ListPages]]ignored[[/module]]\r\n",
+            "\r\n[[module ListPages name=\"live\"]]body[[/module]]\r\n",
+        ),
+    ] {
+        let projection = ListPagesSourceProjection::new(source)
+            .expect("fixture should require a source projection");
+        let expected_direct = LiteralRegionIndex::new_list_pages_scanner_syntax(source);
+        let expected_projected =
+            LiteralRegionIndex::new_already_projected_list_pages_syntax(
+                projection.source(),
+            );
+        let expected_css =
+            LiteralRegionIndex::new_list_pages_downstream_css_syntax(source);
+        let expected_anchors = LiteralRegionIndex::new_list_pages_anchor_syntax(source);
+
+        let indexes =
+            LiteralRegionIndex::new_list_pages_scanner_indexes(source, Some(&projection));
+
+        assert_eq!(indexes.direct.ranges, expected_direct.ranges);
+        assert_eq!(
+            indexes.projected.expect("projected index").ranges,
+            expected_projected.ranges,
+        );
+        assert_eq!(
+            indexes.original_css.expect("original CSS index").ranges,
+            expected_css.ranges,
+        );
+        assert_eq!(
+            indexes
+                .original_anchors
+                .expect("original anchor index")
+                .ranges,
+            expected_anchors.ranges,
+        );
+    }
+}
+
+#[test]
 fn handles_dense_single_kind_inline_literals() {
     const LITERAL_COUNT: usize = 20_000;
 

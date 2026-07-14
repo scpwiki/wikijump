@@ -264,7 +264,7 @@ impl ListPagesSourceProjection {
             .collect()
     }
 
-    fn map_literal_range(
+    pub(in crate::services::render) fn map_literal_range(
         &self,
         range: Range<usize>,
         original_len: usize,
@@ -277,7 +277,7 @@ impl ListPagesSourceProjection {
         mapped
     }
 
-    fn map_ranges(
+    pub(in crate::services::render) fn map_ranges(
         &self,
         ranges: Vec<Range<usize>>,
         original_len: usize,
