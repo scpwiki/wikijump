@@ -4403,6 +4403,16 @@ impl RenderService {
                 Vec::new()
             };
 
+            if !has_include_opening_candidate(&wikitext) {
+                Self::unmask_wikidot_comment_include_markers(&mut wikitext);
+                protect_include_variables(&mut wikitext);
+                return Ok(IncludeExpansion {
+                    wikitext,
+                    included_pages: image_block_included_pages,
+                    expanded_include_count: 0,
+                });
+            }
+
             let mut includes = Vec::new();
             ftml::include(
                 &wikitext,
@@ -12701,6 +12711,29 @@ fn protect_include_variables(content: &mut String) {
     *content = protected;
 }
 
+fn has_include_opening_candidate(content: &str) -> bool {
+    let bytes = content.as_bytes();
+    let mut search = 0;
+    while search + 1 < bytes.len() {
+        let Some(offset) = bytes[search..].windows(2).position(|pair| pair == b"[[")
+        else {
+            return false;
+        };
+        let mut cursor = search + offset + 2;
+        while bytes.get(cursor).is_some_and(u8::is_ascii_whitespace) {
+            cursor += 1;
+        }
+        if bytes
+            .get(cursor..cursor.saturating_add(b"include".len()))
+            .is_some_and(|name| name.eq_ignore_ascii_case(b"include"))
+        {
+            return true;
+        }
+        search = cursor.max(search + offset + 2);
+    }
+    false
+}
+
 fn unprotect_include_variables(content: &mut String) {
     *content = content
         .replace(INCLUDE_VARIABLE_OPEN_SENTINEL, "{$")
@@ -13007,7 +13040,7 @@ mod tests {
         count_pages_unbounded_total, current_page_info_list_pages_row,
         exact_name_list_pages_batch_key, find_balanced_ul_end,
         find_list_pages_module_matches, format_list_pages_created_at,
-        has_count_pages_module_opening_candidate,
+        has_count_pages_module_opening_candidate, has_include_opening_candidate,
         has_list_pages_module_opening_candidate, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
@@ -13301,6 +13334,16 @@ mod tests {
             .expect("current page selector should parse");
 
         assert!(arguments.current_page_only);
+    }
+
+    #[test]
+    fn include_preflight_requires_an_include_block_candidate() {
+        assert!(has_include_opening_candidate("[[include component:thing]]"));
+        assert!(has_include_opening_candidate(
+            "[[  InClUdE component:thing]]"
+        ));
+        assert!(!has_include_opening_candidate("include component:thing"));
+        assert!(!has_include_opening_candidate("[[module css]] .include {}"));
     }
 
     #[test]
