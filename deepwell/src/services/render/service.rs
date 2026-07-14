@@ -8340,8 +8340,8 @@ impl RenderService {
         if target_count > 0 && render_page_query_uses_single_scan(query.order) {
             let mut query = query;
             query.offset = 0;
-            query.pagination.limit = Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
-            let found = PageQueryService::find_with_metadata(ctx, query).await?;
+            query.pagination.limit = Some(random_page_query_scan_limit(target_count));
+            let mut found = PageQueryService::find_with_metadata(ctx, query).await?;
             if found.metadata.cap_exceeded {
                 return Ok(ViewableListPagesRows {
                     pages: FoundPages { pages: Vec::new() },
@@ -8357,6 +8357,18 @@ impl RenderService {
             )
             .await?;
             let view_permission_filtering_applied = pages.len() != raw_count;
+            if random_page_query_scan_requires_preservation(
+                raw_count,
+                pages.len(),
+                target_count,
+            ) {
+                found.metadata.cap_exceeded = true;
+                return Ok(ViewableListPagesRows {
+                    pages: FoundPages { pages: Vec::new() },
+                    metadata: found.metadata,
+                    view_permission_filtering_applied,
+                });
+            }
             pages.truncate(target_count);
             return Ok(ViewableListPagesRows {
                 pages: FoundPages { pages },
@@ -8421,8 +8433,8 @@ impl RenderService {
         if target_count > 0 && render_page_query_uses_single_scan(query.order) {
             let mut query = query;
             query.offset = 0;
-            query.pagination.limit = Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
-            let found = PageQueryService::find_with_metadata(ctx, query).await?;
+            query.pagination.limit = Some(random_page_query_scan_limit(target_count));
+            let mut found = PageQueryService::find_with_metadata(ctx, query).await?;
             if found.metadata.cap_exceeded {
                 return Ok(ViewableCountPagesRows {
                     pages: FoundPages { pages: Vec::new() },
@@ -8439,6 +8451,19 @@ impl RenderService {
             )
             .await?;
             let view_permission_filtering_applied = pages.len() != raw_count;
+            if random_page_query_scan_requires_preservation(
+                raw_count,
+                pages.len(),
+                target_count,
+            ) {
+                found.metadata.cap_exceeded = true;
+                return Ok(ViewableCountPagesRows {
+                    pages: FoundPages { pages: Vec::new() },
+                    metadata: found.metadata,
+                    view_permission_filtering_applied,
+                    raw_scan_completion: CountPagesRawScanCompletion::Capped,
+                });
+            }
             pages.truncate(target_count);
             return Ok(ViewableCountPagesRows {
                 pages: FoundPages { pages },
@@ -9751,6 +9776,18 @@ fn render_page_query_batch_limit(
 
 fn render_page_query_uses_single_scan(order: Option<OrderBySelector>) -> bool {
     order.is_some_and(|order| order.property == OrderProperty::Random)
+}
+
+fn random_page_query_scan_limit(target_count: usize) -> u64 {
+    target_count.min(MAX_LISTPAGES_RENDER_SCAN_ROWS as usize) as u64
+}
+
+fn random_page_query_scan_requires_preservation(
+    raw_count: usize,
+    viewable_count: usize,
+    target_count: usize,
+) -> bool {
+    raw_count >= target_count && viewable_count < target_count
 }
 
 fn merge_render_page_query_metadata(
@@ -12914,13 +12951,14 @@ mod tests {
         list_pages_tag_link_href, native_list_page_link_default_label,
         page_query_cap_requires_original_module, parse_list_pages_arguments,
         parse_list_pages_date_selector, parse_wikidot_compat_color_descriptor,
-        push_list_pages_pager, register_generated_list_pages_html, render_clone_module,
-        render_list_pages_numbered_rows, render_list_pages_table_rows,
-        render_list_pages_tags, render_members_module_placeholder,
-        render_native_list_inline_wikidot_spans, render_native_list_page_link,
-        render_new_page_module, render_page_query_batch_limit,
-        render_page_query_uses_single_scan, render_read_only_rate_module,
-        render_tag_cloud_box, requested_page_info_score,
+        push_list_pages_pager, random_page_query_scan_limit,
+        random_page_query_scan_requires_preservation, register_generated_list_pages_html,
+        render_clone_module, render_list_pages_numbered_rows,
+        render_list_pages_table_rows, render_list_pages_tags,
+        render_members_module_placeholder, render_native_list_inline_wikidot_spans,
+        render_native_list_page_link, render_new_page_module,
+        render_page_query_batch_limit, render_page_query_uses_single_scan,
+        render_read_only_rate_module, render_tag_cloud_box, requested_page_info_score,
         restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
@@ -13972,6 +14010,23 @@ mod tests {
             ascending: false,
         })));
         assert!(!render_page_query_uses_single_scan(None));
+    }
+
+    #[test]
+    fn random_page_query_scan_is_bounded_by_the_requested_rows() {
+        assert_eq!(random_page_query_scan_limit(1), 1);
+        assert_eq!(random_page_query_scan_limit(100), 100);
+        assert_eq!(
+            random_page_query_scan_limit(MAX_LISTPAGES_RENDER_SCAN_ROWS as usize + 1),
+            u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS),
+        );
+    }
+
+    #[test]
+    fn random_page_query_preserves_when_permission_filtering_makes_the_sample_short() {
+        assert!(random_page_query_scan_requires_preservation(100, 99, 100));
+        assert!(!random_page_query_scan_requires_preservation(99, 98, 100));
+        assert!(!random_page_query_scan_requires_preservation(100, 100, 100));
     }
 
     #[test]
