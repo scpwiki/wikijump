@@ -4349,6 +4349,14 @@ impl RenderService {
             });
         }
 
+        if !contains_ascii_case_insensitive(&wikitext, b"listpages") {
+            return Ok(IncludeExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+                expanded_include_count: 0,
+            });
+        }
+
         let mut expansion = Self::expand_includes_for_site(
             ctx,
             wikitext,
@@ -5101,6 +5109,10 @@ impl RenderService {
         };
 
         if !settings.enable_page_syntax {
+            return Ok(wikitext);
+        }
+
+        if !contains_ascii_case_insensitive(&wikitext, b"countpages") {
             return Ok(wikitext);
         }
 
@@ -9778,6 +9790,13 @@ fn render_page_query_uses_single_scan(order: Option<OrderBySelector>) -> bool {
     order.is_some_and(|order| order.property == OrderProperty::Random)
 }
 
+fn contains_ascii_case_insensitive(haystack: &str, needle: &[u8]) -> bool {
+    haystack
+        .as_bytes()
+        .windows(needle.len())
+        .any(|window| window.eq_ignore_ascii_case(needle))
+}
+
 fn random_page_query_scan_limit(target_count: usize) -> u64 {
     target_count.min(MAX_LISTPAGES_RENDER_SCAN_ROWS as usize) as u64
 }
@@ -12937,13 +12956,13 @@ mod tests {
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
-        WikidotUserDisplay, count_pages_capture_is_literal,
-        count_pages_exact_count_render_diagnostics, count_pages_raw_scan_completion,
-        count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
-        count_pages_scan_requires_preservation, count_pages_should_remain_literal,
-        count_pages_unbounded_total, exact_name_list_pages_batch_key,
-        find_balanced_ul_end, find_list_pages_module_matches,
-        format_list_pages_created_at, include_error,
+        WikidotUserDisplay, contains_ascii_case_insensitive,
+        count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
+        count_pages_raw_scan_completion, count_pages_required_tag_batch_result,
+        count_pages_required_tag_batch_selector, count_pages_scan_requires_preservation,
+        count_pages_should_remain_literal, count_pages_unbounded_total,
+        exact_name_list_pages_batch_key, find_balanced_ul_end,
+        find_list_pages_module_matches, format_list_pages_created_at, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -14010,6 +14029,22 @@ mod tests {
             ascending: false,
         })));
         assert!(!render_page_query_uses_single_scan(None));
+    }
+
+    #[test]
+    fn module_name_preflight_is_ascii_case_insensitive() {
+        assert!(contains_ascii_case_insensitive(
+            "[[MoDuLe ListPages]]",
+            b"listpages",
+        ));
+        assert!(contains_ascii_case_insensitive(
+            "[[module COUNTPAGES]]",
+            b"countpages",
+        ));
+        assert!(!contains_ascii_case_insensitive(
+            "[[module CSS]]",
+            b"listpages",
+        ));
     }
 
     #[test]
