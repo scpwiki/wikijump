@@ -4349,14 +4349,6 @@ impl RenderService {
             });
         }
 
-        if !contains_ascii_case_insensitive(&wikitext, b"listpages") {
-            return Ok(IncludeExpansion {
-                wikitext,
-                included_pages: Vec::new(),
-                expanded_include_count: 0,
-            });
-        }
-
         let mut expansion = Self::expand_includes_for_site(
             ctx,
             wikitext,
@@ -4703,6 +4695,14 @@ impl RenderService {
         };
 
         if !settings.enable_page_syntax {
+            return Ok(IncludeExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+                expanded_include_count: 0,
+            });
+        }
+
+        if !contains_ascii_case_insensitive(&wikitext, b"listpages") {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
