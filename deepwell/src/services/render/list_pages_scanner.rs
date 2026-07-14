@@ -34,6 +34,65 @@ use std::cell::Cell;
 use std::ops::Range;
 
 const SPECULATIVE_WORK_LIMIT_MULTIPLIER: usize = 8;
+
+pub(super) fn has_list_pages_module_opening_candidate(source: &str) -> bool {
+    has_module_opening_candidate(source, b"listpages", true)
+}
+
+pub(super) fn has_count_pages_module_opening_candidate(source: &str) -> bool {
+    has_module_opening_candidate(source, b"countpages", false)
+}
+
+fn has_module_opening_candidate(
+    source: &str,
+    subname: &[u8],
+    allow_legacy_654: bool,
+) -> bool {
+    let bytes = source.as_bytes();
+    let mut search = 0;
+    while search + 1 < bytes.len() {
+        let Some(relative_start) =
+            bytes[search..].windows(2).position(|pair| pair == b"[[")
+        else {
+            return false;
+        };
+        let start = search + relative_start;
+        search = start + 2;
+
+        let mut cursor = search;
+        skip_horizontal_whitespace(bytes, &mut cursor);
+        let (name, raw_name_end) = wikidot_trimmed_name(bytes, cursor);
+        let Some(name) = name else {
+            continue;
+        };
+        let name = name.strip_suffix(b"_").unwrap_or(name);
+        let standard = name.eq_ignore_ascii_case(b"module");
+        let legacy = allow_legacy_654 && name.eq_ignore_ascii_case(b"module654");
+        if (!standard && !legacy)
+            || !bytes
+                .get(raw_name_end)
+                .is_some_and(|byte| is_wikidot_head_spacing(*byte))
+        {
+            continue;
+        }
+
+        cursor = raw_name_end;
+        if skip_module_subname_delimiter(bytes, &mut cursor).is_none() {
+            continue;
+        }
+        let subname_start = cursor;
+        while bytes
+            .get(cursor)
+            .is_some_and(|byte| !is_wikidot_head_spacing(*byte) && *byte != b']')
+        {
+            cursor += 1;
+        }
+        if bytes[subname_start..cursor].eq_ignore_ascii_case(subname) {
+            return true;
+        }
+    }
+    false
+}
 #[cfg(test)]
 const MAX_SINGLE_SCANNER_WORK_MULTIPLIER: usize = 15;
 #[cfg(test)]

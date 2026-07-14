@@ -34,6 +34,7 @@ use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::issued_markers::restore_issued_html_text_markers;
 use super::list_pages_scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
+    has_count_pages_module_opening_candidate, has_list_pages_module_opening_candidate,
     list_pages_runtime_head_is_safe,
 };
 use super::list_pages_template::{
@@ -4702,7 +4703,7 @@ impl RenderService {
             });
         }
 
-        if !contains_ascii_case_insensitive(&wikitext, b"listpages") {
+        if !has_list_pages_module_opening_candidate(&wikitext) {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
@@ -5112,7 +5113,7 @@ impl RenderService {
             return Ok(wikitext);
         }
 
-        if !contains_ascii_case_insensitive(&wikitext, b"countpages") {
+        if !has_count_pages_module_opening_candidate(&wikitext) {
             return Ok(wikitext);
         }
 
@@ -9790,13 +9791,6 @@ fn render_page_query_uses_single_scan(order: Option<OrderBySelector>) -> bool {
     order.is_some_and(|order| order.property == OrderProperty::Random)
 }
 
-fn contains_ascii_case_insensitive(haystack: &str, needle: &[u8]) -> bool {
-    haystack
-        .as_bytes()
-        .windows(needle.len())
-        .any(|window| window.eq_ignore_ascii_case(needle))
-}
-
 fn random_page_query_scan_limit(target_count: usize) -> u64 {
     target_count.min(MAX_LISTPAGES_RENDER_SCAN_ROWS as usize) as u64
 }
@@ -12956,13 +12950,14 @@ mod tests {
         WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
         WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
         WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX, WikidotCompatLinkTitleMap,
-        WikidotUserDisplay, contains_ascii_case_insensitive,
-        count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
-        count_pages_raw_scan_completion, count_pages_required_tag_batch_result,
-        count_pages_required_tag_batch_selector, count_pages_scan_requires_preservation,
-        count_pages_should_remain_literal, count_pages_unbounded_total,
-        exact_name_list_pages_batch_key, find_balanced_ul_end,
-        find_list_pages_module_matches, format_list_pages_created_at, include_error,
+        WikidotUserDisplay, count_pages_capture_is_literal,
+        count_pages_exact_count_render_diagnostics, count_pages_raw_scan_completion,
+        count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
+        count_pages_scan_requires_preservation, count_pages_should_remain_literal,
+        count_pages_unbounded_total, exact_name_list_pages_batch_key,
+        find_balanced_ul_end, find_list_pages_module_matches,
+        format_list_pages_created_at, has_count_pages_module_opening_candidate,
+        has_list_pages_module_opening_candidate, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_has_unsupported_page_type_selector,
@@ -14032,18 +14027,24 @@ mod tests {
     }
 
     #[test]
-    fn module_name_preflight_is_ascii_case_insensitive() {
-        assert!(contains_ascii_case_insensitive(
+    fn module_opening_preflight_is_ascii_case_insensitive_and_syntax_aware() {
+        assert!(has_list_pages_module_opening_candidate(
             "[[MoDuLe ListPages]]",
-            b"listpages",
         ));
-        assert!(contains_ascii_case_insensitive(
+        assert!(has_list_pages_module_opening_candidate(
+            "[[ module654_\nLISTPAGES limit=1]]",
+        ));
+        assert!(has_count_pages_module_opening_candidate(
             "[[module COUNTPAGES]]",
-            b"countpages",
         ));
-        assert!(!contains_ascii_case_insensitive(
-            "[[module CSS]]",
-            b"listpages",
+        assert!(!has_list_pages_module_opening_candidate(
+            "ListPages documentation without a module opening",
+        ));
+        assert!(!has_list_pages_module_opening_candidate(
+            "[[module CSS]] /* ListPages */",
+        ));
+        assert!(!has_count_pages_module_opening_candidate(
+            "[[module654 CountPages]]",
         ));
     }
 
