@@ -5765,7 +5765,7 @@ async fn listpages_content_shares_the_render_include_budget() {
 }
 
 #[tokio::test]
-async fn listpages_content_row_budget_preserves_whole_overflowing_module() {
+async fn listpages_content_runtime_budget_preserves_later_modules() {
     const INDEX_SLUG: &str = "fixture-listpages-content-row-budget-index";
     const CHILD_SLUG: &str = "fixture-listpages-content-row-budget-child";
     const CHILD_MARKER: &str = "LISTPAGES_CONTENT_ROW_BUDGET_CHILD";
@@ -5823,12 +5823,8 @@ async fn listpages_content_row_budget_preserves_whole_overflowing_module() {
         category_id: page.page_category_id,
         page_id: page.page_id,
     };
-    let within_budget_module = format!(
-        "[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED %%content%%[[/module]]\n"
-    );
     let wikitext = format!(
-        "{}[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]OVERFLOW %%content%%[[/module]]",
-        within_budget_module.repeat(250),
+        "[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]METADATA %%title%%[[/module]]",
     );
 
     let output = RenderService::render_page(
@@ -5839,16 +5835,24 @@ async fn listpages_content_row_budget_preserves_whole_overflowing_module() {
         page_id,
     )
     .await
-    .expect("content-row overflow should preserve the complete module");
+    .expect("content runtime overflow should preserve the complete module");
 
     assert_eq!(
         output.html_output.body.matches(CHILD_MARKER).count(),
-        250,
-        "the complete supported content-row budget should render",
+        1,
+        "the first content-backed module should render",
     );
     assert!(
-        output.html_output.body.contains("OVERFLOW %%content%%"),
-        "the first module beyond the content-row budget must remain literal: {}",
+        output.html_output.body.contains("PRESERVED %%content%%"),
+        "a later content-backed module must remain literal: {}",
+        output.html_output.body,
+    );
+    assert!(
+        output
+            .html_output
+            .body
+            .contains("METADATA ListPages Content Row Budget Child"),
+        "a later metadata-only module should still render: {}",
         output.html_output.body,
     );
 }

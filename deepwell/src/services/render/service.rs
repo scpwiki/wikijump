@@ -352,6 +352,8 @@ const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
 const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 // Bound runtime-owned content expansion across all ListPages modules in one render. A single supported module may still use the full row limit; later modules remain literal when their complete result would exceed this budget.
 const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize = MAX_LISTPAGES_RENDER_LIMIT as usize;
+// Content-backed ListPages modules can each trigger a page query, permission filtering, revision loading, and nested include expansion. Admit only one such module per render so later modules are preserved before any of that runtime work begins.
+const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 1;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
@@ -7753,6 +7755,9 @@ impl RenderService {
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
         compat_text: &mut CompatTextFragments,
     ) -> Result<ListPagesBlockRenderResult> {
+        if template.uses_content() && !expansion_budget.try_start_content_module() {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let ListPagesPageContext {
             site_id: current_site_id,
             page_id: current_page_id,
@@ -12440,14 +12445,24 @@ struct ListPagesContentCache {
 
 #[derive(Debug)]
 struct ListPagesExpansionBudget {
+    remaining_content_modules: usize,
     remaining_content_rows: usize,
 }
 
 impl ListPagesExpansionBudget {
     fn new() -> Self {
         Self {
+            remaining_content_modules: MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER,
             remaining_content_rows: MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER,
         }
+    }
+
+    fn try_start_content_module(&mut self) -> bool {
+        if self.remaining_content_modules == 0 {
+            return false;
+        }
+        self.remaining_content_modules -= 1;
+        true
     }
 
     fn can_expand_content_rows(&self, rows: usize) -> bool {
@@ -14178,9 +14193,11 @@ mod tests {
     }
 
     #[test]
-    fn list_pages_content_row_budget_preserves_whole_overflowing_module() {
+    fn list_pages_content_budget_limits_modules_and_rows() {
         let mut budget = ListPagesExpansionBudget::new();
 
+        assert!(budget.try_start_content_module());
+        assert!(!budget.try_start_content_module());
         assert!(budget.can_expand_content_rows(100));
         budget.consume_content_rows(100);
         assert!(
