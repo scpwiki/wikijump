@@ -12766,7 +12766,10 @@ fn own_include_ref(include: &IncludeRef<'_>) -> IncludeRef<'static> {
 
 fn apply_include_variables(content: &mut String, include: &IncludeRef<'_>) {
     for _ in 0..MAX_INCLUDE_EXPANSION_DEPTH {
-        let mut matches = Vec::new();
+        let mut expanded = String::with_capacity(content.len());
+        let mut previous_end = 0;
+        let mut matched = false;
+        let mut changed = false;
 
         for capture in INCLUDE_VARIABLE_REGEX.captures_iter(content) {
             let mtch = capture.get(0).unwrap();
@@ -12775,23 +12778,23 @@ fn apply_include_variables(content: &mut String, include: &IncludeRef<'_>) {
             if let Some(value) = include
                 .variables()
                 .get(name)
-                .map(|value| trim_include_variable_value(value).to_owned())
-                .or_else(|| default_include_variable_value(name))
+                .map(|value| Cow::Borrowed(trim_include_variable_value(value)))
+                .or_else(|| default_include_variable_value(name).map(Cow::Owned))
             {
-                let changed = value != mtch.as_str();
-                matches.push((value, mtch.range(), changed));
+                expanded.push_str(&content[previous_end..mtch.start()]);
+                expanded.push_str(&value);
+                previous_end = mtch.end();
+                matched = true;
+                changed |= value != mtch.as_str();
             }
         }
 
-        if matches.is_empty() {
+        if !matched {
             break;
         }
 
-        let changed = matches.iter().any(|(_, _, changed)| *changed);
-        matches.reverse();
-        for (value, range, _) in matches {
-            content.replace_range(range, &value);
-        }
+        expanded.push_str(&content[previous_end..]);
+        *content = expanded;
         if !changed {
             break;
         }
@@ -19248,6 +19251,137 @@ mod tests {
 
         assert!(source.contains(r#"class="badges badge-action action atrue bfalse""#));
         assert!(!source.contains("{$action}"));
+    }
+
+    #[test]
+    fn include_variable_rebuild_handles_adjacent_growth_shrink_and_same_length() {
+        let include = IncludeRef::new(
+            PageRef::page_only("component:test"),
+            VariableMap::from([
+                (Cow::Borrowed("grow"), Cow::Borrowed("expanded")),
+                (Cow::Borrowed("shrink"), Cow::Borrowed("")),
+                (Cow::Borrowed("same"), Cow::Borrowed("same123")),
+            ]),
+        );
+        let mut source = "before{$grow}{$shrink}{$same}after".to_owned();
+
+        super::apply_include_variables(&mut source, &include);
+
+        assert_eq!(source, "beforeexpandedsame123after");
+    }
+
+    #[test]
+    fn include_variable_rebuild_preserves_unresolved_and_self_references_with_defaults() {
+        let include = IncludeRef::new(
+            PageRef::page_only("component:test"),
+            VariableMap::from([
+                (Cow::Borrowed("self"), Cow::Borrowed("{$self}")),
+                (Cow::Borrowed("trimmed"), Cow::Borrowed("value \t\r\n")),
+            ]),
+        );
+        let mut source = "{$author}|{$missing}|{$shadow}|{$self}|{$trimmed}".to_owned();
+
+        super::apply_include_variables(&mut source, &include);
+
+        assert_eq!(source, "%%created_by%%|{$missing}|no|{$self}|value");
+    }
+
+    #[test]
+    fn include_variable_rebuild_stops_at_the_existing_depth_limit() {
+        let variables = (0..=super::MAX_INCLUDE_EXPANSION_DEPTH)
+            .map(|depth| {
+                (
+                    Cow::Owned(format!("v{depth}")),
+                    Cow::Owned(format!("{{$v{}}}", depth + 1)),
+                )
+            })
+            .collect();
+        let include = IncludeRef::new(PageRef::page_only("component:test"), variables);
+        let mut source = "{$v0}".to_owned();
+
+        super::apply_include_variables(&mut source, &include);
+
+        assert_eq!(
+            source,
+            format!("{{$v{}}}", super::MAX_INCLUDE_EXPANSION_DEPTH),
+        );
+    }
+
+    #[test]
+    fn include_variable_rebuild_matches_reverse_replacement_output() {
+        fn apply_reverse_replacement_reference(
+            content: &mut String,
+            include: &IncludeRef<'_>,
+        ) {
+            for _ in 0..super::MAX_INCLUDE_EXPANSION_DEPTH {
+                let mut matches = Vec::new();
+
+                for capture in super::INCLUDE_VARIABLE_REGEX.captures_iter(content) {
+                    let mtch = capture.get(0).unwrap();
+                    let name = &capture["name"];
+                    if let Some(value) = include
+                        .variables()
+                        .get(name)
+                        .map(|value| super::trim_include_variable_value(value).to_owned())
+                        .or_else(|| super::default_include_variable_value(name))
+                    {
+                        let changed = value != mtch.as_str();
+                        matches.push((value, mtch.range(), changed));
+                    }
+                }
+
+                if matches.is_empty() {
+                    break;
+                }
+
+                let changed = matches.iter().any(|(_, _, changed)| *changed);
+                matches.reverse();
+                for (value, range, _) in matches {
+                    content.replace_range(range, &value);
+                }
+                if !changed {
+                    break;
+                }
+            }
+        }
+
+        let cases = [
+            (
+                "A{$grow}{$shrink}{$same}Z",
+                vec![("grow", "expanded"), ("shrink", "x"), ("same", "same123")],
+            ),
+            (
+                "{$missing}|{$author}|{$shadow}|{$self}",
+                vec![("self", "{$self}")],
+            ),
+            (
+                "{$outer}",
+                vec![("outer", "pre{$inner}post"), ("inner", "done")],
+            ),
+            (
+                "{$left}{$right}",
+                vec![("left", "{$right}"), ("right", "{$left}")],
+            ),
+        ];
+
+        for (source, variables) in cases {
+            let include = IncludeRef::new(
+                PageRef::page_only("component:test"),
+                variables
+                    .into_iter()
+                    .map(|(name, value)| {
+                        (Cow::Owned(name.to_owned()), Cow::Owned(value.to_owned()))
+                    })
+                    .collect(),
+            );
+            let mut expected = source.to_owned();
+            let mut actual = source.to_owned();
+
+            apply_reverse_replacement_reference(&mut expected, &include);
+            super::apply_include_variables(&mut actual, &include);
+
+            assert_eq!(actual, expected, "source: {source}");
+        }
     }
 
     #[test]
