@@ -441,14 +441,10 @@ static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static BACKLINKS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+Backlinks(?P<head>[^\]]*)\]\]").unwrap()
 });
-static MEMBERS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[module\s+Members(?P<head>[^\]]*)\]\]").unwrap()
+static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone)(?P<head>[^\]]*)\]\]")
+        .unwrap()
 });
-static NEWPAGE_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[module\s+NewPage(?P<head>[^\]]*)\]\]").unwrap()
-});
-static CLONE_MODULE_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?is)\[\[module\s+Clone(?P<head>[^\]]*)\]\]").unwrap());
 static CSS_MODULE_OPEN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[module\s+css[^\]]*\]\]").unwrap());
 static MODULE_CLOSE_REGEX: LazyLock<Regex> =
@@ -1212,17 +1208,7 @@ impl RenderService {
         };
         {
             let _stage = StageGuard::new(trace, CorpusRenderStage::RegistryModules);
-            wikitext = Self::expand_members_modules_with_registry(
-                wikitext,
-                settings,
-                &mut wikidot_compat_html,
-            );
-            wikitext = Self::expand_new_page_modules_with_registry(
-                wikitext,
-                settings,
-                &mut wikidot_compat_html,
-            );
-            wikitext = Self::expand_clone_modules_with_registry(
+            wikitext = Self::expand_registry_modules_with_registry(
                 wikitext,
                 settings,
                 &mut wikidot_compat_html,
@@ -5517,25 +5503,57 @@ impl RenderService {
         output
     }
 
-    fn expand_registry_modules_outside_literals(
+    fn expand_registry_modules_with_registry(
         wikitext: String,
-        module_regex: &Regex,
-        mut render: impl FnMut(&str) -> String,
+        settings: &WikitextSettings,
+        compat_html: &mut CompatHtmlFragments,
     ) -> String {
+        Self::expand_registry_modules_matching(wikitext, settings, compat_html, |_| true)
+    }
+
+    fn expand_registry_modules_matching(
+        wikitext: String,
+        settings: &WikitextSettings,
+        compat_html: &mut CompatHtmlFragments,
+        mut should_expand: impl FnMut(&str) -> bool,
+    ) -> String {
+        if !settings.enable_page_syntax {
+            return wikitext;
+        }
+
+        // Keep one index over the authored source for the complete pass. A replacement must not expose a later candidate that the original literal, comment, or tag boundaries protected, so malformed cross-boundary input remains fail closed.
         let literal_regions =
             LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
         let mut output = String::with_capacity(wikitext.len());
         let mut cursor = 0;
-        for captures in module_regex.captures_iter(&wikitext) {
+        for captures in REGISTRY_MODULE_REGEX.captures_iter(&wikitext) {
             let matched = captures
                 .get(0)
                 .expect("a module capture always has a complete match");
             if literal_regions.contains(matched.start()) {
                 continue;
             }
+            let name = captures
+                .name("name")
+                .expect("a registry module capture always has a name")
+                .as_str();
+            if !should_expand(name) {
+                continue;
+            }
             output.push_str(&wikitext[cursor..matched.start()]);
             let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-            output.push_str(&render(head));
+            let rendered = if name.eq_ignore_ascii_case("Members") {
+                let group = wikidot_module_argument(head, "group")
+                    .unwrap_or("members")
+                    .trim();
+                render_members_module_placeholder(group)
+            } else if name.eq_ignore_ascii_case("NewPage") {
+                render_new_page_module(head)
+            } else {
+                debug_assert!(name.eq_ignore_ascii_case("Clone"));
+                render_clone_module(head)
+            };
+            output.push_str(&compat_html.push_html(rendered));
             cursor = matched.end();
         }
         if cursor == 0 {
@@ -5545,66 +5563,14 @@ impl RenderService {
         output
     }
 
-    fn expand_members_modules_with_registry(
-        wikitext: String,
-        settings: &WikitextSettings,
-        compat_html: &mut CompatHtmlFragments,
-    ) -> String {
-        if !settings.enable_page_syntax {
-            return wikitext;
-        }
-
-        Self::expand_registry_modules_outside_literals(
-            wikitext,
-            &MEMBERS_MODULE_REGEX,
-            |head| {
-                let group = wikidot_module_argument(head, "group")
-                    .unwrap_or("members")
-                    .trim();
-                compat_html.push_html(render_members_module_placeholder(group))
-            },
-        )
-    }
-
-    fn expand_new_page_modules_with_registry(
-        wikitext: String,
-        settings: &WikitextSettings,
-        compat_html: &mut CompatHtmlFragments,
-    ) -> String {
-        if !settings.enable_page_syntax {
-            return wikitext;
-        }
-
-        Self::expand_registry_modules_outside_literals(
-            wikitext,
-            &NEWPAGE_MODULE_REGEX,
-            |head| compat_html.push_html(render_new_page_module(head)),
-        )
-    }
-
-    fn expand_clone_modules_with_registry(
-        wikitext: String,
-        settings: &WikitextSettings,
-        compat_html: &mut CompatHtmlFragments,
-    ) -> String {
-        if !settings.enable_page_syntax {
-            return wikitext;
-        }
-
-        Self::expand_registry_modules_outside_literals(
-            wikitext,
-            &CLONE_MODULE_REGEX,
-            |head| compat_html.push_html(render_clone_module(head)),
-        )
-    }
-
     #[cfg(test)]
     fn expand_members_modules(wikitext: String, settings: &WikitextSettings) -> String {
         let mut fragments = CompatHtmlFragments::new(&wikitext);
-        let protected = Self::expand_members_modules_with_registry(
+        let protected = Self::expand_registry_modules_matching(
             wikitext,
             settings,
             &mut fragments,
+            |name| name.eq_ignore_ascii_case("Members"),
         );
         fragments.restore(&protected)
     }
@@ -5612,10 +5578,11 @@ impl RenderService {
     #[cfg(test)]
     fn expand_new_page_modules(wikitext: String, settings: &WikitextSettings) -> String {
         let mut fragments = CompatHtmlFragments::new(&wikitext);
-        let protected = Self::expand_new_page_modules_with_registry(
+        let protected = Self::expand_registry_modules_matching(
             wikitext,
             settings,
             &mut fragments,
+            |name| name.eq_ignore_ascii_case("NewPage"),
         );
         fragments.restore(&protected)
     }
@@ -5623,8 +5590,12 @@ impl RenderService {
     #[cfg(test)]
     fn expand_clone_modules(wikitext: String, settings: &WikitextSettings) -> String {
         let mut fragments = CompatHtmlFragments::new(&wikitext);
-        let protected =
-            Self::expand_clone_modules_with_registry(wikitext, settings, &mut fragments);
+        let protected = Self::expand_registry_modules_matching(
+            wikitext,
+            settings,
+            &mut fragments,
+            |name| name.eq_ignore_ascii_case("Clone"),
+        );
         fragments.restore(&protected)
     }
 
@@ -14499,11 +14470,33 @@ mod tests {
     }
 
     #[test]
+    fn family_specific_registry_module_helper_preserves_skipped_prefixes_once() {
+        let source = concat!(
+            "prefix [[module Clone]] between ",
+            "[[module NewPage]] after ",
+            "[[module Members]] suffix",
+        );
+        let rendered = RenderService::expand_members_modules(
+            source.to_owned(),
+            &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+        );
+
+        assert_eq!(rendered.matches("prefix ").count(), 1);
+        assert_eq!(rendered.matches(" between ").count(), 1);
+        assert_eq!(rendered.matches(" after ").count(), 1);
+        assert!(rendered.contains("[[module Clone]]"));
+        assert!(rendered.contains("[[module NewPage]]"));
+        assert!(rendered.contains("membership/MembersListModule"));
+        assert!(!rendered.contains("[[module Members]]"));
+        assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+    }
+
+    #[test]
     fn clone_html_is_registered_only_by_its_runtime_producer() {
         let source = "[[module Clone button=\"Clone <now>\"]]";
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut fragments = CompatHtmlFragments::new(source);
-        let protected = RenderService::expand_clone_modules_with_registry(
+        let protected = RenderService::expand_registry_modules_with_registry(
             source.to_owned(),
             &settings,
             &mut fragments,
@@ -14541,24 +14534,16 @@ mod tests {
                 "<div data-module=\"[[module Clone]]\">clone</div>\n",
                 "<pre>{modules}</pre>\n",
                 "<!-- {modules} -->\n",
-                "{modules}\n",
+                "[[module Clone button=\"clone-first\"]]",
+                "[[module Members group=\"moderators\"]]",
+                "[[module NewPage button=\"new-last\"]]\n",
             ),
             modules = modules
         );
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut fragments = CompatHtmlFragments::new(&source);
-        let protected = RenderService::expand_members_modules_with_registry(
+        let protected = RenderService::expand_registry_modules_with_registry(
             source,
-            &settings,
-            &mut fragments,
-        );
-        let protected = RenderService::expand_new_page_modules_with_registry(
-            protected,
-            &settings,
-            &mut fragments,
-        );
-        let protected = RenderService::expand_clone_modules_with_registry(
-            protected,
             &settings,
             &mut fragments,
         );
@@ -14577,6 +14562,13 @@ mod tests {
             assert_eq!(protected.matches(module).count(), 8, "{module}");
         }
 
+        let restored = fragments.restore(&protected);
+        let clone = restored.find("clone-first").unwrap();
+        let members = restored.find("membership/MembersListModule").unwrap();
+        let new_page = restored.find("new-last").unwrap();
+        assert!(clone < members && members < new_page);
+        assert!(!restored.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+
         let mut output =
             RenderService::render_wikidot_compatibility_fallback_output_for_context(
                 &protected,
@@ -14586,6 +14578,31 @@ mod tests {
             );
         output.body = fragments.restore(&output.body);
         assert!(!output.body.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+    }
+
+    #[test]
+    fn registry_module_expansion_does_not_reclassify_a_later_literal_candidate() {
+        let source = r#"[[module Members group="@@"]][[module NewPage]]@@"#;
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut fragments = CompatHtmlFragments::new(source);
+        let protected = RenderService::expand_registry_modules_with_registry(
+            source.to_owned(),
+            &settings,
+            &mut fragments,
+        );
+
+        assert_eq!(
+            protected
+                .matches(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
+                .count(),
+            1,
+        );
+        assert!(protected.contains("[[module NewPage]]@@"));
+
+        let restored = fragments.restore(&protected);
+        assert!(restored.contains("membership/MembersListModule"));
+        assert!(restored.contains("[[module NewPage]]@@"));
+        assert!(!restored.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
     }
 
     #[test]
