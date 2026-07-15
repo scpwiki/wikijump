@@ -2796,10 +2796,14 @@ impl RenderService {
         wikitext: &mut String,
         page_info: &ftml::data::PageInfo<'_>,
         preserved: &mut CompatTextFragments,
+        include_depth: usize,
     ) {
         // Keep incomplete boundaries available for adjacent caller/include
         // source while still pruning self-contained inactive gates early.
-        resolve_unbound_include_variable_iftags(wikitext);
+        if include_depth == 0 {
+            // Nested sources were already resolved against their include callsite immediately before recursion.
+            resolve_unbound_include_variable_iftags(wikitext);
+        }
         *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         resolve_outermost_wikidot_iftags_before_include_expansion(
             wikitext,
@@ -4319,6 +4323,7 @@ impl RenderService {
                 &mut wikitext,
                 expansion_context.page_info,
                 compat_text,
+                depth,
             );
             Self::mask_wikidot_comment_include_markers(&mut wikitext);
             let image_block_included_pages = if expansion_context
@@ -13218,8 +13223,39 @@ mod tests {
             wikitext,
             page_info,
             &mut preserved,
+            0,
         );
         *wikitext = preserved.restore(wikitext);
+    }
+
+    fn prepare_test_nested_include_conditionals(
+        source: &str,
+        variables: &[(&'static str, &'static str)],
+        tags: &[&'static str],
+    ) -> String {
+        let include = IncludeRef::new(
+            PageRef::page_only("component:test"),
+            variables
+                .iter()
+                .map(|&(name, value)| (Cow::Borrowed(name), Cow::Borrowed(value)))
+                .collect(),
+        );
+        let mut page_info = fallback_test_page_info("consumer", "Consumer");
+        page_info.tags = tags.iter().map(|&tag| Cow::Borrowed(tag)).collect();
+        let mut source = source.to_owned();
+        super::apply_include_variables_before_resolving_iftags(
+            &mut source,
+            &include,
+            &page_info,
+        );
+        let mut preserved = CompatTextFragments::new(&source);
+        RenderService::prepare_wikidot_conditionals_before_include_expansion(
+            &mut source,
+            &page_info,
+            &mut preserved,
+            1,
+        );
+        preserved.restore(&source)
     }
 
     fn resolve_test_wikidot_iftags(
@@ -19259,6 +19295,53 @@ mod tests {
             ),
             "beforeselectedafter",
         );
+    }
+
+    #[test]
+    fn nested_include_preparation_preserves_callsite_dynamic_iftags_outcomes() {
+        let source = "before[[ift{$mode}gs +theme]]selected[[/ift{$mode}gs]]after";
+
+        assert_eq!(
+            prepare_test_nested_include_conditionals(
+                source,
+                &[("mode", "a")],
+                &["theme"]
+            ),
+            "beforeselectedafter",
+        );
+        assert_eq!(
+            prepare_test_nested_include_conditionals(source, &[], &[]),
+            "beforeselectedafter",
+        );
+        assert_eq!(
+            prepare_test_nested_include_conditionals(source, &[("mode", "other")], &[]),
+            "before[[iftothergs +theme]]selected[[/iftothergs]]after",
+        );
+
+        let malformed = "before[[ift{$mode}gs +theme]]selected[[/ift{$other}gs]]after";
+        assert_eq!(
+            prepare_test_nested_include_conditionals(malformed, &[], &[]),
+            malformed,
+        );
+    }
+
+    #[test]
+    fn nested_include_preparation_skips_repeated_unbound_dynamic_iftags_resolution() {
+        let page_info = fallback_test_page_info("consumer", "Consumer");
+        let mut source =
+            "before[[ift{$mode}gs +theme]]selected[[/ift{$mode}gs]]after".to_owned();
+        let expected = source.clone();
+        let mut preserved = CompatTextFragments::new(&source);
+
+        RenderService::prepare_wikidot_conditionals_before_include_expansion(
+            &mut source,
+            &page_info,
+            &mut preserved,
+            1,
+        );
+        source = preserved.restore(&source);
+
+        assert_eq!(source, expected);
     }
 
     #[test]
