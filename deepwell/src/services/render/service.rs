@@ -7848,12 +7848,6 @@ impl RenderService {
         );
         let wants_content = template.uses_content();
         if wants_content
-            && requested_limit > expansion_budget.remaining_content_rows() as u64
-        {
-            // Do not run a query whose requested output cannot fit in the remaining shared content-expansion allowance.
-            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
-        }
-        if wants_content
             && render_page_query_uses_single_scan(order)
             && query_limit > expansion_budget.remaining_content_rows() as u64
         {
@@ -7959,10 +7953,23 @@ impl RenderService {
         } else if let Some(pages) = prefetched_pages.take() {
             pages
         } else {
+            let query_target =
+                if wants_content && !render_page_query_uses_single_scan(order) {
+                    list_pages_content_query_target(
+                        query_limit,
+                        requested_limit,
+                        expansion_budget.remaining_content_rows(),
+                        offset,
+                        exclude_current_page,
+                        count_pages_per_page.is_some(),
+                    )
+                } else {
+                    query_limit
+                };
             let found = Self::find_viewable_list_pages_rows(
                 ctx,
                 query,
-                query_limit.min(usize::MAX as u64) as usize,
+                query_target.min(usize::MAX as u64) as usize,
                 permission_cache,
             )
             .await?;
@@ -9900,6 +9907,30 @@ fn render_page_query_batch_limit(
 
 fn render_page_query_uses_single_scan(order: Option<OrderBySelector>) -> bool {
     order.is_some_and(|order| order.property == OrderProperty::Random)
+}
+
+fn list_pages_content_query_target(
+    query_limit: u64,
+    requested_limit: u64,
+    remaining_content_rows: usize,
+    offset: u32,
+    exclude_current_page: bool,
+    has_pager: bool,
+) -> u64 {
+    if has_pager {
+        return query_limit;
+    }
+    // One row beyond the remaining allowance distinguishes a sparse broad query from a true overflow without scanning its full declared range.
+    let selected_rows_needed = requested_limit.min(
+        u64::try_from(remaining_content_rows)
+            .unwrap_or(u64::MAX)
+            .saturating_add(1),
+    );
+    query_limit.min(
+        selected_rows_needed
+            .saturating_add(u64::from(offset))
+            .saturating_add(u64::from(exclude_current_page)),
+    )
 }
 
 fn random_page_query_scan_limit(target_count: usize) -> u64 {
@@ -13106,7 +13137,7 @@ mod tests {
         has_list_pages_module_opening_candidate, include_error,
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
-        list_pages_has_unsupported_page_type_selector,
+        list_pages_content_query_target, list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, list_pages_row_scan_target,
         list_pages_tag_link_href, native_list_page_link_default_label,
         page_query_cap_requires_original_module, parse_list_pages_arguments,
@@ -14281,6 +14312,34 @@ mod tests {
         budget.consume_content_rows(60);
         assert!(budget.can_expand_content_rows(0));
         assert!(!budget.can_expand_content_rows(1));
+    }
+
+    #[test]
+    fn list_pages_content_query_target_probes_only_enough_rows_to_decide_the_budget() {
+        assert_eq!(
+            list_pages_content_query_target(5_000, 250, 100, 0, false, false),
+            101
+        );
+        assert_eq!(
+            list_pages_content_query_target(5_000, 100, 100, 0, false, false),
+            100
+        );
+        assert_eq!(
+            list_pages_content_query_target(5_000, 250, 82, 0, false, false),
+            83
+        );
+        assert_eq!(
+            list_pages_content_query_target(5_000, 50, 100, 10, true, false),
+            61
+        );
+        assert_eq!(
+            list_pages_content_query_target(40, 250, 100, 10, true, false),
+            40
+        );
+        assert_eq!(
+            list_pages_content_query_target(5_000, 50, 100, 10, true, true),
+            5_000
+        );
     }
 
     #[test]

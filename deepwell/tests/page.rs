@@ -6320,9 +6320,15 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
         output
             .html_output
             .body
-            .contains("BROAD PRESERVED %%content%%"),
-        "a content request wider than the remaining row budget must remain literal without consuming the query budget: {}",
+            .contains(&format!("BROAD PRESERVED {CHILD_MARKER}")),
+        "a broad deterministic request with a sparse result must expand its actual row: {}",
         output.html_output.body,
+    );
+    assert!(
+        !output
+            .html_output
+            .body
+            .contains("BROAD PRESERVED %%content%%")
     );
     assert!(
         output
@@ -6333,8 +6339,11 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
         output.html_output.body,
     );
     assert!(
-        output.html_output.body.contains("PRESERVED %%content%%"),
-        "a later content-backed module must remain literal: {}",
+        output
+            .html_output
+            .body
+            .contains("EXPANDED THREE %%content%%"),
+        "the fourth deterministic content-backed query must remain literal: {}",
         output.html_output.body,
     );
     assert!(
