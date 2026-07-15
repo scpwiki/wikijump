@@ -78,8 +78,8 @@ use crate::services::page_query::{
     DataFormSelector, DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow,
     FoundPages, IncludedCategories, ListPagesRenderDiagnosticsInput,
     MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQuery, PageQueryResultMetadata, PageTypeSelector, PaginationSelector,
-    RangeSelector, ScoreSelector, TagCondition,
+    PageQuery, PageQueryResultMetadata, PageQueryScoreFilterCache, PageTypeSelector,
+    PaginationSelector, RangeSelector, ScoreSelector, TagCondition,
     count_pages_exact_count_eligibility_diagnostics, list_pages_render_diagnostics,
     normalize_wikidot_author_name, parse_static_wikidot_data_form_values,
     static_wikidot_data_form_matches,
@@ -4796,6 +4796,7 @@ impl RenderService {
         let mut content_cache = ListPagesContentCache::default();
         let mut expansion_budget = ListPagesExpansionBudget::new();
         let mut permission_cache = BTreeMap::new();
+        let mut score_filter_cache = PageQueryScoreFilterCache::default();
         let mut cursor = 0;
         let mut blocks = blocks.into_iter().peekable();
 
@@ -4901,6 +4902,7 @@ impl RenderService {
                         &mut content_cache,
                         &mut expansion_budget,
                         &mut permission_cache,
+                        &mut score_filter_cache,
                         compat_text,
                     )
                     .await?;
@@ -4961,6 +4963,7 @@ impl RenderService {
                         &mut content_cache,
                         &mut expansion_budget,
                         &mut permission_cache,
+                        &mut score_filter_cache,
                         compat_text,
                     )
                     .await?;
@@ -5072,6 +5075,7 @@ impl RenderService {
             query,
             batch_scan_target,
             permission_cache,
+            None,
         )
         .await?;
         // Permission filtering and duplicate live slugs can make one globally ordered batch consume its scan window before another slug is reached. Returning None reuses the existing per-slug query path for every block in this batch.
@@ -7784,6 +7788,7 @@ impl RenderService {
         content_cache: &mut ListPagesContentCache,
         expansion_budget: &mut ListPagesExpansionBudget,
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
+        score_filter_cache: &mut PageQueryScoreFilterCache,
         compat_text: &mut CompatTextFragments,
     ) -> Result<ListPagesBlockRenderResult> {
         let ListPagesPageContext {
@@ -7971,6 +7976,7 @@ impl RenderService {
                 query,
                 query_target.min(usize::MAX as u64) as usize,
                 permission_cache,
+                Some(score_filter_cache),
             )
             .await?;
             if page_query_cap_requires_original_module(&found.metadata) {
@@ -8458,12 +8464,18 @@ impl RenderService {
         query: PageQuery<'_>,
         target_count: usize,
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
+        score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
     ) -> Result<ViewableListPagesRows> {
         if target_count > 0 && render_page_query_uses_single_scan(query.order) {
             let mut query = query;
             query.offset = 0;
             query.pagination.limit = Some(random_page_query_scan_limit(target_count));
-            let mut found = PageQueryService::find_with_metadata(ctx, query).await?;
+            let mut found = PageQueryService::find_with_metadata_cached(
+                ctx,
+                query,
+                score_filter_cache,
+            )
+            .await?;
             if found.metadata.cap_exceeded {
                 return Ok(ViewableListPagesRows {
                     pages: FoundPages { pages: Vec::new() },
