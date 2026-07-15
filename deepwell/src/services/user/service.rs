@@ -42,9 +42,6 @@ use std::sync::LazyLock;
 /// so no password can possibly match.
 pub const DISABLED_PASSWORD_HASH: &str = "!";
 
-static LEADING_TRAILING_CHARS: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap());
-
 #[derive(Debug)]
 pub struct UserService;
 
@@ -67,7 +64,8 @@ impl UserService {
         let slug = get_user_slug(&name, user_type);
 
         debug!("Normalizing user data (name '{name}', slug '{slug}')");
-        regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
+        let leading_trailing_regex = regex!(r"(^[\-\s]+)|([\-\s+]$)");
+        regex_replace_in_place(&mut name, leading_trailing_regex, "");
 
         let make_error = || {
             Error::new(
