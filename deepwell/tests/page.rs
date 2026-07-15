@@ -5765,6 +5765,95 @@ async fn listpages_content_shares_the_render_include_budget() {
 }
 
 #[tokio::test]
+async fn listpages_content_row_budget_preserves_whole_overflowing_module() {
+    const INDEX_SLUG: &str = "fixture-listpages-content-row-budget-index";
+    const CHILD_SLUG: &str = "fixture-listpages-content-row-budget-child";
+    const CHILD_MARKER: &str = "LISTPAGES_CONTENT_ROW_BUDGET_CHILD";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        CHILD_SLUG,
+        "ListPages Content Row Budget Child",
+        CHILD_MARKER,
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "ListPages Content Row Budget Index",
+        "placeholder",
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+        }),
+    )
+    .expect("ListPages content-row budget index should exist");
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(INDEX_SLUG))),
+    });
+
+    let page_info = PageInfo {
+        page: Cow::Borrowed(INDEX_SLUG),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("ListPages Content Row Budget Index"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: page.page_category_id,
+        page_id: page.page_id,
+    };
+    let within_budget_module = format!(
+        "[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED %%content%%[[/module]]\n"
+    );
+    let wikitext = format!(
+        "{}[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]OVERFLOW %%content%%[[/module]]",
+        within_budget_module.repeat(250),
+    );
+
+    let output = RenderService::render_page(
+        runner.context(),
+        wikitext,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("content-row overflow should preserve the complete module");
+
+    assert_eq!(
+        output.html_output.body.matches(CHILD_MARKER).count(),
+        250,
+        "the complete supported content-row budget should render",
+    );
+    assert!(
+        output.html_output.body.contains("OVERFLOW %%content%%"),
+        "the first module beyond the content-row budget must remain literal: {}",
+        output.html_output.body,
+    );
+}
+
+#[tokio::test]
 async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
     const COMPONENT_SLUG: &str = "component:dense-include-cell";
     const PAGE_SLUG: &str = "fixture-dense-includes";

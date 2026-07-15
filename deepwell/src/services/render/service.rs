@@ -350,6 +350,8 @@ const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const MAX_CORPUS_INCLUDE_EXPANSION_TOTAL: usize = 4096;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
 const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
+// Bound runtime-owned content expansion across all ListPages modules in one render. A single supported module may still use the full row limit; later modules remain literal when their complete result would exceed this budget.
+const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize = MAX_LISTPAGES_RENDER_LIMIT as usize;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
@@ -4790,6 +4792,7 @@ impl RenderService {
         let mut expanded = String::with_capacity(wikitext.len());
         let mut included_pages = Vec::new();
         let mut content_cache = ListPagesContentCache::default();
+        let mut expansion_budget = ListPagesExpansionBudget::new();
         let mut permission_cache = BTreeMap::new();
         let mut cursor = 0;
         let mut blocks = blocks.into_iter().peekable();
@@ -4894,6 +4897,7 @@ impl RenderService {
                         prefetched_displays.as_ref(),
                         include_source_cache,
                         &mut content_cache,
+                        &mut expansion_budget,
                         &mut permission_cache,
                         compat_text,
                     )
@@ -4953,6 +4957,7 @@ impl RenderService {
                         None,
                         include_source_cache,
                         &mut content_cache,
+                        &mut expansion_budget,
                         &mut permission_cache,
                         compat_text,
                     )
@@ -7744,6 +7749,7 @@ impl RenderService {
         prefetched_displays: Option<&ListPagesBatchDisplays>,
         include_source_cache: &mut IncludeSourceCache,
         content_cache: &mut ListPagesContentCache,
+        expansion_budget: &mut ListPagesExpansionBudget,
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
         compat_text: &mut CompatTextFragments,
     ) -> Result<ListPagesBlockRenderResult> {
@@ -7940,6 +7946,9 @@ impl RenderService {
         let total = pages.len();
         let body = template.body();
         let wants_content = template.uses_content();
+        if wants_content && !expansion_budget.can_expand_content_rows(total) {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let wants_data_form_values = template.uses_data_form();
         if wants_content || wants_data_form_values {
             let mut missing_by_site = BTreeMap::<i64, Vec<i64>>::new();
@@ -8109,6 +8118,9 @@ impl RenderService {
         }
 
         output.push_str("[[/div]]");
+        if wants_content {
+            expansion_budget.consume_content_rows(total);
+        }
         Ok(ListPagesBlockRenderResult::Expanded(IncludeExpansion {
             wikitext: output,
             included_pages,
@@ -12426,6 +12438,28 @@ struct ListPagesContentCache {
     wikitext: BTreeMap<(i64, i64), Option<String>>,
 }
 
+#[derive(Debug)]
+struct ListPagesExpansionBudget {
+    remaining_content_rows: usize,
+}
+
+impl ListPagesExpansionBudget {
+    fn new() -> Self {
+        Self {
+            remaining_content_rows: MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER,
+        }
+    }
+
+    fn can_expand_content_rows(&self, rows: usize) -> bool {
+        rows <= self.remaining_content_rows
+    }
+
+    fn consume_content_rows(&mut self, rows: usize) {
+        debug_assert!(self.can_expand_content_rows(rows));
+        self.remaining_content_rows = self.remaining_content_rows.saturating_sub(rows);
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 struct ListPagesExpansionOptions {
     current_site_id: Option<i64>,
@@ -13020,10 +13054,11 @@ mod tests {
         CompatHtmlFragments, CompatTextFragments, CorpusReplayExpandedWikitext,
         CorpusReplayPreparationStage, CountPagesRawScanCompletion,
         CountPagesRequiredTagBatchResult, IncludeSourceCache,
-        ListPagesBatchDisplayRequirements, ListPagesSnapshotDisplay,
-        ListPagesSourceProjection, ListPagesSubstitutionContext, ListPagesTemplatePlan,
-        LiteralRegionIndex, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
-        MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
+        ListPagesBatchDisplayRequirements, ListPagesExpansionBudget,
+        ListPagesSnapshotDisplay, ListPagesSourceProjection,
+        ListPagesSubstitutionContext, ListPagesTemplatePlan, LiteralRegionIndex,
+        MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
+        MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER,
         MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
         MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MAX_PAGE_QUERY_SCORE_SELECTORS,
         MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
@@ -14140,6 +14175,24 @@ mod tests {
             list_pages_row_scan_target(250, Some(1_000), Some(250), 250, false),
             1_250,
         );
+    }
+
+    #[test]
+    fn list_pages_content_row_budget_preserves_whole_overflowing_module() {
+        let mut budget = ListPagesExpansionBudget::new();
+
+        assert!(budget.can_expand_content_rows(100));
+        budget.consume_content_rows(100);
+        assert!(
+            budget.can_expand_content_rows(MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER - 100,)
+        );
+        assert!(
+            !budget.can_expand_content_rows(MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER - 99,)
+        );
+
+        budget.consume_content_rows(MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER - 100);
+        assert!(budget.can_expand_content_rows(0));
+        assert!(!budget.can_expand_content_rows(1));
     }
 
     #[test]
