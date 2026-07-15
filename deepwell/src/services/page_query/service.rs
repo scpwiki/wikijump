@@ -108,6 +108,13 @@ impl PageQueryScoreFilterSession {
 }
 
 impl PageQueryScoreFilterCache {
+    fn materialized_page_ids(&self, key: &ScoreFilterCacheKey) -> Option<Vec<i64>> {
+        if self.uncacheable.contains(key) {
+            return None;
+        }
+        self.qualifying_page_ids.get(key).cloned()
+    }
+
     fn lookup(
         &mut self,
         key: &ScoreFilterCacheKey,
@@ -620,7 +627,22 @@ impl PageQueryService {
             );
         }
 
-        if !score.is_empty() {
+        let materialized_score_filter_applied = if score.is_empty() {
+            false
+        } else {
+            let key = ScoreFilterCacheKey::new(queried_site_id, &score);
+            if let Some(page_ids) = score_filter_cache
+                .as_deref()
+                .and_then(|cache| cache.materialized_page_ids(&key))
+            {
+                query = query.filter(score_page_ids_condition(page_ids));
+                true
+            } else {
+                false
+            }
+        };
+
+        if !score.is_empty() && !materialized_score_filter_applied {
             let observed_candidates = query
                 .clone()
                 .select_only()
@@ -1761,6 +1783,43 @@ mod tests {
     }
 
     #[test]
+    fn materialized_score_ids_are_available_before_probe_without_state_updates() {
+        let selectors = [ScoreSelector {
+            score: ScoreValue::Integer(-10),
+            comparison: ComparisonOperation::GreaterOrEqualThan,
+        }];
+        let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
+        let mut cache = PageQueryScoreFilterCache::default();
+        let session = PageQueryScoreFilterSession::default();
+
+        assert_eq!(cache.materialized_page_ids(&key), None);
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
+        assert_eq!(cache.materialized_page_ids(&key), None);
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::RepeatedUnmaterialized,
+        );
+        assert_eq!(cache.materialized_page_ids(&key), None);
+        cache.insert(key.clone(), vec![11, 22]);
+        let seen_before = cache.seen.clone();
+
+        let page_ids = cache
+            .materialized_page_ids(&key)
+            .expect("materialized IDs should bypass the candidate probe");
+        let statement = page::Entity::find()
+            .filter(score_page_ids_condition(page_ids))
+            .build(DatabaseBackend::Postgres);
+
+        assert!(statement.sql.contains("\"page\".\"page_id\" = ANY($1)"));
+        assert_eq!(
+            statement.values.unwrap().0,
+            vec![Value::from(vec![11_i64, 22])]
+        );
+        assert_eq!(cache.seen, seen_before);
+        assert!(session.seen.is_empty());
+    }
+
+    #[test]
     fn cached_score_ids_do_not_replace_independent_random_ordering() {
         let statement = page::Entity::find()
             .filter(score_page_ids_condition(vec![11, 22]))
@@ -1818,6 +1877,7 @@ mod tests {
             cache.lookup(&key, true),
             ScoreFilterCacheLookup::Uncacheable
         );
+        assert_eq!(cache.materialized_page_ids(&key), None);
         assert!(cache.qualifying_page_ids.is_empty());
     }
 }
