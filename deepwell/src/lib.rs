@@ -33,6 +33,9 @@ extern crate log;
 extern crate futures;
 
 #[macro_use]
+extern crate regex;
+
+#[macro_use]
 extern crate serde;
 
 #[macro_use]

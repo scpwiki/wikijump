@@ -230,9 +230,6 @@ fn validate_domain(domain: &str) -> Result<()> {
     const PUNYCODE_PREFIX: &str = "xn--";
     const DOMAIN_MAX_BYTES: usize = 253;
 
-    static DOMAIN_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^[A-Za-z0-9\-\.]{1,253}$").unwrap());
-
     // First, more user-friendly check for unicode characters
     let has_unicode = !domain.is_ascii();
     if !domain.starts_with(PUNYCODE_PREFIX) && has_unicode {
@@ -283,7 +280,8 @@ fn validate_domain(domain: &str) -> Result<()> {
         );
     }
 
-    if !DOMAIN_REGEX.is_match(domain) {
+    let domain_regex = regex!(r"^[A-Za-z0-9\-\.]{1,253}$");
+    if !domain_regex.is_match(domain) {
         raise_error!("domain '{}' contains invalid characters", domain);
     }
 
