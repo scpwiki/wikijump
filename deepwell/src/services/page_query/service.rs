@@ -243,6 +243,17 @@ impl PageQueryService {
         let score = score.to_vec();
 
         let txn = ctx.transaction();
+        if !score.is_empty() {
+            // These queries deliberately switch between candidate-correlated and
+            // site-wide score plans. PostgreSQL's generic prepared plan loses the
+            // selector and candidate cardinalities after repeated executions and
+            // can make a six-module ListPages render several times slower. Keep
+            // the choice local to this render transaction and leave non-score
+            // queries on the server default.
+            txn.execute_unprepared("SET LOCAL plan_cache_mode = force_custom_plan")
+                .await
+                .or_raise(make_error)?;
+        }
         let mut condition = Condition::all();
 
         // Site ID
