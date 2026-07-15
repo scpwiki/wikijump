@@ -5970,6 +5970,11 @@ async fn listpages_content_shares_the_render_include_budget() {
     const INDEX_SLUG: &str = "fixture-listpages-include-budget-index";
     const SAME_ROW_CHILD_SLUG: &str = "fixture-listpages-include-budget-same-row-child";
     const COMMENT_CHILD_SLUG: &str = "fixture-listpages-include-budget-comment-child";
+    const SECTION_CHILD_SLUG: &str = "fixture-listpages-include-budget-section-child";
+    const GENERATED_SEPARATOR_COMPONENT_SLUG: &str =
+        "component:listpages-generated-separator";
+    const GENERATED_SEPARATOR_CHILD_SLUG: &str =
+        "fixture-listpages-generated-separator-child";
     const INCLUDE_MARKER: &str = "LISTPAGES_INCLUDE_BUDGET_CELL";
     const INCLUDES_PER_SOURCE: usize = 128;
 
@@ -6031,6 +6036,36 @@ async fn listpages_content_shares_the_render_include_budget() {
         &comment_child_wikitext,
     )
     .await;
+    let section_child_wikitext = format!(
+        "{}=====\n[[include {COMPONENT_SLUG}]]\n",
+        format!("[[include {COMPONENT_SLUG}]]\n").repeat(255),
+    );
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        SECTION_CHILD_SLUG,
+        "ListPages Include Budget Section Child",
+        &section_child_wikitext,
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        GENERATED_SEPARATOR_COMPONENT_SLUG,
+        "ListPages Generated Separator Component",
+        "=====\nGENERATED_FROM_UNSELECTED_INCLUDE\n",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        GENERATED_SEPARATOR_CHILD_SLUG,
+        "ListPages Generated Separator Child",
+        &format!(
+            "[[include {GENERATED_SEPARATOR_COMPONENT_SLUG}]]\n=====\nSOURCE_SELECTED_SECTION\n"
+        ),
+    )
+    .await;
 
     let page = run_endpoint!(
         runner,
@@ -6063,6 +6098,61 @@ async fn listpages_content_shares_the_render_include_budget() {
         category_id: page.page_category_id,
         page_id: page.page_id,
     };
+    let selected_section = format!(
+        "[[include {COMPONENT_SLUG}]]\n[[module ListPages name=\"{SECTION_CHILD_SLUG}\"]]\n%%content{{2}}%%\n[[/module]]"
+    );
+    let output = RenderService::render_page(
+        runner.context(),
+        selected_section,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("a structurally isolated content section should expand independently");
+    assert_eq!(
+        output.html_output.body.matches(INCLUDE_MARKER).count(),
+        2,
+        "includes outside an isolated requested section must not consume the render budget",
+    );
+
+    let generated_separator = format!(
+        "[[module ListPages name=\"{GENERATED_SEPARATOR_CHILD_SLUG}\"]]\n%%content{{2}}%%\n[[/module]]"
+    );
+    let output = RenderService::render_page(
+        runner.context(),
+        generated_separator,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+    )
+    .await
+    .expect("an unselected include must not create content section separators");
+    assert!(
+        output.html_output.body.contains("SOURCE_SELECTED_SECTION"),
+        "the authored source section must determine content{{N}}: {}",
+        output.html_output.body,
+    );
+    assert!(
+        !output
+            .html_output
+            .body
+            .contains("GENERATED_FROM_UNSELECTED_INCLUDE"),
+        "an include outside the requested source section must remain unexpanded: {}",
+        output.html_output.body,
+    );
+    assert_eq!(
+        output
+            .html_output
+            .backlinks
+            .included_pages
+            .iter()
+            .filter(|page| page.page() == GENERATED_SEPARATOR_COMPONENT_SLUG)
+            .count(),
+        0,
+        "an include outside the requested source section must not create a backlink",
+    );
+
     let comment_section = format!(
         "[[module ListPages name=\"{COMMENT_CHILD_SLUG}\"]]\nCOMMENT_ROW_RENDERED %%content{{2}}%%\n[[/module]]"
     );

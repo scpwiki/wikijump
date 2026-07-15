@@ -46,6 +46,9 @@ use super::include_variable_iftags::{
     resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
 };
 use super::issued_markers::restore_issued_html_text_markers;
+use super::list_pages_content_sections::{
+    isolate_wikidot_content_section, wikidot_content_section,
+};
 use super::list_pages_scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
     has_count_pages_module_opening_candidate, has_list_pages_module_opening_candidate,
@@ -8110,6 +8113,23 @@ impl RenderService {
             } else {
                 BTreeMap::new()
             };
+            let isolated_content_section =
+                if wants_content && template.content_sections().len() == 1 {
+                    template
+                        .content_sections()
+                        .iter()
+                        .next()
+                        .copied()
+                        .flatten()
+                        .and_then(|section| {
+                            page_wikitext.as_deref().and_then(|wikitext| {
+                                isolate_wikidot_content_section(wikitext, section)
+                                    .map(|content| (section, content))
+                            })
+                        })
+                } else {
+                    None
+                };
             let expanded_page_content = if wants_content {
                 match page_wikitext.as_deref() {
                     Some(wikitext) => {
@@ -8140,7 +8160,11 @@ impl RenderService {
                         };
                         let expansion = Self::expand_includes(
                             ctx,
-                            wikitext.to_owned(),
+                            isolated_content_section
+                                .as_ref()
+                                .map(|(_, content)| content.as_str())
+                                .unwrap_or(wikitext)
+                                .to_owned(),
                             page_info,
                             page_info.site.as_ref(),
                             settings,
@@ -8166,14 +8190,21 @@ impl RenderService {
             let expanded_content = expanded_page_content
                 .as_deref()
                 .map(|expanded| {
-                    template
-                        .content_sections()
-                        .iter()
-                        .copied()
-                        .map(|section| {
-                            (section, wikidot_content_section(expanded, section))
-                        })
-                        .collect::<BTreeMap<_, _>>()
+                    if let Some((section, _)) = isolated_content_section.as_ref() {
+                        BTreeMap::from([(
+                            Some(*section),
+                            expanded.trim_matches('\n').to_owned(),
+                        )])
+                    } else {
+                        template
+                            .content_sections()
+                            .iter()
+                            .copied()
+                            .map(|section| {
+                                (section, wikidot_content_section(expanded, section))
+                            })
+                            .collect::<BTreeMap<_, _>>()
+                    }
                 })
                 .unwrap_or_default();
             let substitution_context = ListPagesSubstitutionContext {
@@ -10553,37 +10584,6 @@ fn push_list_pages_pager_target(
     output.push(' ');
     output.push_str(label);
     output.push_str("][[/span]]");
-}
-
-fn is_wikidot_content_separator_line(line: &str) -> bool {
-    let trimmed = line.trim();
-    trimmed.len() >= 4 && trimmed.chars().all(|character| character == '=')
-}
-
-fn wikidot_content_section(wikitext: &str, section: Option<usize>) -> String {
-    let Some(section) = section else {
-        return wikitext.to_owned();
-    };
-    if section == 0 {
-        return String::new();
-    }
-
-    let mut sections = Vec::new();
-    let mut current = String::new();
-    for line in wikitext.split_inclusive('\n') {
-        if is_wikidot_content_separator_line(line) {
-            sections.push(current);
-            current = String::new();
-        } else {
-            current.push_str(line);
-        }
-    }
-    sections.push(current);
-
-    sections
-        .get(section - 1)
-        .map(|section| section.trim_matches('\n').to_owned())
-        .unwrap_or_default()
 }
 
 struct ListPagesSubstitutionContext<'a> {
