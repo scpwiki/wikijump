@@ -353,8 +353,8 @@ const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 // Keep runtime-owned content expansion within the ordinary ListPages page size. Explicitly larger content modules remain literal before revision loading and nested include expansion.
 const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
     DEFAULT_LISTPAGES_RENDER_LIMIT as usize;
-// Content-backed ListPages modules can each trigger a page query, permission filtering, revision loading, and nested include expansion. Preserve the established two-module include-budget behavior, then stop later modules before any of that runtime work begins.
-const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 2;
+// Content-backed ListPages queries can each trigger permission filtering, revision loading, and nested include expansion. Three queries cover the common corpus shape while stopping dense author-page compositions before they exhaust the render budget.
+const MAX_LISTPAGES_CONTENT_QUERIES_PER_RENDER: usize = 3;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
@@ -7756,9 +7756,6 @@ impl RenderService {
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
         compat_text: &mut CompatTextFragments,
     ) -> Result<ListPagesBlockRenderResult> {
-        if template.uses_content() && !expansion_budget.try_start_content_module() {
-            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
-        }
         let ListPagesPageContext {
             site_id: current_site_id,
             page_id: current_page_id,
@@ -7812,6 +7809,21 @@ impl RenderService {
             .unwrap_or(DEFAULT_LISTPAGES_RENDER_LIMIT)
             .min(MAX_LISTPAGES_RENDER_LIMIT)
             .min(limit.unwrap_or(u64::MAX));
+        let wants_content = template.uses_content();
+        if wants_content
+            && render_page_query_uses_single_scan(order)
+            && requested_limit as usize > expansion_budget.remaining_content_rows()
+        {
+            // Avoid a broad random scan when its result cannot fit in the remaining deterministic content-expansion budget anyway.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
+        if wants_content
+            && !current_page_only
+            && prefetched_pages.is_none()
+            && !expansion_budget.try_start_content_query()
+        {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let query_limit = list_pages_row_scan_target(
             requested_limit,
             limit,
@@ -7951,7 +7963,6 @@ impl RenderService {
             .collect::<Vec<_>>();
         let total = pages.len();
         let body = template.body();
-        let wants_content = template.uses_content();
         if wants_content && !expansion_budget.can_expand_content_rows(total) {
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
@@ -12446,24 +12457,28 @@ struct ListPagesContentCache {
 
 #[derive(Debug)]
 struct ListPagesExpansionBudget {
-    remaining_content_modules: usize,
+    remaining_content_queries: usize,
     remaining_content_rows: usize,
 }
 
 impl ListPagesExpansionBudget {
     fn new() -> Self {
         Self {
-            remaining_content_modules: MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER,
+            remaining_content_queries: MAX_LISTPAGES_CONTENT_QUERIES_PER_RENDER,
             remaining_content_rows: MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER,
         }
     }
 
-    fn try_start_content_module(&mut self) -> bool {
-        if self.remaining_content_modules == 0 {
+    fn try_start_content_query(&mut self) -> bool {
+        if self.remaining_content_queries == 0 {
             return false;
         }
-        self.remaining_content_modules -= 1;
+        self.remaining_content_queries -= 1;
         true
+    }
+
+    fn remaining_content_rows(&self) -> usize {
+        self.remaining_content_rows
     }
 
     fn can_expand_content_rows(&self, rows: usize) -> bool {
@@ -14194,12 +14209,13 @@ mod tests {
     }
 
     #[test]
-    fn list_pages_content_budget_limits_modules_and_rows() {
+    fn list_pages_content_budget_limits_queries_and_rows() {
         let mut budget = ListPagesExpansionBudget::new();
 
-        assert!(budget.try_start_content_module());
-        assert!(budget.try_start_content_module());
-        assert!(!budget.try_start_content_module());
+        assert!(budget.try_start_content_query());
+        assert!(budget.try_start_content_query());
+        assert!(budget.try_start_content_query());
+        assert!(!budget.try_start_content_query());
         assert!(budget.can_expand_content_rows(40));
         budget.consume_content_rows(40);
         assert!(budget.can_expand_content_rows(60));

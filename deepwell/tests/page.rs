@@ -5824,7 +5824,7 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
         page_id: page.page_id,
     };
     let wikitext = format!(
-        "[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED ONE %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED TWO %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]METADATA %%title%%[[/module]]",
+        "[[module ListPages name=\"{CHILD_SLUG}\" limit=\"250\" order=\"random\"]]RANDOM PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED ONE %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED TWO %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED THREE %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]METADATA %%title%%[[/module]]",
     );
 
     let output = RenderService::render_page(
@@ -5839,8 +5839,16 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
 
     assert_eq!(
         output.html_output.body.matches(CHILD_MARKER).count(),
-        2,
-        "the first two content-backed modules should render",
+        3,
+        "the first three deterministic content-backed modules should render",
+    );
+    assert!(
+        output
+            .html_output
+            .body
+            .contains("RANDOM PRESERVED %%content%%"),
+        "a random content-backed module must remain literal without consuming the deterministic module budget: {}",
+        output.html_output.body,
     );
     assert!(
         output.html_output.body.contains("PRESERVED %%content%%"),
