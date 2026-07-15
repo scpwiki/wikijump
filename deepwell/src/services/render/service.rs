@@ -353,8 +353,8 @@ const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 // Keep runtime-owned content expansion within the ordinary ListPages page size. Explicitly larger content modules remain literal before revision loading and nested include expansion.
 const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
     DEFAULT_LISTPAGES_RENDER_LIMIT as usize;
-// Content-backed ListPages modules can each trigger a page query, permission filtering, revision loading, and nested include expansion. Admit only one such module per render so later modules are preserved before any of that runtime work begins.
-const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 1;
+// Content-backed ListPages modules can each trigger a page query, permission filtering, revision loading, and nested include expansion. Preserve the established two-module include-budget behavior, then stop later modules before any of that runtime work begins.
+const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 2;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
@@ -14197,6 +14197,7 @@ mod tests {
     fn list_pages_content_budget_limits_modules_and_rows() {
         let mut budget = ListPagesExpansionBudget::new();
 
+        assert!(budget.try_start_content_module());
         assert!(budget.try_start_content_module());
         assert!(!budget.try_start_content_module());
         assert!(budget.can_expand_content_rows(40));
