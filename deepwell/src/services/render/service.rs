@@ -350,9 +350,8 @@ const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const MAX_CORPUS_INCLUDE_EXPANSION_TOTAL: usize = 4096;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
 const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
-// Keep runtime-owned content expansion within the ordinary ListPages page size. Explicitly larger content modules remain literal before revision loading and nested include expansion.
-const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
-    DEFAULT_LISTPAGES_RENDER_LIMIT as usize;
+// Keep runtime-owned content expansion within the maximum supported ListPages page size across the whole render. Later modules remain literal before revision loading and nested include expansion once that shared allowance is exhausted.
+const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize = MAX_LISTPAGES_RENDER_LIMIT as usize;
 // Content-backed ListPages queries can each trigger permission filtering, revision loading, and nested include expansion. Three queries cover the common corpus shape while stopping dense author-page compositions before they exhaust the render budget.
 const MAX_LISTPAGES_CONTENT_QUERIES_PER_RENDER: usize = 3;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
@@ -7810,11 +7809,8 @@ impl RenderService {
             .min(MAX_LISTPAGES_RENDER_LIMIT)
             .min(limit.unwrap_or(u64::MAX));
         let wants_content = template.uses_content();
-        if wants_content
-            && render_page_query_uses_single_scan(order)
-            && requested_limit as usize > expansion_budget.remaining_content_rows()
-        {
-            // Avoid a broad random scan when its result cannot fit in the remaining deterministic content-expansion budget anyway.
+        if wants_content && render_page_query_uses_single_scan(order) {
+            // Random selection combines a broad scan with revision loading and nested includes while making the chosen content intentionally unstable. Preserve it before starting that work.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
         if wants_content
@@ -12477,10 +12473,6 @@ impl ListPagesExpansionBudget {
         true
     }
 
-    fn remaining_content_rows(&self) -> usize {
-        self.remaining_content_rows
-    }
-
     fn can_expand_content_rows(&self, rows: usize) -> bool {
         rows <= self.remaining_content_rows
     }
@@ -14216,12 +14208,12 @@ mod tests {
         assert!(budget.try_start_content_query());
         assert!(budget.try_start_content_query());
         assert!(!budget.try_start_content_query());
-        assert!(budget.can_expand_content_rows(40));
-        budget.consume_content_rows(40);
-        assert!(budget.can_expand_content_rows(60));
-        assert!(!budget.can_expand_content_rows(61));
+        assert!(budget.can_expand_content_rows(100));
+        budget.consume_content_rows(100);
+        assert!(budget.can_expand_content_rows(150));
+        assert!(!budget.can_expand_content_rows(151));
 
-        budget.consume_content_rows(60);
+        budget.consume_content_rows(150);
         assert!(budget.can_expand_content_rows(0));
         assert!(!budget.can_expand_content_rows(1));
     }
