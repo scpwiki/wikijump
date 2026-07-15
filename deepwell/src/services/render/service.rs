@@ -350,8 +350,9 @@ const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 const MAX_CORPUS_INCLUDE_EXPANSION_TOTAL: usize = 4096;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
 const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
-// Bound runtime-owned content expansion across all ListPages modules in one render. A single supported module may still use the full row limit; later modules remain literal when their complete result would exceed this budget.
-const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize = MAX_LISTPAGES_RENDER_LIMIT as usize;
+// Keep runtime-owned content expansion within the ordinary ListPages page size. Explicitly larger content modules remain literal before revision loading and nested include expansion.
+const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
+    DEFAULT_LISTPAGES_RENDER_LIMIT as usize;
 // Content-backed ListPages modules can each trigger a page query, permission filtering, revision loading, and nested include expansion. Admit only one such module per render so later modules are preserved before any of that runtime work begins.
 const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 1;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
@@ -14198,16 +14199,12 @@ mod tests {
 
         assert!(budget.try_start_content_module());
         assert!(!budget.try_start_content_module());
-        assert!(budget.can_expand_content_rows(100));
-        budget.consume_content_rows(100);
-        assert!(
-            budget.can_expand_content_rows(MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER - 100,)
-        );
-        assert!(
-            !budget.can_expand_content_rows(MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER - 99,)
-        );
+        assert!(budget.can_expand_content_rows(40));
+        budget.consume_content_rows(40);
+        assert!(budget.can_expand_content_rows(60));
+        assert!(!budget.can_expand_content_rows(61));
 
-        budget.consume_content_rows(MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER - 100);
+        budget.consume_content_rows(60);
         assert!(budget.can_expand_content_rows(0));
         assert!(!budget.can_expand_content_rows(1));
     }
