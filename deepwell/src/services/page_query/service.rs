@@ -96,16 +96,39 @@ pub(crate) struct PageQueryScoreFilterCache {
     uncacheable: BTreeSet<ScoreFilterCacheKey>,
 }
 
+#[derive(Debug, Default)]
+pub(crate) struct PageQueryScoreFilterSession {
+    seen: BTreeSet<ScoreFilterCacheKey>,
+}
+
+impl PageQueryScoreFilterSession {
+    fn register_use(&mut self, key: &ScoreFilterCacheKey) -> bool {
+        self.seen.insert(key.clone())
+    }
+}
+
 impl PageQueryScoreFilterCache {
-    fn lookup(&mut self, key: &ScoreFilterCacheKey) -> ScoreFilterCacheLookup {
+    fn lookup(
+        &mut self,
+        key: &ScoreFilterCacheKey,
+        register_logical_use: bool,
+    ) -> ScoreFilterCacheLookup {
         if self.uncacheable.contains(key) {
             return ScoreFilterCacheLookup::Uncacheable;
         }
         if let Some(page_ids) = self.qualifying_page_ids.get(key) {
             return ScoreFilterCacheLookup::Materialized(page_ids.clone());
         }
-        if !self.seen.insert(key.clone()) {
-            return ScoreFilterCacheLookup::RepeatedUnmaterialized;
+        if self.seen.contains(key) {
+            if register_logical_use {
+                return ScoreFilterCacheLookup::RepeatedUnmaterialized;
+            }
+            return ScoreFilterCacheLookup::FirstUse;
+        }
+        if register_logical_use {
+            self.seen.insert(key.clone());
+        } else {
+            debug_assert!(false, "a score key must be registered on its first batch");
         }
         ScoreFilterCacheLookup::FirstUse
     }
@@ -135,13 +158,14 @@ impl PageQueryService {
         ctx: &ServiceContext<'_>,
         query: PageQuery<'_>,
     ) -> Result<PageQueryResultEnvelope> {
-        Self::find_with_metadata_cached(ctx, query, None).await
+        Self::find_with_metadata_cached(ctx, query, None, None).await
     }
 
     pub(crate) async fn find_with_metadata_cached(
         ctx: &ServiceContext<'_>,
         query: PageQuery<'_>,
         mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+        mut score_filter_session: Option<&mut PageQueryScoreFilterSession>,
     ) -> Result<PageQueryResultEnvelope> {
         let queried_site_id = query.queried_site_id.unwrap_or(query.current_site_id);
         let PageQuery {
@@ -619,9 +643,13 @@ impl PageQueryService {
                 }
                 ScoreFilterPlan::SiteWide { site_id } => {
                     let key = ScoreFilterCacheKey::new(site_id, &score);
+                    let register_logical_use = score_filter_session
+                        .as_deref_mut()
+                        .map(|session| session.register_use(&key))
+                        .unwrap_or(true);
                     let lookup = score_filter_cache
                         .as_deref_mut()
-                        .map(|cache| cache.lookup(&key));
+                        .map(|cache| cache.lookup(&key, register_logical_use));
                     match lookup {
                         Some(ScoreFilterCacheLookup::Materialized(page_ids)) => {
                             query = query.filter(score_page_ids_condition(page_ids));
@@ -1383,10 +1411,10 @@ async fn filter_pages_by_data_form_fields(
 mod tests {
     use super::{
         MAX_CACHED_SCORE_FILTER_PAGE_IDS, MAX_CORRELATED_SCORE_CANDIDATES,
-        PageQueryScoreFilterCache, ScoreFilterCacheKey, ScoreFilterCacheLookup,
-        ScoreFilterPlan, bounded_score_page_ids, date_span_bounds,
-        score_filter_plan_from_probe, score_page_ids_condition, score_selector_condition,
-        score_selectors_condition, wikidot_name_pattern,
+        PageQueryScoreFilterCache, PageQueryScoreFilterSession, ScoreFilterCacheKey,
+        ScoreFilterCacheLookup, ScoreFilterPlan, bounded_score_page_ids,
+        date_span_bounds, score_filter_plan_from_probe, score_page_ids_condition,
+        score_selector_condition, score_selectors_condition, wikidot_name_pattern,
     };
     use crate::models::page;
     use crate::services::page_query::{
@@ -1654,19 +1682,42 @@ mod tests {
         let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
         let mut cache = PageQueryScoreFilterCache::default();
 
-        assert_eq!(cache.lookup(&key), ScoreFilterCacheLookup::FirstUse);
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
         assert_eq!(
-            cache.lookup(&key),
+            cache.lookup(&key, true),
             ScoreFilterCacheLookup::RepeatedUnmaterialized,
         );
         cache.insert(key.clone(), vec![11, 22]);
         assert_eq!(
-            cache.lookup(&key),
+            cache.lookup(&key, true),
             ScoreFilterCacheLookup::Materialized(vec![11, 22]),
         );
         assert_eq!(
-            cache.lookup(&key),
+            cache.lookup(&key, true),
             ScoreFilterCacheLookup::Materialized(vec![11, 22]),
+        );
+    }
+
+    #[test]
+    fn score_filter_session_counts_batches_as_one_logical_use() {
+        let selectors = [ScoreSelector {
+            score: ScoreValue::Integer(-10),
+            comparison: ComparisonOperation::GreaterOrEqualThan,
+        }];
+        let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
+        let mut cache = PageQueryScoreFilterCache::default();
+        let mut first_module = PageQueryScoreFilterSession::default();
+
+        assert!(first_module.register_use(&key));
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
+        assert!(!first_module.register_use(&key));
+        assert_eq!(cache.lookup(&key, false), ScoreFilterCacheLookup::FirstUse);
+
+        let mut second_module = PageQueryScoreFilterSession::default();
+        assert!(second_module.register_use(&key));
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::RepeatedUnmaterialized,
         );
     }
 
@@ -1692,7 +1743,7 @@ mod tests {
             ScoreFilterCacheKey::new(1, &float),
             ScoreFilterCacheKey::new(1, &strict),
         ] {
-            assert_eq!(cache.lookup(&key), ScoreFilterCacheLookup::FirstUse);
+            assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
         }
     }
 
@@ -1753,14 +1804,20 @@ mod tests {
         let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
         let mut cache = PageQueryScoreFilterCache::default();
 
-        assert_eq!(cache.lookup(&key), ScoreFilterCacheLookup::FirstUse);
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
         assert_eq!(
-            cache.lookup(&key),
+            cache.lookup(&key, true),
             ScoreFilterCacheLookup::RepeatedUnmaterialized,
         );
         cache.mark_uncacheable(key.clone());
-        assert_eq!(cache.lookup(&key), ScoreFilterCacheLookup::Uncacheable);
-        assert_eq!(cache.lookup(&key), ScoreFilterCacheLookup::Uncacheable);
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::Uncacheable
+        );
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::Uncacheable
+        );
         assert!(cache.qualifying_page_ids.is_empty());
     }
 }

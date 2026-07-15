@@ -78,11 +78,11 @@ use crate::services::page_query::{
     DataFormSelector, DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow,
     FoundPages, IncludedCategories, ListPagesRenderDiagnosticsInput,
     MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQuery, PageQueryResultMetadata, PageQueryScoreFilterCache, PageTypeSelector,
-    PaginationSelector, RangeSelector, ScoreSelector, TagCondition,
-    count_pages_exact_count_eligibility_diagnostics, list_pages_render_diagnostics,
-    normalize_wikidot_author_name, parse_static_wikidot_data_form_values,
-    static_wikidot_data_form_matches,
+    PageQuery, PageQueryResultMetadata, PageQueryScoreFilterCache,
+    PageQueryScoreFilterSession, PageTypeSelector, PaginationSelector, RangeSelector,
+    ScoreSelector, TagCondition, count_pages_exact_count_eligibility_diagnostics,
+    list_pages_render_diagnostics, normalize_wikidot_author_name,
+    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
@@ -4797,6 +4797,7 @@ impl RenderService {
         let mut expansion_budget = ListPagesExpansionBudget::new();
         let mut permission_cache = BTreeMap::new();
         let mut score_filter_cache = PageQueryScoreFilterCache::default();
+        let mut author_resolution_cache = BTreeMap::new();
         let mut cursor = 0;
         let mut blocks = blocks.into_iter().peekable();
 
@@ -4903,6 +4904,7 @@ impl RenderService {
                         &mut expansion_budget,
                         &mut permission_cache,
                         &mut score_filter_cache,
+                        &mut author_resolution_cache,
                         compat_text,
                     )
                     .await?;
@@ -4964,6 +4966,7 @@ impl RenderService {
                         &mut expansion_budget,
                         &mut permission_cache,
                         &mut score_filter_cache,
+                        &mut author_resolution_cache,
                         compat_text,
                     )
                     .await?;
@@ -7789,6 +7792,10 @@ impl RenderService {
         expansion_budget: &mut ListPagesExpansionBudget,
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
         score_filter_cache: &mut PageQueryScoreFilterCache,
+        author_resolution_cache: &mut BTreeMap<
+            ListPagesAuthorCacheKey,
+            ResolvedListPagesAuthors,
+        >,
         compat_text: &mut CompatTextFragments,
     ) -> Result<ListPagesBlockRenderResult> {
         let ListPagesPageContext {
@@ -7878,12 +7885,13 @@ impl RenderService {
         let wants_updated_by = template.uses_updated_by();
         let wants_updated_at = template.uses_updated_at();
         let wants_rating_votes = template.uses_rating_votes();
-        let resolved_authors = Self::resolve_list_pages_authors(
+        let resolved_authors = Self::resolve_list_pages_authors_cached(
             ctx,
             current_site_id,
             current_page_id,
             &authors,
             author_filter_present,
+            author_resolution_cache,
         )
         .await?;
         let query = PageQuery {
@@ -8464,8 +8472,9 @@ impl RenderService {
         query: PageQuery<'_>,
         target_count: usize,
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
-        score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+        mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
     ) -> Result<ViewableListPagesRows> {
+        let mut score_filter_session = PageQueryScoreFilterSession::default();
         if target_count > 0 && render_page_query_uses_single_scan(query.order) {
             let mut query = query;
             query.offset = 0;
@@ -8473,7 +8482,8 @@ impl RenderService {
             let mut found = PageQueryService::find_with_metadata_cached(
                 ctx,
                 query,
-                score_filter_cache,
+                score_filter_cache.as_deref_mut(),
+                Some(&mut score_filter_session),
             )
             .await?;
             if found.metadata.cap_exceeded {
@@ -8523,7 +8533,13 @@ impl RenderService {
                 render_page_query_batch_limit(target_count, pages.len(), raw_offset);
             query.pagination.limit = Some(batch_limit);
 
-            let found = PageQueryService::find_with_metadata(ctx, query).await?;
+            let found = PageQueryService::find_with_metadata_cached(
+                ctx,
+                query,
+                score_filter_cache.as_deref_mut(),
+                Some(&mut score_filter_session),
+            )
+            .await?;
             let cap_exceeded = found.metadata.cap_exceeded;
             merge_render_page_query_metadata(&mut metadata, found.metadata);
             if cap_exceeded {
@@ -9011,6 +9027,30 @@ impl RenderService {
             })
     }
 
+    async fn resolve_list_pages_authors_cached(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        current_page_id: i64,
+        author_names: &[Cow<'static, str>],
+        author_filter_present: bool,
+        cache: &mut BTreeMap<ListPagesAuthorCacheKey, ResolvedListPagesAuthors>,
+    ) -> Result<ResolvedListPagesAuthors> {
+        let key = list_pages_author_cache_key(author_names, author_filter_present);
+        if let Some(resolved) = cache.get(&key) {
+            return Ok(resolved.clone());
+        }
+        let resolved = Self::resolve_list_pages_authors(
+            ctx,
+            current_site_id,
+            current_page_id,
+            author_names,
+            author_filter_present,
+        )
+        .await?;
+        cache.insert(key, resolved.clone());
+        Ok(resolved)
+    }
+
     async fn resolve_list_pages_authors(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
@@ -9186,7 +9226,36 @@ struct CurrentPageAuthorSource {
     created_by_name: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct ListPagesAuthorCacheKey {
+    filter_present: bool,
+    normalized_names: Vec<String>,
+}
+
+fn list_pages_author_cache_key(
+    author_names: &[Cow<'static, str>],
+    author_filter_present: bool,
+) -> ListPagesAuthorCacheKey {
+    let normalized_names = author_names
+        .iter()
+        .filter_map(|author| {
+            if author.as_ref() == "=" {
+                Some("=".to_owned())
+            } else {
+                let normalized = normalize_wikidot_author_name(author);
+                (!normalized.is_empty()).then_some(normalized)
+            }
+        })
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    ListPagesAuthorCacheKey {
+        filter_present: author_filter_present,
+        normalized_names,
+    }
+}
+
+#[derive(Debug, Clone)]
 enum ResolvedListPagesAuthors {
     All,
     Any {
@@ -13147,7 +13216,7 @@ mod tests {
         find_list_pages_module_matches, format_list_pages_created_at,
         has_count_pages_module_opening_candidate, has_include_opening_candidate,
         has_list_pages_module_opening_candidate, include_error,
-        list_pages_body_is_no_visible_tracking_markup,
+        list_pages_author_cache_key, list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_content_query_target, list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, list_pages_row_scan_target,
@@ -14072,6 +14141,30 @@ mod tests {
         assert!(not_current.author_filter_present);
         assert!(not_current.unsupported_author_filter);
         assert!(not_current.unsupported_count_pages_filter);
+    }
+
+    #[test]
+    fn list_pages_author_cache_key_normalizes_order_case_and_duplicates() {
+        let repeated = list_pages_author_cache_key(
+            &[
+                Cow::Borrowed("Billith"),
+                Cow::Borrowed("billith"),
+                Cow::Borrowed("BILLITH"),
+            ],
+            true,
+        );
+        let single = list_pages_author_cache_key(&[Cow::Borrowed("billith")], true);
+        assert_eq!(repeated, single);
+        let mut cache = BTreeMap::new();
+        cache.insert(repeated, super::ResolvedListPagesAuthors::None);
+        assert!(matches!(
+            cache.get(&single),
+            Some(super::ResolvedListPagesAuthors::None)
+        ));
+
+        let current = list_pages_author_cache_key(&[Cow::Borrowed("=")], true);
+        assert_ne!(single, current);
+        assert_ne!(single, list_pages_author_cache_key(&[], false));
     }
 
     #[test]
