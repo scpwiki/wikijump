@@ -1609,7 +1609,7 @@ version: 2.3.1
 
 .yui-navset .yui-nav a,
 .yui-navset .yui-navset-top .yui-nav a {
-    background:#d8d8d8 url(../../../common--javascript/yahooui/assets/sprite.png) repeat-x; /* tab background */
+    background:#d8d8d8 url(https://d3g0gp89917ko0.cloudfront.net/v--3b8418686296/common--javascript/yahooui/assets/sprite.png) repeat-x; /* tab background */
     border:solid #a3a3a3;
     border-width:0 1px;
     color:#000;
@@ -1631,13 +1631,13 @@ version: 2.3.1
 .yui-navset .yui-nav .selected a,
 .yui-navset .yui-nav .selected a:focus, /* no focus effect for selected */
 .yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
-    background:#2647a0 url(../../../common--javascript/yahooui/assets/sprite.png) repeat-x left -1400px; /* selected tab background */
+    background:#2647a0 url(https://d3g0gp89917ko0.cloudfront.net/v--3b8418686296/common--javascript/yahooui/assets/sprite.png) repeat-x left -1400px; /* selected tab background */
     color:#fff;
 }
 
 .yui-navset .yui-nav a:hover,
 .yui-navset .yui-nav a:focus {
-    background:#bfdaff url(../../../common--javascript/yahooui/assets/sprite.png) repeat-x left -1300px; /* selected tab background */
+    background:#bfdaff url(https://d3g0gp89917ko0.cloudfront.net/v--3b8418686296/common--javascript/yahooui/assets/sprite.png) repeat-x left -1300px; /* selected tab background */
     outline:0;
 }
 

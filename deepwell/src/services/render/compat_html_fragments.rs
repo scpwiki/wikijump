@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Write as _;
 use uuid::Uuid;
 
+use super::html_text::{HtmlDataSegment, html_data_segments};
 use super::literal_regions::LiteralRegionIndex;
 
 pub(super) const COMPAT_HTML_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
@@ -17,6 +18,7 @@ pub(super) struct CompatHtmlFragments {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 enum CompatFragment {
     Html(String),
+    BlockHtml(String),
     Plain { plain: String, html: String },
 }
 
@@ -39,6 +41,10 @@ impl CompatHtmlFragments {
         self.push_fragment(CompatFragment::Html(html))
     }
 
+    pub(super) fn push_block_html(&mut self, html: String) -> String {
+        self.push_fragment(CompatFragment::BlockHtml(html))
+    }
+
     pub(super) fn push_plain(&mut self, plain: &str) -> String {
         self.push_fragment(CompatFragment::Plain {
             plain: plain.to_owned(),
@@ -53,33 +59,46 @@ impl CompatHtmlFragments {
     }
 
     pub(super) fn restore(&self, text: &str) -> String {
-        self.restore_with(text, None, |fragment| match fragment {
-            CompatFragment::Html(html) => Some(html.as_str()),
-            CompatFragment::Plain { html, .. } => Some(html.as_str()),
+        let data_segments = html_data_segments(text);
+        self.restore_with(text, None, Some(&data_segments), true, |fragment| {
+            match fragment {
+                CompatFragment::Html(html) | CompatFragment::BlockHtml(html) => {
+                    Some(html.as_str())
+                }
+                CompatFragment::Plain { html, .. } => Some(html.as_str()),
+            }
         })
     }
 
     #[cfg(test)]
     pub(super) fn restore_outside_html_literals(&self, text: &str) -> String {
-        let literal_regions = LiteralRegionIndex::new_html_restoration(text);
-        self.restore_with(text, Some(&literal_regions), |fragment| match fragment {
-            CompatFragment::Html(html) => Some(html.as_str()),
-            CompatFragment::Plain { html, .. } => Some(html.as_str()),
+        let data_segments = html_data_segments(text);
+        self.restore_with(text, None, Some(&data_segments), true, |fragment| {
+            match fragment {
+                CompatFragment::Html(html) | CompatFragment::BlockHtml(html) => {
+                    Some(html.as_str())
+                }
+                CompatFragment::Plain { html, .. } => Some(html.as_str()),
+            }
         })
     }
 
     pub(super) fn restore_outside_block_html_literals(&self, text: &str) -> String {
         let literal_regions = LiteralRegionIndex::new_html_color_restoration(text);
-        self.restore_with(text, Some(&literal_regions), |fragment| match fragment {
-            CompatFragment::Html(html) => Some(html.as_str()),
-            CompatFragment::Plain { html, .. } => Some(html.as_str()),
+        self.restore_with(text, Some(&literal_regions), None, true, |fragment| {
+            match fragment {
+                CompatFragment::Html(html) | CompatFragment::BlockHtml(html) => {
+                    Some(html.as_str())
+                }
+                CompatFragment::Plain { html, .. } => Some(html.as_str()),
+            }
         })
     }
 
     pub(super) fn restore_plain(&self, text: &str) -> String {
-        self.restore_with(text, None, |fragment| match fragment {
+        self.restore_with(text, None, None, false, |fragment| match fragment {
             CompatFragment::Plain { plain, .. } => Some(plain.as_str()),
-            CompatFragment::Html(_) => None,
+            CompatFragment::Html(_) | CompatFragment::BlockHtml(_) => None,
         })
     }
 
@@ -87,6 +106,8 @@ impl CompatHtmlFragments {
         &'a self,
         text: &str,
         literal_regions: Option<&LiteralRegionIndex>,
+        html_data_segments: Option<&[HtmlDataSegment]>,
+        unwrap_block_paragraphs: bool,
         value: impl Fn(&'a CompatFragment) -> Option<&'a str>,
     ) -> String {
         if self.fragments.is_empty() || !text.contains(&self.namespace) {
@@ -97,11 +118,41 @@ impl CompatHtmlFragments {
         while let Some(offset) = text[cursor..].find(&self.namespace) {
             let start = cursor + offset;
             output.push_str(&text[cursor..start]);
-            if literal_regions.is_some_and(|regions| regions.contains(start)) {
-                output.push_str(&self.namespace);
-                cursor = start + self.namespace.len();
-            } else if let Some((index, len)) = self.marker_at(&text[start..]) {
+            if let Some((index, len)) = self.marker_at(&text[start..]) {
+                let marker_end = start + len;
+                let inside_literal =
+                    literal_regions.is_some_and(|regions| regions.contains(start));
+                let inside_html_data = html_data_segments.is_none_or(|segments| {
+                    let insertion =
+                        segments.partition_point(|segment| segment.range.start <= start);
+                    insertion > 0 && marker_end <= segments[insertion - 1].range.end
+                });
+                if inside_literal || !inside_html_data {
+                    output.push_str(&text[start..marker_end]);
+                    cursor = marker_end;
+                    continue;
+                }
                 if let Some(fragment) = value(&self.fragments[index]) {
+                    if unwrap_block_paragraphs
+                        && matches!(&self.fragments[index], CompatFragment::BlockHtml(_))
+                    {
+                        if restore_block_html_from_paragraph(
+                            &mut output,
+                            text,
+                            marker_end,
+                            fragment,
+                            &mut cursor,
+                        ) {
+                            continue;
+                        }
+                        if !block_html_is_direct_child_of_safe_container(
+                            &output, text, marker_end,
+                        ) {
+                            output.push_str(&text[start..marker_end]);
+                            cursor = marker_end;
+                            continue;
+                        }
+                    }
                     output.push_str(fragment);
                     cursor = start + len;
                 } else {
@@ -127,6 +178,92 @@ impl CompatHtmlFragments {
         (index < self.fragments.len())
             .then_some((index, self.namespace.len() + digits + 1))
     }
+}
+
+fn block_html_is_direct_child_of_safe_container(
+    output: &str,
+    text: &str,
+    marker_end: usize,
+) -> bool {
+    let Some(tag_start) = output.rfind('<') else {
+        return output.trim().is_empty() && text[marker_end..].trim().is_empty();
+    };
+    let Some(tag_end) = output[tag_start..].find('>').map(|end| tag_start + end) else {
+        return false;
+    };
+    if !output[tag_end + 1..].trim().is_empty() {
+        return false;
+    }
+    let opening = output[tag_start + 1..tag_end].trim_start();
+    if opening.starts_with('/') || opening.starts_with(['!', '?']) {
+        return false;
+    }
+    let name_end = opening
+        .find(|character: char| character.is_ascii_whitespace() || character == '/')
+        .unwrap_or(opening.len());
+    let name = opening[..name_end].to_ascii_lowercase();
+    if !matches!(
+        name.as_str(),
+        "article"
+            | "aside"
+            | "blockquote"
+            | "body"
+            | "div"
+            | "footer"
+            | "header"
+            | "main"
+            | "section"
+            | "td"
+    ) {
+        return false;
+    }
+    let expected_close = format!("</{name}>");
+    text[marker_end..]
+        .trim_start()
+        .get(..expected_close.len())
+        .is_some_and(|close| close.eq_ignore_ascii_case(&expected_close))
+}
+
+/// Restores a trusted block marker without ever nesting block HTML in the
+/// paragraph FTML created for marker text. Splitting is intentionally limited
+/// to a plain-text paragraph; inline element balancing belongs to the renderer,
+/// not to this trust-boundary pass.
+fn restore_block_html_from_paragraph(
+    output: &mut String,
+    text: &str,
+    marker_end: usize,
+    fragment: &str,
+    cursor: &mut usize,
+) -> bool {
+    let Some(paragraph_start) = output.rfind("<p>") else {
+        return false;
+    };
+    if output[paragraph_start + 3..].contains('<') {
+        return false;
+    }
+    let Some(paragraph_end) = text[marker_end..].find("</p>") else {
+        return false;
+    };
+    let trailing_end = marker_end + paragraph_end;
+    if text[marker_end..trailing_end].contains('<') {
+        return false;
+    }
+
+    let leading_is_empty = output[paragraph_start + 3..].trim().is_empty();
+    let trailing_is_empty = text[marker_end..trailing_end].trim().is_empty();
+    if leading_is_empty {
+        output.truncate(paragraph_start);
+    } else {
+        output.push_str("</p>");
+    }
+    output.push_str(fragment);
+    if trailing_is_empty {
+        *cursor = trailing_end + "</p>".len();
+    } else {
+        output.push_str("<p>");
+        *cursor = marker_end;
+    }
+    true
 }
 
 fn escape_in_any_html_context(value: &str) -> String {
@@ -172,6 +309,34 @@ mod tests {
     }
 
     #[test]
+    fn block_html_replaces_only_the_paragraph_created_for_its_marker() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<div>trusted block</div>".to_owned());
+
+        assert_eq!(
+            fragments.restore(&format!("<section><p>{marker}</p></section>")),
+            "<section><div>trusted block</div></section>",
+        );
+        assert_eq!(
+            fragments.restore(&format!("<section>{marker}</section>")),
+            "<section><div>trusted block</div></section>",
+        );
+        assert_eq!(
+            fragments.restore(&format!("<p>before {marker} after</p>")),
+            "<p>before </p><div>trusted block</div><p> after</p>",
+        );
+        assert_eq!(
+            fragments.restore(&format!("<p> \n{marker}\n </p>")),
+            "<div>trusted block</div>",
+        );
+        assert!(
+            !fragments
+                .restore(&format!("<p>before {marker} after</p>"))
+                .contains("<p><div")
+        );
+    }
+
+    #[test]
     fn context_aware_restore_only_expands_markers_in_html_text_nodes() {
         let mut fragments = CompatHtmlFragments::new("");
         let marker = fragments.push_html("<b>trusted</b>".to_owned());
@@ -182,6 +347,21 @@ mod tests {
             fragments.restore_outside_html_literals(&html),
             format!(
                 "<b>trusted</b><a title=\"quoted > {marker}\"><b>trusted</b></a><!-- {marker} --><code>{marker}</code>",
+            ),
+        );
+    }
+
+    #[test]
+    fn block_html_never_restores_in_attributes_comments_or_opaque_elements() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<div>trusted block</div>".to_owned());
+        let html = format!(
+            r#"<a title="{marker}">{marker}</a><span>{marker}</span><button>{marker}</button><h2>{marker}</h2><!-- {marker} --><code>{marker}</code><pre>{marker}</pre>"#,
+        );
+        assert_eq!(
+            fragments.restore(&html),
+            format!(
+                r#"<a title="{marker}">{marker}</a><span>{marker}</span><button>{marker}</button><h2>{marker}</h2><!-- {marker} --><code>{marker}</code><pre>{marker}</pre>"#,
             ),
         );
     }

@@ -1024,12 +1024,13 @@ impl PageRevisionService {
         // TODO use html_output
         let RenderPageOutput {
             html_output: _,
+            errors: _,
             compiled_body_html_hash,
             compiled_body_styles_hash,
             compiled_top_bar_html_hash,
             compiled_side_bar_html_hash,
+            compiled_at,
             compiled_generator,
-            ..
         } = Self::render_and_update_links(
             ctx,
             id,
@@ -1074,6 +1075,7 @@ impl PageRevisionService {
                     compiled_side_bar_html_hash: Set(
                         compiled_side_bar_html_hash.map(Vec::from)
                     ),
+                    compiled_at: Set(compiled_at),
                     compiled_generator: Set(compiled_generator),
                     ..Default::default()
                 }
@@ -1092,6 +1094,7 @@ impl PageRevisionService {
                     compiled_side_bar_html_hash: Set(
                         compiled_side_bar_html_hash.map(Vec::from)
                     ),
+                    compiled_at: Set(compiled_at),
                     compiled_generator: Set(compiled_generator),
                     ..Default::default()
                 }

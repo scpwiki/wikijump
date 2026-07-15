@@ -349,6 +349,7 @@ async fn rerender_uses_latest_navigation_page_revision() {
         }),
     )
     .expect("seeded home page should exist");
+    let compiled_at_before = home.compiled_at;
     run_endpoint!(
         runner,
         page_rerender,
@@ -386,6 +387,21 @@ async fn rerender_uses_latest_navigation_page_revision() {
     assert!(
         !top_bar.contains("Wikijump Blog"),
         "rerender reused stale nav:top wikitext:\n{top_bar}"
+    );
+    let rerendered_home = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "home",
+        }),
+    )
+    .expect("rerendered home page should exist");
+    assert!(rerendered_home.compiled_at > compiled_at_before);
+    assert!(
+        rerendered_home
+            .compiled_generator
+            .ends_with("; deepwell-render/v1")
     );
 }
 
@@ -986,8 +1002,219 @@ async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_incl
         "compiled page should retain the consumer page body"
     );
     assert!(
-        html.contains("#side-bar") && html.contains("display: block !important"),
-        "compiled Basalt page should include Wikidot shell sidebar compatibility CSS: {html}"
+        !html.contains("margin-top: -12rem !important")
+            && !html.contains("#top-bar ul ul")
+            && !html.contains("left: -272px !important"),
+        "compiled Basalt page must not override the provenance-backed theme shell: {html}"
+    );
+}
+
+#[tokio::test]
+async fn nested_include_image_blocks_keep_their_attachment_page_owner() {
+    const SITE_SLUG: &str = "scp-wiki";
+    const FRAGMENT_SLUG: &str = "fragment:attachment-owner-leaf";
+    const SECOND_FRAGMENT_SLUG: &str = "fragment:attachment-owner-second-leaf";
+    const WRAPPER_SLUG: &str = "component:attachment-owner-wrapper";
+    const BASE_SLUG: &str = "component:attachment-owner-base";
+    const CROSS_FRAGMENT_SLUG: &str = "fragment:attachment-owner-cross-leaf";
+    const CROSS_WRAPPER_SLUG: &str = "component:attachment-owner-cross-wrapper";
+    const CROSS_BASE_SLUG: &str = "component:attachment-owner-cross-base";
+    const CONSUMER_SLUG: &str = "fixture-attachment-owner-consumer";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let cross_site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded cross-site fixture site should exist");
+    let cross_site_id = cross_site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        FRAGMENT_SLUG,
+        "Attachment Owner Leaf",
+        concat!(
+            "[[include component:image-block name=leaf.png|link=#]]\n",
+            "[[include component:image-block name=2117.png|alt=alt|alt-text=An image|link=\"https://scp-wiki.wdfiles.com/local--files/fragment:attachment-owner-leaf/2117.png\"]]\n",
+            "[[image direct-leaf.png]]\n",
+            "[[image \"leaf two.png\"]]\n",
+            "[[include component:attachment-owner-wrapper",
+            " | asset=forwarded.png",
+            " | spaced=forwarded two.png",
+            "]]\n",
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        WRAPPER_SLUG,
+        "Attachment Owner Wrapper",
+        &format!(
+            concat!(
+                "[[include {base_slug} | name={{$asset}} ",
+                "[!-- trailing [x] | still comment --] | href={{$asset}} | ",
+                "spaced={{$spaced}} | composite=thumb-{{$asset}}]]\n",
+                "[[include component:image-block name={{$asset}}|link={{$asset}}]]",
+            ),
+            base_slug = BASE_SLUG,
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        SECOND_FRAGMENT_SLUG,
+        "Attachment Owner Second Leaf",
+        "[[include component:attachment-owner-wrapper | asset=forwarded.png | spaced=forwarded two.png]]",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        BASE_SLUG,
+        "Attachment Owner Base",
+        concat!(
+            "[[image {$name} link={$href}]]\n",
+            "[[image \"{$spaced}\" link=\"{$spaced}\"]]\n",
+            "[[image {$composite} link={$composite}]]\n",
+            "[[image literal-thumb.png link=literal-full.png]]\n",
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        cross_site_id,
+        CROSS_BASE_SLUG,
+        "Cross-site Attachment Owner Base",
+        "[[image \"{$name}\" link=\"{$name}\"]]",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        cross_site_id,
+        CROSS_WRAPPER_SLUG,
+        "Cross-site Attachment Owner Wrapper",
+        &format!("[[include {CROSS_BASE_SLUG} | name={{$asset}}]]"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        cross_site_id,
+        CROSS_FRAGMENT_SLUG,
+        "Cross-site Attachment Owner Leaf",
+        &format!("[[include {CROSS_WRAPPER_SLUG} | asset=cross site ?#%[]日本.png]]"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        CONSUMER_SLUG,
+        "Attachment Owner Consumer",
+        &format!(
+            "[[include {FRAGMENT_SLUG}]]\n[[include {SECOND_FRAGMENT_SLUG}]]\n[[include :test:{CROSS_FRAGMENT_SLUG}]]\n[[include component:image-block name=root.png|link=#]]"
+        ),
+    )
+    .await;
+
+    let consumer = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": CONSUMER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("nested include attachment-owner consumer should exist");
+    let html = consumer
+        .compiled_body_html
+        .expect("nested include attachment-owner consumer should have compiled HTML");
+
+    assert!(
+        html.contains("/local--files/fragment:attachment-owner-leaf/leaf.png"),
+        "the nested included source must own its relative attachment: {html}"
+    );
+    assert_eq!(
+        html.matches("/local--files/fragment:attachment-owner-leaf/2117.png")
+            .count(),
+        2,
+        "the SCP-2117-shaped src and href must both retain the fragment attachment owner after host localization: {html}"
+    );
+    assert!(
+        !html.contains("%22https%3A")
+            && !html.contains("/local--files/fixture-attachment-owner-consumer/2117.png")
+            && !html.contains("/local--files/component:image-block/2117.png")
+            && !html.contains("/local--files/component:image-block-base/2117.png"),
+        "the quoted link must not be encoded as an attachment and the consumer must not steal the source: {html}"
+    );
+    assert!(
+        html.contains("/local--files/fragment:attachment-owner-leaf/direct-leaf.png"),
+        "a direct relative image must retain the nested included source owner: {html}"
+    );
+    assert!(
+        html.contains("/local--files/fragment:attachment-owner-leaf/leaf%20two.png"),
+        "a quoted relative filename must retain its owner and be URL-encoded in final HTML: {html}"
+    );
+    for forwarded in ["forwarded.png", "forwarded%20two.png"] {
+        let owned = format!("/local--files/fragment:attachment-owner-leaf/{forwarded}");
+        let expected_occurrences = if forwarded == "forwarded.png" { 4 } else { 2 };
+        assert_eq!(
+            html.matches(&owned).count(),
+            expected_occurrences,
+            "a forwarded attachment must use its leaf-owned URL for both href and src: {html}"
+        );
+        let second_owned =
+            format!("/local--files/fragment:attachment-owner-second-leaf/{forwarded}");
+        assert_eq!(
+            html.matches(&second_owned).count(),
+            expected_occurrences,
+            "same-valued forwarded occurrences from another leaf must retain their distinct owner: {html}"
+        );
+    }
+    assert_eq!(
+        html.matches(
+            "/local--files/component:attachment-owner-wrapper/thumb-forwarded.png",
+        )
+        .count(),
+        4,
+        "a composite value must retain ordinary substitution and belong to the wrapper that authored the composite: {html}",
+    );
+    assert!(
+        html.contains("/local--files/component:attachment-owner-base/literal-thumb.png")
+            && html.contains(
+                "/local--files/component:attachment-owner-base/literal-full.png"
+            ),
+        "literal image target and link must independently retain the base source owner: {html}"
+    );
+    let cross_owned = concat!(
+        "test.wdfiles.com/local--files/fragment:attachment-owner-cross-leaf/",
+        "cross%20site%20%3F%23%25%5B%5D%E6%97%A5%E6%9C%AC.png",
+    );
+    assert_eq!(
+        html.matches(cross_owned).count(),
+        2,
+        "cross-site nested src and href must retain the remote leaf owner: {html}"
+    );
+    assert!(
+        html.contains("/local--files/fixture-attachment-owner-consumer/root.png"),
+        "the root source must retain ownership of its own relative attachment: {html}"
+    );
+    assert!(
+        !html.contains("/local--files/fixture-attachment-owner-consumer/leaf.png")
+            && !html.contains(
+                "/local--files/fixture-attachment-owner-consumer/direct-leaf.png"
+            )
+            && !html.contains(
+                "/local--files/fixture-attachment-owner-consumer/leaf%20two.png"
+            )
+            && !html
+                .contains("/local--files/component:attachment-owner-wrapper/forwarded")
+            && !html.contains("/local--files/component:attachment-owner-base/forwarded")
+            && !html
+                .contains("/local--files/component:attachment-owner-wrapper/leaf.png"),
+        "neither the consumer nor an intermediate include may steal the leaf attachment: {html}"
     );
 }
 
@@ -1407,6 +1634,44 @@ async fn direct_message_render_leaves_image_block_include_literal() {
             "direct message image-block include should not be pre-expanded into page markup:\n{html}"
         );
     }
+}
+
+#[tokio::test]
+async fn page_render_emits_wikidot_rate_widget_structure() {
+    let runner = TestRunner::setup().await;
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let page_info = PageInfo {
+        page: Cow::Borrowed("rate-widget-fixture"),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Rate Widget Fixture"),
+        alt_title: None,
+        score: ScoreValue::Integer(396),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+
+    let output = RenderService::render(
+        runner.context(),
+        "[[=]]\n[[module Rate]]\n[[/=]]\n".to_owned(),
+        &page_info,
+        &settings,
+    )
+    .await
+    .expect("page render with a rate module should succeed");
+    let html = output.html_output.body;
+
+    assert!(html.contains(
+        r#"<div style="text-align: center;"><div class="page-rate-widget-box"><span class="rate-points">rating: <span class="number prw54353">+396</span></span>"#,
+    ), "rate widget must be a direct child of its alignment container:\n{html}");
+    assert!(html.contains(
+        r#"<span class="rateup btn btn-default"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>"#,
+    ));
+    assert!(!html.contains(r#"<div class="page-rate-widget-box"><p>"#));
+    assert!(!html.contains(r#"<p><div class="page-rate-widget-box">"#));
+    assert!(!html.contains(r#"<a href="javascript:;"><span class="rateup"#));
+    assert_eq!(html.matches(r#"class="rate-points""#).count(), 1);
+    assert!(!html.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
 }
 
 #[tokio::test]
@@ -2721,6 +2986,215 @@ async fn listpages_fragment_content_expands_child_includes() {
         !html.contains("[[include"),
         "fragment ListPages content should expand child includes before rendering:\n{html}"
     );
+}
+
+#[tokio::test]
+async fn listpages_content_keeps_the_selected_pages_attachment_owner() {
+    const INDEX_SLUG: &str = "fixture-listpages-attachment-owner-index";
+    const FRAGMENT_SLUG: &str = "fragment:fixture-listpages-attachment-owner-row";
+    const FILE_NAME: &str = "2117.png";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let index_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Attachment Owner Index",
+        concat!(
+            "[[module ListPages category=\"fragment\" parent=\".\" limit=\"1\" order=\"created_at\" offset=\"@URL|0\"]]",
+            "%%content%%",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        FRAGMENT_SLUG,
+        "Fixture ListPages Attachment Owner Row",
+        concat!(
+            "[[include component:image-block ",
+            "name=2117.png|alt=alt|alt-text=An image|",
+            "link=\"https://scp-wiki.wdfiles.com/local--files/",
+            "fragment:fixture-listpages-attachment-owner-row/2117.png\"]]\n",
+            "[[image direct-row.png link=direct-row-full.png]]",
+        ),
+    )
+    .await;
+    set_listpages_test_parent(&mut runner, site_id, FRAGMENT_SLUG, INDEX_SLUG).await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(INDEX_SLUG))),
+    });
+    let rerender = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "last_revision_id": index_revision,
+            "revision_comments": "rerender after attaching ListPages provenance row",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(
+        rerender.is_none(),
+        "relationship-only rerender should not create a page revision",
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("ListPages attachment-owner index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("ListPages attachment-owner index should have compiled HTML");
+    let selected_owner = format!("/local--files/{FRAGMENT_SLUG}/{FILE_NAME}");
+    assert_eq!(
+        html.matches(&selected_owner).count(),
+        2,
+        "ListPages row image src and href must both retain the selected page owner: {html}",
+    );
+    for direct_file in ["direct-row.png", "direct-row-full.png"] {
+        assert!(
+            html.contains(&format!("/local--files/{FRAGMENT_SLUG}/{direct_file}")),
+            "a direct ListPages row image target and link must retain the selected page owner: {html}",
+        );
+    }
+    for forbidden_owner in [
+        INDEX_SLUG,
+        "component:image-block",
+        "component:image-block-base",
+    ] {
+        assert!(
+            !html.contains(&format!("/local--files/{forbidden_owner}/{FILE_NAME}")),
+            "ListPages consumer and component pages must not steal row attachment ownership: {html}",
+        );
+    }
+    assert!(
+        !html.contains("%22https%3A")
+            && !html.contains("2117.png%22")
+            && !html.contains("%222117.png"),
+        "quoted include values must not become percent-encoded attachment data: {html}",
+    );
+}
+
+#[tokio::test]
+async fn listpages_content_keeps_same_named_attachments_separate_per_row() {
+    const INDEX_SLUG: &str = "fixture-listpages-two-row-attachment-owner-index";
+    const FIRST_FRAGMENT: &str =
+        "fragment:fixture-listpages-two-row-attachment-owner-first";
+    const SECOND_FRAGMENT: &str =
+        "fragment:fixture-listpages-two-row-attachment-owner-second";
+    const FILE_NAME: &str = "shared-row.png";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let index_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture Two-row ListPages Attachment Owner Index",
+        concat!(
+            "[[module ListPages category=\"fragment\" parent=\".\" limit=\"2\" order=\"created_at\" offset=\"0\"]]",
+            "%%content%%",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    for (index, fragment) in [FIRST_FRAGMENT, SECOND_FRAGMENT].into_iter().enumerate() {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            fragment,
+            "Fixture Two-row ListPages Attachment Owner Row",
+            "[[include component:image-block name=shared-row.png|link=shared-row.png]]",
+        )
+        .await;
+        set_listpages_test_created_at(
+            &runner,
+            site_id,
+            fragment,
+            OffsetDateTime::UNIX_EPOCH + Duration::seconds(index as i64 + 1),
+        )
+        .await;
+        set_listpages_test_parent(&mut runner, site_id, fragment, INDEX_SLUG).await;
+    }
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(INDEX_SLUG))),
+    });
+    let rerender = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "last_revision_id": index_revision,
+            "revision_comments": "rerender after attaching two ListPages provenance rows",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(
+        rerender.is_none(),
+        "relationship-only rerender should not create a page revision",
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("two-row ListPages attachment-owner index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("two-row ListPages attachment-owner index should have compiled HTML");
+
+    for fragment in [FIRST_FRAGMENT, SECOND_FRAGMENT] {
+        let row_owner = format!("/local--files/{fragment}/{FILE_NAME}");
+        assert_eq!(
+            html.matches(&row_owner).count(),
+            2,
+            "each ListPages row must independently own both src and href for the same filename: {html}",
+        );
+    }
+    for forbidden_owner in [
+        INDEX_SLUG,
+        "component:image-block",
+        "component:image-block-base",
+    ] {
+        assert!(
+            !html.contains(&format!("/local--files/{forbidden_owner}/{FILE_NAME}")),
+            "neither the ListPages consumer nor a component page may steal a row attachment: {html}",
+        );
+    }
 }
 
 #[tokio::test]

@@ -5,8 +5,8 @@ import test from "node:test"
 
 const styles = [
   {
-    file: "wikidot-base-c76c6921c8d6.css",
-    sha256: "c76c6921c8d693044b78649a65fc7f1e0b775e5bbfc53cc01afd3098f1111128",
+    file: "wikidot-base-165bc434fd1d.css",
+    sha256: "165bc434fd1da2092fee0ea6bdeb55aa38402aaaafd6d1e3303180d2b595b981",
     source:
       "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/css/style.css"
   },
@@ -49,6 +49,29 @@ test("the Wikidot shell links only the pinned local copies", async () => {
   )
 })
 
+test("the shell wrapper leaves imported page themes in control of typography", async () => {
+  const layout = await fs.readFile(
+    new URL("../src/lib/sigma-esque/wikidot.svelte", import.meta.url),
+    "utf8"
+  )
+  const wrapperRule = layout.match(/#skrollr-body\s*\{(?<declarations>[^}]*)\}/u)
+
+  assert.doesNotMatch(
+    wrapperRule?.groups?.declarations ?? "",
+    /(?:--font-|font-|line-height|text-rendering)/u
+  )
+})
+
+test("the Wikidot error dialog exposes the real visible display state", async () => {
+  const popup = await fs.readFile(
+    new URL("../src/lib/popup/error.svelte", import.meta.url),
+    "utf8"
+  )
+
+  assert.match(popup, /id="odialog-container"\s+style:display="block"/u)
+  assert.doesNotMatch(popup, /basalt-compat/u)
+})
+
 test("vendored Sigma CSS keeps every nested resource reference absolute", async () => {
   const sigma = await fs.readFile(
     new URL("../static/wikidot/styles/sigma-fe5388a32e12.css", import.meta.url),
@@ -60,4 +83,19 @@ test("vendored Sigma CSS keeps every nested resource reference absolute", async 
 
   assert(urls.length > 0)
   assert(urls.every((url) => url.startsWith("https://") || url.startsWith("data:")))
+})
+
+test("vendored Wikidot base CSS resolves its YUI sprite from the pinned source", async () => {
+  const base = await fs.readFile(
+    new URL("../static/wikidot/styles/wikidot-base-165bc434fd1d.css", import.meta.url),
+    "utf8"
+  )
+
+  assert.doesNotMatch(base, /url\(\.\.\/\.\.\/\.\.\/common--javascript\//u)
+  assert.equal(
+    base.match(
+      /https:\/\/d3g0gp89917ko0\.cloudfront\.net\/v--3b8418686296\/common--javascript\/yahooui\/assets\/sprite\.png/gu
+    )?.length,
+    3
+  )
 })

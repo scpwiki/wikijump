@@ -1,5 +1,6 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
+import vm from "node:vm"
 
 import {
   buildWikidotInterwikiFrameHtml,
@@ -23,6 +24,85 @@ const cromPage = {
   translationOf: null
 }
 
+const executeStyleFrame = (
+  html,
+  head,
+  scheduledCallbacks = [],
+  { frameElement = null, parentWindow = null } = {}
+) => {
+  const script = html.match(/<script>([\s\S]*?)<\/script>/u)?.[1]
+  assert.ok(script)
+
+  const document = {
+    head,
+    documentElement: head,
+    defaultView: {},
+    querySelectorAll: (selector) => head.querySelectorAll(selector),
+    createElement: (tagName) => ({
+      dataset: {},
+      tagName: tagName.toUpperCase(),
+      remove() {
+        head.removeChild(this)
+      }
+    })
+  }
+  const listeners = new Map()
+  const window = {
+    addEventListener: (type, callback) => listeners.set(type, callback),
+    document,
+    frameElement
+  }
+  if (parentWindow) parentWindow.document = document
+  window.parent = parentWindow ?? window
+  vm.runInNewContext(script, {
+    document,
+    setTimeout: (callback) => scheduledCallbacks.push(callback),
+    window
+  })
+  return { listeners, window }
+}
+
+const createHead = (...initialNodes) => {
+  const children = [...initialNodes]
+  let moveCount = 0
+  const moveBefore = (node, referenceNode = null) => {
+    moveCount += 1
+    const previousIndex = children.indexOf(node)
+    if (previousIndex !== -1) children.splice(previousIndex, 1)
+    const referenceIndex = referenceNode === null ? -1 : children.indexOf(referenceNode)
+    if (referenceNode !== null) assert.notEqual(referenceIndex, -1)
+    children.splice(referenceIndex === -1 ? children.length : referenceIndex, 0, node)
+  }
+
+  return {
+    appendChild: (node) => moveBefore(node),
+    children,
+    get moveCount() {
+      return moveCount
+    },
+    insertBefore: moveBefore,
+    removeChild: (node) => {
+      const index = children.indexOf(node)
+      if (index !== -1) children.splice(index, 1)
+    },
+    querySelectorAll: (selector) => {
+      if (selector === '[data-wikidot-style-frame="wikidot-style-frame"]') {
+        return children.filter(
+          (node) => node.dataset.wikidotStyleFrame === "wikidot-style-frame"
+        )
+      }
+      if (selector === "[data-wikijump-generated-css]") {
+        return children.filter((node) => node.dataset.wikijumpGeneratedCss !== undefined)
+      }
+      const owner = selector.match(/^\[data-wikidot-style-owner="(.+)"\]$/u)?.[1]
+      if (owner) {
+        return children.filter((node) => node.dataset.wikidotStyleOwner === owner)
+      }
+      assert.fail(`Unexpected selector: ${selector}`)
+    }
+  }
+}
+
 test("builds SCP interwiki language links from Crom translations", () => {
   assert.deepEqual(
     extractWikidotInterwikiLinks({
@@ -33,6 +113,97 @@ test("builds SCP interwiki language links from Crom translations", () => {
     }).map((link) => link.label),
     ["中文", "Français", "日本語", "한국어", "Русский", "Tiếng Việt"]
   )
+})
+
+test("replaces styles owned by a reused styleFrame across page navigation", () => {
+  const baseStyle = { dataset: {}, id: "base" }
+  const generatedPageStyle = {
+    dataset: { wikijumpGeneratedCss: "0" },
+    id: "generated-page"
+  }
+  const head = createHead(baseStyle, generatedPageStyle)
+  const parentWindow = {}
+  const frameElement = { dataset: {}, isConnected: true }
+  const firstCallbacks = []
+
+  const first = executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      priority: "1",
+      themes: ["https://example.com/page-a.css"]
+    }),
+    head,
+    firstCallbacks,
+    { frameElement, parentWindow }
+  )
+  const firstOwner = frameElement.dataset.wikidotStyleOwner
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      priority: "2",
+      themes: ["https://example.com/page-b.css"]
+    }),
+    head,
+    [],
+    { frameElement, parentWindow }
+  )
+
+  assert.notEqual(frameElement.dataset.wikidotStyleOwner, firstOwner)
+  assert.deepEqual(
+    head.children.map((node) => node.href ?? node.id),
+    ["base", "https://example.com/page-b.css", "generated-page"]
+  )
+
+  const moveCount = head.moveCount
+  firstCallbacks.forEach((callback) => callback())
+  assert.equal(head.moveCount, moveCount)
+
+  first.listeners.get("pagehide")?.()
+  assert.deepEqual(
+    head.children.map((node) => node.href ?? node.id),
+    ["base", "https://example.com/page-b.css", "generated-page"]
+  )
+
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      priority: "1",
+      themes: ["https://example.com/page-a.css"]
+    }),
+    head,
+    [],
+    { frameElement, parentWindow }
+  )
+  assert.deepEqual(
+    head.children.map((node) => node.href ?? node.id),
+    ["base", "https://example.com/page-a.css", "generated-page"]
+  )
+})
+
+test("removes only the styles owned by the unloaded styleFrame", () => {
+  const baseStyle = { dataset: {}, id: "base" }
+  const head = createHead(baseStyle)
+  const parentWindow = {}
+  const firstFrame = { dataset: {}, isConnected: true }
+  const secondFrame = { dataset: {}, isConnected: true }
+  const first = executeStyleFrame(
+    buildWikidotStyleFrameHtml({ themes: ["https://example.com/a.css"] }),
+    head,
+    [],
+    { frameElement: firstFrame, parentWindow }
+  )
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({ themes: ["https://example.com/b.css"] }),
+    head,
+    [],
+    { frameElement: secondFrame, parentWindow }
+  )
+
+  first.listeners.get("pagehide")?.()
+
+  assert.deepEqual(
+    head.children.map((node) => node.href ?? node.id),
+    ["base", "https://example.com/b.css"]
+  )
+  assert.equal(firstFrame.dataset.wikidotStyleOwner, undefined)
+  assert.ok(secondFrame.dataset.wikidotStyleOwner)
 })
 
 test("renders Wikidot-compatible interwiki visible text for translated SCP pages", () => {
@@ -67,14 +238,91 @@ test("builds styleFrame parent injection for theme stylesheets", () => {
   })
 
   assert.match(html, /wikidot-style-theme-count" content="2"/)
-  assert.match(html, /window\.parent\.document/)
+  assert.match(html, /targetWindow\.document/)
   assert.match(html, /head\.insertBefore\(element, laterStyle\)/)
   assert.match(html, /restoreStyleFrameOrder/)
-  assert.match(html, /head\.appendChild\(node\)/)
+  assert.match(html, /generatedCssNodes/)
+  assert.match(html, /desiredTail\.forEach/)
+  assert.match(html, /if \(alreadyOrdered\) return/)
   assert.match(html, /cdn\.scpwiki\.com\/theme\/en\/basalt\/basalt-bedrock-min\.css/)
   assert.match(html, /scp-wiki\.wjfiles\.localhost\/local--code\/theme%3Abasalt\/1/)
   assert.doesNotMatch(html, /<style>\{\$css\}<\/style>/)
   assert.doesNotMatch(html, /<style>\$css<\/style>/)
+})
+
+test("keeps app styles before priority-ordered styleFrame and generated CSS", () => {
+  const baseStyle = { dataset: {}, id: "base" }
+  const generatedPageStyle0 = {
+    dataset: { wikijumpGeneratedCss: "0" },
+    id: "generated-page-0"
+  }
+  const generatedPageStyle1 = {
+    dataset: { wikijumpGeneratedCss: "1" },
+    id: "generated-page-1"
+  }
+  const appStyle = { dataset: {}, id: "app" }
+  const head = createHead(baseStyle, generatedPageStyle0, generatedPageStyle1, appStyle)
+  const scheduledCallbacks = []
+
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      priority: "2",
+      themes: ["https://example.com/late.css"]
+    }),
+    head,
+    scheduledCallbacks
+  )
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      priority: "1",
+      themes: ["https://example.com/early.css"],
+      css: ".included { display: none; }"
+    }),
+    head,
+    scheduledCallbacks
+  )
+
+  assert.deepEqual(
+    head.children.map((node) =>
+      node.dataset.wikidotStyleFrame
+        ? `${node.dataset.wikidotStylePriority}:${node.dataset.wikidotStyleId}`
+        : node.id
+    ),
+    [
+      "base",
+      "app",
+      "1:theme-0",
+      "1:inline-css",
+      "2:theme-0",
+      "generated-page-0",
+      "generated-page-1"
+    ]
+  )
+
+  const nodeCount = head.children.length
+  const moveCount = head.moveCount
+  scheduledCallbacks.forEach((callback) => callback())
+  assert.equal(head.children.length, nodeCount)
+  assert.equal(head.moveCount, moveCount)
+  assert.deepEqual(
+    head.children.map((node) => node.id ?? node.dataset.wikidotStylePriority),
+    ["base", "app", "1", "1", "2", "generated-page-0", "generated-page-1"]
+  )
+})
+
+test("appends styleFrame CSS when there is no generated page CSS", () => {
+  const baseStyle = { dataset: {}, id: "base" }
+  const head = createHead(baseStyle)
+
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      themes: ["https://example.com/theme.css"]
+    }),
+    head
+  )
+
+  assert.equal(head.children[0], baseStyle)
+  assert.equal(head.children[1].href, "https://example.com/theme.css")
 })
 
 test("keeps non-placeholder styleFrame inline CSS safe", () => {

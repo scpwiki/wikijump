@@ -197,6 +197,28 @@ impl LiteralRegionIndex {
         index
     }
 
+    /// Literal and tag interiors where a compatibility module recognizer must
+    /// not treat tag-shaped text as a new module. The first byte of every tag
+    /// remains outside the index so a candidate can recognize the tag that
+    /// starts exactly there. Shrinking before merging also preserves the gap
+    /// between adjacent tags.
+    pub(super) fn new_wikidot_module_recognition(source: &str) -> Self {
+        let mut index = Self::build(source, false);
+        let mut ranges = Vec::new();
+        collect_wikidot_tag_ranges(source, &mut ranges);
+        collect_html_tag_ranges(source, &mut ranges);
+        ranges.sort_unstable_by_key(|range| (range.start, range.end));
+        index.merge_sorted_ranges(
+            ranges
+                .into_iter()
+                .filter_map(|range| {
+                    (range.start + 1 < range.end).then_some(range.start + 1..range.end)
+                })
+                .collect(),
+        );
+        index
+    }
+
     /// Rendered HTML regions where trusted-fragment markers must remain text.
     #[cfg(test)]
     pub(super) fn new_html_restoration(source: &str) -> Self {
