@@ -58,6 +58,28 @@ fn earlier_comment_owns_block_delimiters() {
 }
 
 #[test]
+fn module_recognition_preserves_literal_html_and_tag_interiors() {
+    let source = concat!(
+        "[[module Members]]\n",
+        "[[div data-module=\"[[module NewPage]]\"]]body[[/div]]\n",
+        "<div data-module=\"[[module Clone]]\">body</div>\n",
+        "<pre>[[module Members]]</pre>\n",
+        "<!-- [[module NewPage]] -->\n",
+        "[[code]]\n[[module Clone]]\n[[/code]]\n",
+    );
+    let index = LiteralRegionIndex::new_wikidot_module_recognition(source);
+
+    assert!(!index.contains(source.find("[[module Members]]").unwrap()));
+    for module in ["[[module NewPage]]", "[[module Clone]]"] {
+        for (offset, _) in source.match_indices(module) {
+            assert!(index.contains(offset), "{module} at {offset}");
+        }
+    }
+    let pre_members = source.rfind("[[module Members]]").unwrap();
+    assert!(index.contains(pre_members));
+}
+
+#[test]
 fn merges_dense_sorted_range_streams_in_source_order() {
     const RANGE_COUNT: usize = 20_000;
     let left = (0..RANGE_COUNT)

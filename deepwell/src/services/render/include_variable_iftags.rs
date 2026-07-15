@@ -76,6 +76,21 @@ pub(super) fn resolve_include_variable_iftags(
     variables: &VariableMap<'_>,
     page_info: &PageInfo<'_>,
 ) {
+    resolve_include_variable_iftags_with_tags(source, variables, &page_info.tags);
+}
+
+/// Resolve dynamic `iftags` names in a source rendered without an include
+/// callsite. Such names have no value to bind and therefore use Wikidot's
+/// absent-value behavior.
+pub(super) fn resolve_unbound_include_variable_iftags(source: &mut String) {
+    resolve_include_variable_iftags_with_tags(source, &VariableMap::new(), &[]);
+}
+
+fn resolve_include_variable_iftags_with_tags(
+    source: &mut String,
+    variables: &VariableMap<'_>,
+    tags: &[std::borrow::Cow<'_, str>],
+) {
     if !source.contains("[[ift{$") {
         return;
     }
@@ -86,13 +101,7 @@ pub(super) fn resolve_include_variable_iftags(
     };
     let mut replacements = Vec::new();
     for root in roots {
-        collect_replacements(
-            source,
-            &root,
-            variables,
-            &page_info.tags,
-            &mut replacements,
-        );
+        collect_replacements(source, &root, variables, tags, &mut replacements);
     }
     if replacements.is_empty() {
         return;

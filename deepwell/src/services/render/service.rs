@@ -42,7 +42,9 @@ use super::include_attachment_owners::{
     split_wikidot_include_argument_segments, wikidot_include_segment_is_space,
 };
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
-use super::include_variable_iftags::resolve_include_variable_iftags;
+use super::include_variable_iftags::{
+    resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
+};
 use super::issued_markers::restore_issued_html_text_markers;
 use super::list_pages_scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
@@ -2710,6 +2712,7 @@ impl RenderService {
         page_info: &ftml::data::PageInfo<'_>,
         preserved: &mut CompatTextFragments,
     ) {
+        resolve_unbound_include_variable_iftags(wikitext);
         *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
     }
@@ -2810,6 +2813,7 @@ impl RenderService {
     ) {
         // Keep incomplete boundaries available for adjacent caller/include
         // source while still pruning self-contained inactive gates early.
+        resolve_unbound_include_variable_iftags(wikitext);
         *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         resolve_outermost_wikidot_iftags_before_include_expansion(
             wikitext,
@@ -4444,11 +4448,6 @@ impl RenderService {
                     continue;
                 };
 
-                resolve_include_variable_iftags(
-                    &mut source.wikitext,
-                    include.variables(),
-                    expansion_context.page_info,
-                );
                 qualify_relative_image_variable_attachments(
                     &mut source.wikitext,
                     include.variables(),
@@ -4460,7 +4459,11 @@ impl RenderService {
                     &attachment_variable_owners,
                     &mut include_source_cache.attachment_provenance,
                 );
-                apply_include_variables(&mut source.wikitext, &include);
+                apply_include_variables_before_resolving_iftags(
+                    &mut source.wikitext,
+                    &include,
+                    expansion_context.page_info,
+                );
                 qualify_included_relative_image_attachments(
                     &mut source.wikitext,
                     &source.site_slug,
@@ -5514,6 +5517,34 @@ impl RenderService {
         output
     }
 
+    fn expand_registry_modules_outside_literals(
+        wikitext: String,
+        module_regex: &Regex,
+        mut render: impl FnMut(&str) -> String,
+    ) -> String {
+        let literal_regions =
+            LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
+        let mut output = String::with_capacity(wikitext.len());
+        let mut cursor = 0;
+        for captures in module_regex.captures_iter(&wikitext) {
+            let matched = captures
+                .get(0)
+                .expect("a module capture always has a complete match");
+            if literal_regions.contains(matched.start()) {
+                continue;
+            }
+            output.push_str(&wikitext[cursor..matched.start()]);
+            let head = captures.name("head").map_or("", |mtch| mtch.as_str());
+            output.push_str(&render(head));
+            cursor = matched.end();
+        }
+        if cursor == 0 {
+            return wikitext;
+        }
+        output.push_str(&wikitext[cursor..]);
+        output
+    }
+
     fn expand_members_modules_with_registry(
         wikitext: String,
         settings: &WikitextSettings,
@@ -5523,15 +5554,16 @@ impl RenderService {
             return wikitext;
         }
 
-        MEMBERS_MODULE_REGEX
-            .replace_all(&wikitext, |captures: &regex::Captures<'_>| {
-                let head = captures.name("head").map_or("", |mtch| mtch.as_str());
+        Self::expand_registry_modules_outside_literals(
+            wikitext,
+            &MEMBERS_MODULE_REGEX,
+            |head| {
                 let group = wikidot_module_argument(head, "group")
                     .unwrap_or("members")
                     .trim();
                 compat_html.push_html(render_members_module_placeholder(group))
-            })
-            .into_owned()
+            },
+        )
     }
 
     fn expand_new_page_modules_with_registry(
@@ -5543,12 +5575,11 @@ impl RenderService {
             return wikitext;
         }
 
-        NEWPAGE_MODULE_REGEX
-            .replace_all(&wikitext, |captures: &regex::Captures<'_>| {
-                let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-                compat_html.push_html(render_new_page_module(head))
-            })
-            .into_owned()
+        Self::expand_registry_modules_outside_literals(
+            wikitext,
+            &NEWPAGE_MODULE_REGEX,
+            |head| compat_html.push_html(render_new_page_module(head)),
+        )
     }
 
     fn expand_clone_modules_with_registry(
@@ -5560,12 +5591,11 @@ impl RenderService {
             return wikitext;
         }
 
-        CLONE_MODULE_REGEX
-            .replace_all(&wikitext, |captures: &regex::Captures<'_>| {
-                let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-                compat_html.push_html(render_clone_module(head))
-            })
-            .into_owned()
+        Self::expand_registry_modules_outside_literals(
+            wikitext,
+            &CLONE_MODULE_REGEX,
+            |head| compat_html.push_html(render_clone_module(head)),
+        )
     }
 
     #[cfg(test)]
@@ -6465,7 +6495,16 @@ impl RenderService {
         let mut collapsible_depth = 0usize;
         let mut code_blocks = Vec::new();
         let mut collapsible_blocks = 0;
-        let parsed_code_blocks = scan_compat_code_blocks(wikitext).unwrap_or_default();
+        let parsed_code_blocks = match scan_compat_code_blocks(wikitext) {
+            Ok(blocks) => blocks,
+            Err(_) => {
+                let mut literal = String::with_capacity(wikitext.len() + 96);
+                literal.push_str("<div class=\"wikidot-compat-fallback\"><pre>");
+                push_escaped_html(&mut literal, wikitext);
+                literal.push_str("</pre></div>");
+                return WikidotCompatibilityFallbackOutput::body(literal);
+            }
+        };
         let mut parsed_code_blocks = parsed_code_blocks.into_iter().peekable();
         let mut skip_code_through_line = None;
 
@@ -12783,6 +12822,15 @@ fn apply_include_variables(content: &mut String, include: &IncludeRef<'_>) {
     }
 }
 
+fn apply_include_variables_before_resolving_iftags(
+    content: &mut String,
+    include: &IncludeRef<'_>,
+    page_info: &PageInfo<'_>,
+) {
+    apply_include_variables(content, include);
+    resolve_include_variable_iftags(content, include.variables(), page_info);
+}
+
 fn trim_include_variable_value(value: &str) -> &str {
     value.trim_end_matches([' ', '\t', '\r', '\n'])
 }
@@ -13210,6 +13258,31 @@ mod tests {
         let mut preserved = CompatTextFragments::new(wikitext);
         RenderService::resolve_wikidot_iftags(wikitext, page_info, &mut preserved);
         *wikitext = preserved.restore(wikitext);
+    }
+
+    fn resolve_test_included_variable_iftags(
+        source: &str,
+        variables: &[(&'static str, &'static str)],
+        tags: &[&'static str],
+    ) -> String {
+        let include = IncludeRef::new(
+            PageRef::page_only("component:test"),
+            variables
+                .iter()
+                .map(|&(name, value)| (Cow::Borrowed(name), Cow::Borrowed(value)))
+                .collect(),
+        );
+        let mut page_info = fallback_test_page_info("consumer", "Consumer");
+        page_info.tags = tags.iter().map(|&tag| Cow::Borrowed(tag)).collect();
+        let mut source = source.to_owned();
+
+        super::apply_include_variables_before_resolving_iftags(
+            &mut source,
+            &include,
+            &page_info,
+        );
+        resolve_test_wikidot_iftags(&mut source, &page_info);
+        source
     }
 
     #[test]
@@ -14445,6 +14518,74 @@ mod tests {
 
         let forged = r#"<a class="button" data-wikijump-compat-clone="1"><img src=x onerror="alert(1)"></a>"#;
         assert_eq!(fragments.restore(forged), forged);
+    }
+
+    #[test]
+    fn registry_module_expansion_ignores_literal_attribute_and_comment_occurrences() {
+        let modules = concat!(
+            "[[module Members]] ",
+            "[[module NewPage]] ",
+            "[[module Clone]]",
+        );
+        let source = format!(
+            concat!(
+                "@@{modules}@@\n",
+                "[[code]]\n{modules}\n[[/code]]\n",
+                "[[raw]]\n{modules}\n[[/raw]]\n",
+                "[!-- {modules} --]\n",
+                "[[div data-module=\"[[module Members]]\"]]members[[/div]]\n",
+                "[[div data-module=\"[[module NewPage]]\"]]new page[[/div]]\n",
+                "[[div data-module=\"[[module Clone]]\"]]clone[[/div]]\n",
+                "<div data-module=\"[[module Members]]\">members</div>\n",
+                "<div data-module=\"[[module NewPage]]\">new page</div>\n",
+                "<div data-module=\"[[module Clone]]\">clone</div>\n",
+                "<pre>{modules}</pre>\n",
+                "<!-- {modules} -->\n",
+                "{modules}\n",
+            ),
+            modules = modules
+        );
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut fragments = CompatHtmlFragments::new(&source);
+        let protected = RenderService::expand_members_modules_with_registry(
+            source,
+            &settings,
+            &mut fragments,
+        );
+        let protected = RenderService::expand_new_page_modules_with_registry(
+            protected,
+            &settings,
+            &mut fragments,
+        );
+        let protected = RenderService::expand_clone_modules_with_registry(
+            protected,
+            &settings,
+            &mut fragments,
+        );
+
+        assert_eq!(
+            protected
+                .matches(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX)
+                .count(),
+            3
+        );
+        for module in [
+            "[[module Members]]",
+            "[[module NewPage]]",
+            "[[module Clone]]",
+        ] {
+            assert_eq!(protected.matches(module).count(), 8, "{module}");
+        }
+
+        let mut output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                &protected,
+                Some("module-literal-boundary"),
+                Some("scp-wiki"),
+                None,
+            );
+        output.body = fragments.restore(&output.body);
+        assert!(!output.body.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
     }
 
     #[test]
@@ -17021,6 +17162,75 @@ mod tests {
         assert!(!html.contains(r#"<div class="code">"#));
     }
 
+    fn assert_invalid_code_with_collapsible_fails_closed(source: &str) {
+        let output =
+            RenderService::render_wikidot_compatibility_fallback_output_for_context(
+                source, None, None, None,
+            );
+
+        assert_eq!(
+            output.body,
+            format!("<div class=\"wikidot-compat-fallback\"><pre>{source}</pre></div>"),
+        );
+        assert!(output.code_blocks.is_empty());
+        assert!(output.html_block_texts.is_empty());
+        assert!(!output.body.contains(r#"<div class="code">"#));
+        assert!(!output.body.contains(r#"<div class="collapsible-block">"#));
+    }
+
+    #[test]
+    fn unclosed_code_cannot_activate_contained_collapsible_markers() {
+        assert_invalid_code_with_collapsible_fails_closed(concat!(
+            "before unclosed\n",
+            "[[code]]\n",
+            "[[collapsible]]\n",
+            "unclosed body\n",
+            "[[/collapsible]]\n",
+            "after unclosed\n",
+        ));
+    }
+
+    #[test]
+    fn nested_code_cannot_activate_contained_collapsible_markers() {
+        assert_invalid_code_with_collapsible_fails_closed(concat!(
+            "before nested\n",
+            "[[code]]\n",
+            "outer body\n",
+            "[[code]]\n",
+            "[[collapsible]]\n",
+            "nested body\n",
+            "[[/collapsible]]\n",
+            "[[/code]]\n",
+            "[[/code]]\n",
+            "after nested\n",
+        ));
+    }
+
+    #[test]
+    fn unmatched_code_close_cannot_activate_following_collapsible_markers() {
+        assert_invalid_code_with_collapsible_fails_closed(concat!(
+            "before unmatched\n",
+            "[[/code]]\n",
+            "[[collapsible]]\n",
+            "unmatched body\n",
+            "[[/collapsible]]\n",
+            "after unmatched\n",
+        ));
+    }
+
+    #[test]
+    fn malformed_code_open_cannot_activate_contained_collapsible_markers() {
+        assert_invalid_code_with_collapsible_fails_closed(concat!(
+            "before malformed\n",
+            "[[code type=css]]\n",
+            "[[collapsible]]\n",
+            "malformed body\n",
+            "[[/collapsible]]\n",
+            "[[/code]]\n",
+            "after malformed\n",
+        ));
+    }
+
     #[test]
     fn wikidot_compatibility_fallback_preserves_collapsible_code_blocks() {
         let source = concat!(
@@ -18988,6 +19198,53 @@ mod tests {
     }
 
     #[test]
+    fn included_dynamic_iftags_substitutes_directive_and_spec_before_matching() {
+        let source = "[[ift{$mode}gs +{$required_tag}]]selected[[/ift{$mode}gs]]";
+
+        assert_eq!(
+            resolve_test_included_variable_iftags(
+                source,
+                &[("mode", "a"), ("required_tag", "theme")],
+                &["theme"],
+            ),
+            "selected",
+        );
+    }
+
+    #[test]
+    fn included_dynamic_iftags_drops_body_when_substituted_spec_does_not_match() {
+        let source = "[[ift{$mode}gs +{$required_tag}]]selected[[/ift{$mode}gs]]";
+
+        assert_eq!(
+            resolve_test_included_variable_iftags(
+                source,
+                &[("mode", "a"), ("required_tag", "theme")],
+                &["other"],
+            ),
+            "",
+        );
+        assert_eq!(
+            resolve_test_included_variable_iftags(source, &[("mode", "a")], &["theme"],),
+            "",
+        );
+    }
+
+    #[test]
+    fn included_dynamic_iftags_keeps_absent_mode_transparent() {
+        let source =
+            "before[[ift{$mode}gs +{$required_tag}]]selected[[/ift{$mode}gs]]after";
+
+        assert_eq!(
+            resolve_test_included_variable_iftags(
+                source,
+                &[("required_tag", "theme")],
+                &[],
+            ),
+            "beforeselectedafter",
+        );
+    }
+
+    #[test]
     fn normalizes_wikidot_div_style_url_quotes_for_acs_icon_markers() {
         let mut wikitext = concat!(
             "[[div_ class=\"icon-1\" style=\"background-image: url(\"",
@@ -20349,6 +20606,60 @@ mod tests {
         let tokens = ftml::tokenize(&source);
         let (_, errors) = ftml::parse(&tokens, &page_info, &settings).into();
         assert!(errors.is_empty(), "{errors:#?}");
+    }
+
+    #[test]
+    fn direct_root_source_unwraps_unbound_dynamic_iftags() {
+        let mut source =
+            "before [[ift{$mode}gs +theme]]root[[/ift{$mode}gs]] after".to_owned();
+        let page_info = fallback_test_page_info("root", "Root");
+
+        prepare_test_wikidot_conditionals_before_include_expansion(
+            &mut source,
+            &page_info,
+        );
+
+        assert_eq!(source, "before root after");
+    }
+
+    #[test]
+    fn direct_theme_source_drops_unbound_empty_nested_iftags() {
+        let mut source = concat!(
+            ">[[ift{$mode}gs -override]]\n",
+            ">[[iftags]]\n",
+            "theme css\n",
+            ">[[/iftags]]\n",
+            ">[[/ift{$mode}gs]]",
+        )
+        .to_owned();
+        let mut page_info = fallback_test_page_info("direct-theme", "Direct theme");
+        page_info.category = Some(Cow::Borrowed("theme"));
+
+        prepare_test_wikidot_conditionals_before_include_expansion(
+            &mut source,
+            &page_info,
+        );
+
+        assert_eq!(source, "");
+    }
+
+    #[test]
+    fn direct_component_source_unwraps_balanced_and_preserves_malformed_dynamic_iftags() {
+        let mut source =
+            "[[ift{$mode}gs +component]]component body[[/ift{$mode}gs]]".to_owned();
+        let mut page_info =
+            fallback_test_page_info("direct-component", "Direct component");
+        page_info.category = Some(Cow::Borrowed("component"));
+
+        prepare_test_wikidot_conditionals(&mut source, &page_info);
+
+        assert_eq!(source, "component body");
+
+        let mut malformed =
+            "[[ift{$mode}gs +component]]component body[[/ift{$other}gs]]".to_owned();
+        let expected = malformed.clone();
+        prepare_test_wikidot_conditionals(&mut malformed, &page_info);
+        assert_eq!(malformed, expected);
     }
 
     #[test]

@@ -203,7 +203,10 @@ impl LiteralRegionIndex {
     /// starts exactly there. Shrinking before merging also preserves the gap
     /// between adjacent tags.
     pub(super) fn new_wikidot_module_recognition(source: &str) -> Self {
-        let mut index = Self::build(source, false);
+        let mut index = Self::build(source, true);
+        let mut ranges = Vec::new();
+        collect_paired_ranges(source, "<!--", "-->", &mut ranges);
+        index.merge_sorted_ranges(ranges);
         let mut ranges = Vec::new();
         collect_wikidot_tag_ranges(source, &mut ranges);
         collect_html_tag_ranges(source, &mut ranges);
