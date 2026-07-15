@@ -695,11 +695,11 @@ impl PageQueryService {
                 ScoreFilterPlan::SiteWide { site_id } => {
                     let key = ScoreFilterCacheKey::new(site_id, &score);
                     let register_logical_use = score_filter_session
-                        .as_deref_mut()
+                        .as_mut()
                         .map(|session| session.register_use(&key))
                         .unwrap_or(true);
                     let lookup = score_filter_cache
-                        .as_deref_mut()
+                        .as_mut()
                         .map(|cache| cache.lookup(&key, register_logical_use));
                     match lookup {
                         Some(ScoreFilterCacheLookup::Materialized(membership)) => {
@@ -711,7 +711,7 @@ impl PageQueryService {
                             {
                                 Some(membership) => {
                                     score_filter_cache
-                                        .as_deref_mut()
+                                        .as_mut()
                                         .expect("score cache should still be available")
                                         .insert(key, membership.clone());
                                     query = query
@@ -719,7 +719,7 @@ impl PageQueryService {
                                 }
                                 None => {
                                     score_filter_cache
-                                        .as_deref_mut()
+                                        .as_mut()
                                         .expect("score cache should still be available")
                                         .mark_uncacheable(key);
                                     query = query.filter(score_selectors_condition(
