@@ -7818,6 +7818,12 @@ impl RenderService {
         );
         let wants_content = template.uses_content();
         if wants_content
+            && requested_limit > expansion_budget.remaining_content_rows() as u64
+        {
+            // Do not run a query whose requested output cannot fit in the remaining shared content-expansion allowance.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
+        if wants_content
             && render_page_query_uses_single_scan(order)
             && query_limit > expansion_budget.remaining_content_rows() as u64
         {

@@ -5824,7 +5824,7 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
         page_id: page.page_id,
     };
     let wikitext = format!(
-        "[[module ListPages name=\"{CHILD_SLUG}\" limit=\"5000\" perPage=\"1\" order=\"random\"]]RANDOM PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED ONE %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED TWO %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED THREE %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]METADATA %%title%%[[/module]]",
+        "[[module ListPages name=\"{CHILD_SLUG}\" limit=\"250\"]]BROAD PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"5000\" perPage=\"1\" order=\"random\"]]RANDOM PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED ONE %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED TWO %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]EXPANDED THREE %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]PRESERVED %%content%%[[/module]]\n[[module ListPages name=\"{CHILD_SLUG}\" limit=\"1\"]]METADATA %%title%%[[/module]]",
     );
 
     let output = RenderService::render_page(
@@ -5841,6 +5841,14 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
         output.html_output.body.matches(CHILD_MARKER).count(),
         3,
         "the first three deterministic content-backed modules should render",
+    );
+    assert!(
+        output
+            .html_output
+            .body
+            .contains("BROAD PRESERVED %%content%%"),
+        "a content request wider than the remaining row budget must remain literal without consuming the query budget: {}",
+        output.html_output.body,
     );
     assert!(
         output
