@@ -7809,21 +7809,6 @@ impl RenderService {
             .unwrap_or(DEFAULT_LISTPAGES_RENDER_LIMIT)
             .min(MAX_LISTPAGES_RENDER_LIMIT)
             .min(limit.unwrap_or(u64::MAX));
-        let wants_content = template.uses_content();
-        if wants_content
-            && render_page_query_uses_single_scan(order)
-            && requested_limit as usize > expansion_budget.remaining_content_rows()
-        {
-            // Avoid a broad random scan when its result cannot fit in the remaining deterministic content-expansion budget anyway.
-            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
-        }
-        if wants_content
-            && !current_page_only
-            && prefetched_pages.is_none()
-            && !expansion_budget.try_start_content_query()
-        {
-            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
-        }
         let query_limit = list_pages_row_scan_target(
             requested_limit,
             limit,
@@ -7831,6 +7816,22 @@ impl RenderService {
             offset,
             exclude_current_page,
         );
+        let wants_content = template.uses_content();
+        if wants_content
+            && render_page_query_uses_single_scan(order)
+            && query_limit > expansion_budget.remaining_content_rows() as u64
+        {
+            // Avoid a broad random scan when its scan target exceeds the remaining deterministic content-expansion budget.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
+        if wants_content
+            && !current_page_only
+            && prefetched_pages.is_none()
+            && query_limit > 0
+            && !expansion_budget.try_start_content_query()
+        {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let included_categories = if category_all {
             IncludedCategories::All
         } else {
@@ -14205,6 +14206,10 @@ mod tests {
         assert_eq!(
             list_pages_row_scan_target(250, Some(1_000), Some(250), 250, false),
             1_250,
+        );
+        assert_eq!(
+            list_pages_row_scan_target(1, Some(5_000), Some(1), 0, false),
+            u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS),
         );
     }
 
