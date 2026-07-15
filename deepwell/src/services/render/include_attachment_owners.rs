@@ -113,6 +113,9 @@ pub(super) fn protect_forwarded_attachment_variables(
     owners: &AttachmentVariableOwners,
     registry: &mut AttachmentProvenanceRegistry,
 ) {
+    if !INCLUDE_OPEN.is_match(source) {
+        return;
+    }
     let original = source.clone();
     let literals = LiteralRegionIndex::new_wikidot_syntax(&original);
     let mut replacements = Vec::new();
@@ -163,7 +166,9 @@ pub(super) fn qualify_relative_image_variable_attachments(
     variables: &VariableMap<'_>,
     owners: &AttachmentVariableOwners,
 ) {
-    if !IMAGE_OPEN.is_match(source) {
+    if !IMAGE_OPEN.is_match(source)
+        || !image_variable_attachment_needs_qualification(source, variables)
+    {
         return;
     }
     let original = source.clone();
@@ -197,6 +202,40 @@ pub(super) fn qualify_relative_image_variable_attachments(
         }
     }
     apply_replacements(source, replacements);
+}
+
+fn image_variable_attachment_needs_qualification(
+    source: &str,
+    variables: &VariableMap<'_>,
+) -> bool {
+    directive_heads(source, &IMAGE_OPEN, false)
+        .into_iter()
+        .any(|head| {
+            let body = &source[head.body];
+            let (target, links) = image_attachment_values(body);
+            target
+                .into_iter()
+                .chain(links)
+                .any(|target| variable_attachment_is_relative(&target, variables))
+        })
+}
+
+fn variable_attachment_is_relative(
+    target: &AttachmentValue<'_>,
+    variables: &VariableMap<'_>,
+) -> bool {
+    let Some(variable) = VARIABLE.captures(target.semantic) else {
+        return false;
+    };
+    variables
+        .get(
+            variable
+                .name("name")
+                .expect("variable name capture")
+                .as_str(),
+        )
+        .and_then(|value| semantic_attachment_value(value))
+        .is_some_and(relative)
 }
 
 fn qualify_variable(
@@ -643,7 +682,9 @@ pub(super) fn qualify_included_relative_image_attachments(
     site: &str,
     page: &str,
 ) {
-    if !IMAGE_OPEN.is_match(source) {
+    if !IMAGE_OPEN.is_match(source)
+        || !image_literal_attachment_needs_qualification(source)
+    {
         return;
     }
     let original = source.clone();
@@ -669,6 +710,19 @@ pub(super) fn qualify_included_relative_image_attachments(
         }
     }
     apply_replacements(source, replacements);
+}
+
+fn image_literal_attachment_needs_qualification(source: &str) -> bool {
+    directive_heads(source, &IMAGE_OPEN, false)
+        .into_iter()
+        .any(|head| {
+            let body = &source[head.body];
+            let (target, links) = image_attachment_values(body);
+            target
+                .into_iter()
+                .chain(links)
+                .any(|target| relative(target.semantic))
+        })
 }
 
 fn qualify_literal(

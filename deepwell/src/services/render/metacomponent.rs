@@ -33,6 +33,9 @@ pub(super) fn select_metacomponent_documentation(
     source: &mut String,
     context: MetacomponentSourceContext,
 ) {
+    if !source.contains(BEGIN_MARKER) {
+        return;
+    }
     for (region_start, region_end) in complete_regions(source).into_iter().rev() {
         let replacement = match context {
             MetacomponentSourceContext::RootComponent => {

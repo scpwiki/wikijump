@@ -91,7 +91,11 @@ fn resolve_include_variable_iftags_with_tags(
     variables: &VariableMap<'_>,
     tags: &[std::borrow::Cow<'_, str>],
 ) {
-    if !source.contains("[[ift{$") {
+    if !source
+        .as_bytes()
+        .windows(b"[[ift{$".len())
+        .any(|window| window.eq_ignore_ascii_case(b"[[ift{$"))
+    {
         return;
     }
 
@@ -313,6 +317,12 @@ mod tests {
         let source = "[[ift{$mode}gs +theme]]yes[[/ift{$mode}gs]]";
         assert_eq!(resolve(source, &[("mode", "a")], &["theme"]), "yes");
         assert_eq!(resolve(source, &[("mode", "a")], &[]), "");
+    }
+
+    #[test]
+    fn candidate_check_preserves_case_insensitive_dynamic_syntax() {
+        let source = "[[IFT{$mode}GS +theme]]yes[[/IFT{$mode}GS]]";
+        assert_eq!(resolve(source, &[("mode", "a")], &["theme"]), "yes");
     }
 
     #[test]

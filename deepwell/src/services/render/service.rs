@@ -51,8 +51,8 @@ use super::list_pages_content_sections::{
 };
 use super::list_pages_scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
-    has_count_pages_module_opening_candidate, has_list_pages_module_opening_candidate,
-    list_pages_runtime_head_is_safe,
+    first_list_pages_module_opening_candidate, has_count_pages_module_opening_candidate,
+    has_list_pages_module_opening_candidate, list_pages_runtime_head_is_safe,
 };
 use super::list_pages_template::{
     LISTPAGES_VARIABLE_REGEX, ListPagesOutputShape, ListPagesTemplatePlan,
@@ -1151,7 +1151,11 @@ impl RenderService {
             ..
         } = {
             let _stage = StageGuard::new(trace, CorpusRenderStage::ListPages);
-            Self::expand_list_pages(
+            let protected_css = Self::protect_wikidot_css_modules_before_first_list_pages(
+                &mut wikitext,
+                settings,
+            );
+            let mut expansion = Self::expand_list_pages(
                 ctx,
                 wikitext,
                 page_info,
@@ -1166,7 +1170,11 @@ impl RenderService {
                 },
             )
             .await
-            .or_raise(make_error)?
+            .or_raise(make_error)?;
+            if let Some(protected_css) = protected_css {
+                expansion.wikitext = protected_css.restore(&expansion.wikitext);
+            }
+            expansion
         };
         wikitext = expanded_wikitext;
         included_pages.extend(list_pages_included_pages);
@@ -2702,7 +2710,9 @@ impl RenderService {
         preserved: &mut CompatTextFragments,
     ) {
         resolve_unbound_include_variable_iftags(wikitext);
-        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
+        if wikitext.contains("[[#") {
+            *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
+        }
         Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
     }
 
@@ -2807,7 +2817,9 @@ impl RenderService {
             // Nested sources were already resolved against their include callsite immediately before recursion.
             resolve_unbound_include_variable_iftags(wikitext);
         }
-        *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
+        if wikitext.contains("[[#") {
+            *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
+        }
         resolve_outermost_wikidot_iftags_before_include_expansion(
             wikitext,
             &page_info.tags,
@@ -3482,6 +3494,9 @@ impl RenderService {
     }
 
     fn mask_wikidot_comment_include_markers(wikitext: &mut String) {
+        if !wikitext.contains("[!--") {
+            return;
+        }
         let source = wikitext.clone();
         let mut replacements = Vec::new();
 
@@ -5805,6 +5820,62 @@ impl RenderService {
         }
 
         Ok(counts.into_iter().collect())
+    }
+
+    fn protect_wikidot_css_modules_before_first_list_pages(
+        wikitext: &mut String,
+        settings: &WikitextSettings,
+    ) -> Option<CompatTextFragments> {
+        if !settings.enable_page_syntax {
+            return None;
+        }
+        let boundary = first_list_pages_module_opening_candidate(wikitext)?;
+        if boundary == 0 || !CSS_MODULE_OPEN_REGEX.is_match(&wikitext[..boundary]) {
+            return None;
+        }
+
+        let mut fragments = CompatTextFragments::new(wikitext);
+        let suffix = wikitext.split_off(boundary);
+        let source = wikitext.as_str();
+        let literal_regions = LiteralRegionIndex::new(source);
+        let syntax_literal_regions = LiteralRegionIndex::new_wikidot_syntax(source);
+        let native_quote_lines = WikidotNativeQuoteIndex::new(source);
+        let mut output = String::with_capacity(source.len());
+        let mut cursor = 0;
+        let mut protected_any = false;
+
+        // Replace only complete CSS modules before the first conservative raw ListPages candidate. Restoring them immediately after ListPages keeps the existing normalization, protection, extraction, ordering, and ExpandedBytes semantics unchanged.
+        while let Some(open) = CSS_MODULE_OPEN_REGEX.find_at(source, cursor) {
+            if literal_regions.contains(open.start())
+                || native_quote_lines.contains(open.start())
+            {
+                output.push_str(&source[cursor..open.end()]);
+                cursor = open.end();
+                continue;
+            }
+            let mut close_cursor = open.end();
+            let close = loop {
+                let Some(candidate) = MODULE_CLOSE_REGEX.find_at(source, close_cursor)
+                else {
+                    output.push_str(&source[cursor..]);
+                    *wikitext = output;
+                    wikitext.push_str(&suffix);
+                    return protected_any.then_some(fragments);
+                };
+                if !syntax_literal_regions.contains(candidate.start()) {
+                    break candidate;
+                }
+                close_cursor = candidate.end();
+            };
+            output.push_str(&source[cursor..open.start()]);
+            output.push_str(&fragments.push(&source[open.start()..close.end()]));
+            cursor = close.end();
+            protected_any = true;
+        }
+        output.push_str(&source[cursor..]);
+        *wikitext = output;
+        wikitext.push_str(&suffix);
+        protected_any.then_some(fragments)
     }
 
     fn extract_wikidot_css_modules(
@@ -12942,6 +13013,9 @@ fn is_include_variable_name(name: &str) -> bool {
 }
 
 fn protect_include_variables(content: &mut String) {
+    if !content.contains("{$") {
+        return;
+    }
     let protected = INCLUDE_VARIABLE_REGEX
         .replace_all(content, |capture: &regex::Captures<'_>| {
             format!(
@@ -13213,10 +13287,11 @@ mod tests {
         count_pages_scan_requires_preservation, count_pages_should_remain_literal,
         count_pages_unbounded_total, current_page_info_list_pages_row,
         exact_name_list_pages_batch_key, find_balanced_ul_end,
-        find_list_pages_module_matches, format_list_pages_created_at,
-        has_count_pages_module_opening_candidate, has_include_opening_candidate,
-        has_list_pages_module_opening_candidate, include_error,
-        list_pages_author_cache_key, list_pages_body_is_no_visible_tracking_markup,
+        find_list_pages_module_matches, first_list_pages_module_opening_candidate,
+        format_list_pages_created_at, has_count_pages_module_opening_candidate,
+        has_include_opening_candidate, has_list_pages_module_opening_candidate,
+        include_error, list_pages_author_cache_key,
+        list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_content_query_target, list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, list_pages_row_scan_target,
@@ -14488,6 +14563,12 @@ mod tests {
         assert!(!has_count_pages_module_opening_candidate(
             "[[module654 CountPages]]",
         ));
+
+        let source = "prefix [[MoDuLe ListPages]]first[[/module]] [[module ListPages]]second[[/module]]";
+        assert_eq!(
+            first_list_pages_module_opening_candidate(source),
+            source.find("[[MoDuLe ListPages]]")
+        );
     }
 
     #[test]
@@ -15762,6 +15843,105 @@ mod tests {
         assert!(!source.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
         assert!(!source.contains("[[module css]]"));
         assert!(!source.contains("#u-change"));
+    }
+
+    #[test]
+    fn protects_css_before_list_pages_and_rejoins_the_outer_pipeline() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut source = concat!(
+            "before\n",
+            "[[module css]]\n.early { content: \"##\"; }\n[[/module]]\n",
+            "[[module ListPages range=\".\"]]%%title%%[[/module]]\n",
+            "[[module css]]\n.late { content: \"##\"; }\n[[/module]]\n",
+            "after\n",
+        )
+        .to_owned();
+
+        let protected =
+            RenderService::protect_wikidot_css_modules_before_first_list_pages(
+                &mut source,
+                &settings,
+            )
+            .expect("complete prefix CSS should be protected");
+
+        assert!(!source.contains(".early"));
+        assert!(source.contains(COMPAT_TEXT_MARKER_PREFIX));
+        assert!(source.contains("[[module ListPages"));
+        assert!(source.contains(".late"));
+
+        let list_pages_start = source.find("[[module ListPages").unwrap();
+        let list_pages_end = list_pages_start
+            + source[list_pages_start..].find("[[/module]]").unwrap()
+            + "[[/module]]".len();
+        source.replace_range(
+            list_pages_start..list_pages_end,
+            "[[module css]]\n.generated { content: \"##\"; }\n[[/module]]",
+        );
+        source = protected.restore(&source);
+        assert!(source.find(".early").unwrap() < source.find(".generated").unwrap());
+        assert!(source.find(".generated").unwrap() < source.find(".late").unwrap());
+
+        let page_info = fallback_test_page_info("css-list-pages", "CSS ListPages");
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikidot_compat_html: CompatHtmlFragments::new(&source),
+                wikidot_compat_text: CompatTextFragments::new(&source),
+                wikitext: source,
+                included_pages: Vec::new(),
+            },
+            &page_info,
+            &settings,
+        );
+
+        assert_eq!(
+            outer.wikidot_css_modules,
+            [
+                ".early { content: \"&#35;&#35;\"; }",
+                ".generated { content: \"&#35;&#35;\"; }",
+                ".late { content: \"&#35;&#35;\"; }",
+            ]
+        );
+    }
+
+    #[test]
+    fn css_spanning_a_raw_list_pages_candidate_stays_for_the_full_scanner() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let original = concat!(
+            "[[module css]]\n",
+            ".literal::after { content: \"[[module ListPages range='.' ]]\"; }\n",
+            "[[/module]]\n",
+            "[[module ListPages range=\".\"]]%%title%%[[/module]]\n",
+        );
+        let mut source = original.to_owned();
+
+        let protected =
+            RenderService::protect_wikidot_css_modules_before_first_list_pages(
+                &mut source,
+                &settings,
+            );
+
+        assert!(protected.is_none());
+        assert_eq!(source, original);
+    }
+
+    #[test]
+    fn literal_candidate_boundaries_keep_owned_css_unchanged() {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        for original in [
+            "[!-- [[module css]]\n.comment {}\n[[/module]] [[module ListPages]] --]\n[[module ListPages]]live[[/module]]",
+            "[[code]]\n[[module css]]\n.code {}\n[[/module]] [[module ListPages]]\n[[/code]]\n[[module ListPages]]live[[/module]]",
+        ] {
+            let mut source = original.to_owned();
+
+            let protected =
+                RenderService::protect_wikidot_css_modules_before_first_list_pages(
+                    &mut source,
+                    &settings,
+                );
+
+            assert!(protected.is_none(), "{original}");
+            assert_eq!(source, original);
+        }
     }
 
     #[test]
