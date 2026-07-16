@@ -17,7 +17,7 @@ test("one central workflow owns required checks without reacting to labels", () 
   assert.match(trigger, /^\s*pull_request:$/m)
   assert.doesNotMatch(trigger, /^\s*paths(?:-ignore)?:$/m)
   for (const action of ["opened", "synchronize", "reopened", "edited", "ready_for_review", "converted_to_draft"]) {
-    assert.match(trigger, new RegExp(`^      - ${action}$`, "m"), action)
+    assert.ok(trigger.includes(`      - ${action}\n`), action)
   }
   assert.doesNotMatch(trigger, /^      - (?:labeled|unlabeled)$/m)
   assert.doesNotMatch(source, /landing|full-ci/)
@@ -114,9 +114,9 @@ test("Deepwell draft and candidate paths are exclusive and parallel after classi
     "Start MinIO",
     "sqlx migrate run",
     "cargo test --locked --all-features"
-  ]) assert.match(candidate, new RegExp(command.replace(/[+]/g, "\\+")), command)
+  ]) assert.ok(candidate.includes(command), command)
 
-  for (const job of ["deepwell_draft", "deepwell_candidate"]) assert.match(gate, new RegExp(`^      - ${job}$`, "m"), job)
+  for (const job of ["deepwell_draft", "deepwell_candidate"]) assert.ok(gate.includes(`      - ${job}\n`), job)
   assert.match(gate, /needs\.classify\.outputs\.draft == 'true' && 'CI \/ draft gate' \|\| 'CI \/ gate'/)
   assert.doesNotMatch(source, /^  deepwell_(?:fast|integration):$/m)
   assert.doesNotMatch(source, /tarpaulin|coverage\/cobertura/)
@@ -131,10 +131,10 @@ test("one Full CI workflow owns coverage and browser validation", () => {
   const trigger = source.slice(source.indexOf("on:\n"), source.indexOf("\npermissions:\n"))
   const concurrency = source.slice(source.indexOf("concurrency:\n"), source.indexOf("\njobs:\n"))
   for (const action of ["opened", "synchronize", "reopened", "edited", "ready_for_review", "converted_to_draft", "labeled", "unlabeled", "closed"]) {
-    assert.match(trigger, new RegExp(`^      - ${action}$`, "m"), action)
+    assert.ok(trigger.includes(`      - ${action}\n`), action)
   }
   for (const job of ["deepwell_coverage", "export_deepwell_coverage", "wws_coverage", "export_wws_coverage", "framerail_browser"]) {
-    assert.match(source, new RegExp(`^  ${job}:$`, "m"), job)
+    assert.ok(source.includes(`  ${job}:\n`), job)
   }
   assert.equal((source.match(/contains\(github\.event\.pull_request\.labels\.\*\.name, 'full-ci'\)/g) ?? []).length, 3)
   assert.match(concurrency, /format\('full-ci-pr-\{0\}', github\.event\.pull_request\.number\)/)
@@ -212,7 +212,7 @@ test("Framerail unit and browser suites remain separate", () => {
   assert.match(pkg.scripts["test:unit"], /^node --test(?: tests\/[\w-]+\.test\.(?:js|ts))+$/)
   assert.doesNotMatch(pkg.scripts["test:unit"], /\.spec\.(?:js|ts)/)
   assert.equal(pkg.scripts.test, "playwright test")
-  for (const command of ["build", "test:unit", "lint"]) assert.match(gate, new RegExp(`pnpm --dir framerail ${command.replace(":", "\\:")}`), command)
+  for (const command of ["build", "test:unit", "lint"]) assert.ok(gate.includes(`pnpm --dir framerail ${command}`), command)
   assert.match(full, /pnpm --dir framerail test/)
   assert.doesNotMatch(playwright, /\.test\.(?:js|ts)/)
 })
