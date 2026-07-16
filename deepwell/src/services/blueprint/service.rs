@@ -239,7 +239,7 @@ impl BlueprintPageService {
         }
 
         if translate_key.is_empty() {
-            return Err(make_error());
+            return Err(make_error().into());
         }
 
         // Use fallback string from localization
