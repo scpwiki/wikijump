@@ -150,7 +150,7 @@ jobs:
 
       - name: Generate Coverage
         run: |
-          cd deepwell && cargo +nightly tarpaulin --locked --all-features --workspace --timeout 120 --out xml --output-dir target/coverage
+          cd deepwell && cargo +nightly tarpaulin --locked --all-features --workspace --timeout 120 --out xml --output-dir target/coverage -- --test-threads 1
 
       - name: Export Coverage
         # codecov/codecov-action v5.5.5
