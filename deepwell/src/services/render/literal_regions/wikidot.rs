@@ -10,10 +10,8 @@
  * (at your option) any later version.
  */
 
-#[cfg(test)]
 use std::ops::Range;
 
-#[cfg(test)]
 use super::token_boundaries::{
     TextTokenCursor, WikidotTagScan, comment_close_is_token, find_block_close,
     find_right_raw, find_token_unowned_delimiter, right_bracket_token, scan_wikidot_tag,
@@ -70,7 +68,6 @@ pub(super) fn physical_line_body(line: &str) -> &str {
         .unwrap_or(line)
 }
 
-#[cfg(test)]
 pub(super) fn wikidot_multiline_tag_end(
     bytes: &[u8],
     start: usize,
@@ -95,7 +92,6 @@ pub(super) fn wikidot_multiline_tag_end(
 }
 
 #[derive(Clone, Copy)]
-#[cfg(test)]
 struct WikidotLiteralBlock {
     close: &'static str,
     quote_depth: usize,
@@ -104,7 +100,6 @@ struct WikidotLiteralBlock {
 }
 
 #[derive(Clone, Copy)]
-#[cfg(test)]
 enum WikidotLiteralState {
     Normal,
     Comment { start: usize },
@@ -112,15 +107,14 @@ enum WikidotLiteralState {
 }
 
 #[derive(Clone, Copy)]
-#[cfg(test)]
-pub(super) struct WikidotLiteralPolicy {
+struct WikidotLiteralPolicy {
     runtime_extended: bool,
     fail_closed_inline: bool,
     own_generic_tag_heads: bool,
 }
 
 #[cfg(test)]
-pub(super) const LIST_PAGES_LITERAL_POLICY: WikidotLiteralPolicy = WikidotLiteralPolicy {
+const LIST_PAGES_LITERAL_POLICY: WikidotLiteralPolicy = WikidotLiteralPolicy {
     runtime_extended: true,
     fail_closed_inline: true,
     // The ListPages event scanner validates and rolls back generic heads
@@ -129,8 +123,20 @@ pub(super) const LIST_PAGES_LITERAL_POLICY: WikidotLiteralPolicy = WikidotLitera
     own_generic_tag_heads: false,
 };
 
-#[cfg(test)]
-pub(super) fn collect_wikidot_literal_ranges(
+const CONDITIONAL_LITERAL_POLICY: WikidotLiteralPolicy = WikidotLiteralPolicy {
+    runtime_extended: false,
+    fail_closed_inline: false,
+    own_generic_tag_heads: false,
+};
+
+pub(super) fn collect_wikidot_conditional_literal_ranges(
+    source: &str,
+    ranges: &mut Vec<Range<usize>>,
+) {
+    collect_wikidot_literal_ranges(source, ranges, CONDITIONAL_LITERAL_POLICY);
+}
+
+fn collect_wikidot_literal_ranges(
     source: &str,
     ranges: &mut Vec<Range<usize>>,
     policy: WikidotLiteralPolicy,
@@ -376,7 +382,6 @@ pub(super) fn quote_depth_and_body(mut body: &str) -> (usize, &str) {
     (quote_depth, body)
 }
 
-#[cfg(test)]
 fn wikidot_literal_block(
     source: &str,
     start: usize,
@@ -428,14 +433,12 @@ fn wikidot_literal_block(
     Some((close, opener_end))
 }
 
-#[cfg(test)]
 fn wikidot_multiline_map_head(source: &str, start: usize) -> bool {
     wikidot_tag_name(source, start).is_some_and(|(name, _)| {
         name.eq_ignore_ascii_case("module") || name.eq_ignore_ascii_case("module654")
     })
 }
 
-#[cfg(test)]
 fn wikidot_tag_name(source: &str, start: usize) -> Option<(&str, usize)> {
     let bytes = source.as_bytes();
     let mut cursor = start + 2;
@@ -447,7 +450,6 @@ fn wikidot_tag_name(source: &str, start: usize) -> Option<(&str, usize)> {
     Some((name, name_end))
 }
 
-#[cfg(test)]
 fn first_wikidot_tag_end(bytes: &[u8], start: usize, end: usize) -> Option<usize> {
     let mut cursor = start + 2;
     while cursor < end {

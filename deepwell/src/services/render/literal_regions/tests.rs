@@ -289,6 +289,76 @@ fn common_index_preserves_legacy_multiline_and_unclosed_raw_ranges() {
 }
 
 #[test]
+fn conditional_index_confines_inline_raw_to_physical_lines() {
+    let source = concat!(
+        "before @@same-line[[/iftags]]@@ after\r\n",
+        "Escaping with @@\n",
+        "[[/iftags]]\r",
+        "outside",
+    );
+    let index = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
+
+    let protected = source.find("same-line[[/iftags]]").unwrap();
+    let unmatched = source.find("Escaping with @@").unwrap() + "Escaping with ".len();
+    let first_real_closer = source.match_indices("[[/iftags]]").nth(1).unwrap().0;
+    assert!(index.contains(protected));
+    assert!(!index.contains(unmatched));
+    assert!(!index.contains(first_real_closer));
+    assert!(!index.contains(source.find("outside").unwrap()));
+}
+
+#[test]
+fn conditional_index_matches_ftml_special_inline_raw_runs() {
+    let source = "@@@@@@[[/iftags]]@@";
+    let index = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
+
+    assert!(index.contains(0));
+    assert!(index.contains(5));
+    assert!(!index.contains(source.find("[[/iftags]]").unwrap()));
+    assert!(!index.contains(source.len() - 1));
+}
+
+#[test]
+fn conditional_index_does_not_pair_url_owned_raw_delimiters() {
+    let source = "https://e.test/a@@b[[/iftags]]@@tail";
+    let index = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
+
+    assert!(!index.contains(source.find("@@").unwrap()));
+    assert!(!index.contains(source.find("[[/iftags]]").unwrap()));
+    assert!(!index.contains(source.rfind("@@").unwrap()));
+}
+
+#[test]
+fn conditional_index_skips_raw_delimiters_in_wikidot_tag_heads() {
+    let source = "[[iftags +x]][[div data=\"@@\"]]body[[/iftags]]@@tail";
+    let index = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
+
+    assert!(!index.contains(source.find("@@").unwrap()));
+    assert!(!index.contains(source.find("[[/iftags]]").unwrap()));
+    assert!(!index.contains(source.rfind("@@").unwrap()));
+}
+
+#[test]
+fn conditional_index_rejects_url_owned_comment_closer() {
+    let source = "[!-- https://e.test/a--] [[/iftags]] --]tail";
+    let index = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
+
+    assert!(index.contains(source.find("[[/iftags]]").unwrap()));
+    assert!(!index.contains(source.find("tail").unwrap()));
+}
+
+#[test]
+fn conditional_index_rejects_malformed_literal_block_closer() {
+    let source = "[[code]]\n[[/code]]]\n[[/iftags]]\n[[/code]]\n[[/iftags]]";
+    let index = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
+
+    let first_closer = source.find("[[/iftags]]").unwrap();
+    let second_closer = source.rfind("[[/iftags]]").unwrap();
+    assert!(index.contains(first_closer));
+    assert!(!index.contains(second_closer));
+}
+
+#[test]
 fn shallower_quote_ends_unclosed_wikidot_literal_block() {
     let source = "> [[raw]]\n> inside\noutside";
     let index = LiteralRegionIndex::new_wikidot_syntax(source);
