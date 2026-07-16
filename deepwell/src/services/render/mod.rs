@@ -59,6 +59,7 @@ pub(crate) use self::diagnostics::{
     CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, CorpusRenderTraceSnapshot,
     StageGuard, is_corpus_render_timing,
 };
+pub(crate) use self::literal_regions::LiteralRegionIndex;
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
 };

@@ -82,6 +82,12 @@ pub struct GetArticleViewCacheMetadataOutput {
     pub anonymous_permission_cache_fence: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum PageRedirectKind {
+    WikidotModule,
+}
+
 /// Yield information for a page view, depending on the status of the page.
 /// For instance, if a page is missing, there is no revision data but we do
 /// still need to display the "this page doesn't exist" content.
@@ -101,6 +107,7 @@ pub enum GetPageViewOutput {
         wikidot_breadcrumbs: Vec<WikidotPageBreadcrumbView>,
         attributions: Vec<PageAttribution>,
         redirect_page: Option<String>,
+        redirect_kind: Option<PageRedirectKind>,
         wikitext: String,
         compiled_body_html: String,
         compiled_body_styles: Vec<String>,
@@ -111,6 +118,7 @@ pub enum GetPageViewOutput {
     Missing {
         options: PageOptions,
         redirect_page: Option<String>,
+        redirect_kind: Option<PageRedirectKind>,
         wikitext: String,
         compiled_body_html: String,
         compiled_body_styles: Vec<String>,
@@ -121,6 +129,7 @@ pub enum GetPageViewOutput {
     Permissions {
         options: PageOptions,
         redirect_page: Option<String>,
+        redirect_kind: Option<PageRedirectKind>,
         compiled_body_html: String,
         compiled_body_styles: Vec<String>,
         compiled_top_bar_html: Option<String>,
