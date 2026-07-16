@@ -16,7 +16,7 @@ function value(argv, index, flag) {
 }
 
 export function parseArgs(argv) {
-  const args = {workers: 4, timeoutMs: 30_000, settleMs: 1_000, ignoreHttpsErrors: false};
+  const args = {workers: 4, timeoutMs: 30_000, settleMs: 1_000, ignoreHttpsErrors: false, browserArgs: []};
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
     if (["--inventory", "--shard-manifest", "--output", "--browser-root", "--browser-executable", "--runtime-identity"].includes(flag)) {
@@ -25,6 +25,11 @@ export function parseArgs(argv) {
       index += 1;
     } else if (flag === "--shard-id") {
       args.shardId = value(argv, index, flag);
+      index += 1;
+    } else if (flag === "--browser-arg") {
+      const browserArg = argv[index + 1];
+      if (browserArg === undefined || browserArg.length === 0) throw new Error("--browser-arg requires a non-empty value");
+      args.browserArgs.push(browserArg);
       index += 1;
     } else if (["--workers", "--timeout-ms", "--settle-ms"].includes(flag)) {
       const raw = value(argv, index, flag);
@@ -47,7 +52,7 @@ export function parseArgs(argv) {
 }
 
 function usage() {
-  return "Usage: local-browser-console-smoke.mjs --inventory FILE --shard-manifest FILE --shard-id ID --output FILE.jsonl --runtime-identity FILE.json --browser-executable FILE [--browser-root DIR] [--workers 4] [--timeout-ms 30000] [--settle-ms 1000] [--ignore-https-errors]";
+  return "Usage: local-browser-console-smoke.mjs --inventory FILE --shard-manifest FILE --shard-id ID --output FILE.jsonl --runtime-identity FILE.json --browser-executable FILE [--browser-root DIR] [--browser-arg ARG ...] [--workers 4] [--timeout-ms 30000] [--settle-ms 1000] [--ignore-https-errors]";
 }
 
 function loadChromium(browserRoot) {
@@ -74,7 +79,7 @@ export async function main(argv) {
   const runtimeIdentity = validateRuntimeIdentity(await readJson(args.runtimeIdentity));
   const rows = preflightEnShardManifest(inventoryRows(inventory), manifest, args.shardId);
   const [inventorySha256, shardManifestSha256, browserExecutableSha256] = await Promise.all([sha256File(args.inventory), sha256File(args.shardManifest), sha256File(args.browserExecutable)]);
-  const {summary, summaryPath} = await runLocalBrowserSmoke({chromium: loadChromium(args.browserRoot ?? defaultBrowserRoot()), rows, outputPath: args.output, runtimeIdentity, inventoryPath: args.inventory, inventorySha256, shardManifestPath: args.shardManifest, shardManifestSha256, shardId: args.shardId, browserExecutable: args.browserExecutable, browserExecutableSha256, workers: args.workers, timeoutMs: args.timeoutMs, settleMs: args.settleMs, ignoreHttpsErrors: args.ignoreHttpsErrors});
+  const {summary, summaryPath} = await runLocalBrowserSmoke({chromium: loadChromium(args.browserRoot ?? defaultBrowserRoot()), rows, outputPath: args.output, runtimeIdentity, inventoryPath: args.inventory, inventorySha256, shardManifestPath: args.shardManifest, shardManifestSha256, shardId: args.shardId, browserExecutable: args.browserExecutable, browserExecutableSha256, browserArgs: args.browserArgs, workers: args.workers, timeoutMs: args.timeoutMs, settleMs: args.settleMs, ignoreHttpsErrors: args.ignoreHttpsErrors});
   console.log(JSON.stringify({output: args.output, summary: summaryPath, status: summary.status, expected: summary.expected.length, observed: summary.observed.length}));
   return summary.status === "pass" ? 0 : 1;
 }

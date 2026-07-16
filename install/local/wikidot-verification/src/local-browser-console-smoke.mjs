@@ -295,10 +295,11 @@ async function writeSummary(outputPath, summary) {
   return summaryPath;
 }
 
-export async function runLocalBrowserSmoke({chromium, rows, outputPath, runtimeIdentity, inventoryPath, inventorySha256, shardManifestPath, shardManifestSha256, shardId, browserExecutable, browserExecutableSha256, workers, timeoutMs, settleMs, ignoreHttpsErrors}) {
+export async function runLocalBrowserSmoke({chromium, rows, outputPath, runtimeIdentity, inventoryPath, inventorySha256, shardManifestPath, shardManifestSha256, shardId, browserExecutable, browserExecutableSha256, browserArgs = [], workers, timeoutMs, settleMs, ignoreHttpsErrors}) {
   validateRuntimeIdentity(runtimeIdentity);
   if (!browserExecutable || !SHA_PATTERN.test(browserExecutableSha256 ?? "") || !SHA_PATTERN.test(inventorySha256 ?? "") || !SHA_PATTERN.test(shardManifestSha256 ?? "")) throw new Error("browser executable and all input byte SHA-256 identities are required");
   if (!Number.isSafeInteger(workers) || workers < 1 || workers > 64 || !Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || !Number.isSafeInteger(settleMs) || settleMs < 0 || typeof ignoreHttpsErrors !== "boolean") throw new Error("capture config requires 1-64 workers, positive timeout, non-negative settle, and explicit HTTPS policy");
+  if (!Array.isArray(browserArgs) || browserArgs.length > 32 || browserArgs.some((arg) => typeof arg !== "string" || arg.length === 0 || arg.length > 4096 || arg.includes("\0"))) throw new Error("browser args must be an array of at most 32 non-empty bounded strings");
   const expected = rows.map((row) => row.fixture_id);
   if (new Set(expected).size !== expected.length) throw new Error("selected fixture IDs must be unique");
   for (const row of rows) {
@@ -315,7 +316,7 @@ export async function runLocalBrowserSmoke({chromium, rows, outputPath, runtimeI
   let firstInspection = {records: [], observed: [], duplicate: [], ledgerErrors: [], truncatedTail: false};
   try {
     try {
-      browser = await chromium.launch({executablePath: browserExecutable});
+      browser = await chromium.launch({executablePath: browserExecutable, args: browserArgs});
       const browserVersion = await Promise.resolve(browser.version());
       if (typeof browserVersion !== "string" || browserVersion.trim() === "") throw new Error("browser version identity is unavailable");
       runContract = {
@@ -325,7 +326,7 @@ export async function runLocalBrowserSmoke({chromium, rows, outputPath, runtimeI
         shard_manifest_sha256: shardManifestSha256,
         shard_id: shardId,
         selected_row_contract_sha256: sha256Value(rows.map((row) => ({fixture_id: row.fixture_id, family: row.family, slug: row.slug, url: localSmokeUrl(row)}))),
-        capture_config: {workers, timeout_ms: timeoutMs, settle_ms: settleMs, ignore_https_errors: ignoreHttpsErrors},
+        capture_config: {workers, timeout_ms: timeoutMs, settle_ms: settleMs, ignore_https_errors: ignoreHttpsErrors, browser_args: browserArgs},
         browser: {version: browserVersion, executable: browserExecutable, executable_sha256: browserExecutableSha256},
       };
       const fingerprint = sha256Value(runContract);

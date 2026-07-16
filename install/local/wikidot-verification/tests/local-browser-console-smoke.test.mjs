@@ -23,6 +23,7 @@ const rowA = {fixture_id: "EN:a", family: "EN", slug: "a", local_https_url: "htt
 
 test("CLI and runtime identity require all authority inputs", () => {
   assert.throws(() => parseArgs(["--inventory", "i", "--shard-manifest", "s", "--shard-id", "en", "--output", "o", "--runtime-identity", "r"]), /--browser-executable is required/);
+  assert.deepEqual(parseArgs(["--inventory", "i", "--shard-manifest", "s", "--shard-id", "en", "--output", "o", "--runtime-identity", "r", "--browser-executable", "b", "--browser-arg", "--host-resolver-rules=MAP x 127.0.0.2"]).browserArgs, ["--host-resolver-rules=MAP x 127.0.0.2"]);
   assert.equal(validateRuntimeIdentity(identity), identity);
   assert.throws(() => validateRuntimeIdentity({...identity, ftml_sha: "short"}), /ftml_sha/);
   assert.throws(() => validateRuntimeIdentity({...identity, features: ["beta", "alpha"]}), /sorted unique/);
@@ -134,9 +135,12 @@ test("resume truncates only an unterminated tail and rejects middle or fabricate
 
 function fakeChromium(version = "Chromium 130") {
   let contexts = 0;
+  let launchOptions = null;
   return {
     get contexts() { return contexts; },
-    async launch() {
+    get launchOptions() { return launchOptions; },
+    async launch(options) {
+      launchOptions = options;
       return {
         version: () => version,
         async newContext() {
@@ -150,7 +154,7 @@ function fakeChromium(version = "Chromium 130") {
 }
 
 function driverOptions(root, chromium) {
-  return {chromium, rows: [rowA], outputPath: path.join(root, "smoke.jsonl"), runtimeIdentity: identity, inventoryPath: "/inventory.json", inventorySha256: SHA_A, shardManifestPath: "/shards.json", shardManifestSha256: SHA_B, shardId: "en", browserExecutable: "/browser/chrome", browserExecutableSha256: "c".repeat(64), workers: 2, timeoutMs: 100, settleMs: 0, ignoreHttpsErrors: true};
+  return {chromium, rows: [rowA], outputPath: path.join(root, "smoke.jsonl"), runtimeIdentity: identity, inventoryPath: "/inventory.json", inventorySha256: SHA_A, shardManifestPath: "/shards.json", shardManifestSha256: SHA_B, shardId: "en", browserExecutable: "/browser/chrome", browserExecutableSha256: "c".repeat(64), browserArgs: ["--host-resolver-rules=MAP x 127.0.0.2"], workers: 2, timeoutMs: 100, settleMs: 0, ignoreHttpsErrors: true};
 }
 
 test("driver fingerprints browser/config/inputs, resumes exact records, and owner-locks output", async () => {
@@ -161,6 +165,8 @@ test("driver fingerprints browser/config/inputs, resumes exact records, and owne
   assert.equal(first.summary.status, "pass");
   assert.equal(first.summary.run_contract.browser.version, "Chromium 130");
   assert.equal(first.summary.run_contract.inventory_sha256, SHA_A);
+  assert.deepEqual(first.summary.run_contract.capture_config.browser_args, options.browserArgs);
+  assert.deepEqual(chromium.launchOptions.args, options.browserArgs);
   assert.equal(chromium.contexts, 1);
   const resumed = await runLocalBrowserSmoke(options);
   assert.equal(resumed.summary.status, "pass");
