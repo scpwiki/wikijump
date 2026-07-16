@@ -29,8 +29,8 @@ use crate::services::render::{
 };
 use crate::services::score::ScoreValue;
 use crate::services::{
-    LinkService, OutdateService, PageService, ParentService, RenderService, ScoreService,
-    SettingsService, SiteService, TextService,
+    BlueprintPageService, LinkService, OutdateService, PageService, ParentService,
+    RenderService, ScoreService, SettingsService, SiteService, TextService,
 };
 use crate::types::{FetchDirection, PageId, PageRevisionType, RerenderDepth};
 use crate::utils::{split_category, split_category_name, trim_default};
@@ -827,6 +827,15 @@ impl PageRevisionService {
 
         // Set up parse context
         let (category_slug, page_slug) = split_category(slug);
+        let wikitext = BlueprintPageService::apply_page_template(
+            ctx,
+            site_id,
+            category_slug,
+            page_slug,
+            wikitext,
+        )
+        .await
+        .or_raise(make_error)?;
         let page_info = PageInfo {
             page: cow!(page_slug),
             category: cow_opt!(category_slug),

@@ -236,24 +236,23 @@ impl OutdateService {
             )
         };
 
-        // If a template page has been updated,
-        // we need to recompile everything in that category.
-        if page_slug == config.blueprint_page_template {
-            let category_select = if category_slug == "_default" {
-                // If the category is _default, we need to recompile everything.
-                // All other categories may inherit from _default.
-                //
-                // Specifying "None" here means that we aren't filtering by category.
-                None
+        // If a template page has been updated, recompile only its exact
+        // category. Named categories do not inherit the default template.
+        if let Some(category_select) = exact_template_category(
+            &config.blueprint_page_template,
+            category_slug,
+            page_slug,
+        ) {
+            let template_slug = if category_select == "_default" {
+                page_slug.to_owned()
             } else {
-                // Otherwise, filter by whatever category slug we have here.
-                Some(category_slug.into())
+                format!("{category_select}:{page_slug}")
             };
 
             let pages = PageService::get_all(
                 ctx,
                 site_id,
-                category_select,
+                Some(category_select.into()),
                 Some(false),
                 PageOrder::default(),
             )
@@ -261,6 +260,9 @@ impl OutdateService {
             .or_raise(make_error)?;
 
             for page in pages {
+                if page.slug == template_slug {
+                    continue;
+                }
                 Self::outdate(ctx, page.page_id, depth)
                     .await
                     .or_raise(make_error)?;
@@ -440,5 +442,34 @@ impl OutdateService {
         }
 
         Ok(())
+    }
+}
+
+fn exact_template_category<'a>(
+    template_page: &str,
+    category: &'a str,
+    page: &str,
+) -> Option<&'a str> {
+    (page == template_page).then_some(category)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::exact_template_category;
+
+    #[test]
+    fn template_outdating_stays_in_the_exact_category() {
+        assert_eq!(
+            exact_template_category("_template", "_default", "_template"),
+            Some("_default"),
+        );
+        assert_eq!(
+            exact_template_category("_template", "fragment", "_template"),
+            Some("fragment"),
+        );
+        assert_eq!(
+            exact_template_category("_template", "fragment", "article"),
+            None,
+        );
     }
 }

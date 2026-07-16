@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::compat_text_fragments::CompatTextFragments;
+
 const UNRESOLVED_BRANCH_OPEN_PREFIX: &str = "[!-- {$";
 const COMMENT_BOUNDARY_MARKER: &str = "[!----]";
 const SELECTED_BRANCH_MARKER: &str = "[!-- --]";
@@ -29,6 +31,22 @@ const SELECTED_BRANCH_MARKER: &str = "[!-- --]";
 /// empty-comment boundaries (`[!-- --]`). A branch without either boundary
 /// is preserved literally so malformed input fails closed during FTML parsing.
 pub(super) fn remove_unresolved_include_comment_branches(wikitext: &mut String) {
+    remove_unresolved_include_comment_branches_inner(wikitext, None);
+}
+
+/// Removes bounded inactive branches and protects malformed openers so they
+/// cannot claim a boundary from a caller or sibling source after assembly.
+pub(super) fn remove_unresolved_include_comment_branches_source_local(
+    wikitext: &mut String,
+    fragments: &mut CompatTextFragments,
+) {
+    remove_unresolved_include_comment_branches_inner(wikitext, Some(fragments));
+}
+
+fn remove_unresolved_include_comment_branches_inner(
+    wikitext: &mut String,
+    mut fragments: Option<&mut CompatTextFragments>,
+) {
     let mut output = String::with_capacity(wikitext.len());
     let mut unresolved_branch = None::<UnresolvedBranch>;
 
@@ -56,10 +74,40 @@ pub(super) fn remove_unresolved_include_comment_branches(wikitext: &mut String) 
     }
 
     if let Some(branch) = unresolved_branch {
-        output.push_str(&branch.source);
+        if let Some(fragments) = fragments.as_mut() {
+            protect_unbounded_branch(&mut output, &branch.source, fragments);
+        } else {
+            output.push_str(&branch.source);
+        }
     }
 
     *wikitext = output;
+}
+
+fn protect_unbounded_branch(
+    output: &mut String,
+    source: &str,
+    fragments: &mut CompatTextFragments,
+) {
+    // Protect the complete malformed branch, rather than only its opener, so
+    // include or module syntax in its body cannot become active while the
+    // opener is hidden from cross-source pruning. Keep the final line ending
+    // outside the marker so the following caller source retains its boundary.
+    let (body, ending) = split_line_ending(source);
+    output.push_str(&fragments.push_escaped_html_text(body));
+    output.push_str(ending);
+}
+
+fn split_line_ending(line: &str) -> (&str, &str) {
+    if let Some(body) = line.strip_suffix("\r\n") {
+        (body, "\r\n")
+    } else if let Some(body) = line.strip_suffix('\n') {
+        (body, "\n")
+    } else if let Some(body) = line.strip_suffix('\r') {
+        (body, "\r")
+    } else {
+        (line, "")
+    }
 }
 
 struct UnresolvedBranch {
@@ -243,5 +291,43 @@ mod tests {
         remove_unresolved_include_comment_branches(&mut wikitext);
 
         assert_eq!(wikitext, original);
+    }
+
+    #[test]
+    fn source_local_cleanup_protects_the_complete_unbounded_branch() {
+        let original = concat!(
+            "CHILD_BEFORE\n",
+            "[!-- {$outer}\n",
+            "OUTER_BODY\n",
+            "[!-- {$inner}\n",
+            "INNER_BODY\n",
+            "[[include component:must-not-expand]]\n",
+            "[!----]\n",
+        );
+        let mut wikitext = original.to_owned();
+        let mut fragments = CompatTextFragments::new(original);
+
+        remove_unresolved_include_comment_branches_source_local(
+            &mut wikitext,
+            &mut fragments,
+        );
+        assert!(!wikitext.contains("[!-- {$outer}"), "{wikitext}");
+        assert!(!wikitext.contains("[!-- {$inner}"), "{wikitext}");
+        assert!(!wikitext.contains("OUTER_BODY"), "{wikitext}");
+        assert!(!wikitext.contains("INNER_BODY"), "{wikitext}");
+        assert!(!wikitext.contains("must-not-expand"), "{wikitext}");
+
+        wikitext.push_str("ROOT_BEFORE\n[!-- --]\nROOT_AFTER\n");
+        remove_unresolved_include_comment_branches(&mut wikitext);
+        let restored = fragments.restore(&wikitext);
+
+        assert!(restored.contains("[!-- {$outer}\n"), "{restored}");
+        assert!(restored.contains("[!-- {$inner}\n"), "{restored}");
+        assert!(restored.contains("OUTER_BODY\n"), "{restored}");
+        assert!(restored.contains("INNER_BODY\n"), "{restored}");
+        assert!(restored.contains("component:must-not-expand"), "{restored}");
+        assert!(restored.contains("ROOT_BEFORE\n"), "{restored}");
+        assert!(restored.contains("ROOT_AFTER\n"), "{restored}");
+        assert!(!restored.contains("[!-- --]"), "{restored}");
     }
 }

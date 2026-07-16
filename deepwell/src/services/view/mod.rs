@@ -27,6 +27,7 @@ mod prelude {
 
 mod article_cache;
 mod options;
+mod redirect;
 mod service;
 mod structs;
 

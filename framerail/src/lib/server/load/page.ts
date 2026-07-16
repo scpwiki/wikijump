@@ -2,6 +2,7 @@ import defaults from "$lib/defaults"
 
 import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/article-response-cache"
 import { authGetSession } from "$lib/server/auth/getSession"
+import { resolvePageRedirect } from "$lib/server/page-redirect"
 import {
   pageDelete,
   pageDeletedGet,
@@ -336,7 +337,7 @@ export async function loadPage(
 
   // TODO remove checkRedirect when errorStatus is fixed
   if (checkRedirect) {
-    runRedirect(responseData, slug, extra)
+    runRedirect(responseData, slug, extra, request.url)
   }
 
   // Return to page for rendering
@@ -346,34 +347,12 @@ export async function loadPage(
 function runRedirect(
   viewData: PageView["data"],
   originalSlug: Optional<string>,
-  extra: Optional<string>
+  extra: Optional<string>,
+  requestUrl: string
 ): void {
-  if (!viewData.redirect_page) {
-    // Nothing to do
-    return
-  }
-
-  const slug: Optional<string> = viewData.redirect_page || originalSlug
-  const route: string = buildRoute(slug, extra)
-  redirect(308, `/${route}`)
-}
-
-function buildRoute(slug: Optional<string>, extra: Optional<string>): string {
-  // Combines a nullable slug and extra to form a route for redirection.
-  //
-  // Test cases:
-  // null, null => ''
-  // 'start', null => 'start'
-  // 'start', '' => 'start'
-  // 'start', 'comments/show' => 'start/comments/show'
-  // null, 'xyz' => (impossible)
-
-  if (slug === null) {
-    return ""
-  } else if (!extra) {
-    return slug ?? ""
-  } else {
-    return `${slug}/${extra}`
+  const resolved = resolvePageRedirect(viewData, originalSlug, extra, requestUrl)
+  if (resolved) {
+    redirect(resolved.status, resolved.location)
   }
 }
 

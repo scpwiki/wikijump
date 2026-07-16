@@ -20,9 +20,12 @@
 
 use super::options::PageOptions;
 use super::prelude::*;
+use crate::services::BlueprintPageService;
+use crate::services::blueprint::compose_template;
 use crate::services::permission::PermissionCache;
 use crate::services::public_cache::PublicContentCache;
 use crate::services::render::{RenderDependencyClass, classify_render_dependencies};
+use crate::utils::split_category;
 use redis::AsyncCommands;
 use sea_orm::{DatabaseBackend, FromQueryResult, Statement, Value};
 use time::OffsetDateTime;
@@ -57,6 +60,7 @@ impl ArticlePageCache {
         #[derive(Debug, FromQueryResult)]
         struct ArticlePageCacheKeyRow {
             page_id: i64,
+            page_slug: String,
             page_updated_at: Option<OffsetDateTime>,
             latest_revision_id: Option<i64>,
             from_wikidot: bool,
@@ -74,6 +78,7 @@ impl ArticlePageCache {
                 "
                 SELECT
                     page.page_id,
+                    page.slug AS page_slug,
                     page.updated_at AS page_updated_at,
                     page.latest_revision_id,
                     page.from_wikidot,
@@ -118,6 +123,11 @@ impl ArticlePageCache {
             return Ok(None);
         }
 
+        let (category, page) = split_category(&row.page_slug);
+        let template_source =
+            BlueprintPageService::get_page_template(ctx, input.site_id, category, page)
+                .await?;
+
         let page_updated_at = row
             .page_updated_at
             .map(|value| value.unix_timestamp_nanos())
@@ -132,6 +142,7 @@ impl ArticlePageCache {
 
         Ok(format_article_page_cache_key_if_source_eligible(
             row.source_contents.as_deref(),
+            template_source.as_deref(),
             ArticlePageCacheKeyParts {
                 site_id: input.site_id,
                 page_id: row.page_id,
@@ -246,10 +257,14 @@ fn format_article_page_cache_key(parts: ArticlePageCacheKeyParts<'_>) -> String 
 
 fn format_article_page_cache_key_if_source_eligible(
     source_contents: Option<&str>,
+    template_source: Option<&str>,
     parts: ArticlePageCacheKeyParts<'_>,
 ) -> Option<String> {
     let source_contents = source_contents?;
-    if !anonymous_article_cache_source_eligible(source_contents) {
+    let composed_source =
+        template_source.map(|template| compose_template(template, source_contents));
+    let effective_source = composed_source.as_deref().unwrap_or(source_contents);
+    if !anonymous_article_cache_source_eligible(effective_source) {
         return None;
     }
 
@@ -308,6 +323,7 @@ mod tests {
         ] {
             let key = format_article_page_cache_key_if_source_eligible(
                 Some(source),
+                None,
                 ArticlePageCacheKeyParts {
                     site_id: 7,
                     page_id: 11,
@@ -352,7 +368,7 @@ mod tests {
         };
 
         assert_eq!(
-            format_article_page_cache_key_if_source_eligible(None, parts),
+            format_article_page_cache_key_if_source_eligible(None, None, parts),
             None
         );
 
@@ -379,11 +395,70 @@ mod tests {
             };
 
             assert_eq!(
-                format_article_page_cache_key_if_source_eligible(Some(source), parts),
+                format_article_page_cache_key_if_source_eligible(
+                    Some(source),
+                    None,
+                    parts,
+                ),
                 None,
                 "{source}",
             );
         }
+    }
+
+    #[test]
+    fn article_page_cache_key_source_gate_classifies_page_and_template_sources() {
+        let parts = || ArticlePageCacheKeyParts {
+            site_id: 7,
+            page_id: 11,
+            latest_revision_id: 13,
+            page_updated_at: 17,
+            permission_fence: "site=19,user=23",
+            compiled_body_html_hash: None,
+            compiled_body_styles_hash: None,
+            compiled_top_bar_html_hash: None,
+            compiled_side_bar_html_hash: None,
+            route_slug: "category:article",
+            page_extra: "",
+            locales: "en",
+        };
+        let request_dependent_list_pages =
+            "[[module ListPages offset=\"@URL|1\"]]%%title_linked%%[[/module]]";
+        let split_request_dependent_template =
+            "[[module ListPages offset=\"@U%%content%%\"]]%%title_linked%%[[/module]]";
+
+        assert!(
+            format_article_page_cache_key_if_source_eligible(
+                Some("cache-safe page source"),
+                Some("cache-safe template\n%%content%%"),
+                parts(),
+            )
+            .is_some(),
+        );
+        assert_eq!(
+            format_article_page_cache_key_if_source_eligible(
+                Some(request_dependent_list_pages),
+                None,
+                parts(),
+            ),
+            None,
+        );
+        assert_eq!(
+            format_article_page_cache_key_if_source_eligible(
+                Some("cache-safe page source"),
+                Some(request_dependent_list_pages),
+                parts(),
+            ),
+            None,
+        );
+        assert_eq!(
+            format_article_page_cache_key_if_source_eligible(
+                Some("RL|1"),
+                Some(split_request_dependent_template),
+                parts(),
+            ),
+            None,
+        );
     }
 
     #[test]

@@ -31,6 +31,7 @@
 
 use super::article_cache::ArticlePageCache;
 use super::prelude::*;
+use super::redirect::wikidot_redirect_location;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
@@ -620,6 +621,19 @@ impl ViewService {
 
         // TODO Check if user-agent and IP match?
 
+        let (redirect_page, redirect_kind) = if let Some(redirect_page) = redirect_page {
+            (Some(redirect_page), None)
+        } else if matches!(&page_status, PageStatus::Found { .. }) {
+            let redirect_page =
+                wikidot_redirect_location(&wikitext, page_full_slug, options.no_redirect);
+            let redirect_kind = redirect_page
+                .as_ref()
+                .map(|_| PageRedirectKind::WikidotModule);
+            (redirect_page, redirect_kind)
+        } else {
+            (None, None)
+        };
+
         let output = match page_status {
             PageStatus::Found {
                 page,
@@ -635,6 +649,7 @@ impl ViewService {
                 wikidot_breadcrumbs,
                 attributions,
                 redirect_page,
+                redirect_kind,
                 wikitext,
                 compiled_body_html,
                 compiled_body_styles,
@@ -644,6 +659,7 @@ impl ViewService {
             PageStatus::Missing => GetPageViewOutput::Missing {
                 options,
                 redirect_page,
+                redirect_kind,
                 wikitext,
                 compiled_body_html,
                 compiled_body_styles,
@@ -653,6 +669,7 @@ impl ViewService {
             PageStatus::Private => GetPageViewOutput::Permissions {
                 options,
                 redirect_page,
+                redirect_kind,
                 compiled_body_html,
                 compiled_body_styles,
                 compiled_top_bar_html,
@@ -662,6 +679,7 @@ impl ViewService {
             PageStatus::Banned => GetPageViewOutput::Permissions {
                 options,
                 redirect_page,
+                redirect_kind,
                 compiled_body_html,
                 compiled_body_styles,
                 compiled_top_bar_html,

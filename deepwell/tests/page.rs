@@ -554,6 +554,156 @@ async fn article_view_cache_respects_anonymous_permission_revocation() {
 }
 
 #[tokio::test]
+async fn article_cache_and_include_dependencies_use_exact_template_source() {
+    const TEMPLATE_SLUG: &str = "article-cache-template-dependency:_template";
+    const TEMPLATE_ARTICLE_SLUG: &str = "article-cache-template-dependency:templated";
+    const DIRECT_ARTICLE_SLUG: &str = "article-cache-direct-dependency:direct";
+    const COMPOSED_TEMPLATE_SLUG: &str = "article-cache-composed-dependency:_template";
+    const COMPOSED_ARTICLE_SLUG: &str = "article-cache-composed-dependency:templated";
+    const INCLUDE_TEMPLATE_SLUG: &str = "article-cache-template-include:_template";
+    const INCLUDE_ARTICLE_SLUG: &str = "article-cache-template-include:templated";
+    const INCLUDE_SLUG: &str = "component:cache-template-dependency";
+    const REQUEST_DEPENDENT_LIST_PAGES: &str =
+        "[[module ListPages offset=\"@URL|1\"]]%%title_linked%%[[/module]]";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TEMPLATE_SLUG,
+        "Request-dependent exact template",
+        &format!("{REQUEST_DEPENDENT_LIST_PAGES}\n%%content%%"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TEMPLATE_ARTICLE_SLUG,
+        "Template dependency article",
+        "cache-safe stored page source",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        DIRECT_ARTICLE_SLUG,
+        "Direct dependency article",
+        REQUEST_DEPENDENT_LIST_PAGES,
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPOSED_TEMPLATE_SLUG,
+        "Request dependency split across template composition",
+        "[[module ListPages offset=\"@U%%content%%\"]]%%title_linked%%[[/module]]",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPOSED_ARTICLE_SLUG,
+        "Composed request dependency article",
+        "RL|1",
+    )
+    .await;
+
+    for slug in [
+        TEMPLATE_ARTICLE_SLUG,
+        DIRECT_ARTICLE_SLUG,
+        COMPOSED_ARTICLE_SLUG,
+    ] {
+        let page = PageTable::find()
+            .filter(
+                sea_orm::Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::Slug.eq(slug)),
+            )
+            .one(runner.context().transaction())
+            .await
+            .expect("cache dependency page lookup should not fail")
+            .expect("cache dependency page should exist");
+        let mut page = page.into_active_model();
+        page.from_wikidot = Set(true);
+        page.update(runner.context().transaction())
+            .await
+            .expect("cache dependency page should be marked imported");
+
+        let metadata = run_endpoint!(
+            runner,
+            article_view_cache_metadata,
+            json!({
+                "site_id": site_id,
+                "session_token": null,
+                "route": {"slug": slug, "extra": ""},
+                "locales": ["en-US", "en"],
+            }),
+        );
+        assert_eq!(
+            metadata.article_page_cache_key, None,
+            "request-dependent ListPages must deny anonymous caching when authored in {slug}",
+        );
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INCLUDE_SLUG,
+        "Template include dependency",
+        "template include dependency body",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INCLUDE_TEMPLATE_SLUG,
+        "Include exact template",
+        &format!("[[include {INCLUDE_SLUG}]]\n%%content%%"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INCLUDE_ARTICLE_SLUG,
+        "Template include article",
+        "article body without an authored include",
+    )
+    .await;
+
+    let include = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": INCLUDE_SLUG}),
+    )
+    .expect("template include dependency should exist");
+    let article = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": INCLUDE_ARTICLE_SLUG}),
+    )
+    .expect("template include article should exist");
+    let connections = LinkService::get_connections_from(
+        runner.context(),
+        article.page_id,
+        Some(&[ConnectionType::IncludeMessy]),
+    )
+    .await
+    .expect("template include article connections should load");
+    assert!(
+        connections
+            .present
+            .iter()
+            .any(|connection| connection.to_page_id == include.page_id),
+        "a template-only include must record the article-to-include dependency used by include outdating",
+    );
+}
+
+#[tokio::test]
 async fn imported_breadcrumbs_hide_private_and_deleted_ancestors() {
     const IMPORT_RUN_ID: i64 = 7_700_398;
     const PUBLIC_PARENT_SLUG: &str = "breadcrumb-public:visible-parent";

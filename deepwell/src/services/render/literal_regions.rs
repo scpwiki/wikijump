@@ -61,7 +61,7 @@ static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 /// binary search, avoiding a full prefix rescan for every parser function or
 /// conditional on component-heavy pages.
 #[derive(Debug, Default)]
-pub(super) struct LiteralRegionIndex {
+pub(crate) struct LiteralRegionIndex {
     ranges: Vec<Range<usize>>,
 }
 
@@ -217,7 +217,7 @@ impl LiteralRegionIndex {
     /// remains outside the index so a candidate can recognize the tag that
     /// starts exactly there. Shrinking before merging also preserves the gap
     /// between adjacent tags.
-    pub(super) fn new_wikidot_module_recognition(source: &str) -> Self {
+    pub(crate) fn new_wikidot_module_recognition(source: &str) -> Self {
         let mut index = Self::build(source, true);
         let mut ranges = Vec::new();
         collect_paired_ranges(source, "<!--", "-->", &mut ranges);
@@ -293,7 +293,7 @@ impl LiteralRegionIndex {
         self.ranges = merge_sorted_ranges(std::mem::take(&mut self.ranges), ranges);
     }
 
-    pub(super) fn contains(&self, offset: usize) -> bool {
+    pub(crate) fn contains(&self, offset: usize) -> bool {
         let insertion = self.ranges.partition_point(|range| range.start <= offset);
         insertion > 0 && offset < self.ranges[insertion - 1].end
     }
