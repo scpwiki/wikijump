@@ -1,0 +1,380 @@
+name: CI
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+      - ready_for_review
+      - converted_to_draft
+  push:
+    branches:
+      - develop
+      - prod
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && (github.event.action != 'edited' || github.event.changes.base != null) && format('ci-pr-{0}', github.event.pull_request.number) || format('ci-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && (github.event.action != 'edited' || github.event.changes.base != null) }}
+
+jobs:
+  classify:
+    name: Classify changes
+    if: ${{ github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base != null }}
+    runs-on: ubuntu-latest
+    outputs:
+      candidate: ${{ steps.mode.outputs.candidate }}
+      draft: ${{ steps.mode.outputs.draft }}
+      deepwell: ${{ steps.changes.outputs.deepwell }}
+      wws: ${{ steps.changes.outputs.wws }}
+      framerail: ${{ steps.changes.outputs.framerail }}
+      locales: ${{ steps.changes.outputs.locales }}
+      workflow: ${{ steps.changes.outputs.workflow }}
+    steps:
+      - name: Select validation mode
+        id: mode
+        env:
+          CANDIDATE: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+          DRAFT: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == true }}
+        run: |
+          {
+            echo "candidate=${CANDIDATE}"
+            echo "draft=${DRAFT}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Classify every changed path
+        id: changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == workflow_dispatch || -z "${BASE_SHA}" || "${BASE_SHA}" =~ ^0+$ ]]; then
+            node .github/scripts/classify-changes.mjs --all >> "${GITHUB_OUTPUT}"
+          elif [[ "${GITHUB_EVENT_NAME}" == pull_request ]]; then
+            git diff --no-renames --name-only -z "${BASE_SHA}...${HEAD_SHA}" | node .github/scripts/classify-changes.mjs >> "${GITHUB_OUTPUT}"
+          else
+            git diff --no-renames --name-only -z "${BASE_SHA}" "${HEAD_SHA}" | node .github/scripts/classify-changes.mjs >> "${GITHUB_OUTPUT}"
+          fi
+
+  workflow_policy:
+    name: Workflow policy
+    needs: classify
+    if: needs.classify.outputs.workflow == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Run actionlint
+        uses: rhysd/actionlint@914e7df21a07ef503a81201c76d2b11c789d3fca # v1.7.12
+
+      - name: Run workflow policy tests
+        run: node --test .github/tests/*.test.mjs
+
+  deepwell_draft:
+    name: Deepwell draft checks
+    needs: classify
+    if: needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.draft == 'true'
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Cargo Cache
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            deepwell/target
+          key: ${{ runner.os }}-${{ runner.arch }}-deepwell-draft-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
+
+      - name: System Dependencies
+        run: sudo apt update && sudo apt install libmagic-dev
+
+      - name: Install cargo-machete
+        run: cargo install cargo-machete --version 0.9.1 --locked
+
+      - name: Validate
+        run: |
+          cargo machete deepwell
+          cd deepwell
+          cargo fmt --all -- --check
+          cargo clippy --locked --tests --no-deps
+          cargo test --locked --lib --no-default-features
+
+  deepwell_candidate:
+    name: Deepwell candidate checks
+    needs: classify
+    if: needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.candidate == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      valkey:
+        image: valkey/valkey:alpine
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    env:
+      RUSTFLAGS: -D warnings
+      DATABASE_URL: postgres://postgres:postgres@localhost/postgres
+      REDIS_URL: redis://localhost
+      S3_FILES_BUCKET: deepwell-files
+      S3_TEXT_BLOCKS_BUCKET: deepwell-text-blocks
+      S3_REGION_NAME: test
+      S3_PATH_STYLE: 'true'
+      S3_CUSTOM_ENDPOINT: http://127.0.0.1:9000
+      S3_ACCESS_KEY_ID: minio
+      S3_SECRET_ACCESS_KEY: minio-github-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Cargo Cache
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            deepwell/target
+          key: ${{ runner.os }}-${{ runner.arch }}-deepwell-candidate-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
+
+      - name: System Dependencies
+        run: sudo apt update && sudo apt install libmagic-dev
+
+      - name: Install cargo-machete
+        run: cargo install cargo-machete --version 0.9.1 --locked
+
+      - name: Run fast checks
+        run: |
+          cargo machete deepwell
+          cd deepwell
+          cargo fmt --all -- --check
+          cargo clippy --locked --tests --no-deps
+          cargo test --locked --lib --no-default-features
+
+      - name: Start MinIO
+        run: |
+          curl -fsSLo /tmp/minio https://dl.min.io/server/minio/release/linux-amd64/archive/minio.RELEASE.2025-09-07T16-13-09Z
+          echo "7c5bd8512c6e966455b1d198209358b2d191c77a83ab377c4073281065fb855f /tmp/minio" | sha256sum -c -
+          curl -fsSLo /tmp/mc https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2025-08-13T08-35-41Z
+          echo "01f866e9c5f9b87c2b09116fa5d7c06695b106242d829a8bb32990c00312e891 /tmp/mc" | sha256sum -c -
+          sudo install /tmp/minio /tmp/mc /usr/local/bin/
+          mkdir -p /tmp/minio-data
+          MINIO_ROOT_USER="${S3_ACCESS_KEY_ID}" MINIO_ROOT_PASSWORD="${S3_SECRET_ACCESS_KEY}" MINIO_REGION_NAME="${S3_REGION_NAME}" minio server /tmp/minio-data --address :9000 --console-address :9001 > /tmp/minio.log 2>&1 &
+          ready=false
+          for _ in $(seq 1 30); do
+            if mc alias set local "${S3_CUSTOM_ENDPOINT}" "${S3_ACCESS_KEY_ID}" "${S3_SECRET_ACCESS_KEY}" >/dev/null 2>&1; then ready=true; break; fi
+            sleep 1
+          done
+          if [[ "${ready}" != true ]]; then cat /tmp/minio.log; exit 1; fi
+          mc mb -p "local/${S3_FILES_BUCKET}" "local/${S3_TEXT_BLOCKS_BUCKET}"
+
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features rustls,postgres
+
+      - name: Run integration checks
+        run: |
+          cd deepwell
+          DEEPWELL_RUNTIME_ACTION=validate-config cargo run --locked --all-features -- config.example.toml ../install/local/deepwell/config.toml ../install/dev/deepwell/config.toml ../install/prod/deepwell/config.toml
+          sqlx migrate run
+          DEEPWELL_RUNTIME_ACTION=run-seeder cargo run --locked --all-features -- config.example.toml
+          cargo test --locked --all-features -- --nocapture --test-threads 1
+
+  wws:
+    name: WWS required checks
+    needs: classify
+    if: needs.classify.outputs.wws == 'true'
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Setup node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+
+      - name: Cargo Cache
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            wws/target
+          key: ${{ runner.os }}-${{ runner.arch }}-wws-required-${{ hashFiles('wws/Cargo.lock', 'rust-toolchain.toml') }}
+
+      - name: Install cargo-machete
+        run: cargo install cargo-machete --version 0.9.1 --locked
+
+      - name: Validate
+        run: |
+          cargo machete wws
+          cd wws
+          cargo fmt --all -- --check
+          cargo clippy --locked --tests --no-deps
+          cargo test --locked --all-features -- --nocapture --test-threads 1
+          node --test tests/resize-iframe.test.mjs
+
+  framerail:
+    name: Framerail required checks
+    needs: classify
+    if: needs.classify.outputs.framerail == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.9.0
+
+      - name: Setup node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: framerail/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm --dir framerail install --frozen-lockfile
+
+      - name: Validate
+        run: |
+          pnpm --dir framerail build
+          pnpm --dir framerail test:unit
+          pnpm --dir framerail lint
+
+  locales:
+    name: Locales required checks
+    needs: classify
+    if: needs.classify.outputs.locales == 'true'
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -A unused -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Cargo Cache
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            locales/validator/target
+          key: ${{ runner.os }}-${{ runner.arch }}-locales-required-${{ hashFiles('locales/validator/Cargo.lock', 'rust-toolchain.toml') }}
+
+      - name: Validate
+        run: |
+          cd locales/validator
+          cargo fmt --all -- --check
+          cargo clippy --locked --tests --no-deps
+          cargo run --locked
+
+  gate:
+    name: ${{ github.event_name == 'pull_request' && github.event.action == 'edited' && github.event.changes.base == null && format('CI / metadata no-op ({0})', github.run_id) || needs.classify.outputs.draft == 'true' && 'CI / draft gate' || 'CI / gate' }}
+    needs:
+      - classify
+      - workflow_policy
+      - deepwell_draft
+      - deepwell_candidate
+      - wws
+      - framerail
+      - locales
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base != null) }}
+    runs-on: ubuntu-latest
+    env:
+      CLASSIFY_RESULT: ${{ needs.classify.result }}
+      CANDIDATE_MODE: ${{ needs.classify.outputs.candidate }}
+      DRAFT_MODE: ${{ needs.classify.outputs.draft }}
+      WORKFLOW_SELECTED: ${{ needs.classify.outputs.workflow }}
+      WORKFLOW_RESULT: ${{ needs.workflow_policy.result }}
+      DEEPWELL_DRAFT_SELECTED: ${{ needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.draft == 'true' }}
+      DEEPWELL_DRAFT_RESULT: ${{ needs.deepwell_draft.result }}
+      DEEPWELL_CANDIDATE_SELECTED: ${{ needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.candidate == 'true' }}
+      DEEPWELL_CANDIDATE_RESULT: ${{ needs.deepwell_candidate.result }}
+      WWS_SELECTED: ${{ needs.classify.outputs.wws }}
+      WWS_RESULT: ${{ needs.wws.result }}
+      FRAMERAIL_SELECTED: ${{ needs.classify.outputs.framerail }}
+      FRAMERAIL_RESULT: ${{ needs.framerail.result }}
+      LOCALES_SELECTED: ${{ needs.classify.outputs.locales }}
+      LOCALES_RESULT: ${{ needs.locales.result }}
+    steps:
+      - name: Require every selected check
+        run: |
+          set -euo pipefail
+          validate_selection() {
+            if [[ "$2" != true && "$2" != false ]]; then
+              echo "$1 has invalid classifier output: '$2'" >&2
+              return 1
+            fi
+          }
+          check() {
+            if [[ "$2" == true && "$3" != success ]]; then
+              echo "$1 was selected but finished with: $3" >&2
+              return 1
+            fi
+            if [[ "$2" == false && "$3" != skipped ]]; then
+              echo "$1 was not selected but finished with: $3" >&2
+              return 1
+            fi
+          }
+          [[ "${CLASSIFY_RESULT}" == success ]]
+          validate_selection candidate "${CANDIDATE_MODE}"
+          validate_selection draft "${DRAFT_MODE}"
+          validate_selection workflow "${WORKFLOW_SELECTED}"
+          validate_selection deepwell-draft "${DEEPWELL_DRAFT_SELECTED}"
+          validate_selection deepwell-candidate "${DEEPWELL_CANDIDATE_SELECTED}"
+          validate_selection wws "${WWS_SELECTED}"
+          validate_selection framerail "${FRAMERAIL_SELECTED}"
+          validate_selection locales "${LOCALES_SELECTED}"
+          check workflow "${WORKFLOW_SELECTED}" "${WORKFLOW_RESULT}"
+          check deepwell-draft "${DEEPWELL_DRAFT_SELECTED}" "${DEEPWELL_DRAFT_RESULT}"
+          check deepwell-candidate "${DEEPWELL_CANDIDATE_SELECTED}" "${DEEPWELL_CANDIDATE_RESULT}"
+          check wws "${WWS_SELECTED}" "${WWS_RESULT}"
+          check framerail "${FRAMERAIL_SELECTED}" "${FRAMERAIL_RESULT}"
+          check locales "${LOCALES_SELECTED}" "${LOCALES_RESULT}"
