@@ -81,7 +81,7 @@ impl BlueprintPageService {
                     page_info.page.as_ref(),
                     &config.blueprint_page_template,
                 )
-                .ok_or_else(|| make_error())?;
+                .ok_or_else(&make_error)?;
 
                 (vec![slug], "")
             }

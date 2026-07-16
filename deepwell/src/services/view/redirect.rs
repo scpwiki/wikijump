@@ -62,11 +62,8 @@ pub(super) fn wikidot_redirect_location(
             line_offset += line_with_ending.len();
             continue;
         };
-        let candidate_offset = line_offset
-            + (line.len()
-                - line
-                    .trim_start_matches(|character| matches!(character, ' ' | '\t'))
-                    .len());
+        let candidate_offset =
+            line_offset + (line.len() - line.trim_start_matches([' ', '\t']).len());
         line_offset += line_with_ending.len();
 
         if literal_regions.contains(candidate_offset + prefix.start()) {
@@ -150,9 +147,7 @@ fn redirect_location(destination: &str, current_slug: &str) -> Option<String> {
         return None;
     }
 
-    let path_end = destination
-        .find(|character| matches!(character, '?' | '#'))
-        .unwrap_or(destination.len());
+    let path_end = destination.find(['?', '#']).unwrap_or(destination.len());
     let path = &destination[..path_end];
     let local_path = path.strip_prefix('/').unwrap_or(path);
     if local_path.is_empty()
