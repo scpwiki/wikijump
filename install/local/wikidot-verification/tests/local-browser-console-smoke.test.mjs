@@ -31,6 +31,8 @@ test("CLI and runtime identity require all authority inputs", () => {
 
 test("slug and local URL validation reject traversal and URL syntax", () => {
   assert.equal(localSmokeUrl(rowA), "https://scp-wiki.wikijump.localhost/a");
+  assert.equal(localSmokeUrl({...rowA, fixture_id: "EN:_404", slug: "_404", local_https_url: "https://scp-wiki.wikijump.localhost/_404"}), "https://scp-wiki.wikijump.localhost/_404");
+  assert.equal(localSmokeUrl({...rowA, fixture_id: "EN:_template", slug: "_template", local_https_url: "https://scp-wiki.wikijump.localhost/_template"}), "https://scp-wiki.wikijump.localhost/_template");
   for (const slug of ["../a", "a/b", "a\\b", "a%2fb", "a.b", "a?x", "a#x", "-a", "a-"]) {
     assert.throws(() => localSmokeUrl({...rowA, slug, local_https_url: ""}), /safe ASCII grammar/);
   }
