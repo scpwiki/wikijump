@@ -355,7 +355,7 @@ async function dispatchXmlRpcCall(
       return selectCategories(call)
     case "tags.select":
       expectParamCount(call, 1)
-      return selectTags(call)
+      return selectTags(call, options.requestIp)
     case "pages.select":
       expectParamCount(call, 1)
       return selectPages(call)
@@ -489,7 +489,7 @@ function expectDeepwellStringArray(value: unknown, method: string): string[] {
   return value
 }
 
-async function selectTags(call: XmlRpcCall): Promise<string[]> {
+async function selectTags(call: XmlRpcCall, requestIp: string): Promise<string[]> {
   const params = getStructParam(call, 0, "params")
   const site = getRequiredStructString(params, "site")
   const categories = getOptionalStructStringArray(params, "categories")
@@ -520,8 +520,12 @@ async function selectTags(call: XmlRpcCall): Promise<string[]> {
     deepwellParams.pages = pages
   }
 
+  const principal = await getXmlRpcWritePrincipal(requestIp)
+
   return expectDeepwellStringArray(
-    await requestDeepwell("page_tags_select", deepwellParams),
+    await requestDeepwell("page_tags_select", deepwellParams, {
+      sessionToken: principal.sessionToken
+    }),
     "page_tags_select"
   )
 }

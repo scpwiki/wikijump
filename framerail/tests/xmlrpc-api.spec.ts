@@ -805,9 +805,14 @@ test("XML-RPC endpoint selects local tags", async ({ request }) => {
   )
   expect(deepwellRequest.status()).toBe(200)
   expect(await deepwellRequest.json()).toEqual({
-    categories: ["_default"],
-    pages: ["the-great-hippo"],
-    site: "scp-wiki"
+    headers: {
+      sessionToken: "fixture-session-token"
+    },
+    params: {
+      categories: ["_default"],
+      pages: ["the-great-hippo"],
+      site: "scp-wiki"
+    }
   })
 })
 

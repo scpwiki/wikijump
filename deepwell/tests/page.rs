@@ -6933,6 +6933,158 @@ async fn page_tags_select_filters_latest_page_tags() {
 }
 
 #[tokio::test]
+async fn page_tags_select_filters_pages_by_authenticated_view_permission() {
+    const VISIBLE_CATEGORY: &str = "xmlrpc-tags-visible";
+    const HIDDEN_CATEGORY: &str = "xmlrpc-tags-hidden";
+    const VISIBLE_SLUG: &str = "xmlrpc-tags-visible:source";
+    const HIDDEN_SLUG: &str = "xmlrpc-tags-hidden:source";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        VISIBLE_CATEGORY,
+        SAMPLE_USER_ID,
+        &[Action::View],
+        "sample-viewer",
+    )
+    .await;
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        HIDDEN_CATEGORY,
+        ADMIN_USER_ID,
+        &[Action::View],
+        "admin-viewer",
+    )
+    .await;
+
+    let visible_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        VISIBLE_SLUG,
+        "Visible XML-RPC Tag Source",
+        "Visible tag source",
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        VISIBLE_SLUG,
+        visible_revision,
+        &["xmlrpc-visible-only", "xmlrpc-shared"],
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, VISIBLE_SLUG, VISIBLE_CATEGORY)
+        .await;
+
+    let hidden_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HIDDEN_SLUG,
+        "Hidden XML-RPC Tag Source",
+        "Hidden tag source",
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        HIDDEN_SLUG,
+        hidden_revision,
+        &["xmlrpc-hidden-only", "xmlrpc-shared"],
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, HIDDEN_SLUG, HIDDEN_CATEGORY)
+        .await;
+
+    PermissionCache::invalidate_site(runner.context(), site_id)
+        .await
+        .expect("tag selection permission cache should be invalidated");
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(SAMPLE_USER_ID),
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+
+    let hidden_page_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "pages": [HIDDEN_SLUG],
+        }),
+    );
+    assert!(hidden_page_tags.is_empty());
+
+    let hidden_category_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "categories": [HIDDEN_CATEGORY],
+        }),
+    );
+    assert!(hidden_category_tags.is_empty());
+
+    let mixed_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "pages": [VISIBLE_SLUG, HIDDEN_SLUG],
+        }),
+    );
+    assert_eq!(
+        mixed_tags.into_iter().collect::<BTreeSet<_>>(),
+        BTreeSet::from(["xmlrpc-shared".to_owned(), "xmlrpc-visible-only".to_owned(),])
+    );
+
+    let visible_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "categories": [VISIBLE_CATEGORY],
+            "pages": [VISIBLE_SLUG, HIDDEN_SLUG],
+        }),
+    );
+    assert_eq!(
+        visible_tags.into_iter().collect::<BTreeSet<_>>(),
+        BTreeSet::from(["xmlrpc-shared".to_owned(), "xmlrpc-visible-only".to_owned(),])
+    );
+
+    let all_tags = run_endpoint!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+        }),
+    );
+    assert!(all_tags.contains(&"xmlrpc-visible-only".to_owned()));
+    assert!(all_tags.contains(&"xmlrpc-shared".to_owned()));
+    assert!(!all_tags.contains(&"xmlrpc-hidden-only".to_owned()));
+}
+
+#[tokio::test]
+async fn page_tags_select_requires_an_authenticated_request_context() {
+    let runner = TestRunner::setup().await;
+    let error = run_endpoint_err!(
+        runner,
+        page_tags_select,
+        json!({
+            "site": "scp-wiki",
+            "pages": [],
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+}
+
+#[tokio::test]
 async fn page_select_filters_pages_with_page_query_semantics() {
     const TAG: &str = "xmlrpc-page-select-target";
 

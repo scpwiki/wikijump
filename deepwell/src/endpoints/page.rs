@@ -46,9 +46,7 @@ use crate::types::{
 use crate::utils::get_category_name;
 use futures::future::try_join_all;
 use regex::Regex;
-use sea_orm::{
-    ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait,
-};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QuerySelect};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::LazyLock;
@@ -348,6 +346,12 @@ pub async fn page_tags_select(
     }
 
     let make_error = || Error::new("failed to select page tags", ErrorType::Page);
+    let user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            "page tag selection requires an authenticated request context",
+            ErrorType::PermissionDenied,
+        )
+    })?;
     let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
     info!("Selecting page tags in site ID {site_id}");
 
@@ -393,8 +397,36 @@ pub async fn page_tags_select(
         page_query = page_query.filter(page::Column::Slug.is_in(pages));
     }
 
-    let tags = page_query
-        .join(JoinType::Join, page::Relation::PageRevision.def())
+    let pages = page_query.all(txn).await.or_raise(make_error)?;
+    let mut visible_revision_ids = Vec::with_capacity(pages.len());
+    for page in pages {
+        let can_view = PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id: Some(user_id),
+                site_id,
+                page_reference: Some(Reference::Id(page.page_id)),
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(page.page_category_id)),
+                action: Action::View,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        if can_view && let Some(revision_id) = page.latest_revision_id {
+            visible_revision_ids.push(revision_id);
+        }
+    }
+
+    if visible_revision_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let tags = page_revision::Entity::find()
+        .filter(page_revision::Column::RevisionId.is_in(visible_revision_ids))
         .select_only()
         .column(page_revision::Column::Tags)
         .into_tuple::<Vec<String>>()
