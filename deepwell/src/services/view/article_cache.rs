@@ -21,6 +21,7 @@
 use super::options::PageOptions;
 use super::prelude::*;
 use crate::services::BlueprintPageService;
+use crate::services::blueprint::compose_template;
 use crate::services::permission::PermissionCache;
 use crate::services::public_cache::PublicContentCache;
 use crate::services::render::{RenderDependencyClass, classify_render_dependencies};
@@ -260,10 +261,10 @@ fn format_article_page_cache_key_if_source_eligible(
     parts: ArticlePageCacheKeyParts<'_>,
 ) -> Option<String> {
     let source_contents = source_contents?;
-    if !anonymous_article_cache_source_eligible(source_contents)
-        || template_source
-            .is_some_and(|source| !anonymous_article_cache_source_eligible(source))
-    {
+    let composed_source =
+        template_source.map(|template| compose_template(template, source_contents));
+    let effective_source = composed_source.as_deref().unwrap_or(source_contents);
+    if !anonymous_article_cache_source_eligible(effective_source) {
         return None;
     }
 
@@ -423,6 +424,8 @@ mod tests {
         };
         let request_dependent_list_pages =
             "[[module ListPages offset=\"@URL|1\"]]%%title_linked%%[[/module]]";
+        let split_request_dependent_template =
+            "[[module ListPages offset=\"@U%%content%%\"]]%%title_linked%%[[/module]]";
 
         assert!(
             format_article_page_cache_key_if_source_eligible(
@@ -444,6 +447,14 @@ mod tests {
             format_article_page_cache_key_if_source_eligible(
                 Some("cache-safe page source"),
                 Some(request_dependent_list_pages),
+                parts(),
+            ),
+            None,
+        );
+        assert_eq!(
+            format_article_page_cache_key_if_source_eligible(
+                Some("RL|1"),
+                Some(split_request_dependent_template),
                 parts(),
             ),
             None,

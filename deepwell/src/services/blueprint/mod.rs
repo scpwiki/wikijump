@@ -35,3 +35,4 @@ mod template;
 
 pub use self::service::BlueprintPageService;
 pub use self::structs::*;
+pub(crate) use self::template::compose_template;

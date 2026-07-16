@@ -558,6 +558,8 @@ async fn article_cache_and_include_dependencies_use_exact_template_source() {
     const TEMPLATE_SLUG: &str = "article-cache-template-dependency:_template";
     const TEMPLATE_ARTICLE_SLUG: &str = "article-cache-template-dependency:templated";
     const DIRECT_ARTICLE_SLUG: &str = "article-cache-direct-dependency:direct";
+    const COMPOSED_TEMPLATE_SLUG: &str = "article-cache-composed-dependency:_template";
+    const COMPOSED_ARTICLE_SLUG: &str = "article-cache-composed-dependency:templated";
     const INCLUDE_TEMPLATE_SLUG: &str = "article-cache-template-include:_template";
     const INCLUDE_ARTICLE_SLUG: &str = "article-cache-template-include:templated";
     const INCLUDE_SLUG: &str = "component:cache-template-dependency";
@@ -594,7 +596,28 @@ async fn article_cache_and_include_dependencies_use_exact_template_source() {
     )
     .await;
 
-    for slug in [TEMPLATE_ARTICLE_SLUG, DIRECT_ARTICLE_SLUG] {
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPOSED_TEMPLATE_SLUG,
+        "Request dependency split across template composition",
+        "[[module ListPages offset=\"@U%%content%%\"]]%%title_linked%%[[/module]]",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        COMPOSED_ARTICLE_SLUG,
+        "Composed request dependency article",
+        "RL|1",
+    )
+    .await;
+
+    for slug in [
+        TEMPLATE_ARTICLE_SLUG,
+        DIRECT_ARTICLE_SLUG,
+        COMPOSED_ARTICLE_SLUG,
+    ] {
         let page = PageTable::find()
             .filter(
                 sea_orm::Condition::all()

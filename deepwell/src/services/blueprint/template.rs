@@ -46,7 +46,7 @@ pub(super) fn exact_template_slug<'a>(
 ///
 /// The oracle contract currently covers one placeholder. Replacing only its
 /// first occurrence keeps additional, unverified occurrences literal.
-pub(super) fn compose_template(template: &str, content: &str) -> String {
+pub(crate) fn compose_template(template: &str, content: &str) -> String {
     template.replacen(CONTENT_PLACEHOLDER, content, 1)
 }
 
