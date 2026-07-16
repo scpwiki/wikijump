@@ -54,7 +54,7 @@ test("the shell wrapper leaves imported page themes in control of typography", a
     new URL("../src/lib/sigma-esque/wikidot.svelte", import.meta.url),
     "utf8"
   )
-  const wrapperRule = layout.match(/#skrollr-body\s*\{(?<declarations>[^}]*)\}/u)
+  const wrapperRule = /#skrollr-body\s*\{(?<declarations>[^}]*)\}/u.exec(layout)
 
   assert.doesNotMatch(
     wrapperRule?.groups?.declarations ?? "",
