@@ -20,6 +20,12 @@ const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"
  */
 
 /**
+ * @param {readonly string[] | null | undefined} tags
+ * @returns {boolean}
+ */
+export const isWikidotFragmentPage = (tags) => tags?.includes("fragment") ?? false
+
+/**
  * @param {string | null | undefined} sourceSite
  * @returns {boolean}
  */
