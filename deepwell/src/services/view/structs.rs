@@ -107,6 +107,7 @@ pub enum GetPageViewOutput {
         wikidot_breadcrumbs: Vec<WikidotPageBreadcrumbView>,
         attributions: Vec<PageAttribution>,
         redirect_page: Option<String>,
+        #[serde(default)]
         redirect_kind: Option<PageRedirectKind>,
         wikitext: String,
         compiled_body_html: String,
@@ -118,6 +119,7 @@ pub enum GetPageViewOutput {
     Missing {
         options: PageOptions,
         redirect_page: Option<String>,
+        #[serde(default)]
         redirect_kind: Option<PageRedirectKind>,
         wikitext: String,
         compiled_body_html: String,
@@ -129,6 +131,7 @@ pub enum GetPageViewOutput {
     Permissions {
         options: PageOptions,
         redirect_page: Option<String>,
+        #[serde(default)]
         redirect_kind: Option<PageRedirectKind>,
         compiled_body_html: String,
         compiled_body_styles: Vec<String>,
@@ -154,6 +157,37 @@ pub struct WikidotPageSnapshotView {
 pub struct WikidotPageBreadcrumbView {
     pub slug: String,
     pub title: String,
+}
+
+#[cfg(test)]
+mod page_view_output_tests {
+    use super::*;
+
+    #[test]
+    fn cached_page_view_without_redirect_kind_remains_deserializable() {
+        let cached = serde_json::json!({
+            "type": "missing",
+            "data": {
+                "options": PageOptions::default(),
+                "redirect_page": null,
+                "wikitext": "",
+                "compiled_body_html": "",
+                "compiled_body_styles": [],
+                "compiled_top_bar_html": null,
+                "compiled_side_bar_html": null
+            }
+        });
+
+        let output: GetPageViewOutput = serde_json::from_value(cached)
+            .expect("legacy cached page view should deserialize");
+        assert!(matches!(
+            output,
+            GetPageViewOutput::Missing {
+                redirect_kind: None,
+                ..
+            }
+        ));
+    }
 }
 
 #[derive(Deserialize, Debug, Clone)]

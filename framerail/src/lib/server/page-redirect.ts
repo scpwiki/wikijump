@@ -59,11 +59,20 @@ function resolveWikidotModuleRedirect(
     return null
   }
 
-  // Fragments never reach the server. Comparing without the fragment prevents a
-  // redirect back to the same HTTP request from becoming an immediate loop.
+  let currentPath: string
+  let targetPath: string
+  try {
+    currentPath = decodeURI(current.pathname)
+    targetPath = decodeURI(target.pathname)
+  } catch {
+    return null
+  }
+
+  // Fragments never reach the server. Hosts are compared without protocol or
+  // port so an HTTP downgrade cannot bounce through the canonical HTTPS route.
   if (
-    target.origin === current.origin &&
-    target.pathname === current.pathname &&
+    target.hostname === current.hostname &&
+    targetPath === currentPath &&
     target.search === current.search
   ) {
     return null

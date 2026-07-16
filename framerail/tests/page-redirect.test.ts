@@ -56,8 +56,11 @@ test("self redirects fail closed even when a fragment is present", () => {
   for (const location of [
     "/source",
     "/source#again",
+    "/%73ource",
     "https://example.test/source",
-    "https://example.test/source#again"
+    "https://example.test/source#again",
+    "http://example.test/source",
+    "https://example.test:8443/source"
   ]) {
     assert.equal(
       resolvePageRedirect(
