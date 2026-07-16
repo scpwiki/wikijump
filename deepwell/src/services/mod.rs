@@ -47,8 +47,8 @@ mod prelude {
     pub use paste::paste;
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult,
-        EntityTrait, IntoActiveModel, JoinType, ModelTrait, PaginatorTrait, QueryFilter,
-        QueryOrder, QuerySelect, RelationTrait, Set,
+        EntityTrait, IntoActiveModel, JoinType, ModelTrait, NotSet, PaginatorTrait,
+        QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set,
     };
 }
 
@@ -119,6 +119,7 @@ pub use self::forum::ForumService;
 pub use self::forum_post::ForumPostService;
 pub use self::forum_post_revision::ForumPostRevisionService;
 pub use self::forum_thread::ForumThreadService;
+pub use self::import::ImportService;
 pub use self::job::JobService;
 pub use self::link::LinkService;
 pub use self::message::MessageService;

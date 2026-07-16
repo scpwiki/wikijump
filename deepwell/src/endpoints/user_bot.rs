@@ -138,12 +138,13 @@ pub async fn bot_user_create(
     RelationService::normalize_user_bot_metadata(&mut metadata);
 
     // Add bot owners
+    // Owners must necessarily be Wikijump users
     debug!(
         "Adding human owners for bot user '{}' ({})",
         bot_user.name, bot_user_id,
     );
     for owner_user_id in owners {
-        let owner_user = UserService::get(ctx, Reference::Id(owner_user_id))
+        let owner_user = UserService::get_real(ctx, Reference::Id(owner_user_id))
             .await
             .or_raise(make_error)?;
 
@@ -180,8 +181,9 @@ pub async fn bot_user_get_owners(
         )
     };
 
+    // Bot users must necessarily be Wikijump users
     info!("Getting bot user {reference:?}");
-    let user_bot = UserService::get_optional(ctx, reference)
+    let user_bot = UserService::get_real_optional(ctx, reference)
         .await
         .or_raise(make_error)?;
 
@@ -222,7 +224,7 @@ pub async fn bot_user_get_bots(
         )
     };
 
-    let owner_user = UserService::get(ctx, reference)
+    let owner_user = UserService::get_real(ctx, reference)
         .await
         .or_raise(make_error)?;
 
@@ -258,12 +260,12 @@ pub async fn bot_user_owner_set(
     let make_error =
         || Error::new("failed to add owners for bot user", ErrorType::UserBotOwner);
 
-    let bot_user = UserService::get(ctx, Reference::Id(input.bot_user_id))
+    let bot_user = UserService::get_real(ctx, Reference::Id(input.bot_user_id))
         .await
         .or_raise(make_error)?;
 
     for owner_user_id in input.owners {
-        let owner_user = UserService::get(ctx, Reference::Id(owner_user_id))
+        let owner_user = UserService::get_real(ctx, Reference::Id(owner_user_id))
             .await
             .or_raise(make_error)?;
 

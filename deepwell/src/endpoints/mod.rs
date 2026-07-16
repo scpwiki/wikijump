@@ -56,6 +56,7 @@ pub mod all {
     pub use super::file::*;
     pub use super::file_revision::*;
     pub use super::health::*;
+    pub use super::import::*;
     pub use super::info::*;
     pub use super::link::*;
     pub use super::locale::*;
@@ -87,6 +88,7 @@ pub mod email;
 pub mod file;
 pub mod file_revision;
 pub mod health;
+pub mod import;
 pub mod info;
 pub mod link;
 pub mod locale;

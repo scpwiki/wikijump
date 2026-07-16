@@ -52,7 +52,7 @@ pub struct ConfigFile {
     job: Job,
     ftml: Ftml,
     blueprint: Blueprint,
-    user: User,
+    user: UserSection,
     email: Email,
     file: FileSection,
     message: Message,
@@ -179,7 +179,7 @@ struct Blueprint {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
-struct User {
+struct UserSection {
     default_name_changes: u8,
     maximum_name_changes: u8,
     refill_name_change_days: u64,
@@ -332,7 +332,7 @@ impl ConfigFile {
                     banned: blueprint_page_banned,
                 },
             user:
-                User {
+                UserSection {
                     default_name_changes,
                     maximum_name_changes,
                     refill_name_change_days,

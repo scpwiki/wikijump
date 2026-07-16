@@ -21,7 +21,8 @@
 use super::prelude::*;
 use crate::models::user::Model as UserModel;
 use crate::services::user::{
-    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
+    ActivateUserFromWikidot, CreateUser, CreateUserOutput, GetUser, GetUserOutput,
+    UpdateUser, User,
 };
 use crate::types::AliasType;
 
@@ -37,12 +38,20 @@ pub async fn user_create(
         .or_raise(|| Error::new("failed to create user", ErrorType::User))
 }
 
-pub async fn user_import(
-    _ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<CreateUserOutput> {
-    // TODO implement importing user from Wikidot
-    todo!()
+pub async fn user_activate_from_wikidot(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UserModel> {
+    info!("Activating a new user from a Wikidot user record");
+    let input: ActivateUserFromWikidot = parse!(params, User);
+    UserService::activate_from_wikidot(ctx, input)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to create a Wikijump user by activating a Wikidot user reocrd",
+                ErrorType::User,
+            )
+        })
 }
 
 pub async fn user_get(
@@ -58,14 +67,26 @@ pub async fn user_get(
         .or_raise(make_error)?;
 
     match user {
+        // No user match
         None => Ok(None),
-        Some(user) => {
+
+        // Fetch and populate alias data
+        Some(User::Wikijump(user)) => {
             let aliases = AliasService::get_all(ctx, AliasType::User, user.user_id)
                 .await
                 .or_raise(make_error)?;
 
-            Ok(Some(GetUserOutput { user, aliases }))
+            Ok(Some(GetUserOutput {
+                user: User::Wikijump(user),
+                aliases,
+            }))
         }
+
+        // Aliases aren't a thing on Wikidot user records
+        Some(user) => Ok(Some(GetUserOutput {
+            user,
+            aliases: vec![],
+        })),
     }
 }
 
@@ -104,7 +125,9 @@ pub async fn user_add_name_change(
     let make_error = || Error::new("failed to add name change to user", ErrorType::User);
 
     info!("Adding user name change token to {reference:?}");
-    let user = UserService::get(ctx, reference)
+
+    // Wikidot users don't have name change tokens
+    let user = UserService::get_real(ctx, reference)
         .await
         .or_raise(make_error)?;
 
