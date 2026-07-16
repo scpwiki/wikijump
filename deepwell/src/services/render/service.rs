@@ -41,7 +41,10 @@ use super::include_attachment_owners::{
     qualify_relative_image_variable_attachments, relative, semantic_attachment_value,
     split_wikidot_include_argument_segments, wikidot_include_segment_is_space,
 };
-use super::include_comment_branches::remove_unresolved_include_comment_branches;
+use super::include_comment_branches::{
+    remove_unresolved_include_comment_branches,
+    remove_unresolved_include_comment_branches_source_local,
+};
 use super::include_variable_iftags::{
     resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
 };
@@ -4472,6 +4475,7 @@ impl RenderService {
                     &mut source.wikitext,
                     &include,
                     expansion_context.page_info,
+                    compat_text,
                 );
                 qualify_included_relative_image_attachments(
                     &mut source.wikitext,
@@ -12997,13 +13001,14 @@ fn prepare_include_source_variables_and_comment_branches(
     content: &mut String,
     include: &IncludeRef<'_>,
     page_info: &PageInfo<'_>,
+    compat_text: &mut CompatTextFragments,
 ) {
     apply_include_variables_before_resolving_iftags(content, include, page_info);
     // A comment branch is local to the included source once its callsite
     // variables are bound. Remove inactive branches before recursively
     // preparing that source so their conditional and include delimiters
     // cannot pair with delimiters from sibling expansions.
-    remove_unresolved_include_comment_branches(content);
+    remove_unresolved_include_comment_branches_source_local(content, compat_text);
 }
 
 fn trim_include_variable_value(value: &str) -> &str {
@@ -13446,10 +13451,12 @@ mod tests {
         let mut page_info = fallback_test_page_info("consumer", "Consumer");
         page_info.tags = tags.iter().map(|&tag| Cow::Borrowed(tag)).collect();
         let mut source = source.to_owned();
+        let mut compat_text = CompatTextFragments::new(&source);
         super::prepare_include_source_variables_and_comment_branches(
             &mut source,
             &include,
             &page_info,
+            &mut compat_text,
         );
         let mut preserved = CompatTextFragments::new(&source);
         RenderService::prepare_wikidot_conditionals_before_include_expansion(
@@ -13458,7 +13465,7 @@ mod tests {
             &mut preserved,
             1,
         );
-        preserved.restore(&source)
+        compat_text.restore(&preserved.restore(&source))
     }
 
     fn resolve_test_wikidot_iftags(
@@ -19880,14 +19887,112 @@ mod tests {
             IncludeRef::new(PageRef::page_only("component:test"), VariableMap::new());
         let page_info = fallback_test_page_info("consumer", "Consumer");
         let mut source = original.to_owned();
+        let mut compat_text = CompatTextFragments::new(original);
 
         super::prepare_include_source_variables_and_comment_branches(
             &mut source,
             &include,
             &page_info,
+            &mut compat_text,
         );
 
-        assert_eq!(source, original);
+        assert_ne!(source, original);
+        assert!(!source.contains("[!-- {$inc-section-end"), "{source}");
+        assert_eq!(compat_text.restore(&source), original);
+    }
+
+    #[test]
+    fn malformed_include_comment_branch_cannot_claim_sibling_boundary() {
+        let page_info = fallback_test_page_info("consumer", "Consumer");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let malformed = concat!(
+            "CHILD_BEFORE\n",
+            "[!-- {$missing}\n",
+            "CHILD_HIDDEN\n",
+            "[[include component:must-not-expand]]\n",
+        );
+        let include = IncludeRef::new(
+            PageRef::page_only("component:malformed"),
+            VariableMap::new(),
+        );
+        let mut compat_text = CompatTextFragments::new(malformed);
+        let mut malformed = malformed.to_owned();
+        super::prepare_include_source_variables_and_comment_branches(
+            &mut malformed,
+            &include,
+            &page_info,
+            &mut compat_text,
+        );
+        let start = prepare_test_nested_include_conditionals(
+            concat!(
+                "[[iftags -component-backend]]\n",
+                "[!-- {$start}\n",
+                "[[div class=\"selected-sibling\"]]\n",
+                "[!----]\n",
+                "[!-- {$end}\n",
+                "[[/div]]\n",
+                "[!----]\n",
+                "[[/iftags]]\n",
+            ),
+            &[("start", "--]")],
+            &[],
+        );
+        let end = prepare_test_nested_include_conditionals(
+            concat!(
+                "[[iftags -component-backend]]\n",
+                "[!-- {$start}\n",
+                "[[div class=\"selected-sibling\"]]\n",
+                "[!----]\n",
+                "[!-- {$end}\n",
+                "[[/div]]\n",
+                "[!----]\n",
+                "[[/iftags]]\n",
+            ),
+            &[("end", "--]")],
+            &[],
+        );
+        let caller = concat!(
+            "[[include component:start]]\n",
+            "[[include component:malformed]]\n",
+            "[[include component:end]]\n",
+            "ROOT_BEFORE\n",
+            "[!----]\n",
+            "ROOT_AFTER\n",
+        );
+        let (mut expanded, _) = ftml::include(
+            caller,
+            &settings,
+            PreparedIncluder {
+                pages: vec![Some(start), Some(malformed), Some(end)],
+            },
+            include_error,
+        )
+        .expect("prepared sibling includes should expand");
+
+        super::remove_unresolved_include_comment_branches(&mut expanded);
+        assert!(expanded.contains("CHILD_BEFORE\n"), "{expanded}");
+        assert!(!expanded.contains("CHILD_HIDDEN"), "{expanded}");
+        assert!(!expanded.contains("must-not-expand"), "{expanded}");
+        assert!(expanded.contains("ROOT_BEFORE\n"), "{expanded}");
+        assert!(expanded.contains("ROOT_AFTER\n"), "{expanded}");
+        assert!(expanded.contains("[[div class=\"selected-sibling\"]]"));
+        assert!(expanded.contains("[[/div]]"));
+
+        ftml::preprocess(&mut expanded);
+        let tokens = ftml::tokenize(&expanded);
+        let result = ftml::parse(&tokens, &page_info, &settings);
+        let (tree, errors) = result.into();
+        assert!(errors.is_empty(), "{errors:?}\n{expanded}");
+        let html = HtmlRender.render(&tree, &page_info, &settings).body;
+        let html = compat_text.restore(&html);
+
+        assert!(html.contains("[!-- {$missing}"), "{html}");
+        assert!(html.contains("CHILD_BEFORE"), "{html}");
+        assert!(html.contains("CHILD_HIDDEN"), "{html}");
+        assert!(html.contains("component:must-not-expand"), "{html}");
+        assert!(html.contains("ROOT_BEFORE"), "{html}");
+        assert!(html.contains("ROOT_AFTER"), "{html}");
+        assert!(html.contains("selected-sibling"), "{html}");
     }
 
     #[test]
