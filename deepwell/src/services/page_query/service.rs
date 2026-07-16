@@ -28,10 +28,145 @@ use crate::models::page_parent::{self, Entity as PageParent};
 use crate::models::{page_revision, text};
 use crate::services::score::ScoreValue;
 use crate::services::{PageService, ParentService, ScoreService};
+use sea_orm::DatabaseTransaction;
 use sea_query::extension::postgres::PgBinOper;
-use sea_query::{Expr, Query, SimpleExpr};
+use sea_query::{Expr, Query, SimpleExpr, Value};
 use std::cmp::Ordering;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+enum ScoreFilterCacheValue {
+    Integer(i64),
+    Float(u64),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct ScoreFilterCacheKey {
+    site_id: i64,
+    selectors: Vec<(u8, ScoreFilterCacheValue)>,
+}
+
+impl ScoreFilterCacheKey {
+    fn new(site_id: i64, selectors: &[ScoreSelector]) -> Self {
+        Self {
+            site_id,
+            selectors: selectors
+                .iter()
+                .map(|selector| {
+                    let value = match selector.score {
+                        ScoreValue::Integer(value) => {
+                            ScoreFilterCacheValue::Integer(value)
+                        }
+                        ScoreValue::Float(value) => {
+                            ScoreFilterCacheValue::Float(value.to_bits())
+                        }
+                    };
+                    let comparison = match selector.comparison {
+                        ComparisonOperation::GreaterThan => 0,
+                        ComparisonOperation::LessThan => 1,
+                        ComparisonOperation::GreaterOrEqualThan => 2,
+                        ComparisonOperation::LessOrEqualThan => 3,
+                        ComparisonOperation::Equal => 4,
+                        ComparisonOperation::NotEqual => 5,
+                    };
+                    (comparison, value)
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ScoreFilterCacheLookup {
+    FirstUse,
+    RepeatedUnmaterialized,
+    Materialized(ScoreFilterMembership),
+    Uncacheable,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ScoreFilterMembership {
+    Included(Vec<i64>),
+    Excluded(Vec<i64>),
+}
+
+impl ScoreFilterMembership {
+    fn len(&self) -> usize {
+        match self {
+            Self::Included(page_ids) | Self::Excluded(page_ids) => page_ids.len(),
+        }
+    }
+}
+
+// Keeps the request-local ID array bounded while accommodating the 24,430-page EN corpus.
+const MAX_CACHED_SCORE_FILTER_PAGE_IDS: usize = 50_000;
+
+/// Request-local cache for broad score predicates shared by multiple ListPages queries.
+/// It caches only qualifying IDs; each caller still applies its own filters and ordering.
+#[derive(Debug, Default)]
+pub(crate) struct PageQueryScoreFilterCache {
+    seen: BTreeSet<ScoreFilterCacheKey>,
+    memberships: BTreeMap<ScoreFilterCacheKey, ScoreFilterMembership>,
+    uncacheable: BTreeSet<ScoreFilterCacheKey>,
+}
+
+#[derive(Debug, Default)]
+pub(crate) struct PageQueryScoreFilterSession {
+    seen: BTreeSet<ScoreFilterCacheKey>,
+}
+
+impl PageQueryScoreFilterSession {
+    fn register_use(&mut self, key: &ScoreFilterCacheKey) -> bool {
+        self.seen.insert(key.clone())
+    }
+}
+
+impl PageQueryScoreFilterCache {
+    fn materialized_membership(
+        &self,
+        key: &ScoreFilterCacheKey,
+    ) -> Option<ScoreFilterMembership> {
+        if self.uncacheable.contains(key) {
+            return None;
+        }
+        self.memberships.get(key).cloned()
+    }
+
+    fn lookup(
+        &mut self,
+        key: &ScoreFilterCacheKey,
+        register_logical_use: bool,
+    ) -> ScoreFilterCacheLookup {
+        if self.uncacheable.contains(key) {
+            return ScoreFilterCacheLookup::Uncacheable;
+        }
+        if let Some(membership) = self.memberships.get(key) {
+            return ScoreFilterCacheLookup::Materialized(membership.clone());
+        }
+        if self.seen.contains(key) {
+            if register_logical_use {
+                return ScoreFilterCacheLookup::RepeatedUnmaterialized;
+            }
+            return ScoreFilterCacheLookup::FirstUse;
+        }
+        if register_logical_use {
+            self.seen.insert(key.clone());
+        } else {
+            debug_assert!(false, "a score key must be registered on its first batch");
+        }
+        ScoreFilterCacheLookup::FirstUse
+    }
+
+    fn insert(&mut self, key: ScoreFilterCacheKey, membership: ScoreFilterMembership) {
+        debug_assert!(membership.len() <= MAX_CACHED_SCORE_FILTER_PAGE_IDS);
+        self.memberships.insert(key, membership);
+    }
+
+    fn mark_uncacheable(&mut self, key: ScoreFilterCacheKey) {
+        self.memberships.remove(&key);
+        self.uncacheable.insert(key);
+    }
+}
 
 #[derive(Debug)]
 pub struct PageQueryService;
@@ -46,10 +181,22 @@ impl PageQueryService {
 
     pub async fn find_with_metadata(
         ctx: &ServiceContext<'_>,
-        PageQuery {
+        query: PageQuery<'_>,
+    ) -> Result<PageQueryResultEnvelope> {
+        Self::find_with_metadata_cached(ctx, query, None, None).await
+    }
+
+    pub(crate) async fn find_with_metadata_cached(
+        ctx: &ServiceContext<'_>,
+        query: PageQuery<'_>,
+        mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+        mut score_filter_session: Option<&mut PageQueryScoreFilterSession>,
+    ) -> Result<PageQueryResultEnvelope> {
+        let queried_site_id = query.queried_site_id.unwrap_or(query.current_site_id);
+        let PageQuery {
             current_page_id,
             current_site_id,
-            queried_site_id,
+            queried_site_id: _,
             page_type,
             categories:
                 CategoriesSelector {
@@ -80,20 +227,38 @@ impl PageQueryService {
             pagination,
             variables,
             fields,
-        }: PageQuery<'_>,
-    ) -> Result<PageQueryResultEnvelope> {
+        } = query;
         info!("Building ListPages query from specification");
 
         let make_error =
             || Error::new("failed to create ListPages query", ErrorType::PageQuery);
 
+        if score.len() > MAX_PAGE_QUERY_SCORE_SELECTORS {
+            return Err(Error::new(
+                "ListPages score selector limit exceeded",
+                ErrorType::PageQuery,
+            )
+            .into());
+        }
+        let score = score.to_vec();
+
         let txn = ctx.transaction();
+        if !score.is_empty() {
+            // These queries deliberately switch between candidate-correlated and
+            // site-wide score plans. PostgreSQL's generic prepared plan loses the
+            // selector and candidate cardinalities after repeated executions and
+            // can make a six-module ListPages render several times slower. Keep
+            // the choice local to this render transaction and leave non-score
+            // queries on the server default.
+            txn.execute_unprepared("SET LOCAL plan_cache_mode = force_custom_plan")
+                .await
+                .or_raise(make_error)?;
+        }
         let mut condition = Condition::all();
 
         // Site ID
         //
         // The site to query from. If not specified, then this is the current site.
-        let queried_site_id = queried_site_id.unwrap_or(current_site_id);
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
         debug!("Selecting pages from site ID: {queried_site_id}");
 
@@ -326,6 +491,11 @@ impl PageQueryService {
             condition = condition
                 .add(page::Column::Slug.is_in(slugs.iter().map(|slug| slug.as_ref())));
         }
+        if let Some(name) = name {
+            let pattern = wikidot_name_pattern(name.as_ref());
+            debug!("Filtering based on page name pattern {pattern}");
+            condition = condition.add(page::Column::Slug.like(pattern));
+        }
 
         // Initial page author. Local pages use the user ID on their earliest available revision. Corpus imports intentionally keep the Wikidot display name in wikidot_page_snapshot instead of fabricating local users, so the two representations are combined with OR semantics.
         match author {
@@ -406,6 +576,22 @@ impl PageQueryService {
             );
         }
 
+        condition = condition.add(date_selector_condition(
+            page::Column::CreatedAt,
+            creation_date,
+        ));
+        condition = condition.add(date_selector_condition(
+            page::Column::UpdatedAt,
+            update_date,
+        ));
+        if !votes.is_empty() {
+            return Err(Error::new(
+                "ListPages vote-count filtering is not implemented",
+                ErrorType::PageQuery,
+            )
+            .into());
+        }
+
         // Build the final query
         let mut query = Page::find()
             .filter(page::Column::DeletedAt.is_null())
@@ -470,6 +656,92 @@ impl PageQueryService {
             );
         }
 
+        let materialized_score_filter_applied = if score.is_empty() {
+            false
+        } else {
+            let key = ScoreFilterCacheKey::new(queried_site_id, &score);
+            if let Some(membership) = score_filter_cache
+                .as_deref()
+                .and_then(|cache| cache.materialized_membership(&key))
+            {
+                query = query.filter(score_membership_condition(membership));
+                true
+            } else {
+                false
+            }
+        };
+
+        if !score.is_empty() && !materialized_score_filter_applied {
+            let observed_candidates = query
+                .clone()
+                .select_only()
+                .column(page::Column::PageId)
+                .distinct()
+                .limit((MAX_CORRELATED_SCORE_CANDIDATES + 1) as u64)
+                .into_tuple::<i64>()
+                .all(txn)
+                .await
+                .or_raise(make_error)?
+                .len();
+            let score_filter_plan =
+                score_filter_plan_from_probe(queried_site_id, observed_candidates);
+            match score_filter_plan {
+                ScoreFilterPlan::CandidateCorrelated => {
+                    query = query.filter(score_selectors_condition(
+                        &score,
+                        ScoreFilterPlan::CandidateCorrelated,
+                    ));
+                }
+                ScoreFilterPlan::SiteWide { site_id } => {
+                    let key = ScoreFilterCacheKey::new(site_id, &score);
+                    let register_logical_use = score_filter_session
+                        .as_mut()
+                        .map(|session| session.register_use(&key))
+                        .unwrap_or(true);
+                    let lookup = score_filter_cache
+                        .as_mut()
+                        .map(|cache| cache.lookup(&key, register_logical_use));
+                    match lookup {
+                        Some(ScoreFilterCacheLookup::Materialized(membership)) => {
+                            query = query.filter(score_membership_condition(membership));
+                        }
+                        Some(ScoreFilterCacheLookup::RepeatedUnmaterialized) => {
+                            match materialize_score_membership(txn, &score, site_id)
+                                .await?
+                            {
+                                Some(membership) => {
+                                    score_filter_cache
+                                        .as_mut()
+                                        .expect("score cache should still be available")
+                                        .insert(key, membership.clone());
+                                    query = query
+                                        .filter(score_membership_condition(membership));
+                                }
+                                None => {
+                                    score_filter_cache
+                                        .as_mut()
+                                        .expect("score cache should still be available")
+                                        .mark_uncacheable(key);
+                                    query = query.filter(score_selectors_condition(
+                                        &score,
+                                        ScoreFilterPlan::SiteWide { site_id },
+                                    ));
+                                }
+                            }
+                        }
+                        Some(ScoreFilterCacheLookup::FirstUse)
+                        | Some(ScoreFilterCacheLookup::Uncacheable)
+                        | None => {
+                            query = query.filter(score_selectors_condition(
+                                &score,
+                                ScoreFilterPlan::SiteWide { site_id },
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
         // Add on at the query-level (ORDER BY, LIMIT)
         let score_order = matches!(order.property, OrderProperty::Score);
         {
@@ -527,8 +799,7 @@ impl PageQueryService {
                 OrderProperty::Size => {
                     debug!("Ordering by page size");
                     join_text!();
-                    let col = Expr::col(text::Column::Contents);
-                    let expr = SimpleExpr::FunctionCall(Func::char_length(col));
+                    let expr = SimpleExpr::Custom("text.character_count".into());
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Score => {
@@ -812,6 +1083,374 @@ impl PageQueryService {
     }
 }
 
+fn wikidot_name_pattern(value: &str) -> String {
+    let mut pattern = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '*' | '%' => pattern.push('%'),
+            '_' => pattern.push_str("\\_"),
+            '\\' => pattern.push_str("\\\\"),
+            _ => pattern.push(character),
+        }
+    }
+    pattern
+}
+
+fn date_selector_condition(column: page::Column, selector: DateSelector) -> Condition {
+    match selector {
+        DateSelector::FromPresent { start }
+            if start == time::OffsetDateTime::UNIX_EPOCH =>
+        {
+            Condition::all()
+        }
+        DateSelector::FromPresent { start } => Condition::all().add(column.gte(start)),
+        DateSelector::Span {
+            timestamp,
+            resolution,
+            comparison,
+        } => {
+            let (start, end) = date_span_bounds(timestamp, resolution);
+            match (comparison, end) {
+                (ComparisonOperation::GreaterThan, Some(end)) => {
+                    Condition::all().add(column.gte(end))
+                }
+                (ComparisonOperation::GreaterThan, None) => {
+                    Condition::all().add(Expr::cust("FALSE"))
+                }
+                (ComparisonOperation::LessThan, _) => {
+                    Condition::all().add(column.lt(start))
+                }
+                (ComparisonOperation::GreaterOrEqualThan, _) => {
+                    Condition::all().add(column.gte(start))
+                }
+                (ComparisonOperation::LessOrEqualThan, Some(end)) => {
+                    Condition::all().add(column.lt(end))
+                }
+                (ComparisonOperation::LessOrEqualThan, None) => {
+                    Condition::all().add(column.is_not_null())
+                }
+                (ComparisonOperation::Equal, Some(end)) => {
+                    Condition::all().add(column.gte(start)).add(column.lt(end))
+                }
+                (ComparisonOperation::Equal, None) => {
+                    Condition::all().add(column.gte(start))
+                }
+                (ComparisonOperation::NotEqual, Some(end)) => {
+                    Condition::any().add(column.lt(start)).add(column.gte(end))
+                }
+                (ComparisonOperation::NotEqual, None) => {
+                    Condition::all().add(column.lt(start))
+                }
+            }
+        }
+    }
+}
+
+fn date_span_bounds(
+    timestamp: time::OffsetDateTime,
+    resolution: DateTimeResolution,
+) -> (time::OffsetDateTime, Option<time::OffsetDateTime>) {
+    let start = match resolution {
+        DateTimeResolution::Second => timestamp.replace_nanosecond(0).unwrap(),
+        DateTimeResolution::Minute => timestamp
+            .replace_second(0)
+            .unwrap()
+            .replace_nanosecond(0)
+            .unwrap(),
+        DateTimeResolution::Hour => timestamp
+            .replace_minute(0)
+            .unwrap()
+            .replace_second(0)
+            .unwrap()
+            .replace_nanosecond(0)
+            .unwrap(),
+        DateTimeResolution::Day => timestamp
+            .date()
+            .with_time(time::Time::MIDNIGHT)
+            .assume_offset(timestamp.offset()),
+        DateTimeResolution::Month => {
+            time::Date::from_calendar_date(timestamp.year(), timestamp.month(), 1)
+                .unwrap()
+                .with_time(time::Time::MIDNIGHT)
+                .assume_offset(timestamp.offset())
+        }
+        DateTimeResolution::Year => {
+            time::Date::from_calendar_date(timestamp.year(), time::Month::January, 1)
+                .unwrap()
+                .with_time(time::Time::MIDNIGHT)
+                .assume_offset(timestamp.offset())
+        }
+    };
+    let end = match resolution {
+        DateTimeResolution::Second => start.checked_add(time::Duration::SECOND),
+        DateTimeResolution::Minute => start.checked_add(time::Duration::MINUTE),
+        DateTimeResolution::Hour => start.checked_add(time::Duration::HOUR),
+        DateTimeResolution::Day => start.checked_add(time::Duration::DAY),
+        DateTimeResolution::Month => {
+            let (year, month) = if start.month() == time::Month::December {
+                (start.year().saturating_add(1), time::Month::January)
+            } else {
+                (start.year(), start.month().next())
+            };
+            time::Date::from_calendar_date(year, month, 1)
+                .ok()
+                .map(|date| {
+                    date.with_time(time::Time::MIDNIGHT)
+                        .assume_offset(start.offset())
+                })
+        }
+        DateTimeResolution::Year => time::Date::from_calendar_date(
+            start.year().saturating_add(1),
+            time::Month::January,
+            1,
+        )
+        .ok()
+        .map(|date| {
+            date.with_time(time::Time::MIDNIGHT)
+                .assume_offset(start.offset())
+        }),
+    };
+    (start, end)
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum ScoreFilterPlan {
+    SiteWide { site_id: i64 },
+    CandidateCorrelated,
+}
+
+const MAX_CORRELATED_SCORE_CANDIDATES: usize = 512;
+
+fn score_filter_plan_from_probe(
+    site_id: i64,
+    observed_candidates: usize,
+) -> ScoreFilterPlan {
+    if observed_candidates <= MAX_CORRELATED_SCORE_CANDIDATES {
+        ScoreFilterPlan::CandidateCorrelated
+    } else {
+        ScoreFilterPlan::SiteWide { site_id }
+    }
+}
+
+fn score_comparison_operator(comparison: ComparisonOperation) -> &'static str {
+    match comparison {
+        ComparisonOperation::GreaterThan => ">",
+        ComparisonOperation::LessThan => "<",
+        ComparisonOperation::GreaterOrEqualThan => ">=",
+        ComparisonOperation::LessOrEqualThan => "<=",
+        ComparisonOperation::Equal => "=",
+        ComparisonOperation::NotEqual => "!=",
+    }
+}
+
+fn score_selector_value(selector: &ScoreSelector) -> Value {
+    match selector.score {
+        ScoreValue::Integer(value) => Value::BigInt(Some(value)),
+        ScoreValue::Float(value) => Value::Double(Some(value)),
+    }
+}
+
+fn score_selectors_condition(
+    selectors: &[ScoreSelector],
+    plan: ScoreFilterPlan,
+) -> SimpleExpr {
+    debug_assert!(!selectors.is_empty());
+    match plan {
+        ScoreFilterPlan::SiteWide { site_id } => {
+            let conditions = selectors
+                .iter()
+                .enumerate()
+                .map(|(index, selector)| {
+                    format!(
+                        "filtered_score.effective_score {} ${}",
+                        score_comparison_operator(selector.comparison),
+                        index + 2,
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(" AND ");
+            let values = std::iter::once(Value::BigInt(Some(site_id)))
+                .chain(selectors.iter().map(score_selector_value))
+                .collect::<Vec<_>>();
+            Expr::cust_with_values(
+                format!(
+                    "page.page_id IN (\
+                        SELECT filtered_score.page_id \
+                        FROM (\
+                            SELECT scored_page.page_id, \
+                                (COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value), 0)) AS effective_score \
+                            FROM page scored_page \
+                            LEFT JOIN wikidot_page_snapshot score_snapshot \
+                                ON score_snapshot.page_id = scored_page.page_id \
+                            LEFT JOIN page_vote score_vote \
+                                ON score_vote.page_id = scored_page.page_id \
+                                AND score_vote.deleted_at IS NULL \
+                                AND score_vote.disabled_at IS NULL \
+                                AND (score_snapshot.imported_rating IS NULL OR score_vote.from_wikidot = FALSE) \
+                            WHERE scored_page.site_id = $1 \
+                                AND scored_page.deleted_at IS NULL \
+                            GROUP BY scored_page.page_id, score_snapshot.imported_rating\
+                        ) filtered_score \
+                        WHERE {conditions}\
+                    )"
+                ),
+                values,
+            )
+        }
+        ScoreFilterPlan::CandidateCorrelated => {
+            let conditions = selectors
+                .iter()
+                .enumerate()
+                .map(|(index, selector)| {
+                    format!(
+                        "filtered_score.effective_score {} ${}",
+                        score_comparison_operator(selector.comparison),
+                        index + 1,
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(" AND ");
+            let values = selectors
+                .iter()
+                .map(score_selector_value)
+                .collect::<Vec<_>>();
+            Expr::cust_with_values(
+                format!(
+                    "EXISTS (\
+                        SELECT 1 \
+                        FROM (\
+                            SELECT (COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value), 0)) AS effective_score \
+                            FROM page scored_page \
+                            LEFT JOIN wikidot_page_snapshot score_snapshot \
+                                ON score_snapshot.page_id = scored_page.page_id \
+                            LEFT JOIN page_vote score_vote \
+                                ON score_vote.page_id = scored_page.page_id \
+                                AND score_vote.deleted_at IS NULL \
+                                AND score_vote.disabled_at IS NULL \
+                                AND (score_snapshot.imported_rating IS NULL OR score_vote.from_wikidot = FALSE) \
+                            WHERE scored_page.page_id = page.page_id \
+                            GROUP BY scored_page.page_id, score_snapshot.imported_rating\
+                        ) filtered_score \
+                        WHERE {conditions}\
+                    )"
+                ),
+                values,
+            )
+        }
+    }
+}
+
+fn score_membership_condition(membership: ScoreFilterMembership) -> SimpleExpr {
+    let (operator, page_ids) = match membership {
+        ScoreFilterMembership::Included(page_ids) => ("$1 = ANY($2)", page_ids),
+        ScoreFilterMembership::Excluded(page_ids) => ("$1 != ALL($2)", page_ids),
+    };
+    Expr::cust_with_exprs(
+        operator,
+        [
+            Expr::col((Page, page::Column::PageId)).into(),
+            Expr::val(page_ids).into(),
+        ],
+    )
+}
+
+fn zero_satisfies_score_selector(selector: &ScoreSelector) -> bool {
+    match selector.score {
+        ScoreValue::Integer(value) => match selector.comparison {
+            ComparisonOperation::GreaterThan => 0 > value,
+            ComparisonOperation::LessThan => 0 < value,
+            ComparisonOperation::GreaterOrEqualThan => 0 >= value,
+            ComparisonOperation::LessOrEqualThan => 0 <= value,
+            ComparisonOperation::Equal => value == 0,
+            ComparisonOperation::NotEqual => value != 0,
+        },
+        ScoreValue::Float(value) if value.is_finite() => match selector.comparison {
+            ComparisonOperation::GreaterThan => 0.0 > value,
+            ComparisonOperation::LessThan => 0.0 < value,
+            ComparisonOperation::GreaterOrEqualThan => 0.0 >= value,
+            ComparisonOperation::LessOrEqualThan => 0.0 <= value,
+            ComparisonOperation::Equal => value == 0.0,
+            ComparisonOperation::NotEqual => value != 0.0,
+        },
+        ScoreValue::Float(_) => false,
+    }
+}
+
+fn zero_satisfies_score_selectors(selectors: &[ScoreSelector]) -> bool {
+    selectors.iter().all(zero_satisfies_score_selector)
+}
+
+fn score_membership_polarity_order(selectors: &[ScoreSelector]) -> [bool; 2] {
+    let prefer_excluded = zero_satisfies_score_selectors(selectors);
+    [prefer_excluded, !prefer_excluded]
+}
+
+async fn score_membership_page_ids(
+    txn: &DatabaseTransaction,
+    selectors: &[ScoreSelector],
+    site_id: i64,
+    excluded: bool,
+) -> Result<Option<Vec<i64>>> {
+    let score_condition =
+        score_selectors_condition(selectors, ScoreFilterPlan::SiteWide { site_id });
+    let page_ids = Page::find()
+        .select_only()
+        .column(page::Column::PageId)
+        .filter(page::Column::SiteId.eq(site_id))
+        .filter(page::Column::DeletedAt.is_null())
+        .filter(if excluded {
+            score_condition.not()
+        } else {
+            score_condition
+        })
+        .limit((MAX_CACHED_SCORE_FILTER_PAGE_IDS + 1) as u64)
+        .into_tuple::<i64>()
+        .all(txn)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to materialize ListPages score filter",
+                ErrorType::PageQuery,
+            )
+        })?;
+    Ok(bounded_score_page_ids(page_ids))
+}
+
+async fn materialize_score_membership(
+    txn: &DatabaseTransaction,
+    selectors: &[ScoreSelector],
+    site_id: i64,
+) -> Result<Option<ScoreFilterMembership>> {
+    for excluded in score_membership_polarity_order(selectors) {
+        if let Some(page_ids) =
+            score_membership_page_ids(txn, selectors, site_id, excluded).await?
+        {
+            return Ok(Some(if excluded {
+                ScoreFilterMembership::Excluded(page_ids)
+            } else {
+                ScoreFilterMembership::Included(page_ids)
+            }));
+        }
+    }
+    Ok(None)
+}
+
+fn bounded_score_page_ids(page_ids: Vec<i64>) -> Option<Vec<i64>> {
+    if page_ids.len() > MAX_CACHED_SCORE_FILTER_PAGE_IDS {
+        None
+    } else {
+        Some(page_ids)
+    }
+}
+
+#[cfg(test)]
+fn score_selector_condition(
+    selector: &ScoreSelector,
+    plan: ScoreFilterPlan,
+) -> SimpleExpr {
+    score_selectors_condition(std::slice::from_ref(selector), plan)
+}
+
 fn postgres_bind_placeholders(count: usize) -> String {
     (1..=count)
         .map(|index| format!("${index}"))
@@ -877,4 +1516,563 @@ async fn filter_pages_by_data_form_fields(
             static_wikidot_data_form_matches(&values, selectors)
         })
         .collect())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        MAX_CACHED_SCORE_FILTER_PAGE_IDS, MAX_CORRELATED_SCORE_CANDIDATES,
+        PageQueryScoreFilterCache, PageQueryScoreFilterSession, ScoreFilterCacheKey,
+        ScoreFilterCacheLookup, ScoreFilterMembership, ScoreFilterPlan,
+        bounded_score_page_ids, date_span_bounds, score_filter_plan_from_probe,
+        score_membership_condition, score_membership_polarity_order,
+        score_selector_condition, score_selectors_condition, wikidot_name_pattern,
+    };
+    use crate::models::page;
+    use crate::services::page_query::{
+        ComparisonOperation, DateTimeResolution, ScoreSelector,
+    };
+    use crate::services::score::ScoreValue;
+    use sea_orm::{
+        DatabaseBackend, EntityTrait, QueryFilter, QueryOrder, QueryTrait, Value,
+    };
+    use sea_query::{SimpleExpr, func::Func};
+
+    #[test]
+    fn wikidot_name_patterns_translate_both_wildcard_spellings() {
+        assert_eq!(wikidot_name_pattern("scp-*"), "scp-%");
+        assert_eq!(wikidot_name_pattern("fragment:part%"), "fragment:part%");
+        assert_eq!(wikidot_name_pattern("literal_name"), "literal\\_name");
+    }
+
+    #[test]
+    fn month_date_spans_use_calendar_boundaries() {
+        let timestamp = time::Date::from_calendar_date(2026, time::Month::June, 17)
+            .unwrap()
+            .with_time(time::Time::from_hms(12, 34, 56).unwrap())
+            .assume_utc();
+        let (start, end) = date_span_bounds(timestamp, DateTimeResolution::Month);
+        let end = end.expect("ordinary month should have a representable upper bound");
+
+        assert_eq!(
+            start.date(),
+            time::Date::from_calendar_date(2026, time::Month::June, 1).unwrap(),
+        );
+        assert_eq!(
+            end.date(),
+            time::Date::from_calendar_date(2026, time::Month::July, 1).unwrap(),
+        );
+        assert_eq!(start.time(), time::Time::MIDNIGHT);
+        assert_eq!(end.time(), time::Time::MIDNIGHT);
+    }
+
+    #[test]
+    fn maximum_year_date_spans_use_an_open_upper_bound() {
+        let timestamp = time::Date::from_calendar_date(9999, time::Month::December, 31)
+            .unwrap()
+            .with_time(time::Time::from_hms(23, 59, 59).unwrap())
+            .assume_utc();
+
+        for resolution in [
+            DateTimeResolution::Second,
+            DateTimeResolution::Day,
+            DateTimeResolution::Month,
+            DateTimeResolution::Year,
+        ] {
+            let (_, end) = date_span_bounds(timestamp, resolution);
+            assert_eq!(end, None, "resolution {resolution:?}");
+        }
+
+        let equal = page::Entity::find()
+            .filter(super::date_selector_condition(
+                page::Column::CreatedAt,
+                crate::services::page_query::DateSelector::Span {
+                    timestamp,
+                    resolution: DateTimeResolution::Year,
+                    comparison: ComparisonOperation::Equal,
+                },
+            ))
+            .build(DatabaseBackend::Postgres);
+        assert!(equal.sql.contains("\"created_at\" >="), "{}", equal.sql);
+        assert!(!equal.sql.contains("\"created_at\" <"), "{}", equal.sql);
+
+        let greater = page::Entity::find()
+            .filter(super::date_selector_condition(
+                page::Column::CreatedAt,
+                crate::services::page_query::DateSelector::Span {
+                    timestamp,
+                    resolution: DateTimeResolution::Year,
+                    comparison: ComparisonOperation::GreaterThan,
+                },
+            ))
+            .build(DatabaseBackend::Postgres);
+        assert!(greater.sql.contains("FALSE"), "{}", greater.sql);
+    }
+
+    #[test]
+    fn broad_score_filter_aggregates_site_votes_once() {
+        let selector = ScoreSelector {
+            score: ScoreValue::Integer(90),
+            comparison: ComparisonOperation::Equal,
+        };
+        let statement = page::Entity::find()
+            .filter(score_selector_condition(
+                &selector,
+                ScoreFilterPlan::SiteWide { site_id: 6_000_006 },
+            ))
+            .build(DatabaseBackend::Postgres);
+
+        assert!(
+            statement
+                .sql
+                .contains("page.page_id IN (SELECT filtered_score.page_id")
+        );
+        assert!(statement.sql.contains("WHERE scored_page.site_id = $1"));
+        assert!(
+            statement
+                .sql
+                .contains("GROUP BY scored_page.page_id, score_snapshot.imported_rating")
+        );
+        assert!(
+            statement
+                .sql
+                .contains("WHERE filtered_score.effective_score = $2")
+        );
+        assert!(
+            !statement
+                .sql
+                .contains("WHERE snapshot.page_id = page.page_id")
+        );
+    }
+
+    #[test]
+    fn score_filter_preserves_integer_and_float_bind_types() {
+        const SITE_ID: i64 = 6_000_006;
+        const INTEGER_THRESHOLD: i64 = 9_007_199_254_740_993;
+
+        for (plan, expected_values) in [
+            (
+                ScoreFilterPlan::CandidateCorrelated,
+                vec![Value::BigInt(Some(INTEGER_THRESHOLD))],
+            ),
+            (
+                ScoreFilterPlan::SiteWide { site_id: SITE_ID },
+                vec![
+                    Value::BigInt(Some(SITE_ID)),
+                    Value::BigInt(Some(INTEGER_THRESHOLD)),
+                ],
+            ),
+        ] {
+            let selector = ScoreSelector {
+                score: ScoreValue::Integer(INTEGER_THRESHOLD),
+                comparison: ComparisonOperation::Equal,
+            };
+            let statement = page::Entity::find()
+                .filter(score_selector_condition(&selector, plan))
+                .build(DatabaseBackend::Postgres);
+
+            assert_eq!(statement.values.unwrap().0, expected_values);
+        }
+
+        for (plan, expected_values) in [
+            (
+                ScoreFilterPlan::CandidateCorrelated,
+                vec![Value::Double(Some(1.5))],
+            ),
+            (
+                ScoreFilterPlan::SiteWide { site_id: SITE_ID },
+                vec![Value::BigInt(Some(SITE_ID)), Value::Double(Some(1.5))],
+            ),
+        ] {
+            let selector = ScoreSelector {
+                score: ScoreValue::Float(1.5),
+                comparison: ComparisonOperation::Equal,
+            };
+            let statement = page::Entity::find()
+                .filter(score_selector_condition(&selector, plan))
+                .build(DatabaseBackend::Postgres);
+
+            assert_eq!(statement.values.unwrap().0, expected_values);
+        }
+    }
+
+    #[test]
+    fn score_filter_plan_uses_capped_probe_boundary() {
+        for observed_candidates in [0, 78, 171, 183, MAX_CORRELATED_SCORE_CANDIDATES] {
+            assert_eq!(
+                score_filter_plan_from_probe(6_000_006, observed_candidates),
+                ScoreFilterPlan::CandidateCorrelated,
+            );
+        }
+
+        for observed_candidates in [MAX_CORRELATED_SCORE_CANDIDATES + 1, 20_492, 24_436] {
+            assert_eq!(
+                score_filter_plan_from_probe(6_000_006, observed_candidates),
+                ScoreFilterPlan::SiteWide { site_id: 6_000_006 },
+            );
+        }
+    }
+
+    #[test]
+    fn selectively_prefiltered_score_filter_correlates_to_candidate() {
+        let selector = ScoreSelector {
+            score: ScoreValue::Integer(-4),
+            comparison: ComparisonOperation::GreaterOrEqualThan,
+        };
+        let statement = page::Entity::find()
+            .filter(score_selector_condition(
+                &selector,
+                ScoreFilterPlan::CandidateCorrelated,
+            ))
+            .build(DatabaseBackend::Postgres);
+
+        assert!(statement.sql.contains("EXISTS (SELECT 1 FROM (SELECT"));
+        assert!(
+            statement
+                .sql
+                .contains("WHERE scored_page.page_id = page.page_id")
+        );
+        assert!(
+            statement
+                .sql
+                .contains("WHERE filtered_score.effective_score >= $1")
+        );
+        assert!(!statement.sql.contains("WHERE scored_page.site_id = $1"));
+    }
+
+    #[test]
+    fn repeated_score_selectors_share_one_aggregate_and_preserve_bind_order() {
+        const SITE_ID: i64 = 6_000_006;
+        let selectors = [
+            ScoreSelector {
+                score: ScoreValue::Integer(-4),
+                comparison: ComparisonOperation::GreaterOrEqualThan,
+            },
+            ScoreSelector {
+                score: ScoreValue::Float(1.5),
+                comparison: ComparisonOperation::LessThan,
+            },
+        ];
+
+        for (plan, expected_values, expected_conditions) in [
+            (
+                ScoreFilterPlan::CandidateCorrelated,
+                vec![Value::BigInt(Some(-4)), Value::Double(Some(1.5))],
+                "filtered_score.effective_score >= $1 AND filtered_score.effective_score < $2",
+            ),
+            (
+                ScoreFilterPlan::SiteWide { site_id: SITE_ID },
+                vec![
+                    Value::BigInt(Some(SITE_ID)),
+                    Value::BigInt(Some(-4)),
+                    Value::Double(Some(1.5)),
+                ],
+                "filtered_score.effective_score >= $2 AND filtered_score.effective_score < $3",
+            ),
+        ] {
+            let statement = page::Entity::find()
+                .filter(score_selectors_condition(&selectors, plan))
+                .build(DatabaseBackend::Postgres);
+
+            assert_eq!(statement.sql.matches("SUM(score_vote.value)").count(), 1);
+            assert_eq!(statement.sql.matches("FROM page scored_page").count(), 1);
+            assert!(
+                statement.sql.contains(expected_conditions),
+                "{}",
+                statement.sql
+            );
+            assert_eq!(statement.values.unwrap().0, expected_values);
+        }
+    }
+
+    #[test]
+    fn repeated_site_wide_score_key_materializes_once() {
+        let selectors = [ScoreSelector {
+            score: ScoreValue::Integer(30),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        }];
+        let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
+        let mut cache = PageQueryScoreFilterCache::default();
+
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::RepeatedUnmaterialized,
+        );
+        cache.insert(key.clone(), ScoreFilterMembership::Included(vec![11, 22]));
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::Materialized(ScoreFilterMembership::Included(vec![
+                11, 22
+            ]),),
+        );
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::Materialized(ScoreFilterMembership::Included(vec![
+                11, 22
+            ]),),
+        );
+    }
+
+    #[test]
+    fn score_filter_session_counts_batches_as_one_logical_use() {
+        let selectors = [ScoreSelector {
+            score: ScoreValue::Integer(-10),
+            comparison: ComparisonOperation::GreaterOrEqualThan,
+        }];
+        let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
+        let mut cache = PageQueryScoreFilterCache::default();
+        let mut first_module = PageQueryScoreFilterSession::default();
+
+        assert!(first_module.register_use(&key));
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
+        assert!(!first_module.register_use(&key));
+        assert_eq!(cache.lookup(&key, false), ScoreFilterCacheLookup::FirstUse);
+
+        let mut second_module = PageQueryScoreFilterSession::default();
+        assert!(second_module.register_use(&key));
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::RepeatedUnmaterialized,
+        );
+    }
+
+    #[test]
+    fn score_cache_separates_sites_comparisons_and_numeric_types() {
+        let integer = [ScoreSelector {
+            score: ScoreValue::Integer(30),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        }];
+        let float = [ScoreSelector {
+            score: ScoreValue::Float(30.0),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        }];
+        let strict = [ScoreSelector {
+            score: ScoreValue::Integer(30),
+            comparison: ComparisonOperation::LessThan,
+        }];
+        let mut cache = PageQueryScoreFilterCache::default();
+
+        for key in [
+            ScoreFilterCacheKey::new(1, &integer),
+            ScoreFilterCacheKey::new(2, &integer),
+            ScoreFilterCacheKey::new(1, &float),
+            ScoreFilterCacheKey::new(1, &strict),
+        ] {
+            assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
+        }
+    }
+
+    #[test]
+    fn cached_score_memberships_use_one_typed_array_predicate() {
+        for (membership, operator, page_ids) in [
+            (
+                ScoreFilterMembership::Included(Vec::<i64>::new()),
+                "= ANY",
+                Vec::<i64>::new(),
+            ),
+            (
+                ScoreFilterMembership::Included(vec![11, 22]),
+                "= ANY",
+                vec![11_i64, 22],
+            ),
+            (
+                ScoreFilterMembership::Excluded(Vec::<i64>::new()),
+                "!= ALL",
+                Vec::<i64>::new(),
+            ),
+            (
+                ScoreFilterMembership::Excluded(vec![11, 22]),
+                "!= ALL",
+                vec![11_i64, 22],
+            ),
+        ] {
+            let statement = page::Entity::find()
+                .filter(score_membership_condition(membership))
+                .build(DatabaseBackend::Postgres);
+
+            assert!(
+                statement
+                    .sql
+                    .contains(&format!("\"page\".\"page_id\" {operator}($1)")),
+                "{}",
+                statement.sql,
+            );
+            assert_eq!(statement.values.unwrap().0, vec![Value::from(page_ids)]);
+            assert!(!statement.sql.contains("random"));
+        }
+    }
+
+    #[test]
+    fn score_membership_prefers_the_side_containing_fewer_zero_scores() {
+        let broad = [ScoreSelector {
+            score: ScoreValue::Integer(-10),
+            comparison: ComparisonOperation::GreaterOrEqualThan,
+        }];
+        let narrow = [ScoreSelector {
+            score: ScoreValue::Integer(10),
+            comparison: ComparisonOperation::GreaterThan,
+        }];
+        let bounded_range = [
+            ScoreSelector {
+                score: ScoreValue::Float(-0.5),
+                comparison: ComparisonOperation::GreaterThan,
+            },
+            ScoreSelector {
+                score: ScoreValue::Float(0.5),
+                comparison: ComparisonOperation::LessThan,
+            },
+        ];
+
+        assert_eq!(score_membership_polarity_order(&broad), [true, false]);
+        assert_eq!(score_membership_polarity_order(&narrow), [false, true]);
+        assert_eq!(
+            score_membership_polarity_order(&bounded_range),
+            [true, false],
+        );
+    }
+
+    #[test]
+    fn excluded_score_membership_negates_the_complete_selector_conjunction() {
+        let selectors = [
+            ScoreSelector {
+                score: ScoreValue::Integer(-10),
+                comparison: ComparisonOperation::GreaterOrEqualThan,
+            },
+            ScoreSelector {
+                score: ScoreValue::Integer(30),
+                comparison: ComparisonOperation::LessOrEqualThan,
+            },
+        ];
+        let statement = page::Entity::find()
+            .filter(
+                score_selectors_condition(
+                    &selectors,
+                    ScoreFilterPlan::SiteWide { site_id: 6_000_006 },
+                )
+                .not(),
+            )
+            .build(DatabaseBackend::Postgres);
+
+        assert!(
+            statement.sql.contains("NOT (page.page_id IN"),
+            "{}",
+            statement.sql,
+        );
+        assert!(
+            statement.sql.contains(
+                "effective_score >= $2 AND filtered_score.effective_score <= $3"
+            )
+        );
+        assert_eq!(
+            statement.values.unwrap().0,
+            vec![
+                Value::BigInt(Some(6_000_006)),
+                Value::BigInt(Some(-10)),
+                Value::BigInt(Some(30))
+            ],
+        );
+    }
+
+    #[test]
+    fn materialized_score_ids_are_available_before_probe_without_state_updates() {
+        let selectors = [ScoreSelector {
+            score: ScoreValue::Integer(-10),
+            comparison: ComparisonOperation::GreaterOrEqualThan,
+        }];
+        let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
+        let mut cache = PageQueryScoreFilterCache::default();
+        let session = PageQueryScoreFilterSession::default();
+
+        assert_eq!(cache.materialized_membership(&key), None);
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
+        assert_eq!(cache.materialized_membership(&key), None);
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::RepeatedUnmaterialized,
+        );
+        assert_eq!(cache.materialized_membership(&key), None);
+        cache.insert(key.clone(), ScoreFilterMembership::Excluded(vec![11, 22]));
+        let seen_before = cache.seen.clone();
+
+        let membership = cache
+            .materialized_membership(&key)
+            .expect("materialized membership should bypass the candidate probe");
+        let statement = page::Entity::find()
+            .filter(score_membership_condition(membership))
+            .build(DatabaseBackend::Postgres);
+
+        assert!(statement.sql.contains("\"page\".\"page_id\" != ALL($1)"));
+        assert_eq!(
+            statement.values.unwrap().0,
+            vec![Value::from(vec![11_i64, 22])]
+        );
+        assert_eq!(cache.seen, seen_before);
+        assert!(session.seen.is_empty());
+    }
+
+    #[test]
+    fn cached_score_ids_do_not_replace_independent_random_ordering() {
+        let statement = page::Entity::find()
+            .filter(score_membership_condition(ScoreFilterMembership::Included(
+                vec![11, 22],
+            )))
+            .order_by_desc(SimpleExpr::FunctionCall(Func::random()))
+            .build(DatabaseBackend::Postgres);
+
+        assert!(statement.sql.contains("\"page\".\"page_id\" = ANY($1)"));
+        assert!(statement.sql.contains("ORDER BY RANDOM() DESC"));
+    }
+
+    #[test]
+    fn correlated_score_plan_remains_outside_the_site_wide_cache() {
+        let cache = PageQueryScoreFilterCache::default();
+        assert_eq!(
+            score_filter_plan_from_probe(6_000_006, MAX_CORRELATED_SCORE_CANDIDATES),
+            ScoreFilterPlan::CandidateCorrelated,
+        );
+        assert!(cache.seen.is_empty());
+        assert!(cache.memberships.is_empty());
+    }
+
+    #[test]
+    fn score_cache_id_limit_accepts_boundary_and_rejects_limit_plus_one() {
+        let boundary = vec![0; MAX_CACHED_SCORE_FILTER_PAGE_IDS];
+        assert_eq!(
+            bounded_score_page_ids(boundary).map(|page_ids| page_ids.len()),
+            Some(MAX_CACHED_SCORE_FILTER_PAGE_IDS),
+        );
+        assert!(
+            bounded_score_page_ids(vec![0; MAX_CACHED_SCORE_FILTER_PAGE_IDS + 1])
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn uncacheable_score_key_stays_on_the_site_wide_fallback() {
+        let selectors = [ScoreSelector {
+            score: ScoreValue::Integer(30),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        }];
+        let key = ScoreFilterCacheKey::new(6_000_006, &selectors);
+        let mut cache = PageQueryScoreFilterCache::default();
+
+        assert_eq!(cache.lookup(&key, true), ScoreFilterCacheLookup::FirstUse);
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::RepeatedUnmaterialized,
+        );
+        cache.insert(key.clone(), ScoreFilterMembership::Included(vec![11, 22]));
+        cache.mark_uncacheable(key.clone());
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::Uncacheable
+        );
+        assert_eq!(
+            cache.lookup(&key, true),
+            ScoreFilterCacheLookup::Uncacheable
+        );
+        assert_eq!(cache.materialized_membership(&key), None);
+        assert!(cache.memberships.is_empty());
+    }
 }

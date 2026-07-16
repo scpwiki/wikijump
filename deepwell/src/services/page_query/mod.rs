@@ -32,4 +32,5 @@ mod structs;
 pub use self::count_pages::*;
 pub use self::list_pages::*;
 pub use self::service::PageQueryService;
+pub(crate) use self::service::{PageQueryScoreFilterCache, PageQueryScoreFilterSession};
 pub use self::structs::*;

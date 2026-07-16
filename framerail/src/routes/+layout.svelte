@@ -102,7 +102,7 @@
 <svelte:head>
   <title>{viewData?.site?.name}</title>
   {#if currentLayout === Layout.WIKIDOT}
-    <link href="/wikidot/styles/wikidot-base-c76c6921c8d6.css" rel="stylesheet" />
+    <link href="/wikidot/styles/wikidot-base-165bc434fd1d.css" rel="stylesheet" />
     <link href="/wikidot/styles/pagerate-db0bffe086ed.css" rel="stylesheet" />
     <link href="/wikidot/styles/sigma-fe5388a32e12.css" rel="stylesheet" />
   {/if}

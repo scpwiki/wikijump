@@ -2,6 +2,7 @@
 
 use crate::services::page_query::FoundPageFields;
 use regex::Regex;
+use std::collections::BTreeSet;
 use std::sync::LazyLock;
 
 pub(super) static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -100,6 +101,7 @@ pub(super) struct ListPagesTemplatePlan {
     body: String,
     variables: ListPagesVariables,
     fields: FoundPageFields,
+    content_sections: BTreeSet<Option<usize>>,
     output_shape: ListPagesOutputShape,
     rating_only: bool,
     #[cfg(test)]
@@ -109,6 +111,7 @@ pub(super) struct ListPagesTemplatePlan {
 impl ListPagesTemplatePlan {
     pub(super) fn compile(body: &str) -> Option<Self> {
         let mut variables = ListPagesVariables::default();
+        let mut content_sections = BTreeSet::new();
         let mut variable_count = 0;
         let mut rating_only = true;
 
@@ -120,12 +123,20 @@ impl ListPagesTemplatePlan {
             variable_count += 1;
             rating_only &= variable == ListPagesVariable::Rating;
             variables.insert(variable);
+            if variable == ListPagesVariable::Content {
+                content_sections.insert(
+                    captures
+                        .name("argument")
+                        .and_then(|matched| matched.as_str().parse().ok()),
+                );
+            }
         }
 
         Some(Self {
             body: body.to_owned(),
             variables,
             fields: found_page_fields(variables),
+            content_sections,
             output_shape: output_shape(body),
             rating_only: variable_count > 0 && rating_only,
             #[cfg(test)]
@@ -182,6 +193,10 @@ impl ListPagesTemplatePlan {
 
     pub(super) fn uses_content(&self) -> bool {
         self.variables.contains(ListPagesVariable::Content)
+    }
+
+    pub(super) fn content_sections(&self) -> &BTreeSet<Option<usize>> {
+        &self.content_sections
     }
 
     pub(super) fn uses_data_form(&self) -> bool {
@@ -262,6 +277,7 @@ mod tests {
         assert!(plan.uses_commented_by());
         assert!(plan.uses_commented_at());
         assert!(plan.uses_content());
+        assert_eq!(plan.content_sections(), &BTreeSet::from([None]));
         assert!(plan.uses_data_form());
         assert_eq!(plan.variable_traversals(), 1);
         assert_eq!(
@@ -286,6 +302,19 @@ mod tests {
         assert!(ListPagesTemplatePlan::compile("%%unsupported%%").is_none());
         assert!(ListPagesTemplatePlan::compile("%%form_data%%").is_none());
         assert!(ListPagesTemplatePlan::compile("%%form_raw%%").is_none());
+    }
+
+    #[test]
+    fn records_distinct_content_sections_during_compilation() {
+        let plan = ListPagesTemplatePlan::compile(
+            "%%content{2}%% %%content{4}%% %%content{2}%% %%content%%",
+        )
+        .expect("content sections should compile");
+
+        assert_eq!(
+            plan.content_sections(),
+            &BTreeSet::from([None, Some(2), Some(4)]),
+        );
     }
 
     #[test]

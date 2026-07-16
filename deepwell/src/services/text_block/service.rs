@@ -39,11 +39,15 @@ use crate::models::text_block::{
     self, Entity as TextBlockTable, Model as TextBlockModel,
 };
 use crate::types::TextBlockType;
+use futures::{StreamExt, stream::FuturesUnordered};
 use sea_orm::ActiveEnum;
 use std::collections::HashSet;
 
 /// Keep each SeaORM insert well below PostgreSQL's 65,535 bind-parameter limit.
 const TEXT_BLOCK_INSERT_BATCH_SIZE: usize = 1_000;
+
+/// Bound concurrent object-store writes while avoiding one network round trip per block.
+const TEXT_BLOCK_UPLOAD_CONCURRENCY: usize = 16;
 
 /// Write out the S3 filename for this hosted text block.
 ///
@@ -126,13 +130,6 @@ impl TextBlockService {
         let bucket = ctx.s3_tblocks_bucket();
         let mut buffer = String::new();
 
-        macro_rules! filename {
-            ($index:expr) => {{
-                format_filename!(buffer, page_id, $index, block_type);
-                &buffer
-            }};
-        }
-
         // First, get the stored filenames for this block type.
         // After the new blocks are uploaded, old filenames not present in the
         // replacement batch are removed from S3.
@@ -154,12 +151,11 @@ impl TextBlockService {
         // range errors must happen before the first upload.
         let max_index = max_text_block_index(blocks.len()).or_raise(make_error)?;
 
-        // Upload the new text blocks to S3.
-        // This also replaces any existing S3 objects with the same filename.
-        //
-        // While we're at it, we can also create the models to be
-        // inserted to the database.
-
+        // Prepare and validate the complete replacement before starting external
+        // writes. The object-store uploads then run with bounded concurrency so a
+        // page containing many hosted blocks does not pay one network round trip
+        // after another.
+        let mut uploads = Vec::with_capacity(blocks.len());
         let mut models = Vec::with_capacity(blocks.len());
         let mut new_filenames = HashSet::with_capacity(blocks.len());
         let mut previous_block_names = HashSet::with_capacity(blocks.len());
@@ -171,14 +167,6 @@ impl TextBlockService {
                 mut name,
             } = block;
 
-            // Upload text block to S3
-            let filename = filename!(index);
-            debug!("Uploading new S3 text block {filename} ({mime})");
-            bucket
-                .put_object_with_content_type(filename, text.as_bytes(), mime)
-                .await
-                .or_raise(make_error)?;
-
             // Deny invalid block names
             if let Some(mut value) = name {
                 value = value.trim();
@@ -187,15 +175,37 @@ impl TextBlockService {
                 }
             }
 
+            format_filename!(buffer, page_id, index, block_type);
+            let filename = buffer.clone();
+            uploads.push((filename.clone(), text, mime));
+
             models.push(text_block::ActiveModel {
                 block_type: Set(block_type),
                 page_id: Set(page_id),
                 block_index: Set(index),
-                s3_filename: Set(filename.to_owned()),
+                s3_filename: Set(filename.clone()),
                 block_name: Set(name.map(String::from)),
                 text_type: Set(text_type.map(String::from)),
             });
-            new_filenames.insert(filename.to_owned());
+            new_filenames.insert(filename);
+        }
+
+        let mut pending_uploads = FuturesUnordered::new();
+        for (filename, text, mime) in &uploads {
+            pending_uploads.push(async move {
+                debug!("Uploading new S3 text block {filename} ({mime})");
+                bucket
+                    .put_object_with_content_type(filename, text.as_bytes(), mime)
+                    .await
+            });
+            if pending_uploads.len() == TEXT_BLOCK_UPLOAD_CONCURRENCY {
+                while let Some(result) = pending_uploads.next().await {
+                    result.or_raise(make_error)?;
+                }
+            }
+        }
+        while let Some(result) = pending_uploads.next().await {
+            result.or_raise(make_error)?;
         }
 
         // Then, delete the blocks from the database.
@@ -488,6 +498,11 @@ mod tests {
         let bound_parameters = TEXT_BLOCK_INSERT_BATCH_SIZE * bound_columns_per_row;
 
         assert!(bound_parameters <= u16::MAX as usize);
+    }
+
+    #[test]
+    fn object_store_upload_concurrency_is_bounded() {
+        assert!((1..=32).contains(&TEXT_BLOCK_UPLOAD_CONCURRENCY));
     }
 
     #[test]

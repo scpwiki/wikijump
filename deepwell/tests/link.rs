@@ -82,7 +82,11 @@ async fn create_page(
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert!(output.parser_errors.is_empty(), "unexpected parser errors");
+    assert!(
+        output.parser_errors.is_empty(),
+        "unexpected parser errors: {:?}",
+        output.parser_errors,
+    );
 
     PageTable::find_by_id(output.page_id)
         .one(runner.context().transaction())

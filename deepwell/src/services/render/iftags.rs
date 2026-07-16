@@ -115,7 +115,7 @@ fn resolve_outermost_wikidot_iftags_with_mode(
             if unmatched_mode == UnmatchedBoundaryMode::Preserve {
                 replacements.push(Replacement {
                     range: token.start()..token.end(),
-                    text: preserved.push(&escape_html(token.as_str())),
+                    text: preserved.push_escaped_html_text(token.as_str()),
                 });
             }
             continue;
@@ -168,7 +168,7 @@ fn resolve_outermost_wikidot_iftags_with_mode(
             replacements.push(Replacement {
                 range: unclosed.start..unclosed.end,
                 text: preserved
-                    .push(&escape_html(&wikitext[unclosed.start..unclosed.end])),
+                    .push_escaped_html_text(&wikitext[unclosed.start..unclosed.end]),
             });
         }
     }
@@ -200,26 +200,11 @@ fn preserve_nested_tokens(
     for token in tokens {
         debug_assert!(body.start <= token.start && token.end <= body.end);
         output.push_str(&source[cursor..token.start]);
-        output.push_str(&preserved.push(&escape_html(&source[token.clone()])));
+        output.push_str(&preserved.push_escaped_html_text(&source[token.clone()]));
         cursor = token.end;
     }
     output.push_str(&source[cursor..body.end]);
     output
-}
-
-fn escape_html(value: &str) -> String {
-    let mut escaped = String::with_capacity(value.len());
-    for character in value.chars() {
-        match character {
-            '&' => escaped.push_str("&amp;"),
-            '<' => escaped.push_str("&lt;"),
-            '>' => escaped.push_str("&gt;"),
-            '"' => escaped.push_str("&quot;"),
-            '\'' => escaped.push_str("&#39;"),
-            _ => escaped.push(character),
-        }
-    }
-    escaped
 }
 
 pub(super) fn wikidot_tag_conditions_match(spec: &str, tags: &[Cow<'_, str>]) -> bool {

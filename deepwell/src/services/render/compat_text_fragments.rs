@@ -32,6 +32,10 @@ impl CompatTextFragments {
         format!("{}{index}X", self.namespace)
     }
 
+    pub(super) fn push_escaped_html_text(&mut self, text: &str) -> String {
+        self.push(&escape_html_text(text))
+    }
+
     pub(super) fn restore(&self, text: &str) -> String {
         if self.fragments.is_empty() || !text.contains(&self.namespace) {
             return text.to_owned();
@@ -66,6 +70,21 @@ impl CompatTextFragments {
     }
 }
 
+fn escape_html_text(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '&' => escaped.push_str("&amp;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '"' => escaped.push_str("&quot;"),
+            '\'' => escaped.push_str("&#39;"),
+            _ => escaped.push(character),
+        }
+    }
+    escaped
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -95,5 +114,21 @@ mod tests {
         assert_eq!(fragments.restore(&valid), "{$valid}");
         assert_eq!(fragments.restore(&malformed), malformed);
         assert_eq!(fragments.restore(&out_of_range), out_of_range);
+    }
+
+    #[test]
+    fn escaped_html_text_uses_the_same_unforgeable_registry() {
+        let authored_marker =
+            format!("{COMPAT_TEXT_MARKER_PREFIX}ffffffffffffffffffffffffffffffffI0X");
+        let mut fragments = CompatTextFragments::new(&authored_marker);
+        let dangerous = fragments.push_escaped_html_text("<script>&\"'");
+        let second = fragments.push_escaped_html_text("[[module ListPages]]");
+
+        assert_eq!(
+            fragments.restore(&format!("{dangerous}|{second}|{authored_marker}")),
+            format!(
+                "&lt;script&gt;&amp;&quot;&#39;|[[module ListPages]]|{authored_marker}"
+            ),
+        );
     }
 }

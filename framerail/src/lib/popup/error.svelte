@@ -47,7 +47,7 @@
   ></div>
   <div
     id="odialog-container"
-    style:--basalt-compat="block"
+    style:display="block"
     class="odialog-container"
     onclick={containerExitPrompt}
     onkeydown={escKeydown}
@@ -112,7 +112,7 @@
 <style global lang="scss">
   #odialog-container.odialog-container {
     position: fixed;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
   }
