@@ -76,6 +76,7 @@ test("self redirects fail closed even when a fragment is present", () => {
 })
 
 test("unsupported runtime redirect locations fail closed", () => {
+  // eslint-disable-next-line no-script-url -- this negative fixture must exercise script URL rejection
   for (const location of ["target", "//evil.test/path", "javascript:alert(1)"]) {
     assert.equal(
       resolvePageRedirect(

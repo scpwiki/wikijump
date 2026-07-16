@@ -10,6 +10,7 @@
     buildGeneratedPageStylesHead,
     getPageFontPreloadHrefs
   } from "$lib/generated-page-styles"
+  import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
   import { wikidotTabviews } from "$lib/wikidot-tabviews"
 
   import type { PageProps } from "./$types"
@@ -36,6 +37,13 @@
   let VotePane = $state<typeof import("./VotePane.svelte").default>()
   let wikidotPageActions = $derived(data.wikidot_page_actions)
   let wikidotPageWatch = $derived(data.wikidot_page_watch)
+  let isDirectWikidotFragmentPage = $derived(
+    pageLayoutContext.current === Layout.WIKIDOT &&
+      !data.options?.debug &&
+      !data.options?.no_render &&
+      !showRevision &&
+      isWikidotFragmentPage(data.page_revision?.tags)
+  )
   const breadcrumbSeparator = " » "
   let compiledBodyStyles = $derived(
     data.options?.debug || data.options?.no_render
