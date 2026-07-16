@@ -4468,7 +4468,7 @@ impl RenderService {
                     &attachment_variable_owners,
                     &mut include_source_cache.attachment_provenance,
                 );
-                apply_include_variables_before_resolving_iftags(
+                prepare_include_source_variables_and_comment_branches(
                     &mut source.wikitext,
                     &include,
                     expansion_context.page_info,
@@ -12993,6 +12993,19 @@ fn apply_include_variables_before_resolving_iftags(
     resolve_include_variable_iftags(content, include.variables(), page_info);
 }
 
+fn prepare_include_source_variables_and_comment_branches(
+    content: &mut String,
+    include: &IncludeRef<'_>,
+    page_info: &PageInfo<'_>,
+) {
+    apply_include_variables_before_resolving_iftags(content, include, page_info);
+    // A comment branch is local to the included source once its callsite
+    // variables are bound. Remove inactive branches before recursively
+    // preparing that source so their conditional and include delimiters
+    // cannot pair with delimiters from sibling expansions.
+    remove_unresolved_include_comment_branches(content);
+}
+
 fn trim_include_variable_value(value: &str) -> &str {
     value.trim_end_matches([' ', '\t', '\r', '\n'])
 }
@@ -13433,7 +13446,7 @@ mod tests {
         let mut page_info = fallback_test_page_info("consumer", "Consumer");
         page_info.tags = tags.iter().map(|&tag| Cow::Borrowed(tag)).collect();
         let mut source = source.to_owned();
-        super::apply_include_variables_before_resolving_iftags(
+        super::prepare_include_source_variables_and_comment_branches(
             &mut source,
             &include,
             &page_info,
@@ -19801,6 +19814,80 @@ mod tests {
             prepare_test_nested_include_conditionals(malformed, &[], &[]),
             malformed,
         );
+    }
+
+    #[test]
+    fn nested_include_preparation_prunes_comment_branches_before_iftags() {
+        // Reduced from EN:component:blacklight-box-source. The inactive
+        // branches must be removed while each include invocation is still an
+        // independent source; otherwise repeated fragments can leave their
+        // outer gates to cross-pair after textual assembly.
+        let source = concat!(
+            "[[iftags -component-backend]]\n",
+            "[!-- {$inc-source}\n",
+            "[[module css]]source[[/module]]\n",
+            "[!----]\n",
+            "[!-- {$inc-colors}\n",
+            "[[module css]]colors[[/module]]\n",
+            "[!----]\n",
+            "[!-- {$inc-section-start}\n",
+            "[[div class=\"section\"]]\n",
+            "[!----]\n",
+            "[!-- {$inc-section-end}\n",
+            "[[/div]]\n",
+            "[!----]\n",
+            "[[/iftags]]\n",
+            "[[iftags +component-backend]]documentation[[/iftags]]\n",
+        );
+
+        let source_fragment = prepare_test_nested_include_conditionals(
+            source,
+            &[("inc-source", "--]")],
+            &[],
+        );
+        let start_fragment = prepare_test_nested_include_conditionals(
+            source,
+            &[("inc-section-start", "--]")],
+            &[],
+        );
+        let end_fragment = prepare_test_nested_include_conditionals(
+            source,
+            &[("inc-section-end", "--]")],
+            &[],
+        );
+        let assembled = format!("{source_fragment}{start_fragment}body\n{end_fragment}");
+
+        assert!(source_fragment.contains("source"), "{source_fragment}");
+        assert!(start_fragment.contains("[[div class=\"section\"]]"));
+        assert!(end_fragment.contains("[[/div]]"));
+        assert!(!assembled.contains("colors"), "{assembled}");
+        assert!(!assembled.contains("documentation"), "{assembled}");
+        assert!(!assembled.contains("{$"), "{assembled}");
+        assert!(!assembled.contains("[!--"), "{assembled}");
+        assert!(!assembled.contains("[[iftags"), "{assembled}");
+        assert!(!assembled.contains("[[/iftags]]"), "{assembled}");
+    }
+
+    #[test]
+    fn include_source_preparation_preserves_unbounded_malformed_comment_branch() {
+        let original = concat!(
+            "before\n",
+            "[!-- {$inc-section-end}\n",
+            "[[/div]]\n",
+            "after\n",
+        );
+        let include =
+            IncludeRef::new(PageRef::page_only("component:test"), VariableMap::new());
+        let page_info = fallback_test_page_info("consumer", "Consumer");
+        let mut source = original.to_owned();
+
+        super::prepare_include_source_variables_and_comment_branches(
+            &mut source,
+            &include,
+            &page_info,
+        );
+
+        assert_eq!(source, original);
     }
 
     #[test]
