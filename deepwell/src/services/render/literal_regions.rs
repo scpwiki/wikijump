@@ -44,6 +44,7 @@ pub(super) use self::token_boundaries::{
     rollback_start_in_left_run, scan_wikidot_whole_head_value,
     wikidot_right_bracket_token, wikidot_trimmed_name,
 };
+use self::wikidot::collect_wikidot_conditional_literal_ranges;
 pub(super) use self::wikidot::{double_quote_ends_wikidot_argument, quote_is_escaped};
 use regex::Regex;
 use std::ops::Range;
@@ -85,6 +86,20 @@ impl LiteralRegionIndex {
 
     pub(super) fn new_wikidot_syntax(source: &str) -> Self {
         Self::build(source, false)
+    }
+
+    /// Literal regions used while pairing Wikidot conditional boundaries.
+    ///
+    /// Balanced inline raw text is confined to its physical line for this
+    /// pass, while an unmatched `@@` owns no literal region. This matches FTML
+    /// compatibility scanning and prevents an unmatched opener from hiding a
+    /// conditional boundary. Other literals retain fail-closed behavior.
+    pub(super) fn new_wikidot_conditional_syntax(source: &str) -> Self {
+        let mut ranges = Vec::new();
+        collect_wikidot_conditional_literal_ranges(source, &mut ranges);
+        Self {
+            ranges: coalesce_sorted_ranges(ranges),
+        }
     }
 
     /// Legacy literal ownership used while expanding CountPages modules.

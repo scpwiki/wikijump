@@ -99,7 +99,7 @@ fn resolve_include_variable_iftags_with_tags(
         return;
     }
 
-    let literal_regions = LiteralRegionIndex::new_wikidot_syntax(source);
+    let literal_regions = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
     let Some(roots) = parse_dynamic_roots(source, &literal_regions) else {
         return;
     };
@@ -367,6 +367,29 @@ mod tests {
     fn ignores_tokens_in_literal_regions() {
         let source = "[[code]]\n[[ift{$mode}gs +theme]]yes[[/ift{$mode}gs]]\n[[/code]]";
         assert_eq!(resolve(source, &[("mode", "a")], &["theme"]), source);
+    }
+
+    #[test]
+    fn unmatched_inline_raw_does_not_hide_dynamic_closer() {
+        let source = "[[ift{$mode}gs +theme]]documentation @@ prose [[/ift{$mode}gs]]";
+        assert_eq!(resolve(source, &[("mode", "a")], &[]), "");
+        assert_eq!(
+            resolve(source, &[("mode", "a")], &["theme"]),
+            "documentation @@ prose ",
+        );
+    }
+
+    #[test]
+    fn balanced_inline_raw_dynamic_closer_remains_literal() {
+        let source = concat!(
+            "[[ift{$mode}gs +theme]]",
+            "@@[[/ift{$mode}gs]]@@selected",
+            "[[/ift{$mode}gs]]",
+        );
+        assert_eq!(
+            resolve(source, &[("mode", "a")], &["theme"]),
+            "@@[[/ift{$mode}gs]]@@selected",
+        );
     }
 
     #[test]

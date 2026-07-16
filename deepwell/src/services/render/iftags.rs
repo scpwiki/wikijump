@@ -75,7 +75,7 @@ fn resolve_outermost_wikidot_iftags_with_mode(
     preserved: &mut CompatTextFragments,
     unmatched_mode: UnmatchedBoundaryMode,
 ) {
-    let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
+    let literal_regions = LiteralRegionIndex::new_wikidot_conditional_syntax(wikitext);
     let mut stack = Vec::<OpenGate>::new();
     let mut replacements = Vec::<Replacement>::new();
 
@@ -460,6 +460,122 @@ mod tests {
                 "[[code]]\n[[iftags +alpha]]literal[[/iftags]]\n[[/code]]\n",
                 "active\n",
             ),
+        );
+    }
+
+    #[test]
+    fn unmatched_inline_raw_does_not_hide_later_inactive_closer() {
+        let source = concat!(
+            "before\n",
+            "[[iftags +component]]\n",
+            "documentation\n",
+            "* Escaping with @@\n",
+            "[[/iftags]]\n",
+            "after\n",
+        );
+        assert_eq!(resolve(source, &[], 1), "before\n\nafter\n");
+    }
+
+    #[test]
+    fn unmatched_inline_raw_does_not_hide_later_active_closer() {
+        let source = concat!(
+            "[[iftags +component]]\n",
+            "documentation\n",
+            "* Escaping with @@\n",
+            "[[/iftags]]\n",
+        );
+        assert_eq!(
+            resolve(source, &["component"], 1),
+            "\ndocumentation\n* Escaping with @@\n\n",
+        );
+    }
+
+    #[test]
+    fn unmatched_inline_raw_does_not_hide_same_line_inactive_closer() {
+        let source =
+            "before [[iftags +component]]documentation @@ prose [[/iftags]] after";
+        assert_eq!(resolve(source, &[], 1), "before  after");
+    }
+
+    #[test]
+    fn unmatched_inline_raw_does_not_hide_same_line_active_closer() {
+        let source = "[[iftags +component]]documentation @@ prose [[/iftags]]";
+        assert_eq!(
+            resolve(source, &["component"], 1),
+            "documentation @@ prose ",
+        );
+    }
+
+    #[test]
+    fn balanced_inline_raw_closer_does_not_close_active_gate() {
+        let source = concat!(
+            "[[iftags +component]]\n",
+            "@@[[/iftags]]@@\n",
+            "selected\n",
+            "[[/iftags]]\n",
+        );
+        assert_eq!(
+            resolve(source, &["component"], 1),
+            "\n@@[[/iftags]]@@\nselected\n\n",
+        );
+    }
+
+    #[test]
+    fn block_literal_closer_does_not_close_active_gate() {
+        let source = concat!(
+            "[[iftags +component]]\n",
+            "[[code]]\n[[/iftags]]\n[[/code]]\n",
+            "selected\n",
+            "[[/iftags]]\n",
+        );
+        assert_eq!(
+            resolve(source, &["component"], 1),
+            "\n[[code]]\n[[/iftags]]\n[[/code]]\nselected\n\n",
+        );
+    }
+
+    #[test]
+    fn special_inline_raw_run_does_not_hide_real_closer() {
+        let source = "[[iftags +component]]@@@@@@[[/iftags]]@@";
+        assert_eq!(resolve(source, &[], 1), "@@");
+        assert_eq!(resolve(source, &["component"], 1), "@@@@@@@@");
+    }
+
+    #[test]
+    fn url_owned_raw_delimiter_does_not_hide_real_closer() {
+        let source = "[[iftags +component]]https://e.test/a@@b[[/iftags]]@@tail";
+        assert_eq!(resolve(source, &[], 1), "@@tail");
+        assert_eq!(
+            resolve(source, &["component"], 1),
+            "https://e.test/a@@b@@tail",
+        );
+    }
+
+    #[test]
+    fn raw_delimiter_in_tag_head_does_not_hide_real_closer() {
+        let source = "[[iftags +x]][[div data=\"@@\"]]body[[/iftags]]@@tail";
+        assert_eq!(resolve(source, &[], 1), "@@tail");
+        assert_eq!(resolve(source, &["x"], 1), "[[div data=\"@@\"]]body@@tail",);
+    }
+
+    #[test]
+    fn url_owned_comment_closer_does_not_expose_conditional_closer() {
+        let source = "[[iftags +x]][!-- https://e.test/a--] [[/iftags]] --]";
+        assert_eq!(resolve(source, &[], 1), source);
+        assert_eq!(resolve(source, &["x"], 1), source);
+    }
+
+    #[test]
+    fn malformed_block_closer_does_not_expose_conditional_closer() {
+        let source = concat!(
+            "[[iftags +x]][[code]]\n",
+            "[[/code]]]\n[[/iftags]]\n",
+            "[[/code]]\n[[/iftags]]",
+        );
+        assert_eq!(resolve(source, &[], 1), "");
+        assert_eq!(
+            resolve(source, &["x"], 1),
+            "[[code]]\n[[/code]]]\n[[/iftags]]\n[[/code]]\n",
         );
     }
 

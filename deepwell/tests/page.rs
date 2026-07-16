@@ -1010,6 +1010,97 @@ async fn wikidot_site_include_uses_local_dependency_page_for_site_qualified_incl
 }
 
 #[tokio::test]
+async fn included_iftags_closer_survives_unmatched_inline_raw_on_an_earlier_line() {
+    const COMPONENT_SLUG: &str = "component:fixture-iftags-unmatched-inline-raw";
+    const CONSUMER_SLUG: &str = "fixture-iftags-unmatched-inline-raw-consumer";
+    const PREVIEW_MARKER: &str = "Fixture preview payload marker";
+    const DOCUMENTATION_MARKER: &str = "Fixture component documentation must not leak";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let component_wikitext = [
+        "[[div class=\"preview\"]]\n",
+        "{$text}\n",
+        "[[/div]]\n",
+        "[[iftags +component]]\n",
+        DOCUMENTATION_MARKER,
+        "\n* Escaping with @@\n",
+        "[[/iftags]]\n",
+    ]
+    .concat();
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(COMPONENT_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": component_wikitext,
+            "title": "Conditional Include Fixture",
+            "alt_title": null,
+            "slug": COMPONENT_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create conditional include fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(CONSUMER_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": format!("[[include {COMPONENT_SLUG} | text={PREVIEW_MARKER}]]\n"),
+            "title": "Conditional Include Consumer",
+            "alt_title": null,
+            "slug": CONSUMER_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create conditional include consumer",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site.site.site_id,
+            "page": CONSUMER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("conditional include consumer should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains(PREVIEW_MARKER),
+        "preview payload should remain: {html}"
+    );
+    assert!(
+        !html.contains(DOCUMENTATION_MARKER)
+            && !html.contains("[[iftags")
+            && !html.contains("[[/iftags]]"),
+        "inactive component documentation and its boundaries must be absent: {html}",
+    );
+}
+
+#[tokio::test]
 async fn nested_include_image_blocks_keep_their_attachment_page_owner() {
     const SITE_SLUG: &str = "scp-wiki";
     const FRAGMENT_SLUG: &str = "fragment:attachment-owner-leaf";

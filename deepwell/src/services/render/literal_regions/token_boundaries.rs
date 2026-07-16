@@ -240,7 +240,6 @@ fn scan_url(bytes: &[u8], start: usize) -> Option<usize> {
     (end > body_start).then_some(end)
 }
 
-#[cfg(test)]
 pub(super) fn right_raw_is_token(bytes: &[u8], start: usize) -> bool {
     if bytes.get(start.wrapping_sub(1)) == Some(&b'>') {
         return false;
@@ -257,13 +256,11 @@ pub(super) fn comment_close_is_token(bytes: &[u8], start: usize) -> bool {
     bytes.get(start.wrapping_sub(1)) != Some(&b'-')
 }
 
-#[cfg(test)]
 pub(super) fn block_close_is_token(bytes: &[u8], start: usize, end: usize) -> bool {
     left_block_start_in_run(bytes, start).0 == Some(start)
         && right_bracket_token(bytes, end - 2, bytes.len()) == (true, 2)
 }
 
-#[cfg(test)]
 pub(super) fn find_token_unowned_delimiter(
     source: &str,
     start: usize,
@@ -282,7 +279,6 @@ pub(super) fn find_token_unowned_delimiter(
     None
 }
 
-#[cfg(test)]
 pub(super) fn find_right_raw(source: &str, start: usize, end: usize) -> Option<usize> {
     let bytes = source.as_bytes();
     let mut cursor = start;
@@ -296,7 +292,6 @@ pub(super) fn find_right_raw(source: &str, start: usize, end: usize) -> Option<u
     None
 }
 
-#[cfg(test)]
 pub(super) fn find_block_close(
     source: &str,
     start: usize,
