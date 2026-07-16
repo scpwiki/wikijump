@@ -4,7 +4,6 @@ import test from "node:test"
 import {
   buildWikidotPageActionLabels,
   formatSigned,
-  isWikidotFragmentPage,
   sourceShowsStandardWikidotPageActions
 } from "../src/lib/wikidot-page-actions.js"
 
@@ -100,12 +99,4 @@ test("detects imported source sites without standard page actions", () => {
   assert.equal(sourceShowsStandardWikidotPageActions("sandbox-for-codex"), false)
   assert.equal(sourceShowsStandardWikidotPageActions("scp-wiki"), true)
   assert.equal(sourceShowsStandardWikidotPageActions(null), true)
-})
-
-test("detects direct Wikidot fragment pages from page tags", () => {
-  assert.equal(isWikidotFragmentPage(["fragment"]), true)
-  assert.equal(isWikidotFragmentPage(["scp", "fragment"]), true)
-  assert.equal(isWikidotFragmentPage(["scp"]), false)
-  assert.equal(isWikidotFragmentPage([]), false)
-  assert.equal(isWikidotFragmentPage(null), false)
 })

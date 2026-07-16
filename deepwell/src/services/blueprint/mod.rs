@@ -31,6 +31,7 @@ mod prelude {
 
 mod service;
 mod structs;
+mod template;
 
 pub use self::service::BlueprintPageService;
 pub use self::structs::*;

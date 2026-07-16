@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use super::template::{compose_template, exact_template_slug};
 use crate::models::site::Model as SiteModel;
 use crate::services::{PageRevisionService, PageService, RenderService, TextService};
 use crate::types::Reference;
@@ -74,10 +75,15 @@ impl BlueprintPageService {
         // exists is the one that's used.
         let config = ctx.config();
         let (slugs, translate_key) = match blueprint_type {
-            // TODO: Figure out exact template ordering (e.g. _template vs cat:_template)
-            //       See https://scuttle.atlassian.net/browse/WJ-1201
             BlueprintPageType::Template => {
-                (vec![cow!(config.blueprint_page_template)], "")
+                let slug = exact_template_slug(
+                    page_info.category.as_deref(),
+                    page_info.page.as_ref(),
+                    &config.blueprint_page_template,
+                )
+                .ok_or_else(|| make_error())?;
+
+                (vec![slug], "")
             }
             BlueprintPageType::Missing => {
                 let slugs = Self::slugs_with_category(
@@ -128,6 +134,53 @@ impl BlueprintPageService {
         })
     }
 
+    /// Applies the exact category template to raw page source before rendering.
+    ///
+    /// This does not modify the stored revision source. A missing exact template
+    /// is the identity operation, including when a named category has a default
+    /// `_template` page available.
+    pub(crate) async fn apply_page_template(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        category: Option<&str>,
+        page: &str,
+        wikitext: String,
+    ) -> Result<String> {
+        let Some(template) =
+            Self::get_page_template(ctx, site_id, category, page).await?
+        else {
+            return Ok(wikitext);
+        };
+
+        Ok(compose_template(&template, &wikitext))
+    }
+
+    /// Gets the stored source for the exact template that applies to a page.
+    pub(crate) async fn get_page_template(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        category: Option<&str>,
+        page: &str,
+    ) -> Result<Option<String>> {
+        let template_page = &ctx.config().blueprint_page_template;
+        let Some(template_slug) = exact_template_slug(category, page, template_page)
+        else {
+            return Ok(None);
+        };
+
+        Self::get_page_wikitext_optional(ctx, site_id, template_slug.as_ref())
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to get page template '{}' on site ID {}",
+                        template_slug, site_id,
+                    ),
+                    ErrorType::BlueprintPage,
+                )
+            })
+    }
+
     fn slugs_with_category<'a>(
         base_slug: &'a str,
         page_category: Option<&'a str>,
@@ -176,23 +229,17 @@ impl BlueprintPageService {
 
         // Try all the pages listed.
         for slug in slugs {
-            if let Some(page) =
-                PageService::get_optional(ctx, site_id, Reference::Slug(cow!(slug)))
+            if let Some(text) =
+                Self::get_page_wikitext_optional(ctx, site_id, slug.as_ref())
                     .await
                     .or_raise(make_error)?
             {
-                // Fetch blueprint page wikitext, it must exist.
-                let revision =
-                    PageRevisionService::get_latest(ctx, site_id, page.page_id)
-                        .await
-                        .or_raise(make_error)?;
-
-                let text = TextService::get(ctx, &revision.wikitext_hash)
-                    .await
-                    .or_raise(make_error)?;
-
                 return Ok(text);
             }
+        }
+
+        if translate_key.is_empty() {
+            return Err(make_error());
         }
 
         // Use fallback string from localization
@@ -217,5 +264,22 @@ impl BlueprintPageService {
         strip_fluent_control_chars(&mut wikitext);
 
         Ok(wikitext)
+    }
+
+    async fn get_page_wikitext_optional(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        slug: &str,
+    ) -> Result<Option<String>> {
+        let Some(page) =
+            PageService::get_optional(ctx, site_id, Reference::Slug(cow!(slug))).await?
+        else {
+            return Ok(None);
+        };
+
+        let revision =
+            PageRevisionService::get_latest(ctx, site_id, page.page_id).await?;
+        let text = TextService::get(ctx, &revision.wikitext_hash).await?;
+        Ok(Some(text))
     }
 }

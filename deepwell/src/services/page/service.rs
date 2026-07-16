@@ -31,14 +31,14 @@ use crate::services::page_revision::{
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{
-    CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,
-    TextService,
+    BlueprintPageService, CategoryService, FilterService, PageRevisionService,
+    SiteService, TextBlockService, TextService,
 };
 use crate::types::{
     Action, PageId, PageOrder, PageRevisionType, Permission, Reference, RerenderDepth,
     Resource,
 };
-use crate::utils::{get_category_name, trim_default};
+use crate::utils::{get_category_name, split_category, trim_default};
 use ftml::layout::Layout;
 use ref_map::*;
 use sea_orm::ActiveValue;
@@ -114,8 +114,20 @@ impl PageService {
             ..Default::default()
         };
         let PageModel { page_id, .. } = model.insert(txn).await.or_raise(make_error)?;
+        let (category_slug, page_slug) = split_category(&slug);
+        let template_wikitext = BlueprintPageService::get_page_template(
+            ctx,
+            site_id,
+            category_slug,
+            page_slug,
+        )
+        .await
+        .or_raise(make_error)?;
         let rerender_after_latest_revision =
-            needs_latest_revision_for_first_render(&wikitext);
+            needs_latest_revision_for_first_render(&wikitext)
+                || template_wikitext
+                    .as_deref()
+                    .is_some_and(needs_latest_revision_for_first_render);
 
         // Commit first revision
         let revision_input = CreateFirstPageRevision {

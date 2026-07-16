@@ -10,7 +10,6 @@
     buildGeneratedPageStylesHead,
     getPageFontPreloadHrefs
   } from "$lib/generated-page-styles"
-  import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
   import { wikidotTabviews } from "$lib/wikidot-tabviews"
 
   import type { PageProps } from "./$types"
@@ -37,13 +36,6 @@
   let VotePane = $state<typeof import("./VotePane.svelte").default>()
   let wikidotPageActions = $derived(data.wikidot_page_actions)
   let wikidotPageWatch = $derived(data.wikidot_page_watch)
-  let isDirectWikidotFragmentPage = $derived(
-    pageLayoutContext.current === Layout.WIKIDOT &&
-      !data.options?.debug &&
-      !data.options?.no_render &&
-      !showRevision &&
-      isWikidotFragmentPage(data.page_revision?.tags)
-  )
   const breadcrumbSeparator = " » "
   let compiledBodyStyles = $derived(
     data.options?.debug || data.options?.no_render
@@ -211,17 +203,6 @@
     {:else if showRevision}
       {@html revision?.compiled_body_html}
     {:else}
-      {#if isDirectWikidotFragmentPage}
-        <div class="warning-top-box">
-          <h1><span>NOTICE:</span></h1>
-          <p>This is a <em>fragment</em> page.</p>
-          <p>
-            It is an <em>internal page</em> used by the SCP Wiki, and is
-            <em>not</em> meant to be read directly, but included by another. This page should
-            be parented, see above.
-          </p>
-        </div>
-      {/if}
       {@html data.compiled_body_html}
     {/if}
   </div>
