@@ -134,6 +134,46 @@ export function validateRedirectInputs({inventoryDocument, authorityDocument, co
   }));
 }
 
+function fixtureSetHash(fixtureIds) {
+  return sha256Value([...fixtureIds].sort().join("\n"));
+}
+
+export function partitionBrowserInventory(inventoryDocument, redirectRows) {
+  const inventoryRows = canonicalRows(inventoryDocument);
+  const redirectIds = new Set(redirectRows.map((row) => row.fixture_id));
+  const seen = new Set();
+  const documentRows = [];
+  const redirectInventoryRows = [];
+  for (const [index, row] of inventoryRows.entries()) {
+    if (!isObject(row) || typeof row.fixture_id !== "string" || row.fixture_id.length === 0) {
+      throw new Error(`inventory row ${index} is invalid`);
+    }
+    if (seen.has(row.fixture_id)) throw new Error(`duplicate inventory fixture: ${row.fixture_id}`);
+    seen.add(row.fixture_id);
+    if (redirectIds.has(row.fixture_id)) redirectInventoryRows.push(row);
+    else documentRows.push(row);
+  }
+  const missingRedirects = [...redirectIds].filter((fixtureId) => !seen.has(fixtureId)).sort();
+  if (missingRedirects.length > 0) throw new Error(`redirect fixtures are missing from inventory: ${missingRedirects.join(", ")}`);
+  const document = isObject(inventoryDocument) && Array.isArray(inventoryDocument.rows)
+    ? {...inventoryDocument, rows: documentRows}
+    : {schema: "wikijump_full_parity.browser_document_inventory.v1", rows: documentRows};
+  const documentIds = documentRows.map((row) => row.fixture_id);
+  const redirectInventoryIds = redirectInventoryRows.map((row) => row.fixture_id);
+  if (documentIds.length + redirectInventoryIds.length !== seen.size) throw new Error("browser inventory partition is incomplete");
+  return {
+    document,
+    certificate: {
+      full_count: seen.size,
+      redirect_count: redirectInventoryIds.length,
+      document_count: documentIds.length,
+      full_fixture_set_sha256: fixtureSetHash(seen),
+      redirect_fixture_set_sha256: fixtureSetHash(redirectInventoryIds),
+      document_fixture_set_sha256: fixtureSetHash(documentIds),
+    },
+  };
+}
+
 function validateLocalBase(value) {
   let url;
   try {
@@ -264,6 +304,7 @@ export async function runRedirectRuntimeRepro({
   localBase,
   resolvedAddress,
   outputPath,
+  documentInventoryOutputPath,
   timeoutMs,
   workers,
   ignoreHttpsErrors,
@@ -279,8 +320,9 @@ export async function runRedirectRuntimeRepro({
     throw new Error("site ID must be a positive decimal string or null");
   }
   const absoluteInputs = [inventoryPath, authorityPath, corpusRedirectsPath, runtimeIdentityPath].map((value) => path.resolve(value));
-  if (absoluteInputs.includes(path.resolve(outputPath))) {
-    throw new Error("redirect verdict output must not overwrite an input");
+  const absoluteOutputs = [outputPath, documentInventoryOutputPath].map((value) => path.resolve(value));
+  if (absoluteInputs.some((input) => absoluteOutputs.includes(input)) || absoluteOutputs[0] === absoluteOutputs[1]) {
+    throw new Error("redirect outputs must be distinct and must not overwrite an input");
   }
   const [inventoryBytes, authorityBytes, corpusBytes, runtimeIdentityBytes] = await Promise.all([
     fs.readFile(inventoryPath),
@@ -294,6 +336,9 @@ export async function runRedirectRuntimeRepro({
     authorityDocument: JSON.parse(authorityBytes),
     corpusDocument: JSON.parse(corpusBytes),
   });
+  const partition = partitionBrowserInventory(JSON.parse(inventoryBytes), rows);
+  const documentInventoryBytes = Buffer.from(`${JSON.stringify(partition.document, null, 2)}\n`);
+  await writeJsonAtomic(documentInventoryOutputPath, partition.document);
   const observationsByFixture = new Map(rows.map((row) => [row.fixture_id, []]));
   for (let pass = 1; pass <= 2; pass += 1) {
     const observations = await runPool(rows, workers, async (row) => {
@@ -335,6 +380,13 @@ export async function runRedirectRuntimeRepro({
       injected_site_identity: siteId === null ? null : {site_id: siteId, site_slug: "scp-wiki"},
       redirects_followed: false,
       max_body_bytes: MAX_BODY_BYTES,
+    },
+    browser_inventory_partition: {
+      ...partition.certificate,
+      document_inventory: {
+        path: documentInventoryOutputPath,
+        sha256: sha256Value(documentInventoryBytes),
+      },
     },
     expected_count: rows.length,
     observed_count: resultRows.length,

@@ -7,6 +7,7 @@ import test from "node:test";
 
 import {
   REDIRECT_VERDICT_SCHEMA,
+  partitionBrowserInventory,
   runRedirectRuntimeRepro,
   validateRedirectInputs,
 } from "../src/redirect-runtime-repro.mjs";
@@ -54,6 +55,7 @@ async function writeInputs(root) {
     corpusRedirectsPath: path.join(root, "corpus.json"),
     runtimeIdentityPath: path.join(root, "runtime.json"),
     outputPath: path.join(root, "verdict.json"),
+    documentInventoryOutputPath: path.join(root, "document-inventory.json"),
   };
   await Promise.all([
     fs.writeFile(paths.inventoryPath, JSON.stringify(inventory())),
@@ -95,8 +97,23 @@ test("input closure requires exact authority, corpus, and inventory agreement", 
   assert.throws(() => validateRedirectInputs({inventoryDocument: inventory(), authorityDocument: authority(), corpusDocument: corpus().slice(1)}), /sets are not exactly equal/);
 });
 
+test("browser inventory partition is exact, disjoint, and deterministic", () => {
+  const rows = validateRedirectInputs({inventoryDocument: inventory(), authorityDocument: authority(), corpusDocument: corpus()});
+  const extended = inventory(["about", "article", "external"]);
+  const partition = partitionBrowserInventory(extended, rows);
+  assert.deepEqual(partition.document.rows.map((row) => row.fixture_id), ["EN:article"]);
+  assert.deepEqual(partition.certificate, {
+    full_count: 3,
+    redirect_count: 2,
+    document_count: 1,
+    full_fixture_set_sha256: "09fb62dbfb6bce90793e5df16934fb712ed4891d2652f636c42a0902dcedb695",
+    redirect_fixture_set_sha256: "1ea7334f9c9bfac9f4785710d6f7901f27cb09e0a4c45f5b3e902f7e5f725747",
+    document_fixture_set_sha256: "84d211c25ab221a55fe745bef0c8af5b6c5388390306eb1c1bc109962cbe418b",
+  });
+});
+
 test("CLI binds every authority and candidate input", () => {
-  const args = parseArgs(["--inventory", "i", "--authority", "a", "--corpus-redirects", "c", "--runtime-identity", "r", "--local-base", "https://scp-wiki.wikijump.localhost", "--resolved-address", "127.0.0.2", "--output", "o", "--site-id", "6000006", "--workers", "2", "--ignore-https-errors"]);
+  const args = parseArgs(["--inventory", "i", "--authority", "a", "--corpus-redirects", "c", "--runtime-identity", "r", "--local-base", "https://scp-wiki.wikijump.localhost", "--resolved-address", "127.0.0.2", "--output", "o", "--document-inventory-output", "d", "--site-id", "6000006", "--workers", "2", "--ignore-https-errors"]);
   assert.equal(args.workers, 2);
   assert.equal(args.siteId, "6000006");
   assert.equal(args.ignoreHttpsErrors, true);
@@ -119,9 +136,11 @@ test("two-pass runtime verification does not follow redirects", async () => {
     assert.equal(verdict.schema, REDIRECT_VERDICT_SCHEMA);
     assert.equal(verdict.status, "pass");
     assert.equal(verdict.expected_count, 2);
+    assert.equal(verdict.browser_inventory_partition.document_count, 0);
     assert.equal(verdict.rows.every((row) => row.observations.length === 2 && row.reproducible), true);
     assert.equal(fixture.followed(), 0);
     assert.equal(JSON.parse(await fs.readFile(paths.outputPath, "utf8")).status, "pass");
+    assert.deepEqual(JSON.parse(await fs.readFile(paths.documentInventoryOutputPath, "utf8")).rows, []);
   } finally {
     await fixture.close();
   }
@@ -132,7 +151,7 @@ test("runtime mismatches and non-loopback resolution fail closed", async () => {
   const paths = await writeInputs(root);
   await assert.rejects(() => runRedirectRuntimeRepro({...paths, localBase: "https://scp-wiki.wikijump.localhost", resolvedAddress: "192.0.2.1", timeoutMs: 100, workers: 1, ignoreHttpsErrors: true}), /loopback/);
   await assert.rejects(() => runRedirectRuntimeRepro({...paths, localBase: "https://scp-wiki.wikijump.localhost", resolvedAddress: "127.0.0.1", siteId: "0", timeoutMs: 100, workers: 1, ignoreHttpsErrors: true}), /site ID/);
-  await assert.rejects(() => runRedirectRuntimeRepro({...paths, outputPath: paths.authorityPath, localBase: "https://scp-wiki.wikijump.localhost", resolvedAddress: "127.0.0.1", timeoutMs: 100, workers: 1, ignoreHttpsErrors: true}), /must not overwrite an input/);
+  await assert.rejects(() => runRedirectRuntimeRepro({...paths, outputPath: paths.authorityPath, localBase: "https://scp-wiki.wikijump.localhost", resolvedAddress: "127.0.0.1", timeoutMs: 100, workers: 1, ignoreHttpsErrors: true}), /must be distinct/);
   let calls = 0;
   const verdict = await runRedirectRuntimeRepro({...paths, localBase: "https://scp-wiki.wikijump.localhost", resolvedAddress: "127.0.0.1", timeoutMs: 100, workers: 1, ignoreHttpsErrors: true, requester: async ({row}) => {
     calls += 1;

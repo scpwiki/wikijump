@@ -68,9 +68,12 @@ node install/local/wikidot-verification/scripts/validate-redirect-runtime.mjs \
   --local-base https://scp-wiki.wikijump.localhost \
   --resolved-address 127.0.0.2 \
   --output /evidence/redirect-verdict.json \
+  --document-inventory-output /evidence/browser-document-inventory.json \
   --ignore-https-errors
 ```
 
 Only an explicit loopback IP is accepted. Redirects are never followed, so an external `Location` remains observable evidence rather than an outbound browser or HTTP request.
+
+The document inventory output is the exact complement of the sealed redirect set. The verdict records full, redirect, and document counts plus deterministic fixture-set hashes, so redirect routes and normal browser documents can be validated by separate surfaces without a manual queue or silent omissions.
 
 For a direct Framerail candidate that is not behind WWS, `--site-id ID` injects the non-secret trusted routing identity for the fixed `scp-wiki` authority. Omit it when exercising the complete edge path.

@@ -15,7 +15,7 @@ export function parseArgs(argv) {
   const args = {timeoutMs: 30_000, workers: 4, ignoreHttpsErrors: false};
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
-    if (["--inventory", "--authority", "--corpus-redirects", "--runtime-identity", "--output"].includes(flag)) {
+    if (["--inventory", "--authority", "--corpus-redirects", "--runtime-identity", "--output", "--document-inventory-output"].includes(flag)) {
       args[flag.slice(2).replaceAll("-", "_")] = path.resolve(nextArg(argv, index, flag));
       index += 1;
     } else if (flag === "--local-base") {
@@ -41,7 +41,7 @@ export function parseArgs(argv) {
     }
   }
   if (!args.help) {
-    for (const field of ["inventory", "authority", "corpus_redirects", "runtime_identity", "output", "localBase", "resolvedAddress"]) {
+    for (const field of ["inventory", "authority", "corpus_redirects", "runtime_identity", "output", "document_inventory_output", "localBase", "resolvedAddress"]) {
       if (!args[field]) throw new Error(`--${field.replaceAll("_", "-")} is required`);
     }
   }
@@ -49,7 +49,7 @@ export function parseArgs(argv) {
 }
 
 function usage() {
-  return "Usage: validate-redirect-runtime.mjs --inventory FILE --authority FILE --corpus-redirects FILE --runtime-identity FILE --local-base URL --resolved-address LOOPBACK --output FILE [--site-id ID] [--workers 4] [--timeout-ms 30000] [--ignore-https-errors]";
+  return "Usage: validate-redirect-runtime.mjs --inventory FILE --authority FILE --corpus-redirects FILE --runtime-identity FILE --local-base URL --resolved-address LOOPBACK --output FILE --document-inventory-output FILE [--site-id ID] [--workers 4] [--timeout-ms 30000] [--ignore-https-errors]";
 }
 
 export async function main(argv) {
@@ -66,6 +66,7 @@ export async function main(argv) {
     localBase: args.localBase,
     resolvedAddress: args.resolvedAddress,
     outputPath: args.output,
+    documentInventoryOutputPath: args.document_inventory_output,
     timeoutMs: args.timeoutMs,
     workers: args.workers,
     ignoreHttpsErrors: args.ignoreHttpsErrors,
