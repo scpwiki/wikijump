@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url"
 
 const ROUTES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../src/routes")
 
-async function exists(relativePath) {
+const exists = async (relativePath) => {
   try {
     await fs.access(path.join(ROUTES, relativePath))
     return true
