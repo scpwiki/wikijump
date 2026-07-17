@@ -22,6 +22,7 @@ import {
 import { storeRequestContext } from "$lib/server/load/request-ctx"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { applyStaticSecurityHeaders } from "$lib/server/security-headers"
+import { injectWikidotRequestInfo } from "$lib/server/wikidot-request-info"
 import type { Handle, RequestEvent } from "@sveltejs/kit"
 
 const SITE_CONTEXT_EXEMPT_PATHS = new Set(["/xml-rpc-api.php"])
@@ -123,9 +124,14 @@ async function readAnonymousArticleResponseCacheForEvent(
 
 export const handle: Handle = async ({ event, resolve }) => {
   const { request, cookies, locals, params } = event
+  const resolveWithWikidotRequestInfo = () =>
+    resolve(event, {
+      transformPageChunk: ({ html }) =>
+        injectWikidotRequestInfo(html, locals.wikidotRequestInfo)
+    })
 
   if (SITE_CONTEXT_EXEMPT_PATHS.has(event.url.pathname)) {
-    const response = await resolve(event)
+    const response = await resolveWithWikidotRequestInfo()
     applyStaticSecurityHeaders(response, event.url.pathname)
     return response
   }
@@ -148,7 +154,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   // Continue processing the request
-  const response = await resolve(event)
+  const response = await resolveWithWikidotRequestInfo()
 
   applyStaticSecurityHeaders(response, event.url.pathname, siteSlug)
 

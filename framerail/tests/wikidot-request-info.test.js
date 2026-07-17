@@ -1,0 +1,115 @@
+import assert from "node:assert/strict"
+import fs from "node:fs/promises"
+import path from "node:path"
+import test from "node:test"
+import { fileURLToPath } from "node:url"
+import vm from "node:vm"
+
+import {
+  WIKIDOT_REQUEST_INFO_MARKER,
+  buildWikidotRequestInfo,
+  injectWikidotRequestInfo,
+  serializeWikidotRequestInfo
+} from "../src/lib/server/wikidot-request-info.js"
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+
+const input = {
+  domain: "scp-wiki.wikijump.localhost",
+  site: {
+    site_id: 6000006,
+    slug: "scp-wiki",
+    locale: "en",
+    from_wikidot: true
+  },
+  page: {
+    page_id: 3000011662,
+    page_category_id: 100000053,
+    slug: "scp-173"
+  }
+}
+
+test("builds source-compatible Wikidot request metadata from local identities", () => {
+  assert.deepEqual(buildWikidotRequestInfo(input), {
+    domain: "scp-wiki.wikijump.localhost",
+    siteId: 6000006,
+    siteUnixName: "scp-wiki",
+    categoryId: 100000053,
+    requestPageName: "scp-173",
+    lang: "en",
+    pageUnixName: "scp-173",
+    pageId: 3000011662
+  })
+})
+
+test("binds a nonstandard local port into the client-visible request host", () => {
+  assert.equal(
+    buildWikidotRequestInfo({
+      ...input,
+      domain: "127.0.0.1:3405"
+    }).domain,
+    "127.0.0.1:3405"
+  )
+})
+
+test("serializes the exact raw statements consumed by wikidot.py", () => {
+  const script = serializeWikidotRequestInfo(buildWikidotRequestInfo(input))
+  assert.match(script, /^var WIKIREQUEST = \{\};/u)
+  assert.match(script, /WIKIREQUEST\.info\.domain = "scp-wiki\.wikijump\.localhost";/u)
+  assert.match(script, /WIKIREQUEST\.info\.siteId = 6000006;/u)
+  assert.match(script, /WIKIREQUEST\.info\.siteUnixName = "scp-wiki";/u)
+  assert.match(script, /WIKIREQUEST\.info\.pageId = 3000011662;/u)
+
+  const context = {}
+  vm.runInNewContext(script, context)
+  assert.deepEqual({ ...context.WIKIREQUEST.info }, buildWikidotRequestInfo(input))
+})
+
+test("escapes inline script terminators and rejects malformed identities", () => {
+  const safe = buildWikidotRequestInfo({
+    ...input,
+    page: { ...input.page, slug: "category:</script><script>alert(1)</script>" }
+  })
+  const script = serializeWikidotRequestInfo(safe)
+  assert.doesNotMatch(script, /<\/script/iu)
+  assert.match(script, /\\u003c\/script/u)
+
+  assert.throws(
+    () => buildWikidotRequestInfo({ ...input, domain: "example.com/path" }),
+    /host grammar/u
+  )
+  assert.throws(
+    () =>
+      buildWikidotRequestInfo({ ...input, site: { ...input.site, slug: "scp.wiki" } }),
+    /unix-name grammar/u
+  )
+  assert.throws(
+    () => buildWikidotRequestInfo({ ...input, page: { ...input.page, page_id: 1.5 } }),
+    /safe integer/u
+  )
+})
+
+test("injects one marker and leaves non-HTML chunks unchanged", () => {
+  const info = buildWikidotRequestInfo(input)
+  const html = `<head><script>${WIKIDOT_REQUEST_INFO_MARKER}</script></head>`
+  const injected = injectWikidotRequestInfo(html, info)
+  assert.doesNotMatch(injected, /__WIKIDOT_REQUEST_INFO__/u)
+  assert.match(injected, /WIKIREQUEST\.info\.pageId/u)
+  assert.equal(injectWikidotRequestInfo("plain text", info), "plain text")
+  assert.throws(
+    () =>
+      injectWikidotRequestInfo(
+        `${WIKIDOT_REQUEST_INFO_MARKER}${WIKIDOT_REQUEST_INFO_MARKER}`,
+        info
+      ),
+    /at most once/u
+  )
+})
+
+test("the app template binds the compatibility script to SvelteKit's CSP nonce", async () => {
+  const template = await fs.readFile(path.join(ROOT, "src/app.html"), "utf8")
+  assert.match(
+    template,
+    /<script nonce="%sveltekit\.nonce%">\s*\/\*__WIKIDOT_REQUEST_INFO__\*\/\s*<\/script>/u
+  )
+})
