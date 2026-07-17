@@ -229,6 +229,25 @@ fn list_pages_scanner_uses_pinned_module_name_delimiters() {
 }
 
 #[test]
+fn count_pages_preflight_accepts_regex_valid_mixed_whitespace() {
+    for separator in [" \n", "\t\r\n \t", "\n "] {
+        let source =
+            format!("[[module{separator}CountPages tags=\"+active\"]]A[[/module]]");
+        assert!(
+            has_count_pages_module_opening_candidate(&source),
+            "CountPages preflight should accept regex-valid separator {separator:?}",
+        );
+    }
+}
+
+#[test]
+fn list_pages_preflight_keeps_pinned_module_name_delimiters() {
+    assert!(!has_list_pages_module_opening_candidate(
+        "[[module \nListPages name=\"space-before-lf\"]]body[[/module]]",
+    ));
+}
+
+#[test]
 fn multiline_module_names_participate_in_active_nesting() {
     for (label, separator) in [
         ("LF", "\n"),
