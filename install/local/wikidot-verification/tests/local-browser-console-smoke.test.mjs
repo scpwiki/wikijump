@@ -177,6 +177,10 @@ test("driver fingerprints browser/config/inputs, resumes exact records, and owne
   await fs.writeFile(`${options.outputPath}.lock`, "owned\n", "utf8");
   await assert.rejects(() => runLocalBrowserSmoke(options), /owner lock already exists/);
   await fs.rm(`${options.outputPath}.lock`);
+  await fs.writeFile(`${options.outputPath}.lock`, `${JSON.stringify({pid: 2_147_483_647, hostname: os.hostname()})}\n`, "utf8");
+  const recovered = await runLocalBrowserSmoke(options);
+  assert.equal(recovered.summary.status, "pass");
+  await assert.rejects(fs.stat(`${options.outputPath}.lock`), {code: "ENOENT"});
 });
 
 test("run contract selected-row hash is stable and excludes unselected rows", () => {

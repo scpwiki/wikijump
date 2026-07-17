@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import {isObject, rowLocalUrl} from "./browser-render-evidence.mjs";
 
@@ -266,25 +267,60 @@ async function bounded(promise, timeoutMs, label) {
 
 async function acquireOutputLock(outputPath) {
   const lockPath = `${outputPath}.lock`;
-  let handle;
-  try {
-    handle = await fs.open(lockPath, "wx", 0o600);
-  } catch (error) {
-    if (error.code === "EEXIST") throw new Error(`output owner lock already exists: ${lockPath}`);
-    throw error;
+  let handle = null;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      handle = await fs.open(lockPath, "wx", 0o600);
+      break;
+    } catch (error) {
+      if (error.code !== "EEXIST" || attempt > 0 || !await removeDeadOwnerLock(lockPath)) {
+        if (error.code === "EEXIST") throw new Error(`output owner lock already exists: ${lockPath}`);
+        throw error;
+      }
+    }
   }
   try {
-    await handle.writeFile(`${JSON.stringify({pid: process.pid, acquired_at: new Date().toISOString()})}\n`);
+    await handle.writeFile(`${JSON.stringify({pid: process.pid, hostname: os.hostname(), acquired_at: new Date().toISOString()})}\n`);
     await handle.sync();
+    const owned = await handle.stat();
+    return async () => {
+      await handle.close().catch(() => {});
+      try {
+        const current = await fs.lstat(lockPath);
+        if (current.dev === owned.dev && current.ino === owned.ino) await fs.unlink(lockPath);
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+      }
+    };
   } catch (error) {
     await handle.close().catch(() => {});
     await fs.unlink(lockPath).catch(() => {});
     throw error;
   }
-  return async () => {
-    await handle.close().catch(() => {});
+}
+
+async function removeDeadOwnerLock(lockPath) {
+  let handle;
+  try {
+    handle = await fs.open(lockPath, "r");
+    const [stat, text] = await Promise.all([handle.stat(), handle.readFile("utf8")]);
+    const owner = JSON.parse(text);
+    if (owner.hostname !== os.hostname() || !Number.isSafeInteger(owner.pid) || owner.pid <= 0) return false;
+    try {
+      process.kill(owner.pid, 0);
+      return false;
+    } catch (error) {
+      if (error.code !== "ESRCH") return false;
+    }
+    const current = await fs.lstat(lockPath);
+    if (current.dev !== stat.dev || current.ino !== stat.ino) return false;
     await fs.unlink(lockPath);
-  };
+    return true;
+  } catch {
+    return false;
+  } finally {
+    await handle?.close().catch(() => {});
+  }
 }
 
 async function writeSummary(outputPath, summary) {
