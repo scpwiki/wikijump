@@ -3,6 +3,7 @@ import { statSync } from "fs"
 import { dirname, resolve } from "path"
 import { sveltePreprocess } from "svelte-preprocess"
 import { fileURLToPath } from "url"
+import { parseDeploymentEnvironment } from "./src/lib/server/deployment-environment.js"
 
 // The former only works on node 20.11+
 const __dirname = import.meta.dirname ?? dirname(fileURLToPath(import.meta.url))
@@ -26,12 +27,7 @@ function resolveAssets() {
  */
 /** @typedef {NonNullable<CspDirectives["img-src"]>} CspSources */
 
-/** @type {CspSources} */
-const LOCAL_FILE_IMAGE_SOURCES = ["https://*.wjfiles.localhost"]
-/** @type {CspSources} */
-const LOCAL_FILE_STYLE_SOURCES = ["https://*.wjfiles.localhost"]
-/** @type {CspSources} */
-const LOCAL_FILE_FRAME_SOURCES = ["https://*.wjfiles.localhost"]
+const CURRENT_SITE_FILE_ORIGIN = "https://wikijump-current-site.invalid"
 /** @type {CspSources} */
 const WIKIDOT_LEGACY_IMAGE_SOURCES = ["https://d3g0gp89917ko0.cloudfront.net"]
 /** @type {CspSources} */
@@ -69,17 +65,20 @@ const WIKIDOT_FONT_SOURCES = [
   "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com"
 ]
 
-function isLocalEnvironment() {
-  return process.env.FRAMERAIL_ENV === "local" || process.env.NODE_ENV === "development"
-}
+const deploymentEnvironment = parseDeploymentEnvironment()
 
 /** @returns {CspSources} */
 function imageSources() {
   /** @type {CspSources} */
-  const sources = ["self", "data:", "blob:", ...WIKIDOT_IMAGE_SOURCES]
+  const sources = [
+    "self",
+    "data:",
+    "blob:",
+    CURRENT_SITE_FILE_ORIGIN,
+    ...WIKIDOT_IMAGE_SOURCES
+  ]
 
-  if (isLocalEnvironment()) {
-    sources.push(...LOCAL_FILE_IMAGE_SOURCES)
+  if (deploymentEnvironment === "local") {
     sources.push(...WIKIDOT_LEGACY_IMAGE_SOURCES)
   }
 
@@ -89,13 +88,7 @@ function imageSources() {
 /** @returns {CspSources} */
 function styleSources() {
   /** @type {CspSources} */
-  const sources = ["self", "unsafe-inline", ...WIKIDOT_STYLE_SOURCES]
-
-  if (isLocalEnvironment()) {
-    sources.push(...LOCAL_FILE_STYLE_SOURCES)
-  }
-
-  return sources
+  return ["self", "unsafe-inline", CURRENT_SITE_FILE_ORIGIN, ...WIKIDOT_STYLE_SOURCES]
 }
 
 /** @returns {CspSources} */
@@ -105,14 +98,7 @@ function fontSources() {
 
 /** @returns {CspSources} */
 function frameSources() {
-  /** @type {CspSources} */
-  const sources = ["self"]
-
-  if (isLocalEnvironment()) {
-    sources.push(...LOCAL_FILE_FRAME_SOURCES)
-  }
-
-  return sources
+  return ["self"]
 }
 
 /** @type {import("@sveltejs/kit").Config} */
@@ -125,7 +111,7 @@ const config = {
     adapter: adapter(),
     csrf: {
       // Allow flexible hosts on local, since we don't have real DNS
-      checkOrigin: process.env.FRAMERAIL_ENV !== "local"
+      checkOrigin: deploymentEnvironment !== "local"
     },
     csp: {
       mode: "auto",

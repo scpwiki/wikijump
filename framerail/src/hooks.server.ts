@@ -143,14 +143,14 @@ export const handle: Handle = async ({ event, resolve }) => {
     siteSlug
   )
   if (cachedResponse) {
-    applyStaticSecurityHeaders(cachedResponse, event.url.pathname)
+    applyStaticSecurityHeaders(cachedResponse, event.url.pathname, siteSlug)
     return cachedResponse
   }
 
   // Continue processing the request
   const response = await resolve(event)
 
-  applyStaticSecurityHeaders(response, event.url.pathname)
+  applyStaticSecurityHeaders(response, event.url.pathname, siteSlug)
 
   const writeGate = canUseAnonymousArticleResponseCache(event, siteId, siteSlug)
   if (writeGate.cacheable) {
