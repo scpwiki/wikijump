@@ -56,6 +56,25 @@ const trustedSiteSlug = (value) => {
     : null
 }
 
+const materializeExactCspSource = (policy, source, replacement) => {
+  let replaced = false
+  const directives = policy
+    .split(";")
+    .map((directive) => directive.trim())
+    .filter(Boolean)
+    .map((directive) =>
+      directive
+        .split(/\s+/u)
+        .map((token) => {
+          if (token !== source) return token
+          replaced = true
+          return replacement
+        })
+        .join(" ")
+    )
+  return replaced ? directives.join("; ") : null
+}
+
 /**
  * @param {Response} response
  * @param {string | null | undefined} siteSlug
@@ -63,12 +82,10 @@ const trustedSiteSlug = (value) => {
 export const materializeSiteCsp = (response, siteSlug) => {
   const policy = response.headers.get("content-security-policy")
   const slug = trustedSiteSlug(siteSlug)
-  if (!policy || !policy.includes(CURRENT_SITE_FILE_ORIGIN) || !slug) return
+  if (!policy || !slug) return
   const origin = `https://${slug}.wjfiles.${DEPLOYMENT_FILE_SUFFIX[RUNTIME_DEPLOYMENT_ENVIRONMENT]}`
-  response.headers.set(
-    "content-security-policy",
-    policy.replaceAll(CURRENT_SITE_FILE_ORIGIN, origin)
-  )
+  const materialized = materializeExactCspSource(policy, CURRENT_SITE_FILE_ORIGIN, origin)
+  if (materialized) response.headers.set("content-security-policy", materialized)
 }
 
 export const staticSecurityHeaderEntries = () => {

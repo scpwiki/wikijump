@@ -61,6 +61,21 @@ test("does not materialize untrusted site slugs", () => {
   )
 })
 
+test("replaces only an exact CSP source token", () => {
+  const prefixed = `https://evil.example/https://wikijump-current-site.invalid`
+  const suffixed = `https://wikijump-current-site.invalid.evil.example`
+  const response = new Response("", {
+    headers: {
+      "content-security-policy": `img-src ${prefixed} https://wikijump-current-site.invalid ${suffixed}`
+    }
+  })
+  materializeSiteCsp(response, "scp-wiki")
+  assert.equal(
+    response.headers.get("content-security-policy"),
+    `img-src ${prefixed} https://scp-wiki.wjfiles.localhost ${suffixed}`
+  )
+})
+
 test("node compatibility responses receive the same frame policy", () => {
   const headers = new Map()
   const response = {

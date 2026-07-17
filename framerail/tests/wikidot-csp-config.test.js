@@ -46,10 +46,22 @@ test("allows captured Wikidot legacy asset origins in local CSP", () => {
   ]) {
     assert(!sources?.some((source) => source === "https://*.wikidot.com"))
   }
-  assert(directives["img-src"]?.includes("https://wikijump-current-site.invalid"))
-  assert(directives["style-src"]?.includes("https://wikijump-current-site.invalid"))
-  assert(!directives["img-src"]?.some((source) => source.includes("*.wjfiles")))
-  assert(!directives["style-src"]?.some((source) => source.includes("*.wjfiles")))
+  assert(
+    directives["img-src"]?.some(
+      (source) => source === "https://wikijump-current-site.invalid"
+    )
+  )
+  assert(
+    directives["style-src"]?.some(
+      (source) => source === "https://wikijump-current-site.invalid"
+    )
+  )
+  assert(
+    !directives["img-src"]?.some((source) => source === "https://*.wjfiles.localhost")
+  )
+  assert(
+    !directives["style-src"]?.some((source) => source === "https://*.wjfiles.localhost")
+  )
   assert.deepEqual(directives["frame-src"], ["self"])
   assert.deepEqual(directives["script-src"], ["self"])
 })
