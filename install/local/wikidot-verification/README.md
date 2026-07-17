@@ -54,3 +54,23 @@ Minimal diagnostic plan:
 Resumption is fail-closed. A stage is reused only when the exact plan bytes, command contract, input hashes, dependency receipts, output hashes, and verdict file all match the passing receipt. Mutated or missing evidence reruns the stage. A same-host lock whose recorded process no longer exists is recovered after inode verification; live or ambiguous locks remain blockers.
 
 For root-cause reduction, a stage may declare `cluster_sources`. JSON or JSONL records are deduplicated by the configured `key_fields`, with occurrence counts and source-stage provenance retained in the terminal summary.
+
+## Redirect runtime reproducibility
+
+`scripts/validate-redirect-runtime.mjs` validates corpus-provenanced redirect routes without following them or contacting their destinations. It requires the full inventory, the sealed real-Wikidot status and `Location` authority, the frozen corpus redirect inventory, and the exact local runtime identity. The validator reconciles all three fixture sets, requests every route twice through an explicit loopback address, and requires exact status, `Location`, header multiplicity, body hash, and body size reproducibility.
+
+```sh
+node install/local/wikidot-verification/scripts/validate-redirect-runtime.mjs \
+  --inventory /evidence/full-inventory.json \
+  --authority /evidence/redirects-real-wikidot.json \
+  --corpus-redirects /evidence/redirects-frozen-corpus.json \
+  --runtime-identity /evidence/runtime-identity.json \
+  --local-base https://scp-wiki.wikijump.localhost \
+  --resolved-address 127.0.0.2 \
+  --output /evidence/redirect-verdict.json \
+  --ignore-https-errors
+```
+
+Only an explicit loopback IP is accepted. Redirects are never followed, so an external `Location` remains observable evidence rather than an outbound browser or HTTP request.
+
+For a direct Framerail candidate that is not behind WWS, `--site-id ID` injects the non-secret trusted routing identity for the fixed `scp-wiki` authority. Omit it when exercising the complete edge path.
