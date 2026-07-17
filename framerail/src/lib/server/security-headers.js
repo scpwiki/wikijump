@@ -1,3 +1,5 @@
+import { parseDeploymentEnvironment } from "./deployment-environment.js"
+
 const SECURITY_HEADERS = {
   "cross-origin-opener-policy": "same-origin",
   "permissions-policy": [
@@ -25,21 +27,48 @@ const SECURITY_HEADERS = {
 }
 
 const HSTS_HEADER = "max-age=31536000; includeSubDomains"
-const LOCAL_WIKIDOT_INTERWIKI_FRAME_PATHS = new Set([
-  "/-/wikidot-interwiki/interwikiFrame.html",
-  "/-/wikidot-interwiki/styleFrame.html"
+const CURRENT_SITE_FILE_ORIGIN = "https://wikijump-current-site.invalid"
+const DEPLOYMENT_FILE_SUFFIX = {
+  local: "localhost",
+  dev: "dev",
+  prod: "com"
+}
+const RUNTIME_DEPLOYMENT_ENVIRONMENT = parseDeploymentEnvironment()
+const WIKIDOT_INTERWIKI_FRAME_POLICIES = new Map([
+  [
+    "/-/wikidot-interwiki/interwikiFrame.html",
+    "default-src 'none'; script-src 'unsafe-inline'; img-src https://scp-wiki.wdfiles.com; frame-ancestors 'self'"
+  ],
+  [
+    "/-/wikidot-interwiki/styleFrame.html",
+    "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-ancestors 'self'"
+  ]
 ])
 
-const isLocalEnvironment = () => {
-  return process.env.FRAMERAIL_ENV === "local" || process.env.NODE_ENV === "development"
-}
-
 const shouldSetHsts = () => {
-  return !isLocalEnvironment()
+  return RUNTIME_DEPLOYMENT_ENVIRONMENT !== "local"
 }
 
-const allowsLocalWikidotInterwikiFrame = (pathname) => {
-  return isLocalEnvironment() && LOCAL_WIKIDOT_INTERWIKI_FRAME_PATHS.has(pathname)
+/** @param {unknown} value */
+const trustedSiteSlug = (value) => {
+  return typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(value)
+    ? value
+    : null
+}
+
+/**
+ * @param {Response} response
+ * @param {string | null | undefined} siteSlug
+ */
+export const materializeSiteCsp = (response, siteSlug) => {
+  const policy = response.headers.get("content-security-policy")
+  const slug = trustedSiteSlug(siteSlug)
+  if (!policy || !policy.includes(CURRENT_SITE_FILE_ORIGIN) || !slug) return
+  const origin = `https://${slug}.wjfiles.${DEPLOYMENT_FILE_SUFFIX[RUNTIME_DEPLOYMENT_ENVIRONMENT]}`
+  response.headers.set(
+    "content-security-policy",
+    policy.replaceAll(CURRENT_SITE_FILE_ORIGIN, origin)
+  )
 }
 
 export const staticSecurityHeaderEntries = () => {
@@ -52,24 +81,39 @@ export const staticSecurityHeaderEntries = () => {
   return headers
 }
 
-export const applyStaticSecurityHeaders = (response, pathname) => {
+/**
+ * @param {Response} response
+ * @param {string} pathname
+ * @param {string | undefined} siteSlug
+ */
+export const applyStaticSecurityHeaders = (response, pathname, siteSlug = undefined) => {
   for (const [header, value] of staticSecurityHeaderEntries()) {
     response.headers.set(header, value)
   }
 
-  if (allowsLocalWikidotInterwikiFrame(pathname)) {
-    response.headers.delete("content-security-policy")
-    response.headers.delete("x-frame-options")
+  const framePolicy = WIKIDOT_INTERWIKI_FRAME_POLICIES.get(pathname)
+  if (framePolicy) {
+    response.headers.set("content-security-policy", framePolicy)
+    response.headers.set("x-frame-options", "SAMEORIGIN")
   }
+  materializeSiteCsp(response, siteSlug)
 }
 
+/**
+ * @param {{
+ *   setHeader(name: string, value: string): void
+ *   removeHeader(name: string): void
+ * }} response
+ * @param {string} pathname
+ */
 export const applyStaticSecurityHeadersToNodeResponse = (response, pathname) => {
   for (const [header, value] of staticSecurityHeaderEntries()) {
     response.setHeader(header, value)
   }
 
-  if (allowsLocalWikidotInterwikiFrame(pathname)) {
-    response.removeHeader("content-security-policy")
-    response.removeHeader("x-frame-options")
+  const framePolicy = WIKIDOT_INTERWIKI_FRAME_POLICIES.get(pathname)
+  if (framePolicy) {
+    response.setHeader("content-security-policy", framePolicy)
+    response.setHeader("x-frame-options", "SAMEORIGIN")
   }
 }
