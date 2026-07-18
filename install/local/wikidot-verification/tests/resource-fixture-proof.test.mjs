@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {createServer} from "node:http";
 import {createHash} from "node:crypto";
-import {mkdir, mkdtemp, readFile, rm} from "node:fs/promises";
+import {mkdtemp, readFile, rm} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
