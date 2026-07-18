@@ -85,7 +85,7 @@ test("replaces only an exact CSP source token", () => {
   )
 })
 
-test("node compatibility responses receive the same frame policy", () => {
+test("node compatibility responses receive the same local frame policy", () => {
   const headers = new Map()
   const response = {
     /** @param {string} name @param {string} value */
@@ -103,4 +103,19 @@ test("node compatibility responses receive the same frame policy", () => {
   )
   assert.equal(headers.get("x-frame-options"), "SAMEORIGIN")
   assert.match(headers.get("content-security-policy"), /frame-ancestors 'self'/u)
+})
+
+test("keeps styleFrame unframeable outside local deployments", async () => {
+  const originalFramerailEnvironment = process.env.FRAMERAIL_ENV
+  process.env.FRAMERAIL_ENV = "prod"
+  const { applyStaticSecurityHeaders: applyProdSecurityHeaders } = await import(
+    `../src/lib/server/security-headers.js?prod-styleframe-${Date.now()}`
+  )
+  if (originalFramerailEnvironment === undefined) delete process.env.FRAMERAIL_ENV
+  else process.env.FRAMERAIL_ENV = originalFramerailEnvironment
+
+  const response = new Response("")
+  applyProdSecurityHeaders(response, "/-/wikidot-interwiki/styleFrame.html")
+  assert.equal(response.headers.get("x-frame-options"), "DENY")
+  assert.equal(response.headers.get("content-security-policy"), null)
 })
