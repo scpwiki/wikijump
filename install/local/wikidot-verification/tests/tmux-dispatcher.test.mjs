@@ -8,7 +8,6 @@ import {fileURLToPath} from "node:url";
 import {promisify} from "node:util";
 
 import {
-  enqueueGridAssignment,
   initializeGridCampaign,
   readGridEvents,
   reconstructGridState,
@@ -16,7 +15,6 @@ import {
   writeCodexResultArtifact,
 } from "../src/grid-worker.mjs";
 import {
-  DEFAULT_REPO_ROOT,
   buildLaneWorkerShellCommand,
   buildTmuxAttachCommand,
   buildTmuxResetCommand,
