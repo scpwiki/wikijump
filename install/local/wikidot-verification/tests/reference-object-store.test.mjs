@@ -98,6 +98,16 @@ test("initializes the normative descriptor and stores every golden byte vector",
       bytes,
     );
     await reopened.verifyObject(result.object);
+    assert.deepEqual(
+      await reopened.readObject(result.object, { maxBytes: bytes.length }),
+      bytes,
+    );
+    if (bytes.length > 0) {
+      await assert.rejects(
+        reopened.readObject(result.object, { maxBytes: bytes.length - 1 }),
+        /exceeds maxBytes/u,
+      );
+    }
   }
   assert.equal(
     crypto.createHash("sha256").update(descriptorFixture).digest("hex"),
@@ -159,6 +169,10 @@ test("deduplicates exact bytes and rejects invalid expectations before publicati
   await fixture.store.close();
   await fixture.store.close();
   await assert.rejects(fixture.store.putBytes(bytes), /store is closed/u);
+  await assert.rejects(
+    fixture.store.readObject(first.object, { maxBytes: first.object.bytes }),
+    /store is closed/u,
+  );
 });
 
 test("fails closed on corrupt, symlinked, non-regular, and swapped state", async (t) => {

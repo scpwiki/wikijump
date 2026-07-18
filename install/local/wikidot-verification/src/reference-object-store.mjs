@@ -382,6 +382,40 @@ class ReferenceObjectStore {
     }
   }
 
+  async readObject(value, { maxBytes } = {}) {
+    const object = validateReferenceObject(value);
+    assertBytes(maxBytes, "maxBytes");
+    if (object.bytes > maxBytes) {
+      throw new Error(`reference object exceeds maxBytes ${maxBytes}`);
+    }
+    const handles = await this.#assertBindings();
+    const prefixName = object.sha256.slice(0, 2);
+    const prefix = await openDirectoryAt(handles.sha256, prefixName, {
+      create: false,
+      label: `object prefix ${prefixName}`,
+    });
+    try {
+      const corruptionMessage = `reference object ${object.sha256} is corrupt`;
+      const actual = await readAndHashFileAt(prefix, object.sha256, {
+        collect: true,
+        expectedBytes: object.bytes,
+        expectedMode: 0o400,
+        sizeMismatchMessage: corruptionMessage,
+      });
+      if (actual.sha256 !== object.sha256) throw new Error(corruptionMessage);
+      await assertDirectoryBinding(
+        handles.sha256,
+        prefixName,
+        prefix,
+        `object prefix ${prefixName}`,
+      );
+      await this.#assertBindings();
+      return actual.contents;
+    } finally {
+      await prefix.close();
+    }
+  }
+
   async close() {
     const handles = this.#handles;
     this.#handles = null;
