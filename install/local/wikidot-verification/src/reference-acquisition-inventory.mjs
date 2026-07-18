@@ -39,7 +39,7 @@ function assertNonNegativeSafeInteger(value, label) {
   }
 }
 
-function assertTimestamp(value, label) {
+export function assertTimestamp(value, label) {
   assertNonEmptyString(value, label);
   const match = RFC3339_RE.exec(value);
   if (match === null) {
@@ -91,7 +91,7 @@ function assertTimestamp(value, label) {
   }
 }
 
-function assertCanonicalFullname(fullname, label) {
+export function assertCanonicalFullname(fullname, label) {
   assertNonEmptyString(fullname, label);
   if (
     fullname.includes("/") ||
@@ -135,11 +135,11 @@ function decodeUtf8(bytes, label) {
   }
 }
 
-function codePointCompare(left, right) {
+export function codePointCompare(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function validateOrigin(sourceOrigin) {
+export function validateOrigin(sourceOrigin) {
   let parsed;
   try {
     parsed = new URL(sourceOrigin);

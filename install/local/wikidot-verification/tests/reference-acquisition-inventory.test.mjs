@@ -12,6 +12,7 @@ import {
   computeReferenceAcquisitionInventoryIdentity,
   serializeReferenceAcquisitionInventory,
 } from "../src/reference-acquisition-inventory.mjs";
+import { validateReferenceAcquisitionInventory } from "../src/reference-acquisition-inventory-validation.mjs";
 
 const CLI_PATH = fileURLToPath(
   new URL(
@@ -144,6 +145,125 @@ test("builds a deterministic, portable, exactly sharded acquisition inventory", 
   assert.doesNotMatch(
     serialized,
     /host\/path|corpus_path|file_path|metadata_path/u,
+  );
+});
+
+test("validates loaded inventory structure and exact shard ownership", () => {
+  const inventory = build(TWO_ROWS);
+  const validated = validateReferenceAcquisitionInventory(inventory, {
+    expectedIdentitySha256: inventory.identity.sha256,
+  });
+  assert.equal(validated, inventory);
+  assert.equal(Object.isFrozen(validated.rows[0].baseline), true);
+  assert.throws(() => {
+    validated.rows[0].fullname = "mutated";
+  }, TypeError);
+  const shallowFrozen = build(TWO_ROWS);
+  Object.freeze(shallowFrozen.rows);
+  validateReferenceAcquisitionInventory(shallowFrozen, {
+    expectedIdentitySha256: shallowFrozen.identity.sha256,
+  });
+  assert.equal(Object.isFrozen(shallowFrozen.rows[0].baseline), true);
+  assert.throws(
+    () =>
+      validateReferenceAcquisitionInventory(structuredClone(inventory), {
+        expectedIdentitySha256: "0".repeat(64),
+      }),
+    /expected authority/u,
+  );
+  const wrongOrdinal = structuredClone(inventory);
+  wrongOrdinal.rows[0].ordinal = 1;
+  wrongOrdinal.identity.sha256 =
+    computeReferenceAcquisitionInventoryIdentity(wrongOrdinal);
+  assert.throws(
+    () =>
+      validateReferenceAcquisitionInventory(wrongOrdinal, {
+        expectedIdentitySha256: wrongOrdinal.identity.sha256,
+      }),
+    /ordinal is not exact/u,
+  );
+  const wrongShard = structuredClone(inventory);
+  const populatedShard = wrongShard.shards.find(
+    (shard) => shard.fixture_ids.length > 0,
+  );
+  populatedShard.fixture_ids = [];
+  populatedShard.count = 0;
+  populatedShard.fixture_set_sha256 = sha256Hex("");
+  wrongShard.identity.sha256 =
+    computeReferenceAcquisitionInventoryIdentity(wrongShard);
+  assert.throws(
+    () =>
+      validateReferenceAcquisitionInventory(wrongShard, {
+        expectedIdentitySha256: wrongShard.identity.sha256,
+      }),
+    /exact fixture set/u,
+  );
+});
+
+test("loaded validation preserves the builder authority and canonical row rules", () => {
+  for (const sourceOrigin of [
+    "https://attacker.example",
+    "https://wikidot.com",
+    "https://scp-wiki.wikidot.com:444",
+  ]) {
+    const inventory = build(TWO_ROWS);
+    inventory.source_origin = sourceOrigin;
+    for (const row of inventory.rows) {
+      const sourceUrl = new URL(sourceOrigin);
+      sourceUrl.pathname = `/${row.fullname}`;
+      row.source_url = sourceUrl.href;
+    }
+    inventory.identity.sha256 =
+      computeReferenceAcquisitionInventoryIdentity(inventory);
+    assert.throws(() =>
+      validateReferenceAcquisitionInventory(inventory, {
+        expectedIdentitySha256: inventory.identity.sha256,
+      }),
+    );
+  }
+  for (const fullname of ["a/b", "a\\b", "../admin", "bad%"]) {
+    const inventory = build(TWO_ROWS);
+    const row = inventory.rows[0];
+    row.fullname = fullname;
+    row.slug = fullname;
+    row.fixture_id = `EN:${fullname}`;
+    const sourceUrl = new URL(inventory.source_origin);
+    sourceUrl.pathname = `/${fullname}`;
+    row.source_url = sourceUrl.href;
+    inventory.identity.sha256 =
+      computeReferenceAcquisitionInventoryIdentity(inventory);
+    assert.throws(() =>
+      validateReferenceAcquisitionInventory(inventory, {
+        expectedIdentitySha256: inventory.identity.sha256,
+      }),
+    );
+  }
+  const badTimestamp = build(TWO_ROWS);
+  badTimestamp.rows[0].baseline.updated_at = "2026-07-18";
+  badTimestamp.identity.sha256 =
+    computeReferenceAcquisitionInventoryIdentity(badTimestamp);
+  assert.throws(
+    () =>
+      validateReferenceAcquisitionInventory(badTimestamp, {
+        expectedIdentitySha256: badTimestamp.identity.sha256,
+      }),
+    /RFC 3339/u,
+  );
+  const reordered = build(TWO_ROWS);
+  reordered.rows.reverse();
+  reordered.rows.forEach((row, ordinal) => {
+    row.ordinal = ordinal;
+  });
+  reordered.source_manifest.first_fullname = reordered.rows[0].fullname;
+  reordered.source_manifest.last_fullname = reordered.rows.at(-1).fullname;
+  reordered.identity.sha256 =
+    computeReferenceAcquisitionInventoryIdentity(reordered);
+  assert.throws(
+    () =>
+      validateReferenceAcquisitionInventory(reordered, {
+        expectedIdentitySha256: reordered.identity.sha256,
+      }),
+    /canonical row order/u,
   );
 });
 
