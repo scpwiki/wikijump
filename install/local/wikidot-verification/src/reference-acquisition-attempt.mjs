@@ -175,6 +175,27 @@ function computeWorkIdentity(context, binding, layer, producer) {
   });
 }
 
+export function buildReferenceAcquisitionWorkTarget({
+  context,
+  layer,
+  ordinal,
+  producer,
+}) {
+  const inventory = inventoryBinding(context, ordinal);
+  const normalizedProducer = normalizeProducer(producer);
+  return Object.freeze({
+    inventory,
+    layer,
+    producer: normalizedProducer,
+    work_identity: computeWorkIdentity(
+      context,
+      inventory,
+      layer,
+      normalizedProducer,
+    ),
+  });
+}
+
 function normalizeAttempt(attempt, context) {
   assertExactKeys(attempt, ATTEMPT_KEYS, "attempt");
   if (attempt.schema !== REFERENCE_ACQUISITION_ATTEMPT_SCHEMA) {
@@ -248,26 +269,25 @@ export function buildReferenceAcquisitionAttempt({
   producer,
   startedAt,
 }) {
-  const binding = inventoryBinding(context, ordinal);
-  const normalizedProducer = normalizeProducer(producer);
+  const target = buildReferenceAcquisitionWorkTarget({
+    context,
+    layer,
+    ordinal,
+    producer,
+  });
   return normalizeAttempt(
     {
       attempt_id: attemptId,
       failure,
       finished_at: finishedAt,
-      inventory: binding,
+      inventory: target.inventory,
       layer,
       objects: normalizeObjects(objects, outcome),
       outcome,
-      producer: normalizedProducer,
+      producer: target.producer,
       schema: REFERENCE_ACQUISITION_ATTEMPT_SCHEMA,
       started_at: startedAt,
-      work_identity: computeWorkIdentity(
-        context,
-        binding,
-        layer,
-        normalizedProducer,
-      ),
+      work_identity: target.work_identity,
     },
     context,
   );
@@ -275,6 +295,11 @@ export function buildReferenceAcquisitionAttempt({
 
 export function createReferenceAcquisitionContext(inventory, options) {
   return new ReferenceAcquisitionContext(inventory, options);
+}
+
+export function validateReferenceAcquisitionContext(context) {
+  assertContext(context);
+  return context;
 }
 
 export function validateReferenceAcquisitionAttempt(attempt, context) {

@@ -8,12 +8,14 @@ import test from "node:test";
 import { sha256Hex, stableStringify } from "../src/corpus-import-manifest.mjs";
 import {
   buildReferenceAcquisitionAttempt,
+  buildReferenceAcquisitionWorkTarget,
   createReferenceAcquisitionContext,
   parseReferenceAcquisitionAttempt,
   putReferenceAcquisitionAttempt,
   readReferenceAcquisitionAttempt,
   serializeReferenceAcquisitionAttempt,
   validateReferenceAcquisitionAttempt,
+  validateReferenceAcquisitionContext,
 } from "../src/reference-acquisition-attempt.mjs";
 import { buildReferenceAcquisitionInventory } from "../src/reference-acquisition-inventory.mjs";
 import {
@@ -80,6 +82,44 @@ function createContext(inventory, expected = inventory.identity.sha256) {
     expectedIdentitySha256: expected,
   });
 }
+
+test("work targets are derived only from a pinned inventory context", () => {
+  const inventory = buildInventory();
+  const context = createContext(inventory);
+  const producer = {
+    contract: "wikijump_full_parity.wikidot_xmlrpc_acquirer.v1",
+    identity: { algorithm: "sha256", bytes: 17, sha256: "c".repeat(64) },
+  };
+  assert.equal(validateReferenceAcquisitionContext(context), context);
+  assert.throws(() => validateReferenceAcquisitionContext({}), /context/u);
+  const target = buildReferenceAcquisitionWorkTarget({
+    context,
+    layer: "xmlrpc_page",
+    ordinal: 0,
+    producer,
+  });
+  assert.equal(
+    target.work_identity.sha256,
+    sha256Hex(
+      stableStringify({
+        inventory: target.inventory,
+        layer: target.layer,
+        producer: target.producer,
+      }),
+    ),
+  );
+  assert(Object.isFrozen(target));
+  assert.throws(
+    () =>
+      buildReferenceAcquisitionWorkTarget({
+        context,
+        layer: "unrequested_layer",
+        ordinal: 0,
+        producer,
+      }),
+    /not requested/u,
+  );
+});
 
 function golden(name) {
   return fs.readFile(new URL(`${FIXTURES}${name}`, import.meta.url));
