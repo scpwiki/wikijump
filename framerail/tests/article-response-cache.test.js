@@ -28,6 +28,8 @@ import {
 } from "../src/lib/server/article-response-cache.js"
 import { createRedisCacheStore } from "../src/lib/server/redis-cache-store.js"
 
+const REQUEST_HOST = "scp-wiki.example"
+
 const redisArray = (...values) => {
   let response = `*${values.length}\r\n`
   for (const value of values) {
@@ -139,6 +141,7 @@ test("anonymous article response cache key requires Deepwell eligibility metadat
   const metadata = buildAnonymousArticleResponseCacheMetadata({
     siteId: 6000005,
     siteSlug: "scp-wiki",
+    requestHost: REQUEST_HOST,
     requestLocales: ["ja-JP", "en-US"],
     backendLocales: ["ja-JP", "en-US", "en"],
     deepwellArticlePageCacheKey
@@ -147,6 +150,7 @@ test("anonymous article response cache key requires Deepwell eligibility metadat
   assert.deepEqual(metadata, {
     siteId: 6000005,
     siteSlug: "scp-wiki",
+    requestHost: REQUEST_HOST,
     requestLocales: ["ja-JP", "en-US"],
     backendLocales: ["ja-JP", "en-US", "en"],
     deepwellArticlePageCacheKey,
@@ -156,13 +160,14 @@ test("anonymous article response cache key requires Deepwell eligibility metadat
 
   assert.match(
     buildAnonymousArticleResponseCacheKey(metadata),
-    /^framerail:article-response:v1:site=6000005:slug=7363702d77696b69:requestLocales=6a612d4a502c656e2d5553:backendLocales=6a612d4a502c656e2d55532c656e:content=0:permission=anonymous-page-view-v1:deepwell=[a-f0-9]{64}$/
+    /^framerail:article-response:v1:site=6000005:slug=7363702d77696b69:host=7363702d77696b692e6578616d706c65:requestLocales=6a612d4a502c656e2d5553:backendLocales=6a612d4a502c656e2d55532c656e:content=0:permission=anonymous-page-view-v1:deepwell=[a-f0-9]{64}$/
   )
 
   assert.equal(
     buildAnonymousArticleResponseCacheMetadata({
       siteId: 6000005,
       siteSlug: "scp-wiki",
+      requestHost: REQUEST_HOST,
       requestLocales: ["en-US"],
       backendLocales: ["en-US", "en"],
       deepwellArticlePageCacheKey: null
@@ -552,6 +557,7 @@ test("anonymous article response token maps route and fences to Deepwell cache k
   const tokenMetadata = buildAnonymousArticleResponseCacheFences({
     siteId: 6000005,
     siteSlug: "scp-wiki",
+    requestHost: REQUEST_HOST,
     route: { slug: "scp-173", extra: "" },
     requestLocales: ["en-US"],
     backendLocales: ["en-US", "en"],
@@ -568,7 +574,7 @@ test("anonymous article response token maps route and fences to Deepwell cache k
 
   assert.match(
     tokenKey,
-    /^framerail:article-response-token:v1:site=6000005:slug=7363702d77696b69:route=[a-f0-9]{64}:requestLocales=656e2d5553:backendLocales=656e2d55532c656e:content=7:permission=736974653d31312c757365723d3133$/
+    /^framerail:article-response-token:v1:site=6000005:slug=7363702d77696b69:host=7363702d77696b692e6578616d706c65:route=[a-f0-9]{64}:requestLocales=656e2d5553:backendLocales=656e2d55532c656e:content=7:permission=736974653d31312c757365723d3133$/
   )
   assert.equal(
     await writeAnonymousArticleResponseToken({
@@ -588,6 +594,7 @@ test("anonymous article response token write skips when captured fences are stal
   const tokenMetadata = buildAnonymousArticleResponseCacheFences({
     siteId: 6000005,
     siteSlug: "scp-wiki",
+    requestHost: REQUEST_HOST,
     route: { slug: "scp-173", extra: "" },
     requestLocales: ["en-US"],
     backendLocales: ["en-US", "en"],
@@ -615,6 +622,7 @@ test("anonymous article response token reads fail closed on malformed values", a
   const tokenMetadata = buildAnonymousArticleResponseCacheFences({
     siteId: 6000005,
     siteSlug: "scp-wiki",
+    requestHost: REQUEST_HOST,
     route: { slug: "scp-173", extra: "" },
     requestLocales: ["en-US"],
     backendLocales: ["en-US", "en"],
@@ -631,6 +639,7 @@ test("anonymous article response cache key varies by Deepwell cache key", () => 
   const baseMetadata = {
     siteId: 6000005,
     siteSlug: "scp-wiki",
+    requestHost: REQUEST_HOST,
     requestLocales: ["en-US"],
     backendLocales: ["en-US", "en"]
   }
@@ -648,6 +657,54 @@ test("anonymous article response cache key varies by Deepwell cache key", () => 
   assert.notEqual(
     buildAnonymousArticleResponseCacheKey(first),
     buildAnonymousArticleResponseCacheKey(second)
+  )
+})
+
+test("anonymous article response cache and token keys vary by request host", () => {
+  const baseMetadata = {
+    siteId: 6000005,
+    siteSlug: "scp-wiki",
+    requestLocales: ["en-US"],
+    backendLocales: ["en-US", "en"],
+    deepwellArticlePageCacheKey:
+      "deepwell:article-view:page:v1:site=6000005:page=173:rev=9:updated=123:permission=site:3:user:anonymous:body=aa"
+  }
+  const first = buildAnonymousArticleResponseCacheMetadata({
+    ...baseMetadata,
+    requestHost: "scp-wiki.example"
+  })
+  const second = buildAnonymousArticleResponseCacheMetadata({
+    ...baseMetadata,
+    requestHost: "scp-wiki.alt-example"
+  })
+
+  assert.notEqual(
+    buildAnonymousArticleResponseCacheKey(first),
+    buildAnonymousArticleResponseCacheKey(second)
+  )
+
+  const baseFences = {
+    siteId: 6000005,
+    siteSlug: "scp-wiki",
+    route: { slug: "scp-173", extra: "" },
+    requestLocales: ["en-US"],
+    backendLocales: ["en-US", "en"],
+    publicContentFence: "7",
+    permissionFence: "site=11,user=13"
+  }
+  assert.notEqual(
+    buildAnonymousArticleResponseTokenKey(
+      buildAnonymousArticleResponseCacheFences({
+        ...baseFences,
+        requestHost: "scp-wiki.example"
+      })
+    ),
+    buildAnonymousArticleResponseTokenKey(
+      buildAnonymousArticleResponseCacheFences({
+        ...baseFences,
+        requestHost: "scp-wiki.alt-example"
+      })
+    )
   )
 })
 
@@ -1051,6 +1108,7 @@ test("anonymous article response cache read/write helpers gate final responses",
   const metadata = buildAnonymousArticleResponseCacheMetadata({
     siteId: 6000005,
     siteSlug: "scp-wiki",
+    requestHost: REQUEST_HOST,
     requestLocales: ["en-US"],
     backendLocales: ["en-US", "en"],
     deepwellArticlePageCacheKey:

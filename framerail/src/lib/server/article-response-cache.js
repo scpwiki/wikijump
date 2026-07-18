@@ -83,6 +83,7 @@ export const canConsiderAnonymousArticleResponseCache = ({
 export const buildAnonymousArticleResponseCacheMetadata = ({
   siteId,
   siteSlug,
+  requestHost,
   requestLocales,
   backendLocales,
   deepwellArticlePageCacheKey,
@@ -91,6 +92,7 @@ export const buildAnonymousArticleResponseCacheMetadata = ({
 }) => {
   if (!Number.isInteger(siteId) || siteId <= 0) return null
   if (!siteSlug) return null
+  if (typeof requestHost !== "string" || requestHost.length === 0) return null
   if (!Array.isArray(requestLocales) || !Array.isArray(backendLocales)) return null
   if (!deepwellArticlePageCacheKey) return null
   if (!publicContentFence || !permissionFence) return null
@@ -98,6 +100,7 @@ export const buildAnonymousArticleResponseCacheMetadata = ({
   return {
     siteId,
     siteSlug,
+    requestHost,
     requestLocales,
     backendLocales,
     deepwellArticlePageCacheKey,
@@ -120,6 +123,7 @@ export const buildAnonymousPermissionFenceKeys = (siteId) => {
 export const buildAnonymousArticleResponseCacheFences = ({
   siteId,
   siteSlug,
+  requestHost,
   route,
   requestLocales,
   backendLocales,
@@ -128,12 +132,14 @@ export const buildAnonymousArticleResponseCacheFences = ({
 }) => {
   if (!Number.isInteger(siteId) || siteId <= 0) return null
   if (!siteSlug) return null
+  if (typeof requestHost !== "string" || requestHost.length === 0) return null
   if (!Array.isArray(requestLocales) || !Array.isArray(backendLocales)) return null
   if (!publicContentFence || !permissionFence) return null
 
   return {
     siteId,
     siteSlug,
+    requestHost,
     route: route ?? null,
     requestLocales,
     backendLocales,
@@ -374,6 +380,7 @@ export const buildAnonymousArticleResponseCacheKey = (metadata) => {
     RESPONSE_CACHE_PREFIX,
     `site=${metadata.siteId}`,
     `slug=${utf8Hex(metadata.siteSlug)}`,
+    `host=${utf8Hex(metadata.requestHost)}`,
     `requestLocales=${utf8Hex(metadata.requestLocales.join(","))}`,
     `backendLocales=${utf8Hex(metadata.backendLocales.join(","))}`,
     `content=${metadata.publicContentFence}`,
@@ -397,6 +404,7 @@ export const buildAnonymousArticleResponseTokenKey = (metadata) => {
     RESPONSE_TOKEN_PREFIX,
     `site=${metadata.siteId}`,
     `slug=${utf8Hex(metadata.siteSlug)}`,
+    `host=${utf8Hex(metadata.requestHost)}`,
     `route=${sha256Hex(JSON.stringify(route))}`,
     `requestLocales=${utf8Hex(metadata.requestLocales.join(","))}`,
     `backendLocales=${utf8Hex(metadata.backendLocales.join(","))}`,

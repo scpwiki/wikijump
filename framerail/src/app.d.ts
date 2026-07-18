@@ -4,6 +4,7 @@
 
 import type { Layout } from "$lib/types"
 import type { RequestContext } from "$lib/server/load/request-ctx"
+import type { buildWikidotRequestInfo } from "$lib/server/wikidot-request-info"
 import type { Locales } from "./types"
 
 declare global {
@@ -171,9 +172,11 @@ declare global {
 
     interface Locals {
       requestContext: RequestContext
+      wikidotRequestInfo?: ReturnType<typeof buildWikidotRequestInfo>
       anonymousArticleResponseCacheMetadata?: {
         siteId: number
         siteSlug: string
+        requestHost: string
         requestLocales: string[]
         backendLocales: string[]
         deepwellArticlePageCacheKey: string
