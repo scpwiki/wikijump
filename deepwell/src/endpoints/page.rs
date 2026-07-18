@@ -45,12 +45,96 @@ use crate::types::{
 };
 use crate::utils::get_category_name;
 use futures::future::try_join_all;
+use regex::Regex;
 use sea_orm::{
     ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait,
 };
 use std::borrow::Cow;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
+use std::sync::LazyLock;
 use time::OffsetDateTime;
+
+static WIKIDOT_LIST_PAGES_SET_PAIR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?s)<span class="set (?P<name_class>[^"]+)"><span class="name">(?P<name>.*?)</span></span><span class="set (?P<value_class>[^"]+)"><span class="value">(?P<value>.*?)</span></span>"#,
+    )
+    .expect("Wikidot ListPages set-pair expression is valid")
+});
+
+#[derive(Deserialize)]
+struct WikidotListPagesModuleInput {
+    site_id: i64,
+    module_body: String,
+    parameters: BTreeMap<String, String>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct WikidotListPagesModuleOutput {
+    pub body: String,
+}
+
+pub async fn wikidot_list_pages_module(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<WikidotListPagesModuleOutput> {
+    let input: WikidotListPagesModuleInput = parse!(params, Page);
+    let output = RenderService::render_wikidot_list_pages_module(
+        ctx,
+        input.site_id,
+        input.module_body,
+        &input.parameters,
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            format!(
+                "failed to render Wikidot ListPages module in site ID {}",
+                input.site_id,
+            ),
+            ErrorType::Page,
+        )
+    })?;
+
+    Ok(WikidotListPagesModuleOutput {
+        body: normalize_wikidot_list_pages_set_pairs(&output.html_output.body),
+    })
+}
+
+/// FTML renders adjacent inline spans as sibling nodes in this module shape.
+/// wikidot.py's ListPages parser instead treats the name and value spans as one
+/// `set` record, so restore that documented connector-only wire shape here.
+fn normalize_wikidot_list_pages_set_pairs(body: &str) -> String {
+    WIKIDOT_LIST_PAGES_SET_PAIR_REGEX
+        .replace_all(body, |captures: &regex::Captures<'_>| {
+            let name_class = captures
+                .name("name_class")
+                .expect("set-pair name class capture exists")
+                .as_str();
+            let value_class = captures
+                .name("value_class")
+                .expect("set-pair value class capture exists")
+                .as_str();
+            if name_class != value_class {
+                return captures
+                    .get(0)
+                    .expect("set-pair full capture exists")
+                    .as_str()
+                    .to_owned();
+            }
+            format!(
+                r#"<span class="set {name_class}"><span class="name">{}</span><span class="value">{}</span></span>"#,
+                captures
+                    .name("name")
+                    .expect("set-pair name capture exists")
+                    .as_str(),
+                captures
+                    .name("value")
+                    .expect("set-pair value capture exists")
+                    .as_str(),
+            )
+        })
+        .into_owned()
+}
 
 pub async fn page_create(
     ctx: &ServiceContext<'_>,

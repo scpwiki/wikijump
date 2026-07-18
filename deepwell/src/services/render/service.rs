@@ -74,6 +74,7 @@ use super::wikidot_inline_markers::{
 };
 use crate::hash::TextHash;
 use crate::models::page::{self, Entity as Page};
+use crate::models::page_category::{self, Entity as PageCategory};
 use crate::models::page_revision;
 use crate::models::site::Model as SiteModel;
 use crate::models::user::{self, Entity as UserTable};
@@ -106,7 +107,7 @@ use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::*;
 use ftml::tree::{CodeBlock, VariableMap};
 use regex::Regex;
-use sea_orm::{FromQueryResult, Statement, Value};
+use sea_orm::{ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, Statement, Value};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::future::Future;
@@ -386,6 +387,9 @@ const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
 const MAX_LISTPAGES_CONTENT_QUERIES_PER_RENDER: usize = 3;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
+const MAX_WIKIDOT_AJAX_MODULE_BODY_BYTES: usize = 65_536;
+const MAX_WIKIDOT_AJAX_MODULE_PARAMETERS: usize = 64;
+const MAX_WIKIDOT_AJAX_MODULE_PARAMETER_BYTES: usize = 4_096;
 const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
 const LONG_NATIVE_LIST_RENDER_MIN_ITEMS: usize = 8;
 const MAX_NATIVE_LIST_COMPAT_DEPTH: usize = 64;
@@ -755,6 +759,70 @@ impl RenderService {
         ))
         .await
         .or_raise(make_error)?;
+
+        Ok(RenderOutput {
+            html_output,
+            errors,
+            compiled_hash,
+            compiled_at: now(),
+            compiled_generator: COMPILED_GENERATOR.clone(),
+        })
+    }
+
+    pub async fn render_wikidot_list_pages_module(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        module_body: String,
+        parameters: &BTreeMap<String, String>,
+    ) -> Result<RenderOutput> {
+        let make_error = || {
+            Error::new(
+                format!("failed to render Wikidot ListPages module in site ID {site_id}"),
+                ErrorType::Render,
+            )
+        };
+        let site = SiteService::get(ctx, Reference::Id(site_id))
+            .await
+            .or_raise(make_error)?;
+        let wikitext = build_wikidot_list_pages_module_source(module_body, parameters)
+            .ok_or_raise(make_error)?;
+        let page_info = PageInfo {
+            page: Cow::Borrowed("_ajax-module-connector"),
+            category: None,
+            site: Cow::Owned(site.slug),
+            title: Cow::Borrowed(""),
+            alt_title: None,
+            score: ScoreValue::Integer(0),
+            tags: Vec::new(),
+            language: Cow::Owned(site.locale),
+        };
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let RenderInnerOutput {
+            html_output,
+            errors,
+            compiled_hash,
+        } = Box::pin(Self::render_inner(
+            ctx,
+            wikitext,
+            &page_info,
+            &settings,
+            RenderContext::ajax_module(site_id),
+            MAX_INCLUDE_EXPANSION_TOTAL,
+            None,
+        ))
+        .await
+        .or_raise(make_error)?;
+
+        let normalized_body = html_output.body.to_ascii_lowercase();
+        if normalized_body.contains("[[module listpages")
+            || normalized_body.contains("[[/module]]")
+        {
+            return Err(Error::new(
+                "unsupported Wikidot ListPages module query",
+                ErrorType::Render,
+            )
+            .into());
+        }
 
         Ok(RenderOutput {
             html_output,
@@ -7880,6 +7948,7 @@ impl RenderService {
             site_id: current_site_id,
             page_id: current_page_id,
         } = page_context;
+        let ajax_module_response = current_page_id == 0;
         let initial_remaining_include_expansions = include_budget.remaining;
         let ListPagesArguments {
             current_page_only,
@@ -7909,6 +7978,8 @@ impl RenderService {
             name_pattern,
             data_form_fields,
             prepend_line,
+            separate,
+            wrapper,
             unsupported_author_filter: _,
             unsupported_score_filter: _,
             unsupported_count_pages_filter: _,
@@ -8126,6 +8197,27 @@ impl RenderService {
                 );
             }
         }
+        let category_ids = pages
+            .iter()
+            .filter_map(|page| page.page_category_id)
+            .collect::<BTreeSet<_>>();
+        let category_slugs = if category_ids.is_empty() {
+            BTreeMap::new()
+        } else {
+            PageCategory::find()
+                .filter(page_category::Column::CategoryId.is_in(category_ids))
+                .all(ctx.transaction())
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        "failed to load ListPages page categories",
+                        ErrorType::Render,
+                    )
+                })?
+                .into_iter()
+                .map(|category| (category.category_id, category.slug))
+                .collect::<BTreeMap<_, _>>()
+        };
         let loaded_user_displays =
             if (wants_created_by || wants_updated_by) && prefetched_displays.is_none() {
                 Some(Self::load_wikidot_user_displays(ctx, &pages).await?)
@@ -8159,7 +8251,10 @@ impl RenderService {
             .map(|displays| &displays.snapshot_displays)
             .or(loaded_snapshot_displays.as_ref())
             .unwrap_or(&empty_snapshot_displays);
-        let mut output = String::from("[[div class=\"list-pages-box\"]]\n");
+        let mut output = String::new();
+        if wrapper {
+            output.push_str("[[div class=\"list-pages-box\"]]\n");
+        }
         let mut included_pages = Vec::new();
         if let Some(prepend_line) = prepend_line {
             output.push_str(&prepend_line);
@@ -8169,7 +8264,9 @@ impl RenderService {
         let render_generated_html =
             template.output_shape() == ListPagesOutputShape::TableRows;
         for (index, page) in pages.iter().enumerate() {
-            output.push_str("[[div class=\"list-pages-item\"]]\n");
+            if separate {
+                output.push_str("[[div class=\"list-pages-item\"]]\n");
+            }
             let cache_key = (page.site_id, page.page_id);
             let page_wikitext = if wants_content || wants_data_form_values {
                 content_cache
@@ -8284,6 +8381,12 @@ impl RenderService {
                 .unwrap_or_default();
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
+                ajax_module_response,
+                category: page
+                    .page_category_id
+                    .and_then(|category_id| category_slugs.get(&category_id))
+                    .map(String::as_str)
+                    .unwrap_or_default(),
                 user_displays,
                 snapshot_displays,
                 page_wikitext: None,
@@ -8311,7 +8414,11 @@ impl RenderService {
             } else {
                 output.push_str(&render_list_pages_numbered_rows(&body));
             }
-            output.push_str("\n[[/div]]\n");
+            if separate {
+                output.push_str("\n[[/div]]\n");
+            } else {
+                output.push('\n');
+            }
         }
 
         if let Some(per_page) = count_pages_per_page {
@@ -8324,7 +8431,9 @@ impl RenderService {
             );
         }
 
-        output.push_str("[[/div]]");
+        if wrapper {
+            output.push_str("[[/div]]");
+        }
         if wants_content {
             expansion_budget.consume_content_rows(total);
         }
@@ -8379,6 +8488,8 @@ impl RenderService {
             unsupported_author_filter: _,
             unsupported_score_filter: _,
             unsupported_count_pages_filter: _,
+            separate: _,
+            wrapper: _,
         } = arguments;
         let count_pages_query_limit = count_pages_explicit_limit
             .map(|limit| {
@@ -9424,6 +9535,8 @@ struct ListPagesArguments {
     name_pattern: Option<Cow<'static, str>>,
     data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
+    separate: bool,
+    wrapper: bool,
     unsupported_author_filter: bool,
     unsupported_score_filter: bool,
     unsupported_count_pages_filter: bool,
@@ -9571,6 +9684,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut name_pattern = None;
     let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
+    let mut separate = true;
+    let mut wrapper = true;
     let mut unsupported_author_filter = false;
     let mut unsupported_score_filter = false;
     let mut unsupported_count_pages_filter = false;
@@ -9730,12 +9845,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
             // implemented by PageQueryService yet. Leaving the module untouched is
             // safer than silently returning a wrong list.
             "separate" => {
-                if !matches!(
-                    value.to_ascii_lowercase().as_str(),
-                    "yes" | "no" | "true" | "false"
-                ) {
-                    return None;
-                }
+                separate = parse_list_pages_boolean_argument(value)?;
             }
             "created_by" | "createdby" => {
                 author_filter_present = true;
@@ -9777,7 +9887,9 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 }
                 _ => {}
             },
-            "wrapper" => {}
+            "wrapper" => {
+                wrapper = parse_list_pages_boolean_argument(value)?;
+            }
             "rating" | "score" => {
                 let Some(value) = static_list_pages_selector(
                     value,
@@ -9865,6 +9977,8 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         name_pattern,
         data_form_fields,
         prepend_line,
+        separate,
+        wrapper,
         unsupported_author_filter,
         unsupported_score_filter,
         unsupported_count_pages_filter,
@@ -10217,6 +10331,98 @@ fn parse_list_pages_numeric_argument(value: &str) -> Option<u64> {
     }
 
     value.parse().ok()
+}
+
+fn parse_list_pages_boolean_argument(value: &str) -> Option<bool> {
+    match value.trim().to_ascii_lowercase().as_str() {
+        "yes" | "true" => Some(true),
+        "no" | "false" => Some(false),
+        _ => None,
+    }
+}
+
+fn build_wikidot_list_pages_module_source(
+    module_body: String,
+    parameters: &BTreeMap<String, String>,
+) -> Option<String> {
+    let normalized_module_body = module_body.to_ascii_lowercase();
+    if module_body.len() > MAX_WIKIDOT_AJAX_MODULE_BODY_BYTES
+        || parameters.len() > MAX_WIKIDOT_AJAX_MODULE_PARAMETERS
+        || normalized_module_body.contains("[[/module]]")
+    {
+        return None;
+    }
+
+    let mut source = String::from("[[module ListPages");
+    for (key, value) in parameters {
+        let normalized_key = key.to_ascii_lowercase();
+        if !matches!(
+            normalized_key.as_str(),
+            "pagetype"
+                | "page_type"
+                | "page-type"
+                | "category"
+                | "tags"
+                | "tag"
+                | "parent"
+                | "created_at"
+                | "createdat"
+                | "updated_at"
+                | "updatedat"
+                | "created_by"
+                | "createdby"
+                | "rating"
+                | "score"
+                | "name"
+                | "fullname"
+                | "full_slug"
+                | "fullslug"
+                | "range"
+                | "order"
+                | "offset"
+                | "limit"
+                | "perpage"
+                | "per_page"
+                | "separate"
+                | "wrapper"
+        ) || value.len() > MAX_WIKIDOT_AJAX_MODULE_PARAMETER_BYTES
+            || value.chars().any(|character| character.is_control())
+            || value.contains("]]")
+        {
+            return None;
+        }
+        let current_page_dependent = (matches!(
+            normalized_key.as_str(),
+            "name" | "fullname" | "full_slug" | "fullslug"
+        ) && value.trim() == "=")
+            || (normalized_key == "range" && value.trim() == ".")
+            || (normalized_key == "parent" && value.trim() == ".")
+            || (normalized_key == "category"
+                && split_list_pages_values(value)
+                    .iter()
+                    .any(|category| category == "."));
+        if current_page_dependent {
+            return None;
+        }
+
+        let (quote, quoted_value) = if !value.contains('"') {
+            ('"', value.as_str())
+        } else if !value.contains('\'') {
+            ('\'', value.as_str())
+        } else {
+            return None;
+        };
+        source.push(' ');
+        source.push_str(key);
+        source.push('=');
+        source.push(quote);
+        source.push_str(quoted_value);
+        source.push(quote);
+    }
+    source.push_str("]]\n");
+    source.push_str(&module_body);
+    source.push_str("\n[[/module]]");
+    Some(source)
 }
 
 fn parse_list_pages_score_selector(value: &str) -> Option<ScoreSelector> {
@@ -10663,6 +10869,8 @@ fn push_list_pages_pager_target(
 
 struct ListPagesSubstitutionContext<'a> {
     rendered_limit: usize,
+    ajax_module_response: bool,
+    category: &'a str,
     user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
     snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
     page_wikitext: Option<&'a str>,
@@ -10739,7 +10947,13 @@ fn substitute_list_pages_variables_with_fragments(
     let commented_at = snapshot.and_then(|snapshot| snapshot.commented_at);
     let comments = snapshot
         .map(|snapshot| snapshot.comments.to_string())
-        .unwrap_or_default();
+        .unwrap_or_else(|| {
+            if context.ajax_module_response {
+                "0".to_owned()
+            } else {
+                String::new()
+            }
+        });
     let tags = page.tags.as_deref().unwrap_or(&[]);
     let visible_tags = tags
         .iter()
@@ -10777,13 +10991,18 @@ fn substitute_list_pages_variables_with_fragments(
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                 ),
-                "updated_by" | "updatedby" => updated_by.clone(),
+                "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
+                    updated_by.clone()
+                }
                 "updated_at" | "updatedat" => format_list_pages_created_at(
                     updated_at,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                 ),
-                "commented_by" | "commentedby" => commented_by.clone(),
+                "commented_by"
+                | "commentedby"
+                | "commented_by_linked"
+                | "commentedbylinked" => commented_by.clone(),
                 "commented_at" | "commentedat" => format_list_pages_created_at(
                     commented_at,
                     captures.name("format").map(|matched| matched.as_str()),
@@ -10799,6 +11018,10 @@ fn substitute_list_pages_variables_with_fragments(
                     context.render_generated_html,
                     compat_html,
                 ),
+                "_tags" => tags.join(" "),
+                "category" => context.category.to_owned(),
+                "size" | "children" | "revisions" => "0".to_owned(),
+                "parent_fullname" | "rating_percent" => String::new(),
                 "form_data" | "form_raw" => captures
                     .name("argument")
                     .and_then(|matched| context.data_form_values.get(matched.as_str()))
@@ -12642,6 +12865,14 @@ impl RenderContext {
             text_block_page_id: None,
         }
     }
+
+    fn ajax_module(site_id: i64) -> Self {
+        Self {
+            current_site_id: Some(site_id),
+            current_page_id: Some(0),
+            text_block_page_id: None,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -13377,6 +13608,8 @@ mod tests {
     ) -> ListPagesSubstitutionContext<'a> {
         ListPagesSubstitutionContext {
             rendered_limit,
+            ajax_module_response: false,
+            category: "",
             user_displays,
             snapshot_displays,
             page_wikitext,

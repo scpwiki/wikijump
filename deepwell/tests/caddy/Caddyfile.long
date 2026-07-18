@@ -36,6 +36,18 @@
 	respond /-/health-check/caddy ✅ 200
 	respond /-/teapot             🫖 418
 
+	# The anonymous, read-only ListPages endpoint accepts Wikidot form posts without a browser Origin header; the gateway supplies the canonical Origin for SvelteKit.
+	@ajax_module {
+		path /ajax-module-connector.php
+
+	}
+	handle @ajax_module {
+		reverse_proxy framerail:3393 {
+			header_up Host {http.request.host}
+			header_up Origin https://{http.request.host}
+		}
+	}
+
 	# wjfiles-managed routes
 	# These are proxied to wws for it to handle, but shouldn't be redirected
 	@proxy {
