@@ -37,7 +37,7 @@ const RUNTIME_DEPLOYMENT_ENVIRONMENT = parseDeploymentEnvironment()
 const WIKIDOT_INTERWIKI_FRAME_POLICIES = new Map([
   [
     "/-/wikidot-interwiki/interwikiFrame.html",
-    "default-src 'none'; script-src 'unsafe-inline'; img-src https://scp-wiki.wdfiles.com; frame-ancestors 'self'"
+    "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https://scp-wiki.wdfiles.com; frame-ancestors 'self'"
   ],
   [
     "/-/wikidot-interwiki/styleFrame.html",
