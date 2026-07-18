@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/wikidot-xmlrpc-campaign-v1.schema.json",
+  "title": "Wikidot XML-RPC acquisition campaign v1",
+  "description": "Canonical nonsecret identity for one frozen-inventory, read-only acquisition campaign. campaign_id is the SHA-256 of stable-json-v1 authority fields excluding campaign_id. Restarts reuse the descriptor; a deliberate recapture uses a new campaign_nonce. Credential values and derived hashes, names, timestamps, process identities, host paths, mutable endpoints, and compatibility verdicts are forbidden.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "campaign_id",
+    "campaign_nonce",
+    "endpoint",
+    "fallback_used",
+    "implementation",
+    "inventory_sha256",
+    "layer",
+    "method",
+    "observation_schema",
+    "principal_id",
+    "producer_contract",
+    "raw_wire_captured",
+    "read_only",
+    "response_canonicalization",
+    "schema",
+    "site"
+  ],
+  "properties": {
+    "campaign_id": { "$ref": "#/$defs/sha256" },
+    "campaign_nonce": { "$ref": "#/$defs/uuid" },
+    "endpoint": { "const": "https://www.wikidot.com/xml-rpc-api.php" },
+    "fallback_used": { "const": false },
+    "implementation": { "$ref": "#/$defs/referenceObject" },
+    "inventory_sha256": { "$ref": "#/$defs/sha256" },
+    "layer": { "const": "xmlrpc_page" },
+    "method": { "const": "pages.get_one" },
+    "observation_schema": { "const": "wikijump_full_parity.wikidot_xmlrpc_observation.v1" },
+    "principal_id": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "producer_contract": { "const": "wikijump_full_parity.wikidot_xmlrpc_acquirer.v1" },
+    "raw_wire_captured": { "const": false },
+    "read_only": { "const": true },
+    "response_canonicalization": { "const": "stable-json-v1-jsonl" },
+    "schema": { "const": "wikijump_full_parity.wikidot_xmlrpc_campaign.v1" },
+    "site": { "const": "scp-wiki" }
+  },
+  "$defs": {
+    "referenceObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "bytes", "sha256"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "uuid": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" }
+  }
+}
