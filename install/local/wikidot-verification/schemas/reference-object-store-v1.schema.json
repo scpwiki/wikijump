@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/reference-object-store-v1.schema.json",
+  "title": "Wikijump reference object store v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "digest_encoding",
+    "hash_algorithm",
+    "object_encoding",
+    "object_path_template",
+    "reference_schema",
+    "schema"
+  ],
+  "properties": {
+    "digest_encoding": { "const": "lowercase-hex" },
+    "hash_algorithm": { "const": "sha256" },
+    "object_encoding": { "const": "raw" },
+    "object_path_template": {
+      "const": "objects/sha256/{prefix2}/{sha256}"
+    },
+    "reference_schema": {
+      "const": "https://wikijump.org/schemas/reference-object-v1.schema.json"
+    },
+    "schema": {
+      "const": "wikijump_full_parity.reference_object_store.v1"
+    }
+  }
+}

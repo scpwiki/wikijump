@@ -1,0 +1,35 @@
+{
+  "schema": "wikijump_full_parity.reference_object_store_vectors.v1",
+  "vectors": [
+    {
+      "input_hex": "",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "relative_path": "objects/sha256/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_hex": "616263",
+      "bytes": 3,
+      "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+      "relative_path": "objects/sha256/ba/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    },
+    {
+      "input_hex": "68656c6c6f0a",
+      "bytes": 6,
+      "sha256": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+      "relative_path": "objects/sha256/58/5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03"
+    },
+    {
+      "input_hex": "e99baa",
+      "bytes": 3,
+      "sha256": "53058fe2e03c00d93c4ba9361889dd7569d7d7b9674ed172266ee66265208cc6",
+      "relative_path": "objects/sha256/53/53058fe2e03c00d93c4ba9361889dd7569d7d7b9674ed172266ee66265208cc6"
+    },
+    {
+      "input_hex": "00ff1080",
+      "bytes": 4,
+      "sha256": "a33bb2aed757bc839807d7a9deab0688c3cf06d36e53cb428f2e539c8dc76c5b",
+      "relative_path": "objects/sha256/a3/a33bb2aed757bc839807d7a9deab0688c3cf06d36e53cb428f2e539c8dc76c5b"
+    }
+  ]
+}

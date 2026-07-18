@@ -1,0 +1,1 @@
+{"digest_encoding":"lowercase-hex","hash_algorithm":"sha256","object_encoding":"raw","object_path_template":"objects/sha256/{prefix2}/{sha256}","reference_schema":"https://wikijump.org/schemas/reference-object-v1.schema.json","schema":"wikijump_full_parity.reference_object_store.v1"}

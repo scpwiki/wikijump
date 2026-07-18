@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/reference-object-v1.schema.json",
+  "title": "Wikijump immutable reference object v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["algorithm", "bytes", "sha256"],
+  "properties": {
+    "algorithm": { "const": "sha256" },
+    "bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

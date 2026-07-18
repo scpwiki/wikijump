@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-import crypto from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
 
+import { publishBytesNoReplace } from "../src/atomic-no-replace.mjs";
 import {
   buildReferenceAcquisitionInventory,
   serializeReferenceAcquisitionInventory,
@@ -50,44 +49,6 @@ function parseArguments(argv) {
   return values;
 }
 
-function publishNoOverwrite(outputPath, contents) {
-  const absoluteOutput = path.resolve(outputPath);
-  const directory = path.dirname(absoluteOutput);
-  const temporaryPath = path.join(
-    directory,
-    `.${path.basename(absoluteOutput)}.${process.pid}.${crypto.randomUUID()}.tmp`,
-  );
-  let descriptor;
-  try {
-    descriptor = fs.openSync(temporaryPath, "wx", 0o644);
-    fs.writeFileSync(descriptor, contents);
-    fs.fsyncSync(descriptor);
-    fs.closeSync(descriptor);
-    descriptor = undefined;
-    fs.linkSync(temporaryPath, absoluteOutput);
-    fs.unlinkSync(temporaryPath);
-    if (process.platform !== "win32") {
-      const directoryDescriptor = fs.openSync(directory, "r");
-      try {
-        fs.fsyncSync(directoryDescriptor);
-      } finally {
-        fs.closeSync(directoryDescriptor);
-      }
-    }
-  } finally {
-    if (descriptor !== undefined) {
-      fs.closeSync(descriptor);
-    }
-    try {
-      fs.unlinkSync(temporaryPath);
-    } catch (error) {
-      if (error.code !== "ENOENT") {
-        throw error;
-      }
-    }
-  }
-}
-
 try {
   const options = parseArguments(process.argv.slice(2));
   const inventory = buildReferenceAcquisitionInventory({
@@ -100,10 +61,14 @@ try {
     sourceOrigin: options["source-origin"],
     summaryBytes: fs.readFileSync(options.summary),
   });
-  publishNoOverwrite(
+  const publication = await publishBytesNoReplace(
     options.output,
     serializeReferenceAcquisitionInventory(inventory),
+    { mode: 0o644 },
   );
+  if (publication === "exists") {
+    throw new Error(`EEXIST: output already exists: ${options.output}`);
+  }
   process.stdout.write(
     `${JSON.stringify({
       identity_sha256: inventory.identity.sha256,
