@@ -26,6 +26,15 @@ test("permits only the two same-origin Wikidot compatibility frames", () => {
   }
 })
 
+test("permits the interwiki frame's required inline presentation", () => {
+  const interwiki = new Response("")
+  applyStaticSecurityHeaders(interwiki, "/-/wikidot-interwiki/interwikiFrame.html")
+  assert.match(
+    interwiki.headers.get("content-security-policy") ?? "",
+    /style-src 'unsafe-inline'/u
+  )
+})
+
 test("keeps ordinary pages unframeable", () => {
   const response = new Response("", {
     headers: { "content-security-policy": "frame-ancestors 'none'" }
