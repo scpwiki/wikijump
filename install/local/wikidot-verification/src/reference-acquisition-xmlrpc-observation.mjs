@@ -10,14 +10,14 @@ export const WIKIDOT_XMLRPC_OBSERVATION_SCHEMA =
   "wikijump_full_parity.wikidot_xmlrpc_observation.v1";
 export const WIKIDOT_XMLRPC_PRODUCER_CONTRACT =
   "wikijump_full_parity.wikidot_xmlrpc_acquirer.v1";
+export const WIKIDOT_XMLRPC_OBSERVATION_MAX_BYTES = 64 * 1024;
+export const WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES = 32 * 1024 * 1024;
 
 const CAPTURE_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u;
 const ENDPOINT = "https://www.wikidot.com/xml-rpc-api.php";
 const FATAL_UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 const MAX_JSON_DEPTH = 64;
 const MAX_JSON_NODES = 1_000_000;
-const MAX_OBSERVATION_BYTES = 64 * 1024;
-const MAX_RESPONSE_BYTES = 32 * 1024 * 1024;
 const METHOD = "pages.get_one";
 const SITE = "scp-wiki";
 
@@ -263,7 +263,7 @@ function expectedObservation({
   const normalizedReference = validateReferenceObject(responseReference);
   const responseBytes = canonicalJsonLineFromSnapshot(
     normalizedResponse,
-    MAX_RESPONSE_BYTES,
+    WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES,
     "XML-RPC response",
   );
   if (
@@ -312,14 +312,18 @@ function expectedObservation({
 export function serializeWikidotXmlrpcResponse(response, expectedFullname) {
   return canonicalJsonLineFromSnapshot(
     normalizeResponse(response, expectedFullname),
-    MAX_RESPONSE_BYTES,
+    WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES,
     "XML-RPC response",
   );
 }
 
 export function parseWikidotXmlrpcResponse(value, expectedFullname) {
   return normalizeResponse(
-    parseCanonicalJsonLine(value, MAX_RESPONSE_BYTES, "XML-RPC response"),
+    parseCanonicalJsonLine(
+      value,
+      WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES,
+      "XML-RPC response",
+    ),
     expectedFullname,
   );
 }
@@ -362,7 +366,7 @@ export function serializeWikidotXmlrpcObservation(observation, input) {
   }
   return canonicalJsonLineFromSnapshot(
     expected,
-    MAX_OBSERVATION_BYTES,
+    WIKIDOT_XMLRPC_OBSERVATION_MAX_BYTES,
     "XML-RPC observation",
   );
 }
@@ -370,7 +374,7 @@ export function serializeWikidotXmlrpcObservation(observation, input) {
 export function parseWikidotXmlrpcObservation(value, input) {
   const parsed = parseCanonicalJsonLine(
     value,
-    MAX_OBSERVATION_BYTES,
+    WIKIDOT_XMLRPC_OBSERVATION_MAX_BYTES,
     "XML-RPC observation",
   );
   const expected = buildWikidotXmlrpcObservation(input);

@@ -1,3 +1,5 @@
+import { types as utilTypes } from "node:util";
+
 import { stableStringify } from "./corpus-import-manifest.mjs";
 import {
   buildReferenceAcquisitionWorkTarget,
@@ -157,6 +159,49 @@ function sameReference(left, right) {
   return stableStringify(left) === stableStringify(right);
 }
 
+function snapshotResumeOptions(value) {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    utilTypes.isProxy(value)
+  ) {
+    throw new Error("completion resume options must be a data object");
+  }
+  let prototype;
+  let keys;
+  try {
+    prototype = Reflect.getPrototypeOf(value);
+    keys = Reflect.ownKeys(value);
+  } catch {
+    throw new Error("completion resume options must be a data object");
+  }
+  if (
+    ![Object.prototype, null].includes(prototype) ||
+    keys.some(
+      (key) => typeof key !== "string" || !["layers", "producer"].includes(key),
+    ) ||
+    !keys.includes("producer") ||
+    keys.length < 1 ||
+    keys.length > 2
+  ) {
+    throw new Error("completion resume options have unexpected fields");
+  }
+  const snapshot = {};
+  for (const key of keys) {
+    const descriptor = Reflect.getOwnPropertyDescriptor(value, key);
+    if (
+      descriptor === undefined ||
+      !descriptor.enumerable ||
+      !("value" in descriptor)
+    ) {
+      throw new Error("completion resume options must contain data fields");
+    }
+    snapshot[key] = descriptor.value;
+  }
+  return snapshot;
+}
+
 export class ReferenceAcquisitionCompletionConflictError extends Error {
   constructor(existing, attempted) {
     super("a different complete attempt already owns this work identity");
@@ -261,9 +306,11 @@ class ReferenceAcquisitionCompletions {
     });
   }
 
-  async planResume({ producer }) {
+  async planResume(options) {
+    const { layers, producer } = snapshotResumeOptions(options);
     const targets = listReferenceAcquisitionWorkTargets({
       context: this.#context,
+      layers,
       producer,
     });
     await this.#store.verifyObject(targets[0].producer.identity);

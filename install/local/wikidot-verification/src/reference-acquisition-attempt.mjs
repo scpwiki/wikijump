@@ -1,3 +1,5 @@
+import { types as utilTypes } from "node:util";
+
 import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
 import { validateReferenceAcquisitionInventory } from "./reference-acquisition-inventory-validation.mjs";
 import { validateReferenceObject } from "./reference-object-store.mjs";
@@ -191,6 +193,109 @@ function buildWorkTarget(context, layer, ordinal, producer) {
   });
 }
 
+function normalizeLayerFilter(context, layers) {
+  if (layers === undefined) return null;
+  const available = new Set(context.rows[0].layers);
+  if (!Array.isArray(layers) || utilTypes.isProxy(layers)) {
+    throw new Error("acquisition layer filter must be a data array");
+  }
+  let keys;
+  let lengthDescriptor;
+  try {
+    keys = Reflect.ownKeys(layers);
+    lengthDescriptor = Reflect.getOwnPropertyDescriptor(layers, "length");
+  } catch {
+    throw new Error("acquisition layer filter must be a data array");
+  }
+  if (
+    lengthDescriptor === undefined ||
+    !("value" in lengthDescriptor) ||
+    !Number.isSafeInteger(lengthDescriptor.value) ||
+    lengthDescriptor.value < 1 ||
+    lengthDescriptor.value > available.size ||
+    keys.length !== lengthDescriptor.value + 1
+  ) {
+    throw new Error("acquisition layer filter must be a dense data array");
+  }
+  const selected = new Set();
+  for (let index = 0; index < lengthDescriptor.value; index += 1) {
+    const descriptor = Reflect.getOwnPropertyDescriptor(layers, String(index));
+    if (
+      descriptor === undefined ||
+      !descriptor.enumerable ||
+      !("value" in descriptor) ||
+      typeof descriptor.value !== "string" ||
+      !available.has(descriptor.value) ||
+      selected.has(descriptor.value)
+    ) {
+      throw new Error(
+        "acquisition layer filter contains an invalid or duplicate layer",
+      );
+    }
+    selected.add(descriptor.value);
+  }
+  if (
+    keys.some(
+      (key) =>
+        key !== "length" &&
+        (typeof key !== "string" ||
+          !Number.isSafeInteger(Number(key)) ||
+          String(Number(key)) !== key ||
+          Number(key) < 0 ||
+          Number(key) >= lengthDescriptor.value),
+    )
+  ) {
+    throw new Error("acquisition layer filter has unexpected fields");
+  }
+  return selected;
+}
+
+function snapshotWorkTargetListOptions(value) {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    utilTypes.isProxy(value)
+  ) {
+    throw new Error("work target list options must be a data object");
+  }
+  let prototype;
+  let keys;
+  try {
+    prototype = Reflect.getPrototypeOf(value);
+    keys = Reflect.ownKeys(value);
+  } catch {
+    throw new Error("work target list options must be a data object");
+  }
+  if (
+    ![Object.prototype, null].includes(prototype) ||
+    keys.some(
+      (key) =>
+        typeof key !== "string" ||
+        !["context", "layers", "producer"].includes(key),
+    ) ||
+    !keys.includes("context") ||
+    !keys.includes("producer") ||
+    keys.length < 2 ||
+    keys.length > 3
+  ) {
+    throw new Error("work target list options have unexpected fields");
+  }
+  const snapshot = {};
+  for (const key of keys) {
+    const descriptor = Reflect.getOwnPropertyDescriptor(value, key);
+    if (
+      descriptor === undefined ||
+      !descriptor.enumerable ||
+      !("value" in descriptor)
+    ) {
+      throw new Error("work target list options must contain data fields");
+    }
+    snapshot[key] = descriptor.value;
+  }
+  return snapshot;
+}
+
 export function buildReferenceAcquisitionWorkTarget({
   context,
   layer,
@@ -200,16 +305,25 @@ export function buildReferenceAcquisitionWorkTarget({
   return buildWorkTarget(context, layer, ordinal, normalizeProducer(producer));
 }
 
-export function listReferenceAcquisitionWorkTargets({ context, producer }) {
+export function listReferenceAcquisitionWorkTargets(options) {
+  const { context, layers, producer } = snapshotWorkTargetListOptions(options);
   validateReferenceAcquisitionContext(context);
   const normalizedProducer = normalizeProducer(producer);
+  const layerFilter = normalizeLayerFilter(context, layers);
   return Object.freeze(
     context.rows.flatMap((row) =>
-      row.layers.map((layer) =>
-        buildWorkTarget(context, layer, row.ordinal, normalizedProducer),
-      ),
+      row.layers
+        .filter((layer) => layerFilter === null || layerFilter.has(layer))
+        .map((layer) =>
+          buildWorkTarget(context, layer, row.ordinal, normalizedProducer),
+        ),
     ),
   );
+}
+
+export function referenceAcquisitionInventorySha256(context) {
+  assertContext(context);
+  return context.inventorySha256;
 }
 
 export function referenceAcquisitionInventoryRow(context, ordinal) {
