@@ -175,7 +175,8 @@ export function parseApplyOutput(stdout) {
         } else if (parsed !== null && typeof parsed === 'object' && 'dry_run' in parsed) {
           summary = parsed;
         }
-      } catch {
+      } catch (error) {
+        if (!(error instanceof SyntaxError)) throw error;
         // Block is still incomplete; keep accumulating lines.
       }
       continue;

@@ -267,7 +267,8 @@ export async function installTimingObserver(page) {
       if (performance?.mark) {
         try {
           performance.mark(`wikijump:${name}`);
-        } catch {
+        } catch (error) {
+          void error;
           // Non-fatal diagnostic marker failure.
         }
       }
@@ -440,6 +441,19 @@ export async function collectLayoutShifts(page) {
 export async function collectTimingDiagnostics(page, layoutShifts, options = {}) {
   const rawTiming = await page.evaluate(() => {
     const navigationEntry = performance.getEntriesByType("navigation")[0] ?? null;
+    const timingEntry = (entry) => ({
+      name: entry.name ?? null,
+      initiatorType: entry.initiatorType ?? null,
+      startTime: entry.startTime ?? null,
+      duration: entry.duration ?? null,
+      responseEnd: entry.responseEnd ?? null,
+      transferSize: entry.transferSize ?? null,
+      encodedBodySize: entry.encodedBodySize ?? null,
+      decodedBodySize: entry.decodedBodySize ?? null,
+      renderBlockingStatus: entry.renderBlockingStatus ?? null,
+      domContentLoadedEventEnd: entry.domContentLoadedEventEnd ?? null,
+      loadEventEnd: entry.loadEventEnd ?? null,
+    });
     return {
       supported: typeof performance?.getEntriesByType === "function",
       collected_at: performance?.now ? performance.now() : null,
@@ -447,22 +461,6 @@ export async function collectTimingDiagnostics(page, layoutShifts, options = {})
       navigation: navigationEntry ? timingEntry(navigationEntry) : null,
       resources: performance.getEntriesByType("resource").map(timingEntry),
     };
-
-    function timingEntry(entry) {
-      return {
-        name: entry.name ?? null,
-        initiatorType: entry.initiatorType ?? null,
-        startTime: entry.startTime ?? null,
-        duration: entry.duration ?? null,
-        responseEnd: entry.responseEnd ?? null,
-        transferSize: entry.transferSize ?? null,
-        encodedBodySize: entry.encodedBodySize ?? null,
-        decodedBodySize: entry.decodedBodySize ?? null,
-        renderBlockingStatus: entry.renderBlockingStatus ?? null,
-        domContentLoadedEventEnd: entry.domContentLoadedEventEnd ?? null,
-        loadEventEnd: entry.loadEventEnd ?? null,
-      };
-    }
   });
   return buildTimingDiagnostics(rawTiming, layoutShifts, options);
 }
@@ -470,6 +468,16 @@ export async function collectTimingDiagnostics(page, layoutShifts, options = {})
 export function evaluateLayoutInvariants(diagnostics) {
   const invariants = [];
   const anomalies = [];
+  const add = (id, passed, detail) => {
+    const row = {id, status: passed ? "pass" : "fail", detail};
+    invariants.push(row);
+    if (!passed) anomalies.push(row);
+  };
+  const record = (id, passed, detail) => {
+    const row = {id, status: passed ? "pass" : "recorded", detail};
+    invariants.push(row);
+    if (!passed) anomalies.push(row);
+  };
 
   add("page_status_200", diagnostics.page?.status === 200, `status is ${diagnostics.page?.status ?? "unknown"}`);
   add("no_failed_requests", (diagnostics.page?.failed_requests ?? []).length === 0, `${(diagnostics.page?.failed_requests ?? []).length} failed requests`);
@@ -525,18 +533,6 @@ export function evaluateLayoutInvariants(diagnostics) {
     invariants,
     anomalies,
   };
-
-  function add(id, passed, detail) {
-    const row = {id, status: passed ? "pass" : "fail", detail};
-    invariants.push(row);
-    if (!passed) anomalies.push(row);
-  }
-
-  function record(id, passed, detail) {
-    const row = {id, status: passed ? "pass" : "recorded", detail};
-    invariants.push(row);
-    if (!passed) anomalies.push(row);
-  }
 }
 
 export function buildDiagnosticsRecord({

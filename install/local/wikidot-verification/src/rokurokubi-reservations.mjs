@@ -153,7 +153,8 @@ function normalizeSourceKey({ sourceUrl, slug, status, sheetRole, sheetName, she
     if (normalizedPathname) {
       return `${parsed.hostname.toLowerCase()}/${normalizedPathname.toLowerCase()}`;
     }
-  } catch {
+  } catch (error) {
+    void error;
     // Fall through to provenance key when the URL has no stable normalized identity.
   }
 

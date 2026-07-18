@@ -302,7 +302,8 @@ async function collectVisibleText(page, visibleTextScope = "all-frames") {
       if (!(await shouldCaptureFrameVisibleText(page, frame))) continue;
       const text = await frame.evaluate(() => document.body?.innerText ?? "");
       if (text) texts.push(text);
-    } catch {
+    } catch (error) {
+      void error;
       // Detached or inaccessible frames should not abort page-level capture.
     }
   }
@@ -372,7 +373,8 @@ export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = D
     let frame = null;
     try {
       frame = request.frame();
-    } catch {
+    } catch (error) {
+      void error;
       // Some request kinds do not have a frame; keep their HTTP failure evidence.
     }
     const isMainFrameNavigation = request.isNavigationRequest() && frame === page.mainFrame();
