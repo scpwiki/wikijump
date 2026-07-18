@@ -57,7 +57,8 @@ export function createSqlExecutor({ dbUrl, dbContainer }) {
           if (activeClient !== null) {
             try {
               await activeClient.query('ROLLBACK');
-            } catch {
+            } catch (rollbackError) {
+              void rollbackError;
               // Keep the original query error as the actionable failure.
             }
           }
