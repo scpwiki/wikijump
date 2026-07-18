@@ -79,12 +79,14 @@ function assertTimestamp(value, label) {
 
 function normalizeProducer(producer) {
   assertExactKeys(producer, ["contract", "identity"], "attempt.producer");
-  if (!IDENTIFIER_RE.test(producer.contract)) {
+  const contract = producer.contract;
+  const identity = producer.identity;
+  if (!IDENTIFIER_RE.test(contract)) {
     throw new Error("attempt.producer.contract must be a stable identifier");
   }
   return Object.freeze({
-    contract: producer.contract,
-    identity: validateReferenceObject(producer.identity),
+    contract,
+    identity: validateReferenceObject(identity),
   });
 }
 
@@ -175,25 +177,35 @@ function computeWorkIdentity(context, binding, layer, producer) {
   });
 }
 
+function buildWorkTarget(context, layer, ordinal, producer) {
+  const inventory = inventoryBinding(context, ordinal);
+  return Object.freeze({
+    inventory,
+    layer,
+    producer,
+    work_identity: computeWorkIdentity(context, inventory, layer, producer),
+  });
+}
+
 export function buildReferenceAcquisitionWorkTarget({
   context,
   layer,
   ordinal,
   producer,
 }) {
-  const inventory = inventoryBinding(context, ordinal);
+  return buildWorkTarget(context, layer, ordinal, normalizeProducer(producer));
+}
+
+export function listReferenceAcquisitionWorkTargets({ context, producer }) {
+  validateReferenceAcquisitionContext(context);
   const normalizedProducer = normalizeProducer(producer);
-  return Object.freeze({
-    inventory,
-    layer,
-    producer: normalizedProducer,
-    work_identity: computeWorkIdentity(
-      context,
-      inventory,
-      layer,
-      normalizedProducer,
+  return Object.freeze(
+    context.rows.flatMap((row) =>
+      row.layers.map((layer) =>
+        buildWorkTarget(context, layer, row.ordinal, normalizedProducer),
+      ),
     ),
-  });
+  );
 }
 
 function normalizeAttempt(attempt, context) {

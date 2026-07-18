@@ -24,4 +24,12 @@ Every newly created directory entry and published object is committed by fsyncin
 
 The current Node writer profile intentionally requires Linux descriptor-relative traversal through `/proc/self/fd`, same-filesystem hard links, same-UID cooperative producers, directories at mode `0700`, and descriptor/object files at mode `0400`. These permissions are read-only policy, not kernel immutability. Other-language writers may implement the same on-disk contract with native `openat`/`linkat` equivalents, but evidence production must not fall back to pathname-racy or overwrite-capable publication.
 
-Recovery restores exact trusted bytes or creates a new store generation; it does not mutate a poisoned object in place. Receipt reachability, resumption, shard leases, and garbage collection are separate later contracts.
+Recovery restores exact trusted bytes or creates a new store generation; it does not mutate a poisoned object in place. Shard leases and garbage collection are separate later contracts.
+
+## Deterministic acquisition completion
+
+`completions/index.json` describes the auxiliary immutable completion index. Its leaves are canonical completion-pointer JSONL files at `completions/sha256/<first two work-digest characters>/<full work digest>`. The frozen `store.json` contract remains unchanged.
+
+A work digest binds the externally pinned inventory row, requested layer, and producer contract object. A pointer counts as complete only after its attempt receipt, producer object, and every evidence object verify transitively and the receipt has a complete outcome for that exact work digest. A missing leaf is pending. A pointer to a failed attempt, malformed or noncanonical pointer, wrong-work receipt, dangling object, corrupt object, symlink, non-regular file, or rebound directory is an error rather than resumable absence. An unindexed failed receipt leaves its work pending.
+
+Publication is first-valid-writer-wins through the same no-replace hard-link primitive as CAS objects. Repeating the same receipt is idempotent. A different valid complete receipt for an occupied work digest is an explicit conflict, and the original pointer remains authoritative. Resume derives every expected work target in frozen inventory row and requested-layer order, groups only those expected digests by two-character prefix for descriptor-relative bulk reads, and restores row/layer order before semantic verification; it never scans arbitrary directory entries or treats poisoned state as pending. Completion pointers are derived indexes; attempt receipts and their content-addressed objects remain the durable evidence.

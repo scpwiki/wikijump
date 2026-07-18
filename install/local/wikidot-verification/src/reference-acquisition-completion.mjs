@@ -1,10 +1,14 @@
-import { publishBytesNoReplaceAt } from "./atomic-no-replace.mjs";
 import { stableStringify } from "./corpus-import-manifest.mjs";
 import {
   buildReferenceAcquisitionWorkTarget,
+  listReferenceAcquisitionWorkTargets,
   readReferenceAcquisitionAttempt,
   validateReferenceAcquisitionContext,
 } from "./reference-acquisition-attempt.mjs";
+import {
+  prepareReferenceCompletionIndex,
+  REFERENCE_COMPLETION_POINTER_MAX_BYTES,
+} from "./reference-acquisition-completion-index.mjs";
 import {
   isReferenceObjectStore,
   validateReferenceObject,
@@ -17,19 +21,7 @@ const FATAL_UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 const SHA256_RE = /^[0-9a-f]{64}$/u;
 const POINTER_KEYS = Object.freeze(["attempt", "schema", "work_identity"]);
 const STORE_OPENERS = new WeakMap();
-const REFERENCE_COMPLETION_POINTER_MAX_BYTES = 1024;
-const COMPLETION_INDEX_DESCRIPTOR = Object.freeze({
-  digest_encoding: "lowercase-hex",
-  hash_algorithm: "sha256",
-  pointer_encoding: "stable-json-v1-jsonl",
-  pointer_path_template: "sha256/{prefix2}/{work_identity_sha256}",
-  pointer_schema:
-    "https://wikijump.org/schemas/reference-acquisition-completion-pointer-v1.schema.json",
-  schema: "wikijump_full_parity.reference_acquisition_completion_index.v1",
-});
-const COMPLETION_INDEX_DESCRIPTOR_BYTES = Buffer.from(
-  `${stableStringify(COMPLETION_INDEX_DESCRIPTOR)}\n`,
-);
+const REFERENCE_COMPLETION_PLAN_BATCH_SIZE = 16;
 
 export function registerReferenceAcquisitionCompletionStore(store, options) {
   const required = [
@@ -174,183 +166,6 @@ export class ReferenceAcquisitionCompletionConflictError extends Error {
   }
 }
 
-function assertCompletionDigest(value) {
-  if (typeof value !== "string" || !SHA256_RE.test(value)) {
-    throw new Error("work identity must be a lowercase SHA-256 digest");
-  }
-}
-
-class ReferenceCompletionIndex {
-  #handles;
-
-  constructor(handles) {
-    this.#handles = handles;
-  }
-
-  async #assertBindings() {
-    const handles = this.#handles;
-    if (handles === null) {
-      throw new Error("reference completion index is closed");
-    }
-    await handles.assertStoreBindings();
-    await handles.assertDirectoryBinding(
-      handles.root,
-      "completions",
-      handles.completions,
-      "completions",
-    );
-    await handles.assertDirectoryBinding(
-      handles.completions,
-      "sha256",
-      handles.sha256,
-      "completion sha256",
-    );
-    return handles;
-  }
-
-  async #openPrefix(handles, digest, create) {
-    const name = digest.slice(0, 2);
-    try {
-      return await handles.openDirectoryAt(handles.sha256, name, {
-        create,
-        label: `completion prefix ${name}`,
-      });
-    } catch (error) {
-      if (!create && error.code === "ENOENT") {
-        await this.#assertBindings();
-        return null;
-      }
-      throw error;
-    }
-  }
-
-  #readVisible(handles, prefix, digest, allowMissing = false) {
-    return handles.readAndHashFileAt(prefix, digest, {
-      allowMissing,
-      collect: true,
-      expectedMode: 0o400,
-      maxBytes: REFERENCE_COMPLETION_POINTER_MAX_BYTES,
-      sizeMismatchMessage: `completion ${digest} exceeds its byte limit`,
-    });
-  }
-
-  async read(digest) {
-    assertCompletionDigest(digest);
-    const handles = await this.#assertBindings();
-    const prefix = await this.#openPrefix(handles, digest, false);
-    if (prefix === null) return null;
-    try {
-      const visible = await this.#readVisible(handles, prefix, digest, true);
-      await handles.assertDirectoryBinding(
-        handles.sha256,
-        digest.slice(0, 2),
-        prefix,
-        `completion prefix ${digest.slice(0, 2)}`,
-      );
-      await this.#assertBindings();
-      return visible?.contents ?? null;
-    } finally {
-      await prefix.close();
-    }
-  }
-
-  async publish(digest, value) {
-    assertCompletionDigest(digest);
-    const bytes = Buffer.from(value);
-    if (bytes.byteLength > REFERENCE_COMPLETION_POINTER_MAX_BYTES) {
-      throw new Error("completion pointer exceeds its byte limit");
-    }
-    const handles = await this.#assertBindings();
-    const prefix = await this.#openPrefix(handles, digest, true);
-    try {
-      const disposition = await publishBytesNoReplaceAt(prefix, digest, bytes, {
-        mode: 0o400,
-      });
-      if (disposition === "exists") await prefix.sync();
-      const visible = await this.#readVisible(handles, prefix, digest);
-      await handles.assertDirectoryBinding(
-        handles.sha256,
-        digest.slice(0, 2),
-        prefix,
-        `completion prefix ${digest.slice(0, 2)}`,
-      );
-      await this.#assertBindings();
-      return Object.freeze({ bytes: visible.contents, disposition });
-    } finally {
-      await prefix.close();
-    }
-  }
-
-  async close() {
-    const handles = this.#handles;
-    this.#handles = null;
-    if (handles === null) return;
-    await handles.sha256.close();
-    await handles.completions.close();
-  }
-}
-
-async function prepareReferenceCompletionIndex(root, options) {
-  await options.assertStoreBindings();
-  let completions;
-  let sha256;
-  try {
-    completions = await options.openDirectoryAt(root, "completions", {
-      create: options.create,
-      label: "completions",
-    });
-    sha256 = await options.openDirectoryAt(completions, "sha256", {
-      create: options.create,
-      label: "completion sha256",
-    });
-    if (options.create) {
-      await publishBytesNoReplaceAt(
-        completions,
-        "index.json",
-        COMPLETION_INDEX_DESCRIPTOR_BYTES,
-        { mode: 0o400 },
-      );
-    }
-    const descriptor = await options.readAndHashFileAt(
-      completions,
-      "index.json",
-      {
-        collect: true,
-        expectedMode: 0o400,
-        maxBytes: COMPLETION_INDEX_DESCRIPTOR_BYTES.byteLength,
-        sizeMismatchMessage: "completion index descriptor is not canonical",
-      },
-    );
-    if (!descriptor.contents.equals(COMPLETION_INDEX_DESCRIPTOR_BYTES)) {
-      throw new Error("completion index descriptor is not canonical");
-    }
-    await completions.sync();
-    await options.assertDirectoryBinding(
-      root,
-      "completions",
-      completions,
-      "completions",
-    );
-    await options.assertDirectoryBinding(
-      completions,
-      "sha256",
-      sha256,
-      "completion sha256",
-    );
-    await options.assertStoreBindings();
-    return new ReferenceCompletionIndex({
-      ...options,
-      completions,
-      root,
-      sha256,
-    });
-  } catch (error) {
-    await sha256?.close().catch(() => {});
-    await completions?.close().catch(() => {});
-    throw error;
-  }
-}
-
 class ReferenceAcquisitionCompletions {
   #context;
   #index;
@@ -371,8 +186,7 @@ class ReferenceAcquisitionCompletions {
     });
   }
 
-  async #resolveTarget(target) {
-    const bytes = await this.#index.read(target.work_identity.sha256);
+  async #resolveTargetBytes(target, bytes) {
     if (bytes === null) return null;
     const pointer = parseReferenceAcquisitionCompletionPointer(
       bytes,
@@ -389,6 +203,13 @@ class ReferenceAcquisitionCompletions {
       attempt_reference: pointer.attempt,
       target,
     });
+  }
+
+  async #resolveTarget(target) {
+    return this.#resolveTargetBytes(
+      target,
+      await this.#index.read(target.work_identity.sha256),
+    );
   }
 
   async resolve(request) {
@@ -437,6 +258,47 @@ class ReferenceAcquisitionCompletions {
       attempt_reference: visible.attempt,
       disposition: publication.disposition,
       target,
+    });
+  }
+
+  async planResume({ producer }) {
+    const targets = listReferenceAcquisitionWorkTargets({
+      context: this.#context,
+      producer,
+    });
+    await this.#store.verifyObject(targets[0].producer.identity);
+    const visible = await this.#index.readMany(
+      targets.map((target) => target.work_identity.sha256),
+    );
+    const complete = [];
+    const pending = [];
+    for (
+      let offset = 0;
+      offset < targets.length;
+      offset += REFERENCE_COMPLETION_PLAN_BATCH_SIZE
+    ) {
+      const batch = targets.slice(
+        offset,
+        offset + REFERENCE_COMPLETION_PLAN_BATCH_SIZE,
+      );
+      const results = await Promise.allSettled(
+        batch.map((target, index) => {
+          const record = visible[offset + index];
+          return "error" in record
+            ? Promise.reject(record.error)
+            : this.#resolveTargetBytes(target, record.bytes);
+        }),
+      );
+      for (let index = 0; index < results.length; index += 1) {
+        const result = results[index];
+        if (result.status === "rejected") throw result.reason;
+        if (result.value === null) pending.push(batch[index]);
+        else complete.push(result.value);
+      }
+    }
+    return Object.freeze({
+      complete: Object.freeze(complete),
+      pending: Object.freeze(pending),
     });
   }
 

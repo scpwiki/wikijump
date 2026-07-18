@@ -280,12 +280,15 @@ export function validateReferenceObject(object) {
       "reference object must contain only algorithm, bytes, and sha256",
     );
   }
-  if (object.algorithm !== "sha256") {
+  const algorithm = object.algorithm;
+  const bytes = object.bytes;
+  const sha256 = object.sha256;
+  if (algorithm !== "sha256") {
     throw new Error("reference object algorithm must be sha256");
   }
-  assertBytes(object.bytes, "reference object bytes");
-  assertSha256(object.sha256, "reference object sha256");
-  return Object.freeze({ ...object });
+  assertBytes(bytes, "reference object bytes");
+  assertSha256(sha256, "reference object sha256");
+  return Object.freeze({ algorithm, bytes, sha256 });
 }
 
 export function isReferenceObjectStore(value) {
