@@ -2,6 +2,8 @@
 
 This document contains information about our deployment environments which are common between both dev and prod.
 
+For the continuous local browser-facing runtime, follow the [runtime drift policy](runtime-drift-policy.md). It defines the single merged-head owner of port 443, candidate isolation, promotion evidence, and canaries.
+
 We are using [Komodo](https://komo.do)-based dev tier hosting. This self-hostable solution offers a web UI with per-user permissions for monitoring and maintaining a cluster, and features infrastructure-as-code. This way we can, to the extent reasonably possible, avoid machines-as-pets. Provided that our databases remain intact / can be restored from backup, then in principle all our infrastructure should be recreatable from the source code.
 
 As such, we are documenting setup steps and we store infrastructure files in `install/{dev,prod}/komodo/`.
