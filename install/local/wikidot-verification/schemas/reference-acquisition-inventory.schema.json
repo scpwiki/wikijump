@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/reference-acquisition-inventory.schema.json",
+  "title": "Wikidot reference acquisition inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "identity",
+    "family",
+    "source_origin",
+    "source_manifest",
+    "host_paths_included",
+    "requested_layers",
+    "shard_count",
+    "shards",
+    "rows"
+  ],
+  "properties": {
+    "schema": {
+      "const": "wikijump_full_parity.reference_acquisition_inventory.v1"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonicalization", "sha256"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "canonicalization": { "const": "stable-json-v1" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "family": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" },
+    "source_origin": { "type": "string", "format": "uri" },
+    "source_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "summary_sha256",
+        "row_count",
+        "attachment_count",
+        "attachment_page_count",
+        "first_fullname",
+        "last_fullname"
+      ],
+      "properties": {
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "summary_sha256": { "$ref": "#/$defs/sha256" },
+        "row_count": { "type": "integer", "minimum": 1 },
+        "attachment_count": { "type": "integer", "minimum": 0 },
+        "attachment_page_count": { "type": "integer", "minimum": 0 },
+        "first_fullname": { "type": "string", "minLength": 1 },
+        "last_fullname": { "type": "string", "minLength": 1 }
+      }
+    },
+    "host_paths_included": { "const": false },
+    "requested_layers": { "$ref": "#/$defs/requestedLayers" },
+    "shard_count": { "type": "integer", "minimum": 1, "maximum": 4096 },
+    "shards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["shard_id", "count", "fixture_set_sha256", "fixture_ids"],
+        "properties": {
+          "shard_id": { "type": "string", "pattern": "^[a-z0-9-]+-[0-9]{4,}$" },
+          "count": { "type": "integer", "minimum": 0 },
+          "fixture_set_sha256": { "$ref": "#/$defs/sha256" },
+          "fixture_ids": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 3 },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ordinal",
+          "fixture_id",
+          "family",
+          "slug",
+          "fullname",
+          "source_entity_id",
+          "source_url",
+          "baseline",
+          "attachment_count",
+          "attachment_inventory_sha256",
+          "input_line_sha256",
+          "semantic_row_sha256",
+          "requested_layers"
+        ],
+        "properties": {
+          "ordinal": { "type": "integer", "minimum": 0 },
+          "fixture_id": { "type": "string", "minLength": 3 },
+          "family": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" },
+          "slug": { "type": "string", "minLength": 1 },
+          "fullname": { "type": "string", "minLength": 1 },
+          "source_entity_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "source_url": { "type": "string", "format": "uri" },
+          "baseline": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source_sha256", "meta_sha256", "updated_at", "revisions"],
+            "properties": {
+              "source_sha256": { "$ref": "#/$defs/sha256" },
+              "meta_sha256": { "$ref": "#/$defs/sha256" },
+              "updated_at": { "type": "string", "format": "date-time" },
+              "revisions": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "attachment_count": { "type": "integer", "minimum": 0 },
+          "attachment_inventory_sha256": { "$ref": "#/$defs/sha256" },
+          "input_line_sha256": { "$ref": "#/$defs/sha256" },
+          "semantic_row_sha256": { "$ref": "#/$defs/sha256" },
+          "requested_layers": { "$ref": "#/$defs/requestedLayers" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "requestedLayers": {
+      "const": ["xmlrpc_page", "http_document", "browser_document"]
+    }
+  }
+}

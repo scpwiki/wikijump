@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "completion": "node scripts/run-completion-controller.mjs"
+    "completion": "node scripts/run-completion-controller.mjs",
+    "reference-inventory": "node scripts/build-reference-acquisition-inventory.mjs"
   },
   "dependencies": {
     "pg": "^8.22.0"
