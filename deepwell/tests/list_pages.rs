@@ -23,7 +23,8 @@ mod common;
 
 use self::common::TestRunner;
 use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
-use deepwell::services::RequestContext;
+use deepwell::hash::k12_hash;
+use deepwell::services::{RequestContext, TextService};
 use deepwell::types::Reference;
 use sea_orm::{ConnectionTrait, Statement};
 use serde_json::json;
@@ -341,6 +342,14 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
             && !output.body.contains("%%fullname%%"),
         "AJAX ListPages should honor wrapper=no and separate=no without leaking raw markers: {}",
         output.body,
+    );
+    let transient_hash = k12_hash(output.body.as_bytes());
+    let transient_text_exists = TextService::exists(runner.context(), &transient_hash)
+        .await
+        .expect("text lookup should succeed");
+    assert!(
+        !transient_text_exists,
+        "AJAX ListPages output should remain transient and avoid compiled text storage",
     );
 }
 

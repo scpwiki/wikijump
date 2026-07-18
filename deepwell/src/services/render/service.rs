@@ -73,7 +73,7 @@ use super::prelude::*;
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
-use crate::hash::TextHash;
+use crate::hash::{TextHash, k12_hash};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::models::page_revision;
@@ -742,9 +742,12 @@ impl RenderService {
             wikitext,
             page_info,
             settings,
-            RenderContext::none(),
-            MAX_INCLUDE_EXPANSION_TOTAL,
-            None,
+            RenderInnerOptions {
+                render_context: RenderContext::none(),
+                max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
+                trace: None,
+                persist_compiled_text: true,
+            },
         ))
         .await
         .or_raise(make_error)?;
@@ -795,9 +798,12 @@ impl RenderService {
             wikitext,
             &page_info,
             &settings,
-            RenderContext::ajax_module(site_id),
-            MAX_INCLUDE_EXPANSION_TOTAL,
-            None,
+            RenderInnerOptions {
+                render_context: RenderContext::ajax_module(site_id),
+                max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
+                trace: None,
+                persist_compiled_text: false,
+            },
         ))
         .await
         .or_raise(make_error)?;
@@ -931,9 +937,12 @@ impl RenderService {
             wikitext,
             page_info,
             &page_settings,
-            RenderContext::page(site_id, page_id),
-            max_include_expansions,
-            trace.map(|trace| (trace, CorpusRenderScope::Body)),
+            RenderInnerOptions {
+                render_context: RenderContext::page(site_id, page_id),
+                max_include_expansions,
+                trace: trace.map(|trace| (trace, CorpusRenderScope::Body)),
+                persist_compiled_text: true,
+            },
         )
         .await
         .or_raise(make_error)?;
@@ -961,9 +970,12 @@ impl RenderService {
                         wikitext,
                         page_info,
                         nav_settings,
-                        RenderContext::page_nav(site_id, page_id),
-                        max_include_expansions,
-                        trace.map(|trace| (trace, scope)),
+                        RenderInnerOptions {
+                            render_context: RenderContext::page_nav(site_id, page_id),
+                            max_include_expansions,
+                            trace: trace.map(|trace| (trace, scope)),
+                            persist_compiled_text: true,
+                        },
                     )
                     .await;
 
@@ -1441,11 +1453,15 @@ impl RenderService {
         wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
-        render_context: RenderContext,
-        max_include_expansions: usize,
-        trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
+        options: RenderInnerOptions<'_>,
     ) -> Result<RenderInnerOutput> {
         let config = ctx.config();
+        let RenderInnerOptions {
+            render_context,
+            max_include_expansions,
+            trace,
+            persist_compiled_text,
+        } = options;
         let RenderContext {
             current_site_id,
             current_page_id,
@@ -1620,12 +1636,14 @@ impl RenderService {
                     html_output.body.len(),
                 );
             }
-            let compiled_hash = {
-                let _stage = StageGuard::new(trace, CorpusRenderStage::CompiledText);
-                TextService::create(ctx, html_output.body.clone())
-                    .await
-                    .or_raise(make_error)?
-            };
+            let compiled_hash = Self::compiled_text_hash(
+                ctx,
+                trace,
+                &html_output.body,
+                persist_compiled_text,
+                make_error,
+            )
+            .await?;
             if let Some(page_id) = text_block_page_id {
                 TextBlockService::validate_page_block_counts(
                     fallback_html_block_texts.len(),
@@ -1875,13 +1893,14 @@ impl RenderService {
             }
         }
 
-        // Insert compiled HTML into text table
-        let compiled_hash = {
-            let _stage = StageGuard::new(trace, CorpusRenderStage::CompiledText);
-            TextService::create(ctx, html_output.body.clone())
-                .await
-                .or_raise(make_error)?
-        };
+        let compiled_hash = Self::compiled_text_hash(
+            ctx,
+            trace,
+            &html_output.body,
+            persist_compiled_text,
+            make_error,
+        )
+        .await?;
 
         // Set up the hosted text blocks
         //
@@ -1953,6 +1972,23 @@ impl RenderService {
             errors,
             compiled_hash,
         })
+    }
+
+    async fn compiled_text_hash(
+        ctx: &ServiceContext<'_>,
+        trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
+        html: &str,
+        persist_compiled_text: bool,
+        make_error: impl Fn() -> Error,
+    ) -> Result<TextHash> {
+        let _stage = StageGuard::new(trace, CorpusRenderStage::CompiledText);
+        if persist_compiled_text {
+            TextService::create(ctx, html.to_owned())
+                .await
+                .or_raise(make_error)
+        } else {
+            Ok(k12_hash(html.as_bytes()))
+        }
     }
 
     fn restore_wikidot_render_compatibility(
@@ -12757,6 +12793,14 @@ struct RenderContext {
     current_site_id: Option<i64>,
     current_page_id: Option<i64>,
     text_block_page_id: Option<i64>,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct RenderInnerOptions<'a> {
+    render_context: RenderContext,
+    max_include_expansions: usize,
+    trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
+    persist_compiled_text: bool,
 }
 
 #[derive(Clone, Copy, Debug)]
