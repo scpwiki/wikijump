@@ -226,6 +226,125 @@ After"#;
 }
 
 #[tokio::test]
+async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
+    const TARGET_SLUG: &str = "wikidot-ajax-listpages-target";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(TARGET_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "AJAX ListPages target body",
+            "title": "AJAX ListPages Target",
+            "alt_title": null,
+            "slug": TARGET_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "AJAX ListPages compatibility smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let module_body = [
+        "fullname",
+        "category",
+        "name",
+        "title",
+        "created_at",
+        "created_by_linked",
+        "updated_at",
+        "updated_by_linked",
+        "commented_at",
+        "commented_by_linked",
+        "parent_fullname",
+        "comments",
+        "size",
+        "children",
+        "rating",
+        "rating_votes",
+        "rating_percent",
+        "revisions",
+        "tags",
+        "_tags",
+    ]
+    .into_iter()
+    .map(|field| {
+        format!(
+            "[[span class=\"set {field}\"]][[span class=\"name\"]] {field} [[/span]][[span class=\"value\"]] %%{field}%% [[/span]][[/span]]"
+        )
+    })
+    .collect::<String>();
+    let output = run_endpoint!(
+        runner,
+        wikidot_list_pages_module,
+        json!({
+            "site_id": site_id,
+            "module_body": format!("[[div class=\"page\"]]{module_body}[[/div]]"),
+            "parameters": {
+                "pagetype": "*",
+                "category": "_default",
+                "name": TARGET_SLUG,
+                "order": "created_at desc",
+                "offset": "0",
+                "perPage": "250",
+                "separate": "no",
+                "wrapper": "no"
+            }
+        }),
+    );
+
+    assert!(
+        output.body.contains(r#"class="page""#),
+        "AJAX ListPages should retain the client-owned row wrapper: {}",
+        output.body,
+    );
+    assert!(
+        output.body.contains(&format!(
+            r#"<span class="set fullname"><span class="name"> fullname </span><span class="value"> {TARGET_SLUG} </span></span>"#
+        )),
+        "AJAX ListPages should retain each client set name and value in one record: {}",
+        output.body,
+    );
+    assert!(
+        output.body.contains(TARGET_SLUG)
+            && output.body.contains("AJAX ListPages Target"),
+        "AJAX ListPages should substitute target page metadata: {}",
+        output.body,
+    );
+    assert!(
+        output.body.contains(r#"class="set category"><span class="name"> category </span><span class="value"> _default </span>"#),
+        "AJAX ListPages should substitute the matched page category: {}",
+        output.body,
+    );
+    assert!(
+        !output.body.contains("list-pages-box")
+            && !output.body.contains("list-pages-item")
+            && !output.body.contains("[[module ListPages")
+            && !output.body.contains("%%fullname%%"),
+        "AJAX ListPages should honor wrapper=no and separate=no without leaking raw markers: {}",
+        output.body,
+    );
+}
+
+#[tokio::test]
 async fn countpages_static_filter_direct_fragment_renders_zero_without_raw_markers() {
     const SOURCE_SLUG: &str = "activity-marker-countpages-direct-smoke";
 
