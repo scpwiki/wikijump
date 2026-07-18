@@ -1,0 +1,1 @@
+{"digest_encoding":"lowercase-hex","hash_algorithm":"sha256","pointer_encoding":"stable-json-v1-jsonl","pointer_path_template":"sha256/{prefix2}/{work_identity_sha256}","pointer_schema":"https://wikijump.org/schemas/reference-acquisition-completion-pointer-v1.schema.json","schema":"wikijump_full_parity.reference_acquisition_completion_index.v1"}

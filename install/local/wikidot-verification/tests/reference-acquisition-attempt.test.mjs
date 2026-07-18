@@ -17,9 +17,17 @@ import {
   validateReferenceAcquisitionAttempt,
   validateReferenceAcquisitionContext,
 } from "../src/reference-acquisition-attempt.mjs";
+import {
+  initializeReferenceAcquisitionCompletions,
+  openReferenceAcquisitionCompletions,
+  ReferenceAcquisitionCompletionConflictError,
+  referenceAcquisitionCompletionRelativePath,
+  serializeReferenceAcquisitionCompletionPointer,
+} from "../src/reference-acquisition-completion.mjs";
 import { buildReferenceAcquisitionInventory } from "../src/reference-acquisition-inventory.mjs";
 import {
   initializeReferenceObjectStore,
+  openReferenceObjectStore,
   referenceObjectRelativePath,
 } from "../src/reference-object-store.mjs";
 
@@ -143,6 +151,25 @@ async function producerFor(store) {
     contract: "wikijump_full_parity.wikidot_xmlrpc_acquirer.v1",
     identity: (await store.putBytes(Buffer.from("producer contract"))).object,
   };
+}
+
+async function completeReceipt(
+  store,
+  context,
+  producer,
+  { attemptId = ATTEMPT_ID, body = "response", layer = "xmlrpc_page" } = {},
+) {
+  const response = (await store.putBytes(Buffer.from(body))).object;
+  const attempt = buildReferenceAcquisitionAttempt(
+    attemptInput(
+      context,
+      producer,
+      [{ media_type: "application/xml", object: response, role: "response" }],
+      { attemptId, layer },
+    ),
+  );
+  const stored = await putReferenceAcquisitionAttempt(store, attempt, context);
+  return { attempt, reference: stored.object, response };
 }
 
 function attemptInput(context, producer, objects, overrides = {}) {
@@ -305,5 +332,157 @@ test("transitive object corruption invalidates a stored attempt", async (t) => {
   await assert.rejects(
     readReferenceAcquisitionAttempt(fixture.store, stored.object, context),
     /corrupt/u,
+  );
+});
+
+test("completion index contracts and deterministic resume are canonical", async (t) => {
+  JSON.parse(
+    await fs.readFile(
+      new URL(
+        "../schemas/reference-acquisition-completion-pointer-v1.schema.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  const inventory = buildInventory();
+  const context = createContext(inventory);
+  const fixture = await temporaryStore(t);
+  const producer = await producerFor(fixture.store);
+  const stored = await completeReceipt(fixture.store, context, producer);
+  await assert.rejects(
+    initializeReferenceAcquisitionCompletions(fixture.store, {}),
+    /context/u,
+  );
+  await assert.rejects(fs.access(path.join(fixture.root, "completions")));
+  const completions = await initializeReferenceAcquisitionCompletions(
+    fixture.store,
+    context,
+  );
+  t.after(() => completions.close());
+  const request = { layer: "xmlrpc_page", ordinal: 0, producer };
+  const target = buildReferenceAcquisitionWorkTarget({ context, ...request });
+  assert.equal(await completions.resolve(request), null);
+  const created = await completions.publish(stored.reference, request);
+  assert.equal(created.disposition, "created");
+  assert.deepEqual(created.attempt, stored.attempt);
+  const existing = await completions.publish(stored.reference, request);
+  assert.equal(existing.disposition, "exists");
+  assert.deepEqual(await completions.resolve(request), {
+    attempt: stored.attempt,
+    attempt_reference: stored.reference,
+    target,
+  });
+  const pointerPath = path.join(
+    fixture.root,
+    ...referenceAcquisitionCompletionRelativePath(target).split("/"),
+  );
+  assert.equal((await fs.stat(pointerPath)).mode & 0o777, 0o400);
+  assert.deepEqual(
+    await fs.readFile(path.join(fixture.root, "completions", "index.json")),
+    await fs.readFile(
+      new URL(
+        "../fixtures/reference-acquisition-completion-v1/index.json",
+        import.meta.url,
+      ),
+    ),
+  );
+  await completions.close();
+  const reopenedStore = await openReferenceObjectStore(fixture.root);
+  t.after(() => reopenedStore.close());
+  const reopenedCompletions = await openReferenceAcquisitionCompletions(
+    reopenedStore,
+    context,
+  );
+  t.after(() => reopenedCompletions.close());
+  assert.deepEqual(await reopenedCompletions.resolve(request), {
+    attempt: stored.attempt,
+    attempt_reference: stored.reference,
+    target,
+  });
+  await fs.chmod(
+    path.join(
+      fixture.root,
+      ...referenceObjectRelativePath(stored.response.sha256).split("/"),
+    ),
+    0o600,
+  );
+  await assert.rejects(reopenedCompletions.resolve(request), /mode 400/u);
+});
+
+test("failed attempts stay pending and distinct complete retries conflict", async (t) => {
+  const inventory = buildInventory();
+  const context = createContext(inventory);
+  const fixture = await temporaryStore(t);
+  const producer = await producerFor(fixture.store);
+  const failed = buildReferenceAcquisitionAttempt(
+    attemptInput(context, producer, [], {
+      failure: { code: "transport_timeout", retryable: true },
+      outcome: "failed",
+    }),
+  );
+  const failedReference = (
+    await putReferenceAcquisitionAttempt(fixture.store, failed, context)
+  ).object;
+  const completions = await initializeReferenceAcquisitionCompletions(
+    fixture.store,
+    context,
+  );
+  t.after(() => completions.close());
+  const request = { layer: "xmlrpc_page", ordinal: 0, producer };
+  await assert.rejects(
+    completions.publish(failedReference, request),
+    /only complete/u,
+  );
+  assert.equal(await completions.resolve(request), null);
+  const target = buildReferenceAcquisitionWorkTarget({ context, ...request });
+  const failedLeaf = path.join(
+    fixture.root,
+    ...referenceAcquisitionCompletionRelativePath(target).split("/"),
+  );
+  await fs.mkdir(path.dirname(failedLeaf), { mode: 0o700, recursive: true });
+  await fs.writeFile(
+    failedLeaf,
+    serializeReferenceAcquisitionCompletionPointer(
+      {
+        attempt: failedReference,
+        schema:
+          "wikijump_full_parity.reference_acquisition_completion_pointer.v1",
+        work_identity: target.work_identity,
+      },
+      target.work_identity,
+    ),
+    { mode: 0o400 },
+  );
+  await assert.rejects(completions.resolve(request), /only complete/u);
+  await fs.unlink(failedLeaf);
+  const wrongLayer = await completeReceipt(fixture.store, context, producer, {
+    layer: "http_document",
+  });
+  await assert.rejects(
+    completions.publish(wrongLayer.reference, request),
+    /wrong layer/u,
+  );
+  const first = await completeReceipt(fixture.store, context, producer);
+  const second = await completeReceipt(fixture.store, context, producer, {
+    attemptId: "00000000-0000-4000-8000-000000000002",
+    body: "retry response",
+  });
+  const results = await Promise.allSettled([
+    completions.publish(first.reference, request),
+    completions.publish(second.reference, request),
+  ]);
+  assert.equal(
+    results.filter((result) => result.status === "fulfilled").length,
+    1,
+  );
+  const rejected = results.find((result) => result.status === "rejected");
+  assert(
+    rejected.reason instanceof ReferenceAcquisitionCompletionConflictError,
+  );
+  const winner = results.find((result) => result.status === "fulfilled").value;
+  assert.deepEqual(
+    (await completions.resolve(request)).attempt_reference,
+    winner.attempt_reference,
   );
 });

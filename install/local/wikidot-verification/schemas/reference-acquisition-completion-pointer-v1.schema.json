@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/reference-acquisition-completion-pointer-v1.schema.json",
+  "title": "Wikidot reference acquisition completion pointer",
+  "description": "Normative framing: one UTF-8 JSON value followed by one LF, with no CR or other lines, at most 1024 bytes. stable-json-v1 follows ECMAScript JSON.stringify primitive serialization, emits non-ASCII code points as literal UTF-8, uses required JSON escapes for controls, quotation mark, and reverse solidus, applies no Unicode normalization, recursively emits object keys in Unicode code-point order with no insignificant whitespace, and preserves array order. A pointer is valid only when its attempt resolves transitively to a complete receipt for the exact work identity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["attempt", "schema", "work_identity"],
+  "properties": {
+    "attempt": {
+      "$ref": "https://wikijump.org/schemas/reference-object-v1.schema.json"
+    },
+    "schema": {
+      "const": "wikijump_full_parity.reference_acquisition_completion_pointer.v1"
+    },
+    "work_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonicalization", "sha256"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "canonicalization": { "const": "stable-json-v1" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

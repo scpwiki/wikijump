@@ -12,6 +12,7 @@ const DIRECTORY_FLAGS =
 const FILE_FLAGS =
   fsConstants.O_RDONLY | fsConstants.O_NONBLOCK | fsConstants.O_NOFOLLOW;
 const SHA256_RE = /^[0-9a-f]{64}$/u;
+const REFERENCE_OBJECT_STORES = new WeakSet();
 const STORE_DESCRIPTOR = Object.freeze({
   digest_encoding: "lowercase-hex",
   hash_algorithm: "sha256",
@@ -154,20 +155,41 @@ async function assertDirectoryBinding(
 async function readAndHashFileAt(
   directoryHandle,
   name,
-  { collect, expectedBytes, expectedMode, sizeMismatchMessage },
+  {
+    allowMissing = false,
+    collect,
+    expectedBytes,
+    expectedMode,
+    maxBytes,
+    sizeMismatchMessage,
+  },
 ) {
   assertComponent(name);
-  assertBytes(expectedBytes, "expectedBytes");
+  const exactSize = expectedBytes !== undefined;
+  if (exactSize === (maxBytes !== undefined)) {
+    throw new Error("exactly one of expectedBytes or maxBytes is required");
+  }
+  const sizeLimit = exactSize ? expectedBytes : maxBytes;
+  assertBytes(sizeLimit, exactSize ? "expectedBytes" : "maxBytes");
   const filePath = procPath(directoryHandle, name);
-  const handle = await fs.open(filePath, FILE_FLAGS);
+  let handle;
+  try {
+    handle = await fs.open(filePath, FILE_FLAGS);
+  } catch (error) {
+    if (allowMissing && error.code === "ENOENT") return null;
+    throw error;
+  }
   try {
     const before = await handle.stat({ bigint: true });
     if (!before.isFile()) throw new Error(`${name} must be a regular file`);
     assertOwnedMode(before, expectedMode, name);
-    if (before.size !== BigInt(expectedBytes)) {
+    const invalidSize = exactSize
+      ? before.size !== BigInt(sizeLimit)
+      : before.size > BigInt(sizeLimit);
+    if (invalidSize) {
       throw new Error(sizeMismatchMessage);
     }
-    const size = expectedBytes;
+    const size = Number(before.size);
     const buffer = Buffer.allocUnsafe(Math.min(1024 * 1024, Math.max(size, 1)));
     const chunks = collect ? [] : null;
     const hash = crypto.createHash("sha256");
@@ -266,9 +288,34 @@ export function validateReferenceObject(object) {
   return Object.freeze({ ...object });
 }
 
+export function isReferenceObjectStore(value) {
+  return REFERENCE_OBJECT_STORES.has(value);
+}
+
 export function referenceObjectRelativePath(sha256) {
   assertSha256(sha256);
   return path.posix.join("objects", "sha256", sha256.slice(0, 2), sha256);
+}
+
+async function assertStoreHandleBindings(handles) {
+  await assertDirectoryBinding(
+    handles.parent,
+    handles.rootName,
+    handles.root,
+    "reference object store root",
+  );
+  await assertDirectoryBinding(
+    handles.root,
+    "objects",
+    handles.objects,
+    "objects",
+  );
+  await assertDirectoryBinding(
+    handles.objects,
+    "sha256",
+    handles.sha256,
+    "sha256",
+  );
 }
 
 class ReferenceObjectStore {
@@ -281,24 +328,7 @@ class ReferenceObjectStore {
   async #assertBindings() {
     const handles = this.#handles;
     if (handles === null) throw new Error("reference object store is closed");
-    await assertDirectoryBinding(
-      handles.parent,
-      handles.rootName,
-      handles.root,
-      "reference object store root",
-    );
-    await assertDirectoryBinding(
-      handles.root,
-      "objects",
-      handles.objects,
-      "objects",
-    );
-    await assertDirectoryBinding(
-      handles.objects,
-      "sha256",
-      handles.sha256,
-      "sha256",
-    );
+    await assertStoreHandleBindings(handles);
     return handles;
   }
 
@@ -456,13 +486,25 @@ async function prepareStore(root, create) {
     }
     await verifyDescriptor(rootHandle);
     await rootHandle.sync();
-    return new ReferenceObjectStore({
+    const handles = {
       objects: objectsHandle,
       parent: parentHandle,
       root: rootHandle,
       rootName,
       sha256: sha256Handle,
+    };
+    const store = new ReferenceObjectStore(handles);
+    REFERENCE_OBJECT_STORES.add(store);
+    const { registerReferenceAcquisitionCompletionStore } =
+      await import("./reference-acquisition-completion.mjs");
+    registerReferenceAcquisitionCompletionStore(store, {
+      assertDirectoryBinding,
+      assertStoreBindings: () => assertStoreHandleBindings(handles),
+      openDirectoryAt,
+      readAndHashFileAt,
+      root: handles.root,
     });
+    return store;
   } catch (error) {
     await sha256Handle?.close().catch(() => {});
     await objectsHandle?.close().catch(() => {});
