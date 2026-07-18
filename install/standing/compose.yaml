@@ -184,13 +184,17 @@ services:
       - "127.0.0.1:443:443"
       - "127.0.0.1:443:443/udp"
     volumes:
+      - type: bind
+        source: ./caddy/request.json
+        target: /etc/caddy-request.json
+        read_only: true
       - local-caddy-data:/data
       - local-caddy-config:/config
     labels:
       <<: *runtime-labels
       com.rokurolize.wikijump.role: caddy
     healthcheck:
-      test: ["CMD", "wikijump-health-check"]
+      test: ["CMD-SHELL", "curl --insecure --fail --silent --show-error -I -H 'Host: scp-wiki.wikijump.localhost' https://localhost/-/health-check/caddy >/dev/null"]
       interval: 30s
       timeout: 2s
       retries: 3

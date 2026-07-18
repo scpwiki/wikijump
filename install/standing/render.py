@@ -104,6 +104,9 @@ def main() -> int:
         staging_deepwell.mkdir()
         shutil.copy2(source_root / "install" / "local" / "deepwell" / "config.toml", staging_deepwell / "config.toml")
         shutil.copytree(source_root / "deepwell" / "seeder", staging_deepwell / "seeder", symlinks=True)
+        staging_caddy = staging / "caddy"
+        staging_caddy.mkdir()
+        shutil.copy2(Path(__file__).with_name("caddy") / "request.json", staging_caddy / "request.json")
         environment = {
             "STANDING_PROJECT_NAME": project_name,
             "STANDING_NETWORK_NAME": network_name,

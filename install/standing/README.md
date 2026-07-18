@@ -1,6 +1,6 @@
 # Standing runtime configuration
 
-`compose.yaml` is the single declarative topology for the browser-facing standing runtime. It has no build directives, no candidate ports, and no references to a worktree, evidence directory, or `/tmp` override. Its persistent data volumes retain their established names so the role-based Compose project can replace the retired `runtime50x` project without a volume migration.
+`compose.yaml` is the single declarative topology for the browser-facing standing runtime. It has no build directives, no candidate ports, and no references to a worktree, evidence directory, or `/tmp` override. Its persistent data volumes retain their established names so the role-based Compose project can replace the retired `runtime50x` project without a volume migration. Its rendered Caddy request explicitly uses local certificates, preserving the Caddy image health check's TLS probe without trying public ACME issuance for local standing domains.
 
 Render this directory only from a clean checkout at the exact merged Wikijump revision. `render.py` copies the exact Deepwell config and seeder inputs into a pinned host configuration home, writes the Compose environment and identity manifest, and refuses a dirty or revision-mismatched source checkout. The resulting `identity.json` is evidence, while the source commit, FTML pin, image identities, and promotion receipt remain the durable reconstruction inputs.
 

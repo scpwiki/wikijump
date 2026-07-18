@@ -55,7 +55,12 @@ class RenderStandingConfigTest(unittest.TestCase):
             self.assertEqual(identity["project_name"], "wikijump-standing")
             self.assertEqual((output / "deepwell/config.toml").read_text(encoding="utf-8"), "run-seeder = true\n")
             self.assertTrue((output / "deepwell/seeder/page.ftml").exists())
-            self.assertIn("runtime50x-postgres-data", (output / "compose.yaml").read_text(encoding="utf-8"))
+            request = json.loads((output / "caddy/request.json").read_text(encoding="utf-8"))
+            self.assertTrue(request["params"]["local"])
+            self.assertNotIn("wildcard_cert", request["params"])
+            compose = (output / "compose.yaml").read_text(encoding="utf-8")
+            self.assertIn("runtime50x-postgres-data", compose)
+            self.assertIn("curl --insecure", compose)
             self.assertIn("STANDING_CADDY_IMAGE=example/caddy", (output / ".env").read_text(encoding="utf-8"))
 
     def test_rejects_dirty_source_before_writing_output(self) -> None:
