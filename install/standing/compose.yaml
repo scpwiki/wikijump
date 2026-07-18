@@ -1,0 +1,222 @@
+name: ${STANDING_PROJECT_NAME:?STANDING_PROJECT_NAME is required}
+
+x-runtime-labels: &runtime-labels
+  com.rokurolize.wikijump.owner: standing-runtime-promotion
+  com.rokurolize.wikijump.sha: ${STANDING_WIKIJUMP_SHA:?STANDING_WIKIJUMP_SHA is required}
+  com.rokurolize.wikijump.ftml_sha: ${STANDING_FTML_SHA:?STANDING_FTML_SHA is required}
+  com.rokurolize.wikijump.profile: production-build
+
+services:
+  database:
+    image: ${STANDING_DATABASE_IMAGE:?STANDING_DATABASE_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wikijump
+      POSTGRES_USER: wikijump
+      POSTGRES_PASSWORD: wikijump
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: --locale en_US.UTF-8
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - runtime50x-postgres-data:/var/lib/postgresql/data
+    labels:
+      <<: *runtime-labels
+      com.rokurolize.wikijump.role: database
+    healthcheck:
+      test: ["CMD", "wikijump-health-check"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  files:
+    image: ${STANDING_FILES_IMAGE:?STANDING_FILES_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: defaultpassword
+      MINIO_REGION_NAME: local
+      INITIAL_BUCKETS: deepwell-files deepwell-text-blocks
+      DATA_DIR: /data
+    ports:
+      - "127.0.0.1:19000:9000"
+      - "127.0.0.1:19001:9001"
+    volumes:
+      - runtime50x-files-data:/data
+    labels:
+      <<: *runtime-labels
+      com.rokurolize.wikijump.role: files
+    healthcheck:
+      test: ["CMD", "/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  cache:
+    image: ${STANDING_CACHE_IMAGE:?STANDING_CACHE_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    volumes:
+      - runtime50x-cache-data:/data
+    labels:
+      <<: *runtime-labels
+      com.rokurolize.wikijump.role: cache
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  deepwell:
+    image: ${STANDING_DEEPWELL_IMAGE:?STANDING_DEEPWELL_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://wikijump:wikijump@database/wikijump
+      REDIS_URL: redis://cache
+      S3_FILES_BUCKET: deepwell-files
+      S3_TEXT_BLOCKS_BUCKET: deepwell-text-blocks
+      S3_REGION_NAME: local
+      S3_PATH_STYLE: "true"
+      S3_CUSTOM_ENDPOINT: http://files:9000
+      S3_ACCESS_KEY_ID: minio
+      S3_SECRET_ACCESS_KEY: defaultpassword
+      DEEPWELL_BUILD_PROFILE: production-build
+    ports:
+      - "127.0.0.1:12747:2747"
+    volumes:
+      - type: bind
+        source: ./deepwell/config.toml
+        target: /etc/deepwell.toml
+        read_only: true
+      - type: bind
+        source: ./deepwell/seeder
+        target: /seeder
+        read_only: true
+    tmpfs:
+      - /run:uid=1,gid=1,mode=755
+    labels:
+      <<: *runtime-labels
+      com.rokurolize.wikijump.role: deepwell
+    healthcheck:
+      test: ["CMD", "wikijump-health-check"]
+      interval: 120s
+      timeout: 5s
+      retries: 3
+      start_period: 600s
+      start_interval: 10s
+    depends_on:
+      cache:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+      files:
+        condition: service_healthy
+
+  framerail:
+    image: ${STANDING_FRAMERAIL_IMAGE:?STANDING_FRAMERAIL_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      DEEPWELL_HOST: deepwell
+      FRAMERAIL_MODE: built
+      FRAMERAIL_ENV: local
+      REDIS_URL: redis://cache
+    ports:
+      - "127.0.0.1:13393:3393"
+    labels:
+      <<: *runtime-labels
+      com.rokurolize.wikijump.role: framerail
+    healthcheck:
+      test: ["CMD", "node", "-e", "const net=require('node:net');const socket=net.connect(3393,'127.0.0.1',()=>{socket.destroy();process.exit(0)});socket.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),1500)"]
+      interval: 10s
+      timeout: 2s
+      retries: 60
+    depends_on:
+      cache:
+        condition: service_healthy
+      deepwell:
+        condition: service_started
+
+  wws:
+    image: ${STANDING_WWS_IMAGE:?STANDING_WWS_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      ADDRESS: "[::]:3466"
+      DEEPWELL_URL: http://deepwell:2747
+      REDIS_URL: redis://cache
+      S3_FILES_BUCKET: deepwell-files
+      S3_TEXT_BLOCKS_BUCKET: deepwell-text-blocks
+      S3_REGION_NAME: local
+      S3_PATH_STYLE: "true"
+      S3_CUSTOM_ENDPOINT: http://files:9000
+      S3_ACCESS_KEY_ID: minio
+      S3_SECRET_ACCESS_KEY: defaultpassword
+    ports:
+      - "127.0.0.1:13466:3466"
+    labels:
+      <<: *runtime-labels
+      com.rokurolize.wikijump.role: wws
+    healthcheck:
+      test: ["CMD", "wikijump-health-check"]
+      interval: 120s
+      timeout: 5s
+      retries: 3
+      start_period: 600s
+      start_interval: 10s
+    depends_on:
+      cache:
+        condition: service_healthy
+      deepwell:
+        condition: service_healthy
+      files:
+        condition: service_healthy
+
+  caddy:
+    image: ${STANDING_CADDY_IMAGE:?STANDING_CADDY_IMAGE is required}
+    pull_policy: never
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+      - "127.0.0.1:443:443/udp"
+    volumes:
+      - local-caddy-data:/data
+      - local-caddy-config:/config
+    labels:
+      <<: *runtime-labels
+      com.rokurolize.wikijump.role: caddy
+    healthcheck:
+      test: ["CMD", "wikijump-health-check"]
+      interval: 30s
+      timeout: 2s
+      retries: 3
+    depends_on:
+      framerail:
+        condition: service_healthy
+      wws:
+        condition: service_healthy
+
+networks:
+  default:
+    name: ${STANDING_NETWORK_NAME:?STANDING_NETWORK_NAME is required}
+
+volumes:
+  runtime50x-postgres-data:
+    external: true
+    name: runtime50x-postgres-data
+  runtime50x-files-data:
+    external: true
+    name: runtime50x-files-data
+  runtime50x-cache-data:
+    external: true
+    name: runtime50x-cache-data
+  local-caddy-data:
+    external: true
+    name: local-caddy-data
+  local-caddy-config:
+    external: true
+    name: local-caddy-config
