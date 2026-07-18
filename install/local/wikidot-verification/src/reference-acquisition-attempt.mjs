@@ -39,9 +39,13 @@ class ReferenceAcquisitionContext {
       validated.rows.map((row) =>
         Object.freeze({
           fixtureId: row.fixture_id,
+          fullname: row.fullname,
           layers: Object.freeze([...row.requested_layers]),
           ordinal: row.ordinal,
+          baseline: Object.freeze({ ...row.baseline }),
           semanticRowSha256: row.semantic_row_sha256,
+          sourceEntityId: row.source_entity_id,
+          sourceUrl: row.source_url,
         }),
       ),
     );
@@ -206,6 +210,20 @@ export function listReferenceAcquisitionWorkTargets({ context, producer }) {
       ),
     ),
   );
+}
+
+export function referenceAcquisitionInventoryRow(context, ordinal) {
+  assertContext(context);
+  if (
+    !Number.isSafeInteger(ordinal) ||
+    ordinal < 0 ||
+    ordinal >= context.rows.length
+  ) {
+    throw new Error(
+      "reference acquisition row ordinal is outside the inventory",
+    );
+  }
+  return context.rows[ordinal];
 }
 
 function normalizeAttempt(attempt, context) {

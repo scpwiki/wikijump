@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/wikidot-xmlrpc-observation-v1.schema.json",
+  "title": "Wikidot XML-RPC page observation v1",
+  "description": "A terminal decoded pages.get_one capture for one exact inventory target. Completion proves durable acquisition, not baseline equality, cross-layer revision alignment, or compatibility. raw_wire_captured is false and baseline_relation is a separate diagnostic.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "baseline",
+    "baseline_relation",
+    "capture",
+    "endpoint",
+    "fallback_used",
+    "fullname",
+    "inventory",
+    "method",
+    "observed",
+    "raw_wire_captured",
+    "read_only",
+    "response",
+    "schema",
+    "site",
+    "source_entity_id",
+    "source_url",
+    "work_identity"
+  ],
+  "properties": {
+    "baseline": { "$ref": "#/$defs/baseline" },
+    "baseline_relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "mismatched_fields"],
+      "properties": {
+        "classification": {
+          "enum": [
+            "exact",
+            "advanced_same_source",
+            "advanced_changed_source",
+            "identity_discontinuity_or_regression"
+          ]
+        },
+        "mismatched_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["revisions", "source_sha256", "updated_at"] }
+        }
+      }
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["finished_at", "started_at"],
+      "properties": {
+        "finished_at": { "$ref": "#/$defs/captureTimestamp" },
+        "started_at": { "$ref": "#/$defs/captureTimestamp" }
+      }
+    },
+    "endpoint": { "const": "https://www.wikidot.com/xml-rpc-api.php" },
+    "fallback_used": { "const": false },
+    "fullname": { "type": "string", "minLength": 1 },
+    "inventory": { "$ref": "#/$defs/inventoryBinding" },
+    "method": { "const": "pages.get_one" },
+    "observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content_sha256", "html_sha256", "revisions", "updated_at"],
+      "properties": {
+        "content_sha256": { "$ref": "#/$defs/sha256" },
+        "html_sha256": { "$ref": "#/$defs/sha256" },
+        "revisions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "raw_wire_captured": { "const": false },
+    "read_only": { "const": true },
+    "response": { "$ref": "#/$defs/referenceObject" },
+    "schema": { "const": "wikijump_full_parity.wikidot_xmlrpc_observation.v1" },
+    "site": { "const": "scp-wiki" },
+    "source_entity_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "source_url": {
+      "type": "string",
+      "pattern": "^https://scp-wiki\\.wikidot\\.com/"
+    },
+    "work_identity": { "$ref": "#/$defs/identity" }
+  },
+  "$defs": {
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["meta_sha256", "revisions", "source_sha256", "updated_at"],
+      "properties": {
+        "meta_sha256": { "$ref": "#/$defs/sha256" },
+        "revisions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "source_sha256": { "$ref": "#/$defs/sha256" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "captureTimestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonicalization", "sha256"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "canonicalization": { "const": "stable-json-v1" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "inventoryBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixture_id", "ordinal", "semantic_row_sha256", "sha256"],
+      "properties": {
+        "fixture_id": { "type": "string", "minLength": 1 },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "semantic_row_sha256": { "$ref": "#/$defs/sha256" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "referenceObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "bytes", "sha256"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}
