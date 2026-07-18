@@ -16,13 +16,19 @@ Candidate stacks are isolated from the standing stack and never publish port 443
 
 Candidates may use a dedicated non-443 port or no host port. They must not share the authoritative service name or network alias while the standing stack is serving traffic. A candidate is stopped and archived or removed when its receipt is terminal or its expiry passes. Retaining an image or volume is not evidence that a candidate is still authoritative.
 
+## Candidate image lifecycle
+
+Candidate images are disposable build outputs, not durable provenance. When a candidate is superseded or its verdict receipt becomes terminal, remove its containers and images in the same closure step after proving that no live container references them. The closure receipt records the image digest, candidate owner and identity, container-reference check, removal result, and the retained receipt path. If a historical candidate is needed again, rebuild it from the receipt's source revision, FTML pin, artifact key, profile, and features instead of relying on an old local image.
+
+The current production image and one immediate rollback image are explicitly retained through a successful promotion. They are standing-runtime recovery assets, not candidate retention. They may be removed only after a later promotion receipt confirms a newer healthy production image and replacement rollback image. Image cleanup must never remove a digest referenced by the live standing stack, the immediate rollback stack, or a nonterminal candidate receipt.
+
 ## Promotion after merge
 
 Promotion begins only after the candidate change has merged normally to `develop`. Rebuild from that exact merged head rather than reusing a branch image. Verify the source tree, FTML pin, image digests, and compiled artifact identity before changing the standing stack.
 
 The switch is atomic from the browser's perspective: park the old standing application containers, start the exact merged-head containers with the authoritative aliases, wait for health, and then run the standing canaries. If the new stack fails health or any canary, restore the parked known-good stack and record the failed promotion receipt. Do not leave a candidate under the standing container name after a failed or interrupted promotion.
 
-The promotion receipt records URL to gateway to upstream image digest to Wikijump SHA to FTML SHA, the old and new container identities, the canary commands and results, and the final port-443 owner. The old stack can be archived only after the receipt confirms the new stack is healthy.
+The promotion receipt records URL to gateway to upstream image digest to Wikijump SHA to FTML SHA, the old and new container identities, the canary commands and results, the final port-443 owner, and the retained production and rollback image digests. The old stack can be archived only after the receipt confirms the new stack is healthy.
 
 ## Measurements and maintenance windows
 
