@@ -176,6 +176,7 @@ declare global {
       anonymousArticleResponseCacheMetadata?: {
         siteId: number
         siteSlug: string
+        requestHost: string
         requestLocales: string[]
         backendLocales: string[]
         deepwellArticlePageCacheKey: string

@@ -41,7 +41,10 @@ import {
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
 import { loadSiteInfo } from "$lib/server/load/site-info"
-import { buildWikidotRequestInfo } from "$lib/server/wikidot-request-info"
+import {
+  buildWikidotRequestInfo,
+  requestHostFromRequest
+} from "$lib/server/wikidot-request-info"
 import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
 import {
   buildWikidotPageActionLabels,
@@ -123,14 +126,16 @@ export async function loadPage(
   }
 
   if (locals && responseType === "found") {
+    const requestHost = requestHostFromRequest(request)
     locals.wikidotRequestInfo = buildWikidotRequestInfo({
-      domain: url.host,
+      domain: requestHost,
       site: parentData.site,
       page: responseData.page
     })
     const metadata = buildAnonymousArticleResponseCacheMetadata({
       siteId,
       siteSlug,
+      requestHost,
       requestLocales,
       backendLocales,
       deepwellArticlePageCacheKey: articleResponse.article_page_cache_key,

@@ -117,11 +117,12 @@ export const getArticleResponseFastPathRequest = (request) => {
   if (route === undefined) return null
 
   const siteSlug = singleHeaderValue(request.headers, SITE_SLUG_HEADER)
+  const requestHost = singleHeaderValue(request.headers, "host")?.toLowerCase()
   const siteId = Number.parseInt(
     singleHeaderValue(request.headers, SITE_ID_HEADER) ?? "",
     10
   )
-  if (!siteSlug || !Number.isInteger(siteId) || siteId <= 0) return null
+  if (!siteSlug || !requestHost || !Number.isInteger(siteId) || siteId <= 0) return null
 
   const fetchHeaders = toFetchHeaders(request.headers)
   const requestLocales = parseAcceptLangHeader({ headers: fetchHeaders })
@@ -132,6 +133,7 @@ export const getArticleResponseFastPathRequest = (request) => {
     pathname: url.pathname,
     siteId,
     siteSlug,
+    requestHost,
     requestLocales,
     backendLocales,
     method: request.method
@@ -362,6 +364,7 @@ export const readArticleResponseFastPathEntryFromStores = async ({
     const tokenMetadata = buildAnonymousArticleResponseCacheFences({
       siteId: candidate.siteId,
       siteSlug: candidate.siteSlug,
+      requestHost: candidate.requestHost,
       route: candidate.route,
       requestLocales: candidate.requestLocales,
       backendLocales: candidate.backendLocales,
@@ -399,6 +402,7 @@ export const readArticleResponseFastPathEntryFromStores = async ({
     const metadata = buildAnonymousArticleResponseCacheMetadata({
       siteId: candidate.siteId,
       siteSlug: candidate.siteSlug,
+      requestHost: candidate.requestHost,
       requestLocales: candidate.requestLocales,
       backendLocales: candidate.backendLocales,
       deepwellArticlePageCacheKey,

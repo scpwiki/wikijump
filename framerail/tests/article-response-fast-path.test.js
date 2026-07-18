@@ -21,6 +21,7 @@ import {
 
 const SITE_ID = 6000005
 const SITE_SLUG = "scp-wiki"
+const REQUEST_HOST = "scp-wiki.example"
 const REQUEST_LOCALES = ["ja-JP", "en-US"]
 const BACKEND_LOCALES = ["ja-JP", "en-US", "en"]
 const PUBLIC_CONTENT_FENCE = "7"
@@ -45,6 +46,7 @@ const seedFastPathStoreEntry = async (
   const tokenMetadata = buildAnonymousArticleResponseCacheFences({
     siteId: SITE_ID,
     siteSlug: SITE_SLUG,
+    requestHost: REQUEST_HOST,
     route,
     requestLocales: REQUEST_LOCALES,
     backendLocales: BACKEND_LOCALES,
@@ -60,6 +62,7 @@ const seedFastPathStoreEntry = async (
   const metadata = buildAnonymousArticleResponseCacheMetadata({
     siteId: SITE_ID,
     siteSlug: SITE_SLUG,
+    requestHost: REQUEST_HOST,
     requestLocales: REQUEST_LOCALES,
     backendLocales: BACKEND_LOCALES,
     deepwellArticlePageCacheKey,
@@ -223,11 +226,30 @@ const requestRaw = (url, { method = "GET", headers = {} } = {}) => {
   })
 }
 
+// Node's built-in fetch rewrites Host, so these tests use http.request instead.
+// eslint-disable-next-line no-redeclare
+const fetch = async (url, { method = "GET", headers = {} } = {}) => {
+  const response = await requestRaw(url, { method, headers })
+  const responseHeaders = new Headers()
+  for (const [name, value] of Object.entries(response.headers)) {
+    if (Array.isArray(value)) {
+      for (const item of value) responseHeaders.append(name, item)
+    } else if (value !== undefined) {
+      responseHeaders.append(name, value)
+    }
+  }
+  return new Response(response.body, {
+    status: response.status,
+    headers: responseHeaders
+  })
+}
+
 const largeHtmlBody = () => {
   return `<!doctype html><html><body>${"<p>cached article paragraph</p>".repeat(120)}</body></html>`
 }
 
 const fastPathHeaders = {
+  host: REQUEST_HOST.toUpperCase(),
   "accept-language": "ja-JP,en-US;q=0.8",
   "x-wikijump-site-id": String(SITE_ID),
   "x-wikijump-site-slug": SITE_SLUG

@@ -55,6 +55,11 @@ const requireRequestHost = (value) => {
   return host
 }
 
+/** @param {Request} request */
+export const requestHostFromRequest = (request) => {
+  return requireRequestHost(request.headers.get("host") ?? new URL(request.url).host)
+}
+
 /**
  * @param {{
  *   domain: string

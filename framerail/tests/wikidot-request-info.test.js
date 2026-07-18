@@ -9,6 +9,7 @@ import {
   WIKIDOT_REQUEST_INFO_MARKER,
   buildWikidotRequestInfo,
   injectWikidotRequestInfo,
+  requestHostFromRequest,
   serializeWikidotRequestInfo
 } from "../src/lib/server/wikidot-request-info.js"
 
@@ -49,6 +50,21 @@ test("binds a nonstandard local port into the client-visible request host", () =
       domain: "127.0.0.1:3405"
     }).domain,
     "127.0.0.1:3405"
+  )
+})
+
+test("prefers the HTTP Host header over the adapter origin", () => {
+  assert.equal(
+    requestHostFromRequest(
+      new Request("http://127.0.0.1:34091/scp-173", {
+        headers: { host: "SCP-WIKI.WIKIDOT.COM" }
+      })
+    ),
+    "scp-wiki.wikidot.com"
+  )
+  assert.equal(
+    requestHostFromRequest(new Request("http://127.0.0.1:34091/scp-173")),
+    "127.0.0.1:34091"
   )
 })
 
