@@ -4,6 +4,10 @@
 
 FROM node:20-alpine
 
+# SvelteKit materializes CSP while `pnpm build` runs; production callers use the default and the standing local runtime passes `local` for the documented Wikidot legacy image origin.
+ARG FRAMERAIL_ENV=prod
+ENV FRAMERAIL_ENV=${FRAMERAIL_ENV}
+
 # Install dependencies
 RUN apk add --no-cache curl && \
     npm install -g pnpm
@@ -24,7 +28,6 @@ RUN \
 # Run command
 USER node:node
 ENV NODE_ENV=production
-ENV FRAMERAIL_ENV=prod
 ENV PORT=3393
 EXPOSE 3393
 
