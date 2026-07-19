@@ -1,3 +1,4 @@
+import { performance } from "node:perf_hooks";
 import process from "node:process";
 
 import { stableStringify } from "./corpus-import-manifest.mjs";
@@ -6,6 +7,7 @@ import {
   normalizeWikidotXmlrpcWorkerSessionOptions,
   openWikidotXmlrpcWorkerExecutionCapability,
 } from "./wikidot-xmlrpc-worker-session-capability.mjs";
+import { validateWikidotXmlrpcWorkerAttestation } from "./wikidot-xmlrpc-worker-attestation.mjs";
 
 const MAX_INPUT_BYTES = 4096;
 const MAX_RESULT_BYTES = WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES + 4096;
@@ -235,6 +237,14 @@ function validateReady(record, principalId) {
   }
 }
 
+function validateAttestation(record, environment) {
+  try {
+    return validateWikidotXmlrpcWorkerAttestation(environment, record);
+  } catch {
+    throw new WorkerProtocolError("worker attestation is invalid");
+  }
+}
+
 function validateCapture(record, ordinal) {
   if (
     exactKeys(record, ["ok", "op", "ordinal", "response"]) &&
@@ -374,11 +384,27 @@ export class WikidotXmlrpcWorkerClient {
     }
   }
 
-  async start(principalId) {
-    const record = await this.request(
-      { op: "initialize", principal_id: principalId },
-      this.startupTimeoutMs,
-    );
+  async start(principalId, environment) {
+    const deadline = performance.now() + this.startupTimeoutMs;
+    const startupRequest = async (request) => {
+      const remainingMs = deadline - performance.now();
+      if (remainingMs <= 0) {
+        await this.terminate("SIGTERM");
+        throw new WorkerTerminatedError("worker startup deadline exceeded");
+      }
+      return this.request(request, remainingMs);
+    };
+    const attestation = await startupRequest({ op: "attest" });
+    try {
+      validateAttestation(attestation, environment);
+    } catch (error) {
+      await this.terminate("SIGTERM");
+      throw error;
+    }
+    const record = await startupRequest({
+      op: "initialize",
+      principal_id: principalId,
+    });
     try {
       validateReady(record, principalId);
       this.assertHealthy();
