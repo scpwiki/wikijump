@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/wikidot-xmlrpc-installed-environment-manifest-v1.schema.json",
+  "title": "Wikidot XML-RPC installed environment manifest v1",
+  "description": "Canonical, host-absolute-path-free identity for a declared root-relative regular-file application-dependency capsule image that a later private capsule must materialize before launching the fixed XML-RPC worker. The scope declaration is not proof of complete runtime closure: this manifest binds the Python executable and pyvenv.cfg roles but does not by itself attest the system loader or base Python runtime.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "files",
+    "python_executable_path",
+    "python_implementation",
+    "python_version",
+    "schema",
+    "scope",
+    "venv_config_path"
+  ],
+  "properties": {
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200000,
+      "description": "The root-relative regular files to materialize. Symlinks and special filesystem objects are not representable in v1.",
+      "items": { "$ref": "#/$defs/file" }
+    },
+    "python_executable_path": { "$ref": "#/$defs/relativePath" },
+    "python_implementation": { "const": "cpython" },
+    "python_version": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]{0,14})\\.(?:0|[1-9][0-9]{0,14})\\.(?:0|[1-9][0-9]{0,14})$",
+      "maxLength": 64
+    },
+    "schema": {
+      "const": "wikijump_full_parity.wikidot_xmlrpc_installed_environment_manifest.v1"
+    },
+    "scope": { "const": "declared_application_dependencies" },
+    "venv_config_path": { "$ref": "#/$defs/relativePath" }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One regular file materialized inside the private capsule.",
+      "required": ["bytes", "executable", "path", "sha256"],
+      "properties": {
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1073741824
+        },
+        "executable": { "type": "boolean" },
+        "path": { "$ref": "#/$defs/relativePath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A relative slash-separated path with no dot segment, backslash, or ASCII control character. The runtime validator additionally enforces a 4,096 UTF-8-byte limit and at most 32 segments.",
+      "pattern": "^(?!/)(?!.*//)(?!.*\\/$)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\\\)(?!.*[\\u0000-\\u001F\\u007F]).+$"
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "x-runtime-validation": [
+    "File paths are unique and no file path is an ancestor of another file path.",
+    "Canonical file entries are ordered by ascending UTF-8 path bytes.",
+    "Entries represent regular files only. A collector/materializer must reject source symlinks and special files, or independently copy a verified safe referent into a regular file before emitting v1.",
+    "The sum of file bytes is at most 4,294,967,296 and canonical encoded bytes are at most 16,777,216.",
+    "python_executable_path and venv_config_path are distinct declared files; the Python executable is executable and pyvenv.cfg is not executable.",
+    "The path byte and depth limits are measured by the runtime validator, not JSON Schema character counts."
+  ]
+}
