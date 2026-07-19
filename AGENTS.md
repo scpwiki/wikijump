@@ -33,6 +33,13 @@ Browser-visible behavior matters: visible text, meaningful DOM structure, links,
 - Use isolated worktrees for implementation in a shared environment. A root checkout is a read-only reference; do not leave edits, artifacts, commits, or dirty state there unless the user assigned it.
 - Keep repository code, private data, local DB state, and generated evidence separate. Never commit credentials, cookies, browser profiles, auth JSON, raw private dumps, or local DB dumps.
 
+## Resource lifecycle
+
+- Label every run-owned docker resource (container, volume, image, network) and every worktree at creation with its owning lane and an expiry; name data volumes explicitly, never anonymously.
+- Every receipt that pauses, closes, or supersedes a lane must include a resource-disposition section covering each container, volume, image, worktree, and target dir the lane created, each marked keep-until a date or delete-now. A receipt without this section is incomplete.
+- Superseded-candidate teardown happens in the same closure step that declares supersession, not in a later cleanup pass.
+- If a resource must outlive its lane, its closing receipt records the new owner and expiry; nothing keeps running detached after its lane closes.
+
 ## Validation expectations
 
 Run the narrowest meaningful validation for the touched surface, then broaden before PR/merge when behavior is user-visible or cross-cutting.
