@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 
 import {createRequire} from "node:module";
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import {fileURLToPath} from "node:url";
 import {startCaptureEgressProxy} from "../src/capture-egress-proxy.mjs";
+import {
+  DEFAULT_REQUEST_INTERVAL_MS,
+  acquireBrowserCaptureLock,
+  createPersistentBrowserRequestGate,
+  installBrowserRequestGate,
+  localBrowserCaptureOrigins,
+} from "../src/browser-request-gate.mjs";
 import {
   buildEvidenceRecord,
   readJson,
@@ -17,7 +25,7 @@ import {
   writeEvidenceArtifacts,
 } from "../src/browser-render-evidence.mjs";
 
-const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_TIMEOUT_MS = 900_000;
 const DEFAULT_SETTLE_MS = 1_000;
 const POST_NAVIGATION_STATE_TIMEOUT_MS = 2_000;
 const VISIBLE_TEXT_SCOPES = new Set(["all-frames", "main-frame"]);
@@ -134,7 +142,7 @@ function parseArgs(argv) {
 }
 
 function printHelpAndExit() {
-  console.log(`Usage: capture-browser-rendering.mjs --inventory FILE --output-dir DIR [--shard-manifest FILE --shard-id ID] [--fixture-id ID ...] [--limit N] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--storage-state FILE | --source-storage-state FILE --local-storage-state FILE] [--actor-label LABEL] [--local-url-field local_https_url] [--timeout-ms 30000] [--settle-ms 1000] [--visible-text-scope all-frames|main-frame] [--ignore-https-errors] [--no-screenshot] [--json]
+  console.log(`Usage: capture-browser-rendering.mjs --inventory FILE --output-dir DIR [--shard-manifest FILE --shard-id ID] [--fixture-id ID ...] [--limit N] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--storage-state FILE | --source-storage-state FILE --local-storage-state FILE] [--actor-label LABEL] [--local-url-field local_https_url] [--timeout-ms 900000] [--settle-ms 1000] [--visible-text-scope all-frames|main-frame] [--ignore-https-errors] [--no-screenshot] [--json]
 
 Writes validator-compatible browser rendering evidence JSON plus DOM/screenshot artifacts for selected corpus inventory rows. The output directory should live under one of the render validator evidence roots, for example:
 
@@ -168,15 +176,16 @@ export function resolveStorageStates({storageState = null, sourceStorageState = 
   };
 }
 
-export function browserContextOptions({ignoreHttpsErrors, storageState = null, proxyServer = null}) {
+export function browserContextOptions({ignoreHttpsErrors, storageState = null, proxyServer = null, blockServiceWorkers = false}) {
   return {
     ignoreHTTPSErrors: ignoreHttpsErrors,
+    ...(blockServiceWorkers ? {serviceWorkers: "block"} : {}),
     ...(storageState ? {storageState} : {}),
     ...(proxyServer ? {proxy: {server: proxyServer, bypass: "<-loopback>"}} : {}),
   };
 }
 
-async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer}) {
+async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate = null, localOrigins = []}) {
   let sourceContext = null;
   let localContext = null;
   try {
@@ -185,15 +194,19 @@ async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, l
         ignoreHttpsErrors,
         storageState: sourceStorageState,
         proxyServer: sourceProxyServer,
+        blockServiceWorkers: Boolean(requestGate),
       }),
     );
+    if (requestGate) await installBrowserRequestGate(sourceContext, {gate: requestGate});
     localContext = await browser.newContext(
       browserContextOptions({
         ignoreHttpsErrors,
         storageState: localStorageState,
         proxyServer: localProxyServer,
+        blockServiceWorkers: Boolean(requestGate),
       }),
     );
+    if (requestGate) await installBrowserRequestGate(localContext, {gate: requestGate, exemptOrigins: localOrigins});
     return {sourceContext, localContext};
   } catch (error) {
     if (localContext && localContext !== sourceContext) {
@@ -215,7 +228,7 @@ async function closeContextPair({sourceContext, localContext}) {
   }
 }
 
-function browserSession({browser, sourceContext, localContext, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer}) {
+function browserSession({browser, sourceContext, localContext, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate, localOrigins}) {
   return {
     browser,
     context: sourceContext,
@@ -229,6 +242,8 @@ function browserSession({browser, sourceContext, localContext, ignoreHttpsErrors
         localStorageState,
         sourceProxyServer,
         localProxyServer,
+        requestGate,
+        localOrigins,
       });
     },
     async close() {
@@ -249,6 +264,8 @@ export async function openBrowser({
   createInitialContexts = true,
   sourceProxyServer = null,
   localProxyServer = null,
+  requestGate = null,
+  localOrigins = [],
 }) {
   const resolvedStates = resolveStorageStates({storageState, sourceStorageState, localStorageState});
   let browser = null;
@@ -270,6 +287,8 @@ export async function openBrowser({
           localStorageState: resolvedStates.localStorageState,
           sourceProxyServer,
           localProxyServer,
+          requestGate,
+          localOrigins,
         })
       : {sourceContext: null, localContext: null};
     return browserSession({
@@ -280,6 +299,8 @@ export async function openBrowser({
       localStorageState: resolvedStates.localStorageState,
       sourceProxyServer,
       localProxyServer,
+      requestGate,
+      localOrigins,
     });
   } catch (error) {
     if (browser) {
@@ -462,6 +483,16 @@ async function captureOptionalPage(context, url, missingMessage, options) {
   }
 }
 
+async function writeExclusiveJson(filePath, value) {
+  const handle = await fs.open(filePath, "wx", 0o600);
+  try {
+    await handle.writeFile(`${JSON.stringify(value, null, 2)}\n`, "utf8");
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
 async function run() {
   const args = parseArgs(process.argv);
   if (args.shardManifest && !args.shardId) {
@@ -481,26 +512,52 @@ async function run() {
     throw new Error("no inventory rows selected; check --fixture-id, --shard-id, and --limit inputs");
   }
 
-  await fs.mkdir(args.outputDir, {recursive: true});
+  await fs.mkdir(args.outputDir, {recursive: true, mode: 0o700});
+  await fs.chmod(args.outputDir, 0o700);
   if (args.cdpEndpoint) {
     throw new Error("--cdp-endpoint is disabled because capture egress cannot be pinned");
   }
-  const localOrigins = selectedRows.flatMap((row) => {
+  const localOrigins = [...new Set(selectedRows.flatMap((row) => {
     const value = rowLocalUrl(row, args.localUrlField);
     if (!value) return [];
     try {
-      return [new URL(value).origin];
-    } catch {
-      throw new Error(`invalid local capture URL for ${row.fixture_id}`);
+      return localBrowserCaptureOrigins(value);
+    } catch (error) {
+      throw new Error(`invalid local capture URL for ${row.fixture_id}: ${error.message}`);
     }
-  });
-  const sourceEgressProxy = await startCaptureEgressProxy();
-  const localEgressProxy = await startCaptureEgressProxy({
-    allowedLocalOrigins: localOrigins,
-  });
-  const {chromium} = requirePlaywright(args.browserRoot);
-  let browserSession;
+  }))].sort();
+  const runId = crypto.randomUUID();
+  const captureLock = await acquireBrowserCaptureLock({runId});
+  const requestGateConfigPath = path.join(args.outputDir, "request-gate-config.json");
+  let sourceEgressProxy = null;
+  let localEgressProxy = null;
+  let browserSession = null;
+  let requestGate = null;
+  let requestGateReady = false;
   try {
+    requestGate = await createPersistentBrowserRequestGate({
+      statePath: captureLock.statePath,
+      intervalMs: DEFAULT_REQUEST_INTERVAL_MS,
+    });
+    requestGateReady = true;
+    await writeExclusiveJson(requestGateConfigPath, {
+      schema: "wikijump_full_parity.browser_request_gate_config.v1",
+      status: "sealed_before_browser_request",
+      run_id: runId,
+      lock: {path: captureLock.path, owner: captureLock.owner},
+      state_path: captureLock.statePath,
+      interval_ms: DEFAULT_REQUEST_INTERVAL_MS,
+      source_context_exempt_origins: [],
+      local_context_exempt_origins: [...new Set(localOrigins)].sort(),
+      public_request_policy: "every HTTP(S) request except an exact local-context origin is admitted by the shared gate",
+      service_workers: "block",
+      web_sockets: "blocked_without_network_connection",
+    });
+    sourceEgressProxy = await startCaptureEgressProxy();
+    localEgressProxy = await startCaptureEgressProxy({
+      allowedLocalOrigins: localOrigins,
+    });
+    const {chromium} = requirePlaywright(args.browserRoot);
     browserSession = await openBrowser({
       chromium,
       browserExecutable: args.browserExecutable,
@@ -511,19 +568,15 @@ async function run() {
       createInitialContexts: false,
       sourceProxyServer: sourceEgressProxy.url,
       localProxyServer: localEgressProxy.url,
+      requestGate,
+      localOrigins,
     });
-  } catch (error) {
-    await Promise.all([sourceEgressProxy.close(), localEgressProxy.close()]);
-    throw error;
-  }
-  const resolvedStorageStates = resolveStorageStates({
-    storageState: args.storageState,
-    sourceStorageState: args.sourceStorageState,
-    localStorageState: args.localStorageState,
-  });
-  const records = [];
-
-  try {
+    const resolvedStorageStates = resolveStorageStates({
+      storageState: args.storageState,
+      sourceStorageState: args.sourceStorageState,
+      localStorageState: args.localStorageState,
+    });
+    const records = [];
     for (const row of selectedRows) {
       const rowContexts = await browserSession.newContextPair();
       const sourceUrl = rowSourceUrl(row);
@@ -573,12 +626,7 @@ async function run() {
         await closeContextPair(rowContexts);
       }
     }
-  } finally {
-    await browserSession.close();
-    await Promise.all([sourceEgressProxy.close(), localEgressProxy.close()]);
-  }
-
-  const result = {
+    const result = {
     schema: "wikijump_full_parity.browser_rendering_evidence.v1",
     inventory: args.inventory,
     shard_manifest: args.shardManifest ?? null,
@@ -598,18 +646,41 @@ async function run() {
       storage_state: Boolean(args.storageState),
       source_storage_state: Boolean(resolvedStorageStates.sourceStorageState),
       local_storage_state: Boolean(resolvedStorageStates.localStorageState),
+      request_gate_config: requestGateConfigPath,
+      request_gate: requestGate.snapshot(),
     },
-  };
-  const resultPath = path.join(args.outputDir, "records.json");
-  await fs.writeFile(resultPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-  if (!args.jsonOnly) {
-    console.log(`wrote ${records.length} browser rendering records to ${resultPath}`);
-  } else {
-    console.log(JSON.stringify({result_path: resultPath, selected_count: selectedRows.length}));
-  }
+    };
+    const resultPath = path.join(args.outputDir, "records.json");
+    await writeExclusiveJson(resultPath, result);
+    if (!args.jsonOnly) {
+      console.log(`wrote ${records.length} browser rendering records to ${resultPath}`);
+    } else {
+      console.log(JSON.stringify({result_path: resultPath, selected_count: selectedRows.length}));
+    }
 
-  const captureErrors = records.flatMap((record) => record.capture_errors ?? []);
-  return captureErrors.length === 0 ? 0 : 1;
+    const captureErrors = records.flatMap((record) => record.capture_errors ?? []);
+    return captureErrors.length === 0 ? 0 : 1;
+  } finally {
+    let cleanupError = requestGateReady ? null : new Error("browser request gate was not initialized; retaining the capture lock for operator review");
+    try {
+      await browserSession?.close();
+    } catch (error) {
+      cleanupError ??= error;
+    }
+    try {
+      await Promise.all([sourceEgressProxy?.close(), localEgressProxy?.close()]);
+    } catch (error) {
+      cleanupError ??= error;
+    }
+    try {
+      await requestGate?.flush();
+    } catch (error) {
+      cleanupError ??= error;
+    }
+    if (cleanupError) throw cleanupError;
+    await captureLock.confirmState();
+    await captureLock.release();
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === SCRIPT_PATH) {

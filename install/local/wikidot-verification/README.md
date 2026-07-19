@@ -55,6 +55,10 @@ Resumption is fail-closed. A stage is reused only when the exact plan bytes, com
 
 For root-cause reduction, a stage may declare `cluster_sources`. JSON or JSONL records are deduplicated by the configured `key_fields`, with occurrence counts and source-stage provenance retained in the terminal summary.
 
+## Read-only browser capture
+
+`scripts/capture-browser-rendering.mjs` uses a fixed host-wide capture lock and durable request-gate state under `/var/tmp/`. Every non-local HTTP(S) browser request in either source or local context is admitted at no more than one request per four seconds, including documents, redirects, frames, scripts, stylesheets, images, and fetches. The gate persists its next admissible time and any observed `Retry-After` deadline before a request proceeds, so a later capture cannot reset the rate. Service workers and WebSockets are blocked. The command accepts only canonical standing `https://<site>.wikijump.localhost` page URLs as local exemptions and derives the matching `https://<site>.wjfiles.localhost` file origin; public or credentialed inventory values fail before browser startup. It seals `request-gate-config.json` before starting the proxy or browser and records final gate counters in `records.json`. A failed state confirmation leaves the lock pending and blocks a later capture until an operator reviews it.
+
 ## Redirect runtime reproducibility
 
 `scripts/validate-redirect-runtime.mjs` validates corpus-provenanced redirect routes without following them or contacting their destinations. It requires the full inventory, the sealed real-Wikidot status and `Location` authority, the frozen corpus redirect inventory, and the exact local runtime identity. The validator reconciles all three fixture sets, requests every route twice through an explicit loopback address, and requires exact status, `Location`, header multiplicity, body hash, and body size reproducibility.
