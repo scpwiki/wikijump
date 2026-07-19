@@ -11,10 +11,33 @@ import {
   WorkerProtocolError,
   WorkerTerminatedError,
 } from "../src/wikidot-xmlrpc-worker-client.mjs";
+import { buildWikidotXmlrpcPythonEnvironment } from "../src/wikidot-xmlrpc-python-environment.mjs";
 
 const PRINCIPAL_ID = 5700026;
+const PYTHON_ENVIRONMENT = buildWikidotXmlrpcPythonEnvironment({
+  dependencyEnvironmentSha256: "a".repeat(64),
+  dependencyLockBlobOid: "1".repeat(40),
+  dependencyLockFileSha256: "b".repeat(64),
+  dependencyRecipeBlobOid: "2".repeat(40),
+  dependencyRecipeSha256: "c".repeat(64),
+  pythonExecutableSha256: "d".repeat(64),
+  pythonImplementation: "cpython",
+  pythonVersion: "3.13.13",
+  venvConfigSha256: "e".repeat(64),
+  workerBlobOid: "3".repeat(40),
+  workerFileSha256: "f".repeat(64),
+  workerRepositoryCommit: "4".repeat(40),
+  workerRepositoryTree: "5".repeat(40),
+});
 const BASE_CHILD = String.raw`
 let buffer = "";
+const defaultAttestation = {
+  ok: true,
+  op: "attestation",
+  protocol_version: 2,
+  runtime: { implementation: "cpython", version: [3, 13, 13] },
+  worker: "wikidot_xmlrpc_capture_worker",
+};
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk) => {
   buffer += chunk;
@@ -23,7 +46,13 @@ process.stdin.on("data", (chunk) => {
     if (newline < 0) break;
     const record = JSON.parse(buffer.slice(0, newline));
     buffer = buffer.slice(newline + 1);
-    globalThis.handle(record);
+    if (record.op === "attest") {
+      const response = globalThis.attest
+        ? globalThis.attest(record)
+        : defaultAttestation;
+      if (response !== undefined)
+        process.stdout.write(JSON.stringify(response) + "\n");
+    } else globalThis.handle(record);
   }
 });
 process.stdin.on("end", () => globalThis.onEnd ? globalThis.onEnd() : process.exit(0));
@@ -55,6 +84,14 @@ function processExecution(child) {
       }
     },
   };
+}
+
+function start(
+  worker,
+  principalId = PRINCIPAL_ID,
+  environment = PYTHON_ENVIRONMENT,
+) {
+  return worker.start(principalId, environment);
 }
 
 test("worker session accepts only a caller-owned child-process capability", () => {
@@ -149,7 +186,82 @@ test("record parser preserves Python numeric spelling while rejecting framing an
     );
   }
 });
-test("startup admission rejects malformed readiness and a missing deadline", async (t) => {
+
+test("v2 startup sends an exact credential-free attestation before initialize", async (t) => {
+  const worker = client(String.raw`
+let attested = false;
+globalThis.attest = (record) => {
+  if (JSON.stringify(record) !== '{"op":"attest"}') process.exit(91);
+  attested = true;
+  return {ok:true,op:"attestation",protocol_version:2,runtime:{implementation:"cpython",version:[3,13,13]},worker:"wikidot_xmlrpc_capture_worker"};
+};
+globalThis.handle = (record) => {
+  if (!attested || record.op !== "initialize" || record.principal_id !== ${PRINCIPAL_ID}) process.exit(92);
+  process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
+};`);
+  t.after(() => worker.terminate().catch(() => {}));
+  await start(worker);
+  await worker.closeClean();
+});
+
+test("v2 startup rejects bad or absent attestation without initialize", async (t) => {
+  for (const { error, source, startupTimeoutMs } of [
+    {
+      error: WorkerProtocolError,
+      source: String.raw`
+globalThis.attest = () => ({ok:true,op:"attestation",protocol_version:1,runtime:{implementation:"cpython",version:[3,13,13]},worker:"wikidot_xmlrpc_capture_worker"});
+globalThis.handle = () => process.exit(97);`,
+      startupTimeoutMs: 1_000,
+    },
+    {
+      error: WorkerTerminatedError,
+      source: String.raw`
+globalThis.attest = () => undefined;
+globalThis.handle = () => process.exit(98);`,
+      startupTimeoutMs: 200,
+    },
+  ]) {
+    const worker = client(source, { startupTimeoutMs });
+    t.after(() => worker.terminate().catch(() => {}));
+    await assert.rejects(start(worker), error);
+    const closed = await worker.closePromise;
+    assert.notEqual(closed.code, 97);
+    assert.notEqual(closed.code, 98);
+  }
+});
+
+test("v2 startup rejects an invalid supplied environment without initialize", async (t) => {
+  const worker = client(String.raw`
+globalThis.handle = () => process.exit(99);`);
+  t.after(() => worker.terminate().catch(() => {}));
+  await assert.rejects(start(worker, PRINCIPAL_ID, {}), WorkerProtocolError);
+  const closed = await worker.closePromise;
+  assert.notEqual(closed.code, 99);
+});
+
+test("v2 startup spends one monotonic deadline across attestation and initialize", async (t) => {
+  const worker = client(
+    String.raw`
+globalThis.attest = () => {
+  setTimeout(
+    () => process.stdout.write(JSON.stringify({ok:true,op:"attestation",protocol_version:2,runtime:{implementation:"cpython",version:[3,13,13]},worker:"wikidot_xmlrpc_capture_worker"}) + "\n"),
+    250,
+  );
+  return undefined;
+};
+globalThis.handle = (record) => {
+  setTimeout(
+    () => process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n"),
+    250,
+  );
+};`,
+    { startupTimeoutMs: 400 },
+  );
+  t.after(() => worker.terminate().catch(() => {}));
+  await assert.rejects(start(worker), WorkerTerminatedError);
+});
+
+test("v2 startup rejects malformed readiness after valid attestation", async (t) => {
   for (const ready of [
     { ok: true, op: "ready", principal_id: PRINCIPAL_ID + 1 },
     { extra: true, ok: true, op: "ready", principal_id: PRINCIPAL_ID },
@@ -157,13 +269,8 @@ test("startup admission rejects malformed readiness and a missing deadline", asy
     const worker = client(String.raw`
 globalThis.handle = () => process.stdout.write(${JSON.stringify(`${JSON.stringify(ready)}\n`)});`);
     t.after(() => worker.terminate().catch(() => {}));
-    await assert.rejects(worker.start(PRINCIPAL_ID), WorkerProtocolError);
+    await assert.rejects(start(worker), WorkerProtocolError);
   }
-  const stalled = client("globalThis.handle = () => {};", {
-    startupTimeoutMs: 25,
-  });
-  t.after(() => stalled.terminate().catch(() => {}));
-  await assert.rejects(stalled.start(PRINCIPAL_ID), WorkerTerminatedError);
 });
 
 test("one persistent worker handles chunked success, terminal failure, and clean EOF", async (t) => {
@@ -179,7 +286,7 @@ globalThis.handle = (record) => {
   } else process.stdout.write(JSON.stringify({code:"response_rejected",ok:false,op:"capture",ordinal:1,retryable:false}) + "\n");
 };`);
   t.after(() => worker.terminate().catch(() => {}));
-  await worker.start(PRINCIPAL_ID);
+  await start(worker);
   await worker.capture(0, "scp-173");
   assert.deepEqual(await worker.capture(1, "scp-174"), {
     code: "response_rejected",
@@ -204,7 +311,7 @@ globalThis.handle = (record) => {
   }
 };`);
     t.after(() => worker.terminate().catch(() => {}));
-    await worker.start(PRINCIPAL_ID);
+    await start(worker);
     assert.equal((await worker.capture(0, "scp-173")).code, code);
     await worker.expectExit(exitCode);
   });
@@ -221,7 +328,7 @@ globalThis.handle = (record) => {
   else process.stdout.write(JSON.stringify({code:"transport_exhausted",ok:false,op:"capture",ordinal:record.ordinal,retryable:true}) + "\n", () => { ${action}; });
 };`);
     t.after(() => worker.terminate().catch(() => {}));
-    await worker.start(PRINCIPAL_ID);
+    await start(worker);
     assert.equal((await worker.capture(0, "scp-173")).retryable, true);
     await assert.rejects(worker.expectExit(75));
   }
@@ -242,7 +349,7 @@ globalThis.handle = (record) => {
   else process.stdout.write(${JSON.stringify(result)});
 };`);
     t.after(() => worker.terminate().catch(() => {}));
-    await worker.start(PRINCIPAL_ID);
+    await start(worker);
     await assert.rejects(worker.capture(0, "scp-173"), WorkerProtocolError);
   }
 
@@ -264,7 +371,7 @@ globalThis.handle = (record) => {
   else process.stdout.write('{"ok":', () => process.exit(70));
 };`);
   t.after(() => worker.terminate().catch(() => {}));
-  await worker.start(PRINCIPAL_ID);
+  await start(worker);
   await assert.rejects(worker.capture(0, "scp-173"), WorkerTerminatedError);
 });
 
@@ -278,7 +385,7 @@ globalThis.handle = (record) => {
     { captureTimeoutMs: 10_000 },
   );
   t.after(() => oversized.terminate().catch(() => {}));
-  await oversized.start(PRINCIPAL_ID);
+  await start(oversized);
   await assert.rejects(oversized.capture(0, "scp-173"), WorkerProtocolError);
 
   const stalled = client(
@@ -289,7 +396,7 @@ globalThis.handle = (record) => {
     { captureTimeoutMs: 25 },
   );
   t.after(() => stalled.terminate().catch(() => {}));
-  await stalled.start(PRINCIPAL_ID);
+  await start(stalled);
   await assert.rejects(stalled.capture(0, "scp-173"), WorkerTerminatedError);
 });
 
@@ -299,7 +406,7 @@ globalThis.handle = (record) => {
   if (record.op === "initialize") process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
 };`);
   t.after(() => worker.terminate().catch(() => {}));
-  await worker.start(PRINCIPAL_ID);
+  await start(worker);
   await assert.rejects(
     worker.capture(0, `scp-${"x".repeat(4096)}`),
     WorkerProtocolError,
@@ -311,7 +418,7 @@ globalThis.handle = (record) => {
   if (record.op === "initialize") process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
 };`);
   t.after(() => interrupted.terminate().catch(() => {}));
-  await interrupted.start(PRINCIPAL_ID);
+  await start(interrupted);
   const closing = interrupted.closeClean();
   interrupted.handleSignal("SIGINT");
   await assert.rejects(closing, OperatorSignalError);
@@ -331,7 +438,7 @@ globalThis.handle = (record) => {
   else process.stdout.write('{"ok":true,"ok":false,"op":"capture","ordinal":1,"response":{}}\n');
 };`);
   t.after(() => worker.terminate().catch(() => {}));
-  await worker.start(PRINCIPAL_ID);
+  await start(worker);
   const pid = (await worker.capture(0, "scp-173")).response.pid;
   await assert.rejects(worker.capture(1, "scp-174"), WorkerProtocolError);
   let gone = false;
@@ -376,7 +483,7 @@ globalThis.handle = (record) => {
       }
     }
   });
-  await worker.start(PRINCIPAL_ID);
+  await start(worker);
   pid = (await worker.capture(0, "scp-173")).response.pid;
   await new Promise((resolve) => worker.child.once("exit", resolve));
 
@@ -433,7 +540,7 @@ globalThis.handle = (record) => {
       }
     }
   });
-  await worker.start(PRINCIPAL_ID);
+  await start(worker);
   const closed = new Promise((resolve) => worker.child.once("close", resolve));
   pid = (await worker.capture(0, "scp-173")).response.pid;
   await closed;
@@ -472,11 +579,13 @@ test("an escaped descendant cannot hold the coordinator stdout pipe open", async
   const worker = client(
     String.raw`
 const {spawn} = require("node:child_process");
-const escaped = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {detached:true,stdio:["ignore",process.stdout,"ignore"]});
-escaped.unref();
 globalThis.handle = (record) => {
   if (record.op === "initialize") process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
-  else if (record.ordinal === 0) process.stdout.write(JSON.stringify({ok:true,op:"capture",ordinal:0,response:{pid:escaped.pid}}) + "\n");
+  else if (record.ordinal === 0) {
+    const escaped = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {detached:true,stdio:["ignore",process.stdout,"ignore"]});
+    escaped.unref();
+    process.stdout.write(JSON.stringify({ok:true,op:"capture",ordinal:0,response:{pid:escaped.pid}}) + "\n");
+  }
   else process.stdout.write('{"ok":true,"ok":false}\n');
 };`,
     { exitGraceMs: 25 },
@@ -492,7 +601,7 @@ globalThis.handle = (record) => {
       }
     }
   });
-  await worker.start(PRINCIPAL_ID);
+  await start(worker);
   pid = (await worker.capture(0, "scp-173")).response.pid;
   await assert.rejects(worker.capture(1, "scp-174"), WorkerTerminatedError);
 });
