@@ -1,6 +1,10 @@
 import { types as utilTypes } from "node:util";
 
 import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import {
+  isReferenceObjectStore,
+  validateReferenceObject,
+} from "./reference-object-store.mjs";
 
 export const WIKIDOT_XMLRPC_INSTALLED_ENVIRONMENT_MANIFEST_SCHEMA =
   "wikijump_full_parity.wikidot_xmlrpc_installed_environment_manifest.v1";
@@ -362,6 +366,12 @@ function inputBytes(value) {
   }
 }
 
+function assertStore(store) {
+  if (!isReferenceObjectStore(store)) {
+    throw new Error("reference object store is required");
+  }
+}
+
 // Canonicalizes a declared regular-file application-dependency capsule image. Every entry is an ordinary file; a future collector/materializer must reject source symlinks or copy a verified referent as a regular file before it produces this manifest. The declaration is not proof of a complete system runtime; the private capsule must enforce the wider execution boundary before spawning.
 export function buildWikidotXmlrpcInstalledEnvironmentManifest(options) {
   const input = dataObject(
@@ -417,4 +427,46 @@ export function parseWikidotXmlrpcInstalledEnvironmentManifest(value) {
 
 export function hashWikidotXmlrpcInstalledEnvironmentManifest(value) {
   return sha256Hex(serializeWikidotXmlrpcInstalledEnvironmentManifest(value));
+}
+
+export async function putWikidotXmlrpcInstalledEnvironmentManifest(
+  store,
+  value,
+) {
+  assertStore(store);
+  const descriptor = normalizeManifest(value);
+  const result = await store.putBytes(canonicalBytes(descriptor));
+  return Object.freeze({ descriptor, ...result });
+}
+
+export async function openWikidotXmlrpcInstalledEnvironmentManifest(
+  store,
+  reference,
+) {
+  assertStore(store);
+  const object = validateReferenceObject(
+    dataObject(
+      reference,
+      ["algorithm", "bytes", "sha256"],
+      "installed environment manifest reference",
+    ),
+  );
+  let bytes;
+  try {
+    bytes = await store.readObject(object, {
+      maxBytes: WIKIDOT_XMLRPC_INSTALLED_ENVIRONMENT_MANIFEST_MAX_BYTES,
+    });
+  } catch {
+    throw new Error("installed environment manifest object cannot be read");
+  }
+  let descriptor;
+  try {
+    descriptor = parseWikidotXmlrpcInstalledEnvironmentManifest(bytes);
+  } catch {
+    throw new Error("installed environment manifest object is not canonical");
+  }
+  return Object.freeze({
+    descriptor,
+    object,
+  });
 }

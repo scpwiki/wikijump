@@ -6,6 +6,11 @@ import {
   validateReferenceObject,
 } from "./reference-object-store.mjs";
 import {
+  hashWikidotXmlrpcInstalledEnvironmentManifest,
+  parseWikidotXmlrpcInstalledEnvironmentManifest,
+  serializeWikidotXmlrpcInstalledEnvironmentManifest,
+} from "./wikidot-xmlrpc-installed-environment-manifest.mjs";
+import {
   parseWikidotXmlrpcWorkerAuthority,
   serializeWikidotXmlrpcWorkerAuthority,
 } from "./wikidot-xmlrpc-worker-authority.mjs";
@@ -227,6 +232,16 @@ function normalizedAuthority(value) {
   }
 }
 
+function normalizedInstalledEnvironmentManifest(value) {
+  try {
+    return parseWikidotXmlrpcInstalledEnvironmentManifest(
+      serializeWikidotXmlrpcInstalledEnvironmentManifest(value),
+    );
+  } catch {
+    throw new Error("installed environment manifest is invalid");
+  }
+}
+
 export function buildWikidotXmlrpcPythonEnvironment(options) {
   const input = dataObject(
     options,
@@ -297,6 +312,38 @@ export function assertWikidotXmlrpcPythonEnvironmentMatchesWorkerAuthority(
     }
   }
   return Object.freeze({ authority: normalized, descriptor });
+}
+
+export function assertWikidotXmlrpcPythonEnvironmentMatchesInstalledEnvironmentManifest(
+  environment,
+  manifest,
+) {
+  let descriptor;
+  try {
+    descriptor = normalizeEnvironment(environment);
+  } catch {
+    throw new Error("XML-RPC Python environment is invalid");
+  }
+  const normalizedManifest = normalizedInstalledEnvironmentManifest(manifest);
+  const files = new Map(
+    normalizedManifest.files.map((file) => [file.path, file]),
+  );
+  const executable = files.get(normalizedManifest.python_executable_path);
+  const config = files.get(normalizedManifest.venv_config_path);
+  if (
+    normalizedManifest.python_implementation !==
+      descriptor.python_implementation ||
+    normalizedManifest.python_version !== descriptor.python_version ||
+    executable.sha256 !== descriptor.python_executable_sha256 ||
+    config.sha256 !== descriptor.venv_config_sha256 ||
+    hashWikidotXmlrpcInstalledEnvironmentManifest(normalizedManifest) !==
+      descriptor.dependency_environment_sha256
+  ) {
+    throw new Error(
+      "XML-RPC Python environment does not match installed environment manifest",
+    );
+  }
+  return Object.freeze({ descriptor, manifest: normalizedManifest });
 }
 
 export async function putWikidotXmlrpcPythonEnvironment(store, value) {
