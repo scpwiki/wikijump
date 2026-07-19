@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/wikidot-xmlrpc-python-environment-v1.schema.json",
+  "title": "Wikidot XML-RPC Python environment v1",
+  "description": "Canonical, path-free identity claims for the Python environment that will execute the fixed XML-RPC worker. The descriptor is not launch authority and does not contain credentials, commands, host paths, raw environment values, timestamps, or process identity. A later private capsule verifier must prove the declared Git and environment preimages before spawning a worker.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dependency_environment_sha256",
+    "dependency_lock_blob_oid",
+    "dependency_lock_file_sha256",
+    "dependency_recipe_blob_oid",
+    "dependency_recipe_sha256",
+    "protocol_version",
+    "python_executable_sha256",
+    "python_implementation",
+    "python_version",
+    "schema",
+    "venv_config_sha256",
+    "worker",
+    "worker_blob_oid",
+    "worker_file_sha256",
+    "worker_repository",
+    "worker_repository_commit",
+    "worker_repository_tree"
+  ],
+  "properties": {
+    "dependency_environment_sha256": { "$ref": "#/$defs/sha256" },
+    "dependency_lock_blob_oid": { "$ref": "#/$defs/gitSha1" },
+    "dependency_lock_file_sha256": { "$ref": "#/$defs/sha256" },
+    "dependency_recipe_blob_oid": { "$ref": "#/$defs/gitSha1" },
+    "dependency_recipe_sha256": { "$ref": "#/$defs/sha256" },
+    "protocol_version": { "const": 2 },
+    "python_executable_sha256": { "$ref": "#/$defs/sha256" },
+    "python_implementation": { "const": "cpython" },
+    "python_version": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]{0,14})\\.(?:0|[1-9][0-9]{0,14})\\.(?:0|[1-9][0-9]{0,14})$",
+      "maxLength": 64
+    },
+    "schema": {
+      "const": "wikijump_full_parity.wikidot_xmlrpc_python_environment.v1"
+    },
+    "venv_config_sha256": { "$ref": "#/$defs/sha256" },
+    "worker": { "const": "wikidot_xmlrpc_capture_worker" },
+    "worker_blob_oid": { "$ref": "#/$defs/gitSha1" },
+    "worker_file_sha256": { "$ref": "#/$defs/sha256" },
+    "worker_repository": { "const": "Rokurolize/scp-wiki-translation" },
+    "worker_repository_commit": { "$ref": "#/$defs/gitSha1" },
+    "worker_repository_tree": { "$ref": "#/$defs/gitSha1" }
+  },
+  "$defs": {
+    "gitSha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}
