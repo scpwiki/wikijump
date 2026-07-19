@@ -171,6 +171,8 @@ async function deriveFinalVerdict(value) {
         "XML-RPC final verdict requires every campaign target to be semantically complete",
       );
     }
+    // Completion means a target has one verified XML-RPC reference state. A
+    // deleted tombstone is a state observation, never an empty page response.
     return Object.freeze({
       campaign: campaign.reference,
       completed: plan.complete.length,

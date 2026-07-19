@@ -8,9 +8,13 @@ import { validateReferenceObject } from "./reference-object-store.mjs";
 
 export const WIKIDOT_XMLRPC_OBSERVATION_SCHEMA =
   "wikijump_full_parity.wikidot_xmlrpc_observation.v1";
+export const WIKIDOT_XMLRPC_DELETED_TOMBSTONE_SCHEMA =
+  "wikijump_full_parity.wikidot_xmlrpc_deleted_tombstone.v1";
+export const WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE = "deleted_tombstone";
 export const WIKIDOT_XMLRPC_PRODUCER_CONTRACT =
   "wikijump_full_parity.wikidot_xmlrpc_acquirer.v1";
 export const WIKIDOT_XMLRPC_OBSERVATION_MAX_BYTES = 64 * 1024;
+export const WIKIDOT_XMLRPC_DELETED_TOMBSTONE_MAX_BYTES = 16 * 1024;
 export const WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES = 32 * 1024 * 1024;
 
 const CAPTURE_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u;
@@ -309,6 +313,46 @@ function expectedObservation({
   });
 }
 
+function expectedDeletedTombstone({ target, row, startedAt, finishedAt }) {
+  assertCaptureTimestamp(startedAt, "capture.started_at");
+  assertCaptureTimestamp(finishedAt, "capture.finished_at");
+  if (finishedAt < startedAt)
+    throw new Error("XML-RPC capture finished before it started");
+  return Object.freeze({
+    baseline: row.baseline,
+    capture: Object.freeze({
+      finished_at: finishedAt,
+      started_at: startedAt,
+    }),
+    classification: "wikidot_deleted",
+    endpoint: ENDPOINT,
+    fallback_used: false,
+    fullname: row.fullname,
+    inventory: target.inventory,
+    method: METHOD,
+    raw_wire_captured: false,
+    read_only: true,
+    schema: WIKIDOT_XMLRPC_DELETED_TOMBSTONE_SCHEMA,
+    site: SITE,
+    source_entity_id: row.sourceEntityId,
+    source_url: row.sourceUrl,
+    work_identity: target.work_identity,
+  });
+}
+
+function xmlrpcTarget(context, ordinal, producer) {
+  const target = buildReferenceAcquisitionWorkTarget({
+    context,
+    layer: "xmlrpc_page",
+    ordinal,
+    producer,
+  });
+  if (target.producer.contract !== WIKIDOT_XMLRPC_PRODUCER_CONTRACT) {
+    throw new Error("XML-RPC producer contract is invalid");
+  }
+  return target;
+}
+
 export function serializeWikidotXmlrpcResponse(response, expectedFullname) {
   return canonicalJsonLineFromSnapshot(
     normalizeResponse(response, expectedFullname),
@@ -337,15 +381,7 @@ export function buildWikidotXmlrpcObservation({
   responseReference,
   startedAt,
 }) {
-  const target = buildReferenceAcquisitionWorkTarget({
-    context,
-    layer: "xmlrpc_page",
-    ordinal,
-    producer,
-  });
-  if (target.producer.contract !== WIKIDOT_XMLRPC_PRODUCER_CONTRACT) {
-    throw new Error("XML-RPC producer contract is invalid");
-  }
+  const target = xmlrpcTarget(context, ordinal, producer);
   return expectedObservation({
     target,
     row: referenceAcquisitionInventoryRow(context, ordinal),
@@ -381,6 +417,52 @@ export function parseWikidotXmlrpcObservation(value, input) {
   if (stableStringify(parsed) !== stableStringify(expected)) {
     throw new Error(
       "XML-RPC observation metadata does not match its response and target",
+    );
+  }
+  return expected;
+}
+
+export function buildWikidotXmlrpcDeletedTombstone({
+  context,
+  finishedAt,
+  ordinal,
+  producer,
+  startedAt,
+}) {
+  const target = xmlrpcTarget(context, ordinal, producer);
+  return expectedDeletedTombstone({
+    target,
+    row: referenceAcquisitionInventoryRow(context, ordinal),
+    startedAt,
+    finishedAt,
+  });
+}
+
+export function serializeWikidotXmlrpcDeletedTombstone(tombstone, input) {
+  const snapshot = snapshotJsonValue(tombstone);
+  const expected = buildWikidotXmlrpcDeletedTombstone(input);
+  if (stableStringify(snapshot) !== stableStringify(expected)) {
+    throw new Error(
+      "XML-RPC deleted tombstone metadata does not match its target",
+    );
+  }
+  return canonicalJsonLineFromSnapshot(
+    expected,
+    WIKIDOT_XMLRPC_DELETED_TOMBSTONE_MAX_BYTES,
+    "XML-RPC deleted tombstone",
+  );
+}
+
+export function parseWikidotXmlrpcDeletedTombstone(value, input) {
+  const parsed = parseCanonicalJsonLine(
+    value,
+    WIKIDOT_XMLRPC_DELETED_TOMBSTONE_MAX_BYTES,
+    "XML-RPC deleted tombstone",
+  );
+  const expected = buildWikidotXmlrpcDeletedTombstone(input);
+  if (stableStringify(parsed) !== stableStringify(expected)) {
+    throw new Error(
+      "XML-RPC deleted tombstone metadata does not match its target",
     );
   }
   return expected;

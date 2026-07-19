@@ -14,8 +14,11 @@ import {
 } from "./reference-acquisition-completion.mjs";
 import { openWikidotXmlrpcCampaign } from "./reference-acquisition-xmlrpc-campaign.mjs";
 import {
+  parseWikidotXmlrpcDeletedTombstone,
   parseWikidotXmlrpcObservation,
   parseWikidotXmlrpcResponse,
+  WIKIDOT_XMLRPC_DELETED_TOMBSTONE_MAX_BYTES,
+  WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE,
   WIKIDOT_XMLRPC_OBSERVATION_MAX_BYTES,
   WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES,
 } from "./reference-acquisition-xmlrpc-observation.mjs";
@@ -146,9 +149,35 @@ class WikidotXmlrpcCompletions {
       assertAttemptMatchesTarget(resolved.attempt, target);
       if (
         stableStringify(resolved.target) !== stableStringify(target) ||
-        resolved.attempt_reference === undefined ||
-        resolved.attempt.objects.length !== 2
+        resolved.attempt_reference === undefined
       ) {
+        throw new Error("XML-RPC semantic completion shape is invalid");
+      }
+      const row = referenceAcquisitionInventoryRow(this.#context, ordinal);
+      const tombstoneInput = {
+        context: this.#context,
+        finishedAt: resolved.attempt.finished_at,
+        ordinal,
+        producer: campaign.producer,
+        startedAt: resolved.attempt.started_at,
+      };
+      if (resolved.attempt.objects.length === 1) {
+        const [tombstoneBinding] = resolved.attempt.objects;
+        if (
+          tombstoneBinding.role !== WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE ||
+          tombstoneBinding.media_type !== MEDIA_TYPE
+        ) {
+          throw new Error("XML-RPC semantic completion roles are invalid");
+        }
+        const tombstone = parseWikidotXmlrpcDeletedTombstone(
+          await this.#store.readObject(tombstoneBinding.object, {
+            maxBytes: WIKIDOT_XMLRPC_DELETED_TOMBSTONE_MAX_BYTES,
+          }),
+          tombstoneInput,
+        );
+        return Object.freeze({ kind: "deleted", tombstone });
+      }
+      if (resolved.attempt.objects.length !== 2) {
         throw new Error("XML-RPC semantic completion shape is invalid");
       }
       const [observationBinding, responseBinding] = resolved.attempt.objects;
@@ -160,7 +189,6 @@ class WikidotXmlrpcCompletions {
       ) {
         throw new Error("XML-RPC semantic completion roles are invalid");
       }
-      const row = referenceAcquisitionInventoryRow(this.#context, ordinal);
       const response = parseWikidotXmlrpcResponse(
         await this.#store.readObject(responseBinding.object, {
           maxBytes: WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES,
@@ -181,7 +209,7 @@ class WikidotXmlrpcCompletions {
           startedAt: resolved.attempt.started_at,
         },
       );
-      return Object.freeze({ observation, response });
+      return Object.freeze({ kind: "live", observation, response });
     } catch {
       throw new WikidotXmlrpcSemanticCompletionError(ordinal);
     }

@@ -404,8 +404,12 @@ globalThis.handle = (record) => {
 };`);
     t.after(() => worker.terminate().catch(() => {}));
     await start(worker);
-    assert.equal((await worker.capture(0, "scp-173")).retryable, true);
-    await assert.rejects(worker.expectExit(75));
+    await assert.rejects(
+      worker.capture(0, "scp-173").then((result) => {
+        assert.equal(result.retryable, true);
+        return worker.expectExit(75);
+      }),
+    );
   }
 });
 

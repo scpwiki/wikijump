@@ -609,6 +609,82 @@ test("offline worker capture publishes semantic completion without exposing a la
   assert.equal((await semantic.planResume()).pending.length, 0);
 });
 
+test("exact deleted worker results become tombstones and later captures continue", async (t) => {
+  const state = await createAcquisitionFixture(t, 3);
+  const { semantic } = await createXmlrpcCampaignFixture(state);
+  const calls = [];
+  const outcome = await capturePending({
+    completions: semantic,
+    context: state.context,
+    store: state.store,
+    worker: {
+      async capture(ordinal, fullname) {
+        calls.push({ fullname, ordinal });
+        if (ordinal === 1) {
+          return {
+            code: "wikidot_deleted",
+            ok: false,
+            ordinal,
+            retryable: false,
+          };
+        }
+        return { ok: true, response: responseFor(state, ordinal) };
+      },
+      async expectExit() {
+        assert.fail("deleted page does not terminate a healthy worker");
+      },
+    },
+  });
+  assert.deepEqual(calls, [
+    { fullname: "scp-173", ordinal: 0 },
+    { fullname: "scp-174", ordinal: 1 },
+    { fullname: "scp-175", ordinal: 2 },
+  ]);
+  assert.deepEqual(outcome, {
+    failure: null,
+    status: "complete",
+    workerExited: false,
+  });
+  const plan = await semantic.planResume();
+  assert.equal(plan.pending.length, 0);
+  assert.equal(plan.complete.length, 3);
+  assert.equal((await semantic.resolve({ ordinal: 0 })).kind, "live");
+  const deleted = await semantic.resolve({ ordinal: 1 });
+  assert.equal(deleted.kind, "deleted");
+  assert.equal(deleted.tombstone.classification, "wikidot_deleted");
+  assert.equal("response" in deleted, false);
+  assert.equal((await semantic.resolve({ ordinal: 2 })).kind, "live");
+});
+
+test("forbidden and unclassified worker results remain terminal and pending", async (t) => {
+  for (const code of ["wikidot_forbidden", "wikidot_fault_unclassified"]) {
+    await t.test(code, async (t) => {
+      const state = await createAcquisitionFixture(t, 2);
+      const { semantic } = await createXmlrpcCampaignFixture(state);
+      const calls = [];
+      const outcome = await capturePending({
+        completions: semantic,
+        context: state.context,
+        store: state.store,
+        worker: {
+          async capture(ordinal) {
+            calls.push(ordinal);
+            return { code, ok: false, ordinal, retryable: false };
+          },
+          async expectExit() {
+            assert.fail("terminal fault should not require worker exit");
+          },
+        },
+      });
+      assert.deepEqual(calls, [0]);
+      assert.equal(outcome.status, "terminal_stop");
+      assert.equal(outcome.failure.code, code);
+      assert.equal((await semantic.planResume()).pending.length, 2);
+      assert.equal(await semantic.resolve({ ordinal: 0 }), null);
+    });
+  }
+});
+
 test("offline retryable capture persists the failed attempt and requires exit 75", async (t) => {
   const state = await createAcquisitionFixture(t, 1);
   const { semantic } = await createXmlrpcCampaignFixture(state);

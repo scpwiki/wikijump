@@ -29,9 +29,12 @@ import {
   putWikidotXmlrpcImplementation,
 } from "../src/reference-acquisition-xmlrpc-implementation.mjs";
 import {
+  buildWikidotXmlrpcDeletedTombstone,
   buildWikidotXmlrpcObservation,
+  serializeWikidotXmlrpcDeletedTombstone,
   serializeWikidotXmlrpcObservation,
   serializeWikidotXmlrpcResponse,
+  WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE,
   WIKIDOT_XMLRPC_OBSERVATION_MAX_BYTES,
 } from "../src/reference-acquisition-xmlrpc-observation.mjs";
 import {
@@ -182,6 +185,30 @@ async function captureAssets(state, ordinal = 0, suffix = "") {
   };
 }
 
+async function tombstoneAssets(state, ordinal = 0) {
+  const input = {
+    context: state.context,
+    finishedAt: FINISHED_AT,
+    ordinal,
+    producer: state.campaign.producer,
+    startedAt: STARTED_AT,
+  };
+  const tombstone = buildWikidotXmlrpcDeletedTombstone(input);
+  const tombstoneReference = (
+    await state.store.putBytes(
+      serializeWikidotXmlrpcDeletedTombstone(tombstone, input),
+    )
+  ).object;
+  return {
+    tombstone,
+    tombstoneBinding: {
+      media_type: "application/json",
+      object: tombstoneReference,
+      role: WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE,
+    },
+  };
+}
+
 async function storedAttempt(state, objects, ordinal = 0, timestamps = {}) {
   const attempt = buildReferenceAcquisitionAttempt({
     attemptId: ATTEMPT_ID,
@@ -206,6 +233,7 @@ test("semantic XML-RPC completions publish, reopen, and resume exactly", async (
   ]);
   const created = await state.semantic.publish(stored.object, { ordinal: 0 });
   assert.equal(created.disposition, "created");
+  assert.equal(created.kind, "live");
   assert.deepEqual(created.response, assets.response);
   assert.deepEqual(created.observation, assets.observation);
   assert.equal(
@@ -216,6 +244,7 @@ test("semantic XML-RPC completions publish, reopen, and resume exactly", async (
     (await state.semantic.resolve({ ordinal: 0 })).response,
     assets.response,
   );
+  assert.equal((await state.semantic.resolve({ ordinal: 0 })).kind, "live");
   let plan = await state.semantic.planResume();
   assert.deepEqual(
     plan.complete.map((item) => item.target.inventory.ordinal),
@@ -237,6 +266,34 @@ test("semantic XML-RPC completions publish, reopen, and resume exactly", async (
   plan = await state.semantic.planResume();
   assert.equal(plan.complete.length, 1);
   assert.equal(plan.pending.length, 1);
+});
+
+test("deleted XML-RPC tombstones are semantic completions, not empty responses", async (t) => {
+  const state = await fixture(t);
+  const assets = await tombstoneAssets(state);
+  const stored = await storedAttempt(state, [assets.tombstoneBinding]);
+  const created = await state.semantic.publish(stored.object, { ordinal: 0 });
+  assert.equal(created.disposition, "created");
+  assert.equal(created.kind, "deleted");
+  assert.deepEqual(created.tombstone, assets.tombstone);
+  assert.equal("observation" in created, false);
+  assert.equal("response" in created, false);
+  assert.equal(
+    (await state.semantic.publish(stored.object, { ordinal: 0 })).disposition,
+    "exists",
+  );
+  const resolved = await state.semantic.resolve({ ordinal: 0 });
+  assert.equal(resolved.kind, "deleted");
+  assert.deepEqual(resolved.tombstone, assets.tombstone);
+  const plan = await state.semantic.planResume();
+  assert.deepEqual(
+    plan.complete.map((item) => item.target.inventory.ordinal),
+    [0],
+  );
+  assert.deepEqual(
+    plan.pending.map((item) => item.inventory.ordinal),
+    [1],
+  );
 });
 
 test("generic but semantically invalid completions remain terminal corruption", async (t) => {

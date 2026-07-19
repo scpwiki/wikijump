@@ -15,6 +15,7 @@ import {
 } from "../src/wikidot-xmlrpc-acquisition-verdict.mjs";
 import {
   buildInventory,
+  completeDeletedXmlrpcOrdinal,
   completeXmlrpcOrdinal,
   createAcquisitionFixture,
   createXmlrpcCampaignFixture,
@@ -69,6 +70,24 @@ test("final verdict is derived from exact semantic campaign completion, not a sh
     ),
     /conflicts/u,
   );
+});
+
+test("final verdict counts deleted tombstones as semantically resolved targets", async (t) => {
+  const state = await createAcquisitionFixture(t);
+  const { campaign } = await createXmlrpcCampaignFixture(state);
+  await completeXmlrpcOrdinal(state, campaign, 0);
+  await completeDeletedXmlrpcOrdinal(state, campaign, 1);
+  await state.semantic.close();
+  state.semantic = undefined;
+
+  const output = path.join(state.receiptDirectory, "mixed.verdict.json");
+  const publication = await publishWikidotXmlrpcAcquisitionVerdict(
+    output,
+    publicationOptions(state, campaign.reference),
+  );
+  const parsed = parseWikidotXmlrpcAcquisitionVerdict(publication.bytes);
+  assert.equal(parsed.status, "pass");
+  assert.equal(parsed.completed, 2);
 });
 
 test("incomplete, wrong-campaign, wrong-inventory, and shaped inputs cannot publish a final verdict", async (t) => {

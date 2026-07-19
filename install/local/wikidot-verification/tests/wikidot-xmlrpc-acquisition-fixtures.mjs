@@ -19,9 +19,12 @@ import {
   putWikidotXmlrpcImplementation,
 } from "../src/reference-acquisition-xmlrpc-implementation.mjs";
 import {
+  buildWikidotXmlrpcDeletedTombstone,
   buildWikidotXmlrpcObservation,
+  serializeWikidotXmlrpcDeletedTombstone,
   serializeWikidotXmlrpcObservation,
   serializeWikidotXmlrpcResponse,
+  WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE,
 } from "../src/reference-acquisition-xmlrpc-observation.mjs";
 import { initializeReferenceObjectStore } from "../src/reference-object-store.mjs";
 
@@ -189,6 +192,46 @@ export async function completeXmlrpcOrdinal(state, campaign, ordinal) {
           media_type: "application/json",
           object: responseReference,
           role: "response",
+        },
+      ],
+      ordinal,
+      outcome: "complete",
+      producer: campaign.producer,
+      startedAt,
+    }),
+    state.context,
+  );
+  return state.semantic.publish(attempt.object, { ordinal });
+}
+
+export async function completeDeletedXmlrpcOrdinal(state, campaign, ordinal) {
+  const startedAt = "2026-07-19T00:00:00.000Z";
+  const finishedAt = "2026-07-19T00:00:01.000Z";
+  const tombstoneInput = {
+    context: state.context,
+    finishedAt,
+    ordinal,
+    producer: campaign.producer,
+    startedAt,
+  };
+  const tombstone = buildWikidotXmlrpcDeletedTombstone(tombstoneInput);
+  const tombstoneReference = (
+    await state.store.putBytes(
+      serializeWikidotXmlrpcDeletedTombstone(tombstone, tombstoneInput),
+    )
+  ).object;
+  const attempt = await putReferenceAcquisitionAttempt(
+    state.store,
+    buildReferenceAcquisitionAttempt({
+      attemptId: `00000000-0000-4000-8000-${String(ordinal + 1001).padStart(12, "0")}`,
+      context: state.context,
+      finishedAt,
+      layer: "xmlrpc_page",
+      objects: [
+        {
+          media_type: "application/json",
+          object: tombstoneReference,
+          role: WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE,
         },
       ],
       ordinal,

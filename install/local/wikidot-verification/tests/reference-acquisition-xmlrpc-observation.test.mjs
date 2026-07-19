@@ -1,15 +1,20 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import test from "node:test";
 
 import { sha256Hex, stableStringify } from "../src/corpus-import-manifest.mjs";
 import { createReferenceAcquisitionContext } from "../src/reference-acquisition-attempt.mjs";
 import { buildReferenceAcquisitionInventory } from "../src/reference-acquisition-inventory.mjs";
 import {
+  buildWikidotXmlrpcDeletedTombstone,
   buildWikidotXmlrpcObservation,
+  parseWikidotXmlrpcDeletedTombstone,
   parseWikidotXmlrpcObservation,
   parseWikidotXmlrpcResponse,
+  serializeWikidotXmlrpcDeletedTombstone,
   serializeWikidotXmlrpcObservation,
   serializeWikidotXmlrpcResponse,
+  WIKIDOT_XMLRPC_DELETED_TOMBSTONE_SCHEMA,
   WIKIDOT_XMLRPC_PRODUCER_CONTRACT,
 } from "../src/reference-acquisition-xmlrpc-observation.mjs";
 
@@ -103,6 +108,17 @@ function observationInput(current, capturedResponse) {
   };
 }
 
+function tombstoneInput(current, overrides = {}) {
+  return {
+    context: current.context,
+    finishedAt: FINISHED_AT,
+    ordinal: 0,
+    producer: current.producer,
+    startedAt: STARTED_AT,
+    ...overrides,
+  };
+}
+
 test("exact decoded XML-RPC observations round-trip canonically", () => {
   const current = fixture();
   const capturedResponse = response();
@@ -128,6 +144,54 @@ test("exact decoded XML-RPC observations round-trip canonically", () => {
       input,
     ),
     observation,
+  );
+});
+
+test("deleted XML-RPC tombstones bind the target without a page payload", async () => {
+  const current = fixture();
+  const input = tombstoneInput(current);
+  const tombstone = buildWikidotXmlrpcDeletedTombstone(input);
+  const schema = JSON.parse(
+    await fs.readFile(
+      new URL(
+        "../schemas/wikidot-xmlrpc-deleted-tombstone-v1.schema.json",
+        import.meta.url,
+      ),
+    ),
+  );
+  assert.equal(tombstone.schema, WIKIDOT_XMLRPC_DELETED_TOMBSTONE_SCHEMA);
+  assert.deepEqual(Object.keys(tombstone).sort(), schema.required);
+  assert.deepEqual(
+    Object.keys(tombstone).sort(),
+    Object.keys(schema.properties).sort(),
+  );
+  assert.equal(tombstone.classification, "wikidot_deleted");
+  assert.equal(tombstone.raw_wire_captured, false);
+  assert.equal(tombstone.fallback_used, false);
+  assert.equal(tombstone.read_only, true);
+  assert.equal("response" in tombstone, false);
+  assert.deepEqual(
+    parseWikidotXmlrpcDeletedTombstone(
+      serializeWikidotXmlrpcDeletedTombstone(tombstone, input),
+      input,
+    ),
+    tombstone,
+  );
+  const changed = structuredClone(tombstone);
+  changed.classification = "wikidot_forbidden";
+  assert.throws(
+    () => serializeWikidotXmlrpcDeletedTombstone(changed, input),
+    /does not match/u,
+  );
+  assert.throws(
+    () =>
+      buildWikidotXmlrpcDeletedTombstone(
+        tombstoneInput(current, {
+          finishedAt: STARTED_AT,
+          startedAt: FINISHED_AT,
+        }),
+      ),
+    /finished before/u,
   );
 });
 

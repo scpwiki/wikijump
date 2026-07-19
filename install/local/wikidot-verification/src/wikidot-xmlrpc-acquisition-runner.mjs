@@ -25,9 +25,12 @@ import {
   putWikidotXmlrpcImplementation,
 } from "./reference-acquisition-xmlrpc-implementation.mjs";
 import {
+  buildWikidotXmlrpcDeletedTombstone,
   buildWikidotXmlrpcObservation,
+  serializeWikidotXmlrpcDeletedTombstone,
   serializeWikidotXmlrpcObservation,
   serializeWikidotXmlrpcResponse,
+  WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE,
 } from "./reference-acquisition-xmlrpc-observation.mjs";
 import {
   buildReferenceAcquisitionInventory,
@@ -1122,6 +1125,48 @@ export async function capturePending({ completions, context, store, worker }) {
     const startedAt = new Date().toISOString();
     const result = await worker.capture(ordinal, row.fullname);
     const finishedAt = new Date().toISOString();
+    if (
+      result.ok === false &&
+      result.code === "wikidot_deleted" &&
+      result.retryable === false
+    ) {
+      const tombstoneInput = {
+        context,
+        finishedAt,
+        ordinal,
+        producer: pending.producer,
+        startedAt,
+      };
+      const tombstone = buildWikidotXmlrpcDeletedTombstone(tombstoneInput);
+      const tombstoneReference = (
+        await store.putBytes(
+          serializeWikidotXmlrpcDeletedTombstone(tombstone, tombstoneInput),
+        )
+      ).object;
+      const attempt = await putReferenceAcquisitionAttempt(
+        store,
+        buildReferenceAcquisitionAttempt({
+          attemptId: crypto.randomUUID(),
+          context,
+          finishedAt,
+          layer: "xmlrpc_page",
+          objects: [
+            {
+              media_type: "application/json",
+              object: tombstoneReference,
+              role: WIKIDOT_XMLRPC_DELETED_TOMBSTONE_ROLE,
+            },
+          ],
+          ordinal,
+          outcome: "complete",
+          producer: pending.producer,
+          startedAt,
+        }),
+        context,
+      );
+      await completions.publish(attempt.object, { ordinal });
+      continue;
+    }
     if (result.ok !== true) {
       const attempt = await putReferenceAcquisitionAttempt(
         store,
