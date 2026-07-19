@@ -5,6 +5,7 @@ import {
   buildReferenceAcquisitionWorkTarget,
   listReferenceAcquisitionWorkTargets,
   readReferenceAcquisitionAttempt,
+  readReferenceAcquisitionAttemptReceipt,
   validateReferenceAcquisitionContext,
 } from "./reference-acquisition-attempt.mjs";
 import {
@@ -231,17 +232,20 @@ class ReferenceAcquisitionCompletions {
     });
   }
 
-  async #resolveTargetBytes(target, bytes) {
+  #readAttempt(reference, verifyObjects) {
+    const reader = verifyObjects
+      ? readReferenceAcquisitionAttempt
+      : readReferenceAcquisitionAttemptReceipt;
+    return reader(this.#store, reference, this.#context);
+  }
+
+  async #resolveTargetBytes(target, bytes, verifyObjects) {
     if (bytes === null) return null;
     const pointer = parseReferenceAcquisitionCompletionPointer(
       bytes,
       target.work_identity,
     );
-    const attempt = await readReferenceAcquisitionAttempt(
-      this.#store,
-      pointer.attempt,
-      this.#context,
-    );
+    const attempt = await this.#readAttempt(pointer.attempt, verifyObjects);
     assertAttemptMatchesTarget(attempt, target);
     return Object.freeze({
       attempt,
@@ -250,15 +254,21 @@ class ReferenceAcquisitionCompletions {
     });
   }
 
-  async #resolveTarget(target) {
+  async #resolveTarget(target, verifyObjects) {
     return this.#resolveTargetBytes(
       target,
       await this.#index.read(target.work_identity.sha256),
+      verifyObjects,
     );
   }
 
   async resolve(request) {
-    return this.#resolveTarget(this.#target(request));
+    return this.#resolveTarget(this.#target(request), true);
+  }
+
+  // Typed layer wrappers inspect canonical attempt receipts before reading referenced objects with role-specific byte bounds.
+  async resolveAttemptReceipt(request) {
+    return this.#resolveTarget(this.#target(request), false);
   }
 
   async publish(attemptReference, request) {
@@ -306,14 +316,15 @@ class ReferenceAcquisitionCompletions {
     });
   }
 
-  async planResume(options) {
+  async #planResume(options, verifyObjects) {
     const { layers, producer } = snapshotResumeOptions(options);
     const targets = listReferenceAcquisitionWorkTargets({
       context: this.#context,
       layers,
       producer,
     });
-    await this.#store.verifyObject(targets[0].producer.identity);
+    if (verifyObjects)
+      await this.#store.verifyObject(targets[0].producer.identity);
     const visible = await this.#index.readMany(
       targets.map((target) => target.work_identity.sha256),
     );
@@ -333,7 +344,7 @@ class ReferenceAcquisitionCompletions {
           const record = visible[offset + index];
           return "error" in record
             ? Promise.reject(record.error)
-            : this.#resolveTargetBytes(target, record.bytes);
+            : this.#resolveTargetBytes(target, record.bytes, verifyObjects);
         }),
       );
       for (let index = 0; index < results.length; index += 1) {
@@ -347,6 +358,14 @@ class ReferenceAcquisitionCompletions {
       complete: Object.freeze(complete),
       pending: Object.freeze(pending),
     });
+  }
+
+  async planResume(options) {
+    return this.#planResume(options, true);
+  }
+
+  async planResumeAttemptReceipts(options) {
+    return this.#planResume(options, false);
   }
 
   close() {

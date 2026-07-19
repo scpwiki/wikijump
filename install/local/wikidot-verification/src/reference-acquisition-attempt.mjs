@@ -515,3 +515,14 @@ export async function readReferenceAcquisitionAttempt(
   await verifyReferencedObjects(store, attempt);
   return attempt;
 }
+
+export async function readReferenceAcquisitionAttemptReceipt(
+  store,
+  reference,
+  context,
+) {
+  const bytes = await store.readObject(reference, {
+    maxBytes: REFERENCE_ACQUISITION_ATTEMPT_MAX_BYTES,
+  });
+  return parseReferenceAcquisitionAttempt(bytes, context);
+}
