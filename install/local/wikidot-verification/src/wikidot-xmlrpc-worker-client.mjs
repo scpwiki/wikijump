@@ -1,5 +1,6 @@
 import { performance } from "node:perf_hooks";
 import process from "node:process";
+import { types as utilTypes } from "node:util";
 
 import { stableStringify } from "./corpus-import-manifest.mjs";
 import { WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES } from "./reference-acquisition-xmlrpc-observation.mjs";
@@ -8,8 +9,11 @@ import {
   openWikidotXmlrpcWorkerExecutionCapability,
 } from "./wikidot-xmlrpc-worker-session-capability.mjs";
 import { validateWikidotXmlrpcWorkerAttestation } from "./wikidot-xmlrpc-worker-attestation.mjs";
+import { WIKIDOT_XMLRPC_WORKER_PROTOCOL_VERSION } from "./wikidot-xmlrpc-python-environment.mjs";
 
 const MAX_INPUT_BYTES = 4096;
+const MAX_INITIALIZE_INPUT_BYTES = 64 * 1024;
+const MAX_CREDENTIAL_BYTES = 4096;
 const MAX_RESULT_BYTES = WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES + 4096;
 const MAX_JSON_DEPTH = 64;
 const MAX_JSON_TOKENS = 1_000_000;
@@ -40,6 +44,84 @@ function exactKeys(value, expected) {
     !Array.isArray(value) &&
     stableStringify(Object.keys(value).sort()) === stableStringify(expected)
   );
+}
+
+function assertPrincipalId(value) {
+  if (
+    !Number.isSafeInteger(value) ||
+    value < 1 ||
+    value > Number.MAX_SAFE_INTEGER
+  ) {
+    throw new WorkerProtocolError("worker principal ID is invalid");
+  }
+  return value;
+}
+
+function assertCredential(value) {
+  if (typeof value !== "string" || value.length === 0) {
+    throw new WorkerProtocolError("worker credentials are invalid");
+  }
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) {
+        throw new WorkerProtocolError("worker credentials are invalid");
+      }
+      index += 1;
+    } else if (
+      (code >= 0xdc00 && code <= 0xdfff) ||
+      code === 0 ||
+      code === 10 ||
+      code === 13
+    ) {
+      throw new WorkerProtocolError("worker credentials are invalid");
+    }
+  }
+  if (Buffer.byteLength(value, "utf8") > MAX_CREDENTIAL_BYTES) {
+    throw new WorkerProtocolError("worker credentials are invalid");
+  }
+  return value;
+}
+
+function normalizeCredentials(value) {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    utilTypes.isProxy(value)
+  ) {
+    throw new WorkerProtocolError("worker credentials are invalid");
+  }
+  let keys;
+  let prototype;
+  try {
+    keys = Reflect.ownKeys(value);
+    prototype = Reflect.getPrototypeOf(value);
+  } catch {
+    throw new WorkerProtocolError("worker credentials are invalid");
+  }
+  if (
+    prototype !== Object.prototype ||
+    keys.length !== 2 ||
+    keys.some((key) => typeof key !== "string") ||
+    stableStringify([...keys].sort()) !== stableStringify(["apiKey", "appName"])
+  ) {
+    throw new WorkerProtocolError("worker credentials are invalid");
+  }
+  const snapshot = {};
+  for (const key of keys) {
+    const descriptor = Reflect.getOwnPropertyDescriptor(value, key);
+    if (
+      descriptor === undefined ||
+      !descriptor.enumerable ||
+      !("value" in descriptor)
+    ) {
+      throw new WorkerProtocolError("worker credentials are invalid");
+    }
+    snapshot[key] = assertCredential(descriptor.value);
+  }
+  return snapshot;
 }
 
 function rejectDuplicateKeys(text) {
@@ -349,10 +431,10 @@ export class WikidotXmlrpcWorkerClient {
     if (this.reader.failure !== null) throw this.reader.failure;
   }
 
-  async write(record) {
+  async write(record, maxInputBytes = MAX_INPUT_BYTES) {
     this.assertHealthy();
     const bytes = Buffer.from(`${JSON.stringify(record)}\n`);
-    if (bytes.byteLength > MAX_INPUT_BYTES) {
+    if (bytes.byteLength > maxInputBytes) {
       throw new WorkerProtocolError("worker request exceeds its byte limit");
     }
     await new Promise((resolve, reject) =>
@@ -364,11 +446,11 @@ export class WikidotXmlrpcWorkerClient {
     );
   }
 
-  async request(record, timeoutMs) {
+  async request(record, timeoutMs, maxInputBytes = MAX_INPUT_BYTES) {
     const response = this.reader.next(timeoutMs);
     response.catch(() => {});
     try {
-      await this.write(record);
+      await this.write(record, maxInputBytes);
       return await response;
     } catch (error) {
       await this.terminate("SIGTERM");
@@ -384,29 +466,46 @@ export class WikidotXmlrpcWorkerClient {
     }
   }
 
-  async start(principalId, environment) {
+  async start(principalId, environment, credentials) {
+    let normalizedPrincipalId;
+    try {
+      normalizedPrincipalId = assertPrincipalId(principalId);
+    } catch (error) {
+      await this.terminate("SIGTERM");
+      throw error;
+    }
     const deadline = performance.now() + this.startupTimeoutMs;
-    const startupRequest = async (request) => {
+    const startupRequest = async (request, maxInputBytes = MAX_INPUT_BYTES) => {
       const remainingMs = deadline - performance.now();
       if (remainingMs <= 0) {
         await this.terminate("SIGTERM");
         throw new WorkerTerminatedError("worker startup deadline exceeded");
       }
-      return this.request(request, remainingMs);
+      return this.request(request, remainingMs, maxInputBytes);
     };
-    const attestation = await startupRequest({ op: "attest" });
+    const attestation = await startupRequest({
+      op: "attest",
+      protocol_version: WIKIDOT_XMLRPC_WORKER_PROTOCOL_VERSION,
+    });
     try {
       validateAttestation(attestation, environment);
     } catch (error) {
       await this.terminate("SIGTERM");
       throw error;
     }
-    const record = await startupRequest({
-      op: "initialize",
-      principal_id: principalId,
-    });
     try {
-      validateReady(record, principalId);
+      const normalizedCredentials = normalizeCredentials(credentials);
+      const record = await startupRequest(
+        {
+          api_key: normalizedCredentials.apiKey,
+          app_name: normalizedCredentials.appName,
+          op: "initialize",
+          principal_id: normalizedPrincipalId,
+          protocol_version: WIKIDOT_XMLRPC_WORKER_PROTOCOL_VERSION,
+        },
+        MAX_INITIALIZE_INPUT_BYTES,
+      );
+      validateReady(record, normalizedPrincipalId);
       this.assertHealthy();
     } catch (error) {
       await this.terminate("SIGTERM");

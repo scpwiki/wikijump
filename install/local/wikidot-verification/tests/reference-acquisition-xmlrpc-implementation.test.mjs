@@ -75,6 +75,7 @@ test("schema and canonical bytes bind exact implementation authority", async () 
   );
   assert.equal(value.coordinator_repository, "Rokurolize/wikijump");
   assert.equal(value.dependency_lock_path, "uv.lock");
+  assert.equal(value.rate_refill_per_second, 0.25);
   assert.equal(value.worker_repository, "Rokurolize/scp-wiki-translation");
   assert(Object.isFrozen(value));
 });

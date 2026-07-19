@@ -14,6 +14,10 @@ import {
 import { buildWikidotXmlrpcPythonEnvironment } from "../src/wikidot-xmlrpc-python-environment.mjs";
 
 const PRINCIPAL_ID = 5700026;
+const CREDENTIALS = Object.freeze({
+  apiKey: "test-api-key",
+  appName: "wikijump-reference-capture",
+});
 const PYTHON_ENVIRONMENT = buildWikidotXmlrpcPythonEnvironment({
   dependencyEnvironmentSha256: "a".repeat(64),
   dependencyLockBlobOid: "1".repeat(40),
@@ -90,8 +94,9 @@ function start(
   worker,
   principalId = PRINCIPAL_ID,
   environment = PYTHON_ENVIRONMENT,
+  credentials = CREDENTIALS,
 ) {
-  return worker.start(principalId, environment);
+  return worker.start(principalId, environment, credentials);
 }
 
 test("worker session accepts only a caller-owned child-process capability", () => {
@@ -187,21 +192,91 @@ test("record parser preserves Python numeric spelling while rejecting framing an
   }
 });
 
-test("v2 startup sends an exact credential-free attestation before initialize", async (t) => {
+test("v2 startup sends exact attestation and credential-bearing initialize records", async (t) => {
   const worker = client(String.raw`
 let attested = false;
 globalThis.attest = (record) => {
-  if (JSON.stringify(record) !== '{"op":"attest"}') process.exit(91);
+  if (JSON.stringify(record) !== '{"op":"attest","protocol_version":2}') process.exit(91);
   attested = true;
   return {ok:true,op:"attestation",protocol_version:2,runtime:{implementation:"cpython",version:[3,13,13]},worker:"wikidot_xmlrpc_capture_worker"};
 };
 globalThis.handle = (record) => {
-  if (!attested || record.op !== "initialize" || record.principal_id !== ${PRINCIPAL_ID}) process.exit(92);
+  if (!attested || JSON.stringify(record) !== '{"api_key":"test-api-key","app_name":"wikijump-reference-capture","op":"initialize","principal_id":${PRINCIPAL_ID},"protocol_version":2}') process.exit(92);
   process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
 };`);
   t.after(() => worker.terminate().catch(() => {}));
   await start(worker);
   await worker.closeClean();
+});
+
+test("v2 startup rejects malformed credentials without initialize or secret disclosure", async (t) => {
+  const secret = "must-not-reach-worker";
+  const accessorCredentials = {
+    apiKey: "test-api-key",
+    get appName() {
+      throw new Error(secret);
+    },
+  };
+  const symbolCredentials = {
+    apiKey: "test-api-key",
+    appName: "wikijump-reference-capture",
+    [Symbol("extra")]: secret,
+  };
+  for (const credentials of [
+    null,
+    [],
+    Object.create(null),
+    new Proxy({}, {}),
+    accessorCredentials,
+    symbolCredentials,
+    { apiKey: "", appName: "wikijump-reference-capture" },
+    { apiKey: "test-api-key", appName: "a".repeat(4097) },
+    { apiKey: `${secret}\n`, appName: "wikijump-reference-capture" },
+    {
+      apiKey: String.fromCharCode(0xd800),
+      appName: "wikijump-reference-capture",
+    },
+  ]) {
+    const worker = client(String.raw`
+globalThis.handle = () => process.exit(97);`);
+    t.after(() => worker.terminate().catch(() => {}));
+    await assert.rejects(
+      start(worker, PRINCIPAL_ID, PYTHON_ENVIRONMENT, credentials),
+      (error) => {
+        assert(error instanceof WorkerProtocolError);
+        assert.doesNotMatch(String(error), new RegExp(secret, "u"));
+        return true;
+      },
+    );
+    const closed = await worker.closePromise;
+    assert.notEqual(closed.code, 97);
+  }
+});
+
+test("v2 startup accepts credential fields at their byte boundary", async (t) => {
+  const credentials = {
+    apiKey: "a".repeat(4096),
+    appName: "b".repeat(4096),
+  };
+  const worker = client(String.raw`
+globalThis.handle = (record) => {
+  if (record.op !== "initialize" || Buffer.byteLength(record.api_key) !== 4096 || Buffer.byteLength(record.app_name) !== 4096) process.exit(98);
+  process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
+};`);
+  t.after(() => worker.terminate().catch(() => {}));
+  await start(worker, PRINCIPAL_ID, PYTHON_ENVIRONMENT, credentials);
+  await worker.closeClean();
+});
+
+test("v2 startup rejects an invalid principal before attestation", async (t) => {
+  for (const principalId of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, "1"]) {
+    const worker = client(String.raw`
+globalThis.attest = () => process.exit(99);`);
+    t.after(() => worker.terminate().catch(() => {}));
+    await assert.rejects(start(worker, principalId), WorkerProtocolError);
+    const closed = await worker.closePromise;
+    assert.notEqual(closed.code, 99);
+  }
 });
 
 test("v2 startup rejects bad or absent attestation without initialize", async (t) => {
@@ -361,7 +436,7 @@ globalThis.handle = (record) => {
   }
 };`);
   t.after(() => unsolicited.terminate().catch(() => {}));
-  await assert.rejects(unsolicited.start(PRINCIPAL_ID), WorkerProtocolError);
+  await assert.rejects(start(unsolicited), WorkerProtocolError);
 });
 
 test("a bounded trailing fragment is discarded only after process close", async (t) => {

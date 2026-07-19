@@ -49,14 +49,14 @@ const IMPLEMENTATION_KEYS = Object.freeze([
 ]);
 const FIXED_AUTHORITY = Object.freeze({
   coordinator_path:
-    "install/local/wikidot-verification/scripts/run-wikidot-xmlrpc-acquisition.mjs",
+    "install/local/wikidot-verification/src/wikidot-xmlrpc-acquisition-runner.mjs",
   coordinator_repository: "Rokurolize/wikijump",
   dependency_lock_path: "uv.lock",
   endpoint: "https://www.wikidot.com/xml-rpc-api.php",
   fallback_used: false,
   method: "pages.get_one",
   rate_capacity: 1,
-  rate_refill_per_second: 4,
+  rate_refill_per_second: 0.25,
   read_only: true,
   retry_max_attempts: 5,
   retry_max_delay_seconds: 120,
