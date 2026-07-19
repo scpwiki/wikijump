@@ -1,17 +1,17 @@
-import { spawn } from "node:child_process";
 import process from "node:process";
 
 import { stableStringify } from "./corpus-import-manifest.mjs";
 import { WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES } from "./reference-acquisition-xmlrpc-observation.mjs";
+import {
+  normalizeWikidotXmlrpcWorkerSessionOptions,
+  openWikidotXmlrpcWorkerExecutionCapability,
+} from "./wikidot-xmlrpc-worker-session-capability.mjs";
 
 const MAX_INPUT_BYTES = 4096;
 const MAX_RESULT_BYTES = WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES + 4096;
 const MAX_JSON_DEPTH = 64;
 const MAX_JSON_TOKENS = 1_000_000;
 const JSON_NUMBER_RE = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/uy;
-const STARTUP_TIMEOUT_MS = 180_000;
-const CAPTURE_TIMEOUT_MS = 180_000;
-const EXIT_GRACE_MS = 5_000;
 const FAILURE_MATRIX = new Map([
   ["wikidot_deleted", false],
   ["wikidot_forbidden", false],
@@ -260,25 +260,17 @@ function validateCapture(record, ordinal) {
 }
 
 export class WikidotXmlrpcWorkerClient {
-  constructor({
-    command,
-    args,
-    env,
-    spawnImpl = spawn,
-    startupTimeoutMs = STARTUP_TIMEOUT_MS,
-    captureTimeoutMs = CAPTURE_TIMEOUT_MS,
-    exitGraceMs = EXIT_GRACE_MS,
-  }) {
-    this.startupTimeoutMs = startupTimeoutMs;
-    this.captureTimeoutMs = captureTimeoutMs;
-    this.exitGraceMs = exitGraceMs;
+  constructor(execution, options = {}) {
+    const timeouts = normalizeWikidotXmlrpcWorkerSessionOptions(options);
+    const capability = openWikidotXmlrpcWorkerExecutionCapability(execution);
+    this.startupTimeoutMs = timeouts.startupTimeoutMs;
+    this.captureTimeoutMs = timeouts.captureTimeoutMs;
+    this.exitGraceMs = timeouts.exitGraceMs;
     this.signal = null;
+    this.lastGroupSignal = null;
     this.terminationPromise = null;
-    this.child = spawnImpl(command, args, {
-      detached: true,
-      env,
-      stdio: ["pipe", "pipe", "ignore"],
-    });
+    this.child = capability.child;
+    this.signalProcessGroup = capability.signalProcessGroup;
     this.closePromise = new Promise((resolve) =>
       this.child.once("close", (code, signal) => {
         this.closed = { code, signal };
@@ -287,10 +279,6 @@ export class WikidotXmlrpcWorkerClient {
         resolve(this.closed);
       }),
     );
-    this.leaderExited = false;
-    this.child.once("exit", () => {
-      this.leaderExited = true;
-    });
     this.reader = new BoundedLineReader(
       this.child.stdout,
       () => void this.terminate("SIGTERM").catch(() => {}),
@@ -330,11 +318,15 @@ export class WikidotXmlrpcWorkerClient {
   }
 
   killGroup(signal) {
-    if (!this.child.pid || this.leaderExited) return;
+    if (this.lastGroupSignal === "SIGKILL" || this.lastGroupSignal === signal) {
+      return;
+    }
     try {
-      process.kill(-this.child.pid, signal);
+      this.signalProcessGroup(signal);
+      this.lastGroupSignal = signal;
     } catch (error) {
       if (error.code !== "ESRCH") throw error;
+      this.lastGroupSignal = signal;
     }
   }
 
@@ -422,11 +414,14 @@ export class WikidotXmlrpcWorkerClient {
   }
 
   async terminate(signal = "SIGTERM") {
-    if (this.closed !== undefined) return this.closed;
-    if (this.terminationPromise !== null) return this.terminationPromise;
+    if (this.terminationPromise !== null) {
+      if (signal === "SIGKILL") this.killGroup("SIGKILL");
+      return this.terminationPromise;
+    }
     this.terminationPromise = (async () => {
       this.child.stdin.destroy();
       this.killGroup(signal);
+      if (this.closed !== undefined) return this.closed;
       let closed = await this.waitForClose();
       if (closed === null) {
         this.killGroup("SIGKILL");
@@ -459,6 +454,7 @@ export class WikidotXmlrpcWorkerClient {
       }
       closed = this.closed;
     }
+    this.killGroup("SIGTERM");
     this.assertHealthy();
     if (
       closed.code !== code ||
@@ -472,6 +468,7 @@ export class WikidotXmlrpcWorkerClient {
   async closeClean() {
     this.assertNotSignaled();
     if (this.closed !== undefined) {
+      this.killGroup("SIGTERM");
       throw new WorkerTerminatedError(
         "worker exited before coordinator shutdown",
       );
@@ -487,6 +484,7 @@ export class WikidotXmlrpcWorkerClient {
       }
       closed = this.closed;
     }
+    this.killGroup("SIGTERM");
     this.assertHealthy();
     if (
       closed.code !== 0 ||
