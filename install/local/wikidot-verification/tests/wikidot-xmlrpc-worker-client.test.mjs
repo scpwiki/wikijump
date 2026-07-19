@@ -343,7 +343,7 @@ globalThis.handle = (record) => {
         break;
       }
     } catch (error) {
-      if (error.code === "ENOENT") {
+      if (error.code === "ENOENT" || error.code === "ESRCH") {
         gone = true;
         break;
       }
@@ -391,7 +391,7 @@ globalThis.handle = (record) => {
         break;
       }
     } catch (error) {
-      if (error.code === "ENOENT") {
+      if (error.code === "ENOENT" || error.code === "ESRCH") {
         gone = true;
         break;
       }
@@ -457,7 +457,7 @@ globalThis.handle = (record) => {
         break;
       }
     } catch (error) {
-      if (error.code === "ENOENT") {
+      if (error.code === "ENOENT" || error.code === "ESRCH") {
         gone = true;
         break;
       }
