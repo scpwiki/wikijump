@@ -9,8 +9,10 @@ import test from "node:test";
 
 import {
   createExactGitBlobReader,
+  createExactGitTreeReader,
   ExactGitBlobError,
   readExactGitBlob,
+  readExactGitTreeFiles,
 } from "../src/exact-git-blob.mjs";
 
 const COMMIT_ENV = Object.freeze({
@@ -239,6 +241,59 @@ test("resolver returns exact binary committed bytes from a bare SHA-1 repository
   const mutableCopy = result.readBytes();
   mutableCopy.fill(0);
   assert.deepEqual(result.readBytes(), state.worker);
+});
+
+test("tree resolver returns a fixed set of exact regular source blobs", async (t) => {
+  const state = await fixture(t);
+  const result = await readExactGitTreeFiles(
+    { gitDirectory: state.gitDirectory },
+    { commitOid: state.commit, treeOid: state.tree },
+    ["scripts/worker.py"],
+    {
+      maxBytesPerFile: state.worker.byteLength,
+      maxFiles: 1,
+      maxTotalBytes: state.worker.byteLength,
+    },
+  );
+  assert.deepEqual(Object.keys(result).sort(), [
+    "commitOid",
+    "files",
+    "treeOid",
+  ]);
+  assert.equal(Object.isFrozen(result), true);
+  assert.equal(result.commitOid, state.commit);
+  assert.equal(result.treeOid, state.tree);
+  assert.equal(result.files.length, 1);
+  assert.equal(result.files[0].path, "scripts/worker.py");
+  assert.equal(result.files[0].blobOid, state.workerOid);
+  assert.equal(result.files[0].sha256, sha256(state.worker));
+  assert.deepEqual(result.files[0].readBytes(), state.worker);
+  const mutableCopy = result.files[0].readBytes();
+  mutableCopy.fill(0);
+  assert.deepEqual(result.files[0].readBytes(), state.worker);
+
+  await assert.rejects(
+    readExactGitTreeFiles(
+      { gitDirectory: state.gitDirectory },
+      { commitOid: state.commit, treeOid: state.tree },
+      ["link"],
+      { maxBytesPerFile: 1024, maxFiles: 1, maxTotalBytes: 1024 },
+    ),
+    rejectsWith("git_path_not_regular_blob"),
+  );
+  await assert.rejects(
+    readExactGitTreeFiles(
+      { gitDirectory: state.gitDirectory },
+      { commitOid: state.commit, treeOid: state.tree },
+      ["scripts/worker.py", "scripts/worker.py"],
+      { maxBytesPerFile: 1024, maxFiles: 2, maxTotalBytes: 1024 },
+    ),
+    rejectsWith("invalid_tree_paths"),
+  );
+  assert.throws(
+    () => createExactGitTreeReader({ gitExecutable: "git" }),
+    rejectsWith("invalid_reader_configuration"),
+  );
 });
 
 test("resolver accepts default limits and snapshots exact inputs before I/O", async (t) => {

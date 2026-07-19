@@ -5,6 +5,7 @@ import path from "node:path";
 import { types as utilTypes } from "node:util";
 
 const BINDING_KEYS = Object.freeze(["gitDirectory", "path"]);
+const TREE_BINDING_KEYS = Object.freeze(["gitDirectory"]);
 const EXPECTED_KEYS = Object.freeze([
   "blobOid",
   "blobSha256",
@@ -12,6 +13,12 @@ const EXPECTED_KEYS = Object.freeze([
   "treeOid",
 ]);
 const OPTION_KEYS = Object.freeze(["maxBytes"]);
+const TREE_EXPECTED_KEYS = Object.freeze(["commitOid", "treeOid"]);
+const TREE_OPTION_KEYS = Object.freeze([
+  "maxBytesPerFile",
+  "maxFiles",
+  "maxTotalBytes",
+]);
 const READER_CONFIGURATION_KEYS = Object.freeze(["gitExecutable"]);
 const GIT_SHA1_RE = /^[0-9a-f]{40}$/u;
 const MAX_BLOB_BYTES = 8 * 1024 * 1024;
@@ -20,6 +27,8 @@ const MAX_METADATA_BYTES = 1024;
 const MAX_PATH_DEPTH = 16;
 const MAX_HOST_PATH_LENGTH = 4096;
 const MAX_TREE_BYTES = 1024 * 1024;
+const MAX_TREE_FILES = 256;
+const MAX_TREE_TOTAL_BYTES = 64 * 1024 * 1024;
 const GIT_TIMEOUT_MS = 5_000;
 const GIT_KILL_GRACE_MS = 1_000;
 const SAFE_EXECUTION_PATH = "/usr/bin:/bin";
@@ -81,9 +90,9 @@ function dataObject(value, expectedKeys, code) {
   return Object.freeze(snapshot);
 }
 
-function assertSha1(value) {
+function assertSha1(value, code = "invalid_expected_identity") {
   if (typeof value !== "string" || !GIT_SHA1_RE.test(value)) {
-    fail("invalid_expected_identity");
+    fail(code);
   }
 }
 
@@ -96,7 +105,7 @@ function normalizePath(value) {
     segments.length > MAX_PATH_DEPTH ||
     segments.some(
       (segment) =>
-        !/^[A-Za-z0-9][A-Za-z0-9._-]*$/u.test(segment) ||
+        !/^[A-Za-z0-9_][A-Za-z0-9._-]*$/u.test(segment) ||
         segment === "." ||
         segment === "..",
     )
@@ -165,6 +174,42 @@ async function normalizeBinding(value, configuredGitExecutable) {
   });
 }
 
+async function normalizeTreeBinding(value, configuredGitExecutable) {
+  const input = dataObject(value, TREE_BINDING_KEYS, "invalid_tree_binding");
+  if (
+    typeof input.gitDirectory !== "string" ||
+    input.gitDirectory.length === 0 ||
+    input.gitDirectory.length > MAX_HOST_PATH_LENGTH ||
+    input.gitDirectory.includes("\0") ||
+    !path.isAbsolute(input.gitDirectory)
+  ) {
+    fail("invalid_tree_binding");
+  }
+  let gitDirectory;
+  let gitExecutable;
+  try {
+    [gitDirectory, gitExecutable] = await Promise.all([
+      fs.realpath(input.gitDirectory),
+      fs.realpath(configuredGitExecutable),
+    ]);
+    const [gitDirectoryStat, gitExecutableStat] = await Promise.all([
+      fs.stat(gitDirectory),
+      fs.stat(gitExecutable),
+    ]);
+    if (
+      !gitDirectoryStat.isDirectory() ||
+      !gitExecutableStat.isFile() ||
+      (gitExecutableStat.mode & 0o111) === 0
+    ) {
+      fail("invalid_tree_binding");
+    }
+  } catch (error) {
+    if (error instanceof ExactGitBlobError) throw error;
+    fail("invalid_tree_binding");
+  }
+  return Object.freeze({ gitDirectory, gitExecutable });
+}
+
 function normalizeExpected(value) {
   const input = dataObject(value, EXPECTED_KEYS, "invalid_expected_identity");
   for (const field of ["blobOid", "commitOid", "treeOid"]) {
@@ -189,6 +234,89 @@ function normalizeOptions(value) {
     fail("invalid_read_options");
   }
   return input;
+}
+
+function normalizeTreeExpected(value) {
+  const input = dataObject(value, TREE_EXPECTED_KEYS, "invalid_tree_identity");
+  for (const field of TREE_EXPECTED_KEYS) {
+    assertSha1(input[field], "invalid_tree_identity");
+  }
+  return input;
+}
+
+function normalizeTreeOptions(value) {
+  const input = dataObject(
+    value,
+    TREE_OPTION_KEYS,
+    "invalid_tree_read_options",
+  );
+  for (const [field, maximum] of [
+    ["maxBytesPerFile", MAX_BLOB_BYTES],
+    ["maxFiles", MAX_TREE_FILES],
+    ["maxTotalBytes", MAX_TREE_TOTAL_BYTES],
+  ]) {
+    if (
+      !Number.isSafeInteger(input[field]) ||
+      input[field] <= 0 ||
+      input[field] > maximum
+    ) {
+      fail("invalid_tree_read_options");
+    }
+  }
+  return input;
+}
+
+function normalizeTreePaths(value, maximum) {
+  if (!Array.isArray(value) || utilTypes.isProxy(value)) {
+    fail("invalid_tree_paths");
+  }
+  let keys;
+  let length;
+  try {
+    keys = Reflect.ownKeys(value);
+    length = Reflect.getOwnPropertyDescriptor(value, "length")?.value;
+  } catch {
+    fail("invalid_tree_paths");
+  }
+  if (
+    !Number.isSafeInteger(length) ||
+    length < 1 ||
+    length > maximum ||
+    keys.length !== length + 1
+  ) {
+    fail("invalid_tree_paths");
+  }
+  const seen = new Set();
+  const paths = [];
+  for (let index = 0; index < length; index += 1) {
+    const descriptor = Reflect.getOwnPropertyDescriptor(value, String(index));
+    if (
+      descriptor === undefined ||
+      !descriptor.enumerable ||
+      !("value" in descriptor)
+    ) {
+      fail("invalid_tree_paths");
+    }
+    const segments = normalizePath(descriptor.value);
+    const normalized = segments.join("/");
+    if (seen.has(normalized)) fail("invalid_tree_paths");
+    seen.add(normalized);
+    paths.push(Object.freeze({ normalized, segments }));
+  }
+  if (
+    keys.some(
+      (key) =>
+        key !== "length" &&
+        (typeof key !== "string" ||
+          !Number.isSafeInteger(Number(key)) ||
+          String(Number(key)) !== key ||
+          Number(key) < 0 ||
+          Number(key) >= length),
+    )
+  ) {
+    fail("invalid_tree_paths");
+  }
+  return Object.freeze(paths);
 }
 
 function gitEnvironment() {
@@ -482,6 +610,108 @@ export function createExactGitBlobReader(configuration) {
   };
 }
 
+/**
+ * Resolve a fixed, caller-owned set of regular source files from one exact
+ * commit/tree pair. The returned bytes are detached from both the Git object
+ * database and caller-owned mutable input records.
+ */
+export function createExactGitTreeReader(configuration) {
+  const trusted = normalizeReaderConfiguration(configuration);
+  return async function readExactGitTreeFiles(
+    binding,
+    expected,
+    paths,
+    options = {
+      maxBytesPerFile: MAX_BLOB_BYTES,
+      maxFiles: MAX_TREE_FILES,
+      maxTotalBytes: MAX_TREE_TOTAL_BYTES,
+    },
+  ) {
+    const claimed = normalizeTreeExpected(expected);
+    const limits = normalizeTreeOptions(options);
+    const selectedPaths = normalizeTreePaths(paths, limits.maxFiles);
+    const local = await normalizeTreeBinding(binding, trusted.gitExecutable);
+    await assertSha1Repository(local.gitExecutable, local.gitDirectory);
+    const commit = await readGitObject(
+      local.gitExecutable,
+      local.gitDirectory,
+      claimed.commitOid,
+      "commit",
+      MAX_COMMIT_BYTES,
+    );
+    if (commitTreeOid(commit) !== claimed.treeOid) fail("commit_tree_mismatch");
+
+    const trees = new Map();
+    const readTree = (oid) => {
+      let pending = trees.get(oid);
+      if (pending === undefined) {
+        pending = readGitObject(
+          local.gitExecutable,
+          local.gitDirectory,
+          oid,
+          "tree",
+          MAX_TREE_BYTES,
+        ).then(parseTree);
+        trees.set(oid, pending);
+      }
+      return pending;
+    };
+
+    let totalBytes = 0;
+    const files = [];
+    for (const selected of selectedPaths) {
+      let entries = await readTree(claimed.treeOid);
+      let entry;
+      for (const [index, segment] of selected.segments.entries()) {
+        entry = treeEntry(entries, segment);
+        if (index + 1 < selected.segments.length) {
+          if (entry.mode !== "40000") fail("git_path_not_tree");
+          entries = await readTree(entry.oid);
+        }
+      }
+      if (
+        entry === undefined ||
+        !new Set(["100644", "100755"]).has(entry.mode)
+      ) {
+        fail("git_path_not_regular_blob");
+      }
+      const blob = await readGitObject(
+        local.gitExecutable,
+        local.gitDirectory,
+        entry.oid,
+        "blob",
+        limits.maxBytesPerFile,
+      );
+      totalBytes += blob.byteLength;
+      if (totalBytes > limits.maxTotalBytes) fail("git_tree_output_too_large");
+      const immutableBytes = Buffer.from(blob);
+      const sha256 = crypto
+        .createHash("sha256")
+        .update(immutableBytes)
+        .digest("hex");
+      files.push(
+        Object.freeze({
+          blobOid: entry.oid,
+          byteLength: immutableBytes.byteLength,
+          path: selected.normalized,
+          sha256,
+          readBytes() {
+            return Buffer.from(immutableBytes);
+          },
+        }),
+      );
+    }
+    return Object.freeze({
+      commitOid: claimed.commitOid,
+      files: Object.freeze(files),
+      treeOid: claimed.treeOid,
+    });
+  };
+}
+
 export const readExactGitBlob = createExactGitBlobReader({
+  gitExecutable: TRUSTED_GIT_EXECUTABLE,
+});
+export const readExactGitTreeFiles = createExactGitTreeReader({
   gitExecutable: TRUSTED_GIT_EXECUTABLE,
 });
