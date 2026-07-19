@@ -294,6 +294,10 @@ test("openBrowser closes partial resources when context creation fails", async (
 test("browser context options do not expose unset storage state", () => {
   assert.deepEqual(browserContextOptions({ignoreHttpsErrors: true}), {ignoreHTTPSErrors: true});
   assert.deepEqual(
+    browserContextOptions({ignoreHttpsErrors: true, blockServiceWorkers: true}),
+    {ignoreHTTPSErrors: true, serviceWorkers: "block"}
+  );
+  assert.deepEqual(
     browserContextOptions({ignoreHttpsErrors: false, storageState: "/private/state.json"}),
     {ignoreHTTPSErrors: false, storageState: "/private/state.json"}
   );
@@ -594,6 +598,41 @@ test("capture CLI rejects shard manifests without a shard id", async () => {
   );
 });
 
+test("capture CLI rejects public and credentialed local URLs before it can launch a browser", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-local-origin-policy-"));
+  const inventoryPath = path.join(root, "inventory.json");
+  const outputDir = path.join(root, "out");
+  const invalidLocalUrls = [
+    "https://public.example/scp-173",
+    "https://user@scp-wiki.wikijump.localhost/scp-173",
+  ];
+
+  for (const localHttpsUrl of invalidLocalUrls) {
+    await fs.writeFile(
+      inventoryPath,
+      JSON.stringify({
+        schema: inventory.schema,
+        rows: [{...inventory.rows[0], local_https_url: localHttpsUrl}],
+      }),
+      "utf8"
+    );
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        scriptPath,
+        "--inventory",
+        inventoryPath,
+        "--output-dir",
+        outputDir,
+        "--json",
+      ]),
+      (error) => {
+        assert.match(error.stderr, /invalid local capture URL/);
+        return true;
+      }
+    );
+  }
+});
+
 test("capture CLI uses fresh source and local contexts for each row", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-row-contexts-"));
   const browserRoot = path.join(root, "browser-root");
@@ -634,6 +673,9 @@ exports.chromium = {
         trace({event: "newContext", id, options});
         return {
           async newPage() { trace({event: "newPage", id}); return new Page(id); },
+          async route() {},
+          async routeWebSocket() {},
+          on() {},
           async close() { trace({event: "closeContext", id}); },
         };
       },
@@ -671,6 +713,10 @@ exports.chromium = {
     [0, 1, 2, 3]
   );
   assert.deepEqual(
+    trace.filter((entry) => entry.event === "newContext").map((entry) => entry.options.serviceWorkers),
+    ["block", "block", "block", "block"]
+  );
+  assert.deepEqual(
     trace.filter((entry) => entry.event === "closeContext").map((entry) => entry.id),
     [1, 0, 3, 2]
   );
@@ -685,6 +731,10 @@ exports.chromium = {
       ["EN:beta", "context-2", "context-3"],
     ]
   );
+  const requestGateConfig = JSON.parse(await fs.readFile(path.join(outputDir, "request-gate-config.json"), "utf8"));
+  assert.equal(requestGateConfig.status, "sealed_before_browser_request");
+  assert.equal(requestGateConfig.interval_ms, 4_000);
+  assert.equal(records.capture.request_gate.public_requests, 0);
 });
 
 test("capture CLI records requested visible text scope", async () => {
@@ -722,7 +772,7 @@ exports.chromium = {
     return {
       async newContext() {
         const id = nextContextId++;
-        return {async newPage() { return new Page(id); }, async close() {}};
+        return {async newPage() { return new Page(id); }, async route() {}, async routeWebSocket() {}, on() {}, async close() {}};
       },
       async close() {},
     };
@@ -783,7 +833,7 @@ exports.chromium = {
   async launch() {
     return {
       async newContext() {
-        return {async newPage() { return new Page(); }, async close() {}};
+        return {async newPage() { return new Page(); }, async route() {}, async routeWebSocket() {}, on() {}, async close() {}};
       },
       async close() {},
     };
