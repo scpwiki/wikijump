@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import process from "node:process";
 import test from "node:test";
@@ -29,16 +30,98 @@ process.stdin.on("end", () => globalThis.onEnd ? globalThis.onEnd() : process.ex
 `;
 
 function client(source, overrides = {}) {
-  return new WikidotXmlrpcWorkerClient({
-    command: process.execPath,
-    args: ["-e", `${source}\n${BASE_CHILD}`],
+  const child = spawn(process.execPath, ["-e", `${source}\n${BASE_CHILD}`], {
+    detached: true,
     env: { PATH: process.env.PATH },
+    stdio: ["pipe", "pipe", "ignore"],
+  });
+  return new WikidotXmlrpcWorkerClient(processExecution(child), {
     startupTimeoutMs: 2_000,
     captureTimeoutMs: 2_000,
     exitGraceMs: 1_000,
     ...overrides,
   });
 }
+
+function processExecution(child) {
+  return {
+    child,
+    signalProcessGroup(signal) {
+      if (!child.pid) return;
+      try {
+        process.kill(-child.pid, signal);
+      } catch (error) {
+        if (error.code !== "ESRCH") throw error;
+      }
+    },
+  };
+}
+
+test("worker session accepts only a caller-owned child-process capability", () => {
+  assert.throws(
+    () =>
+      new WikidotXmlrpcWorkerClient({
+        args: [],
+        command: process.execPath,
+        env: { PATH: process.env.PATH },
+      }),
+    /execution capability/u,
+  );
+});
+
+test("worker session rejects raw launch options even with a child capability", () => {
+  assert.throws(
+    () => new WikidotXmlrpcWorkerClient({}, { command: process.execPath }),
+    /unexpected fields/u,
+  );
+});
+
+test("invalid options do not claim the caller's execution capability", () => {
+  let accessed = false;
+  const capability = new Proxy(
+    {},
+    {
+      get() {
+        accessed = true;
+        throw new Error("capability was accessed");
+      },
+      ownKeys() {
+        accessed = true;
+        throw new Error("capability was accessed");
+      },
+    },
+  );
+
+  assert.throws(
+    () =>
+      new WikidotXmlrpcWorkerClient(capability, { command: process.execPath }),
+    /unexpected fields/u,
+  );
+  assert.equal(accessed, false);
+});
+
+test("worker session delegates process-group termination to its capability", async (t) => {
+  const child = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {
+    detached: false,
+    stdio: ["pipe", "pipe", "ignore"],
+  });
+  const signals = [];
+  const worker = new WikidotXmlrpcWorkerClient(
+    {
+      child,
+      signalProcessGroup(signal) {
+        signals.push(signal);
+        child.kill(signal);
+      },
+    },
+    { exitGraceMs: 1_000 },
+  );
+  t.after(() => worker.terminate("SIGKILL").catch(() => {}));
+
+  const closed = await worker.terminate("SIGTERM");
+  assert.deepEqual(signals, ["SIGTERM"]);
+  assert.equal(closed.signal, "SIGTERM");
+});
 
 test("record parser preserves Python numeric spelling while rejecting framing and duplicate keys", () => {
   for (const literal of ["1.0", "1e20", "9007199254740992.0"])
@@ -269,6 +352,120 @@ globalThis.handle = (record) => {
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
   assert.equal(gone, true, "grandchild remained alive");
+});
+
+test("termination still signals descendants after the worker leader exits", async (t) => {
+  const worker = client(String.raw`
+const {spawn} = require("node:child_process");
+globalThis.handle = (record) => {
+  if (record.op === "initialize") process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
+  else {
+    const descendant = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {stdio:["ignore",process.stdout,"ignore"]});
+    process.stdout.write(JSON.stringify({ok:true,op:"capture",ordinal:record.ordinal,response:{pid:descendant.pid}}) + "\n");
+    setTimeout(() => process.exit(0), 20);
+  }
+};`);
+  let pid;
+  t.after(async () => {
+    await worker.terminate().catch(() => {});
+    if (pid) {
+      try {
+        process.kill(pid, "SIGKILL");
+      } catch (error) {
+        if (error.code !== "ESRCH") throw error;
+      }
+    }
+  });
+  await worker.start(PRINCIPAL_ID);
+  pid = (await worker.capture(0, "scp-173")).response.pid;
+  await new Promise((resolve) => worker.child.once("exit", resolve));
+
+  const closed = await worker.terminate();
+  assert.equal(closed.code, 0);
+  let gone = false;
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    try {
+      const stat = await fs.readFile(`/proc/${pid}/stat`, "utf8");
+      if (stat.slice(stat.lastIndexOf(") ") + 2).startsWith("Z")) {
+        gone = true;
+        break;
+      }
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        gone = true;
+        break;
+      }
+      throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.equal(gone, true, "descendant remained alive after leader exit");
+});
+
+test("termination cleans a process group after the worker close event", async (t) => {
+  const worker = client(String.raw`
+const {spawn} = require("node:child_process");
+globalThis.handle = (record) => {
+  if (record.op === "initialize") process.stdout.write(JSON.stringify({ok:true,op:"ready",principal_id:record.principal_id}) + "\n");
+  else {
+    const descendant = spawn(
+      process.execPath,
+      [
+        "-e",
+        "const fs = require('node:fs'); process.on('SIGTERM', () => {}); fs.writeSync(3, 'ready'); setInterval(() => {}, 1000)",
+      ],
+      {stdio:["ignore", "ignore", "ignore", "pipe"]},
+    );
+    descendant.stdio[3].once("data", () => {
+      process.stdout.write(JSON.stringify({ok:true,op:"capture",ordinal:record.ordinal,response:{pid:descendant.pid}}) + "\n");
+      setTimeout(() => process.exit(0), 20);
+    });
+  }
+};`);
+  let pid;
+  t.after(async () => {
+    await worker.terminate().catch(() => {});
+    if (pid) {
+      try {
+        process.kill(pid, "SIGKILL");
+      } catch (error) {
+        if (error.code !== "ESRCH") throw error;
+      }
+    }
+  });
+  await worker.start(PRINCIPAL_ID);
+  const closed = new Promise((resolve) => worker.child.once("close", resolve));
+  pid = (await worker.capture(0, "scp-173")).response.pid;
+  await closed;
+
+  await worker.terminate();
+  const beforeEscalation = await fs.readFile(`/proc/${pid}/stat`, "utf8");
+  assert.equal(
+    beforeEscalation
+      .slice(beforeEscalation.lastIndexOf(") ") + 2)
+      .startsWith("Z"),
+    false,
+    "SIGTERM unexpectedly removed the signal-ignoring descendant",
+  );
+  await worker.terminate("SIGKILL");
+  let gone = false;
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    try {
+      const stat = await fs.readFile(`/proc/${pid}/stat`, "utf8");
+      if (stat.slice(stat.lastIndexOf(") ") + 2).startsWith("Z")) {
+        gone = true;
+        break;
+      }
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        gone = true;
+        break;
+      }
+      throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.equal(gone, true, "descendant remained alive after worker close");
 });
 
 test("an escaped descendant cannot hold the coordinator stdout pipe open", async (t) => {
