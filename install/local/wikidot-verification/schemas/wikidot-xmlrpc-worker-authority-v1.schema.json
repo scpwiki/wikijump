@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikijump.org/schemas/wikidot-xmlrpc-worker-authority-v1.schema.json",
+  "title": "Wikidot XML-RPC worker authority v1",
+  "description": "Canonical, path-free worker identity claims stored as a content-addressed object. This descriptor is not executable authority: a later worker-capsule verifier must prove every digest against its versioned canonical preimage, which excludes credentials, host paths, commands, raw environment values, timestamps, and host/process identities.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dependency_environment_sha256",
+    "dependency_lock_file_sha256",
+    "dependency_recipe_sha256",
+    "python_executable_sha256",
+    "python_version",
+    "schema",
+    "venv_config_sha256",
+    "worker_blob_oid",
+    "worker_file_sha256",
+    "worker_repository",
+    "worker_repository_commit",
+    "worker_repository_tree"
+  ],
+  "properties": {
+    "dependency_environment_sha256": { "$ref": "#/$defs/sha256" },
+    "dependency_lock_file_sha256": { "$ref": "#/$defs/sha256" },
+    "dependency_recipe_sha256": { "$ref": "#/$defs/sha256" },
+    "python_executable_sha256": { "$ref": "#/$defs/sha256" },
+    "python_version": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+      "maxLength": 64
+    },
+    "schema": {
+      "const": "wikijump_full_parity.wikidot_xmlrpc_worker_authority.v1"
+    },
+    "venv_config_sha256": { "$ref": "#/$defs/sha256" },
+    "worker_blob_oid": { "$ref": "#/$defs/gitSha1" },
+    "worker_file_sha256": { "$ref": "#/$defs/sha256" },
+    "worker_repository": { "const": "Rokurolize/scp-wiki-translation" },
+    "worker_repository_commit": { "$ref": "#/$defs/gitSha1" },
+    "worker_repository_tree": { "$ref": "#/$defs/gitSha1" }
+  },
+  "$defs": {
+    "gitSha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}
