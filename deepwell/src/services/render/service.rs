@@ -18079,6 +18079,38 @@ mod tests {
     }
 
     #[test]
+    fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
+        let source = "[[module Rate]]\n";
+        let mut page_info = fallback_test_page_info("scp-9506", "SCP-9506");
+        page_info.score = ftml::data::ScoreValue::Integer(396);
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut fragments = CompatHtmlFragments::new(source);
+        let protected = RenderService::expand_rate_modules_with_registry(
+            source.to_owned(),
+            &page_info,
+            &settings,
+            &mut fragments,
+        );
+
+        let root = fragments.restore(&format!("<p>{protected}</p>"));
+        assert!(root.contains(r#"<div class="page-rate-widget-box">"#));
+        assert!(!root.contains("<p><div"));
+
+        let div = fragments.restore(&format!(
+            "<div class=\"rate-shell\"><p>{protected}</p></div>"
+        ));
+        assert!(
+            div.contains(r#"<div class="rate-shell"><div class="page-rate-widget-box">"#)
+        );
+        assert!(!div.contains("<p><div"));
+
+        assert_eq!(
+            fragments.restore(&format!("<span><p>{protected}</p></span>")),
+            format!("<span><p>{protected}</p></span>"),
+        );
+    }
+
+    #[test]
     fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
         let source = concat!(
             "@@[[module Rate]]@@\n",
