@@ -19,8 +19,8 @@ export const parseDeploymentEnvironment = ({
 
 /**
  * @param {{
- *   csrfCheckOrigin?: string | null;
- *   deploymentEnvironment?: "local" | "dev" | "prod";
+ *   csrfCheckOrigin?: string | null
+ *   deploymentEnvironment?: "local" | "dev" | "prod"
  * }} [input]
  * @returns {boolean}
  */
