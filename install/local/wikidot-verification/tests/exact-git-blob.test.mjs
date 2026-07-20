@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
+import zlib from "node:zlib";
 import test from "node:test";
 
 import {
@@ -53,6 +54,27 @@ function repoGit(gitDirectory, args, options) {
 
 function trimmed(buffer) {
   return buffer.toString("ascii").trim();
+}
+
+function gitObjectOid(type, bytes) {
+  return crypto
+    .createHash("sha1")
+    .update(`${type} ${bytes.byteLength}\0`)
+    .update(bytes)
+    .digest("hex");
+}
+
+async function writeLooseObject(gitDirectory, type, bytes) {
+  const oid = gitObjectOid(type, bytes);
+  const directory = path.join(gitDirectory, "objects", oid.slice(0, 2));
+  await fs.mkdir(directory, { recursive: true });
+  await fs.writeFile(
+    path.join(directory, oid.slice(2)),
+    zlib.deflateSync(
+      Buffer.concat([Buffer.from(`${type} ${bytes.byteLength}\0`), bytes]),
+    ),
+  );
+  return oid;
 }
 
 function writeBlob(gitDirectory, bytes) {
@@ -622,6 +644,41 @@ test("resolver rejects refs, unsafe paths, unsupported object formats, and host 
       { maxBytes: state.worker.byteLength },
     ),
     rejectsWith("unsupported_git_object_format"),
+  );
+});
+
+test("resolver rejects malformed tree mode bytes that decode as regular blobs", async (t) => {
+  const parent = await fs.mkdtemp(path.join(os.tmpdir(), "exact-git-blob-"));
+  const gitDirectory = path.join(parent, "repo.git");
+  git(["init", "--bare", "--initial-branch=main", gitDirectory]);
+  t.after(() => fs.rm(parent, { force: true, recursive: true }));
+
+  const bytes = Buffer.from("malformed tree mode should not prove path\n");
+  const blobOid = writeBlob(gitDirectory, bytes);
+  const malformedTree = Buffer.concat([
+    Buffer.from([0xb1, 0xb0, 0xb0, 0xb6, 0xb4, 0xb4, 0x20]),
+    Buffer.from("victim.txt\0", "ascii"),
+    Buffer.from(blobOid, "hex"),
+  ]);
+  const treeOid = await writeLooseObject(gitDirectory, "tree", malformedTree);
+  const commitOid = writeCommit(gitDirectory, treeOid, "malformed tree");
+
+  assert.throws(
+    () => repoGit(gitDirectory, ["ls-tree", treeOid, "victim.txt"]),
+    /malformed mode in tree entry/u,
+  );
+  await assert.rejects(
+    readExactGitBlob(
+      { gitDirectory, path: "victim.txt" },
+      {
+        blobOid,
+        blobSha256: sha256(bytes),
+        commitOid,
+        treeOid,
+      },
+      { maxBytes: bytes.byteLength },
+    ),
+    rejectsWith("malformed_tree"),
   );
 });
 

@@ -32,6 +32,13 @@ const MAX_TREE_TOTAL_BYTES = 64 * 1024 * 1024;
 const GIT_TIMEOUT_MS = 5_000;
 const GIT_KILL_GRACE_MS = 1_000;
 const SAFE_EXECUTION_PATH = "/usr/bin:/bin";
+const GIT_TREE_MODES = Object.freeze([
+  Buffer.from("40000", "ascii"),
+  Buffer.from("100644", "ascii"),
+  Buffer.from("100755", "ascii"),
+  Buffer.from("120000", "ascii"),
+  Buffer.from("160000", "ascii"),
+]);
 const SHA256_RE = /^[0-9a-f]{64}$/u;
 const TRUSTED_GIT_EXECUTABLE = "/usr/bin/git";
 
@@ -490,6 +497,12 @@ function commitTreeOid(bytes) {
   return oid;
 }
 
+function gitTreeMode(bytes) {
+  const mode = GIT_TREE_MODES.find((candidate) => candidate.equals(bytes));
+  if (mode === undefined) fail("malformed_tree");
+  return mode.toString("ascii");
+}
+
 function parseTree(bytes) {
   const entries = [];
   const names = new Set();
@@ -499,7 +512,7 @@ function parseTree(bytes) {
     if (space <= offset || nul <= space + 1 || nul + 21 > bytes.byteLength) {
       fail("malformed_tree");
     }
-    const mode = bytes.subarray(offset, space).toString("ascii");
+    const mode = gitTreeMode(bytes.subarray(offset, space));
     const name = bytes.subarray(space + 1, nul);
     const nameKey = name.toString("hex");
     if (
