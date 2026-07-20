@@ -29,6 +29,8 @@ const RUNTIME_LABELS = Object.freeze({
   role: "com.rokurolize.wikijump.role",
 });
 
+const COMPOSE_CONFIG_HASH_LABEL = "com.docker.compose.config-hash";
+
 function requireGitObject(value, name) {
   if (typeof value !== "string" || !/^[0-9a-f]{40}$/u.test(value)) {
     throw new Error(`${name} must be a full lowercase Git object id`);
@@ -182,10 +184,11 @@ function safeRuntimeValue(value) {
 
 function selectedRuntimeLabels(labels) {
   const selected = { ...labels };
-  // This label names the aggregate hash below. Excluding only the self
-  // reference avoids a circular value while retaining the rest of the
-  // effective container label set in the configuration identity.
+  // These labels are derived from the aggregate hash below. Compose changes
+  // its config hash when the aggregate label changes, so retaining either one
+  // would make the candidate identity self-referential.
   delete selected[RUNTIME_LABELS.effectiveRuntimeServicesSha256];
+  delete selected[COMPOSE_CONFIG_HASH_LABEL];
   return safeRuntimeValue(selected);
 }
 

@@ -138,6 +138,16 @@ test("runtime observation binds the actual candidate caddy image, labels, and lo
   });
 });
 
+test("effective runtime identity ignores Compose's hash of the aggregate identity label", () => {
+  const { inspect } = preparedFixture();
+  inspect.Config.Labels["com.docker.compose.config-hash"] = hash("2");
+  const before = effectiveRuntimeServicesSha256([inspect]);
+  inspect.Config.Labels["com.rokurolize.wikijump.runtime_config_sha256"] =
+    before;
+  inspect.Config.Labels["com.docker.compose.config-hash"] = hash("3");
+  assert.equal(effectiveRuntimeServicesSha256([inspect]), before);
+});
+
 test("runtime observation fails closed for a mutable endpoint, changed image, missing identity label, or changed effective configuration", async () => {
   const { candidate, inspect } = preparedFixture();
   const publicBinding = structuredClone(inspect);
