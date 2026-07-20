@@ -15,6 +15,10 @@ import { verifyStandingCandidateParityAdmission } from "../src/standing-browser-
 import { STANDING_BROWSER_EXECUTION_MODULES } from "../src/standing-browser-execution-identity.mjs";
 import { observationArtifactName } from "../src/standing-browser-parity-observation.mjs";
 import {
+  renderedHomeManifestSha256,
+  verifyStandingPromotionPrecondition,
+} from "../../../standing/scripts/verify-promotion-precondition.mjs";
+import {
   canonicalJson,
   sha256File,
   sha256Value,
@@ -24,6 +28,15 @@ const hash = (value) => createHash("sha256").update(value).digest("hex");
 const git = (character) => character.repeat(40);
 const image = (character) => `sha256:${character.repeat(64)}`;
 const viewport = { width: 1366, height: 900 };
+const PROMOTION_ROLES = Object.freeze([
+  "cache",
+  "caddy",
+  "database",
+  "deepwell",
+  "files",
+  "framerail",
+  "wws",
+]);
 
 function policy() {
   return {
@@ -34,16 +47,30 @@ function policy() {
   };
 }
 
-function candidateIdentity() {
+function runtimeServiceConfigurations(images) {
+  return Object.keys(images)
+    .sort()
+    .map((role) => ({
+      role,
+      effective_configuration_sha256: hash(`fixture-runtime:${role}`),
+    }));
+}
+
+function candidateIdentity({
+  images = { caddy: image("e") },
+  build = {
+    seal_sha256: "b".repeat(64),
+    verdict_sha256: "c".repeat(64),
+    final_images_sha256: "d".repeat(64),
+  },
+  promotionBaseManifestSha256 = "0".repeat(64),
+} = {}) {
+  const runtimeConfigurations = runtimeServiceConfigurations(images);
   return {
     schema: "wikijump.standing_candidate_parity_identity.v1",
     status: "sealed",
     artifact_key: "a".repeat(64),
-    build: {
-      seal_sha256: "b".repeat(64),
-      verdict_sha256: "c".repeat(64),
-      final_images_sha256: "d".repeat(64),
-    },
+    build,
     candidate: {
       owner: "standing-parity-fixture",
       expires_at: "2099-07-20T00:00:00.000Z",
@@ -54,13 +81,11 @@ function candidateIdentity() {
       ftml_sha: git("c"),
       profile: "production-build",
       source_clean: true,
-      images: { caddy: image("e") },
+      images,
       config: {
         isolated_overlay_sha256: "f".repeat(64),
-        promotion_base_manifest_sha256: "0".repeat(64),
-        effective_runtime_services_sha256: sha256Value([
-          { role: "caddy", effective_configuration_sha256: "e".repeat(64) },
-        ]),
+        promotion_base_manifest_sha256: promotionBaseManifestSha256,
+        effective_runtime_services_sha256: sha256Value(runtimeConfigurations),
       },
       endpoint: {
         scheme: "https",
@@ -229,6 +254,7 @@ function passingComparison(canary) {
 
 function runtimeIdentity(identity, identitySha256) {
   const candidate = identity.candidate;
+  const configurations = runtimeServiceConfigurations(candidate.images);
   return {
     schema: "wikijump.standing_candidate_runtime_observation.v1",
     status: "bound",
@@ -245,35 +271,38 @@ function runtimeIdentity(identity, identitySha256) {
       effective_runtime_services_sha256:
         candidate.config.effective_runtime_services_sha256,
     },
-    services: [
-      {
-        role: "caddy",
-        container_id: "e".repeat(64),
-        image_id: candidate.images.caddy,
-        state: { running: true, status: "running", health: "healthy" },
-        labels: {
-          "com.docker.compose.project": candidate.compose_project,
-          "com.rokurolize.wikijump.owner": candidate.owner,
-          "com.rokurolize.wikijump.sha": candidate.wikijump_commit,
-          "com.rokurolize.wikijump.tree": candidate.wikijump_tree,
-          "com.rokurolize.wikijump.ftml_sha": candidate.ftml_sha,
-          "com.rokurolize.wikijump.artifact_key": identity.artifact_key,
-          "com.rokurolize.wikijump.config_sha256":
-            candidate.config.isolated_overlay_sha256,
-          "com.rokurolize.wikijump.runtime_config_sha256":
-            candidate.config.effective_runtime_services_sha256,
-          "com.rokurolize.wikijump.profile": candidate.profile,
-          "com.rokurolize.wikijump.expires_at": candidate.expires_at,
-          "com.rokurolize.wikijump.role": "caddy",
-        },
-        https_binding: {
-          container_port: "443/tcp",
-          host_address: "127.0.0.1",
-          host_port: 18443,
-        },
-        effective_configuration_sha256: "e".repeat(64),
+    services: configurations.map((configuration, index) => ({
+      role: configuration.role,
+      container_id: `${index}`.repeat(64),
+      image_id: candidate.images[configuration.role],
+      state: { running: true, status: "running", health: "healthy" },
+      labels: {
+        "com.docker.compose.project": candidate.compose_project,
+        "com.rokurolize.wikijump.owner": candidate.owner,
+        "com.rokurolize.wikijump.sha": candidate.wikijump_commit,
+        "com.rokurolize.wikijump.tree": candidate.wikijump_tree,
+        "com.rokurolize.wikijump.ftml_sha": candidate.ftml_sha,
+        "com.rokurolize.wikijump.artifact_key": identity.artifact_key,
+        "com.rokurolize.wikijump.config_sha256":
+          candidate.config.isolated_overlay_sha256,
+        "com.rokurolize.wikijump.runtime_config_sha256":
+          candidate.config.effective_runtime_services_sha256,
+        "com.rokurolize.wikijump.profile": candidate.profile,
+        "com.rokurolize.wikijump.expires_at": candidate.expires_at,
+        "com.rokurolize.wikijump.role": configuration.role,
       },
-    ],
+      ...(configuration.role === "caddy"
+        ? {
+            https_binding: {
+              container_port: "443/tcp",
+              host_address: "127.0.0.1",
+              host_port: 18443,
+            },
+          }
+        : {}),
+      effective_configuration_sha256:
+        configuration.effective_configuration_sha256,
+    })),
   };
 }
 
@@ -292,8 +321,7 @@ function executionIdentity(identity) {
   };
 }
 
-async function fixture(root) {
-  const identity = candidateIdentity();
+async function fixture(root, identity = candidateIdentity()) {
   const policyPath = path.join(root, "policy.json");
   const identityPath = path.join(root, "candidate-identity.json");
   await fs.writeFile(policyPath, canonicalJson(policy()), { mode: 0o600 });
@@ -433,6 +461,92 @@ async function fixture(root) {
   return { receiptPath, identityPath, referencePath, policyPath };
 }
 
+async function createPromotionBuildFixture(root) {
+  const stagingHomePath = path.join(root, "staging-home");
+  const buildEvidencePath = path.join(root, "build-evidence");
+  const outputDirectory = path.join(root, "promotion-output");
+  await fs.mkdir(path.join(stagingHomePath, "nested"), { recursive: true });
+  await fs.mkdir(path.join(buildEvidencePath, "images"), { recursive: true });
+  await fs.mkdir(outputDirectory);
+  await fs.writeFile(
+    path.join(stagingHomePath, ".env"),
+    "STANDING_PROJECT_NAME=wikijump-standing\n",
+  );
+  await fs.writeFile(
+    path.join(stagingHomePath, "nested", "compose.yaml"),
+    "services: {}\n",
+  );
+  const stagingManifestSha256 =
+    await renderedHomeManifestSha256(stagingHomePath);
+  const images = Object.fromEntries(
+    PROMOTION_ROLES.map((role, index) => [role, image(`${index}`)]),
+  );
+  const finalImages = PROMOTION_ROLES.map((role) => ({
+    role,
+    image_id: images[role],
+    os: "linux",
+    architecture: "amd64",
+  }));
+  const imagesPath = path.join(
+    buildEvidencePath,
+    "images",
+    "final-images.json",
+  );
+  const verdictPath = path.join(buildEvidencePath, "verdict.json");
+  await fs.writeFile(imagesPath, canonicalJson(finalImages), { mode: 0o600 });
+  await fs.writeFile(
+    verdictPath,
+    canonicalJson({
+      schema: "wikijump.standing_provenance_build.v1",
+      status: "pass",
+      promotion_eligible: true,
+      run_id: "adapter-fixture-build",
+      wikijump_commit: git("a"),
+      wikijump_tree: git("b"),
+      ftml_sha: git("c"),
+      final_images: "images/final-images.json",
+    }),
+    { mode: 0o600 },
+  );
+  const manifestPath = path.join(buildEvidencePath, "evidence-manifest.sha256");
+  const manifestPaths = ["images/final-images.json", "verdict.json"].sort(
+    (left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)),
+  );
+  const manifest = await Promise.all(
+    manifestPaths.map(
+      async (relative) =>
+        `${await sha256File(path.join(buildEvidencePath, relative))}  ./${relative}\n`,
+    ),
+  );
+  await fs.writeFile(manifestPath, manifest.join(""), { mode: 0o600 });
+  const sealPath = path.join(buildEvidencePath, "seal.json");
+  await fs.writeFile(
+    sealPath,
+    canonicalJson({
+      schema: "wikijump.standing_provenance_build_seal.v1",
+      status: "sealed",
+      run_id: "adapter-fixture-build",
+      evidence_manifest_verified: true,
+      evidence_manifest_exclusions: ["evidence-manifest.sha256", "seal.json"],
+      evidence_manifest_sha256: await sha256File(manifestPath),
+      verdict_sha256: await sha256File(verdictPath),
+    }),
+    { mode: 0o600 },
+  );
+  return {
+    stagingHomePath,
+    buildEvidencePath,
+    outputPath: path.join(outputDirectory, "promotion-precondition.json"),
+    images,
+    stagingManifestSha256,
+    build: {
+      seal_sha256: await sha256File(sealPath),
+      verdict_sha256: await sha256File(verdictPath),
+      final_images_sha256: await sha256File(imagesPath),
+    },
+  };
+}
+
 test("source-owned receipt verifier verifies a complete candidate receipt and its exact source runner", async (context) => {
   const root = await fs.mkdtemp(
     path.join(os.tmpdir(), "standing-browser-admission-"),
@@ -526,5 +640,42 @@ test("source-owned receipt verifier rejects a receipt claiming a different runne
       collectExecutionIdentity: async (identity) => executionIdentity(identity),
     }),
     /not produced by this source-owned runner/u,
+  );
+});
+
+test("promotion precondition accepts a complete source-admission fixture", async (context) => {
+  const root = await fs.mkdtemp(
+    path.join(os.tmpdir(), "standing-promotion-precondition-"),
+  );
+  context.after(() => fs.rm(root, { recursive: true, force: true }));
+  const promotion = await createPromotionBuildFixture(root);
+  const identity = candidateIdentity({
+    images: promotion.images,
+    build: promotion.build,
+    promotionBaseManifestSha256: promotion.stagingManifestSha256,
+  });
+  const paths = await fixture(root, identity);
+  const result = await verifyStandingPromotionPrecondition({
+    receiptPath: paths.receiptPath,
+    candidateIdentityPath: paths.identityPath,
+    liveReferencePath: paths.referencePath,
+    liveCompletionPolicyPath: paths.policyPath,
+    buildEvidencePath: promotion.buildEvidencePath,
+    stagingHomePath: promotion.stagingHomePath,
+    outputPath: promotion.outputPath,
+    now: new Date("2026-07-20T00:00:00.000Z"),
+    verifyAdmission: (argumentsValue) =>
+      verifyStandingCandidateParityAdmission({
+        ...argumentsValue,
+        collectExecutionIdentity: async (candidate) =>
+          executionIdentity(candidate),
+      }),
+  });
+  assert.equal(result.status, "pass");
+  assert.equal(result.candidate.artifact_key, identity.artifact_key);
+  assert.equal(result.build.seal_sha256, promotion.build.seal_sha256);
+  assert.equal(
+    result.staging_home.manifest_sha256,
+    promotion.stagingManifestSha256,
   );
 });
