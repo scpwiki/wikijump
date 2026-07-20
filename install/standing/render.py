@@ -48,7 +48,7 @@ def source_state(source_root: Path, wikijump_sha: str, ftml_sha: str) -> dict[st
     lock_contents = lockfile.read_text(encoding="utf-8")
     if f"#{ftml_sha}" not in lock_contents:
         raise ValueError("deepwell/Cargo.lock does not contain the requested FTML revision")
-    for required_path in (source_root / "install" / "local" / "deepwell" / "config.toml", source_root / "deepwell" / "seeder"):
+    for required_path in (source_root / "install" / "prod" / "deepwell" / "config.toml",):
         if not required_path.exists():
             raise ValueError(f"required source path is missing: {required_path}")
     return {"wikijump_sha": head, "wikijump_tree": tree, "ftml_sha": ftml_sha}
@@ -102,8 +102,7 @@ def main() -> int:
         shutil.copy2(template, staging / "compose.yaml")
         staging_deepwell = staging / "deepwell"
         staging_deepwell.mkdir()
-        shutil.copy2(source_root / "install" / "local" / "deepwell" / "config.toml", staging_deepwell / "config.toml")
-        shutil.copytree(source_root / "deepwell" / "seeder", staging_deepwell / "seeder", symlinks=True)
+        shutil.copy2(source_root / "install" / "prod" / "deepwell" / "config.toml", staging_deepwell / "config.toml")
         staging_caddy = staging / "caddy"
         staging_caddy.mkdir()
         shutil.copy2(Path(__file__).with_name("caddy") / "request.json", staging_caddy / "request.json")
