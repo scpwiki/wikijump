@@ -30,6 +30,7 @@
     resolveWikidotSiteTitle,
     shouldUseSandboxWikidotChrome
   } from "$lib/wikidot-chrome"
+  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot-styleframe"
 
   let { children } = $props()
 
@@ -69,6 +70,12 @@
   const wikidotSiteTitle = $derived(resolveWikidotSiteTitle(viewData))
   const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
   const wikidotSessionUserName = $derived(resolveWikidotSessionUserName(viewData))
+  const shellStyleFrameStylesheets = $derived(
+    extractWikidotStyleFrameStylesheets(
+      [viewData?.compiled_top_bar_html, viewData?.compiled_side_bar_html],
+      page.url.origin
+    )
+  )
   const pageLayoutContext = $state<PageLayoutContext>({
     current: resolveCurrentLayout()
   })
@@ -105,6 +112,14 @@
     <link href="/wikidot/styles/wikidot-base-165bc434fd1d.css" rel="stylesheet" />
     <link href="/wikidot/styles/pagerate-db0bffe086ed.css" rel="stylesheet" />
     <link href="/wikidot/styles/sigma-fe5388a32e12.css" rel="stylesheet" />
+    {#each shellStyleFrameStylesheets as stylesheet, index (`${stylesheet.priority}:${stylesheet.href}:${index}`)}
+      <link
+        data-wikidot-style-preloaded
+        data-wikidot-style-priority={stylesheet.priority}
+        href={stylesheet.href}
+        rel="stylesheet"
+      />
+    {/each}
   {/if}
 </svelte:head>
 

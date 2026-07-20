@@ -8,9 +8,36 @@ import {
 } from "../src/lib/wikidot-interwiki.js"
 import {
   buildWikidotStyleFrameHtml,
+  extractWikidotStyleFrameStylesheets,
   isUsableStyleFrameCss,
   localizeWikidotThemeUrl
 } from "../src/lib/wikidot-styleframe.js"
+
+test("extracts priority-ordered styleFrame stylesheets for initial document CSS", () => {
+  assert.deepEqual(
+    extractWikidotStyleFrameStylesheets(
+      [
+        '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=2&amp;theme=https%3A%2F%2Fcdn.scpwiki.com%2Ftheme%2Fen%2Fbasalt%2Fbasalt-bedrock-min.css&amp;css=%7B%24css%7D"></iframe>',
+        '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&theme=https%3A%2F%2Fscp-wiki.wdfiles.com%2Flocal--code%2Ftheme%253Abasalt%2F1"></iframe>'
+      ],
+      "https://scp-wiki.wikijump.localhost"
+    ),
+    [
+      {
+        href: "https://scp-wiki.wjfiles.localhost/local--code/theme%3Abasalt/1",
+        priority: "1",
+        priorityValue: 1,
+        order: 1
+      },
+      {
+        href: "https://cdn.scpwiki.com/theme/en/basalt/basalt-bedrock-min.css",
+        priority: "2",
+        priorityValue: 2,
+        order: 0
+      }
+    ]
+  )
+})
 
 const cromPage = {
   translations: [
@@ -34,6 +61,7 @@ const executeStyleFrame = (
   assert.ok(script)
 
   const document = {
+    baseURI: "https://scp-wiki.wikijump.localhost/",
     head,
     documentElement: head,
     defaultView: {},
@@ -57,6 +85,7 @@ const executeStyleFrame = (
   vm.runInNewContext(script, {
     document,
     setTimeout: (callback) => scheduledCallbacks.push(callback),
+    URL,
     window
   })
   return { listeners, window }
@@ -93,6 +122,12 @@ const createHead = (...initialNodes) => {
       }
       if (selector === "[data-wikijump-generated-css]") {
         return children.filter((node) => node.dataset.wikijumpGeneratedCss !== undefined)
+      }
+      if (selector === "link[data-wikidot-style-preloaded]") {
+        return children.filter(
+          (node) =>
+            node.tagName === "LINK" && node.dataset.wikidotStylePreloaded !== undefined
+        )
       }
       const owner = selector.match(/^\[data-wikidot-style-owner="(.+)"\]$/u)?.[1]
       if (owner) {
@@ -241,6 +276,7 @@ test("builds styleFrame parent injection for theme stylesheets", () => {
   assert.match(html, /targetWindow\.document/)
   assert.match(html, /head\.insertBefore\(element, laterStyle\)/)
   assert.match(html, /restoreStyleFrameOrder/)
+  assert.match(html, /link\[data-wikidot-style-preloaded\]/)
   assert.match(html, /generatedCssNodes/)
   assert.match(html, /desiredTail\.forEach/)
   assert.match(html, /if \(alreadyOrdered\) return/)
@@ -248,6 +284,29 @@ test("builds styleFrame parent injection for theme stylesheets", () => {
   assert.match(html, /scp-wiki\.wjfiles\.localhost\/local--code\/theme%3Abasalt\/1/)
   assert.doesNotMatch(html, /<style>\{\$css\}<\/style>/)
   assert.doesNotMatch(html, /<style>\$css<\/style>/)
+})
+
+test("adopts an SSR stylesheet instead of loading the styleFrame theme twice", () => {
+  const preloaded = {
+    dataset: { wikidotStylePreloaded: "", wikidotStylePriority: "2" },
+    href: "https://example.com/theme.css",
+    tagName: "LINK"
+  }
+  const head = createHead(preloaded)
+
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      priority: "2",
+      themes: ["https://example.com/theme.css"]
+    }),
+    head
+  )
+
+  assert.equal(head.children.length, 1)
+  assert.equal(head.children[0], preloaded)
+  assert.equal(preloaded.dataset.wikidotStylePreloaded, undefined)
+  assert.equal(preloaded.dataset.wikidotStyleFrame, "wikidot-style-frame")
+  assert.match(preloaded.dataset.wikidotStyleOwner, /^wikidot-style-frame-/u)
 })
 
 test("keeps app styles before priority-ordered styleFrame and generated CSS", () => {
