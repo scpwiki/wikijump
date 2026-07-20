@@ -323,6 +323,11 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("site_update", site_update);
     register!("site_domain", site_get_domain);
 
+    // Site bans
+    register!("site_ban_set", site_ban_set);
+    register!("site_ban_get", site_ban_get);
+    register!("site_ban_remove", site_ban_remove);
+
     // Site custom domain
     register!("custom_domain_create", site_custom_domain_create);
     register!("custom_domain_remove", site_custom_domain_remove);

@@ -24,7 +24,8 @@ use super::prelude::*;
 use crate::api::ServerState;
 use crate::services::page_revision::RerenderType;
 use crate::services::{
-    BlobService, PageRevisionService, SessionService, TextService, UserService,
+    BlobService, PageRevisionService, RelationService, SessionService, TextService,
+    UserService,
 };
 use crate::types::PageId;
 use crate::utils::debug_pointer;
@@ -272,13 +273,11 @@ impl JobWorker {
             }
             Job::LiftExpiredPunishments => {
                 debug!("Checking if any outstanding punishments have expired");
-                // TODO implement tempban removal
-                //
-                //      We aren't going to be able to create jobs that have a wait time of say,
-                //      2 years, so instead we will just have this job run daily and check
-                //      to see if any bans have expired
-                //
-                //      currently only bans are the temporary, but others can be added here
+
+                RelationService::lift_expired_site_bans(ctx)
+                    .await
+                    .or_raise(make_error)?;
+
                 NextJob::Next {
                     job: Job::LiftExpiredPunishments,
                     delay: Some(self.state.config.job_lift_expired_punishments),

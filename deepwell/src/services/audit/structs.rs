@@ -60,6 +60,18 @@ pub enum AuditEvent<'a> {
         previous_fields: SiteFields<'a>,
         changed_fields: SiteFields<'a>,
     },
+    SiteBanCreate {
+        site_id: i64,
+        user_id: i64,
+        banning_user_id: i64,
+        banned_until: Option<Date>,
+        reason: &'a str,
+    },
+    SiteBanRemove {
+        site_id: i64,
+        user_id: i64,
+        unbanning_user_id: i64,
+    },
     PageCreate {
         user_id: i64,
         site_id: i64,
@@ -300,6 +312,40 @@ impl<'a> AuditEvent<'a> {
                     extra_number: None,
                 }
             }
+            AuditEvent::SiteBanCreate {
+                site_id,
+                user_id,
+                banning_user_id,
+                banned_until,
+                reason,
+            } => RawAuditEvent {
+                event_type: "site_ban.create",
+                ip_address,
+                user_id: Some(banning_user_id),
+                site_id: Some(site_id),
+                page_id: None,
+                extra_id_1: Some(user_id),
+                extra_id_2: None,
+                extra_string_1: banned_until.map(|date| Cow::Owned(date.to_string())),
+                extra_string_2: Some(Cow::Borrowed(reason)),
+                extra_number: None,
+            },
+            AuditEvent::SiteBanRemove {
+                site_id,
+                user_id,
+                unbanning_user_id,
+            } => RawAuditEvent {
+                event_type: "site_ban.remove",
+                ip_address,
+                user_id: Some(unbanning_user_id),
+                site_id: Some(site_id),
+                page_id: None,
+                extra_id_1: Some(user_id),
+                extra_id_2: None,
+                extra_string_1: None,
+                extra_string_2: None,
+                extra_number: None,
+            },
             AuditEvent::PageCreate {
                 user_id,
                 site_id,
