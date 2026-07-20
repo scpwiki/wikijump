@@ -411,13 +411,13 @@ pub(in crate::services::render) fn rollback_start_in_left_run(
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) enum WikidotTagScan {
+pub(in crate::services::render) enum WikidotTagScan {
     Complete(usize),
     Malformed { resume: usize },
     Unclosed,
 }
 
-pub(super) fn scan_wikidot_tag(
+pub(in crate::services::render) fn scan_wikidot_tag(
     bytes: &[u8],
     start: usize,
     end: usize,
