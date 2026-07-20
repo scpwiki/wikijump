@@ -61,8 +61,8 @@ import { createServer } from "node:http"
  */
 
 const PORT = 42747
-/** @type {RpcParams | null} */
-let lastPageTagsSelectParams = null
+/** @type {RecordedRpcRequest | null} */
+let lastPageTagsSelectRequest = null
 /** @type {RpcParams | null} */
 let lastPageSelectParams = null
 /** @type {Record<string, unknown[]>} */
@@ -405,7 +405,7 @@ const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/last-page-tags-request") {
     response
       .writeHead(200, { "content-type": "application/json" })
-      .end(JSON.stringify(lastPageTagsSelectParams))
+      .end(JSON.stringify(lastPageTagsSelectRequest))
     return
   }
   if (request.method === "GET" && request.url === "/last-page-select-request") {
@@ -708,6 +708,7 @@ const server = createServer((request, response) => {
     } else if (
       rpcRequest.method === "page_tags_select" &&
       rpcRequest.params?.site === "scp-wiki" &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
       (rpcRequest.params.categories === undefined ||
         rpcRequest.params.categories === null ||
         (Array.isArray(rpcRequest.params.categories) &&
@@ -725,7 +726,10 @@ const server = createServer((request, response) => {
             (page) => typeof page === "string"
           )))
     ) {
-      lastPageTagsSelectParams = rpcRequest.params
+      lastPageTagsSelectRequest = {
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      }
       result = ["_cc", "tale"]
     } else if (
       rpcRequest.method === "page_select" &&
