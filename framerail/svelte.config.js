@@ -3,7 +3,10 @@ import { statSync } from "fs"
 import { dirname, resolve } from "path"
 import { sveltePreprocess } from "svelte-preprocess"
 import { fileURLToPath } from "url"
-import { parseDeploymentEnvironment } from "./src/lib/server/deployment-environment.js"
+import {
+  parseCsrfCheckOrigin,
+  parseDeploymentEnvironment
+} from "./src/lib/server/deployment-environment.js"
 
 // The former only works on node 20.11+
 const __dirname = import.meta.dirname ?? dirname(fileURLToPath(import.meta.url))
@@ -110,8 +113,7 @@ const config = {
   kit: {
     adapter: adapter(),
     csrf: {
-      // Allow flexible hosts on local, since we don't have real DNS
-      checkOrigin: deploymentEnvironment !== "local"
+      checkOrigin: parseCsrfCheckOrigin({ deploymentEnvironment })
     },
     csp: {
       mode: "auto",

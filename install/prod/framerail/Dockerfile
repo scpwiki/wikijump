@@ -4,9 +4,11 @@
 
 FROM node:20-alpine
 
-# SvelteKit materializes CSP while `pnpm build` runs; production callers use the default and the standing local runtime passes `local` for the documented Wikidot legacy image origin.
+# SvelteKit materializes CSP and CSRF options while `pnpm build` runs; standing may pass `local` for CSP only.
 ARG FRAMERAIL_ENV=prod
+ARG FRAMERAIL_CSRF_CHECK_ORIGIN=true
 ENV FRAMERAIL_ENV=${FRAMERAIL_ENV}
+ENV FRAMERAIL_CSRF_CHECK_ORIGIN=${FRAMERAIL_CSRF_CHECK_ORIGIN}
 
 # Install dependencies
 RUN apk add --no-cache curl && \

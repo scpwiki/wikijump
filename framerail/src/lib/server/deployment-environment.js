@@ -16,3 +16,28 @@ export const parseDeploymentEnvironment = ({
   }
   return /** @type {"local" | "dev" | "prod"} */ (framerailEnv)
 }
+
+/**
+ * @param {{
+ *   csrfCheckOrigin?: string | null
+ *   deploymentEnvironment?: "local" | "dev" | "prod"
+ * }} [input]
+ * @returns {boolean}
+ */
+export const parseCsrfCheckOrigin = ({
+  csrfCheckOrigin = process.env.FRAMERAIL_CSRF_CHECK_ORIGIN,
+  deploymentEnvironment = parseDeploymentEnvironment()
+} = {}) => {
+  if (
+    csrfCheckOrigin === undefined ||
+    csrfCheckOrigin === null ||
+    csrfCheckOrigin === ""
+  ) {
+    return deploymentEnvironment !== "local"
+  }
+  if (csrfCheckOrigin === "true") return true
+  if (csrfCheckOrigin === "false") return false
+  throw new Error(
+    `Invalid FRAMERAIL_CSRF_CHECK_ORIGIN: ${JSON.stringify(csrfCheckOrigin)}`
+  )
+}
