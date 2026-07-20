@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@sveltejs/adapter-node": "^5.5.7",
-    "@sveltejs/kit": "^2.69.1",
+    "@sveltejs/kit": "^2.70.1",
     "accept-language-parser": "^1.5.0",
     "include-media": "^2.0.0",
     "json-rpc-2.0": "^1.7.1",
