@@ -35,6 +35,14 @@ function executionIdentity() {
   };
 }
 
+test("execution identity binds the execution identity module itself", () => {
+  assert.ok(
+    STANDING_BROWSER_EXECUTION_MODULES.includes(
+      "install/local/wikidot-verification/src/standing-browser-execution-identity.mjs",
+    ),
+  );
+});
+
 test("execution identity binds a clean exact source tree and every loaded parity module", () => {
   assert.equal(
     validateCandidateExecutionIdentity(executionIdentity(), candidateIdentity())
