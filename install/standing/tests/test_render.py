@@ -17,7 +17,7 @@ class RenderStandingConfigTest(unittest.TestCase):
         source = root / "source"
         (source / "install/prod/deepwell").mkdir(parents=True)
         (source / "deepwell").mkdir(parents=True)
-        (source / "install/prod/deepwell/config.toml").write_text("[database]\nrun-seeder = false\n", encoding="utf-8")
+        (source / "install/prod/deepwell/config.toml").write_text('[database]\nrun-seeder = false\n\n[domain]\nmain = "wikijump.com"\nfiles = "wjfiles.com"\n', encoding="utf-8")
         (source / "deepwell/Cargo.lock").write_text(f'source = "git+https://github.com/Rokurolize/ftml#{FTML_SHA}"\n', encoding="utf-8")
         for command in (("git", "init"), ("git", "config", "user.email", "test@example.invalid"), ("git", "config", "user.name", "Standing test"), ("git", "add", "."), ("git", "commit", "-m", "fixture")):
             subprocess.run(command, cwd=source, check=True, stdout=subprocess.DEVNULL)
@@ -52,7 +52,8 @@ class RenderStandingConfigTest(unittest.TestCase):
             self.assertEqual(identity["wikijump_sha"], sha)
             self.assertEqual(identity["ftml_sha"], FTML_SHA)
             self.assertEqual(identity["project_name"], "wikijump-standing")
-            self.assertEqual((output / "deepwell/config.toml").read_text(encoding="utf-8"), "[database]\nrun-seeder = false\n")
+            self.assertEqual((output / "deepwell/config.toml").read_text(encoding="utf-8"), '[database]\nrun-seeder = false\n\n[domain]\nmain = "wikijump.localhost"\nfiles = "wjfiles.localhost"\n')
+            self.assertEqual(identity["deepwell_domain_override"], {"main": "wikijump.localhost", "files": "wjfiles.localhost"})
             self.assertFalse((output / "deepwell/seeder").exists())
             request = json.loads((output / "caddy/request.json").read_text(encoding="utf-8"))
             self.assertTrue(request["params"]["local"])
@@ -71,4 +72,18 @@ class RenderStandingConfigTest(unittest.TestCase):
             result = subprocess.run(self.command(source, output, sha), text=True, capture_output=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("source checkout must be clean", result.stderr)
+            self.assertFalse(output.exists())
+
+    def test_rejects_unrecognized_production_domain_block(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            source, sha = self.make_source(Path(temporary_dir))
+            config = source / "install/prod/deepwell/config.toml"
+            config.write_text(config.read_text(encoding="utf-8").replace("wikijump.com", "example.com"), encoding="utf-8")
+            subprocess.run(("git", "add", "."), cwd=source, check=True)
+            subprocess.run(("git", "commit", "-m", "change domain"), cwd=source, check=True, stdout=subprocess.DEVNULL)
+            sha = subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=source, text=True).strip()
+            output = Path(temporary_dir) / "host/standing"
+            result = subprocess.run(self.command(source, output, sha), text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("must contain exactly one expected domain block", result.stderr)
             self.assertFalse(output.exists())
