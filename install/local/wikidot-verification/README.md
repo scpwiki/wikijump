@@ -55,6 +55,20 @@ Resumption is fail-closed. A stage is reused only when the exact plan bytes, com
 
 For root-cause reduction, a stage may declare `cluster_sources`. JSON or JSONL records are deduplicated by the configured `key_fields`, with occurrence counts and source-stage provenance retained in the terminal summary.
 
+## XML-RPC pilot local comparison
+
+`scripts/compare-xmlrpc-pilot-local.mjs` accepts only the designated sealed 128-page XML-RPC pilot source, turns it into a verified pilot manifest, and compares its live rows with an already-running local Deepwell runtime. It makes no Wikidot request and sends only unauthenticated loopback `site_get` and `page_get` calls. The runtime identity input must carry the exact Wikijump and FTML SHAs, artifact key, and runtime configuration SHA.
+
+```sh
+node install/local/wikidot-verification/scripts/compare-xmlrpc-pilot-local.mjs \
+  --pilot-root /mnt/oracle-store/wjlab/xmlrpc-pilot-en-128-... \
+  --runtime-identity /evidence/runtime-identity.json \
+  --rpc-url http://127.0.0.1:12747/jsonrpc \
+  --output-dir /mnt/oracle-store/wjlab/xmlrpc-pilot-local-comparison-...
+```
+
+The output directory receives a no-replace verified pilot manifest, local comparison rows, mismatch clusters, and `xmlrpc-pilot-verdict.json`. Live rows compare exact source, compiled HTML, revision count, and timestamp instant. A typed `wikidot_deleted` tombstone remains a neutral source-state observation: it is never converted to blank source or HTML and does not cause a local page lookup. A rerun recomputes read-only local observations and accepts already-sealed output files only when their bytes are identical.
+
 ## Read-only browser capture
 
 `scripts/capture-browser-rendering.mjs` uses a fixed host-wide capture lock and durable request-gate state under `/var/tmp/`. Every non-local HTTP(S) browser request in either source or local context is admitted at no more than one request per four seconds, including documents, redirects, frames, scripts, stylesheets, images, and fetches. The gate persists its next admissible time and any observed `Retry-After` deadline before a request proceeds, so a later capture cannot reset the rate. Service workers and WebSockets are blocked. The command accepts only canonical standing `https://<site>.wikijump.localhost` page URLs as local exemptions and derives the matching `https://<site>.wjfiles.localhost` file origin; public or credentialed inventory values fail before browser startup. It seals `request-gate-config.json` before starting the proxy or browser and records final gate counters in `records.json`. A failed state confirmation leaves the lock pending and blocks a later capture until an operator reviews it.
