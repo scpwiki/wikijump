@@ -94,4 +94,31 @@ Only an explicit loopback IP is accepted. Redirects are never followed, so an ex
 
 The document inventory output is the exact complement of the sealed redirect set. The verdict records full, redirect, and document counts plus deterministic fixture-set hashes, so redirect routes and normal browser documents can be validated by separate surfaces without a manual queue or silent omissions.
 
+## Standing candidate browser parity
+
+`scripts/run-standing-browser-parity.mjs` defines the source-owned browser-parity receipt that an explicit promotion-controller migration will make the standing promotion precondition. The current host controller already blocks on its existing candidate-parity receipt before mutable standing operations, but it has not yet been migrated to this source-owned verifier. The runner has two intentional modes. `live-reference` captures only the six production-theme canaries from `scp-wiki.wikidot.com` through the existing persistent 0.25 req/s gate. `candidate` captures the same pages only from a sealed, expiring non-443 candidate and compares them to an exact sealed live reference. Neither mode targets port 443.
+
+```sh
+node install/local/wikidot-verification/scripts/run-standing-browser-parity.mjs \
+  --mode live-reference \
+  --output-dir /mnt/oracle-store/wjlab/standing-live-reference-... \
+  --live-completion-policy /secure/standing-live-completion-policy.json \
+  --browser-root framerail \
+  --browser-executable /usr/bin/google-chrome
+```
+
+```sh
+node install/local/wikidot-verification/scripts/run-standing-browser-parity.mjs \
+  --mode candidate \
+  --output-dir /mnt/oracle-store/wjlab/standing-candidate-parity-... \
+  --live-completion-policy /secure/standing-live-completion-policy.json \
+  --candidate-identity /secure/candidate-parity-identity.json \
+  --live-reference-ledger /mnt/oracle-store/wjlab/standing-live-reference-.../standing-browser-live-reference.json \
+  --live-reference-sha256 <sealed-reference-sha256> \
+  --browser-root framerail \
+  --browser-executable /usr/bin/google-chrome
+```
+
+The live policy is sealed before any browser request and names each tolerated external failure exactly. A candidate identity is sealed before local capture and binds its repository/tree, FTML pin, immutable image IDs, isolated configuration hashes, owner/expiry, non-443 endpoint, loopback address, and evidence seal. Before opening the browser, and again after browser, proxy, request-gate, and lock closure, the runner independently inspects the candidate Compose project. Every declared role must be running exactly once with the sealed image, provenance labels, expiry, artifact key, configuration hash, and a Caddy HTTPS mapping limited to the declared loopback non-443 endpoint. The identity also carries the expected aggregate hash of effective Docker service configuration. The runner computes that hash from command, entrypoint, environment, mounts, network, port, and security settings without recording secret values. Candidate mode runs only from a clean source checkout whose exact Wikijump tree and FTML lock pin match the candidate, and binds a canonical manifest of every parity module into the receipt. The resulting receipt rejects a missing canary, stale candidate, mutable image tag, altered runtime configuration, runtime replacement during capture, local-only anomaly, omitted screenshot, incomplete load/font/image observation, or a record that lacks the `DOMContentLoaded` observation. A terminal ledger and receipt are published only after clean closure, with the final shared-gate snapshot bound into both. The immediate capture is DOM/CSS evidence at `DOMContentLoaded`, not a compositor-filmstrip claim.
+
 For a direct Framerail candidate that is not behind WWS, `--site-id ID` injects the non-secret trusted routing identity for the fixed `scp-wiki` authority. Omit it when exercising the complete edge path.
