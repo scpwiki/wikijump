@@ -24,6 +24,9 @@ IMAGE_ARGUMENTS = (
     "caddy_image",
 )
 
+PRODUCTION_DOMAIN_BLOCK = '[domain]\nmain = "wikijump.com"\nfiles = "wjfiles.com"'
+STANDING_DOMAIN_BLOCK = '[domain]\nmain = "wikijump.localhost"\nfiles = "wjfiles.localhost"'
+
 
 def command(*args: str, cwd: Path) -> str:
     return subprocess.check_output(args, cwd=cwd, text=True).strip()
@@ -58,6 +61,13 @@ def write_environment(path: Path, values: dict[str, str]) -> None:
     lines = [f"{key}={required_text(value, key)}" for key, value in sorted(values.items())]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     os.chmod(path, 0o600)
+
+
+def standing_deepwell_config(source: Path) -> tuple[str, str]:
+    contents = source.read_text(encoding="utf-8")
+    if contents.count(PRODUCTION_DOMAIN_BLOCK) != 1:
+        raise ValueError("production Deepwell config must contain exactly one expected domain block")
+    return contents.replace(PRODUCTION_DOMAIN_BLOCK, STANDING_DOMAIN_BLOCK), hashlib.sha256(contents.encode()).hexdigest()
 
 
 def replace_directory(staging: Path, output_dir: Path, replace: bool) -> Path | None:
@@ -102,7 +112,8 @@ def main() -> int:
         shutil.copy2(template, staging / "compose.yaml")
         staging_deepwell = staging / "deepwell"
         staging_deepwell.mkdir()
-        shutil.copy2(source_root / "install" / "prod" / "deepwell" / "config.toml", staging_deepwell / "config.toml")
+        deepwell_config, deepwell_config_source_sha256 = standing_deepwell_config(source_root / "install" / "prod" / "deepwell" / "config.toml")
+        (staging_deepwell / "config.toml").write_text(deepwell_config, encoding="utf-8")
         staging_caddy = staging / "caddy"
         staging_caddy.mkdir()
         shutil.copy2(Path(__file__).with_name("caddy") / "request.json", staging_caddy / "request.json")
@@ -122,6 +133,8 @@ def main() -> int:
             "template_sha256": template_sha256,
             "project_name": project_name,
             "network_name": network_name,
+            "deepwell_config_source_sha256": deepwell_config_source_sha256,
+            "deepwell_domain_override": {"main": "wikijump.localhost", "files": "wjfiles.localhost"},
             **identity,
             "images": images,
             "persistent_volumes": [
