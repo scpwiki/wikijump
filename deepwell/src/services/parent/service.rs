@@ -148,7 +148,7 @@ impl ParentService {
             )
         };
 
-        let DeleteResult { rows_affected } =
+        let DeleteResult { rows_affected, .. } =
             PageParent::delete_by_id((parent_page.page_id, child_page.page_id))
                 .exec(txn)
                 .await
