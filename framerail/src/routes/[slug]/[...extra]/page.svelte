@@ -12,6 +12,7 @@
   } from "$lib/generated-page-styles"
   import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
   import { wikidotTabviews } from "$lib/wikidot-tabviews"
+  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot-styleframe"
 
   import type { PageProps } from "./$types"
   import type { Optional } from "$lib/types"
@@ -55,6 +56,9 @@
   let compiledBodyStylesHead = $derived(buildGeneratedPageStylesHead(compiledBodyStyles))
   let renderedBodyHtml = $derived(
     showRevision ? revision?.compiled_body_html : data.compiled_body_html
+  )
+  let bodyStyleFrameStylesheets = $derived(
+    extractWikidotStyleFrameStylesheets([renderedBodyHtml], page.url.origin)
   )
   let pageFontPreloadHrefs = $derived(
     pageLayoutContext.current === Layout.WIKIDOT
@@ -179,6 +183,16 @@
       type="font/woff2"
     />
   {/each}
+  {#if pageLayoutContext.current === Layout.WIKIDOT}
+    {#each bodyStyleFrameStylesheets as stylesheet, index (`${stylesheet.priority}:${stylesheet.href}:${index}`)}
+      <link
+        data-wikidot-style-preloaded
+        data-wikidot-style-priority={stylesheet.priority}
+        href={stylesheet.href}
+        rel="stylesheet"
+      />
+    {/each}
+  {/if}
   {@html compiledBodyStylesHead}
 </svelte:head>
 
