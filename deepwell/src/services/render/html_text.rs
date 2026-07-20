@@ -22,14 +22,15 @@
 
 mod scanner;
 
-use scanner::{
-    TagKind, element_name, is_foreign_self_closing, is_global_tree_builder_barrier,
-    opaque_element_end, protected_construct_end, tag_kind,
+pub(super) use scanner::{
+    TagKind, is_foreign_self_closing, opaque_element_end, protected_construct_end,
+    tag_kind,
 };
+use scanner::{element_name, is_global_tree_builder_barrier};
 
 use std::ops::Range;
 
-const OPAQUE_ELEMENTS: &[&str] = &[
+pub(in crate::services::render) const OPAQUE_ELEMENTS: &[&str] = &[
     "code",
     "iframe",
     "math",

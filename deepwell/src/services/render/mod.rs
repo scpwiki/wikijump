@@ -48,6 +48,7 @@ mod list_pages_scanner;
 mod list_pages_template;
 mod literal_regions;
 mod metacomponent;
+mod native_list_context;
 mod percent_encoding;
 mod render_dependency;
 mod service;

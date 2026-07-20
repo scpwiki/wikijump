@@ -39,9 +39,9 @@ use self::list_pages::{
     collect_list_pages_downstream_css_ranges, collect_list_pages_literal_ranges,
 };
 pub(super) use self::token_boundaries::{
-    TextTokenCursor, WikidotArgumentValueKind, WikidotTagArgumentScan,
+    TextTokenCursor, WikidotArgumentValueKind, WikidotTagArgumentScan, WikidotTagScan,
     WikidotWholeHeadScan, left_block_start_in_run, right_bracket_token,
-    rollback_start_in_left_run, scan_wikidot_whole_head_value,
+    rollback_start_in_left_run, scan_wikidot_tag, scan_wikidot_whole_head_value,
     wikidot_right_bracket_token, wikidot_trimmed_name,
 };
 use self::wikidot::collect_wikidot_conditional_literal_ranges;

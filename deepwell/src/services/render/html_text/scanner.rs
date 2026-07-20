@@ -23,7 +23,7 @@
 use super::OPAQUE_ELEMENTS;
 
 #[derive(Clone, Copy, Debug)]
-pub(super) enum TagKind {
+pub(in crate::services::render) enum TagKind {
     Comment,
     BogusComment,
     Cdata,
@@ -31,7 +31,7 @@ pub(super) enum TagKind {
     Element { closing: bool },
 }
 
-pub(super) fn tag_kind(input: &str) -> Option<TagKind> {
+pub(in crate::services::render) fn tag_kind(input: &str) -> Option<TagKind> {
     let bytes = input.as_bytes();
     debug_assert_eq!(bytes.first(), Some(&b'<'));
     match bytes.get(1).copied()? {
@@ -50,7 +50,7 @@ pub(super) fn tag_kind(input: &str) -> Option<TagKind> {
     }
 }
 
-pub(super) fn protected_construct_end(
+pub(in crate::services::render) fn protected_construct_end(
     html: &str,
     start: usize,
     kind: TagKind,
@@ -96,7 +96,7 @@ fn comment_end(html: &str, start: usize) -> Option<usize> {
     None
 }
 
-pub(super) fn opaque_element_end(
+pub(in crate::services::render) fn opaque_element_end(
     html: &str,
     mut cursor: usize,
     name: &str,
@@ -388,7 +388,10 @@ fn is_html_tag_name_delimiter(byte: u8) -> bool {
     matches!(byte, b'\t' | b'\n' | b'\x0C' | b'\r' | b' ' | b'/' | b'>')
 }
 
-pub(super) fn is_foreign_self_closing(name: &str, tag: &str) -> bool {
+pub(in crate::services::render) fn is_foreign_self_closing(
+    name: &str,
+    tag: &str,
+) -> bool {
     matches!(name, "math" | "svg") && start_tag_has_self_closing_flag(tag)
 }
 

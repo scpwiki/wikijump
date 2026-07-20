@@ -4,7 +4,10 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Write as _;
 use uuid::Uuid;
 
-use super::html_text::{HtmlDataSegment, html_data_segments};
+use super::html_text::{
+    HtmlDataSegment, OPAQUE_ELEMENTS, TagKind, html_data_segments,
+    is_foreign_self_closing, opaque_element_end, protected_construct_end, tag_kind,
+};
 use super::literal_regions::LiteralRegionIndex;
 
 pub(super) const COMPAT_HTML_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
@@ -145,9 +148,7 @@ impl CompatHtmlFragments {
                         ) {
                             continue;
                         }
-                        if !block_html_is_direct_child_of_safe_container(
-                            &output, text, marker_end,
-                        ) {
+                        if !block_html_parent_is_safe(&output) {
                             output.push_str(&text[start..marker_end]);
                             cursor = marker_end;
                             continue;
@@ -180,50 +181,6 @@ impl CompatHtmlFragments {
     }
 }
 
-fn block_html_is_direct_child_of_safe_container(
-    output: &str,
-    text: &str,
-    marker_end: usize,
-) -> bool {
-    let Some(tag_start) = output.rfind('<') else {
-        return output.trim().is_empty() && text[marker_end..].trim().is_empty();
-    };
-    let Some(tag_end) = output[tag_start..].find('>').map(|end| tag_start + end) else {
-        return false;
-    };
-    if !output[tag_end + 1..].trim().is_empty() {
-        return false;
-    }
-    let opening = output[tag_start + 1..tag_end].trim_start();
-    if opening.starts_with('/') || opening.starts_with(['!', '?']) {
-        return false;
-    }
-    let name_end = opening
-        .find(|character: char| character.is_ascii_whitespace() || character == '/')
-        .unwrap_or(opening.len());
-    let name = opening[..name_end].to_ascii_lowercase();
-    if !matches!(
-        name.as_str(),
-        "article"
-            | "aside"
-            | "blockquote"
-            | "body"
-            | "div"
-            | "footer"
-            | "header"
-            | "main"
-            | "section"
-            | "td"
-    ) {
-        return false;
-    }
-    let expected_close = format!("</{name}>");
-    text[marker_end..]
-        .trim_start()
-        .get(..expected_close.len())
-        .is_some_and(|close| close.eq_ignore_ascii_case(&expected_close))
-}
-
 /// Restores a trusted block marker without ever nesting block HTML in the
 /// paragraph FTML created for marker text. Splitting is intentionally limited
 /// to a plain-text paragraph; inline element balancing belongs to the renderer,
@@ -248,6 +205,9 @@ fn restore_block_html_from_paragraph(
     if text[marker_end..trailing_end].contains('<') {
         return false;
     }
+    if !block_html_parent_is_safe(&output[..paragraph_start]) {
+        return false;
+    }
 
     let leading_is_empty = output[paragraph_start + 3..].trim().is_empty();
     let trailing_is_empty = text[marker_end..trailing_end].trim().is_empty();
@@ -264,6 +224,134 @@ fn restore_block_html_from_paragraph(
         *cursor = marker_end;
     }
     true
+}
+
+/// A trusted block fragment may enter only the root or an open block container.
+/// Determine that parent from the full emitted HTML stack rather than its last
+/// tag: a preceding sibling normally ends with `</p>`, which is not the current
+/// parent of a following marker.
+fn block_html_parent_is_safe(prefix: &str) -> bool {
+    let Some(stack) = open_html_element_stack(prefix) else {
+        return false;
+    };
+    stack
+        .last()
+        .is_none_or(|parent| is_safe_block_html_container(parent))
+}
+
+/// A conservative HTML stack for trusted-fragment placement. It is not an HTML
+/// reserializer: malformed tags, mismatched closers, and unsupported raw-text
+/// contexts fail closed, leaving the opaque marker untouched.
+fn open_html_element_stack(html: &str) -> Option<Vec<String>> {
+    let mut stack = Vec::new();
+    let mut cursor = 0;
+    while let Some(relative) = html[cursor..].find('<') {
+        let start = cursor + relative;
+        match tag_kind(&html[start..]) {
+            Some(kind @ (TagKind::Comment | TagKind::BogusComment)) => {
+                cursor = protected_construct_end(html, start, kind)?;
+                continue;
+            }
+            Some(TagKind::Cdata | TagKind::Declaration) => return None,
+            Some(TagKind::Element { .. }) => {}
+            // A literal or malformed `<` is not a tag that can contribute a
+            // trustworthy parent. Failing closed prevents the hand parser
+            // below from treating `< div>` as a real `<div>` and admitting a
+            // block fragment beneath an actual inline ancestor.
+            None => return None,
+        }
+        let end = html_tag_end(html, start)?;
+        let raw_tag = &html[start..end];
+        let tag = raw_tag.strip_prefix('<')?.strip_suffix('>')?.trim();
+        if tag.starts_with('!') || tag.starts_with('?') {
+            cursor = end;
+            continue;
+        }
+        let closing = tag.starts_with('/');
+        let tag = if closing { tag[1..].trim_start() } else { tag };
+        let name_end = tag
+            .find(|character: char| character.is_ascii_whitespace() || character == '/')
+            .unwrap_or(tag.len());
+        let name = tag[..name_end].to_ascii_lowercase();
+        if name.is_empty()
+            || !name
+                .bytes()
+                .all(|byte| byte.is_ascii_alphanumeric() || byte == b'-')
+        {
+            return None;
+        }
+        if closing {
+            if stack.last().is_none_or(|open| open != &name) {
+                return None;
+            }
+            stack.pop();
+        } else if is_foreign_self_closing(&name, raw_tag) {
+            cursor = end;
+            continue;
+        } else if OPAQUE_ELEMENTS.contains(&name.as_str()) {
+            cursor = opaque_element_end(html, end, &name)?;
+            continue;
+        } else if !is_void_html_element(&name) {
+            if tag.trim_end().ends_with('/') {
+                return None;
+            }
+            stack.push(name);
+        }
+        cursor = end;
+    }
+    Some(stack)
+}
+
+fn html_tag_end(html: &str, start: usize) -> Option<usize> {
+    let bytes = html.as_bytes();
+    let mut cursor = start + 1;
+    let mut quote = None;
+    while let Some(&byte) = bytes.get(cursor) {
+        match byte {
+            b'\'' | b'"' if quote.is_none() => quote = Some(byte),
+            byte if quote == Some(byte) => quote = None,
+            b'>' if quote.is_none() => return Some(cursor + 1),
+            _ => {}
+        }
+        cursor += 1;
+    }
+    None
+}
+
+fn is_void_html_element(name: &str) -> bool {
+    matches!(
+        name,
+        "area"
+            | "base"
+            | "br"
+            | "col"
+            | "embed"
+            | "hr"
+            | "img"
+            | "input"
+            | "link"
+            | "meta"
+            | "param"
+            | "source"
+            | "track"
+            | "wbr"
+    )
+}
+
+fn is_safe_block_html_container(name: &str) -> bool {
+    matches!(
+        name,
+        "article"
+            | "aside"
+            | "blockquote"
+            | "body"
+            | "div"
+            | "footer"
+            | "header"
+            | "main"
+            | "section"
+            | "td"
+    )
 }
 
 fn escape_in_any_html_context(value: &str) -> String {
@@ -337,6 +425,87 @@ mod tests {
     }
 
     #[test]
+    fn block_html_restores_after_preceding_siblings_at_root_and_in_safe_parents() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<ul><li>trusted</li></ul>".to_owned());
+
+        assert_eq!(
+            fragments.restore(&format!("<p>before</p><p>{marker}</p>")),
+            "<p>before</p><ul><li>trusted</li></ul>",
+        );
+        assert_eq!(
+            fragments.restore(&format!("<div><p>before</p><p>{marker}</p></div>")),
+            "<div><p>before</p><ul><li>trusted</li></ul></div>",
+        );
+        assert_eq!(
+            fragments.restore(&format!("<p>before</p>{marker}")),
+            "<p>before</p><ul><li>trusted</li></ul>",
+        );
+        assert_eq!(
+            fragments.restore(&format!("<div><p>before</p>{marker}</div>")),
+            "<div><p>before</p><ul><li>trusted</li></ul></div>",
+        );
+    }
+
+    #[test]
+    fn block_html_parent_stack_ignores_closed_siblings_and_opaque_predecessors() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<ul><li>trusted</li></ul>".to_owned());
+
+        assert_eq!(
+            fragments.restore(&format!("<!-- <span> --> <p>before</p><p>{marker}</p>")),
+            "<!-- <span> --> <p>before</p><ul><li>trusted</li></ul>",
+        );
+        assert_eq!(
+            fragments.restore(&format!("<pre><span>source</span></pre><p>{marker}</p>")),
+            "<pre><span>source</span></pre><ul><li>trusted</li></ul>",
+        );
+    }
+
+    #[test]
+    fn block_html_parent_stack_accepts_abrupt_html_comment_endings() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<ul><li>trusted</li></ul>".to_owned());
+
+        for comment in ["<!-->", "<!--->", "</ bogus hidden>", "</1hidden>"] {
+            let restored = fragments.restore(&format!("{comment}<p>{marker}</p>"));
+            assert_eq!(restored, format!("{comment}<ul><li>trusted</li></ul>"));
+            assert!(!restored.contains(&marker));
+        }
+    }
+
+    #[test]
+    fn block_html_parent_stack_fails_closed_on_malformed_tag_text() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<ul><li>trusted</li></ul>".to_owned());
+
+        for html in [
+            format!("<span>< div><p>{marker}</p></span>"),
+            format!("<x:foo><p>{marker}</p></x:foo>"),
+            format!("<x:foo>{marker}</x:foo>"),
+        ] {
+            assert_eq!(fragments.restore(&html), html);
+        }
+    }
+
+    #[test]
+    fn block_html_parent_stack_follows_html_and_foreign_self_closing_rules() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<ul><li>trusted</li></ul>".to_owned());
+
+        for html in [
+            format!("<span/><p>{marker}</p>"),
+            format!("<span/>{marker}"),
+        ] {
+            assert_eq!(fragments.restore(&html), html);
+        }
+        assert_eq!(
+            fragments.restore(&format!("<svg/><p>{marker}</p>")),
+            "<svg/><ul><li>trusted</li></ul>",
+        );
+    }
+
+    #[test]
     fn context_aware_restore_only_expands_markers_in_html_text_nodes() {
         let mut fragments = CompatHtmlFragments::new("");
         let marker = fragments.push_html("<b>trusted</b>".to_owned());
@@ -364,6 +533,17 @@ mod tests {
                 r#"<a title="{marker}">{marker}</a><span>{marker}</span><button>{marker}</button><h2>{marker}</h2><!-- {marker} --><code>{marker}</code><pre>{marker}</pre>"#,
             ),
         );
+    }
+
+    #[test]
+    fn block_html_never_uses_paragraph_unwrapping_inside_unsafe_parents() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html("<div>trusted block</div>".to_owned());
+
+        for parent in ["span", "a", "button", "h2", "code", "pre"] {
+            let html = format!("<{parent}><p>{marker}</p></{parent}>");
+            assert_eq!(fragments.restore(&html), html, "parent: {parent}");
+        }
     }
 
     #[test]

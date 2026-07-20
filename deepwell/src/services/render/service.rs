@@ -67,6 +67,7 @@ use super::literal_regions::{
 use super::metacomponent::{
     MetacomponentSourceContext, select_metacomponent_documentation,
 };
+use super::native_list_context::NativeListSourceContext;
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
 use super::wikidot_inline_markers::{
@@ -6277,6 +6278,13 @@ impl RenderService {
         compat_html: &mut CompatHtmlFragments,
     ) -> (String, Vec<WikidotWikipediaLink>) {
         let lines = wikitext.split_inclusive('\n').collect::<Vec<_>>();
+        let mut line_starts = Vec::with_capacity(lines.len());
+        let mut line_start = 0usize;
+        for line in &lines {
+            line_starts.push(line_start);
+            line_start += line.len();
+        }
+        let mut source_context = None;
         let mut output = String::with_capacity(wikitext.len());
         let mut wikipedia_links = Vec::new();
         let mut index = 0;
@@ -6287,12 +6295,16 @@ impl RenderService {
                 end += 1;
             }
 
-            if end - index >= LONG_NATIVE_LIST_RENDER_MIN_ITEMS {
+            if end - index >= LONG_NATIVE_LIST_RENDER_MIN_ITEMS
+                && source_context
+                    .get_or_insert_with(|| NativeListSourceContext::new(&wikitext))
+                    .allows_block_run(&line_starts[index..end])
+            {
                 let rendered = render_native_bullet_list_with_wikipedia_links(
                     &lines[index..end],
                     &mut wikipedia_links,
                 );
-                output.push_str(&compat_html.push_html(rendered));
+                output.push_str(&compat_html.push_block_html(rendered));
                 index = end;
             } else {
                 output.push_str(lines[index]);
@@ -18067,6 +18079,38 @@ mod tests {
     }
 
     #[test]
+    fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
+        let source = "[[module Rate]]\n";
+        let mut page_info = fallback_test_page_info("scp-9506", "SCP-9506");
+        page_info.score = ftml::data::ScoreValue::Integer(396);
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut fragments = CompatHtmlFragments::new(source);
+        let protected = RenderService::expand_rate_modules_with_registry(
+            source.to_owned(),
+            &page_info,
+            &settings,
+            &mut fragments,
+        );
+
+        let root = fragments.restore(&format!("<p>{protected}</p>"));
+        assert!(root.contains(r#"<div class="page-rate-widget-box">"#));
+        assert!(!root.contains("<p><div"));
+
+        let div = fragments.restore(&format!(
+            "<div class=\"rate-shell\"><p>{protected}</p></div>"
+        ));
+        assert!(
+            div.contains(r#"<div class="rate-shell"><div class="page-rate-widget-box">"#)
+        );
+        assert!(!div.contains("<p><div"));
+
+        assert_eq!(
+            fragments.restore(&format!("<span><p>{protected}</p></span>")),
+            format!("<span><p>{protected}</p></span>"),
+        );
+    }
+
+    #[test]
     fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
         let source = concat!(
             "@@[[module Rate]]@@\n",
@@ -20812,6 +20856,250 @@ mod tests {
             vec![Cow::Borrowed(
                 "http://en.wikipedia.org/wiki/Canonical_bundle"
             )],
+        );
+    }
+
+    fn render_native_list_page_for_regression(source: &str) -> String {
+        let page_info = fallback_test_page_info("nav:top", "Top Bar");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let outer = RenderService::prepare_outer_render_wikitext(
+            super::ExpandedRenderWikitext {
+                wikidot_compat_html: CompatHtmlFragments::new(source),
+                wikidot_compat_text: CompatTextFragments::new(source),
+                wikitext: source.to_owned(),
+                included_pages: Vec::new(),
+            },
+            &page_info,
+            &settings,
+        );
+        assert!(!outer.compatibility_fallback);
+
+        let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+        let tokens = ftml::tokenize(&inner.wikitext);
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+        inner
+            .wikidot_compat_html
+            .restore(&HtmlRender.render(&tree, &page_info, &settings).body)
+    }
+
+    #[test]
+    fn restores_long_native_list_as_direct_div_child() {
+        let source = concat!(
+            "[[div class=\"top-bar\"]]\n",
+            "* About\n",
+            "* Library\n",
+            "* Community\n",
+            "* Resources\n",
+            "* Rules\n",
+            "* Contact\n",
+            "* Help\n",
+            "* News\n",
+            "[[/div]]",
+        );
+        let restored = render_native_list_page_for_regression(source);
+
+        let top_bar_start = restored.find(r#"<div class="top-bar">"#).expect(&restored);
+        let top_bar_end = restored[top_bar_start..]
+            .find("</div>")
+            .map(|offset| top_bar_start + offset)
+            .expect(&restored);
+        let top_bar = &restored[top_bar_start..top_bar_end];
+        assert!(
+            top_bar.contains(r#"<ul data-wikijump-compat-list="1">"#),
+            "{restored}"
+        );
+        assert!(
+            restored
+                .contains(r#"<div class="top-bar"><ul data-wikijump-compat-list="1">"#),
+            "{restored}"
+        );
+        assert!(!top_bar.contains("<p>"), "{restored}");
+        assert!(!restored.contains("<p><ul"), "{restored}");
+        assert!(
+            !restored.contains("WIKIJUMPWIKIDOTCOMPATHTML"),
+            "{restored}"
+        );
+    }
+
+    #[test]
+    fn keeps_long_native_lists_native_inside_cross_tree_inline_scopes() {
+        let items = concat!(
+            "* One\n",
+            "* Two\n",
+            "* Three\n",
+            "* Four\n",
+            "* Five\n",
+            "* Six\n",
+            "* Seven\n",
+            "* Eight\n",
+        );
+        for source in [
+            format!("[[span class=\"inline\"]]\n{items}[[/span]]"),
+            format!("[[div]]\n[[span]]\n{items}[[/span]]\n[[/div]]"),
+            format!("[[span class=\"inline\"]]\n{items}"),
+            format!("[[size 120%]]\n{items}[[/size]]"),
+        ] {
+            let mut fragments = CompatHtmlFragments::new(&source);
+            let (protected, links) =
+                RenderService::render_long_native_list_runs_with_registry(
+                    source.clone(),
+                    &mut fragments,
+                );
+
+            assert_eq!(protected, source);
+            assert!(links.is_empty());
+            assert!(!protected.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
+        }
+    }
+
+    #[test]
+    fn keeps_long_native_lists_native_inside_unsafe_contexts() {
+        let items = concat!(
+            "* One\n",
+            "* Two\n",
+            "* Three\n",
+            "* Four\n",
+            "* Five\n",
+            "* Six\n",
+            "* Seven\n",
+            "* Eight\n",
+        );
+        for source in [
+            format!("[[hidden]]\n{items}[[/hidden]]"),
+            format!("[[invisible]]\n{items}[[/invisible]]"),
+            format!("[[b]]\n{items}[[/b]]"),
+            format!("[[bold]]\n{items}[[/b]]"),
+            format!("[[a href=\"/target\"]]\n{items}[[/a]]"),
+            format!("[[a_ href=\"/target\"]]\n{items}[[/a]]"),
+            format!("[[*a href=\"/target\"]]\n{items}[[/a]]"),
+            format!("[[*anchor href=\"/target\"]]\n{items}[[/a]]"),
+            format!("[[* a href=\"/target\"]]\n{items}[[/a]]"),
+            format!("[[* anchor href=\"/target\"]]\n{items}[[/a]]"),
+            format!("[[span_ class=\"inline\"]]\n{items}[[/span]]"),
+            format!("[[hidden]]\n{items}"),
+            format!("[[hidden]]\n[[/hidden bogus]]\n{items}"),
+            format!("**\n{items}**"),
+            format!("//\n{items}//"),
+            format!("{{{{\n{items}}}}}"),
+            format!("--\n{items}--"),
+            format!("~~\n{items}~~"),
+            format!("##red|\n{items}##"),
+        ] {
+            let mut fragments = CompatHtmlFragments::new(&source);
+            let (protected, links) =
+                RenderService::render_long_native_list_runs_with_registry(
+                    source.clone(),
+                    &mut fragments,
+                );
+
+            assert_eq!(protected, source);
+            assert!(links.is_empty());
+            assert!(!protected.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
+        }
+    }
+
+    #[test]
+    fn does_not_leak_long_native_list_markers_for_unclosed_or_aliased_inline_scopes() {
+        let items = concat!(
+            "* One\n",
+            "* Two\n",
+            "* Three\n",
+            "* Four\n",
+            "* Five\n",
+            "* Six\n",
+            "* Seven\n",
+            "* Eight\n",
+        );
+
+        for (name, source) in [
+            ("unclosed hidden", format!("[[hidden]]\n{items}")),
+            ("bold alias", format!("[[bold]]\n{items}[[/b]]")),
+            (
+                "anchor score suffix",
+                format!("[[a_ href=\"/target\"]]\n{items}[[/a]]"),
+            ),
+            (
+                "starred anchor",
+                format!("[[*a href=\"/target\"]]\n{items}[[/a]]"),
+            ),
+            (
+                "starred anchor alias",
+                format!("[[*anchor href=\"/target\"]]\n{items}[[/a]]"),
+            ),
+            (
+                "spaced starred anchor",
+                format!("[[* a href=\"/target\"]]\n{items}[[/a]]"),
+            ),
+            (
+                "spaced starred anchor alias",
+                format!("[[* anchor href=\"/target\"]]\n{items}[[/a]]"),
+            ),
+        ] {
+            let restored = render_native_list_page_for_regression(&source);
+            assert!(
+                !restored.contains("WIKIJUMPWIKIDOTCOMPATHTML"),
+                "scope: {name}; html: {restored}"
+            );
+            assert!(
+                !restored.contains(r#"data-wikijump-compat-list="1""#),
+                "scope: {name}; html: {restored}"
+            );
+        }
+    }
+
+    #[test]
+    fn keeps_long_native_lists_native_after_invalid_inline_close() {
+        let items = concat!(
+            "* [wikipedia:One]\n",
+            "* Two\n",
+            "* Three\n",
+            "* Four\n",
+            "* Five\n",
+            "* Six\n",
+            "* Seven\n",
+            "* Eight\n",
+        );
+        for invalid_close in ["[[/span bogus]]", "[[/span\n]]"] {
+            let source = format!("[[span]]\n{invalid_close}\n{items}[[/span]]");
+            let mut fragments = CompatHtmlFragments::new(&source);
+            let (protected, links) =
+                RenderService::render_long_native_list_runs_with_registry(
+                    source.clone(),
+                    &mut fragments,
+                );
+
+            assert_eq!(protected, source, "close: {invalid_close:?}");
+            assert!(links.is_empty(), "close: {invalid_close:?}");
+            assert!(!protected.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
+        }
+    }
+
+    #[test]
+    fn resumes_long_native_list_block_rendering_after_inline_span_scope_closes() {
+        let source = concat!(
+            "[[span class=\"inline\"]]label[[/span]]\n",
+            "[[div class=\"top-bar\"]]\n",
+            "* About\n",
+            "* Library\n",
+            "* Community\n",
+            "* Resources\n",
+            "* Rules\n",
+            "* Contact\n",
+            "* Help\n",
+            "* News\n",
+            "[[/div]]",
+        );
+
+        let restored = render_native_list_page_for_regression(source);
+        assert!(
+            restored
+                .contains(r#"<div class="top-bar"><ul data-wikijump-compat-list="1">"#),
+            "{restored}"
+        );
+        assert!(
+            !restored.contains("WIKIJUMPWIKIDOTCOMPATHTML"),
+            "{restored}"
         );
     }
 
