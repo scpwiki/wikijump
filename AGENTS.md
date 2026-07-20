@@ -32,6 +32,7 @@ Browser-visible behavior matters: visible text, meaningful DOM structure, links,
 - Target Rust modules under roughly 500 LoC excluding tests; past roughly 800 LoC, put new functionality in a new module and move the related tests and docs with it.
 - Use isolated worktrees for implementation in a shared environment. A root checkout is a read-only reference; do not leave edits, artifacts, commits, or dirty state there unless the user assigned it.
 - Create new worktrees under `~/wjlab/worktrees/wikijump/<task-slug>`. Do not scatter worktrees across other locations; this keeps host-wide cleanup and auditing tractable. Existing worktrees elsewhere may stay until their task closes.
+- One worktree per active delivery thread, reused across that thread's tasks (fetch, branch, or reset inside it), not one per task. Create a second worktree only for implementation work that is genuinely concurrent with the first, not to keep something around for later.
 - Keep repository code, private data, local DB state, and generated evidence separate. Never commit credentials, cookies, browser profiles, auth JSON, raw private dumps, or local DB dumps.
 
 ## Resource lifecycle
