@@ -16536,7 +16536,7 @@ mod tests {
             RenderService::restore_protected_wikidot_inline_html(rendered, &inline_spans);
 
         assert!(rendered.contains(
-            r#"<em><strong><code class="wj-monospace"><span style="color: #f24">the fun never ends.</span></code></strong></em>"#,
+            r#"<em><strong><tt><span style="color: #f24">the fun never ends.</span></tt></strong></em>"#,
         ));
         assert!(!rendered.contains("WIKIJUMPWIKIDOTCOMPATHTML"));
     }
