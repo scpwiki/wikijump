@@ -14,7 +14,7 @@ The source-owned canary contract covers six EN pages across Sigma, Basalt, Flops
 
 First seal a read-only live reference using an owner-approved completion policy. The policy starts the shared gate at 0.25 requests per second, honors `Retry-After`, and names each tolerated external failure exactly. Then measure a separately owned, expiring, non-443 candidate whose sealed identity names its source commit/tree, FTML pin, immutable image IDs, configuration hashes, endpoint, and local connect address. Its isolated Compose overlay must stamp every candidate container with the sealed owner, expiry, Wikijump commit/tree, FTML SHA, artifact key, isolated-overlay SHA, effective-service-configuration SHA, profile, and role labels. Candidate-local origins are exempt from the public request gate; all other HTTP(S) requests remain metered. The runner verifies those labels, exact immutable image IDs, exactly one healthy running container per declared role, the effective configuration hash over command, environment, mounts, network, ports, and security settings, and the exact loopback Caddy publication before and after capture. It rejects a mutable image tag, a port-443 endpoint, incomplete canary coverage, runtime replacement, a missing screenshot, incomplete load/font/image observation, a post-settle-only record, an unbound live reference, and any passing comparison with an anomaly or omitted required probe. It seals a terminal receipt only after browser, proxy, gate, and lock closure has succeeded.
 
-The source-owned receipt integrity verifier below has no runtime side effects. It rehashes the candidate ledger and every local screenshot, reloads the live reference under the sealed completion policy, checks the candidate's clean source-tree/module manifest, and rejects a receipt produced by another runner. The next explicit promotion-controller migration must invoke this verifier before it changes the canonical home or port 443 and retain its no-replace verification receipt. Until that migration lands, the source runner is not an independently executable canonical promotion route, and the existing controller's host-owned receipt validator remains the active boundary.
+The source-owned receipt integrity verifier below has no runtime side effects. It rehashes the candidate ledger and every local screenshot, reloads the live reference under the sealed completion policy, checks the candidate's clean source-tree/module manifest, and rejects a receipt produced by another runner. `install/standing/scripts/verify-promotion-precondition.mjs` adds the promotion-specific binding check: it verifies the sealed build's exact manifest and seven-image inventory, compares the accepted candidate to that build and the rendered staging-home manifest, then writes a no-replace admission receipt. It has no Docker, maintenance, canonical-home, or network side effects.
 
 ```sh
 node install/local/wikidot-verification/scripts/verify-standing-candidate-parity-admission.mjs \
@@ -24,6 +24,19 @@ node install/local/wikidot-verification/scripts/verify-standing-candidate-parity
   --live-completion-policy /secure/live/standing-live-completion-policy.json \
   --output /secure/candidate/standing-candidate-parity-admission.json
 ```
+
+```sh
+node install/standing/scripts/verify-promotion-precondition.mjs \
+  --receipt /secure/candidate/standing-candidate-parity-receipt.json \
+  --candidate-identity /secure/candidate/candidate-parity-identity.json \
+  --live-reference /secure/live/standing-browser-live-reference.json \
+  --live-completion-policy /secure/live/standing-live-completion-policy.json \
+  --build-evidence /secure/build/sealed-build \
+  --staging-home /secure/runtime/wikijump-standing.stage \
+  --output /secure/promotion/candidate-parity-admission.json
+```
+
+The host mutation controller must first run its complete sealed-build validator, then invoke the second command after it renders and validates the staging home, and before it materializes the canonical home, enters maintenance, or recreates a backend. The adapter validates candidate-binding inputs and does not replace the controller's broader build-provenance checks. The controller may accept only a passing, sealed output from this exact source adapter. Wiring that operational call is a separately receipted host change; until it is installed, the existing host-owned validator remains the active production boundary.
 
 The live completion policy and canonical isolated data/config capsule remain explicit operational inputs. Do not invent either in source code or use the standing runtime as a candidate. This no-side-effect receipt verifier is distinct from CWG01's paused performance admission harness and must not be used to revive CWG01, its containers, or that harness.
 

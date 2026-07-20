@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'install/local/wikidot-verification/**'
+      - 'install/standing/**'
       - '.github/workflows/wikidot-verification.yaml'
   push:
     branches:
@@ -11,6 +12,7 @@ on:
       - prod
     paths:
       - 'install/local/wikidot-verification/**'
+      - 'install/standing/**'
       - '.github/workflows/wikidot-verification.yaml'
   workflow_dispatch:
 
@@ -42,3 +44,6 @@ jobs:
 
       - name: Test
         run: cd install/local/wikidot-verification && pnpm test
+
+      - name: Test standing promotion precondition
+        run: node --test install/standing/tests/verify-promotion-precondition.test.mjs
