@@ -38,15 +38,24 @@ const WIKIDOT_INTERWIKI_FRAME_POLICIES = new Map([
   [
     "/-/wikidot-interwiki/interwikiFrame.html",
     "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https://scp-wiki.wdfiles.com; frame-ancestors 'self'"
-  ],
-  [
-    "/-/wikidot-interwiki/styleFrame.html",
-    "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-ancestors 'self'"
   ]
 ])
+const LOCAL_WIKIDOT_STYLEFRAME_PATHNAME = "/-/wikidot-interwiki/styleFrame.html"
+const WIKIDOT_STYLEFRAME_POLICY =
+  "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-ancestors 'self'"
 
 const shouldSetHsts = () => {
   return RUNTIME_DEPLOYMENT_ENVIRONMENT !== "local"
+}
+
+const wikidotInterwikiFramePolicy = (pathname) => {
+  if (
+    pathname === LOCAL_WIKIDOT_STYLEFRAME_PATHNAME &&
+    RUNTIME_DEPLOYMENT_ENVIRONMENT === "local"
+  ) {
+    return WIKIDOT_STYLEFRAME_POLICY
+  }
+  return WIKIDOT_INTERWIKI_FRAME_POLICIES.get(pathname)
 }
 
 /** @param {unknown} value */
@@ -108,7 +117,7 @@ export const applyStaticSecurityHeaders = (response, pathname, siteSlug = undefi
     response.headers.set(header, value)
   }
 
-  const framePolicy = WIKIDOT_INTERWIKI_FRAME_POLICIES.get(pathname)
+  const framePolicy = wikidotInterwikiFramePolicy(pathname)
   if (framePolicy) {
     response.headers.set("content-security-policy", framePolicy)
     response.headers.set("x-frame-options", "SAMEORIGIN")
@@ -128,7 +137,7 @@ export const applyStaticSecurityHeadersToNodeResponse = (response, pathname) => 
     response.setHeader(header, value)
   }
 
-  const framePolicy = WIKIDOT_INTERWIKI_FRAME_POLICIES.get(pathname)
+  const framePolicy = wikidotInterwikiFramePolicy(pathname)
   if (framePolicy) {
     response.setHeader("content-security-policy", framePolicy)
     response.setHeader("x-frame-options", "SAMEORIGIN")
