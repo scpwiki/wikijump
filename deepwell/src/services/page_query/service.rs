@@ -389,7 +389,7 @@ impl PageQueryService {
                     error!("Ordering by page size, not yet implemented");
                     join_revision!();
                     join_text!();
-                    let col = Expr::col(text::Column::Contents);
+                    let col = Expr::column(text::Column::Contents);
                     let expr = Expr::FunctionCall(Func::char_length(col));
                     query = query.order_by(expr, order);
                 }

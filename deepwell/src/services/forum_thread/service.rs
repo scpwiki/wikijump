@@ -363,8 +363,8 @@ impl ForumThreadService {
         query = match order {
             ForumThreadListOrder::Activity => {
                 let activity_expr = Expr::FunctionCall(Func::coalesce([
-                    Expr::col(forum_thread::Column::UpdatedAt).into(),
-                    Expr::col(forum_thread::Column::CreatedAt).into(),
+                    Expr::column(forum_thread::Column::UpdatedAt),
+                    Expr::column(forum_thread::Column::CreatedAt),
                 ]));
 
                 query
