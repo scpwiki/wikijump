@@ -290,6 +290,7 @@ export class ThemeExecutionLedger {
   }
 
   async created(resource, identity) {
+    assertCreationIdentity(identity);
     await this.append({type: "created", resource_id: resource.resource_id, identity});
   }
 
@@ -320,11 +321,16 @@ function adapterFor(adapters, resource) {
   return adapter;
 }
 
+function assertCreationIdentity(identity) {
+  if (identity === undefined || identity === null) throw new Error("created execution resource is missing a cleanup identity");
+}
+
 function matchesExpected(actual, state, remoteSourceSha256) {
+  if (state.identity === undefined || state.identity === null) return false;
   if (actual.source_sha256 !== remoteSourceSha256) return false;
   if (actual.title !== state.expected.title) return false;
   if (!same(actual.tags, state.expected.tags)) return false;
-  return state.identity === undefined || actual.identity === state.identity;
+  return actual.identity === state.identity;
 }
 
 async function expectedRemoteSourceSha256(resource, expected) {
@@ -418,8 +424,8 @@ export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, mat
       };
       await ledger.intent(resource, expected);
       const identity = await adapterFor(adapters, resource).create(resource, payload);
-      throwIfAborted(signal);
       await ledger.created(resource, identity);
+      throwIfAborted(signal);
       const actual = await adapterFor(adapters, resource).inspect(resource);
       if (actual === null || !matchesExpected(actual, ledger.states.get(resource.resource_id), expected.remote_source_sha256)) {
         throw new Error(`created page failed authoritative verification: ${resource.resource_id}`);
