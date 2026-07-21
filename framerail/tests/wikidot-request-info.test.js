@@ -129,3 +129,11 @@ test("the app template binds the compatibility script to SvelteKit's CSP nonce",
     /<script nonce="%sveltekit\.nonce%">\s*\/\*__WIKIDOT_REQUEST_INFO__\*\/\s*<\/script>/u
   )
 })
+
+test("the app template preserves Wikidot's limited-quirks document mode", async () => {
+  const template = await fs.readFile(path.join(ROOT, "src/app.html"), "utf8")
+  assert.match(
+    template,
+    /^<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD XHTML 1\.0 Transitional\/\/EN" "http:\/\/www\.w3\.org\/TR\/xhtml1\/DTD\/xhtml1-transitional\.dtd">\n/u
+  )
+})
