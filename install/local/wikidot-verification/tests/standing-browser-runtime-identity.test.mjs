@@ -138,6 +138,33 @@ test("runtime observation binds the actual candidate caddy image, labels, and lo
   });
 });
 
+test("effective runtime identity ignores Compose's derived hash and lifecycle labels", () => {
+  const { inspect } = preparedFixture();
+  inspect.Config.Labels["com.docker.compose.config-hash"] = hash("2");
+  inspect.Config.Labels["com.docker.compose.replace"] = "caddy-1";
+  const before = effectiveRuntimeServicesSha256([inspect]);
+  inspect.Config.Labels["com.rokurolize.wikijump.runtime_config_sha256"] =
+    before;
+  inspect.Config.Labels["com.docker.compose.config-hash"] = hash("3");
+  delete inspect.Config.Labels["com.docker.compose.replace"];
+  assert.equal(effectiveRuntimeServicesSha256([inspect]), before);
+});
+
+test("effective runtime identity canonicalizes Docker's set-like array order", () => {
+  const { inspect } = preparedFixture();
+  inspect.Config.Env = ["SECOND=2", "FIRST=1"];
+  inspect.HostConfig.Binds = ["volume-b:/b:rw", "volume-a:/a:ro"];
+  inspect.Mounts = [
+    { Type: "volume", Name: "volume-b", Source: "/b", Destination: "/b" },
+    { Type: "volume", Name: "volume-a", Source: "/a", Destination: "/a" },
+  ];
+  const before = effectiveRuntimeServicesSha256([inspect]);
+  inspect.Config.Env.reverse();
+  inspect.HostConfig.Binds.reverse();
+  inspect.Mounts.reverse();
+  assert.equal(effectiveRuntimeServicesSha256([inspect]), before);
+});
+
 test("runtime observation fails closed for a mutable endpoint, changed image, missing identity label, or changed effective configuration", async () => {
   const { candidate, inspect } = preparedFixture();
   const publicBinding = structuredClone(inspect);

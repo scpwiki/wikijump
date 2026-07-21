@@ -29,6 +29,8 @@ const RUNTIME_LABELS = Object.freeze({
   role: "com.rokurolize.wikijump.role",
 });
 
+const COMPOSE_LABEL_PREFIX = "com.docker.compose.";
+
 function requireGitObject(value, name) {
   if (typeof value !== "string" || !/^[0-9a-f]{40}$/u.test(value)) {
     throw new Error(`${name} must be a full lowercase Git object id`);
@@ -180,11 +182,25 @@ function safeRuntimeValue(value) {
   return null;
 }
 
+function sortedRuntimeArray(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(safeRuntimeValue)
+    .sort((left, right) =>
+      JSON.stringify(left).localeCompare(JSON.stringify(right)),
+    );
+}
+
 function selectedRuntimeLabels(labels) {
-  const selected = { ...labels };
-  // This label names the aggregate hash below. Excluding only the self
-  // reference avoids a circular value while retaining the rest of the
-  // effective container label set in the configuration identity.
+  const selected = Object.fromEntries(
+    Object.entries(labels).filter(
+      ([name]) => !name.startsWith(COMPOSE_LABEL_PREFIX),
+    ),
+  );
+  // Compose's implementation labels include hashes and replacement markers
+  // derived from this aggregate or from container lifecycle. Project and role
+  // ownership are validated separately before the underlying service config
+  // reaches this hash.
   delete selected[RUNTIME_LABELS.effectiveRuntimeServicesSha256];
   return safeRuntimeValue(selected);
 }
@@ -216,7 +232,7 @@ function effectiveServiceConfiguration(inspect, role) {
       ),
       entrypoint: safeRuntimeValue(config.Entrypoint ?? null),
       cmd: safeRuntimeValue(config.Cmd ?? null),
-      env: safeRuntimeValue(config.Env ?? []),
+      env: sortedRuntimeArray(config.Env),
       working_dir: safeRuntimeValue(config.WorkingDir ?? null),
       user: safeRuntimeValue(config.User ?? null),
       hostname: safeRuntimeValue(config.Hostname ?? null),
@@ -227,32 +243,34 @@ function effectiveServiceConfiguration(inspect, role) {
       ),
     },
     host_config: safeRuntimeValue({
-      binds: hostConfig.Binds ?? [],
-      mounts: hostConfig.Mounts ?? [],
+      binds: sortedRuntimeArray(hostConfig.Binds),
+      mounts: sortedRuntimeArray(hostConfig.Mounts),
       network_mode: hostConfig.NetworkMode ?? null,
       port_bindings: hostConfig.PortBindings ?? {},
       restart_policy: hostConfig.RestartPolicy ?? null,
       readonly_rootfs: hostConfig.ReadonlyRootfs ?? false,
       tmpfs: hostConfig.Tmpfs ?? {},
-      cap_add: hostConfig.CapAdd ?? [],
-      cap_drop: hostConfig.CapDrop ?? [],
+      cap_add: sortedRuntimeArray(hostConfig.CapAdd),
+      cap_drop: sortedRuntimeArray(hostConfig.CapDrop),
       privileged: hostConfig.Privileged ?? false,
-      security_opt: hostConfig.SecurityOpt ?? [],
-      extra_hosts: hostConfig.ExtraHosts ?? [],
-      dns: hostConfig.Dns ?? [],
-      dns_options: hostConfig.DnsOptions ?? [],
-      dns_search: hostConfig.DnsSearch ?? [],
+      security_opt: sortedRuntimeArray(hostConfig.SecurityOpt),
+      extra_hosts: sortedRuntimeArray(hostConfig.ExtraHosts),
+      dns: sortedRuntimeArray(hostConfig.Dns),
+      dns_options: sortedRuntimeArray(hostConfig.DnsOptions),
+      dns_search: sortedRuntimeArray(hostConfig.DnsSearch),
     }),
     mounts: safeRuntimeValue(
-      (Array.isArray(inspect?.Mounts) ? inspect.Mounts : []).map((mount) => ({
-        type: mount?.Type ?? null,
-        name: mount?.Name ?? null,
-        source: mount?.Source ?? null,
-        destination: mount?.Destination ?? null,
-        mode: mount?.Mode ?? null,
-        rw: mount?.RW ?? null,
-        propagation: mount?.Propagation ?? null,
-      })),
+      sortedRuntimeArray(
+        (Array.isArray(inspect?.Mounts) ? inspect.Mounts : []).map((mount) => ({
+          type: mount?.Type ?? null,
+          name: mount?.Name ?? null,
+          source: mount?.Source ?? null,
+          destination: mount?.Destination ?? null,
+          mode: mount?.Mode ?? null,
+          rw: mount?.RW ?? null,
+          propagation: mount?.Propagation ?? null,
+        })),
+      ),
     ),
     networks: safeRuntimeValue(
       Object.fromEntries(
