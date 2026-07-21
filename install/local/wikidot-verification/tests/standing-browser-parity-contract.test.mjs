@@ -63,6 +63,7 @@ test("immediate theme properties fail before a settled state can conceal a flash
 test("DOMContentLoaded selector geometry is independently blocking", () => {
   const contract = {
     geometry_selectors: ["#main-content"],
+    first_paint_geometry_selectors: ["#main-content"],
     presence_probes: [],
     first_paint_custom_properties: {},
   };
@@ -106,6 +107,59 @@ test("DOMContentLoaded selector geometry is independently blocking", () => {
     ),
   );
   assert.equal(result.geometry[0].status, "pass");
+});
+
+test("settled page geometry is not reused as DOMContentLoaded geometry", () => {
+  const contract = {
+    geometry_selectors: ["#main-content"],
+    first_paint_geometry_selectors: ["#header"],
+    presence_probes: [],
+    first_paint_custom_properties: {},
+  };
+  const local = capture({
+    first_paint: {
+      document: {
+        geometry: {
+          "#main-content": {
+            count: 1,
+            rect: { x: 100, y: 80, width: 900, height: 2400 },
+          },
+          "#header": {
+            count: 1,
+            rect: { x: 0, y: 0, width: 1366, height: 60 },
+          },
+        },
+        presence_probes: [],
+        custom_properties: {},
+      },
+    },
+  });
+  const live = capture({
+    input_url: "https://scp-wiki.wikidot.com/scp-9506",
+    final_url: "https://scp-wiki.wikidot.com/scp-9506",
+    first_paint: {
+      document: {
+        geometry: {
+          "#main-content": {
+            count: 1,
+            rect: { x: 100, y: 80, width: 900, height: 1200 },
+          },
+          "#header": {
+            count: 1,
+            rect: { x: 0, y: 0, width: 1366, height: 60 },
+          },
+        },
+        presence_probes: [],
+        custom_properties: {},
+      },
+    },
+  });
+  const result = compareCaptures(local, live, DEFAULT_THRESHOLDS, [], contract);
+  assert.equal(result.status, "pass");
+  assert.deepEqual(
+    result.domcontentloaded_immediate_geometry.map(({ selector }) => selector),
+    ["#header"],
+  );
 });
 
 test("completion policy is sealed and names exact external failures", () => {

@@ -21,6 +21,10 @@ export const REQUIRED_THEME_FAMILIES = Object.freeze([
 
 const common = Object.freeze({
   geometry_selectors: COMMON_GEOMETRY_SELECTORS,
+  // Before load completion, image decoding may legitimately change page-body
+  // height. First paint instead blocks on stable header geometry plus the
+  // theme-property and rendered pseudo-element contracts below.
+  first_paint_geometry_selectors: Object.freeze(["#header"]),
   presence_probes: Object.freeze([
     Object.freeze({
       id: "header_logo_element",
@@ -87,6 +91,7 @@ function canary({
       ...common.geometry_selectors,
       ...geometrySelectors,
     ]),
+    first_paint_geometry_selectors: common.first_paint_geometry_selectors,
     presence_probes: Object.freeze([
       ...common.presence_probes,
       ...presenceProbes,

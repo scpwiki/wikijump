@@ -211,14 +211,7 @@ export function compareGeometry(
 ) {
   const geometry = [];
   const anomalies = [];
-  const allSelectors = new Set([
-    ...selectors,
-    ...Object.keys(
-      local?.required_geometry_by_selector ?? local?.geometry ?? {},
-    ),
-    ...Object.keys(live?.required_geometry_by_selector ?? live?.geometry ?? {}),
-  ]);
-  for (const selector of allSelectors) {
+  for (const selector of new Set(selectors)) {
     const localGeometry = geometryFor(local, selector);
     const liveGeometry = geometryFor(live, selector);
     if (
@@ -444,7 +437,7 @@ export function compareCaptures(
   const immediateGeometry = compareGeometry(
     local.first_paint?.document,
     live.first_paint?.document,
-    contract?.geometry_selectors ?? [],
+    contract?.first_paint_geometry_selectors ?? [],
     checkedThresholds,
     "domcontentloaded_immediate_",
   );
