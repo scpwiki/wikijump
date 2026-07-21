@@ -20,6 +20,7 @@ export const STANDING_BROWSER_EXECUTION_IDENTITY_SCHEMA =
   "wikijump.standing_browser_execution_identity.v1";
 
 export const STANDING_BROWSER_EXECUTION_MODULES = Object.freeze([
+  "install/local/wikidot-verification/src/standing-browser-execution-identity.mjs",
   "install/local/wikidot-verification/scripts/run-standing-browser-parity.mjs",
   "install/local/wikidot-verification/src/atomic-no-replace.mjs",
   "install/local/wikidot-verification/src/browser-request-gate.mjs",
