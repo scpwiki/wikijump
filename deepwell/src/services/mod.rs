@@ -47,8 +47,8 @@ mod prelude {
     pub use paste::paste;
     pub use sea_orm::{
         ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult,
-        EntityTrait, IntoActiveModel, JoinType, ModelTrait, NotSet, PaginatorTrait,
-        QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set,
+        EntityTrait, ExprTrait, IntoActiveModel, JoinType, ModelTrait, NotSet,
+        PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set,
     };
 }
 

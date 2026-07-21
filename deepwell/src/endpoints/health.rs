@@ -19,14 +19,11 @@
  */
 
 use super::prelude::*;
-use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
+use sea_orm::{ConnectionTrait, raw_sql};
 
 async fn postgres_check(ctx: &ServiceContext<'_>) -> Result<()> {
     ctx.transaction()
-        .execute(Statement::from_string(
-            DatabaseBackend::Postgres,
-            str!("SELECT 1"),
-        ))
+        .query_one_raw(raw_sql!(Postgres, "SELECT 1"))
         .await
         .or_raise(|| Error::new("failed to ping PostgreSQL", ErrorType::DatabaseQuery))?;
 

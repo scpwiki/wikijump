@@ -26,6 +26,7 @@ use crate::models::forum_thread::{
 };
 use crate::models::{forum_post, forum_post_revision};
 use crate::services::ForumService;
+use sea_orm::entity::prelude::*;
 
 #[derive(Debug)]
 pub struct ForumThreadService;
@@ -343,7 +344,6 @@ impl ForumThreadService {
     ) -> Result<Vec<ForumThreadModel>> {
         use sea_orm::query::Order;
         use sea_query::func::Func;
-        use sea_query::{Expr, SimpleExpr};
 
         let txn = ctx.transaction();
 
@@ -362,9 +362,9 @@ impl ForumThreadService {
         query = query.order_by_desc(forum_thread::Column::Sticky);
         query = match order {
             ForumThreadListOrder::Activity => {
-                let activity_expr = SimpleExpr::FunctionCall(Func::coalesce([
-                    Expr::col(forum_thread::Column::UpdatedAt).into(),
-                    Expr::col(forum_thread::Column::CreatedAt).into(),
+                let activity_expr = Expr::FunctionCall(Func::coalesce([
+                    Expr::column(forum_thread::Column::UpdatedAt),
+                    Expr::column(forum_thread::Column::CreatedAt),
                 ]));
 
                 query
@@ -392,7 +392,7 @@ impl ForumThreadService {
     fn deleted_condition(
         include_deleted: bool,
         column: impl ColumnTrait,
-    ) -> Option<sea_orm::sea_query::SimpleExpr> {
+    ) -> Option<Expr> {
         if include_deleted {
             None
         } else {

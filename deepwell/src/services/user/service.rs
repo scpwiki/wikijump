@@ -1286,12 +1286,7 @@ impl UserService {
         };
 
         KnownUser::insert(model)
-            .on_conflict(
-                OnConflict::column(known_user::Column::UserId)
-                    .do_nothing()
-                    .to_owned(),
-            )
-            .do_nothing()
+            .on_conflict_do_nothing()
             .exec(txn)
             .await
             .or_raise(|| {
