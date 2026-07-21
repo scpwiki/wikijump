@@ -674,11 +674,14 @@ async fn restart_sequence_with(
 }
 
 async fn run_query(txn: &DatabaseTransaction, sql: String) -> Result<()> {
-    txn.execute(Statement::from_string(DatabaseBackend::Postgres, &sql))
+    let sql2 = sql.clone();
+
+    txn
+        .query_one_raw(Statement::from_string(DatabaseBackend::Postgres, sql))
         .await
         .or_raise(|| {
             Error::new(
-                format!("failed to run query: {sql}"),
+                format!("failed to run query: {sql2}"),
                 ErrorType::DatabaseSeeder,
             )
         })?;
