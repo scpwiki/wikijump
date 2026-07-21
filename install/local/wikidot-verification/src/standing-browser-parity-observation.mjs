@@ -68,7 +68,9 @@ export async function captureDocumentObservation(
         // Chromium may report non-zero descendant boxes for closed details.
         // Only the direct summary subtree participates in rendered parity.
         for (
-          let details = element.closest?.("details:not([open])");
+          let details = element.parentElement?.closest?.(
+            "details:not([open])",
+          );
           details;
           details = details.parentElement?.closest?.("details:not([open])")
         ) {

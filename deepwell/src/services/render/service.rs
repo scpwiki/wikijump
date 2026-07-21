@@ -17523,6 +17523,8 @@ mod tests {
             "@import url('https://fonts.bunny.net/css2?family=Sofia+Sans:wght@400;900&display=swap');\n",
             "@import url(\"https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1\");\n",
             "@font-face { src: url('https://cdn.jsdelivr.net/font.woff2') format('woff2'); }\n",
+            ".arbitrary { background: url(https://assets.example.test/image.png?size=2x); }\n",
+            ".protocol-relative { background: url('//static.example.test/image.svg#icon'); }\n",
             ":root { --logo: url('http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png'); }\n",
         );
 
@@ -17532,18 +17534,17 @@ mod tests {
             &config,
         );
 
-        assert!(restored.contains("cdn.scpwiki.com"));
-        assert!(restored.contains("fonts.googleapis.com"));
-        assert!(restored.contains("fonts.bunny.net"));
-        assert!(restored.contains("display=swap"));
-        assert!(restored.contains("cdn.jsdelivr.net"));
-        assert!(restored.contains(
-            "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1"
-        ));
-        assert!(restored.contains(
-            "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png"
-        ));
-        assert!(restored.contains("https://cdn.jsdelivr.net/font.woff2"));
+        let expected = concat!(
+            "@import url('https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css');\n",
+            "@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,100;0,200;1,900&display=swap');\n",
+            "@import url('https://fonts.bunny.net/css2?family=Sofia+Sans:wght@400;900&display=swap');\n",
+            "@import url(\"https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1\");\n",
+            "@font-face { src: url('https://cdn.jsdelivr.net/font.woff2') format('woff2'); }\n",
+            ".arbitrary { background: url(https://assets.example.test/image.png?size=2x); }\n",
+            ".protocol-relative { background: url('//static.example.test/image.svg#icon'); }\n",
+            ":root { --logo: url('https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png'); }\n",
+        );
+        assert_eq!(restored, expected);
     }
 
     #[test]

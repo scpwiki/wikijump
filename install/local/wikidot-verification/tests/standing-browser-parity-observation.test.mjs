@@ -38,37 +38,71 @@ test("immediate and settled browser artifacts have deterministic, distinct safe 
 
 test("closed details descendants are excluded from rendered DOM and image counts", async () => {
   const box = { x: 0, y: 0, width: 100, height: 100 };
-  const summary = {
-    localName: "summary",
-    contains: () => false,
-  };
-  const details = {
-    children: [summary],
+  const node = (localName, id) => ({
+    localName,
+    id,
+    classList: [],
+    children: [],
     parentElement: null,
-  };
-  const visible = {
-    localName: "p",
-    id: "visible",
-    classList: [],
-    closest: () => null,
     getBoundingClientRect: () => box,
+    contains(candidate) {
+      return this.children.some(
+        (child) => child === candidate || child.contains(candidate),
+      );
+    },
+    closest(selector) {
+      for (let candidate = this; candidate; candidate = candidate.parentElement) {
+        if (
+          selector === "details:not([open])" &&
+          candidate.localName === "details" &&
+          !candidate.open
+        ) {
+          return candidate;
+        }
+      }
+      return null;
+    },
+  });
+  const append = (parent, ...children) => {
+    parent.children.push(...children);
+    for (const child of children) child.parentElement = parent;
   };
-  const hiddenImage = {
-    localName: "img",
-    id: "hidden",
-    classList: [],
+  const details = node("details", "closed");
+  const summary = node("summary", "first-summary");
+  const summaryChild = node("span", "summary-child");
+  const secondSummary = node("summary", "second-summary");
+  const hiddenImage = Object.assign(node("img", "hidden"), {
     complete: true,
     naturalWidth: 20,
     naturalHeight: 20,
     currentSrc: "https://example.test/hidden.png",
     src: "https://example.test/hidden.png",
-    closest: () => details,
-    getBoundingClientRect: () => box,
-  };
-  const root = { querySelectorAll: () => [visible, hiddenImage] };
+  });
+  append(summary, summaryChild);
+  append(details, summary, secondSummary, hiddenImage);
+
+  const outerDetails = node("details", "outer");
+  const outerSummary = node("summary", "outer-summary");
+  const innerDetails = node("details", "inner");
+  const innerSummary = node("summary", "inner-summary");
+  append(innerDetails, innerSummary);
+  append(outerDetails, outerSummary, innerDetails);
+
+  const observedNodes = [
+    details,
+    summary,
+    summaryChild,
+    secondSummary,
+    hiddenImage,
+    outerDetails,
+    outerSummary,
+    innerDetails,
+    innerSummary,
+  ];
+  const root = { querySelectorAll: () => observedNodes };
   const fakeDocument = {
     images: [hiddenImage],
-    documentElement: visible,
+    documentElement: details,
     querySelector: (selector) => (selector === "#page-content" ? root : null),
     querySelectorAll: () => [],
   };
@@ -101,6 +135,12 @@ test("closed details descendants are excluded from rendered DOM and image counts
     phase: "settled",
     viewport: { width: 1366, height: 900 },
   });
-  assert.deepEqual(observation.dom_signatures, ["p#visible"]);
+  assert.deepEqual(observation.dom_signatures, [
+    "details#closed",
+    "details#outer",
+    "span#summary-child",
+    "summary#first-summary",
+    "summary#outer-summary",
+  ]);
   assert.equal(observation.rendered_images, 0);
 });
