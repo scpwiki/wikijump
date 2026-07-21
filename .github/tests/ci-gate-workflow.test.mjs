@@ -9,6 +9,7 @@ import { classifyChanges, GROUPS } from "../scripts/classify-changes.mjs"
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const read = (file) => readFileSync(path.join(root, file), "utf8")
 const workflow = (name) => read(`.github/workflows/${name}`)
+const hasYamlLine = (source, expected) => source.split("\n").some((line) => line.trim() === expected)
 
 test("one central workflow owns required checks without reacting to labels", () => {
   const source = workflow("ci-gate.yaml")
@@ -17,7 +18,7 @@ test("one central workflow owns required checks without reacting to labels", () 
   assert.match(trigger, /^\s*pull_request:$/m)
   assert.doesNotMatch(trigger, /^\s*paths(?:-ignore)?:$/m)
   for (const action of ["opened", "synchronize", "reopened", "edited", "ready_for_review", "converted_to_draft"]) {
-    assert.ok(trigger.includes(`      - ${action}\n`), action)
+    assert.ok(hasYamlLine(trigger, `- ${action}`), action)
   }
   assert.doesNotMatch(trigger, /^      - (?:labeled|unlabeled)$/m)
   assert.doesNotMatch(source, /landing|full-ci/)
@@ -116,7 +117,7 @@ test("Deepwell draft and candidate paths are exclusive and parallel after classi
     "cargo test --locked --all-features"
   ]) assert.ok(candidate.includes(command), command)
 
-  for (const job of ["deepwell_draft", "deepwell_candidate"]) assert.ok(gate.includes(`      - ${job}\n`), job)
+  for (const job of ["deepwell_draft", "deepwell_candidate"]) assert.ok(hasYamlLine(gate, `- ${job}`), job)
   assert.match(gate, /needs\.classify\.outputs\.draft == 'true' && 'CI \/ draft gate' \|\| 'CI \/ gate'/)
   assert.doesNotMatch(source, /^  deepwell_(?:fast|integration):$/m)
   assert.doesNotMatch(source, /tarpaulin|coverage\/cobertura/)
@@ -131,10 +132,10 @@ test("one Full CI workflow owns coverage and browser validation", () => {
   const trigger = source.slice(source.indexOf("on:\n"), source.indexOf("\npermissions:\n"))
   const concurrency = source.slice(source.indexOf("concurrency:\n"), source.indexOf("\njobs:\n"))
   for (const action of ["opened", "synchronize", "reopened", "edited", "ready_for_review", "converted_to_draft", "labeled", "unlabeled", "closed"]) {
-    assert.ok(trigger.includes(`      - ${action}\n`), action)
+    assert.ok(hasYamlLine(trigger, `- ${action}`), action)
   }
   for (const job of ["deepwell_coverage", "export_deepwell_coverage", "wws_coverage", "export_wws_coverage", "framerail_browser"]) {
-    assert.ok(source.includes(`  ${job}:\n`), job)
+    assert.ok(hasYamlLine(source, `${job}:`), job)
   }
   assert.equal((source.match(/contains\(github\.event\.pull_request\.labels\.\*\.name, 'full-ci'\)/g) ?? []).length, 3)
   assert.match(concurrency, /format\('full-ci-pr-\{0\}', github\.event\.pull_request\.number\)/)
