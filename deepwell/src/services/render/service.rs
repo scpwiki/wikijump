@@ -143,7 +143,6 @@ pub(crate) struct CorpusReplayExpandedWikitext {
 
 impl CorpusReplayExpandedWikitext {
     #[inline]
-    #[allow(dead_code)] // Consumed by the stacked render-replay action.
     pub fn included_page_count(&self) -> usize {
         self.included_pages.len()
     }
@@ -1035,7 +1034,6 @@ impl RenderService {
     /// The returned value is intentionally owned and serializable so a replay
     /// controller can hand it to an isolated worker without giving that worker
     /// database or service credentials.
-    #[allow(dead_code)] // Consumed by the stacked render-replay action.
     pub(crate) async fn expand_corpus_replay_wikitext(
         ctx: &ServiceContext<'_>,
         wikitext: String,

@@ -85,6 +85,10 @@ $ cargo test
 
 Add `-- --nocapture` to the end if you want to see test output.
 
+For corpus parser failures, use the read-only, process-isolated
+[`render-replay` convergence action](../docs/deepwell-render-replay.md) before
+rerunning the full runtime finalizer.
+
 The unit tests are functions within `src/` annotated with `#[test]` or `#[tokio::test]` and check that particular utilities work as expected (e.g. pure functions, parsing, helpers).
 
 The integration tests are found in `tests/`. For more information on them, see the [integration testing documentation](tests/README.md).
