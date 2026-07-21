@@ -8,6 +8,7 @@
 - Use `deepwell/README.md` for Deepwell's trusted-internal-API boundary.
 - Use `docs/ftml-boundary.md` for the FTML/Wikijump responsibility boundary, pin-bump canary rule, and syntax-shim deviation process.
 - Use `install/local/wikidot-verification/` for browser parity capture and validator tooling.
+- Use `install/local/wikidot-verification/docs/sandbox-oracle-design.md` for the driftless sandbox-oracle design: fixture condition matrix, comparison layers, and the live-Wikidot mutation-allowlist sign-off requirement.
 
 ## Product language
 
