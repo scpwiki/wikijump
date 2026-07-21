@@ -14,7 +14,7 @@ from typing import Any, TextIO
 
 ALLOWED_SITE = "scpaiueouiuiuiui"
 ALLOWED_DOMAIN = f"{ALLOWED_SITE}.wikidot.com"
-ALLOWED_ORIGIN = f"http://{ALLOWED_DOMAIN}"
+ALLOWED_ORIGIN = f"https://{ALLOWED_DOMAIN}"
 CURRENT_RUN_OWNED_SLUG = re.compile(r"^codex-l10n:[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
 LEGACY_RUN_OWNED_SLUG = re.compile(r"^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
 REFERENCE_PREREQUISITE_SLUGS = {"component:image-block-base", "component:image-block"}

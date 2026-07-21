@@ -27,7 +27,7 @@ function validateResource(resource, {allowLegacy = false} = {}) {
     throw new Error("Wikidot adapter accepts only validated theme execution pages");
   }
   const url = new URL(resource.url);
-  if (url.protocol !== "http:" || url.hostname !== `${ALLOWED_SITE_SLUG}.wikidot.com` || url.port || url.pathname !== `/${resource.slug}` || url.search || url.hash || url.username || url.password) {
+  if (url.protocol !== "https:" || url.hostname !== `${ALLOWED_SITE_SLUG}.wikidot.com` || url.port || url.pathname !== `/${resource.slug}` || url.search || url.hash || url.username || url.password) {
     throw new Error("Wikidot adapter resource URL is outside the hard allowlist");
   }
   if (prerequisite && (resource.title !== REFERENCE_PREREQUISITE_TITLES.get(resource.slug) || resource.resource_id !== `prerequisite:${resource.slug}:wikidot`)) {
