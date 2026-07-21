@@ -27,6 +27,7 @@ use super::diagnostics::{
     CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
     StageGuard,
 };
+use super::footnote_dom::restore_wikidot_footnote_list_dom;
 use super::generator::COMPILED_GENERATOR;
 use super::html_text::html_data_segments;
 use super::iftags::{
@@ -2217,6 +2218,7 @@ impl RenderService {
                 format!("{}{}", &captures["before"], &captures["footnote"])
             })
             .into_owned();
+        let html = Self::remove_wikijump_footnote_ref_tooltips(&html);
         let html = WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX
             .replace_all(&html, |captures: &regex::Captures<'_>| {
                 captures
@@ -2225,15 +2227,7 @@ impl RenderService {
                     .to_owned()
             })
             .into_owned();
-        let html = Self::remove_wikijump_footnote_ref_tooltips(&html);
-        html.replace(
-            r#"<div class="wj-footnote-list">"#,
-            r#"<div class="wj-footnote-list footnotes-footer">"#,
-        )
-        .replace(
-            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title">"#,
-            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">"#,
-        )
+        restore_wikidot_footnote_list_dom(&html)
     }
 
     fn remove_wikijump_footnote_ref_tooltips(html: &str) -> String {
@@ -22101,7 +22095,7 @@ mod tests {
             r#"<span class="wj-footnote-ref-tooltip-label">Footnote 2.</span>"#,
             r#"<div class="wj-footnote-ref-contents"><div>hidden note</div></div>"#,
             r#"</div> after</p>"#,
-            r#"<div class="wj-footnote-list"><div class="wj-title">Footnotes</div></div>"#,
+            r#"<div class="wj-footnote-list"><div class="wj-title">Footnotes</div><ol></ol></div>"#,
         );
 
         let restored = RenderService::restore_wikidot_footnote_dom_compatibility(html);
@@ -22109,8 +22103,8 @@ mod tests {
         assert!(restored.contains(
             r#"<sup class="footnoteref"><a id="footnoteref-2" href="javascript:;" class="footnoteref" onclick="WIKIDOT.page.utils.scrollToReference('footnote-2')">2</a></sup> after"#
         ));
-        assert!(restored.contains(r#"<div class="wj-footnote-list footnotes-footer">"#));
-        assert!(restored.contains(r#"<div class="wj-title title">Footnotes</div>"#));
+        assert!(restored.contains(r#"<div class="footnotes-footer">"#));
+        assert!(restored.contains(r#"<div class="title">Footnotes</div>"#));
         assert!(!restored.contains(r#"<span class="wj-footnote-ref">"#));
         assert!(!restored.contains("wj-footnote-ref-tooltip"));
         assert!(!restored.contains("hidden note"));
@@ -22132,6 +22126,7 @@ mod tests {
         assert!(restored.contains(
             r#"<sup class="footnoteref"><a id="footnoteref-2" href="javascript:;" class="footnoteref" onclick="WIKIDOT.page.utils.scrollToReference('footnote-2')">2</a></sup>"#
         ));
+        assert!(!restored.contains(r#"<span class="wj-footnote-ref">"#));
         assert!(!restored.contains("wj-footnote-ref-tooltip"));
         assert!(!restored.contains("hidden note"));
     }
@@ -22140,7 +22135,7 @@ mod tests {
     fn restores_wikidot_footnote_title_class_without_assuming_english_text() {
         for title in ["脚注", "The feet-noten"] {
             let html = format!(
-                r#"<div class="wj-footnote-list"><div class="wj-title">{title}</div></div>"#
+                r#"<div class="wj-footnote-list"><div class="wj-title">{title}</div><ol></ol></div>"#
             );
 
             let restored =
@@ -22149,7 +22144,7 @@ mod tests {
             assert_eq!(
                 restored,
                 format!(
-                    r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">{title}</div></div>"#
+                    r#"<div class="footnotes-footer"><div class="title">{title}</div></div>"#
                 )
             );
         }
@@ -22174,9 +22169,17 @@ mod tests {
         let restored =
             RenderService::restore_wikidot_footnote_dom_compatibility(&rendered);
 
+        assert!(
+            restored.contains(
+                r#"<div class="footnotes-footer"><div class="title">脚注</div>"#
+            )
+        );
+        assert!(restored.contains(r#"<div class="footnote-footer" id="footnote-1">"#));
         assert!(restored.contains(
-            r#"<div class="wj-footnote-list footnotes-footer"><div class="wj-title title">脚注</div>"#
+            r#"onclick="WIKIDOT.page.utils.scrollToReference('footnoteref-1')">1</a>. 注記"#
         ));
+        assert_eq!(restored.matches("注記").count(), 1);
+        assert!(!restored.contains("wj-footnote"));
         assert!(!restored.contains(">Footnotes<"));
     }
 

@@ -34,6 +34,7 @@ mod compat_fallback_code;
 mod compat_html_fragments;
 mod compat_text_fragments;
 mod diagnostics;
+mod footnote_dom;
 mod generator;
 mod html_text;
 mod iftags;
