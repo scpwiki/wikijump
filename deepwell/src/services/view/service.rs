@@ -60,6 +60,17 @@ use time::OffsetDateTime;
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
+fn wikidot_redirect_module_allowed(
+    page: &PageModel,
+    page_revision: &PageRevisionModel,
+) -> bool {
+    // Wikidot Redirect modules are compatibility behavior for imported Wikidot
+    // pages only. Requiring both the page and the served revision to carry
+    // import provenance prevents ordinary editable wikitext from creating
+    // permanent external redirects on the local Wikijump domain.
+    page.from_wikidot && page_revision.from_wikidot
+}
+
 #[derive(Debug)]
 pub struct ViewService;
 
@@ -623,7 +634,13 @@ impl ViewService {
 
         let (redirect_page, redirect_kind) = if let Some(redirect_page) = redirect_page {
             (Some(redirect_page), None)
-        } else if matches!(&page_status, PageStatus::Found { .. }) {
+        } else if let PageStatus::Found {
+            page,
+            page_revision,
+            ..
+        } = &page_status
+            && wikidot_redirect_module_allowed(page, page_revision)
+        {
             let redirect_page =
                 wikidot_redirect_location(&wikitext, page_full_slug, options.no_redirect);
             let redirect_kind = redirect_page
@@ -1167,5 +1184,75 @@ ORDER BY breadcrumb_chain.depth ASC
             }
             None => Ok(None),
         }
+    }
+}
+
+#[cfg(test)]
+mod wikidot_redirect_module_allowed_tests {
+    use super::*;
+    use crate::types::PageRevisionType;
+
+    fn page(from_wikidot: bool) -> PageModel {
+        PageModel {
+            page_id: 1,
+            created_at: OffsetDateTime::UNIX_EPOCH,
+            updated_at: None,
+            deleted_at: None,
+            from_wikidot,
+            site_id: 1,
+            latest_revision_id: Some(1),
+            page_category_id: 1,
+            slug: "source".to_owned(),
+            discussion_thread_id: None,
+            layout: None,
+        }
+    }
+
+    fn revision(from_wikidot: bool) -> PageRevisionModel {
+        PageRevisionModel {
+            revision_id: 1,
+            revision_type: PageRevisionType::Regular,
+            created_at: OffsetDateTime::UNIX_EPOCH,
+            updated_at: None,
+            revision_number: 1,
+            page_id: 1,
+            site_id: 1,
+            user_id: 1,
+            from_wikidot,
+            changes: vec![],
+            wikitext_hash: vec![],
+            compiled_body_html_hash: vec![],
+            compiled_body_styles_hash: None,
+            compiled_top_bar_html_hash: None,
+            compiled_side_bar_html_hash: None,
+            compiled_at: OffsetDateTime::UNIX_EPOCH,
+            compiled_generator: "test".to_owned(),
+            comments: String::new(),
+            hidden: vec![],
+            title: "Source".to_owned(),
+            alt_title: None,
+            slug: "source".to_owned(),
+            tags: vec![],
+        }
+    }
+
+    #[test]
+    fn allows_only_imported_page_and_imported_revision() {
+        assert!(wikidot_redirect_module_allowed(
+            &page(true),
+            &revision(true)
+        ));
+        assert!(!wikidot_redirect_module_allowed(
+            &page(false),
+            &revision(true)
+        ));
+        assert!(!wikidot_redirect_module_allowed(
+            &page(true),
+            &revision(false)
+        ));
+        assert!(!wikidot_redirect_module_allowed(
+            &page(false),
+            &revision(false)
+        ));
     }
 }
