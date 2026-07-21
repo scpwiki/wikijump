@@ -691,18 +691,6 @@ static WIKIDOT_LOCAL_FILE_CSS_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
-static CSS_IMPORT_LINE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?im)^(?P<indent>[ \t]*)@import(?P<body>[^\n]*)$"#).unwrap()
-});
-static CSS_ABSOLUTE_URL_HOST_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?i)(?:https?:)?//(?P<host>[A-Za-z0-9.-]+)(?::[0-9]+)?"#).unwrap()
-});
-static CSS_EXTERNAL_URL_FUNCTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?i)url\(\s*(?P<quote>["']?)(?:https?:)?//(?P<host>[A-Za-z0-9.-]+)(?::[0-9]+)?(?P<path>[^"')\s]*)["']?\s*\)"#,
-    )
-    .unwrap()
-});
 
 impl RenderService {
     fn owned_page_info(page_info: &PageInfo<'_>) -> PageInfo<'static> {
@@ -3243,8 +3231,10 @@ impl RenderService {
         current_site: Option<&SiteModel>,
         config: &Config,
     ) -> String {
-        let code = Self::localize_wikidot_local_file_urls(code, current_site, config);
-        Self::suppress_external_css_dependencies(&code, config)
+        // Wikidot code blocks used through /local--code are active CSS. Keep
+        // their dependency graph intact; Framerail's CSP allowlist is the
+        // browser boundary for external requests, not the renderer.
+        Self::localize_wikidot_local_file_urls(code, current_site, config)
     }
 
     fn normalize_wikidot_ta_badge_multiline_includes(wikitext: &mut String) {
@@ -4296,38 +4286,6 @@ impl RenderService {
             "https://{}{}{}",
             target_site_slug, config.files_domain, path,
         ))
-    }
-
-    fn suppress_external_css_dependencies(css: &str, config: &Config) -> String {
-        let css = CSS_IMPORT_LINE_REGEX
-            .replace_all(css, |captures: &regex::Captures<'_>| {
-                let body = &captures["body"];
-                let has_external_url = CSS_ABSOLUTE_URL_HOST_REGEX
-                    .captures_iter(body)
-                    .any(|url_captures| {
-                        !css_dependency_host_is_local(&url_captures["host"], config)
-                    });
-                if !has_external_url {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_owned();
-                }
-
-                format!(
-                    "{}/* wikijump local render: omitted external @import */",
-                    &captures["indent"],
-                )
-            })
-            .into_owned();
-
-        CSS_EXTERNAL_URL_FUNCTION_REGEX
-            .replace_all(&css, |captures: &regex::Captures<'_>| {
-                let host = &captures["host"];
-                if css_dependency_host_is_local(host, config) {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_owned();
-                }
-
-                r#"url("data:,")"#.to_owned()
-            })
-            .into_owned()
     }
 
     async fn expand_includes(
@@ -13492,21 +13450,6 @@ fn direct_wdfiles_local_file_url(host: &str, path: &str) -> Option<String> {
     Some(format!("https://{site_slug}.wdfiles.com{path}"))
 }
 
-fn css_dependency_host_is_local(host: &str, config: &Config) -> bool {
-    let host = host.trim().trim_end_matches('.').to_ascii_lowercase();
-    if host == "localhost" || host == "127.0.0.1" || host.ends_with(".localhost") {
-        return true;
-    }
-
-    let files_domain = config.files_domain.trim().to_ascii_lowercase();
-    if !files_domain.is_empty() && host.ends_with(&files_domain) {
-        return true;
-    }
-
-    let files_domain_no_dot = config.files_domain_no_dot.trim().to_ascii_lowercase();
-    !files_domain_no_dot.is_empty() && host == files_domain_no_dot
-}
-
 #[allow(dead_code)]
 fn public_url_port_suffix(port: Option<u16>) -> String {
     port.map(|port| format!(":{port}")).unwrap_or_default()
@@ -17565,7 +17508,7 @@ mod tests {
     }
 
     #[test]
-    fn code_block_compatibility_suppresses_external_css_dependencies() {
+    fn code_block_compatibility_preserves_external_css_dependencies() {
         let mut site = wikidot_site(
             "scp-wiki-cn-corpus-scp9506-translation-seed",
             Some("scp-wiki-cn.wikidot.com"),
@@ -17577,8 +17520,11 @@ mod tests {
         let css = concat!(
             "@import url('https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css');\n",
             "@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,100;0,200;1,900&display=swap');\n",
+            "@import url('https://fonts.bunny.net/css2?family=Sofia+Sans:wght@400;900&display=swap');\n",
             "@import url(\"https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1\");\n",
             "@font-face { src: url('https://cdn.jsdelivr.net/font.woff2') format('woff2'); }\n",
+            ".arbitrary { background: url(https://assets.example.test/image.png?size=2x); }\n",
+            ".protocol-relative { background: url('//static.example.test/image.svg#icon'); }\n",
             ":root { --logo: url('http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png'); }\n",
         );
 
@@ -17588,18 +17534,17 @@ mod tests {
             &config,
         );
 
-        assert!(restored.contains("omitted external @import"));
-        assert!(!restored.contains("cdn.scpwiki.com"));
-        assert!(!restored.contains("fonts.googleapis.com"));
-        assert!(!restored.contains("display=swap"));
-        assert!(!restored.contains("cdn.jsdelivr.net"));
-        assert!(restored.contains(
-            "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1"
-        ));
-        assert!(restored.contains(
-            "https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png"
-        ));
-        assert!(restored.contains(r#"url("data:,")"#));
+        let expected = concat!(
+            "@import url('https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css');\n",
+            "@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,100;0,200;1,900&display=swap');\n",
+            "@import url('https://fonts.bunny.net/css2?family=Sofia+Sans:wght@400;900&display=swap');\n",
+            "@import url(\"https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--code/theme:basalt/1\");\n",
+            "@font-face { src: url('https://cdn.jsdelivr.net/font.woff2') format('woff2'); }\n",
+            ".arbitrary { background: url(https://assets.example.test/image.png?size=2x); }\n",
+            ".protocol-relative { background: url('//static.example.test/image.svg#icon'); }\n",
+            ":root { --logo: url('https://scp-wiki-cn-corpus-scp9506-translation-seed.wjfiles.localhost/local--files/scp-9506/NFSI.png'); }\n",
+        );
+        assert_eq!(restored, expected);
     }
 
     #[test]

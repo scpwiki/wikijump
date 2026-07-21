@@ -42,7 +42,10 @@ export async function captureDocumentObservation(
   page,
   { contract, phase, viewport },
 ) {
-  const geometrySelectors = contract?.geometry_selectors ?? [];
+  const geometrySelectors =
+    phase === "domcontentloaded_immediate_observation"
+      ? (contract?.first_paint_geometry_selectors ?? [])
+      : (contract?.geometry_selectors ?? []);
   const presenceProbes = contract?.presence_probes ?? [];
   const customPropertyNames = Object.keys(
     contract?.first_paint_custom_properties ?? {},
@@ -62,6 +65,22 @@ export async function captureDocumentObservation(
         );
       };
       const rendered = (element) => {
+        // Chromium may report non-zero descendant boxes for closed details.
+        // Only the direct summary subtree participates in rendered parity.
+        for (
+          let details = element.parentElement?.closest?.(
+            "details:not([open])",
+          );
+          details;
+          details = details.parentElement?.closest?.("details:not([open])")
+        ) {
+          const summary = [...details.children].find(
+            (child) => child.localName === "summary",
+          );
+          if (!summary || (element !== summary && !summary.contains(element))) {
+            return false;
+          }
+        }
         const style = getComputedStyle(element);
         const box = element.getBoundingClientRect();
         return (

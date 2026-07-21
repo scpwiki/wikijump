@@ -44,7 +44,7 @@ The following remain in Wikijump even though they touch syntax-shaped text. The 
 
 - ListPages/CountPages query execution, selector semantics, pagination, permission filtering, and runtime variable substitution against page rows.
 - Include source fetching, cross-site resolution, recursion/total limits, and missing-include policy.
-- Local file URL localization/materialization, asset mirror routing, and external CSS dependency suppression.
+- Local file URL localization/materialization, asset mirror routing, and external CSS dependency admission through Framerail's CSP allowlist.
 - All permission filtering during render, user display resolution, and actor state.
 - Module runtime output and unsupported-module placeholder policy (a Local Lab D6 user decision, not an FTML question).
 - Iframe allow-listing and interwiki URL rewriting (network/site policy); only the `[[embed]]` syntax parsing half is migration-eligible.
