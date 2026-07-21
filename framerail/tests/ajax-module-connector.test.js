@@ -76,6 +76,31 @@ test("fails closed for unsupported modules and duplicate fields", async () => {
   assert.equal((await duplicate.json()).status, "not_ok")
 })
 
+test("rejects oversized bodies while streaming missing-length requests", async () => {
+  let arrayBufferCalls = 0
+  const response = await handleAjaxModuleConnectorRequest(
+    {
+      method: "POST",
+      headers: new Headers({
+        "content-type": "application/x-www-form-urlencoded"
+      }),
+      body: new Blob([
+        "moduleName=list%2FListPagesModule&module_body=",
+        "x".repeat(131_073)
+      ]).stream(),
+      arrayBuffer: async () => {
+        arrayBufferCalls += 1
+        throw new Error("must not buffer full request")
+      }
+    },
+    { siteId: 6000006, renderListPages: async () => assert.fail("must not render") }
+  )
+
+  assert.equal(response.status, 413)
+  assert.equal((await response.json()).status, "not_ok")
+  assert.equal(arrayBufferCalls, 0)
+})
+
 test("converts Deepwell failures to a stable Wikidot error envelope", async () => {
   const originalConsoleError = console.error
   console.error = () => {}
