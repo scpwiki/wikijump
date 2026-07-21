@@ -24,7 +24,7 @@ use crate::services::relation::{CreateSiteBan, GetSiteBan, RemoveSiteBan, SiteBa
 use std::net::IpAddr;
 
 #[derive(Deserialize, Debug, Clone)]
-struct SetSiteBanInput {
+struct CreateSiteBanInput {
     site_id: i64,
     user_id: i64,
     metadata: SiteBanData,
@@ -32,11 +32,12 @@ struct SetSiteBanInput {
     ip_address: IpAddr,
 }
 
-#[derive(Deserialize, Debug, Copy, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 struct RemoveSiteBanInput {
     site_id: i64,
     user_id: i64,
     removed_by: i64,
+    reason: String,
     ip_address: IpAddr,
 }
 
@@ -65,7 +66,7 @@ pub async fn site_ban_set(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let SetSiteBanInput {
+    let CreateSiteBanInput {
         site_id,
         user_id,
         metadata,
@@ -100,6 +101,7 @@ pub async fn site_ban_remove(
         site_id,
         user_id,
         removed_by,
+        reason,
         ip_address,
     } = parse!(params, SiteBanRelation);
 
@@ -111,6 +113,7 @@ pub async fn site_ban_remove(
             removed_by,
         },
         ip_address,
+        &reason,
     )
     .await
     .or_raise(|| {

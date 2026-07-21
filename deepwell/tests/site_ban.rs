@@ -61,6 +61,7 @@ async fn clear_site_ban(runner: &TestRunner, site_id: i64, user_id: i64) {
                 "site_id": site_id,
                 "user_id": user_id,
                 "removed_by": ADMIN_USER_ID,
+                "reason": "Test site ban removal",
                 "ip_address": common::IP_ADDRESS,
             }),
         );
@@ -99,7 +100,7 @@ async fn latest_audit_event(
     AuditLog::find()
         .filter(audit_log::Column::EventType.eq(event_type))
         .filter(audit_log::Column::SiteId.eq(site_id))
-        .filter(audit_log::Column::ExtraId1.eq(target_user_id))
+        .filter(audit_log::Column::UserId.eq(target_user_id))
         .order_by_desc(audit_log::Column::EventId)
         .one(runner.context().transaction())
         .await
@@ -325,11 +326,11 @@ async fn lifecycle_membership_blocking_and_audit() {
         latest_audit_event(&runner, "site_ban.create", site_id, user_id).await;
 
     assert_eq!(create_event.ip_address, common::IP_ADDRESS.to_string());
-    assert_eq!(create_event.user_id, Some(ADMIN_USER_ID));
+    assert_eq!(create_event.user_id, Some(user_id));
     assert_eq!(create_event.site_id, Some(site_id));
-    assert_eq!(create_event.extra_id_1, Some(user_id));
-    assert_eq!(create_event.extra_string_1, None);
-    assert_eq!(create_event.extra_string_2.as_deref(), Some(REASON));
+    assert_eq!(create_event.extra_id_1, Some(ADMIN_USER_ID));
+    assert_eq!(create_event.extra_string_1.as_deref(), Some(REASON));
+    assert_eq!(create_event.extra_string_2, None);
 
     // Removing the ban must soft-delete it and add another audit event.
     let removed = run_endpoint!(
@@ -339,6 +340,7 @@ async fn lifecycle_membership_blocking_and_audit() {
             "site_id": site_id,
             "user_id": user_id,
             "removed_by": ADMIN_USER_ID,
+            "reason": "Test site ban removal",
             "ip_address": common::IP_ADDRESS,
         }),
     );
@@ -360,10 +362,13 @@ async fn lifecycle_membership_blocking_and_audit() {
         latest_audit_event(&runner, "site_ban.remove", site_id, user_id).await;
 
     assert_eq!(remove_event.ip_address, common::IP_ADDRESS.to_string());
-    assert_eq!(remove_event.user_id, Some(ADMIN_USER_ID));
+    assert_eq!(remove_event.user_id, Some(user_id));
     assert_eq!(remove_event.site_id, Some(site_id));
-    assert_eq!(remove_event.extra_id_1, Some(user_id));
-    assert_eq!(remove_event.extra_string_1, None);
+    assert_eq!(remove_event.extra_id_1, Some(ADMIN_USER_ID));
+    assert_eq!(
+        remove_event.extra_string_1.as_deref(),
+        Some("Test site ban removal")
+    );
     assert_eq!(remove_event.extra_string_2, None);
 }
 
@@ -423,6 +428,18 @@ async fn expiration_cleanup_preserves_future_and_permanent_bans() {
         expired_relation.deleted_at.is_some(),
         "Expired site ban was not soft-deleted",
     );
+    let expiry_event =
+        latest_audit_event(&runner, "site_ban.remove", site_id, user_id).await;
+
+    assert_eq!(expiry_event.ip_address, "127.0.0.1");
+    assert_eq!(expiry_event.user_id, Some(user_id));
+    assert_eq!(expiry_event.site_id, Some(site_id));
+    assert_eq!(expiry_event.extra_id_1, Some(SYSTEM_USER_ID));
+    assert_eq!(
+        expiry_event.extra_string_1.as_deref(),
+        Some("Site ban expired")
+    );
+    assert_eq!(expiry_event.extra_string_2, None);
 
     // A future ban must survive the cleanup operation.
     run_endpoint!(
@@ -463,6 +480,7 @@ async fn expiration_cleanup_preserves_future_and_permanent_bans() {
             "site_id": site_id,
             "user_id": user_id,
             "removed_by": ADMIN_USER_ID,
+            "reason": "Test site ban removal",
             "ip_address": common::IP_ADDRESS,
         }),
     );

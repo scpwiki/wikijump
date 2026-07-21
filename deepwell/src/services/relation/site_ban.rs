@@ -25,7 +25,7 @@ use crate::models::relation::{self, Entity as Relation};
 use crate::models::user_role::{self, Entity as UserRole};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::role::{RevokeUserRoleInput, RoleService};
-use std::net::IpAddr;
+use std::net::{IpAddr, Ipv4Addr};
 use time::Date;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -141,6 +141,7 @@ impl RelationService {
             removed_by,
         }: RemoveSiteBan,
         ip_address: IpAddr,
+        reason: &str,
     ) -> Result<RelationModel> {
         let make_error = || {
             Error::new(
@@ -170,6 +171,7 @@ impl RelationService {
                 site_id,
                 user_id,
                 unbanning_user_id: removed_by,
+                reason,
             },
         )
         .await
@@ -260,10 +262,15 @@ impl RelationService {
                 continue;
             }
 
-            Self::remove(
+            Self::remove_site_ban_with_audit(
                 ctx,
-                RelationReference::Id(site_ban.relation_id),
-                SYSTEM_USER_ID,
+                RemoveSiteBan {
+                    site_id: site_ban.dest_id,
+                    user_id: site_ban.from_id,
+                    removed_by: SYSTEM_USER_ID,
+                },
+                IpAddr::V4(Ipv4Addr::LOCALHOST),
+                "Site ban expired",
             )
             .await
             .or_raise(make_error)?;
