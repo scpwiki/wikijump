@@ -98,8 +98,10 @@ impl ScoreFilterMembership {
     }
 }
 
-// Keeps the request-local ID array bounded while accommodating the 24,430-page EN corpus.
+// Keeps each request-local ID array bounded while accommodating the 24,430-page EN corpus.
 const MAX_CACHED_SCORE_FILTER_PAGE_IDS: usize = 50_000;
+// Bounds aggregate request-local score-cache retention across distinct score filters.
+const MAX_TOTAL_CACHED_SCORE_FILTER_PAGE_IDS: usize = 100_000;
 
 /// Request-local cache for broad score predicates shared by multiple ListPages queries.
 /// It caches only qualifying IDs; each caller still applies its own filters and ordering.
@@ -107,6 +109,7 @@ const MAX_CACHED_SCORE_FILTER_PAGE_IDS: usize = 50_000;
 pub(crate) struct PageQueryScoreFilterCache {
     seen: BTreeSet<ScoreFilterCacheKey>,
     memberships: BTreeMap<ScoreFilterCacheKey, ScoreFilterMembership>,
+    cached_page_ids: usize,
     uncacheable: BTreeSet<ScoreFilterCacheKey>,
 }
 
@@ -159,11 +162,25 @@ impl PageQueryScoreFilterCache {
 
     fn insert(&mut self, key: ScoreFilterCacheKey, membership: ScoreFilterMembership) {
         debug_assert!(membership.len() <= MAX_CACHED_SCORE_FILTER_PAGE_IDS);
+        let membership_len = membership.len();
+        let replaced_len = self
+            .memberships
+            .get(&key)
+            .map_or(0, ScoreFilterMembership::len);
+        let new_total = self.cached_page_ids - replaced_len + membership_len;
+        if new_total > MAX_TOTAL_CACHED_SCORE_FILTER_PAGE_IDS {
+            self.mark_uncacheable(key);
+            return;
+        }
+
         self.memberships.insert(key, membership);
+        self.cached_page_ids = new_total;
     }
 
     fn mark_uncacheable(&mut self, key: ScoreFilterCacheKey) {
-        self.memberships.remove(&key);
+        if let Some(membership) = self.memberships.remove(&key) {
+            self.cached_page_ids -= membership.len();
+        }
         self.uncacheable.insert(key);
     }
 }
@@ -1522,11 +1539,12 @@ async fn filter_pages_by_data_form_fields(
 mod tests {
     use super::{
         MAX_CACHED_SCORE_FILTER_PAGE_IDS, MAX_CORRELATED_SCORE_CANDIDATES,
-        PageQueryScoreFilterCache, PageQueryScoreFilterSession, ScoreFilterCacheKey,
-        ScoreFilterCacheLookup, ScoreFilterMembership, ScoreFilterPlan,
-        bounded_score_page_ids, date_span_bounds, score_filter_plan_from_probe,
-        score_membership_condition, score_membership_polarity_order,
-        score_selector_condition, score_selectors_condition, wikidot_name_pattern,
+        MAX_TOTAL_CACHED_SCORE_FILTER_PAGE_IDS, PageQueryScoreFilterCache,
+        PageQueryScoreFilterSession, ScoreFilterCacheKey, ScoreFilterCacheLookup,
+        ScoreFilterMembership, ScoreFilterPlan, bounded_score_page_ids, date_span_bounds,
+        score_filter_plan_from_probe, score_membership_condition,
+        score_membership_polarity_order, score_selector_condition,
+        score_selectors_condition, wikidot_name_pattern,
     };
     use crate::models::page;
     use crate::services::page_query::{
@@ -2046,6 +2064,51 @@ mod tests {
             bounded_score_page_ids(vec![0; MAX_CACHED_SCORE_FILTER_PAGE_IDS + 1])
                 .is_none()
         );
+    }
+
+    #[test]
+    fn score_cache_total_id_limit_marks_new_keys_uncacheable() {
+        let first_selectors = [ScoreSelector {
+            score: ScoreValue::Integer(30),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        }];
+        let second_selectors = [ScoreSelector {
+            score: ScoreValue::Integer(31),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        }];
+        let first_key = ScoreFilterCacheKey::new(6_000_006, &first_selectors);
+        let second_key = ScoreFilterCacheKey::new(6_000_006, &second_selectors);
+        let mut cache = PageQueryScoreFilterCache::default();
+
+        cache.insert(
+            first_key.clone(),
+            ScoreFilterMembership::Included(vec![1; MAX_CACHED_SCORE_FILTER_PAGE_IDS]),
+        );
+        cache.insert(
+            second_key.clone(),
+            ScoreFilterMembership::Included(vec![2; MAX_CACHED_SCORE_FILTER_PAGE_IDS]),
+        );
+        let overflow_selectors = [ScoreSelector {
+            score: ScoreValue::Integer(32),
+            comparison: ComparisonOperation::LessOrEqualThan,
+        }];
+        let overflow_key = ScoreFilterCacheKey::new(6_000_006, &overflow_selectors);
+        cache.insert(
+            overflow_key.clone(),
+            ScoreFilterMembership::Included(vec![3]),
+        );
+
+        assert_eq!(
+            cache.cached_page_ids,
+            MAX_TOTAL_CACHED_SCORE_FILTER_PAGE_IDS
+        );
+        assert!(cache.memberships.contains_key(&first_key));
+        assert!(cache.memberships.contains_key(&second_key));
+        assert_eq!(
+            cache.lookup(&overflow_key, true),
+            ScoreFilterCacheLookup::Uncacheable
+        );
+        assert_eq!(cache.materialized_membership(&overflow_key), None);
     }
 
     #[test]
