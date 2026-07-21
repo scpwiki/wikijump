@@ -340,7 +340,6 @@ impl PageQueryService {
         // Add on at the query-level (ORDER BY, LIMIT)
         {
             use sea_orm::query::Order;
-            use sea_query::SimpleExpr;
             use sea_query::func::Func;
 
             let OrderBySelector {
@@ -391,7 +390,7 @@ impl PageQueryService {
                     join_revision!();
                     join_text!();
                     let col = Expr::col(text::Column::Contents);
-                    let expr = SimpleExpr::FunctionCall(Func::char_length(col));
+                    let expr = Expr::FunctionCall(Func::char_length(col));
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Score => {
@@ -412,7 +411,7 @@ impl PageQueryService {
                 }
                 OrderProperty::Random => {
                     debug!("Ordering by random value");
-                    let expr = SimpleExpr::FunctionCall(Func::random());
+                    let expr = Expr::FunctionCall(Func::random());
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::DataFormFieldName => {

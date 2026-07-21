@@ -27,6 +27,7 @@ use crate::models::forum_category::{
 use crate::models::forum_group::{self, Entity as ForumGroup, Model as ForumGroupModel};
 use crate::models::{forum_post, forum_post_revision, forum_thread};
 use std::collections::BTreeMap;
+use sea_orm::entity::prelude::*;
 
 #[derive(Debug)]
 pub struct ForumService;
@@ -762,7 +763,7 @@ impl ForumService {
     fn deleted_condition(
         include_deleted: bool,
         column: impl ColumnTrait,
-    ) -> Option<sea_orm::sea_query::SimpleExpr> {
+    ) -> Option<Expr> {
         if include_deleted {
             None
         } else {

@@ -34,6 +34,7 @@ use crate::services::forum_thread::{
     ForumThreadService, GetForumThread, TouchForumThread,
 };
 use std::collections::BTreeMap;
+use sea_orm::entity::prelude::*;
 
 #[derive(Debug)]
 pub struct ForumPostService;
@@ -614,7 +615,7 @@ impl ForumPostService {
     fn deleted_condition(
         include_deleted: bool,
         column: impl ColumnTrait,
-    ) -> Option<sea_orm::sea_query::SimpleExpr> {
+    ) -> Option<Expr> {
         if include_deleted {
             None
         } else {
