@@ -15,10 +15,13 @@ Wikijump is a Wikidot-compatible local runtime. For imported Wikidot content, so
 
 Browser-visible behavior matters: visible text, meaningful DOM structure, links, modules, includes, files, metadata, permissions, actor state, and network/resource behavior can all be product surface. Do not hide meaningful differences through CSS, broad normalization, source surgery, or validator shortcuts. If a difference is intentionally accepted, record the policy reason and evidence.
 
+For rendered Wikidot content, this fork's priority is faithful emulation over modernization. Upstream tends to replace Wikidot's legacy quirks with cleaner modern equivalents; here those quirks are product surface, because imported pages and their author CSS and scripts depend on Wikidot's actual DOM shape and interaction. When a faithful rendering and a modern one both pass aggregate checks, prefer the faithful one; matching tag counts or a normalized comparator is not the same as operating the page or running its original CSS and scripts. This does not extend to reproducing security-relevant Wikidot behavior; escaping and sanitization boundaries hold regardless of what Wikidot does.
+
 ## Architecture boundaries
 
 - FTML owns syntax parsing/rendering primitives. Wikijump owns runtime behavior that depends on site/page/query/import state. The frozen boundary contract is `docs/ftml-boundary.md`.
 - For `ListPages` and `CountPages`, FTML should preserve delayed module structure; Wikijump owns selector parsing, query semantics, URL arguments, pagination, variable substitution, and runtime rendering.
+- The legacy (Wikidot) and new (Wikijump) layouts are the fidelity-versus-modernization axis, not interchangeable styling; see `docs/dom-compatibility.md`. The legacy layout carries literal Wikidot DOM shape and interaction. Keep the two as distinct paths rather than collapsing one into the other, and land Wikidot-faithful DOM for syntax constructs as an FTML `Layout::Wikidot` branch (`docs/ftml-boundary.md`), not as new post-render rewriting in Deepwell's frozen compatibility shims.
 - Unsupported or unverified query/module shapes must fail closed, remain literal, or use an evidenced fallback. Do not silently drop selectors or widen queries.
 - Imported Wikidot uploaded files are data. Do not add real article/page uploaded assets to repository seed data as a parity fix; use corpus file capture plus import into local Wikijump file state.
 - Real EN/JP Wikidot sites are read-only unless the user explicitly authorizes a run-owned sandbox mutation.
