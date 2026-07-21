@@ -384,8 +384,8 @@ const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 // Keep runtime-owned content expansion within the ordinary ListPages page size. Explicitly larger content modules remain literal before revision loading and nested include expansion.
 const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
     DEFAULT_LISTPAGES_RENDER_LIMIT as usize;
-// Content-backed ListPages queries can each trigger permission filtering, revision loading, and nested include expansion. Three queries cover the common corpus shape while stopping dense author-page compositions before they exhaust the render budget.
-const MAX_LISTPAGES_CONTENT_QUERIES_PER_RENDER: usize = 3;
+// Content-backed ListPages modules can trigger permission filtering, revision loading, and nested include expansion. Three modules cover the common corpus shape while stopping dense author-page compositions before they exhaust the render budget.
+const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 3;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const MAX_WIKIDOT_AJAX_MODULE_BODY_BYTES: usize = 65_536;
@@ -7986,10 +7986,8 @@ impl RenderService {
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
         if wants_content
-            && !current_page_only
-            && prefetched_pages.is_none()
             && query_limit > 0
-            && !expansion_budget.try_start_content_query()
+            && !expansion_budget.try_start_content_module()
         {
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
@@ -12854,23 +12852,23 @@ struct ListPagesContentCache {
 
 #[derive(Debug)]
 struct ListPagesExpansionBudget {
-    remaining_content_queries: usize,
+    remaining_content_modules: usize,
     remaining_content_rows: usize,
 }
 
 impl ListPagesExpansionBudget {
     fn new() -> Self {
         Self {
-            remaining_content_queries: MAX_LISTPAGES_CONTENT_QUERIES_PER_RENDER,
+            remaining_content_modules: MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER,
             remaining_content_rows: MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER,
         }
     }
 
-    fn try_start_content_query(&mut self) -> bool {
-        if self.remaining_content_queries == 0 {
+    fn try_start_content_module(&mut self) -> bool {
+        if self.remaining_content_modules == 0 {
             return false;
         }
-        self.remaining_content_queries -= 1;
+        self.remaining_content_modules -= 1;
         true
     }
 
@@ -14642,13 +14640,13 @@ mod tests {
     }
 
     #[test]
-    fn list_pages_content_budget_limits_queries_and_rows() {
+    fn list_pages_content_budget_limits_modules_and_rows() {
         let mut budget = ListPagesExpansionBudget::new();
 
-        assert!(budget.try_start_content_query());
-        assert!(budget.try_start_content_query());
-        assert!(budget.try_start_content_query());
-        assert!(!budget.try_start_content_query());
+        assert!(budget.try_start_content_module());
+        assert!(budget.try_start_content_module());
+        assert!(budget.try_start_content_module());
+        assert!(!budget.try_start_content_module());
         assert!(budget.can_expand_content_rows(40));
         budget.consume_content_rows(40);
         assert!(budget.can_expand_content_rows(60));
