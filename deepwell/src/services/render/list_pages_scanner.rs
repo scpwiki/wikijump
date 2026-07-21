@@ -77,7 +77,12 @@ fn first_module_opening_candidate(
         }
 
         cursor = raw_name_end;
-        if skip_module_subname_delimiter(bytes, &mut cursor).is_none() {
+        let has_subname_delimiter = if subname.eq_ignore_ascii_case(b"countpages") {
+            skip_count_pages_module_subname_delimiter(bytes, &mut cursor).is_some()
+        } else {
+            skip_module_subname_delimiter(bytes, &mut cursor).is_some()
+        };
+        if !has_subname_delimiter {
             continue;
         }
         let subname_start = cursor;
@@ -1489,6 +1494,20 @@ fn skip_module_subname_delimiter(bytes: &[u8], cursor: &mut usize) -> Option<()>
         return Some(());
     }
     None
+}
+
+fn skip_count_pages_module_subname_delimiter(
+    bytes: &[u8],
+    cursor: &mut usize,
+) -> Option<()> {
+    if !bytes
+        .get(*cursor)
+        .is_some_and(|byte| is_wikidot_head_spacing(*byte))
+    {
+        return None;
+    }
+    skip_module_argument_spacing(bytes, cursor);
+    Some(())
 }
 
 fn skip_module_close_spacing(bytes: &[u8], cursor: &mut usize) {
