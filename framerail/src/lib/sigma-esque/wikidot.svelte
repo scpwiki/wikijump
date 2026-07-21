@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { wikidotCollapsibles } from "$lib/wikidot-collapsibles"
+
   let { header, topBar, loginStatus, sideBar, content, footer, license } = $props()
 </script>
 
-<div id="skrollr-body">
+<div id="skrollr-body" use:wikidotCollapsibles>
   <!-- svelte-ignore a11y_consider_explicit_label -->
   <a name="page-top"></a>
   <div id="container-wrap-wrap">
