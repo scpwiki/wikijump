@@ -27,6 +27,7 @@ class FakeRpc {
     this.calls = [];
     this.page = null;
     this.parserErrors = [];
+    this.userId = 123;
   }
 
   async call(method, params, context = {}) {
@@ -34,6 +35,7 @@ class FakeRpc {
     if (method === "ping") return "Pong!";
     if (method === "site_get") return {site_id: 42};
     if (method === "login") return {session_token: "secret-session-token", needs_mfa: false};
+    if (method === "session_get") return {session_token: params[0], user_id: this.userId};
     if (method === "page_get") return this.page;
     if (method === "page_create") {
       if (this.page) throw new Error("collision");
@@ -66,8 +68,16 @@ test("connect resolves only the allowlisted site and does not retain the passwor
   const {rpc, adapter} = await connectedAdapter();
   assert.equal(adapter.siteId, 42);
   assert.equal(adapter.adminPassword, null);
-  assert.deepEqual(rpc.calls.slice(0, 3).map((call) => call.method), ["ping", "site_get", "login"]);
+  assert.equal(adapter.actorUserId, 123);
+  assert.deepEqual(rpc.calls.slice(0, 4).map((call) => call.method), ["ping", "site_get", "login", "session_get"]);
+  assert.deepEqual(rpc.calls[3].params, ["secret-session-token"]);
   assert.equal(rpc.calls[1].params.site, ALLOWED_SITE_SLUG);
+});
+
+test("connect rejects an explicit actor that does not match the session user", async () => {
+  const rpc = new FakeRpc();
+  const adapter = new DeepwellThemePageAdapter({rpcClient: rpc, adminEmail: "admin@wikijump", adminPassword: "password", actorUserId: -1});
+  await assert.rejects(adapter.connect(), /does not match/);
 });
 
 test("create is create-only, authenticated, and verifies the accepted source", async () => {
@@ -79,6 +89,7 @@ test("create is create-only, authenticated, and verifies the accepted source", a
   assert.equal(create.context.siteId, 42);
   assert.equal(create.params.slug, fixture.resource.slug);
   assert.deepEqual(create.params.tags, ["テーマ"]);
+  assert.equal(create.params.user_id, 123);
   await assert.rejects(adapter.create(fixture.resource, {source: fixture.source}), /preexisting/);
   await assert.rejects(adapter.create({...fixture.resource, slug: "scp-173"}, {source: fixture.source}), /validated/);
   const legacySlug = "theme:codex-l10n-20260713-adapter-yossistyle";
@@ -126,5 +137,6 @@ test("remove refuses changed pages and deletes matching pages with revision fenc
   assert.equal(deletion.params.page, identity);
   assert.equal(deletion.params.last_revision_id, 200);
   assert.equal(deletion.context.sessionToken, "secret-session-token");
+  assert.equal(deletion.params.user_id, 123);
   assert.equal(await adapter.inspect(fixture.resource), null);
 });
