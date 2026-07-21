@@ -26,8 +26,8 @@ use crate::models::forum_category::{
 };
 use crate::models::forum_group::{self, Entity as ForumGroup, Model as ForumGroupModel};
 use crate::models::{forum_post, forum_post_revision, forum_thread};
-use std::collections::BTreeMap;
 use sea_orm::entity::prelude::*;
+use std::collections::BTreeMap;
 
 #[derive(Debug)]
 pub struct ForumService;

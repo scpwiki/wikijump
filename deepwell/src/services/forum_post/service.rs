@@ -33,8 +33,8 @@ use crate::services::forum_post_revision::{
 use crate::services::forum_thread::{
     ForumThreadService, GetForumThread, TouchForumThread,
 };
-use std::collections::BTreeMap;
 use sea_orm::entity::prelude::*;
+use std::collections::BTreeMap;
 
 #[derive(Debug)]
 pub struct ForumPostService;
