@@ -526,6 +526,7 @@ async function run() {
       throw new Error(`invalid local capture URL for ${row.fixture_id}: ${error.message}`);
     }
   }))].sort();
+  const {chromium} = requirePlaywright(args.browserRoot);
   const runId = crypto.randomUUID();
   const captureLock = await acquireBrowserCaptureLock({runId});
   const requestGateConfigPath = path.join(args.outputDir, "request-gate-config.json");
@@ -557,7 +558,6 @@ async function run() {
     localEgressProxy = await startCaptureEgressProxy({
       allowedLocalOrigins: localOrigins,
     });
-    const {chromium} = requirePlaywright(args.browserRoot);
     browserSession = await openBrowser({
       chromium,
       browserExecutable: args.browserExecutable,
