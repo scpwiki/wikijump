@@ -242,12 +242,17 @@ test("tier orchestration opens one cold context per target and viewport and is f
   const closedContexts = [];
   let closedSession = false;
   const openCalls = [];
+  const proxyCalls = [];
   const result = await captureThemeTierBrowserEvidence({
     tier,
     outputDir,
     source: "日本語のテーマ本文",
     chromium: {fixture: true},
     storageStates: {wikidot: "/tmp/wikidot-state.json"},
+    async startEgressProxyImpl(options) {
+      proxyCalls.push(options);
+      return {url: "http://127.0.0.1:27777", async close() {}};
+    },
     async openBrowserImpl(options) {
       openCalls.push(options);
       return {
@@ -269,8 +274,10 @@ test("tier orchestration opens one cold context per target and viewport and is f
 
   assert.equal(openCalls.length, 1);
   assert.equal(openCalls[0].createInitialContexts, false);
+  assert.deepEqual(proxyCalls, [{allowedLocalOrigins: ["http://scpaiueouiuiuiui.wikidot.com", "https://scpaiueouiuiuiui.wikijump.localhost:18443"]}]);
   assert.equal(contextOptions.length, 4);
   assert.deepEqual(contextOptions.map((options) => options.viewport), [{width: 1440, height: 1000}, {width: 390, height: 844}, {width: 1440, height: 1000}, {width: 390, height: 844}]);
+  assert.deepEqual(contextOptions.map((options) => options.proxy), Array.from({length: 4}, () => ({server: "http://127.0.0.1:27777", bypass: "<-loopback>"})));
   assert.equal(contextOptions[0].storageState, "/tmp/wikidot-state.json");
   assert.equal("storageState" in contextOptions[2], false);
   assert.deepEqual(closedContexts, [0, 1, 2, 3]);
