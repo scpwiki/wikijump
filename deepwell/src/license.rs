@@ -23,9 +23,345 @@
 use crate::error::prelude::*;
 use crate::locales::Localizations;
 use fluent::FluentArgs;
+use serde::Serialize;
+use std::str::FromStr;
 use unic_langid::LanguageIdentifier;
 
 pub use crate::types::License;
+
+pub const WIKIDOT_OTHER_LICENSE: &str = "other";
+pub const WIKIDOT_COPYRIGHT_LICENSE: &str = "copyright";
+pub const WIKIDOT_CUSTOM_LICENSE_MAX_CHARS: usize = 300;
+
+#[derive(Serialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
+pub enum WikidotLicense {
+    Standard(License),
+    Other(String),
+    Copyright,
+}
+
+impl WikidotLicense {
+    pub fn from_storage(license: &str, license_other: Option<&str>) -> Result<Self> {
+        match license {
+            WIKIDOT_OTHER_LICENSE => {
+                let source = license_other.ok_or_raise(|| {
+                    Error::new(
+                        "custom Wikidot license is missing its description",
+                        ErrorType::License,
+                    )
+                })?;
+                Ok(Self::Other(str!(source)))
+            }
+            WIKIDOT_COPYRIGHT_LICENSE => Ok(Self::Copyright),
+            value => Ok(License::from_str(value).map(Self::Standard).map_err(|_| {
+                Error::new(
+                    format!("unknown Wikidot license mode {value:?}"),
+                    ErrorType::License,
+                )
+            })?),
+        }
+    }
+
+    pub fn into_storage(self) -> (String, Option<String>) {
+        match self {
+            Self::Standard(license) => (license.to_string(), None),
+            Self::Other(html) => (str!(WIKIDOT_OTHER_LICENSE), Some(html)),
+            Self::Copyright => (str!(WIKIDOT_COPYRIGHT_LICENSE), None),
+        }
+    }
+
+    pub fn render_other(&self, year: i32) -> Option<String> {
+        match self {
+            Self::Other(html) => Some(html.replace("%%year%%", &year.to_string())),
+            _ => None,
+        }
+    }
+}
+
+pub fn validate_wikidot_license_override(
+    license: Option<&str>,
+    license_other: Option<&str>,
+) -> Result<(Option<String>, Option<String>)> {
+    let Some(license) = license else {
+        ensure!(
+            license_other.is_none(),
+            Error::new(
+                "an inherited license cannot carry a custom description",
+                ErrorType::License,
+            ),
+        );
+        return Ok((None, None));
+    };
+
+    let value = match license {
+        WIKIDOT_OTHER_LICENSE => WikidotLicense::Other(sanitize_wikidot_custom_license(
+            license_other.ok_or_raise(|| {
+                Error::new(
+                    "custom Wikidot license is missing its description",
+                    ErrorType::License,
+                )
+            })?,
+        )?),
+        value => WikidotLicense::from_storage(value, None)?,
+    };
+    Ok(value.into_storage()).map(|(license, other)| (Some(license), other))
+}
+
+pub fn sanitize_wikidot_custom_license(source: &str) -> Result<String> {
+    ensure!(
+        source.encode_utf16().count() <= WIKIDOT_CUSTOM_LICENSE_MAX_CHARS,
+        Error::new(
+            format!(
+                "custom Wikidot license exceeds {WIKIDOT_CUSTOM_LICENSE_MAX_CHARS} characters"
+            ),
+            ErrorType::License,
+        ),
+    );
+
+    let mut output = String::with_capacity(source.len());
+    let mut stack = Vec::new();
+    let mut rest = source;
+    while let Some(position) = rest.find('<') {
+        escape_license_text(&rest[..position], &mut output);
+        rest = &rest[position..];
+
+        if let Some(next) = copy_simple_license_tag(rest, &mut output, &mut stack)? {
+            rest = next;
+            continue;
+        }
+        if let Some(next) = copy_anchor_tag(rest, &mut output, &mut stack)? {
+            rest = next;
+            continue;
+        }
+        if let Some(next) = copy_image_tag(rest, &mut output)? {
+            rest = next;
+            continue;
+        }
+
+        bail!(Error::new(
+            "custom Wikidot license contains unsupported markup",
+            ErrorType::License,
+        ));
+    }
+    escape_license_text(rest, &mut output);
+    ensure!(
+        stack.is_empty(),
+        Error::new(
+            "custom Wikidot license contains unbalanced markup",
+            ErrorType::License,
+        ),
+    );
+    Ok(output)
+}
+
+fn copy_simple_license_tag<'a>(
+    input: &'a str,
+    output: &mut String,
+    stack: &mut Vec<&'static str>,
+) -> Result<Option<&'a str>> {
+    for (tag, open, close) in
+        [("strong", "<strong>", "</strong>"), ("em", "<em>", "</em>")]
+    {
+        if let Some(rest) = input.strip_prefix(open) {
+            output.push_str(open);
+            stack.push(tag);
+            return Ok(Some(rest));
+        }
+        if let Some(rest) = input.strip_prefix(close) {
+            ensure!(
+                stack.pop() == Some(tag),
+                Error::new(
+                    "custom Wikidot license contains unbalanced markup",
+                    ErrorType::License,
+                ),
+            );
+            output.push_str(close);
+            return Ok(Some(rest));
+        }
+    }
+    for tag in ["<br>", "<br/>", "<br />"] {
+        if let Some(rest) = input.strip_prefix(tag) {
+            output.push_str("<br />");
+            return Ok(Some(rest));
+        }
+    }
+    Ok(None)
+}
+
+fn copy_anchor_tag<'a>(
+    input: &'a str,
+    output: &mut String,
+    stack: &mut Vec<&'static str>,
+) -> Result<Option<&'a str>> {
+    if let Some(rest) = input.strip_prefix("</a>") {
+        ensure!(
+            stack.pop() == Some("a"),
+            Error::new(
+                "custom Wikidot license contains unbalanced markup",
+                ErrorType::License,
+            ),
+        );
+        output.push_str("</a>");
+        return Ok(Some(rest));
+    }
+    let Some(rest) = input.strip_prefix("<a href=\"") else {
+        return Ok(None);
+    };
+    let Some(end) = rest.find("\">") else {
+        bail!(Error::new(
+            "custom Wikidot license contains an invalid link",
+            ErrorType::License,
+        ));
+    };
+    let href = &rest[..end];
+    ensure_safe_license_url(href, false)?;
+    output.push_str("<a href=\"");
+    escape_license_attribute(href, output);
+    output.push_str("\">");
+    stack.push("a");
+    Ok(Some(&rest[end + 2..]))
+}
+
+fn copy_image_tag<'a>(input: &'a str, output: &mut String) -> Result<Option<&'a str>> {
+    let Some(rest) = input.strip_prefix("<img src=\"") else {
+        return Ok(None);
+    };
+    let Some(src_end) = rest.find("\" alt=\"") else {
+        bail!(Error::new(
+            "custom Wikidot license contains an invalid image",
+            ErrorType::License,
+        ));
+    };
+    let src = &rest[..src_end];
+    let alt_and_end = &rest[src_end + 7..];
+    let Some(alt_end) = alt_and_end.find('"') else {
+        bail!(Error::new(
+            "custom Wikidot license contains an invalid image",
+            ErrorType::License,
+        ));
+    };
+    let alt = &alt_and_end[..alt_end];
+    let suffix = &alt_and_end[alt_end + 1..];
+    let suffix = suffix
+        .strip_prefix(" />")
+        .or_else(|| suffix.strip_prefix("/>"))
+        .or_else(|| suffix.strip_prefix('>'))
+        .ok_or_raise(|| {
+            Error::new(
+                "custom Wikidot license contains an invalid image",
+                ErrorType::License,
+            )
+        })?;
+    ensure_safe_license_url(src, true)?;
+    output.push_str("<img src=\"");
+    escape_license_attribute(src, output);
+    output.push_str("\" alt=\"");
+    escape_license_attribute(alt, output);
+    output.push_str("\" />");
+    Ok(Some(suffix))
+}
+
+fn ensure_safe_license_url(value: &str, image: bool) -> Result<()> {
+    let lower = value.trim().to_ascii_lowercase();
+    let has_control = value.chars().any(char::is_control);
+    let allowed = !value.is_empty()
+        && !has_control
+        && (value.starts_with('/')
+            || value.starts_with('#')
+            || value.starts_with('?')
+            || lower.starts_with("http://")
+            || lower.starts_with("https://")
+            || (!image && lower.starts_with("mailto:"))
+            || !lower.contains(':'));
+    ensure!(
+        allowed,
+        Error::new(
+            "custom Wikidot license contains an unsafe URL",
+            ErrorType::License,
+        ),
+    );
+    Ok(())
+}
+
+fn escape_license_text(value: &str, output: &mut String) {
+    for character in value.chars() {
+        match character {
+            '&' => output.push_str("&amp;"),
+            '>' => output.push_str("&gt;"),
+            character => output.push(character),
+        }
+    }
+}
+
+fn escape_license_attribute(value: &str, output: &mut String) {
+    for character in value.chars() {
+        match character {
+            '&' => output.push_str("&amp;"),
+            '"' => output.push_str("&quot;"),
+            '<' => output.push_str("&lt;"),
+            '>' => output.push_str("&gt;"),
+            character => output.push(character),
+        }
+    }
+}
+
+#[cfg(test)]
+mod wikidot_license_tests {
+    use super::*;
+
+    #[test]
+    fn custom_license_canonicalizes_the_live_wikidot_allowlist() {
+        let source = "Codex & %%year%% <strong>Strong</strong> <em>Em</em> <a href=\"/page\">Local</a> <img src=\"/icon.png\" alt=\"Icon\"/> <br/>";
+        let html = sanitize_wikidot_custom_license(source).unwrap();
+        assert_eq!(
+            html,
+            "Codex &amp; %%year%% <strong>Strong</strong> <em>Em</em> <a href=\"/page\">Local</a> <img src=\"/icon.png\" alt=\"Icon\" /> <br />",
+        );
+        assert_eq!(
+            WikidotLicense::from_storage("other", Some(&html)).unwrap(),
+            WikidotLicense::Other(html.clone()),
+        );
+        assert_eq!(
+            WikidotLicense::Other(html).render_other(2026).unwrap(),
+            "Codex &amp; 2026 <strong>Strong</strong> <em>Em</em> <a href=\"/page\">Local</a> <img src=\"/icon.png\" alt=\"Icon\" /> <br />",
+        );
+    }
+
+    #[test]
+    fn custom_license_rejects_unsupported_or_unsafe_markup() {
+        for source in [
+            "<span>not allowed</span>",
+            "<strong class=\"x\">not allowed</strong>",
+            "<a href=\"javascript:alert(1)\">unsafe</a>",
+            "<img src=\"data:text/html,x\" alt=\"unsafe\" />",
+            "<strong>unbalanced",
+        ] {
+            assert!(sanitize_wikidot_custom_license(source).is_err(), "{source}");
+        }
+    }
+
+    #[test]
+    fn category_license_modes_have_unambiguous_storage() {
+        assert_eq!(
+            validate_wikidot_license_override(Some("cc-by-sa-3.0"), None).unwrap(),
+            (Some(str!("cc-by-sa-3.0")), None),
+        );
+        assert_eq!(
+            validate_wikidot_license_override(Some("copyright"), None).unwrap(),
+            (Some(str!("copyright")), None),
+        );
+        assert_eq!(
+            validate_wikidot_license_override(Some("other"), Some("Text")).unwrap(),
+            (Some(str!("other")), Some(str!("Text"))),
+        );
+        assert_eq!(
+            validate_wikidot_license_override(None, None).unwrap(),
+            (None, None),
+        );
+        assert!(validate_wikidot_license_override(None, Some("orphaned")).is_err());
+    }
+}
 
 impl License {
     pub fn url(self) -> &'static str {

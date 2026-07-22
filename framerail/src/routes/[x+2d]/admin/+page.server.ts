@@ -1,7 +1,16 @@
-import { adminAction, loadAdminPage, navigationAction } from "$lib/server/load/admin"
+import {
+  adminAction,
+  licenseAction,
+  loadAdminPage,
+  navigationAction
+} from "$lib/server/load/admin"
 
 export async function load({ request, cookies, parent }) {
   return loadAdminPage(request, cookies, parent)
 }
 
-export const actions = { site: adminAction, navigation: navigationAction }
+export const actions = {
+  site: adminAction,
+  navigation: navigationAction,
+  license: licenseAction
+}

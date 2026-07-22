@@ -263,6 +263,7 @@ async fn category_navigation_update_requires_site_edit_and_supports_inheritance(
             "user_id": SYSTEM_USER_ID,
             "top_bar_page": "nav:alternate",
             "side_bar_page": "nav:side-alternate",
+            "license": "cc-by-3.0",
             "ip_address": common::IP_ADDRESS,
         }),
     );
@@ -278,11 +279,60 @@ async fn category_navigation_update_requires_site_edit_and_supports_inheritance(
             "user_id": SYSTEM_USER_ID,
             "top_bar_page": "nav:alternate",
             "side_bar_page": "nav:side-alternate",
+            "license": "cc-by-3.0",
             "ip_address": common::IP_ADDRESS,
         }),
     );
     assert_eq!(updated.top_bar_page.as_deref(), Some("nav:alternate"));
     assert_eq!(updated.side_bar_page.as_deref(), Some("nav:side-alternate"));
+    assert_eq!(updated.license.as_deref(), Some("cc-by-3.0"));
+
+    let custom = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": SYSTEM_USER_ID,
+            "license": "other",
+            "license_other": "Codex %%year%% <strong>Strong</strong> <a href=\"/page\">Local</a>",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(custom.license.as_deref(), Some("other"));
+    assert_eq!(
+        custom.license_other.as_deref(),
+        Some("Codex %%year%% <strong>Strong</strong> <a href=\"/page\">Local</a>"),
+    );
+
+    let rejected = run_endpoint_err!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": SYSTEM_USER_ID,
+            "license": "other",
+            "license_other": "<script>alert(1)</script>",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(rejected, ErrorType::License);
+
+    let copyright = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": SYSTEM_USER_ID,
+            "license": "copyright",
+            "license_other": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(copyright.license.as_deref(), Some("copyright"));
+    assert_eq!(copyright.license_other, None);
 
     let inherited = run_endpoint!(
         runner,
@@ -293,11 +343,15 @@ async fn category_navigation_update_requires_site_edit_and_supports_inheritance(
             "user_id": SYSTEM_USER_ID,
             "top_bar_page": null,
             "side_bar_page": null,
+            "license": null,
+            "license_other": null,
             "ip_address": common::IP_ADDRESS,
         }),
     );
     assert_eq!(inherited.top_bar_page, None);
     assert_eq!(inherited.side_bar_page, None);
+    assert_eq!(inherited.license, None);
+    assert_eq!(inherited.license_other, None);
 }
 
 #[tokio::test]

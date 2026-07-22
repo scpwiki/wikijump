@@ -19,6 +19,8 @@ test("public preload data is an allowlisted DTO", () => {
     site_file_domain: "files.example",
     license_name: "CC BY-SA 3.0",
     license_url: "https://creativecommons.org/licenses/by-sa/3.0/",
+    license_kind: "standard",
+    license_html: null,
     user_session: {
       session: { session_token: "secret-session" },
       user: { user_id: 7, email: "private@example.test" }
@@ -38,6 +40,8 @@ test("public preload data is an allowlisted DTO", () => {
     site_file_domain: response.site_file_domain,
     license_name: response.license_name,
     license_url: response.license_url,
+    license_kind: response.license_kind,
+    license_html: response.license_html,
     user_session: publicUserSession,
     locales
   })
@@ -55,6 +59,8 @@ test("anonymous browser serialization excludes session and cache internals", () 
     site_file_domain: "files.example",
     license_name: "CC BY-SA 3.0",
     license_url: "https://creativecommons.org/licenses/by-sa/3.0/",
+    license_kind: "standard",
+    license_html: null,
     user_session: null,
     session_token: "secret-session",
     article_page_cache_key: "private-cache-key",

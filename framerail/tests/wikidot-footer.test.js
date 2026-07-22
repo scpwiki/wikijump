@@ -8,7 +8,8 @@ import {
   buildWikidotLicenseHtml,
   buildWikidotLoginLabels,
   formatWikidotLicenseName,
-  isImportedWikidotView
+  isImportedWikidotView,
+  shouldUseWikidotLicenseHtml
 } from "../src/lib/wikidot-footer.js"
 
 test("uses Wikidot footer labels in source order", () => {
@@ -47,6 +48,16 @@ test("formats Wikidot license wording without Wikijump copy", () => {
     }),
     'Unless otherwise stated, the content of this page is licensed under <a href="https://example.invalid/license">Creative Commons Attribution-ShareAlike 3.0 License</a>'
   )
+})
+
+test("renders trusted custom and empty copyright Wikidot license modes", () => {
+  const html = 'Codex 2026 <strong>Strong</strong> <a href="/page">Local</a>'
+  assert.equal(buildWikidotLicenseHtml({ licenseKind: "other", licenseHtml: html }), html)
+  assert.equal(buildWikidotLicenseHtml({ licenseKind: "copyright" }), "")
+  assert.equal(shouldUseWikidotLicenseHtml(false, "standard"), false)
+  assert.equal(shouldUseWikidotLicenseHtml(false, "other"), true)
+  assert.equal(shouldUseWikidotLicenseHtml(false, "copyright"), true)
+  assert.equal(shouldUseWikidotLicenseHtml(true, "standard"), true)
 })
 
 test("formats Japanese Wikidot license wording for SCP-JP", () => {

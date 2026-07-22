@@ -42,4 +42,6 @@ pub struct UpdateCategory<'a> {
 pub struct UpdateCategoryBody {
     pub top_bar_page: Maybe<Option<String>>,
     pub side_bar_page: Maybe<Option<String>>,
+    pub license: Maybe<Option<String>>,
+    pub license_other: Maybe<Option<String>>,
 }

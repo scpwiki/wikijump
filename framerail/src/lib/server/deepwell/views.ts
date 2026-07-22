@@ -18,6 +18,8 @@ export interface Viewer {
   site_file_domain: string
   license_name: string
   license_url: string
+  license_kind: "standard" | "other" | "copyright"
+  license_html: Nullable<string>
   user_session: Nullable<UserSession>
 }
 
@@ -57,6 +59,8 @@ export interface PreloadData {
   site_file_domain: Viewer["site_file_domain"]
   license_name: Viewer["license_name"]
   license_url: Viewer["license_url"]
+  license_kind: Viewer["license_kind"]
+  license_html: Viewer["license_html"]
   user_session: Nullable<ClientUserSession>
   locales: string[]
 }

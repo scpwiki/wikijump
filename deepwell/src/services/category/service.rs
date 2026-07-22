@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::license::validate_wikidot_license_override;
 use crate::models::page;
 use crate::models::page_category::{
     self, Entity as PageCategory, Model as PageCategoryModel,
@@ -181,6 +182,24 @@ impl CategoryService {
         let category = Self::get(ctx, site_id, reference.clone())
             .await
             .or_raise(make_error)?;
+        let normalized_license = match (&input.license, &input.license_other) {
+            (Maybe::Set(license), Maybe::Set(license_other)) => Some(
+                validate_wikidot_license_override(
+                    license.as_deref(),
+                    license_other.as_deref(),
+                )
+                .or_raise(make_error)?,
+            ),
+            (Maybe::Set(license), Maybe::Unset) => Some(
+                validate_wikidot_license_override(license.as_deref(), None)
+                    .or_raise(make_error)?,
+            ),
+            (Maybe::Unset, Maybe::Set(_)) => bail!(Error::new(
+                "license_other cannot be updated without license",
+                ErrorType::PageCategory,
+            )),
+            (Maybe::Unset, Maybe::Unset) => None,
+        };
         let navigation_changed = input
             .top_bar_page
             .to_option()
@@ -199,6 +218,14 @@ impl CategoryService {
                 Maybe::Set(_) => Maybe::Set(category.side_bar_page.as_deref()),
                 Maybe::Unset => Maybe::Unset,
             },
+            license: match &input.license {
+                Maybe::Set(_) => Maybe::Set(category.license.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
+            license_other: match &input.license {
+                Maybe::Set(_) => Maybe::Set(category.license_other.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
         };
         let changed_fields = PageCategoryFields {
             top_bar_page: match &input.top_bar_page {
@@ -209,6 +236,14 @@ impl CategoryService {
                 Maybe::Set(value) => Maybe::Set(value.as_deref()),
                 Maybe::Unset => Maybe::Unset,
             },
+            license: normalized_license
+                .as_ref()
+                .map_or(Maybe::Unset, |(license, _)| Maybe::Set(license.as_deref())),
+            license_other: normalized_license
+                .as_ref()
+                .map_or(Maybe::Unset, |(_, license_other)| {
+                    Maybe::Set(license_other.as_deref())
+                }),
         };
 
         AuditService::log(
@@ -232,6 +267,10 @@ impl CategoryService {
         }
         if let Maybe::Set(side_bar_page) = input.side_bar_page {
             model.side_bar_page = Set(side_bar_page);
+        }
+        if let Some((license, license_other)) = normalized_license {
+            model.license = Set(license);
+            model.license_other = Set(license_other);
         }
         model.updated_at = Set(Some(now()));
 

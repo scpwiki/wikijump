@@ -13,6 +13,8 @@ export const resolveCanonicalViewMetadata = (errorData, pageData) => {
     locale: viewData?.site?.locale,
     licenseName: viewData?.license_name,
     licenseUrl: viewData?.license_url,
+    licenseKind: viewData?.license_kind,
+    licenseHtml: viewData?.license_html,
     sourceSite: viewData?.wikidot_snapshot?.source_site
   }
 }

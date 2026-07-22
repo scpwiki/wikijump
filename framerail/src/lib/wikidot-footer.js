@@ -74,6 +74,8 @@ export const formatWikidotLicenseName = (licenseName, locale = "en") => {
  * @param {{
  *   licenseName?: string | null
  *   licenseUrl?: string | null
+ *   licenseKind?: string | null
+ *   licenseHtml?: string | null
  *   locale?: string | null
  *   sourceSite?: string | null
  * }} input
@@ -82,9 +84,14 @@ export const formatWikidotLicenseName = (licenseName, locale = "en") => {
 export const buildWikidotLicenseHtml = ({
   licenseName,
   licenseUrl,
+  licenseKind = "standard",
+  licenseHtml = null,
   locale = "en",
   sourceSite = null
 }) => {
+  if (licenseKind === "copyright") return ""
+  if (licenseKind === "other") return licenseHtml ?? ""
+
   const effectiveLocale = locale ?? "en"
   const name = escapeHtml(formatWikidotLicenseName(licenseName, effectiveLocale))
   const englishName = escapeHtml(formatWikidotLicenseName(licenseName, "en"))
@@ -100,6 +107,13 @@ export const buildWikidotLicenseHtml = ({
 
   return `Unless otherwise stated, the content of this page is licensed under <a href="${url}">${name}</a>`
 }
+
+/**
+ * @param {boolean} importedWikidotLayout
+ * @param {string | null | undefined} licenseKind
+ */
+export const shouldUseWikidotLicenseHtml = (importedWikidotLayout, licenseKind) =>
+  importedWikidotLayout || licenseKind === "other" || licenseKind === "copyright"
 
 /**
  * @param {{

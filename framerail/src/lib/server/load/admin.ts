@@ -1,8 +1,13 @@
 import defaults from "$lib/defaults"
+import { licenseUpdateValue } from "$lib/admin-license.js"
 import { navigationUpdateValues } from "$lib/admin-navigation.js"
 
 import { authGetSession } from "$lib/server/auth/getSession"
-import { categoryNavigationUpdate, siteUpdate } from "$lib/server/deepwell/admin"
+import {
+  categoryLicenseUpdate,
+  categoryNavigationUpdate,
+  siteUpdate
+} from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
 import { adminView, type PreloadDataAsync } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
@@ -18,6 +23,7 @@ import {
   object,
   optional,
   string,
+  maxLength,
   enum as vEnum
 } from "valibot"
 
@@ -86,6 +92,7 @@ export async function loadAdminPage(
 
   const adminForm = await superValidate(request, valibot(adminSchema))
   const navigationForm = await superValidate(request, valibot(navigationSchema))
+  const licenseForm = await superValidate(request, valibot(licenseSchema))
 
   const viewData = {
     view: response.type,
@@ -93,6 +100,7 @@ export async function loadAdminPage(
     internationalization,
     adminForm,
     navigationForm,
+    licenseForm,
     categories: response.type === "site_found" ? response.data.categories : []
   }
 
@@ -101,6 +109,46 @@ export async function loadAdminPage(
   }
 
   return viewData
+}
+
+export async function licenseAction({
+  request,
+  getClientAddress,
+  cookies
+}: RequestEvent) {
+  const form = await superValidate(request, valibot(licenseSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's license"
+    })
+  }
+
+  const { siteId, categoryId } = form.data
+  const { license, licenseOther } = licenseUpdateValue(form.data)
+  try {
+    const res = await categoryLicenseUpdate(
+      siteId,
+      categoryId,
+      session.user_id,
+      getClientAddress(),
+      license,
+      licenseOther,
+      { sessionToken, siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    return fail(500, {
+      form,
+      message: error?.message,
+      code: error?.code,
+      data: error?.data
+    })
+  }
 }
 
 export async function navigationAction({
@@ -212,4 +260,12 @@ const navigationSchema = object({
   inherit: boolean(),
   topBarPage: string(),
   sideBarPage: string()
+})
+
+const licenseSchema = object({
+  siteId: number(),
+  categoryId: number(),
+  inherit: boolean(),
+  license: string(),
+  licenseOther: maxLength(string(), 300)
 })

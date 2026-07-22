@@ -26,6 +26,7 @@ use deepwell::constants::{
     ADMIN_USER_ID, ANONYMOUS_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID, UNKNOWN_USER_ID,
 };
 use deepwell::error::prelude::*;
+use deepwell::license::License;
 use deepwell::models::file;
 use deepwell::models::page::{self, Entity as PageTable};
 use deepwell::models::page_category::{self, Entity as PageCategoryTable};
@@ -301,6 +302,127 @@ async fn basic_edit() {
     assert_eq!(page.revision_type, PageRevisionType::Regular);
     assert_eq!(page.revision_user_id, ADMIN_USER_ID);
     assert_eq!(page.page_category_slug, "_default");
+}
+
+#[tokio::test]
+async fn article_view_uses_category_license_and_site_fallback() {
+    const SITE_SLUG: &str = "test";
+    const PAGE_SLUG: &str = "category-license:article";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded site should exist")
+        .site;
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site_id,
+        Reference::Slug(Cow::Borrowed(PAGE_SLUG)),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site_id,
+            "wikitext": "Category license fixture",
+            "title": "Category license fixture",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create category license fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("page lookup should not fail")
+        .expect("created page should exist");
+    let category = PageCategoryTable::find_by_id(page.page_category_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("category lookup should not fail")
+        .expect("created category should exist");
+    let mut category = category.into_active_model();
+    category.license = Set(Some(License::CcBy30.to_string()));
+    category
+        .update(runner.context().transaction())
+        .await
+        .expect("category license update should succeed");
+
+    let explicit = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": PAGE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert_eq!(explicit.viewer.license_url, License::CcBy30.url());
+    assert_eq!(
+        explicit.viewer.license_kind,
+        deepwell::services::view::ViewerLicenseKind::Standard,
+    );
+
+    let category = PageCategoryTable::find_by_id(page.page_category_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("category lookup should not fail")
+        .expect("created category should exist");
+    let mut category = category.into_active_model();
+    category.license = Set(Some(String::from("other")));
+    category.license_other =
+        Set(Some(String::from("Codex %%year%% <strong>Strong</strong>")));
+    category
+        .update(runner.context().transaction())
+        .await
+        .expect("custom category license update should succeed");
+
+    let custom = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": PAGE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert_eq!(
+        custom.viewer.license_kind,
+        deepwell::services::view::ViewerLicenseKind::Other,
+    );
+    let custom_html = custom.viewer.license_html.unwrap();
+    assert!(custom_html.starts_with("Codex 20"));
+    assert!(custom_html.ends_with(" <strong>Strong</strong>"));
+
+    let category = PageCategoryTable::find_by_id(page.page_category_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("category lookup should not fail")
+        .expect("created category should exist");
+    let mut category = category.into_active_model();
+    category.license = Set(None);
+    category.license_other = Set(None);
+    category
+        .update(runner.context().transaction())
+        .await
+        .expect("category inheritance update should succeed");
+
+    let inherited = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": PAGE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert_eq!(inherited.viewer.license_url, site.license.url());
 }
 
 #[tokio::test]

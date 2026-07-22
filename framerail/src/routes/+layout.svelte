@@ -12,7 +12,8 @@
     buildWikidotFooterLinks,
     buildWikidotLicenseHtml,
     buildWikidotLoginLabels,
-    isImportedWikidotView
+    isImportedWikidotView,
+    shouldUseWikidotLicenseHtml
   } from "$lib/wikidot-footer"
   import {
     PAGE_LAYOUT_CONTEXT_KEY,
@@ -69,11 +70,16 @@
     buildWikidotLicenseHtml({
       licenseName: canonicalView.licenseName,
       licenseUrl: canonicalView.licenseUrl,
+      licenseKind: canonicalView.licenseKind,
+      licenseHtml: canonicalView.licenseHtml,
       locale: wikidotLocale,
       sourceSite: canonicalView.sourceSite
     })
   )
   const isImportedWikidotLayout = $derived(isImportedWikidotView(viewData))
+  const useWikidotLicenseHtml = $derived(
+    shouldUseWikidotLicenseHtml(isImportedWikidotLayout, canonicalView.licenseKind)
+  )
   const useSandboxWikidotChrome = $derived(shouldUseSandboxWikidotChrome(viewData))
   const wikidotSiteTitle = $derived(resolveWikidotSiteTitle(viewData))
   const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
@@ -258,7 +264,7 @@
       {/if}
     {/snippet}
     {#snippet license()}
-      {#if isImportedWikidotLayout}
+      {#if useWikidotLicenseHtml}
         {@html wikidotLicenseHtml}
       {:else}
         {@html viewData?.internationalization?.["footer-license-unless"] ?? ""}

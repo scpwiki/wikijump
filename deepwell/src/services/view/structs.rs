@@ -230,7 +230,17 @@ pub struct Viewer {
     pub site_file_domain: String,
     pub license_name: String,
     pub license_url: &'static str,
+    pub license_kind: ViewerLicenseKind,
+    pub license_html: Option<String>,
     pub user_session: Option<UserSession>,
+}
+
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ViewerLicenseKind {
+    Standard,
+    Other,
+    Copyright,
 }
 
 #[derive(Serialize, Debug, Clone)]
