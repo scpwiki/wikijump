@@ -329,7 +329,7 @@ test("only canonical standing Wikijump origins can become local exemptions", () 
   assert.throws(() => localBrowserCaptureOrigins("https://scp-wiki.wikijump.localhost:18443/scp-173"), /non-default port/);
 });
 
-test("capture lock rejects a live owner, safely replaces a stale owner, and only removes its own inode", async () => {
+test("capture lock refuses a live owner regardless of state confirmation", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-request-lock-"));
   const lockPath = path.join(root, "campaign.lock");
   const ticks = new Map([[process.pid, "123"]]);
@@ -347,20 +347,17 @@ test("capture lock rejects a live owner, safely replaces a stale owner, and only
     /held by run first/
   );
   await first.confirmState();
-  await first.release();
-
-  await fs.writeFile(lockPath, `${JSON.stringify({
-    schema: "wikijump_full_parity.browser_capture_lock.v1",
-    hostname: "test-host",
-    pid: 42,
-    process_start_ticks: "456",
-    run_id: "stale-run",
-    state_confirmation: "pending",
-  })}\n`, {mode: 0o600});
   await assert.rejects(
-    () => acquireBrowserCaptureLock({lockPath, runId: "blocked", hostname: "test-host", processStartTicks}),
-    /unconfirmed request-gate state/
+    () => acquireBrowserCaptureLock({lockPath, runId: "second", hostname: "test-host", processStartTicks}),
+    /held by run first/
   );
+  await first.release();
+});
+
+test("capture lock safely replaces a sealed stale owner", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-request-lock-"));
+  const lockPath = path.join(root, "campaign.lock");
+  const processStartTicks = async (pid) => pid === process.pid ? "123" : null;
   await fs.writeFile(lockPath, `${JSON.stringify({
     schema: "wikijump_full_parity.browser_capture_lock.v1",
     hostname: "test-host",
@@ -374,4 +371,60 @@ test("capture lock rejects a live owner, safely replaces a stale owner, and only
   await replacement.confirmState();
   await replacement.release();
   await assert.rejects(fs.lstat(lockPath), {code: "ENOENT"});
+});
+
+test("capture lock replaces an unsealed stale owner when durable state preserves the request floor", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-request-lock-"));
+  const lockPath = path.join(root, "campaign.lock");
+  const statePath = `${lockPath}.state.json`;
+  const processStartTicks = async (pid) => pid === process.pid ? "123" : null;
+  await fs.writeFile(lockPath, `${JSON.stringify({
+    schema: "wikijump_full_parity.browser_capture_lock.v1",
+    hostname: "test-host",
+    pid: 42,
+    process_start_ticks: "456",
+    run_id: "stale-run",
+    state_confirmation: "pending",
+  })}\n`, {mode: 0o600});
+  await fs.writeFile(statePath, `${JSON.stringify({
+    schema: "wikijump_full_parity.browser_request_gate_state.v1",
+    next_admissible_at_epoch_ms: 12_000,
+    retry_after_until_epoch_ms: 0,
+  })}\n`, {mode: 0o600});
+
+  const replacement = await acquireBrowserCaptureLock({lockPath, runId: "replacement", hostname: "test-host", processStartTicks});
+  assert.equal(replacement.owner.run_id, "replacement");
+  assert.equal(replacement.statePath, statePath);
+  const clock = createClock();
+  const gate = await createPersistentBrowserRequestGate({statePath: replacement.statePath, intervalMs: 4_000, now: clock.now, sleep: clock.sleep});
+  const grant = await gate.acquire();
+  assert.equal(grant.released_at_epoch_ms, 12_000);
+  assert.deepEqual(clock.sleeps, [12_000]);
+  await replacement.confirmState();
+  await replacement.release();
+  await assert.rejects(fs.lstat(lockPath), {code: "ENOENT"});
+});
+
+test("capture lock refuses an unsealed stale owner when durable state is unavailable or malformed", async (t) => {
+  for (const state of [null, "malformed\n"]) {
+    await t.test(state === null ? "missing state" : "malformed state", async () => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-request-lock-"));
+      const lockPath = path.join(root, "campaign.lock");
+      const processStartTicks = async (pid) => pid === process.pid ? "123" : null;
+      await fs.writeFile(lockPath, `${JSON.stringify({
+        schema: "wikijump_full_parity.browser_capture_lock.v1",
+        hostname: "test-host",
+        pid: 42,
+        process_start_ticks: "456",
+        run_id: "stale-run",
+        state_confirmation: "pending",
+      })}\n`, {mode: 0o600});
+      if (state !== null) await fs.writeFile(`${lockPath}.state.json`, state, {mode: 0o600});
+
+      await assert.rejects(
+        () => acquireBrowserCaptureLock({lockPath, runId: "blocked", hostname: "test-host", processStartTicks}),
+        /unconfirmed request-gate state from run stale-run; operator review is required/
+      );
+    });
+  }
 });
