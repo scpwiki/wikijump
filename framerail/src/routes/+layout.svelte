@@ -42,6 +42,14 @@
     }
   }
 
+  function clearWikidotSearchPrompt(event: FocusEvent) {
+    const input = event.currentTarget as HTMLInputElement
+    if (input.classList.contains("empty")) {
+      input.classList.remove("empty")
+      input.value = ""
+    }
+  }
+
   function resolveCurrentLayout() {
     if (page.route.id?.startsWith("/[x+2d]/")) {
       // this is a special page, use Wikijump layout
@@ -157,6 +165,19 @@
           <span>{wikidotSiteTagline}</span>
         </h2>
       {/if}
+      <div id="search-top-box">
+        <form id="search-top-box-form" action="dummy">
+          <input
+            id="search-top-box-input"
+            name="query"
+            class="text empty"
+            onfocus={clearWikidotSearchPrompt}
+            size="15"
+            type="text"
+            value="Search this site"
+          /><input name="search" class="button" type="submit" value="Search" />
+        </form>
+      </div>
       {#if useSandboxWikidotChrome && wikidotSessionUserName}
         <div class="login-status">
           <div class="btn-group logged-in">

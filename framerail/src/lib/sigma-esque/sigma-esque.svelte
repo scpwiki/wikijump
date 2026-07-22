@@ -115,7 +115,7 @@
     background: linear-gradient(180deg, var(--col-accent-2) 0%, var(--col-accent-1) 100%);
   }
 
-  .top-bar {
+  .sigma-esque-container > .top-bar {
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
