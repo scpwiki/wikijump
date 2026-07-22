@@ -1,0 +1,210 @@
+/*
+ * tests/page_template_assignment.rs
+ *
+ * DEEPWELL - Wikijump API provider and database manager
+ * Copyright (C) 2019-2026 Wikijump Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#[macro_use]
+mod common;
+
+use self::common::TestRunner;
+use deepwell::constants::ADMIN_USER_ID;
+use deepwell::error::ErrorType;
+use deepwell::services::RequestContext;
+use deepwell::services::category::CategoryService;
+use deepwell::services::page::CreatePageOutput;
+use deepwell::services::view::{GetPageViewOutput, PageTemplateSummary};
+use deepwell::types::Reference;
+use serde_json::json;
+use std::borrow::Cow;
+
+fn set_page_actor(runner: &mut TestRunner, site_id: i64, slug: &str) {
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Owned(slug.to_owned()))),
+    });
+}
+
+async fn create_page(
+    runner: &mut TestRunner,
+    site_id: i64,
+    slug: &str,
+    wikitext: &str,
+) -> CreatePageOutput {
+    set_page_actor(runner, site_id, slug);
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": wikitext,
+            "title": slug,
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "page template assignment fixture",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+}
+
+async fn missing_page_template(
+    runner: &TestRunner,
+    site_id: i64,
+    slug: &str,
+    extra: &str,
+) -> (Option<String>, Vec<PageTemplateSummary>, Option<i64>) {
+    match run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": { "slug": slug, "extra": extra },
+            "locales": ["en-US", "en"],
+        }),
+    ) {
+        GetPageViewOutput::Missing {
+            new_page_wikitext,
+            page_templates,
+            selected_template_page_id,
+            ..
+        } => (new_page_wikitext, page_templates, selected_template_page_id),
+        other => panic!("expected a missing-page view, got {other:?}"),
+    }
+}
+
+#[tokio::test]
+async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
+    const TEMPLATE_SOURCE: &str = "ORACLE-TEMPLATE-BEGIN\nTitle: %%title%%\nContent: %%content%%\nORACLE-TEMPLATE-END";
+
+    let mut runner = TestRunner::setup().await;
+    let site_id = run_endpoint!(runner, site_get, json!({ "site": "test" }))
+        .expect("seeded test site should exist")
+        .site
+        .site_id;
+    let template = create_page(
+        &mut runner,
+        site_id,
+        "template:page-template-assignment",
+        TEMPLATE_SOURCE,
+    )
+    .await;
+    let ordinary = create_page(
+        &mut runner,
+        site_id,
+        "ordinary-page-template-source",
+        "not a template",
+    )
+    .await;
+    let alternate_template = create_page(
+        &mut runner,
+        site_id,
+        "template:page-template-assignment-alternate",
+        "ALTERNATE-TEMPLATE-SOURCE",
+    )
+    .await;
+    let category = CategoryService::get_or_create(
+        runner.context(),
+        site_id,
+        "page-template-assignment-target",
+    )
+    .await
+    .expect("target category should be created");
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    let rejected = run_endpoint_err!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": ADMIN_USER_ID,
+            "template_page_id": ordinary.page_id,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(rejected, ErrorType::PageCategory);
+
+    let assigned = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": ADMIN_USER_ID,
+            "template_page_id": template.page_id,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(assigned.template_page_id, Some(template.page_id));
+    let (initial_source, page_templates, selected_template_page_id) =
+        missing_page_template(
+            &runner,
+            site_id,
+            "page-template-assignment-target:new-page",
+            "/edit/true",
+        )
+        .await;
+    assert_eq!(initial_source.as_deref(), Some(TEMPLATE_SOURCE));
+    assert_eq!(selected_template_page_id, Some(template.page_id));
+    assert!(page_templates.iter().any(|candidate| {
+        candidate.page_id == template.page_id && candidate.wikitext == TEMPLATE_SOURCE
+    }));
+
+    let forced_extra = format!("/edit/true/t/{}", alternate_template.page_id);
+    let (forced_source, _, forced_template_page_id) = missing_page_template(
+        &runner,
+        site_id,
+        "page-template-assignment-target:forced-page",
+        &forced_extra,
+    )
+    .await;
+    assert_eq!(forced_source.as_deref(), Some("ALTERNATE-TEMPLATE-SOURCE"));
+    assert_eq!(forced_template_page_id, Some(alternate_template.page_id));
+
+    let cleared = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": ADMIN_USER_ID,
+            "template_page_id": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(cleared.template_page_id, None);
+    assert_eq!(
+        missing_page_template(
+            &runner,
+            site_id,
+            "page-template-assignment-target:another-page",
+            "/edit/true",
+        )
+        .await
+        .0,
+        None,
+    );
+}

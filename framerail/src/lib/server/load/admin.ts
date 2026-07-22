@@ -6,6 +6,7 @@ import { authGetSession } from "$lib/server/auth/getSession"
 import {
   categoryLicenseUpdate,
   categoryNavigationUpdate,
+  categoryTemplateUpdate,
   siteUpdate
 } from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
@@ -93,6 +94,7 @@ export async function loadAdminPage(
   const adminForm = await superValidate(request, valibot(adminSchema))
   const navigationForm = await superValidate(request, valibot(navigationSchema))
   const licenseForm = await superValidate(request, valibot(licenseSchema))
+  const templateForm = await superValidate(request, valibot(templateSchema))
 
   const viewData = {
     view: response.type,
@@ -101,7 +103,9 @@ export async function loadAdminPage(
     adminForm,
     navigationForm,
     licenseForm,
-    categories: response.type === "site_found" ? response.data.categories : []
+    templateForm,
+    categories: response.type === "site_found" ? response.data.categories : [],
+    pageTemplates: response.type === "site_found" ? response.data.page_templates : []
   }
 
   if (errorStatus !== null) {
@@ -109,6 +113,49 @@ export async function loadAdminPage(
   }
 
   return viewData
+}
+
+export async function templateAction({
+  request,
+  getClientAddress,
+  cookies
+}: RequestEvent) {
+  const form = await superValidate(request, valibot(templateSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's page templates"
+    })
+  }
+
+  const { siteId, categoryId, templatePageId } = form.data
+  try {
+    const res = await categoryTemplateUpdate(
+      siteId,
+      categoryId,
+      session.user_id,
+      getClientAddress(),
+      templatePageId,
+      { sessionToken, siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    const details = error as {
+      message?: string
+      code?: string
+      data?: Record<string, unknown>
+    }
+    return fail(500, {
+      form,
+      message: details.message,
+      code: details.code,
+      data: details.data
+    })
+  }
 }
 
 export async function licenseAction({
@@ -268,4 +315,10 @@ const licenseSchema = object({
   inherit: boolean(),
   license: string(),
   licenseOther: maxLength(string(), 300)
+})
+
+const templateSchema = object({
+  siteId: number(),
+  categoryId: number(),
+  templatePageId: nullable(number())
 })

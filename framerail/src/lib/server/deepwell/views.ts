@@ -95,7 +95,11 @@ interface PageViewFound {
 }
 interface PageViewMissing {
   type: "missing"
-  data: PageViewDataBase
+  data: PageViewDataBase & {
+    new_page_wikitext: Nullable<string>
+    page_templates: PageTemplateSummary[]
+    selected_template_page_id: Nullable<number>
+  }
 }
 interface PageViewPermissions {
   type: "permissions"
@@ -165,7 +169,15 @@ interface AdminViewSiteFound {
   type: "site_found"
   data: {
     categories: PageCategoryModel[]
+    page_templates: PageTemplateSummary[]
   }
+}
+
+export interface PageTemplateSummary {
+  page_id: number
+  slug: string
+  title: string
+  wikitext: string
 }
 interface AdminViewAdminPermissions {
   type: "admin_permissions"

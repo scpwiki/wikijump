@@ -2,7 +2,8 @@ import {
   adminAction,
   licenseAction,
   loadAdminPage,
-  navigationAction
+  navigationAction,
+  templateAction
 } from "$lib/server/load/admin"
 
 export async function load({ request, cookies, parent }) {
@@ -12,5 +13,6 @@ export async function load({ request, cookies, parent }) {
 export const actions = {
   site: adminAction,
   navigation: navigationAction,
-  license: licenseAction
+  license: licenseAction,
+  template: templateAction
 }

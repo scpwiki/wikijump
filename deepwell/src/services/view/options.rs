@@ -37,6 +37,7 @@ const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
         "history",
         "offset",
         "data",
+        "t",
     ],
     solo_keys: &[
         "edit",
@@ -68,6 +69,8 @@ pub struct PageOptions {
     pub history: bool,
     pub offset: Option<i32>,
     pub data: String,
+    #[serde(default)]
+    pub template: Option<i64>,
 }
 
 impl PageOptions {
@@ -138,6 +141,24 @@ impl PageOptions {
 
         set_str!(data);
 
+        if let Some((value, original)) = arguments.remove(unicase!("t")) {
+            match value {
+                ArgumentValue::Integer(template_id) if template_id > 0 => {
+                    options.template = Some(i64::from(template_id));
+                }
+                ArgumentValue::String(template_id) => {
+                    options.template = template_id
+                        .parse::<i64>()
+                        .ok()
+                        .filter(|template_id| *template_id > 0);
+                    if options.template.is_none() {
+                        error!("Invalid page template ID: {original}");
+                    }
+                }
+                _ => error!("Invalid page template ID: {original}"),
+            }
+        }
+
         // Done processing arguments
         // Now go through anything remaining and emitting warnings for them
 
@@ -171,7 +192,7 @@ mod tests {
     #[test]
     fn page_options_parse_flags_strings_offsets_and_aliases() {
         let options = PageOptions::parse(
-            "/edit/title/Title/parentPage/_parent/tags/a+b/noredirect/norender/false/debug/0/rerender/comments/false/discuss/history/offset/25/data/raw",
+            "/edit/title/Title/parentPage/_parent/tags/a+b/noredirect/norender/false/debug/0/rerender/comments/false/discuss/history/offset/25/data/raw/t/4000000000",
         );
 
         assert!(options.edit);
@@ -186,6 +207,7 @@ mod tests {
         assert!(options.history);
         assert_eq!(options.offset, Some(25));
         assert_eq!(options.data, "raw");
+        assert_eq!(options.template, Some(4_000_000_000));
     }
 
     #[test]

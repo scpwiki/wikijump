@@ -123,6 +123,12 @@ pub enum GetPageViewOutput {
         #[serde(default)]
         redirect_kind: Option<PageRedirectKind>,
         wikitext: String,
+        #[serde(default)]
+        new_page_wikitext: Option<String>,
+        #[serde(default)]
+        page_templates: Vec<PageTemplateSummary>,
+        #[serde(default)]
+        selected_template_page_id: Option<i64>,
         compiled_body_html: String,
         compiled_body_styles: Vec<String>,
         compiled_top_bar_html: Option<String>,
@@ -215,13 +221,26 @@ pub struct GetAdminView {
     pub locales: Vec<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PageTemplateSummary {
+    pub page_id: i64,
+    pub slug: String,
+    pub title: String,
+    pub wikitext: String,
+}
+
 // See also framerail src/lib/server/load/admin.ts and src/routes/[x+2d]/user/+error.svelte
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetAdminViewOutput {
-    SiteFound { categories: Vec<PageCategoryModel> },
+    SiteFound {
+        categories: Vec<PageCategoryModel>,
+        page_templates: Vec<PageTemplateSummary>,
+    },
 
-    AdminPermissions { html: String },
+    AdminPermissions {
+        html: String,
+    },
 }
 
 #[derive(Serialize, Debug, Clone)]
