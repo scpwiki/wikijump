@@ -20,9 +20,8 @@
 
 use super::prelude::*;
 use crate::locales::MessageArguments;
-use crate::utils::strip_fluent_control_chars;
+use crate::utils::{parse_locales, strip_fluent_control_chars, validate_locale};
 use std::collections::{HashMap, HashSet};
-use unic_langid::LanguageIdentifier;
 
 #[derive(Serialize, Debug, Clone)]
 pub struct LocaleOutput {
@@ -60,15 +59,14 @@ pub async fn locale_info(
     let locale_str: String = parse_one!(params, Localization);
     info!("Getting locale information for {locale_str}");
 
-    let locale =
-        LanguageIdentifier::from_bytes(locale_str.as_bytes()).or_raise(|| {
-            Error::new(
-                "failed to parse locale string",
-                ErrorType::LocaleInvalid {
-                    locale: str!(locale_str),
-                },
-            )
-        })?;
+    let locale = validate_locale(&locale_str).or_raise(|| {
+        Error::new(
+            "failed to parse locale string",
+            ErrorType::LocaleInvalid {
+                locale: str!(locale_str),
+            },
+        )
+    })?;
 
     Ok(LocaleOutput {
         language: str!(locale.language),
@@ -119,23 +117,7 @@ pub async fn translate_strings(
     debug!("Message keys to translate: {messages:?}");
 
     let mut output: TranslateOutput = HashMap::new();
-    let locales = {
-        let mut langids = Vec::new();
-        for locale in &locales_str {
-            let langid =
-                LanguageIdentifier::from_bytes(locale.as_bytes()).or_raise(|| {
-                    Error::new(
-                        "failed to get locale data",
-                        ErrorType::LocaleInvalid {
-                            locale: locale.clone(),
-                        },
-                    )
-                })?;
-
-            langids.push(langid);
-        }
-        langids
-    };
+    let locales = parse_locales(&locales_str)?;
 
     for (message_key, arguments_raw) in messages {
         trace!(

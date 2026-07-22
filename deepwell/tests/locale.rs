@@ -41,6 +41,12 @@ async fn locale_info() {
     assert_str_eq!(info.script, Some("Latn"));
     assert_eq!(info.variants.len(), 1);
     assert_eq!(info.variants[0], "macos");
+
+    let info = run_endpoint!(runner, locale_info, json!(["ja-corrections"]));
+    assert_eq!(info.language, "ja");
+    assert_eq!(info.region, None);
+    assert_eq!(info.script, None);
+    assert!(info.variants.is_empty());
 }
 
 #[tokio::test]
@@ -227,6 +233,18 @@ async fn translate_strings() {
     assert_str_eq!(output["license"], Some("License"));
     assert_str_eq!(output["license.cc0"], Some("Public Domain (CC0)"));
     assert_str_eq!(output["base-title"], Some("\u{2068}foo\u{2069} | Wikijump"));
+
+    let output = run_endpoint!(
+        runner,
+        translate_strings,
+        json!({
+            "locales": ["ja-corrections", "en"],
+            "messages": {
+                "license": {},
+            },
+        }),
+    );
+    assert_str_eq!(output["license"], Some("License"));
 
     let output = run_endpoint!(
         runner,

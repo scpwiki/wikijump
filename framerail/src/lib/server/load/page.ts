@@ -52,6 +52,7 @@ import {
 } from "$lib/wikidot-page-actions"
 import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
 import { buildWikidotPageWatchLabel } from "$lib/wikidot-page-watch"
+import { toIntlLocales } from "$lib/wikidot-locale"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
@@ -197,7 +198,7 @@ export async function loadPage(
         revision: responseData.page_revision.revision_number
       },
       "wiki-page-last-edit": {
-        date: new Date(updatedAt).toLocaleString(locales),
+        date: new Date(updatedAt).toLocaleString(toIntlLocales(locales)),
         days: daysDiff
       },
       "wiki-page-revision-history": {},

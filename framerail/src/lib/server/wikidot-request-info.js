@@ -96,6 +96,13 @@ const scriptString = (value) =>
     .replaceAll("\u2028", "\\u2028")
     .replaceAll("\u2029", "\\u2029")
 
+const htmlAttribute = (value) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+
 /** @param {ReturnType<typeof buildWikidotRequestInfo> | undefined} info */
 export const serializeWikidotRequestInfo = (info) => {
   if (!info) return ""
@@ -144,5 +151,7 @@ export const injectWikidotRequestInfo = (html, info) => {
   ) {
     throw new Error("WIKIREQUEST template marker must occur at most once")
   }
-  return `${html.slice(0, first)}${serializeWikidotRequestInfo(info)}${html.slice(first + WIKIDOT_REQUEST_INFO_MARKER.length)}`
+  const injected = `${html.slice(0, first)}${serializeWikidotRequestInfo(info)}${html.slice(first + WIKIDOT_REQUEST_INFO_MARKER.length)}`
+  if (!info) return injected
+  return injected.replace('<html lang="en">', `<html lang="${htmlAttribute(info.lang)}">`)
 }

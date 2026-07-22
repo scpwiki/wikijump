@@ -107,10 +107,11 @@ test("escapes inline script terminators and rejects malformed identities", () =>
 
 test("injects one marker and leaves non-HTML chunks unchanged", () => {
   const info = buildWikidotRequestInfo(input)
-  const html = `<head><script>${WIKIDOT_REQUEST_INFO_MARKER}</script></head>`
+  const html = `<html lang="en"><head><script>${WIKIDOT_REQUEST_INFO_MARKER}</script></head></html>`
   const injected = injectWikidotRequestInfo(html, info)
   assert.doesNotMatch(injected, /__WIKIDOT_REQUEST_INFO__/u)
   assert.match(injected, /WIKIREQUEST\.info\.pageId/u)
+  assert.match(injected, /<html lang="en">/u)
   assert.equal(injectWikidotRequestInfo("plain text", info), "plain text")
   assert.throws(
     () =>
@@ -120,6 +121,16 @@ test("injects one marker and leaves non-HTML chunks unchanged", () => {
       ),
     /at most once/u
   )
+})
+
+test("injects the raw Wikidot site locale as the document language", () => {
+  const info = buildWikidotRequestInfo({
+    ...input,
+    site: { ...input.site, locale: "ja-corrections" }
+  })
+  const html = `<html lang="en"><head><script>${WIKIDOT_REQUEST_INFO_MARKER}</script></head></html>`
+
+  assert.match(injectWikidotRequestInfo(html, info), /<html lang="ja-corrections">/u)
 })
 
 test("the app template binds the compatibility script to SvelteKit's CSP nonce", async () => {
