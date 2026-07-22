@@ -483,7 +483,7 @@
     in a category.
   </p>
 
-  {#if data.categories.length > 0 && data.pageTemplates.length > 0}
+  {#if data.categories.length > 0}
     <form
       class="editor template-editor"
       action="?/template"
@@ -514,6 +514,13 @@
         {/each}
       </select>
 
+      {#if data.pageTemplates.length === 0}
+        <p class="settings-note">
+          No visible template pages are available. You can still clear this category's
+          assignment by saving <q>no default template</q>.
+        </p>
+      {/if}
+
       {#if $templateFormData.templatePageId !== null}
         {@const selectedTemplate = data.pageTemplates.find(
           (template) => template.page_id === $templateFormData.templatePageId
@@ -540,10 +547,6 @@
         </button>
       </div>
     </form>
-  {:else if data.pageTemplates.length === 0}
-    <p>
-      Create a page in the <code>template:</code> category before assigning a template.
-    </p>
   {:else}
     <p>No page categories are available.</p>
   {/if}
