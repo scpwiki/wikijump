@@ -174,6 +174,7 @@ declare global {
 
     interface Locals {
       requestContext: RequestContext
+      siteLocale?: string
       wikidotRequestInfo?: ReturnType<typeof buildWikidotRequestInfo>
       anonymousArticleResponseCacheMetadata?: {
         siteId: number

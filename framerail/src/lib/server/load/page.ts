@@ -104,6 +104,7 @@ export async function loadPage(
   const parentData = finalizePreloadData(preloadResponse, requestLocales)
   const locales = parentData.locales
   const siteLocale = parentData.site.locale
+  if (locals) locals.siteLocale = siteLocale
 
   // Process response, performing redirects etc
   const { data: responseData, type: responseType } = response
