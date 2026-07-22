@@ -22,11 +22,13 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::ADMIN_USER_ID;
+use deepwell::constants::{ADMIN_USER_ID, SAMPLE_USER_ID};
 use deepwell::error::ErrorType;
 use deepwell::services::RequestContext;
+use deepwell::services::SessionService;
 use deepwell::services::category::CategoryService;
 use deepwell::services::page::CreatePageOutput;
+use deepwell::services::session::CreateSession;
 use deepwell::services::view::{GetPageViewOutput, PageTemplateSummary};
 use deepwell::types::Reference;
 use serde_json::json;
@@ -71,13 +73,14 @@ async fn missing_page_template(
     site_id: i64,
     slug: &str,
     extra: &str,
+    session_token: Option<&str>,
 ) -> (Option<String>, Vec<PageTemplateSummary>, Option<i64>) {
     match run_endpoint!(
         runner,
         page_view,
         json!({
             "site_id": site_id,
-            "session_token": null,
+            "session_token": session_token,
             "route": { "slug": slug, "extra": extra },
             "locales": ["en-US", "en"],
         }),
@@ -101,6 +104,17 @@ async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
         .expect("seeded test site should exist")
         .site
         .site_id;
+    let admin_session_token = SessionService::create(
+        runner.context(),
+        CreateSession {
+            user_id: ADMIN_USER_ID,
+            ip_address: common::IP_ADDRESS,
+            user_agent: "deepwell page template assignment test".to_owned(),
+            restricted: false,
+        },
+    )
+    .await
+    .expect("admin session should be created");
     let template = create_page(
         &mut runner,
         site_id,
@@ -165,6 +179,7 @@ async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
             site_id,
             "page-template-assignment-target:new-page",
             "/edit/true",
+            Some(&admin_session_token),
         )
         .await;
     assert_eq!(initial_source.as_deref(), Some(TEMPLATE_SOURCE));
@@ -179,10 +194,75 @@ async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
         site_id,
         "page-template-assignment-target:forced-page",
         &forced_extra,
+        Some(&admin_session_token),
     )
     .await;
     assert_eq!(forced_source.as_deref(), Some("ALTERNATE-TEMPLATE-SOURCE"));
     assert_eq!(forced_template_page_id, Some(alternate_template.page_id));
+
+    let (anonymous_source, anonymous_templates, anonymous_template_page_id) =
+        missing_page_template(
+            &runner,
+            site_id,
+            "page-template-assignment-target:anonymous-page",
+            "/edit/true",
+            None,
+        )
+        .await;
+    assert_eq!(anonymous_source, None);
+    assert!(anonymous_templates.is_empty());
+    assert_eq!(anonymous_template_page_id, None);
+
+    let no_create_session_token = SessionService::create(
+        runner.context(),
+        CreateSession {
+            user_id: SAMPLE_USER_ID,
+            ip_address: common::IP_ADDRESS,
+            user_agent: "deepwell page template no-create test".to_owned(),
+            restricted: false,
+        },
+    )
+    .await
+    .expect("registered non-member session should be created");
+    let (no_create_source, no_create_templates, no_create_template_page_id) =
+        missing_page_template(
+            &runner,
+            site_id,
+            "page-template-assignment-target:no-create-page",
+            "/edit/true",
+            Some(&no_create_session_token),
+        )
+        .await;
+    assert_eq!(no_create_source, None);
+    assert!(no_create_templates.is_empty());
+    assert_eq!(no_create_template_page_id, None);
+
+    let default_category =
+        CategoryService::get(runner.context(), site_id, Reference::from("_default"))
+            .await
+            .expect("seeded default category should exist");
+    let assigned_default = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": default_category.category_id,
+            "user_id": ADMIN_USER_ID,
+            "template_page_id": template.page_id,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(assigned_default.template_page_id, Some(template.page_id));
+    let (default_source, _, default_template_page_id) = missing_page_template(
+        &runner,
+        site_id,
+        "page-template-assignment-default-page",
+        "/edit/true",
+        Some(&admin_session_token),
+    )
+    .await;
+    assert_eq!(default_source.as_deref(), Some(TEMPLATE_SOURCE));
+    assert_eq!(default_template_page_id, Some(template.page_id));
 
     let cleared = run_endpoint!(
         runner,
@@ -202,9 +282,23 @@ async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
             site_id,
             "page-template-assignment-target:another-page",
             "/edit/true",
+            Some(&admin_session_token),
         )
         .await
         .0,
         None,
     );
+
+    let cleared_default = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": default_category.category_id,
+            "user_id": ADMIN_USER_ID,
+            "template_page_id": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(cleared_default.template_page_id, None);
 }

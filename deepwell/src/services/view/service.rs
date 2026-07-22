@@ -50,7 +50,7 @@ use crate::services::{
     PageService, SessionService, SiteService, TextService, UserService,
 };
 use crate::types::{Action, PageId, PageOrder, Permission, RerenderDepth, Resource};
-use crate::utils::{parse_locales, split_category};
+use crate::utils::{get_category_name, parse_locales, split_category};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
@@ -677,25 +677,48 @@ impl ViewService {
                 } = SettingsService::get_nav_page_html(ctx, site_id, category_id)
                     .await
                     .or_raise(make_error)?;
-                let page_templates = if options.edit {
-                    Self::get_page_templates(ctx, site_id)
-                        .await
-                        .or_raise(make_error)?
-                } else {
-                    Vec::new()
-                };
-                let category_template_page_id = match category_id {
-                    Some(category_id) => {
-                        let category = CategoryService::get(
+                let (page_templates, category_template_page_id) = if options.edit {
+                    let create_category = CategoryService::get_optional(
+                        ctx,
+                        site_id,
+                        Reference::Slug(cow!(get_category_name(page_full_slug))),
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                    let user_can_create_page = match user_session.as_ref() {
+                        Some(session) => PermissionService::check_user_can(
                             ctx,
-                            site_id,
-                            Reference::Id(category_id),
+                            &CheckPermissionContext {
+                                user_id: Some(session.user.user_id),
+                                site_id,
+                                page_reference: None,
+                            },
+                            Permission {
+                                resource_type: Resource::Page,
+                                resource_category: create_category
+                                    .as_ref()
+                                    .map(|category| Reference::Id(category.category_id)),
+                                action: Action::Create,
+                            },
                         )
                         .await
-                        .or_raise(make_error)?;
-                        category.template_page_id
+                        .or_raise(make_error)?,
+                        None => false,
+                    };
+
+                    if user_can_create_page {
+                        (
+                            Self::get_page_templates(ctx, site_id)
+                                .await
+                                .or_raise(make_error)?,
+                            create_category
+                                .and_then(|category| category.template_page_id),
+                        )
+                    } else {
+                        (Vec::new(), None)
                     }
-                    None => None,
+                } else {
+                    (Vec::new(), None)
                 };
                 let selected_template_page_id = options
                     .template
