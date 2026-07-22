@@ -431,7 +431,7 @@ async fn expiration_cleanup_preserves_future_and_permanent_bans() {
     let expiry_event =
         latest_audit_event(&runner, "site_ban.remove", site_id, user_id).await;
 
-    assert_eq!(expiry_event.ip_address, "127.0.0.1");
+    assert_eq!(expiry_event.ip_address, "::1");
     assert_eq!(expiry_event.user_id, Some(user_id));
     assert_eq!(expiry_event.site_id, Some(site_id));
     assert_eq!(expiry_event.extra_id_1, Some(SYSTEM_USER_ID));

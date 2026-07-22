@@ -25,7 +25,7 @@ use crate::models::relation::{self, Entity as Relation};
 use crate::models::user_role::{self, Entity as UserRole};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::role::{RevokeUserRoleInput, RoleService};
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::{IpAddr, Ipv6Addr};
 use time::Date;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -218,7 +218,7 @@ impl RelationService {
 
     /// Soft-deletes all active site bans whose expiry date has passed.
     ///
-    /// Permanent bans, represented by a null `banned_until`, are left active.
+    /// Permanent bans, represented by a null `banned_until`, are left unmodified.
     ///
     /// # Returns
     /// The number of site bans lifted.
@@ -269,7 +269,7 @@ impl RelationService {
                     user_id: site_ban.from_id,
                     removed_by: SYSTEM_USER_ID,
                 },
-                IpAddr::V4(Ipv4Addr::LOCALHOST),
+                IpAddr::V6(Ipv6Addr::LOCALHOST),
                 "Site ban expired",
             )
             .await
