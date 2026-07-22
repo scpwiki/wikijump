@@ -62,6 +62,31 @@ test("the shell wrapper leaves imported page themes in control of typography", a
   )
 })
 
+test("the modern top bar styles cannot match imported Wikidot navigation", async () => {
+  const layout = await fs.readFile(
+    new URL("../src/lib/sigma-esque/sigma-esque.svelte", import.meta.url),
+    "utf8"
+  )
+
+  assert.match(layout, /\.sigma-esque-container\s*>\s*\.top-bar\s*\{/u)
+  assert.doesNotMatch(layout, /^\s*\.top-bar\s*\{/mu)
+})
+
+test("the Wikidot shell preserves the legacy two-input search chrome", async () => {
+  const layout = await fs.readFile(
+    new URL("../src/routes/+layout.svelte", import.meta.url),
+    "utf8"
+  )
+
+  assert.match(layout, /<div id="search-top-box">/u)
+  assert.match(layout, /<form id="search-top-box-form" action="dummy">/u)
+  assert.match(layout, /id="search-top-box-input"[\s\S]*?type="text"/u)
+  assert.match(
+    layout,
+    /<input(?=[^>]*name="search")(?=[^>]*class="button")(?=[^>]*type="submit")(?=[^>]*value="Search")[^>]*>/u
+  )
+})
+
 test("the Wikidot error dialog exposes the real visible display state", async () => {
   const popup = await fs.readFile(
     new URL("../src/lib/popup/error.svelte", import.meta.url),
