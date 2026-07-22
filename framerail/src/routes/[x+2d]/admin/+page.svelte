@@ -183,7 +183,11 @@
     )
     if (!category) return
     $templateFormData.categoryId = category.category_id
-    $templateFormData.templatePageId = category.template_page_id
+    $templateFormData.templatePageId = data.pageTemplates.some(
+      (template) => template.page_id === category.template_page_id
+    )
+      ? category.template_page_id
+      : null
   }
 
   function handleTemplateCategoryChange() {
