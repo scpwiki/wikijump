@@ -11,8 +11,17 @@
 
   import type { PageData } from "./$types"
   import type { PageDeletedGet } from "$lib/server/deepwell/page"
+  import type { PageTemplateSummary } from "$lib/server/deepwell/views"
+
+  type TemplateErrorData = {
+    page_templates?: PageTemplateSummary[]
+    selected_template_page_id?: number | null
+  }
 
   let errorData: PageData | null = $derived(page.error as unknown as PageData)
+  let templateErrorData: TemplateErrorData | null = $derived(
+    errorData as TemplateErrorData | null
+  )
 
   const pageLayoutContext = getPageLayoutContext()
 
@@ -54,6 +63,35 @@
       }
     }
   )
+
+  let activeTemplatePageId = $state<number | null>(
+    untrack(() => templateErrorData?.selected_template_page_id ?? null)
+  )
+  let selectedTemplatePageId = $state<number | null>(
+    untrack(() => templateErrorData?.selected_template_page_id ?? null)
+  )
+  let activeTemplateSource = $state<string>(untrack(() => $editForm.wikitext))
+
+  function handlePageTemplateChange() {
+    if (
+      $editForm.wikitext !== activeTemplateSource &&
+      // Wikidot uses the browser's native confirmation before replacing edited source.
+      // eslint-disable-next-line no-alert
+      !globalThis.confirm(
+        "It seems you have already changed the page.\nChanging the initial template now will reset the edited page.\nDo you want to change the initial content?"
+      )
+    ) {
+      selectedTemplatePageId = activeTemplatePageId
+      return
+    }
+
+    const template = templateErrorData?.page_templates?.find(
+      (candidate) => candidate.page_id === selectedTemplatePageId
+    )
+    activeTemplatePageId = selectedTemplatePageId
+    activeTemplateSource = template?.wikitext ?? ""
+    $editForm.wikitext = activeTemplateSource
+  }
 
   async function getDeleted() {
     const res = await fetch(`?/deletedGet`, {
@@ -126,6 +164,21 @@
     {/if}
 
     <form id="editor" class="editor" action="?/edit" method="POST" use:editEnhance>
+      {#if templateErrorData?.page_templates?.length}
+        <div class="page-template-selector">
+          <label for="page-templates">Initial template:</label>
+          <select
+            id="page-templates"
+            onchange={handlePageTemplateChange}
+            bind:value={selectedTemplatePageId}
+          >
+            <option value={null}>no template</option>
+            {#each templateErrorData.page_templates as template (template.page_id)}
+              <option value={template.page_id}>{template.title}</option>
+            {/each}
+          </select>
+        </div>
+      {/if}
       <input
         name="title"
         class="editor-title"

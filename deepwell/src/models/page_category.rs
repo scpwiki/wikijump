@@ -21,7 +21,7 @@ pub struct Model {
     pub top_bar_page: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub side_bar_page: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
+    pub template_page_id: Option<i64>,
     #[sea_orm(column_type = "Text", nullable)]
     pub license: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]

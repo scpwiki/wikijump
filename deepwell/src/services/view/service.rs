@@ -49,8 +49,8 @@ use crate::services::{
     BlueprintPageService, CategoryService, DomainService, PageRevisionService,
     PageService, SessionService, SiteService, TextService, UserService,
 };
-use crate::types::{Action, PageId, Permission, RerenderDepth, Resource};
-use crate::utils::{locale_for_ftml, parse_locales, split_category};
+use crate::types::{Action, PageId, PageOrder, Permission, RerenderDepth, Resource};
+use crate::utils::{get_category_name, locale_for_ftml, parse_locales, split_category};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
@@ -406,6 +406,9 @@ impl ViewService {
         struct PageReturn {
             page_status: PageStatus,
             wikitext: String,
+            new_page_wikitext: Option<String>,
+            page_templates: Vec<PageTemplateSummary>,
+            selected_template_page_id: Option<i64>,
             compiled_body_html: String,
             compiled_body_styles: Vec<String>,
             compiled_top_bar_html: Option<String>,
@@ -416,6 +419,9 @@ impl ViewService {
         let PageReturn {
             page_status,
             wikitext,
+            new_page_wikitext,
+            page_templates,
+            selected_template_page_id,
             compiled_body_html,
             compiled_body_styles,
             compiled_top_bar_html,
@@ -553,6 +559,9 @@ impl ViewService {
                             attributions,
                         },
                         wikitext,
+                        new_page_wikitext: None,
+                        page_templates: Vec::new(),
+                        selected_template_page_id: None,
                         compiled_body_html,
                         compiled_body_styles,
                         compiled_top_bar_html,
@@ -625,6 +634,9 @@ impl ViewService {
                     PageReturn {
                         page_status,
                         wikitext,
+                        new_page_wikitext: None,
+                        page_templates: Vec::new(),
+                        selected_template_page_id: None,
                         compiled_body_html,
                         compiled_body_styles,
                         compiled_top_bar_html,
@@ -664,10 +676,80 @@ impl ViewService {
                 } = SettingsService::get_nav_page_html(ctx, site_id, category_id)
                     .await
                     .or_raise(make_error)?;
+                let (page_templates, category_template_page_id) = if options.edit {
+                    let create_category = CategoryService::get_optional(
+                        ctx,
+                        site_id,
+                        Reference::Slug(cow!(get_category_name(page_full_slug))),
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                    let user_can_create_page = match user_session.as_ref() {
+                        Some(session) => PermissionService::check_user_can(
+                            ctx,
+                            &CheckPermissionContext {
+                                user_id: Some(session.user.user_id),
+                                site_id,
+                                page_reference: None,
+                            },
+                            Permission {
+                                resource_type: Resource::Page,
+                                resource_category: create_category
+                                    .as_ref()
+                                    .map(|category| Reference::Id(category.category_id)),
+                                action: Action::Create,
+                            },
+                        )
+                        .await
+                        .or_raise(make_error)?,
+                        None => false,
+                    };
+
+                    if user_can_create_page {
+                        (
+                            Self::get_page_templates(
+                                ctx,
+                                site_id,
+                                user_session.as_ref().map(|session| session.user.user_id),
+                            )
+                            .await
+                            .or_raise(make_error)?,
+                            create_category
+                                .and_then(|category| category.template_page_id),
+                        )
+                    } else {
+                        (Vec::new(), None)
+                    }
+                } else {
+                    (Vec::new(), None)
+                };
+                let selected_template_page_id = options
+                    .template
+                    .filter(|page_id| {
+                        page_templates
+                            .iter()
+                            .any(|template| template.page_id == *page_id)
+                    })
+                    .or_else(|| {
+                        category_template_page_id.filter(|page_id| {
+                            page_templates
+                                .iter()
+                                .any(|template| template.page_id == *page_id)
+                        })
+                    });
+                let new_page_wikitext = selected_template_page_id.and_then(|page_id| {
+                    page_templates
+                        .iter()
+                        .find(|template| template.page_id == page_id)
+                        .map(|template| template.wikitext.clone())
+                });
 
                 PageReturn {
                     page_status: PageStatus::Missing,
                     wikitext,
+                    new_page_wikitext,
+                    page_templates,
+                    selected_template_page_id,
                     compiled_body_html,
                     compiled_body_styles,
                     compiled_top_bar_html,
@@ -724,6 +806,9 @@ impl ViewService {
                 redirect_page,
                 redirect_kind,
                 wikitext,
+                new_page_wikitext,
+                page_templates,
+                selected_template_page_id,
                 compiled_body_html,
                 compiled_body_styles,
                 compiled_top_bar_html,
@@ -960,6 +1045,62 @@ ORDER BY breadcrumb_chain.depth ASC
         Ok(output)
     }
 
+    async fn get_page_templates(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        user_id: Option<i64>,
+    ) -> Result<Vec<PageTemplateSummary>> {
+        let Some(template_category) =
+            CategoryService::get_optional(ctx, site_id, Reference::from("template"))
+                .await?
+        else {
+            return Ok(Vec::new());
+        };
+
+        let mut pages = PageService::get_all(
+            ctx,
+            site_id,
+            Some(Reference::from("template")),
+            Some(false),
+            PageOrder::default(),
+        )
+        .await?;
+        pages.sort_by(|left, right| left.slug.cmp(&right.slug));
+
+        let mut templates = Vec::with_capacity(pages.len());
+        for page in pages {
+            let user_can_view_template = PermissionService::check_user_can(
+                ctx,
+                &CheckPermissionContext {
+                    user_id,
+                    site_id,
+                    page_reference: Some(Reference::Id(page.page_id)),
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(template_category.category_id)),
+                    action: Action::View,
+                },
+            )
+            .await?;
+            if !user_can_view_template {
+                continue;
+            }
+
+            let revision =
+                PageRevisionService::get_latest(ctx, site_id, page.page_id).await?;
+            let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
+            templates.push(PageTemplateSummary {
+                page_id: page.page_id,
+                slug: page.slug,
+                title: revision.title,
+                wikitext,
+            });
+        }
+
+        Ok(templates)
+    }
+
     pub async fn admin(
         ctx: &ServiceContext<'_>,
         GetAdminView {
@@ -1059,7 +1200,13 @@ ORDER BY breadcrumb_chain.depth ASC
             let categories = CategoryService::get_all(ctx, site_id)
                 .await
                 .or_raise(make_error)?;
-            GetAdminViewOutput::SiteFound { categories }
+            let page_templates = Self::get_page_templates(ctx, site_id, user_id)
+                .await
+                .or_raise(make_error)?;
+            GetAdminViewOutput::SiteFound {
+                categories,
+                page_templates,
+            }
         } else {
             warn!("User doesn't have admin access, returning permission page");
 

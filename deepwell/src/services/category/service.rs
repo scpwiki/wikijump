@@ -27,6 +27,7 @@ use crate::models::page_category::{
 use crate::services::OutdateService;
 use crate::services::audit::{AuditEvent, AuditService, PageCategoryFields};
 use crate::types::RerenderDepth;
+use crate::utils::get_category_name;
 use sea_query::{Expr, ExprTrait, Func, Query};
 use std::net::IpAddr;
 
@@ -182,6 +183,27 @@ impl CategoryService {
         let category = Self::get(ctx, site_id, reference.clone())
             .await
             .or_raise(make_error)?;
+        if let Maybe::Set(Some(template_page_id)) = &input.template_page_id {
+            let template = page::Entity::find_by_id(*template_page_id)
+                .filter(page::Column::SiteId.eq(site_id))
+                .filter(page::Column::DeletedAt.is_null())
+                .one(ctx.transaction())
+                .await
+                .or_raise(make_error)?
+                .ok_or_raise(|| {
+                    Error::new(
+                        "page template must reference a live page in the same site",
+                        ErrorType::PageCategory,
+                    )
+                })?;
+            if get_category_name(&template.slug) != "template" {
+                return Err(Error::new(
+                    "page template must reference a page in the template category",
+                    ErrorType::PageCategory,
+                )
+                .into());
+            }
+        }
         let normalized_license = match (&input.license, &input.license_other) {
             (Maybe::Set(license), Maybe::Set(license_other)) => Some(
                 validate_wikidot_license_override(
@@ -218,6 +240,10 @@ impl CategoryService {
                 Maybe::Set(_) => Maybe::Set(category.side_bar_page.as_deref()),
                 Maybe::Unset => Maybe::Unset,
             },
+            template_page_id: match &input.template_page_id {
+                Maybe::Set(_) => Maybe::Set(category.template_page_id),
+                Maybe::Unset => Maybe::Unset,
+            },
             license: match &input.license {
                 Maybe::Set(_) => Maybe::Set(category.license.as_deref()),
                 Maybe::Unset => Maybe::Unset,
@@ -236,6 +262,7 @@ impl CategoryService {
                 Maybe::Set(value) => Maybe::Set(value.as_deref()),
                 Maybe::Unset => Maybe::Unset,
             },
+            template_page_id: input.template_page_id.clone(),
             license: normalized_license
                 .as_ref()
                 .map_or(Maybe::Unset, |(license, _)| Maybe::Set(license.as_deref())),
@@ -267,6 +294,9 @@ impl CategoryService {
         }
         if let Maybe::Set(side_bar_page) = input.side_bar_page {
             model.side_bar_page = Set(side_bar_page);
+        }
+        if let Maybe::Set(template_page_id) = input.template_page_id {
+            model.template_page_id = Set(template_page_id);
         }
         if let Some((license, license_other)) = normalized_license {
             model.license = Set(license);

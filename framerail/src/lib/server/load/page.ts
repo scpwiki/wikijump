@@ -330,8 +330,12 @@ export async function loadPage(
     pageRestoreForm: await superValidate(request, valibot(pageRestoreSchema))
   }
 
+  const missingPageEditForm = await superValidate(request, valibot(pageEditSchema))
+  if (responseType === "missing" && responseData.new_page_wikitext !== null) {
+    missingPageEditForm.data.wikitext = responseData.new_page_wikitext
+  }
   const errorForms = {
-    pageEditForm: await superValidate(request, valibot(pageEditSchema)),
+    pageEditForm: missingPageEditForm,
     pageRestoreForm: await superValidate(request, valibot(pageRestoreSchema))
   }
 

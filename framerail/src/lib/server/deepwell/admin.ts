@@ -54,6 +54,27 @@ export async function categoryLicenseUpdate(
   )
 }
 
+export async function categoryTemplateUpdate(
+  siteId: number,
+  categoryId: number,
+  userId: number,
+  userIpAddr: string,
+  templatePageId: Nullable<number>,
+  requestContext: SiteUpdateRequestContext
+): Promise<PageCategoryModel> {
+  return client.request(
+    "category_update",
+    {
+      site: siteId,
+      category: categoryId,
+      user_id: userId,
+      template_page_id: templatePageId,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
 export async function siteUpdate(
   siteId: number,
   userId: number,

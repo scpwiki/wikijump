@@ -38,6 +38,7 @@ export interface PageCategoryModel {
   layout: Nullable<Layout>
   top_bar_page: Nullable<string>
   side_bar_page: Nullable<string>
+  template_page_id: Nullable<number>
   license: Nullable<string>
   license_other: Nullable<string>
 }
@@ -171,6 +172,7 @@ export interface PageOptions {
   history: boolean
   offset: Nullable<number>
   data: string
+  template: Nullable<number>
 }
 
 // deepwell src/services/relation/page_attribution.rs
