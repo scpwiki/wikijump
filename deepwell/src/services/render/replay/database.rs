@@ -7,7 +7,7 @@ use crate::services::{
     PageRevisionService, ScoreService, SettingsService, SiteService, TextService,
 };
 use crate::types::{PageId, Reference};
-use crate::utils::split_category;
+use crate::utils::{locale_for_ftml, split_category};
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, TransactionTrait, Value};
@@ -71,7 +71,7 @@ pub(super) async fn expand_candidate(
             alt_title: revision.alt_title.map(Cow::Owned),
             score,
             tags: revision.tags.into_iter().map(Cow::Owned).collect(),
-            language: Cow::Owned(site.locale),
+            language: Cow::Owned(locale_for_ftml(&site.locale).to_owned()),
         };
         let settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         RenderService::expand_corpus_replay_wikitext(

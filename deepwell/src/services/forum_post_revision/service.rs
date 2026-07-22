@@ -29,6 +29,7 @@ use crate::services::render::RenderOutput;
 use crate::services::score::ScoreValue;
 use crate::services::{RenderService, SiteService, TextService};
 use crate::types::FetchDirection;
+use crate::utils::locale_for_ftml;
 use ftml::data::PageInfo;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use sea_query::Order;
@@ -474,7 +475,7 @@ impl ForumPostRevisionService {
             alt_title: None,
             score: ScoreValue::Integer(0),
             tags: vec![],
-            language: Cow::Owned(site.locale),
+            language: Cow::Owned(locale_for_ftml(&site.locale).to_owned()),
         };
 
         let render = RenderService::render(ctx, wikitext, &page_info, &settings)

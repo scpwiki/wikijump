@@ -23,13 +23,16 @@ use unic_langid::LanguageIdentifier;
 
 const WIKIDOT_JAPANESE_CORRECTIONS_LOCALE: &str = "ja-corrections";
 
-fn parse_locale_identifier(locale_str: &str) -> Option<LanguageIdentifier> {
-    let language_identifier = match locale_str {
+/// Map Wikidot locale identifiers to the language identifiers accepted by FTML.
+pub fn locale_for_ftml(locale_str: &str) -> &str {
+    match locale_str {
         WIKIDOT_JAPANESE_CORRECTIONS_LOCALE => "ja",
         _ => locale_str,
-    };
+    }
+}
 
-    LanguageIdentifier::from_bytes(language_identifier.as_bytes()).ok()
+fn parse_locale_identifier(locale_str: &str) -> Option<LanguageIdentifier> {
+    LanguageIdentifier::from_bytes(locale_for_ftml(locale_str).as_bytes()).ok()
 }
 
 /// Ensure the given locale string is valid, returning the parsed locale.
@@ -82,6 +85,12 @@ fn validate_locale_maps_wikidot_japanese_corrections_to_japanese() {
     let locale = validate_locale("ja-corrections").unwrap();
 
     assert_eq!(locale.to_string(), "ja");
+}
+
+#[test]
+fn locale_for_ftml_preserves_standard_identifiers() {
+    assert_eq!(locale_for_ftml("ja-corrections"), "ja");
+    assert_eq!(locale_for_ftml("en-US"), "en-US");
 }
 
 #[test]
