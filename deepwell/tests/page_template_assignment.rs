@@ -22,15 +22,19 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::{ADMIN_USER_ID, SAMPLE_USER_ID};
+use deepwell::constants::{ADMIN_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID};
 use deepwell::error::ErrorType;
 use deepwell::services::RequestContext;
 use deepwell::services::SessionService;
 use deepwell::services::category::CategoryService;
 use deepwell::services::page::CreatePageOutput;
+use deepwell::services::permission::{CheckPermissionContext, PermissionService};
+use deepwell::services::role::{
+    GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
+};
 use deepwell::services::session::CreateSession;
 use deepwell::services::view::{GetPageViewOutput, PageTemplateSummary};
-use deepwell::types::Reference;
+use deepwell::types::{Action, Permission, Reference, Resource};
 use serde_json::json;
 use std::borrow::Cow;
 
@@ -95,6 +99,62 @@ async fn missing_page_template(
     }
 }
 
+async fn grant_category_permission(
+    runner: &TestRunner,
+    site_id: i64,
+    category_id: i64,
+    role_name: &str,
+    action: Action,
+    user_ids: &[i64],
+) {
+    let role = RoleService::create(
+        runner.context(),
+        InternalCreateRoleInput {
+            site_id,
+            name: role_name.to_owned(),
+            description: None,
+            is_virtual: false,
+            parent_role_id: None,
+            creating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("category permission role should be created");
+    PermissionService::update_permissions_for_role(
+        runner.context(),
+        UpdateRolePermissionsInput {
+            site_id,
+            role_reference: Reference::Id(role.role_id),
+            new_permissions: vec![Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(category_id)),
+                action,
+            }],
+            cascade_removals: false,
+            updating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("category permission should be updated");
+    for &user_id in user_ids {
+        RoleService::grant_role_to_user(
+            runner.context(),
+            GrantUserRoleInput {
+                site_id,
+                user_id,
+                role_id: role.role_id,
+                assigning_user_id: SYSTEM_USER_ID,
+                expires_at: None,
+                ip_address: common::IP_ADDRESS,
+            },
+        )
+        .await
+        .expect("category permission role should be granted");
+    }
+}
+
 #[tokio::test]
 async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
     const TEMPLATE_SOURCE: &str = "ORACLE-TEMPLATE-BEGIN\nTitle: %%title%%\nContent: %%content%%\nORACLE-TEMPLATE-END";
@@ -143,6 +203,51 @@ async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
     )
     .await
     .expect("target category should be created");
+    let template_category =
+        CategoryService::get(runner.context(), site_id, Reference::from("template"))
+            .await
+            .expect("template category should exist");
+    let sample_session_token = SessionService::create(
+        runner.context(),
+        CreateSession {
+            user_id: SAMPLE_USER_ID,
+            ip_address: common::IP_ADDRESS,
+            user_agent: "deepwell page template permission test".to_owned(),
+            restricted: false,
+        },
+    )
+    .await
+    .expect("registered non-member session should be created");
+    let (no_create_source, no_create_templates, no_create_template_page_id) =
+        missing_page_template(
+            &runner,
+            site_id,
+            "page-template-assignment-target:no-create-page",
+            "/edit/true",
+            Some(&sample_session_token),
+        )
+        .await;
+    assert_eq!(no_create_source, None);
+    assert!(no_create_templates.is_empty());
+    assert_eq!(no_create_template_page_id, None);
+    grant_category_permission(
+        &runner,
+        site_id,
+        category.category_id,
+        "page-template-assignment-creators",
+        Action::Create,
+        &[ADMIN_USER_ID, SAMPLE_USER_ID],
+    )
+    .await;
+    grant_category_permission(
+        &runner,
+        site_id,
+        template_category.category_id,
+        "page-template-assignment-template-viewers",
+        Action::View,
+        &[ADMIN_USER_ID],
+    )
+    .await;
     runner.set_request_context(RequestContext {
         user_id: Some(ADMIN_USER_ID),
         ..Default::default()
@@ -213,29 +318,34 @@ async fn category_page_template_prefills_new_page_source_and_can_be_cleared() {
     assert!(anonymous_templates.is_empty());
     assert_eq!(anonymous_template_page_id, None);
 
-    let no_create_session_token = SessionService::create(
+    let sample_user_can_create = PermissionService::check_user_can(
         runner.context(),
-        CreateSession {
-            user_id: SAMPLE_USER_ID,
-            ip_address: common::IP_ADDRESS,
-            user_agent: "deepwell page template no-create test".to_owned(),
-            restricted: false,
+        &CheckPermissionContext {
+            user_id: Some(SAMPLE_USER_ID),
+            site_id,
+            page_reference: None,
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: Some(Reference::Id(category.category_id)),
+            action: Action::Create,
         },
     )
     .await
-    .expect("registered non-member session should be created");
-    let (no_create_source, no_create_templates, no_create_template_page_id) =
+    .expect("sample-user create permission should be checked");
+    assert!(sample_user_can_create);
+    let (no_view_source, no_view_templates, no_view_template_page_id) =
         missing_page_template(
             &runner,
             site_id,
-            "page-template-assignment-target:no-create-page",
+            "page-template-assignment-target:no-template-view-page",
             "/edit/true",
-            Some(&no_create_session_token),
+            Some(&sample_session_token),
         )
         .await;
-    assert_eq!(no_create_source, None);
-    assert!(no_create_templates.is_empty());
-    assert_eq!(no_create_template_page_id, None);
+    assert_eq!(no_view_source, None);
+    assert!(no_view_templates.is_empty());
+    assert_eq!(no_view_template_page_id, None);
 
     let default_category =
         CategoryService::get(runner.context(), site_id, Reference::from("_default"))

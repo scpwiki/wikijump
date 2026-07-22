@@ -708,9 +708,13 @@ impl ViewService {
 
                     if user_can_create_page {
                         (
-                            Self::get_page_templates(ctx, site_id)
-                                .await
-                                .or_raise(make_error)?,
+                            Self::get_page_templates(
+                                ctx,
+                                site_id,
+                                user_session.as_ref().map(|session| session.user.user_id),
+                            )
+                            .await
+                            .or_raise(make_error)?,
                             create_category
                                 .and_then(|category| category.template_page_id),
                         )
@@ -727,7 +731,13 @@ impl ViewService {
                             .iter()
                             .any(|template| template.page_id == *page_id)
                     })
-                    .or(category_template_page_id);
+                    .or_else(|| {
+                        category_template_page_id.filter(|page_id| {
+                            page_templates
+                                .iter()
+                                .any(|template| template.page_id == *page_id)
+                        })
+                    });
                 let new_page_wikitext = selected_template_page_id.and_then(|page_id| {
                     page_templates
                         .iter()
@@ -1039,13 +1049,14 @@ ORDER BY breadcrumb_chain.depth ASC
     async fn get_page_templates(
         ctx: &ServiceContext<'_>,
         site_id: i64,
+        user_id: Option<i64>,
     ) -> Result<Vec<PageTemplateSummary>> {
-        if CategoryService::get_optional(ctx, site_id, Reference::from("template"))
-            .await?
-            .is_none()
-        {
+        let Some(template_category) =
+            CategoryService::get_optional(ctx, site_id, Reference::from("template"))
+                .await?
+        else {
             return Ok(Vec::new());
-        }
+        };
 
         let mut pages = PageService::get_all(
             ctx,
@@ -1059,6 +1070,24 @@ ORDER BY breadcrumb_chain.depth ASC
 
         let mut templates = Vec::with_capacity(pages.len());
         for page in pages {
+            let user_can_view_template = PermissionService::check_user_can(
+                ctx,
+                &CheckPermissionContext {
+                    user_id,
+                    site_id,
+                    page_reference: Some(Reference::Id(page.page_id)),
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Id(template_category.category_id)),
+                    action: Action::View,
+                },
+            )
+            .await?;
+            if !user_can_view_template {
+                continue;
+            }
+
             let revision =
                 PageRevisionService::get_latest(ctx, site_id, page.page_id).await?;
             let wikitext = TextService::get(ctx, &revision.wikitext_hash).await?;
@@ -1172,7 +1201,7 @@ ORDER BY breadcrumb_chain.depth ASC
             let categories = CategoryService::get_all(ctx, site_id)
                 .await
                 .or_raise(make_error)?;
-            let page_templates = Self::get_page_templates(ctx, site_id)
+            let page_templates = Self::get_page_templates(ctx, site_id, user_id)
                 .await
                 .or_raise(make_error)?;
             GetAdminViewOutput::SiteFound {
