@@ -17,8 +17,10 @@ class RenderStandingConfigTest(unittest.TestCase):
         source = root / "source"
         (source / "install/prod/deepwell").mkdir(parents=True)
         (source / "deepwell").mkdir(parents=True)
+        (source / "locales").mkdir(parents=True)
         (source / "install/prod/deepwell/config.toml").write_text('[database]\nrun-seeder = false\n\n[domain]\nmain = "wikijump.com"\nfiles = "wjfiles.com"\n', encoding="utf-8")
         (source / "deepwell/Cargo.lock").write_text(f'source = "git+https://github.com/Rokurolize/ftml#{FTML_SHA}"\n', encoding="utf-8")
+        (source / "locales/en.ftl").write_text("fixture = Fixture\n", encoding="utf-8")
         for command in (("git", "init"), ("git", "config", "user.email", "test@example.invalid"), ("git", "config", "user.name", "Standing test"), ("git", "add", "."), ("git", "commit", "-m", "fixture")):
             subprocess.run(command, cwd=source, check=True, stdout=subprocess.DEVNULL)
         sha = subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=source, text=True).strip()
@@ -63,6 +65,17 @@ class RenderStandingConfigTest(unittest.TestCase):
             self.assertNotIn("./deepwell/seeder", compose)
             self.assertIn("curl --insecure", compose)
             self.assertIn("STANDING_CADDY_IMAGE=example/caddy", (output / ".env").read_text(encoding="utf-8"))
+
+    def test_rendered_deepwell_has_required_runtime_mounts(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            source, sha = self.make_source(Path(temporary_dir))
+            output = Path(temporary_dir) / "host/standing"
+            subprocess.run(self.command(source, output, sha), check=True, text=True, capture_output=True)
+            compose = (output / "compose.yaml").read_text(encoding="utf-8")
+            environment = (output / ".env").read_text(encoding="utf-8")
+            self.assertIn("target: /etc/deepwell.toml", compose)
+            self.assertIn("target: /opt/locales", compose)
+            self.assertIn(f"STANDING_LOCALES_SOURCE={source / 'locales'}", environment)
 
     def test_rejects_dirty_source_before_writing_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_dir:
