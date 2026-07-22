@@ -137,3 +137,9 @@ test("the app template preserves Wikidot's limited-quirks document mode", async 
     /^<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD XHTML 1\.0 Transitional\/\/EN" "http:\/\/www\.w3\.org\/TR\/xhtml1\/DTD\/xhtml1-transitional\.dtd">\n/u
   )
 })
+
+test("the app template preserves Wikidot's body shell without an extra wrapper", async () => {
+  const template = await fs.readFile(path.join(ROOT, "src/app.html"), "utf8")
+  assert.match(template, /<body id="html-body">\s*%sveltekit\.body%\s*<\/body>/u)
+  assert.doesNotMatch(template, /<body[^>]*>\s*<div>%sveltekit\.body%<\/div>/u)
+})
