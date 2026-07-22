@@ -33,6 +33,8 @@ declare global {
       site_file_domain: string
       license_name: string
       license_url: string
+      license_kind: "standard" | "other" | "copyright"
+      license_html: string | null
       /** Data about current logged in user. */
       user_session: {
         user: {

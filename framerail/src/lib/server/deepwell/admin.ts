@@ -31,6 +31,29 @@ export async function categoryNavigationUpdate(
   )
 }
 
+export async function categoryLicenseUpdate(
+  siteId: number,
+  categoryId: number,
+  userId: number,
+  userIpAddr: string,
+  license: Nullable<string>,
+  licenseOther: Nullable<string>,
+  requestContext: SiteUpdateRequestContext
+): Promise<PageCategoryModel> {
+  return client.request(
+    "category_update",
+    {
+      site: siteId,
+      category: categoryId,
+      user_id: userId,
+      license,
+      license_other: licenseOther,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
 export async function siteUpdate(
   siteId: number,
   userId: number,

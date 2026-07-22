@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::license::WikidotLicense;
 use crate::services::forum::GetForumCategory;
 use crate::services::{
     CategoryService, ForumService, PageRevisionService, PageService, SiteService,
@@ -31,6 +32,67 @@ use std::borrow::Cow;
 pub struct SettingsService;
 
 impl SettingsService {
+    /// Get the effective license for a page category.
+    ///
+    /// A category override wins when present. Otherwise the `_default`
+    /// category is inherited, with the site license as the legacy fallback.
+    pub async fn get_license(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        category_id: Option<i64>,
+    ) -> Result<WikidotLicense> {
+        let make_error = || {
+            Error::new(
+                match category_id {
+                    Some(category_id) => format!(
+                        "failed to get license for site ID {}, category ID {}",
+                        site_id, category_id,
+                    ),
+                    None => format!(
+                        "failed to get license for site ID {}, no category",
+                        site_id,
+                    ),
+                },
+                ErrorType::SiteSettings,
+            )
+        };
+
+        if let Some(category_id) = category_id {
+            let category = CategoryService::get(ctx, site_id, Reference::Id(category_id))
+                .await
+                .or_raise(make_error)?;
+            if let Some(license) = category.license.as_deref() {
+                return WikidotLicense::from_storage(
+                    license,
+                    category.license_other.as_deref(),
+                )
+                .or_raise(make_error);
+            }
+        }
+
+        let default_category = CategoryService::get_optional(
+            ctx,
+            site_id,
+            Reference::Slug(Cow::Borrowed("_default")),
+        )
+        .await
+        .or_raise(make_error)?;
+        if let Some(category) = default_category
+            && let Some(license) = category.license.as_deref()
+        {
+            return WikidotLicense::from_storage(
+                license,
+                category.license_other.as_deref(),
+            )
+            .or_raise(make_error);
+        }
+
+        let site = SiteService::get(ctx, Reference::Id(site_id))
+            .await
+            .or_raise(make_error)?;
+        Ok(WikidotLicense::Standard(site.license))
+    }
+
     /// Get the layout associated with this page.
     ///
     /// If this page has a specific layout override,

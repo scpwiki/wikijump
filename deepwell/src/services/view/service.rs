@@ -32,6 +32,7 @@
 use super::article_cache::ArticlePageCache;
 use super::prelude::*;
 use super::redirect::wikidot_redirect_location;
+use crate::license::WikidotLicense;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
@@ -79,7 +80,7 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         mut input: GetPageView,
     ) -> Result<GetArticleViewOutput> {
-        let preload = Self::preload(
+        let mut preload = Self::preload(
             ctx,
             GetPreloadView {
                 site_id: input.site_id,
@@ -102,6 +103,7 @@ impl ViewService {
         if !input.locales.contains(&preload.viewer.site.locale) {
             input.locales.push(preload.viewer.site.locale.clone());
         }
+        Self::apply_article_category_license(ctx, &mut preload.viewer, &input).await?;
         let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
         if let Some(cache_key) =
             cache_metadata.as_ref().map(|metadata| &metadata.cache_key)
@@ -164,6 +166,51 @@ impl ViewService {
                 .as_ref()
                 .map(|metadata| metadata.anonymous_permission_cache_fence.clone()),
         })
+    }
+
+    async fn apply_article_category_license(
+        ctx: &ServiceContext<'_>,
+        viewer: &mut Viewer,
+        input: &GetPageView,
+    ) -> Result<()> {
+        let page_full_slug = input
+            .route
+            .as_ref()
+            .map_or(viewer.site.default_page.as_str(), |route| {
+                route.slug.as_str()
+            });
+        let (category_slug, _) = split_category(page_full_slug);
+        let category_slug = category_slug.unwrap_or("_default");
+        let category_id =
+            Self::get_category_id(ctx, viewer.site.site_id, Some(category_slug)).await?;
+        let license =
+            SettingsService::get_license(ctx, viewer.site.site_id, category_id).await?;
+        let locales = parse_locales(&input.locales)?;
+        match license {
+            WikidotLicense::Standard(license) => {
+                viewer.license_name = license.translate(ctx.localization(), &locales)?;
+                viewer.license_url = license.url();
+                viewer.license_kind = ViewerLicenseKind::Standard;
+                viewer.license_html = None;
+            }
+            WikidotLicense::Other(html) => {
+                viewer.license_name.clear();
+                viewer.license_url = "";
+                viewer.license_kind = ViewerLicenseKind::Other;
+                viewer.license_html =
+                    Some(html.replace(
+                        "%%year%%",
+                        &OffsetDateTime::now_utc().year().to_string(),
+                    ));
+            }
+            WikidotLicense::Copyright => {
+                viewer.license_name.clear();
+                viewer.license_url = "";
+                viewer.license_kind = ViewerLicenseKind::Copyright;
+                viewer.license_html = Some(String::new());
+            }
+        }
+        Ok(())
     }
 
     pub async fn article_cache_metadata(
@@ -1117,6 +1164,8 @@ ORDER BY breadcrumb_chain.depth ASC
             site_file_domain,
             license_name,
             license_url,
+            license_kind: ViewerLicenseKind::Standard,
+            license_html: None,
             user_session,
         })
     }

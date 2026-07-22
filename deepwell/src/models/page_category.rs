@@ -21,6 +21,11 @@ pub struct Model {
     pub top_bar_page: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub side_bar_page: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    #[sea_orm(column_type = "Text", nullable)]
+    pub license: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub license_other: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

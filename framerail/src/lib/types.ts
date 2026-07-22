@@ -38,6 +38,8 @@ export interface PageCategoryModel {
   layout: Nullable<Layout>
   top_bar_page: Nullable<string>
   side_bar_page: Nullable<string>
+  license: Nullable<string>
+  license_other: Nullable<string>
 }
 
 // deepwell src/models/session.rs

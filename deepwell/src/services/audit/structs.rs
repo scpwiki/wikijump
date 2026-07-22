@@ -769,6 +769,10 @@ pub struct PageCategoryFields<'a> {
     pub top_bar_page: Maybe<Option<&'a str>>,
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub side_bar_page: Maybe<Option<&'a str>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub license: Maybe<Option<&'a str>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub license_other: Maybe<Option<&'a str>>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -899,6 +903,8 @@ mod tests {
             changed_fields: PageCategoryFields {
                 top_bar_page: Maybe::Set(Some("nav:alternate")),
                 side_bar_page: Maybe::Set(None),
+                license: Maybe::Set(Some("cc-by-3.0")),
+                license_other: Maybe::Set(None),
             },
         });
         assert_event_type(&raw, "page_category.update");
@@ -912,6 +918,7 @@ mod tests {
         assert_eq!(previous["top_bar_page"], "nav:top");
         assert_eq!(changed["top_bar_page"], "nav:alternate");
         assert!(changed["side_bar_page"].is_null());
+        assert_eq!(changed["license"], "cc-by-3.0");
     }
 
     #[test]
