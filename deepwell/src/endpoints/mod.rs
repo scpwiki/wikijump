@@ -70,6 +70,7 @@ pub mod all {
     pub use super::role::*;
     pub use super::routing::*;
     pub use super::site::*;
+    pub use super::site_ban::*;
     pub use super::site_member::*;
     pub use super::text::*;
     pub use super::text_block::*;
@@ -102,6 +103,7 @@ pub mod parent;
 pub mod role;
 pub mod routing;
 pub mod site;
+pub mod site_ban;
 pub mod site_member;
 pub mod text;
 pub mod text_block;

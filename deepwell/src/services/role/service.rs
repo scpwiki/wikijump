@@ -355,6 +355,14 @@ impl RoleService {
             )
         };
 
+        crate::services::RelationService::check_site_ban(
+            ctx,
+            crate::services::relation::GetSiteBan { site_id, user_id },
+            "receive a site role",
+        )
+        .await
+        .or_raise(make_error)?;
+
         let role = Self::get(ctx, site_id, role_id.into()).await?;
 
         let user_role = user_role::ActiveModel {
