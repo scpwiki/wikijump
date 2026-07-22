@@ -10,6 +10,7 @@ import {startCaptureEgressProxy} from "../src/capture-egress-proxy.mjs";
 import {
   DEFAULT_REQUEST_INTERVAL_MS,
   acquireBrowserCaptureLock,
+  createBrowserResponseCache,
   createPersistentBrowserRequestGate,
   installBrowserRequestGate,
   localBrowserCaptureOrigins,
@@ -188,6 +189,7 @@ export function browserContextOptions({ignoreHttpsErrors, storageState = null, p
 async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate = null, localOrigins = []}) {
   let sourceContext = null;
   let localContext = null;
+  const sourceResponseCache = requestGate ? createBrowserResponseCache() : null;
   try {
     sourceContext = await browser.newContext(
       browserContextOptions({
@@ -197,7 +199,7 @@ async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, l
         blockServiceWorkers: Boolean(requestGate),
       }),
     );
-    if (requestGate) await installBrowserRequestGate(sourceContext, {gate: requestGate});
+    if (requestGate) await installBrowserRequestGate(sourceContext, {gate: requestGate, responseCache: sourceResponseCache});
     localContext = await browser.newContext(
       browserContextOptions({
         ignoreHttpsErrors,
@@ -207,7 +209,7 @@ async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, l
       }),
     );
     if (requestGate) await installBrowserRequestGate(localContext, {gate: requestGate, exemptOrigins: localOrigins});
-    return {sourceContext, localContext};
+    return {sourceContext, localContext, sourceResponseCache};
   } catch (error) {
     if (localContext && localContext !== sourceContext) {
       await localContext.close().catch(() => {});
@@ -228,12 +230,13 @@ async function closeContextPair({sourceContext, localContext}) {
   }
 }
 
-function browserSession({browser, sourceContext, localContext, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate, localOrigins}) {
+function browserSession({browser, sourceContext, localContext, sourceResponseCache, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate, localOrigins}) {
   return {
     browser,
     context: sourceContext,
     sourceContext,
     localContext,
+    sourceResponseCache,
     async newContextPair() {
       return await newContextPair({
         browser,
@@ -439,7 +442,8 @@ export async function capturePage(page, url, {timeoutMs, waitUntil, settleMs = D
 
   if (screenshotPath && html) {
     try {
-      await page.screenshot({path: screenshotPath, fullPage: true});
+      const remainingMs = Math.max(1, timeoutMs - (Date.now() - startedAt));
+      await page.screenshot({path: screenshotPath, fullPage: true, timeout: remainingMs});
       writtenScreenshotPath = screenshotPath;
     } catch (error) {
       if (!navigationError) navigationError = error;
@@ -535,6 +539,7 @@ async function run() {
   let browserSession = null;
   let requestGate = null;
   let requestGateReady = false;
+  let gateStateConfirmed = false;
   try {
     requestGate = await createPersistentBrowserRequestGate({
       statePath: captureLock.statePath,
@@ -565,12 +570,17 @@ async function run() {
       storageState: args.storageState,
       sourceStorageState: args.sourceStorageState,
       localStorageState: args.localStorageState,
-      createInitialContexts: false,
+      createInitialContexts: true,
       sourceProxyServer: sourceEgressProxy.url,
       localProxyServer: localEgressProxy.url,
       requestGate,
       localOrigins,
     });
+    const runContexts = {
+      sourceContext: browserSession.sourceContext,
+      localContext: browserSession.localContext,
+    };
+    if (!runContexts.sourceContext || !runContexts.localContext) throw new Error("browser run contexts were not initialized");
     const resolvedStorageStates = resolveStorageStates({
       storageState: args.storageState,
       sourceStorageState: args.sourceStorageState,
@@ -578,7 +588,6 @@ async function run() {
     });
     const records = [];
     for (const row of selectedRows) {
-      const rowContexts = await browserSession.newContextPair();
       const sourceUrl = rowSourceUrl(row);
       const localUrl = rowLocalUrl(row, args.localUrlField);
       const rowDir = path.join(args.outputDir, safePathSegment(row.fixture_id));
@@ -590,41 +599,37 @@ async function run() {
         local: {},
         screenshot: args.screenshot,
       });
-      try {
-        const source = await captureOptionalPage(rowContexts.sourceContext, sourceUrl, "missing source URL", {
-          timeoutMs: args.timeoutMs,
-          waitUntil: args.waitUntil,
-          settleMs: args.settleMs,
-          visibleTextScope: args.visibleTextScope,
-          screenshotPath: artifacts.sourceScreenshot,
-        });
-        const local = await captureOptionalPage(rowContexts.localContext, localUrl, "missing local URL", {
-          timeoutMs: args.timeoutMs,
-          waitUntil: args.waitUntil,
-          settleMs: args.settleMs,
-          visibleTextScope: args.visibleTextScope,
-          screenshotPath: artifacts.localScreenshot,
-        });
+      const source = await captureOptionalPage(runContexts.sourceContext, sourceUrl, "missing source URL", {
+        timeoutMs: args.timeoutMs,
+        waitUntil: args.waitUntil,
+        settleMs: args.settleMs,
+        visibleTextScope: args.visibleTextScope,
+        screenshotPath: artifacts.sourceScreenshot,
+      });
+      const local = await captureOptionalPage(runContexts.localContext, localUrl, "missing local URL", {
+        timeoutMs: args.timeoutMs,
+        waitUntil: args.waitUntil,
+        settleMs: args.settleMs,
+        visibleTextScope: args.visibleTextScope,
+        screenshotPath: artifacts.localScreenshot,
+      });
 
-        await fs.writeFile(artifacts.sourceArtifact, source.html ?? "", "utf8");
-        await fs.writeFile(artifacts.localArtifact, local.html ?? "", "utf8");
-        const record = buildEvidenceRecord({
-          row,
-          source,
-          local,
-          sourceArtifact: artifacts.sourceArtifact,
-          localArtifact: artifacts.localArtifact,
-          sourceScreenshot: source.screenshotPath,
-          localScreenshot: local.screenshotPath,
-          localUrlField: args.localUrlField,
-        });
-        if (args.actorLabel) record.capture_actor = args.actorLabel;
-        record.source_storage_state = Boolean(resolvedStorageStates.sourceStorageState);
-        record.local_storage_state = Boolean(resolvedStorageStates.localStorageState);
-        records.push(record);
-      } finally {
-        await closeContextPair(rowContexts);
-      }
+      await fs.writeFile(artifacts.sourceArtifact, source.html ?? "", "utf8");
+      await fs.writeFile(artifacts.localArtifact, local.html ?? "", "utf8");
+      const record = buildEvidenceRecord({
+        row,
+        source,
+        local,
+        sourceArtifact: artifacts.sourceArtifact,
+        localArtifact: artifacts.localArtifact,
+        sourceScreenshot: source.screenshotPath,
+        localScreenshot: local.screenshotPath,
+        localUrlField: args.localUrlField,
+      });
+      if (args.actorLabel) record.capture_actor = args.actorLabel;
+      record.source_storage_state = Boolean(resolvedStorageStates.sourceStorageState);
+      record.local_storage_state = Boolean(resolvedStorageStates.localStorageState);
+      records.push(record);
     }
     const result = {
     schema: "wikijump_full_parity.browser_rendering_evidence.v1",
@@ -648,10 +653,15 @@ async function run() {
       local_storage_state: Boolean(resolvedStorageStates.localStorageState),
       request_gate_config: requestGateConfigPath,
       request_gate: requestGate.snapshot(),
+      browser_context_scope: "run",
+      source_response_cache: browserSession.sourceResponseCache?.snapshot() ?? null,
     },
     };
     const resultPath = path.join(args.outputDir, "records.json");
     await writeExclusiveJson(resultPath, result);
+    await requestGate.flush();
+    await captureLock.confirmState();
+    gateStateConfirmed = true;
     if (!args.jsonOnly) {
       console.log(`wrote ${records.length} browser rendering records to ${resultPath}`);
     } else {
@@ -677,9 +687,22 @@ async function run() {
     } catch (error) {
       cleanupError ??= error;
     }
+    if (requestGateReady && !gateStateConfirmed && !requestGate?.snapshot().enforcement_failed) {
+      try {
+        await captureLock.confirmState();
+        gateStateConfirmed = true;
+      } catch (error) {
+        cleanupError ??= error;
+      }
+    }
+    if (gateStateConfirmed) {
+      try {
+        await captureLock.release();
+      } catch (error) {
+        cleanupError ??= error;
+      }
+    }
     if (cleanupError) throw cleanupError;
-    await captureLock.confirmState();
-    await captureLock.release();
   }
 }
 

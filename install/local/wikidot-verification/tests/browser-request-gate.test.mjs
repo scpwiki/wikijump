@@ -6,6 +6,7 @@ import {test} from "node:test";
 import {
   acquireBrowserCaptureLock,
   createBrowserRequestGate,
+  createBrowserResponseCache,
   createPersistentBrowserRequestGate,
   installBrowserRequestGate,
   localBrowserCaptureOrigins,
@@ -55,12 +56,12 @@ function createContext() {
   };
 }
 
-function createRoute(url, {continueError = null} = {}) {
+function createRoute(url, {continueError = null, method = "GET", resourceType = "script", headers = {}, fetchResponse = null} = {}) {
   const actions = [];
   return {
     actions,
     request() {
-      return {url: () => url};
+      return {url: () => url, method: () => method, resourceType: () => resourceType, headers: () => headers};
     },
     async continue() {
       actions.push({type: "continue"});
@@ -69,6 +70,22 @@ function createRoute(url, {continueError = null} = {}) {
     async abort(reason) {
       actions.push({type: "abort", reason});
     },
+    async fetch(options) {
+      actions.push({type: "fetch", options});
+      if (!fetchResponse) throw new Error("unexpected route fetch");
+      return fetchResponse;
+    },
+    async fulfill(options) {
+      actions.push({type: "fulfill", status: options.status ?? options.response?.status() ?? null});
+    },
+  };
+}
+
+function createFetchResponse({status = 200, headers = {}, body = "asset"} = {}) {
+  return {
+    status: () => status,
+    headers: () => ({"content-length": String(Buffer.byteLength(body)), ...headers}),
+    body: async () => Buffer.from(body),
   };
 }
 
@@ -123,6 +140,69 @@ test("source and local contexts share the gate while only the exact local origin
   assert.deepEqual(gate.snapshot().grants.map((grant) => grant.released_at_epoch_ms), [0, 4_000]);
   assert.equal(gate.snapshot().local_exempt_requests, 1);
   assert.equal(gate.snapshot().websocket_connections_blocked, 1);
+});
+
+test("a source response cache serves repeated cacheable assets without another gate grant", async () => {
+  const clock = createClock();
+  const gate = createBrowserRequestGate({intervalMs: 4_000, now: clock.now, sleep: clock.sleep});
+  const responseCache = createBrowserResponseCache();
+  const context = createContext();
+  await installBrowserRequestGate(context, {gate, responseCache});
+  const handler = context.routes[0].handler;
+  const url = "https://cdn.example.test/shared.css";
+  const first = createRoute(url, {
+    resourceType: "stylesheet",
+    fetchResponse: createFetchResponse({headers: {"cache-control": "private, no-cache"}, body: "body{}"}),
+  });
+  const second = createRoute(url, {resourceType: "stylesheet"});
+
+  await handler(first);
+  await handler(second);
+
+  assert.deepEqual(first.actions, [
+    {type: "fetch", options: {maxRedirects: 0}},
+    {type: "fulfill", status: 200},
+  ]);
+  assert.deepEqual(second.actions, [{type: "fulfill", status: 200}]);
+  assert.equal(gate.snapshot().public_requests, 1);
+  assert.deepEqual(responseCache.snapshot(), {
+    schema: "wikijump_full_parity.browser_response_cache.v1",
+    entries: 1,
+    bytes: 6,
+    hits: 1,
+    misses: 1,
+    stores: 1,
+    bypasses: 0,
+    evictions: 0,
+    max_entries: 512,
+    max_bytes: 64 * 1024 * 1024,
+    max_entry_bytes: 8 * 1024 * 1024,
+    lookup_key: "exact_url",
+    lifetime: "browser_context",
+    documents_cached: false,
+  });
+});
+
+test("documents and no-store assets keep using the unchanged request gate", async () => {
+  const clock = createClock();
+  const gate = createBrowserRequestGate({intervalMs: 4_000, now: clock.now, sleep: clock.sleep});
+  const responseCache = createBrowserResponseCache();
+  const context = createContext();
+  await installBrowserRequestGate(context, {gate, responseCache});
+  const handler = context.routes[0].handler;
+  const document = createRoute("https://example.test/page", {resourceType: "document"});
+  const noStoreUrl = "https://example.test/dynamic.js";
+  const noStoreResponse = createFetchResponse({headers: {"cache-control": "no-store"}});
+
+  await handler(document);
+  await handler(createRoute(noStoreUrl, {fetchResponse: noStoreResponse}));
+  await handler(createRoute(noStoreUrl, {fetchResponse: noStoreResponse}));
+
+  assert.deepEqual(document.actions, [{type: "continue"}]);
+  assert.equal(gate.snapshot().public_requests, 3);
+  assert.equal(responseCache.snapshot().entries, 0);
+  assert.equal(responseCache.snapshot().stores, 0);
+  assert.equal(responseCache.snapshot().bypasses, 3);
 });
 
 test("unsupported, malformed, and failed request paths fail closed and leave the queue usable", async () => {

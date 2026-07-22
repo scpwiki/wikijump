@@ -8,6 +8,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
+  guardedPipeline,
   isBlockedAddress,
   resolvePinned,
   startCaptureEgressProxy,
@@ -17,6 +18,17 @@ const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../../..",
 );
+
+test("guarded pipeline reports a synchronous closed-stream failure instead of throwing", () => {
+  const failure = new Error("destination already closed");
+  let observed = null;
+  assert.doesNotThrow(() => guardedPipeline({}, {}, (error) => {
+    observed = error;
+  }, () => {
+    throw failure;
+  }));
+  assert.equal(observed, failure);
+});
 
 async function listen(handler) {
   const server = http.createServer(handler);

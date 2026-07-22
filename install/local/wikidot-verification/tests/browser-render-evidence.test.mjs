@@ -665,7 +665,7 @@ test("capture CLI rejects public and credentialed local URLs before it can launc
   }
 });
 
-test("capture CLI uses fresh source and local contexts for each row", async () => {
+test("capture CLI reuses one source and local context across all rows", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-row-contexts-"));
   const browserRoot = path.join(root, "browser-root");
   const inventoryPath = path.join(root, "inventory.json");
@@ -742,15 +742,15 @@ exports.chromium = {
   const records = JSON.parse(await fs.readFile(path.join(outputDir, "records.json"), "utf8"));
   assert.deepEqual(
     trace.filter((entry) => entry.event === "newContext").map((entry) => entry.id),
-    [0, 1, 2, 3]
+    [0, 1]
   );
   assert.deepEqual(
     trace.filter((entry) => entry.event === "newContext").map((entry) => entry.options.serviceWorkers),
-    ["block", "block", "block", "block"]
+    ["block", "block"]
   );
   assert.deepEqual(
     trace.filter((entry) => entry.event === "closeContext").map((entry) => entry.id),
-    [1, 0, 3, 2]
+    [1, 0]
   );
   assert.deepEqual(
     records.evidence.map((record) => [
@@ -760,13 +760,15 @@ exports.chromium = {
     ]),
     [
       ["EN:alpha", "context-0", "context-1"],
-      ["EN:beta", "context-2", "context-3"],
+      ["EN:beta", "context-0", "context-1"],
     ]
   );
   const requestGateConfig = JSON.parse(await fs.readFile(path.join(outputDir, "request-gate-config.json"), "utf8"));
   assert.equal(requestGateConfig.status, "sealed_before_browser_request");
   assert.equal(requestGateConfig.interval_ms, 4_000);
   assert.equal(records.capture.request_gate.public_requests, 0);
+  assert.equal(records.capture.browser_context_scope, "run");
+  assert.equal(records.capture.source_response_cache.entries, 0);
 });
 
 test("capture CLI records requested visible text scope", async () => {
