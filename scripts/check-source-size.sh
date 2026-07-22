@@ -5,15 +5,67 @@ set -euo pipefail
 readonly warning_limit=1500
 readonly severe_limit=2500
 readonly baseline_file="scripts/source-size-baseline.txt"
+readonly base_sha="${SOURCE_SIZE_BASE_SHA:-}"
 
 declare -A severe_baseline=()
+declare -A base_severe_baseline=()
 
 while read -r ceiling path; do
     if [[ -z "${ceiling}" || "${ceiling}" == \#* ]]; then
         continue
     fi
+    if [[ ! "${ceiling}" =~ ^[0-9]+$ || -z "${path}" ]]; then
+        echo "Invalid source-size baseline entry: ${ceiling} ${path}" >&2
+        exit 1
+    fi
+    if [[ -n "${severe_baseline["${path}"]+present}" ]]; then
+        echo "Duplicate source-size baseline entry: ${path}" >&2
+        exit 1
+    fi
     severe_baseline["${path}"]="${ceiling}"
 done < "${baseline_file}"
+
+if [[ -n "${base_sha}" ]]; then
+    if ! git cat-file -e "${base_sha}^{commit}" 2>/dev/null; then
+        echo "Source-size base commit is unavailable: ${base_sha}" >&2
+        exit 1
+    fi
+
+    if git cat-file -e "${base_sha}:${baseline_file}" 2>/dev/null; then
+        while read -r ceiling path; do
+            if [[ -z "${ceiling}" || "${ceiling}" == \#* ]]; then
+                continue
+            fi
+            if [[ ! "${ceiling}" =~ ^[0-9]+$ || -z "${path}" ]]; then
+                echo "Invalid base source-size baseline entry: ${ceiling} ${path}" >&2
+                exit 1
+            fi
+            base_severe_baseline["${path}"]="${ceiling}"
+        done < <(git show "${base_sha}:${baseline_file}")
+
+        for path in "${!severe_baseline[@]}"; do
+            ceiling=${severe_baseline["${path}"]}
+            base_ceiling=${base_severe_baseline["${path}"]:-}
+            if [[ -z "${base_ceiling}" || "${ceiling}" -gt "${base_ceiling}" ]]; then
+                echo "Source-size baseline additions and increases are not allowed: ${path} ${base_ceiling:-absent} -> ${ceiling}" >&2
+                exit 1
+            fi
+        done
+    else
+        for path in "${!severe_baseline[@]}"; do
+            ceiling=${severe_baseline["${path}"]}
+            if ! git cat-file -e "${base_sha}:${path}" 2>/dev/null; then
+                echo "Bootstrap source-size baseline path is absent from the base commit: ${path}" >&2
+                exit 1
+            fi
+            base_lines=$(git show "${base_sha}:${path}" | wc -l)
+            if (( base_lines <= severe_limit || ceiling != base_lines )); then
+                echo "Bootstrap source-size baseline must exactly match a pre-existing severe file: ${path} has ${base_lines} base lines, candidate ceiling ${ceiling}" >&2
+                exit 1
+            fi
+        done
+    fi
+fi
 
 warning_count=0
 severe_count=0
