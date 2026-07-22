@@ -1,4 +1,5 @@
 node_modules/
+.venv/
 /artifacts/command-ledger/
 /artifacts/runtime-health/
 /artifacts/ci-status/

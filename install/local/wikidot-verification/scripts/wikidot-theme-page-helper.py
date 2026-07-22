@@ -9,7 +9,6 @@ import os
 import re
 import sys
 import time
-from pathlib import Path
 from typing import Any, TextIO
 
 ALLOWED_SITE = "scpaiueouiuiuiui"
@@ -91,10 +90,8 @@ class WikidotBackend:
     def __init__(self) -> None:
         username = os.environ.pop("WIKIDOT_USERNAME", "")
         password = os.environ.pop("WIKIDOT_PASSWORD", "")
-        root = Path(os.environ.pop("WIKIDOT_PY_ROOT", "/home/roku/src/Rokurolize/wikidot.py/src"))
-        if not username or not password or not root.is_dir():
+        if not username or not password:
             raise PublicError("initialization_failed", "Wikidot helper environment is incomplete")
-        sys.path.insert(0, str(root))
         try:
             import httpx
             from bs4 import BeautifulSoup

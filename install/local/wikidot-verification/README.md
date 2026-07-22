@@ -2,6 +2,16 @@
 
 The scripts in this directory import frozen Wikidot corpus data, inspect a local runtime, capture browser evidence, and reduce large runs into machine-readable verdicts. Expected behavior must come from the frozen corpus, reviewed compatibility policy, or sealed real-Wikidot evidence. Local Wikijump output is diagnostic evidence, not an oracle.
 
+## Python environment
+
+The authenticated Wikidot helper runs from this component's private `.venv`, with the owner's `Rokurolize/wikidot.py` fork pinned by commit in `requirements.txt`. Create or refresh the environment before using the theme-localization execution path:
+
+```sh
+install/local/wikidot-verification/scripts/setup-python-env.sh
+```
+
+The helper never imports from a mutable host checkout. Credentials remain environment-only inputs to the helper process.
+
 ## Completion controller
 
 `scripts/run-completion-controller.mjs` is the resumable one-command entry point for a complete branch run. It executes an explicit JSON plan without a shell, records every command through the command ledger, hashes declared inputs and outputs, checks declared verdicts, and writes compact state and summary files.
