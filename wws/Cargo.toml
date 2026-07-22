@@ -24,7 +24,7 @@ headers = "0.4"
 jsonrpsee = { version = "0.26", features = ["async-client", "jsonrpsee-http-client"] }
 paste = "1"
 rand = "0.10"
-redis = { version = "0.32", features = ["aio", "connection-manager", "keep-alive", "r2d2", "tokio-comp", "tokio-rustls-comp"], default-features = false }
+redis = { version = "1", features = ["aio", "connection-manager", "tokio-comp", "tokio-rustls-comp"], default-features = false }
 ref-map = "0.2"
 rust-s3 = { version = "0.37", features = ["with-tokio", "tokio-rustls-tls"], default-features = false }
 serde = { version = "1", features = ["derive"] }
