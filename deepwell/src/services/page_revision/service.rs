@@ -33,7 +33,7 @@ use crate::services::{
     RenderService, ScoreService, SettingsService, SiteService, TextService,
 };
 use crate::types::{FetchDirection, PageId, PageRevisionType, RerenderDepth};
-use crate::utils::{split_category, split_category_name, trim_default};
+use crate::utils::{locale_for_ftml, split_category, split_category_name, trim_default};
 use ftml::data::PageInfo;
 use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};
@@ -844,7 +844,7 @@ impl PageRevisionService {
             alt_title: cow_opt!(alt_title),
             score,
             tags: tags.iter().map(|s| cow!(s)).collect(),
-            language: cow!(&site.locale),
+            language: cow!(locale_for_ftml(&site.locale)),
         };
 
         // Parse and render

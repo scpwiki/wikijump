@@ -50,7 +50,7 @@ use crate::services::{
     PageService, SessionService, SiteService, TextService, UserService,
 };
 use crate::types::{Action, PageId, PageOrder, Permission, RerenderDepth, Resource};
-use crate::utils::{get_category_name, parse_locales, split_category};
+use crate::utils::{get_category_name, locale_for_ftml, parse_locales, split_category};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
 use ref_map::*;
@@ -378,13 +378,12 @@ impl ViewService {
             alt_title: None,
             score: ScoreValue::Integer(0), // TODO configurable default score value
             tags: vec![],
-            // NOTE: The [[date]] block is now localized through
-            // PageInfo.language, which means the value passed here
-            // should be &site.locale.
+            // NOTE: The [[date]] block is localized through PageInfo.language.
+            // Normalize Wikidot-only identifiers at the FTML boundary.
             //
             // If we ever want to change this, we need to evaluate the
             // impact on FTML first.
-            language: cow!(&site.locale),
+            language: cow!(locale_for_ftml(&site.locale)),
         };
 
         // Helper structures to designate which variant of GetPageViewOutput to return.
@@ -1142,7 +1141,7 @@ ORDER BY breadcrumb_chain.depth ASC
             site: cow!(site.slug),
             score: ScoreValue::Integer(0),
             tags: vec![],
-            language: cow!(site.locale),
+            language: Cow::Owned(locale_for_ftml(&site.locale).to_owned()),
         };
 
         let GetBlueprintPageOutput {

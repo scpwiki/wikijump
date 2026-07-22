@@ -103,7 +103,7 @@ use crate::services::{
     TextService,
 };
 use crate::types::{Action, PageId, Permission, Resource, TextBlockType};
-use crate::utils::trim_default;
+use crate::utils::{locale_for_ftml, trim_default};
 use ftml::data::PageRef;
 use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::*;
@@ -786,7 +786,7 @@ impl RenderService {
             alt_title: None,
             score: ScoreValue::Integer(0),
             tags: Vec::new(),
-            language: Cow::Owned(site.locale),
+            language: Cow::Owned(locale_for_ftml(&site.locale).to_owned()),
         };
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let RenderInnerOutput {
@@ -13517,7 +13517,7 @@ mod tests {
         parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
     };
     use crate::types::{License, PageId};
-    use crate::utils::now;
+    use crate::utils::{locale_for_ftml, now};
     use ftml::data::PageRef;
     use ftml::includes::IncludeRef;
     use ftml::layout::Layout;
@@ -22151,10 +22151,10 @@ mod tests {
     }
 
     #[test]
-    fn pinned_ftml_localizes_japanese_footnotes_before_dom_compatibility_restore() {
+    fn wikidot_japanese_corrections_locale_localizes_ftml_footnotes() {
         let mut page_info =
             fallback_test_page_info("localized-footnote", "Localized footnote");
-        page_info.language = Cow::Borrowed("ja-JP");
+        page_info.language = Cow::Borrowed(locale_for_ftml("ja-corrections"));
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut wikitext = "本文[[footnote]]注記[[/footnote]]".to_owned();
         ftml::preprocess(&mut wikitext);

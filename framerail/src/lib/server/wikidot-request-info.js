@@ -139,19 +139,24 @@ export const serializeWikidotRequestInfo = (info) => {
 /**
  * @param {string} html
  * @param {ReturnType<typeof buildWikidotRequestInfo> | undefined} info
+ * @param {string | undefined} siteLocale
  */
-export const injectWikidotRequestInfo = (html, info) => {
-  const first = html.indexOf(WIKIDOT_REQUEST_INFO_MARKER)
-  if (first === -1) return html
+export const injectWikidotRequestInfo = (html, info, siteLocale = undefined) => {
+  const localizedHtml = siteLocale
+    ? html.replace(
+        '<html lang="en">',
+        `<html lang="${htmlAttribute(requireString(siteLocale, "site locale", 64))}">`
+      )
+    : html
+  const first = localizedHtml.indexOf(WIKIDOT_REQUEST_INFO_MARKER)
+  if (first === -1) return localizedHtml
   if (
-    html.indexOf(
+    localizedHtml.indexOf(
       WIKIDOT_REQUEST_INFO_MARKER,
       first + WIKIDOT_REQUEST_INFO_MARKER.length
     ) !== -1
   ) {
     throw new Error("WIKIREQUEST template marker must occur at most once")
   }
-  const injected = `${html.slice(0, first)}${serializeWikidotRequestInfo(info)}${html.slice(first + WIKIDOT_REQUEST_INFO_MARKER.length)}`
-  if (!info) return injected
-  return injected.replace('<html lang="en">', `<html lang="${htmlAttribute(info.lang)}">`)
+  return `${localizedHtml.slice(0, first)}${serializeWikidotRequestInfo(info)}${localizedHtml.slice(first + WIKIDOT_REQUEST_INFO_MARKER.length)}`
 }

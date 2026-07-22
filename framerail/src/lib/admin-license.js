@@ -33,6 +33,15 @@ export const licenseOptionsFor = (currentLicense) =>
     ? WIKIDOT_LICENSE_OPTIONS
     : [...WIKIDOT_LICENSE_OPTIONS, { value: currentLicense, label: currentLicense }]
 
+// Deepwell stores custom licenses as sanitized HTML. Decode only the entities
+// emitted by that sanitizer before the value is edited and sanitized again.
+export const customLicenseSourceForEdit = (storedHtml) =>
+  storedHtml
+    .replaceAll("&quot;", '"')
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&")
+
 /**
  * @param {{
  *   category_id: number
@@ -51,9 +60,10 @@ export const licenseFormValues = (
   categoryId: category.category_id,
   inherit: category.slug !== "_default" && category.license === null,
   license: category.license ?? defaultLicense,
-  licenseOther:
+  licenseOther: customLicenseSourceForEdit(
     category.license_other ??
-    (category.license === null ? (defaultLicenseOther ?? "") : "")
+      (category.license === null ? (defaultLicenseOther ?? "") : "")
+  )
 })
 
 /** @param {{ inherit: boolean; license: string; licenseOther?: string }} form */
