@@ -24,7 +24,7 @@ The controller performs one fixed sequence:
 
 1. Verify the source checkout is clean and exactly matches `origin/develop`, then read the exact Wikijump tree and FTML pin.
 2. Build Deepwell, Framerail, and WWS from `install/local/<service>/Dockerfile`; Framerail receives `--build-arg FRAMERAIL_ENV=local`.
-3. Atomically update only the three `STANDING_*_IMAGE` values, `STANDING_WIKIJUMP_SHA`, `STANDING_FTML_SHA`, and the refresh resource expiry in the runtime `.env`.
+3. Atomically update the three `STANDING_*_IMAGE` values, `STANDING_WIKIJUMP_SHA`, `STANDING_FTML_SHA`, `STANDING_LOCALES_SOURCE`, and the refresh resource expiry in the runtime `.env`. The locales bind points at the same clean source root used for the image builds.
 4. Run `docker compose --project-name wikijump-standing up --detach --no-deps deepwell framerail wws` with the checked-in refresh label overlay. The overlay adds owner and expiry labels to the three recreated containers and has no volume declarations.
 5. Wait for all three services to become healthy, fetch `http://scp-wiki.wikijump.localhost/scp-9506`, require the expected document markers, and overwrite `refresh-receipt.json` with the exact source, image, health, canary, and resource-disposition record.
 

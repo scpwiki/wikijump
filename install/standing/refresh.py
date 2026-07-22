@@ -44,6 +44,8 @@ def repository_identity(source_root: Path) -> dict[str, str]:
     lock_contents = (source_root / "deepwell" / "Cargo.lock").read_text(
         encoding="utf-8"
     )
+    if not (source_root / "locales").is_dir():
+        raise ValueError("source checkout is missing the locales directory")
     matches = set(FTML_SOURCE.findall(lock_contents))
     if len(matches) != 1:
         raise ValueError("deepwell/Cargo.lock must contain exactly one FTML revision")
@@ -246,6 +248,7 @@ def main() -> int:
             "STANDING_WWS_IMAGE": tags["wws"],
             "STANDING_WIKIJUMP_SHA": identity["wikijump_sha"],
             "STANDING_FTML_SHA": identity["ftml_sha"],
+            "STANDING_LOCALES_SOURCE": str(source_root / "locales"),
             "STANDING_RESOURCE_EXPIRY": expiry,
         }
     )
