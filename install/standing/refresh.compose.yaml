@@ -1,0 +1,13 @@
+services:
+  deepwell:
+    labels:
+      com.rokurolize.wikijump.owner: standing-runtime
+      com.rokurolize.wikijump.expiry: ${STANDING_RESOURCE_EXPIRY:?STANDING_RESOURCE_EXPIRY is required}
+  framerail:
+    labels:
+      com.rokurolize.wikijump.owner: standing-runtime
+      com.rokurolize.wikijump.expiry: ${STANDING_RESOURCE_EXPIRY:?STANDING_RESOURCE_EXPIRY is required}
+  wws:
+    labels:
+      com.rokurolize.wikijump.owner: standing-runtime
+      com.rokurolize.wikijump.expiry: ${STANDING_RESOURCE_EXPIRY:?STANDING_RESOURCE_EXPIRY is required}
