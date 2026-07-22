@@ -518,7 +518,15 @@ export async function acquireBrowserCaptureLock({lockPath = DEFAULT_BROWSER_CAPT
       if (!validOwner(existing) || existing.hostname !== hostname) throw new Error("browser capture lock is held by an unverifiable owner");
       const existingTicks = await processStartTicks(existing.pid);
       if (existingTicks === existing.process_start_ticks) throw new Error(`browser capture source lock is held by run ${existing.run_id}`);
-      if (existing.state_confirmation !== "sealed") throw new Error(`browser capture source lock has unconfirmed request-gate state from run ${existing.run_id}; operator review is required`);
+      if (existing.state_confirmation !== "sealed") {
+        let persistedState = null;
+        try {
+          persistedState = await secureJsonFile(`${absolute}.state.json`);
+        } catch {
+          // The operator-review error below intentionally covers every state-file validation failure.
+        }
+        if (!validState(persistedState)) throw new Error(`browser capture source lock has unconfirmed request-gate state from run ${existing.run_id}; operator review is required`);
+      }
       const current = await fs.lstat(absolute);
       if (current.dev !== stat.dev || current.ino !== stat.ino) throw new Error("browser capture lock changed while recovering stale owner");
       await fs.unlink(absolute);
