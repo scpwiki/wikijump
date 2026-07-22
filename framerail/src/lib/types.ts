@@ -28,6 +28,18 @@ export interface SiteModel {
   license: License
 }
 
+// deepwell src/models/page_category.rs
+export interface PageCategoryModel {
+  category_id: number
+  created_at: string
+  updated_at: Nullable<string>
+  site_id: number
+  slug: string
+  layout: Nullable<Layout>
+  top_bar_page: Nullable<string>
+  side_bar_page: Nullable<string>
+}
+
 // deepwell src/models/session.rs
 export interface SessionModel {
   session_token: string

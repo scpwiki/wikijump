@@ -1010,7 +1010,10 @@ ORDER BY breadcrumb_chain.depth ASC
         // Determine whether to return the actual admin panel content
         let output = if user_can_access_admin {
             debug!("User has admin access, return data");
-            GetAdminViewOutput::SiteFound
+            let categories = CategoryService::get_all(ctx, site_id)
+                .await
+                .or_raise(make_error)?;
+            GetAdminViewOutput::SiteFound { categories }
         } else {
             warn!("User doesn't have admin access, returning permission page");
 

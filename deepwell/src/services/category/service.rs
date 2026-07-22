@@ -23,7 +23,11 @@ use crate::models::page;
 use crate::models::page_category::{
     self, Entity as PageCategory, Model as PageCategoryModel,
 };
+use crate::services::OutdateService;
+use crate::services::audit::{AuditEvent, AuditService, PageCategoryFields};
+use crate::types::RerenderDepth;
 use sea_query::{Expr, ExprTrait, Func, Query};
+use std::net::IpAddr;
 
 #[derive(Debug)]
 pub struct CategoryService;
@@ -155,6 +159,98 @@ impl CategoryService {
             .or_raise(make_error)?;
 
         Ok(categories)
+    }
+
+    pub async fn update(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        reference: Reference<'_>,
+        input: UpdateCategoryBody,
+        updating_user_id: i64,
+        ip_address: IpAddr,
+    ) -> Result<PageCategoryModel> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to update page category {reference:?} in site ID {site_id}"
+                ),
+                ErrorType::PageCategory,
+            )
+        };
+
+        let category = Self::get(ctx, site_id, reference.clone())
+            .await
+            .or_raise(make_error)?;
+        let navigation_changed = input
+            .top_bar_page
+            .to_option()
+            .is_some_and(|value| value != &category.top_bar_page)
+            || input
+                .side_bar_page
+                .to_option()
+                .is_some_and(|value| value != &category.side_bar_page);
+
+        let previous_fields = PageCategoryFields {
+            top_bar_page: match &input.top_bar_page {
+                Maybe::Set(_) => Maybe::Set(category.top_bar_page.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
+            side_bar_page: match &input.side_bar_page {
+                Maybe::Set(_) => Maybe::Set(category.side_bar_page.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
+        };
+        let changed_fields = PageCategoryFields {
+            top_bar_page: match &input.top_bar_page {
+                Maybe::Set(value) => Maybe::Set(value.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
+            side_bar_page: match &input.side_bar_page {
+                Maybe::Set(value) => Maybe::Set(value.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
+        };
+
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::PageCategoryUpdate {
+                site_id,
+                category_id: category.category_id,
+                user_id: updating_user_id,
+                previous_fields,
+                changed_fields,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        let category_id = category.category_id;
+        let mut model = category.into_active_model();
+        if let Maybe::Set(top_bar_page) = input.top_bar_page {
+            model.top_bar_page = Set(top_bar_page);
+        }
+        if let Maybe::Set(side_bar_page) = input.side_bar_page {
+            model.side_bar_page = Set(side_bar_page);
+        }
+        model.updated_at = Set(Some(now()));
+
+        ctx.defer_public_content_cache_invalidate_site(site_id)
+            .or_raise(make_error)?;
+        let category = model.update(ctx.transaction()).await.or_raise(make_error)?;
+
+        if navigation_changed {
+            OutdateService::outdate_nav_category(
+                ctx,
+                site_id,
+                category_id,
+                RerenderDepth::default(),
+            )
+            .await
+            .or_raise(make_error)?;
+        }
+
+        Ok(category)
     }
 
     /// Gets all page categories which have non-deleted pages in them.

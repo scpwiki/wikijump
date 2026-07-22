@@ -392,6 +392,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("category_get", category_get);
     register!("category_get_all", category_get_all);
     register!("category_get_all_active", category_get_all_active);
+    register!("category_update", category_update);
 
     // Page
     register!("page_create", page_create);

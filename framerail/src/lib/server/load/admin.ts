@@ -1,7 +1,8 @@
 import defaults from "$lib/defaults"
+import { navigationUpdateValues } from "$lib/admin-navigation.js"
 
 import { authGetSession } from "$lib/server/auth/getSession"
-import { siteUpdate } from "$lib/server/deepwell/admin"
+import { categoryNavigationUpdate, siteUpdate } from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
 import { adminView, type PreloadDataAsync } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
@@ -10,6 +11,7 @@ import { error } from "@sveltejs/kit"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
 import {
+  boolean,
   literal,
   nullable,
   number,
@@ -83,12 +85,15 @@ export async function loadAdminPage(
   const internationalization = await translate(locales, translateKeys)
 
   const adminForm = await superValidate(request, valibot(adminSchema))
+  const navigationForm = await superValidate(request, valibot(navigationSchema))
 
   const viewData = {
     view: response.type,
     html: response.data?.html,
     internationalization,
-    adminForm
+    adminForm,
+    navigationForm,
+    categories: response.type === "site_found" ? response.data.categories : []
   }
 
   if (errorStatus !== null) {
@@ -96,6 +101,46 @@ export async function loadAdminPage(
   }
 
   return viewData
+}
+
+export async function navigationAction({
+  request,
+  getClientAddress,
+  cookies
+}: RequestEvent) {
+  const form = await superValidate(request, valibot(navigationSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's navigation"
+    })
+  }
+
+  const { siteId, categoryId } = form.data
+  const { topBarPage, sideBarPage } = navigationUpdateValues(form.data)
+  try {
+    const res = await categoryNavigationUpdate(
+      siteId,
+      categoryId,
+      session.user_id,
+      getClientAddress(),
+      topBarPage,
+      sideBarPage,
+      { sessionToken, siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    return fail(500, {
+      form,
+      message: error?.message,
+      code: error?.code,
+      data: error?.data
+    })
+  }
 }
 
 export async function adminAction({ request, getClientAddress, cookies }: RequestEvent) {
@@ -159,4 +204,12 @@ const adminSchema = object({
   layout: vEnum(Layout),
   siteId: number(),
   action: optional(nullable(literal("edit")))
+})
+
+const navigationSchema = object({
+  siteId: number(),
+  categoryId: number(),
+  inherit: boolean(),
+  topBarPage: string(),
+  sideBarPage: string()
 })

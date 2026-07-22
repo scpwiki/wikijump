@@ -1,11 +1,34 @@
 import { client } from "$lib/server/deepwell"
 import { Layout } from "$lib/types"
 
-import type { Nullable, Optional, SiteModel } from "$lib/types"
+import type { Nullable, Optional, PageCategoryModel, SiteModel } from "$lib/types"
 
 type SiteUpdateRequestContext = {
   sessionToken: string
   siteId: number
+}
+
+export async function categoryNavigationUpdate(
+  siteId: number,
+  categoryId: number,
+  userId: number,
+  userIpAddr: string,
+  topBarPage: Nullable<string>,
+  sideBarPage: Nullable<string>,
+  requestContext: SiteUpdateRequestContext
+): Promise<PageCategoryModel> {
+  return client.request(
+    "category_update",
+    {
+      site: siteId,
+      category: categoryId,
+      user_id: userId,
+      top_bar_page: topBarPage,
+      side_bar_page: sideBarPage,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
 }
 
 export async function siteUpdate(

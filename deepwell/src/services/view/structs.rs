@@ -21,6 +21,7 @@
 use super::options::PageOptions;
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
+use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
@@ -218,7 +219,7 @@ pub struct GetAdminView {
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetAdminViewOutput {
-    SiteFound,
+    SiteFound { categories: Vec<PageCategoryModel> },
 
     AdminPermissions { html: String },
 }

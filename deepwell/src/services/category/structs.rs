@@ -18,10 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::types::Reference;
+use crate::types::{Maybe, Reference};
+use std::net::IpAddr;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetCategory<'a> {
     pub site: Reference<'a>,
     pub category: Reference<'a>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct UpdateCategory<'a> {
+    pub site: Reference<'a>,
+    pub category: Reference<'a>,
+    pub user_id: i64,
+    #[serde(flatten)]
+    pub body: UpdateCategoryBody,
+    pub ip_address: IpAddr,
+}
+
+#[derive(Deserialize, Debug, Clone, Default)]
+#[serde(default)]
+pub struct UpdateCategoryBody {
+    pub top_bar_page: Maybe<Option<String>>,
+    pub side_bar_page: Maybe<Option<String>>,
 }

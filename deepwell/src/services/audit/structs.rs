@@ -57,6 +57,13 @@ pub enum AuditEvent<'a> {
         previous_fields: SiteFields<'a>,
         changed_fields: SiteFields<'a>,
     },
+    PageCategoryUpdate {
+        site_id: i64,
+        category_id: i64,
+        user_id: i64,
+        previous_fields: PageCategoryFields<'a>,
+        changed_fields: PageCategoryFields<'a>,
+    },
     PageCreate {
         user_id: i64,
         site_id: i64,
@@ -263,6 +270,31 @@ impl<'a> AuditEvent<'a> {
                     site_id: Some(site_id),
                     page_id: None,
                     extra_id_1: None,
+                    extra_id_2: None,
+                    extra_string_1: Some(Cow::Owned(previous_fields_json)),
+                    extra_string_2: Some(Cow::Owned(changed_fields_json)),
+                    extra_number: None,
+                }
+            }
+            AuditEvent::PageCategoryUpdate {
+                site_id,
+                category_id,
+                user_id,
+                ref previous_fields,
+                ref changed_fields,
+            } => {
+                let previous_fields_json =
+                    serde_json::to_string(previous_fields).or_raise(make_error)?;
+                let changed_fields_json =
+                    serde_json::to_string(changed_fields).or_raise(make_error)?;
+
+                RawAuditEvent {
+                    event_type: "page_category.update",
+                    ip_address,
+                    user_id: Some(user_id),
+                    site_id: Some(site_id),
+                    page_id: None,
+                    extra_id_1: Some(category_id),
                     extra_id_2: None,
                     extra_string_1: Some(Cow::Owned(previous_fields_json)),
                     extra_string_2: Some(Cow::Owned(changed_fields_json)),
@@ -730,6 +762,15 @@ pub struct SiteFields<'a> {
     pub layout: Maybe<Option<Layout>>,
 }
 
+#[derive(Serialize, Debug, Clone, Default)]
+#[serde(default)]
+pub struct PageCategoryFields<'a> {
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub top_bar_page: Maybe<Option<&'a str>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub side_bar_page: Maybe<Option<&'a str>>,
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum UpdateMfaOperation {
     Setup,
@@ -846,6 +887,31 @@ mod tests {
         assert_eq!(previous["name"], "Old Site");
         assert_eq!(changed["slug"], "new-site");
         assert_eq!(changed["layout"], "wikidot");
+
+        let raw = extract(AuditEvent::PageCategoryUpdate {
+            site_id: 21,
+            category_id: 23,
+            user_id: 22,
+            previous_fields: PageCategoryFields {
+                top_bar_page: Maybe::Set(Some("nav:top")),
+                ..Default::default()
+            },
+            changed_fields: PageCategoryFields {
+                top_bar_page: Maybe::Set(Some("nav:alternate")),
+                side_bar_page: Maybe::Set(None),
+            },
+        });
+        assert_event_type(&raw, "page_category.update");
+        assert_eq!(raw.site_id, Some(21));
+        assert_eq!(raw.user_id, Some(22));
+        assert_eq!(raw.extra_id_1, Some(23));
+        let previous: serde_json::Value =
+            serde_json::from_str(raw.extra_string_1.as_deref().unwrap()).unwrap();
+        let changed: serde_json::Value =
+            serde_json::from_str(raw.extra_string_2.as_deref().unwrap()).unwrap();
+        assert_eq!(previous["top_bar_page"], "nav:top");
+        assert_eq!(changed["top_bar_page"], "nav:alternate");
+        assert!(changed["side_bar_page"].is_null());
     }
 
     #[test]

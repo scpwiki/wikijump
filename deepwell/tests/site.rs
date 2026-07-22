@@ -29,6 +29,7 @@ use deepwell::models::alias::{self, Entity as AliasTable};
 use deepwell::models::site::Entity as SiteTable;
 use deepwell::services::RequestContext;
 use deepwell::services::alias::{AliasService, CreateAlias};
+use deepwell::services::category::CategoryService;
 use deepwell::services::permission::PermissionService;
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
@@ -237,6 +238,66 @@ async fn site_update_allows_users_with_site_edit_permission() {
 
     assert_eq!(updated.site_id, site_id);
     assert_eq!(updated.name, "Authorized site rename");
+}
+
+#[tokio::test]
+async fn category_navigation_update_requires_site_edit_and_supports_inheritance() {
+    let mut runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let category = CategoryService::get_or_create(runner.context(), site_id, "_default")
+        .await
+        .expect("failed to create default category");
+    let user_id = create_user(&runner, n, "category-editor").await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(user_id),
+        ..Default::default()
+    });
+
+    let error = run_endpoint_err!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": SYSTEM_USER_ID,
+            "top_bar_page": "nav:alternate",
+            "side_bar_page": "nav:side-alternate",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    grant_site_edit(&runner, site_id, user_id, n).await;
+    let updated = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": SYSTEM_USER_ID,
+            "top_bar_page": "nav:alternate",
+            "side_bar_page": "nav:side-alternate",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(updated.top_bar_page.as_deref(), Some("nav:alternate"));
+    assert_eq!(updated.side_bar_page.as_deref(), Some("nav:side-alternate"));
+
+    let inherited = run_endpoint!(
+        runner,
+        category_update,
+        json!({
+            "site": site_id,
+            "category": category.category_id,
+            "user_id": SYSTEM_USER_ID,
+            "top_bar_page": null,
+            "side_bar_page": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(inherited.top_bar_page, None);
+    assert_eq!(inherited.side_bar_page, None);
 }
 
 #[tokio::test]

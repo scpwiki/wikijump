@@ -4,6 +4,7 @@ import type {
   Nullable,
   Optional,
   PageAttribution,
+  PageCategoryModel,
   PageModel,
   PageOptions,
   PageRevisionModel,
@@ -158,7 +159,9 @@ export async function articleViewCacheMetadata(
 /* ----- Admin View ----- */
 interface AdminViewSiteFound {
   type: "site_found"
-  data: undefined
+  data: {
+    categories: PageCategoryModel[]
+  }
 }
 interface AdminViewAdminPermissions {
   type: "admin_permissions"
