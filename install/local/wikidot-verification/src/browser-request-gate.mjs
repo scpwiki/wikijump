@@ -6,6 +6,9 @@ import path from "node:path";
 
 export const DEFAULT_REQUEST_INTERVAL_MS = 4_000;
 export const DEFAULT_BROWSER_CAPTURE_LOCK = "/var/tmp/wikijump-wikidot-browser-capture.lock";
+const DEFAULT_RESPONSE_CACHE_MAX_ENTRIES = 512;
+const DEFAULT_RESPONSE_CACHE_MAX_BYTES = 64 * 1024 * 1024;
+const DEFAULT_RESPONSE_CACHE_MAX_ENTRY_BYTES = 8 * 1024 * 1024;
 const LOCK_SCHEMA = "wikijump_full_parity.browser_capture_lock.v1";
 const STATE_SCHEMA = "wikijump_full_parity.browser_request_gate_state.v1";
 const STATE_CONFIRMATIONS = new Set(["pending", "sealed"]);
@@ -44,6 +47,85 @@ function normalizedOrigins(values) {
     origins.add(url.origin);
   }
   return origins;
+}
+
+function positiveSafeInteger(value, name) {
+  if (!Number.isSafeInteger(value) || value <= 0) throw new Error(`${name} must be a positive safe integer`);
+  return value;
+}
+
+export function createBrowserResponseCache({maxEntries = DEFAULT_RESPONSE_CACHE_MAX_ENTRIES, maxBytes = DEFAULT_RESPONSE_CACHE_MAX_BYTES, maxEntryBytes = DEFAULT_RESPONSE_CACHE_MAX_ENTRY_BYTES} = {}) {
+  positiveSafeInteger(maxEntries, "maxEntries");
+  positiveSafeInteger(maxBytes, "maxBytes");
+  positiveSafeInteger(maxEntryBytes, "maxEntryBytes");
+  if (maxEntryBytes > maxBytes) throw new Error("maxEntryBytes cannot exceed maxBytes");
+
+  const entries = new Map();
+  let bytes = 0;
+  let hits = 0;
+  let misses = 0;
+  let stores = 0;
+  let bypasses = 0;
+  let evictions = 0;
+
+  return {
+    maxEntryBytes,
+    get(key) {
+      const entry = entries.get(key);
+      if (!entry) {
+        misses += 1;
+        return null;
+      }
+      entries.delete(key);
+      entries.set(key, entry);
+      hits += 1;
+      return entry;
+    },
+    store(key, entry) {
+      if (!Buffer.isBuffer(entry?.body) || entry.body.length > maxEntryBytes) {
+        bypasses += 1;
+        return false;
+      }
+      const existing = entries.get(key);
+      if (existing) {
+        entries.delete(key);
+        bytes -= existing.body.length;
+      }
+      while (entries.size >= maxEntries || bytes + entry.body.length > maxBytes) {
+        const oldestKey = entries.keys().next().value;
+        if (oldestKey === undefined) break;
+        const oldest = entries.get(oldestKey);
+        entries.delete(oldestKey);
+        bytes -= oldest.body.length;
+        evictions += 1;
+      }
+      entries.set(key, entry);
+      bytes += entry.body.length;
+      stores += 1;
+      return true;
+    },
+    recordBypass() {
+      bypasses += 1;
+    },
+    snapshot() {
+      return {
+        schema: "wikijump_full_parity.browser_response_cache.v1",
+        entries: entries.size,
+        bytes,
+        hits,
+        misses,
+        stores,
+        bypasses,
+        evictions,
+        max_entries: maxEntries,
+        max_bytes: maxBytes,
+        max_entry_bytes: maxEntryBytes,
+        lookup_key: "exact_url",
+        lifetime: "browser_context",
+        documents_cached: false,
+      };
+    },
+  };
 }
 
 export function localBrowserCaptureOrigins(value) {
@@ -273,9 +355,66 @@ async function abortRoute(route) {
   }
 }
 
-export async function installBrowserRequestGate(context, {gate, exemptOrigins = []} = {}) {
+function requestCanUseResponseCache(request) {
+  if (request.method() !== "GET" || request.resourceType() === "document") return false;
+  const headers = request.headers();
+  return headers.range === undefined && headers.authorization === undefined;
+}
+
+function responseCanBeCached(response, cache) {
+  if (response.status() !== 200) return false;
+  const headers = response.headers();
+  const cacheControl = headers["cache-control"]?.toLowerCase() ?? "";
+  if (/(?:^|,)\s*no-store(?:\s|,|$)/u.test(cacheControl)) return false;
+  if (headers["set-cookie"] !== undefined || headers.vary?.trim() === "*") return false;
+  const contentLength = headers["content-length"];
+  return contentLength === undefined || (/^\d+$/u.test(contentLength) && Number(contentLength) <= cache.maxEntryBytes);
+}
+
+function reusableResponseHeaders(response) {
+  const headers = {...response.headers()};
+  delete headers["content-encoding"];
+  delete headers["content-length"];
+  delete headers["transfer-encoding"];
+  return headers;
+}
+
+async function servePublicRoute(route, {gate, responseCache}) {
+  const request = route.request();
+  if (!responseCache || !requestCanUseResponseCache(request)) {
+    responseCache?.recordBypass();
+    await gate.acquire();
+    await route.continue();
+    return;
+  }
+
+  const cacheKey = request.url();
+  const cached = responseCache.get(cacheKey);
+  if (cached) {
+    await route.fulfill(cached);
+    return;
+  }
+
+  await gate.acquire();
+  const response = await route.fetch({maxRedirects: 0});
+  if (!responseCanBeCached(response, responseCache)) {
+    responseCache.recordBypass();
+    await route.fulfill({response});
+    return;
+  }
+  const entry = {
+    status: response.status(),
+    headers: reusableResponseHeaders(response),
+    body: await response.body(),
+  };
+  responseCache.store(cacheKey, entry);
+  await route.fulfill(entry);
+}
+
+export async function installBrowserRequestGate(context, {gate, exemptOrigins = [], responseCache = null} = {}) {
   if (!gate || typeof gate.acquire !== "function" || typeof gate.deferForRetryAfter !== "function" || typeof gate.failClosed !== "function" || typeof gate.recordLocalExempt !== "function" || typeof gate.recordUnsupportedRequestBlocked !== "function" || typeof gate.recordWebSocketBlocked !== "function") throw new Error("browser request gate is malformed");
   if (!context || typeof context.route !== "function" || typeof context.routeWebSocket !== "function" || typeof context.on !== "function") throw new Error("browser context cannot enforce request-level capture controls");
+  if (responseCache !== null && (typeof responseCache.get !== "function" || typeof responseCache.store !== "function" || typeof responseCache.recordBypass !== "function" || typeof responseCache.snapshot !== "function")) throw new Error("browser response cache is malformed");
   const exempt = normalizedOrigins(exemptOrigins);
   await context.route("**/*", async (route) => {
     try {
@@ -290,8 +429,7 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
         await route.continue();
         return;
       }
-      await gate.acquire();
-      await route.continue();
+      await servePublicRoute(route, {gate, responseCache});
     } catch {
       gate.recordUnsupportedRequestBlocked();
       await abortRoute(route);
@@ -319,7 +457,7 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
     gate.recordWebSocketBlocked();
     // Do not call connectToServer: Playwright keeps this as an in-page mock and no unmetered socket reaches the network.
   });
-  return {exempt_origins: [...exempt].sort()};
+  return {exempt_origins: [...exempt].sort(), response_cache: responseCache};
 }
 
 function processStartTicksFromStat(text) {

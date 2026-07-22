@@ -98,6 +98,16 @@ function deny(response, status = 403) {
   response.end("capture egress denied\n");
 }
 
+export function guardedPipeline(source, destination, onFailure, pipelineImpl = pipeline) {
+  try {
+    pipelineImpl(source, destination, (error) => {
+      if (error) onFailure(error);
+    });
+  } catch (error) {
+    onFailure(error);
+  }
+}
+
 export async function startCaptureEgressProxy({
   allowedLocalOrigins = [],
   lookup = dns.lookup,
@@ -159,7 +169,7 @@ export async function startCaptureEgressProxy({
             upstreamResponse.statusCode ?? 502,
             upstreamResponse.headers,
           );
-          pipeline(upstreamResponse, response, (error) => {
+          guardedPipeline(upstreamResponse, response, (error) => {
             if (error) {
               upstreamResponse.destroy();
               response.destroy();
@@ -169,7 +179,7 @@ export async function startCaptureEgressProxy({
       );
       upstream.on("error", () => deny(response, 502));
       request.on("error", () => upstream.destroy());
-      pipeline(request, upstream, (error) => {
+      guardedPipeline(request, upstream, (error) => {
         if (error) {
           upstream.destroy();
           deny(response, 502);
