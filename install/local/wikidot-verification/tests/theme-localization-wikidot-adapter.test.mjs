@@ -8,7 +8,7 @@ import test from "node:test";
 import {fileURLToPath} from "node:url";
 
 import {ThemeExecutionLedger, cleanupThemeExecution} from "../src/theme-localization-execution.mjs";
-import {WikidotJsonlHelperClient, WikidotThemePageAdapter} from "../src/theme-localization-wikidot-adapter.mjs";
+import {WIKIDOT_HELPER_PYTHON, WikidotJsonlHelperClient, WikidotThemePageAdapter} from "../src/theme-localization-wikidot-adapter.mjs";
 import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -130,7 +130,15 @@ test("Python helper contains only direct authenticated page primitives", async (
   assert.doesNotMatch(source, /ListPagesModule/);
   assert.doesNotMatch(source, /site\.page\.get/);
   assert.doesNotMatch(source, /site\.amc_request/);
+  assert.doesNotMatch(source, /WIKIDOT_PY_ROOT|sys\.path\.insert/);
   assert.doesNotMatch(source, /str\(exc\)|repr\(exc\)/);
+});
+
+test("production helper uses the component-owned virtual environment", () => {
+  const client = new WikidotJsonlHelperClient({env: helperEnvironment()});
+  assert.equal(client.command, path.resolve(HERE, "../.venv/bin/python"));
+  assert.equal(client.command, WIKIDOT_HELPER_PYTHON);
+  assert.equal("WIKIDOT_PY_ROOT" in client.env, false);
 });
 
 test("create-only backend rejects an existing PageEditModule revision", () => {
