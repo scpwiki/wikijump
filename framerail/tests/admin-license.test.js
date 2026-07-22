@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 
 import {
+  customLicenseSourceForEdit,
   licenseFormValues,
   licenseOptionsFor,
   licenseUpdateValue,
@@ -76,6 +77,40 @@ describe("Wikidot category license settings", () => {
       ),
       { categoryId: 12, inherit: true, license: "other", licenseOther: "Inherited terms" }
     )
+  })
+
+  it("decodes sanitized custom HTML before editing without collapsing literal entities", () => {
+    assert.equal(
+      customLicenseSourceForEdit(
+        'Terms &amp; conditions &gt; defaults <a href="/?a=1&amp;b=2">Details</a> &amp;gt;'
+      ),
+      'Terms & conditions > defaults <a href="/?a=1&b=2">Details</a> &gt;'
+    )
+  })
+
+  it("returns explicit and inherited custom licenses as stable sanitizer input", () => {
+    const stored = "Terms &amp; conditions &gt; defaults"
+    const source = "Terms & conditions > defaults"
+    const explicit = licenseFormValues(
+      { category_id: 12, slug: "article", license: "other", license_other: stored },
+      "cc-by-sa-3.0"
+    )
+    const inherited = licenseFormValues(
+      { category_id: 12, slug: "article", license: null, license_other: null },
+      "other",
+      stored
+    )
+
+    assert.equal(explicit.licenseOther, source)
+    assert.equal(inherited.licenseOther, source)
+    assert.deepEqual(licenseUpdateValue(explicit), {
+      license: "other",
+      licenseOther: source
+    })
+    assert.deepEqual(licenseUpdateValue({ ...inherited, inherit: false }), {
+      license: "other",
+      licenseOther: source
+    })
   })
 
   it("retains a valid migrated license that Wikidot does not offer for new selection", () => {
