@@ -91,6 +91,10 @@ services:
         source: ./deepwell/config.toml
         target: /etc/deepwell.toml
         read_only: true
+      - type: bind
+        source: ${STANDING_LOCALES_SOURCE:?STANDING_LOCALES_SOURCE is required}
+        target: /opt/locales
+        read_only: true
     tmpfs:
       - /run:uid=1,gid=1,mode=755
     labels:

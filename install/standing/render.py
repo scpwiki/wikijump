@@ -51,7 +51,7 @@ def source_state(source_root: Path, wikijump_sha: str, ftml_sha: str) -> dict[st
     lock_contents = lockfile.read_text(encoding="utf-8")
     if f"#{ftml_sha}" not in lock_contents:
         raise ValueError("deepwell/Cargo.lock does not contain the requested FTML revision")
-    for required_path in (source_root / "install" / "prod" / "deepwell" / "config.toml",):
+    for required_path in (source_root / "install" / "prod" / "deepwell" / "config.toml", source_root / "locales"):
         if not required_path.exists():
             raise ValueError(f"required source path is missing: {required_path}")
     return {"wikijump_sha": head, "wikijump_tree": tree, "ftml_sha": ftml_sha}
@@ -122,6 +122,7 @@ def main() -> int:
             "STANDING_NETWORK_NAME": network_name,
             "STANDING_WIKIJUMP_SHA": identity["wikijump_sha"],
             "STANDING_FTML_SHA": identity["ftml_sha"],
+            "STANDING_LOCALES_SOURCE": str((source_root / "locales").resolve()),
             **{f"STANDING_{argument.upper()}": value for argument, value in images.items()},
         }
         write_environment(staging / ".env", environment)
