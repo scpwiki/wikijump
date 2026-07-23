@@ -1,1 +1,4 @@
+beautifulsoup4==4.15.0
+httpx==0.28.1
+lxml==6.1.1
 wikidot @ git+https://github.com/Rokurolize/wikidot.py@4af7c8eaec00a3e7a29fe502234e0aeeef968233

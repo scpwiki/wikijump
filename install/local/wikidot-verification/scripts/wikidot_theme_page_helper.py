@@ -26,7 +26,6 @@ except ImportError:
     _BeautifulSoup = None
     _WikidotClient = None
     _extract_page_source_text = None
-
 ALLOWED_SITE = "scpaiueouiuiuiui"
 ALLOWED_DOMAIN = f"{ALLOWED_SITE}.wikidot.com"
 ALLOWED_ORIGIN = f"https://{ALLOWED_DOMAIN}"
@@ -40,48 +39,37 @@ SITE_UNIX_NAME = re.compile(r'WIKIREQUEST\.info\.siteUnixName\s*=\s*"([^"]+)"\s*
 SITE_DOMAIN = re.compile(r'WIKIREQUEST\.info\.domain\s*=\s*"([^"]+)"\s*;')
 MAX_REQUEST_BYTES = 1_000_000
 WIKIDOT_PAGE_SLUG_MAX_LENGTH = 60
-
-
 class PageSnapshot(TypedDict):
     identity: int
     title: str
     source_sha256: str
     tags: list[str]
-
-
 class RemovalResult(TypedDict):
     removed: bool
     already_absent: bool
-
-
 class PublicError(Exception):
     def __init__(self, code: str, message: str):
         super().__init__(message)
         self.code = code
         self.message = message
 
-
-class InitializationCleanupError(Exception):
-    def __init__(self, initialization_error: Exception, cleanup_error: Exception):
-        super().__init__("Wikidot helper initialization and cleanup both failed")
-        self.initialization_error = initialization_error
+class PrimaryCleanupError(Exception):
+    def __init__(self, primary_error: Exception, cleanup_error: Exception):
+        super().__init__("Wikidot helper operation and cleanup both failed")
+        self.primary_error = primary_error
         self.cleanup_error = cleanup_error
-
 
 def sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
-
 
 def wikidot_round_trip_sha256(value: str) -> str:
     # Live Wikidot removes exactly one terminal LF when saving page source.
     return sha256(value[:-1] if value.endswith("\n") else value)
 
-
 def validate_kind(value: object) -> str:
     if value not in ("theme_page", "reference_prerequisite"):
         raise PublicError("resource_not_allowed", "resource kind is outside the theme execution contract")
     return str(value)
-
 
 def validate_slug(value: object, *, kind: str = "theme_page", allow_legacy: bool = False) -> str:
     kind = validate_kind(kind)
@@ -94,19 +82,16 @@ def validate_slug(value: object, *, kind: str = "theme_page", allow_legacy: bool
         raise PublicError("resource_not_allowed", "resource is not a run-owned theme page")
     return value
 
-
 def require_text(value: object, field: str, maximum: int) -> str:
     if not isinstance(value, str) or not value or len(value) > maximum:
         raise PublicError("invalid_request", f"{field} is invalid")
     return value
-
 
 def validate_tags(value: object, slug: str) -> list[str]:
     expected = ["テーマ"] if slug.endswith("-yossistyle") else ["theme"]
     if value != expected:
         raise PublicError("invalid_request", "run-owned page tags are invalid")
     return expected
-
 
 def reject_secret_fields(value: object) -> None:
     if isinstance(value, dict):
@@ -120,7 +105,6 @@ def reject_secret_fields(value: object) -> None:
     elif isinstance(value, list):
         for child in value:
             reject_secret_fields(child)
-
 
 class WikidotBackend:
     @staticmethod
@@ -164,7 +148,7 @@ class WikidotBackend:
             try:
                 self.close()
             except Exception as cleanup_error:
-                raise InitializationCleanupError(initialization_error, cleanup_error) from initialization_error
+                raise PrimaryCleanupError(initialization_error, cleanup_error) from initialization_error
             raise
 
     def close(self) -> None:
@@ -317,9 +301,8 @@ class WikidotBackend:
                     "round_trip_mismatch",
                     "created page did not match the accepted title and source",
                 )
-            if tags:
-                self._save_tags(slug, kind, actual["identity"], tags)
-                actual = {**actual, "tags": list(tags)}
+            self._save_tags(slug, kind, actual["identity"], tags)
+            actual = {**actual, "tags": list(tags)}
             return actual
         raise PublicError("create_not_visible", "created page was not visible after save")
 
@@ -340,7 +323,9 @@ class WikidotBackend:
             raise PublicError("resource_not_allowed", "reference prerequisites are read-only")
         source = require_text(source, "source", 500_000)
         tags = validate_tags(tags, slug)
-        if not re.fullmatch(r"[0-9a-f]{64}", expected_source_sha256) or sha256(source) != expected_source_sha256:
+        if not isinstance(expected_source_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", expected_source_sha256):
+            raise PublicError("invalid_request", "source_sha256 is invalid")
+        if sha256(source) != expected_source_sha256:
             raise PublicError(
                 "source_hash_mismatch",
                 "submitted source does not match its accepted hash",
@@ -445,6 +430,7 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
 
 
 def serve(input_stream: TextIO, output_stream: TextIO, backend: Any) -> int:
+    primary_error: Exception | None = None
     try:
         for raw_line in input_stream:
             request_id: int | None = None
@@ -481,8 +467,16 @@ def serve(input_stream: TextIO, output_stream: TextIO, backend: Any) -> int:
             if stop:
                 break
         return 0
+    except Exception as error:
+        primary_error = error
+        raise
     finally:
-        backend.close()
+        try:
+            backend.close()
+        except Exception as cleanup_error:
+            if primary_error is not None:
+                raise PrimaryCleanupError(primary_error, cleanup_error) from primary_error
+            raise
 
 
 def main() -> int:

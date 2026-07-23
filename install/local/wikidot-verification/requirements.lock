@@ -7,7 +7,9 @@ anyio==4.14.2 \
 beautifulsoup4==4.15.0 \
     --hash=sha256:288e3ca7d54b06f2ac191970bc275c1939cb46d450b255bf6718b04aa37ab4f7 \
     --hash=sha256:d6f88de62e1d4e38ecb1077eb9724cd0eff29d2a08ca16a401e9b9e93f117cf9
-    # via wikidot
+    # via
+    #   -r requirements.txt
+    #   wikidot
 certifi==2026.7.22 \
     --hash=sha256:62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775 \
     --hash=sha256:741e2c3b351ddf169a738da9f2c048608ff7f2c5cc02f1ebc6b118bb090d5d55
@@ -25,7 +27,9 @@ httpcore==1.0.9 \
 httpx==0.28.1 \
     --hash=sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc \
     --hash=sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad
-    # via wikidot
+    # via
+    #   -r requirements.txt
+    #   wikidot
 idna==3.18 \
     --hash=sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2 \
     --hash=sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848
@@ -167,7 +171,9 @@ lxml==6.1.1 \
     --hash=sha256:fe0306bd29505a9177aac19f1877174b0e7422c222a59f70b2cd41633448c3dc \
     --hash=sha256:ff3f333630ab480244a1bff72043e511a91eb22e7595dead8653ee5612dd8f3d \
     --hash=sha256:ffecec8eb889b58ba9be5b95fb1cc78e22ea8eedea38e8736a1568fe1979250e
-    # via wikidot
+    # via
+    #   -r requirements.txt
+    #   wikidot
 soupsieve==2.9.1 \
     --hash=sha256:4f4477399246b7a0c720a88ca2454b11cd6bb9ae4c9d170140786e916776c14c \
     --hash=sha256:c33e6605bbc71dd628b00c632d58ae607c22bade247e52553928f83bbb75b4ba

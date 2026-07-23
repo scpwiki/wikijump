@@ -90,6 +90,23 @@ class WikidotThemePageHelperTests(unittest.TestCase):
         self.assertEqual([response.get("error", {}).get("code") for response in responses], ["invalid_request", "invalid_request", None])
         self.assertTrue(backend.closed)
 
+    def test_serve_preserves_stream_and_cleanup_failures(self) -> None:
+        class BrokenOutput:
+            def write(self, value: str) -> None:
+                raise OSError("write failed")
+
+            def flush(self) -> None:
+                raise AssertionError("flush must not follow failed write")
+
+        class BrokenCleanupBackend(FakeBackend):
+            def close(self) -> None:
+                raise RuntimeError("close failed")
+
+        with self.assertRaises(HELPER.PrimaryCleanupError) as caught:
+            HELPER.serve(io.StringIO('{"id":1,"action":"ping"}\n'), BrokenOutput(), BrokenCleanupBackend())
+        self.assertIsInstance(caught.exception.primary_error, OSError)
+        self.assertIsInstance(caught.exception.cleanup_error, RuntimeError)
+
     def test_slug_contract_distinguishes_mutable_and_read_only_resources(self) -> None:
         current = "codex-l10n:20260723-helper-yossistyle"
         self.assertEqual(HELPER.validate_slug(current), current)
@@ -142,6 +159,86 @@ class WikidotThemePageHelperTests(unittest.TestCase):
 
         self.assertEqual(actual["tags"], ["テーマ"])
         self.assertEqual(len(saved), 1)
+
+    def test_authenticated_get_refuses_redirects_and_empty_successes(self) -> None:
+        class Response:
+            def __init__(self, status_code: int, text: str, *, redirect: bool = False):
+                self.status_code = status_code
+                self.text = text
+                self.is_redirect = redirect
+
+        class Session:
+            def __init__(self, response: Response):
+                self.response = response
+
+            def __enter__(self) -> "Session":
+                return self
+
+            def __exit__(self, *arguments: object) -> None:
+                return None
+
+            def get(self, *arguments: object, **keywords: object) -> Response:
+                return self.response
+
+        class Httpx:
+            def __init__(self, response: Response):
+                self.response = response
+
+            def Client(self, **keywords: object) -> Session:
+                return Session(self.response)
+
+        backend = object.__new__(HELPER.WikidotBackend)
+        backend.headers = {}
+        backend.httpx = Httpx(Response(404, ""))
+        self.assertIsNone(backend._get("missing"))
+        for response, code in (
+            (Response(302, "", redirect=True), "redirect_refused"),
+            (Response(200, ""), "authenticated_get_failed"),
+            (Response(503, "unavailable"), "authenticated_get_failed"),
+        ):
+            backend.httpx = Httpx(response)
+            with self.assertRaises(HELPER.PublicError) as caught:
+                backend._get("fixture")
+            self.assertEqual(caught.exception.code, code)
+
+    def test_site_identity_requires_the_allowlisted_authenticated_site(self) -> None:
+        backend = object.__new__(HELPER.WikidotBackend)
+        backend._get = lambda slug: (
+            'WIKIREQUEST.info.pageId = 7; WIKIREQUEST.info.siteId = 8; '
+            'WIKIREQUEST.info.siteUnixName = "scpaiueouiuiuiui"; '
+            'WIKIREQUEST.info.domain = "scpaiueouiuiuiui.wikidot.com";'
+        )
+        backend._verify_site_identity()
+        backend._get = lambda slug: 'WIKIREQUEST.info.siteId = 8; WIKIREQUEST.info.siteUnixName = "other"; WIKIREQUEST.info.domain = "other.wikidot.com";'
+        with self.assertRaises(HELPER.PublicError) as caught:
+            backend._verify_site_identity()
+        self.assertEqual(caught.exception.code, "site_identity_mismatch")
+
+    def test_create_and_remove_enforce_exact_snapshots(self) -> None:
+        backend = object.__new__(HELPER.WikidotBackend)
+        source = "fixture source"
+        snapshot = {"identity": 7, "title": "fixture", "source_sha256": HELPER.sha256(source), "tags": ["テーマ"]}
+        inspections = iter([None, {**snapshot, "tags": []}])
+        backend.inspect = lambda slug, kind="theme_page": next(inspections)
+        backend._acquire_create_lock = lambda slug: ("lock", "secret")
+        events: list[str] = []
+        backend._request_ajax_module_connector = lambda fields: events.append(fields.get("event", fields.get("moduleName"))) or {"status": "ok"}
+        backend._save_tags = lambda slug, kind, identity, tags: events.append("confirmedTags")
+
+        created = backend.create(
+            "codex-l10n:20260723-helper-yossistyle",
+            title="fixture",
+            source=source,
+            expected_source_sha256=HELPER.sha256(source),
+            tags=["テーマ"],
+        )
+
+        self.assertEqual(created, snapshot)
+        self.assertEqual(events, ["savePage", "confirmedTags"])
+        backend.inspect = lambda slug, kind="theme_page": {**snapshot, "title": "changed"}
+        with self.assertRaises(HELPER.PublicError) as caught:
+            backend.remove("codex-l10n:20260723-helper-yossistyle", snapshot)
+        self.assertEqual(caught.exception.code, "page_changed")
 
 
 if __name__ == "__main__":
