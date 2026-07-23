@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { stableStringify } from './corpus-import-manifest.mjs';
+import { stableStringify } from './canonical-json.mjs';
 
 const CANONICAL_BRANCH_PATHS = new Set(['index.json', 'by-uuid', 'pages', 'posts']);
 const WIKIDOT_SITE_SLUG_RE = /[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/u;

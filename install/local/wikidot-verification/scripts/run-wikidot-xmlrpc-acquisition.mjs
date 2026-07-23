@@ -47,6 +47,7 @@ export const WIKIDOT_XMLRPC_COORDINATOR_SOURCE_PATHS = Object.freeze(
     MATERIALIZED_ENTRYPOINT_PATH,
     COORDINATOR_ENTRY_PATH,
     "install/local/wikidot-verification/src/atomic-no-replace.mjs",
+    "install/local/wikidot-verification/src/canonical-json.mjs",
     "install/local/wikidot-verification/src/corpus-file-reader.mjs",
     "install/local/wikidot-verification/src/corpus-import-manifest.mjs",
     "install/local/wikidot-verification/src/exact-git-blob.mjs",

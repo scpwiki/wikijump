@@ -5,8 +5,8 @@ import {
   buildCorpusImportManifest,
   buildManifestSummary,
   formatJsonl,
-  stableStringify,
 } from '../src/corpus-import-manifest.mjs';
+import { stableStringify } from '../src/canonical-json.mjs';
 
 function parseArgs(argv) {
   const args = {

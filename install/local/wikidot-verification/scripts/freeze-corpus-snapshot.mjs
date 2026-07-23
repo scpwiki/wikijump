@@ -9,7 +9,7 @@ import {
   buildCorpusSnapshot,
   discoverCanonicalCorpusFiles,
 } from '../src/corpus-snapshot.mjs';
-import { stableStringify } from '../src/corpus-import-manifest.mjs';
+import { stableStringify } from '../src/canonical-json.mjs';
 
 function parseArgs(argv) {
   const args = {

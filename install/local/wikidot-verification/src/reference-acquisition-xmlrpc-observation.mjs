@@ -1,4 +1,4 @@
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import {
   buildReferenceAcquisitionWorkTarget,
   referenceAcquisitionInventoryRow,

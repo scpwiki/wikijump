@@ -7,7 +7,7 @@ import process from "node:process";
 import { types as utilTypes } from "node:util";
 
 import { readExactGitTreeFiles } from "./exact-git-blob.mjs";
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import { buildWikidotXmlrpcInstalledEnvironmentManifest } from "./wikidot-xmlrpc-installed-environment-manifest.mjs";
 
 const CAPSULE_OPTIONS = Object.freeze(["capsuleParent", "runtime", "source"]);

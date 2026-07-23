@@ -63,7 +63,7 @@ import {
   WorkerProtocolError,
   WorkerTerminatedError,
 } from "./wikidot-xmlrpc-worker-client.mjs";
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 
 export const WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY = Object.freeze({
   commit: "bfa0ca8c39f54f16610a7267880b6dad01789396",
@@ -80,6 +80,7 @@ export const WIKIDOT_XMLRPC_CANONICAL_COORDINATOR_SOURCE_PATHS = Object.freeze(
     "install/local/wikidot-verification/scripts/run-wikidot-xmlrpc-acquisition.mjs",
     "install/local/wikidot-verification/scripts/run-wikidot-xmlrpc-acquisition-materialized.mjs",
     "install/local/wikidot-verification/src/atomic-no-replace.mjs",
+    "install/local/wikidot-verification/src/canonical-json.mjs",
     "install/local/wikidot-verification/src/corpus-file-reader.mjs",
     "install/local/wikidot-verification/src/corpus-import-manifest.mjs",
     "install/local/wikidot-verification/src/exact-git-blob.mjs",

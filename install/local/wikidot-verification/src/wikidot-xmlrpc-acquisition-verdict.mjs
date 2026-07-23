@@ -6,7 +6,7 @@ import {
   AtomicPublicationAmbiguousError,
   publishBytesNoReplace,
 } from "./atomic-no-replace.mjs";
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import { referenceAcquisitionInventorySha256 } from "./reference-acquisition-attempt.mjs";
 import { openWikidotXmlrpcCampaign } from "./reference-acquisition-xmlrpc-campaign.mjs";
 import { openWikidotXmlrpcCompletions } from "./reference-acquisition-xmlrpc-completion.mjs";

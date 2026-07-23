@@ -1,6 +1,6 @@
 import { types as utilTypes } from "node:util";
 
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import { validateReferenceAcquisitionInventory } from "./reference-acquisition-inventory-validation.mjs";
 import { validateReferenceObject } from "./reference-object-store.mjs";
 

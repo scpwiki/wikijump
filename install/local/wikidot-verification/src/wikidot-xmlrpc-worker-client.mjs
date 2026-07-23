@@ -2,7 +2,7 @@ import { performance } from "node:perf_hooks";
 import process from "node:process";
 import { types as utilTypes } from "node:util";
 
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import { WIKIDOT_XMLRPC_RESPONSE_MAX_BYTES } from "./reference-acquisition-xmlrpc-observation.mjs";
 import {
   normalizeWikidotXmlrpcWorkerSessionOptions,

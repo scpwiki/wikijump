@@ -2,7 +2,7 @@ import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import {
   LocalPageReadClient,
   LocalPageReadError,

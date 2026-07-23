@@ -1,6 +1,6 @@
 import { types as utilTypes } from "node:util";
 
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import {
   openWikidotXmlrpcImplementation,
   WIKIDOT_XMLRPC_IMPLEMENTATION_SCHEMA,

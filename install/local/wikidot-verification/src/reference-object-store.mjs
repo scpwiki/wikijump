@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { publishBytesNoReplaceAt } from "./atomic-no-replace.mjs";
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import { assertDescriptorTraversalSupport } from "./corpus-file-reader.mjs";
 
 const DIRECTORY_FLAGS =

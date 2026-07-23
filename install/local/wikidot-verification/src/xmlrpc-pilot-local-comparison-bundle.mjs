@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { openCorpusFileNoSymlinks } from "./corpus-file-reader.mjs";
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import {
   createReferenceAcquisitionContext,
   referenceAcquisitionInventoryRow,

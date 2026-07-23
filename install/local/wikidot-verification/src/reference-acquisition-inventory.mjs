@@ -1,4 +1,4 @@
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import { normalizeAcquisitionAttachment } from "./reference-acquisition-attachment.mjs";
 import { validateAcquisitionSummary } from "./reference-acquisition-summary.mjs";
 
