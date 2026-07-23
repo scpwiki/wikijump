@@ -75,7 +75,7 @@ export function validateGuardedThemeRpcUrl(value) {
   return value;
 }
 
-export async function createLiveThemeDependencies({env = process.env, browserRoot, browserExecutable, cdpEndpoint, wikidotStorageState, wikijumpStorageState, ignoreHttpsErrors = false, needsBrowser = true, openBrowserImpl = openBrowser} = {}) {
+export async function createLiveThemeDependencies({env = process.env, browserRoot, browserExecutable, cdpEndpoint, wikidotStorageState, wikijumpStorageState, ignoreHttpsErrors = false, needsBrowser = true, openBrowserImpl = openBrowser, captureTierImpl = captureThemeTierBrowserEvidence} = {}) {
   if (cdpEndpoint && browserExecutable) throw new Error("CDP endpoint cannot be combined with a browser executable");
   const validatedCdpEndpoint = cdpEndpoint ? validateThemeCdpEndpoint(cdpEndpoint) : null;
   const rpcUrl = validateGuardedThemeRpcUrl(env.WIKIJUMP_THEME_RPC_URL);
@@ -92,7 +92,12 @@ export async function createLiveThemeDependencies({env = process.env, browserRoo
     const chromium = needsBrowser ? loadChromium(browserRoot) : null;
     if (needsBrowser) browserSession = await openBrowserImpl({chromium, cdpEndpoint: validatedCdpEndpoint, browserExecutable, ignoreHttpsErrors, createInitialContexts: false});
     return {
-      adapters: {wikidot, wikijump}, secrets, storageStates, browserExecutable, cdpEndpoint: validatedCdpEndpoint, ignoreHttpsErrors, chromium, browserSession,
+      adapters: {wikidot, wikijump},
+      secrets,
+      async captureTier({tier, outputDir, source}) {
+        if (!needsBrowser || browserSession === null) throw new Error("theme browser capture is unavailable during recovery");
+        return await captureTierImpl({tier, outputDir, source, chromium, browserExecutable, cdpEndpoint: validatedCdpEndpoint, browserSession, ignoreHttpsErrors, storageStates});
+      },
       async close() { await Promise.allSettled([browserSession?.close(), wikijump.close(), wikidot.close()]); },
     };
   } catch (error) {
@@ -239,7 +244,7 @@ async function runGuardedThemeAction({mode, plan, ledgerPath, resultPath, artifa
   let failure = null;
   try {
     executionLock = await acquireThemeExecutionLock({lockPath: executionLockPath, runId: plan.run.id, fingerprint: themeExecutionFingerprint(plan, {allowLegacy: mode === "recover"})});
-    dependencies = await dependencyFactory({...dependencyOptions, needsBrowser: mode === "execute"});
+    dependencies = await dependencyFactory({...dependencyOptions, needsBrowser: mode === "execute", captureTierImpl});
     if (mode === "recover") {
       operation = await recoverThemeExecution({ledgerPath, plan, adapters: dependencies.adapters});
       if (bridge.signal.aborted) throw bridge.signal.reason;
@@ -252,7 +257,7 @@ async function runGuardedThemeAction({mode, plan, ledgerPath, resultPath, artifa
           if (!themeResource) throw new Error(`theme page resource is missing before capture: ${tier.id}`);
           const source = await readAcceptedSource(themeResource);
           if (sha256(source) !== themeResource.source_sha256) throw new Error(`accepted source changed before capture: ${tier.id}`);
-          const capture = await captureTierImpl({tier, outputDir: artifactDir, source, chromium: dependencies.chromium, browserExecutable: dependencies.browserExecutable, cdpEndpoint: dependencies.cdpEndpoint, browserSession: dependencies.browserSession, ignoreHttpsErrors: dependencies.ignoreHttpsErrors, storageStates: dependencies.storageStates});
+          const capture = await dependencies.captureTier({tier, outputDir: artifactDir, source});
           captures.push(capture);
           if (capture.status !== "pass") throw new Error(`strict browser verdict failed: ${tier.id}`);
         },

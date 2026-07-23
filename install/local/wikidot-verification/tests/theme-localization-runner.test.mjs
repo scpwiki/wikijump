@@ -102,7 +102,7 @@ async function fixture({onCreate, tierIds = ["yossistyle"]} = {}) {
   let closed = false;
   let closedAfterCleanup = false;
   const browserSession = {id: "shared-browser"};
-  const dependencyFactory = async ({needsBrowser}) => ({adapters, secrets: ["swordfish-pass"], storageStates: {}, chromium: {}, browserSession: needsBrowser ? browserSession : null, async close() { closedAfterCleanup = adapters.wikidot.pages.size + adapters.wikijump.pages.size === 0; closed = true; }});
+  const dependencyFactory = async ({needsBrowser, captureTierImpl}) => ({adapters, secrets: ["swordfish-pass"], async captureTier(options) { return await captureTierImpl({...options, browserSession: needsBrowser ? browserSession : null}); }, async close() { closedAfterCleanup = adapters.wikidot.pages.size + adapters.wikijump.pages.size === 0; closed = true; }});
   return {root, plan, adapters, browserSession, dependencyFactory, closed: () => closed, closedAfterCleanup: () => closedAfterCleanup, ledgerPath: path.join(root, "ledger.jsonl"), resultPath: path.join(root, "result.json"), artifactDir: path.join(root, "artifacts")};
 }
 
