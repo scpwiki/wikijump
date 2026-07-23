@@ -48,15 +48,21 @@ interface UserEditParams {
   bypassFilter?: boolean
 }
 
-function setNullableProfileField(
-  data: Record<string, unknown>,
-  key: string,
-  value: Optional<Nullable<string>>
-) {
-  if (value !== undefined) {
-    data[key] = value || null
-  }
-}
+const directUserEditFields = [
+  ["name", "name"],
+  ["email", "email"],
+  ["emailVerified", "email_verified"],
+  ["password", "password"]
+] as const
+
+const nullableUserEditFields = [
+  ["realName", "real_name"],
+  ["gender", "gender"],
+  ["location", "location"],
+  ["biography", "biography"],
+  ["website", "website"],
+  ["userPage", "user_page"]
+] as const
 
 export async function userEdit(
   userId: number,
@@ -67,30 +73,22 @@ export async function userEdit(
   const data: Record<string, unknown> = {
     bypass_filter: params.bypassFilter ?? false
   }
-  if (params.name !== undefined) {
-    data.name = params.name
+
+  for (const [paramName, rpcName] of directUserEditFields) {
+    const value = params[paramName]
+    if (value !== undefined) data[rpcName] = value
   }
-  if (params.email !== undefined) {
-    data.email = params.email
+  for (const [paramName, rpcName] of nullableUserEditFields) {
+    const value = params[paramName]
+    if (value !== undefined) data[rpcName] = value || null
   }
-  if (params.emailVerified !== undefined) {
-    data.email_verified = params.emailVerified
-  }
-  if (params.password !== undefined) {
-    data.password = params.password
-  }
+
   if (params.birthday !== undefined) {
     data.birthday =
       params.birthday === null || isNaN(Date.parse(params.birthday))
         ? null
         : params.birthday
   }
-  setNullableProfileField(data, "real_name", params.realName)
-  setNullableProfileField(data, "gender", params.gender)
-  setNullableProfileField(data, "location", params.location)
-  setNullableProfileField(data, "biography", params.biography)
-  setNullableProfileField(data, "website", params.website)
-  setNullableProfileField(data, "user_page", params.userPage)
   if (
     Array.isArray(params.locales) &&
     params.locales.every((v) => typeof v === "string")
