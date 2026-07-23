@@ -38,8 +38,6 @@ pub struct Localizations {
 
 impl Localizations {
     pub async fn open<P: Into<PathBuf>>(directory: P) -> Result<Self> {
-        debug!("Reading Fluent localization directory...");
-
         let directory = {
             let mut path = directory.into();
             path.push("fluent");
@@ -73,8 +71,6 @@ impl Localizations {
         bundles: &mut HashMap<LanguageIdentifier, FluentBundle>,
         directory: &Path,
     ) -> Result<()> {
-        debug!("Reading component at {}", directory.display());
-
         let make_error = || {
             Error::new(
                 format!("failed to load component at {}", directory.display()),
@@ -87,20 +83,17 @@ impl Localizations {
         while let Some(entry) = entries.next_entry().await.or_raise(make_error)? {
             let path = entry.path();
 
-            // Get locale from filename
             let locale_name = path
                 .file_stem()
                 .expect("No base name in locale path")
                 .to_str()
                 .expect("Path is not valid UTF-8");
 
-            debug!("Loading locale {locale_name}");
             let locale = {
                 let result: StdResult<LanguageIdentifier, _> = locale_name.parse();
                 result.or_raise(make_error)?
             };
 
-            // Read and parse localization strings
             let source = fs::read_to_string(&path).await.or_raise(make_error)?;
 
             let resource =
@@ -111,7 +104,6 @@ impl Localizations {
                     )
                 })?;
 
-            // Create or modify bundle
             let locale2 = locale.clone();
             let bundle = bundles
                 .entry(locale)
@@ -175,9 +167,6 @@ impl Localizations {
         path: &str,
         attribute: Option<&str>,
     ) -> Result<(&FluentBundle, &Pattern<&str>)> {
-        debug!("Checking for translation patterns in locale {locale}");
-
-        // Get appropriate message and bundle, if found
         let (bundle, message) = self.get_message(locale, path).or_raise(|| {
             Error::new(
                 format!(
@@ -188,7 +177,6 @@ impl Localizations {
             )
         })?;
 
-        // Get pattern from message, if present
         let pattern = match attribute {
             Some(attribute) => match message.get_attribute(attribute) {
                 Some(attrib) => attrib.value(),
@@ -227,26 +215,18 @@ impl Localizations {
     {
         let mut last_error = None; // Occurs if locales is empty
 
-        // Iterate through each locale to try
         for locale_ref in locales {
-            // Iterate through each fallback locale (e.g. ['fr-BE'] -> ['fr-BE', 'fr'])
             let locale = locale_ref.as_ref();
             let result = iterate_locale_fallbacks(locale.clone(), |locale| {
-                // Try and get bundle and pattern, if it exists
                 match self.get_pattern(locale, path, attribute) {
                     Err(error) => {
-                        debug!("Pattern not found for locale {locale}: {error}");
                         last_error = Some(error);
                         None
                     }
-                    Ok((bundle, pattern)) => {
-                        debug!("Found pattern for locale {locale}");
-                        Some((bundle, pattern))
-                    }
+                    Ok((bundle, pattern)) => Some((bundle, pattern)),
                 }
             });
 
-            // Found a match, return this
             if let Some((locale, (bundle, pattern))) = result {
                 return Ok((locale, bundle, pattern));
             }
@@ -280,35 +260,16 @@ impl Localizations {
         L: AsRef<LanguageIdentifier> + Display + 'a,
         I: IntoIterator<Item = L>,
     {
-        // Parse translation key
         let (path, attribute) = Self::parse_selector(key);
-        match attribute {
-            Some(attribute) => {
-                debug!(
-                    "Checking message path {}, attribute {} for a matching locale",
-                    path, attribute,
-                );
-            }
-            None => {
-                debug!(
-                    "Checking message path {}, no attribute for a matching locale",
-                    path,
-                );
-            }
-        }
-
-        // Find pattern for translating
         let (locale, bundle, pattern) = self
             .get_pattern_locales(locales, path, attribute)
             .or_raise(|| {
                 Error::new("failed to translate message", ErrorType::Localization)
             })?;
 
-        // Format using pattern
         let mut errors = vec![];
         let output = bundle.format_pattern(pattern, Some(args), &mut errors);
 
-        // Log any errors
         if !errors.is_empty() {
             warn!("Errors formatting message for locale {locale}, message key {key}");
 
@@ -325,7 +286,6 @@ impl Localizations {
         // Change the return type of this method and its users if you need this information.
         let _ = locale;
 
-        // Done
         Ok(output)
     }
 

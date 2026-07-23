@@ -55,7 +55,6 @@ impl MfaService {
             )
         };
 
-        // Only regular accounts can have MFA
         if user.user_type != UserType::Regular {
             error!("Only regular users may have MFA");
             bail!(Error::new(
@@ -67,7 +66,6 @@ impl MfaService {
             ));
         }
 
-        // Ensure MFA is not yet set up
         if user.multi_factor_secret.is_some()
             || user.multi_factor_recovery_codes.is_some()
         {
@@ -81,7 +79,6 @@ impl MfaService {
             ));
         }
 
-        // Securely generate and store secrets
         debug!("Generating MFA secrets for user ID {}", user.user_id);
         let totp_secret = generate_totp_secret();
         let recovery = RecoveryCodes::generate(ctx.config()).or_raise(make_error)?;
@@ -96,7 +93,6 @@ impl MfaService {
         .await
         .or_raise(make_error)?;
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -108,7 +104,6 @@ impl MfaService {
         .await
         .or_raise(make_error)?;
 
-        // Return to user for their storage
         Ok(MultiFactorSetupOutput {
             totp_secret,
             recovery_codes: recovery.recovery_codes,
@@ -135,7 +130,6 @@ impl MfaService {
             )
         };
 
-        // Ensure MFA is set up
         if user.multi_factor_secret.is_none()
             || user.multi_factor_recovery_codes.is_none()
         {
@@ -149,7 +143,6 @@ impl MfaService {
             ));
         }
 
-        // Securely generate and store secrets
         debug!("Generating recovery codes for user ID {}", user.user_id);
         let recovery = RecoveryCodes::generate(ctx.config()).or_raise(make_error)?;
 
@@ -163,7 +156,6 @@ impl MfaService {
         .await
         .or_raise(make_error)?;
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -175,7 +167,6 @@ impl MfaService {
         .await
         .or_raise(make_error)?;
 
-        // Return to user for their storage
         Ok(MultiFactorResetOutput {
             recovery_codes: recovery.recovery_codes,
         })
@@ -208,7 +199,6 @@ impl MfaService {
         .await
         .or_raise(make_error)?;
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,

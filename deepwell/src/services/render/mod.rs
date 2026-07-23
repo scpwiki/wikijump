@@ -53,6 +53,7 @@ mod native_list_context;
 mod percent_encoding;
 mod render_dependency;
 mod replay;
+mod runtime_modules;
 mod service;
 mod structs;
 mod wikidot_compat_restore;

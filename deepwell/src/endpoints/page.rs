@@ -166,8 +166,6 @@ pub async fn page_get(
         details,
     } = parse!(params, Page);
 
-    info!("Getting page {reference:?} in site ID {site_id}");
-
     let make_error = || Error::new("failed to get page", ErrorType::Page);
 
     let page = PageService::get_optional(ctx, site_id, reference)
@@ -192,8 +190,6 @@ pub async fn page_get_direct(
         details,
         allow_deleted,
     } = parse!(params, Page);
-
-    info!("Getting page ID {page_id} in site ID {site_id}");
 
     let make_error = || {
         Error::new(
@@ -231,7 +227,6 @@ pub async fn page_get_deleted(
         )
     };
 
-    info!("Getting deleted page {slug} in site ID {site_id}");
     let get_deleted_page = PageService::get_deleted_by_slug(ctx, site_id, &slug)
         .await
         .or_raise(make_error)?
@@ -257,8 +252,6 @@ pub async fn page_get_score(
         page: reference,
     } = parse!(params, Page);
 
-    info!("Getting score for page {reference:?} in site ID {site_id}");
-
     let make_error = || Error::new("failed to get page score", ErrorType::Page);
 
     let page_id = PageService::get_id(ctx, site_id, reference)
@@ -281,8 +274,6 @@ pub async fn page_get_files(
         site_id,
         deleted,
     } = parse!(params, Page);
-
-    info!("Getting files for page ID {page_id} in site ID {site_id}");
 
     let make_error = || Error::new("failed to get files for page", ErrorType::Page);
 
@@ -353,8 +344,6 @@ pub async fn page_tags_select(
         )
     })?;
     let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
-    info!("Selecting page tags in site ID {site_id}");
-
     if matches!(categories, Some(ref categories) if categories.is_empty())
         || matches!(pages, Some(ref pages) if pages.is_empty())
     {
@@ -500,8 +489,6 @@ pub async fn page_select(
 
     let make_error = || Error::new("failed to select pages", ErrorType::Page);
     let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
-    info!("Selecting XML-RPC page list in site ID {site_id}");
-
     let normalize_optional = |value: Option<String>| {
         value.and_then(|value| {
             let value = value.trim();
