@@ -36,6 +36,8 @@ use std::sync::LazyLock;
 use time::{Month, OffsetDateTime};
 use wikidot_normalize::normalize;
 
+pub(super) mod viewable_rows;
+
 // This intentionally recognizes only bounded, proven ListPages shapes. Generic
 // ListPages parsing remains follow-up work; unsupported complete modules are
 // preserved for now so existing pages keep their current behavior.

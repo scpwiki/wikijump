@@ -50,6 +50,12 @@ use super::include_variable_iftags::{
     resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
 };
 use super::issued_markers::restore_issued_html_text_markers;
+use super::list_pages::viewable_rows::{
+    CountPagesRawScanCompletion, count_pages_raw_scan_completion,
+    find_viewable_count_pages_rows, find_viewable_list_pages_rows,
+    random_page_query_scan_limit, render_page_query_batch_limit,
+    render_page_query_uses_single_scan,
+};
 use super::list_pages_content_sections::{
     isolate_wikidot_content_section, wikidot_content_section,
 };
@@ -90,11 +96,11 @@ use crate::services::page_query::{
     DataFormSelector, DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow,
     FoundPages, IncludedCategories, ListPagesRenderDiagnosticsInput,
     MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQuery, PageQueryResultMetadata, PageQueryScoreFilterCache,
-    PageQueryScoreFilterSession, PageTypeSelector, PaginationSelector, RangeSelector,
-    ScoreSelector, TagCondition, count_pages_exact_count_eligibility_diagnostics,
-    list_pages_render_diagnostics, normalize_wikidot_author_name,
-    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
+    PageQuery, PageQueryResultMetadata, PageQueryScoreFilterCache, PageTypeSelector,
+    PaginationSelector, RangeSelector, ScoreSelector, TagCondition,
+    count_pages_exact_count_eligibility_diagnostics, list_pages_render_diagnostics,
+    normalize_wikidot_author_name, parse_static_wikidot_data_form_values,
+    static_wikidot_data_form_matches,
 };
 use crate::services::page_revision::GetPageRevision;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
@@ -207,27 +213,6 @@ pub(crate) struct CorpusReplayPreparedWikitext {
     pub(super) wikidot_compat_html: CompatHtmlFragments,
     pub(super) wikidot_compat_text: CompatTextFragments,
     native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
-}
-
-#[derive(Debug)]
-struct ViewableCountPagesRows {
-    pages: FoundPages,
-    metadata: PageQueryResultMetadata,
-    view_permission_filtering_applied: bool,
-    raw_scan_completion: CountPagesRawScanCompletion,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum CountPagesRawScanCompletion {
-    Complete,
-    Capped,
-}
-
-#[derive(Debug)]
-struct ViewableListPagesRows {
-    pages: FoundPages,
-    metadata: PageQueryResultMetadata,
-    view_permission_filtering_applied: bool,
 }
 
 #[derive(Debug)]
@@ -372,14 +357,14 @@ const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 // render paths retain the ordinary limit above.
 const MAX_CORPUS_INCLUDE_EXPANSION_TOTAL: usize = 4096;
 const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
-const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
+pub(super) const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 // Keep runtime-owned content expansion within the ordinary ListPages page size. Explicitly larger content modules remain literal before revision loading and nested include expansion.
 const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
     DEFAULT_LISTPAGES_RENDER_LIMIT as usize;
 // Content-backed ListPages modules can trigger permission filtering, revision loading, and nested include expansion. Three modules cover the common corpus shape while stopping dense author-page compositions before they exhaust the render budget.
 const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 3;
 const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
-const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
+pub(super) const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 const MAX_WIKIDOT_AJAX_MODULE_BODY_BYTES: usize = 65_536;
 const MAX_WIKIDOT_AJAX_MODULE_PARAMETERS: usize = 64;
 const MAX_WIKIDOT_AJAX_MODULE_PARAMETER_BYTES: usize = 4_096;
@@ -4017,7 +4002,7 @@ impl RenderService {
             variables: &[],
             fields,
         };
-        let found = Self::find_viewable_list_pages_rows(
+        let found = find_viewable_list_pages_rows(
             ctx,
             query,
             batch_scan_target,
@@ -6670,7 +6655,7 @@ impl RenderService {
                 } else {
                     query_limit
                 };
-            let found = Self::find_viewable_list_pages_rows(
+            let found = find_viewable_list_pages_rows(
                 ctx,
                 query,
                 query_target.min(usize::MAX as u64) as usize,
@@ -7127,7 +7112,7 @@ impl RenderService {
             FoundPages { pages: Vec::new() }
         } else {
             let target_count = count_pages_query_limit.min(usize::MAX as u64) as usize;
-            let found = Self::find_viewable_count_pages_rows(
+            let found = find_viewable_count_pages_rows(
                 ctx,
                 query,
                 target_count,
@@ -7184,185 +7169,6 @@ impl RenderService {
         Ok(CountPagesBlockRenderResult::Expanded(
             substitute_count_pages_variables(body, total),
         ))
-    }
-
-    async fn filter_viewable_list_pages_rows(
-        ctx: &ServiceContext<'_>,
-        pages: Vec<FoundPageRow>,
-        category_permissions: &mut BTreeMap<(i64, Option<i64>), bool>,
-    ) -> Result<Vec<FoundPageRow>> {
-        let mut viewable = Vec::with_capacity(pages.len());
-        for page in pages {
-            let permission_key = (page.site_id, page.page_category_id);
-            let can_view =
-                if let Some(can_view) = category_permissions.get(&permission_key) {
-                    *can_view
-                } else {
-                    // ListPages renders for an anonymous viewer. Anonymous users cannot
-                    // acquire the page-author virtual role, so page view permission is
-                    // determined by site and category and can be shared within this render.
-                    let can_view = PermissionService::check_user_can(
-                        ctx,
-                        &CheckPermissionContext {
-                            user_id: None,
-                            site_id: page.site_id,
-                            page_reference: Some(Reference::Id(page.page_id)),
-                        },
-                        Permission {
-                            resource_type: Resource::Page,
-                            resource_category: page.page_category_id.map(Reference::Id),
-                            action: Action::View,
-                        },
-                    )
-                    .await?;
-                    category_permissions.insert(permission_key, can_view);
-                    can_view
-                };
-            if can_view {
-                viewable.push(page);
-            }
-        }
-
-        Ok(viewable)
-    }
-
-    async fn find_viewable_list_pages_rows(
-        ctx: &ServiceContext<'_>,
-        query: PageQuery<'_>,
-        target_count: usize,
-        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
-        score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
-    ) -> Result<ViewableListPagesRows> {
-        let found = Self::find_viewable_render_page_rows(
-            ctx,
-            query,
-            target_count,
-            permission_cache,
-            score_filter_cache,
-            true,
-        )
-        .await?;
-        Ok(ViewableListPagesRows {
-            pages: found.pages,
-            metadata: found.metadata,
-            view_permission_filtering_applied: found.view_permission_filtering_applied,
-        })
-    }
-
-    async fn find_viewable_count_pages_rows(
-        ctx: &ServiceContext<'_>,
-        query: PageQuery<'_>,
-        target_count: usize,
-        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
-    ) -> Result<ViewableCountPagesRows> {
-        Self::find_viewable_render_page_rows(
-            ctx,
-            query,
-            target_count,
-            permission_cache,
-            None,
-            false,
-        )
-        .await
-    }
-
-    async fn find_viewable_render_page_rows(
-        ctx: &ServiceContext<'_>,
-        query: PageQuery<'_>,
-        target_count: usize,
-        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
-        mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
-        retain_score_filter_session: bool,
-    ) -> Result<ViewableCountPagesRows> {
-        let mut score_filter_session = PageQueryScoreFilterSession::default();
-        if target_count > 0 && render_page_query_uses_single_scan(query.order) {
-            let mut query = query;
-            query.offset = 0;
-            query.pagination.limit = Some(random_page_query_scan_limit(target_count));
-            let mut found = PageQueryService::find_with_metadata_cached(
-                ctx,
-                query,
-                score_filter_cache.as_deref_mut(),
-                retain_score_filter_session.then_some(&mut score_filter_session),
-            )
-            .await?;
-            if found.metadata.cap_exceeded {
-                found.metadata.cap_exceeded = false;
-            }
-            let raw_count = found.pages.pages.len();
-            let mut pages = Self::filter_viewable_list_pages_rows(
-                ctx,
-                found.pages.pages,
-                permission_cache,
-            )
-            .await?;
-            let view_permission_filtering_applied = pages.len() != raw_count;
-            pages.truncate(target_count);
-            return Ok(ViewableCountPagesRows {
-                pages: FoundPages { pages },
-                metadata: found.metadata,
-                view_permission_filtering_applied,
-                raw_scan_completion: count_pages_raw_scan_completion(raw_count),
-            });
-        }
-
-        let mut pages = Vec::new();
-        let mut raw_offset = 0;
-        let mut metadata = None;
-        let mut view_permission_filtering_applied = false;
-        let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
-
-        while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
-            let mut query = query.clone();
-            query.offset = raw_offset;
-            let batch_limit =
-                render_page_query_batch_limit(target_count, pages.len(), raw_offset);
-            query.pagination.limit = Some(batch_limit);
-
-            let found = PageQueryService::find_with_metadata_cached(
-                ctx,
-                query,
-                score_filter_cache.as_deref_mut(),
-                retain_score_filter_session.then_some(&mut score_filter_session),
-            )
-            .await?;
-            let cap_exceeded = found.metadata.cap_exceeded;
-            merge_render_page_query_metadata(&mut metadata, found.metadata);
-            if cap_exceeded {
-                return Ok(ViewableCountPagesRows {
-                    pages: FoundPages { pages: Vec::new() },
-                    metadata: metadata.unwrap_or_default(),
-                    view_permission_filtering_applied: false,
-                    raw_scan_completion: CountPagesRawScanCompletion::Capped,
-                });
-            }
-            let raw_count = found.pages.pages.len();
-            if raw_count == 0 {
-                break;
-            }
-            let viewable = Self::filter_viewable_list_pages_rows(
-                ctx,
-                found.pages.pages,
-                permission_cache,
-            )
-            .await?;
-            view_permission_filtering_applied |= viewable.len() != raw_count;
-            pages.extend(viewable);
-            if raw_count < batch_limit as usize {
-                break;
-            }
-            raw_offset = raw_offset.saturating_add(raw_count as u32);
-            if raw_offset >= MAX_LISTPAGES_RENDER_SCAN_ROWS {
-                raw_scan_completion = CountPagesRawScanCompletion::Capped;
-            }
-        }
-
-        Ok(ViewableCountPagesRows {
-            pages: FoundPages { pages },
-            metadata: metadata.unwrap_or_default(),
-            view_permission_filtering_applied,
-            raw_scan_completion,
-        })
     }
 
     async fn current_page_list_pages_row(
@@ -8643,14 +8449,6 @@ fn count_pages_scan_requires_preservation(
         && viewable_count < target_count
 }
 
-fn count_pages_raw_scan_completion(raw_count: usize) -> CountPagesRawScanCompletion {
-    if raw_count >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize {
-        CountPagesRawScanCompletion::Capped
-    } else {
-        CountPagesRawScanCompletion::Complete
-    }
-}
-
 fn list_pages_row_scan_target(
     requested_limit: u64,
     overall_limit: Option<u64>,
@@ -8666,22 +8464,6 @@ fn list_pages_row_scan_target(
     rows.saturating_add(u64::from(offset))
         .saturating_add(u64::from(exclude_current_page))
         .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
-}
-
-fn render_page_query_batch_limit(
-    target_count: usize,
-    viewable_count: usize,
-    raw_offset: u32,
-) -> u64 {
-    let needed = target_count.saturating_sub(viewable_count);
-    let remaining = (MAX_LISTPAGES_RENDER_SCAN_ROWS - raw_offset) as usize;
-    needed
-        .max(MAX_LISTPAGES_RENDER_LIMIT as usize)
-        .min(remaining) as u64
-}
-
-fn render_page_query_uses_single_scan(order: Option<OrderBySelector>) -> bool {
-    order.is_some_and(|order| order.property == OrderProperty::Random)
 }
 
 fn list_pages_content_query_target(
@@ -8706,33 +8488,6 @@ fn list_pages_content_query_target(
             .saturating_add(u64::from(offset))
             .saturating_add(u64::from(exclude_current_page)),
     )
-}
-
-fn random_page_query_scan_limit(_target_count: usize) -> u64 {
-    u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS)
-}
-
-fn merge_render_page_query_metadata(
-    metadata: &mut Option<PageQueryResultMetadata>,
-    next: PageQueryResultMetadata,
-) {
-    let Some(current) = metadata.as_mut() else {
-        *metadata = Some(next);
-        return;
-    };
-
-    current.candidate_count = match (current.candidate_count, next.candidate_count) {
-        (Some(left), Some(right)) => Some(left.saturating_add(right)),
-        _ => None,
-    };
-    current.cap_exceeded |= next.cap_exceeded;
-    current.sql_limit_offset_applied |= next.sql_limit_offset_applied;
-    current.filtering_deferred_to_rust |= next.filtering_deferred_to_rust;
-    current.ordering_deferred_to_rust |= next.ordering_deferred_to_rust;
-    current.exact_count_safe &= next.exact_count_safe;
-    if current.unsupported_reason.is_none() {
-        current.unsupported_reason = next.unsupported_reason;
-    }
 }
 
 fn should_render_current_page_list_pages_row(
