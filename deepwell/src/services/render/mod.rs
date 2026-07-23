@@ -30,10 +30,14 @@ mod prelude {
     pub use ftml::{self};
 }
 
+#[path = "compat/compat_fallback_code.rs"]
 mod compat_fallback_code;
+#[path = "compat/compat_html_fragments.rs"]
 mod compat_html_fragments;
+#[path = "compat/compat_text_fragments.rs"]
 mod compat_text_fragments;
 mod diagnostics;
+#[path = "compat/footnote_dom.rs"]
 mod footnote_dom;
 mod generator;
 mod html_text;
@@ -41,11 +45,15 @@ mod iftags;
 mod include_attachment_owners;
 mod include_comment_branches;
 mod include_variable_iftags;
+#[path = "compat/issued_markers.rs"]
 mod issued_markers;
 #[allow(dead_code)]
 mod list_pages;
+#[path = "list_pages/content_sections.rs"]
 mod list_pages_content_sections;
+#[path = "list_pages/scanner.rs"]
 mod list_pages_scanner;
+#[path = "list_pages/template.rs"]
 mod list_pages_template;
 mod literal_regions;
 mod metacomponent;
@@ -56,10 +64,15 @@ mod replay;
 mod runtime_modules;
 mod service;
 mod structs;
+#[path = "compat/wikidot_compat_restore.rs"]
 mod wikidot_compat_restore;
+#[path = "compat/wikidot_embed.rs"]
 mod wikidot_embed;
+#[path = "compat/wikidot_inline_markers.rs"]
 mod wikidot_inline_markers;
+#[path = "compat/wikidot_link_protection.rs"]
 mod wikidot_link_protection;
+#[path = "compat/wikidot_residual_markers.rs"]
 mod wikidot_residual_markers;
 
 pub(crate) use self::diagnostics::{

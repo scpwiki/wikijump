@@ -26,6 +26,7 @@ use super::literal_regions::{
     right_bracket_token, rollback_start_in_left_run, scan_wikidot_whole_head_value,
     wikidot_right_bracket_token, wikidot_trimmed_name,
 };
+#[path = "scanner/count_reachability.rs"]
 mod count_reachability;
 
 pub(super) use self::count_reachability::CountPagesCloseReachabilityIndex;
@@ -2098,13 +2099,13 @@ fn direct_event_matches_ordered(
 }
 
 #[cfg(test)]
-#[path = "list_pages_scanner/oracle_tests.rs"]
+#[path = "scanner/oracle_tests.rs"]
 mod oracle_tests;
 
 #[cfg(test)]
-#[path = "list_pages_scanner/count_reachability_tests.rs"]
+#[path = "scanner/count_reachability_tests.rs"]
 mod count_reachability_tests;
 
 #[cfg(test)]
-#[path = "list_pages_scanner/tests.rs"]
+#[path = "scanner/tests.rs"]
 mod tests;
