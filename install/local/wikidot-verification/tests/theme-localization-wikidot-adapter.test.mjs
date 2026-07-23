@@ -149,10 +149,10 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 backend = object.__new__(module.WikidotBackend)
 backend.inspect = lambda slug, kind="theme_page": None
-backend._amc = lambda body: {"status": "ok", "lock_id": "lock", "lock_secret": "secret", "page_revision_id": 99}
+backend._request_ajax_module_connector = lambda body: {"status": "ok", "lock_id": "lock", "lock_secret": "secret", "page_revision_id": 99}
 source = "fixture source"
 try:
-    backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source), ["テーマ"])
+    backend.create("codex-l10n:20260713-adapter-yossistyle", title="fixture", source=source, expected_source_sha256=module.sha256(source), tags=["テーマ"])
 except module.PublicError as error:
     print(error.code)
 `;
@@ -178,15 +178,17 @@ def amc(body):
     events.append(body.get("event", body.get("moduleName")))
     if body.get("moduleName") == "edit/PageEditModule": return {"status": "ok", "lock_id": "lock", "lock_secret": "secret"}
     return {"status": "ok"}
-backend._amc = amc
+backend._request_ajax_module_connector = amc
 backend.page_tags = lambda slug, kind="theme_page": ["テーマ"]
-print(backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source), ["テーマ"])["identity"])
+created = backend.create("codex-l10n:20260713-adapter-yossistyle", title="fixture", source=source, expected_source_sha256=module.sha256(source), tags=["テーマ"])
+print(created["identity"])
+print(",".join(created["tags"]))
 print(",".join(events))
 `;
   const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});
   assert.equal(result.status, 0);
   assert.equal(result.stderr, "");
-  assert.equal(result.stdout.trim(), "7\nedit/PageEditModule,savePage,saveTags");
+  assert.equal(result.stdout.trim(), "7\nテーマ\nedit/PageEditModule,savePage,saveTags");
 });
 
 test("Wikidot round-trip hash removes only one observed terminal LF", () => {

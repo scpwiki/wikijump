@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Persistent, fail-closed Wikidot page helper for theme localization canaries."""
+"""Persistent, fail-closed Wikidot page helper for theme localization canaries.
+
+Protocol v1 is UTF-8 JSON Lines over stdin and stdout. Every request is an object with an integer ``id`` and an ``action``; every response repeats that ``id`` and contains either ``{"ok": true, "result": ...}`` or ``{"ok": false, "error": {"code": ..., "message": ...}}``. ``ping`` takes no resource fields, ``inspect`` requires ``slug`` and optionally ``kind``, ``create`` requires ``slug``, ``title``, ``source``, ``source_sha256``, and ``tags``, ``remove`` requires ``slug`` and an exact ``expected`` record, and ``shutdown`` ends the loop after its response.
+
+The helper accepts credentials only through ``WIKIDOT_USERNAME`` and ``WIKIDOT_PASSWORD``, removes them from its environment during initialization, and refuses secret-shaped request fields. Page snapshots expose the Wikidot page ID as ``identity`` because the JavaScript execution interface uses that backend-neutral field for exact cleanup comparisons. It exits 0 after orderly EOF or shutdown and exits 2 when initialization, stream delivery, or cleanup fails; operation failures stay inside the public error envelope. The ``wikijump.theme_wikidot_helper.v1`` ping result is the compatibility identifier for this contract.
+"""
 
 from __future__ import annotations
 
@@ -9,7 +14,7 @@ import os
 import re
 import sys
 import time
-from typing import Any, TextIO
+from typing import Any, TextIO, TypedDict
 
 try:
     import httpx as _httpx
@@ -27,6 +32,7 @@ ALLOWED_DOMAIN = f"{ALLOWED_SITE}.wikidot.com"
 ALLOWED_ORIGIN = f"https://{ALLOWED_DOMAIN}"
 CURRENT_RUN_OWNED_SLUG = re.compile(r"^codex-l10n:[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
 LEGACY_RUN_OWNED_SLUG = re.compile(r"^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
+# Legacy names remain read/delete-only for cleanup of pages created before the current slug contract. Remove this compatibility path only after the run ledger proves no legacy page remains and the sandbox operator signs off.
 REFERENCE_PREREQUISITE_SLUGS = {"component:image-block-base", "component:image-block"}
 PAGE_ID = re.compile(r"WIKIREQUEST\.info\.pageId\s*=\s*([0-9]+)\s*;")
 SITE_ID = re.compile(r"WIKIREQUEST\.info\.siteId\s*=\s*([0-9]+)\s*;")
@@ -36,11 +42,30 @@ MAX_REQUEST_BYTES = 1_000_000
 WIKIDOT_PAGE_SLUG_MAX_LENGTH = 60
 
 
+class PageSnapshot(TypedDict):
+    identity: int
+    title: str
+    source_sha256: str
+    tags: list[str]
+
+
+class RemovalResult(TypedDict):
+    removed: bool
+    already_absent: bool
+
+
 class PublicError(Exception):
     def __init__(self, code: str, message: str):
         super().__init__(message)
         self.code = code
         self.message = message
+
+
+class InitializationCleanupError(Exception):
+    def __init__(self, initialization_error: Exception, cleanup_error: Exception):
+        super().__init__("Wikidot helper initialization and cleanup both failed")
+        self.initialization_error = initialization_error
+        self.cleanup_error = cleanup_error
 
 
 def sha256(value: str) -> str:
@@ -76,11 +101,11 @@ def require_text(value: object, field: str, maximum: int) -> str:
     return value
 
 
-def validate_tags(value: object, slug: str, kind: str) -> list[str]:
+def validate_tags(value: object, slug: str) -> list[str]:
     expected = ["テーマ"] if slug.endswith("-yossistyle") else ["theme"]
     if value != expected:
         raise PublicError("invalid_request", "run-owned page tags are invalid")
-    return list(value)
+    return expected
 
 
 def reject_secret_fields(value: object) -> None:
@@ -99,14 +124,6 @@ def reject_secret_fields(value: object) -> None:
 
 class WikidotBackend:
     @staticmethod
-    def _take_credentials() -> tuple[str, str]:
-        username = os.environ.pop("WIKIDOT_USERNAME", "")
-        password = os.environ.pop("WIKIDOT_PASSWORD", "")
-        if not username or not password:
-            raise PublicError("initialization_failed", "Wikidot helper environment is incomplete")
-        return username, password
-
-    @staticmethod
     def _dependencies() -> tuple[Any, Any, Any, Any]:
         dependencies = (_httpx, _BeautifulSoup, _WikidotClient, _extract_page_source_text)
         if any(dependency is None for dependency in dependencies):
@@ -116,7 +133,6 @@ class WikidotBackend:
     def _verify_site_identity(self) -> None:
         root_html = self._get("")
         if root_html is None:
-            self.close()
             raise PublicError(
                 "site_identity_mismatch",
                 "authenticated site root was not found",
@@ -125,14 +141,12 @@ class WikidotBackend:
         site_name = SITE_UNIX_NAME.search(root_html)
         domain = SITE_DOMAIN.search(root_html)
         if not site_id or not site_name or not domain or site_name.group(1) != ALLOWED_SITE or domain.group(1) != ALLOWED_DOMAIN:
-            self.close()
             raise PublicError(
                 "site_identity_mismatch",
                 "authenticated site identity is outside the hard allowlist",
             )
 
-    def __init__(self) -> None:
-        username, password = self._take_credentials()
+    def __init__(self, *, username: str, password: str) -> None:
         httpx, beautiful_soup, wikidot_client, extract_source = self._dependencies()
         try:
             self.client = wikidot_client(username=username, password=password, logging_level="CRITICAL")
@@ -143,8 +157,15 @@ class WikidotBackend:
         self.httpx = httpx
         self.soup = beautiful_soup
         self.extract_source = extract_source
-        self.headers = self.client.amc_client.header.get_header()
-        self._verify_site_identity()
+        try:
+            self.headers = self.client.amc_client.header.get_header()
+            self._verify_site_identity()
+        except Exception as initialization_error:
+            try:
+                self.close()
+            except Exception as cleanup_error:
+                raise InitializationCleanupError(initialization_error, cleanup_error) from initialization_error
+            raise
 
     def close(self) -> None:
         client = getattr(self, "client", None)
@@ -180,7 +201,7 @@ class WikidotBackend:
             )
         return response.text
 
-    def _amc(self, body: dict[str, Any]) -> dict[str, Any]:
+    def _request_ajax_module_connector(self, form_fields: dict[str, Any]) -> dict[str, Any]:
         cookie = self.client.amc_client.header.cookie
         session_id = str(cookie.get("WIKIDOT_SESSION_ID", "")).strip()
         token = str(cookie.get("wikidot_token7", "")).strip()
@@ -197,7 +218,7 @@ class WikidotBackend:
                 response = client.post(
                     f"{ALLOWED_ORIGIN}/ajax-module-connector.php",
                     headers=headers,
-                    data={"wikidot_token7": token, **body},
+                    data={"wikidot_token7": token, **form_fields},
                 )
             if response.is_redirect:
                 raise PublicError(
@@ -214,7 +235,7 @@ class WikidotBackend:
             raise PublicError("malformed_response", "Wikidot returned a malformed response")
         return data
 
-    def inspect(self, slug: str, kind: str = "theme_page") -> dict[str, Any] | None:
+    def inspect(self, slug: str, kind: str = "theme_page") -> PageSnapshot | None:
         html = self._get(validate_slug(slug, kind=kind, allow_legacy=True))
         if html is None:
             return None
@@ -231,7 +252,7 @@ class WikidotBackend:
                 "page_identity_incomplete",
                 "authenticated page GET did not contain a title",
             )
-        data = self._amc({"moduleName": "viewsource/ViewSourceModule", "page_id": page_id})
+        data = self._request_ajax_module_connector({"moduleName": "viewsource/ViewSourceModule", "page_id": page_id})
         body = data.get("body")
         if not isinstance(body, str):
             raise PublicError("source_unavailable", "ViewSourceModule did not return a source body")
@@ -256,7 +277,7 @@ class WikidotBackend:
         return [element.get_text(" ", strip=True) for element in self.soup(html, "html.parser").select(".page-tags a")]
 
     def _acquire_create_lock(self, slug: str) -> tuple[Any, Any]:
-        lock = self._amc({"mode": "page", "wiki_page": slug, "moduleName": "edit/PageEditModule"})
+        lock = self._request_ajax_module_connector({"mode": "page", "wiki_page": slug, "moduleName": "edit/PageEditModule"})
         if lock.get("status") not in (None, "ok") or lock.get("locked") or lock.get("other_locks"):
             raise PublicError("page_lock_refused", "PageEditModule did not grant an uncontested lock")
         if lock.get("page_revision_id") not in (None, "") or lock.get("page_id") not in (None, "") or lock.get("pageId") not in (None, ""):
@@ -268,7 +289,7 @@ class WikidotBackend:
         return lock_id, lock_secret
 
     def _save_tags(self, slug: str, kind: str, identity: Any, tags: list[str]) -> None:
-        tagged = self._amc(
+        tagged = self._request_ajax_module_connector(
             {
                 "tags": " ".join(tags),
                 "action": "WikiPageAction",
@@ -285,7 +306,7 @@ class WikidotBackend:
             time.sleep(0.4)
         raise PublicError("save_tags_not_visible", "Wikidot page tags did not round-trip")
 
-    def _await_created_page(self, slug: str, kind: str, title: str, source: str, tags: list[str]) -> dict[str, Any]:
+    def _await_created_page(self, slug: str, kind: str, title: str, source: str, tags: list[str]) -> PageSnapshot:
         for _ in range(5):
             actual = self.inspect(slug, kind)
             if actual is None:
@@ -298,18 +319,28 @@ class WikidotBackend:
                 )
             if tags:
                 self._save_tags(slug, kind, actual["identity"], tags)
+                actual = {**actual, "tags": list(tags)}
             return actual
         raise PublicError("create_not_visible", "created page was not visible after save")
 
-    def create(self, slug: str, title: str, source: str, expected_hash: str, tags: list[str], kind: str = "theme_page") -> dict[str, Any]:
+    def create(
+        self,
+        slug: str,
+        *,
+        title: str,
+        source: str,
+        expected_source_sha256: str,
+        tags: list[str],
+        kind: str = "theme_page",
+    ) -> PageSnapshot:
         kind = validate_kind(kind)
         slug = validate_slug(slug, kind=kind)
         title = require_text(title, "title", 200)
         if kind != "theme_page":
             raise PublicError("resource_not_allowed", "reference prerequisites are read-only")
         source = require_text(source, "source", 500_000)
-        tags = validate_tags(tags, slug, kind)
-        if not re.fullmatch(r"[0-9a-f]{64}", expected_hash) or sha256(source) != expected_hash:
+        tags = validate_tags(tags, slug)
+        if not re.fullmatch(r"[0-9a-f]{64}", expected_source_sha256) or sha256(source) != expected_source_sha256:
             raise PublicError(
                 "source_hash_mismatch",
                 "submitted source does not match its accepted hash",
@@ -317,7 +348,7 @@ class WikidotBackend:
         if self.inspect(slug, kind) is not None:
             raise PublicError("page_exists", "create-only preflight found an existing page")
         lock_id, lock_secret = self._acquire_create_lock(slug)
-        saved = self._amc(
+        saved = self._request_ajax_module_connector(
             {
                 "action": "WikiPageAction",
                 "event": "savePage",
@@ -337,8 +368,10 @@ class WikidotBackend:
             raise PublicError("save_failed", "Wikidot create-only save failed")
         return self._await_created_page(slug, kind, title, source, tags)
 
-    def remove(self, slug: str, expected: dict[str, Any], kind: str = "theme_page") -> dict[str, Any]:
+    def remove(self, slug: str, expected: PageSnapshot, kind: str = "theme_page") -> RemovalResult:
         kind = validate_kind(kind)
+        if kind != "theme_page":
+            raise PublicError("resource_not_allowed", "reference prerequisites are read-only")
         slug = validate_slug(slug, kind=kind, allow_legacy=True)
         actual = self.inspect(slug, kind)
         if actual is None:
@@ -348,7 +381,8 @@ class WikidotBackend:
                 "page_changed",
                 "delete refused a page whose identity, title, or source changed",
             )
-        deleted = self._amc(
+        # Wikidot exposes no revision-CAS delete operation. Keep the exact snapshot check immediately adjacent to deletion and confirm absence afterward; this is the narrowest available race window.
+        deleted = self._request_ajax_module_connector(
             {
                 "action": "WikiPageAction",
                 "event": "deletePage",
@@ -375,6 +409,8 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
         }, False
     if action == "shutdown":
         return {"closed": True}, True
+    if action not in ("inspect", "create", "remove"):
+        raise PublicError("invalid_action", "unknown helper action")
     kind = validate_kind(request.get("kind", "theme_page"))
     slug = validate_slug(request.get("slug"), kind=kind, allow_legacy=action in ("inspect", "remove"))
     if action == "inspect":
@@ -385,11 +421,11 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
         return {
             "page": backend.create(
                 slug,
-                request.get("title"),
-                request.get("source"),
-                request.get("source_sha256"),
-                request.get("tags"),
-                kind,
+                title=request.get("title"),
+                source=request.get("source"),
+                expected_source_sha256=request.get("source_sha256"),
+                tags=request.get("tags"),
+                kind=kind,
             )
         }, False
     if action == "remove":
@@ -404,8 +440,8 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
                 "invalid_request",
                 "remove requires exact expected identity, title, tags, and source hash",
             )
-        return backend.remove(slug, expected, kind), False
-    raise PublicError("invalid_action", "unknown helper action")
+        return {"removal": backend.remove(slug, expected, kind)}, False
+    raise AssertionError("validated helper action was not dispatched")
 
 
 def serve(input_stream: TextIO, output_stream: TextIO, backend: Any) -> int:
@@ -416,7 +452,10 @@ def serve(input_stream: TextIO, output_stream: TextIO, backend: Any) -> int:
             try:
                 if len(raw_line.encode("utf-8")) > MAX_REQUEST_BYTES:
                     raise PublicError("request_too_large", "helper request exceeded its size limit")
-                request = json.loads(raw_line)
+                try:
+                    request = json.loads(raw_line)
+                except json.JSONDecodeError as exc:
+                    raise PublicError("invalid_request", "helper request must be valid JSON") from exc
                 if not isinstance(request, dict) or not isinstance(request.get("id"), int) or isinstance(request.get("id"), bool):
                     raise PublicError("invalid_request", "helper request requires an integer id")
                 request_id = request["id"]
@@ -448,7 +487,14 @@ def serve(input_stream: TextIO, output_stream: TextIO, backend: Any) -> int:
 
 def main() -> int:
     try:
-        backend = WikidotBackend()
+        username = os.environ.pop("WIKIDOT_USERNAME", "")
+        password = os.environ.pop("WIKIDOT_PASSWORD", "")
+        if not username or not password:
+            raise PublicError("initialization_failed", "Wikidot helper environment is incomplete")
+        try:
+            backend = WikidotBackend(username=username, password=password)
+        finally:
+            password = ""
         return serve(sys.stdin, sys.stdout, backend)
     except Exception:
         return 2
