@@ -57,7 +57,8 @@ use deepwell::services::session::CreateSession;
 use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
     FileRevisionService, ForumPostService, ForumService, ForumThreadService, LinkService,
-    PageService, RenderService, RequestContext, SessionService, TextService,
+    PageService, RenderService, RequestContext, SessionService, SettingsService,
+    TextService,
 };
 use deepwell::types::{
     Action, ConnectionType, PageId, PageRevisionType, Permission, Reference, Resource,
@@ -150,6 +151,47 @@ async fn imported_breadcrumb_article_view(
             "locales": ["en-US", "en"],
         }),
     )
+}
+
+#[tokio::test]
+async fn imported_page_layout_provenance_preserves_explicit_page_override() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category = CategoryService::get(
+        runner.context(),
+        site_id,
+        Reference::Slug(Cow::Borrowed("_default")),
+    )
+    .await
+    .expect("seeded default category should exist");
+    let page_id = create_imported_breadcrumb_page(
+        &mut runner,
+        site_id,
+        category.category_id,
+        "imported-layout-override",
+        "Imported Layout Override",
+    )
+    .await;
+
+    let page = PageTable::find_by_id(page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("imported page lookup should not fail")
+        .expect("imported page should exist");
+    let mut page = page.into_active_model();
+    page.layout = Set(Some("wikijump".to_owned()));
+    page.update(runner.context().transaction())
+        .await
+        .expect("explicit imported-page layout override should update");
+
+    assert_eq!(
+        SettingsService::get_layout(runner.context(), site_id, Some(page_id))
+            .await
+            .expect("effective layout lookup should succeed"),
+        Layout::Wikijump,
+    );
 }
 
 #[tokio::test]

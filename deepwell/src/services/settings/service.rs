@@ -121,6 +121,7 @@ impl SettingsService {
             )
         };
 
+        let mut page_from_wikidot = false;
         if let Some(page_id) = page_id {
             debug!("Getting layout for site ID {site_id} page ID {page_id}");
             let page = PageService::get_direct(ctx, page_id, true)
@@ -131,6 +132,8 @@ impl SettingsService {
                 debug!("Found page-level layout override: {layout}");
                 return parse_layout(&layout).or_raise(make_error);
             }
+
+            page_from_wikidot = page.from_wikidot;
 
             let category_id = page.page_category_id;
             debug!("Getting layout for page category ID {category_id}");
@@ -154,8 +157,15 @@ impl SettingsService {
             return parse_layout(&layout).or_raise(make_error);
         }
 
-        debug!("Using platform-level layout");
-        Ok(ctx.config().default_page_layout)
+        if page_from_wikidot {
+            debug!("Using Wikidot layout for imported page provenance");
+        } else {
+            debug!("Using platform-level layout");
+        }
+        Ok(default_page_layout_for_provenance(
+            page_from_wikidot,
+            ctx.config().default_page_layout,
+        ))
     }
 
     /// Get the navigation pages for this page category.
@@ -438,5 +448,37 @@ impl SettingsService {
     ) -> Result<bool> {
         let settings = Self::get_forum_settings(ctx, site_id, forum_category_id).await?;
         Ok(settings.per_page_discussion)
+    }
+}
+
+fn default_page_layout_for_provenance(
+    from_wikidot: bool,
+    platform_default: Layout,
+) -> Layout {
+    if from_wikidot {
+        Layout::Wikidot
+    } else {
+        platform_default
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn imported_page_provenance_selects_wikidot_layout_over_platform_default() {
+        assert_eq!(
+            default_page_layout_for_provenance(true, Layout::Wikijump),
+            Layout::Wikidot,
+        );
+    }
+
+    #[test]
+    fn local_page_provenance_keeps_platform_default() {
+        assert_eq!(
+            default_page_layout_for_provenance(false, Layout::Wikijump),
+            Layout::Wikijump,
+        );
     }
 }
