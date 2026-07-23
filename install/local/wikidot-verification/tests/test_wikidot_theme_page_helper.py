@@ -1,15 +1,8 @@
-import importlib.util
 import io
 import json
-from pathlib import Path
 import unittest
 
-
-HELPER_PATH = Path(__file__).parents[1] / "scripts" / "wikidot-theme-page-helper.py"
-SPEC = importlib.util.spec_from_file_location("wikidot_theme_page_helper", HELPER_PATH)
-assert SPEC is not None and SPEC.loader is not None
-HELPER = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(HELPER)
+from scripts import wikidot_theme_page_helper as HELPER
 
 
 class FakeBackend:

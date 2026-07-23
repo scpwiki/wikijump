@@ -12,7 +12,7 @@ import {WIKIDOT_HELPER_PYTHON, WikidotJsonlHelperClient, WikidotThemePageAdapter
 import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const HELPER_PATH = path.resolve(HERE, "../scripts/wikidot-theme-page-helper.py");
+const HELPER_PATH = path.resolve(HERE, "../scripts/wikidot_theme_page_helper.py");
 const SITE = "scpaiueouiuiuiui";
 
 function sha256(value) {

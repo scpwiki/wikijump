@@ -98,23 +98,22 @@ def reject_secret_fields(value: object) -> None:
 
 
 class WikidotBackend:
-    def __init__(self) -> None:
+    @staticmethod
+    def _take_credentials() -> tuple[str, str]:
         username = os.environ.pop("WIKIDOT_USERNAME", "")
         password = os.environ.pop("WIKIDOT_PASSWORD", "")
         if not username or not password:
             raise PublicError("initialization_failed", "Wikidot helper environment is incomplete")
-        if _httpx is None or _BeautifulSoup is None or _WikidotClient is None or _extract_page_source_text is None:
+        return username, password
+
+    @staticmethod
+    def _dependencies() -> tuple[Any, Any, Any, Any]:
+        dependencies = (_httpx, _BeautifulSoup, _WikidotClient, _extract_page_source_text)
+        if any(dependency is None for dependency in dependencies):
             raise PublicError("initialization_failed", "Wikidot helper dependencies are unavailable")
-        try:
-            self.client = _WikidotClient(username=username, password=password, logging_level="CRITICAL")
-        except Exception as exc:
-            raise PublicError("authentication_failed", "Wikidot authentication failed") from exc
-        finally:
-            password = ""
-        self.httpx = _httpx
-        self.soup = _BeautifulSoup
-        self.extract_source = _extract_page_source_text
-        self.headers = self.client.amc_client.header.get_header()
+        return dependencies
+
+    def _verify_site_identity(self) -> None:
         root_html = self._get("")
         if root_html is None:
             self.close()
@@ -131,6 +130,21 @@ class WikidotBackend:
                 "site_identity_mismatch",
                 "authenticated site identity is outside the hard allowlist",
             )
+
+    def __init__(self) -> None:
+        username, password = self._take_credentials()
+        httpx, beautiful_soup, wikidot_client, extract_source = self._dependencies()
+        try:
+            self.client = wikidot_client(username=username, password=password, logging_level="CRITICAL")
+        except Exception as exc:
+            raise PublicError("authentication_failed", "Wikidot authentication failed") from exc
+        finally:
+            password = ""
+        self.httpx = httpx
+        self.soup = beautiful_soup
+        self.extract_source = extract_source
+        self.headers = self.client.amc_client.header.get_header()
+        self._verify_site_identity()
 
     def close(self) -> None:
         client = getattr(self, "client", None)
