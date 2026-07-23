@@ -11,7 +11,7 @@ import {
   DEFAULT_WIKIJUMP_ORIGIN,
   buildThemeLocalizationE2EPlan,
 } from "../src/theme-localization-e2e.mjs";
-import {GUARDED_THEME_WIKIJUMP_RPC_URL, runGuardedThemeAction, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
+import {executeGuardedThemeAction, GUARDED_THEME_WIKIJUMP_RPC_URL, recoverGuardedThemeAction, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
@@ -138,8 +138,9 @@ export async function run(argv = process.argv) {
     }
   }
   if (args.mode !== "dry-run" && plan.preflight?.status === "pass") {
-    await runGuardedThemeAction({
-      mode: args.mode, plan, ledgerPath: args.ledgerPath, resultPath: args.resultPath, artifactDir: args.artifactDir,
+    const runAction = args.mode === "recover" ? recoverGuardedThemeAction : executeGuardedThemeAction;
+    await runAction({
+      plan, ledgerPath: args.ledgerPath, resultPath: args.resultPath, artifactDir: args.artifactDir,
       dependencyOptions: {browserRoot: args.browserRoot, browserExecutable: args.browserExecutable, cdpEndpoint: args.cdpEndpoint, wikidotStorageState: args.wikidotStorageState, wikijumpStorageState: args.wikijumpStorageState, ignoreHttpsErrors: args.ignoreHttpsErrors},
     });
   }

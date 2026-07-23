@@ -217,8 +217,16 @@ function captureSummary(captures) {
   return captures.map((capture) => ({tier_id: capture.tier_id, status: capture.status, targets: capture.targets.map((target) => ({id: target.id, status: target.verdict.status, failed_viewports: target.verdict.failed_viewports}))}));
 }
 
-export async function runGuardedThemeAction({mode, plan, ledgerPath, resultPath, artifactDir, executionLockPath, signalSource = process, dependencyFactory = createLiveThemeDependencies, dependencyOptions = {}, captureTierImpl = captureThemeTierBrowserEvidence}) {
-  if (!new Set(["execute", "recover"]).has(mode)) throw new Error("theme action must be execute or recover");
+export async function executeGuardedThemeAction(options) {
+  if (!options?.artifactDir) throw new Error("execute artifact path is required");
+  return await runGuardedThemeAction({...options, mode: "execute"});
+}
+
+export async function recoverGuardedThemeAction(options) {
+  return await runGuardedThemeAction({...options, mode: "recover"});
+}
+
+async function runGuardedThemeAction({mode, plan, ledgerPath, resultPath, artifactDir = null, executionLockPath, signalSource = process, dependencyFactory = createLiveThemeDependencies, dependencyOptions = {}, captureTierImpl = captureThemeTierBrowserEvidence}) {
   validateExecutablePlan(plan, {recovery: mode === "recover"});
   if (!ledgerPath || !resultPath || (mode === "execute" && !artifactDir)) throw new Error("ledger, result, and execute artifact paths are required");
   if (mode === "execute") artifactDir = await prepareThemeArtifactDirectory(artifactDir);
