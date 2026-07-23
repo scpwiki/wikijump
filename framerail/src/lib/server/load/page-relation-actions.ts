@@ -1,4 +1,3 @@
-import { authGetSession } from "$lib/server/auth/get-session"
 import {
   pageParentGet,
   pageParentUpdate,
@@ -9,34 +8,36 @@ import {
 } from "$lib/server/deepwell/page"
 import {
   failForActionError,
-  failForMissingSession,
   pageMutationBaseSchema,
   readActionJson
 } from "$lib/server/load/page-action-shared"
+import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
 import { array, object, optional, string } from "valibot"
 
 import type { RequestEvent } from "@sveltejs/kit"
 
-export async function pageParentSetAction({ request, cookies }: RequestEvent) {
+export async function pageParentSetAction(event: RequestEvent) {
+  const { request } = event
   const form = await superValidate(request, valibot(pageParentSchema))
   if (!form.valid) {
     return fail(400, { form })
   }
 
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
   try {
-    const session = await authGetSession(sessionToken)
     const { siteId, pageId, addParents, removeParents } = form.data
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "required"
+    })
     const res = await pageParentUpdate(
       siteId,
       pageId,
-      session.user_id,
+      context.sessionUserId,
       addParents,
       removeParents,
-      { sessionToken, siteId, page: pageId }
+      context.requestContext
     )
     return { form, res }
   } catch (error) {
@@ -51,7 +52,8 @@ export const pageParentSchema = object({
   removeParents: optional(array(string()))
 })
 
-export async function pageParentGetAction({ request }: RequestEvent) {
+export async function pageParentGetAction(event: RequestEvent) {
+  const { request } = event
   try {
     const requestData: {
       siteId: number
@@ -59,71 +61,84 @@ export async function pageParentGetAction({ request }: RequestEvent) {
       slug: string
     } = await readActionJson(request)
     const { siteId, pageId, slug } = requestData
-    const res = await pageParentGet(siteId, pageId, slug)
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId
+    })
+    const res = await pageParentGet(siteId, pageId, slug, context.requestContext)
     return { res }
   } catch (error) {
     return failForActionError(error)
   }
 }
 
-export async function pageVoteGetAction({ request }: RequestEvent) {
+export async function pageVoteGetAction(event: RequestEvent) {
+  const { request } = event
   try {
     const requestData: {
       siteId: number
       pageId: number
     } = await readActionJson(request)
     const { siteId, pageId } = requestData
-    const res = await pageVoteList(pageId, { siteId, page: pageId })
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId
+    })
+    const res = await pageVoteList(pageId, context.requestContext)
     return { res }
   } catch (error) {
     return failForActionError(error)
   }
 }
 
-export async function pageVoteCastAction({ request, cookies }: RequestEvent) {
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession()
+export async function pageVoteCastAction(event: RequestEvent) {
+  const { request } = event
   try {
-    const session = await authGetSession(sessionToken)
     const requestData: {
       siteId: number
       pageId: number
       value: number
     } = await readActionJson(request)
     const { siteId, pageId, value } = requestData
-    const res = await pageVoteCast(pageId, session.user_id, value, {
-      sessionToken,
-      siteId,
-      page: pageId
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "required"
     })
+    const res = await pageVoteCast(
+      pageId,
+      context.sessionUserId,
+      value,
+      context.requestContext
+    )
     return { res }
   } catch (error) {
     return failForActionError(error)
   }
 }
 
-export async function pageVoteCancelAction({ request, cookies }: RequestEvent) {
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession()
+export async function pageVoteCancelAction(event: RequestEvent) {
+  const { request } = event
   try {
-    const session = await authGetSession(sessionToken)
     const requestData: {
       siteId: number
       pageId: number
     } = await readActionJson(request)
     const { siteId, pageId } = requestData
-    const res = await pageVoteRemove(pageId, session.user_id, {
-      sessionToken,
-      siteId,
-      page: pageId
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "required"
     })
+    const res = await pageVoteRemove(
+      pageId,
+      context.sessionUserId,
+      context.requestContext
+    )
     return { res }
   } catch (error) {
     return failForActionError(error)
   }
 }
 
-export async function pageScoreAction({ request, params }: RequestEvent) {
+export async function pageScoreAction(event: RequestEvent) {
+  const { request, params } = event
   const { slug } = params
 
   try {
@@ -132,7 +147,10 @@ export async function pageScoreAction({ request, params }: RequestEvent) {
       pageId: number
     } = await readActionJson(request)
     const { siteId, pageId } = requestData
-    const res = await pageScore(siteId, pageId, slug)
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId
+    })
+    const res = await pageScore(siteId, pageId, slug, context.requestContext)
     return { res }
   } catch (error) {
     return failForActionError(error)

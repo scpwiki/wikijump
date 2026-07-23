@@ -4,7 +4,9 @@ import test from "node:test"
 import {
   failForActionError,
   failForMissingSession,
+  MissingActionSessionError,
   normalizeActionError,
+  PageActionContextMismatchError,
   readActionJson
 } from "../src/lib/server/load/action-error.ts"
 
@@ -54,6 +56,18 @@ test("missing sessions remain an explicit authentication failure", () => {
     form: "preserved",
     message: "Authentication required."
   })
+})
+
+test("page action context failures retain authentication and authorization status", () => {
+  const missingSession = failForActionError(
+    new MissingActionSessionError("Authentication required.")
+  )
+  assert.equal(missingSession.status, 401)
+
+  const mismatch = failForActionError(
+    new PageActionContextMismatchError("Permission denied.")
+  )
+  assert.equal(mismatch.status, 403)
 })
 
 test("malformed action JSON is a client error", async () => {

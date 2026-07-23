@@ -1,4 +1,3 @@
-import { authGetSession } from "$lib/server/auth/get-session"
 import {
   pageDeletedGet,
   pageHistory,
@@ -8,11 +7,10 @@ import {
 } from "$lib/server/deepwell/page"
 import {
   failForActionError,
-  failForMissingSession,
   pageMutationBaseSchema,
   readActionJson
 } from "$lib/server/load/page-action-shared"
-import { getRequestContext } from "$lib/server/load/request-ctx"
+import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
 import { object, string } from "valibot"
@@ -20,7 +18,8 @@ import { object, string } from "valibot"
 import type { Optional } from "$lib/types"
 import type { RequestEvent } from "@sveltejs/kit"
 
-export async function pageHistoryAction({ request, locals }: RequestEvent) {
+export async function pageHistoryAction(event: RequestEvent) {
+  const { request } = event
   try {
     const requestData: {
       siteId: number
@@ -30,12 +29,15 @@ export async function pageHistoryAction({ request, locals }: RequestEvent) {
     } = await readActionJson(request)
 
     const { siteId, pageId, revisionNumber, limit } = requestData
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId
+    })
     const res = await pageHistory(
       siteId,
       pageId,
       revisionNumber,
       limit,
-      getRequestContext(locals)
+      context.requestContext
     )
     return { res }
   } catch (error) {
@@ -43,7 +45,8 @@ export async function pageHistoryAction({ request, locals }: RequestEvent) {
   }
 }
 
-export async function pageRevisionAction({ request, locals }: RequestEvent) {
+export async function pageRevisionAction(event: RequestEvent) {
+  const { request } = event
   try {
     const requestData: {
       siteId: number
@@ -54,13 +57,16 @@ export async function pageRevisionAction({ request, locals }: RequestEvent) {
     } = await readActionJson(request)
 
     const { siteId, pageId, revisionNumber, compiledHtml, wikitext } = requestData
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId
+    })
     const res = await pageRevision(
       siteId,
       pageId,
       revisionNumber,
       compiledHtml ?? true,
       wikitext ?? true,
-      getRequestContext(locals)
+      context.requestContext
     )
     return { res }
   } catch (error) {
@@ -68,18 +74,11 @@ export async function pageRevisionAction({ request, locals }: RequestEvent) {
   }
 }
 
-export async function pageRollbackAction({
-  request,
-  params,
-  getClientAddress,
-  cookies
-}: RequestEvent) {
+export async function pageRollbackAction(event: RequestEvent) {
+  const { request, params, getClientAddress } = event
   const { slug } = params
   const ipAddress = getClientAddress()
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession()
   try {
-    const session = await authGetSession(sessionToken)
     const requestData: {
       siteId: number
       pageId: number
@@ -89,18 +88,22 @@ export async function pageRollbackAction({
     } = await readActionJson(request)
 
     const { siteId, pageId, revisionNumber, comments, lastRevisionId } = requestData
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "required"
+    })
     const res = await pageRollback(
       {
         siteId,
         pageId,
-        userId: session.user_id,
+        userId: context.sessionUserId,
         userIpAddr: ipAddress,
         slug,
         lastRevisionId,
         revisionNumber,
         revisionComments: comments ?? ""
       },
-      { sessionToken, siteId, page: pageId ?? slug }
+      context.requestContext
     )
     return { res }
   } catch (error) {
@@ -108,42 +111,47 @@ export async function pageRollbackAction({
   }
 }
 
-export async function pageDeletedGetAction({ request }: RequestEvent) {
+export async function pageDeletedGetAction(event: RequestEvent) {
+  const { request } = event
   try {
     const requestData: {
       siteId: number
       slug: string
     } = await readActionJson(request)
     const { siteId, slug } = requestData
-    const res = await pageDeletedGet(siteId, slug)
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId
+    })
+    const res = await pageDeletedGet(siteId, slug, context.requestContext)
     return { res }
   } catch (error) {
     return failForActionError(error)
   }
 }
 
-export async function pageRestoreAction({
-  request,
-  cookies,
-  getClientAddress
-}: RequestEvent) {
+export async function pageRestoreAction(event: RequestEvent) {
+  const { request, getClientAddress } = event
   const form = await superValidate(request, valibot(pageRestoreSchema))
   if (!form.valid) {
     return fail(400, { form })
   }
 
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
   const ipAddress = getClientAddress()
 
   try {
-    const session = await authGetSession(sessionToken)
     const { siteId, pageId, comments } = form.data
-    const res = await pageRestore(siteId, pageId, session.user_id, ipAddress, comments, {
-      sessionToken,
-      siteId,
-      page: pageId
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "required"
     })
+    const res = await pageRestore(
+      siteId,
+      pageId,
+      context.sessionUserId,
+      ipAddress,
+      comments,
+      context.requestContext
+    )
     return { form, res }
   } catch (error) {
     return failForActionError(error, { form })

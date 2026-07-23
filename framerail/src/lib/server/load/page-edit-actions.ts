@@ -1,4 +1,3 @@
-import { authGetSession } from "$lib/server/auth/get-session"
 import {
   pageDelete,
   pageEdit,
@@ -6,18 +5,12 @@ import {
   pageLayout,
   pageMove
 } from "$lib/server/deepwell/page"
-import { preloadView } from "$lib/server/deepwell/views"
 import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import {
-  getPreloadBackendLocales,
-  getPreloadRequestLocales
-} from "$lib/server/load/preload"
-import {
   failForActionError,
-  failForMissingSession,
   pageMutationBaseSchema
 } from "$lib/server/load/page-action-shared"
-import { loadSiteInfo } from "$lib/server/load/site-info"
+import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
 import { DeleteOptions, Layout } from "$lib/types"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
@@ -32,31 +25,27 @@ import {
 } from "valibot"
 
 import type { RequestEvent } from "@sveltejs/kit"
-import { getRequestContext, withDefaultPageContext } from "./request-ctx"
 
-export async function pageDeleteAction({
-  request,
-  params,
-  getClientAddress,
-  cookies
-}: RequestEvent) {
+export async function pageDeleteAction(event: RequestEvent) {
+  const { request, params, getClientAddress } = event
   const form = await superValidate(request, valibot(pageDeleteSchema))
   if (!form.valid) {
     return fail(400, { form })
   }
 
   const { slug } = params
-  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
   const ipAddress = getClientAddress()
 
   try {
-    const session = sessionToken ? await authGetSession(sessionToken) : undefined
     const { siteId, pageId, lastRevisionId, option, comments } = form.data
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "optional"
+    })
     const userId = resolvePageMutationUserId(
-      session?.user_id,
-      siteSlug,
-      requestSiteId,
+      context.sessionUserId,
+      context.siteSlug,
+      context.siteId,
       siteId
     )
     if (userId === undefined) {
@@ -78,7 +67,7 @@ export async function pageDeleteAction({
           newSlug,
           revisionComments: comments
         },
-        { sessionToken, siteId, page: pageId ?? slug }
+        context.requestContext
       )
       return { form, res, option: DeleteOptions.Move }
     }
@@ -93,7 +82,7 @@ export async function pageDeleteAction({
         lastRevisionId,
         revisionComments: comments
       },
-      { sessionToken, siteId, page: pageId ?? slug }
+      context.requestContext
     )
     return { form, res, option: DeleteOptions.Delete }
   } catch (error) {
@@ -115,48 +104,27 @@ export const pageDeleteSchema = variant("option", [
   })
 ])
 
-export async function pageEditPermissionAction({
-  request,
-  cookies,
-  locals
-}: RequestEvent) {
+export async function pageEditPermissionAction(event: RequestEvent) {
   try {
-    let requestContext = getRequestContext(locals)
-
-    if (requestContext?.page === undefined) {
-      const { siteId } = loadSiteInfo(request.headers)
-      const requestLocales = getPreloadRequestLocales(request)
-      const backendLocales = getPreloadBackendLocales(requestLocales)
-      const sessionToken = cookies.get("wikijump_token")
-      const { site } = await preloadView(siteId, backendLocales, sessionToken)
-      requestContext = withDefaultPageContext(requestContext, site.default_page)
-    }
-
-    const res = await pageEditPermission(requestContext)
+    const context = await resolvePageActionRequestContext(event)
+    const res = await pageEditPermission(context.requestContext)
     return { res }
   } catch (error) {
     return failForActionError(error)
   }
 }
 
-export async function pageEditAction({
-  request,
-  params,
-  getClientAddress,
-  cookies
-}: RequestEvent) {
+export async function pageEditAction(event: RequestEvent) {
+  const { request, params, getClientAddress } = event
   const form = await superValidate(request, valibot(pageEditSchema))
   if (!form.valid) {
     return fail(400, { form })
   }
 
   const { slug } = params
-  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
   const ipAddress = getClientAddress()
 
   try {
-    const session = sessionToken ? await authGetSession(sessionToken) : undefined
     const {
       siteId,
       pageId,
@@ -168,10 +136,14 @@ export async function pageEditAction({
       tags: tagsStr,
       layout
     } = form.data
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "optional"
+    })
     const userId = resolvePageMutationUserId(
-      session?.user_id,
-      siteSlug,
-      requestSiteId,
+      context.sessionUserId,
+      context.siteSlug,
+      context.siteId,
       siteId
     )
     if (userId === undefined) {
@@ -196,7 +168,7 @@ export async function pageEditAction({
         tags,
         layout
       },
-      { sessionToken, siteId, page: pageId ?? slug }
+      context.requestContext
     )
 
     return { form, res }
@@ -215,24 +187,29 @@ export const pageEditSchema = object({
   layout: optional(nullable(vEnum(Layout)))
 })
 
-export async function layoutAction({ request, cookies, getClientAddress }: RequestEvent) {
+export async function layoutAction(event: RequestEvent) {
+  const { request, getClientAddress } = event
   const form = await superValidate(request, valibot(layoutSchema))
   if (!form.valid) {
     return fail(400, { form })
   }
 
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
   const ipAddress = getClientAddress()
 
   try {
-    const session = await authGetSession(sessionToken)
     const { siteId, pageId, layout } = form.data
-    await pageLayout(siteId, pageId, session.user_id, ipAddress, layout, {
-      sessionToken,
-      siteId,
-      page: pageId
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "required"
     })
+    await pageLayout(
+      siteId,
+      pageId,
+      context.sessionUserId,
+      ipAddress,
+      layout,
+      context.requestContext
+    )
 
     return { form }
   } catch (error) {
@@ -245,36 +222,33 @@ export const layoutSchema = object({
   layout: nullable(vEnum(Layout))
 })
 
-export async function pageMoveAction({
-  request,
-  cookies,
-  params,
-  getClientAddress
-}: RequestEvent) {
+export async function pageMoveAction(event: RequestEvent) {
+  const { request, params, getClientAddress } = event
   const form = await superValidate(request, valibot(pageMoveSchema))
   if (!form.valid) {
     return fail(400, { form })
   }
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
   const ipAddress = getClientAddress()
   const { slug } = params
 
   try {
-    const session = await authGetSession(sessionToken)
     const { siteId, pageId, lastRevisionId, newSlug, comments } = form.data
+    const context = await resolvePageActionRequestContext(event, {
+      submittedSiteId: siteId,
+      session: "required"
+    })
     const res = await pageMove(
       {
         siteId,
         pageId,
-        userId: session.user_id,
+        userId: context.sessionUserId,
         userIpAddr: ipAddress,
         slug,
         lastRevisionId,
         newSlug,
         revisionComments: comments
       },
-      { sessionToken, siteId, page: pageId ?? slug }
+      context.requestContext
     )
     return { form, res }
   } catch (error) {

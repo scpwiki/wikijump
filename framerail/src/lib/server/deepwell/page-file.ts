@@ -40,13 +40,18 @@ export interface PageFile {
 export async function pageFileList(
   siteId: number,
   pageId: number,
-  deleted: Optional<boolean>
+  deleted: Optional<boolean>,
+  requestContext: RequestContext
 ): Promise<PageFile[]> {
-  return client.request("page_get_files", {
-    site_id: siteId,
-    page_id: pageId,
-    deleted
-  })
+  return client.request(
+    "page_get_files",
+    {
+      site_id: siteId,
+      page_id: pageId,
+      deleted
+    },
+    requestContext
+  )
 }
 
 /* ----- Page File Get ----- */
@@ -315,16 +320,21 @@ export async function pageFileHistory(
   pageId: Optional<number>,
   fileId: number,
   revisionNumber: Optional<number>,
-  limit: Optional<number>
+  limit: Optional<number>,
+  requestContext: RequestContext
 ): Promise<FileRevisionModel[]> {
-  return client.request("file_revision_range", {
-    site_id: siteId,
-    page_id: pageId,
-    file_id: fileId,
-    revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
-    revision_direction: "before",
-    limit: limit ?? defaults.page.history.limit
-  })
+  return client.request(
+    "file_revision_range",
+    {
+      site_id: siteId,
+      page_id: pageId,
+      file_id: fileId,
+      revision_number: revisionNumber ?? defaults.page.history.revisionNumber,
+      revision_direction: "before",
+      limit: limit ?? defaults.page.history.limit
+    },
+    requestContext
+  )
 }
 
 /* ----- Page File Rollback ----- */

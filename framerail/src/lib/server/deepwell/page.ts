@@ -385,12 +385,17 @@ export async function pageParentUpdate(
 export async function pageParentGet(
   siteId: number,
   pageId: Optional<number>,
-  slug: string
+  slug: string,
+  requestContext: RequestContext
 ): Promise<string[]> {
-  return client.request("parent_get_all", {
-    site_id: siteId,
-    page: pageId ?? slug
-  })
+  return client.request(
+    "parent_get_all",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Deleted Get ----- */
@@ -411,12 +416,17 @@ export interface PageDeletedGet {
 }
 export async function pageDeletedGet(
   siteId: number,
-  slug: string
+  slug: string,
+  requestContext: RequestContext
 ): Promise<PageDeletedGet[]> {
-  return client.request("page_get_deleted", {
-    site_id: siteId,
-    slug
-  })
+  return client.request(
+    "page_get_deleted",
+    {
+      site_id: siteId,
+      slug
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Restore ----- */
@@ -455,10 +465,15 @@ export interface PageScore {
 export async function pageScore(
   siteId: number,
   pageId: Optional<number>,
-  slug: string
+  slug: string,
+  requestContext: RequestContext
 ): Promise<PageScore> {
-  return client.request("page_get_score", {
-    site_id: siteId,
-    page: pageId ?? slug
-  })
+  return client.request(
+    "page_get_score",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
 }

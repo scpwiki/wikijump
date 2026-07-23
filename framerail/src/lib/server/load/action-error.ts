@@ -4,6 +4,11 @@ import { fail } from "@sveltejs/kit"
 const DEEPWELL_PERMISSION_DENIED = 3106
 
 class InvalidActionRequestError extends Error {}
+export class MissingActionSessionError extends Error {}
+
+export class PageActionContextMismatchError extends Error {
+  readonly code = DEEPWELL_PERMISSION_DENIED
+}
 
 export interface PublicActionError {
   message: string
@@ -78,9 +83,11 @@ export function failForActionError(
   const status =
     error instanceof InvalidActionRequestError
       ? 400
-      : details.code === DEEPWELL_PERMISSION_DENIED
-        ? 403
-        : fallbackStatus
+      : error instanceof MissingActionSessionError
+        ? 401
+        : details.code === DEEPWELL_PERMISSION_DENIED
+          ? 403
+          : fallbackStatus
   return fail(status, {
     ...body,
     ...details
