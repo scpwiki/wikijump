@@ -32,23 +32,44 @@ use std::net::IpAddr;
 #[derive(Debug)]
 pub struct AliasService;
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+enum AliasConflictVerification {
+    Immediate,
+    DeferredUntilTargetRename,
+}
+
 impl AliasService {
     /// Creates a new site or user alias.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         input: CreateAlias,
     ) -> Result<CreateAliasOutput> {
-        Self::create2(ctx, input, true).await
+        Self::create_with_conflict_verification(
+            ctx,
+            input,
+            AliasConflictVerification::Immediate,
+        )
+        .await
     }
 
-    /// Creates a new site or user alias, but can be instructed to not perform row checks.
+    /// Creates an alias for a target whose canonical slug will change in the same transaction.
     ///
-    /// This method should only be invoked when the corresponding site/user
-    /// row has not been updated, if in doubt use `AliasService::create()`.
-    ///
-    /// The caller is responsible for calling `AliasService::verify()` after
-    /// all its database changes have been made.
-    pub(crate) async fn create2(
+    /// Target existence, reserved-name, filter, and user-name checks still run. Only the canonical
+    /// target-slug conflict check and the final cross-table invariant check are deferred. The
+    /// caller must update the target row and call `AliasService::verify()` before committing.
+    pub(crate) async fn create_for_pending_target_rename(
+        ctx: &ServiceContext<'_>,
+        input: CreateAlias,
+    ) -> Result<CreateAliasOutput> {
+        Self::create_with_conflict_verification(
+            ctx,
+            input,
+            AliasConflictVerification::DeferredUntilTargetRename,
+        )
+        .await
+    }
+
+    async fn create_with_conflict_verification(
         ctx: &ServiceContext<'_>,
         CreateAlias {
             slug,
@@ -58,7 +79,7 @@ impl AliasService {
             bypass_filter,
             ip_address,
         }: CreateAlias,
-        verify: bool,
+        conflict_verification: AliasConflictVerification,
     ) -> Result<CreateAliasOutput> {
         let txn = ctx.transaction();
         let slug = normalize_slug_without_category_separator(slug);
@@ -130,7 +151,7 @@ impl AliasService {
                     ));
                 }
 
-                if verify
+                if conflict_verification == AliasConflictVerification::Immediate
                     && SiteService::exists(ctx, Reference::Slug(cow!(slug)))
                         .await
                         .or_raise(make_error)?
@@ -166,7 +187,7 @@ impl AliasService {
                     ));
                 }
 
-                if verify
+                if conflict_verification == AliasConflictVerification::Immediate
                     && UserService::exists(ctx, Reference::Slug(cow!(slug)))
                         .await
                         .or_raise(make_error)?
@@ -237,7 +258,7 @@ impl AliasService {
             .last_insert_id;
 
         // Perform verification
-        if verify {
+        if conflict_verification == AliasConflictVerification::Immediate {
             Self::verify(ctx, alias_type, &slug)
                 .await
                 .or_raise(make_error)?;

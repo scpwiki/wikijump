@@ -840,7 +840,7 @@ impl UserService {
         model.name = Set(new_name.clone());
         model.slug = Set(new_slug.clone());
 
-        AliasService::create2(
+        AliasService::create_for_pending_target_rename(
             ctx,
             CreateAlias {
                 slug: str!(old_slug),
@@ -850,7 +850,6 @@ impl UserService {
                 bypass_filter: !should_check_filter,
                 ip_address,
             },
-            false,
         )
         .await
         .or_raise(make_error)?;

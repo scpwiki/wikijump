@@ -465,7 +465,7 @@ impl SiteService {
                 // We don't verify here because the site row hasn't been
                 // updated yet, so we instead run AliasService::verify()
                 // ourselves at the end of site updating (see above).
-                AliasService::create2(
+                AliasService::create_for_pending_target_rename(
                     ctx,
                     CreateAlias {
                         slug: str!(old_slug),
@@ -475,7 +475,6 @@ impl SiteService {
                         bypass_filter: true, // sites don't have filters
                         ip_address,
                     },
-                    false,
                 )
                 .await
                 .or_raise(make_error)?;
