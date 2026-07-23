@@ -34,6 +34,8 @@ mod prelude {
 mod compat_fallback_code;
 #[path = "compat/compat_html_fragments.rs"]
 mod compat_html_fragments;
+#[path = "compat/preparation.rs"]
+mod compat_preparation;
 #[path = "compat/compat_text_fragments.rs"]
 mod compat_text_fragments;
 mod diagnostics;

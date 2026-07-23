@@ -22,6 +22,10 @@ use super::compat_fallback_code::{
     WikidotCompatibilityFallbackOutput, scan_compat_code_blocks,
 };
 use super::compat_html_fragments::CompatHtmlFragments;
+use super::compat_preparation::{
+    extract_css_modules, neutralize_authored_markers,
+    protect_css_modules_before_first_list_pages,
+};
 use super::compat_text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragments};
 use super::diagnostics::{
     CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
@@ -431,22 +435,6 @@ pub(super) static BACKLINKS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 pub(super) static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone)(?P<head>[^\]]*)\]\]")
         .unwrap()
-});
-static CSS_MODULE_OPEN_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?is)\[\[module\s+css[^\]]*\]\]").unwrap());
-static MODULE_CLOSE_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?is)\[\[/module\]\]").unwrap());
-static AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r"(?i)data-wikijump-compat-(?P<kind>listpages|list|members|backlinks|new-page|clone|date|css-module)",
-    )
-    .unwrap()
-});
-static AUTHORED_WIKIDOT_COMPAT_OPEN_TAG_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">|<ul data-wikijump-compat-list="1">|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>|<a class="button" data-wikijump-compat-clone="1"[^>]*>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">|<style data-wikijump-compat-css-module="1">"#,
-    )
-    .unwrap()
 });
 static GENERATED_LISTPAGES_HTML_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -1178,7 +1166,7 @@ impl RenderService {
                 page_info,
                 &mut wikidot_compat_text,
             );
-            Self::neutralize_authored_wikidot_compat_markers(&mut wikitext);
+            neutralize_authored_markers(&mut wikitext);
         }
         let mut wikidot_compat_html = CompatHtmlFragments::new(&wikitext);
         let IncludeExpansion {
@@ -1187,10 +1175,8 @@ impl RenderService {
             ..
         } = {
             let _stage = StageGuard::new(trace, CorpusRenderStage::ListPages);
-            let protected_css = Self::protect_wikidot_css_modules_before_first_list_pages(
-                &mut wikitext,
-                settings,
-            );
+            let protected_css =
+                protect_css_modules_before_first_list_pages(&mut wikitext, settings);
             let mut expansion = Self::expand_list_pages(
                 ctx,
                 wikitext,
@@ -1341,8 +1327,7 @@ impl RenderService {
                 &mut expanded.wikidot_compat_html,
             );
         expanded.wikitext = rendered;
-        let wikidot_css_modules =
-            Self::extract_wikidot_css_modules(&mut expanded.wikitext, settings);
+        let wikidot_css_modules = extract_css_modules(&mut expanded.wikitext, settings);
         timings.outer_protection_us = elapsed_micros(started);
 
         observer(CorpusReplayPreparationStage::FallbackCheck);
@@ -4278,144 +4263,25 @@ impl RenderService {
         Ok(totals)
     }
 
+    #[cfg(test)]
     fn protect_wikidot_css_modules_before_first_list_pages(
         wikitext: &mut String,
         settings: &WikitextSettings,
     ) -> Option<CompatTextFragments> {
-        if !settings.enable_page_syntax {
-            return None;
-        }
-        let boundary = first_list_pages_module_opening_candidate(wikitext)?;
-        if boundary == 0 || !CSS_MODULE_OPEN_REGEX.is_match(&wikitext[..boundary]) {
-            return None;
-        }
-
-        let mut fragments = CompatTextFragments::new(wikitext);
-        let suffix = wikitext.split_off(boundary);
-        let source = wikitext.as_str();
-        let literal_regions = LiteralRegionIndex::new(source);
-        let syntax_literal_regions = LiteralRegionIndex::new_wikidot_syntax(source);
-        let native_quote_lines = WikidotNativeQuoteIndex::new(source);
-        let mut output = String::with_capacity(source.len());
-        let mut cursor = 0;
-        let mut protected_any = false;
-
-        // Replace only complete CSS modules before the first conservative raw ListPages candidate. Restoring them immediately after ListPages keeps the existing normalization, protection, extraction, ordering, and ExpandedBytes semantics unchanged.
-        while let Some(open) = CSS_MODULE_OPEN_REGEX.find_at(source, cursor) {
-            if literal_regions.contains(open.start())
-                || native_quote_lines.contains(open.start())
-            {
-                output.push_str(&source[cursor..open.end()]);
-                cursor = open.end();
-                continue;
-            }
-            let mut close_cursor = open.end();
-            let close = loop {
-                let Some(candidate) = MODULE_CLOSE_REGEX.find_at(source, close_cursor)
-                else {
-                    output.push_str(&source[cursor..]);
-                    *wikitext = output;
-                    wikitext.push_str(&suffix);
-                    return protected_any.then_some(fragments);
-                };
-                if !syntax_literal_regions.contains(candidate.start()) {
-                    break candidate;
-                }
-                close_cursor = candidate.end();
-            };
-            output.push_str(&source[cursor..open.start()]);
-            output.push_str(&fragments.push(&source[open.start()..close.end()]));
-            cursor = close.end();
-            protected_any = true;
-        }
-        output.push_str(&source[cursor..]);
-        *wikitext = output;
-        wikitext.push_str(&suffix);
-        protected_any.then_some(fragments)
+        protect_css_modules_before_first_list_pages(wikitext, settings)
     }
 
+    #[cfg(test)]
     fn extract_wikidot_css_modules(
         wikitext: &mut String,
         settings: &WikitextSettings,
     ) -> Vec<String> {
-        if !settings.enable_page_syntax {
-            return Vec::new();
-        }
-
-        let source = wikitext.as_str();
-        let literal_regions = LiteralRegionIndex::new(source);
-        let syntax_literal_regions = LiteralRegionIndex::new_wikidot_syntax(source);
-        let native_quote_lines = WikidotNativeQuoteIndex::new(source);
-        let mut output = String::with_capacity(source.len());
-        let mut styles = Vec::new();
-        let mut cursor = 0;
-
-        while let Some(open) = CSS_MODULE_OPEN_REGEX.find_at(source, cursor) {
-            if literal_regions.contains(open.start())
-                || native_quote_lines.contains(open.start())
-            {
-                output.push_str(&source[cursor..open.end()]);
-                cursor = open.end();
-                continue;
-            }
-            let mut close_cursor = open.end();
-            let close = loop {
-                let Some(candidate) = MODULE_CLOSE_REGEX.find_at(source, close_cursor)
-                else {
-                    output.push_str(&source[cursor..]);
-                    *wikitext = output;
-                    return styles;
-                };
-                if !syntax_literal_regions.contains(candidate.start()) {
-                    break candidate;
-                }
-                close_cursor = candidate.end();
-            };
-            let body = source[open.end()..close.start()].trim_matches('\n');
-            let body = Self::escape_wikidot_css_module_body(body);
-            output.push_str(&source[cursor..open.start()]);
-            styles.push(body);
-            cursor = close.end();
-        }
-        output.push_str(&source[cursor..]);
-        *wikitext = output;
-        styles
+        extract_css_modules(wikitext, settings)
     }
 
-    fn escape_wikidot_css_module_body(body: &str) -> String {
-        body.replace('<', r"\3C ")
-    }
-
+    #[cfg(test)]
     fn neutralize_authored_wikidot_compat_markers(wikitext: &mut String) {
-        if !AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX.is_match(wikitext) {
-            return;
-        }
-        let source = wikitext.clone();
-        let literal_regions = LiteralRegionIndex::new(&source);
-        let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
-
-        for candidate in AUTHORED_WIKIDOT_COMPAT_OPEN_TAG_REGEX.find_iter(&source) {
-            if literal_regions.contains(candidate.start()) {
-                continue;
-            }
-            for captures in
-                AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX.captures_iter(candidate.as_str())
-            {
-                let full_match = captures.get(0).expect("compat marker capture exists");
-                let start = candidate.start() + full_match.start();
-                replacements.push((
-                    start..candidate.start() + full_match.end(),
-                    format!(
-                        "data-wikijump-authored-compat-{}",
-                        captures["kind"].to_ascii_lowercase(),
-                    ),
-                ));
-            }
-        }
-
-        for (range, replacement) in replacements.into_iter().rev() {
-            wikitext.replace_range(range, &replacement);
-        }
+        neutralize_authored_markers(wikitext);
     }
 
     #[cfg(test)]
@@ -6801,7 +6667,7 @@ impl RenderService {
                 );
                 generated_fragments.restore(&body)
             };
-            Self::neutralize_authored_wikidot_compat_markers(&mut body);
+            neutralize_authored_markers(&mut body);
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
             } else {
@@ -9172,7 +9038,7 @@ fn substitute_count_pages_variables(template: &str, total: usize) -> String {
         })
         .into_owned();
     let mut substituted = RenderService::resolve_wikidot_parser_functions(&substituted);
-    RenderService::neutralize_authored_wikidot_compat_markers(&mut substituted);
+    neutralize_authored_markers(&mut substituted);
     substituted
 }
 
