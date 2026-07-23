@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """Persistent, fail-closed Wikidot page helper for theme localization canaries.
-
 Protocol v1 is UTF-8 JSON Lines over stdin and stdout. Every request is an object with an integer ``id`` and an ``action``; every response repeats that ``id`` and contains either ``{"ok": true, "result": ...}`` or ``{"ok": false, "error": {"code": ..., "message": ...}}``. ``ping`` takes no resource fields, ``inspect`` requires ``slug`` and optionally ``kind``, ``create`` requires ``slug``, ``title``, ``source``, ``source_sha256``, and ``tags``, ``remove`` requires ``slug`` and an exact ``expected`` record, and ``shutdown`` ends the loop after its response.
-
 The helper accepts credentials only through ``WIKIDOT_USERNAME`` and ``WIKIDOT_PASSWORD``, removes them from its environment during initialization, and refuses secret-shaped request fields. Page snapshots expose the Wikidot page ID as ``identity`` because the JavaScript execution interface uses that backend-neutral field for exact cleanup comparisons. It exits 0 after orderly EOF or shutdown and exits 2 when initialization, stream delivery, or cleanup fails; operation failures stay inside the public error envelope. The ``wikijump.theme_wikidot_helper.v1`` ping result is the compatibility identifier for this contract.
 """
-
 from __future__ import annotations
 
 import hashlib
@@ -92,6 +89,20 @@ def validate_tags(value: object, slug: str) -> list[str]:
     if value != expected:
         raise PublicError("invalid_request", "run-owned page tags are invalid")
     return expected
+
+def validate_page_snapshot(value: object, slug: str) -> PageSnapshot:
+    if not isinstance(value, dict) or set(value) != {"identity", "title", "source_sha256", "tags"}:
+        raise PublicError("invalid_request", "expected page snapshot is invalid")
+    identity = value["identity"]
+    title = value["title"]
+    source_sha256 = value["source_sha256"]
+    if not isinstance(identity, int) or isinstance(identity, bool) or identity <= 0:
+        raise PublicError("invalid_request", "expected page snapshot is invalid")
+    if not isinstance(title, str) or not title or len(title) > 200:
+        raise PublicError("invalid_request", "expected page snapshot is invalid")
+    if not isinstance(source_sha256, str) or re.fullmatch(r"[0-9a-f]{64}", source_sha256) is None:
+        raise PublicError("invalid_request", "expected page snapshot is invalid")
+    return {"identity": identity, "title": title, "source_sha256": source_sha256, "tags": validate_tags(value["tags"], slug)}
 
 def reject_secret_fields(value: object) -> None:
     if isinstance(value, dict):
@@ -414,17 +425,7 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
             )
         }, False
     if action == "remove":
-        expected = request.get("expected")
-        if not isinstance(expected, dict) or set(expected) != {
-            "identity",
-            "title",
-            "source_sha256",
-            "tags",
-        }:
-            raise PublicError(
-                "invalid_request",
-                "remove requires exact expected identity, title, tags, and source hash",
-            )
+        expected = validate_page_snapshot(request.get("expected"), slug)
         return {"removal": backend.remove(slug, expected, kind)}, False
     raise AssertionError("validated helper action was not dispatched")
 

@@ -78,6 +78,24 @@ class WikidotThemePageHelperTests(unittest.TestCase):
         self.assertTrue(stop)
         self.assertEqual([call[0] for call in backend.calls], ["inspect", "create", "remove"])
 
+    def test_remove_rejects_malformed_expected_snapshots_before_backend_use(self) -> None:
+        slug = "codex-l10n:20260723-helper-yossistyle"
+        valid = {"identity": 8, "title": "fixture", "source_sha256": "0" * 64, "tags": ["テーマ"]}
+        malformed = [
+            {**valid, "identity": True},
+            {**valid, "identity": 0},
+            {**valid, "title": ""},
+            {**valid, "source_sha256": "not-a-hash"},
+            {**valid, "tags": ["theme"]},
+            {**valid, "extra": "field"},
+        ]
+        for expected in malformed:
+            backend = FakeBackend()
+            with self.subTest(expected=expected), self.assertRaises(HELPER.PublicError) as caught:
+                HELPER.dispatch(backend, {"action": "remove", "slug": slug, "expected": expected})
+            self.assertEqual(caught.exception.code, "invalid_request")
+            self.assertEqual(backend.calls, [])
+
     def test_serve_rejects_malformed_requests_and_stops_after_shutdown(self) -> None:
         backend = FakeBackend()
         output = io.StringIO()
