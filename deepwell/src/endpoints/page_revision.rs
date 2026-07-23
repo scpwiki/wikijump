@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::page::{ensure_page_edit_permission, require_authenticated_mutation_actor};
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::page::GetPageReference;
@@ -125,22 +124,11 @@ pub async fn page_revision_edit(
     let make_error =
         || Error::new("failed to edit a page revision", ErrorType::PageRevision);
 
-    let actor_user_id =
-        require_authenticated_mutation_actor(ctx, input.user_id).or_raise(make_error)?;
-    ensure_page_edit_permission(
-        ctx,
-        input.site_id,
-        Reference::Id(input.page_id),
-        actor_user_id,
-    )
-    .await
-    .or_raise(make_error)?;
-
     let revision_id = input.revision_id;
-    let (_, revision) = join!(
-        PageRevisionService::update(ctx, input),
-        PageRevisionService::get_direct(ctx, revision_id),
-    );
+    PageRevisionService::update(ctx, input)
+        .await
+        .or_raise(make_error)?;
+    let revision = PageRevisionService::get_direct(ctx, revision_id).await;
     let revision = raise_multiple!(revision; make_error);
 
     filter_and_populate_revision(ctx, revision, details)
