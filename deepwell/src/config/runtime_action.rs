@@ -25,7 +25,7 @@
 //! as if motivated by a script.
 
 use super::{Config, SetupConfig};
-use crate::services::corpus_render::{
+use crate::services::render::{
     CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerSettings,
     RenderInventorySettings,
 };

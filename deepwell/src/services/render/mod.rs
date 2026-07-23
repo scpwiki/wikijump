@@ -31,6 +31,7 @@ mod prelude {
 }
 
 mod compat;
+mod corpus;
 mod diagnostics;
 mod generator;
 mod html_text;
@@ -52,6 +53,11 @@ mod runtime_page_queries;
 mod service;
 mod structs;
 
+pub(crate) use self::corpus::{
+    CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerPass,
+    RenderFinalizerSettings, RenderFinalizerSummary, RenderInventoryPass,
+    RenderInventorySettings, RenderInventorySummary,
+};
 pub(crate) use self::diagnostics::{
     CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, CorpusRenderDimension,
     CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, CorpusRenderTraceSnapshot,

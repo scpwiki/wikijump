@@ -1,5 +1,5 @@
 /*
- * services/corpus_render_inventory_query.rs
+ * services/render/corpus/inventory_query.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
