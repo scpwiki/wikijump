@@ -329,7 +329,8 @@ function buildShards(rows, family, shardCount) {
 
 export function computeReferenceAcquisitionInventoryIdentity(inventory) {
   assertObject(inventory, "inventory");
-  const { identity: _identity, ...body } = inventory;
+  const body = {...inventory};
+  delete body.identity;
   return sha256Hex(stableStringify(body));
 }
 

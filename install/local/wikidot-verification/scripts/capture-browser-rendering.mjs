@@ -180,6 +180,13 @@ export function resolveStorageStates({storageState = null, sourceStorageState = 
   };
 }
 
+export function browserCaptureFailure(captureError, cleanupError) {
+  if (captureError !== null && cleanupError !== null) {
+    return new AggregateError([captureError, cleanupError], "browser capture and cleanup both failed");
+  }
+  return captureError ?? cleanupError;
+}
+
 export function browserContextOptions({ignoreHttpsErrors, storageState = null, proxyServer = null, blockServiceWorkers = false}) {
   return {
     ignoreHTTPSErrors: ignoreHttpsErrors,
@@ -543,6 +550,9 @@ async function run() {
   let requestGate = null;
   let requestGateReady = false;
   let gateStateConfirmed = false;
+  let captureError = null;
+  let captureExitCode;
+  let cleanupError = null;
   try {
     requestGate = await createPersistentBrowserRequestGate({
       statePath: captureLock.statePath,
@@ -672,9 +682,11 @@ async function run() {
     }
 
     const captureErrors = records.flatMap((record) => record.capture_errors ?? []);
-    return captureErrors.length === 0 ? 0 : 1;
+    captureExitCode = captureErrors.length === 0 ? 0 : 1;
+  } catch (error) {
+    captureError = error;
   } finally {
-    let cleanupError = requestGateReady ? null : new Error("browser request gate was not initialized; retaining the capture lock for operator review");
+    cleanupError = requestGateReady ? null : new Error("browser request gate was not initialized; retaining the capture lock for operator review");
     try {
       await browserSession?.close();
     } catch (error) {
@@ -705,8 +717,10 @@ async function run() {
         cleanupError ??= error;
       }
     }
-    if (cleanupError) throw cleanupError;
   }
+  const failure = browserCaptureFailure(captureError, cleanupError);
+  if (failure !== null) throw failure;
+  return captureExitCode;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === SCRIPT_PATH) {

@@ -193,11 +193,7 @@ function killProcessGroup(child) {
     process.kill(-child.pid, "SIGKILL");
     return;
   } catch {
-    try {
-      child.kill("SIGKILL");
-    } catch {
-      // The process has already ended.
-    }
+    child.kill("SIGKILL");
   }
 }
 
@@ -590,7 +586,7 @@ function scrubCredentials(environment = process.env) {
   delete environment.WIKIDOT_API_KEY;
 }
 
-function childEnvironment(root) {
+function childEnvironment() {
   const environment = Object.create(null);
   for (const name of ["WIKIDOT_APP_NAME", "WIKIDOT_API_KEY"]) {
     const value = process.env[name];
@@ -660,11 +656,7 @@ function signalCoordinator(child, signal) {
     process.kill(-child.pid, signal);
     return;
   } catch {
-    try {
-      child.kill(signal);
-    } catch {
-      // The child is already gone.
-    }
+    child.kill(signal);
   }
 }
 
@@ -705,7 +697,7 @@ export async function runBootstrap(argv) {
       return 0;
     }
     coordinator = await materializeExactCoordinator(options);
-    const environment = childEnvironment(coordinator.root);
+    const environment = childEnvironment();
     scrubCredentials();
     const child = spawn(
       process.execPath,

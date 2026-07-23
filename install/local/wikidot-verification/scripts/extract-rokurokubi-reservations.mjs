@@ -128,7 +128,10 @@ async function loadSheetManifest(path) {
   for (const [index, sheet] of parsed.sheets.entries()) {
     const csvPath = requireValue(sheet.csv ?? sheet.source ?? sheet.path, `Sheet ${index + 1} is missing csv/source/path`);
     const csvText = await readFile(csvPath, "utf8");
-    const { csv, source, path: sourcePath, ...metadata } = sheet;
+    const metadata = {...sheet};
+    delete metadata.csv;
+    delete metadata.source;
+    delete metadata.path;
     sheets.push({
       ...metadata,
       csvText,
@@ -139,7 +142,8 @@ async function loadSheetManifest(path) {
       label: sheet.label
     });
   }
-  const { sheets: _sheets, ...metadata } = parsed;
+  const metadata = {...parsed};
+  delete metadata.sheets;
   return { sheets, metadata };
 }
 

@@ -18,7 +18,6 @@ import {
 import {
   openVerifiedXmlrpcPilotBundle,
   XMLRPC_EN_128_DESIGNATED_SOURCE,
-  XMLRPC_PILOT_MANIFEST_RECORD_SCHEMA,
 } from "./xmlrpc-pilot-local-comparison-bundle.mjs";
 
 export { LocalPageReadClient, LocalPageReadError } from "./local-page-read.mjs";

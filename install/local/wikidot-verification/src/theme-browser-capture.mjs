@@ -460,7 +460,8 @@ export async function captureThemeViewport({context, target, viewport, capture, 
   const result = {viewport, url: target.url, final_url: finalUrl, http_status: response?.status() ?? null, navigation_error: navigationError, settle_status: settleStatus, observation_deadline_ms: observationDeadlineMs, dom_status: domStatus, screenshot_status: screenshotStatus, capture_errors: captureErrors, diagnostic_errors: diagnosticErrors, dom, computed_styles: computedStyles, navigation_timing: metrics.navigation_timing, web_vitals: metrics.web_vitals, performance_attribution: performanceAttribution, errors: capturedErrors, raw_syntax: findRawSyntaxLeaks({html: dom, source}), interactions};
   result.verdict = evaluateStrictThemeVerdict(result, capture.web_vitals.gates, capture.computed_styles);
   result.artifacts = await writeThemeViewportArtifacts(artifactDir, result);
-  const {dom: _dom, ...summary} = result;
+  const summary = {...result};
+  delete summary.dom;
   return summary;
 }
 

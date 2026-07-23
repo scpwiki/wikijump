@@ -347,11 +347,7 @@ function killProcessGroup(child) {
     process.kill(-child.pid, "SIGKILL");
     return;
   } catch {
-    try {
-      child.kill("SIGKILL");
-    } catch {
-      // The process already exited or could not be signalled.
-    }
+    child.kill("SIGKILL");
   }
 }
 

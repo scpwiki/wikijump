@@ -456,11 +456,7 @@ export class WikidotXmlrpcWorkerClient {
       await this.terminate("SIGTERM");
       this.assertNotSignaled();
       if (!(error instanceof WorkerProtocolError)) {
-        try {
-          await response;
-        } catch (responseError) {
-          throw responseError;
-        }
+        await response;
       }
       throw error;
     }

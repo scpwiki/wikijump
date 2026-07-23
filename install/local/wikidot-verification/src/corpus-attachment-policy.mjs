@@ -11,7 +11,7 @@ export function validateAttachmentActorArgs(args, rows) {
   if (!rowsHaveAttachments(rows)) return;
   if (!args.sessionToken) return;
   if ((args.attachmentUserId ?? null) === null && args.userId === DEFAULT_IMPORT_USER_ID) {
-    throw new Error('attachment materialization with --session-token requires --attachment-user-id or --user-id matching the authenticated session user');
+    throw new Error('attachment materialization with an authenticated session requires --attachment-user-id or --user-id matching the session user');
   }
 }
 

@@ -222,7 +222,7 @@ class WikidotXmlrpcCompletions {
 
   async #resolveOrdinal(ordinal) {
     const campaign = await this.#openCampaign();
-    const { request, target } = this.#target(campaign, ordinal);
+    const {request, target} = this.#target(campaign, ordinal);
     const resolved = await this.#completions.resolveAttemptReceipt(request);
     if (resolved === null) return null;
     return this.#semanticRecord(resolved, target, campaign);
@@ -239,7 +239,7 @@ class WikidotXmlrpcCompletions {
     );
     const ordinal = ordinalRequest(value);
     const campaign = await this.#openCampaign();
-    const { request, target } = this.#target(campaign, ordinal);
+    const {target} = this.#target(campaign, ordinal);
     const attempt = await readReferenceAcquisitionAttemptReceipt(
       this.#store,
       reference,

@@ -22,7 +22,7 @@ function goodRuntimeUrls() {
     {name: "deepwell", kind: "http", target: "http://127.0.0.1:2747/jsonrpc", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
     {name: "framerail", kind: "http", target: "http://127.0.0.1:3393/", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
     {name: "wws", kind: "http", target: "http://127.0.0.1:3466/-/health-check", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
-    {name: "caddy", kind: "http", target: "https://localhost/-/health-check/caddy", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
+    {name: "caddy", kind: "http", target: "https://wikijump.localhost/-/health-check/caddy", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
     {name: "minio", kind: "tcp", target: "127.0.0.1:9000", available: true, elapsedMs: 1, errorExcerpt: null},
   ];
 }

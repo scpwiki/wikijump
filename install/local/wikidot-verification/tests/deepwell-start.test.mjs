@@ -14,7 +14,7 @@ test("deepwell cargo-watch commands preserve the lockfile in both profiles", () 
 
   const source = readFileSync(START_SCRIPT, "utf8");
   assert.match(source, /^RUN_COMMAND="run --locked -- \/etc\/deepwell\.toml"$/mu);
-  assert.match(source, /^    RUN_COMMAND="run --locked --release -- \/etc\/deepwell\.toml"$/mu);
-  assert.match(source, /^        -x "\$RUN_COMMAND"$/mu);
+  assert.match(source, /^ {4}RUN_COMMAND="run --locked --release -- \/etc\/deepwell\.toml"$/mu);
+  assert.match(source, /^ {8}-x "\$RUN_COMMAND"$/mu);
   assert.doesNotMatch(source, /PROFILE_FLAG/u);
 });

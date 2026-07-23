@@ -73,11 +73,7 @@ function killProcessGroup(child) {
     process.kill(-child.pid, "SIGKILL");
     return;
   } catch {
-    try {
-      child.kill("SIGKILL");
-    } catch {
-      // The Git process has already ended.
-    }
+    child.kill("SIGKILL");
   }
 }
 

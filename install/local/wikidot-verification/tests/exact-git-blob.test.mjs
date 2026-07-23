@@ -472,8 +472,8 @@ test("resolver terminates a failing Git process group before it rejects", async 
       } catch {
         try {
           process.kill(pid, "SIGKILL");
-        } catch {
-          // The process already exited.
+        } catch (error) {
+          if (error?.code !== "ESRCH") throw error;
         }
       }
     }
@@ -484,8 +484,8 @@ test("resolver terminates a failing Git process group before it rejects", async 
       "#!/bin/sh",
       "sleep 60 &",
       "child=$!",
-      `printf '%s\\n' \"$$\" > ${shellQuote(parentPidPath)}`,
-      `printf '%s\\n' \"$child\" > ${shellQuote(descendantPidPath)}`,
+      `printf '%s\\n' "$$" > ${shellQuote(parentPidPath)}`,
+      `printf '%s\\n' "$child" > ${shellQuote(descendantPidPath)}`,
       "count=0",
       'while [ "$count" -lt 1200 ]; do',
       "  printf x",

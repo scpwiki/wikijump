@@ -120,8 +120,6 @@ const PRIVATE_DIRECTORY_MODE = 0o700;
 const PRIVATE_FILE_MODE = 0o400;
 const MATERIALIZED_COORDINATOR_PATH =
   "install/local/wikidot-verification/src/wikidot-xmlrpc-acquisition-runner.mjs";
-const MATERIALIZED_BOOTSTRAP_PATH =
-  "install/local/wikidot-verification/scripts/run-wikidot-xmlrpc-acquisition.mjs";
 const MATERIALIZED_DESCRIPTOR_FD = 4;
 const MATERIALIZED_DESCRIPTOR_SCHEMA =
   "wikijump_full_parity.wikidot_xmlrpc_materialized_launch.v1";

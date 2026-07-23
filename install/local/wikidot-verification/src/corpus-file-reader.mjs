@@ -91,7 +91,7 @@ export async function assertDescriptorTraversalSupport() {
   await descriptorTraversalSupportPromise;
 }
 
-export async function openCorpusFileNoSymlinks(corpusRoot, filePath, flags) {
+export async function openCorpusFileNoSymlinks(corpusRoot, filePath, flags, {closeHandles = closeDirectoryHandles} = {}) {
   await assertDescriptorTraversalSupport();
 
   const relativePath = relativeCorpusPath(corpusRoot, filePath);
@@ -100,6 +100,7 @@ export async function openCorpusFileNoSymlinks(corpusRoot, filePath, flags) {
   const realCorpusRoot = await fs.realpath(corpusRoot);
   const directoryHandles = [];
   let fileHandle;
+  let openError = null;
 
   try {
     let directoryHandle = await fs.open(
@@ -131,14 +132,28 @@ export async function openCorpusFileNoSymlinks(corpusRoot, filePath, flags) {
     }
 
     fileHandle = await fs.open(`/proc/self/fd/${directoryHandle.fd}/${fileName}`, flags);
-  } finally {
-    try {
-      await closeDirectoryHandles(directoryHandles);
-    } catch (error) {
-      await fileHandle?.close().catch(() => {});
-      throw error;
-    }
+  } catch (error) {
+    openError = error;
   }
+
+  let directoryCloseError = null;
+  try {
+    await closeHandles(directoryHandles);
+  } catch (error) {
+    directoryCloseError = error;
+  }
+  if (directoryCloseError !== null) {
+    let fileCloseError = null;
+    try {
+      await fileHandle?.close();
+    } catch (error) {
+      fileCloseError = error;
+    }
+    const errors = [openError, directoryCloseError, fileCloseError].filter((error) => error !== null);
+    if (errors.length === 1) throw errors[0];
+    throw new AggregateError(errors, "corpus file open and descriptor cleanup failed");
+  }
+  if (openError !== null) throw openError;
 
   return fileHandle;
 }

@@ -719,6 +719,43 @@ test('apply-corpus-import-manifest rejects DB create mode without a text hash co
   assert.match(result.stderr, /text-hash-command|DEEPWELL_TEXT_HASH_COMMAND/);
 });
 
+test('apply-corpus-import-manifest accepts secrets only through environment variables', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const script = path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs');
+  const secret = 'desloppify-secret-must-not-be-echoed';
+
+  for (const option of ['--session-token', '--attachment-s3-secret-access-key']) {
+    const result = spawnSync(process.execPath, [script, option, secret], {
+      cwd: packageRoot,
+      encoding: 'utf8',
+      maxBuffer: 1024 * 1024,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, new RegExp(`unknown argument: ${option}`));
+    assert.doesNotMatch(result.stderr, new RegExp(secret));
+  }
+});
+
+test('apply-corpus-import-manifest help contains no embedded credential or secret argument', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--help',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /--db-url <postgres-url>/);
+  assert.doesNotMatch(result.stdout, /postgres:\/\/wikijump:wikijump@/);
+  assert.doesNotMatch(result.stdout, /--session-token|--attachment-s3-secret-access-key/);
+});
+
 test('apply-corpus-import-manifest dry-run filters by slug without touching services', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
   writePage(root, 'en', 'scp-173', {

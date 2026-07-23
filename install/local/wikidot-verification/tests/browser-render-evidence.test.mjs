@@ -6,7 +6,7 @@ import path from "node:path";
 import {test} from "node:test";
 import {fileURLToPath} from "node:url";
 import {promisify} from "node:util";
-import {browserContextOptions, capturePage, defaultBrowserRoot, openBrowser, resolveStorageStates} from "../scripts/capture-browser-rendering.mjs";
+import {browserCaptureFailure, browserContextOptions, capturePage, defaultBrowserRoot, openBrowser, resolveStorageStates} from "../scripts/capture-browser-rendering.mjs";
 import {
   buildEvidenceRecord,
   compactVisibleText,
@@ -43,6 +43,17 @@ const inventory = {
     },
   ],
 };
+
+test("browser capture failure preserves both operation and cleanup errors", () => {
+  const captureError = new Error("capture failed");
+  const cleanupError = new Error("cleanup failed");
+  const combined = browserCaptureFailure(captureError, cleanupError);
+  assert(combined instanceof AggregateError);
+  assert.deepEqual(combined.errors, [captureError, cleanupError]);
+  assert.equal(browserCaptureFailure(captureError, null), captureError);
+  assert.equal(browserCaptureFailure(null, cleanupError), cleanupError);
+  assert.equal(browserCaptureFailure(null, null), null);
+});
 
 test("selectInventoryRows intersects explicit fixture ids with shard membership", () => {
   const rows = inventoryRows(inventory);

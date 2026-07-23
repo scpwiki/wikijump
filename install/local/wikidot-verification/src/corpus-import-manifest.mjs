@@ -439,7 +439,7 @@ function attachmentEntriesFromStateManifest(statePath) {
   });
 }
 
-function readAttachmentManifest({ pageDir, manifestRoot, rowPath }) {
+function readAttachmentManifest({ pageDir, manifestRoot }) {
   let manifestPath = path.join(pageDir, ATTACHMENT_MANIFEST_FILENAME);
   let manifest;
   if (fs.existsSync(manifestPath)) {
@@ -678,7 +678,6 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
     const attachments = readAttachmentManifest({
       pageDir,
       manifestRoot: corpusRoot,
-      rowPath: pageDir,
     });
 
     rows.push(rowFromRecord({
@@ -773,7 +772,6 @@ export function buildSourceBundleImportManifest({ sourceBundleRoot, sourceSite =
     const attachments = readAttachmentManifest({
       pageDir,
       manifestRoot: sourceBundleRoot,
-      rowPath: pageDir,
     });
 
     rows.push(rowFromRecord({
