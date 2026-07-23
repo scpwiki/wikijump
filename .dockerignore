@@ -16,6 +16,8 @@ wws/target
 **/__pycache__
 **/dist
 **/node_modules
+framerail/.svelte-kit
+framerail/build
 
 # Editor files
 .idea
