@@ -268,6 +268,10 @@ impl CategoryService {
                 Maybe::Set(_) => Maybe::Set(category.rating_type.as_deref()),
                 Maybe::Unset => Maybe::Unset,
             },
+            per_page_discussion: match &input.per_page_discussion {
+                Maybe::Set(_) => Maybe::Set(category.per_page_discussion),
+                Maybe::Unset => Maybe::Unset,
+            },
         };
         let changed_fields = PageCategoryFields {
             top_bar_page: match &input.top_bar_page {
@@ -300,6 +304,7 @@ impl CategoryService {
                 Maybe::Set(value) => Maybe::Set(value.map(|value| value.as_storage())),
                 Maybe::Unset => Maybe::Unset,
             },
+            per_page_discussion: input.per_page_discussion.clone(),
         };
 
         AuditService::log(
@@ -344,6 +349,9 @@ impl CategoryService {
         }
         if let Maybe::Set(rating_type) = input.rating_type {
             model.rating_type = Set(rating_type.map(|value| str!(value.as_storage())));
+        }
+        if let Maybe::Set(per_page_discussion) = input.per_page_discussion {
+            model.per_page_discussion = Set(per_page_discussion);
         }
         model.updated_at = Set(Some(now()));
 

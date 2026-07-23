@@ -33,6 +33,7 @@ pub struct Model {
     pub rating_visibility: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub rating_type: Option<String>,
+    pub per_page_discussion: Option<bool>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

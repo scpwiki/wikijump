@@ -1,5 +1,7 @@
 import {
   adminAction,
+  discussionAction,
+  forumNestingAction,
   licenseAction,
   loadAdminPage,
   navigationAction,
@@ -13,6 +15,8 @@ export async function load({ request, cookies, parent }) {
 
 export const actions = {
   site: adminAction,
+  discussion: discussionAction,
+  forumNesting: forumNestingAction,
   navigation: navigationAction,
   license: licenseAction,
   rating: ratingAction,

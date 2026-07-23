@@ -794,6 +794,13 @@ impl ViewService {
                 )
                 .await
                 .or_raise(make_error)?;
+                let page_discussion = SettingsService::get_page_discussion_settings(
+                    ctx,
+                    page.site_id,
+                    page.page_category_id,
+                )
+                .await
+                .or_raise(make_error)?;
                 GetPageViewOutput::Found {
                     options,
                     page,
@@ -802,6 +809,7 @@ impl ViewService {
                     wikidot_breadcrumbs,
                     attributions,
                     page_rating,
+                    page_discussion,
                     redirect_page,
                     redirect_kind,
                     wikitext,

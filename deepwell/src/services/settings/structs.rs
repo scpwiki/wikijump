@@ -71,6 +71,11 @@ pub struct ForumStructureSettings {
     pub per_page_discussion: bool,
 }
 
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Default, PartialEq, Eq)]
+pub struct PageDiscussionSettings {
+    pub enabled: bool,
+}
+
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum PageRatingPermission {

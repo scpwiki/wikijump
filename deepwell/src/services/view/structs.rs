@@ -27,7 +27,7 @@ use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::user::Model as UserModel;
 use crate::services::relation::PageAttribution;
-use crate::services::settings::PageRatingSettings;
+use crate::services::settings::{PageDiscussionSettings, PageRatingSettings};
 use time::OffsetDateTime;
 
 // NOTE: Any changes to the output structures here, including the variant names,
@@ -110,6 +110,8 @@ pub enum GetPageViewOutput {
         attributions: Vec<PageAttribution>,
         #[serde(default)]
         page_rating: PageRatingSettings,
+        #[serde(default)]
+        page_discussion: PageDiscussionSettings,
         redirect_page: Option<String>,
         #[serde(default)]
         redirect_kind: Option<PageRedirectKind>,

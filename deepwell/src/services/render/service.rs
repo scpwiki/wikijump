@@ -21991,6 +21991,7 @@ mod tests {
             preferred_domain: preferred_domain.map(ToOwned::to_owned),
             layout: None,
             license: License::CcBySa30,
+            forum_max_nest_level: 10,
         }
     }
 }

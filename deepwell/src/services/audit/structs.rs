@@ -760,6 +760,8 @@ pub struct SiteFields<'a> {
     pub preferred_domain: Maybe<Option<&'a str>>,
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub layout: Maybe<Option<Layout>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub forum_max_nest_level: Maybe<i16>,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -783,6 +785,8 @@ pub struct PageCategoryFields<'a> {
     pub rating_visibility: Maybe<Option<&'a str>>,
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub rating_type: Maybe<Option<&'a str>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub per_page_discussion: Maybe<Option<bool>>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

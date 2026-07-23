@@ -110,6 +110,46 @@ export async function categoryRatingUpdate(
   )
 }
 
+export async function categoryDiscussionUpdate(
+  siteId: number,
+  categoryId: number,
+  userId: number,
+  userIpAddr: string,
+  enabled: Nullable<boolean>,
+  requestContext: SiteUpdateRequestContext
+): Promise<PageCategoryModel> {
+  return client.request(
+    "category_update",
+    {
+      site: siteId,
+      category: categoryId,
+      user_id: userId,
+      per_page_discussion: enabled,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
+export async function siteForumNestingUpdate(
+  siteId: number,
+  userId: number,
+  userIpAddr: string,
+  maxNestLevel: number,
+  requestContext: SiteUpdateRequestContext
+): Promise<SiteModel> {
+  return client.request(
+    "site_update",
+    {
+      site: siteId,
+      user_id: userId,
+      forum_max_nest_level: maxNestLevel,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
 export async function siteUpdate(
   siteId: number,
   userId: number,

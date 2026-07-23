@@ -52,4 +52,5 @@ pub struct UpdateCategoryBody {
     pub rating_permission: Maybe<Option<PageRatingPermission>>,
     pub rating_visibility: Maybe<Option<PageRatingVisibility>>,
     pub rating_type: Maybe<Option<PageRatingType>>,
+    pub per_page_discussion: Maybe<Option<bool>>,
 }

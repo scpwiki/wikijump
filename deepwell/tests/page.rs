@@ -54,15 +54,16 @@ use deepwell::services::role::{
 };
 use deepwell::services::score::ScoreValue as QueryScoreValue;
 use deepwell::services::session::CreateSession;
+use deepwell::services::site::UpdateSiteBody;
 use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
     FileRevisionService, ForumPostService, ForumService, ForumThreadService, LinkService,
     PageService, RenderService, RequestContext, SessionService, SettingsService,
-    TextService,
+    SiteService, TextService,
 };
 use deepwell::types::{
-    Action, ConnectionType, PageId, PageRevisionType, Permission, Reference, Resource,
-    TextBlockType,
+    Action, ConnectionType, Maybe, PageId, PageRevisionType, Permission, Reference,
+    Resource, TextBlockType,
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, IntoActiveModel,
@@ -481,6 +482,138 @@ async fn article_view_uses_category_license_and_site_fallback() {
         }),
     );
     assert_eq!(inherited.viewer.license_url, site.license.url());
+}
+
+#[tokio::test]
+async fn article_view_uses_effective_page_discussion_policy_and_stored_nesting() {
+    const SITE_SLUG: &str = "test";
+    const PAGE_SLUG: &str = "forum-policy:article";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded site should exist")
+        .site;
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site_id,
+        Reference::Slug(Cow::Borrowed(PAGE_SLUG)),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site_id,
+            "wikitext": "Page discussion policy fixture",
+            "title": "Page discussion policy fixture",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create discussion policy fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("page lookup should not fail")
+        .expect("created page should exist");
+
+    SiteService::update(
+        runner.context(),
+        Reference::Id(site.site_id),
+        UpdateSiteBody {
+            forum_max_nest_level: Maybe::Set(3),
+            ..Default::default()
+        },
+        ADMIN_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("forum nesting update should succeed");
+    assert_eq!(
+        SettingsService::get_forum_settings(runner.context(), site.site_id, None)
+            .await
+            .expect("stored forum settings should resolve")
+            .max_nest_level,
+        3
+    );
+    let invalid_nesting = SiteService::update(
+        runner.context(),
+        Reference::Id(site.site_id),
+        UpdateSiteBody {
+            forum_max_nest_level: Maybe::Set(11),
+            ..Default::default()
+        },
+        ADMIN_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect_err("forum nesting above ten must fail closed");
+    assert_contains_error!(invalid_nesting, ErrorType::BadRequest);
+
+    let default_category = CategoryService::get(
+        runner.context(),
+        site.site_id,
+        Reference::Slug(Cow::Borrowed("_default")),
+    )
+    .await
+    .expect("default category should exist");
+    let mut default_category = default_category.into_active_model();
+    default_category.per_page_discussion = Set(Some(true));
+    default_category
+        .update(runner.context().transaction())
+        .await
+        .expect("default discussion policy should update");
+
+    let inherited = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": PAGE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(matches!(
+        inherited.page,
+        GetPageViewOutput::Found {
+            page_discussion,
+            ..
+        } if page_discussion.enabled
+    ));
+
+    let category = PageCategoryTable::find_by_id(page.page_category_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("category lookup should not fail")
+        .expect("page category should exist");
+    let mut category = category.into_active_model();
+    category.per_page_discussion = Set(Some(false));
+    category
+        .update(runner.context().transaction())
+        .await
+        .expect("category discussion override should update");
+
+    let disabled = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": PAGE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(matches!(
+        disabled.page,
+        GetPageViewOutput::Found {
+            page_discussion,
+            ..
+        } if !page_discussion.enabled
+    ));
 }
 
 #[tokio::test]

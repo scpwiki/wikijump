@@ -92,6 +92,7 @@ interface PageViewFound {
     wikidot_breadcrumbs: WikidotPageBreadcrumbView[]
     attributions: PageAttribution[]
     page_rating: PageRatingSettings
+    page_discussion: PageDiscussionSettings
   }
 }
 
@@ -100,6 +101,9 @@ export interface PageRatingSettings {
   permission: "registered" | "members"
   visibility: "visible" | "anonymous"
   rating_type: "plus" | "plus_minus" | "stars"
+}
+export interface PageDiscussionSettings {
+  enabled: boolean
 }
 interface PageViewMissing {
   type: "missing"

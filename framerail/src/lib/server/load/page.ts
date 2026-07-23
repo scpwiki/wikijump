@@ -305,7 +305,10 @@ export async function loadPage(
         comments: wikidotSnapshot?.comments ?? null,
         locale: siteLocale,
         showRate: sourceShowsStandardActions && responseData.page_rating.enabled,
-        showDiscuss: sourceShowsStandardActions && wikidotSnapshot?.comments !== 0
+        showDiscuss:
+          sourceShowsStandardActions &&
+          (responseData.page_discussion.enabled ||
+            responseData.page.discussion_thread_id !== null)
       })
 
       wikidotPageWatch = buildWikidotPageWatchLabel({

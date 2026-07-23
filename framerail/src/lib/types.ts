@@ -26,6 +26,7 @@ export interface SiteModel {
   preferred_domain: Nullable<string>
   layout: Nullable<Layout>
   license: License
+  forum_max_nest_level: number
 }
 
 // deepwell src/models/page_category.rs
@@ -45,6 +46,7 @@ export interface PageCategoryModel {
   rating_permission: Nullable<PageRatingPermission>
   rating_visibility: Nullable<PageRatingVisibility>
   rating_type: Nullable<PageRatingType>
+  per_page_discussion: Nullable<boolean>
 }
 
 export type PageRatingPermission = "registered" | "members"

@@ -32,6 +32,46 @@ use std::borrow::Cow;
 pub struct SettingsService;
 
 impl SettingsService {
+    pub async fn get_page_discussion_settings(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        category_id: i64,
+    ) -> Result<PageDiscussionSettings> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to get page discussion settings for site ID {site_id}, category ID {category_id}"
+                ),
+                ErrorType::SiteSettings,
+            )
+        };
+        let category = CategoryService::get(ctx, site_id, Reference::Id(category_id))
+            .await
+            .or_raise(make_error)?;
+        let default_category = if category.slug == "_default" {
+            None
+        } else {
+            CategoryService::get_optional(
+                ctx,
+                site_id,
+                Reference::Slug(Cow::Borrowed("_default")),
+            )
+            .await
+            .or_raise(make_error)?
+        };
+
+        Ok(PageDiscussionSettings {
+            enabled: category
+                .per_page_discussion
+                .or_else(|| {
+                    default_category
+                        .as_ref()
+                        .and_then(|value| value.per_page_discussion)
+                })
+                .unwrap_or(false),
+        })
+    }
+
     pub async fn get_page_rating_settings(
         ctx: &ServiceContext<'_>,
         site_id: i64,

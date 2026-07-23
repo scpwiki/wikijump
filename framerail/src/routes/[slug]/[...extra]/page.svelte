@@ -10,7 +10,10 @@
     buildGeneratedPageStylesHead,
     getPageFontPreloadHrefs
   } from "$lib/generated-page-styles"
-  import { isWikidotFragmentPage } from "$lib/wikidot-page-actions"
+  import {
+    buildWikidotDiscussButtonHtml,
+    isWikidotFragmentPage
+  } from "$lib/wikidot-page-actions"
   import { wikidotTabviews } from "$lib/wikidot-tabviews"
   import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot-styleframe"
 
@@ -316,15 +319,7 @@
             {wikidotPageActions.tags}
           </a>
           {#if wikidotPageActions.showDiscuss}
-            <!-- svelte-ignore a11y_invalid_attribute -->
-            <a
-              id="discuss-button"
-              class="btn btn-default"
-              href="javascript:;"
-              type="button"
-            >
-              {wikidotPageActions.discuss}
-            </a>
+            {@html buildWikidotDiscussButtonHtml(wikidotPageActions.discuss)}
           {/if}
         {/if}
         <!-- svelte-ignore a11y_invalid_attribute -->
