@@ -81,21 +81,31 @@ async fn supervise_command(
     let stderr = child.stderr.take();
 
     let writer = tokio::spawn(async move {
-        if let Some(mut stdin) = stdin.take() {
-            let _ = stdin.write_all(&input).await;
-            let _ = stdin.shutdown().await;
-        }
+        let Some(mut stdin) = stdin.take() else {
+            return Err(io::Error::new(
+                io::ErrorKind::BrokenPipe,
+                "worker stdin was not piped",
+            ));
+        };
+        stdin.write_all(&input).await?;
+        stdin.shutdown().await
     });
     let stdout_reader = tokio::spawn(async move {
         match stdout {
             Some(stdout) => read_capped(stdout).await,
-            None => Ok(Vec::new()),
+            None => Err(io::Error::new(
+                io::ErrorKind::BrokenPipe,
+                "worker stdout was not piped",
+            )),
         }
     });
     let stderr_reader = tokio::spawn(async move {
         match stderr {
             Some(stderr) => read_capped(stderr).await,
-            None => Ok(Vec::new()),
+            None => Err(io::Error::new(
+                io::ErrorKind::BrokenPipe,
+                "worker stderr was not piped",
+            )),
         }
     });
 
@@ -133,18 +143,19 @@ async fn supervise_command(
         stderr_reader.abort();
     }
 
-    let _ = writer.await;
-    let stdout = stdout_reader
-        .await
-        .ok()
-        .and_then(Result::ok)
-        .unwrap_or_default();
-    let stderr = stderr_reader
-        .await
-        .ok()
-        .and_then(Result::ok)
-        .unwrap_or_default();
-    let events = parse_events(&stdout);
+    let mut transport_errors = Vec::new();
+    collect_task_result("stdin writer", writer.await, &mut transport_errors);
+    let stdout = collect_reader_result(
+        "stdout reader",
+        stdout_reader.await,
+        &mut transport_errors,
+    );
+    let stderr = collect_reader_result(
+        "stderr reader",
+        stderr_reader.await,
+        &mut transport_errors,
+    );
+    let (events, event_errors) = parse_events(&stdout);
     let last_stage = last_started_stage(&events);
     if timed_out {
         let (prepared_sha256, features) = prepared_event(&events)
@@ -168,6 +179,23 @@ async fn supervise_command(
             events,
             pid,
         };
+    }
+
+    if !transport_errors.is_empty() {
+        return protocol_run_with_context(
+            last_stage,
+            format!("worker transport failure: {}", transport_errors.join("; ")),
+            events,
+            pid,
+        );
+    }
+    if !event_errors.is_empty() {
+        return protocol_run_with_context(
+            last_stage,
+            format!("malformed worker event stream: {}", event_errors.join("; ")),
+            events,
+            pid,
+        );
     }
 
     if status.as_ref().is_some_and(ExitStatus::success)
@@ -225,12 +253,50 @@ async fn read_capped(mut reader: impl AsyncRead + Unpin) -> io::Result<Vec<u8>> 
     Ok(kept)
 }
 
-fn parse_events(output: &[u8]) -> Vec<WorkerEvent> {
-    output
+fn parse_events(output: &[u8]) -> (Vec<WorkerEvent>, Vec<String>) {
+    let mut events = Vec::new();
+    let mut errors = Vec::new();
+    for (index, line) in output
         .split(|byte| *byte == b'\n')
         .filter(|line| !line.is_empty())
-        .filter_map(|line| serde_json::from_slice(line).ok())
-        .collect()
+        .enumerate()
+    {
+        match serde_json::from_slice(line) {
+            Ok(event) => events.push(event),
+            Err(error) => errors.push(format!("line {}: {error}", index + 1)),
+        }
+    }
+    (events, errors)
+}
+
+fn collect_task_result(
+    name: &str,
+    result: Result<io::Result<()>, tokio::task::JoinError>,
+    errors: &mut Vec<String>,
+) {
+    match result {
+        Ok(Ok(())) => {}
+        Ok(Err(error)) => errors.push(format!("{name}: {error}")),
+        Err(error) => errors.push(format!("{name} join: {error}")),
+    }
+}
+
+fn collect_reader_result(
+    name: &str,
+    result: Result<io::Result<Vec<u8>>, tokio::task::JoinError>,
+    errors: &mut Vec<String>,
+) -> Vec<u8> {
+    match result {
+        Ok(Ok(output)) => output,
+        Ok(Err(error)) => {
+            errors.push(format!("{name}: {error}"));
+            Vec::new()
+        }
+        Err(error) => {
+            errors.push(format!("{name} join: {error}"));
+            Vec::new()
+        }
+    }
 }
 
 fn last_started_stage(events: &[WorkerEvent]) -> ReplayStage {
@@ -263,6 +329,15 @@ fn completed_result(events: &[WorkerEvent]) -> Option<WorkerResult> {
 }
 
 fn protocol_run(stage: ReplayStage, message: String) -> WorkerRun {
+    protocol_run_with_context(stage, message, Vec::new(), 0)
+}
+
+fn protocol_run_with_context(
+    stage: ReplayStage,
+    message: String,
+    events: Vec<WorkerEvent>,
+    pid: u32,
+) -> WorkerRun {
     WorkerRun {
         result: WorkerResult {
             outcome: ReplayOutcome::ProtocolError {
@@ -275,8 +350,8 @@ fn protocol_run(stage: ReplayStage, message: String) -> WorkerRun {
             prepared_sha256: String::new(),
             ftml_core_rendered_sha256: None,
         },
-        events: Vec::new(),
-        pid: 0,
+        events,
+        pid,
     }
 }
 
