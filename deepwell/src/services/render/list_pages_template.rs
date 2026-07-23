@@ -25,6 +25,8 @@ enum ListPagesVariable {
     TitleLinked,
     Title,
     Slug,
+    FullSlug,
+    Link,
     CreatedBy,
     CreatedByLinked,
     CreatedAt,
@@ -52,9 +54,9 @@ impl ListPagesVariable {
         match name.to_ascii_lowercase().as_str() {
             "title_linked" | "linked_title" => Some(Self::TitleLinked),
             "title" => Some(Self::Title),
-            "name" | "slug" | "page_unix_name" | "fullname" | "full_slug" | "link" => {
-                Some(Self::Slug)
-            }
+            "name" | "slug" | "page_unix_name" => Some(Self::Slug),
+            "fullname" | "full_slug" => Some(Self::FullSlug),
+            "link" => Some(Self::Link),
             "created_by" | "createdby" => Some(Self::CreatedBy),
             "created_by_linked" | "createdbylinked" | "author" => {
                 Some(Self::CreatedByLinked)
