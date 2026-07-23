@@ -10342,9 +10342,15 @@ fn format_wikidot_list_pages_date(
             Some('d') => output.push_str(&format!("{:02}", created_at.day())),
             Some('e') => output.push_str(&created_at.day().to_string()),
             Some('b') => output.push_str(month),
+            Some('m') => output.push_str(&format!("{:02}", created_at.month() as u8)),
             Some('Y') => output.push_str(&created_at.year().to_string()),
             Some('H') => output.push_str(&format!("{:02}", created_at.hour())),
             Some('M') => output.push_str(&format!("{:02}", created_at.minute())),
+            Some('R') => output.push_str(&format!(
+                "{:02}:{:02}",
+                created_at.hour(),
+                created_at.minute()
+            )),
             Some('%') => output.push('%'),
             Some(other) => {
                 output.push('%');
@@ -14336,6 +14342,24 @@ mod tests {
         assert!(!protected.contains("data-wikijump-authored-compat-date"));
         let restored = fragments.restore(&protected);
         assert!(restored.contains("data-wikijump-compat-date=\"1\""));
+    }
+
+    #[test]
+    fn formats_wikidot_list_pages_numeric_month_and_24_hour_time() {
+        let created_at = time::Date::from_calendar_date(2024, time::Month::August, 8)
+            .expect("fixture date should be valid")
+            .with_hms(19, 44, 0)
+            .expect("fixture time should be valid")
+            .assume_utc();
+
+        let rendered = format_list_pages_created_at(
+            Some(created_at),
+            Some("%Y-%m-%d %R|agohover"),
+            true,
+        );
+
+        assert!(rendered.contains("format_%25Y-%25m-%25d%20%25R%7Cagohover"));
+        assert!(rendered.ends_with(">2024-08-09 04:44</span>"));
     }
 
     #[test]
