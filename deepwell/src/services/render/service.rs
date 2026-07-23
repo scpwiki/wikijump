@@ -74,6 +74,9 @@ use super::prelude::*;
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
+use super::wikidot_link_protection::{
+    ProtectedWikidotWikipediaLink, WikidotWikipediaLink, build_wikidot_wikipedia_link,
+};
 use crate::hash::{TextHash, k12_hash};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
@@ -256,18 +259,6 @@ struct CountPagesRequiredTagSource<'a> {
     source_projection: Option<&'a ListPagesSourceProjection>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-struct ProtectedWikidotWikipediaLink {
-    link: WikidotWikipediaLink,
-    marker: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-struct WikidotWikipediaLink {
-    anchor: String,
-    href: String,
-}
-
 #[derive(Debug)]
 struct WikidotImageBlockArgument {
     value: String,
@@ -275,9 +266,9 @@ struct WikidotImageBlockArgument {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct ProtectedWikidotCompatLink {
-    anchor: String,
-    marker: String,
+pub(super) struct ProtectedWikidotCompatLink {
+    pub(super) anchor: String,
+    pub(super) marker: String,
 }
 
 #[derive(Debug)]
@@ -407,9 +398,10 @@ const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
 const WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTEMBEDIFRAME";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
-const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
-const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTWIKIPEDIALINK";
-const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_NONCE_LEN: usize = 32;
+pub(super) const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
+pub(super) const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str =
+    "WIKIJUMPWIKIDOTWIKIPEDIALINK";
+pub(super) const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_NONCE_LEN: usize = 32;
 #[cfg(test)]
 const WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOLORSPAN";
 const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
@@ -526,11 +518,11 @@ pub(super) fn list_pages_runtime_regex_recognizes_entire_head(head: &str) -> boo
 }
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
-static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> =
+pub(super) static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[#\s+(?P<name>[^\]\n]+)\]\]").unwrap());
-static WIKIDOT_CURRENT_PAGE_LINK_REGEX: LazyLock<Regex> =
+pub(super) static WIKIDOT_CURRENT_PAGE_LINK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[#\s+(?P<label>[^\]\n]+)\]").unwrap());
-static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\*/(?P<target>[^\s\]\n]+)\s+(?P<label>[^\]\n]+)\]").unwrap()
 });
 static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -550,7 +542,7 @@ static WIKIDOT_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static WIKIDOT_EXTERNAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\*?(?P<url>https?://[^\s\]]+)\s+(?P<label>[^\]]+)\]").unwrap()
 });
-static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIDOT_WIKIPEDIA_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[wikipedia:(?P<target>[^\s\]\n]+)(?:\s+(?P<label>[^\]\n]+))?\]")
         .unwrap()
 });
@@ -2913,7 +2905,7 @@ impl RenderService {
         source[..start].matches("@@").count() % 2 == 1
     }
 
-    fn is_inside_wikidot_literal_region(source: &str, start: usize) -> bool {
+    pub(super) fn is_inside_wikidot_literal_region(source: &str, start: usize) -> bool {
         Self::is_inside_wikidot_code_block(source, start)
             || Self::is_inside_wikidot_escape(source, start)
             || Self::is_inside_wikidot_html_block(source, start)
@@ -3140,335 +3132,6 @@ impl RenderService {
             html = html.replace(&marker, iframe);
         }
         html
-    }
-
-    fn protect_wikidot_wikipedia_links(
-        wikitext: &mut String,
-        settings: &WikitextSettings,
-    ) -> Vec<ProtectedWikidotWikipediaLink> {
-        if !settings.enable_page_syntax {
-            return Vec::new();
-        }
-
-        let source = wikitext.clone();
-        let mut links = Vec::new();
-        let mut output = String::with_capacity(source.len());
-        let mut last = 0;
-        let marker_nonce = Uuid::new_v4().as_simple().to_string();
-        let literal_regions = LiteralRegionIndex::new_wikidot_syntax(&source);
-
-        for captures in WIKIDOT_WIKIPEDIA_LINK_REGEX.captures_iter(&source) {
-            let Some(link_match) = captures.get(0) else {
-                continue;
-            };
-
-            output.push_str(&source[last..link_match.start()]);
-            last = link_match.end();
-
-            let Some(target) = captures.name("target").map(|matched| matched.as_str())
-            else {
-                output.push_str(link_match.as_str());
-                continue;
-            };
-
-            if literal_regions.contains(link_match.start()) {
-                output.push_str(link_match.as_str());
-                continue;
-            }
-
-            let label = captures.name("label").map(|matched| matched.as_str());
-            let link = build_wikidot_wikipedia_link(target, label);
-            let marker = format!(
-                "{WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX}{marker_nonce}{}X",
-                links.len(),
-            );
-            links.push(ProtectedWikidotWikipediaLink {
-                link,
-                marker: marker.clone(),
-            });
-            output.push_str(&marker);
-        }
-
-        if links.is_empty() {
-            return links;
-        }
-
-        output.push_str(&source[last..]);
-        *wikitext = output;
-        links
-    }
-
-    fn protect_wikidot_compat_links(
-        wikitext: &mut String,
-        settings: &WikitextSettings,
-    ) -> Vec<ProtectedWikidotCompatLink> {
-        if !settings.enable_page_syntax {
-            return Vec::new();
-        }
-
-        let mut links = Vec::new();
-        Self::protect_wikidot_anchor_markers(wikitext, &mut links);
-        Self::protect_wikidot_current_page_links(wikitext, &mut links);
-        Self::protect_wikidot_star_local_links(wikitext, &mut links);
-        links
-    }
-
-    fn protect_wikidot_anchor_markers(
-        wikitext: &mut String,
-        links: &mut Vec<ProtectedWikidotCompatLink>,
-    ) {
-        let source = wikitext.clone();
-        let mut output = String::with_capacity(source.len());
-        let mut last = 0;
-
-        for captures in WIKIDOT_ANCHOR_MARKER_REGEX.captures_iter(&source) {
-            let Some(marker_match) = captures.get(0) else {
-                continue;
-            };
-
-            output.push_str(&source[last..marker_match.start()]);
-            last = marker_match.end();
-
-            if Self::is_inside_wikidot_literal_region(&source, marker_match.start()) {
-                output.push_str(marker_match.as_str());
-                continue;
-            }
-
-            let Some(name) = captures.name("name").map(|matched| matched.as_str().trim())
-            else {
-                output.push_str(marker_match.as_str());
-                continue;
-            };
-            if name.is_empty() {
-                output.push_str(marker_match.as_str());
-                continue;
-            }
-
-            let marker = wikidot_compat_link_marker();
-            links.push(ProtectedWikidotCompatLink {
-                anchor: wikidot_named_anchor(name),
-                marker: marker.clone(),
-            });
-            output.push_str(&marker);
-        }
-
-        if last == 0 {
-            return;
-        }
-
-        output.push_str(&source[last..]);
-        *wikitext = output;
-    }
-
-    fn protect_wikidot_current_page_links(
-        wikitext: &mut String,
-        links: &mut Vec<ProtectedWikidotCompatLink>,
-    ) {
-        let source = wikitext.clone();
-        let mut output = String::with_capacity(source.len());
-        let mut last = 0;
-
-        for captures in WIKIDOT_CURRENT_PAGE_LINK_REGEX.captures_iter(&source) {
-            let Some(link_match) = captures.get(0) else {
-                continue;
-            };
-
-            output.push_str(&source[last..link_match.start()]);
-            last = link_match.end();
-
-            if source[..link_match.start()].ends_with('[')
-                || source[link_match.end()..].starts_with(']')
-            {
-                output.push_str(link_match.as_str());
-                continue;
-            }
-
-            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
-                output.push_str(link_match.as_str());
-                continue;
-            }
-
-            let Some(label) = captures
-                .name("label")
-                .map(|matched| matched.as_str().trim())
-            else {
-                output.push_str(link_match.as_str());
-                continue;
-            };
-            if label.is_empty() {
-                output.push_str(link_match.as_str());
-                continue;
-            }
-
-            let marker = wikidot_compat_link_marker();
-            links.push(ProtectedWikidotCompatLink {
-                anchor: wikidot_current_page_anchor(label),
-                marker: marker.clone(),
-            });
-            output.push_str(&marker);
-        }
-
-        if last == 0 {
-            return;
-        }
-
-        output.push_str(&source[last..]);
-        *wikitext = output;
-    }
-
-    fn protect_wikidot_star_local_links(
-        wikitext: &mut String,
-        links: &mut Vec<ProtectedWikidotCompatLink>,
-    ) {
-        let source = wikitext.clone();
-        let mut output = String::with_capacity(source.len());
-        let mut last = 0;
-
-        for captures in WIKIDOT_STAR_LOCAL_LINK_REGEX.captures_iter(&source) {
-            let Some(link_match) = captures.get(0) else {
-                continue;
-            };
-
-            output.push_str(&source[last..link_match.start()]);
-            last = link_match.end();
-
-            if Self::is_inside_wikidot_literal_region(&source, link_match.start()) {
-                output.push_str(link_match.as_str());
-                continue;
-            }
-
-            let Some(target) = captures.name("target").map(|matched| matched.as_str())
-            else {
-                output.push_str(link_match.as_str());
-                continue;
-            };
-            let Some(label) = captures
-                .name("label")
-                .map(|matched| matched.as_str().trim())
-            else {
-                output.push_str(link_match.as_str());
-                continue;
-            };
-            if label.is_empty() {
-                output.push_str(link_match.as_str());
-                continue;
-            }
-
-            let marker = wikidot_compat_link_marker();
-            links.push(ProtectedWikidotCompatLink {
-                anchor: wikidot_star_local_anchor(target, label),
-                marker: marker.clone(),
-            });
-            output.push_str(&marker);
-        }
-
-        if last == 0 {
-            return;
-        }
-
-        output.push_str(&source[last..]);
-        *wikitext = output;
-    }
-
-    fn restore_protected_wikidot_compat_links(
-        html: String,
-        links: &[ProtectedWikidotCompatLink],
-    ) -> String {
-        restore_issued_html_text_markers(
-            html,
-            WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
-            links
-                .iter()
-                .map(|link| (link.marker.as_str(), link.anchor.as_str())),
-        )
-    }
-
-    fn restore_protected_wikidot_wikipedia_links(
-        html: String,
-        links: &[ProtectedWikidotWikipediaLink],
-    ) -> String {
-        if links.is_empty() || !html.contains(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX) {
-            return html;
-        }
-
-        let mut output = String::with_capacity(html.len());
-        let mut last = 0;
-        let mut cursor = 0;
-        let mut in_tag = false;
-        let mut tag_quote = None;
-        let bytes = html.as_bytes();
-        let prefix = WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX.as_bytes();
-
-        while cursor < bytes.len() {
-            match bytes[cursor] {
-                b'<' if !in_tag => in_tag = true,
-                quote @ (b'\'' | b'"') if in_tag => match tag_quote {
-                    Some(open_quote) if open_quote == quote => tag_quote = None,
-                    None => tag_quote = Some(quote),
-                    _ => {}
-                },
-                b'>' if in_tag && tag_quote.is_none() => in_tag = false,
-                _ if !in_tag && bytes[cursor..].starts_with(prefix) => {
-                    let nonce_start = cursor + prefix.len();
-                    let nonce_end =
-                        nonce_start + WIKIDOT_WIKIPEDIA_LINK_SENTINEL_NONCE_LEN;
-                    if nonce_end >= bytes.len()
-                        || !bytes[nonce_start..nonce_end]
-                            .iter()
-                            .all(u8::is_ascii_hexdigit)
-                    {
-                        cursor += 1;
-                        continue;
-                    }
-
-                    let index_start = nonce_end;
-                    let mut marker_end = index_start;
-                    while marker_end < bytes.len() && bytes[marker_end].is_ascii_digit() {
-                        marker_end += 1;
-                    }
-
-                    if marker_end > index_start
-                        && bytes.get(marker_end) == Some(&b'X')
-                        && let Ok(index) = html[index_start..marker_end].parse::<usize>()
-                        && let Some(link) = links.get(index)
-                        && link.marker == html[cursor..=marker_end]
-                    {
-                        output.push_str(&html[last..cursor]);
-                        output.push_str(&link.link.anchor);
-                        cursor = marker_end + 1;
-                        last = cursor;
-                        continue;
-                    }
-                }
-                _ => {}
-            }
-            cursor += 1;
-        }
-
-        if last == 0 {
-            return html;
-        }
-
-        output.push_str(&html[last..]);
-        output
-    }
-
-    fn record_protected_wikidot_wikipedia_backlinks(
-        backlinks: &mut ftml::data::Backlinks<'_>,
-        links: &[ProtectedWikidotWikipediaLink],
-    ) {
-        backlinks
-            .external_links
-            .extend(links.iter().map(|link| Cow::Owned(link.link.href.clone())));
-    }
-
-    fn record_wikidot_wikipedia_backlinks(
-        backlinks: &mut ftml::data::Backlinks<'_>,
-        links: &[WikidotWikipediaLink],
-    ) {
-        backlinks
-            .external_links
-            .extend(links.iter().map(|link| Cow::Owned(link.href.clone())));
     }
 
     pub(super) fn allowed_wikidot_embed_iframe(iframe: &str) -> Option<String> {
@@ -10573,13 +10236,6 @@ fn register_generated_list_pages_html(
         .into_owned()
 }
 
-fn wikidot_compat_link_marker() -> String {
-    format!(
-        "{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X",
-        Uuid::new_v4().as_simple(),
-    )
-}
-
 #[cfg(test)]
 fn wikidot_compat_html_marker() -> String {
     format!(
@@ -10693,71 +10349,6 @@ fn substitute_wikidot_protected_inline_dashes_with_scan_count(
 
 fn substitute_wikidot_protected_inline_dashes_in_text(value: &str) -> String {
     value.replace("--", "\u{2014}")
-}
-
-fn wikidot_named_anchor(name: &str) -> String {
-    format!(
-        r#"<a name="{name}"></a>"#,
-        name = escape_list_pages_html_attr(name),
-    )
-}
-
-fn wikidot_current_page_anchor(label: &str) -> String {
-    format!(
-        r#"<a href="javascript:;">{label}</a>"#,
-        label = escape_list_pages_html_text(label),
-    )
-}
-
-fn wikidot_star_local_anchor(target: &str, label: &str) -> String {
-    let target = target.trim();
-    let href = if target.starts_with('/') {
-        target.to_owned()
-    } else {
-        format!("/{target}")
-    };
-
-    format!(
-        r#"<a href="{href}" target="_blank">{label}</a>"#,
-        href = escape_list_pages_html_attr(&href),
-        label = escape_list_pages_html_text(label),
-    )
-}
-
-fn build_wikidot_wikipedia_link(
-    target: &str,
-    label: Option<&str>,
-) -> WikidotWikipediaLink {
-    let (language, page) = wikidot_wikipedia_target(target);
-    let href = wikidot_wikipedia_href(language, page);
-    let label = label
-        .filter(|value| !value.is_empty())
-        .map(Cow::Borrowed)
-        .unwrap_or_else(|| Cow::Owned(page.replace('_', " ")));
-    let anchor = format!(
-        r#"<a href="{href}" onclick="window.open(this.href, '_blank'); return false;">{label}</a>"#,
-        href = escape_list_pages_html_attr(&href),
-        label = escape_list_pages_html_text(&label),
-    );
-    WikidotWikipediaLink { anchor, href }
-}
-
-fn wikidot_wikipedia_href(language: &str, page: &str) -> String {
-    format!("http://{language}.wikipedia.org/wiki/{page}")
-}
-
-fn wikidot_wikipedia_target(target: &str) -> (&str, &str) {
-    if let Some((language, page)) = target.split_once(':')
-        && !page.is_empty()
-        && (2..=3).contains(&language.len())
-        && language
-            .chars()
-            .all(|character| character.is_ascii_alphabetic())
-    {
-        return (language, page);
-    }
-
-    ("en", target)
 }
 
 fn format_wikidot_list_pages_date(

@@ -57,6 +57,7 @@ mod service;
 mod structs;
 mod wikidot_compat_restore;
 mod wikidot_inline_markers;
+mod wikidot_link_protection;
 mod wikidot_residual_markers;
 
 pub(crate) use self::diagnostics::{
