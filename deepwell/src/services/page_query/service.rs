@@ -220,8 +220,8 @@ impl PageQueryService {
     pub(crate) async fn find_with_metadata_cached(
         ctx: &ServiceContext<'_>,
         query: PageQuery<'_>,
-        mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
-        mut score_filter_session: Option<&mut PageQueryScoreFilterSession>,
+        score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+        score_filter_session: Option<&mut PageQueryScoreFilterSession>,
     ) -> Result<PageQueryResultEnvelope> {
         let queried_site_id = query.queried_site_id.unwrap_or(query.current_site_id);
         let PageQuery {
@@ -658,8 +658,8 @@ impl PageQueryService {
             query,
             queried_site_id,
             &score,
-            score_filter_cache.as_deref_mut(),
-            score_filter_session.as_deref_mut(),
+            score_filter_cache,
+            score_filter_session,
         )
         .await?;
 
@@ -868,7 +868,7 @@ async fn apply_score_filters(
     queried_site_id: i64,
     score: &[ScoreSelector],
     mut cache: Option<&mut PageQueryScoreFilterCache>,
-    mut session: Option<&mut PageQueryScoreFilterSession>,
+    session: Option<&mut PageQueryScoreFilterSession>,
 ) -> Result<sea_orm::Select<page::Entity>> {
     if score.is_empty() {
         return Ok(query);
@@ -906,7 +906,6 @@ async fn apply_score_filters(
         ScoreFilterPlan::SiteWide { site_id } => {
             let key = ScoreFilterCacheKey::new(site_id, score);
             let register_logical_use = session
-                .as_deref_mut()
                 .map(|session| session.register_use(&key))
                 .unwrap_or(true);
             let lookup = cache
@@ -921,14 +920,12 @@ async fn apply_score_filters(
                     match materialize_score_membership(txn, score, site_id).await? {
                         Some(membership) => {
                             cache
-                                .as_deref_mut()
                                 .expect("score cache should still be available")
                                 .insert(key, membership.clone());
                             Ok(query.filter(score_membership_condition(membership)))
                         }
                         None => {
                             cache
-                                .as_deref_mut()
                                 .expect("score cache should still be available")
                                 .mark_uncacheable(key);
                             Ok(query.filter(score_selectors_condition(
