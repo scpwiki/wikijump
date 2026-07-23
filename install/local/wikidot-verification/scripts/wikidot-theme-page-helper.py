@@ -11,6 +11,17 @@ import sys
 import time
 from typing import Any, TextIO
 
+try:
+    import httpx as _httpx
+    from bs4 import BeautifulSoup as _BeautifulSoup
+    from wikidot import Client as _WikidotClient
+    from wikidot.module.page_source import extract_page_source_text as _extract_page_source_text
+except ImportError:
+    _httpx = None
+    _BeautifulSoup = None
+    _WikidotClient = None
+    _extract_page_source_text = None
+
 ALLOWED_SITE = "scpaiueouiuiuiui"
 ALLOWED_DOMAIN = f"{ALLOWED_SITE}.wikidot.com"
 ALLOWED_ORIGIN = f"https://{ALLOWED_DOMAIN}"
@@ -92,22 +103,17 @@ class WikidotBackend:
         password = os.environ.pop("WIKIDOT_PASSWORD", "")
         if not username or not password:
             raise PublicError("initialization_failed", "Wikidot helper environment is incomplete")
+        if _httpx is None or _BeautifulSoup is None or _WikidotClient is None or _extract_page_source_text is None:
+            raise PublicError("initialization_failed", "Wikidot helper dependencies are unavailable")
         try:
-            import httpx
-            from bs4 import BeautifulSoup
-            from wikidot import Client
-            from wikidot.module.page_source import extract_page_source_text
-        except Exception as exc:
-            raise PublicError("initialization_failed", "Wikidot helper dependencies are unavailable") from exc
-        try:
-            self.client = Client(username=username, password=password, logging_level="CRITICAL")
+            self.client = _WikidotClient(username=username, password=password, logging_level="CRITICAL")
         except Exception as exc:
             raise PublicError("authentication_failed", "Wikidot authentication failed") from exc
         finally:
             password = ""
-        self.httpx = httpx
-        self.soup = BeautifulSoup
-        self.extract_source = extract_page_source_text
+        self.httpx = _httpx
+        self.soup = _BeautifulSoup
+        self.extract_source = _extract_page_source_text
         self.headers = self.client.amc_client.header.get_header()
         root_html = self._get("")
         if root_html is None:
@@ -169,7 +175,7 @@ class WikidotBackend:
         headers = {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "User-Agent": "WikidotPy",
-            "Referer": "https://www.wikidot.com/",
+            "Referer": f"{ALLOWED_ORIGIN}/",
             "Cookie": f"wikidot_token7={token};WIKIDOT_SESSION_ID={session_id};",
         }
         try:
@@ -235,6 +241,52 @@ class WikidotBackend:
             return None
         return [element.get_text(" ", strip=True) for element in self.soup(html, "html.parser").select(".page-tags a")]
 
+    def _acquire_create_lock(self, slug: str) -> tuple[Any, Any]:
+        lock = self._amc({"mode": "page", "wiki_page": slug, "moduleName": "edit/PageEditModule"})
+        if lock.get("status") not in (None, "ok") or lock.get("locked") or lock.get("other_locks"):
+            raise PublicError("page_lock_refused", "PageEditModule did not grant an uncontested lock")
+        if lock.get("page_revision_id") not in (None, "") or lock.get("page_id") not in (None, "") or lock.get("pageId") not in (None, ""):
+            raise PublicError("page_exists", "PageEditModule found an existing revision")
+        lock_id = lock.get("lock_id")
+        lock_secret = lock.get("lock_secret")
+        if not lock_id or not lock_secret:
+            raise PublicError("page_lock_refused", "PageEditModule omitted required lock fields")
+        return lock_id, lock_secret
+
+    def _save_tags(self, slug: str, kind: str, identity: Any, tags: list[str]) -> None:
+        tagged = self._amc(
+            {
+                "tags": " ".join(tags),
+                "action": "WikiPageAction",
+                "event": "saveTags",
+                "pageId": identity,
+                "moduleName": "Empty",
+            }
+        )
+        if tagged.get("status") not in (None, "ok"):
+            raise PublicError("save_tags_failed", "Wikidot page tags were not saved")
+        for _ in range(5):
+            if self.page_tags(slug, kind) == tags:
+                return
+            time.sleep(0.4)
+        raise PublicError("save_tags_not_visible", "Wikidot page tags did not round-trip")
+
+    def _await_created_page(self, slug: str, kind: str, title: str, source: str, tags: list[str]) -> dict[str, Any]:
+        for _ in range(5):
+            actual = self.inspect(slug, kind)
+            if actual is None:
+                time.sleep(0.4)
+                continue
+            if actual["title"] != title or actual["source_sha256"] != wikidot_round_trip_sha256(source):
+                raise PublicError(
+                    "round_trip_mismatch",
+                    "created page did not match the accepted title and source",
+                )
+            if tags:
+                self._save_tags(slug, kind, actual["identity"], tags)
+            return actual
+        raise PublicError("create_not_visible", "created page was not visible after save")
+
     def create(self, slug: str, title: str, source: str, expected_hash: str, tags: list[str], kind: str = "theme_page") -> dict[str, Any]:
         kind = validate_kind(kind)
         slug = validate_slug(slug, kind=kind)
@@ -250,15 +302,7 @@ class WikidotBackend:
             )
         if self.inspect(slug, kind) is not None:
             raise PublicError("page_exists", "create-only preflight found an existing page")
-        lock = self._amc({"mode": "page", "wiki_page": slug, "moduleName": "edit/PageEditModule"})
-        if lock.get("status") not in (None, "ok") or lock.get("locked") or lock.get("other_locks"):
-            raise PublicError("page_lock_refused", "PageEditModule did not grant an uncontested lock")
-        if lock.get("page_revision_id") not in (None, "") or lock.get("page_id") not in (None, "") or lock.get("pageId") not in (None, ""):
-            raise PublicError("page_exists", "PageEditModule found an existing revision")
-        lock_id = lock.get("lock_id")
-        lock_secret = lock.get("lock_secret")
-        if not lock_id or not lock_secret:
-            raise PublicError("page_lock_refused", "PageEditModule omitted required lock fields")
+        lock_id, lock_secret = self._acquire_create_lock(slug)
         saved = self._amc(
             {
                 "action": "WikiPageAction",
@@ -277,35 +321,7 @@ class WikidotBackend:
         )
         if saved.get("status") != "ok":
             raise PublicError("save_failed", "Wikidot create-only save failed")
-        for _ in range(5):
-            actual = self.inspect(slug, kind)
-            if actual is not None:
-                if actual["title"] != title or actual["source_sha256"] != wikidot_round_trip_sha256(source):
-                    raise PublicError(
-                        "round_trip_mismatch",
-                        "created page did not match the accepted title and source",
-                    )
-                if tags:
-                    tagged = self._amc(
-                        {
-                            "tags": " ".join(tags),
-                            "action": "WikiPageAction",
-                            "event": "saveTags",
-                            "pageId": actual["identity"],
-                            "moduleName": "Empty",
-                        }
-                    )
-                    if tagged.get("status") not in (None, "ok"):
-                        raise PublicError("save_tags_failed", "Wikidot page tags were not saved")
-                    for _ in range(5):
-                        if self.page_tags(slug, kind) == tags:
-                            break
-                        time.sleep(0.4)
-                    else:
-                        raise PublicError("save_tags_not_visible", "Wikidot page tags did not round-trip")
-                return actual
-            time.sleep(0.4)
-        raise PublicError("create_not_visible", "created page was not visible after save")
+        return self._await_created_page(slug, kind, title, source, tags)
 
     def remove(self, slug: str, expected: dict[str, Any], kind: str = "theme_page") -> dict[str, Any]:
         kind = validate_kind(kind)
