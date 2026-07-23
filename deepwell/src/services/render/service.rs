@@ -396,7 +396,6 @@ const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
 const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
 const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
-const WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTEMBEDIFRAME";
 const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 pub(super) const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 pub(super) const WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX: &str =
@@ -408,7 +407,6 @@ const WIKIDOT_INLINE_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTINLINEHTML";
 const WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTRATEANCHOR";
 const WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX: &str =
     "WIKIJUMPWIKIDOTLISTPAGESELLIPSIS";
-const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
 pub(super) const WIKIDOT_TABVIEW_SCRIPT: &str = "";
 pub(super) const WIKIDOT_TABVIEW_INIT_SCRIPT: &str =
     r#"<script type="text/javascript"></script>"#;
@@ -660,26 +658,6 @@ static WIKIDOT_RECOVERABLE_REVERSED_EMAIL_BODY_REGEX: LazyLock<Regex> = LazyLock
 );
 pub(super) static WIKIDOT_EMBED_PARAGRAPH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?s)<p>\[\[embed\]\]<br/?>(.*?)<br/?>\[\[/embed\]\]</p>"#).unwrap()
-});
-static WIKIDOT_RAW_EMBED_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?is)\[\[embed\]\]\s*(?P<iframe><iframe\b[^>]*></iframe>)\s*\[\[/embed\]\]"#,
-    )
-    .unwrap()
-});
-static WIKIDOT_RENDERED_ANCHOR_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"(?s)<a href="[^"]+">(.*?)</a>"#).unwrap());
-static WIKIDOT_STYLEFRAME_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"^<iframe src="(?P<src>//interwiki\.(?:scpwiki\.com|scp-jp\.org)/styleFrame\.html\?[^"]+)" style="display: none"></iframe>$"#,
-    )
-    .unwrap()
-});
-static WIKIDOT_INTERWIKI_FRAME_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"^<iframe src="(?P<src>//interwiki\.(?:scpwiki\.com|scp-jp\.org)/interwikiFrame\.html\?[^"]+)" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>$"#,
-    )
-    .unwrap()
 });
 static WIKIDOT_LOCAL_FILE_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -3099,86 +3077,6 @@ impl RenderService {
 
     fn trim_wikitext_line(line: &str) -> &str {
         line.trim_end_matches(['\r', '\n']).trim()
-    }
-
-    fn protect_wikidot_embed_iframes(wikitext: &mut String) -> Vec<String> {
-        let mut iframes = Vec::new();
-        let protected = WIKIDOT_RAW_EMBED_IFRAME_REGEX
-            .replace_all(wikitext, |captures: &regex::Captures<'_>| {
-                let Some(iframe_match) = captures.name("iframe") else {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_owned();
-                };
-                let iframe = iframe_match.as_str().trim();
-                let Some(iframe) = Self::allowed_wikidot_embed_iframe(iframe) else {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_owned();
-                };
-
-                let marker =
-                    format!("{WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX}{}X", iframes.len());
-                iframes.push(iframe);
-                marker
-            })
-            .into_owned();
-        *wikitext = protected;
-        iframes
-    }
-
-    fn restore_protected_wikidot_embed_iframes(
-        mut html: String,
-        iframes: &[String],
-    ) -> String {
-        for (index, iframe) in iframes.iter().enumerate() {
-            let marker = format!("{WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX}{index}X");
-            html = html.replace(&marker, iframe);
-        }
-        html
-    }
-
-    pub(super) fn allowed_wikidot_embed_iframe(iframe: &str) -> Option<String> {
-        if let Some(captures) = WIKIDOT_STYLEFRAME_IFRAME_REGEX.captures(iframe) {
-            return Some(Self::rewrite_wikidot_interwiki_iframe_src(
-                iframe,
-                &captures["src"],
-                "styleFrame.html",
-            ));
-        }
-
-        if let Some(captures) = WIKIDOT_INTERWIKI_FRAME_IFRAME_REGEX.captures(iframe) {
-            return Some(Self::rewrite_wikidot_interwiki_iframe_src(
-                iframe,
-                &captures["src"],
-                "interwikiFrame.html",
-            ));
-        }
-
-        None
-    }
-
-    fn rewrite_wikidot_interwiki_iframe_src(
-        iframe: &str,
-        original_src: &str,
-        local_file_name: &str,
-    ) -> String {
-        let query = original_src.split_once('?').map_or("", |(_, query)| query);
-        let local_src =
-            format!("{WIKIDOT_LOCAL_INTERWIKI_BASE}/{local_file_name}?{query}");
-
-        iframe.replace(original_src, &local_src)
-    }
-
-    pub(super) fn decode_rendered_embed_block(block: &str) -> String {
-        let without_anchors = WIKIDOT_RENDERED_ANCHOR_REGEX.replace_all(block, "$1");
-        let text = without_anchors
-            .replace("<br>", "")
-            .replace("<br/>", "")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&quot;", "\"")
-            .replace("&#34;", "\"")
-            .replace("&#39;", "'")
-            .replace("&amp;", "&");
-
-        text.trim().to_owned()
     }
 
     pub(super) fn wikidot_obfuscated_email(email: &str) -> Option<String> {
