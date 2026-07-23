@@ -38,8 +38,6 @@ pub async fn file_revision_count(
         file: file_reference,
     } = parse!(params, FileRevision);
 
-    info!("Getting latest revision for file ID {page_id} in site ID {site_id}");
-
     let make_error = || {
         Error::new(
             "failed to get count of file revisions",
@@ -74,11 +72,6 @@ pub async fn file_revision_get(
     params: Params<'static>,
 ) -> Result<Option<FileRevisionModel>> {
     let input: GetFileRevision = parse!(params, FileRevision);
-
-    info!(
-        "Getting file revision {} for file ID {} on page ID {}",
-        input.revision_number, input.file_id, input.page_id,
-    );
 
     FileRevisionService::get_optional(ctx, input)
         .await

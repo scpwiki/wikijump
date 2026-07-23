@@ -57,7 +57,6 @@ pub async fn locale_info(
     params: Params<'static>,
 ) -> Result<LocaleOutput> {
     let locale_str: String = parse_one!(params, Localization);
-    info!("Getting locale information for {locale_str}");
 
     let locale = validate_locale(&locale_str).or_raise(|| {
         Error::new(

@@ -119,11 +119,6 @@ pub async fn page_lock_get_history(
         .page_reference()
         .or_raise(|| Error::new("no page reference found", ErrorType::PageLock))?;
 
-    info!(
-        "Fetching lock history for page {:?} in site {}",
-        page_ref, site_id,
-    );
-
     PageLockService::get_locks_for_page(ctx, site_id, page_ref.borrow())
         .await
         .or_raise(|| Error::new("failed to fetch page lock history", ErrorType::PageLock))

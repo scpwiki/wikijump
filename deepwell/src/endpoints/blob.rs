@@ -34,7 +34,6 @@ pub async fn blob_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetBlobOutput> {
-    info!("Getting blob for S3 hash");
     let hash: Bytes = parse!(params, Blob);
 
     let make_error = || Error::new("failed to get blob data", ErrorType::Blob);

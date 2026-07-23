@@ -28,7 +28,6 @@ pub async fn echo(
 ) -> Result<JsonValue> {
     // Just write out whatever JSON value they put in
     let data: JsonValue = parse!(params);
-    info!("Got echo request, sending back to caller");
     Ok(data)
 }
 
@@ -58,7 +57,6 @@ pub async fn normalize_method(
     params: Params<'static>,
 ) -> Result<String> {
     let mut value: String = parse_one!(params);
-    info!("Running normalize on string: {value:?}");
     normalize(&mut value);
     Ok(value)
 }

@@ -107,7 +107,6 @@ pub async fn user_get(
     params: Params<'static>,
 ) -> Result<Option<GetUserOutput>> {
     let GetUser { user: reference } = parse!(params, User);
-    info!("Getting user {reference:?}");
 
     let make_error = || Error::new("failed to get user", ErrorType::User);
     let user = UserService::get_optional(ctx, reference)

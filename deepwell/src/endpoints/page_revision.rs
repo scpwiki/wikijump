@@ -38,8 +38,6 @@ pub async fn page_revision_count(
         page: reference,
     } = parse!(params, PageRevision);
 
-    info!("Getting latest revision for page {reference:?} in site ID {site_id}");
-
     let make_error =
         || Error::new("failed to get page revision count", ErrorType::PageRevision);
 
@@ -64,11 +62,6 @@ pub async fn page_revision_get(
     params: Params<'static>,
 ) -> Result<Option<PageRevisionModelFiltered>> {
     let GetPageRevisionDetails { input, details } = parse!(params, PageRevision);
-
-    info!(
-        "Getting revision {} for page ID {} in site ID {}",
-        input.revision_number, input.page_id, input.site_id,
-    );
 
     let make_error =
         || Error::new("failed to get a page revision", ErrorType::PageRevision);

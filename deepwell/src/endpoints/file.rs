@@ -36,11 +36,6 @@ pub async fn file_get(
 ) -> Result<Option<GetFileOutput>> {
     let GetFileDetails { input, details } = parse!(params, File);
 
-    info!(
-        "Getting file {:?} from page ID {} in site ID {}",
-        input.file, input.page_id, input.site_id,
-    );
-
     let make_error = || Error::new("failed to get file", ErrorType::File);
 
     ensure_parent_page_view_permission(ctx, input.site_id, input.page_id)

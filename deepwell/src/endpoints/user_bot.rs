@@ -216,7 +216,6 @@ pub async fn bot_user_get_owners(
         )
     };
 
-    info!("Getting bot user {reference:?}");
     let user_bot = UserService::get_optional(ctx, reference)
         .await
         .or_raise(make_error)?;
@@ -249,8 +248,6 @@ pub async fn bot_user_get_bots(
     params: Params<'static>,
 ) -> Result<Vec<UserBotOwner>> {
     let GetUser { user: reference } = parse!(params, UserBotOwner);
-    info!("Getting bot users owned by user {reference:?}");
-
     let make_error = || {
         Error::new(
             "failed to get bots for a owner user",

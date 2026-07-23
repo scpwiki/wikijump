@@ -55,11 +55,6 @@ pub async fn page_attribution_get_page(
 ) -> Result<Vec<PageAttribution>> {
     let input: GetPageAttributions<'_> = parse!(params, PageAttribution);
 
-    info!(
-        "Getting page attributions for page {:?} on site ID {}",
-        input.page, input.site_id,
-    );
-
     RelationService::get_page_attributions(ctx, input)
         .await
         .or_raise(|| {

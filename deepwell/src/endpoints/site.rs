@@ -44,8 +44,6 @@ pub async fn site_get(
     params: Params<'static>,
 ) -> Result<Option<GetSiteOutput>> {
     let GetSite { site } = parse!(params, Site);
-    info!("Getting site {site:?}");
-
     let make_error = || Error::new("failed to get site", ErrorType::Site);
 
     let site = SiteService::get_optional(ctx, site)

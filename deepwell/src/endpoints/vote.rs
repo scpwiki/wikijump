@@ -33,11 +33,6 @@ pub async fn vote_get(
     let page_id = input.page_id;
     let user_id = input.user_id;
 
-    info!(
-        "Getting vote cast by user ID {} on page ID {}",
-        user_id, page_id,
-    );
-
     VoteService::get_optional(ctx, input).await.or_raise(|| {
         Error::new(
             format!(

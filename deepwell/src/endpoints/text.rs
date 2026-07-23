@@ -45,7 +45,6 @@ pub async fn text_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<String> {
-    info!("Getting stored text");
     let hash: Bytes = parse_one!(params, Text);
 
     TextService::get(ctx, hash.as_ref())

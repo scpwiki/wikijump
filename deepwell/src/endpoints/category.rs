@@ -34,7 +34,6 @@ pub async fn category_get(
         || Error::new("failed to get page category", ErrorType::PageCategory);
 
     let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
-    info!("Getting page category {category:?} in site ID {site_id}");
     CategoryService::get_optional(ctx, site_id, category)
         .await
         .or_raise(make_error)
@@ -54,7 +53,6 @@ pub async fn category_get_all(
     };
 
     let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
-    info!("Getting all page categories in site ID {site_id}");
     CategoryService::get_all(ctx, site_id)
         .await
         .or_raise(make_error)
@@ -74,7 +72,6 @@ pub async fn category_get_all_active(
     };
 
     let site_id = SiteService::get_id(ctx, site).await.or_raise(make_error)?;
-    info!("Getting all active page categories in site ID {site_id}");
     CategoryService::get_all_active(ctx, site_id)
         .await
         .or_raise(make_error)
