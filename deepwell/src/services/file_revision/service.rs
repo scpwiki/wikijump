@@ -684,6 +684,8 @@ impl FileRevisionService {
     pub async fn get_range(
         ctx: &ServiceContext<'_>,
         GetFileRevisionRange {
+            site_id,
+            page_id,
             file_id,
             revision_number,
             revision_direction,
@@ -693,10 +695,12 @@ impl FileRevisionService {
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to get {} file revisions from number {} in file ID {} (max {})",
+                    "failed to get {} file revisions from number {} for file ID {} on page ID {} in site ID {} (max {})",
                     revision_direction.name(),
                     revision_number,
                     file_id,
+                    page_id,
+                    site_id,
                     limit,
                 ),
                 ErrorType::FileRevision,
@@ -724,6 +728,8 @@ impl FileRevisionService {
         let txn = ctx.transaction();
         let mut query = FileRevision::find().filter(
             Condition::all()
+                .add(file_revision::Column::SiteId.eq(site_id))
+                .add(file_revision::Column::PageId.eq(page_id))
                 .add(file_revision::Column::FileId.eq(file_id))
                 .add(revision_condition),
         );
