@@ -87,6 +87,14 @@ pub struct CreatePageRevisionOutput {
 pub struct CreateFirstPageRevisionOutput {
     pub revision_id: i64,
     pub parser_errors: Vec<ParseError>,
+    #[serde(skip)]
+    pub(crate) followups: FirstRevisionFollowups,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct FirstRevisionFollowups {
+    pub(crate) slug: String,
+    pub(crate) rerender_after_latest_revision: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -70,6 +70,20 @@ macro_rules! conditional_future {
 pub struct PageRevisionService;
 
 #[derive(Debug)]
+pub(crate) struct PersistedPageRevision {
+    pub(crate) output: CreatePageRevisionOutput,
+    followups: PageRevisionFollowups,
+}
+
+#[derive(Debug)]
+struct PageRevisionFollowups {
+    revision_type: PageRevisionType,
+    old_slug: Option<String>,
+    slug: String,
+    tasks: PageRevisionTasks,
+}
+
+#[derive(Debug)]
 struct PageRevisionDraft {
     wikitext: String,
     wikitext_hash: Vec<u8>,
@@ -260,20 +274,43 @@ impl PageRevisionDraft {
     }
 }
 
+fn needs_latest_revision_for_render(wikitext: &str) -> bool {
+    let lower = wikitext.to_ascii_lowercase();
+    lower.contains("[[module countpages")
+        || lower.contains("[[module listpages")
+        || lower.contains("[[module tagcloud")
+        || lower.contains("[[include")
+}
+
+fn first_revision_followups(
+    slug: String,
+    wikitext: &str,
+    template_wikitext: Option<&str>,
+) -> FirstRevisionFollowups {
+    FirstRevisionFollowups {
+        slug,
+        rerender_after_latest_revision: needs_latest_revision_for_render(wikitext)
+            || template_wikitext.is_some_and(needs_latest_revision_for_render),
+    }
+}
+
 async fn apply_revision_outdating(
     ctx: &ServiceContext<'_>,
     id: PageId,
-    revision_type: PageRevisionType,
-    draft: &PageRevisionDraft,
-    tasks: PageRevisionTasks,
+    PageRevisionFollowups {
+        revision_type,
+        old_slug,
+        slug,
+        tasks,
+    }: PageRevisionFollowups,
 ) -> Result<()> {
-    if let Some(old_slug) = draft.old_slug.as_deref() {
+    if let Some(old_slug) = old_slug.as_deref() {
         OutdateService::process_page_move(
             ctx,
             id.site_id,
             id.page_id,
             old_slug,
-            &draft.slug,
+            &slug,
             RerenderDepth::default(),
         )
         .await?;
@@ -285,7 +322,7 @@ async fn apply_revision_outdating(
         return Ok(());
     }
 
-    let (category_slug, page_slug) = split_category_name(&draft.slug);
+    let (category_slug, page_slug) = split_category_name(&slug);
     try_join!(
         conditional_future!(
             tasks.rerender_incoming_links,
@@ -333,9 +370,7 @@ impl PageRevisionService {
     /// or they are all equivalent to the previous revision's, then no
     /// revision is committed and `Ok(None)` is returned.
     ///
-    /// If there are changes, then the new revision is created and all the
-    /// appropriate updating is done. For instance, recompiling the page
-    /// or updating backlinks.
+    /// If there are changes, the revision is rendered and persisted together with typed follow-up work. The caller must update the page aggregate and then pass the result to [`Self::apply_followups`].
     ///
     /// For page renames, this does not explicitly check if the target slug
     /// already exists. If so, the database will fail with a uniqueness error.
@@ -352,7 +387,7 @@ impl PageRevisionService {
     ///
     /// # Panics
     /// If the given previous revision is for a different page or site, this method will panic.
-    pub async fn create(
+    pub(crate) async fn create(
         ctx: &ServiceContext<'_>,
         id: PageId,
         CreatePageRevision {
@@ -362,7 +397,7 @@ impl PageRevisionService {
             body,
         }: CreatePageRevision,
         previous: PageRevisionModel,
-    ) -> Result<Option<CreatePageRevisionOutput>> {
+    ) -> Result<Option<PersistedPageRevision>> {
         let PageId {
             site_id,
             category_id,
@@ -428,9 +463,12 @@ impl PageRevisionService {
             draft.render(ctx, id, layout, score).await?;
         }
 
-        apply_revision_outdating(ctx, id, revision_type, &draft, tasks)
-            .await
-            .or_raise(make_error)?;
+        let followups = PageRevisionFollowups {
+            revision_type,
+            old_slug: draft.old_slug.clone(),
+            slug: draft.slug.clone(),
+            tasks,
+        };
 
         let parser_errors = draft.parser_errors.take();
         let model = draft.into_active_model(
@@ -444,11 +482,23 @@ impl PageRevisionService {
         let PageRevisionModel { revision_id, .. } =
             model.insert(txn).await.or_raise(make_error)?;
 
-        Ok(Some(CreatePageRevisionOutput {
-            revision_id,
-            revision_number,
-            parser_errors,
+        Ok(Some(PersistedPageRevision {
+            output: CreatePageRevisionOutput {
+                revision_id,
+                revision_number,
+                parser_errors,
+            },
+            followups,
         }))
+    }
+
+    pub(crate) async fn apply_followups(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        revision: PersistedPageRevision,
+    ) -> Result<CreatePageRevisionOutput> {
+        apply_revision_outdating(ctx, id, revision.followups).await?;
+        Ok(revision.output)
     }
 
     /// Creates the first revision for a newly-inserted page.
@@ -492,6 +542,21 @@ impl PageRevisionService {
         ctx.defer_public_content_cache_invalidate_site(site_id)
             .or_raise(make_error)?;
 
+        let (category_slug, page_slug) = split_category(&slug);
+        let template_wikitext = BlueprintPageService::get_page_template(
+            ctx,
+            site_id,
+            category_slug,
+            page_slug,
+        )
+        .await
+        .or_raise(make_error)?;
+        let followups = first_revision_followups(
+            slug.clone(),
+            &wikitext,
+            template_wikitext.as_deref(),
+        );
+
         // If the page creation doesn't specify a preferred layout,
         // use the default for the site.
         let layout = match layout {
@@ -533,17 +598,6 @@ impl PageRevisionService {
             .await
             .or_raise(make_error)?;
 
-        // Run outdater
-        OutdateService::process_page_displace(
-            ctx,
-            site_id,
-            page_id,
-            &slug,
-            RerenderDepth::default(),
-        )
-        .await
-        .or_raise(make_error)?;
-
         // Insert the first revision into the table
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Create),
@@ -563,7 +617,7 @@ impl PageRevisionService {
             hidden: Set(vec![]),
             title: Set(title),
             alt_title: Set(alt_title),
-            slug: Set(slug),
+            slug: Set(slug.clone()),
             tags: Set(tags),
             ..Default::default()
         };
@@ -574,7 +628,31 @@ impl PageRevisionService {
         Ok(CreateFirstPageRevisionOutput {
             revision_id,
             parser_errors: errors,
+            followups,
         })
+    }
+
+    pub(crate) async fn apply_first_followups(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        FirstRevisionFollowups {
+            slug,
+            rerender_after_latest_revision,
+        }: FirstRevisionFollowups,
+    ) -> Result<()> {
+        OutdateService::process_page_displace(
+            ctx,
+            id.site_id,
+            id.page_id,
+            &slug,
+            RerenderDepth::default(),
+        )
+        .await?;
+
+        if rerender_after_latest_revision {
+            Self::rerender(ctx, id, RerenderDepth::default(), RerenderType::Full).await?;
+        }
+        Ok(())
     }
 
     /// Creates a revision marking a page as deleted.
@@ -1729,4 +1807,26 @@ fn test_replace_hash_opt() {
     test!(None, Some(b"bar") => Some(b"bar"));
     test!(Some(b"foo"), None => None);
     test!(Some(b"foo"), Some(b"bar") => Some(b"bar"));
+}
+
+#[test]
+fn first_revision_followups_keep_static_pages_single_pass() {
+    let followups = first_revision_followups(str!("guide"), "ordinary page text", None);
+
+    assert_eq!(followups.slug, "guide");
+    assert!(!followups.rerender_after_latest_revision);
+}
+
+#[test]
+fn first_revision_followups_detect_runtime_content_in_page_or_template() {
+    let page_followups =
+        first_revision_followups(str!("guide"), "[[module ListPages]]", None);
+    let template_followups = first_revision_followups(
+        str!("guide"),
+        "ordinary page text",
+        Some("[[include component:license]]"),
+    );
+
+    assert!(page_followups.rerender_after_latest_revision);
+    assert!(template_followups.rerender_after_latest_revision);
 }
