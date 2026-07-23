@@ -52,7 +52,6 @@ use super::include_variable_iftags::{
 use super::issued_markers::restore_issued_html_text_markers;
 use super::list_pages::viewable_rows::{
     CountPagesRawScanCompletion, count_pages_raw_scan_completion,
-    find_viewable_count_pages_rows, find_viewable_list_pages_rows,
     random_page_query_scan_limit, render_page_query_batch_limit,
     render_page_query_uses_single_scan,
 };
@@ -77,6 +76,7 @@ use super::metacomponent::{
 use super::native_list_context::NativeListSourceContext;
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
+use super::runtime::{IncludeSourceCache, RenderRuntime};
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
@@ -109,11 +109,10 @@ use crate::services::text_block::{
     MIME_HTML, TextBlock, TextBlockService, mime_for_language,
 };
 use crate::services::{
-    CategoryService, PageQueryService, PageRevisionService, PageService, SiteService,
-    TextService,
+    CategoryService, PageRevisionService, PageService, SiteService, TextService,
 };
 use crate::types::{Action, PageId, Permission, Resource, TextBlockType};
-use crate::utils::{locale_for_ftml, trim_default};
+use crate::utils::locale_for_ftml;
 use ftml::data::PageRef;
 use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::*;
@@ -121,7 +120,7 @@ use ftml::tree::{CodeBlock, VariableMap};
 use regex::Regex;
 use sea_orm::{ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, Statement, Value};
 use std::borrow::Cow;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 use std::future::Future;
 use std::ops::Range;
 use std::pin::Pin;
@@ -3351,14 +3350,14 @@ impl RenderService {
                     .collect::<VariableMap<'static>>();
                 let include = IncludeRef::new(include.page_ref().clone(), variables);
 
-                let source = Self::fetch_include_source(
-                    ctx,
-                    expansion_context.current_site_id,
-                    &expansion_context.current_site_slug,
-                    include.page_ref(),
-                    include_source_cache,
-                )
-                .await?;
+                let source = RenderRuntime::new(ctx)
+                    .fetch_include_source(
+                        expansion_context.current_site_id,
+                        &expansion_context.current_site_slug,
+                        include.page_ref(),
+                        include_source_cache,
+                    )
+                    .await?;
 
                 let Some(mut source) = source else {
                     fetched_pages.push(None);
@@ -3477,139 +3476,6 @@ impl RenderService {
                 page_slug,
             }
         })
-    }
-
-    async fn fetch_include_source(
-        ctx: &ServiceContext<'_>,
-        current_site_id: i64,
-        current_site_slug: &str,
-        page_ref: &PageRef,
-        include_source_cache: &mut IncludeSourceCache,
-    ) -> Result<Option<IncludeSource>> {
-        match page_ref.site() {
-            Some(site_slug) if site_slug != current_site_slug => {
-                let current_site = include_source_cache
-                    .get_site_by_id_or_try_insert_with(current_site_id, || async {
-                        SiteService::get_optional(ctx, Reference::Id(current_site_id))
-                            .await
-                            .or_raise(|| {
-                                Error::new(
-                                    format!(
-                                        "failed to get current include site ID {current_site_id}"
-                                    ),
-                                    ErrorType::Site,
-                                )
-                            })
-                    })
-                    .await?;
-                let current_site_matches = current_site
-                    .as_ref()
-                    .is_some_and(|site| site_matches_wikidot_slug(site, site_slug));
-
-                if current_site_matches
-                    && let Some(source) = Self::fetch_include_source_from_site(
-                        ctx,
-                        current_site_id,
-                        current_site_slug,
-                        page_ref.page(),
-                        include_source_cache,
-                    )
-                    .await?
-                {
-                    return Ok(Some(source));
-                }
-
-                let Some(site) = include_source_cache
-                    .get_site_by_slug_or_try_insert_with(site_slug, || async {
-                        SiteService::get_optional(ctx, Reference::from(site_slug))
-                            .await
-                            .or_raise(|| {
-                                Error::new(
-                                    format!("failed to get include site '{}'", site_slug),
-                                    ErrorType::Site,
-                                )
-                            })
-                    })
-                    .await?
-                else {
-                    // The include names a distinct site that is not available
-                    // locally. Falling back to the current site can select the
-                    // including page itself when both slugs match and recurse
-                    // until the depth limit. Preserve missing-include behavior.
-                    return Ok(None);
-                };
-
-                Self::fetch_include_source_from_site(
-                    ctx,
-                    site.site_id,
-                    &site.slug,
-                    page_ref.page(),
-                    include_source_cache,
-                )
-                .await
-            }
-            _ => {
-                Self::fetch_include_source_from_site(
-                    ctx,
-                    current_site_id,
-                    current_site_slug,
-                    page_ref.page(),
-                    include_source_cache,
-                )
-                .await
-            }
-        }
-    }
-
-    async fn fetch_include_source_from_site(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        site_slug: &str,
-        page_slug: &str,
-        include_source_cache: &mut IncludeSourceCache,
-    ) -> Result<Option<IncludeSource>> {
-        let wikitext = include_source_cache
-            .get_or_try_insert_with(site_id, page_slug, || async {
-                let page_ref = Reference::from(page_slug);
-                let Some(page) =
-                    PageService::get_optional(ctx, site_id, page_ref.clone()).await?
-                else {
-                    return Ok(None);
-                };
-
-                let can_view = PermissionService::check_user_can(
-                    ctx,
-                    &CheckPermissionContext {
-                        user_id: None,
-                        site_id,
-                        page_reference: Some(page_ref),
-                    },
-                    Permission {
-                        resource_type: Resource::Page,
-                        resource_category: Some(Reference::Id(page.page_category_id)),
-                        action: Action::View,
-                    },
-                )
-                .await?;
-                if !can_view {
-                    return Ok(None);
-                }
-
-                PageRevisionService::get_wikitext_optional(
-                    ctx,
-                    site_id,
-                    Reference::Id(page.page_id),
-                )
-                .await
-            })
-            .await?;
-
-        Ok(wikitext.map(|wikitext| IncludeSource {
-            site_id,
-            site_slug: site_slug.to_owned(),
-            page_slug: trim_default(page_slug).to_owned(),
-            wikitext,
-        }))
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -4002,14 +3868,14 @@ impl RenderService {
             variables: &[],
             fields,
         };
-        let found = find_viewable_list_pages_rows(
-            ctx,
-            query,
-            batch_scan_target,
-            permission_cache,
-            None,
-        )
-        .await?;
+        let found = RenderRuntime::new(ctx)
+            .find_viewable_list_pages_rows(
+                query,
+                batch_scan_target,
+                permission_cache,
+                None,
+            )
+            .await?;
         // Permission filtering and duplicate live slugs can make one globally ordered batch consume its scan window before another slug is reached. Returning None reuses the existing per-slug query path for every block in this batch.
         if found.view_permission_filtering_applied {
             return Ok(None);
@@ -6655,14 +6521,14 @@ impl RenderService {
                 } else {
                     query_limit
                 };
-            let found = find_viewable_list_pages_rows(
-                ctx,
-                query,
-                query_target.min(usize::MAX as u64) as usize,
-                permission_cache,
-                Some(score_filter_cache),
-            )
-            .await?;
+            let found = RenderRuntime::new(ctx)
+                .find_viewable_list_pages_rows(
+                    query,
+                    query_target.min(usize::MAX as u64) as usize,
+                    permission_cache,
+                    Some(score_filter_cache),
+                )
+                .await?;
             if page_query_cap_requires_original_module(&found.metadata) {
                 return Ok(ListPagesBlockRenderResult::PreserveOriginal);
             }
@@ -7112,13 +6978,9 @@ impl RenderService {
             FoundPages { pages: Vec::new() }
         } else {
             let target_count = count_pages_query_limit.min(usize::MAX as u64) as usize;
-            let found = find_viewable_count_pages_rows(
-                ctx,
-                query,
-                target_count,
-                permission_cache,
-            )
-            .await?;
+            let found = RenderRuntime::new(ctx)
+                .find_viewable_count_pages_rows(query, target_count, permission_cache)
+                .await?;
             count_pages_metadata = Some((
                 found.metadata.clone(),
                 found.view_permission_filtering_applied,
@@ -11141,110 +11003,6 @@ struct IncludeExpansionContext<'a> {
 }
 
 #[derive(Debug)]
-struct IncludeSource {
-    site_id: i64,
-    site_slug: String,
-    page_slug: String,
-    wikitext: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum IncludeSourceCacheEntry {
-    Available(String),
-    Unavailable,
-}
-
-#[derive(Debug, Default)]
-struct IncludeSourceCache {
-    // This cache lives for one render only. Values never contain include-variable substitution or nested expansion, so every occurrence still follows the normal mutation, recursion, budget, and backlink paths.
-    sources_by_site: HashMap<i64, HashMap<String, IncludeSourceCacheEntry>>,
-    sites_by_id: HashMap<i64, Option<SiteModel>>,
-    sites_by_slug: HashMap<String, Option<SiteModel>>,
-    attachment_provenance: AttachmentProvenanceRegistry,
-}
-
-impl IncludeSourceCache {
-    fn get(&self, site_id: i64, page_slug: &str) -> Option<&IncludeSourceCacheEntry> {
-        self.sources_by_site
-            .get(&site_id)
-            .and_then(|sources| sources.get(page_slug))
-    }
-
-    async fn get_or_try_insert_with<F, Fut>(
-        &mut self,
-        site_id: i64,
-        page_slug: &str,
-        load: F,
-    ) -> Result<Option<String>>
-    where
-        F: FnOnce() -> Fut,
-        Fut: Future<Output = Result<Option<String>>>,
-    {
-        // PageRef already normalizes the slug and separates #section or /path. PageService also treats an explicit `_default:` category as canonical.
-        let page_slug = trim_default(page_slug);
-        if let Some(entry) = self.get(site_id, page_slug) {
-            return Ok(match entry {
-                IncludeSourceCacheEntry::Available(wikitext) => Some(wikitext.clone()),
-                IncludeSourceCacheEntry::Unavailable => None,
-            });
-        }
-
-        let wikitext = load().await?;
-        // Errors return above and are deliberately never cached. None is safe to retain within this render because missing, denied, and revision-less sources all have the same fail-closed include result.
-        let entry = match &wikitext {
-            Some(wikitext) => IncludeSourceCacheEntry::Available(wikitext.clone()),
-            None => IncludeSourceCacheEntry::Unavailable,
-        };
-        self.insert(site_id, page_slug, entry);
-        Ok(wikitext)
-    }
-
-    fn insert(&mut self, site_id: i64, page_slug: &str, entry: IncludeSourceCacheEntry) {
-        self.sources_by_site
-            .entry(site_id)
-            .or_default()
-            .insert(page_slug.to_owned(), entry);
-    }
-
-    async fn get_site_by_id_or_try_insert_with<F, Fut>(
-        &mut self,
-        site_id: i64,
-        load: F,
-    ) -> Result<Option<SiteModel>>
-    where
-        F: FnOnce() -> Fut,
-        Fut: Future<Output = Result<Option<SiteModel>>>,
-    {
-        if let Some(site) = self.sites_by_id.get(&site_id) {
-            return Ok(site.clone());
-        }
-
-        let site = load().await?;
-        self.sites_by_id.insert(site_id, site.clone());
-        Ok(site)
-    }
-
-    async fn get_site_by_slug_or_try_insert_with<F, Fut>(
-        &mut self,
-        site_slug: &str,
-        load: F,
-    ) -> Result<Option<SiteModel>>
-    where
-        F: FnOnce() -> Fut,
-        Fut: Future<Output = Result<Option<SiteModel>>>,
-    {
-        if let Some(site) = self.sites_by_slug.get(site_slug) {
-            return Ok(site.clone());
-        }
-
-        let site = load().await?;
-        self.sites_by_slug
-            .insert(site_slug.to_owned(), site.clone());
-        Ok(site)
-    }
-}
-
-#[derive(Debug)]
 struct CollectingIncluder<'a> {
     includes: &'a mut Vec<IncludeRef<'static>>,
 }
@@ -11468,7 +11226,7 @@ fn unprotect_include_variables(content: &mut String) {
         .replace(INCLUDE_VARIABLE_CLOSE_SENTINEL, "}");
 }
 
-fn site_matches_wikidot_slug(site: &SiteModel, site_slug: &str) -> bool {
+pub(super) fn site_matches_wikidot_slug(site: &SiteModel, site_slug: &str) -> bool {
     if site.slug.eq_ignore_ascii_case(site_slug) {
         return true;
     }
