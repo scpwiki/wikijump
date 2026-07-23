@@ -9870,11 +9870,13 @@ fn substitute_list_pages_variables_with_fragments(
                 "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
                     updated_by.clone()
                 }
-                "updated_at" | "updatedat" => format_list_pages_created_at(
-                    updated_at,
-                    captures.name("format").map(|matched| matched.as_str()),
-                    context.render_generated_html,
-                ),
+                "updated_at" | "updatedat" | "date_edited" => {
+                    format_list_pages_created_at(
+                        updated_at,
+                        captures.name("format").map(|matched| matched.as_str()),
+                        context.render_generated_html,
+                    )
+                }
                 "commented_by"
                 | "commentedby"
                 | "commented_by_linked"
@@ -15854,6 +15856,7 @@ mod tests {
             "**Comments:** %%comments%%\n",
             "**Last Comment:** %%commented_by%% (//%%commented_at|%D %H:%M|agohover%%//)\n",
             "**Last Edit:** %%updated_by%% (//%%updated_at|%D %H:%M|agohover%%//)\n",
+            "**Edited date:** //%%date_edited|%D %H:%M|agohover%%//\n",
             "%%tags_linked%%\n",
             "%%link%%",
         );
@@ -15870,7 +15873,12 @@ mod tests {
         assert!(rendered.contains("[/scp-2693 SCP-2693]"));
         assert!(rendered.contains("**Rating:** +42"));
         assert!(rendered.contains("**Last Edit:** Calibold"));
-        assert!(rendered.contains(r#"<span class="odate time_1782005400"#));
+        assert_eq!(
+            rendered
+                .matches(r#"<span class="odate time_1782005400"#)
+                .count(),
+            2
+        );
         assert!(rendered.contains(r#"data-wikijump-compat-date="1""#));
         assert!(rendered.contains("[/system:page-tags/tag/scp scp]"));
         assert!(rendered.contains("[/system:page-tags/tag/safe safe]"));

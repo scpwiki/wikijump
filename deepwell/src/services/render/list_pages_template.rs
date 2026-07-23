@@ -65,7 +65,7 @@ impl ListPagesVariable {
             "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
                 Some(Self::UpdatedBy)
             }
-            "updated_at" | "updatedat" => Some(Self::UpdatedAt),
+            "updated_at" | "updatedat" | "date_edited" => Some(Self::UpdatedAt),
             "commented_by"
             | "commentedby"
             | "commented_by_linked"
@@ -281,7 +281,7 @@ mod tests {
     fn compiles_aliases_into_field_and_dependency_requirements_once() {
         let body = concat!(
             "%%createdbylinked%% %%date%% %%tagslinked%% %%updatedby%% ",
-            "%%updatedat%% %%ratingvotes%% %%comments%% %%commentedby%% ",
+            "%%updatedat%% %%date_edited%% %%ratingvotes%% %%comments%% %%commentedby%% ",
             "%%commentedat%% %%content%% %%form_raw{status}%%",
         );
         let plan = ListPagesTemplatePlan::compile(body).expect("aliases should compile");
@@ -361,6 +361,7 @@ mod tests {
             "updatedbylinked",
             "updated_at",
             "updatedat",
+            "date_edited",
             "commented_by",
             "commentedby",
             "commented_by_linked",
