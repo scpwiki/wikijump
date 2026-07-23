@@ -12,6 +12,7 @@ const listen = async (server) => {
 
 test("Framerail HTTP server delegates requests and closes its fence cache", async () => {
   let fenceCacheCloseCount = 0
+  let resourceCloseCount = 0
   const lifecycle = createFramerailHttpServer({
     fastPathHandler: async (_request, response) => {
       response.statusCode = 204
@@ -21,6 +22,9 @@ test("Framerail HTTP server delegates requests and closes its fence cache", asyn
       close: () => {
         fenceCacheCloseCount += 1
       }
+    },
+    closeResources: () => {
+      resourceCloseCount += 1
     }
   })
   const baseUrl = await listen(lifecycle.server)
@@ -30,6 +34,7 @@ test("Framerail HTTP server delegates requests and closes its fence cache", asyn
 
   lifecycle.closeServer()
   assert.equal(fenceCacheCloseCount, 1)
+  assert.equal(resourceCloseCount, 1)
 })
 
 test("Framerail HTTP server turns handler failures into 500 responses", async (t) => {

@@ -3,12 +3,14 @@ import { pathToFileURL } from "node:url"
 
 import { createArticleResponseFastPathHandler } from "./article-response-fast-path.js"
 import { createMemoryArticleResponseFenceCache } from "./src/lib/server/article-response-cache.js"
-import {
-  articleResponseCacheStore,
-  articleResponseTokenStore
-} from "./src/lib/server/article-response-cache-stores.js"
+import { configureArticleResponseCacheStores } from "./src/lib/server/article-response-cache-runtime.js"
+import { createArticleResponseCacheStores } from "./src/lib/server/article-response-cache-stores.js"
 
-export const createFramerailHttpServer = ({ fastPathHandler, fenceCache }) => {
+export const createFramerailHttpServer = ({
+  fastPathHandler,
+  fenceCache,
+  closeResources = () => {}
+}) => {
   const server = http.createServer((request, response) => {
     void fastPathHandler(request, response).catch((error) => {
       response.statusCode = 500
@@ -18,6 +20,7 @@ export const createFramerailHttpServer = ({ fastPathHandler, fenceCache }) => {
 
   const closeServer = () => {
     fenceCache.close()
+    closeResources()
     server.close()
   }
 
@@ -29,17 +32,29 @@ export const startFramerailServer = async () => {
   const path = process.env.SOCKET_PATH
   const host = process.env.HOST ?? "0.0.0.0"
   const port = process.env.PORT ?? "3000"
+  const { responseStore, tokenStore } = createArticleResponseCacheStores()
+  const resetRuntimeStores = configureArticleResponseCacheStores({
+    responseStore,
+    tokenStore
+  })
   const fenceCache = createMemoryArticleResponseFenceCache({
-    store: articleResponseTokenStore,
-    subscriber: articleResponseTokenStore
+    store: tokenStore,
+    subscriber: tokenStore
   })
   const fastPathHandler = createArticleResponseFastPathHandler({
-    responseStore: articleResponseCacheStore,
-    tokenStore: articleResponseTokenStore,
+    responseStore,
+    tokenStore,
     handler,
     fenceCache
   })
-  const lifecycle = createFramerailHttpServer({ fastPathHandler, fenceCache })
+  const lifecycle = createFramerailHttpServer({
+    fastPathHandler,
+    fenceCache,
+    closeResources: () => {
+      resetRuntimeStores()
+      tokenStore?.reset?.()
+    }
+  })
 
   lifecycle.server.listen(path ? { path } : { host, port }, () => {
     console.log(`Listening on ${path || `http://${host}:${port}`}`)

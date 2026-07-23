@@ -10,10 +10,7 @@ import {
   writeAnonymousArticleResponseToken,
   writeAnonymousArticleResponseCache
 } from "$lib/server/article-response-cache"
-import {
-  articleResponseCacheStore,
-  articleResponseTokenStore
-} from "$lib/server/article-response-cache-stores"
+import { getArticleResponseCacheStores } from "$lib/server/article-response-cache-runtime"
 import { articleViewCacheMetadata } from "$lib/server/deepwell/views"
 import {
   getPreloadBackendLocales,
@@ -55,7 +52,9 @@ function canUseAnonymousArticleResponseCache(
 async function readAnonymousArticleResponseCacheForEvent(
   event: RequestEvent,
   siteId: number,
-  siteSlug: string
+  siteSlug: string,
+  responseStore: ReturnType<typeof getArticleResponseCacheStores>["responseStore"],
+  tokenStore: ReturnType<typeof getArticleResponseCacheStores>["tokenStore"]
 ) {
   const route = getArticleRoute(event)
   const requestLocales = getPreloadRequestLocales(event.request)
@@ -65,10 +64,10 @@ async function readAnonymousArticleResponseCacheForEvent(
   if (!gate.cacheable) return null
   const requestHost = requestHostFromRequest(event.request)
 
-  if (articleResponseTokenStore) {
+  if (tokenStore) {
     try {
       const fences = await readAnonymousArticleResponseCacheFences({
-        store: articleResponseTokenStore,
+        store: tokenStore,
         siteId
       })
       const tokenMetadata = buildAnonymousArticleResponseCacheFences({
@@ -82,7 +81,7 @@ async function readAnonymousArticleResponseCacheForEvent(
         permissionFence: fences?.permissionFence
       })
       const deepwellArticlePageCacheKey = await readAnonymousArticleResponseToken({
-        store: articleResponseTokenStore,
+        store: tokenStore,
         tokenMetadata
       })
       const metadata = buildAnonymousArticleResponseCacheMetadata({
@@ -97,7 +96,7 @@ async function readAnonymousArticleResponseCacheForEvent(
       })
 
       const cachedResponse = await readAnonymousArticleResponseCache({
-        store: articleResponseCacheStore,
+        store: responseStore,
         metadata
       })
       if (cachedResponse) return cachedResponse
@@ -121,7 +120,7 @@ async function readAnonymousArticleResponseCacheForEvent(
     if (!metadata) return null
 
     return readAnonymousArticleResponseCache({
-      store: articleResponseCacheStore,
+      store: responseStore,
       metadata
     })
   } catch {
@@ -131,6 +130,7 @@ async function readAnonymousArticleResponseCacheForEvent(
 
 export const handle: Handle = async ({ event, resolve }) => {
   const { request, cookies, locals, params } = event
+  const { responseStore, tokenStore } = getArticleResponseCacheStores()
   const resolveWithWikidotRequestInfo = () =>
     resolve(event, {
       transformPageChunk: ({ html }) =>
@@ -153,7 +153,9 @@ export const handle: Handle = async ({ event, resolve }) => {
   const cachedResponse = await readAnonymousArticleResponseCacheForEvent(
     event,
     siteId,
-    siteSlug
+    siteSlug,
+    responseStore,
+    tokenStore
   )
   if (cachedResponse) {
     applyStaticSecurityHeaders(cachedResponse, event.url.pathname, siteSlug)
@@ -167,11 +169,11 @@ export const handle: Handle = async ({ event, resolve }) => {
   const writeGate = canUseAnonymousArticleResponseCache(event, siteId, siteSlug)
   if (writeGate.cacheable) {
     const wroteResponse = await writeAnonymousArticleResponseCache({
-      store: articleResponseCacheStore,
+      store: responseStore,
       metadata: locals.anonymousArticleResponseCacheMetadata,
       response
     })
-    if (wroteResponse && articleResponseTokenStore) {
+    if (wroteResponse && tokenStore) {
       const metadata = locals.anonymousArticleResponseCacheMetadata
       const tokenMetadata = buildAnonymousArticleResponseCacheFences({
         siteId: metadata?.siteId,
@@ -184,7 +186,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         permissionFence: metadata?.permissionFence
       })
       await writeAnonymousArticleResponseToken({
-        store: articleResponseTokenStore,
+        store: tokenStore,
         tokenMetadata,
         deepwellArticlePageCacheKey: metadata?.deepwellArticlePageCacheKey
       })
