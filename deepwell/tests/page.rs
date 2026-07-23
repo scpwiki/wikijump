@@ -2817,6 +2817,78 @@ async fn listpages_reverse_yes_reverses_the_selected_ordered_rows() {
 }
 
 #[tokio::test]
+async fn listpages_index_remains_absolute_after_offset() {
+    const TAG: &str = "verification-listpages-offset-index";
+    const INDEX_SLUG: &str = "fixture-listpages-offset-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (
+            "fixture-listpages-offset-index-alpha",
+            "Fixture ListPages Offset Index Alpha",
+        ),
+        (
+            "fixture-listpages-offset-index-beta",
+            "Fixture ListPages Offset Index Beta",
+        ),
+        (
+            "fixture-listpages-offset-index-gamma",
+            "Fixture ListPages Offset Index Gamma",
+        ),
+        (
+            "fixture-listpages-offset-index-delta",
+            "Fixture ListPages Offset Index Delta",
+        ),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "ListPages offset index target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Offset Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-offset-index\" order=\"name asc\" offset=\"1\" limit=\"3\"]]\n",
+            "%%index%%:%%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    let beta = html
+        .find("2:fixture-listpages-offset-index-beta")
+        .expect("the first offset row should keep its absolute index");
+    let delta = html
+        .find("3:fixture-listpages-offset-index-delta")
+        .expect("the second offset row should keep its absolute index");
+    let gamma = html
+        .find("4:fixture-listpages-offset-index-gamma")
+        .expect("the third offset row should keep its absolute index");
+    assert!(
+        beta < delta && delta < gamma,
+        "offset ListPages rows should retain their pre-offset indexes:\n{html}"
+    );
+    assert!(
+        !html.contains("1:fixture-listpages-offset-index-beta"),
+        "the selected post-offset row must not be renumbered from one:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
