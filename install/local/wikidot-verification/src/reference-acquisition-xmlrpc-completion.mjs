@@ -31,7 +31,7 @@ const LAYER = "xmlrpc_page";
 const MEDIA_TYPE = "application/json";
 const SEMANTIC_VALIDATION_BATCH_SIZE = 4;
 
-function dataObject(value, expectedKeys, label) {
+function validateExactDataRecord(value, expectedKeys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -75,12 +75,12 @@ function dataObject(value, expectedKeys, label) {
 
 function snapshotReference(value, label) {
   return validateReferenceObject(
-    dataObject(value, ["algorithm", "bytes", "sha256"], label),
+    validateExactDataRecord(value, ["algorithm", "bytes", "sha256"], label),
   );
 }
 
 function ordinalRequest(value) {
-  const request = dataObject(value, ["ordinal"], "XML-RPC completion request");
+  const request = validateExactDataRecord(value, ["ordinal"], "XML-RPC completion request");
   if (!Number.isSafeInteger(request.ordinal) || request.ordinal < 0) {
     throw new Error("XML-RPC completion ordinal must be a safe integer");
   }

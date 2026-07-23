@@ -517,12 +517,12 @@ async function prepareStore(root, create) {
   }
 }
 
-export function initializeReferenceObjectStore(root) {
-  return prepareStore(root, true);
+export async function initializeReferenceObjectStore(root) {
+  return await prepareStore(root, true);
 }
 
-export function openReferenceObjectStore(root) {
-  return prepareStore(root, false);
+export async function openReferenceObjectStore(root) {
+  return await prepareStore(root, false);
 }
 
 export function referenceObjectStoreDescriptorBytes() {

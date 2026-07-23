@@ -89,7 +89,7 @@ const THROTTLE_KEYS = Object.freeze([
   "throttle_config",
 ]);
 
-function dataObject(value, keys, label) {
+function validateExactDataRecord(value, keys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -137,14 +137,14 @@ function reference(value, label) {
 }
 
 function digestReference(value, label) {
-  const object = dataObject(value, ["bytes", "sha256"], label);
+  const object = validateExactDataRecord(value, ["bytes", "sha256"], label);
   return Object.freeze({
     bytes: safeInteger(object.bytes, `${label}.bytes`),
     sha256: sha256(object.sha256, `${label}.sha256`),
   });
 }
 
-function same(left, right) {
+function canonicalJsonEqual(left, right) {
   return stableStringify(left) === stableStringify(right);
 }
 
@@ -201,7 +201,7 @@ function parseJson(bytes, label) {
 }
 
 function validateRunReceipt(value, rowCount) {
-  const run = dataObject(value, RUN_KEYS, "XML-RPC run receipt");
+  const run = validateExactDataRecord(value, RUN_KEYS, "XML-RPC run receipt");
   if (
     run.schema !== ACQUISITION_RUN_SCHEMA ||
     run.outcome !== "pass" ||
@@ -210,7 +210,7 @@ function validateRunReceipt(value, rowCount) {
   ) {
     throw new Error("XML-RPC run receipt is not a complete pass");
   }
-  const inventory = dataObject(
+  const inventory = validateExactDataRecord(
     run.inventory,
     ["row_count", "sha256"],
     "XML-RPC run inventory",
@@ -236,26 +236,26 @@ function validateRunReceipt(value, rowCount) {
 }
 
 function validateThrottleReceipt(value, run, inventorySha256) {
-  const receipt = dataObject(value, THROTTLE_KEYS, "XML-RPC throttle receipt");
+  const receipt = validateExactDataRecord(value, THROTTLE_KEYS, "XML-RPC throttle receipt");
   if (
     receipt.schema !== THROTTLE_RECEIPT_SCHEMA ||
     receipt.status !== "sealed" ||
     receipt.artifact_key !== run.artifact_key ||
     receipt.inventory_sha256 !== inventorySha256 ||
-    !same(receipt.campaign, run.campaign) ||
-    !same(receipt.implementation, run.implementation)
+    !canonicalJsonEqual(receipt.campaign, run.campaign) ||
+    !canonicalJsonEqual(receipt.implementation, run.implementation)
   ) {
     throw new Error("XML-RPC throttle receipt does not bind the run");
   }
   const config = reference(receipt.throttle_config, "XML-RPC throttle config");
-  if (!same(config, run.throttle)) {
+  if (!canonicalJsonEqual(config, run.throttle)) {
     throw new Error("XML-RPC throttle receipt conflicts with the run receipt");
   }
   return Object.freeze({ throttle_config: config });
 }
 
 function designatedXmlrpcPilotSource(value) {
-  const source = dataObject(
+  const source = validateExactDataRecord(
     value,
     [
       "acquisition_artifact_key",
@@ -292,7 +292,7 @@ function designatedXmlrpcPilotSource(value) {
     ),
     input_receipts: Object.freeze({
       inventory: digestReference(
-        dataObject(
+        validateExactDataRecord(
           source.input_receipts,
           ["inventory", "result", "throttle", "verdict"],
           "designated XML-RPC pilot source input_receipts",
@@ -325,7 +325,7 @@ function designatedXmlrpcPilotSource(value) {
 }
 
 function assertDesignatedInputReceipts(designation, inputReceipts) {
-  if (!same(designation.input_receipts, inputReceipts)) {
+  if (!canonicalJsonEqual(designation.input_receipts, inputReceipts)) {
     throw new Error(
       "XML-RPC pilot receipts do not match the designated source",
     );
@@ -337,8 +337,8 @@ function assertDesignatedXmlrpcPilotSource(designation, result, context) {
     designation.row_count !== context.rows.length ||
     designation.acquisition_artifact_key !== result.artifact_key ||
     designation.inventory_sha256 !== context.inventorySha256 ||
-    !same(designation.campaign, result.campaign) ||
-    !same(designation.implementation, result.implementation)
+    !canonicalJsonEqual(designation.campaign, result.campaign) ||
+    !canonicalJsonEqual(designation.implementation, result.implementation)
   ) {
     throw new Error("XML-RPC pilot does not match the designated source");
   }
@@ -440,9 +440,9 @@ export async function openVerifiedXmlrpcPilotBundle({
   const finalVerdict = parseWikidotXmlrpcAcquisitionVerdict(verdictBytes);
   if (
     finalVerdict.completed !== context.rows.length ||
-    !same(finalVerdict.campaign, result.campaign) ||
-    !same(finalVerdict.implementation, result.implementation) ||
-    !same(result.verdict, bytesIdentity(verdictBytes)) ||
+    !canonicalJsonEqual(finalVerdict.campaign, result.campaign) ||
+    !canonicalJsonEqual(finalVerdict.implementation, result.implementation) ||
+    !canonicalJsonEqual(result.verdict, bytesIdentity(verdictBytes)) ||
     result.inventory.sha256 !== context.inventorySha256
   ) {
     throw new Error(
@@ -468,7 +468,7 @@ export async function openVerifiedXmlrpcPilotBundle({
     const campaign = await openWikidotXmlrpcCampaign(store, result.campaign, {
       expectedInventorySha256: context.inventorySha256,
     });
-    if (!same(campaign.descriptor.implementation, result.implementation)) {
+    if (!canonicalJsonEqual(campaign.descriptor.implementation, result.implementation)) {
       throw new Error("XML-RPC campaign implementation does not bind the run");
     }
     completions = await openWikidotXmlrpcCompletions(
@@ -512,7 +512,7 @@ export async function openVerifiedXmlrpcPilotBundle({
     const manifests = rows.map((row) => row.manifest);
     const manifestBytes = jsonl(manifests);
     const manifestIdentity = bytesIdentity(manifestBytes);
-    if (!same(designation.verified_pilot_manifest, manifestIdentity)) {
+    if (!canonicalJsonEqual(designation.verified_pilot_manifest, manifestIdentity)) {
       throw new Error(
         "XML-RPC pilot manifest does not match the designated source",
       );

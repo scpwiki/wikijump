@@ -75,7 +75,7 @@ function fail(code) {
   throw new WikidotXmlrpcPrivateCapsuleError(code);
 }
 
-function dataObject(value, expectedKeys, code) {
+function validateExactDataRecord(value, expectedKeys, code) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -568,7 +568,7 @@ async function runProbe(
     fail("runtime_probe_failed");
   }
   const expectedVersion = version.split(".").map((part) => Number(part));
-  const input = dataObject(
+  const input = validateExactDataRecord(
     record,
     [
       "base_prefix",
@@ -595,7 +595,7 @@ async function runProbe(
   ) {
     fail("runtime_probe_failed");
   }
-  const modules = dataObject(
+  const modules = validateExactDataRecord(
     input.modules,
     SOURCE_PROBE_MODULES,
     "runtime_probe_failed",
@@ -654,7 +654,7 @@ function createPrivateCapsule(root, pythonExecutable, workerEntrypoint) {
 }
 
 export async function prepareWikidotXmlrpcRuntime(value) {
-  const input = dataObject(value, RUNTIME_OPTIONS, "runtime_options_invalid");
+  const input = validateExactDataRecord(value, RUNTIME_OPTIONS, "runtime_options_invalid");
   const root = await privateDirectory(input.root, "runtime_root_invalid");
   const pythonExecutablePath = assertRelativePath(
     input.pythonExecutablePath,
@@ -683,7 +683,7 @@ export async function prepareWikidotXmlrpcRuntime(value) {
 }
 
 export async function prepareWikidotXmlrpcWorkerSource(value) {
-  const input = dataObject(value, SOURCE_OPTIONS, "source_options_invalid");
+  const input = validateExactDataRecord(value, SOURCE_OPTIONS, "source_options_invalid");
   let tree;
   try {
     tree = await readExactGitTreeFiles(
@@ -705,7 +705,7 @@ export async function prepareWikidotXmlrpcWorkerSource(value) {
 }
 
 export async function materializeWikidotXmlrpcPrivateCapsule(value) {
-  const input = dataObject(value, CAPSULE_OPTIONS, "capsule_options_invalid");
+  const input = validateExactDataRecord(value, CAPSULE_OPTIONS, "capsule_options_invalid");
   const runtime = assertPreparedRuntime(input.runtime);
   const sourceTree = assertPreparedSource(input.source);
   const parent = await privateDirectory(

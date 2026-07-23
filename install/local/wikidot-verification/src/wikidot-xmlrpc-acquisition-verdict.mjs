@@ -25,7 +25,7 @@ const VERDICT_KEYS = Object.freeze([
   "status",
 ]);
 
-function dataObject(value, expectedKeys, label) {
+function validateExactDataRecord(value, expectedKeys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -69,12 +69,12 @@ function dataObject(value, expectedKeys, label) {
 
 function snapshotReference(value, label) {
   return validateReferenceObject(
-    dataObject(value, ["algorithm", "bytes", "sha256"], label),
+    validateExactDataRecord(value, ["algorithm", "bytes", "sha256"], label),
   );
 }
 
 function normalizeFinalVerdict(value) {
-  const verdict = dataObject(
+  const verdict = validateExactDataRecord(
     value,
     VERDICT_KEYS,
     "XML-RPC acquisition verdict",
@@ -133,7 +133,7 @@ async function readPublishedVerdict(output) {
 }
 
 function publicationOptions(value) {
-  const options = dataObject(
+  const options = validateExactDataRecord(
     value,
     ["campaignReference", "context", "store"],
     "XML-RPC final verdict publication options",

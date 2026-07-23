@@ -60,7 +60,7 @@ const SHA256_RE = /^[0-9a-f]{64}$/u;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u;
 
-function dataObject(value, expectedKeys, label) {
+function validateExactDataRecord(value, expectedKeys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -114,7 +114,7 @@ function assertSha256(value, label) {
 
 function snapshotReference(value, label) {
   return validateReferenceObject(
-    dataObject(value, ["algorithm", "bytes", "sha256"], label),
+    validateExactDataRecord(value, ["algorithm", "bytes", "sha256"], label),
   );
 }
 
@@ -155,7 +155,7 @@ function campaignBody(value) {
 }
 
 function normalizeCampaign(value) {
-  const input = dataObject(value, CAMPAIGN_KEYS, "XML-RPC campaign");
+  const input = validateExactDataRecord(value, CAMPAIGN_KEYS, "XML-RPC campaign");
   const body = campaignBody(input);
   const campaignId = sha256Hex(stableStringify(body));
   if (input.campaign_id !== campaignId) {
@@ -202,7 +202,7 @@ function campaignProducer(reference) {
 }
 
 export function buildWikidotXmlrpcCampaign(options) {
-  const input = dataObject(options, BUILD_KEYS, "campaign build options");
+  const input = validateExactDataRecord(options, BUILD_KEYS, "campaign build options");
   const body = campaignBody({
     campaign_nonce: input.campaignNonce,
     ...FIXED_AUTHORITY,
@@ -280,7 +280,7 @@ export async function putWikidotXmlrpcCampaign(store, value) {
 
 export async function openWikidotXmlrpcCampaign(store, reference, options) {
   assertStore(store);
-  const input = dataObject(
+  const input = validateExactDataRecord(
     options,
     ["expectedInventorySha256"],
     "campaign open options",
