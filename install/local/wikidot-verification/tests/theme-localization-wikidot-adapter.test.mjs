@@ -284,6 +284,31 @@ module.serve(sys.stdin, sys.stdout, Backend())
   await client.close();
 });
 
+test("Python helper closes its backend when response delivery fails", () => {
+  const program = String.raw`
+import importlib.util, io, sys
+spec = importlib.util.spec_from_file_location("theme_helper", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+class Backend:
+    closed = False
+    def close(self): self.closed = True
+class BrokenOutput:
+    def write(self, value): raise OSError("closed pipe")
+    def flush(self): pass
+backend = Backend()
+try:
+    module.serve(io.StringIO('{"id":1,"action":"ping"}\n'), BrokenOutput(), backend)
+except OSError:
+    pass
+print(backend.closed)
+`;
+  const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, "");
+  assert.equal(result.stdout.trim(), "True");
+});
+
 test("helper errors and process exits never expose credentials", async () => {
   const secret = "never-print-this-password";
   const errorProgram = String.raw`

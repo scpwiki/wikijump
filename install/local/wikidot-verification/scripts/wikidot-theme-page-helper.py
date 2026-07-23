@@ -131,8 +131,11 @@ class WikidotBackend:
         if client is not None:
             try:
                 client.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                raise PublicError(
+                    "cleanup_failed",
+                    "Wikidot helper cleanup failed",
+                ) from exc
 
     def _get(self, slug: str) -> str | None:
         url = ALLOWED_ORIGIN if not slug else f"{ALLOWED_ORIGIN}/{slug}"
@@ -376,47 +379,49 @@ def dispatch(backend: Any, request: dict[str, Any]) -> tuple[dict[str, Any], boo
 
 
 def serve(input_stream: TextIO, output_stream: TextIO, backend: Any) -> int:
-    for raw_line in input_stream:
-        request_id: int | None = None
-        stop = False
-        try:
-            if len(raw_line.encode("utf-8")) > MAX_REQUEST_BYTES:
-                raise PublicError("request_too_large", "helper request exceeded its size limit")
-            request = json.loads(raw_line)
-            if not isinstance(request, dict) or not isinstance(request.get("id"), int) or isinstance(request.get("id"), bool):
-                raise PublicError("invalid_request", "helper request requires an integer id")
-            request_id = request["id"]
-            result, stop = dispatch(backend, request)
-            response = {"id": request_id, "ok": True, "result": result}
-        except PublicError as exc:
-            response = {
-                "id": request_id,
-                "ok": False,
-                "error": {"code": exc.code, "message": exc.message},
-            }
-        except Exception:
-            response = {
-                "id": request_id,
-                "ok": False,
-                "error": {
-                    "code": "internal_error",
-                    "message": "helper operation failed safely",
-                },
-            }
-        output_stream.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\n")
-        output_stream.flush()
-        if stop:
-            break
-    backend.close()
-    return 0
+    try:
+        for raw_line in input_stream:
+            request_id: int | None = None
+            stop = False
+            try:
+                if len(raw_line.encode("utf-8")) > MAX_REQUEST_BYTES:
+                    raise PublicError("request_too_large", "helper request exceeded its size limit")
+                request = json.loads(raw_line)
+                if not isinstance(request, dict) or not isinstance(request.get("id"), int) or isinstance(request.get("id"), bool):
+                    raise PublicError("invalid_request", "helper request requires an integer id")
+                request_id = request["id"]
+                result, stop = dispatch(backend, request)
+                response = {"id": request_id, "ok": True, "result": result}
+            except PublicError as exc:
+                response = {
+                    "id": request_id,
+                    "ok": False,
+                    "error": {"code": exc.code, "message": exc.message},
+                }
+            except Exception:
+                response = {
+                    "id": request_id,
+                    "ok": False,
+                    "error": {
+                        "code": "internal_error",
+                        "message": "helper operation failed safely",
+                    },
+                }
+            output_stream.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\n")
+            output_stream.flush()
+            if stop:
+                break
+        return 0
+    finally:
+        backend.close()
 
 
 def main() -> int:
     try:
         backend = WikidotBackend()
+        return serve(sys.stdin, sys.stdout, backend)
     except Exception:
         return 2
-    return serve(sys.stdin, sys.stdout, backend)
 
 
 if __name__ == "__main__":
