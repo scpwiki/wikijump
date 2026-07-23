@@ -8334,7 +8334,7 @@ struct BacklinksModulePage {
     title: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct ListPagesArguments {
     current_page_only: bool,
     category_selector_present: bool,
@@ -8756,6 +8756,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 // out of FTML's generic module path, which otherwise panics on
                 // ListPages bodies that start with numbered-list markers.
             }
+            // Wikidot accepts these presentation arguments without applying them
+            // to the ListPages wrapper. Preserve that accepted no-op grammar, but
+            // do not forward author-controlled attributes into generated markup.
+            "class" | "style" => {}
             _ if raw_key.starts_with('_') => {
                 let value = static_list_pages_selector(
                     value,
@@ -12912,6 +12916,35 @@ mod tests {
         assert_eq!(
             arguments.prepend_line.as_deref(),
             Some("||~ ページ ||~ 投稿者 ||~ 投稿日 ||~ 評価 ||"),
+        );
+    }
+
+    #[test]
+    fn accepts_wikidot_list_pages_class_and_style_as_noops() {
+        let baseline = parse_list_pages_arguments(
+            r#" category="*" tags="fixture" limit="20" wrapper="no" "#,
+        )
+        .expect("baseline ListPages module should parse");
+
+        for head in [
+            r#" category="*" tags="fixture" limit="20" class="g54-custom" wrapper="no" "#,
+            r#" category="*" tags="fixture" limit="20" style="margin: 0; width: 100%;" wrapper="no" "#,
+            r#" category="*" tags="fixture" limit="20" class="" style="" wrapper="no" "#,
+            r#" category="*" tags="fixture" limit="20" class="first" class="second" style="color: red" style="display: block" wrapper="no" "#,
+        ] {
+            assert_eq!(
+                parse_list_pages_arguments(head),
+                Some(baseline.clone()),
+                "Wikidot accepts class/style as no-op ListPages grammar: {head}",
+            );
+        }
+
+        assert!(
+            parse_list_pages_arguments(
+                r#" category="*" tags="fixture" limit="20" data-custom="value" wrapper="no" "#,
+            )
+            .is_none(),
+            "only the live-evidenced class/style keys are accepted as no-ops"
         );
     }
 

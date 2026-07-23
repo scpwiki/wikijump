@@ -2547,6 +2547,64 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
 }
 
 #[tokio::test]
+async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
+    const TAG: &str = "verification-listpages-presentation-noop";
+    const TARGET_SLUG: &str = "fixture-listpages-presentation-noop-target";
+    const INDEX_SLUG: &str = "fixture-listpages-presentation-noop-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Presentation No-op Target",
+        "Fixture ListPages presentation no-op target marker.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, TARGET_SLUG, target_revision, &[TAG])
+        .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Presentation No-op Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-presentation-noop\" limit=\"10\" ",
+            "class=\"g54-custom\" style=\"margin: 0; width: 100%;\"]]\n",
+            "* %%title%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains("Fixture ListPages Presentation No-op Target"),
+        "accepted ListPages presentation arguments should still render rows:\n{html}"
+    );
+    assert!(
+        html.contains(r#"<div class="list-pages-box">"#),
+        "the live fixed ListPages wrapper should remain present:\n{html}"
+    );
+    for forbidden in [
+        "g54-custom",
+        "margin: 0",
+        "width: 100%",
+        "[[module ListPages",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "ListPages class/style arguments must remain accepted no-ops, not forwarded output: {forbidden:?}\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
 async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
