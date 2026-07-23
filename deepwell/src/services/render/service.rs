@@ -9831,6 +9831,11 @@ fn substitute_list_pages_variables_with_fragments(
         .filter(|tag| is_list_pages_visible_tag(tag))
         .cloned()
         .collect::<Vec<_>>();
+    let hidden_tags = tags
+        .iter()
+        .filter(|tag| is_list_pages_hidden_tag(tag))
+        .cloned()
+        .collect::<Vec<_>>();
     let tags_text = visible_tags.join(" ");
     let rating = format_list_pages_rating(page.score);
     // The frozen corpus predates vote-count capture. Keep this value typed as
@@ -9892,6 +9897,12 @@ fn substitute_list_pages_variables_with_fragments(
                 "tags" => tags_text.clone(),
                 "tags_linked" | "tagslinked" => render_list_pages_tags(
                     &visible_tags,
+                    captures.name("format").map(|matched| matched.as_str()),
+                    context.render_generated_html,
+                    compat_html,
+                ),
+                "_tags_linked" => render_list_pages_tags(
+                    &hidden_tags,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                     compat_html,
@@ -10088,6 +10099,11 @@ fn is_tag_cloud_visible_tag(tag: &str) -> bool {
 fn is_list_pages_visible_tag(tag: &str) -> bool {
     let tag = tag.trim();
     !tag.is_empty() && !tag.starts_with('_')
+}
+
+fn is_list_pages_hidden_tag(tag: &str) -> bool {
+    let tag = tag.trim();
+    !tag.is_empty() && tag.starts_with('_')
 }
 
 fn render_list_pages_wikidot_user(
@@ -16126,6 +16142,74 @@ mod tests {
         );
         assert!(!rendered.contains("&lt;span"));
         assert!(!rendered.contains("&lt;a href"));
+    }
+
+    #[test]
+    fn substitutes_wikidot_list_pages_hidden_tags_as_links() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Hidden tags".to_owned()),
+            alt_title: None,
+            slug: Some("hidden-tags".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: Some(vec![
+                "_image".to_owned(),
+                "scp".to_owned(),
+                "_licensebox".to_owned(),
+                "safe".to_owned(),
+            ]),
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+
+        let rendered = substitute_list_pages_variables(
+            "%%_tags_linked%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context_with_mode(
+                20,
+                &BTreeMap::new(),
+                empty_list_pages_snapshot_displays(),
+                None,
+                &BTreeMap::new(),
+                true,
+            ),
+        );
+
+        assert_eq!(
+            rendered,
+            r#"<a href="/system:page-tags/tag/_image">_image</a> <a href="/system:page-tags/tag/_licensebox">_licensebox</a>"#,
+        );
+        assert!(!rendered.contains(">scp<"));
+        assert!(!rendered.contains(">safe<"));
+
+        let no_hidden_tags = FoundPageRow {
+            tags: Some(vec!["scp".to_owned(), "safe".to_owned()]),
+            ..page
+        };
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%_tags_linked%%",
+                &no_hidden_tags,
+                1,
+                1,
+                &list_pages_substitution_context_with_mode(
+                    20,
+                    &BTreeMap::new(),
+                    empty_list_pages_snapshot_displays(),
+                    None,
+                    &BTreeMap::new(),
+                    true,
+                ),
+            ),
+            ""
+        );
     }
 
     #[test]
