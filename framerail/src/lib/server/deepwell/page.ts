@@ -10,7 +10,7 @@ import type {
   PageVoteModel,
   ParseError
 } from "$lib/types"
-import type { RequestContext } from "./request-context"
+import type { RequestContext } from "../request-context"
 
 /* ----- Page Delete ----- */
 interface PageDelete {

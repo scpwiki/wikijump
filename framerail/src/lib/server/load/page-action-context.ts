@@ -8,10 +8,10 @@ import {
   getPreloadBackendLocales,
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
-import { getRequestContext, withDefaultPageContext } from "$lib/server/load/request-ctx"
+import { getRequestContext, withDefaultPageContext } from "$lib/server/request-context"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 
-import type { RequestContext } from "$lib/server/deepwell/request-context"
+import type { RequestContext } from "$lib/server/request-context"
 import type { RequestEvent } from "@sveltejs/kit"
 
 type SessionRequirement = "none" | "optional" | "required"

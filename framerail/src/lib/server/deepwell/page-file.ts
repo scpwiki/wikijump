@@ -11,7 +11,7 @@ import {
 } from "$lib/server/deepwell/page-file-mutation-payloads"
 
 import type { FileRevisionModel, FileRevisionType, Nullable, Optional } from "$lib/types"
-import type { RequestContext } from "./request-context"
+import type { RequestContext } from "../request-context"
 
 const DEEPWELL_PERMISSION_DENIED = 3106
 

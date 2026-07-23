@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { withDefaultPageContext } from "../src/lib/server/load/request-ctx.ts"
+import { withDefaultPageContext } from "../src/lib/server/request-context.ts"
 
 test("adds the server-resolved default page to a root request context", () => {
   assert.deepEqual(

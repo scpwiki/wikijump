@@ -16,7 +16,7 @@ import {
   getPreloadBackendLocales,
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
-import { storeRequestContext } from "$lib/server/load/request-ctx"
+import { storeRequestContext } from "$lib/server/request-context"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { applyStaticSecurityHeaders } from "$lib/server/security-headers"
 import {

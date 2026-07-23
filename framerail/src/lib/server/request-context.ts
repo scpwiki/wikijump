@@ -1,4 +1,10 @@
-import type { RequestContext } from "$lib/server/deepwell/request-context"
+interface RequestContextFields {
+  sessionToken?: string
+  siteId?: number
+  page?: string | number
+}
+
+export type RequestContext = RequestContextFields | void
 
 export function storeRequestContext(
   locals: App.Locals,
