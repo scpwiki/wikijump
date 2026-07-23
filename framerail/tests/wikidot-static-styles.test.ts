@@ -72,6 +72,16 @@ test("the modern top bar styles cannot match imported Wikidot navigation", async
   assert.doesNotMatch(layout, /^\s*\.top-bar\s*\{/mu)
 })
 
+test("the modern page-tag layout cannot override imported Wikidot theme CSS", async () => {
+  const page = await fs.readFile(
+    new URL("../src/routes/[slug]/[...extra]/page.svelte", import.meta.url),
+    "utf8"
+  )
+
+  assert.match(page, /\.sigma-esque-container\s+\.page-tags\s*\{/u)
+  assert.doesNotMatch(page, /^\s*\.page-tags\s*\{/mu)
+})
+
 test("the Wikidot shell preserves the legacy two-input search chrome", async () => {
   const layout = await fs.readFile(
     new URL("../src/routes/+layout.svelte", import.meta.url),

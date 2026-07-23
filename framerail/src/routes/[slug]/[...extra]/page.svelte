@@ -689,7 +689,7 @@
     padding: 0 0 2em;
   }
 
-  .page-tags {
+  .sigma-esque-container .page-tags {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
