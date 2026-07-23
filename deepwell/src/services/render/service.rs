@@ -8483,6 +8483,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
 
     let mut category_all = true;
     let mut category_selector_present = false;
+    let mut category_argument_is_plural = None;
     let mut current_page_only = false;
     let mut include_current_category = false;
     let mut categories = Vec::new();
@@ -8583,7 +8584,14 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     }
                 }
             }
-            "category" => {
+            "category" | "categories" => {
+                let is_plural = key == "categories";
+                if category_argument_is_plural
+                    .is_some_and(|previous| previous != is_plural)
+                {
+                    return None;
+                }
+                category_argument_is_plural.get_or_insert(is_plural);
                 category_selector_present = true;
                 let mut saw_included_category = false;
                 let Some(value) = static_list_pages_selector(
@@ -12874,6 +12882,25 @@ mod tests {
         );
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("地下東京奇譚")]);
         assert_eq!(arguments.no_tags, vec![Cow::Borrowed("ハブ")]);
+    }
+
+    #[test]
+    fn parses_wikidot_list_pages_categories_alias_without_mixing_spellings() {
+        let singular = parse_list_pages_arguments(
+            r#" category="_default" tags="+fixture" limit="20" "#,
+        )
+        .expect("singular category selector should parse");
+        let plural = parse_list_pages_arguments(
+            r#" categories="_default" tags="+fixture" limit="20" "#,
+        )
+        .expect("Wikidot categories alias should parse");
+
+        assert_eq!(plural, singular);
+        assert!(
+            parse_list_pages_arguments(r#" category="_default" categories="fragment" "#)
+                .is_none(),
+            "mixing category spellings remains unverified and must fail closed"
+        );
     }
 
     #[test]

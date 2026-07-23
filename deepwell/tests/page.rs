@@ -2605,6 +2605,66 @@ async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
 }
 
 #[tokio::test]
+async fn listpages_categories_alias_selects_only_default_category_rows() {
+    const TAG: &str = "verification-listpages-categories-alias";
+    const DEFAULT_SLUG: &str = "fixture-listpages-categories-alias-default";
+    const FOREIGN_SLUG: &str = "fragment:fixture-listpages-categories-alias-foreign";
+    const INDEX_SLUG: &str = "fixture-listpages-categories-alias-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let default_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        DEFAULT_SLUG,
+        "Fixture ListPages Categories Alias Default",
+        "Default-category ListPages alias target.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, DEFAULT_SLUG, default_revision, &[TAG])
+        .await;
+
+    let foreign_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        FOREIGN_SLUG,
+        "Fixture ListPages Categories Alias Foreign",
+        "Foreign-category ListPages alias target.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, FOREIGN_SLUG, foreign_revision, &[TAG])
+        .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Categories Alias Index",
+        concat!(
+            "[[module ListPages categories=\"_default\" tags=\"+verification-listpages-categories-alias\" limit=\"10\"]]\n",
+            "* %%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(DEFAULT_SLUG),
+        "categories alias should render matching default-category rows:\n{html}"
+    );
+    for forbidden in [FOREIGN_SLUG, "[[module ListPages"] {
+        assert!(
+            !html.contains(forbidden),
+            "categories alias must not widen to {forbidden:?}:\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
 async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
