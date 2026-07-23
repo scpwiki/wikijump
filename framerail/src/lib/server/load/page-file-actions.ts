@@ -14,6 +14,7 @@ import {
   pageMutationBaseSchema,
   readActionJson
 } from "$lib/server/load/page-action-shared"
+import { withPageFileClientAddress } from "$lib/server/deepwell/page-file-mutation-payloads"
 import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
 import { fail } from "@sveltejs/kit"
 import { superValidate, withFiles } from "sveltekit-superforms"
@@ -53,15 +54,14 @@ export async function pageFileUploadAction(event: RequestEvent) {
       session: "required"
     })
     const res = await pageFileCreate(
-      {
+      withPageFileClientAddress(getClientAddress, {
         siteId,
         pageId,
         userId: context.sessionUserId,
         name: name === "" ? undefined : name,
         file,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
+        revisionComments: comments
+      }),
       context.requestContext
     )
 
@@ -125,7 +125,7 @@ export async function pageFileEditAction(event: RequestEvent) {
       session: "required"
     })
     const res = await pageFileEdit(
-      {
+      withPageFileClientAddress(getClientAddress, {
         siteId,
         pageId,
         userId: context.sessionUserId,
@@ -133,9 +133,8 @@ export async function pageFileEditAction(event: RequestEvent) {
         name: name === "" ? undefined : name,
         file,
         lastRevisionId,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
+        revisionComments: comments
+      }),
       context.requestContext
     )
 
@@ -221,16 +220,15 @@ export async function pageFileRestoreAction(event: RequestEvent) {
       })
     }
     const res = await pageFileRestore(
-      {
+      withPageFileClientAddress(getClientAddress, {
         siteId,
         pageId,
         userId,
         fileId,
         newPage: newPage === "" ? undefined : newPage,
         newName: newName === "" ? undefined : newName,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
+        revisionComments: comments
+      }),
       context.requestContext
     )
 
@@ -307,16 +305,15 @@ export async function pageFileRollbackAction(event: RequestEvent) {
       })
     }
     const res = await pageFileRollback(
-      {
+      withPageFileClientAddress(getClientAddress, {
         siteId,
         pageId,
         userId,
         fileId,
         lastRevisionId,
         revisionNumber,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
+        revisionComments: comments
+      }),
       context.requestContext
     )
     return { res }

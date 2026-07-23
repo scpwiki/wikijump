@@ -46,6 +46,16 @@ interface PageFileRollbackPayloadInput {
   bypassFilter: boolean
 }
 
+export function withPageFileClientAddress<T>(
+  getClientAddress: () => string,
+  input: T
+): T & { ipAddress: string } {
+  return {
+    ...input,
+    ipAddress: getClientAddress()
+  }
+}
+
 export function buildPageFileCreatePayload(input: PageFileCreatePayloadInput) {
   return {
     site_id: input.siteId,
