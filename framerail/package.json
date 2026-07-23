@@ -11,7 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "pnpm test:unit && pnpm test:browser",
-    "test:browser": "playwright test",
+    "test:browser": "node tests/playwright-runner.js",
     "test:unit": "node --test tests/*.test.js tests/*.test.ts",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

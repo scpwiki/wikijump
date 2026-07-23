@@ -10,6 +10,8 @@ import {
 
 test.describe.configure({ mode: "serial" })
 
+const fixtureUrl = `http://127.0.0.1:${process.env.PLAYWRIGHT_FIXTURE_PORT ?? "42747"}`
+
 const xmlRpcListMethodsRequest = `<?xml version="1.0"?>
 <methodCall>
   <methodName>system.listMethods</methodName>
@@ -800,9 +802,7 @@ test("XML-RPC endpoint selects local tags", async ({ request }) => {
   expect(tagsBody).toContain("<string>_cc</string>")
   expect(tagsBody).toContain("<string>tale</string>")
 
-  const deepwellRequest = await request.get(
-    "http://127.0.0.1:42747/last-page-tags-request"
-  )
+  const deepwellRequest = await request.get(`${fixtureUrl}/last-page-tags-request`)
   expect(deepwellRequest.status()).toBe(200)
   expect(await deepwellRequest.json()).toEqual({
     headers: {
@@ -832,9 +832,7 @@ test("XML-RPC endpoint selects pages with documented filters and ordering", asyn
   expect(body.indexOf("scp-173")).toBeLessThan(body.indexOf("scp-anthology-2024"))
   expect(body.indexOf("scp-anthology-2024")).toBeLessThan(body.indexOf("scp-8566"))
 
-  const deepwellRequest = await request.get(
-    "http://127.0.0.1:42747/last-page-select-request"
-  )
+  const deepwellRequest = await request.get(`${fixtureUrl}/last-page-select-request`)
   expect(deepwellRequest.status()).toBe(200)
   expect(await deepwellRequest.json()).toEqual({
     categories: ["_default"],
@@ -972,9 +970,7 @@ test("XML-RPC endpoint returns page metadata and bodies for corpus clients", asy
     "Argument site invalid: site does not exist"
   )
 
-  const deepwellRequests = await request.get(
-    "http://127.0.0.1:42747/last-page-read-requests"
-  )
+  const deepwellRequests = await request.get(`${fixtureUrl}/last-page-read-requests`)
   expect(deepwellRequests.status()).toBe(200)
   expect(await deepwellRequests.json()).toEqual({
     forumPostPageSummary: [
@@ -1114,9 +1110,7 @@ test("XML-RPC endpoint enforces page view ACLs for page reads", async ({ request
   expect(oneBody).toContain("XML-RPC user is not allowed to view this page")
   expect(oneBody).not.toContain("Private page body marker")
 
-  const deepwellRequests = await request.get(
-    "http://127.0.0.1:42747/last-page-read-requests"
-  )
+  const deepwellRequests = await request.get(`${fixtureUrl}/last-page-read-requests`)
   expect(deepwellRequests.status()).toBe(200)
   const readRequests = await deepwellRequests.json()
   expect(
@@ -1156,7 +1150,7 @@ test("XML-RPC page HTML omits generated CSS that browser views place in head", a
   expect(htmlMember).not.toContain("#header h2 span")
   expect(htmlMember).not.toContain("&lt;style")
 
-  const reset = await request.get("http://127.0.0.1:42747/last-page-read-requests")
+  const reset = await request.get(`${fixtureUrl}/last-page-read-requests`)
   expect(reset.status()).toBe(200)
 })
 
@@ -1272,9 +1266,7 @@ test("XML-RPC endpoint returns page comment summaries and forum posts", async ({
 test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename", async ({
   request
 }) => {
-  const resetWriteRequests = await request.get(
-    "http://127.0.0.1:42747/last-page-write-requests"
-  )
+  const resetWriteRequests = await request.get(`${fixtureUrl}/last-page-write-requests`)
   expect(resetWriteRequests.status()).toBe(200)
 
   const slug = `fixture-xmlrpc-save-${randomUUID()}`
@@ -1364,9 +1356,7 @@ test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename
   )
   expect(renameBody).toContain("<value><string>xmlrpc-save-renamed</string></value>")
 
-  const writeRequests = await request.get(
-    "http://127.0.0.1:42747/last-page-write-requests"
-  )
+  const writeRequests = await request.get(`${fixtureUrl}/last-page-write-requests`)
   expect(writeRequests.status()).toBe(200)
   const writeLog = await writeRequests.json()
   expect(writeLog.login).toHaveLength(3)
@@ -1507,7 +1497,7 @@ test("XML-RPC endpoint saves and reads small page attachments", async ({ request
   )
   expect(updatedOneBody).not.toContain(initialContent)
 
-  const fileLogResponse = await request.get("http://127.0.0.1:42747/last-file-requests")
+  const fileLogResponse = await request.get(`${fixtureUrl}/last-file-requests`)
   expect(fileLogResponse.status()).toBe(200)
   const fileLog = await fileLogResponse.json()
   expect(fileLog.blobUpload).toHaveLength(2)
@@ -1598,9 +1588,7 @@ test("XML-RPC endpoint accepts tags.select category filters at the cap", async (
 test("XML-RPC endpoint returns the authenticated XML-RPC principal", async ({
   request
 }) => {
-  const resetWriteRequests = await request.get(
-    "http://127.0.0.1:42747/last-page-write-requests"
-  )
+  const resetWriteRequests = await request.get(`${fixtureUrl}/last-page-write-requests`)
   expect(resetWriteRequests.status()).toBe(200)
 
   for (const data of [
@@ -1628,7 +1616,7 @@ test("XML-RPC endpoint returns the authenticated XML-RPC principal", async ({
   }
 
   const writeRequests = await request
-    .get("http://127.0.0.1:42747/last-page-write-requests")
+    .get(`${fixtureUrl}/last-page-write-requests`)
     .then((response) => response.json())
   expect(writeRequests.login).toHaveLength(0)
   expect(writeRequests.sessionGet).toHaveLength(0)
