@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import {collectRuntimeHealthSnapshot, defaultSnapshotPath} from "../src/runtime-health-snapshot.mjs";
-
-class UsageError extends Error {}
+import {parsePositiveIntegerOption as parsePositiveInteger, readRequiredOptionValue as readValue, UsageError} from "../src/cli-options.mjs";
 
 function usage() {
   return [
@@ -37,25 +36,6 @@ function usage() {
     "",
     "No credentials are ever read or printed. Database readiness is checked inside the container without importing secret environment values into this process.",
   ].join("\n");
-}
-
-function readValue(argv, index, flag) {
-  const value = argv[index + 1];
-  if (value === undefined) {
-    throw new UsageError(`${flag} needs a value`);
-  }
-  return value;
-}
-
-function parsePositiveInteger(value, flag) {
-  if (!/^[0-9]+$/.test(value)) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  return parsed;
 }
 
 function parseArgs(argv) {

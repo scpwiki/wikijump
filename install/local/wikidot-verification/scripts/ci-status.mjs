@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import {collectCiStatus, defaultStatusPath, redactText} from "../src/ci-status.mjs";
-class UsageError extends Error {}
+import {parsePositiveIntegerOption as parsePositiveInteger, readRequiredOptionValue as readValue, UsageError} from "../src/cli-options.mjs";
 function usage() {
   return [
     "Usage: node scripts/ci-status.mjs (--pr <N> | --branch <name> | --sha <sha>) [--repo <owner/name>] [--ttl <ms>] [--completed-ttl <ms>] [--refresh] [--json] [--quiet] [--status <path>] [--fail-on-failing] [--help]",
@@ -27,23 +27,6 @@ function usage() {
     "This tool is read-only; never mutates GitHub state.",
     `Example default PR path: ${defaultStatusPath({kind: "pr", prNumber: 330})}`,
   ].join("\n");
-}
-function readValue(argv, index, flag) {
-  const value = argv[index + 1];
-  if (value === undefined) {
-    throw new UsageError(`${flag} needs a value`);
-  }
-  return value;
-}
-function parsePositiveInteger(value, flag) {
-  if (!/^[0-9]+$/.test(value)) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  return parsed;
 }
 function setSubject(options, subject) {
   if (options.subject !== null) {

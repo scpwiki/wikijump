@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import {runMeasuredCommand} from "../src/command-ledger.mjs";
+import {parsePositiveIntegerOption as parsePositiveInteger, readRequiredOptionValue as readValue, UsageError} from "../src/cli-options.mjs";
 
 const SAFE_FAMILY_RE = /^[A-Za-z0-9_.:-]+$/;
-
-class UsageError extends Error {}
 
 function usage() {
   return [
@@ -13,25 +12,6 @@ function usage() {
     "",
     "Known families: cargo, framerail, node-mjs, import, capture, db, ci-poll, health. Free-form family values are allowed if they match /^[A-Za-z0-9_.:-]+$/.",
   ].join("\n");
-}
-
-function readValue(argv, index, flag) {
-  const value = argv[index + 1];
-  if (value === undefined) {
-    throw new UsageError(`${flag} needs a value`);
-  }
-  return value;
-}
-
-function parsePositiveInteger(value, flag) {
-  if (!/^[0-9]+$/.test(value)) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  return parsed;
 }
 
 function parseArgs(argv) {
