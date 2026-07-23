@@ -40,6 +40,7 @@ use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use reqwest::Client as ReqwestClient;
 use s3::bucket::Bucket;
 use sea_orm::TransactionTrait;
+use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -172,17 +173,29 @@ async fn build_server_state_inner(
 }
 
 pub async fn build_server(app_state: ServerState) -> Result<ServerHandle> {
-    let make_error = || Error::new("failed to build server", ErrorType::ServerSetup);
     let socket_address = app_state.config.address;
+    let (_, handle) = build_server_at(app_state, socket_address).await?;
+    Ok(handle)
+}
+
+/// Start the production RPC stack at an explicit address and return the bound address.
+///
+/// Passing port zero lets integration tests exercise registration, middleware, transaction handling, and RPC error conversion without reserving a fixed host port.
+pub async fn build_server_at(
+    app_state: ServerState,
+    socket_address: SocketAddr,
+) -> Result<(SocketAddr, ServerHandle)> {
+    let make_error = || Error::new("failed to build server", ErrorType::ServerSetup);
     let server = Server::builder()
         .set_http_middleware(tower::ServiceBuilder::new().layer(RequestContextLayer))
         .build(socket_address)
         .await
         .or_raise(make_error)?;
+    let local_address = server.local_addr().or_raise(make_error)?;
 
     let module = build_module(app_state).await.or_raise(make_error)?;
     let handle = server.start(module);
-    Ok(handle)
+    Ok((local_address, handle))
 }
 
 async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> {
