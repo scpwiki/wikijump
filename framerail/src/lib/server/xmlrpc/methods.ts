@@ -1,4 +1,4 @@
-import { getAuthenticatedUser } from "$lib/server/xmlrpc-authentication"
+import { getAuthenticatedUser } from "$lib/server/xmlrpc/authentication"
 import {
   expectParamCount,
   expectUsersGetMeParams,
@@ -17,12 +17,12 @@ import {
   selectPages,
   selectPosts,
   selectTags
-} from "$lib/server/xmlrpc-resource-methods"
+} from "$lib/server/xmlrpc/resource-methods"
 import {
   XmlRpcFault,
   type XmlRpcCall,
   type XmlRpcValue
-} from "$lib/server/xmlrpc-protocol"
+} from "$lib/server/xmlrpc/protocol"
 
 interface MethodDefinition {
   help: string

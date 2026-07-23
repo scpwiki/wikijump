@@ -3,11 +3,11 @@ import { resolvePageRedirect } from "$lib/server/page-redirect"
 import { translate } from "$lib/server/deepwell/translate"
 import { articleView } from "$lib/server/deepwell/views"
 import { buildPageLoadData } from "$lib/server/load/page-data"
-import { buildPageErrorForms, buildPageForms } from "$lib/server/load/page-forms"
+import { buildPageErrorForms, buildPageForms } from "$lib/server/load/page/page-forms"
 import {
   buildPageTranslateKeys,
   buildWikidotPagePresentation
-} from "$lib/server/load/page-presentation"
+} from "$lib/server/load/page/page-presentation"
 import {
   finalizePreloadData,
   getPreloadBackendLocales,

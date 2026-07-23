@@ -6,16 +6,16 @@ import {
   getXmlRpcWriteContext,
   getXmlRpcWritePrincipal,
   type XmlRpcWriteContext
-} from "$lib/server/xmlrpc-authentication"
+} from "$lib/server/xmlrpc/authentication"
 import {
   requestXmlRpcDeepwell as requestDeepwell,
   type DeepwellRequestContext
-} from "$lib/server/xmlrpc-deepwell-client"
+} from "$lib/server/xmlrpc/deepwell-client"
 import {
   XmlRpcFault,
   type XmlRpcCall,
   type XmlRpcValue
-} from "$lib/server/xmlrpc-protocol"
+} from "$lib/server/xmlrpc/protocol"
 
 interface DeepwellCategory {
   slug: string

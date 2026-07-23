@@ -9,8 +9,8 @@ import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-acto
 import {
   failForActionError,
   pageMutationBaseSchema
-} from "$lib/server/load/page-action-shared"
-import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
+} from "$lib/server/load/page/page-action-shared"
+import { resolvePageActionRequestContext } from "$lib/server/load/page/page-action-context"
 import { DeleteOptions, Layout } from "$lib/types"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"

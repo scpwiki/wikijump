@@ -9,8 +9,8 @@ import {
   failForActionError,
   pageMutationBaseSchema,
   readActionJson
-} from "$lib/server/load/page-action-shared"
-import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
+} from "$lib/server/load/page/page-action-shared"
+import { resolvePageActionRequestContext } from "$lib/server/load/page/page-action-context"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
 import { object, string } from "valibot"

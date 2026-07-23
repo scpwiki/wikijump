@@ -1,10 +1,10 @@
 import { client } from "$lib/server/deepwell"
-import { xmlRpcAuthenticationConfiguration } from "$lib/server/xmlrpc-configuration"
+import { xmlRpcAuthenticationConfiguration } from "$lib/server/xmlrpc/configuration"
 import {
   requestXmlRpcDeepwell,
   type DeepwellRequestContext
-} from "$lib/server/xmlrpc-deepwell-client"
-import { XmlRpcFault, type XmlRpcValue } from "$lib/server/xmlrpc-protocol"
+} from "$lib/server/xmlrpc/deepwell-client"
+import { XmlRpcFault, type XmlRpcValue } from "$lib/server/xmlrpc/protocol"
 
 interface DeepwellLoginOutput {
   session_token: string

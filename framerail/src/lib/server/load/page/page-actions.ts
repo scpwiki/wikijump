@@ -4,7 +4,7 @@ import {
   pageEditPermissionAction,
   pageLayoutAction,
   pageMoveAction
-} from "$lib/server/load/page-edit-actions"
+} from "$lib/server/load/page/page-edit-actions"
 import {
   pageFileDeleteAction,
   pageFileEditAction,
@@ -14,7 +14,7 @@ import {
   pageFileRestoreAction,
   pageFileRollbackAction,
   pageFileUploadAction
-} from "$lib/server/load/page-file-actions"
+} from "$lib/server/load/page/page-file-actions"
 import {
   pageParentGetAction,
   pageParentSetAction,
@@ -22,14 +22,14 @@ import {
   pageVoteCastAction,
   pageVoteListAction,
   pageVoteRemoveAction
-} from "$lib/server/load/page-relation-actions"
+} from "$lib/server/load/page/page-relation-actions"
 import {
   pageDeletedGetAction,
   pageHistoryAction,
   pageRestoreAction,
   pageRevisionAction,
   pageRollbackAction
-} from "$lib/server/load/page-revision-actions"
+} from "$lib/server/load/page/page-revision-actions"
 
 export const pageActions = {
   delete: pageDeleteAction,

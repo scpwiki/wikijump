@@ -1,17 +1,17 @@
 import { Buffer } from "node:buffer"
 import { timingSafeEqual } from "node:crypto"
 
-import { dispatchXmlRpcCall } from "$lib/server/xmlrpc-methods"
+import { dispatchXmlRpcCall } from "$lib/server/xmlrpc/methods"
 import {
   faultResponse,
   parseXmlRpcCall,
   serializeMethodResponse,
   xmlResponse,
   XmlRpcFault
-} from "$lib/server/xmlrpc-protocol"
+} from "$lib/server/xmlrpc/protocol"
 
-export type { XmlRpcCall, XmlRpcValue } from "$lib/server/xmlrpc-protocol"
-export { parseXmlRpcCall, serializeMethodResponse } from "$lib/server/xmlrpc-protocol"
+export type { XmlRpcCall, XmlRpcValue } from "$lib/server/xmlrpc/protocol"
+export { parseXmlRpcCall, serializeMethodResponse } from "$lib/server/xmlrpc/protocol"
 
 interface BasicAuthCredentials {
   username: string

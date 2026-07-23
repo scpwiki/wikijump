@@ -3,15 +3,15 @@ import {
   pageDeleteSchema,
   pageEditSchema,
   pageMoveSchema
-} from "$lib/server/load/page-edit-actions"
+} from "$lib/server/load/page/page-edit-actions"
 import {
   pageFileEditSchema,
   pageFileMoveSchema,
   pageFileRestoreSchema,
   pageFileUploadSchema
-} from "$lib/server/load/page-file-actions"
-import { pageParentSchema } from "$lib/server/load/page-relation-actions"
-import { pageRestoreSchema } from "$lib/server/load/page-revision-actions"
+} from "$lib/server/load/page/page-file-actions"
+import { pageParentSchema } from "$lib/server/load/page/page-relation-actions"
+import { pageRestoreSchema } from "$lib/server/load/page/page-revision-actions"
 import { superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
 

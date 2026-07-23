@@ -13,9 +13,9 @@ import {
   failForActionError,
   pageMutationBaseSchema,
   readActionJson
-} from "$lib/server/load/page-action-shared"
+} from "$lib/server/load/page/page-action-shared"
 import { withPageFileClientAddress } from "$lib/server/deepwell/page-file-mutation-payloads"
-import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
+import { resolvePageActionRequestContext } from "$lib/server/load/page/page-action-context"
 import { fail } from "@sveltejs/kit"
 import { superValidate, withFiles } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"

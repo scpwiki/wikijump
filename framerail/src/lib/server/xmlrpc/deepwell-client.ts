@@ -1,5 +1,5 @@
 import { client } from "$lib/server/deepwell"
-import { XmlRpcFault } from "$lib/server/xmlrpc-protocol"
+import { XmlRpcFault } from "$lib/server/xmlrpc/protocol"
 
 export interface DeepwellRequestContext {
   sessionToken?: string
