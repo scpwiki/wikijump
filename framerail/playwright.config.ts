@@ -1,6 +1,8 @@
 import type { PlaywrightTestConfig } from "@playwright/test"
 
 const config: PlaywrightTestConfig = {
+  testDir: "./tests",
+  testMatch: "**/*.spec.ts",
   webServer: {
     command:
       "sh -c 'node tests/xmlrpc-deepwell-fixture-server.js & fixture=$!; trap \"kill $fixture\" EXIT INT TERM; pnpm build && DEEPWELL_HOST=127.0.0.1 DEEPWELL_PORT=42747 pnpm preview'",
