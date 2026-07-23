@@ -55,7 +55,9 @@ mod render_dependency;
 mod replay;
 mod service;
 mod structs;
+mod wikidot_compat_restore;
 mod wikidot_inline_markers;
+mod wikidot_residual_markers;
 
 pub(crate) use self::diagnostics::{
     CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, CorpusRenderDimension,

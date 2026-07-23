@@ -417,8 +417,9 @@ const WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTRATEANCHOR";
 const WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX: &str =
     "WIKIJUMPWIKIDOTLISTPAGESELLIPSIS";
 const WIKIDOT_LOCAL_INTERWIKI_BASE: &str = "/-/wikidot-interwiki";
-const WIKIDOT_TABVIEW_SCRIPT: &str = "";
-const WIKIDOT_TABVIEW_INIT_SCRIPT: &str = r#"<script type="text/javascript"></script>"#;
+pub(super) const WIKIDOT_TABVIEW_SCRIPT: &str = "";
+pub(super) const WIKIDOT_TABVIEW_INIT_SCRIPT: &str =
+    r#"<script type="text/javascript"></script>"#;
 const MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS: usize = 128;
 
 type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
@@ -485,29 +486,32 @@ static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
-static WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
+pub(super) static WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(
         r#"(?is)<p>\s*(?:(?P<open>\[\[div[^\]]*\]\])|(?P<close>\[\[/div\]\]))\s*</p>"#,
     )
     .unwrap()
-});
-static WIKIJUMP_FOOTNOTE_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    });
+pub(super) static WIKIJUMP_FOOTNOTE_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?is)<wj-footnote-ref-marker(?P<attrs>[^>]*)>(?P<label>.*?)</wj-footnote-ref-marker>"#,
     )
     .unwrap()
 });
-static WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
+pub(super) static WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(
         r#"(?is)<span class="wj-footnote-ref">\s*(?P<body><sup class="footnoteref">.*?</sup>)\s*</span>"#,
     )
     .unwrap()
-});
-static WIKIJUMP_FOOTNOTE_REF_LEADING_SPACE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?s)(?P<before>\S)\s+(?P<footnote><span class="wj-footnote-ref">)"#)
-        .unwrap()
-});
-static WIKIJUMP_FOOTNOTE_DATA_ID_REGEX: LazyLock<Regex> =
+    });
+pub(super) static WIKIJUMP_FOOTNOTE_REF_LEADING_SPACE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(r#"(?s)(?P<before>\S)\s+(?P<footnote><span class="wj-footnote-ref">)"#)
+            .unwrap()
+    });
+pub(super) static WIKIJUMP_FOOTNOTE_DATA_ID_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"data-id="(?P<id>[0-9]+)""#).unwrap());
 static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?s)(?P<key>[A-Za-z_][A-Za-z0-9_\-]*)\s*(?P<op>!?=)\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
@@ -569,31 +573,33 @@ static WIKIDOT_BOLD_COLOR_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static WIKIDOT_ESCAPED_NBSP_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"@<(?P<html>&nbsp;)>@").unwrap());
-static WIKIJUMP_CODE_BLOCK_PANEL_REGEX: LazyLock<Regex> =
+pub(super) static WIKIJUMP_CODE_BLOCK_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-code-panel">.*?</div>"#).unwrap());
-static WIKIJUMP_CODE_BLOCK_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIJUMP_CODE_BLOCK_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?is)<wj-code class="wj-code(?:\s+wj-language-(?P<language>[^"\s]+))?">"#,
     )
     .unwrap()
 });
-static WIKIJUMP_TAB_BUTTON_LIST_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIJUMP_TAB_BUTTON_LIST_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)<div class="wj-tabs-button-list"[^>]*>(?P<body>.*?)</div>"#)
         .unwrap()
 });
-static WIKIJUMP_TAB_PANEL_LIST_OPEN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)<div class="wj-tabs-panel-list"[^>]*>"#).unwrap()
-});
-static WIKIJUMP_SELECTED_TAB_BUTTON_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
+pub(super) static WIKIJUMP_TAB_PANEL_LIST_OPEN_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(r#"(?is)<div class="wj-tabs-panel-list"[^>]*>"#).unwrap()
+    });
+pub(super) static WIKIJUMP_SELECTED_TAB_BUTTON_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(
         r#"(?is)<wj-tabs-button class="wj-tabs-button"[^>]*aria-selected="true"[^>]*>"#,
     )
     .unwrap()
-});
-static WIKIJUMP_TAB_BUTTON_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    });
+pub(super) static WIKIJUMP_TAB_BUTTON_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)<wj-tabs-button class="wj-tabs-button"[^>]*>"#).unwrap()
 });
-static WIKIJUMP_TAB_PANEL_REGEX: LazyLock<Regex> =
+pub(super) static WIKIJUMP_TAB_PANEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<div class="wj-tabs-panel"[^>]*>"#).unwrap());
 static WIKIDOT_IMAGE_BLOCK_INCLUDE_START_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(concat!(
@@ -606,36 +612,40 @@ static WIKIDOT_IMAGE_BLOCK_INCLUDE_START_REGEX: LazyLock<Regex> = LazyLock::new(
 static WIKIDOT_INCLUDE_OPEN_LINE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?im)^\[\[\s*(?P<keyword>include)(?P<after>\s+)").unwrap()
 });
-static WIKIDOT_COMPAT_STYLE_BLOCK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)<style\b[^>]*\btype\s*=\s*["']text/css["'][^>]*>.*?</style>"#)
-        .unwrap()
-});
+pub(super) static WIKIDOT_COMPAT_STYLE_BLOCK_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(r#"(?is)<style\b[^>]*\btype\s*=\s*["']text/css["'][^>]*>.*?</style>"#)
+            .unwrap()
+    });
 static WIKIDOT_USERKARMA_BACKGROUND_STYLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"\sstyle="background-image:\s*url\(https?://www\.wikidot\.com/userkarma\.php\?u=[0-9]+\)""#)
         .unwrap()
 });
-static WIKIDOT_RENDERED_MAILFORM_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
+pub(super) static WIKIDOT_RENDERED_MAILFORM_REGEX: LazyLock<Regex> = LazyLock::new(
+    || {
+        Regex::new(
         r#"(?is)<p>\[\[module\s+MailForm(?P<head>[^\]]*)\]\]</p>(?P<body>.*?)<p>\[\[/module\]\]</p>"#,
     )
     .unwrap()
-});
-static WIKIDOT_RENDERED_MAILFORM_FIELD_REGEX: LazyLock<Regex> =
+    },
+);
+pub(super) static WIKIDOT_RENDERED_MAILFORM_FIELD_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?is)<ol>\s*<li>(?P<name>[^<]+)</li>"#).unwrap());
-static WIKIDOT_RENDERED_MAILFORM_DEFAULT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?is)<li>default:\s*(?P<default>[^<]*)</li>"#).unwrap()
-});
-static WIKIDOT_RENDERED_MAILFORM_MAX_LENGTH_REGEX: LazyLock<Regex> =
+pub(super) static WIKIDOT_RENDERED_MAILFORM_DEFAULT_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(r#"(?is)<li>default:\s*(?P<default>[^<]*)</li>"#).unwrap()
+    });
+pub(super) static WIKIDOT_RENDERED_MAILFORM_MAX_LENGTH_REGEX: LazyLock<Regex> =
     LazyLock::new(|| {
         Regex::new(r#"(?is)<li>maxLength:\s*(?P<max>[0-9]+)</li>"#).unwrap()
     });
-static WIKIJUMP_INLINE_MATH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIJUMP_INLINE_MATH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?is)<span class="wj-math wj-math-inline"><code class="wj-math-source wj-hidden"[^>]*>(?P<source>.*?)</code><wj-math-ml class="wj-math-ml">.*?</wj-math-ml></span>"#,
     )
     .unwrap()
 });
-static WIKIDOT_EMAIL_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIDOT_EMAIL_SPAN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"<span class="wiki-email" style="visibility: visible;"><a href="mailto:([^"]+)">([^<]+)</a></span>"#,
     )
@@ -656,7 +666,7 @@ static WIKIDOT_RECOVERABLE_REVERSED_EMAIL_BODY_REGEX: LazyLock<Regex> = LazyLock
         .unwrap()
     },
 );
-static WIKIDOT_EMBED_PARAGRAPH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIDOT_EMBED_PARAGRAPH_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?s)<p>\[\[embed\]\]<br/?>(.*?)<br/?>\[\[/embed\]\]</p>"#).unwrap()
 });
 static WIKIDOT_RAW_EMBED_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -1990,106 +2000,7 @@ impl RenderService {
         }
     }
 
-    fn restore_wikidot_render_compatibility(
-        html: &str,
-        current_site: Option<&SiteModel>,
-        config: &Config,
-    ) -> String {
-        let mut html = html.to_owned();
-        if html.contains("[[embed]]") {
-            html = Self::restore_wikidot_rendered_embed_iframes(&html);
-        }
-        if html.contains("wiki-email") {
-            html = Self::restore_wikidot_email_obfuscation(&html);
-            html = Self::remove_spurious_wikidot_email_classes(&html);
-        }
-        if html.contains("wj-collapsible") {
-            html = Self::restore_wikidot_collapsible_compatibility(&html);
-        }
-        if html.contains("wj-code") {
-            html = Self::restore_wikidot_code_block_dom_compatibility(&html);
-        }
-        if html.contains("wj-tabs") {
-            html = Self::restore_wikidot_tabview_dom_compatibility(&html);
-        }
-        if WIKIDOT_RENDERED_MAILFORM_REGEX.is_match(&html) {
-            html = Self::restore_wikidot_mailform_compatibility(&html);
-        }
-        if html.contains("[[div") || html.contains("[[/div") {
-            html = Self::restore_residual_wikidot_div_paragraph_markers(&html);
-        }
-        if html.contains("[[span") || html.contains("[[/span") {
-            html = Self::restore_residual_wikidot_span_markers(&html);
-        }
-        if html.contains("[[=")
-            || html.contains("[[<")
-            || html.contains("[[>")
-            || html.contains("[[/=")
-            || html.contains("[[/<")
-            || html.contains("[[/>")
-        {
-            html = Self::restore_residual_wikidot_alignment_markers(&html);
-        }
-        if html.starts_with("----")
-            || html.contains("\n----")
-            || html.contains("@@ @@")
-            || html.contains("~~~~")
-        {
-            html = Self::restore_residual_wikidot_separator_markers(&html);
-        }
-        if html.starts_with('+') || html.contains("\n+") || html.contains("\n====") {
-            html = Self::restore_residual_wikidot_heading_markers(&html);
-        }
-        if html.contains("<tbody>") || html.contains("</tbody>") {
-            html = Self::remove_wikijump_table_body_wrappers(&html);
-        }
-        if WIKIDOT_COMPAT_STYLE_BLOCK_REGEX.is_match(&html) {
-            html = Self::remove_wikidot_compat_style_blocks(&html);
-        }
-        if html.contains("wj-math-inline") {
-            html = Self::restore_wikidot_inline_math_compatibility(&html);
-        }
-        if html.contains("{$") {
-            html = Self::restore_wikidot_ta_badge_default_compatibility(&html);
-        }
-        if html.contains("...") {
-            html = Self::restore_wikidot_text_ellipsis_compatibility(&html);
-        }
-        if html.contains("wj-footnote") {
-            html = Self::restore_wikidot_footnote_dom_compatibility(&html);
-        }
-        if html.contains("<u>") || html.contains("</u>") {
-            html = Self::remove_wikijump_underline_wrappers(&html);
-        }
-        if html.contains("userkarma.php") {
-            html = Self::remove_wikidot_userkarma_background_styles(&html);
-        }
-        if html.contains("/local--") {
-            html = Self::localize_wikidot_local_file_urls(&html, current_site, config);
-        }
-        html
-    }
-
-    fn restore_wikidot_collapsible_compatibility(html: &str) -> String {
-        html.replace(r#"<details class="wj-collapsible""#, r#"<details class="collapsible-block collapsible-block-folded collapsible-block-unfolded""#)
-            .replace(
-                r#"<summary class="wj-collapsible-button wj-collapsible-button-top">"#,
-                r#"<summary class="collapsible-block-link">"#,
-            )
-            .replace(
-                r#"<wj-collapsible-button-bottom class="wj-collapsible-button wj-collapsible-button-bottom">"#,
-                r#"<div class="collapsible-block-unfolded-link"><span class="collapsible-block-link">"#,
-            )
-            .replace("</wj-collapsible-button-bottom>", "</span></div>")
-            .replace("wj-collapsible-content", "collapsible-block-content")
-            .replace("wj-collapsible-show-text", "collapsible-block-link")
-            .replace(
-                "wj-collapsible-hide-text",
-                "collapsible-block-link collapsible-block-unfolded-link",
-            )
-    }
-
-    fn remove_spurious_wikidot_email_classes(html: &str) -> String {
+    pub(super) fn remove_spurious_wikidot_email_classes(html: &str) -> String {
         WIKIDOT_EMAIL_CLASS_SPAN_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
                 let body = captures.name("body").map_or("", |mtch| mtch.as_str());
@@ -2119,118 +2030,14 @@ impl RenderService {
         }
     }
 
-    fn restore_wikidot_code_block_dom_compatibility(html: &str) -> String {
-        let html = WIKIJUMP_CODE_BLOCK_PANEL_REGEX.replace_all(html, "");
-        let html = WIKIJUMP_CODE_BLOCK_OPEN_REGEX.replace_all(
-            &html,
-            |captures: &regex::Captures<'_>| match captures.name("language") {
-                Some(language) => format!(
-                    r#"<div class="code" data-wj-language="{}">"#,
-                    language.as_str(),
-                ),
-                None => r#"<div class="code">"#.to_owned(),
-            },
-        );
-        html.replace("</wj-code>", "</div>")
-    }
-
-    fn restore_wikidot_tabview_dom_compatibility(html: &str) -> String {
-        let html = html.replace(
-            r#"<wj-tabs class="wj-tabs">"#,
-            &format!(r#"{WIKIDOT_TABVIEW_SCRIPT}<div class="yui-navset">"#),
-        );
-        let html = WIKIJUMP_TAB_BUTTON_LIST_REGEX
-            .replace_all(&html, r#"<ul class="yui-nav">$body</ul>"#);
-        let html = Self::restore_wikidot_tab_panel_visibility(&html);
-        let html = WIKIJUMP_TAB_PANEL_LIST_OPEN_REGEX
-            .replace_all(&html, r#"<div class="yui-content">"#);
-        let html = WIKIJUMP_SELECTED_TAB_BUTTON_REGEX
-            .replace_all(&html, r#"<li class="selected"><a href="javascript:;">"#);
-        let html = WIKIJUMP_TAB_BUTTON_REGEX
-            .replace_all(&html, r#"<li><a href="javascript:;">"#);
-        html.replace("</wj-tabs-button>", "</a></li>\n").replace(
-            "</wj-tabs>",
-            &format!("</div>{WIKIDOT_TABVIEW_INIT_SCRIPT}"),
-        )
-    }
-
-    fn restore_wikidot_tab_panel_visibility(html: &str) -> String {
-        let mut panel_index = 0usize;
-        let mut last_copied = 0usize;
-        let mut group_scan_start = 0usize;
-        let mut restored = String::with_capacity(html.len());
-
-        for captures in WIKIJUMP_TAB_PANEL_REGEX.captures_iter(html) {
-            let Some(panel_match) = captures.get(0) else {
-                continue;
-            };
-
-            if WIKIJUMP_TAB_PANEL_LIST_OPEN_REGEX
-                .is_match(&html[group_scan_start..panel_match.start()])
-            {
-                panel_index = 0;
-            }
-
-            restored.push_str(&html[last_copied..panel_match.start()]);
-            let panel = panel_match.as_str();
-            let hidden = Self::wikijump_tab_panel_is_hidden(panel);
-            if panel_index == 0 && !hidden {
-                restored.push_str(r#"<div style="display: block;">"#);
-            } else {
-                restored.push_str(r#"<div style="display:none">"#);
-            }
-            panel_index += 1;
-            last_copied = panel_match.end();
-            group_scan_start = panel_match.end();
-        }
-
-        restored.push_str(&html[last_copied..]);
-        restored
-    }
-
-    fn wikijump_tab_panel_is_hidden(panel_open_tag: &str) -> bool {
+    pub(super) fn wikijump_tab_panel_is_hidden(panel_open_tag: &str) -> bool {
         panel_open_tag
             .trim_end_matches('>')
             .split_ascii_whitespace()
             .any(|attribute| attribute == "hidden" || attribute.starts_with("hidden="))
     }
 
-    fn restore_wikidot_footnote_dom_compatibility(html: &str) -> String {
-        let html = WIKIJUMP_FOOTNOTE_MARKER_REGEX
-            .replace_all(html, |captures: &regex::Captures<'_>| {
-                let attrs = captures.name("attrs").map_or("", |mtch| mtch.as_str());
-                let label = captures.name("label").map_or("", |mtch| mtch.as_str());
-                let Some(id) = WIKIJUMP_FOOTNOTE_DATA_ID_REGEX
-                    .captures(attrs)
-                    .and_then(|data_id| data_id.name("id"))
-                    .map(|mtch| mtch.as_str())
-                else {
-                    return captures.get(0).unwrap().as_str().to_owned();
-                };
-
-                format!(
-                    r#"<sup class="footnoteref"><a id="footnoteref-{id}" href="javascript:;" class="footnoteref" onclick="WIKIDOT.page.utils.scrollToReference('footnote-{id}')">{label}</a></sup>"#
-                )
-            })
-            .into_owned();
-        let html = WIKIJUMP_FOOTNOTE_REF_LEADING_SPACE_REGEX
-            .replace_all(&html, |captures: &regex::Captures<'_>| {
-                format!("{}{}", &captures["before"], &captures["footnote"])
-            })
-            .into_owned();
-        let html = Self::remove_wikijump_footnote_ref_tooltips(&html);
-        let html = WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX
-            .replace_all(&html, |captures: &regex::Captures<'_>| {
-                captures
-                    .name("body")
-                    .map_or("", |mtch| mtch.as_str())
-                    .to_owned()
-            })
-            .into_owned();
-        restore_wikidot_footnote_list_dom(&html)
-    }
-
-    fn remove_wikijump_footnote_ref_tooltips(html: &str) -> String {
+    pub(super) fn remove_wikijump_footnote_ref_tooltips(html: &str) -> String {
         const DIV_TOOLTIP_OPEN: &str = r#"<div class="wj-footnote-ref-tooltip""#;
         const SPAN_TOOLTIP_OPEN: &str = r#"<span class="wj-footnote-ref-tooltip""#;
         let mut output = String::with_capacity(html.len());
@@ -2301,39 +2108,7 @@ impl RenderService {
         }
     }
 
-    fn restore_residual_wikidot_div_paragraph_markers(html: &str) -> String {
-        let mut restored_open_count = 0usize;
-
-        let restored = WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX
-            .replace_all(html, |captures: &regex::Captures<'_>| {
-                if let Some(marker) = captures.name("open") {
-                    let marker = marker
-                        .as_str()
-                        .replace("&quot;", "\"")
-                        .replace("&#34;", "\"");
-                    if let Some(attributes) =
-                        Self::wikidot_residual_div_attributes(&marker)
-                    {
-                        restored_open_count += 1;
-                        return format!("<div{attributes}>");
-                    }
-
-                    return captures.get(0).unwrap().as_str().to_owned();
-                }
-
-                if restored_open_count == 0 {
-                    return captures.get(0).unwrap().as_str().to_owned();
-                }
-
-                restored_open_count -= 1;
-                "</div>".to_owned()
-            })
-            .into_owned();
-
-        Self::restore_standalone_residual_wikidot_div_markers(&restored)
-    }
-
-    fn restore_standalone_residual_wikidot_div_markers(html: &str) -> String {
+    pub(super) fn restore_standalone_residual_wikidot_div_markers(html: &str) -> String {
         let mut output = String::with_capacity(html.len());
         let mut restored_open_count = 0usize;
         let mut raw_text_depth = 0usize;
@@ -2388,7 +2163,7 @@ impl RenderService {
         output
     }
 
-    fn push_replaced_standalone_wikidot_marker_line(
+    pub(super) fn push_replaced_standalone_wikidot_marker_line(
         output: &mut String,
         line_body: &str,
         line_end: &str,
@@ -2402,7 +2177,10 @@ impl RenderService {
         output.push_str(line_end);
     }
 
-    fn update_residual_div_raw_text_depth(mut depth: usize, line: &str) -> usize {
+    pub(super) fn update_residual_div_raw_text_depth(
+        mut depth: usize,
+        line: &str,
+    ) -> usize {
         let lower = line.to_ascii_lowercase();
         for tag in ["pre", "code", "textarea", "style", "script"] {
             depth += lower.matches(&format!("<{tag}")).count();
@@ -2411,75 +2189,7 @@ impl RenderService {
         depth
     }
 
-    fn restore_residual_wikidot_span_markers(html: &str) -> String {
-        let mut open_markers: Vec<(Range<usize>, String)> = Vec::new();
-        let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
-
-        for segment in html_data_segments(html) {
-            if !segment.continues_from_previous {
-                open_markers.clear();
-            }
-            let data_range = segment.range;
-            let data = &html[data_range.clone()];
-            let mut cursor = 0;
-            while cursor < data.len() {
-                let open = data[cursor..].find("[[span");
-                let close = data[cursor..].find("[[/span]]");
-                let (offset, closing) = match (open, close) {
-                    (Some(open), Some(close)) if close < open => (close, true),
-                    (Some(open), _) => (open, false),
-                    (None, Some(close)) => (close, true),
-                    (None, None) => break,
-                };
-                let start = cursor + offset;
-
-                if closing {
-                    let end = start + "[[/span]]".len();
-                    if let Some((open_range, open_tag)) = open_markers.pop() {
-                        replacements.push((open_range, open_tag));
-                        replacements.push((
-                            data_range.start + start..data_range.start + end,
-                            "</span>".to_owned(),
-                        ));
-                    }
-                    cursor = end;
-                    continue;
-                }
-
-                let marker_start = &data[start..];
-                let Some(relative_end) = marker_start.find("]]") else {
-                    break;
-                };
-                let end = start + relative_end + 2;
-                let marker = &data[start..end];
-                let decoded_marker = Self::decode_residual_wikidot_marker_quotes(marker);
-                if let Some(open_tag) = wikidot_inline_span_marker_open(&decoded_marker) {
-                    open_markers.push((
-                        data_range.start + start..data_range.start + end,
-                        open_tag,
-                    ));
-                }
-                cursor = end;
-            }
-        }
-
-        if replacements.is_empty() {
-            return html.to_owned();
-        }
-        replacements.sort_by_key(|(range, _)| range.start);
-
-        let mut output = String::with_capacity(html.len());
-        let mut cursor = 0;
-        for (range, replacement) in replacements {
-            output.push_str(&html[cursor..range.start]);
-            output.push_str(&replacement);
-            cursor = range.end;
-        }
-        output.push_str(&html[cursor..]);
-        output
-    }
-
-    fn decode_residual_wikidot_marker_quotes(marker: &str) -> String {
+    pub(super) fn decode_residual_wikidot_marker_quotes(marker: &str) -> String {
         marker
             .replace("&quot;", "\"")
             .replace("&#34;", "\"")
@@ -2487,148 +2197,7 @@ impl RenderService {
             .replace("&#X22;", "\"")
     }
 
-    fn restore_residual_wikidot_alignment_markers(html: &str) -> String {
-        let mut output = String::with_capacity(html.len());
-        let mut alignment_stack: Vec<&'static str> = Vec::new();
-        let mut raw_text_depth = 0usize;
-
-        for line in html.split_inclusive('\n') {
-            let (line_body, line_end) = line
-                .strip_suffix('\n')
-                .map_or((line, ""), |body| (body, "\n"));
-            let trimmed = line_body.trim();
-            let protected = raw_text_depth > 0;
-
-            if !protected {
-                if let Some((alignment, replacement)) =
-                    Self::residual_wikidot_alignment_open_replacement(trimmed)
-                {
-                    alignment_stack.push(alignment);
-                    Self::push_replaced_standalone_wikidot_marker_line(
-                        &mut output,
-                        line_body,
-                        line_end,
-                        replacement,
-                    );
-                    raw_text_depth = Self::update_residual_div_raw_text_depth(
-                        raw_text_depth,
-                        line_body,
-                    );
-                    continue;
-                }
-
-                if let Some(alignment) = Self::residual_wikidot_alignment_close(trimmed)
-                    && alignment_stack.last().copied() == Some(alignment)
-                {
-                    alignment_stack.pop();
-                    Self::push_replaced_standalone_wikidot_marker_line(
-                        &mut output,
-                        line_body,
-                        line_end,
-                        "</div>",
-                    );
-                    raw_text_depth = Self::update_residual_div_raw_text_depth(
-                        raw_text_depth,
-                        line_body,
-                    );
-                    continue;
-                }
-            }
-
-            output.push_str(line_body);
-            output.push_str(line_end);
-            raw_text_depth =
-                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
-        }
-
-        Self::restore_residual_wikidot_alignment_html_markers(&output)
-    }
-
-    fn restore_residual_wikidot_alignment_html_markers(html: &str) -> String {
-        const MARKERS: &[(&str, &str, &str, bool)] = &[
-            (
-                "<p>[[=]]</p>",
-                "center",
-                r#"<div style="text-align: center;">"#,
-                false,
-            ),
-            (
-                "<p>[[<]]</p>",
-                "left",
-                r#"<div style="text-align: left;">"#,
-                false,
-            ),
-            (
-                "<p>[[&lt;]]</p>",
-                "left",
-                r#"<div style="text-align: left;">"#,
-                false,
-            ),
-            (
-                "<p>[[>]]</p>",
-                "right",
-                r#"<div style="text-align: right;">"#,
-                false,
-            ),
-            (
-                "<p>[[&gt;]]</p>",
-                "right",
-                r#"<div style="text-align: right;">"#,
-                false,
-            ),
-            ("<p>[[/=]]</p>", "center", "</div>", true),
-            ("<br>[[/=]]<br>", "center", "</div><br>", true),
-            ("<br/>[[/=]]<br/>", "center", "</div><br/>", true),
-            ("<br />[[/=]]<br />", "center", "</div><br />", true),
-            ("<p>[[/<]]</p>", "left", "</div>", true),
-            ("<p>[[/&lt;]]</p>", "left", "</div>", true),
-            ("<br>[[/<]]<br>", "left", "</div><br>", true),
-            ("<br>[[/&lt;]]<br>", "left", "</div><br>", true),
-            ("<p>[[/>]]</p>", "right", "</div>", true),
-            ("<p>[[/&gt;]]</p>", "right", "</div>", true),
-            ("<br>[[/>]]<br>", "right", "</div><br>", true),
-            ("<br>[[/&gt;]]<br>", "right", "</div><br>", true),
-        ];
-
-        let mut output = String::with_capacity(html.len());
-        let mut rest = html;
-        let mut alignment_stack: Vec<&'static str> = Vec::new();
-
-        while let Some(position) = rest.find('<') {
-            output.push_str(&rest[..position]);
-            rest = &rest[position..];
-
-            let Some((marker, alignment, replacement, is_close)) = MARKERS
-                .iter()
-                .find(|(marker, ..)| rest.starts_with(marker))
-                .map(|(marker, alignment, replacement, is_close)| {
-                    (*marker, *alignment, *replacement, *is_close)
-                })
-            else {
-                output.push('<');
-                rest = &rest['<'.len_utf8()..];
-                continue;
-            };
-
-            if is_close {
-                if alignment_stack.last().copied() == Some(alignment) {
-                    alignment_stack.pop();
-                    output.push_str(replacement);
-                } else {
-                    output.push_str(marker);
-                }
-            } else {
-                alignment_stack.push(alignment);
-                output.push_str(replacement);
-            }
-            rest = &rest[marker.len()..];
-        }
-
-        output.push_str(rest);
-        output
-    }
-
-    fn residual_wikidot_alignment_open_replacement(
+    pub(super) fn residual_wikidot_alignment_open_replacement(
         marker: &str,
     ) -> Option<(&'static str, &'static str)> {
         match marker.to_ascii_lowercase().as_str() {
@@ -2641,7 +2210,7 @@ impl RenderService {
         }
     }
 
-    fn residual_wikidot_alignment_close(marker: &str) -> Option<&'static str> {
+    pub(super) fn residual_wikidot_alignment_close(marker: &str) -> Option<&'static str> {
         match marker.to_ascii_lowercase().as_str() {
             "[[/=]]" => Some("center"),
             "[[/<]]" | "[[/&lt;]]" => Some("left"),
@@ -2650,131 +2219,17 @@ impl RenderService {
         }
     }
 
-    fn restore_residual_wikidot_separator_markers(html: &str) -> String {
-        let mut output = String::with_capacity(html.len());
-        let mut raw_text_depth = 0usize;
-
-        for line in html.split_inclusive('\n') {
-            let (line_body, line_end) = line
-                .strip_suffix('\n')
-                .map_or((line, ""), |body| (body, "\n"));
-            let trimmed = line_body.trim();
-            let protected = raw_text_depth > 0;
-
-            if !protected {
-                if Self::residual_wikidot_horizontal_rule_line(trimmed) {
-                    Self::push_replaced_standalone_wikidot_marker_line(
-                        &mut output,
-                        line_body,
-                        line_end,
-                        "<hr>",
-                    );
-                    raw_text_depth = Self::update_residual_div_raw_text_depth(
-                        raw_text_depth,
-                        line_body,
-                    );
-                    continue;
-                }
-
-                if trimmed == "@@ @@" {
-                    Self::push_replaced_standalone_wikidot_marker_line(
-                        &mut output,
-                        line_body,
-                        line_end,
-                        r#"<p><span style="white-space: pre-wrap;"> </span></p>"#,
-                    );
-                    raw_text_depth = Self::update_residual_div_raw_text_depth(
-                        raw_text_depth,
-                        line_body,
-                    );
-                    continue;
-                }
-
-                if trimmed == "~~~~" {
-                    Self::push_replaced_standalone_wikidot_marker_line(
-                        &mut output,
-                        line_body,
-                        line_end,
-                        r#"<div style="clear:both; height: 0px; font-size: 1px"></div>"#,
-                    );
-                    raw_text_depth = Self::update_residual_div_raw_text_depth(
-                        raw_text_depth,
-                        line_body,
-                    );
-                    continue;
-                }
-            }
-
-            output.push_str(line_body);
-            output.push_str(line_end);
-            raw_text_depth =
-                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
-        }
-
-        output
-    }
-
-    fn residual_wikidot_horizontal_rule_line(line: &str) -> bool {
+    pub(super) fn residual_wikidot_horizontal_rule_line(line: &str) -> bool {
         line.len() >= 4 && line.chars().all(|character| character == '-')
     }
 
-    fn restore_residual_wikidot_heading_markers(html: &str) -> String {
-        let mut output = String::with_capacity(html.len());
-        let mut raw_text_depth = 0usize;
-
-        for line in html.split_inclusive('\n') {
-            let (line_body, line_end) = line
-                .strip_suffix('\n')
-                .map_or((line, ""), |body| (body, "\n"));
-            let trimmed = line_body.trim();
-            let protected = raw_text_depth > 0;
-
-            if !protected {
-                if Self::residual_wikidot_content_section_line(trimmed) {
-                    Self::push_replaced_standalone_wikidot_marker_line(
-                        &mut output,
-                        line_body,
-                        line_end,
-                        "",
-                    );
-                    raw_text_depth = Self::update_residual_div_raw_text_depth(
-                        raw_text_depth,
-                        line_body,
-                    );
-                    continue;
-                }
-
-                if let Some((level, body)) =
-                    Self::residual_wikidot_heading_replacement(trimmed)
-                {
-                    Self::push_replaced_standalone_wikidot_marker_line(
-                        &mut output,
-                        line_body,
-                        line_end,
-                        &format!("<h{level}><span>{body}</span></h{level}>"),
-                    );
-                    raw_text_depth = Self::update_residual_div_raw_text_depth(
-                        raw_text_depth,
-                        line_body,
-                    );
-                    continue;
-                }
-            }
-
-            output.push_str(line_body);
-            output.push_str(line_end);
-            raw_text_depth =
-                Self::update_residual_div_raw_text_depth(raw_text_depth, line_body);
-        }
-
-        output
-    }
-
-    fn residual_wikidot_content_section_line(line: &str) -> bool {
+    pub(super) fn residual_wikidot_content_section_line(line: &str) -> bool {
         line.len() >= 4 && line.chars().all(|character| character == '=')
     }
 
-    fn residual_wikidot_heading_replacement(line: &str) -> Option<(usize, &str)> {
+    pub(super) fn residual_wikidot_heading_replacement(
+        line: &str,
+    ) -> Option<(usize, &str)> {
         let level = line.bytes().take_while(|byte| *byte == b'+').count();
         if !(1..=6).contains(&level) {
             return None;
@@ -3078,116 +2533,17 @@ impl RenderService {
         value.split_whitespace().collect::<Vec<_>>().join(" ")
     }
 
-    fn restore_wikidot_mailform_compatibility(html: &str) -> String {
-        WIKIDOT_RENDERED_MAILFORM_REGEX
-            .replace_all(html, |captures: &regex::Captures<'_>| {
-                let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-                let body = captures.name("body").map_or("", |mtch| mtch.as_str());
-                let name = WIKIDOT_RENDERED_MAILFORM_FIELD_REGEX
-                    .captures(body)
-                    .and_then(|captures| captures.name("name"))
-                    .map_or("field", |mtch| mtch.as_str().trim());
-                let default = WIKIDOT_RENDERED_MAILFORM_DEFAULT_REGEX
-                    .captures(body)
-                    .and_then(|captures| captures.name("default"))
-                    .map_or("", |mtch| mtch.as_str().trim());
-                let max_length = WIKIDOT_RENDERED_MAILFORM_MAX_LENGTH_REGEX
-                    .captures(body)
-                    .and_then(|captures| captures.name("max"))
-                    .map_or("256", |mtch| mtch.as_str().trim());
-                let button =
-                    rendered_wikidot_mailform_attribute(head, "button").unwrap_or_default();
-
-                format!(
-                    concat!(
-                        r#"<div class="mailform-box">"#,
-                        r#"<form class="form" action="javascript:;">"#,
-                        r#"<table>"#,
-                        r#"<tr><td>"#,
-                        r#"<input class="text" type="text" name="{name}" value="{default}" maxlength="{max_length}" size="30">"#,
-                        r#"</td><td><div class="field-error-message"></div></td></tr>"#,
-                        r#"<tr><td colspan="2"><div class="buttons"><input type="submit" value="{button}"></div></td></tr>"#,
-                        r#"</table>"#,
-                        r#"</form>"#,
-                        r#"</div>"#,
-                    ),
-                    name = name,
-                    default = default,
-                    max_length = max_length,
-                    button = button,
-                )
-            })
-            .into_owned()
-    }
-
-    fn remove_wikijump_table_body_wrappers(html: &str) -> String {
+    pub(super) fn remove_wikijump_table_body_wrappers(html: &str) -> String {
         html.replace("<tbody>", "").replace("</tbody>", "")
     }
 
-    fn remove_wikidot_compat_style_blocks(html: &str) -> String {
+    pub(super) fn remove_wikidot_compat_style_blocks(html: &str) -> String {
         WIKIDOT_COMPAT_STYLE_BLOCK_REGEX
             .replace_all(html, "")
             .into_owned()
     }
 
-    fn restore_wikidot_inline_math_compatibility(html: &str) -> String {
-        WIKIJUMP_INLINE_MATH_REGEX
-            .replace_all(html, r#"<span class="math-inline">$$${source}$$</span>"#)
-            .into_owned()
-    }
-
-    fn restore_wikidot_ta_badge_default_compatibility(html: &str) -> String {
-        html.replace("bg-shadow-{$bg-shadow}", "bg-shadow-true")
-            .replace("plate-shadow-{$plate-shadow}", "plate-shadow-true")
-            .replace(
-                "item-mobile-mode-{$item-mobile-mode}",
-                "item-mobile-mode-true",
-            )
-            .replace("item-align-{$item-align}", "item-align-true")
-            .replace("{$badge-top-link}", "empty")
-            .replace("{$badge-right-link}", "empty")
-            .replace("{$badge-left-link}", "empty")
-            .replace("{$item-lt-link}", "empty")
-            .replace("{$item-lc-link}", "empty")
-            .replace("{$item-lb-link}", "empty")
-            .replace("{$item-rt-link}", "empty")
-            .replace("{$item-rc-link}", "empty")
-            .replace("{$item-rb-link}", "empty")
-    }
-
-    fn restore_wikidot_text_ellipsis_compatibility(html: &str) -> String {
-        let mut output = String::with_capacity(html.len());
-        let mut cursor = 0usize;
-        let mut literal_depth = 0usize;
-
-        while let Some(tag_start_offset) = html[cursor..].find('<') {
-            let tag_start = cursor + tag_start_offset;
-            Self::push_wikidot_text_ellipsis_segment(
-                &mut output,
-                &html[cursor..tag_start],
-                literal_depth,
-            );
-
-            let Some(tag_end_offset) = html[tag_start..].find('>') else {
-                output.push_str(&html[tag_start..]);
-                return output;
-            };
-            let tag_end = tag_start + tag_end_offset + 1;
-            let tag = &html[tag_start..tag_end];
-            Self::update_wikidot_ellipsis_literal_depth(tag, &mut literal_depth);
-            output.push_str(tag);
-            cursor = tag_end;
-        }
-
-        Self::push_wikidot_text_ellipsis_segment(
-            &mut output,
-            &html[cursor..],
-            literal_depth,
-        );
-        output
-    }
-
-    fn push_wikidot_text_ellipsis_segment(
+    pub(super) fn push_wikidot_text_ellipsis_segment(
         output: &mut String,
         segment: &str,
         literal_depth: usize,
@@ -3199,7 +2555,10 @@ impl RenderService {
         }
     }
 
-    fn update_wikidot_ellipsis_literal_depth(tag: &str, literal_depth: &mut usize) {
+    pub(super) fn update_wikidot_ellipsis_literal_depth(
+        tag: &str,
+        literal_depth: &mut usize,
+    ) {
         let Some((name, closing, self_closing)) = Self::html_tag_name(tag) else {
             return;
         };
@@ -3242,27 +2601,16 @@ impl RenderService {
         Some((name, closing, inner.ends_with('/')))
     }
 
-    fn remove_wikijump_underline_wrappers(html: &str) -> String {
+    pub(super) fn remove_wikijump_underline_wrappers(html: &str) -> String {
         // FTML uses semantic <s> elements for paired Wikidot --text--
         // strikethrough. Those are visible formatting, not plain wrappers.
         html.replace("<u>", "").replace("</u>", "")
     }
 
-    fn remove_wikidot_userkarma_background_styles(html: &str) -> String {
+    pub(super) fn remove_wikidot_userkarma_background_styles(html: &str) -> String {
         WIKIDOT_USERKARMA_BACKGROUND_STYLE_REGEX
             .replace_all(html, "")
             .into_owned()
-    }
-
-    fn restore_wikidot_code_block_compatibility(
-        code: &str,
-        current_site: Option<&SiteModel>,
-        config: &Config,
-    ) -> String {
-        // Wikidot code blocks used through /local--code are active CSS. Keep
-        // their dependency graph intact; Framerail's CSP allowlist is the
-        // browser boundary for external requests, not the renderer.
-        Self::localize_wikidot_local_file_urls(code, current_site, config)
     }
 
     fn normalize_wikidot_ta_badge_multiline_includes(wikitext: &mut String) {
@@ -4123,22 +3471,7 @@ impl RenderService {
             .extend(links.iter().map(|link| Cow::Owned(link.href.clone())));
     }
 
-    fn restore_wikidot_rendered_embed_iframes(html: &str) -> String {
-        WIKIDOT_EMBED_PARAGRAPH_REGEX
-            .replace_all(html, |captures: &regex::Captures<'_>| {
-                let block = captures.get(1).map_or("", |m| m.as_str());
-                let decoded = Self::decode_rendered_embed_block(block);
-
-                let Some(iframe) = Self::allowed_wikidot_embed_iframe(&decoded) else {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_string();
-                };
-
-                format!("<p>{iframe}</p>")
-            })
-            .into_owned()
-    }
-
-    fn allowed_wikidot_embed_iframe(iframe: &str) -> Option<String> {
+    pub(super) fn allowed_wikidot_embed_iframe(iframe: &str) -> Option<String> {
         if let Some(captures) = WIKIDOT_STYLEFRAME_IFRAME_REGEX.captures(iframe) {
             return Some(Self::rewrite_wikidot_interwiki_iframe_src(
                 iframe,
@@ -4170,7 +3503,7 @@ impl RenderService {
         iframe.replace(original_src, &local_src)
     }
 
-    fn decode_rendered_embed_block(block: &str) -> String {
+    pub(super) fn decode_rendered_embed_block(block: &str) -> String {
         let without_anchors = WIKIDOT_RENDERED_ANCHOR_REGEX.replace_all(block, "$1");
         let text = without_anchors
             .replace("<br>", "")
@@ -4185,35 +3518,7 @@ impl RenderService {
         text.trim().to_owned()
     }
 
-    fn restore_wikidot_email_obfuscation(html: &str) -> String {
-        WIKIDOT_EMAIL_SPAN_REGEX
-            .replace_all(html, |captures: &regex::Captures<'_>| {
-                let href_email = captures.get(1).map_or("", |m| m.as_str());
-                let visible_email = captures.get(2).map_or("", |m| m.as_str());
-                let href_email = decode_wikidot_email_html_entities(href_email);
-                let visible_email =
-                    decode_wikidot_email_html_entities(visible_email);
-
-                if href_email != visible_email {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_string();
-                }
-
-                let (email, trailing) =
-                    Self::split_trailing_email_punctuation(&visible_email);
-                if Self::wikidot_obfuscated_email(email).is_none() {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_string();
-                }
-
-                format!(
-                    r#"<span class="wiki-email" style="visibility: visible;"><a href="mailto:{email_attr}">{email_text}</a></span>{trailing}"#,
-                    email_attr = escape_list_pages_html_attr(email),
-                    email_text = escape_list_pages_html_text(email),
-                )
-            })
-            .into_owned()
-    }
-
-    fn wikidot_obfuscated_email(email: &str) -> Option<String> {
+    pub(super) fn wikidot_obfuscated_email(email: &str) -> Option<String> {
         let (user, domain) = email.split_once('@')?;
 
         if user.is_empty() || domain.is_empty() {
@@ -4228,7 +3533,7 @@ impl RenderService {
         ))
     }
 
-    fn split_trailing_email_punctuation(email: &str) -> (&str, &str) {
+    pub(super) fn split_trailing_email_punctuation(email: &str) -> (&str, &str) {
         let email_end = email
             .trim_end_matches(|character| {
                 matches!(character, '.' | ',' | ';' | ':' | '!' | '?')
@@ -4238,7 +3543,7 @@ impl RenderService {
         email.split_at(email_end)
     }
 
-    fn localize_wikidot_local_file_urls(
+    pub(super) fn localize_wikidot_local_file_urls(
         html: &str,
         current_site: Option<&SiteModel>,
         config: &Config,
@@ -7577,7 +6882,7 @@ impl RenderService {
         Self::wikidot_div_attributes(marker, true)
     }
 
-    fn wikidot_residual_div_attributes(marker: &str) -> Option<String> {
+    pub(super) fn wikidot_residual_div_attributes(marker: &str) -> Option<String> {
         Self::wikidot_div_attributes(marker, false)
     }
 
@@ -12098,7 +11403,7 @@ fn find_matching_wikidot_span_close(value: &str) -> Option<usize> {
     None
 }
 
-fn wikidot_inline_span_marker_open(marker: &str) -> Option<String> {
+pub(super) fn wikidot_inline_span_marker_open(marker: &str) -> Option<String> {
     let marker = marker.trim();
     if !marker.ends_with("]]") {
         return None;
@@ -12311,18 +11616,18 @@ fn render_native_list_wikidot_user(name: &str) -> String {
     )
 }
 
-fn escape_list_pages_html_text(value: &str) -> String {
+pub(super) fn escape_list_pages_html_text(value: &str) -> String {
     value
         .replace('&', "&amp;")
         .replace('<', "&lt;")
         .replace('>', "&gt;")
 }
 
-fn escape_list_pages_html_attr(value: &str) -> String {
+pub(super) fn escape_list_pages_html_attr(value: &str) -> String {
     escape_list_pages_html_text(value).replace('"', "&quot;")
 }
 
-fn decode_wikidot_email_html_entities(value: &str) -> String {
+pub(super) fn decode_wikidot_email_html_entities(value: &str) -> String {
     let mut output = String::with_capacity(value.len());
     let mut rest = value;
 
@@ -13447,7 +12752,10 @@ fn public_url_port_suffix(port: Option<u16>) -> String {
     port.map(|port| format!(":{port}")).unwrap_or_default()
 }
 
-fn rendered_wikidot_mailform_attribute(head: &str, name: &str) -> Option<String> {
+pub(super) fn rendered_wikidot_mailform_attribute(
+    head: &str,
+    name: &str,
+) -> Option<String> {
     let prefix = format!("{name}=&quot;");
     let start = head.find(&prefix)? + prefix.len();
     let rest = &head[start..];
