@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::service::RenderService;
+use super::super::service::RenderService;
 use regex::Regex;
 use std::sync::LazyLock;
 
@@ -47,7 +47,9 @@ static WIKIDOT_INTERWIKI_FRAME_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| 
 });
 
 impl RenderService {
-    pub(super) fn protect_wikidot_embed_iframes(wikitext: &mut String) -> Vec<String> {
+    pub(in crate::services::render) fn protect_wikidot_embed_iframes(
+        wikitext: &mut String,
+    ) -> Vec<String> {
         let mut iframes = Vec::new();
         let protected = WIKIDOT_RAW_EMBED_IFRAME_REGEX
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
@@ -69,7 +71,7 @@ impl RenderService {
         iframes
     }
 
-    pub(super) fn restore_protected_wikidot_embed_iframes(
+    pub(in crate::services::render) fn restore_protected_wikidot_embed_iframes(
         mut html: String,
         iframes: &[String],
     ) -> String {
@@ -80,7 +82,9 @@ impl RenderService {
         html
     }
 
-    pub(super) fn allowed_wikidot_embed_iframe(iframe: &str) -> Option<String> {
+    pub(in crate::services::render) fn allowed_wikidot_embed_iframe(
+        iframe: &str,
+    ) -> Option<String> {
         if let Some(captures) = WIKIDOT_STYLEFRAME_IFRAME_REGEX.captures(iframe) {
             return Some(Self::rewrite_wikidot_interwiki_iframe_src(
                 iframe,
@@ -112,7 +116,9 @@ impl RenderService {
         iframe.replace(original_src, &local_src)
     }
 
-    pub(super) fn decode_rendered_embed_block(block: &str) -> String {
+    pub(in crate::services::render) fn decode_rendered_embed_block(
+        block: &str,
+    ) -> String {
         let without_anchors = WIKIDOT_RENDERED_ANCHOR_REGEX.replace_all(block, "$1");
         let text = without_anchors
             .replace("<br>", "")

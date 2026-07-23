@@ -21,7 +21,9 @@
 const FOOTNOTE_LIST_OPEN: &str = r#"<div class="wj-footnote-list">"#;
 const ITEM_OPEN: &str = r#"<li class="wj-footnote-list-item""#;
 
-pub(super) fn restore_wikidot_footnote_list_dom(html: &str) -> String {
+pub(in crate::services::render) fn restore_wikidot_footnote_list_dom(
+    html: &str,
+) -> String {
     let mut restored = String::with_capacity(html.len());
     let mut cursor = 0usize;
 

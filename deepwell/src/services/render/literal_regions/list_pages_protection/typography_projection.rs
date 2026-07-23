@@ -1,5 +1,5 @@
 /*
- * services/render/literal_regions/list_pages/typography_projection.rs
+ * services/render/literal_regions/list_pages_protection/typography_projection.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -96,7 +96,7 @@ fn projected_str(source: &[u8]) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::services::render::list_pages_scanner::find_list_pages_module_matches;
+    use crate::services::render::list_pages::scanner::find_list_pages_module_matches;
     use crate::services::render::literal_regions::token_boundaries::TextTokenCursor;
 
     fn inert_projection(source: &str) -> String {

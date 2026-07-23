@@ -5,15 +5,16 @@ use regex::Regex;
 use std::collections::BTreeSet;
 use std::sync::LazyLock;
 
-pub(super) static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
+pub(in crate::services::render) static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| {
+        Regex::new(
         r"%%(?P<name>[A-Za-z0-9_]+)(?:\{(?P<argument>[A-Za-z0-9_-]+)\})?(?:\|(?P<format>.*?))?%%",
     )
     .unwrap()
-});
+    });
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum ListPagesOutputShape {
+pub(in crate::services::render) enum ListPagesOutputShape {
     Plain,
     NumberedRows,
     TableRows,
@@ -110,7 +111,7 @@ impl ListPagesVariables {
 }
 
 #[derive(Debug)]
-pub(super) struct ListPagesTemplatePlan {
+pub(in crate::services::render) struct ListPagesTemplatePlan {
     body: String,
     variables: ListPagesVariables,
     fields: FoundPageFields,
@@ -122,7 +123,7 @@ pub(super) struct ListPagesTemplatePlan {
 }
 
 impl ListPagesTemplatePlan {
-    pub(super) fn compile(body: &str) -> Option<Self> {
+    pub(in crate::services::render) fn compile(body: &str) -> Option<Self> {
         let mut variables = ListPagesVariables::default();
         let mut content_sections = BTreeSet::new();
         let mut variable_count = 0;
@@ -157,66 +158,68 @@ impl ListPagesTemplatePlan {
         })
     }
 
-    pub(super) fn body(&self) -> &str {
+    pub(in crate::services::render) fn body(&self) -> &str {
         &self.body
     }
 
-    pub(super) fn fields(&self) -> FoundPageFields {
+    pub(in crate::services::render) fn fields(&self) -> FoundPageFields {
         self.fields.clone()
     }
 
-    pub(super) fn output_shape(&self) -> ListPagesOutputShape {
+    pub(in crate::services::render) fn output_shape(&self) -> ListPagesOutputShape {
         self.output_shape
     }
 
-    pub(super) fn uses_created_by(&self) -> bool {
+    pub(in crate::services::render) fn uses_created_by(&self) -> bool {
         self.variables.intersects(&[
             ListPagesVariable::CreatedBy,
             ListPagesVariable::CreatedByLinked,
         ])
     }
 
-    pub(super) fn uses_created_at(&self) -> bool {
+    pub(in crate::services::render) fn uses_created_at(&self) -> bool {
         self.variables.contains(ListPagesVariable::CreatedAt)
     }
 
-    pub(super) fn uses_updated_by(&self) -> bool {
+    pub(in crate::services::render) fn uses_updated_by(&self) -> bool {
         self.variables.contains(ListPagesVariable::UpdatedBy)
     }
 
-    pub(super) fn uses_updated_at(&self) -> bool {
+    pub(in crate::services::render) fn uses_updated_at(&self) -> bool {
         self.variables.contains(ListPagesVariable::UpdatedAt)
     }
 
-    pub(super) fn uses_comments(&self) -> bool {
+    pub(in crate::services::render) fn uses_comments(&self) -> bool {
         self.variables.contains(ListPagesVariable::Comments)
     }
 
-    pub(super) fn uses_commented_by(&self) -> bool {
+    pub(in crate::services::render) fn uses_commented_by(&self) -> bool {
         self.variables.contains(ListPagesVariable::CommentedBy)
     }
 
-    pub(super) fn uses_commented_at(&self) -> bool {
+    pub(in crate::services::render) fn uses_commented_at(&self) -> bool {
         self.variables.contains(ListPagesVariable::CommentedAt)
     }
 
-    pub(super) fn uses_rating_votes(&self) -> bool {
+    pub(in crate::services::render) fn uses_rating_votes(&self) -> bool {
         self.variables.contains(ListPagesVariable::RatingVotes)
     }
 
-    pub(super) fn uses_content(&self) -> bool {
+    pub(in crate::services::render) fn uses_content(&self) -> bool {
         self.variables.contains(ListPagesVariable::Content)
     }
 
-    pub(super) fn content_sections(&self) -> &BTreeSet<Option<usize>> {
+    pub(in crate::services::render) fn content_sections(
+        &self,
+    ) -> &BTreeSet<Option<usize>> {
         &self.content_sections
     }
 
-    pub(super) fn uses_data_form(&self) -> bool {
+    pub(in crate::services::render) fn uses_data_form(&self) -> bool {
         self.variables.contains(ListPagesVariable::FormData)
     }
 
-    pub(super) fn uses_only_rating(&self) -> bool {
+    pub(in crate::services::render) fn uses_only_rating(&self) -> bool {
         self.rating_only
     }
 

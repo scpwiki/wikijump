@@ -18,27 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::super::literal_regions::LiteralRegionIndex;
+use super::super::service::*;
 use super::issued_markers::restore_issued_html_text_markers;
-use super::literal_regions::LiteralRegionIndex;
-use super::service::*;
 use ftml::settings::WikitextSettings;
 use std::borrow::Cow;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub(super) struct ProtectedWikidotWikipediaLink {
-    pub(super) link: WikidotWikipediaLink,
-    pub(super) marker: String,
+pub(in crate::services::render) struct ProtectedWikidotWikipediaLink {
+    pub(in crate::services::render) link: WikidotWikipediaLink,
+    pub(in crate::services::render) marker: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub(super) struct WikidotWikipediaLink {
-    pub(super) anchor: String,
-    pub(super) href: String,
+pub(in crate::services::render) struct WikidotWikipediaLink {
+    pub(in crate::services::render) anchor: String,
+    pub(in crate::services::render) href: String,
 }
 
 impl RenderService {
-    pub(super) fn protect_wikidot_wikipedia_links(
+    pub(in crate::services::render) fn protect_wikidot_wikipedia_links(
         wikitext: &mut String,
         settings: &WikitextSettings,
     ) -> Vec<ProtectedWikidotWikipediaLink> {
@@ -94,7 +94,7 @@ impl RenderService {
         links
     }
 
-    pub(super) fn protect_wikidot_compat_links(
+    pub(in crate::services::render) fn protect_wikidot_compat_links(
         wikitext: &mut String,
         settings: &WikitextSettings,
     ) -> Vec<ProtectedWikidotCompatLink> {
@@ -109,7 +109,7 @@ impl RenderService {
         links
     }
 
-    pub(super) fn protect_wikidot_anchor_markers(
+    pub(in crate::services::render) fn protect_wikidot_anchor_markers(
         wikitext: &mut String,
         links: &mut Vec<ProtectedWikidotCompatLink>,
     ) {
@@ -156,7 +156,7 @@ impl RenderService {
         *wikitext = output;
     }
 
-    pub(super) fn protect_wikidot_current_page_links(
+    pub(in crate::services::render) fn protect_wikidot_current_page_links(
         wikitext: &mut String,
         links: &mut Vec<ProtectedWikidotCompatLink>,
     ) {
@@ -212,7 +212,7 @@ impl RenderService {
         *wikitext = output;
     }
 
-    pub(super) fn protect_wikidot_star_local_links(
+    pub(in crate::services::render) fn protect_wikidot_star_local_links(
         wikitext: &mut String,
         links: &mut Vec<ProtectedWikidotCompatLink>,
     ) {
@@ -266,7 +266,7 @@ impl RenderService {
         *wikitext = output;
     }
 
-    pub(super) fn restore_protected_wikidot_compat_links(
+    pub(in crate::services::render) fn restore_protected_wikidot_compat_links(
         html: String,
         links: &[ProtectedWikidotCompatLink],
     ) -> String {
@@ -279,7 +279,7 @@ impl RenderService {
         )
     }
 
-    pub(super) fn restore_protected_wikidot_wikipedia_links(
+    pub(in crate::services::render) fn restore_protected_wikidot_wikipedia_links(
         html: String,
         links: &[ProtectedWikidotWikipediaLink],
     ) -> String {
@@ -349,7 +349,7 @@ impl RenderService {
         output
     }
 
-    pub(super) fn record_protected_wikidot_wikipedia_backlinks(
+    pub(in crate::services::render) fn record_protected_wikidot_wikipedia_backlinks(
         backlinks: &mut ftml::data::Backlinks<'_>,
         links: &[ProtectedWikidotWikipediaLink],
     ) {
@@ -358,7 +358,7 @@ impl RenderService {
             .extend(links.iter().map(|link| Cow::Owned(link.link.href.clone())));
     }
 
-    pub(super) fn record_wikidot_wikipedia_backlinks(
+    pub(in crate::services::render) fn record_wikidot_wikipedia_backlinks(
         backlinks: &mut ftml::data::Backlinks<'_>,
         links: &[WikidotWikipediaLink],
     ) {
@@ -368,28 +368,31 @@ impl RenderService {
     }
 }
 
-pub(super) fn wikidot_compat_link_marker() -> String {
+pub(in crate::services::render) fn wikidot_compat_link_marker() -> String {
     format!(
         "{WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX}{}X",
         Uuid::new_v4().as_simple(),
     )
 }
 
-pub(super) fn wikidot_named_anchor(name: &str) -> String {
+pub(in crate::services::render) fn wikidot_named_anchor(name: &str) -> String {
     format!(
         r#"<a name="{name}"></a>"#,
         name = escape_list_pages_html_attr(name),
     )
 }
 
-pub(super) fn wikidot_current_page_anchor(label: &str) -> String {
+pub(in crate::services::render) fn wikidot_current_page_anchor(label: &str) -> String {
     format!(
         r#"<a href="javascript:;">{label}</a>"#,
         label = escape_list_pages_html_text(label),
     )
 }
 
-pub(super) fn wikidot_star_local_anchor(target: &str, label: &str) -> String {
+pub(in crate::services::render) fn wikidot_star_local_anchor(
+    target: &str,
+    label: &str,
+) -> String {
     let target = target.trim();
     let href = if target.starts_with('/') {
         target.to_owned()
@@ -404,7 +407,7 @@ pub(super) fn wikidot_star_local_anchor(target: &str, label: &str) -> String {
     )
 }
 
-pub(super) fn build_wikidot_wikipedia_link(
+pub(in crate::services::render) fn build_wikidot_wikipedia_link(
     target: &str,
     label: Option<&str>,
 ) -> WikidotWikipediaLink {
@@ -422,11 +425,16 @@ pub(super) fn build_wikidot_wikipedia_link(
     WikidotWikipediaLink { anchor, href }
 }
 
-pub(super) fn wikidot_wikipedia_href(language: &str, page: &str) -> String {
+pub(in crate::services::render) fn wikidot_wikipedia_href(
+    language: &str,
+    page: &str,
+) -> String {
     format!("http://{language}.wikipedia.org/wiki/{page}")
 }
 
-pub(super) fn wikidot_wikipedia_target(target: &str) -> (&str, &str) {
+pub(in crate::services::render) fn wikidot_wikipedia_target(
+    target: &str,
+) -> (&str, &str) {
     if let Some((language, page)) = target.split_once(':')
         && !page.is_empty()
         && (2..=3).contains(&language.len())

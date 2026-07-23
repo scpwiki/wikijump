@@ -1,5 +1,5 @@
 /*
- * services/render/compat_fallback_code.rs
+ * services/render/compat/fallback_code.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -18,14 +18,14 @@ const MAX_CODE_LANGUAGE_BYTES: usize = 64;
 const MAX_CODE_NAME_BYTES: usize = 255;
 
 #[derive(Debug)]
-pub(super) struct WikidotCompatibilityFallbackOutput {
-    pub(super) body: String,
-    pub(super) html_block_texts: Vec<String>,
-    pub(super) code_blocks: Vec<CodeBlock<'static>>,
+pub(in crate::services::render) struct WikidotCompatibilityFallbackOutput {
+    pub(in crate::services::render) body: String,
+    pub(in crate::services::render) html_block_texts: Vec<String>,
+    pub(in crate::services::render) code_blocks: Vec<CodeBlock<'static>>,
 }
 
 impl WikidotCompatibilityFallbackOutput {
-    pub(super) fn body(body: String) -> Self {
+    pub(in crate::services::render) fn body(body: String) -> Self {
         Self {
             body,
             html_block_texts: Vec::new(),
@@ -35,16 +35,16 @@ impl WikidotCompatibilityFallbackOutput {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct CompatCodeBlock {
-    pub(super) start_line: usize,
-    pub(super) end_line: usize,
-    pub(super) language: Option<String>,
-    pub(super) name: Option<String>,
-    pub(super) contents: String,
+pub(in crate::services::render) struct CompatCodeBlock {
+    pub(in crate::services::render) start_line: usize,
+    pub(in crate::services::render) end_line: usize,
+    pub(in crate::services::render) language: Option<String>,
+    pub(in crate::services::render) name: Option<String>,
+    pub(in crate::services::render) contents: String,
 }
 
 impl CompatCodeBlock {
-    pub(super) fn into_ftml(self) -> CodeBlock<'static> {
+    pub(in crate::services::render) fn into_ftml(self) -> CodeBlock<'static> {
         CodeBlock {
             contents: Cow::Owned(self.contents),
             language: self.language.map(Cow::Owned),
@@ -56,7 +56,7 @@ impl CompatCodeBlock {
 /// Locates complete Wikidot code blocks without consuming ambiguous input.
 ///
 /// This is a compatibility boundary rather than a second wikitext parser. If a code-looking marker is malformed, nested, unmatched, or exceeds the bounded representation below, the entire scan fails closed. The caller must then render the original source literally so no text can disappear. FTML should eventually expose this as a delayed structure; Deepwell only retains the metadata here because hosted `/local--code/` resources require runtime persistence today.
-pub(super) fn scan_compat_code_blocks(
+pub(in crate::services::render) fn scan_compat_code_blocks(
     wikitext: &str,
 ) -> Result<Vec<CompatCodeBlock>, CompatCodeScanError> {
     let mut blocks = Vec::new();
@@ -98,7 +98,7 @@ pub(super) fn scan_compat_code_blocks(
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) struct CompatCodeScanError;
+pub(in crate::services::render) struct CompatCodeScanError;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct CodeMarker {

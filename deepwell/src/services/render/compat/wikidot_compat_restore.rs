@@ -18,14 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::super::service::*;
 use super::footnote_dom::restore_wikidot_footnote_list_dom;
-use super::service::*;
 use crate::config::Config;
 use crate::models::site::Model as SiteModel;
 use std::ops::Range;
 
 impl RenderService {
-    pub(super) fn restore_wikidot_render_compatibility(
+    pub(in crate::services::render) fn restore_wikidot_render_compatibility(
         html: &str,
         current_site: Option<&SiteModel>,
         config: &Config,
@@ -105,7 +105,9 @@ impl RenderService {
         html
     }
 
-    pub(super) fn restore_wikidot_collapsible_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_collapsible_compatibility(
+        html: &str,
+    ) -> String {
         html.replace(r#"<details class="wj-collapsible""#, r#"<details class="collapsible-block collapsible-block-folded collapsible-block-unfolded""#)
             .replace(
                 r#"<summary class="wj-collapsible-button wj-collapsible-button-top">"#,
@@ -124,7 +126,9 @@ impl RenderService {
             )
     }
 
-    pub(super) fn restore_wikidot_code_block_dom_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_code_block_dom_compatibility(
+        html: &str,
+    ) -> String {
         let html = WIKIJUMP_CODE_BLOCK_PANEL_REGEX.replace_all(html, "");
         let html = WIKIJUMP_CODE_BLOCK_OPEN_REGEX.replace_all(
             &html,
@@ -139,7 +143,9 @@ impl RenderService {
         html.replace("</wj-code>", "</div>")
     }
 
-    pub(super) fn restore_wikidot_tabview_dom_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_tabview_dom_compatibility(
+        html: &str,
+    ) -> String {
         let html = html.replace(
             r#"<wj-tabs class="wj-tabs">"#,
             &format!(r#"{WIKIDOT_TABVIEW_SCRIPT}<div class="yui-navset">"#),
@@ -159,7 +165,9 @@ impl RenderService {
         )
     }
 
-    pub(super) fn restore_wikidot_tab_panel_visibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_tab_panel_visibility(
+        html: &str,
+    ) -> String {
         let mut panel_index = 0usize;
         let mut last_copied = 0usize;
         let mut group_scan_start = 0usize;
@@ -193,7 +201,9 @@ impl RenderService {
         restored
     }
 
-    pub(super) fn restore_wikidot_footnote_dom_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_footnote_dom_compatibility(
+        html: &str,
+    ) -> String {
         let html = WIKIJUMP_FOOTNOTE_MARKER_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
                 let attrs = captures.name("attrs").map_or("", |mtch| mtch.as_str());
@@ -228,7 +238,9 @@ impl RenderService {
         restore_wikidot_footnote_list_dom(&html)
     }
 
-    pub(super) fn restore_wikidot_mailform_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_mailform_compatibility(
+        html: &str,
+    ) -> String {
         WIKIDOT_RENDERED_MAILFORM_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
                 let head = captures.name("head").map_or("", |mtch| mtch.as_str());
@@ -270,13 +282,17 @@ impl RenderService {
             .into_owned()
     }
 
-    pub(super) fn restore_wikidot_inline_math_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_inline_math_compatibility(
+        html: &str,
+    ) -> String {
         WIKIJUMP_INLINE_MATH_REGEX
             .replace_all(html, r#"<span class="math-inline">$$${source}$$</span>"#)
             .into_owned()
     }
 
-    pub(super) fn restore_wikidot_ta_badge_default_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_ta_badge_default_compatibility(
+        html: &str,
+    ) -> String {
         html.replace("bg-shadow-{$bg-shadow}", "bg-shadow-true")
             .replace("plate-shadow-{$plate-shadow}", "plate-shadow-true")
             .replace(
@@ -295,7 +311,9 @@ impl RenderService {
             .replace("{$item-rb-link}", "empty")
     }
 
-    pub(super) fn restore_wikidot_text_ellipsis_compatibility(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_text_ellipsis_compatibility(
+        html: &str,
+    ) -> String {
         let mut output = String::with_capacity(html.len());
         let mut cursor = 0usize;
         let mut literal_depth = 0usize;
@@ -327,7 +345,7 @@ impl RenderService {
         output
     }
 
-    pub(super) fn restore_wikidot_code_block_compatibility(
+    pub(in crate::services::render) fn restore_wikidot_code_block_compatibility(
         code: &str,
         current_site: Option<&SiteModel>,
         config: &Config,
@@ -338,7 +356,9 @@ impl RenderService {
         Self::localize_wikidot_local_file_urls(code, current_site, config)
     }
 
-    pub(super) fn restore_wikidot_rendered_embed_iframes(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_rendered_embed_iframes(
+        html: &str,
+    ) -> String {
         WIKIDOT_EMBED_PARAGRAPH_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
                 let block = captures.get(1).map_or("", |m| m.as_str());
@@ -353,7 +373,9 @@ impl RenderService {
             .into_owned()
     }
 
-    pub(super) fn restore_wikidot_email_obfuscation(html: &str) -> String {
+    pub(in crate::services::render) fn restore_wikidot_email_obfuscation(
+        html: &str,
+    ) -> String {
         WIKIDOT_EMAIL_SPAN_REGEX
             .replace_all(html, |captures: &regex::Captures<'_>| {
                 let href_email = captures.get(1).map_or("", |m| m.as_str());

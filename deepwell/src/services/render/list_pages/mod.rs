@@ -18,6 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub(super) mod content_sections;
+pub(super) mod scanner;
+pub(super) mod template;
+
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page};
 use crate::services::page_query::{

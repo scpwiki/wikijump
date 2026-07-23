@@ -1,5 +1,5 @@
 /*
- * services/render/literal_regions/list_pages/css/syntax.rs
+ * services/render/literal_regions/list_pages_protection/css/syntax.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team

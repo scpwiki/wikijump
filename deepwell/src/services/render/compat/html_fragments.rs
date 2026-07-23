@@ -1,19 +1,20 @@
-//! Render-local provenance for HTML produced by trusted runtime producers.
+//! Compatibility-local provenance for HTML produced by trusted runtime producers.
 
 use serde::{Deserialize, Serialize};
 use std::fmt::Write as _;
 use uuid::Uuid;
 
-use super::html_text::{
+use super::super::html_text::{
     HtmlDataSegment, OPAQUE_ELEMENTS, TagKind, html_data_segments,
     is_foreign_self_closing, opaque_element_end, protected_construct_end, tag_kind,
 };
-use super::literal_regions::LiteralRegionIndex;
+use super::super::literal_regions::LiteralRegionIndex;
 
-pub(super) const COMPAT_HTML_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
+pub(in crate::services::render) const COMPAT_HTML_MARKER_PREFIX: &str =
+    "WIKIJUMPWIKIDOTCOMPATHTML";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub(super) struct CompatHtmlFragments {
+pub(in crate::services::render) struct CompatHtmlFragments {
     namespace: String,
     fragments: Vec<CompatFragment>,
 }
@@ -26,7 +27,7 @@ enum CompatFragment {
 }
 
 impl CompatHtmlFragments {
-    pub(super) fn new(untrusted_source: &str) -> Self {
+    pub(in crate::services::render) fn new(untrusted_source: &str) -> Self {
         let namespace = loop {
             let candidate =
                 format!("{COMPAT_HTML_MARKER_PREFIX}{}I", Uuid::new_v4().as_simple(),);
@@ -40,15 +41,18 @@ impl CompatHtmlFragments {
         }
     }
 
-    pub(super) fn push_html(&mut self, html: String) -> String {
+    pub(in crate::services::render) fn push_html(&mut self, html: String) -> String {
         self.push_fragment(CompatFragment::Html(html))
     }
 
-    pub(super) fn push_block_html(&mut self, html: String) -> String {
+    pub(in crate::services::render) fn push_block_html(
+        &mut self,
+        html: String,
+    ) -> String {
         self.push_fragment(CompatFragment::BlockHtml(html))
     }
 
-    pub(super) fn push_plain(&mut self, plain: &str) -> String {
+    pub(in crate::services::render) fn push_plain(&mut self, plain: &str) -> String {
         self.push_fragment(CompatFragment::Plain {
             plain: plain.to_owned(),
             html: escape_in_any_html_context(plain),
@@ -61,7 +65,7 @@ impl CompatHtmlFragments {
         format!("{}{index}X", self.namespace)
     }
 
-    pub(super) fn restore(&self, text: &str) -> String {
+    pub(in crate::services::render) fn restore(&self, text: &str) -> String {
         let data_segments = html_data_segments(text);
         self.restore_with(text, None, Some(&data_segments), true, |fragment| {
             match fragment {
@@ -74,7 +78,10 @@ impl CompatHtmlFragments {
     }
 
     #[cfg(test)]
-    pub(super) fn restore_outside_html_literals(&self, text: &str) -> String {
+    pub(in crate::services::render) fn restore_outside_html_literals(
+        &self,
+        text: &str,
+    ) -> String {
         let data_segments = html_data_segments(text);
         self.restore_with(text, None, Some(&data_segments), true, |fragment| {
             match fragment {
@@ -86,7 +93,10 @@ impl CompatHtmlFragments {
         })
     }
 
-    pub(super) fn restore_outside_block_html_literals(&self, text: &str) -> String {
+    pub(in crate::services::render) fn restore_outside_block_html_literals(
+        &self,
+        text: &str,
+    ) -> String {
         let literal_regions = LiteralRegionIndex::new_html_color_restoration(text);
         self.restore_with(text, Some(&literal_regions), None, true, |fragment| {
             match fragment {
@@ -98,7 +108,7 @@ impl CompatHtmlFragments {
         })
     }
 
-    pub(super) fn restore_plain(&self, text: &str) -> String {
+    pub(in crate::services::render) fn restore_plain(&self, text: &str) -> String {
         self.restore_with(text, None, None, false, |fragment| match fragment {
             CompatFragment::Plain { plain, .. } => Some(plain.as_str()),
             CompatFragment::Html(_) | CompatFragment::BlockHtml(_) => None,

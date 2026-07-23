@@ -19,17 +19,17 @@
  */
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum WikidotCompatInlineMarkerKind {
+pub(in crate::services::render) enum WikidotCompatInlineMarkerKind {
     Color,
     Italic,
     Underline,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct WikidotCompatInlineMarker {
-    pub(super) start: usize,
-    pub(super) end: usize,
-    pub(super) kind: WikidotCompatInlineMarkerKind,
+pub(in crate::services::render) struct WikidotCompatInlineMarker {
+    pub(in crate::services::render) start: usize,
+    pub(in crate::services::render) end: usize,
+    pub(in crate::services::render) kind: WikidotCompatInlineMarkerKind,
 }
 
 /// Return the earliest complete compatibility marker in `value`.
@@ -37,7 +37,7 @@ pub(super) struct WikidotCompatInlineMarker {
 /// Candidate discovery advances monotonically through the string. Invalid
 /// candidates never restart the search from the beginning, which keeps a call
 /// linear in the supplied text instead of rescanning it once per marker kind.
-pub(super) fn next_wikidot_compat_inline_marker(
+pub(in crate::services::render) fn next_wikidot_compat_inline_marker(
     value: &str,
 ) -> Option<WikidotCompatInlineMarker> {
     let mut offset = 0;

@@ -1,5 +1,5 @@
 /*
- * services/render/literal_regions/list_pages/css/ranges.rs
+ * services/render/literal_regions/list_pages_protection/css/ranges.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -26,7 +26,7 @@ static CSS_MODULE_OPEN_REGEX: LazyLock<Regex> =
 static MODULE_CLOSE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[/module\]\]").unwrap());
 
-pub(in crate::services::render::literal_regions::list_pages) fn collect_downstream_css_module_ranges(
+pub(in crate::services::render::literal_regions::list_pages_protection) fn collect_downstream_css_module_ranges(
     source: &str,
 ) -> Vec<Range<usize>> {
     let Some(scan) = CssLiteralScan::new(source) else {
@@ -36,7 +36,7 @@ pub(in crate::services::render::literal_regions::list_pages) fn collect_downstre
     collect_css_module_ranges(source, &scan, &native_quote_lines)
 }
 
-pub(in crate::services::render::literal_regions::list_pages) fn collect_downstream_css_module_ranges_with_heads(
+pub(in crate::services::render::literal_regions::list_pages_protection) fn collect_downstream_css_module_ranges_with_heads(
     source: &str,
     heads: &HeadContext,
 ) -> Vec<Range<usize>> {
@@ -47,7 +47,7 @@ pub(in crate::services::render::literal_regions::list_pages) fn collect_downstre
     collect_css_module_ranges(source, &scan, &native_quote_lines)
 }
 
-pub(in crate::services::render::literal_regions::list_pages) fn collect_projected_css_module_ranges(
+pub(in crate::services::render::literal_regions::list_pages_protection) fn collect_projected_css_module_ranges(
     source: &str,
     quote_ranges: &[Range<usize>],
 ) -> Vec<Range<usize>> {
@@ -57,7 +57,7 @@ pub(in crate::services::render::literal_regions::list_pages) fn collect_projecte
     collect_css_module_ranges(source, &scan, quote_ranges)
 }
 
-pub(in crate::services::render::literal_regions::list_pages) fn collect_projected_css_module_ranges_with_heads(
+pub(in crate::services::render::literal_regions::list_pages_protection) fn collect_projected_css_module_ranges_with_heads(
     source: &str,
     quote_ranges: &[Range<usize>],
     heads: &HeadContext,

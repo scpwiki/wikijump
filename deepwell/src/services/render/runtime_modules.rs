@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 
 use sea_orm::{ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, Statement};
 
-use super::compat_html_fragments::CompatHtmlFragments;
+use super::compat::CompatHtmlFragments;
 use super::literal_regions::LiteralRegionIndex;
 use super::prelude::*;
 use super::service::{

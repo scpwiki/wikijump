@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::compat_text_fragments::CompatTextFragments;
-use super::list_pages_scanner::first_list_pages_module_opening_candidate;
-use super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
+use super::super::list_pages::scanner::first_list_pages_module_opening_candidate;
+use super::super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
+use super::text_fragments::CompatTextFragments;
 use ftml::settings::WikitextSettings;
 use regex::Regex;
 use std::ops::Range;
@@ -43,7 +43,7 @@ static AUTHORED_WIKIDOT_COMPAT_OPEN_TAG_REGEX: LazyLock<Regex> = LazyLock::new(|
     .unwrap()
 });
 
-pub(super) fn protect_css_modules_before_first_list_pages(
+pub(in crate::services::render) fn protect_css_modules_before_first_list_pages(
     wikitext: &mut String,
     settings: &WikitextSettings,
 ) -> Option<CompatTextFragments> {
@@ -97,7 +97,7 @@ pub(super) fn protect_css_modules_before_first_list_pages(
     protected_any.then_some(fragments)
 }
 
-pub(super) fn extract_css_modules(
+pub(in crate::services::render) fn extract_css_modules(
     wikitext: &mut String,
     settings: &WikitextSettings,
 ) -> Vec<String> {
@@ -147,7 +147,7 @@ fn escape_css_module_body(body: &str) -> String {
     body.replace('<', r"\3C ")
 }
 
-pub(super) fn neutralize_authored_markers(wikitext: &mut String) {
+pub(in crate::services::render) fn neutralize_authored_markers(wikitext: &mut String) {
     if !AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX.is_match(wikitext) {
         return;
     }

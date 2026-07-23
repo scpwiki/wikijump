@@ -20,7 +20,7 @@
 
 //! One-pass restoration for unguessable markers issued by a render pass.
 
-use super::html_text::html_data_segments_with_inline_code;
+use super::super::html_text::html_data_segments_with_inline_code;
 use std::collections::HashMap;
 
 const WIKIDOT_COMPAT_LINK_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
@@ -28,7 +28,7 @@ const WIKIDOT_COMPAT_LINK_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
 /// Restores issued markers in HTML text while leaving tag attributes unchanged.
 ///
 /// This scanner only accepts the Wikidot compatibility link marker prefix. The fixed, non-overlapping, non-hex-leading prefix lets a rejected hexadecimal candidate be skipped without rescanning each byte of a forged suffix. Markers consist of that prefix, one or more ASCII hexadecimal digits, and a trailing `X`. Only exact marker strings present in `replacements` are restored.
-pub(super) fn restore_issued_html_text_markers<'a>(
+pub(in crate::services::render) fn restore_issued_html_text_markers<'a>(
     html: String,
     prefix: &str,
     replacements: impl IntoIterator<Item = (&'a str, &'a str)>,

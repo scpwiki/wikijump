@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::literal_regions::{
+use super::super::literal_regions::{
     ListPagesScannerLiteralIndexes, ListPagesSourceProjection, LiteralRegionCursor,
     LiteralRegionIndex, TextTokenCursor, WikidotArgumentValueKind,
     WikidotTagArgumentScan, WikidotWholeHeadScan, double_quote_ends_wikidot_argument,
@@ -29,22 +29,28 @@ use super::literal_regions::{
 #[path = "scanner/count_reachability.rs"]
 mod count_reachability;
 
-pub(super) use self::count_reachability::CountPagesCloseReachabilityIndex;
+pub(in crate::services::render) use self::count_reachability::CountPagesCloseReachabilityIndex;
 #[cfg(test)]
 use std::cell::Cell;
 use std::ops::Range;
 
 const SPECULATIVE_WORK_LIMIT_MULTIPLIER: usize = 8;
 
-pub(super) fn has_list_pages_module_opening_candidate(source: &str) -> bool {
+pub(in crate::services::render) fn has_list_pages_module_opening_candidate(
+    source: &str,
+) -> bool {
     first_list_pages_module_opening_candidate(source).is_some()
 }
 
-pub(super) fn first_list_pages_module_opening_candidate(source: &str) -> Option<usize> {
+pub(in crate::services::render) fn first_list_pages_module_opening_candidate(
+    source: &str,
+) -> Option<usize> {
     first_module_opening_candidate(source, b"listpages", true)
 }
 
-pub(super) fn has_count_pages_module_opening_candidate(source: &str) -> bool {
+pub(in crate::services::render) fn has_count_pages_module_opening_candidate(
+    source: &str,
+) -> bool {
     first_module_opening_candidate(source, b"countpages", false).is_some()
 }
 
@@ -137,13 +143,13 @@ fn take_projection_offset_advances() -> usize {
 }
 
 #[derive(Debug)]
-pub(super) struct ListPagesModuleMatch<'a> {
-    pub(super) start: usize,
-    pub(super) end: usize,
-    pub(super) head: &'a str,
-    pub(super) body: &'a str,
-    pub(super) original: &'a str,
-    pub(super) runtime_safe: bool,
+pub(in crate::services::render) struct ListPagesModuleMatch<'a> {
+    pub(in crate::services::render) start: usize,
+    pub(in crate::services::render) end: usize,
+    pub(in crate::services::render) head: &'a str,
+    pub(in crate::services::render) body: &'a str,
+    pub(in crate::services::render) original: &'a str,
+    pub(in crate::services::render) runtime_safe: bool,
 }
 
 #[derive(Debug)]
@@ -1396,8 +1402,10 @@ fn runtime_list_pages_key_is_supported(key: &str) -> bool {
         && bytes.all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-'))
 }
 
-pub(super) fn runtime_regex_recognizes_entire_head(source: &str) -> bool {
-    super::service::list_pages_runtime_regex_recognizes_entire_head(source)
+pub(in crate::services::render) fn runtime_regex_recognizes_entire_head(
+    source: &str,
+) -> bool {
+    super::super::service::list_pages_runtime_regex_recognizes_entire_head(source)
 }
 
 fn unresolved_parser_function_prefix(source: &str) -> bool {
@@ -1412,7 +1420,7 @@ fn unresolved_parser_function_prefix(source: &str) -> bool {
     })
 }
 
-pub(super) fn list_pages_runtime_head_is_safe(head: &str) -> bool {
+pub(in crate::services::render) fn list_pages_runtime_head_is_safe(head: &str) -> bool {
     validate_module_head(head, true) == ModuleHeadValidation::RuntimeSafe
 }
 
@@ -1648,7 +1656,7 @@ fn quote_follows_argument_equals(bytes: &[u8], quote: usize, lower_bound: usize)
     cursor > lower_bound && bytes[cursor - 1] == b'='
 }
 
-pub(super) fn find_list_pages_module_matches(
+pub(in crate::services::render) fn find_list_pages_module_matches(
     source: &str,
 ) -> Vec<ListPagesModuleMatch<'_>> {
     find_list_pages_module_matches_with_cursor_work(source).0

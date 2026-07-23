@@ -2,8 +2,8 @@
 
 use std::ops::Range;
 
-use super::include_attachment_owners::find_wikidot_directive_end;
-use super::literal_regions::LiteralRegionIndex;
+use super::super::include_attachment_owners::find_wikidot_directive_end;
+use super::super::literal_regions::LiteralRegionIndex;
 
 fn is_wikidot_content_separator_line(line: &str) -> bool {
     let line = line.strip_suffix('\n').unwrap_or(line);
@@ -34,7 +34,10 @@ fn wikidot_content_section_range(wikitext: &str, section: usize) -> Option<Range
     (current_section == section).then_some(section_start..wikitext.len())
 }
 
-pub(super) fn wikidot_content_section(wikitext: &str, section: Option<usize>) -> String {
+pub(in crate::services::render) fn wikidot_content_section(
+    wikitext: &str,
+    section: Option<usize>,
+) -> String {
     let Some(section) = section else {
         return wikitext.to_owned();
     };
@@ -79,7 +82,7 @@ fn boundary_is_inside_wikidot_head(
 }
 
 /// Return one source section only when include expansion cannot observe syntax context crossing either section boundary.
-pub(super) fn isolate_wikidot_content_section(
+pub(in crate::services::render) fn isolate_wikidot_content_section(
     wikitext: &str,
     section: usize,
 ) -> Option<String> {

@@ -10,7 +10,7 @@
  * (at your option) any later version.
  */
 
-use super::list_pages::collect_count_pages_inherited_ranges;
+use super::list_pages_protection::collect_count_pages_inherited_ranges;
 use super::merge_sorted_ranges;
 use super::token_boundaries::{
     TextTokenCursor, WikidotTagScan, left_block_start_in_run, scan_wikidot_tag,

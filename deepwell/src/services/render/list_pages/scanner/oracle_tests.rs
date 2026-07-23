@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::literal_regions::{
+use super::super::super::literal_regions::{
     ListPagesSourceProjection, TextTokenCursor, left_block_start_in_run,
     wikidot_right_bracket_token, wikidot_trimmed_name,
 };

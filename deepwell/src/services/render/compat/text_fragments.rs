@@ -1,18 +1,19 @@
-//! Render-local provenance for compatibility text hidden from FTML.
+//! Compatibility-local provenance for text hidden from FTML.
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-pub(super) const COMPAT_TEXT_MARKER_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATTEXT";
+pub(in crate::services::render) const COMPAT_TEXT_MARKER_PREFIX: &str =
+    "WIKIJUMPWIKIDOTCOMPATTEXT";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub(super) struct CompatTextFragments {
+pub(in crate::services::render) struct CompatTextFragments {
     namespace: String,
     fragments: Vec<String>,
 }
 
 impl CompatTextFragments {
-    pub(super) fn new(untrusted_source: &str) -> Self {
+    pub(in crate::services::render) fn new(untrusted_source: &str) -> Self {
         let namespace = loop {
             let candidate =
                 format!("{COMPAT_TEXT_MARKER_PREFIX}{}I", Uuid::new_v4().as_simple());
@@ -26,17 +27,20 @@ impl CompatTextFragments {
         }
     }
 
-    pub(super) fn push(&mut self, text: &str) -> String {
+    pub(in crate::services::render) fn push(&mut self, text: &str) -> String {
         let index = self.fragments.len();
         self.fragments.push(text.to_owned());
         format!("{}{index}X", self.namespace)
     }
 
-    pub(super) fn push_escaped_html_text(&mut self, text: &str) -> String {
+    pub(in crate::services::render) fn push_escaped_html_text(
+        &mut self,
+        text: &str,
+    ) -> String {
         self.push(&escape_html_text(text))
     }
 
-    pub(super) fn restore(&self, text: &str) -> String {
+    pub(in crate::services::render) fn restore(&self, text: &str) -> String {
         if self.fragments.is_empty() || !text.contains(&self.namespace) {
             return text.to_owned();
         }

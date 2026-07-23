@@ -1,5 +1,5 @@
 /*
- * services/render/literal_regions/list_pages/css/candidates.rs
+ * services/render/literal_regions/list_pages_protection/css/candidates.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -15,7 +15,7 @@ use super::super::super::left_block_start_in_run;
 use super::syntax::{PinnedModuleCloseIndex, pinned_css_module_scan_start};
 use std::ops::Range;
 
-pub(in crate::services::render::literal_regions::list_pages) fn collect_pinned_css_module_candidates(
+pub(in crate::services::render::literal_regions::list_pages_protection) fn collect_pinned_css_module_candidates(
     source: &str,
 ) -> Vec<Range<usize>> {
     if source.len() >= u32::MAX as usize {
@@ -25,7 +25,7 @@ pub(in crate::services::render::literal_regions::list_pages) fn collect_pinned_c
     collect_pinned_css_module_candidates_with_heads(source, &heads)
 }
 
-pub(in crate::services::render::literal_regions::list_pages) fn collect_pinned_css_module_candidates_with_heads(
+pub(in crate::services::render::literal_regions::list_pages_protection) fn collect_pinned_css_module_candidates_with_heads(
     source: &str,
     heads: &HeadContext,
 ) -> Vec<Range<usize>> {

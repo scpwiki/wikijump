@@ -5,7 +5,7 @@
 //! another condition. Render preparation has several passes, so nested tokens
 //! are registered temporarily to keep later passes from evaluating them.
 
-use super::compat_text_fragments::CompatTextFragments;
+use super::compat::text_fragments::CompatTextFragments;
 use super::literal_regions::LiteralRegionIndex;
 use regex::Regex;
 use std::borrow::Cow;

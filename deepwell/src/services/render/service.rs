@@ -18,20 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::compat_fallback_code::{
-    WikidotCompatibilityFallbackOutput, scan_compat_code_blocks,
-};
-use super::compat_html_fragments::CompatHtmlFragments;
-use super::compat_preparation::{
+use super::compat::CompatHtmlFragments;
+use super::compat::footnote_dom::restore_wikidot_footnote_list_dom;
+use super::compat::issued_markers::restore_issued_html_text_markers;
+use super::compat::preparation::{
     extract_css_modules, neutralize_authored_markers,
     protect_css_modules_before_first_list_pages,
 };
-use super::compat_text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragments};
+use super::compat::text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragments};
+use super::compat::wikidot_inline_markers::{
+    WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
+};
+use super::compat::wikidot_link_protection::{
+    ProtectedWikidotWikipediaLink, WikidotWikipediaLink, build_wikidot_wikipedia_link,
+};
+use super::compat::{WikidotCompatibilityFallbackOutput, scan_compat_code_blocks};
 use super::diagnostics::{
     CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
     StageGuard,
 };
-use super::footnote_dom::restore_wikidot_footnote_list_dom;
 use super::generator::COMPILED_GENERATOR;
 use super::html_text::html_data_segments;
 use super::iftags::{
@@ -53,16 +58,15 @@ use super::include_comment_branches::{
 use super::include_variable_iftags::{
     resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
 };
-use super::issued_markers::restore_issued_html_text_markers;
-use super::list_pages_content_sections::{
+use super::list_pages::content_sections::{
     isolate_wikidot_content_section, wikidot_content_section,
 };
-use super::list_pages_scanner::{
+use super::list_pages::scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
     first_list_pages_module_opening_candidate, has_count_pages_module_opening_candidate,
     has_list_pages_module_opening_candidate, list_pages_runtime_head_is_safe,
 };
-use super::list_pages_template::{
+use super::list_pages::template::{
     LISTPAGES_VARIABLE_REGEX, ListPagesOutputShape, ListPagesTemplatePlan,
 };
 use super::literal_regions::{
@@ -80,12 +84,6 @@ use super::runtime_page_queries::{
     CountPagesRawScanCompletion, count_pages_raw_scan_completion,
     random_page_query_scan_limit, render_page_query_batch_limit,
     render_page_query_uses_single_scan,
-};
-use super::wikidot_inline_markers::{
-    WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
-};
-use super::wikidot_link_protection::{
-    ProtectedWikidotWikipediaLink, WikidotWikipediaLink, build_wikidot_wikipedia_link,
 };
 use crate::hash::{TextHash, k12_hash};
 use crate::models::page::{self, Entity as Page};

@@ -18,12 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::html_text::html_data_segments;
-use super::service::*;
+use super::super::html_text::html_data_segments;
+use super::super::service::*;
 use std::ops::Range;
 
 impl RenderService {
-    pub(super) fn restore_residual_wikidot_div_paragraph_markers(html: &str) -> String {
+    pub(in crate::services::render) fn restore_residual_wikidot_div_paragraph_markers(
+        html: &str,
+    ) -> String {
         let mut restored_open_count = 0usize;
 
         let restored = WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX
@@ -55,7 +57,9 @@ impl RenderService {
         Self::restore_standalone_residual_wikidot_div_markers(&restored)
     }
 
-    pub(super) fn restore_residual_wikidot_span_markers(html: &str) -> String {
+    pub(in crate::services::render) fn restore_residual_wikidot_span_markers(
+        html: &str,
+    ) -> String {
         let mut open_markers: Vec<(Range<usize>, String)> = Vec::new();
         let mut replacements: Vec<(Range<usize>, String)> = Vec::new();
 
@@ -123,7 +127,9 @@ impl RenderService {
         output
     }
 
-    pub(super) fn restore_residual_wikidot_alignment_markers(html: &str) -> String {
+    pub(in crate::services::render) fn restore_residual_wikidot_alignment_markers(
+        html: &str,
+    ) -> String {
         let mut output = String::with_capacity(html.len());
         let mut alignment_stack: Vec<&'static str> = Vec::new();
         let mut raw_text_depth = 0usize;
@@ -180,7 +186,9 @@ impl RenderService {
         Self::restore_residual_wikidot_alignment_html_markers(&output)
     }
 
-    pub(super) fn restore_residual_wikidot_alignment_html_markers(html: &str) -> String {
+    pub(in crate::services::render) fn restore_residual_wikidot_alignment_html_markers(
+        html: &str,
+    ) -> String {
         const MARKERS: &[(&str, &str, &str, bool)] = &[
             (
                 "<p>[[=]]</p>",
@@ -264,7 +272,9 @@ impl RenderService {
         output
     }
 
-    pub(super) fn restore_residual_wikidot_separator_markers(html: &str) -> String {
+    pub(in crate::services::render) fn restore_residual_wikidot_separator_markers(
+        html: &str,
+    ) -> String {
         let mut output = String::with_capacity(html.len());
         let mut raw_text_depth = 0usize;
 
@@ -328,7 +338,9 @@ impl RenderService {
         output
     }
 
-    pub(super) fn restore_residual_wikidot_heading_markers(html: &str) -> String {
+    pub(in crate::services::render) fn restore_residual_wikidot_heading_markers(
+        html: &str,
+    ) -> String {
         let mut output = String::with_capacity(html.len());
         let mut raw_text_depth = 0usize;
 
