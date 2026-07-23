@@ -775,6 +775,14 @@ pub struct PageCategoryFields<'a> {
     pub license: Maybe<Option<&'a str>>,
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub license_other: Maybe<Option<&'a str>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub rating_enabled: Maybe<Option<bool>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub rating_permission: Maybe<Option<&'a str>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub rating_visibility: Maybe<Option<&'a str>>,
+    #[serde(skip_serializing_if = "Maybe::is_unset")]
+    pub rating_type: Maybe<Option<&'a str>>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -908,6 +916,7 @@ mod tests {
                 template_page_id: Maybe::Set(Some(24)),
                 license: Maybe::Set(Some("cc-by-3.0")),
                 license_other: Maybe::Set(None),
+                ..Default::default()
             },
         });
         assert_event_type(&raw, "page_category.update");

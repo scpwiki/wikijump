@@ -91,7 +91,15 @@ interface PageViewFound {
     wikidot_snapshot: Nullable<WikidotPageSnapshotView>
     wikidot_breadcrumbs: WikidotPageBreadcrumbView[]
     attributions: PageAttribution[]
+    page_rating: PageRatingSettings
   }
+}
+
+export interface PageRatingSettings {
+  enabled: boolean
+  permission: "registered" | "members"
+  visibility: "visible" | "anonymous"
+  rating_type: "plus" | "plus_minus" | "stars"
 }
 interface PageViewMissing {
   type: "missing"

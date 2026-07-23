@@ -42,8 +42,8 @@ impl Scorer for MeanScorer {
     ) -> Result<ScoreValue> {
         #[derive(FromQueryResult, Debug)]
         struct MeanRow {
-            sum: u64,
-            count: u64,
+            sum: Option<i64>,
+            count: i64,
         }
 
         // Query for sum of all votes.
@@ -59,6 +59,7 @@ impl Scorer for MeanScorer {
         // GROUP BY value;
 
         let MeanRow { sum, count } = PageVote::find()
+            .select_only()
             .column_as(page_vote::Column::Value.sum(), "sum")
             .column_as(page_vote::Column::Value.count(), "count")
             .filter(condition)
@@ -68,9 +69,10 @@ impl Scorer for MeanScorer {
             .or_raise(|| make_error("mean"))?
             .expect("No results in aggregate query");
 
-        let sum = sum as f64;
-        let count = count as f64;
-        Ok(ScoreValue::Float(sum / count))
+        if count == 0 {
+            return Ok(ScoreValue::Float(0.0));
+        }
+        Ok(ScoreValue::Float(sum.unwrap_or(0) as f64 / count as f64))
     }
 }
 

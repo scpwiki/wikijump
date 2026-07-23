@@ -26,7 +26,7 @@ use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use deepwell::hash::k12_hash;
 use deepwell::services::{RequestContext, TextService};
 use deepwell::types::Reference;
-use sea_orm::{ConnectionTrait, Statement};
+use sea_orm::{ConnectionTrait, Statement, Value};
 use serde_json::json;
 
 async fn set_page_created_at(runner: &TestRunner, page_id: i64, created_at: &str) {
@@ -78,17 +78,15 @@ async fn exact_name_listpages_expands_created_at_and_rating() {
     );
     set_page_created_at(&runner, target.page_id, "2017-05-16T16:02:00Z").await;
 
-    let vote = run_endpoint!(
-        runner,
-        vote_set,
-        json!({
-            "page_id": target.page_id,
-            "user_id": ADMIN_USER_ID,
-            "value": 1135,
-        }),
-    )
-    .expect("deterministic smoke-test vote should be accepted");
-    assert_eq!(vote.value, 1135);
+    let transaction = runner.context().transaction();
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (false, $1, $2, 1135)",
+            [Value::from(target.page_id), Value::from(ADMIN_USER_ID)],
+        ))
+        .await
+        .expect("deterministic legacy aggregate should be stored");
 
     let source = r#"Before
 [[module ListPages name="Great Hippo Exact Name Target 3034"]]

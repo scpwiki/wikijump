@@ -20,9 +20,103 @@
 
 use super::prelude::*;
 use crate::models::page_vote::Model as PageVoteModel;
+use crate::services::relation::{GetSiteMember, RelationService};
+use crate::services::settings::{
+    PageRatingPermission, PageRatingSettings, PageRatingType, PageRatingVisibility,
+};
 use crate::services::vote::{
     CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteAction,
 };
+
+async fn page_rating_settings(
+    ctx: &ServiceContext<'_>,
+    page_id: i64,
+) -> Result<(crate::models::page::Model, PageRatingSettings)> {
+    let page = PageService::get_direct(ctx, page_id, false).await?;
+    let settings = SettingsService::get_page_rating_settings(
+        ctx,
+        page.site_id,
+        page.page_category_id,
+    )
+    .await?;
+    Ok((page, settings))
+}
+
+async fn ensure_actor_can_rate(
+    ctx: &ServiceContext<'_>,
+    page_id: i64,
+    submitted_user_id: i64,
+    value: Option<i16>,
+) -> Result<PageRatingSettings> {
+    let actor_user_id = ctx.request().user_id().or_raise(|| {
+        Error::new(
+            "login is required to rate this page",
+            ErrorType::PermissionDenied,
+        )
+    })?;
+    if actor_user_id != submitted_user_id {
+        return Err(Error::new(
+            "a page rating cannot be submitted for another user",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    let (page, settings) = page_rating_settings(ctx, page_id).await?;
+    if !settings.enabled {
+        return Err(Error::new(
+            "page rating is disabled for this category",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    if settings.permission == PageRatingPermission::Members
+        && RelationService::get_optional_site_member(
+            ctx,
+            GetSiteMember {
+                site_id: page.site_id,
+                user_id: actor_user_id,
+            },
+        )
+        .await?
+        .is_none()
+    {
+        return Err(Error::new(
+            "site membership is required to rate this page",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    if let Some(value) = value
+        && !rating_value_is_valid(settings.rating_type, value)
+    {
+        return Err(Error::new(
+            "vote value is not valid for this category's rating type",
+            ErrorType::BadRequest,
+        )
+        .into());
+    }
+    Ok(settings)
+}
+
+fn rating_value_is_valid(rating_type: PageRatingType, value: i16) -> bool {
+    match rating_type {
+        PageRatingType::Plus => value == 1,
+        PageRatingType::PlusMinus => matches!(value, -1 | 1),
+        PageRatingType::Stars => (1..=5).contains(&value),
+    }
+}
+
+fn user_history_is_authorized(
+    actor_user_id: Option<i64>,
+    kind: crate::services::vote::VoteHistoryKind,
+) -> bool {
+    match kind {
+        crate::services::vote::VoteHistoryKind::Page(_) => true,
+        crate::services::vote::VoteHistoryKind::User(user_id) => {
+            actor_user_id == Some(user_id)
+        }
+    }
+}
 
 pub async fn vote_get(
     ctx: &ServiceContext<'_>,
@@ -37,15 +131,28 @@ pub async fn vote_get(
         user_id, page_id,
     );
 
-    VoteService::get_optional(ctx, input).await.or_raise(|| {
-        Error::new(
-            format!(
-                "failed to get vote cast by user ID {} on page ID {}",
-                user_id, page_id,
-            ),
-            ErrorType::PageVote,
+    let (_, settings) = page_rating_settings(ctx, page_id).await?;
+    if settings.visibility == PageRatingVisibility::Anonymous
+        && ctx.request().user_id().ok() != Some(user_id)
+    {
+        return Err(Error::new(
+            "this category keeps individual page ratings anonymous",
+            ErrorType::PermissionDenied,
         )
-    })
+        .into());
+    }
+
+    VoteService::get_optional(ctx, input, settings.rating_type.vote_store_key())
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!(
+                    "failed to get vote cast by user ID {} on page ID {}",
+                    user_id, page_id,
+                ),
+                ErrorType::PageVote,
+            )
+        })
 }
 
 pub async fn vote_set(
@@ -58,15 +165,19 @@ pub async fn vote_set(
 
     info!("Casting vote cast by {} on page {}", user_id, page_id,);
 
-    VoteService::add(ctx, input).await.or_raise(|| {
-        Error::new(
-            format!(
-                "failed to set vote on page ID {} from user ID {}",
-                page_id, user_id,
-            ),
-            ErrorType::PageVote,
-        )
-    })
+    let settings =
+        ensure_actor_can_rate(ctx, page_id, user_id, Some(input.value)).await?;
+    VoteService::add(ctx, input, settings.rating_type.vote_store_key())
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!(
+                    "failed to set vote on page ID {} from user ID {}",
+                    page_id, user_id,
+                ),
+                ErrorType::PageVote,
+            )
+        })
 }
 
 pub async fn vote_remove(
@@ -79,15 +190,18 @@ pub async fn vote_remove(
 
     info!("Removing vote cast by {} on page {}", user_id, page_id,);
 
-    VoteService::remove(ctx, input).await.or_raise(|| {
-        Error::new(
-            format!(
-                "failed to remove vote on page ID {} from user ID {}",
-                page_id, user_id,
-            ),
-            ErrorType::PageVote,
-        )
-    })
+    let settings = ensure_actor_can_rate(ctx, page_id, user_id, None).await?;
+    VoteService::remove(ctx, input, settings.rating_type.vote_store_key())
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!(
+                    "failed to remove vote on page ID {} from user ID {}",
+                    page_id, user_id,
+                ),
+                ErrorType::PageVote,
+            )
+        })
 }
 
 pub async fn vote_action(
@@ -103,7 +217,14 @@ pub async fn vote_action(
 
     // e.g. enable or disable a vote
     let key = GetVote { page_id, user_id };
-    VoteService::action(ctx, key, enable, acting_user_id)
+    let (_, settings) = page_rating_settings(ctx, page_id).await?;
+    VoteService::action(
+        ctx,
+        key,
+        settings.rating_type.vote_store_key(),
+        enable,
+        acting_user_id,
+    )
         .await
         .or_raise(|| Error::new(
             format!(
@@ -123,8 +244,29 @@ pub async fn vote_list_get(
     params: Params<'static>,
 ) -> Result<Vec<PageVoteModel>> {
     let input: GetVoteHistory = parse!(params);
+    if !user_history_is_authorized(ctx.request().user_id().ok(), input.kind) {
+        return Err(Error::new(
+            "a user's page-rating history is private",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    let rating_system =
+        if let crate::services::vote::VoteHistoryKind::Page(page_id) = input.kind {
+            let (_, settings) = page_rating_settings(ctx, page_id).await?;
+            if settings.visibility == PageRatingVisibility::Anonymous {
+                return Err(Error::new(
+                    "this category keeps individual page ratings anonymous",
+                    ErrorType::PermissionDenied,
+                )
+                .into());
+            }
+            Some(settings.rating_type.vote_store_key())
+        } else {
+            None
+        };
 
-    VoteService::get_history(ctx, input)
+    VoteService::get_history(ctx, input, rating_system)
         .await
         .or_raise(|| Error::new("failed to list votes", ErrorType::PageVote))
 }
@@ -134,8 +276,57 @@ pub async fn vote_list_count(
     params: Params<'static>,
 ) -> Result<u64> {
     let input: CountVoteHistory = parse!(params);
+    if !user_history_is_authorized(ctx.request().user_id().ok(), input.kind) {
+        return Err(Error::new(
+            "a user's page-rating history is private",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    let rating_system =
+        if let crate::services::vote::VoteHistoryKind::Page(page_id) = input.kind {
+            let (_, settings) = page_rating_settings(ctx, page_id).await?;
+            Some(settings.rating_type.vote_store_key())
+        } else {
+            None
+        };
 
-    VoteService::count_history(ctx, input)
+    VoteService::count_history(ctx, input, rating_system)
         .await
         .or_raise(|| Error::new("failed to get vote count", ErrorType::PageVote))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rating_types_accept_only_their_live_wikidot_value_ranges() {
+        assert!(rating_value_is_valid(PageRatingType::Plus, 1));
+        assert!(!rating_value_is_valid(PageRatingType::Plus, -1));
+        assert!(rating_value_is_valid(PageRatingType::PlusMinus, -1));
+        assert!(rating_value_is_valid(PageRatingType::PlusMinus, 1));
+        assert!(!rating_value_is_valid(PageRatingType::PlusMinus, 0));
+        for value in 1..=5 {
+            assert!(rating_value_is_valid(PageRatingType::Stars, value));
+        }
+        assert!(!rating_value_is_valid(PageRatingType::Stars, 0));
+        assert!(!rating_value_is_valid(PageRatingType::Stars, 6));
+    }
+
+    #[test]
+    fn user_rating_histories_are_visible_only_to_the_same_actor() {
+        use crate::services::vote::VoteHistoryKind;
+
+        assert!(user_history_is_authorized(
+            Some(42),
+            VoteHistoryKind::User(42)
+        ));
+        assert!(!user_history_is_authorized(
+            Some(43),
+            VoteHistoryKind::User(42)
+        ));
+        assert!(!user_history_is_authorized(None, VoteHistoryKind::User(42)));
+        assert!(user_history_is_authorized(None, VoteHistoryKind::Page(42)));
+    }
 }
