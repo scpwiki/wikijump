@@ -150,7 +150,7 @@ export async function pageRestoreAction({
   }
 }
 
-const pageRestoreSchema = object({
+export const pageRestoreSchema = object({
   ...pageMutationBaseSchema,
   comments: string()
 })

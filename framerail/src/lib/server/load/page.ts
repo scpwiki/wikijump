@@ -1,48 +1,34 @@
 import defaults from "$lib/defaults"
 
 import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/article-response-cache"
-import { authGetSession } from "$lib/server/auth/get-session"
 import { resolvePageRedirect } from "$lib/server/page-redirect"
-import {
-  pageDelete,
-  pageEdit,
-  pageEditPermission,
-  pageLayout,
-  pageMove,
-  pageParentGet,
-  pageParentUpdate,
-  pageScore,
-  pageVoteCast,
-  pageVoteList,
-  pageVoteRemove
-} from "$lib/server/deepwell/page"
 import { translate } from "$lib/server/deepwell/translate"
-import { articleView, preloadView } from "$lib/server/deepwell/views"
+import { articleView } from "$lib/server/deepwell/views"
 import { buildPageLoadData } from "$lib/server/load/page-data"
-import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
+import {
+  layoutSchema,
+  pageDeleteSchema,
+  pageEditSchema,
+  pageMoveSchema
+} from "$lib/server/load/page-edit-actions"
 import {
   finalizePreloadData,
   getPreloadBackendLocales,
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
 import {
-  failForActionError,
-  failForMissingSession,
-  pageMutationBaseSchema,
-  readActionJson
-} from "$lib/server/load/page-action-shared"
-import {
   pageFileEditSchema,
   pageFileMoveSchema,
   pageFileRestoreSchema,
   pageFileUploadSchema
 } from "$lib/server/load/page-file-actions"
+import { pageParentSchema } from "$lib/server/load/page-relation-actions"
+import { pageRestoreSchema } from "$lib/server/load/page-revision-actions"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import {
   buildWikidotRequestInfo,
   requestHostFromRequest
 } from "$lib/server/wikidot-request-info"
-import { DeleteOptions, Layout } from "$lib/types"
 import {
   buildWikidotPageActionLabels,
   sourceShowsStandardWikidotPageActions
@@ -51,23 +37,12 @@ import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
 import { buildWikidotPageWatchLabel } from "$lib/wikidot-page-watch"
 import { toIntlLocales } from "$lib/wikidot-locale"
 import { error, redirect } from "@sveltejs/kit"
-import { fail, superValidate } from "sveltekit-superforms"
+import { superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
-import {
-  array,
-  literal,
-  nullable,
-  object,
-  optional,
-  string,
-  variant,
-  enum as vEnum
-} from "valibot"
 
 import type { PageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
-import type { Cookies, RequestEvent } from "@sveltejs/kit"
-import { getRequestContext, withDefaultPageContext } from "./request-ctx"
+import type { Cookies } from "@sveltejs/kit"
 
 export async function loadPage(
   slug: Optional<string>,
@@ -353,397 +328,5 @@ function runRedirect(
   const resolved = resolvePageRedirect(viewData, originalSlug, extra, requestUrl)
   if (resolved) {
     redirect(resolved.status, resolved.location)
-  }
-}
-
-/* ----- Base ----- */
-/* ----- Page Delete ----- */
-export async function pageDeleteAction({
-  request,
-  params,
-  getClientAddress,
-  cookies
-}: RequestEvent) {
-  const form = await superValidate(request, valibot(pageDeleteSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const { slug } = params
-  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
-  const ipAddress = getClientAddress()
-
-  try {
-    const session = sessionToken ? await authGetSession(sessionToken) : undefined
-    const { siteId, pageId, lastRevisionId, option, comments } = form.data
-    const userId = resolvePageMutationUserId(
-      session?.user_id,
-      siteSlug,
-      requestSiteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        form,
-        message: "Permission denied."
-      })
-    }
-    if (option === DeleteOptions.Move) {
-      const { newSlug } = form.data
-      const res = await pageMove(
-        {
-          siteId,
-          pageId,
-          userId,
-          userIpAddr: ipAddress,
-          slug,
-          lastRevisionId,
-          newSlug,
-          revisionComments: comments
-        },
-        { sessionToken, siteId, page: pageId ?? slug }
-      )
-      return { form, res, option: DeleteOptions.Move }
-    } else {
-      const res = await pageDelete(
-        {
-          siteId,
-          pageId,
-          userId,
-          userIpAddr: ipAddress,
-          slug,
-          lastRevisionId,
-          revisionComments: comments
-        },
-        { sessionToken, siteId, page: pageId ?? slug }
-      )
-      return { form, res, option: DeleteOptions.Delete }
-    }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageDeleteSchema = variant("option", [
-  object({
-    ...pageMutationBaseSchema,
-    option: literal(DeleteOptions.Move),
-    newSlug: string(),
-    comments: string()
-  }),
-  object({
-    ...pageMutationBaseSchema,
-    option: literal(DeleteOptions.Delete),
-    comments: string()
-  })
-])
-
-/* ----- Page Edit Check Permission ----- */
-export async function pageEditPermissionAction({
-  request,
-  cookies,
-  locals
-}: RequestEvent) {
-  try {
-    let requestContext = getRequestContext(locals)
-
-    if (requestContext?.page === undefined) {
-      const { siteId } = loadSiteInfo(request.headers)
-      const requestLocales = getPreloadRequestLocales(request)
-      const backendLocales = getPreloadBackendLocales(requestLocales)
-      const sessionToken = cookies.get("wikijump_token")
-      const { site } = await preloadView(siteId, backendLocales, sessionToken)
-      requestContext = withDefaultPageContext(requestContext, site.default_page)
-    }
-
-    const res = await pageEditPermission(requestContext)
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Edit ----- */
-export async function pageEditAction({
-  request,
-  params,
-  getClientAddress,
-  cookies
-}: RequestEvent) {
-  const form = await superValidate(request, valibot(pageEditSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const { slug } = params
-  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
-  const ipAddress = getClientAddress()
-
-  try {
-    const session = sessionToken ? await authGetSession(sessionToken) : undefined
-    const {
-      siteId,
-      pageId,
-      lastRevisionId,
-      comments,
-      wikitext,
-      title,
-      altTitle,
-      tags: tagsStr,
-      layout
-    } = form.data
-    const userId = resolvePageMutationUserId(
-      session?.user_id,
-      siteSlug,
-      requestSiteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        form,
-        message: "Permission denied."
-      })
-    }
-    const tags = tagsStr.split(" ").filter((tag) => tag.length)
-    const res = await pageEdit(
-      {
-        siteId,
-        pageId,
-        userId,
-        userIpAddr: ipAddress,
-        slug,
-        lastRevisionId,
-        revisionComments: comments,
-        wikitext,
-        title,
-        altTitle,
-        tags,
-        layout
-      },
-      { sessionToken, siteId, page: pageId ?? slug }
-    )
-
-    return { form, res }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageEditSchema = object({
-  ...pageMutationBaseSchema,
-  title: string(),
-  altTitle: string(),
-  wikitext: string(),
-  tags: string(),
-  comments: string(),
-  layout: optional(nullable(vEnum(Layout)))
-})
-
-/* ----- Page Layout ----- */
-export async function layoutAction({ request, cookies, getClientAddress }: RequestEvent) {
-  const form = await superValidate(request, valibot(layoutSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
-  const ipAddress = getClientAddress()
-
-  try {
-    const session = await authGetSession(sessionToken)
-    const { siteId, pageId, layout } = form.data
-    await pageLayout(siteId, pageId, session?.user_id, ipAddress, layout, {
-      sessionToken,
-      siteId,
-      page: pageId
-    })
-
-    return { form }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const layoutSchema = object({
-  ...pageMutationBaseSchema,
-  layout: nullable(vEnum(Layout))
-})
-
-/* ----- Page Move ----- */
-export async function pageMoveAction({
-  request,
-  cookies,
-  params,
-  getClientAddress
-}: RequestEvent) {
-  const form = await superValidate(request, valibot(pageMoveSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
-  const ipAddress = getClientAddress()
-  const { slug } = params
-
-  try {
-    const session = await authGetSession(sessionToken)
-    const { siteId, pageId, lastRevisionId, newSlug, comments } = form.data
-    const res = await pageMove(
-      {
-        siteId,
-        pageId,
-        userId: session?.user_id,
-        userIpAddr: ipAddress,
-        slug,
-        lastRevisionId,
-        newSlug,
-        revisionComments: comments
-      },
-      { sessionToken, siteId, page: pageId ?? slug }
-    )
-    return { form, res }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageMoveSchema = object({
-  ...pageMutationBaseSchema,
-  newSlug: string(),
-  comments: string()
-})
-
-/* ----- Page Parent Set ----- */
-export async function pageParentSetAction({ request, cookies }: RequestEvent) {
-  const form = await superValidate(request, valibot(pageParentSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
-  try {
-    const session = await authGetSession(sessionToken)
-    const { siteId, pageId, addParents, removeParents } = form.data
-    const res = await pageParentUpdate(
-      siteId,
-      pageId,
-      session?.user_id,
-      addParents,
-      removeParents,
-      { sessionToken, siteId, page: pageId }
-    )
-    return { form, res }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageParentSchema = object({
-  ...pageMutationBaseSchema,
-  parents: string(),
-  addParents: optional(array(string())),
-  removeParents: optional(array(string()))
-})
-
-/* ----- Page Parent Get ----- */
-export async function pageParentGetAction({ request }: RequestEvent) {
-  try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      slug: string
-    } = await readActionJson(request)
-    const { siteId, pageId, slug } = requestData
-    const res = await pageParentGet(siteId, pageId, slug)
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Vote Get ----- */
-export async function pageVoteGetAction({ request }: RequestEvent) {
-  try {
-    const requestData: {
-      siteId: number
-      pageId: number
-    } = await readActionJson(request)
-    const { siteId, pageId } = requestData
-    const res = await pageVoteList(pageId, { siteId, page: pageId })
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Vote Cast ----- */
-export async function pageVoteCastAction({ request, cookies }: RequestEvent) {
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession()
-  try {
-    const session = await authGetSession(sessionToken)
-    const requestData: {
-      siteId: number
-      pageId: number
-      value: number
-    } = await readActionJson(request)
-    const { siteId, pageId, value } = requestData
-    if (!session) {
-      return fail(401, { message: "login is required to rate this page" })
-    }
-    const res = await pageVoteCast(pageId, session.user_id, value, {
-      sessionToken,
-      siteId,
-      page: pageId
-    })
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Vote Cancel ----- */
-export async function pageVoteCancelAction({ request, cookies }: RequestEvent) {
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession()
-  try {
-    const session = await authGetSession(sessionToken)
-    const requestData: {
-      siteId: number
-      pageId: number
-    } = await readActionJson(request)
-    const { siteId, pageId } = requestData
-    if (!session) {
-      return fail(401, { message: "login is required to rate this page" })
-    }
-    const res = await pageVoteRemove(pageId, session.user_id, {
-      sessionToken,
-      siteId,
-      page: pageId
-    })
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Score ----- */
-export async function pageScoreAction({ request, params }: RequestEvent) {
-  const { slug } = params
-
-  try {
-    const requestData: {
-      siteId: number
-      pageId: number
-    } = await readActionJson(request)
-    const { siteId, pageId } = requestData
-    const res = await pageScore(siteId, pageId, slug)
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
   }
 }

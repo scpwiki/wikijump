@@ -10,18 +10,20 @@ import {
 } from "$lib/server/load/page-file-actions"
 import {
   layoutAction,
-  loadPage,
   pageDeleteAction,
   pageEditAction,
   pageEditPermissionAction,
-  pageMoveAction,
+  pageMoveAction
+} from "$lib/server/load/page-edit-actions"
+import { loadPage } from "$lib/server/load/page"
+import {
   pageParentGetAction,
   pageParentSetAction,
   pageScoreAction,
   pageVoteCancelAction,
   pageVoteCastAction,
   pageVoteGetAction
-} from "$lib/server/load/page"
+} from "$lib/server/load/page-relation-actions"
 import {
   pageDeletedGetAction,
   pageHistoryAction,
