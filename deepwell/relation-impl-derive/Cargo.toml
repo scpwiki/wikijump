@@ -1,0 +1,16 @@
+[package]
+name = "deepwell-relation-impl-derive"
+description = "Procedural macro to generate boilerplate for relation methods"
+repository = "https://github.com/scpwiki/wikijump/tree/develop/deepwell/relation-impl-derive"
+
+version = "0.0.1"
+authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
+edition = "2024"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "3"
+quote = "1"
+proc-macro2 = "1"
