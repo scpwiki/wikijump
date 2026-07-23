@@ -752,9 +752,9 @@ impl FileService {
     /// Gets all files on a page, with potential conditions.
     ///
     /// The `deleted` argument:
-    /// * If it is `Some(true)`, then it only returns pages which have been deleted.
-    /// * If it is `Some(false)`, then it only returns pages which are extant.
-    /// * If it is `None`, then it returns all pages regardless of deletion status.
+    /// * If it is `Some(true)`, then it only returns files which have been deleted.
+    /// * If it is `Some(false)`, then it only returns files which are extant.
+    /// * If it is `None`, then it returns all files regardless of deletion status.
     // TODO add pagination
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
