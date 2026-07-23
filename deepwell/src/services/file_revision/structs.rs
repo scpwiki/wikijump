@@ -107,6 +107,13 @@ pub struct GetFileRevision {
     pub revision_number: i32,
 }
 
+#[derive(Debug, Clone)]
+pub struct CountFileRevisions {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub file_id: i64,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdateFileRevision {
     pub site_id: i64,

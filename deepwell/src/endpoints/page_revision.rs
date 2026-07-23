@@ -18,12 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::page::{ensure_page_edit_permission, require_authenticated_mutation_actor};
 use super::prelude::*;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::services::TextService;
 use crate::services::page::GetPageReference;
 use crate::services::page_revision::{
-    GetPageRevision, GetPageRevisionDetails, GetPageRevisionRangeDetails,
+    CountPageRevisions, GetPageRevisionDetails, GetPageRevisionRangeDetails,
     PageRevisionCountOutput, PageRevisionModelFiltered, UpdatePageRevisionDetails,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
@@ -47,9 +48,10 @@ pub async fn page_revision_count(
         .await
         .or_raise(make_error)?;
 
-    let revision_count = PageRevisionService::count(ctx, site_id, page_id)
-        .await
-        .or_raise(make_error)?;
+    let revision_count =
+        PageRevisionService::count(ctx, CountPageRevisions { site_id, page_id })
+            .await
+            .or_raise(make_error)?;
 
     Ok(PageRevisionCountOutput {
         revision_count,
@@ -62,32 +64,23 @@ pub async fn page_revision_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Option<PageRevisionModelFiltered>> {
-    let GetPageRevisionDetails {
-        input:
-            GetPageRevision {
-                site_id,
-                page_id,
-                revision_number,
-            },
-        details,
-    } = parse!(params, PageRevision);
+    let GetPageRevisionDetails { input, details } = parse!(params, PageRevision);
 
     info!(
         "Getting revision {} for page ID {} in site ID {}",
-        revision_number, page_id, site_id,
+        input.revision_number, input.page_id, input.site_id,
     );
 
     let make_error =
         || Error::new("failed to get a page revision", ErrorType::PageRevision);
 
-    ensure_page_view_permission(ctx, site_id, Reference::Id(page_id))
+    ensure_page_view_permission(ctx, input.site_id, Reference::Id(input.page_id))
         .await
         .or_raise(make_error)?;
 
-    let revision =
-        PageRevisionService::get_optional(ctx, site_id, page_id, revision_number)
-            .await
-            .or_raise(make_error)?;
+    let revision = PageRevisionService::get_optional(ctx, input)
+        .await
+        .or_raise(make_error)?;
 
     match revision {
         None => Ok(None),
@@ -114,6 +107,17 @@ pub async fn page_revision_edit(
 
     let make_error =
         || Error::new("failed to edit a page revision", ErrorType::PageRevision);
+
+    let actor_user_id =
+        require_authenticated_mutation_actor(ctx, input.user_id).or_raise(make_error)?;
+    ensure_page_edit_permission(
+        ctx,
+        input.site_id,
+        Reference::Id(input.page_id),
+        actor_user_id,
+    )
+    .await
+    .or_raise(make_error)?;
 
     let revision_id = input.revision_id;
     let (_, revision) = join!(

@@ -630,14 +630,17 @@ impl FileRevisionService {
     /// See `RevisionService::count()`.
     pub async fn count(
         ctx: &ServiceContext<'_>,
-        page_id: i64,
-        file_id: i64,
+        CountFileRevisions {
+            site_id,
+            page_id,
+            file_id,
+        }: CountFileRevisions,
     ) -> Result<NonZeroI32> {
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to get file revision count on file ID {} in page ID {}",
-                    file_id, page_id,
+                    "failed to get file revision count on file ID {} in page ID {} on site ID {}",
+                    file_id, page_id, site_id,
                 ),
                 ErrorType::FileRevision,
             )
@@ -647,6 +650,7 @@ impl FileRevisionService {
         let row_count = FileRevision::find()
             .filter(
                 Condition::all()
+                    .add(file_revision::Column::SiteId.eq(site_id))
                     .add(file_revision::Column::PageId.eq(page_id))
                     .add(file_revision::Column::FileId.eq(file_id)),
             )
@@ -666,8 +670,8 @@ impl FileRevisionService {
             Some(count) => Ok(count),
             None => bail!(Error::new(
                 format!(
-                    "cannot get file revision count for file ID {} in page ID {}",
-                    file_id, page_id
+                    "cannot get file revision count for file ID {} in page ID {} on site ID {}",
+                    file_id, page_id, site_id,
                 ),
                 ErrorType::FileNotFound
             )),

@@ -1009,7 +1009,7 @@ pub async fn page_set_layout(
         .or_raise(|| Error::new("failed to set layout for page", ErrorType::Page))
 }
 
-fn require_authenticated_mutation_actor(
+pub(super) fn require_authenticated_mutation_actor(
     ctx: &ServiceContext<'_>,
     attribution_user_id: i64,
 ) -> Result<i64> {
@@ -1064,7 +1064,7 @@ async fn ensure_page_create_permission(
     .await
 }
 
-async fn ensure_page_edit_permission<'a>(
+pub(super) async fn ensure_page_edit_permission<'a>(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     page_reference: Reference<'a>,

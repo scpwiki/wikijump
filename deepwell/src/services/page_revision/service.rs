@@ -1430,9 +1430,11 @@ impl PageRevisionService {
 
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_number: i32,
+        GetPageRevision {
+            site_id,
+            page_id,
+            revision_number,
+        }: GetPageRevision,
     ) -> Result<Option<PageRevisionModel>> {
         let make_error = || {
             Error::new(
@@ -1462,12 +1464,10 @@ impl PageRevisionService {
     #[inline]
     pub async fn get(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
-        revision_number: i32,
+        input: GetPageRevision,
     ) -> Result<PageRevisionModel> {
         find_or_error!(
-            Self::get_optional(ctx, site_id, page_id, revision_number),
+            Self::get_optional(ctx, input),
             "page revision",
             PageRevision,
         )
@@ -1504,8 +1504,7 @@ impl PageRevisionService {
 
     pub async fn count(
         ctx: &ServiceContext<'_>,
-        site_id: i64,
-        page_id: i64,
+        CountPageRevisions { site_id, page_id }: CountPageRevisions,
     ) -> Result<NonZeroI32> {
         let make_error = || {
             Error::new(

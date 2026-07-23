@@ -96,6 +96,12 @@ pub struct GetPageRevision {
     pub revision_number: i32,
 }
 
+#[derive(Debug, Clone)]
+pub struct CountPageRevisions {
+    pub site_id: i64,
+    pub page_id: i64,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageRevisionDetails {
     #[serde(flatten)]

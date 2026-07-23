@@ -22,7 +22,8 @@ use super::prelude::*;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::GetFile;
 use crate::services::file_revision::{
-    FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
+    CountFileRevisions, FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange,
+    UpdateFileRevision,
 };
 
 pub async fn file_revision_count(
@@ -48,9 +49,16 @@ pub async fn file_revision_count(
         .await
         .or_raise(make_error)?;
 
-    let revision_count = FileRevisionService::count(ctx, page_id, file_id)
-        .await
-        .or_raise(make_error)?;
+    let revision_count = FileRevisionService::count(
+        ctx,
+        CountFileRevisions {
+            site_id,
+            page_id,
+            file_id,
+        },
+    )
+    .await
+    .or_raise(make_error)?;
 
     Ok(FileRevisionCountOutput {
         revision_count,

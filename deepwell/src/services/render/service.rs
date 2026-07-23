@@ -96,6 +96,7 @@ use crate::services::page_query::{
     list_pages_render_diagnostics, normalize_wikidot_author_name,
     parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
+use crate::services::page_revision::GetPageRevision;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
 use crate::services::text_block::{
@@ -7475,9 +7476,11 @@ impl RenderService {
                 Some(_) => Some(
                     PageRevisionService::get_optional(
                         ctx,
-                        current_site_id,
-                        current_page_id,
-                        0,
+                        GetPageRevision {
+                            site_id: current_site_id,
+                            page_id: current_page_id,
+                            revision_number: 0,
+                        },
                     )
                     .await
                     .or_raise(make_error)?,

@@ -27,7 +27,7 @@ use crate::services::filter::{FilterClass, FilterType};
 use crate::services::page_revision::{
     CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
-    CreateTombstonePageRevision, RerenderType,
+    CreateTombstonePageRevision, GetPageRevision, RerenderType,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{
@@ -751,7 +751,14 @@ impl PageService {
 
         // Get target revision and latest revision
         let (target_revision, last_revision) = join!(
-            PageRevisionService::get(ctx, site_id, page_id, revision_number),
+            PageRevisionService::get(
+                ctx,
+                GetPageRevision {
+                    site_id,
+                    page_id,
+                    revision_number,
+                },
+            ),
             PageRevisionService::get_latest(ctx, site_id, page_id),
         );
         let (target_revision, last_revision) =
