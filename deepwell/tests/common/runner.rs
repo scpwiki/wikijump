@@ -20,12 +20,11 @@
 
 //! Helper functions and macros for running individual test cases.
 
-use deepwell::api::{ServerState, build_server_state};
+use deepwell::api::{ServerState, build_server_state_without_workers};
 use deepwell::config::{Config, Secrets};
 use deepwell::services::{RequestContext, ServiceContext};
 use sea_orm::{DatabaseTransaction, TransactionTrait};
 use self_cell::self_cell;
-use tokio::task;
 
 #[derive(Debug)]
 pub struct TestRunnerRequestContext {
@@ -39,7 +38,7 @@ impl TestRunnerRequestContext {
         let secrets = Secrets::load();
         let config = Config::integration_testing();
 
-        let state = build_server_state(config, secrets)
+        let state = build_server_state_without_workers(config, secrets)
             .await
             .expect("Unable to set up server state");
 
@@ -70,23 +69,9 @@ impl TestRunnerRequestContext {
 
 impl Drop for TestRunnerRequestContext {
     fn drop(&mut self) {
-        // Revert all database changes
-        let txn = self
-            .transaction
-            .take()
-            .expect("Transaction was None at time of drop");
-
-        task::spawn(async move {
-            txn.rollback()
-                .await
-                .expect("Unable to roll back transaction")
-        });
-
-        // Revert all redis changes
-        // TODO
-
-        // Revert all S3 changes
-        // TODO
+        // DatabaseTransaction rolls back on drop. Tests that need synchronous
+        // rollback before inspecting external state must call `teardown`.
+        self.transaction.take();
     }
 }
 
@@ -128,5 +113,16 @@ impl TestRunner {
     #[allow(unused)]
     pub fn set_request_context(&mut self, req_ctx: RequestContext) {
         self.with_dependent_mut(|_owner, ctx| ctx.set_request_for_test(req_ctx));
+    }
+
+    #[allow(unused)]
+    pub async fn teardown(self) {
+        let mut owner = self.into_owner();
+        if let Some(transaction) = owner.transaction.take() {
+            transaction
+                .rollback()
+                .await
+                .expect("Unable to roll back transaction");
+        }
     }
 }

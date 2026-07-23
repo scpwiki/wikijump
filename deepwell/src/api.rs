@@ -57,7 +57,7 @@ pub async fn build_server_state(config: Config, secrets: Secrets) -> Result<Serv
 /// but are read-only diagnostics. Starting the normal queue workers here would make
 /// their behavior depend on unrelated jobs and could mutate the corpus while a replay
 /// is collecting evidence.
-pub(crate) async fn build_server_state_without_workers(
+pub async fn build_server_state_without_workers(
     config: Config,
     secrets: Secrets,
 ) -> Result<ServerState> {
