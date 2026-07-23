@@ -7251,6 +7251,7 @@ impl RenderService {
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
                 ajax_module_response,
+                site: page_info.site.as_ref(),
                 category: page
                     .page_category_id
                     .and_then(|category_id| category_slugs.get(&category_id))
@@ -9731,6 +9732,7 @@ fn push_list_pages_pager_target(
 struct ListPagesSubstitutionContext<'a> {
     rendered_limit: usize,
     ajax_module_response: bool,
+    site: &'a str,
     category: &'a str,
     user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
     snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
@@ -9749,6 +9751,14 @@ fn substitute_list_pages_variables_with_fragments(
     compat_html: &mut CompatHtmlFragments,
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
+    // Page-query rows retain Wikidot's normalized full slug, including a
+    // non-default category prefix. Do not reconstruct it from the category
+    // ID here: that would duplicate the prefix for ordinary queried rows.
+    let full_slug = slug.to_owned();
+    let link = format!(
+        "http://{}.wikidot.com/{full_slug}/noredirect/true",
+        context.site
+    );
     let title = page.title.as_deref().unwrap_or(slug);
     let generated_wikitext_title = preserve_list_pages_generated_text_typography(title);
     let title_linked = if slug.is_empty() {
@@ -9841,8 +9851,13 @@ fn substitute_list_pages_variables_with_fragments(
                 "title_linked" => title_linked.clone(),
                 "linked_title" => title_linked.clone(),
                 "title" => generated_wikitext_title.clone(),
-                "name" | "slug" | "page_unix_name" | "fullname" | "full_slug"
-                | "link" => slug.to_owned(),
+                "name" | "slug" | "page_unix_name" => slug.to_owned(),
+                "fullname" | "full_slug" => full_slug.clone(),
+                "link" if !slug.is_empty() && !context.site.is_empty() => link.clone(),
+                "link" => captures
+                    .get(0)
+                    .map_or("", |matched| matched.as_str())
+                    .to_owned(),
                 "created_by" | "createdby" => created_by.clone(),
                 "created_by_linked" | "createdbylinked" | "author" => {
                     created_by_linked.clone()
@@ -12393,6 +12408,7 @@ mod tests {
         ListPagesSubstitutionContext {
             rendered_limit,
             ajax_module_response: false,
+            site: "scp-wiki",
             category: "",
             user_displays,
             snapshot_displays,
@@ -15760,6 +15776,45 @@ mod tests {
     }
 
     #[test]
+    fn distinguishes_wikidot_list_pages_link_and_fullname() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Fixture component".to_owned()),
+            alt_title: None,
+            slug: Some("component:black-highlighter-theme-dev".to_owned()),
+            page_category_id: Some(1),
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let users = BTreeMap::new();
+        let data_form_values = BTreeMap::new();
+        let mut context =
+            list_pages_substitution_context(20, &users, None, &data_form_values);
+        context.category = "component";
+
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%fullname%%|%%full_slug%%|%%link%%",
+                &page,
+                1,
+                1,
+                &context,
+            ),
+            concat!(
+                "component:black-highlighter-theme-dev|",
+                "component:black-highlighter-theme-dev|",
+                "http://scp-wiki.wikidot.com/component:black-highlighter-theme-dev/noredirect/true",
+            ),
+        );
+    }
+
+    #[test]
     fn substitutes_wikidot_list_pages_author_tool_variables() {
         let updated_at = time::OffsetDateTime::from_unix_timestamp(1_782_005_400)
             .expect("fixture timestamp should be valid");
@@ -15819,7 +15874,9 @@ mod tests {
         assert!(rendered.contains(r#"data-wikijump-compat-date="1""#));
         assert!(rendered.contains("[/system:page-tags/tag/scp scp]"));
         assert!(rendered.contains("[/system:page-tags/tag/safe safe]"));
-        assert!(rendered.ends_with("scp-2693"));
+        assert!(
+            rendered.ends_with("http://scp-wiki.wikidot.com/scp-2693/noredirect/true")
+        );
         assert!(!rendered.contains("%%updated_by%%"));
         assert!(!rendered.contains("%%tags_linked%%"));
     }

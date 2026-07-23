@@ -2889,6 +2889,58 @@ async fn listpages_index_remains_absolute_after_offset() {
 }
 
 #[tokio::test]
+async fn listpages_link_and_fullname_keep_distinct_wikidot_identities() {
+    const TAG: &str = "verification-listpages-link-fullname";
+    const TARGET_SLUG: &str = "component:fixture-listpages-link-fullname-target";
+    const INDEX_SLUG: &str = "fixture-listpages-link-fullname-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Link Fullname Target",
+        "ListPages link/fullname target.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, TARGET_SLUG, target_revision, &[TAG])
+        .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Link Fullname Index",
+        concat!(
+            "[[module ListPages category=\"*\" tags=\"+verification-listpages-link-fullname\" limit=\"1\"]]\n",
+            "[[[%%link%%|absolute link]]]\n",
+            "[[[%%fullname%%/noredirect/true|qualified name]]]\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(&format!(
+            "href=\"http://scp-wiki.wikidot.com/{TARGET_SLUG}/noredirect/true\""
+        )),
+        "%%link%% must render the complete live-compatible Wikidot URL:\n{html}"
+    );
+    assert!(
+        html.contains(&format!("href=\"/{TARGET_SLUG}/noredirect/true\"")),
+        "%%fullname%% must render the category-qualified internal page name:\n{html}"
+    );
+    assert!(
+        !html.contains(&format!("href=\"/{TARGET_SLUG}\"")),
+        "%%link%% must not collapse to the internal full-name URL:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
