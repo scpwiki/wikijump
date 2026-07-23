@@ -21,9 +21,9 @@
 mod data;
 
 use self::data::SeedData;
-use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::error::prelude::*;
+use crate::runtime::ServerState;
 use crate::services::ServiceContext;
 use crate::services::alias::{AliasService, CreateAlias};
 use crate::services::domain::{CreateCustomDomain, DomainService};

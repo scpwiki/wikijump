@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::api::ServerState;
+use crate::runtime::ServerState;
 
 #[derive(Debug)]
 pub struct EmailService;

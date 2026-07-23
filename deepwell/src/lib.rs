@@ -66,6 +66,7 @@ pub mod license;
 pub mod locales;
 pub mod middleware;
 pub mod redis;
+pub mod runtime;
 pub mod services;
 pub mod types;
 pub mod utils;

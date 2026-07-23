@@ -25,8 +25,8 @@ use self::model::{
 };
 pub(crate) use self::settings::RenderReplaySettings;
 use self::supervisor::run_isolated_worker;
-use crate::api::ServerState;
 use crate::error::prelude::*;
+use crate::runtime::ServerState;
 use crate::services::render::CorpusReplayExpandedWikitext;
 use futures::{StreamExt, stream};
 use serde::{Serialize, de::DeserializeOwned};

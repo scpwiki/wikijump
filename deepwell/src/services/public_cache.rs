@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::api::ServerState;
+use crate::runtime::ServerState;
 use redis::{AsyncCommands, Script};
 
 const PUBLIC_CONTENT_CACHE_PREFIX: &str = "deepwell:public-content:site";

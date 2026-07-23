@@ -25,11 +25,9 @@
 //! as if motivated by a script.
 
 use super::{Config, SetupConfig};
-use crate::services::corpus_render_finalizer::{
-    CorpusRenderFinalizerService, RenderFinalizerSettings,
-};
-use crate::services::corpus_render_inventory::{
-    CorpusRenderInventoryService, RenderInventorySettings,
+use crate::services::corpus_render::{
+    CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerSettings,
+    RenderInventorySettings,
 };
 use crate::services::render::{
     RenderReplayService, RenderReplaySettings, run_worker_action,

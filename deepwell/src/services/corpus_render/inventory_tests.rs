@@ -1,4 +1,4 @@
-use super::corpus_render_inventory::*;
+use super::inventory::*;
 use crate::services::render::CORPUS_RENDER_BUDGET_US;
 use serde_json::json;
 

@@ -21,7 +21,7 @@
 //! Module for the worker which consumes `Job`s and performs the relevant task.
 
 use super::prelude::*;
-use crate::api::ServerState;
+use crate::runtime::ServerState;
 use crate::services::page_revision::RerenderType;
 use crate::services::{
     BlobService, PageRevisionService, SessionService, TextService, UserService,
