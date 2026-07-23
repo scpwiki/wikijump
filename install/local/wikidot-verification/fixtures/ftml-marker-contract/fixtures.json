@@ -1,0 +1,42 @@
+{
+  "schema": "wikijump.ftml_marker_contract_fixtures.v1",
+  "site_slug": "scp-wiki",
+  "layout": "wikidot",
+  "fixtures": [
+    {
+      "fixture_id": "marker-heading",
+      "slug": "marker-canary-heading",
+      "title": "Marker canary heading",
+      "surface": "heading",
+      "wikitext": "++ MARKER_HEADING\n"
+    },
+    {
+      "fixture_id": "marker-separator",
+      "slug": "marker-canary-separator",
+      "title": "Marker canary separator",
+      "surface": "separator",
+      "wikitext": "MARKER_BEFORE_SEPARATOR\n\n-----\n\nMARKER_AFTER_SEPARATOR\n"
+    },
+    {
+      "fixture_id": "marker-div",
+      "slug": "marker-canary-div",
+      "title": "Marker canary div",
+      "surface": "div",
+      "wikitext": "[[div class=\"marker-canary-div\"]]\nMARKER_DIV\n[[/div]]\n"
+    },
+    {
+      "fixture_id": "marker-span",
+      "slug": "marker-canary-span",
+      "title": "Marker canary span",
+      "surface": "span",
+      "wikitext": "[[span class=\"marker-canary-span\"]]MARKER_SPAN[[/span]]\n"
+    },
+    {
+      "fixture_id": "marker-alignment",
+      "slug": "marker-canary-alignment",
+      "title": "Marker canary alignment",
+      "surface": "alignment",
+      "wikitext": "[[div style=\"text-align: center\"]]\nMARKER_ALIGNMENT\n[[/div]]\n"
+    }
+  ]
+}
