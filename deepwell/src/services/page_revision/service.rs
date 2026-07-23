@@ -32,7 +32,9 @@ use crate::services::{
     BlueprintPageService, LinkService, OutdateService, PageService, ParentService,
     RenderService, ScoreService, SettingsService, SiteService, TextService,
 };
-use crate::types::{FetchDirection, PageId, PageRevisionType, RerenderDepth};
+use crate::types::{
+    FetchDirection, PageId, PageRevisionChange, PageRevisionType, RerenderDepth,
+};
 use crate::utils::{locale_for_ftml, split_category, split_category_name, trim_default};
 use ftml::data::PageInfo;
 use ftml::layout::Layout;
@@ -162,21 +164,21 @@ impl PageRevisionService {
         if let Maybe::Set(new_title) = body.title
             && title != new_title
         {
-            changes.push(str!("title"));
+            changes.push(PageRevisionChange::Title);
             title = new_title;
         }
 
         if let Maybe::Set(new_alt_title) = body.alt_title
             && alt_title != new_alt_title
         {
-            changes.push(str!("alt_title"));
+            changes.push(PageRevisionChange::AltTitle);
             alt_title = new_alt_title;
         }
 
         if let Maybe::Set(new_slug) = body.slug
             && slug != new_slug
         {
-            changes.push(str!("slug"));
+            changes.push(PageRevisionChange::Slug);
             old_slug = Some(slug);
             slug = new_slug;
         }
@@ -184,7 +186,7 @@ impl PageRevisionService {
         if let Maybe::Set(new_tags) = body.tags
             && tags != new_tags
         {
-            changes.push(str!("tags"));
+            changes.push(PageRevisionChange::Tags);
             tags = new_tags;
         }
 
@@ -200,7 +202,7 @@ impl PageRevisionService {
                     .or_raise(make_error)?;
 
                 if wikitext_hash != new_hash {
-                    changes.push(str!("wikitext"));
+                    changes.push(PageRevisionChange::Wikitext);
                     replace_hash(&mut wikitext_hash, &new_hash);
                 }
 
@@ -371,7 +373,10 @@ impl PageRevisionService {
             page_id: Set(page_id),
             site_id: Set(site_id),
             user_id: Set(user_id),
-            changes: Set(changes),
+            changes: Set(changes
+                .into_iter()
+                .map(|change| change.to_string())
+                .collect()),
             wikitext_hash: Set(wikitext_hash),
             compiled_body_html_hash: Set(compiled_body_html_hash),
             compiled_body_styles_hash: Set(compiled_body_styles_hash),

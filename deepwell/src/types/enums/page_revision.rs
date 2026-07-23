@@ -49,7 +49,6 @@ pub enum PageRevisionType {
     Move,
 }
 
-// TODO: Modify PageRevisionModel to use this enum instead of String, and update all related code.
 #[derive(
     EnumIter,
     Serialize,

@@ -30,42 +30,35 @@ pub struct PageRevisionTasks {
 impl PageRevisionTasks {
     /// Determine what tasks need to be performed based on the found changes.
     ///
-    /// # Panics
-    /// This takes a list of string changes, which is the same pattern as stored
-    /// in the database. Invalid values will cause the function to panic.
-    ///
-    /// This should be thought of as a list of enums, but because we want to avoid
-    /// the extra conversion step before this goes to the database, we're using strings.
-    /// Eventually we can use the native database enum when SeaORM supports Postgres arrays.
-    pub fn determine(changes: &[String]) -> Self {
+    pub fn determine(changes: &[PageRevisionChange]) -> Self {
         let mut tasks = PageRevisionTasks::default();
 
         for change in changes {
-            match change.as_str() {
-                "wikitext" => {
+            match change {
+                PageRevisionChange::Wikitext => {
                     tasks.render_and_update_links = true;
                     tasks.rerender_outgoing_includes = true;
                     tasks.rerender_templates = true;
                 }
-                "title" | "alt_title" => {
+                PageRevisionChange::Title | PageRevisionChange::AltTitle => {
                     tasks.render_and_update_links = true;
                     tasks.rerender_incoming_links = true;
                 }
-                "slug" => {
+                PageRevisionChange::Slug => {
                     tasks.render_and_update_links = true;
                     tasks.rerender_incoming_links = true;
                     tasks.rerender_outgoing_includes = true;
                     tasks.rerender_templates = true;
                 }
-                "tags" => {
+                PageRevisionChange::Tags => {
                     tasks.render_and_update_links = true;
                     tasks.rerender_outgoing_includes = true;
                     tasks.rerender_templates = true;
                 }
-                _ => panic!("Unknown change string enum value: {change}"),
             }
         }
 
         tasks
     }
 }
+use crate::types::PageRevisionChange;

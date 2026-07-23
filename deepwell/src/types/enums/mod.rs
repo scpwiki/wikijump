@@ -37,7 +37,7 @@ mod user_type;
 
 pub use self::alias_type::AliasType;
 pub use self::connection_type::ConnectionType;
-pub use self::file_revision::{FileRevisionChange, FileRevisionType};
+pub use self::file_revision::FileRevisionType;
 pub use self::license::License;
 pub use self::message_recipient_type::MessageRecipientType;
 pub use self::page_lock_type::PageLockType;

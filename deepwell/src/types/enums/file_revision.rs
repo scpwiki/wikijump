@@ -47,28 +47,3 @@ pub enum FileRevisionType {
     Undelete,
     Move,
 }
-
-// TODO: Modify FileRevisionModel to use this enum instead of String, and update all related code.
-#[derive(
-    EnumIter,
-    Serialize,
-    Deserialize,
-    Debug,
-    Copy,
-    Clone,
-    Hash,
-    PartialEq,
-    Eq,
-    DeriveValueType,
-    EnumString,
-    Display,
-)]
-#[sea_orm(value_type = "String")]
-#[serde(rename_all = "kebab-case")]
-#[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
-pub enum FileRevisionChange {
-    Page,
-    Name,
-    Blob,
-    Mime,
-}
