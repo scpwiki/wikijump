@@ -337,7 +337,7 @@ fn require_authenticated_file_mutation_actor(
     }
 }
 
-async fn ensure_parent_page_view_permission(
+pub(super) async fn ensure_parent_page_view_permission(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     page_id: i64,

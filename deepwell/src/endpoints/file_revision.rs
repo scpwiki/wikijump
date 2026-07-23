@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::file::ensure_parent_page_view_permission;
 use super::prelude::*;
 use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::MutationAuthorization;
@@ -44,6 +45,10 @@ pub async fn file_revision_count(
             ErrorType::FileRevision,
         )
     };
+
+    ensure_parent_page_view_permission(ctx, site_id, page_id)
+        .await
+        .or_raise(make_error)?;
 
     let file_id = FileService::get_id(ctx, site_id, file_reference)
         .await
@@ -72,6 +77,14 @@ pub async fn file_revision_get(
     params: Params<'static>,
 ) -> Result<Option<FileRevisionModel>> {
     let input: GetFileRevision = parse!(params, FileRevision);
+    ensure_parent_page_view_permission(ctx, input.site_id, input.page_id)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to check file revision parent-page visibility",
+                ErrorType::FileRevision,
+            )
+        })?;
 
     FileRevisionService::get_optional(ctx, input)
         .await
@@ -83,6 +96,14 @@ pub async fn file_revision_range(
     params: Params<'static>,
 ) -> Result<Vec<FileRevisionModel>> {
     let input: GetFileRevisionRange = parse!(params, FileRevision);
+    ensure_parent_page_view_permission(ctx, input.site_id, input.page_id)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to check file revision range parent-page visibility",
+                ErrorType::FileRevision,
+            )
+        })?;
 
     FileRevisionService::get_range(ctx, input)
         .await
