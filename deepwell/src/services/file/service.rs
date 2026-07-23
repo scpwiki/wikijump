@@ -801,50 +801,9 @@ impl FileService {
         Ok(files)
     }
 
-    /// Gets the file ID from a reference, looking up if necessary.
-    ///
-    /// Convenience method since this is much more common than the optional
-    /// case, and we don't want to perform a redundant check for site existence
-    /// later as part of the actual query.
-    pub async fn get_id(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<i64> {
-        let make_error = || {
-            Error::new(
-                format!("failed to get ID for file on page ID {}", page_id),
-                ErrorType::File,
-            )
-        };
-
-        match reference {
-            Reference::Id(id) => Ok(id),
-            Reference::Slug(ref name) => {
-                let txn = ctx.transaction();
-                let result: Option<(i64,)> = File::find()
-                    .select_only()
-                    .column(file::Column::FileId)
-                    .filter(
-                        Condition::all()
-                            .add(file::Column::PageId.eq(page_id))
-                            .add(file::Column::Name.eq(name.as_ref()))
-                            .add(file::Column::DeletedAt.is_null()),
-                    )
-                    .into_tuple()
-                    .one(txn)
-                    .await
-                    .or_raise(make_error)?;
-
-                match result {
-                    Some(tuple) => Ok(tuple.0),
-                    None => bail!(Error::new(
-                        format!("cannot get ID for file '{}', does not exist", name),
-                        ErrorType::FileNotFound
-                    )),
-                }
-            }
-        }
+    /// Gets the ID of an active file within an explicit site and page scope.
+    pub async fn get_id(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<i64> {
+        Self::get(ctx, input).await.map(|file| file.file_id)
     }
 
     pub async fn get_direct_optional(

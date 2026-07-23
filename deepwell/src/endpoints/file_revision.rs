@@ -33,11 +33,9 @@ pub async fn file_revision_count(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<FileRevisionCountOutput> {
-    let GetFile {
-        site_id,
-        page_id,
-        file: file_reference,
-    } = parse!(params, FileRevision);
+    let input: GetFile<'_> = parse!(params, FileRevision);
+    let site_id = input.site_id;
+    let page_id = input.page_id;
 
     let make_error = || {
         Error::new(
@@ -50,9 +48,7 @@ pub async fn file_revision_count(
         .await
         .or_raise(make_error)?;
 
-    let file_id = FileService::get_id(ctx, site_id, file_reference)
-        .await
-        .or_raise(make_error)?;
+    let file_id = FileService::get_id(ctx, input).await.or_raise(make_error)?;
 
     let revision_count = FileRevisionService::count(
         ctx,
