@@ -8,6 +8,7 @@ import {
   clearLoginPassword,
   redactAuthActionPayload
 } from "$lib/server/load/auth-form-redaction.js"
+import { normalizeActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -16,16 +17,10 @@ import { minLength, object, pipe, string } from "valibot"
 
 import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { TranslateKeys } from "$lib/types"
-import type { Cookies, RequestEvent } from "@sveltejs/kit"
+import type { RequestEvent } from "@sveltejs/kit"
 
-export async function loadLoginPage(
-  request: Request,
-  cookies: Cookies,
-  preloadData: PreloadDataAsync
-) {
-  // Set up parameters
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { siteId } = loadSiteInfo(request.headers)
+export async function loadLoginPage(request: Request, preloadData: PreloadDataAsync) {
+  loadSiteInfo(request.headers)
 
   const parentData = await preloadData()
   const locales = parentData.locales
@@ -105,7 +100,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
         [submittedPassword]
       )
     } catch (error) {
-      const deepwellError = getDeepwellError(error)
+      const deepwellError = normalizeActionError(error)
       return fail(
         500,
         redactAuthActionPayload(
@@ -149,7 +144,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       [submittedPassword]
     )
   } catch (error) {
-    const deepwellError = getDeepwellError(error)
+    const deepwellError = normalizeActionError(error)
     return fail(
       500,
       redactAuthActionPayload(
@@ -179,22 +174,4 @@ async function setSessionCookie(cookies: Cookies, sessionToken: string) {
     sameSite: "lax",
     expires: new Date(session.expires_at)
   })
-}
-
-function getDeepwellError(error: unknown) {
-  if (error && typeof error === "object") {
-    const candidate = error as {
-      message?: unknown
-      code?: unknown
-      data?: unknown
-    }
-
-    return {
-      message: typeof candidate.message === "string" ? candidate.message : String(error),
-      code: candidate.code,
-      data: candidate.data
-    }
-  }
-
-  return { message: String(error), code: undefined, data: undefined }
 }

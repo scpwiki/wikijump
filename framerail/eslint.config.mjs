@@ -123,6 +123,8 @@ export default defineConfig(
       "svelte/sort-attributes": "warn",
       "svelte/spaced-html-comment": "warn",
 
+      // Bindable props are observable by their parent even when not read again locally.
+      "no-useless-assignment": "off",
       "svelte/no-at-html-tags": "off"
     }
   },

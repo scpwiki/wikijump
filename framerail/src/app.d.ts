@@ -2,7 +2,7 @@
 // for information about these interfaces
 // and what to do when importing types
 
-import type { Layout } from "$lib/types"
+import type { JsonValue, Layout, PageRevisionType } from "$lib/types"
 import type { RequestContext } from "$lib/server/load/request-ctx"
 import type { buildWikidotRequestInfo } from "$lib/server/wikidot-request-info"
 import type { Locales } from "./types"
@@ -28,7 +28,7 @@ declare global {
         preferred_domain: string | null
         layout: Layout | null
         license: string
-        [anySite: any]: unknown
+        [key: string]: unknown
       }
       site_file_domain: string
       license_name: string
@@ -51,8 +51,8 @@ declare global {
           last_renamed_at: string | null
           email: string
           email_verified_at: string | null
-          email_validation_info: any | null
-          email_validation_at: any | null
+          email_validation_info: JsonValue | null
+          email_validation_at: string | null
           locales: string[]
           avatar_s3_hash: number[]
           real_name: string | null
@@ -81,7 +81,7 @@ declare global {
         from_wikidot: boolean
         discussion_thread_id: number | null
         revision_id: number
-        revision_type: any
+        revision_type: PageRevisionType
         revision_created_at: string
         revision_number: number
         revision_user_id: number
@@ -95,9 +95,9 @@ declare global {
         alt_title: string | null
         slug: string
         tags: string[]
-        rating: any
+        rating: number | null
         layout: Layout | null
-        [anyPage: any]: unknown
+        [key: string]: unknown
       }
       /** Page options as booleans. */
       options?: {
@@ -113,9 +113,7 @@ declare global {
         history: boolean
         offset: number | null
         data: string
-        /** @deprecated Use `no_render` instead. */
-        noRender: boolean
-        [anyOptions: any]: unknown
+        [key: string]: unknown
       }
       /** Rendered Wikitext */
       wikitext?: string
@@ -132,7 +130,7 @@ declare global {
       /** Page revision */
       page_revision?: {
         revision_id: number
-        revision_type: any
+        revision_type: PageRevisionType
         created_at: string
         updated_at: string
         from_wikidot: boolean
@@ -150,9 +148,9 @@ declare global {
         hidden: string[]
         title: string | null
         alt_title: string | null
-        sliug: string | null
+        slug: string | null
         tags: string[] | null
-        [anyPageRevision: any]: unknown
+        [key: string]: unknown
       }
     }
 
@@ -168,7 +166,7 @@ declare global {
       internationalization?: Locales
       /** Compiled HTML */
       compiled_body_html?: string
-      [anyError: any]: unknown
+      [key: string]: unknown
     }
     // interface Platform {}
 

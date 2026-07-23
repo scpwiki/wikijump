@@ -40,12 +40,13 @@ import {
   getPreloadBackendLocales,
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
+import { normalizeActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import {
   buildWikidotRequestInfo,
   requestHostFromRequest
 } from "$lib/server/wikidot-request-info"
-import { type DeepwellError, DeleteOptions, Layout } from "$lib/types"
+import { DeleteOptions, Layout } from "$lib/types"
 import {
   buildWikidotPageActionLabels,
   sourceShowsStandardWikidotPageActions
@@ -76,12 +77,18 @@ import { getRequestContext, withDefaultPageContext } from "./request-ctx"
 
 const DEEPWELL_PERMISSION_DENIED = 3106
 
-function failForDeepwellError(error: DeepwellError, body: Record<string, unknown> = {}) {
-  return fail(error.code === DEEPWELL_PERMISSION_DENIED ? 403 : 500, {
+function failForActionError(error: unknown, body: Record<string, unknown> = {}) {
+  const details = normalizeActionError(error)
+  return fail(details.code === DEEPWELL_PERMISSION_DENIED ? 403 : 500, {
     ...body,
-    message: error.message,
-    code: error.code,
-    data: error.data
+    ...details
+  })
+}
+
+function failForMissingSession(body: Record<string, unknown> = {}) {
+  return fail(401, {
+    ...body,
+    message: "Authentication required."
   })
 }
 
@@ -109,7 +116,6 @@ export async function loadPage(
   // Process response, performing redirects etc
   const { data: responseData, type: responseType } = response
 
-  const checkRedirect = true
   let errorStatus = null
 
   switch (responseType) {
@@ -355,10 +361,7 @@ export async function loadPage(
     error(errorStatus, buildPageLoadData(parentData, viewData, errorForms))
   }
 
-  // TODO remove checkRedirect when errorStatus is fixed
-  if (checkRedirect) {
-    runRedirect(responseData, slug, extra, request.url)
-  }
+  runRedirect(responseData, slug, extra, request.url)
 
   // Return to page for rendering
   return buildPageLoadData(parentData, viewData, forms)
@@ -418,33 +421,36 @@ export async function pageDeleteAction({
     if (option === DeleteOptions.Move) {
       const { newSlug } = form.data
       const res = await pageMove(
-        siteId,
-        pageId,
-        userId,
-        ipAddress,
-        slug,
-        lastRevisionId,
-        newSlug,
-        comments,
+        {
+          siteId,
+          pageId,
+          userId,
+          userIpAddr: ipAddress,
+          slug,
+          lastRevisionId,
+          newSlug,
+          revisionComments: comments
+        },
         { sessionToken, siteId, page: pageId ?? slug }
       )
       return { form, res, option: DeleteOptions.Move }
     } else {
       const res = await pageDelete(
-        siteId,
-        pageId,
-        userId,
-        ipAddress,
-        slug,
-        lastRevisionId,
-        comments,
+        {
+          siteId,
+          pageId,
+          userId,
+          userIpAddr: ipAddress,
+          slug,
+          lastRevisionId,
+          revisionComments: comments
+        },
         { sessionToken, siteId, page: pageId ?? slug }
       )
       return { form, res, option: DeleteOptions.Delete }
     }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -482,9 +488,8 @@ export async function pageEditPermissionAction({
 
     const res = await pageEditPermission(requestContext)
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -532,25 +537,26 @@ export async function pageEditAction({
     }
     const tags = tagsStr.split(" ").filter((tag) => tag.length)
     const res = await pageEdit(
-      siteId,
-      pageId,
-      userId,
-      ipAddress,
-      slug,
-      lastRevisionId,
-      comments,
-      wikitext,
-      title,
-      altTitle,
-      tags,
-      layout,
+      {
+        siteId,
+        pageId,
+        userId,
+        userIpAddr: ipAddress,
+        slug,
+        lastRevisionId,
+        revisionComments: comments,
+        wikitext,
+        title,
+        altTitle,
+        tags,
+        layout
+      },
       { sessionToken, siteId, page: pageId ?? slug }
     )
 
     return { form, res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -574,9 +580,8 @@ export async function pageFileListAction({ request }: RequestEvent) {
 
     const res = await pageFileList(siteId, pageId, deleted)
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -592,25 +597,26 @@ export async function pageFileUploadAction({
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession({ form })
   try {
+    const session = await authGetSession(sessionToken)
     const { siteId, pageId, file, name, comments } = form.data
     const res = await pageFileCreate(
-      siteId,
-      pageId,
-      session?.user_id,
-      name === "" ? undefined : name,
-      file,
-      comments,
-      getClientAddress(),
+      {
+        siteId,
+        pageId,
+        userId: session?.user_id,
+        name: name === "" ? undefined : name,
+        file,
+        revisionComments: comments,
+        ipAddress: getClientAddress()
+      },
       { sessionToken, siteId, page: pageId }
     )
 
     return withFiles({ form, res })
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -624,9 +630,9 @@ const pageFileUploadSchema = object({
 /* ----- Page File Delete ----- */
 export async function pageFileDeleteAction({ request, cookies }: RequestEvent) {
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession()
   try {
+    const session = await authGetSession(sessionToken)
     const requestData: {
       siteId: number
       pageId: number
@@ -638,18 +644,19 @@ export async function pageFileDeleteAction({ request, cookies }: RequestEvent) {
     const { siteId, pageId, fileId, lastRevisionId, comments } = requestData
 
     const res = await pageFileDelete(
-      siteId,
-      pageId,
-      session?.user_id,
-      fileId,
-      lastRevisionId,
-      comments ?? "",
+      {
+        siteId,
+        pageId,
+        userId: session?.user_id,
+        fileId,
+        lastRevisionId,
+        revisionComments: comments ?? ""
+      },
       { sessionToken, siteId, page: pageId }
     )
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -665,27 +672,28 @@ export async function pageFileEditAction({
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession({ form })
   try {
+    const session = await authGetSession(sessionToken)
     const { siteId, pageId, lastRevisionId, fileId, file, name, comments } = form.data
     const res = await pageFileEdit(
-      siteId,
-      pageId,
-      session?.user_id,
-      fileId,
-      name === "" ? undefined : name,
-      file,
-      lastRevisionId,
-      comments,
-      getClientAddress(),
+      {
+        siteId,
+        pageId,
+        userId: session?.user_id,
+        fileId,
+        name: name === "" ? undefined : name,
+        file,
+        lastRevisionId,
+        revisionComments: comments,
+        ipAddress: getClientAddress()
+      },
       { sessionToken, siteId, page: pageId }
     )
 
     return withFiles({ form, res })
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -705,27 +713,28 @@ export async function pageFileMoveAction({ request, cookies }: RequestEvent) {
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession({ form })
   try {
+    const session = await authGetSession(sessionToken)
     const { siteId, pageId, lastRevisionId, fileId, destinationPage, name, comments } =
       form.data
     const res = await pageFileMove(
-      siteId,
-      pageId,
-      destinationPage,
-      session?.user_id,
-      fileId,
-      lastRevisionId,
-      name === "" ? undefined : name,
-      comments,
+      {
+        siteId,
+        currentPageId: pageId,
+        destinationPage,
+        userId: session?.user_id,
+        fileId,
+        lastRevisionId,
+        name: name === "" ? undefined : name,
+        revisionComments: comments
+      },
       { sessionToken, siteId, page: pageId }
     )
 
     return { form, res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -767,21 +776,22 @@ export async function pageFileRestoreAction({
       })
     }
     const res = await pageFileRestore(
-      siteId,
-      pageId,
-      userId,
-      fileId,
-      newPage === "" ? undefined : newPage,
-      newName === "" ? undefined : newName,
-      comments,
-      getClientAddress(),
+      {
+        siteId,
+        pageId,
+        userId,
+        fileId,
+        newPage: newPage === "" ? undefined : newPage,
+        newName: newName === "" ? undefined : newName,
+        revisionComments: comments,
+        ipAddress: getClientAddress()
+      },
       { sessionToken, siteId, page: pageId }
     )
 
     return { form, res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -808,9 +818,8 @@ export async function pageFileHistoryAction({ request }: RequestEvent) {
 
     const res = await pageFileHistory(siteId, pageId, fileId, revisionNumber, limit)
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -848,21 +857,21 @@ export async function pageFileRollbackAction({
       })
     }
     const res = await pageFileRollback(
-      siteId,
-      pageId,
-      userId,
-      fileId,
-      lastRevisionId,
-      revisionNumber,
-      comments,
-      getClientAddress(),
-      { sessionToken, siteId, page: pageId },
-      false
+      {
+        siteId,
+        pageId,
+        userId,
+        fileId,
+        lastRevisionId,
+        revisionNumber,
+        revisionComments: comments,
+        ipAddress: getClientAddress()
+      },
+      { sessionToken, siteId, page: pageId }
     )
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -886,9 +895,8 @@ export async function pageHistoryAction({ request, locals }: RequestEvent) {
       getRequestContext(locals)
     )
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -914,9 +922,8 @@ export async function pageRevisionAction({ request, locals }: RequestEvent) {
       getRequestContext(locals)
     )
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -930,9 +937,9 @@ export async function pageRollbackAction({
   const { slug } = params
   const ipAddress = getClientAddress()
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession()
   try {
+    const session = await authGetSession(sessionToken)
     const requestData: {
       siteId: number
       pageId: number
@@ -944,20 +951,21 @@ export async function pageRollbackAction({
     const { siteId, pageId, revisionNumber, comments, lastRevisionId } = requestData
 
     const res = await pageRollback(
-      siteId,
-      pageId,
-      session?.user_id,
-      ipAddress,
-      slug,
-      lastRevisionId,
-      revisionNumber,
-      comments ?? "",
+      {
+        siteId,
+        pageId,
+        userId: session?.user_id,
+        userIpAddr: ipAddress,
+        slug,
+        lastRevisionId,
+        revisionNumber,
+        revisionComments: comments ?? ""
+      },
       { sessionToken, siteId, page: pageId ?? slug }
     )
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -969,10 +977,11 @@ export async function layoutAction({ request, cookies, getClientAddress }: Reque
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
+  if (!sessionToken) return failForMissingSession({ form })
   const ipAddress = getClientAddress()
 
   try {
+    const session = await authGetSession(sessionToken)
     const { siteId, pageId, layout } = form.data
     await pageLayout(siteId, pageId, session?.user_id, ipAddress, layout, {
       sessionToken,
@@ -981,9 +990,8 @@ export async function layoutAction({ request, cookies, getClientAddress }: Reque
     })
 
     return { form }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -1004,27 +1012,29 @@ export async function pageMoveAction({
     return fail(400, { form })
   }
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
+  if (!sessionToken) return failForMissingSession({ form })
   const ipAddress = getClientAddress()
   const { slug } = params
 
   try {
+    const session = await authGetSession(sessionToken)
     const { siteId, pageId, lastRevisionId, newSlug, comments } = form.data
     const res = await pageMove(
-      siteId,
-      pageId,
-      session?.user_id,
-      ipAddress,
-      slug,
-      lastRevisionId,
-      newSlug,
-      comments,
+      {
+        siteId,
+        pageId,
+        userId: session?.user_id,
+        userIpAddr: ipAddress,
+        slug,
+        lastRevisionId,
+        newSlug,
+        revisionComments: comments
+      },
       { sessionToken, siteId, page: pageId ?? slug }
     )
     return { form, res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -1042,9 +1052,9 @@ export async function pageParentSetAction({ request, cookies }: RequestEvent) {
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession({ form })
   try {
+    const session = await authGetSession(sessionToken)
     const { siteId, pageId, addParents, removeParents } = form.data
     const res = await pageParentUpdate(
       siteId,
@@ -1055,9 +1065,8 @@ export async function pageParentSetAction({ request, cookies }: RequestEvent) {
       { sessionToken, siteId, page: pageId }
     )
     return { form, res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 
@@ -1079,9 +1088,8 @@ export async function pageParentGetAction({ request }: RequestEvent) {
     const { siteId, pageId, slug } = requestData
     const res = await pageParentGet(siteId, pageId, slug)
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -1093,62 +1101,61 @@ export async function pageVoteGetAction({ request }: RequestEvent) {
       pageId: number
     } = await request.json()
     const { siteId, pageId } = requestData
-    const res = await pageVoteList(siteId, pageId)
+    const res = await pageVoteList(pageId, { siteId, page: pageId })
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
 /* ----- Page Vote Cast ----- */
 export async function pageVoteCastAction({ request, cookies }: RequestEvent) {
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession()
   try {
+    const session = await authGetSession(sessionToken)
     const requestData: {
       siteId: number
       pageId: number
       value: number
     } = await request.json()
     const { siteId, pageId, value } = requestData
-    if (!sessionToken || !session) {
+    if (!session) {
       return fail(401, { message: "login is required to rate this page" })
     }
-    const res = await pageVoteCast(siteId, pageId, session.user_id, value, {
+    const res = await pageVoteCast(pageId, session.user_id, value, {
       sessionToken,
-      siteId
+      siteId,
+      page: pageId
     })
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
 /* ----- Page Vote Cancel ----- */
 export async function pageVoteCancelAction({ request, cookies }: RequestEvent) {
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-
+  if (!sessionToken) return failForMissingSession()
   try {
+    const session = await authGetSession(sessionToken)
     const requestData: {
       siteId: number
       pageId: number
     } = await request.json()
     const { siteId, pageId } = requestData
-    if (!sessionToken || !session) {
+    if (!session) {
       return fail(401, { message: "login is required to rate this page" })
     }
-    const res = await pageVoteRemove(siteId, pageId, session.user_id, {
+    const res = await pageVoteRemove(pageId, session.user_id, {
       sessionToken,
-      siteId
+      siteId,
+      page: pageId
     })
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -1164,9 +1171,8 @@ export async function pageScoreAction({ request, params }: RequestEvent) {
     const { siteId, pageId } = requestData
     const res = await pageScore(siteId, pageId, slug)
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -1180,9 +1186,8 @@ export async function pageDeletedGetAction({ request }: RequestEvent) {
     const { siteId, slug } = requestData
     const res = await pageDeletedGet(siteId, slug)
     return { res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error)
+  } catch (error) {
+    return failForActionError(error)
   }
 }
 
@@ -1198,10 +1203,11 @@ export async function pageRestoreAction({
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
+  if (!sessionToken) return failForMissingSession({ form })
   const ipAddress = getClientAddress()
 
   try {
+    const session = await authGetSession(sessionToken)
     const { siteId, pageId, comments } = form.data
     const res = await pageRestore(siteId, pageId, session?.user_id, ipAddress, comments, {
       sessionToken,
@@ -1209,9 +1215,8 @@ export async function pageRestoreAction({
       page: pageId
     })
     return { form, res }
-  } catch (e) {
-    const error = e as DeepwellError
-    return failForDeepwellError(error, { form })
+  } catch (error) {
+    return failForActionError(error, { form })
   }
 }
 

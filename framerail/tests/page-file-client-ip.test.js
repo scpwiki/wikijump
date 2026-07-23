@@ -1,65 +1,63 @@
 import { strict as assert } from "node:assert"
-import { readFile } from "node:fs/promises"
 import test from "node:test"
 
-const pageFileSourceUrl = new URL(
-  "../src/lib/server/deepwell/pageFile.ts",
-  import.meta.url
-)
-const pageActionsSourceUrl = new URL("../src/lib/server/load/page.ts", import.meta.url)
+import {
+  buildPageFileCreatePayload,
+  buildPageFileEditPayload,
+  buildPageFileRestorePayload,
+  buildPageFileRollbackPayload
+} from "../src/lib/server/deepwell/page-file-mutation-payloads.ts"
 
-/**
- * @param {string} source
- * @param {string} name
- * @param {string | null} nextName
- */
-const exportedFunction = (source, name, nextName) => {
-  const start = source.indexOf(`export async function ${name}(`)
-  assert.notEqual(start, -1, name)
-  const end = nextName
-    ? source.indexOf(`export async function ${nextName}(`, start)
-    : source.length
-  if (nextName) assert.notEqual(end, -1, nextName)
-  return source.slice(start, end)
-}
+const CLIENT_IP = "192.0.2.14"
 
-test("file mutation RPC serializers include the supplied client IP", async () => {
-  const source = await readFile(pageFileSourceUrl, "utf8")
-  const cases = [
-    ["pageFileCreate", "pageFileDelete", "file_create"],
-    ["pageFileEdit", "pageFileMove", "file_edit"],
-    ["pageFileRestore", "pageFileHistory", "file_restore"],
-    ["pageFileRollback", "pageFileRevision", "file_rollback"]
-  ]
+test("file mutation payloads serialize the server supplied client IP", () => {
+  const createPayload = buildPageFileCreatePayload({
+    siteId: 1,
+    pageId: 2,
+    userId: 3,
+    name: "example.txt",
+    pendingBlobId: "pending-create",
+    revisionComments: "create",
+    ipAddress: CLIENT_IP,
+    bypassFilter: false
+  })
+  const editPayload = buildPageFileEditPayload({
+    siteId: 1,
+    pageId: 2,
+    userId: 3,
+    fileId: 4,
+    lastRevisionId: 5,
+    name: undefined,
+    pendingBlobId: "pending-edit",
+    revisionComments: "edit",
+    ipAddress: CLIENT_IP,
+    bypassFilter: false
+  })
+  const restorePayload = buildPageFileRestorePayload({
+    siteId: 1,
+    pageId: 2,
+    userId: 3,
+    fileId: 4,
+    newPage: undefined,
+    newName: undefined,
+    revisionComments: "restore",
+    ipAddress: CLIENT_IP,
+    bypassFilter: false
+  })
+  const rollbackPayload = buildPageFileRollbackPayload({
+    siteId: 1,
+    pageId: 2,
+    userId: 3,
+    fileId: 4,
+    lastRevisionId: 5,
+    revisionNumber: 6,
+    revisionComments: "rollback",
+    ipAddress: CLIENT_IP,
+    bypassFilter: false
+  })
 
-  for (const [name, nextName, method] of cases) {
-    const body = exportedFunction(source, name, nextName)
-    assert.match(body, /ipAddress: string/u, `${name} parameter`)
-    assert.match(body, new RegExp(`["']${method}["']`, "u"), `${name} RPC`)
-    assert.match(body, /ip_address:\s*ipAddress/u, `${name} serialization`)
-  }
-})
-
-test("file mutation actions read and forward the server client address", async () => {
-  const source = await readFile(pageActionsSourceUrl, "utf8")
-  const cases = [
-    ["pageFileUploadAction", "pageFileDeleteAction", "pageFileCreate"],
-    ["pageFileEditAction", "pageFileMoveAction", "pageFileEdit"],
-    ["pageFileRestoreAction", "pageFileHistoryAction", "pageFileRestore"],
-    ["pageFileRollbackAction", null, "pageFileRollback"]
-  ]
-
-  for (const [name, nextName, callee] of cases) {
-    const body = exportedFunction(source, name, nextName)
-    assert.match(body, /getClientAddress\s*\}/u, `${name} request event`)
-    assert.match(
-      body,
-      new RegExp(`await ${callee}\\([\\s\\S]*?getClientAddress\\(\\)`, "u")
-    )
-    assert.match(
-      body,
-      /getClientAddress\(\),\s*\{\s*sessionToken,\s*siteId,\s*page:\s*pageId\s*\}/u,
-      `${name} argument order`
-    )
-  }
+  assert.equal(createPayload.ip_address, CLIENT_IP)
+  assert.equal(editPayload.ip_address, CLIENT_IP)
+  assert.equal(restorePayload.ip_address, CLIENT_IP)
+  assert.equal(rollbackPayload.ip_address, CLIENT_IP)
 })

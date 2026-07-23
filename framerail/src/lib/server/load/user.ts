@@ -5,6 +5,8 @@ import { authGetSession } from "$lib/server/auth/getSession"
 import { getFileByHash } from "$lib/server/deepwell/file"
 import { translate } from "$lib/server/deepwell/translate"
 import { userEdit, userView } from "$lib/server/deepwell/user"
+import { normalizeActionError } from "$lib/server/load/action-error"
+import { getRequestContext } from "$lib/server/load/request-ctx"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
@@ -172,7 +174,8 @@ export function sanitizeUserData(
 export async function userEditAction({
   request,
   cookies,
-  getClientAddress
+  getClientAddress,
+  locals
 }: RequestEvent) {
   const form = await superValidate(request, valibot(userEditSchema))
   if (!form.valid) {
@@ -199,32 +202,36 @@ export async function userEditAction({
       locales
     } = form.data
 
-    const res = await userEdit(session?.user_id, ipAddress, {
-      name,
-      email,
-      locales: locales
-        ? limitLocalePreferences(
-            locales.replaceAll("_", "-").replaceAll(",", " ").split(" ")
-          )
-        : undefined,
-      avatar,
-      realName,
-      gender,
-      birthday,
-      location,
-      biography,
-      website,
-      userPage,
-      bypassFilter: false
-    })
+    const res = await userEdit(
+      session?.user_id,
+      ipAddress,
+      {
+        name,
+        email,
+        locales: locales
+          ? limitLocalePreferences(
+              locales.replaceAll("_", "-").replaceAll(",", " ").split(" ")
+            )
+          : undefined,
+        avatar,
+        realName,
+        gender,
+        birthday,
+        location,
+        biography,
+        website,
+        userPage,
+        bypassFilter: false
+      },
+      getRequestContext(locals)
+    )
 
     return withFiles({ form, res })
   } catch (error) {
+    const details = normalizeActionError(error)
     return fail(500, {
       form,
-      message: error.message,
-      code: error.code,
-      data: error.data
+      ...details
     })
   }
 }

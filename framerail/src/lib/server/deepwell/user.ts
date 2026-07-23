@@ -3,6 +3,7 @@ import { client } from "$lib/server/deepwell"
 import { startBlobUpload, uploadToPresignUrl } from "./file"
 
 import type { Nullable, Optional, UserModel, UserType } from "$lib/types"
+import type { RequestContext } from "../load/request-ctx"
 
 /* ----- User View ----- */
 interface UserViewFound {
@@ -47,46 +48,49 @@ interface UserEditParams {
   bypassFilter?: boolean
 }
 
+function setNullableProfileField(
+  data: Record<string, unknown>,
+  key: string,
+  value: Optional<Nullable<string>>
+) {
+  if (value !== undefined) {
+    data[key] = value || null
+  }
+}
+
 export async function userEdit(
   userId: number,
   userIpAddr: string,
-  params: UserEditParams
+  params: UserEditParams,
+  requestContext: RequestContext
 ): Promise<UserModel> {
-  const data: Record<string, any> = {}
-  if (params.name !== undefined && typeof params.name === "string") {
+  const data: Record<string, unknown> = {
+    bypass_filter: params.bypassFilter ?? false
+  }
+  if (params.name !== undefined) {
     data.name = params.name
   }
-  if (params.email !== undefined && typeof params.email === "string") {
+  if (params.email !== undefined) {
     data.email = params.email
   }
-  if (params.realName !== undefined && typeof params.realName === "string") {
-    if (params.realName) data.real_name = params.realName
-    else data.real_name = null
+  if (params.emailVerified !== undefined) {
+    data.email_verified = params.emailVerified
   }
-  if (params.gender !== undefined && typeof params.gender === "string") {
-    if (params.gender) data.gender = params.gender
-    else data.gender = null
+  if (params.password !== undefined) {
+    data.password = params.password
   }
-  if (params.birthday !== undefined && typeof params.birthday === "string") {
-    if (isNaN(Date.parse(params.birthday))) data.birthday = null
-    else data.birthday = params.birthday
+  if (params.birthday !== undefined) {
+    data.birthday =
+      params.birthday === null || isNaN(Date.parse(params.birthday))
+        ? null
+        : params.birthday
   }
-  if (params.location !== undefined && typeof params.location === "string") {
-    if (params.location) data.location = params.location
-    else data.location = null
-  }
-  if (params.biography !== undefined && typeof params.biography === "string") {
-    if (params.biography) data.biography = params.biography
-    else data.biography = null
-  }
-  if (params.website !== undefined && typeof params.website === "string") {
-    if (params.website) data.website = params.website
-    else data.website = null
-  }
-  if (params.userPage !== undefined && typeof params.userPage === "string") {
-    if (params.userPage) data.user_page = params.userPage
-    else data.user_page = null
-  }
+  setNullableProfileField(data, "real_name", params.realName)
+  setNullableProfileField(data, "gender", params.gender)
+  setNullableProfileField(data, "location", params.location)
+  setNullableProfileField(data, "biography", params.biography)
+  setNullableProfileField(data, "website", params.website)
+  setNullableProfileField(data, "user_page", params.userPage)
   if (
     Array.isArray(params.locales) &&
     params.locales.every((v) => typeof v === "string")
@@ -99,11 +103,15 @@ export async function userEdit(
     data.avatar_uploaded_blob_id = presign.pending_blob_id
   } else if (params.avatar !== undefined && params.avatar === null) data.avatar = null
 
-  return client.request("user_edit", {
-    user: userId,
-    ip_address: userIpAddr,
-    ...data
-  })
+  return client.request(
+    "user_edit",
+    {
+      user: userId,
+      ip_address: userIpAddr,
+      ...data
+    },
+    requestContext
+  )
 }
 
 /* ----- User Create ----- */

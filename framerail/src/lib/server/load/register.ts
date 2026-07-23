@@ -6,6 +6,7 @@ import {
   clearRegisterPasswords,
   redactAuthActionPayload
 } from "$lib/server/load/auth-form-redaction.js"
+import { normalizeActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -24,17 +25,10 @@ import {
 
 import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import { UserType, type TranslateKeys } from "$lib/types"
-import type { Cookies, RequestEvent } from "@sveltejs/kit"
+import type { RequestEvent } from "@sveltejs/kit"
 
-export async function loadRegisterPage(
-  request: Request,
-  cookies: Cookies,
-  preloadData: PreloadDataAsync
-) {
-  // Set up parameters
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { siteId } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
+export async function loadRegisterPage(request: Request, preloadData: PreloadDataAsync) {
+  loadSiteInfo(request.headers)
 
   const parentData = await preloadData()
   const locales = parentData.locales
@@ -103,14 +97,13 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
       submittedPasswords
     )
   } catch (error) {
+    const details = normalizeActionError(error)
     return fail(
       500,
       redactAuthActionPayload(
         {
           form: clearRegisterPasswords(form),
-          message: error?.message,
-          code: error?.code,
-          data: error?.data
+          ...details
         },
         submittedPasswords
       )

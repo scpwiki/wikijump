@@ -1,5 +1,6 @@
 import {
   ARTICLE_RESPONSE_CACHE_TTL_SECONDS,
+  hasSessionCookie,
   sha256Hex,
   utf8Hex
 } from "./article-response-cache-shared.js"
@@ -15,18 +16,6 @@ const ARTICLE_ROUTES = new Set(["/", "/[slug]/[...extra]"])
 const PERMISSION_FENCE = "anonymous-page-view-v1"
 const RESPONSE_CACHE_PREFIX = "framerail:article-response:v1"
 const RESPONSE_TOKEN_PREFIX = "framerail:article-response-token:v1"
-const SESSION_COOKIE = "wikijump_token"
-
-const hasSessionCookie = (cookieHeader) => {
-  if (!cookieHeader) return false
-
-  return cookieHeader
-    .split(";")
-    .map((cookie) => cookie.trim())
-    .some(
-      (cookie) => cookie === SESSION_COOKIE || cookie.startsWith(`${SESSION_COOKIE}=`)
-    )
-}
 
 const isEmptyExtra = (extra) => {
   return extra === undefined || extra === null || extra === ""

@@ -60,9 +60,7 @@
     compiledHtml: boolean,
     wikitext: boolean
   ) {
-    // Get cached revision if we have it
     const rev = revisionMap.get(revisionNumber)
-    // Try to see if the cached revision already has the wanted data
     if (compiledHtml && rev?.compiled_body_html) {
       setRevision(rev)
       revision = rev
@@ -70,7 +68,6 @@
       setRevision(rev)
       revision = rev
     } else {
-      // Request from server
       const res = await fetch("?/revision", {
         method: "POST",
         body: JSON.stringify({

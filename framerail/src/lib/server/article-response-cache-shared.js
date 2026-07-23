@@ -10,6 +10,18 @@ export const ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_BYTES = 8 * 1024 * 1024
 export const PUBLIC_CONTENT_FENCE_PREFIX = "deepwell:public-content:site"
 export const ARTICLE_RESPONSE_FENCE_INVALIDATION_CHANNEL =
   "wikijump:article-response-fence-invalidation:v1"
+const SESSION_COOKIE = "wikijump_token"
+
+export const hasSessionCookie = (cookieHeader) => {
+  if (!cookieHeader) return false
+
+  return cookieHeader
+    .split(";")
+    .map((cookie) => cookie.trim())
+    .some(
+      (cookie) => cookie === SESSION_COOKIE || cookie.startsWith(`${SESSION_COOKIE}=`)
+    )
+}
 
 export const utf8Hex = (value) => {
   return Buffer.from(value, "utf8").toString("hex")

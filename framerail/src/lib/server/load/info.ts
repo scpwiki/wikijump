@@ -8,13 +8,8 @@ import { translate } from "$lib/server/deepwell/translate"
 
 import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { TranslateKeys } from "$lib/types"
-import type { Cookies } from "@sveltejs/kit"
 
-export async function loadInfo(
-  request: Request,
-  cookies: Cookies,
-  preloadData: PreloadDataAsync
-) {
+export async function loadInfo(preloadData: PreloadDataAsync) {
   const parentData = await preloadData()
   const locales = parentData.locales
 

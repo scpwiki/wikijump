@@ -15,6 +15,7 @@ import {
   siteUpdate
 } from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
+import { normalizeActionError } from "$lib/server/load/action-error"
 import { adminView, type PreloadDataAsync } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { Layout } from "$lib/types"
@@ -274,8 +275,7 @@ export async function templateAction({
   if (!form.valid) return fail(400, { form })
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-  if (!sessionToken || !session) {
+  if (!sessionToken) {
     return fail(401, {
       form,
       message: "user does not have permission to edit this site's page templates"
@@ -284,6 +284,7 @@ export async function templateAction({
 
   const { siteId, categoryId, templatePageId } = form.data
   try {
+    const session = await authGetSession(sessionToken)
     const res = await categoryTemplateUpdate(
       siteId,
       categoryId,
@@ -294,16 +295,10 @@ export async function templateAction({
     )
     return { form, res }
   } catch (error) {
-    const details = error as {
-      message?: string
-      code?: string
-      data?: Record<string, unknown>
-    }
+    const details = normalizeActionError(error)
     return fail(500, {
       form,
-      message: details.message,
-      code: details.code,
-      data: details.data
+      ...details
     })
   }
 }
@@ -317,8 +312,7 @@ export async function licenseAction({
   if (!form.valid) return fail(400, { form })
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-  if (!sessionToken || !session) {
+  if (!sessionToken) {
     return fail(401, {
       form,
       message: "user does not have permission to edit this site's license"
@@ -328,6 +322,7 @@ export async function licenseAction({
   const { siteId, categoryId } = form.data
   const { license, licenseOther } = licenseUpdateValue(form.data)
   try {
+    const session = await authGetSession(sessionToken)
     const res = await categoryLicenseUpdate(
       siteId,
       categoryId,
@@ -339,11 +334,10 @@ export async function licenseAction({
     )
     return { form, res }
   } catch (error) {
+    const details = normalizeActionError(error)
     return fail(500, {
       form,
-      message: error?.message,
-      code: error?.code,
-      data: error?.data
+      ...details
     })
   }
 }
@@ -400,8 +394,7 @@ export async function navigationAction({
   if (!form.valid) return fail(400, { form })
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
-  if (!sessionToken || !session) {
+  if (!sessionToken) {
     return fail(401, {
       form,
       message: "user does not have permission to edit this site's navigation"
@@ -411,6 +404,7 @@ export async function navigationAction({
   const { siteId, categoryId } = form.data
   const { topBarPage, sideBarPage } = navigationUpdateValues(form.data)
   try {
+    const session = await authGetSession(sessionToken)
     const res = await categoryNavigationUpdate(
       siteId,
       categoryId,
@@ -422,11 +416,10 @@ export async function navigationAction({
     )
     return { form, res }
   } catch (error) {
+    const details = normalizeActionError(error)
     return fail(500, {
       form,
-      message: error?.message,
-      code: error?.code,
-      data: error?.data
+      ...details
     })
   }
 }
@@ -440,23 +433,23 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
 
   const sessionToken = cookies.get("wikijump_token")
   const ipAddress = getClientAddress()
-  const session = await authGetSession(sessionToken)
 
   try {
     if (form.data.action === "edit") {
-      if (!sessionToken || !session) {
+      if (!sessionToken) {
         return fail(401, {
           form,
           message: "user does not have permission to edit this site"
         })
       }
+      const session = await authGetSession(sessionToken)
 
       const { name, slug, tagline, description, defaultPage, locale, layout, siteId } =
         form.data
 
       const res = await siteUpdate(
         siteId,
-        session?.user_id,
+        session.user_id,
         ipAddress,
         name,
         slug,
@@ -473,11 +466,10 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
 
     return { form, res: null }
   } catch (error) {
+    const details = normalizeActionError(error)
     return fail(500, {
       form,
-      message: error?.message,
-      code: error?.code,
-      data: error?.data
+      ...details
     })
   }
 }

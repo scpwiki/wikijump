@@ -3,11 +3,7 @@
 export const DEFAULT_TIMEOUT = 1500
 
 export function wjfetch(url, options = {}) {
-  let timeout = DEFAULT_TIMEOUT
-  if (options.timeout) {
-    timeout = options.timeout
-    delete options.timeout
-  }
+  const { timeout = DEFAULT_TIMEOUT, ...fetchOptions } = options
 
-  return fetch(url, { signal: AbortSignal.timeout(timeout), ...options })
+  return fetch(url, { signal: AbortSignal.timeout(timeout), ...fetchOptions })
 }

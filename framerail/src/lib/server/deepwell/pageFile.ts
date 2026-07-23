@@ -3,6 +3,12 @@ import defaults from "$lib/defaults"
 import { client } from "$lib/server/deepwell"
 import { startBlobUpload, uploadToPresignUrl } from "$lib/server/deepwell/file"
 import { pageEditPermission } from "$lib/server/deepwell/page"
+import {
+  buildPageFileCreatePayload,
+  buildPageFileEditPayload,
+  buildPageFileRestorePayload,
+  buildPageFileRollbackPayload
+} from "$lib/server/deepwell/page-file-mutation-payloads"
 
 import type { FileRevisionModel, FileRevisionType, Nullable, Optional } from "$lib/types"
 import type { RequestContext } from "../load/request-ctx"
@@ -68,33 +74,46 @@ interface PageFileCreate {
   file_revision_id: number
   blob_created: boolean
 }
+export interface PageFileCreateInput {
+  siteId: number
+  pageId: number
+  userId: number
+  name: Optional<string>
+  file: File
+  revisionComments: Optional<string>
+  ipAddress: string
+  bypassFilter?: boolean
+}
 export async function pageFileCreate(
-  siteId: number,
-  pageId: number,
-  userId: number,
-  name: Optional<string>,
-  file: File,
-  revisionComments: Optional<string>,
-  ipAddress: string,
-  requestContext: RequestContext,
-  bypass_filter = false
+  input: PageFileCreateInput,
+  requestContext: RequestContext
 ): Promise<PageFileCreate> {
+  const {
+    siteId,
+    pageId,
+    userId,
+    name,
+    file,
+    revisionComments,
+    ipAddress,
+    bypassFilter = false
+  } = input
   await requireFileParentEditPermission(requestContext)
   const presign = await startBlobUpload(userId, file.size)
   await uploadToPresignUrl(presign.presign_url, file)
 
   return await client.request(
     "file_create",
-    {
-      site_id: siteId,
-      page_id: pageId,
-      user_id: userId,
+    buildPageFileCreatePayload({
+      siteId,
+      pageId,
+      userId,
       name: name ?? file.name,
-      uploaded_blob_id: presign.pending_blob_id,
-      revision_comments: revisionComments ?? "",
-      ip_address: ipAddress,
-      bypass_filter: bypass_filter
-    },
+      pendingBlobId: presign.pending_blob_id,
+      revisionComments: revisionComments ?? "",
+      ipAddress,
+      bypassFilter
+    }),
     requestContext
   )
 }
@@ -105,15 +124,19 @@ export interface PageFileDelete {
   file_revision_id: number
   file_revision_number: number
 }
+export interface PageFileDeleteInput {
+  siteId: number
+  pageId: number
+  userId: number
+  fileId: number
+  lastRevisionId: number
+  revisionComments: string
+}
 export async function pageFileDelete(
-  siteId: number,
-  pageId: number,
-  userId: number,
-  fileId: number,
-  lastRevisionId: number,
-  revisionComments: string,
+  input: PageFileDeleteInput,
   requestContext: RequestContext
 ): Promise<PageFileDelete> {
+  const { siteId, pageId, userId, fileId, lastRevisionId, revisionComments } = input
   return await client.request(
     "file_delete",
     {
@@ -129,20 +152,35 @@ export async function pageFileDelete(
 }
 
 /* ----- Page File Edit ----- */
+export interface PageFileEditInput {
+  siteId: number
+  pageId: number
+  userId: number
+  fileId: number
+  name: Optional<string>
+  file: Optional<File>
+  lastRevisionId: number
+  revisionComments: Optional<string>
+  ipAddress: string
+  bypassFilter?: boolean
+}
 export async function pageFileEdit(
-  siteId: number,
-  pageId: number,
-  userId: number,
-  fileId: number,
-  name: Optional<string>,
-  file: Optional<File>,
-  lastRevisionId: number,
-  revisionComments: Optional<string>,
-  ipAddress: string,
-  requestContext: RequestContext,
-  bypassFilter = false
+  input: PageFileEditInput,
+  requestContext: RequestContext
 ): Promise<PageFileCreate> {
-  let presignId: Optional<number>
+  const {
+    siteId,
+    pageId,
+    userId,
+    fileId,
+    name,
+    file,
+    lastRevisionId,
+    revisionComments,
+    ipAddress,
+    bypassFilter = false
+  } = input
+  let presignId: Optional<string>
   if (file && file instanceof File) {
     await requireFileParentEditPermission(requestContext)
     const presign = await startBlobUpload(userId, file.size)
@@ -152,18 +190,18 @@ export async function pageFileEdit(
 
   return await client.request(
     "file_edit",
-    {
-      site_id: siteId,
-      page_id: pageId,
-      user_id: userId,
-      file_id: fileId,
-      last_revision_id: lastRevisionId,
+    buildPageFileEditPayload({
+      siteId,
+      pageId,
+      userId,
+      fileId,
+      lastRevisionId,
       name,
-      uploaded_blob_id: presignId,
-      revision_comments: revisionComments,
-      ip_address: ipAddress,
-      bypass_filter: bypassFilter
-    },
+      pendingBlobId: presignId,
+      revisionComments,
+      ipAddress,
+      bypassFilter
+    }),
     requestContext
   )
 }
@@ -180,17 +218,30 @@ async function requireFileParentEditPermission(
 }
 
 /* ----- Page File Move ----- */
+export interface PageFileMoveInput {
+  siteId: number
+  currentPageId: number
+  destinationPage: string | number
+  userId: number
+  fileId: number
+  lastRevisionId: number
+  name: Optional<string>
+  revisionComments: Optional<string>
+}
 export async function pageFileMove(
-  siteId: number,
-  currentPageId: number,
-  destinationPage: string | number,
-  userId: number,
-  fileId: number,
-  lastRevisionId: number,
-  name: Optional<string>,
-  revisionComments: Optional<string>,
+  input: PageFileMoveInput,
   requestContext: RequestContext
 ): Promise<PageFileCreate> {
+  const {
+    siteId,
+    currentPageId,
+    destinationPage,
+    userId,
+    fileId,
+    lastRevisionId,
+    name,
+    revisionComments
+  } = input
   return await client.request(
     "file_move",
     {
@@ -215,31 +266,45 @@ interface PageFileRestore {
   file_revision_id: number
   file_revision_number: number
 }
+export interface PageFileRestoreInput {
+  siteId: number
+  pageId: number
+  userId: number
+  fileId: number
+  newPage: Optional<string | number>
+  newName: Optional<string>
+  revisionComments: string
+  ipAddress: string
+  bypassFilter?: boolean
+}
 export async function pageFileRestore(
-  siteId: number,
-  pageId: number,
-  userId: number,
-  fileId: number,
-  newPage: Optional<string | number>,
-  newName: Optional<string>,
-  revisionComments: string,
-  ipAddress: string,
-  requestContext: RequestContext,
-  bypassFilter = false
+  input: PageFileRestoreInput,
+  requestContext: RequestContext
 ): Promise<PageFileRestore> {
+  const {
+    siteId,
+    pageId,
+    userId,
+    fileId,
+    newPage,
+    newName,
+    revisionComments,
+    ipAddress,
+    bypassFilter = false
+  } = input
   return client.request(
     "file_restore",
-    {
-      site_id: siteId,
-      page_id: pageId,
-      user_id: userId,
-      file_id: fileId,
-      new_page: newPage,
-      new_name: newName,
-      revision_comments: revisionComments,
-      ip_address: ipAddress,
-      bypass_filter: bypassFilter
-    },
+    buildPageFileRestorePayload({
+      siteId,
+      pageId,
+      userId,
+      fileId,
+      newPage,
+      newName,
+      revisionComments,
+      ipAddress,
+      bypassFilter
+    }),
     requestContext
   )
 }
@@ -263,31 +328,45 @@ export async function pageFileHistory(
 }
 
 /* ----- Page File Rollback ----- */
+export interface PageFileRollbackInput {
+  siteId: number
+  pageId: number
+  userId: number
+  fileId: number
+  lastRevisionId: number
+  revisionNumber: number
+  revisionComments: Optional<string>
+  ipAddress: string
+  bypassFilter?: boolean
+}
 export async function pageFileRollback(
-  siteId: number,
-  pageId: number,
-  userId: number,
-  fileId: number,
-  lastRevisionId: number,
-  revisionNumber: number,
-  revisionComments: Optional<string>,
-  ipAddress: string,
-  requestContext: RequestContext,
-  bypassFilter = false
+  input: PageFileRollbackInput,
+  requestContext: RequestContext
 ): Promise<Nullable<PageFile>> {
+  const {
+    siteId,
+    pageId,
+    userId,
+    fileId,
+    lastRevisionId,
+    revisionNumber,
+    revisionComments,
+    ipAddress,
+    bypassFilter = false
+  } = input
   return client.request(
     "file_rollback",
-    {
-      site_id: siteId,
-      page_id: pageId,
-      user_id: userId,
-      file: fileId,
-      last_revision_id: lastRevisionId,
-      revision_number: revisionNumber,
-      revision_comments: revisionComments,
-      ip_address: ipAddress,
-      bypass_filter: bypassFilter
-    },
+    buildPageFileRollbackPayload({
+      siteId,
+      pageId,
+      userId,
+      fileId,
+      lastRevisionId,
+      revisionNumber,
+      revisionComments,
+      ipAddress,
+      bypassFilter
+    }),
     requestContext
   )
 }

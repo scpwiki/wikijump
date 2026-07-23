@@ -160,7 +160,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     return cachedResponse
   }
 
-  // Continue processing the request
   const response = await resolveWithWikidotRequestInfo()
 
   applyStaticSecurityHeaders(response, event.url.pathname, siteSlug)
