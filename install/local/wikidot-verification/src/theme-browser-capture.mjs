@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import {browserContextOptions, openBrowser} from "../scripts/capture-browser-rendering.mjs";
+import {browserContextOptions, openBrowser} from "./browser-session.mjs";
 import {startCaptureEgressProxy} from "./capture-egress-proxy.mjs";
 import {collectLayoutShifts, collectTimingDiagnostics, installLayoutShiftObserver, installTimingObserver} from "./layout-diagnostics.mjs";
 import {findRawSyntaxLeaks} from "./render-health.mjs";

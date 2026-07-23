@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-import {createRequire} from "node:module";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import {fileURLToPath} from "node:url";
 
-import {openBrowser} from "./capture-browser-rendering.mjs";
+import {loadPlaywright, openBrowser} from "../src/browser-session.mjs";
 import {
   DEFAULT_COMPUTED_STYLE_WHITELIST,
   DEFAULT_SCP9506_DESCRIPTORS,
@@ -23,7 +22,6 @@ import {
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_SETTLE_MS = 1_000;
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 
 function nextArg(argv, index, flag) {
   const value = argv[index + 1];
@@ -111,27 +109,6 @@ Writes local-only layout diagnostic JSON for a page. This is adjunct evidence fo
   process.exit(0);
 }
 
-function defaultBrowserRoot() {
-  return path.resolve(SCRIPT_DIR, "../../../..", "framerail");
-}
-
-function requirePlaywright(browserRoot) {
-  const root = browserRoot ?? defaultBrowserRoot();
-  const requireFromRoot = createRequire(path.join(root, "package.json"));
-  try {
-    return requireFromRoot("playwright");
-  } catch (error) {
-    try {
-      return requireFromRoot("@playwright/test");
-    } catch (fallbackError) {
-      throw new AggregateError(
-        [error, fallbackError],
-        `could not load playwright or @playwright/test from ${root}; pass --browser-root pointing at a package with Playwright installed`,
-      );
-    }
-  }
-}
-
 async function captureViewport({browser, args, viewport}) {
   const context = await browser.newContext({
     ignoreHTTPSErrors: args.ignoreHttpsErrors,
@@ -190,7 +167,7 @@ async function captureViewport({browser, args, viewport}) {
 
 async function run() {
   const args = parseArgs(process.argv);
-  const {chromium} = requirePlaywright(args.browserRoot);
+  const {chromium} = loadPlaywright(args.browserRoot);
   const session = await openBrowser({
     chromium,
     cdpEndpoint: args.cdpEndpoint,

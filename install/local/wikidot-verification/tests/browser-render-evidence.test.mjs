@@ -6,7 +6,8 @@ import path from "node:path";
 import {test} from "node:test";
 import {fileURLToPath} from "node:url";
 import {promisify} from "node:util";
-import {browserCaptureFailure, browserContextOptions, capturePage, defaultBrowserRoot, openBrowser, resolveStorageStates} from "../scripts/capture-browser-rendering.mjs";
+import {browserCaptureFailure, capturePage} from "../scripts/capture-browser-rendering.mjs";
+import {browserContextOptions, defaultBrowserRoot, openBrowser, resolveStorageStates} from "../src/browser-session.mjs";
 import {
   buildEvidenceRecord,
   compactVisibleText,
@@ -293,6 +294,46 @@ test("openBrowser can isolate source and local storage states", async () => {
   await session.close();
   assert.deepEqual(closedContexts, [1, 0]);
   assert.equal(closedBrowser, true);
+});
+
+test("browser session close reports context and browser shutdown failures", async () => {
+  let closeAttempts = 0;
+  const browser = {
+    async newContext() {
+      const ordinal = closeAttempts;
+      closeAttempts += 1;
+      return {
+        async close() {
+          throw new Error(`context ${ordinal} close failed`);
+        },
+      };
+    },
+    async close() {
+      throw new Error("browser close failed");
+    },
+  };
+  const chromium = {
+    async launch() {
+      return browser;
+    },
+  };
+  const session = await openBrowser({
+    chromium,
+    browserExecutable: "/usr/bin/google-chrome",
+    ignoreHttpsErrors: false,
+  });
+
+  await assert.rejects(
+    () => session.close(),
+    (error) => {
+      assert(error instanceof AggregateError);
+      assert.match(error.message, /browser session failed to close/);
+      assert.equal(error.errors.length, 2);
+      assert(error.errors[0] instanceof AggregateError);
+      assert.match(error.errors[1].message, /browser close failed/);
+      return true;
+    },
+  );
 });
 
 test("openBrowser closes partial resources when context creation fails", async () => {

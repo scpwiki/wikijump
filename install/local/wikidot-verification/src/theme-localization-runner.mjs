@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 
-import {openBrowser} from "../scripts/capture-browser-rendering.mjs";
+import {openBrowser} from "./browser-session.mjs";
 import {captureThemeTierBrowserEvidence, prepareThemeArtifactDirectory} from "./theme-browser-capture.mjs";
 import {DeepwellThemePageAdapter} from "./theme-localization-deepwell-adapter.mjs";
 import {ALLOWED_SITE_SLUG, readCurrentSiteDependencySource} from "./theme-localization-e2e.mjs";

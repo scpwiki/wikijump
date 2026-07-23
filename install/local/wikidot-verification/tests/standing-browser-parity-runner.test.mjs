@@ -1,9 +1,36 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { closeParityBrowserResources } from "../src/standing-browser-parity-browser-session.mjs";
 import { parseStandingBrowserParityArgs } from "../src/standing-browser-parity-runner.mjs";
 
 const policy = "/tmp/standing-policy.json";
+
+test("parity browser cleanup attempts every resource and reports every failure", async () => {
+  const attempts = [];
+  const context = {
+    async close() {
+      attempts.push("context");
+      throw new Error("context close failed");
+    },
+  };
+  const browser = {
+    async close() {
+      attempts.push("browser");
+      throw new Error("browser close failed");
+    },
+  };
+
+  await assert.rejects(
+    () => closeParityBrowserResources(context, browser),
+    (error) => {
+      assert(error instanceof AggregateError);
+      assert.equal(error.errors.length, 2);
+      return true;
+    },
+  );
+  assert.deepEqual(attempts, ["context", "browser"]);
+});
 
 test("live reference capture requires a policy before a browser can be opened", () => {
   const args = parseStandingBrowserParityArgs([

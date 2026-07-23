@@ -3,7 +3,7 @@ import {createRequire} from "node:module";
 import path from "node:path";
 import process from "node:process";
 import {fileURLToPath} from "node:url";
-import {defaultBrowserRoot} from "./capture-browser-rendering.mjs";
+import {defaultBrowserRoot} from "../src/browser-session.mjs";
 import {inventoryRows, readJson} from "../src/browser-render-evidence.mjs";
 import {preflightEnShardManifest, runLocalBrowserSmoke, sha256File, validateRuntimeIdentity} from "../src/local-browser-console-smoke.mjs";
 

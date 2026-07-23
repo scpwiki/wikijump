@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import {createRequire} from "node:module";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -10,11 +9,16 @@ import {startCaptureEgressProxy} from "../src/capture-egress-proxy.mjs";
 import {
   DEFAULT_REQUEST_INTERVAL_MS,
   acquireBrowserCaptureLock,
-  createBrowserResponseCache,
   createPersistentBrowserRequestGate,
-  installBrowserRequestGate,
   localBrowserCaptureOrigins,
 } from "../src/browser-request-gate.mjs";
+import {
+  browserContextOptions,
+  defaultBrowserRoot,
+  loadPlaywright,
+  openBrowser,
+  resolveStorageStates,
+} from "../src/browser-session.mjs";
 import {
   buildEvidenceRecord,
   readJson,
@@ -31,7 +35,6 @@ const DEFAULT_SETTLE_MS = 1_000;
 const POST_NAVIGATION_STATE_TIMEOUT_MS = 2_000;
 const VISIBLE_TEXT_SCOPES = new Set(["all-frames", "main-frame"]);
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 
 function nextArg(argv, index, flag) {
   const value = argv[index + 1];
@@ -152,34 +155,6 @@ Writes validator-compatible browser rendering evidence JSON plus DOM/screenshot 
   process.exit(0);
 }
 
-export function defaultBrowserRoot() {
-  return path.resolve(SCRIPT_DIR, "../../../..", "framerail");
-}
-
-function requirePlaywright(browserRoot) {
-  const root = browserRoot ?? defaultBrowserRoot();
-  const requireFromRoot = createRequire(path.join(root, "package.json"));
-  try {
-    return requireFromRoot("playwright");
-  } catch (error) {
-    try {
-      return requireFromRoot("@playwright/test");
-    } catch (fallbackError) {
-      throw new AggregateError(
-        [error, fallbackError],
-        `could not load playwright or @playwright/test from ${root}; pass --browser-root pointing at a package with Playwright installed`,
-      );
-    }
-  }
-}
-
-export function resolveStorageStates({storageState = null, sourceStorageState = null, localStorageState = null}) {
-  return {
-    sourceStorageState: sourceStorageState ?? storageState ?? null,
-    localStorageState: localStorageState ?? storageState ?? null,
-  };
-}
-
 export function browserCaptureFailure(captureError, cleanupError) {
   if (captureError !== null && cleanupError !== null) {
     return new AggregateError([captureError, cleanupError], "browser capture and cleanup both failed");
@@ -187,141 +162,12 @@ export function browserCaptureFailure(captureError, cleanupError) {
   return captureError ?? cleanupError;
 }
 
-export function browserContextOptions({ignoreHttpsErrors, storageState = null, proxyServer = null, blockServiceWorkers = false}) {
-  return {
-    ignoreHTTPSErrors: ignoreHttpsErrors,
-    ...(blockServiceWorkers ? {serviceWorkers: "block"} : {}),
-    ...(storageState ? {storageState} : {}),
-    ...(proxyServer ? {proxy: {server: proxyServer, bypass: "<-loopback>"}} : {}),
-  };
-}
-
-async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate = null, localOrigins = []}) {
-  let sourceContext = null;
-  let localContext = null;
-  const sourceResponseCache = requestGate ? createBrowserResponseCache() : null;
-  try {
-    sourceContext = await browser.newContext(
-      browserContextOptions({
-        ignoreHttpsErrors,
-        storageState: sourceStorageState,
-        proxyServer: sourceProxyServer,
-        blockServiceWorkers: Boolean(requestGate),
-      }),
-    );
-    if (requestGate) await installBrowserRequestGate(sourceContext, {gate: requestGate, responseCache: sourceResponseCache});
-    localContext = await browser.newContext(
-      browserContextOptions({
-        ignoreHttpsErrors,
-        storageState: localStorageState,
-        proxyServer: localProxyServer,
-        blockServiceWorkers: Boolean(requestGate),
-      }),
-    );
-    if (requestGate) await installBrowserRequestGate(localContext, {gate: requestGate, exemptOrigins: localOrigins});
-    return {sourceContext, localContext, sourceResponseCache};
-  } catch (error) {
-    if (localContext && localContext !== sourceContext) {
-      await localContext.close().catch(() => {});
-    }
-    if (sourceContext) {
-      await sourceContext.close().catch(() => {});
-    }
-    throw error;
-  }
-}
-
-async function closeContextPair({sourceContext, localContext}) {
-  if (localContext && localContext !== sourceContext) {
-    await localContext.close().catch(() => {});
-  }
-  if (sourceContext) {
-    await sourceContext.close().catch(() => {});
-  }
-}
-
-function browserSession({browser, sourceContext, localContext, sourceResponseCache, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate, localOrigins}) {
-  return {
-    browser,
-    context: sourceContext,
-    sourceContext,
-    localContext,
-    sourceResponseCache,
-    async newContextPair() {
-      return await newContextPair({
-        browser,
-        ignoreHttpsErrors,
-        sourceStorageState,
-        localStorageState,
-        sourceProxyServer,
-        localProxyServer,
-        requestGate,
-        localOrigins,
-      });
-    },
-    async close() {
-      await closeContextPair({sourceContext, localContext});
-      await browser.close().catch(() => {});
-    },
-  };
-}
-
-export async function openBrowser({
-  chromium,
-  cdpEndpoint,
-  browserExecutable,
-  ignoreHttpsErrors,
-  storageState = null,
-  sourceStorageState = null,
-  localStorageState = null,
-  createInitialContexts = true,
-  sourceProxyServer = null,
-  localProxyServer = null,
-  requestGate = null,
-  localOrigins = [],
-}) {
-  const resolvedStates = resolveStorageStates({storageState, sourceStorageState, localStorageState});
-  let browser = null;
-  if (cdpEndpoint) {
-    if (sourceProxyServer || localProxyServer) throw new Error("CDP capture cannot enforce the owned egress proxy");
-    browser = await chromium.connectOverCDP(cdpEndpoint);
-  } else {
-    browser = await chromium.launch({
-      executablePath: browserExecutable,
-    });
-  }
-
-  try {
-    const contexts = createInitialContexts
-      ? await newContextPair({
-          browser,
-          ignoreHttpsErrors,
-          sourceStorageState: resolvedStates.sourceStorageState,
-          localStorageState: resolvedStates.localStorageState,
-          sourceProxyServer,
-          localProxyServer,
-          requestGate,
-          localOrigins,
-        })
-      : {sourceContext: null, localContext: null};
-    return browserSession({
-      browser,
-      ...contexts,
-      ignoreHttpsErrors,
-      sourceStorageState: resolvedStates.sourceStorageState,
-      localStorageState: resolvedStates.localStorageState,
-      sourceProxyServer,
-      localProxyServer,
-      requestGate,
-      localOrigins,
-    });
-  } catch (error) {
-    if (browser) {
-      await browser.close().catch(() => {});
-    }
-    throw error;
-  }
-}
+export {
+  browserContextOptions,
+  defaultBrowserRoot,
+  openBrowser,
+  resolveStorageStates,
+};
 
 async function collectVisibleText(page, visibleTextScope = "all-frames") {
   const frames =
@@ -540,7 +386,7 @@ async function run() {
       throw new Error(`invalid local capture URL for ${row.fixture_id}: ${error.message}`);
     }
   }))].sort();
-  const {chromium} = requirePlaywright(args.browserRoot);
+  const {chromium} = loadPlaywright(args.browserRoot);
   const runId = crypto.randomUUID();
   const captureLock = await acquireBrowserCaptureLock({runId});
   const requestGateConfigPath = path.join(args.outputDir, "request-gate-config.json");
