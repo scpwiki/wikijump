@@ -40,7 +40,7 @@ export function parseArgs(argv) {
     ignoreHttpsErrors: false,
   };
 
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--url") {
       args.url = nextArg(argv, index, arg);
@@ -166,7 +166,7 @@ async function captureViewport({browser, args, viewport}) {
 }
 
 async function run() {
-  const args = parseArgs(process.argv);
+  const args = parseArgs(process.argv.slice(2));
   const {chromium} = loadPlaywright(args.browserRoot);
   const session = await openBrowser({
     chromium,

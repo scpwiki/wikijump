@@ -56,7 +56,7 @@ function parseArgs(argv) {
     visibleTextScope: "all-frames",
   };
 
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--inventory") {
       args.inventory = path.resolve(nextArg(argv, index, arg));
@@ -354,7 +354,7 @@ async function writeExclusiveJson(filePath, value) {
 }
 
 async function run() {
-  const args = parseArgs(process.argv);
+  const args = parseArgs(process.argv.slice(2));
   if (args.shardManifest && !args.shardId) {
     throw new Error("--shard-id is required when --shard-manifest is provided");
   }

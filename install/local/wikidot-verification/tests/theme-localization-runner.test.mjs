@@ -285,12 +285,12 @@ test("credential values are redacted from thrown and persisted errors", async ()
 });
 
 test("CLI requires one explicit action and never accepts credential flags", () => {
-  const base = ["node", "theme", "--translation-root", "/tmp/translations", "--run-id", "runner-test", "--output", "/tmp/plan.json"];
+  const base = ["--translation-root", "/tmp/translations", "--run-id", "runner-test", "--output", "/tmp/plan.json"];
   assert.throws(() => parseArgs(base), /exactly one/);
   assert.throws(() => parseArgs([...base, "--dry-run", "--execute"]), /exactly one/);
   assert.throws(() => parseArgs([...base, "--execute", "--password", "secret"]), /Unknown argument: --password/);
   assert.throws(() => parseArgs([...base, "--execute", "--browser-executable", "/chrome", "--cdp-endpoint", "http://127.0.0.1:9222"]), /cannot be combined/);
   assert.throws(() => parseArgs([...base, "--execute", "--cdp-endpoint", "http://example.com:9222"]), /loopback HTTP origin/);
-  assert.throws(() => parseArgs(["node", "theme", "--recover", "--plan", "/tmp/plan", "--ledger", "/tmp/ledger"]), /--result/);
+  assert.throws(() => parseArgs(["--recover", "--plan", "/tmp/plan", "--ledger", "/tmp/ledger"]), /--result/);
   assert.equal(parseArgs([...base, "--dry-run"]).mode, "dry-run");
 });

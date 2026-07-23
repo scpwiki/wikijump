@@ -29,7 +29,7 @@ export function parseArgs(argv) {
     tiers: [],
   };
 
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--translation-root") {
       args.translationRoot = path.resolve(nextArg(argv, index, arg));
@@ -123,7 +123,7 @@ New plans reserve codex-l10n:<run-id>-<tier>; recovery also accepts exact legacy
 The exact site allowlist is ${ALLOWED_SITE_SLUG}. Execute and recover require WIKIJUMP_THEME_RPC_URL=${GUARDED_THEME_WIKIJUMP_RPC_URL}. Credentials are accepted only through WIKIDOT_USERNAME, WIKIDOT_PASSWORD, WIKIJUMP_THEME_ADMIN_EMAIL, and WIKIJUMP_THEME_ADMIN_PASSWORD. Optional browser flags are --browser-root, --browser-executable or --cdp-endpoint, --wikidot-storage-state, --wikijump-storage-state, and --ignore-https-errors.`);
 }
 
-export async function run(argv = process.argv) {
+export async function run(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   if (args.help) {
     printHelp();
