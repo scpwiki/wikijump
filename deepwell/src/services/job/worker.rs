@@ -174,7 +174,20 @@ impl JobWorker {
         debug!("* Previously received: {}", data.rc);
         debug!("* Created:             {}", data.sent);
         debug!("* Received:            {}", data.fr);
-        let job = serde_json::from_slice(&data.message).or_raise(make_error)?;
+        let no_more_retries =
+            is_final_attempt(data.rc, self.state.config.job_max_attempts);
+        let job = match serde_json::from_slice(&data.message) {
+            Ok(job) => job,
+            Err(error) => {
+                if no_more_retries {
+                    self.rsmq
+                        .delete_message(JOB_QUEUE_NAME, &data.id)
+                        .await
+                        .or_raise(make_error)?;
+                }
+                return Err(error).or_raise(make_error);
+            }
+        };
 
         let make_error = || {
             Error::new(
@@ -183,15 +196,7 @@ impl JobWorker {
             )
         };
 
-        let no_more_retries = data.rc >= u64::from(self.state.config.job_max_attempts);
-        if no_more_retries {
-            debug!("Last attempt for this message, it will not be retried if it fails");
-            self.rsmq
-                .delete_message(JOB_QUEUE_NAME, &data.id)
-                .await
-                .or_raise(make_error)?;
-        }
-
+        let execution: Result<NextJob> = async {
         debug!("Received job from queue: {job:?}");
         trace!("Setting up ServiceContext for job processing");
         let txn = self.state.database.begin().await.or_raise(make_error)?;
@@ -286,30 +291,6 @@ impl JobWorker {
             }
         };
 
-        // Don't delete more than once
-        //
-        // NOTE: We're only at this point if the job succeeded.
-        if !no_more_retries {
-            trace!("Job execution finished, deleting message");
-            self.rsmq
-                .delete_message(JOB_QUEUE_NAME, &data.id)
-                .await
-                .or_raise(make_error)?;
-        }
-
-        // Add follow-up job to queue, if required.
-        match next {
-            NextJob::Done => debug!("Job execution finished, no follow-up job to add"),
-            NextJob::Next { job, delay } => {
-                debug!("Job execution finished, follow-up job has been produced");
-                trace!("* Job:   {job:?}");
-                trace!("* Delay: {delay:?}");
-                JobService::queue_job(ctx, &job, delay)
-                    .await
-                    .or_raise(make_error)?;
-            }
-        }
-
         let post_commit_actions = ctx.drain_post_commit_actions().or_raise(make_error)?;
 
         trace!("Committing transaction, returning success");
@@ -322,8 +303,45 @@ impl JobWorker {
         {
             error!("job committed but post-commit actions failed: {}", error);
         }
+        Ok(next)
+        }
+        .await;
+
+        let next = match execution {
+            Ok(next) => next,
+            Err(error) if no_more_retries => {
+                debug!("Final job attempt failed; deleting the exhausted message");
+                self.rsmq
+                    .delete_message(JOB_QUEUE_NAME, &data.id)
+                    .await
+                    .or_raise(make_error)?;
+                return Err(error);
+            }
+            Err(error) => return Err(error),
+        };
+
+        match next {
+            NextJob::Done => debug!("Job execution finished, no follow-up job to add"),
+            NextJob::Next { job, delay } => {
+                debug!("Job execution finished, follow-up job has been produced");
+                JobService::queue_job_inner(&mut self.rsmq, &job, delay)
+                    .await
+                    .or_raise(make_error)?;
+            }
+        }
+
+        trace!("Job execution finished, deleting message");
+        self.rsmq
+            .delete_message(JOB_QUEUE_NAME, &data.id)
+            .await
+            .or_raise(make_error)?;
+
         Ok(JobProcessStatus::ReceivedJob)
     }
+}
+
+fn is_final_attempt(receive_count: u64, max_attempts: u16) -> bool {
+    receive_count >= u64::from(max_attempts)
 }
 
 impl Debug for JobWorker {
@@ -333,5 +351,24 @@ impl Debug for JobWorker {
             .field("rsmq", &debug_pointer(&self.rsmq))
             .field("id", &self.id)
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn final_attempt_policy_keeps_retryable_failures() {
+        assert!(!is_final_attempt(1, 3));
+        assert!(!is_final_attempt(2, 3));
+        assert!(is_final_attempt(3, 3));
+        assert!(is_final_attempt(4, 3));
+    }
+
+    #[test]
+    fn malformed_jobs_are_detected_before_execution() {
+        assert!(serde_json::from_slice::<Job>(b"not-json").is_err());
+        assert!(serde_json::from_slice::<Job>(br#"{"unknown-job":true}"#).is_err());
     }
 }
