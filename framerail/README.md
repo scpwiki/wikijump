@@ -40,7 +40,7 @@ Compatibility changes require evidence from live Wikidot or provenance-bearing c
 | Global styles and theme primitives              | `src/lib/css/`                                                                             |
 | Wikidot page shell and Sigma-style layout       | `src/lib/sigma-esque/`                                                                     |
 | Route parameter matching                        | `src/params/`                                                                              |
-| Node server and anonymous article fast path     | `server.js`, `article-response-fast-path.js`, and `src/lib/server/article-response-cache*` |
+| Node server and anonymous article fast path     | `server.js`, `article-response-fast-path.js`, and `src/lib/server/cache/article-response/` |
 | Focused unit and integration tests              | `tests/`                                                                                   |
 
 Add a capability to its existing owner before creating a new cross-cutting layer. A route should compose capabilities, a load module should coordinate them, and a Deepwell module should represent backend transport rather than browser policy.

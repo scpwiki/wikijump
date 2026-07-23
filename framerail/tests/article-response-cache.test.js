@@ -25,8 +25,8 @@ import {
   writeAnonymousArticleResponseToken,
   writeAnonymousArticleResponseCache,
   writeCachedArticleResponse
-} from "../src/lib/server/article-response-cache.js"
-import { createRedisCacheStore } from "../src/lib/server/redis-cache-store.js"
+} from "../src/lib/server/cache/article-response/index.js"
+import { createRedisCacheStore } from "../src/lib/server/cache/redis-store.js"
 
 const REQUEST_HOST = "scp-wiki.example"
 

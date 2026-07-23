@@ -2,9 +2,9 @@ import http from "node:http"
 import { pathToFileURL } from "node:url"
 
 import { createArticleResponseFastPathHandler } from "./article-response-fast-path.js"
-import { createMemoryArticleResponseFenceCache } from "./src/lib/server/article-response-cache.js"
-import { configureArticleResponseCacheStores } from "./src/lib/server/article-response-cache-runtime.js"
-import { createArticleResponseCacheStores } from "./src/lib/server/article-response-cache-stores.js"
+import { createMemoryArticleResponseFenceCache } from "./src/lib/server/cache/article-response/index.js"
+import { configureArticleResponseCacheStores } from "./src/lib/server/cache/article-response/runtime.js"
+import { createArticleResponseCacheStores } from "./src/lib/server/cache/article-response/stores.js"
 
 export const createFramerailHttpServer = ({
   fastPathHandler,

@@ -1,4 +1,4 @@
-import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/article-response-cache"
+import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/cache/article-response/index.js"
 import { resolvePageRedirect } from "$lib/server/page-redirect"
 import { translate } from "$lib/server/deepwell/translate"
 import { articleView } from "$lib/server/deepwell/views"

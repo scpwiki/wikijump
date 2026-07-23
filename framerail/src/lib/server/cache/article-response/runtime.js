@@ -1,4 +1,4 @@
-import { createArticleResponseCacheStores } from "./article-response-cache-stores.js"
+import { createArticleResponseCacheStores } from "./stores.js"
 
 const RUNTIME_STORES_SYMBOL = Symbol.for(
   "wikijump.framerail.article-response-cache-runtime"

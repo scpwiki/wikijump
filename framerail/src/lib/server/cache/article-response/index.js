@@ -3,14 +3,14 @@ import {
   hasSessionCookie,
   sha256Hex,
   utf8Hex
-} from "./article-response-cache-shared.js"
-import { readAnonymousArticleResponseCacheFences } from "./article-response-cache-fences.js"
+} from "./shared.js"
+import { readAnonymousArticleResponseCacheFences } from "./fences.js"
 import {
   readCachedArticleResponse,
   readCachedArticleResponseEntry,
   serializeArticleResponseForCache,
   writeCachedArticleResponse
-} from "./article-response-cache-storage.js"
+} from "./storage.js"
 
 const ARTICLE_ROUTES = new Set(["/", "/[slug]/[...extra]"])
 const PERMISSION_FENCE = "anonymous-page-view-v1"
@@ -208,18 +208,18 @@ export {
   ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_ENTRIES,
   ARTICLE_RESPONSE_LOCAL_HOT_CACHE_TTL_MS,
   PUBLIC_CONTENT_FENCE_PREFIX
-} from "./article-response-cache-shared.js"
+} from "./shared.js"
 export {
   buildAnonymousArticleResponseCacheFences,
   buildAnonymousPermissionFenceKeys,
   buildPublicContentFenceKey,
   createMemoryArticleResponseFenceCache,
   readAnonymousArticleResponseCacheFences
-} from "./article-response-cache-fences.js"
+} from "./fences.js"
 export {
   createLocalArticleResponseHotCache,
   normalizeCachedArticleResponseEntry
-} from "./article-response-cache-hot.js"
+} from "./hot.js"
 export {
   createMemoryArticleResponseCacheStore,
   deserializeCachedArticleResponse,
@@ -227,4 +227,4 @@ export {
   readCachedArticleResponseEntry,
   serializeArticleResponseForCache,
   writeCachedArticleResponse
-} from "./article-response-cache-storage.js"
+} from "./storage.js"

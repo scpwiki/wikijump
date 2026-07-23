@@ -1,5 +1,5 @@
-import { createMemoryArticleResponseCacheStore } from "./article-response-cache.js"
-import { createRedisCacheStore } from "./redis-cache-store.js"
+import { createMemoryArticleResponseCacheStore } from "./index.js"
+import { createRedisCacheStore } from "../redis-store.js"
 
 export const createArticleResponseCacheStores = ({
   responseStore = createMemoryArticleResponseCacheStore(),

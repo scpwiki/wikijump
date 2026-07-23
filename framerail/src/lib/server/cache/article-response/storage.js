@@ -4,8 +4,8 @@ import {
   ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES,
   ARTICLE_RESPONSE_CACHE_TTL_SECONDS,
   serializedByteLength
-} from "./article-response-cache-shared.js"
-import { normalizeCachedArticleResponseEntry } from "./article-response-cache-hot.js"
+} from "./shared.js"
+import { normalizeCachedArticleResponseEntry } from "./hot.js"
 
 export const serializeArticleResponseForCache = async (response) => {
   return {

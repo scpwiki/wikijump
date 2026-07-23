@@ -9,8 +9,8 @@ import {
   readAnonymousArticleResponseToken,
   writeAnonymousArticleResponseToken,
   writeAnonymousArticleResponseCache
-} from "$lib/server/article-response-cache"
-import { getArticleResponseCacheStores } from "$lib/server/article-response-cache-runtime"
+} from "$lib/server/cache/article-response/index.js"
+import { getArticleResponseCacheStores } from "$lib/server/cache/article-response/runtime.js"
 import { articleViewCacheMetadata } from "$lib/server/deepwell/views"
 import {
   getPreloadBackendLocales,

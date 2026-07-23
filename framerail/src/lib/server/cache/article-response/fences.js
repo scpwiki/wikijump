@@ -1,7 +1,7 @@
 import {
   ARTICLE_RESPONSE_FENCE_INVALIDATION_CHANNEL,
   PUBLIC_CONTENT_FENCE_PREFIX
-} from "./article-response-cache-shared.js"
+} from "./shared.js"
 
 const normalizeFenceVersion = (value) => {
   if (value === undefined || value === null) return "0"

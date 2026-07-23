@@ -3,7 +3,7 @@ import {
   ARTICLE_RESPONSE_LOCAL_HOT_CACHE_MAX_ENTRIES,
   ARTICLE_RESPONSE_LOCAL_HOT_CACHE_TTL_MS,
   serializedByteLength
-} from "./article-response-cache-shared.js"
+} from "./shared.js"
 
 const isHeaderPair = (value) => {
   return (

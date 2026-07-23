@@ -6,8 +6,8 @@ import {
   readAnonymousArticleResponseCacheEntry,
   readAnonymousArticleResponseCacheFences,
   readAnonymousArticleResponseToken
-} from "./src/lib/server/article-response-cache.js"
-import { hasSessionCookie } from "./src/lib/server/article-response-cache-shared.js"
+} from "./src/lib/server/cache/article-response/index.js"
+import { hasSessionCookie } from "./src/lib/server/cache/article-response/shared.js"
 import { applyStaticSecurityHeadersToNodeResponse } from "./src/lib/server/security-headers.js"
 import { parseAcceptLangHeader, withFallbackLocale } from "./src/lib/locales.js"
 import { promisify } from "node:util"
