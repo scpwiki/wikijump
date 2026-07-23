@@ -579,6 +579,18 @@ async function runCanary(args) {
       "--manifest",
       candidateManifest,
     ]);
+    const evidenceManifestDir = path.join(args.outputDir, "artifact-manifests");
+    await fs.mkdir(evidenceManifestDir, { recursive: true, mode: 0o700 });
+    const baselineEvidenceManifest = path.join(
+      evidenceManifestDir,
+      "baseline.json",
+    );
+    const candidateEvidenceManifest = path.join(
+      evidenceManifestDir,
+      "candidate.json",
+    );
+    await fs.copyFile(baselineManifest, baselineEvidenceManifest);
+    await fs.copyFile(candidateManifest, candidateEvidenceManifest);
     const images = currentImages();
     const labels = {
       "com.rokurolize.wikijump.owner": OWNER,
@@ -739,8 +751,8 @@ async function runCanary(args) {
     await writeJson(path.join(args.outputDir, "canary-summary.json"), {
       ...layout,
       status: "pass",
-      baseline: { manifest: baselineManifest, ...baseline },
-      candidate: { manifest: candidateManifest, ...candidate },
+      baseline: { manifest: baselineEvidenceManifest, ...baseline },
+      candidate: { manifest: candidateEvidenceManifest, ...candidate },
       comparator: {
         script:
           "install/local/wikidot-verification/scripts/compare-render-evidence.mjs",
