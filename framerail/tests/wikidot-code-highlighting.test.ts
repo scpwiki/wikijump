@@ -26,6 +26,16 @@ test("loads optional grammars and normalizes common aliases", async () => {
   assert.match(highlighted?.html ?? "", /wj-code-boolean/)
 })
 
+test("escapes source markup before inserting highlighted HTML", async () => {
+  const highlighted = await highlightWikidotCodeSource(
+    "<script>alert(1)</script>",
+    "html"
+  )
+
+  assert.doesNotMatch(highlighted?.html ?? "", /<script>/)
+  assert.match(highlighted?.html ?? "", /&lt;/)
+})
+
 test("leaves unknown and oversized source as DOM text", async () => {
   assert.equal(
     await highlightWikidotCodeSource("<script>alert(1)</script>", "unknown"),
