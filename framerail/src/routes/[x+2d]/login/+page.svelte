@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation"
-  import { errorPopupState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 

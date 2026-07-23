@@ -4,8 +4,8 @@
   import { resolve } from "$app/paths"
   import { goto, invalidateAll } from "$app/navigation"
   import { Layout } from "$lib/types"
-  import { errorPopupState } from "$lib/stores.svelte"
-  import { getPageLayoutContext } from "$lib/page-layout-context"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
+  import { getPageLayoutContext } from "$lib/layout/page-layout-context"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 

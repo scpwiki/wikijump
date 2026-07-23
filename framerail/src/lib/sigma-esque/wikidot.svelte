@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { wikidotCollapsibles } from "$lib/wikidot-collapsibles"
+  import { wikidotCollapsibles } from "$lib/wikidot/wikidot-collapsibles"
 
   let { header, topBar, loginStatus, sideBar, content, footer, license } = $props()
 </script>

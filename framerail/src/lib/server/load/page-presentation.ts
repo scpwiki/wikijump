@@ -3,10 +3,10 @@ import defaults from "$lib/defaults"
 import {
   buildWikidotPageActionLabels,
   sourceShowsStandardWikidotPageActions
-} from "$lib/wikidot-page-actions"
-import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
-import { buildWikidotPageWatchLabel } from "$lib/wikidot-page-watch"
-import { toIntlLocales } from "$lib/wikidot-locale"
+} from "$lib/wikidot/wikidot-page-actions"
+import { buildWikidotPageInfoText } from "$lib/wikidot/wikidot-page-info"
+import { buildWikidotPageWatchLabel } from "$lib/wikidot/wikidot-page-watch"
+import { toIntlLocales } from "$lib/wikidot/wikidot-locale"
 
 import type { PageView } from "$lib/server/deepwell/views"
 import type { TranslateKeys } from "$lib/types"

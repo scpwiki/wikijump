@@ -1,7 +1,7 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
-  import { errorPopupState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
 
   import type { PageProps } from "./$types"
 

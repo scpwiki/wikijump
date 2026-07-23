@@ -6,7 +6,7 @@ import {
   resolveWikidotSiteTagline,
   resolveWikidotSiteTitle,
   shouldUseSandboxWikidotChrome
-} from "../src/lib/wikidot-chrome.js"
+} from "../src/lib/wikidot/wikidot-chrome.js"
 
 test("selects sandbox Wikidot chrome for imported sandbox source pages", () => {
   assert.equal(

@@ -3,7 +3,7 @@ import {
   resolveShellLayoutValue,
   shouldUseWikidotShellValue,
   type ShellViewData
-} from "$lib/wikidot-shell-decision"
+} from "$lib/layout/wikidot-shell-decision"
 
 export function shouldUseWikidotShell(data: ShellViewData | null | undefined): boolean {
   return shouldUseWikidotShellValue(data)

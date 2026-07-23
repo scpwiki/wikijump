@@ -27,18 +27,21 @@ Compatibility changes require evidence from live Wikidot or provenance-bearing c
 
 ## Where capabilities belong
 
-| Change                                           | Owner                                                                                      |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| Page or endpoint composition                     | `src/routes/`                                                                              |
-| Request validation and application coordination  | `src/lib/server/load/`                                                                     |
-| Deepwell JSON-RPC operations and request context | `src/lib/server/deepwell/`                                                                 |
-| Authentication transport helpers                 | `src/lib/server/auth/`                                                                     |
-| Shared browser components and behavior           | `src/lib/`                                                                                 |
-| Global styles and theme primitives               | `src/lib/css/`                                                                             |
-| Wikidot page shell and Sigma-style layout        | `src/lib/sigma-esque/`                                                                     |
-| Route parameter matching                         | `src/params/`                                                                              |
-| Node server and anonymous article fast path      | `server.js`, `article-response-fast-path.js`, and `src/lib/server/article-response-cache*` |
-| Focused unit and integration tests               | `tests/`                                                                                   |
+| Change                                          | Owner                                                                                      |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Page or endpoint composition                    | `src/routes/`                                                                              |
+| Request validation and application coordination | `src/lib/server/load/`                                                                     |
+| Shared request-scoped context                   | `src/lib/server/request-context.ts`                                                        |
+| Deepwell JSON-RPC operations                    | `src/lib/server/deepwell/`                                                                 |
+| Authentication transport helpers                | `src/lib/server/auth/`                                                                     |
+| Admin settings mapping                          | `src/lib/admin/`                                                                           |
+| Browser layout state and shell selection        | `src/lib/layout/`                                                                          |
+| Wikidot compatibility behavior                  | `src/lib/wikidot/`                                                                         |
+| Global styles and theme primitives              | `src/lib/css/`                                                                             |
+| Wikidot page shell and Sigma-style layout       | `src/lib/sigma-esque/`                                                                     |
+| Route parameter matching                        | `src/params/`                                                                              |
+| Node server and anonymous article fast path     | `server.js`, `article-response-fast-path.js`, and `src/lib/server/article-response-cache*` |
+| Focused unit and integration tests              | `tests/`                                                                                   |
 
 Add a capability to its existing owner before creating a new cross-cutting layer. A route should compose capabilities, a load module should coordinate them, and a Deepwell module should represent backend transport rather than browser policy.
 

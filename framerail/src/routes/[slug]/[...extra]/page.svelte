@@ -1,11 +1,11 @@
 <script lang="ts">
   import { page } from "$app/state"
   import { goto } from "$app/navigation"
-  import { getPageLayoutContext } from "$lib/page-layout-context"
-  import { errorPopupState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/layout/page-layout-context"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
   import { resolve } from "$app/paths"
-  import { buildWikidotPageTagsHtml } from "$lib/wikidot-page-tags"
+  import { buildWikidotPageTagsHtml } from "$lib/wikidot/wikidot-page-tags"
   import {
     buildGeneratedPageStylesHead,
     getPageFontPreloadHrefs
@@ -13,9 +13,9 @@
   import {
     buildWikidotDiscussButtonHtml,
     isWikidotFragmentPage
-  } from "$lib/wikidot-page-actions"
-  import { wikidotTabviews } from "$lib/wikidot-tabviews"
-  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot-styleframe"
+  } from "$lib/wikidot/wikidot-page-actions"
+  import { wikidotTabviews } from "$lib/wikidot/wikidot-tabviews"
+  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot/wikidot-styleframe"
 
   import type { PageProps } from "./$types"
   import type { Optional } from "$lib/types"

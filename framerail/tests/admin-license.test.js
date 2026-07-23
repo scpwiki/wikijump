@@ -8,7 +8,7 @@ import {
   licenseUpdateValue,
   WIKIDOT_LICENSE_OPTIONS,
   WIKIDOT_STANDARD_LICENSE_OPTIONS
-} from "../src/lib/admin-license.js"
+} from "../src/lib/admin/admin-license.js"
 
 describe("Wikidot category license settings", () => {
   it("exposes the thirteen directly typed Wikidot license choices", () => {

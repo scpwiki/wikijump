@@ -1,6 +1,6 @@
 import { getContext } from "svelte"
 
-import { Layout } from "./types"
+import { Layout } from "$lib/types"
 
 export const PAGE_LAYOUT_CONTEXT_KEY = Symbol("page-layout-context")
 

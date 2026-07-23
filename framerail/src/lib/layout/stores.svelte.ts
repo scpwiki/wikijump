@@ -1,4 +1,4 @@
-import { Layout } from "./types"
+import { Layout } from "$lib/types"
 
 class ErrorPopupState {
   current = $state<{ state: boolean; message: string | null; data: unknown | null }>({

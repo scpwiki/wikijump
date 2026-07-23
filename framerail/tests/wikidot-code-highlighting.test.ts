@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { highlightWikidotCodeSource } from "../src/lib/wikidot-code-highlighting.ts"
+import { highlightWikidotCodeSource } from "../src/lib/wikidot/wikidot-code-highlighting.ts"
 
 test("highlights CSS using the existing Wikijump token class contract", async () => {
   const highlighted = await highlightWikidotCodeSource(

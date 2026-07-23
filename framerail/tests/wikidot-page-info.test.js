@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   buildWikidotPageInfoText,
   formatWikidotSourceDate
-} from "../src/lib/wikidot-page-info.js"
+} from "../src/lib/wikidot/wikidot-page-info.js"
 
 test("formats imported Wikidot page revision metadata like the source shell", () => {
   const updatedAt = "2024-03-27T20:18:44Z"

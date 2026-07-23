@@ -5,7 +5,7 @@
 
   import { page } from "$app/state"
   import { onMount, setContext } from "svelte"
-  import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
+  import { pageLayoutState, errorPopupState } from "$lib/layout/stores.svelte"
   import { Layout } from "$lib/types"
   import {
     WIKIDOT_POWERED_BY,
@@ -14,12 +14,12 @@
     buildWikidotLoginLabels,
     isImportedWikidotView,
     shouldUseWikidotLicenseHtml
-  } from "$lib/wikidot-footer"
+  } from "$lib/wikidot/wikidot-footer"
   import {
     PAGE_LAYOUT_CONTEXT_KEY,
     type PageLayoutContext
-  } from "$lib/page-layout-context"
-  import { resolveShellLayout } from "$lib/wikidot-shell"
+  } from "$lib/layout/page-layout-context"
+  import { resolveShellLayout } from "$lib/layout/wikidot-shell"
   import {
     resolveCanonicalViewData,
     resolveCanonicalViewMetadata
@@ -30,8 +30,8 @@
     resolveWikidotSiteTagline,
     resolveWikidotSiteTitle,
     shouldUseSandboxWikidotChrome
-  } from "$lib/wikidot-chrome"
-  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot-styleframe"
+  } from "$lib/wikidot/wikidot-chrome"
+  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot/wikidot-styleframe"
   import {
     IOS_ICON_DECLARATIONS,
     IOS_ICON_ROUTE_PREFIX,
@@ -107,7 +107,7 @@
   onMount(() => {
     let disposed = false
     let stop: (() => void) | undefined
-    void import("$lib/wikidot-code-highlighting").then((module) => {
+    void import("$lib/wikidot/wikidot-code-highlighting").then((module) => {
       if (!disposed) stop = module.observeWikidotCodeBlocks(document)
     })
     return () => {

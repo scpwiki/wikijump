@@ -7,7 +7,7 @@ import {
   type ShellViewData,
   WIKIDOT_LAYOUT,
   WIKIJUMP_LAYOUT
-} from "../src/lib/wikidot-shell-decision.ts"
+} from "../src/lib/layout/wikidot-shell-decision.ts"
 
 const heuristics = {
   compiled_top_bar_html: "<nav>top</nav>",

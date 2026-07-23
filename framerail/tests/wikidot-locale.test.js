@@ -1,7 +1,10 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 
-import { isJapaneseWikidotLocale, toIntlLocales } from "../src/lib/wikidot-locale.js"
+import {
+  isJapaneseWikidotLocale,
+  toIntlLocales
+} from "../src/lib/wikidot/wikidot-locale.js"
 
 describe("Wikidot locale compatibility", () => {
   it("recognizes Wikidot Japanese locale identifiers", () => {

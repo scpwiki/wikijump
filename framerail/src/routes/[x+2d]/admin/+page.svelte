@@ -1,10 +1,10 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation"
   import { discussionFormValues } from "$lib/admin-forum.js"
-  import { licenseFormValues, licenseOptionsFor } from "$lib/admin-license.js"
-  import { navigationFormValues } from "$lib/admin-navigation.js"
+  import { licenseFormValues, licenseOptionsFor } from "$lib/admin/admin-license.js"
+  import { navigationFormValues } from "$lib/admin/admin-navigation.js"
   import { ratingFormValues } from "$lib/admin-rating.js"
-  import { errorPopupState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
   import { Layout } from "$lib/types"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
