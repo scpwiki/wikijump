@@ -1,15 +1,10 @@
 import { getAuthenticatedUser } from "$lib/server/xmlrpc/authentication"
 import {
-  expectParamCount,
-  expectUsersGetMeParams,
-  getArrayParam,
   getFileOne,
   getFilesMeta,
   getPageOne,
   getPagesMeta,
   getPosts,
-  getStringParam,
-  isXmlRpcStruct,
   saveFileOne,
   savePageOne,
   selectCategories,
@@ -18,6 +13,13 @@ import {
   selectPosts,
   selectTags
 } from "$lib/server/xmlrpc/resource-methods"
+import {
+  expectParamCount,
+  expectUsersGetMeParams,
+  getArrayParam,
+  getStringParam,
+  isXmlRpcStruct
+} from "$lib/server/xmlrpc/parameters"
 import {
   XmlRpcFault,
   type XmlRpcCall,

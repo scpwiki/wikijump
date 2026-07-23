@@ -12,87 +12,37 @@ import {
   type DeepwellRequestContext
 } from "$lib/server/xmlrpc/deepwell-client"
 import {
+  expectDeepwellCategories,
+  expectDeepwellFiles,
+  expectDeepwellForumPosts,
+  expectDeepwellParentRelationships,
+  expectDeepwellStringArray,
+  isDeepwellBlobUpload,
+  isDeepwellFile,
+  isDeepwellForumPostSummary,
+  isDeepwellPage,
+  isDeepwellPageRevision,
+  isDeepwellPageView,
+  type DeepwellFile,
+  type DeepwellForumPost,
+  type DeepwellForumPostSummary,
+  type DeepwellPage
+} from "$lib/server/xmlrpc/deepwell-responses"
+import {
   XmlRpcFault,
   type XmlRpcCall,
   type XmlRpcValue
 } from "$lib/server/xmlrpc/protocol"
-
-interface DeepwellCategory {
-  slug: string
-}
-
-interface DeepwellSite {
-  site_id: number
-}
-
-interface DeepwellPage {
-  page_id?: number
-  revision_id: number
-  page_created_at: string
-  page_updated_at: string | null
-  page_revision_count: number
-  revision_created_at: string
-  revision_user_id: number
-  title: string
-  slug: string
-  tags: string[]
-  rating: number
-  wikitext?: string | null
-  compiled_body_html?: string | null
-  compiled_body_styles?: string[] | null
-}
-
-interface DeepwellPageRevision {
-  revision_number: number
-  user_id: number
-}
-
-interface DeepwellBlobUpload {
-  pending_blob_id: string
-  presign_url: string
-}
-
-interface DeepwellFile {
-  file_id: number
-  file_created_at: string
-  file_updated_at: string | null
-  revision_id: number
-  revision_created_at: string
-  revision_user_id: number
-  name: string
-  data?: number[] | string | null
-  mime: string
-  size: number
-  revision_comments: string
-}
-
-interface DeepwellForumPostSummary {
-  comments: number
-  commented_at: string | null
-  commented_by: string | null
-}
-
-interface DeepwellPageView {
-  type: string
-  data?: {
-    page?: { slug?: string }
-  }
-}
-
-interface DeepwellForumPost {
-  id: number
-  fullname: string
-  reply_to: number | null
-  title: string
-  content: string
-  html: string
-  created_by: string
-  created_at: string
-}
-
-interface DeepwellParentRelationship {
-  parent_page_id: number
-}
+import {
+  getOptionalStructString,
+  getOptionalStructStringArray,
+  getOptionalStructStringOrInt,
+  getRequiredStructString,
+  getRequiredStructStringArray,
+  getRequiredStructStringOrIntArray,
+  getStructParam,
+  isXmlRpcStruct
+} from "$lib/server/xmlrpc/parameters"
 
 type DeepwellStringParams = Record<string, string | string[] | undefined>
 const MAX_XML_RPC_FILTER_VALUES = 100
@@ -109,30 +59,6 @@ export async function selectCategories(call: XmlRpcCall): Promise<string[]> {
   )
 
   return categories.map((category) => category.slug)
-}
-
-function expectDeepwellCategories(value: unknown, method: string): DeepwellCategory[] {
-  if (
-    !Array.isArray(value) ||
-    value.some(
-      (category) =>
-        !isXmlRpcStruct(category) ||
-        typeof category.slug !== "string" ||
-        category.slug.length === 0
-    )
-  ) {
-    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
-  }
-
-  return value as DeepwellCategory[]
-}
-
-function expectDeepwellStringArray(value: unknown, method: string): string[] {
-  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
-    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
-  }
-
-  return value
 }
 
 export async function selectTags(call: XmlRpcCall, requestIp: string): Promise<string[]> {
@@ -154,16 +80,10 @@ export async function selectTags(call: XmlRpcCall, requestIp: string): Promise<s
     )
   }
 
-  const deepwellParams: {
-    site: string
-    categories?: string[]
-    pages?: string[]
-  } = { site }
-  if (categories) {
-    deepwellParams.categories = categories
-  }
-  if (pages) {
-    deepwellParams.pages = pages
+  const deepwellParams = {
+    site,
+    ...(categories ? { categories } : {}),
+    ...(pages ? { pages } : {})
   }
 
   const principal = await getXmlRpcWritePrincipal(requestIp)
@@ -785,7 +705,7 @@ async function getDeepwellSiteId(site: string): Promise<number> {
     throw new XmlRpcFault(-32603, "Malformed Deepwell response: site_get")
   }
 
-  return (deepwellSite as unknown as DeepwellSite).site_id
+  return deepwellSite.site_id
 }
 
 async function getDeepwellPage(
@@ -991,159 +911,6 @@ async function getDeepwellPageCreatorUserId(
   return firstRevision.user_id
 }
 
-function isDeepwellPage(value: unknown, includeBody: boolean): value is DeepwellPage {
-  return (
-    isXmlRpcStruct(value) &&
-    typeof value.revision_id === "number" &&
-    Number.isInteger(value.revision_id) &&
-    typeof value.page_created_at === "string" &&
-    (typeof value.page_updated_at === "string" || value.page_updated_at === null) &&
-    typeof value.page_revision_count === "number" &&
-    Number.isInteger(value.page_revision_count) &&
-    typeof value.revision_created_at === "string" &&
-    typeof value.revision_user_id === "number" &&
-    Number.isInteger(value.revision_user_id) &&
-    typeof value.title === "string" &&
-    typeof value.slug === "string" &&
-    Array.isArray(value.tags) &&
-    value.tags.every((tag) => typeof tag === "string") &&
-    typeof value.rating === "number" &&
-    Number.isFinite(value.rating) &&
-    (!includeBody ||
-      ((typeof value.wikitext === "string" || value.wikitext === null) &&
-        (typeof value.compiled_body_html === "string" ||
-          value.compiled_body_html === null) &&
-        Array.isArray(value.compiled_body_styles) &&
-        value.compiled_body_styles.every((style) => typeof style === "string")))
-  )
-}
-
-function isDeepwellPageView(value: unknown): value is DeepwellPageView {
-  return (
-    isXmlRpcStruct(value) &&
-    typeof value.type === "string" &&
-    (value.type !== "found" ||
-      (isXmlRpcStruct(value.data) &&
-        isXmlRpcStruct(value.data.page) &&
-        typeof value.data.page.slug === "string"))
-  )
-}
-
-function isDeepwellBlobUpload(value: unknown): value is DeepwellBlobUpload {
-  return (
-    isXmlRpcStruct(value) &&
-    typeof value.pending_blob_id === "string" &&
-    value.pending_blob_id.length > 0 &&
-    typeof value.presign_url === "string" &&
-    value.presign_url.length > 0
-  )
-}
-
-function isDeepwellFile(value: unknown, includeData: boolean): value is DeepwellFile {
-  return (
-    isXmlRpcStruct(value) &&
-    typeof value.file_id === "number" &&
-    Number.isInteger(value.file_id) &&
-    typeof value.file_created_at === "string" &&
-    (typeof value.file_updated_at === "string" || value.file_updated_at === null) &&
-    typeof value.revision_id === "number" &&
-    Number.isInteger(value.revision_id) &&
-    typeof value.revision_created_at === "string" &&
-    typeof value.revision_user_id === "number" &&
-    Number.isInteger(value.revision_user_id) &&
-    typeof value.name === "string" &&
-    typeof value.mime === "string" &&
-    typeof value.size === "number" &&
-    Number.isInteger(value.size) &&
-    typeof value.revision_comments === "string" &&
-    (!includeData ||
-      value.data === null ||
-      value.data === undefined ||
-      typeof value.data === "string" ||
-      (Array.isArray(value.data) &&
-        value.data.every(
-          (byte) =>
-            typeof byte === "number" && Number.isInteger(byte) && byte >= 0 && byte <= 255
-        )))
-  )
-}
-
-function isDeepwellForumPostSummary(value: unknown): value is DeepwellForumPostSummary {
-  return (
-    isXmlRpcStruct(value) &&
-    typeof value.comments === "number" &&
-    Number.isInteger(value.comments) &&
-    (typeof value.commented_at === "string" || value.commented_at === null) &&
-    (typeof value.commented_by === "string" || value.commented_by === null)
-  )
-}
-
-function isDeepwellForumPost(value: unknown): value is DeepwellForumPost {
-  return (
-    isXmlRpcStruct(value) &&
-    typeof value.id === "number" &&
-    Number.isInteger(value.id) &&
-    typeof value.fullname === "string" &&
-    ((typeof value.reply_to === "number" && Number.isInteger(value.reply_to)) ||
-      value.reply_to === null) &&
-    typeof value.title === "string" &&
-    typeof value.content === "string" &&
-    typeof value.html === "string" &&
-    typeof value.created_by === "string" &&
-    typeof value.created_at === "string"
-  )
-}
-
-function isDeepwellPageRevision(value: unknown): value is DeepwellPageRevision {
-  return (
-    isXmlRpcStruct(value) &&
-    typeof value.revision_number === "number" &&
-    Number.isInteger(value.revision_number) &&
-    value.revision_number === 0 &&
-    typeof value.user_id === "number" &&
-    Number.isInteger(value.user_id)
-  )
-}
-
-function expectDeepwellFiles(
-  value: unknown,
-  method: string,
-  includeData: boolean
-): DeepwellFile[] {
-  if (!Array.isArray(value) || value.some((file) => !isDeepwellFile(file, includeData))) {
-    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
-  }
-
-  return value
-}
-
-function expectDeepwellForumPosts(value: unknown, method: string): DeepwellForumPost[] {
-  if (!Array.isArray(value) || value.some((post) => !isDeepwellForumPost(post))) {
-    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
-  }
-
-  return value
-}
-
-function expectDeepwellParentRelationships(
-  value: unknown,
-  method: string
-): DeepwellParentRelationship[] {
-  if (
-    !Array.isArray(value) ||
-    value.some(
-      (relationship) =>
-        !isXmlRpcStruct(relationship) ||
-        typeof relationship.parent_page_id !== "number" ||
-        !Number.isInteger(relationship.parent_page_id)
-    )
-  ) {
-    throw new XmlRpcFault(-32603, `Malformed Deepwell response: ${method}`)
-  }
-
-  return value as DeepwellParentRelationship[]
-}
-
 function buildXmlRpcPageMeta(
   page: DeepwellPage,
   parentFullname: string | null,
@@ -1194,142 +961,6 @@ function deepwellFileContentBase64(file: DeepwellFile): string {
     return Buffer.from(file.data, "hex").toString("base64")
   }
   return Buffer.from(file.data).toString("base64")
-}
-
-export function expectParamCount(call: XmlRpcCall, expectedCount: number): void {
-  if (call.params.length !== expectedCount) {
-    throw new XmlRpcFault(
-      -32602,
-      `${call.methodName} expects ${expectedCount} parameter${expectedCount === 1 ? "" : "s"}`
-    )
-  }
-}
-
-export function expectUsersGetMeParams(call: XmlRpcCall): void {
-  if (call.params.length === 0) {
-    return
-  }
-
-  if (call.params.length === 1) {
-    const value = call.params[0]
-    if (
-      (Array.isArray(value) && value.length === 0) ||
-      (isXmlRpcStruct(value) && Object.keys(value).length === 0)
-    ) {
-      return
-    }
-  }
-
-  throw new XmlRpcFault(
-    -32602,
-    "users.get_me expects no parameters or one empty struct/array parameter"
-  )
-}
-
-export function getStringParam(call: XmlRpcCall, index: number, name: string): string {
-  const value = call.params[index]
-  if (typeof value !== "string") {
-    throw new XmlRpcFault(-32602, `Expected string parameter: ${name}`)
-  }
-  return value
-}
-
-function getStructParam(
-  call: XmlRpcCall,
-  index: number,
-  name: string
-): Record<string, XmlRpcValue> {
-  const value = call.params[index]
-  if (!isXmlRpcStruct(value)) {
-    throw new XmlRpcFault(-32602, `Expected struct parameter: ${name}`)
-  }
-  return value
-}
-
-function getRequiredStructString(
-  params: Record<string, XmlRpcValue>,
-  name: string
-): string {
-  const value = params[name]
-  if (typeof value !== "string" || value.length === 0) {
-    throw new XmlRpcFault(-32602, `Expected string field: ${name}`)
-  }
-  return value
-}
-
-function getRequiredStructStringArray(
-  params: Record<string, XmlRpcValue>,
-  name: string
-): string[] {
-  const value = getOptionalStructStringArray(params, name)
-  if (value === null) {
-    throw new XmlRpcFault(-32602, `Expected string array field: ${name}`)
-  }
-  return value
-}
-
-function getRequiredStructStringOrIntArray(
-  params: Record<string, XmlRpcValue>,
-  name: string
-): string[] {
-  const value = params[name]
-  if (!Array.isArray(value)) {
-    throw new XmlRpcFault(-32602, `Expected string or integer array field: ${name}`)
-  }
-  return value.map((entry) => {
-    if (typeof entry === "string") {
-      return entry
-    }
-    if (typeof entry === "number" && Number.isSafeInteger(entry)) {
-      return String(entry)
-    }
-    throw new XmlRpcFault(-32602, `Expected string or integer array field: ${name}`)
-  })
-}
-
-function getOptionalStructStringArray(
-  params: Record<string, XmlRpcValue>,
-  name: string
-): string[] | null {
-  const value = params[name]
-  if (value === undefined || value === null) {
-    return null
-  }
-  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
-    throw new XmlRpcFault(-32602, `Expected string array field: ${name}`)
-  }
-  return value
-}
-
-function getOptionalStructString(
-  params: Record<string, XmlRpcValue>,
-  name: string
-): string | null {
-  const value = params[name]
-  if (value === undefined || value === null) {
-    return null
-  }
-  if (typeof value !== "string") {
-    throw new XmlRpcFault(-32602, `Expected string field: ${name}`)
-  }
-  return value
-}
-
-function getOptionalStructStringOrInt(
-  params: Record<string, XmlRpcValue>,
-  name: string
-): string | null {
-  const value = params[name]
-  if (value === undefined || value === null) {
-    return null
-  }
-  if (typeof value === "string") {
-    return value
-  }
-  if (typeof value === "number" && Number.isSafeInteger(value)) {
-    return String(value)
-  }
-  throw new XmlRpcFault(-32602, `Expected string or integer field: ${name}`)
 }
 
 function addOptionalStringField(
@@ -1446,20 +1077,4 @@ function validatePageSelectOrder(value: string): void {
       `Unsupported pages.select order direction: ${direction}`
     )
   }
-}
-
-export function getArrayParam(
-  call: XmlRpcCall,
-  index: number,
-  name: string
-): XmlRpcValue[] {
-  const value = call.params[index]
-  if (!Array.isArray(value)) {
-    throw new XmlRpcFault(-32602, `Expected array parameter: ${name}`)
-  }
-  return value
-}
-
-export function isXmlRpcStruct(value: unknown): value is Record<string, XmlRpcValue> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
