@@ -119,16 +119,28 @@ interface UserCreate {
   user_id: number
   slug: string
 }
-export async function userCreate(
-  userType: UserType,
-  name: string,
-  email: string,
-  locales: string[],
-  password: string,
-  ipAddress: string,
+
+interface UserCreateInput {
+  userType: UserType
+  name: string
+  email: string
+  locales: string[]
+  password: string
+  ipAddress: string
+  bypassFilter?: boolean
+  bypassEmailVerification?: boolean
+}
+
+export async function userCreate({
+  userType,
+  name,
+  email,
+  locales,
+  password,
+  ipAddress,
   bypassFilter = false,
   bypassEmailVerification = false
-): Promise<UserCreate> {
+}: UserCreateInput): Promise<UserCreate> {
   return client.request("user_create", {
     user_type: userType,
     name,

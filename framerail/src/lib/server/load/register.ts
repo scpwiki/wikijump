@@ -83,14 +83,14 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
   const { data } = form
 
   try {
-    const res = await userCreate(
-      UserType.Regular,
-      data.username,
-      data.email,
-      data.locale,
-      data.password,
+    const res = await userCreate({
+      userType: UserType.Regular,
+      name: data.username,
+      email: data.email,
+      locales: data.locale,
+      password: data.password,
       ipAddress
-    )
+    })
 
     return redactAuthActionPayload(
       { form: clearRegisterPasswords(form), res, isRegistered: true },

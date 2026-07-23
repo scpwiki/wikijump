@@ -286,11 +286,13 @@ export async function templateAction({
   try {
     const session = await authGetSession(sessionToken)
     const res = await categoryTemplateUpdate(
-      siteId,
-      categoryId,
-      session.user_id,
-      getClientAddress(),
-      templatePageId,
+      {
+        siteId,
+        categoryId,
+        userId: session.user_id,
+        userIpAddr: getClientAddress(),
+        templatePageId
+      },
       { sessionToken, siteId }
     )
     return { form, res }
@@ -324,12 +326,14 @@ export async function licenseAction({
   try {
     const session = await authGetSession(sessionToken)
     const res = await categoryLicenseUpdate(
-      siteId,
-      categoryId,
-      session.user_id,
-      getClientAddress(),
-      license,
-      licenseOther,
+      {
+        siteId,
+        categoryId,
+        userId: session.user_id,
+        userIpAddr: getClientAddress(),
+        license,
+        licenseOther
+      },
       { sessionToken, siteId }
     )
     return { form, res }
@@ -406,12 +410,14 @@ export async function navigationAction({
   try {
     const session = await authGetSession(sessionToken)
     const res = await categoryNavigationUpdate(
-      siteId,
-      categoryId,
-      session.user_id,
-      getClientAddress(),
-      topBarPage,
-      sideBarPage,
+      {
+        siteId,
+        categoryId,
+        userId: session.user_id,
+        userIpAddr: getClientAddress(),
+        topBarPage,
+        sideBarPage
+      },
       { sessionToken, siteId }
     )
     return { form, res }
@@ -448,16 +454,18 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
         form.data
 
       const res = await siteUpdate(
-        siteId,
-        session.user_id,
-        ipAddress,
-        name,
-        slug,
-        tagline,
-        description,
-        defaultPage,
-        locale,
-        layout,
+        {
+          siteId,
+          userId: session.user_id,
+          userIpAddr: ipAddress,
+          name,
+          slug,
+          tagline,
+          description,
+          defaultPage,
+          locale,
+          layout
+        },
         { sessionToken, siteId }
       )
 
