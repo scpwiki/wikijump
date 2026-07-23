@@ -33,7 +33,6 @@ const DEPLOYMENT_FILE_SUFFIX = {
   dev: "dev",
   prod: "com"
 }
-const RUNTIME_DEPLOYMENT_ENVIRONMENT = parseDeploymentEnvironment()
 const WIKIDOT_INTERWIKI_FRAME_POLICIES = new Map([
   [
     "/-/wikidot-interwiki/interwikiFrame.html",
@@ -44,14 +43,17 @@ const LOCAL_WIKIDOT_STYLEFRAME_PATHNAME = "/-/wikidot-interwiki/styleFrame.html"
 const WIKIDOT_STYLEFRAME_POLICY =
   "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-ancestors 'self'"
 
-const shouldSetHsts = () => {
-  return RUNTIME_DEPLOYMENT_ENVIRONMENT !== "local"
+const shouldSetHsts = (deploymentEnvironment = parseDeploymentEnvironment()) => {
+  return deploymentEnvironment !== "local"
 }
 
-const wikidotInterwikiFramePolicy = (pathname) => {
+const wikidotInterwikiFramePolicy = (
+  pathname,
+  deploymentEnvironment = parseDeploymentEnvironment()
+) => {
   if (
     pathname === LOCAL_WIKIDOT_STYLEFRAME_PATHNAME &&
-    RUNTIME_DEPLOYMENT_ENVIRONMENT === "local"
+    deploymentEnvironment === "local"
   ) {
     return WIKIDOT_STYLEFRAME_POLICY
   }
@@ -88,19 +90,25 @@ const materializeExactCspSource = (policy, source, replacement) => {
  * @param {Response} response
  * @param {string | null | undefined} siteSlug
  */
-export const materializeSiteCsp = (response, siteSlug) => {
+export const materializeSiteCsp = (
+  response,
+  siteSlug,
+  deploymentEnvironment = parseDeploymentEnvironment()
+) => {
   const policy = response.headers.get("content-security-policy")
   const slug = trustedSiteSlug(siteSlug)
   if (!policy || !slug) return
-  const origin = `https://${slug}.wjfiles.${DEPLOYMENT_FILE_SUFFIX[RUNTIME_DEPLOYMENT_ENVIRONMENT]}`
+  const origin = `https://${slug}.wjfiles.${DEPLOYMENT_FILE_SUFFIX[deploymentEnvironment]}`
   const materialized = materializeExactCspSource(policy, CURRENT_SITE_FILE_ORIGIN, origin)
   if (materialized) response.headers.set("content-security-policy", materialized)
 }
 
-export const staticSecurityHeaderEntries = () => {
+export const staticSecurityHeaderEntries = (
+  deploymentEnvironment = parseDeploymentEnvironment()
+) => {
   const headers = Object.entries(SECURITY_HEADERS)
 
-  if (shouldSetHsts()) {
+  if (shouldSetHsts(deploymentEnvironment)) {
     headers.push(["strict-transport-security", HSTS_HEADER])
   }
 
@@ -112,17 +120,22 @@ export const staticSecurityHeaderEntries = () => {
  * @param {string} pathname
  * @param {string | undefined} siteSlug
  */
-export const applyStaticSecurityHeaders = (response, pathname, siteSlug = undefined) => {
-  for (const [header, value] of staticSecurityHeaderEntries()) {
+export const applyStaticSecurityHeaders = (
+  response,
+  pathname,
+  siteSlug = undefined,
+  deploymentEnvironment = parseDeploymentEnvironment()
+) => {
+  for (const [header, value] of staticSecurityHeaderEntries(deploymentEnvironment)) {
     response.headers.set(header, value)
   }
 
-  const framePolicy = wikidotInterwikiFramePolicy(pathname)
+  const framePolicy = wikidotInterwikiFramePolicy(pathname, deploymentEnvironment)
   if (framePolicy) {
     response.headers.set("content-security-policy", framePolicy)
     response.headers.set("x-frame-options", "SAMEORIGIN")
   }
-  materializeSiteCsp(response, siteSlug)
+  materializeSiteCsp(response, siteSlug, deploymentEnvironment)
 }
 
 /**
@@ -131,13 +144,18 @@ export const applyStaticSecurityHeaders = (response, pathname, siteSlug = undefi
  *   removeHeader(name: string): void
  * }} response
  * @param {string} pathname
+ * @param {"local" | "dev" | "prod"} [deploymentEnvironment]
  */
-export const applyStaticSecurityHeadersToNodeResponse = (response, pathname) => {
-  for (const [header, value] of staticSecurityHeaderEntries()) {
+export const applyStaticSecurityHeadersToNodeResponse = (
+  response,
+  pathname,
+  deploymentEnvironment = parseDeploymentEnvironment()
+) => {
+  for (const [header, value] of staticSecurityHeaderEntries(deploymentEnvironment)) {
     response.setHeader(header, value)
   }
 
-  const framePolicy = wikidotInterwikiFramePolicy(pathname)
+  const framePolicy = wikidotInterwikiFramePolicy(pathname, deploymentEnvironment)
   if (framePolicy) {
     response.setHeader("content-security-policy", framePolicy)
     response.setHeader("x-frame-options", "SAMEORIGIN")

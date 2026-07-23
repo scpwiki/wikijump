@@ -1,15 +1,11 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-const previousFramerailEnvironment = process.env.FRAMERAIL_ENV
-process.env.FRAMERAIL_ENV = "local"
 const {
   applyStaticSecurityHeaders,
   applyStaticSecurityHeadersToNodeResponse,
   materializeSiteCsp
 } = await import("../src/lib/server/security-headers.js")
-if (previousFramerailEnvironment === undefined) delete process.env.FRAMERAIL_ENV
-else process.env.FRAMERAIL_ENV = previousFramerailEnvironment
 
 test("permits only the two same-origin Wikidot compatibility frames", () => {
   for (const pathname of [
@@ -17,7 +13,7 @@ test("permits only the two same-origin Wikidot compatibility frames", () => {
     "/-/wikidot-interwiki/styleFrame.html"
   ]) {
     const response = new Response("")
-    applyStaticSecurityHeaders(response, pathname)
+    applyStaticSecurityHeaders(response, pathname, undefined, "local")
     assert.equal(response.headers.get("x-frame-options"), "SAMEORIGIN")
     assert.match(
       response.headers.get("content-security-policy") ?? "",
@@ -28,7 +24,12 @@ test("permits only the two same-origin Wikidot compatibility frames", () => {
 
 test("permits the interwiki frame's required inline presentation", () => {
   const interwiki = new Response("")
-  applyStaticSecurityHeaders(interwiki, "/-/wikidot-interwiki/interwikiFrame.html")
+  applyStaticSecurityHeaders(
+    interwiki,
+    "/-/wikidot-interwiki/interwikiFrame.html",
+    undefined,
+    "local"
+  )
   assert.match(
     interwiki.headers.get("content-security-policy") ?? "",
     /style-src 'unsafe-inline'/u
@@ -51,7 +52,7 @@ test("materializes an exact current-site file origin", () => {
         "default-src 'self'; img-src 'self' https://wikijump-current-site.invalid; style-src 'self' https://wikijump-current-site.invalid"
     }
   })
-  materializeSiteCsp(response, "scp-wiki")
+  materializeSiteCsp(response, "scp-wiki", "local")
   const policy = response.headers.get("content-security-policy") ?? ""
   assert.match(policy, /https:\/\/scp-wiki\.wjfiles\.localhost/u)
   assert.doesNotMatch(policy, /wikijump-current-site\.invalid|\*\.wjfiles/u)
@@ -63,7 +64,7 @@ test("does not materialize untrusted site slugs", () => {
       "content-security-policy": "img-src https://wikijump-current-site.invalid"
     }
   })
-  materializeSiteCsp(response, "scp-wiki.evil")
+  materializeSiteCsp(response, "scp-wiki.evil", "local")
   assert.equal(
     response.headers.get("content-security-policy"),
     "img-src https://wikijump-current-site.invalid"
@@ -78,7 +79,7 @@ test("replaces only an exact CSP source token", () => {
       "content-security-policy": `img-src ${prefixed} https://wikijump-current-site.invalid ${suffixed}`
     }
   })
-  materializeSiteCsp(response, "scp-wiki")
+  materializeSiteCsp(response, "scp-wiki", "local")
   assert.equal(
     response.headers.get("content-security-policy"),
     `img-src ${prefixed} https://scp-wiki.wjfiles.localhost ${suffixed}`
@@ -99,23 +100,45 @@ test("node compatibility responses receive the same local frame policy", () => {
   }
   applyStaticSecurityHeadersToNodeResponse(
     response,
-    "/-/wikidot-interwiki/styleFrame.html"
+    "/-/wikidot-interwiki/styleFrame.html",
+    "local"
   )
   assert.equal(headers.get("x-frame-options"), "SAMEORIGIN")
   assert.match(headers.get("content-security-policy"), /frame-ancestors 'self'/u)
 })
 
-test("keeps styleFrame unframeable outside local deployments", async () => {
-  const originalFramerailEnvironment = process.env.FRAMERAIL_ENV
-  process.env.FRAMERAIL_ENV = "prod"
-  const { applyStaticSecurityHeaders: applyProdSecurityHeaders } = await import(
-    `../src/lib/server/security-headers.js?prod-styleframe-${Date.now()}`
-  )
-  if (originalFramerailEnvironment === undefined) delete process.env.FRAMERAIL_ENV
-  else process.env.FRAMERAIL_ENV = originalFramerailEnvironment
+test("reads the frame-policy environment at call time", () => {
+  const previousFramerailEnvironment = process.env.FRAMERAIL_ENV
+  try {
+    process.env.FRAMERAIL_ENV = "local"
+    const localResponse = new Response("")
+    applyStaticSecurityHeaders(
+      localResponse,
+      "/-/wikidot-interwiki/styleFrame.html"
+    )
+    assert.equal(localResponse.headers.get("x-frame-options"), "SAMEORIGIN")
 
+    process.env.FRAMERAIL_ENV = "prod"
+    const productionResponse = new Response("")
+    applyStaticSecurityHeaders(
+      productionResponse,
+      "/-/wikidot-interwiki/styleFrame.html"
+    )
+    assert.equal(productionResponse.headers.get("x-frame-options"), "DENY")
+  } finally {
+    if (previousFramerailEnvironment === undefined) delete process.env.FRAMERAIL_ENV
+    else process.env.FRAMERAIL_ENV = previousFramerailEnvironment
+  }
+})
+
+test("keeps styleFrame unframeable outside local deployments", () => {
   const response = new Response("")
-  applyProdSecurityHeaders(response, "/-/wikidot-interwiki/styleFrame.html")
+  applyStaticSecurityHeaders(
+    response,
+    "/-/wikidot-interwiki/styleFrame.html",
+    undefined,
+    "prod"
+  )
   assert.equal(response.headers.get("x-frame-options"), "DENY")
   assert.equal(response.headers.get("content-security-policy"), null)
 })
