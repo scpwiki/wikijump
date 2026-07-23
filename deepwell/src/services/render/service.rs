@@ -54,11 +54,6 @@ use super::include_variable_iftags::{
     resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
 };
 use super::issued_markers::restore_issued_html_text_markers;
-use super::list_pages::viewable_rows::{
-    CountPagesRawScanCompletion, count_pages_raw_scan_completion,
-    random_page_query_scan_limit, render_page_query_batch_limit,
-    render_page_query_uses_single_scan,
-};
 use super::list_pages_content_sections::{
     isolate_wikidot_content_section, wikidot_content_section,
 };
@@ -81,6 +76,11 @@ use super::native_list_context::NativeListSourceContext;
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
 use super::runtime::{IncludeSourceCache, RenderRuntime};
+use super::runtime_page_queries::{
+    CountPagesRawScanCompletion, count_pages_raw_scan_completion,
+    random_page_query_scan_limit, render_page_query_batch_limit,
+    render_page_query_uses_single_scan,
+};
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };

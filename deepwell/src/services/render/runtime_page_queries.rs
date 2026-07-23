@@ -1,5 +1,5 @@
 /*
- * services/render/list_pages/viewable_rows.rs
+ * services/render/runtime_page_queries.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::service::{MAX_LISTPAGES_RENDER_LIMIT, MAX_LISTPAGES_RENDER_SCAN_ROWS};
+use super::service::{MAX_LISTPAGES_RENDER_LIMIT, MAX_LISTPAGES_RENDER_SCAN_ROWS};
 use crate::error::Result;
 use crate::services::page_query::{
     FoundPageRow, FoundPages, OrderBySelector, OrderProperty, PageQuery,

@@ -65,6 +65,7 @@ mod render_dependency;
 mod replay;
 mod runtime;
 mod runtime_modules;
+mod runtime_page_queries;
 mod service;
 mod structs;
 #[path = "compat/wikidot_compat_restore.rs"]
