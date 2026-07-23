@@ -104,7 +104,7 @@ function parseArgs(argv) {
           '[--db-container <name>] [--attachment-user-id -1] ' +
           '[--batch-size 40] [--max-depth 8] [--adopt-existing] [--skip-health] [--dry-run]',
       );
-      process.exit(0);
+      return {help: true};
     } else if (!arg.startsWith('--')) args.slugs.push(arg);
     else throw new Error(`Unknown argument: ${arg}`);
   }
@@ -144,13 +144,20 @@ async function loginToken(rpcUrl) {
   return result.session_token;
 }
 
+class ImportPageFailure extends Error {
+  constructor(code, payload) {
+    super(JSON.stringify(payload, null, 2));
+    this.code = code;
+  }
+}
+
 function fail(code, payload) {
-  console.error(JSON.stringify(payload, null, 2));
-  process.exit(code);
+  throw new ImportPageFailure(code, payload);
 }
 
 async function main() {
   const args = parseArgs(process.argv);
+  if (args.help) return 0;
   fs.mkdirSync(args.outputDir, { recursive: true });
   const out = (...parts) => path.join(args.outputDir, ...parts);
 
@@ -312,9 +319,12 @@ async function main() {
   for (const slug of args.slugs) {
     console.error(`${slug}: ${actionBySlug[slug] ?? 'no-action'} -> https://${args.host}/${slug}`);
   }
+  return 0;
 }
 
-main().catch((error) => {
-  console.error(String(error?.stack ?? error));
-  process.exit(2);
+main().then((code) => {
+  process.exitCode = code;
+}).catch((error) => {
+  console.error(error instanceof ImportPageFailure ? error.message : String(error?.stack ?? error));
+  process.exitCode = error instanceof ImportPageFailure ? error.code : 2;
 });

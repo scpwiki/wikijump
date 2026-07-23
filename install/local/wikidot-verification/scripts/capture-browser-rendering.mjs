@@ -134,7 +134,7 @@ function parseArgs(argv) {
     } else if (arg === "--json") {
       args.jsonOnly = true;
     } else if (arg === "--help") {
-      printHelpAndExit();
+      return {help: true};
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -145,14 +145,13 @@ function parseArgs(argv) {
   return args;
 }
 
-function printHelpAndExit() {
+function printHelp() {
   console.log(`Usage: capture-browser-rendering.mjs --inventory FILE --output-dir DIR [--shard-manifest FILE --shard-id ID] [--fixture-id ID ...] [--limit N] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--storage-state FILE | --source-storage-state FILE --local-storage-state FILE] [--actor-label LABEL] [--local-url-field local_https_url] [--timeout-ms 900000] [--settle-ms 1000] [--visible-text-scope all-frames|main-frame] [--ignore-https-errors] [--no-screenshot] [--json]
 
 Writes validator-compatible browser rendering evidence JSON plus DOM/screenshot artifacts for selected corpus inventory rows. The output directory should live under one of the render validator evidence roots, for example:
 
   $OUT/validation/browser-rendering/en-0001
 `);
-  process.exit(0);
 }
 
 export function browserCaptureFailure(captureError, cleanupError) {
@@ -355,6 +354,10 @@ async function writeExclusiveJson(filePath, value) {
 
 async function run() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.help) {
+    printHelp();
+    return 0;
+  }
   if (args.shardManifest && !args.shardId) {
     throw new Error("--shard-id is required when --shard-manifest is provided");
   }

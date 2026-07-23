@@ -63,7 +63,7 @@ function parseArgs(argv) {
           '[--run-id id] [--family EN] [--threshold 0.9] [--concurrency 8] [--previous verdict.json] ' +
           '[--import-summary summary.json] [--disposition category=disposition ...]',
       );
-      process.exit(0);
+      return {help: true};
     } else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!args.manifest) throw new Error('--manifest is required');
@@ -133,6 +133,7 @@ function readSource(row) {
 
 async function main() {
   const args = parseArgs(process.argv);
+  if (args.help) return 0;
   const rows = fs
     .readFileSync(args.manifest, 'utf8')
     .trim()
@@ -181,10 +182,12 @@ async function main() {
     renderDashboardHtml({ verdict, importSummary, previous }),
   );
   console.log(JSON.stringify({ ...verdict.aggregate, run_id: verdict.run_id, exit_code: exitCode }, null, 2));
-  process.exit(exitCode);
+  return exitCode;
 }
 
-main().catch((error) => {
+main().then((code) => {
+  process.exitCode = code;
+}).catch((error) => {
   console.error(error);
-  process.exit(2);
+  process.exitCode = 2;
 });

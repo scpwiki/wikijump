@@ -74,7 +74,7 @@ export function parseArgs(argv) {
     } else if (arg === "--json") {
       args.jsonOnly = true;
     } else if (arg === "--help" || arg === "-h") {
-      printHelpAndExit();
+      return {help: true};
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -101,12 +101,11 @@ function nonNegativeInteger(value, flag) {
   return Number.parseInt(value, 10);
 }
 
-function printHelpAndExit() {
+function printHelp() {
   console.log(`Usage: layout-diagnostics.mjs --url URL --output-dir DIR [--fixture-id EN:scp-9506] [--viewport 1366x900 ...] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--timeout-ms 30000] [--settle-ms 1000] [--ignore-https-errors] [--json]
 
 Writes local-only layout diagnostic JSON for a page. This is adjunct evidence for layout triage, not a V2/V3 fidelity verdict.
 `);
-  process.exit(0);
 }
 
 async function captureViewport({browser, args, viewport}) {
@@ -167,6 +166,10 @@ async function captureViewport({browser, args, viewport}) {
 
 async function run() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.help) {
+    printHelp();
+    return 0;
+  }
   const {chromium} = loadPlaywright(args.browserRoot);
   const session = await openBrowser({
     chromium,
