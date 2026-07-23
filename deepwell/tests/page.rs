@@ -91,6 +91,22 @@ fn set_mutation_request_context(
     });
 }
 
+async fn set_stored_point_vote(runner: &TestRunner, page_id: i64, value: i16) {
+    let transaction = runner.context().transaction();
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (false, $1, $2, $3)",
+            [
+                Value::from(page_id),
+                Value::from(ADMIN_USER_ID),
+                Value::from(value),
+            ],
+        ))
+        .await
+        .expect("score fixture should receive its stored point vote");
+}
+
 async fn create_imported_breadcrumb_page(
     runner: &mut TestRunner,
     site_id: i64,
@@ -7704,15 +7720,7 @@ async fn page_select_filters_pages_with_page_query_semantics() {
         set_listpages_test_tags(&mut runner, site_id, slug, output.revision_id, &[TAG])
             .await;
         if vote != 0 {
-            run_endpoint!(
-                runner,
-                vote_set,
-                json!({
-                    "page_id": output.page_id,
-                    "user_id": ADMIN_USER_ID,
-                    "value": vote,
-                }),
-            );
+            set_stored_point_vote(&runner, output.page_id, vote).await;
         }
     }
 
@@ -9886,15 +9894,7 @@ async fn page_query_score_order_returns_results() {
         set_listpages_test_tags(&mut runner, site_id, slug, output.revision_id, &[tag])
             .await;
         if vote != 0 {
-            run_endpoint!(
-                runner,
-                vote_set,
-                json!({
-                    "page_id": output.page_id,
-                    "user_id": ADMIN_USER_ID,
-                    "value": vote,
-                }),
-            );
+            set_stored_point_vote(&runner, output.page_id, vote).await;
         }
     }
 
@@ -10075,15 +10075,7 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
         (inactive_votes_id, 9),
         (deleted_page_id, 20),
     ] {
-        run_endpoint!(
-            runner,
-            vote_set,
-            json!({
-                "page_id": page_id,
-                "user_id": ADMIN_USER_ID,
-                "value": value,
-            }),
-        );
+        set_stored_point_vote(&runner, page_id, value).await;
     }
 
     create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 2).await;

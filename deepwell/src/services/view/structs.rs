@@ -27,6 +27,7 @@ use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
 use crate::models::user::Model as UserModel;
 use crate::services::relation::PageAttribution;
+use crate::services::settings::PageRatingSettings;
 use time::OffsetDateTime;
 
 // NOTE: Any changes to the output structures here, including the variant names,
@@ -107,6 +108,8 @@ pub enum GetPageViewOutput {
         wikidot_snapshot: Option<WikidotPageSnapshotView>,
         wikidot_breadcrumbs: Vec<WikidotPageBreadcrumbView>,
         attributions: Vec<PageAttribution>,
+        #[serde(default)]
+        page_rating: PageRatingSettings,
         redirect_page: Option<String>,
         #[serde(default)]
         redirect_kind: Option<PageRedirectKind>,

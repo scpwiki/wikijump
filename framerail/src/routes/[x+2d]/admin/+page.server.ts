@@ -3,6 +3,7 @@ import {
   licenseAction,
   loadAdminPage,
   navigationAction,
+  ratingAction,
   templateAction
 } from "$lib/server/load/admin"
 
@@ -14,5 +15,6 @@ export const actions = {
   site: adminAction,
   navigation: navigationAction,
   license: licenseAction,
+  rating: ratingAction,
   template: templateAction
 }

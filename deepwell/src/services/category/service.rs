@@ -252,6 +252,22 @@ impl CategoryService {
                 Maybe::Set(_) => Maybe::Set(category.license_other.as_deref()),
                 Maybe::Unset => Maybe::Unset,
             },
+            rating_enabled: match &input.rating_enabled {
+                Maybe::Set(_) => Maybe::Set(category.rating_enabled),
+                Maybe::Unset => Maybe::Unset,
+            },
+            rating_permission: match &input.rating_permission {
+                Maybe::Set(_) => Maybe::Set(category.rating_permission.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
+            rating_visibility: match &input.rating_visibility {
+                Maybe::Set(_) => Maybe::Set(category.rating_visibility.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
+            rating_type: match &input.rating_type {
+                Maybe::Set(_) => Maybe::Set(category.rating_type.as_deref()),
+                Maybe::Unset => Maybe::Unset,
+            },
         };
         let changed_fields = PageCategoryFields {
             top_bar_page: match &input.top_bar_page {
@@ -271,6 +287,19 @@ impl CategoryService {
                 .map_or(Maybe::Unset, |(_, license_other)| {
                     Maybe::Set(license_other.as_deref())
                 }),
+            rating_enabled: input.rating_enabled.clone(),
+            rating_permission: match &input.rating_permission {
+                Maybe::Set(value) => Maybe::Set(value.map(|value| value.as_storage())),
+                Maybe::Unset => Maybe::Unset,
+            },
+            rating_visibility: match &input.rating_visibility {
+                Maybe::Set(value) => Maybe::Set(value.map(|value| value.as_storage())),
+                Maybe::Unset => Maybe::Unset,
+            },
+            rating_type: match &input.rating_type {
+                Maybe::Set(value) => Maybe::Set(value.map(|value| value.as_storage())),
+                Maybe::Unset => Maybe::Unset,
+            },
         };
 
         AuditService::log(
@@ -301,6 +330,20 @@ impl CategoryService {
         if let Some((license, license_other)) = normalized_license {
             model.license = Set(license);
             model.license_other = Set(license_other);
+        }
+        if let Maybe::Set(rating_enabled) = input.rating_enabled {
+            model.rating_enabled = Set(rating_enabled);
+        }
+        if let Maybe::Set(rating_permission) = input.rating_permission {
+            model.rating_permission =
+                Set(rating_permission.map(|value| str!(value.as_storage())));
+        }
+        if let Maybe::Set(rating_visibility) = input.rating_visibility {
+            model.rating_visibility =
+                Set(rating_visibility.map(|value| str!(value.as_storage())));
+        }
+        if let Maybe::Set(rating_type) = input.rating_type {
+            model.rating_type = Set(rating_type.map(|value| str!(value.as_storage())));
         }
         model.updated_at = Set(Some(now()));
 

@@ -786,21 +786,31 @@ impl ViewService {
                 wikidot_snapshot,
                 wikidot_breadcrumbs,
                 attributions,
-            } => GetPageViewOutput::Found {
-                options,
-                page,
-                page_revision,
-                wikidot_snapshot,
-                wikidot_breadcrumbs,
-                attributions,
-                redirect_page,
-                redirect_kind,
-                wikitext,
-                compiled_body_html,
-                compiled_body_styles,
-                compiled_top_bar_html,
-                compiled_side_bar_html,
-            },
+            } => {
+                let page_rating = SettingsService::get_page_rating_settings(
+                    ctx,
+                    page.site_id,
+                    page.page_category_id,
+                )
+                .await
+                .or_raise(make_error)?;
+                GetPageViewOutput::Found {
+                    options,
+                    page,
+                    page_revision,
+                    wikidot_snapshot,
+                    wikidot_breadcrumbs,
+                    attributions,
+                    page_rating,
+                    redirect_page,
+                    redirect_kind,
+                    wikitext,
+                    compiled_body_html,
+                    compiled_body_styles,
+                    compiled_top_bar_html,
+                    compiled_side_bar_html,
+                }
+            }
             PageStatus::Missing => GetPageViewOutput::Missing {
                 options,
                 redirect_page,

@@ -41,7 +41,15 @@ export interface PageCategoryModel {
   template_page_id: Nullable<number>
   license: Nullable<string>
   license_other: Nullable<string>
+  rating_enabled: Nullable<boolean>
+  rating_permission: Nullable<PageRatingPermission>
+  rating_visibility: Nullable<PageRatingVisibility>
+  rating_type: Nullable<PageRatingType>
 }
+
+export type PageRatingPermission = "registered" | "members"
+export type PageRatingVisibility = "visible" | "anonymous"
+export type PageRatingType = "plus" | "plus_minus" | "stars"
 
 // deepwell src/models/session.rs
 export interface SessionModel {
@@ -155,6 +163,7 @@ export interface PageVoteModel {
   from_wikidot: boolean
   page_id: number
   user_id: number
+  rating_system: "points" | "stars"
   value: number
 }
 

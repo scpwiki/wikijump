@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::services::settings::{
+    PageRatingPermission, PageRatingType, PageRatingVisibility,
+};
 use crate::types::{Maybe, Reference};
 use std::net::IpAddr;
 
@@ -45,4 +48,8 @@ pub struct UpdateCategoryBody {
     pub template_page_id: Maybe<Option<i64>>,
     pub license: Maybe<Option<String>>,
     pub license_other: Maybe<Option<String>>,
+    pub rating_enabled: Maybe<Option<bool>>,
+    pub rating_permission: Maybe<Option<PageRatingPermission>>,
+    pub rating_visibility: Maybe<Option<PageRatingVisibility>>,
+    pub rating_type: Maybe<Option<PageRatingType>>,
 }

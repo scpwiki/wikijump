@@ -6,6 +6,7 @@ import { authGetSession } from "$lib/server/auth/getSession"
 import {
   categoryLicenseUpdate,
   categoryNavigationUpdate,
+  categoryRatingUpdate,
   categoryTemplateUpdate,
   siteUpdate
 } from "$lib/server/deepwell/admin"
@@ -95,6 +96,7 @@ export async function loadAdminPage(
   const navigationForm = await superValidate(request, valibot(navigationSchema))
   const licenseForm = await superValidate(request, valibot(licenseSchema))
   const templateForm = await superValidate(request, valibot(templateSchema))
+  const ratingForm = await superValidate(request, valibot(ratingSchema))
 
   const viewData = {
     view: response.type,
@@ -104,6 +106,7 @@ export async function loadAdminPage(
     navigationForm,
     licenseForm,
     templateForm,
+    ratingForm,
     categories: response.type === "site_found" ? response.data.categories : [],
     pageTemplates: response.type === "site_found" ? response.data.page_templates : []
   }
@@ -194,6 +197,49 @@ export async function licenseAction({
       message: error?.message,
       code: error?.code,
       data: error?.data
+    })
+  }
+}
+
+export async function ratingAction({ request, getClientAddress, cookies }: RequestEvent) {
+  const form = await superValidate(request, valibot(ratingSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's rating settings"
+    })
+  }
+
+  const { siteId, categoryId, inherit, enabled, permission, visibility, ratingType } =
+    form.data
+  try {
+    const res = await categoryRatingUpdate(
+      siteId,
+      categoryId,
+      session.user_id,
+      getClientAddress(),
+      inherit ? null : enabled,
+      inherit ? null : permission,
+      inherit ? null : visibility,
+      inherit ? null : ratingType,
+      { sessionToken, siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    const details = error as {
+      message?: string
+      code?: string
+      data?: Record<string, unknown>
+    }
+    return fail(500, {
+      form,
+      message: details.message,
+      code: details.code,
+      data: details.data
     })
   }
 }
@@ -321,4 +367,14 @@ const templateSchema = object({
   siteId: number(),
   categoryId: number(),
   templatePageId: nullable(number())
+})
+
+const ratingSchema = object({
+  siteId: number(),
+  categoryId: number(),
+  inherit: boolean(),
+  enabled: boolean(),
+  permission: vEnum({ REGISTERED: "registered", MEMBERS: "members" }),
+  visibility: vEnum({ VISIBLE: "visible", ANONYMOUS: "anonymous" }),
+  ratingType: vEnum({ PLUS: "plus", PLUS_MINUS: "plus_minus", STARS: "stars" })
 })
