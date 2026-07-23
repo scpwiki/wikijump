@@ -16433,6 +16433,35 @@ mod tests {
     }
 
     #[test]
+    fn renders_and_localizes_wikidot_file_attachment_link() {
+        let page_info = fallback_test_page_info("scp-2276", "SCP-2276");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let tokens = ftml::tokenize("[[file elements.tsv | Download Catalog]]");
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        assert_eq!(
+            rendered,
+            r#"<p><a href="https://scp-wiki.wjfiles.com/local--files/scp-2276/elements.tsv">Download Catalog</a></p>"#,
+        );
+
+        let site = wikidot_site("scp-wiki-en-corpus", Some("scp-wiki.wikidot.com"));
+        let mut config = Config::integration_testing();
+        config.files_domain = ".wjfiles.localhost".to_owned();
+        config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+
+        assert_eq!(
+            RenderService::restore_wikidot_render_compatibility(
+                &rendered,
+                Some(&site),
+                &config,
+            ),
+            r#"<p><a href="https://scp-wiki-en-corpus.wjfiles.localhost/local--files/scp-2276/elements.tsv">Download Catalog</a></p>"#,
+        );
+    }
+
+    #[test]
     fn localizes_when_site_slug_is_wikidot_slug() {
         let site = wikidot_site("scp-wiki", None);
         let config = Config::integration_testing();
