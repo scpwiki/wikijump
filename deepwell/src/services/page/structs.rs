@@ -348,14 +348,6 @@ mod tests {
     }
 }
 
-#[derive(Deserialize, Debug, Clone)]
-#[allow(dead_code)]
-pub struct PageEditPermission<'a> {
-    pub site_id: i64,
-    pub page: Reference<'a>,
-    pub user_id: Option<i64>,
-}
-
 #[derive(Serialize, Debug, Clone)]
 pub struct PageEditPermissionOutput {
     pub can_edit: bool,

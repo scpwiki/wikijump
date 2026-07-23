@@ -29,7 +29,7 @@ use crate::services::page_revision::{
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
     CreateTombstonePageRevision, GetPageRevision, RerenderType,
 };
-use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::permission::PermissionService;
 use crate::services::{
     BlueprintPageService, CategoryService, FilterService, PageRevisionService,
     SiteService, TextBlockService, TextService,
@@ -862,27 +862,6 @@ impl PageService {
         Ok(revision_output)
     }
 
-    /// Undoes a past revision, applying the inverse of its changes.
-    ///
-    /// It looks at the changes made in that revision, and does the
-    /// inverse there specifically. It is contextual, and preserves
-    /// all other changes made since.
-    ///
-    /// However, this can cause it to conflict, which will occur if
-    /// the reversed changes interfere with other changes made since.
-    ///
-    /// This is equivalent to git's concept of a "revert".
-    #[allow(dead_code)]
-    pub async fn undo(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-        _revision_number: i32,
-    ) -> Result<EditPageOutput> {
-        // TODO update audit-log.md
-        todo!()
-    }
-
     /// Sets the layout override for a page.
     pub async fn set_layout(
         ctx: &ServiceContext<'_>,
@@ -1299,7 +1278,6 @@ impl PageService {
 
     pub async fn check_user_permission(
         ctx: &ServiceContext<'_>,
-        _permission_context: &CheckPermissionContext<'_>,
         action: Action,
     ) -> Result<bool> {
         let make_error =

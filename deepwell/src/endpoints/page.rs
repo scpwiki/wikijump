@@ -793,19 +793,11 @@ pub async fn page_edit_permission(
     ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<PageEditPermissionOutput> {
-    let can_edit = PageService::check_user_permission(
-        ctx,
-        // TODO: Permission context is no longer used, just left here to not break other functions.
-        // Remove this when it's removed from the function signature.
-        &CheckPermissionContext {
-            user_id: None,
-            site_id: -1,
-            page_reference: None,
-        },
-        Action::Edit,
-    )
-    .await
-    .or_raise(|| Error::new("failed to check page edit permission", ErrorType::Page))?;
+    let can_edit = PageService::check_user_permission(ctx, Action::Edit)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page edit permission", ErrorType::Page)
+        })?;
 
     Ok(PageEditPermissionOutput { can_edit })
 }

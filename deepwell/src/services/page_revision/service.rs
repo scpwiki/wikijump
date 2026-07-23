@@ -1379,9 +1379,6 @@ impl PageRevisionService {
     }
 
     /// Gets the wikitext from the latest revision of a page.
-    ///
-    /// This is the non-optional version of `get_wikitext()`.
-    #[allow(dead_code)] // TODO
     pub async fn get_wikitext(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1410,22 +1407,6 @@ impl PageRevisionService {
             page_revision::Column::CompiledBodyHtmlHash,
         )
         .await
-    }
-
-    /// Gets the compiled HTML from the latest revision of a page.
-    ///
-    /// This is the non-optional version of `get_compiled_html_optional()`.
-    #[allow(dead_code)] // TODO
-    pub async fn get_compiled_html(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<String> {
-        find_or_error!(
-            Self::get_compiled_html_optional(ctx, site_id, reference),
-            "page revision",
-            PageRevision,
-        )
     }
 
     pub async fn get_optional(

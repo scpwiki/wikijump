@@ -1146,14 +1146,14 @@ impl BlobService {
     ///
     /// This utility conditionally retrieves the
     /// text given by the specified hash only
-    /// if the flag `should_fetch` is true.
+    /// if the flag `requested` is true.
     /// Otherwise, it does no action, returning `None`.
-    pub async fn get_maybe(
+    pub async fn fetch_if_requested(
         ctx: &ServiceContext<'_>,
-        should_fetch: bool,
+        requested: bool,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
-        if should_fetch {
+        if requested {
             let data = Self::get(ctx, hash).await.or_raise(|| {
                 Error::new("failed to conditionally get blob data", ErrorType::Blob)
             })?;

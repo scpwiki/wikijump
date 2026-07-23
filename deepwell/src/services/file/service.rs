@@ -80,7 +80,7 @@ impl FileService {
         };
 
         // Verify filename is valid
-        check_file_name(&mut name).or_raise(make_error)?;
+        normalize_and_validate_file_name(&mut name).or_raise(make_error)?;
 
         // Ensure row consistency
         Self::check_conflicts(ctx, page_id, &name, "create")
@@ -200,7 +200,7 @@ impl FileService {
         if let Maybe::Set(ref mut name) = name {
             new_name = ActiveValue::Set(name.clone());
 
-            check_file_name(name).or_raise(make_error)?;
+            normalize_and_validate_file_name(name).or_raise(make_error)?;
 
             Self::check_conflicts(ctx, page_id, name, "update")
                 .await
@@ -330,7 +330,7 @@ impl FileService {
         );
 
         // Verify filename is valid
-        check_file_name(&mut name).or_raise(make_error)?;
+        normalize_and_validate_file_name(&mut name).or_raise(make_error)?;
 
         // Ensure there isn't a file with this name on the destination page
         Self::check_conflicts(ctx, destination_page_id, &name, "move")
@@ -510,7 +510,7 @@ impl FileService {
                 .or_raise(make_error)?;
 
         let mut new_name = new_name.unwrap_or(file.name);
-        check_file_name(&mut new_name).or_raise(make_error)?;
+        normalize_and_validate_file_name(&mut new_name).or_raise(make_error)?;
 
         // Do page checks:
         // - Page is correct
@@ -1026,7 +1026,7 @@ impl FileService {
 /// This helper function is generally read-only, but if
 /// it finds a name which has leading or trailing whitespace,
 /// then it trims that off in-place.
-fn check_file_name(name: &mut String) -> Result<()> {
+fn normalize_and_validate_file_name(name: &mut String) -> Result<()> {
     // Removes leading or trailing whitespace
     trim_spaces_in_place(name);
     debug!("Trimmed file name: '{name}'");

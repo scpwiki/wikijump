@@ -1,4 +1,5 @@
 use super::model::MAX_REPLAY_CONCURRENCY;
+use crate::error::prelude::*;
 use std::env;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -19,15 +20,15 @@ pub(crate) struct RenderReplaySettings {
 }
 
 impl RenderReplaySettings {
-    pub(crate) fn from_env() -> Result<Self, String> {
+    pub(crate) fn from_env() -> Result<Self> {
         let import_run_id = optional_positive_i64("DEEPWELL_REPLAY_IMPORT_RUN_ID")?;
         let states = parse_states(env::var("DEEPWELL_REPLAY_STATES").ok())?;
         let concurrency =
             positive_usize("DEEPWELL_REPLAY_CONCURRENCY", DEFAULT_CONCURRENCY)?;
         if concurrency > MAX_REPLAY_CONCURRENCY {
-            return Err(format!(
+            return Err(config_error(format!(
                 "DEEPWELL_REPLAY_CONCURRENCY must be <= {MAX_REPLAY_CONCURRENCY}"
-            ));
+            )));
         }
         let timeout_ms = positive_u64("DEEPWELL_REPLAY_TIMEOUT_MS", DEFAULT_TIMEOUT_MS)?;
         let ddmin = boolish("DEEPWELL_REPLAY_DDMIN", true)?;
@@ -63,7 +64,7 @@ pub(super) fn states_sql(states: &[String]) -> String {
         .join(",")
 }
 
-fn parse_states(value: Option<String>) -> Result<Vec<String>, String> {
+fn parse_states(value: Option<String>) -> Result<Vec<String>> {
     const ALLOWED: [&str; 10] = [
         "pending",
         "shell_ready",
@@ -90,54 +91,60 @@ fn parse_states(value: Option<String>) -> Result<Vec<String>, String> {
             .iter()
             .any(|state| !ALLOWED.contains(&state.as_str()))
     {
-        return Err(format!("invalid DEEPWELL_REPLAY_STATES: {value}"));
+        return Err(config_error(format!(
+            "invalid DEEPWELL_REPLAY_STATES: {value}"
+        )));
     }
     Ok(states)
 }
 
-fn optional_positive_i64(name: &str) -> Result<Option<i64>, String> {
+fn optional_positive_i64(name: &str) -> Result<Option<i64>> {
     env::var(name)
         .ok()
         .map(|value| parse_positive(name, &value))
         .transpose()
 }
 
-fn positive_i64(name: &str, default: i64) -> Result<i64, String> {
+fn positive_i64(name: &str, default: i64) -> Result<i64> {
     match env::var(name) {
         Ok(value) => parse_positive(name, &value),
         Err(_) => Ok(default),
     }
 }
 
-fn positive_u64(name: &str, default: u64) -> Result<u64, String> {
+fn positive_u64(name: &str, default: u64) -> Result<u64> {
     let value = positive_i64(name, i64::try_from(default).unwrap_or(i64::MAX))?;
-    u64::try_from(value).map_err(|_| format!("{name} is too large"))
+    u64::try_from(value).map_err(|_| config_error(format!("{name} is too large")))
 }
 
-fn positive_usize(name: &str, default: usize) -> Result<usize, String> {
+fn positive_usize(name: &str, default: usize) -> Result<usize> {
     let value = positive_i64(name, i64::try_from(default).unwrap_or(i64::MAX))?;
-    usize::try_from(value).map_err(|_| format!("{name} is too large"))
+    usize::try_from(value).map_err(|_| config_error(format!("{name} is too large")))
 }
 
-fn parse_positive(name: &str, value: &str) -> Result<i64, String> {
+fn parse_positive(name: &str, value: &str) -> Result<i64> {
     let parsed = value
         .trim()
         .parse::<i64>()
-        .map_err(|_| format!("{name} must be a positive integer"))?;
+        .map_err(|_| config_error(format!("{name} must be a positive integer")))?;
     if parsed > 0 {
         Ok(parsed)
     } else {
-        Err(format!("{name} must be a positive integer"))
+        Err(config_error(format!("{name} must be a positive integer")))
     }
 }
 
-fn boolish(name: &str, default: bool) -> Result<bool, String> {
+fn boolish(name: &str, default: bool) -> Result<bool> {
     match env::var(name) {
         Err(_) => Ok(default),
         Ok(value) if matches!(value.trim(), "1" | "true" | "yes" | "on") => Ok(true),
         Ok(value) if matches!(value.trim(), "0" | "false" | "no" | "off") => Ok(false),
-        Ok(_) => Err(format!("{name} must be a boolean")),
+        Ok(_) => Err(config_error(format!("{name} must be a boolean"))),
     }
+}
+
+fn config_error(message: String) -> ExnError {
+    Error::new(message, ErrorType::ConfigSetup).into()
 }
 
 #[cfg(test)]

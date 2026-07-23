@@ -26,7 +26,7 @@ use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{FilterService, SiteService, UserService};
 use crate::types::{AliasType, Reference};
-use crate::utils::get_regular_slug;
+use crate::utils::normalize_slug_without_category_separator;
 use std::net::IpAddr;
 
 #[derive(Debug)]
@@ -61,7 +61,7 @@ impl AliasService {
         verify: bool,
     ) -> Result<CreateAliasOutput> {
         let txn = ctx.transaction();
-        let slug = get_regular_slug(slug);
+        let slug = normalize_slug_without_category_separator(slug);
 
         info!("Creating {alias_type:?} alias with slug '{slug}'");
 

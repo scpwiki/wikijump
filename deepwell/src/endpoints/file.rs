@@ -410,7 +410,7 @@ async fn build_file_response(
     revision: FileRevisionModel,
     details: FileDetails,
 ) -> Result<GetFileOutput> {
-    let data = BlobService::get_maybe(ctx, details.data, &revision.s3_hash)
+    let data = BlobService::fetch_if_requested(ctx, details.data, &revision.s3_hash)
         .await
         .or_raise(|| Error::new("failed to build a file response", ErrorType::File))?;
 

@@ -24,7 +24,7 @@
 //! Framerail (the API consumer). No guarantees are made as to backwards compatibility.
 //!
 //! This module should only contain definitions for the web server and its routes, and
-//! not any of the implementations themselves. Those should be in the `methods` module.
+//! not any of the implementations themselves. Those belong in the `endpoints` module.
 
 use crate::config::{Config, Secrets};
 use crate::endpoints::all::*;

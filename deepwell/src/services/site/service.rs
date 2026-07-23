@@ -43,9 +43,7 @@ pub struct SiteService;
 
 const RESERVED_PLATFORM_HOSTNAME_SLUGS: &[&str] = &["acme", "dns", "ech"];
 
-#[allow(dead_code)] // TODO
 const DEFAULT_FORUM_MAX_NEST_LEVEL: i16 = 10;
-#[allow(dead_code)] // TODO
 const DEFAULT_FORUM_PER_PAGE_DISCUSSION: bool = false;
 
 impl SiteService {
@@ -573,7 +571,6 @@ impl SiteService {
     ///
     /// At present this is sourced from service defaults; the site row itself
     /// does not yet carry dedicated forum configuration columns.
-    #[allow(dead_code)] // TODO
     pub async fn get_forum_settings(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,

@@ -33,7 +33,7 @@ femme = "2"
 filemagic = "0.13"
 fluent = "0.17"
 fluent-syntax = "0"
-ftml = { git = "https://github.com/Rokurolize/ftml", branch = "main" }
+ftml = { git = "https://github.com/Rokurolize/ftml", rev = "4d02c268118b7a652133b151bb0cc29f1f31e2c3" }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 hex = { version = "0.4", features = ["serde"] }
 hostname = "0.4"
@@ -64,7 +64,7 @@ strum_macros = "0.28"
 time = { version = "0.3", features = ["parsing", "serde"], default-features = false }
 tiny-keccak = { version = "2", features = ["k12"] }
 toml = { version = "1.1", features = ["parse"] }
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["fs", "io-util", "macros", "process", "rt-multi-thread", "sync", "time"] }
 typenum = "1"
 uuid = { version = "1", features = ["v4"] }
 unic-langid = "0.9"

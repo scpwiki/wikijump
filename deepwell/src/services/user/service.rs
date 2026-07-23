@@ -1086,7 +1086,7 @@ fn is_verified_email_unique_violation(error: &DbErr) -> bool {
 }
 
 fn get_user_slug(name: &str, user_type: UserType) -> String {
-    use crate::utils::{get_regular_slug, get_slug};
+    use crate::utils::{normalize_page_slug, normalize_slug_without_category_separator};
 
     if user_type == UserType::Site {
         debug_assert!(
@@ -1094,9 +1094,9 @@ fn get_user_slug(name: &str, user_type: UserType) -> String {
             "Site user slug does not start with 'site:'",
         );
 
-        get_slug(name)
+        normalize_page_slug(name)
     } else {
-        get_regular_slug(name)
+        normalize_slug_without_category_separator(name)
     }
 }
 
