@@ -9,7 +9,7 @@
   import { untrack } from "svelte"
 
   import type { PageProps } from "./$types"
-  import type { PageFile, PageFileDelete } from "$lib/server/deepwell/pageFile"
+  import type { PageFile, PageFileDelete } from "$lib/server/deepwell/page-file"
   import type { FileRevisionModel, Optional } from "$lib/types"
 
   let { data }: PageProps = $props()

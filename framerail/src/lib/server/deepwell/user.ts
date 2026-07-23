@@ -3,7 +3,7 @@ import { client } from "$lib/server/deepwell"
 import { startBlobUpload, uploadToPresignUrl } from "./file"
 
 import type { Nullable, Optional, UserModel, UserType } from "$lib/types"
-import type { RequestContext } from "../load/request-ctx"
+import type { RequestContext } from "./request-context"
 
 /* ----- User View ----- */
 interface UserViewFound {

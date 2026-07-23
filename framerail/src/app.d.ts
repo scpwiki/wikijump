@@ -3,7 +3,7 @@
 // and what to do when importing types
 
 import type { JsonValue, Layout, PageRevisionType } from "$lib/types"
-import type { RequestContext } from "$lib/server/load/request-ctx"
+import type { RequestContext } from "$lib/server/deepwell/request-context"
 import type { buildWikidotRequestInfo } from "$lib/server/wikidot-request-info"
 import type { Locales } from "./types"
 

@@ -2,7 +2,7 @@ import { JSONRPCClient } from "json-rpc-2.0"
 
 import type { Nullable } from "$lib/types"
 import type { JSONRPCRequest } from "json-rpc-2.0"
-import type { RequestContext } from "../load/request-ctx"
+import type { RequestContext } from "./request-context"
 import { stripPrivateDeepwellErrorData } from "./public-error.js"
 
 export const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"

@@ -1,6 +1,6 @@
 import defaults from "$lib/defaults"
 
-import { authGetSession } from "$lib/server/auth/getSession"
+import { authGetSession } from "$lib/server/auth/get-session"
 import { authLogin } from "$lib/server/auth/login"
 import { authMfaVerify } from "$lib/server/auth/mfa"
 import { translate } from "$lib/server/deepwell/translate"

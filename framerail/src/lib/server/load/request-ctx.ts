@@ -1,12 +1,4 @@
-// Helper functions and types for request context, a set of common metadata for each request to Deepwell.
-
-interface RequestContextOptional {
-  sessionToken?: string
-  siteId?: number
-  page?: string | number
-}
-
-export type RequestContext = RequestContextOptional | void
+import type { RequestContext } from "$lib/server/deepwell/request-context"
 
 export function storeRequestContext(
   locals: App.Locals,

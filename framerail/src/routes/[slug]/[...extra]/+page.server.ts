@@ -1,10 +1,4 @@
 import {
-  layoutAction,
-  loadPage,
-  pageDeleteAction,
-  pageDeletedGetAction,
-  pageEditAction,
-  pageEditPermissionAction,
   pageFileDeleteAction,
   pageFileEditAction,
   pageFileHistoryAction,
@@ -12,19 +6,29 @@ import {
   pageFileMoveAction,
   pageFileRestoreAction,
   pageFileRollbackAction,
-  pageFileUploadAction,
-  pageHistoryAction,
+  pageFileUploadAction
+} from "$lib/server/load/page-file-actions"
+import {
+  layoutAction,
+  loadPage,
+  pageDeleteAction,
+  pageEditAction,
+  pageEditPermissionAction,
   pageMoveAction,
   pageParentGetAction,
   pageParentSetAction,
-  pageRestoreAction,
-  pageRevisionAction,
-  pageRollbackAction,
   pageScoreAction,
   pageVoteCancelAction,
   pageVoteCastAction,
   pageVoteGetAction
 } from "$lib/server/load/page"
+import {
+  pageDeletedGetAction,
+  pageHistoryAction,
+  pageRestoreAction,
+  pageRevisionAction,
+  pageRollbackAction
+} from "$lib/server/load/page-revision-actions"
 
 export async function load({ params, request, cookies, locals }) {
   return loadPage(params.slug, params.extra, request, cookies, locals)

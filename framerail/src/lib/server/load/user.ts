@@ -1,7 +1,7 @@
 import defaults from "$lib/defaults"
 
 import { limitLocalePreferences } from "$lib/locales"
-import { authGetSession } from "$lib/server/auth/getSession"
+import { authGetSession } from "$lib/server/auth/get-session"
 import { getFileByHash } from "$lib/server/deepwell/file"
 import { translate } from "$lib/server/deepwell/translate"
 import { userEdit, userView } from "$lib/server/deepwell/user"

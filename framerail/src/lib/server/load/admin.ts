@@ -3,7 +3,7 @@ import { discussionUpdateValue } from "$lib/admin-forum.js"
 import { licenseUpdateValue } from "$lib/admin-license.js"
 import { navigationUpdateValues } from "$lib/admin-navigation.js"
 
-import { authGetSession } from "$lib/server/auth/getSession"
+import { authGetSession } from "$lib/server/auth/get-session"
 import {
   categoryLicenseUpdate,
   categoryNavigationUpdate,

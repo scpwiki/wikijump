@@ -1,36 +1,21 @@
 import defaults from "$lib/defaults"
 
 import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/article-response-cache"
-import { authGetSession } from "$lib/server/auth/getSession"
+import { authGetSession } from "$lib/server/auth/get-session"
 import { resolvePageRedirect } from "$lib/server/page-redirect"
 import {
   pageDelete,
-  pageDeletedGet,
   pageEdit,
   pageEditPermission,
-  pageHistory,
   pageLayout,
   pageMove,
   pageParentGet,
   pageParentUpdate,
-  pageRestore,
-  pageRevision,
-  pageRollback,
   pageScore,
   pageVoteCast,
   pageVoteList,
   pageVoteRemove
 } from "$lib/server/deepwell/page"
-import {
-  pageFileCreate,
-  pageFileDelete,
-  pageFileEdit,
-  pageFileHistory,
-  pageFileList,
-  pageFileMove,
-  pageFileRestore,
-  pageFileRollback
-} from "$lib/server/deepwell/pageFile"
 import { translate } from "$lib/server/deepwell/translate"
 import { articleView, preloadView } from "$lib/server/deepwell/views"
 import { buildPageLoadData } from "$lib/server/load/page-data"
@@ -40,7 +25,17 @@ import {
   getPreloadBackendLocales,
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
-import { normalizeActionError } from "$lib/server/load/action-error"
+import {
+  failForActionError,
+  failForMissingSession,
+  pageMutationBaseSchema
+} from "$lib/server/load/page-action-shared"
+import {
+  pageFileEditSchema,
+  pageFileMoveSchema,
+  pageFileRestoreSchema,
+  pageFileUploadSchema
+} from "$lib/server/load/page-file-actions"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import {
   buildWikidotRequestInfo,
@@ -55,14 +50,12 @@ import { buildWikidotPageInfoText } from "$lib/wikidot-page-info"
 import { buildWikidotPageWatchLabel } from "$lib/wikidot-page-watch"
 import { toIntlLocales } from "$lib/wikidot-locale"
 import { error, redirect } from "@sveltejs/kit"
-import { fail, superValidate, withFiles } from "sveltekit-superforms"
+import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
 import {
   array,
-  file,
   literal,
   nullable,
-  number,
   object,
   optional,
   string,
@@ -74,23 +67,6 @@ import type { PageView } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
 import type { Cookies, RequestEvent } from "@sveltejs/kit"
 import { getRequestContext, withDefaultPageContext } from "./request-ctx"
-
-const DEEPWELL_PERMISSION_DENIED = 3106
-
-function failForActionError(error: unknown, body: Record<string, unknown> = {}) {
-  const details = normalizeActionError(error)
-  return fail(details.code === DEEPWELL_PERMISSION_DENIED ? 403 : 500, {
-    ...body,
-    ...details
-  })
-}
-
-function failForMissingSession(body: Record<string, unknown> = {}) {
-  return fail(401, {
-    ...body,
-    message: "Authentication required."
-  })
-}
 
 export async function loadPage(
   slug: Optional<string>,
@@ -380,12 +356,6 @@ function runRedirect(
 }
 
 /* ----- Base ----- */
-const baseSchema = {
-  pageId: number(),
-  siteId: number(),
-  lastRevisionId: number()
-}
-
 /* ----- Page Delete ----- */
 export async function pageDeleteAction({
   request,
@@ -456,13 +426,13 @@ export async function pageDeleteAction({
 
 const pageDeleteSchema = variant("option", [
   object({
-    ...baseSchema,
+    ...pageMutationBaseSchema,
     option: literal(DeleteOptions.Move),
     newSlug: string(),
     comments: string()
   }),
   object({
-    ...baseSchema,
+    ...pageMutationBaseSchema,
     option: literal(DeleteOptions.Delete),
     comments: string()
   })
@@ -561,7 +531,7 @@ export async function pageEditAction({
 }
 
 const pageEditSchema = object({
-  ...baseSchema,
+  ...pageMutationBaseSchema,
   title: string(),
   altTitle: string(),
   wikitext: string(),
@@ -569,405 +539,6 @@ const pageEditSchema = object({
   comments: string(),
   layout: optional(nullable(vEnum(Layout)))
 })
-
-/* ----- Page File ----- */
-export async function pageFileListAction({ request }: RequestEvent) {
-  try {
-    const requestData: { siteId: number; pageId: number; deleted: Optional<boolean> } =
-      await request.json()
-
-    const { siteId, pageId, deleted } = requestData
-
-    const res = await pageFileList(siteId, pageId, deleted)
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page File Upload ----- */
-export async function pageFileUploadAction({
-  request,
-  cookies,
-  getClientAddress
-}: RequestEvent) {
-  const form = await superValidate(request, valibot(pageFileUploadSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
-  try {
-    const session = await authGetSession(sessionToken)
-    const { siteId, pageId, file, name, comments } = form.data
-    const res = await pageFileCreate(
-      {
-        siteId,
-        pageId,
-        userId: session?.user_id,
-        name: name === "" ? undefined : name,
-        file,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
-      { sessionToken, siteId, page: pageId }
-    )
-
-    return withFiles({ form, res })
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageFileUploadSchema = object({
-  ...baseSchema,
-  file: file(),
-  name: string(),
-  comments: string()
-})
-
-/* ----- Page File Delete ----- */
-export async function pageFileDeleteAction({ request, cookies }: RequestEvent) {
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession()
-  try {
-    const session = await authGetSession(sessionToken)
-    const requestData: {
-      siteId: number
-      pageId: number
-      fileId: number
-      lastRevisionId: number
-      comments: Optional<string>
-    } = await request.json()
-
-    const { siteId, pageId, fileId, lastRevisionId, comments } = requestData
-
-    const res = await pageFileDelete(
-      {
-        siteId,
-        pageId,
-        userId: session?.user_id,
-        fileId,
-        lastRevisionId,
-        revisionComments: comments ?? ""
-      },
-      { sessionToken, siteId, page: pageId }
-    )
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page File Edit ----- */
-export async function pageFileEditAction({
-  request,
-  cookies,
-  getClientAddress
-}: RequestEvent) {
-  const form = await superValidate(request, valibot(pageFileEditSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
-  try {
-    const session = await authGetSession(sessionToken)
-    const { siteId, pageId, lastRevisionId, fileId, file, name, comments } = form.data
-    const res = await pageFileEdit(
-      {
-        siteId,
-        pageId,
-        userId: session?.user_id,
-        fileId,
-        name: name === "" ? undefined : name,
-        file,
-        lastRevisionId,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
-      { sessionToken, siteId, page: pageId }
-    )
-
-    return withFiles({ form, res })
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageFileEditSchema = object({
-  ...baseSchema,
-  fileId: number(),
-  file: optional(file()),
-  name: string(),
-  comments: string()
-})
-
-/* ----- Page File Move ----- */
-export async function pageFileMoveAction({ request, cookies }: RequestEvent) {
-  const form = await superValidate(request, valibot(pageFileMoveSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
-  try {
-    const session = await authGetSession(sessionToken)
-    const { siteId, pageId, lastRevisionId, fileId, destinationPage, name, comments } =
-      form.data
-    const res = await pageFileMove(
-      {
-        siteId,
-        currentPageId: pageId,
-        destinationPage,
-        userId: session?.user_id,
-        fileId,
-        lastRevisionId,
-        name: name === "" ? undefined : name,
-        revisionComments: comments
-      },
-      { sessionToken, siteId, page: pageId }
-    )
-
-    return { form, res }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageFileMoveSchema = object({
-  ...baseSchema,
-  fileId: number(),
-  destinationPage: string(),
-  name: string(),
-  comments: string()
-})
-
-/* ----- Page File Restore ----- */
-export async function pageFileRestoreAction({
-  request,
-  cookies,
-  getClientAddress
-}: RequestEvent) {
-  const form = await superValidate(request, valibot(pageFileRestoreSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
-
-  try {
-    const session = sessionToken ? await authGetSession(sessionToken) : undefined
-    const { siteId, pageId, fileId, newPage, newName, comments } = form.data
-    const userId = resolvePageMutationUserId(
-      session?.user_id,
-      siteSlug,
-      requestSiteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        form,
-        message: "Permission denied."
-      })
-    }
-    const res = await pageFileRestore(
-      {
-        siteId,
-        pageId,
-        userId,
-        fileId,
-        newPage: newPage === "" ? undefined : newPage,
-        newName: newName === "" ? undefined : newName,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
-      { sessionToken, siteId, page: pageId }
-    )
-
-    return { form, res }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageFileRestoreSchema = object({
-  ...baseSchema,
-  fileId: number(),
-  newPage: string(),
-  newName: string(),
-  comments: string()
-})
-
-/* ----- Page File History ----- */
-export async function pageFileHistoryAction({ request }: RequestEvent) {
-  try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      fileId: number
-      revisionNumber: Optional<number>
-      limit: Optional<number>
-    } = await request.json()
-
-    const { siteId, pageId, fileId, revisionNumber, limit } = requestData
-
-    const res = await pageFileHistory(siteId, pageId, fileId, revisionNumber, limit)
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page File Rollback ----- */
-export async function pageFileRollbackAction({
-  request,
-  cookies,
-  getClientAddress
-}: RequestEvent) {
-  const { siteId: requestSiteId, siteSlug } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
-
-  try {
-    const session = sessionToken ? await authGetSession(sessionToken) : undefined
-    const requestData: {
-      siteId: number
-      pageId: number
-      fileId: number
-      revisionNumber: number
-      lastRevisionId: number
-      comments: Optional<string>
-    } = await request.json()
-
-    const { siteId, pageId, fileId, revisionNumber, lastRevisionId, comments } =
-      requestData
-    const userId = resolvePageMutationUserId(
-      session?.user_id,
-      siteSlug,
-      requestSiteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        message: "Permission denied."
-      })
-    }
-    const res = await pageFileRollback(
-      {
-        siteId,
-        pageId,
-        userId,
-        fileId,
-        lastRevisionId,
-        revisionNumber,
-        revisionComments: comments,
-        ipAddress: getClientAddress()
-      },
-      { sessionToken, siteId, page: pageId }
-    )
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page History ----- */
-export async function pageHistoryAction({ request, locals }: RequestEvent) {
-  try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      revisionNumber: Optional<number>
-      limit: Optional<number>
-    } = await request.json()
-
-    const { siteId, pageId, revisionNumber, limit } = requestData
-
-    const res = await pageHistory(
-      siteId,
-      pageId,
-      revisionNumber,
-      limit,
-      getRequestContext(locals)
-    )
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Revision ----- */
-export async function pageRevisionAction({ request, locals }: RequestEvent) {
-  try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      revisionNumber: number
-      compiledHtml: Optional<boolean>
-      wikitext: Optional<boolean>
-    } = await request.json()
-
-    const { siteId, pageId, revisionNumber, compiledHtml, wikitext } = requestData
-
-    const res = await pageRevision(
-      siteId,
-      pageId,
-      revisionNumber,
-      compiledHtml ?? true,
-      wikitext ?? true,
-      getRequestContext(locals)
-    )
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Rollback ----- */
-export async function pageRollbackAction({
-  request,
-  params,
-  getClientAddress,
-  cookies
-}: RequestEvent) {
-  const { slug } = params
-  const ipAddress = getClientAddress()
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession()
-  try {
-    const session = await authGetSession(sessionToken)
-    const requestData: {
-      siteId: number
-      pageId: number
-      revisionNumber: number
-      comments: Optional<string>
-      lastRevisionId: number
-    } = await request.json()
-
-    const { siteId, pageId, revisionNumber, comments, lastRevisionId } = requestData
-
-    const res = await pageRollback(
-      {
-        siteId,
-        pageId,
-        userId: session?.user_id,
-        userIpAddr: ipAddress,
-        slug,
-        lastRevisionId,
-        revisionNumber,
-        revisionComments: comments ?? ""
-      },
-      { sessionToken, siteId, page: pageId ?? slug }
-    )
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
 
 /* ----- Page Layout ----- */
 export async function layoutAction({ request, cookies, getClientAddress }: RequestEvent) {
@@ -996,7 +567,7 @@ export async function layoutAction({ request, cookies, getClientAddress }: Reque
 }
 
 const layoutSchema = object({
-  ...baseSchema,
+  ...pageMutationBaseSchema,
   layout: nullable(vEnum(Layout))
 })
 
@@ -1039,7 +610,7 @@ export async function pageMoveAction({
 }
 
 const pageMoveSchema = object({
-  ...baseSchema,
+  ...pageMutationBaseSchema,
   newSlug: string(),
   comments: string()
 })
@@ -1071,7 +642,7 @@ export async function pageParentSetAction({ request, cookies }: RequestEvent) {
 }
 
 const pageParentSchema = object({
-  ...baseSchema,
+  ...pageMutationBaseSchema,
   parents: string(),
   addParents: optional(array(string())),
   removeParents: optional(array(string()))
@@ -1175,52 +746,3 @@ export async function pageScoreAction({ request, params }: RequestEvent) {
     return failForActionError(error)
   }
 }
-
-/* ----- Page Deleted Get ----- */
-export async function pageDeletedGetAction({ request }: RequestEvent) {
-  try {
-    const requestData: {
-      siteId: number
-      slug: string
-    } = await request.json()
-    const { siteId, slug } = requestData
-    const res = await pageDeletedGet(siteId, slug)
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
-}
-
-/* ----- Page Restore ----- */
-export async function pageRestoreAction({
-  request,
-  cookies,
-  getClientAddress
-}: RequestEvent) {
-  const form = await superValidate(request, valibot(pageRestoreSchema))
-  if (!form.valid) {
-    return fail(400, { form })
-  }
-
-  const sessionToken = cookies.get("wikijump_token")
-  if (!sessionToken) return failForMissingSession({ form })
-  const ipAddress = getClientAddress()
-
-  try {
-    const session = await authGetSession(sessionToken)
-    const { siteId, pageId, comments } = form.data
-    const res = await pageRestore(siteId, pageId, session?.user_id, ipAddress, comments, {
-      sessionToken,
-      siteId,
-      page: pageId
-    })
-    return { form, res }
-  } catch (error) {
-    return failForActionError(error, { form })
-  }
-}
-
-const pageRestoreSchema = object({
-  ...baseSchema,
-  comments: string()
-})
