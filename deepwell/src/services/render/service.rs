@@ -7270,7 +7270,7 @@ impl RenderService {
                 let body = substitute_list_pages_variables_with_fragments(
                     body,
                     page,
-                    index + 1,
+                    index + offset as usize + 1,
                     total,
                     &substitution_context,
                     &mut generated_fragments,
