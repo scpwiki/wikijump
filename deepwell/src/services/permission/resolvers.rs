@@ -19,74 +19,38 @@
  */
 
 use crate::error::Result;
-use crate::services::ServiceContext;
+use crate::services::{CategoryService, ServiceContext};
 use crate::types::{Reference, Resource};
 use std::borrow::Cow;
 
-/// Trait for resolving category references (ID or slug) to category IDs.
-///
-/// Provides a common interface to allow the permission system to work with
-/// any resource category type (page, forum, etc.)
-///
-/// For `Reference::Id`, implementations can return the ID directly without a DB lookup.
-/// For `Reference::Slug`, implementations should query the database to resolve the slug.
-pub trait CategoryResolver: Send + Sync {
-    /// Resolve a category reference to its numeric ID.
-    fn resolve(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: &Reference<'_>,
-    ) -> impl Future<Output = Result<Option<i64>>> + Send;
-
-    /// Resolve a category reference to a slug, for human-readable output.
-    fn resolve_slug<'slug>(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: &Reference<'slug>,
-    ) -> impl Future<Output = Result<Option<Cow<'slug, str>>>> + Send;
-}
-
-#[derive(Debug)]
-pub struct PageCategoryResolver;
-
-impl CategoryResolver for PageCategoryResolver {
-    async fn resolve(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: &Reference<'_>,
-    ) -> Result<Option<i64>> {
-        use crate::services::CategoryService;
-
-        match reference {
-            Reference::Id(id) => Ok(Some(*id)),
-            Reference::Slug(slug) => {
-                let category = CategoryService::get_optional(
-                    ctx,
-                    site_id,
-                    Reference::Slug(cow!(&slug)),
-                )
-                .await?;
-                Ok(category.map(|c| c.category_id))
-            }
+async fn resolve_page_category_reference(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    reference: &Reference<'_>,
+) -> Result<Option<i64>> {
+    match reference {
+        Reference::Id(id) => Ok(Some(*id)),
+        Reference::Slug(slug) => {
+            let category =
+                CategoryService::get_optional(ctx, site_id, Reference::Slug(cow!(&slug)))
+                    .await?;
+            Ok(category.map(|category| category.category_id))
         }
     }
+}
 
-    async fn resolve_slug<'slug>(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: &Reference<'slug>,
-    ) -> Result<Option<Cow<'slug, str>>> {
-        use crate::services::CategoryService;
-
-        match reference {
-            Reference::Id(id) => {
-                let category =
-                    CategoryService::get_optional(ctx, site_id, Reference::Id(*id))
-                        .await?;
-                Ok(category.map(|c| Cow::Owned(c.slug)))
-            }
-            Reference::Slug(slug) => Ok(Some(slug.clone())),
+async fn resolve_page_category_slug<'slug>(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    reference: &Reference<'slug>,
+) -> Result<Option<Cow<'slug, str>>> {
+    match reference {
+        Reference::Id(id) => {
+            let category =
+                CategoryService::get_optional(ctx, site_id, Reference::Id(*id)).await?;
+            Ok(category.map(|category| Cow::Owned(category.slug)))
         }
+        Reference::Slug(slug) => Ok(Some(slug.clone())),
     }
 }
 
@@ -98,8 +62,7 @@ pub async fn resolve_category_reference(
     reference: &Reference<'_>,
 ) -> Result<Option<i64>> {
     match resource_type {
-        Resource::Page => PageCategoryResolver::resolve(ctx, site_id, reference).await,
-        // TODO: Add other resource types and their resolvers here
+        Resource::Page => resolve_page_category_reference(ctx, site_id, reference).await,
         _ => Ok(None),
     }
 }
@@ -111,10 +74,7 @@ pub async fn resolve_category_slug<'slug>(
     reference: &Reference<'slug>,
 ) -> Result<Option<Cow<'slug, str>>> {
     match resource_type {
-        Resource::Page => {
-            PageCategoryResolver::resolve_slug(ctx, site_id, reference).await
-        }
-        // TODO: Add other resource types and their resolvers here
+        Resource::Page => resolve_page_category_slug(ctx, site_id, reference).await,
         _ => Ok(None),
     }
 }
