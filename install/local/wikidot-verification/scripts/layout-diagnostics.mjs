@@ -124,7 +124,10 @@ function requirePlaywright(browserRoot) {
     try {
       return requireFromRoot("@playwright/test");
     } catch (fallbackError) {
-      throw new Error(`could not load playwright or @playwright/test from ${root}; pass --browser-root pointing at a package with Playwright installed (${error.message}; ${fallbackError.message})`);
+      throw new AggregateError(
+        [error, fallbackError],
+        `could not load playwright or @playwright/test from ${root}; pass --browser-root pointing at a package with Playwright installed`,
+      );
     }
   }
 }

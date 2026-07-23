@@ -64,6 +64,7 @@ export const WIKIDOT_XMLRPC_COORDINATOR_SOURCE_PATHS = Object.freeze(
     "install/local/wikidot-verification/src/reference-object-store.mjs",
     "install/local/wikidot-verification/src/resource-manifest.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-acquisition-verdict.mjs",
+    "install/local/wikidot-verification/src/wikidot-xmlrpc-exact-data-record.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-installed-environment-manifest.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-private-capsule.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-python-environment.mjs",

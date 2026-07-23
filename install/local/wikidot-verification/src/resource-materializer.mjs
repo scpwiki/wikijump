@@ -128,7 +128,7 @@ async function writeResourceAtomically({bytes, realRoot, targetPath}) {
     await writeFile(temporaryPath, bytes, {flag: "wx", mode: 0o644});
     await rename(temporaryPath, targetPath);
   } catch (error) {
-    await rm(temporaryPath, {force: true});
+    await rm(temporaryPath, {force: true}).catch(() => {});
     throw error;
   }
 

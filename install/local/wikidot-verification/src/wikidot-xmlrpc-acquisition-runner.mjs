@@ -98,6 +98,7 @@ export const WIKIDOT_XMLRPC_CANONICAL_COORDINATOR_SOURCE_PATHS = Object.freeze(
     "install/local/wikidot-verification/src/resource-manifest.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-acquisition-runner.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-acquisition-verdict.mjs",
+    "install/local/wikidot-verification/src/wikidot-xmlrpc-exact-data-record.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-installed-environment-manifest.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-private-capsule.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-python-environment.mjs",
@@ -1311,6 +1312,24 @@ async function completedCount(completions) {
   }
 }
 
+export function createPreparedWikidotXmlrpcAcquisition({
+  artifacts,
+  campaign,
+  context,
+  inventory,
+  options,
+  selection,
+}) {
+  return Object.freeze({
+    artifacts,
+    campaign,
+    context,
+    inventory,
+    options,
+    selection: Object.freeze([...selection]),
+  });
+}
+
 export async function runAcquisition(input) {
   let options = null;
   let capsule = null;
@@ -1398,6 +1417,14 @@ export async function runAcquisition(input) {
       context,
       campaign.reference,
     );
+    const prepared = createPreparedWikidotXmlrpcAcquisition({
+      artifacts,
+      campaign,
+      context,
+      inventory,
+      options,
+      selection: pilot.selection,
+    });
     let plan = await completions.planResume();
     if (plan.pending.length !== 0) {
       capsule = await materializeWikidotXmlrpcPrivateCapsule({
@@ -1407,11 +1434,11 @@ export async function runAcquisition(input) {
       });
     }
     sealed = await sealThrottleReceipt({
-      artifacts,
-      campaign,
-      inventory,
-      options,
-      selection: pilot.selection,
+      artifacts: prepared.artifacts,
+      campaign: prepared.campaign,
+      inventory: prepared.inventory,
+      options: prepared.options,
+      selection: prepared.selection,
     });
     let outcome = "pass";
     let failure = null;

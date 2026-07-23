@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 import crypto from 'node:crypto';
-import dns from 'node:dns';
 import fs from 'node:fs';
-import http from 'node:http';
-import https from 'node:https';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -11,14 +8,15 @@ import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-poli
 import { assertEmptyDbImportTarget } from '../src/corpus-import-empty-target.mjs';
 import {
   DEFAULT_IMPORT_USER_ID,
-  assertExistingAttachmentMatches,
-  attachmentActorUserId,
   validateAttachmentActorArgs,
 } from '../src/corpus-attachment-policy.mjs';
 import { planDirectAttachmentMaterialization } from '../src/corpus-attachment-direct.mjs';
-import { uploadPlannedAttachmentBlobs } from '../src/corpus-attachment-direct-upload.mjs';
-import { createHttpObjectStoreClient } from '../src/corpus-attachment-object-store.mjs';
-import { buildAttachmentStagingSql, parseAttachmentStagingResults } from '../src/corpus-attachment-staging-sql.mjs';
+import {
+  commitDirectCorpusAttachmentStaging,
+  materializeCorpusRowAttachments,
+  summarizeCorpusAttachmentUpload,
+  uploadDirectCorpusAttachmentBlobs,
+} from '../src/corpus-import-attachments.mjs';
 import {
   buildParentLinkParentPagesSql,
   buildParentLinkSql,
@@ -27,7 +25,28 @@ import {
   shouldProcessParentLinks,
 } from '../src/corpus-import-parent-links.mjs';
 import { createSqlExecutor } from '../src/corpus-import-sql.mjs';
+import {
+  sqlByteaFromHex,
+  sqlInt,
+  sqlQuote,
+  sqlTextArray,
+  sqlTextFromBase64,
+  sqlTextHash,
+  sqlTimestamp,
+} from '../src/corpus-import-sql-values.mjs';
+import {
+  ensureCorpusImportRun,
+  finishCorpusImportRun,
+  recordCorpusImportItemSql,
+} from '../src/corpus-import-run-state.mjs';
 import { parsePrecreatedCategoryIds } from '../src/corpus-precreated-categories.mjs';
+import {
+  corpusImportCategoryName,
+  createCorpusImportPage,
+  getCorpusImportFile,
+  getCorpusImportPage,
+  rerenderCorpusImportPage,
+} from '../src/corpus-import-page-rpc.mjs';
 
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
@@ -40,7 +59,6 @@ const SHELL_IMPORT_MARKER = 'corpus-shell-import';
 const SHELL_IMPORT_MESSAGE = 'Content not rendered yet for local Wikidot corpus snapshot import';
 const SHELL_BODY_HTML = `<div class="wj-proof-stub ${SHELL_IMPORT_MARKER}">${SHELL_IMPORT_MESSAGE}.</div>`;
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
-const ATTACHMENT_IMPORT_COMMENTS = 'local scp-wiki mirror attachment import from scp-wiki-translation corpus';
 let shellBodyHash = null;
 let shellBodyTextPrecreated = false;
 const precomputedTextHashes = new Map();
@@ -50,6 +68,9 @@ const precreatedCategoryIds = new Map();
 const SOURCE_TEXT_PRECREATE_MAX_ROWS = 200;
 const SOURCE_TEXT_PRECREATE_MAX_BASE64_BYTES = 4 * 1024 * 1024;
 const DB_SHELL_BATCH_MAX_ROWS = 200;
+const ensureImportRun = ensureCorpusImportRun;
+const recordItemSql = recordCorpusImportItemSql;
+const finishRun = finishCorpusImportRun;
 
 function monotonicMsSince(start) {
   return Number(process.hrtime.bigint() - start) / 1_000_000;
@@ -262,31 +283,6 @@ function parsePresignHostAliases(values) {
   return aliases;
 }
 
-function sqlQuote(value) {
-  if (value === null || value === undefined) return 'NULL';
-  return `'${String(value).replaceAll("'", "''")}'`;
-}
-
-function sqlTimestamp(value) {
-  if (value === null || value === undefined || value === '') return 'NULL';
-  return `TIMESTAMPTZ ${sqlQuote(value)}`;
-}
-
-function sqlInt(value) {
-  if (!Number.isInteger(value)) throw new Error(`expected integer, got ${value}`);
-  return String(value);
-}
-
-function sqlByteaFromHex(hex) {
-  if (!/^[0-9a-f]{64}$/iu.test(hex)) throw new Error(`expected sha256 hex, got ${hex}`);
-  return `decode(${sqlQuote(hex.toLowerCase())}, 'hex')`;
-}
-
-function sqlTextHash(hex) {
-  if (!/^[0-9a-f]{32}$/iu.test(hex)) throw new Error(`expected 16-byte text hash hex, got ${hex}`);
-  return `decode(${sqlQuote(hex.toLowerCase())}, 'hex')`;
-}
-
 function validateTextHash(hash) {
   if (!/^[0-9a-f]{32}$/iu.test(hash)) {
     throw new Error(`text hash command returned invalid 16-byte hex hash: ${hash}`);
@@ -446,14 +442,6 @@ async function precreateDbShellCategories(args, sqlExecutor, selectedRows) {
   }
 }
 
-function sqlTextFromBase64(value) {
-  return `convert_from(decode(${sqlQuote(Buffer.from(value, 'utf8').toString('base64'))}, 'base64'), 'UTF8')`;
-}
-
-function sqlTextArray(values) {
-  return `ARRAY[${values.map((value) => sqlQuote(value)).join(',')}]::text[]`;
-}
-
 async function applyMigration(args, sqlExecutor) {
   const migrationSql = fs.readFileSync(args.migration, 'utf8');
   await sqlExecutor.runSql(migrationSql);
@@ -550,77 +538,15 @@ function metaJsonText(row) {
   return readManifestFile(row, 'meta_path', 'meta_sha256');
 }
 
-async function ensureImportRun(args, sqlExecutor, manifestText, manifestRows, selectedRows, completeInventory) {
-  const manifestSha = crypto.createHash('sha256').update(manifestText).digest('hex');
-  const sourceSites = new Set(manifestRows.map((row) => row.source_site));
-  const sourceBranches = new Set(manifestRows.map((row) => row.source_branch));
-  if (sourceSites.size > 1 || sourceBranches.size > 1) {
-    throw new Error('manifest must contain a single source_site/source_branch');
-  }
-  const [sourceSite = args.sourceSite] = sourceSites;
-  const [sourceBranch = args.sourceBranch] = sourceBranches;
-  const summary = JSON.stringify({ selected_row_count: selectedRows.length, complete_inventory: completeInventory });
-  const sql = `
-INSERT INTO wikidot_corpus_import_run (
-  site_id,
-  source_branch,
-  source_site,
-  manifest_sha256,
-  manifest_row_count,
-  complete_inventory,
-  state,
-  summary
-) VALUES (
-  ${sqlInt(args.siteId)},
-  ${sqlQuote(sourceBranch)},
-  ${sqlQuote(sourceSite)},
-  ${sqlByteaFromHex(manifestSha)},
-  ${sqlInt(manifestRows.length)},
-  ${completeInventory ? 'true' : 'false'},
-  'running',
-  ${sqlQuote(summary)}::jsonb
-)
-RETURNING import_run_id;
-`;
-  return Number.parseInt(await sqlExecutor.runSql(sql, { capture: true }), 10);
+const getPage = (args, slug) => getCorpusImportPage(args, rpc, slug);
+const getFile = (args, pageId, filename) => getCorpusImportFile(args, rpc, pageId, filename);
+
+function materializeRowAttachments(args, row, pageId) {
+  return materializeCorpusRowAttachments({ args, row, pageId, getFile, rpc });
 }
 
-async function getPage(args, slug) {
-  return await rpc(args, 'page_get', {
-    site_id: args.siteId,
-    page: slug,
-    details: { wikitext: false, compiled: false },
-  });
-}
-
-async function getFile(args, pageId, filename) {
-  return await rpc(args, 'file_get', {
-    site_id: args.siteId,
-    page_id: pageId,
-    file: filename,
-    details: { data: false },
-  }, { siteId: args.siteId, pageRef: pageId });
-}
-
-async function createPage(args, row) {
-  return await rpc(args, 'page_create', {
-    site_id: args.siteId,
-    wikitext: sourceText(row),
-    title: fallbackTitle(row),
-    alt_title: null,
-    slug: row.fullname,
-    layout: 'wikidot',
-    revision_comments: 'local scp-wiki mirror import from scp-wiki-translation corpus',
-    user_id: args.userId,
-    bypass_filter: true,
-    ip_address: args.ipAddress,
-  });
-}
-
-function categoryName(slug) {
-  const index = slug.lastIndexOf(':');
-  return index === -1 ? '_default' : slug.slice(0, index);
-}
+const createPage = (args, row) => createCorpusImportPage(args, rpc, row, sourceText(row));
+const categoryName = corpusImportCategoryName;
 
 async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision = false } = {}) {
   const sourceTextPrecreated = precreatedSourceTextHashes.has(row.fullname);
@@ -804,209 +730,7 @@ FROM corpus_shell_import_result;
   return { page_id: pageId, page_category_id: categoryId, revision_id: revisionId, created_page: !pageExisted, created_revision: createdRevision };
 }
 
-async function rerenderPage(args, pageId, categoryId) {
-  return await rpc(args, 'page_rerender', {
-    site_id: args.siteId,
-    category_id: categoryId,
-    page_id: pageId,
-  });
-}
-
-function assertAttachmentSha(attachment) {
-  if (typeof attachment.sha256 !== 'string' || !/^[0-9a-f]{64}$/u.test(attachment.sha256)) {
-    throw new Error(`invalid attachment sha256 for ${attachment.filename ?? '<unknown>'}`);
-  }
-}
-
-function readAttachmentBytes(row, attachment) {
-  if (attachment === null || typeof attachment !== 'object' || Array.isArray(attachment)) {
-    throw new Error(`${row.fullname}: attachment entry must be an object`);
-  }
-  if (typeof attachment.filename !== 'string' || attachment.filename.length === 0) {
-    throw new Error(`${row.fullname}: attachment filename must be a non-empty string`);
-  }
-  if (typeof attachment.file_path !== 'string' || attachment.file_path.length === 0) {
-    throw new Error(`${row.fullname}/${attachment.filename}: attachment file_path must be a non-empty string`);
-  }
-  if (!Number.isSafeInteger(attachment.size) || attachment.size < 0) {
-    throw new Error(`${row.fullname}/${attachment.filename}: attachment size must be a non-negative safe integer`);
-  }
-  assertAttachmentSha(attachment);
-
-  const bytes = fs.readFileSync(attachment.file_path);
-  const actualSha = crypto.createHash('sha256').update(bytes).digest('hex');
-  if (actualSha !== attachment.sha256) {
-    throw new Error(`${row.fullname}/${attachment.filename}: attachment sha256 mismatch: expected ${attachment.sha256}, got ${actualSha}`);
-  }
-  if (bytes.length !== attachment.size) {
-    throw new Error(`${row.fullname}/${attachment.filename}: attachment size mismatch: expected ${attachment.size}, got ${bytes.length}`);
-  }
-  return bytes;
-}
-
-async function uploadBlob(args, bytes, attachment, actorUserId) {
-  const upload = await rpc(args, 'blob_upload', {
-    user_id: actorUserId,
-    blob_size: bytes.byteLength,
-  });
-  const { statusCode } = await putPresignedBytes(args, upload.presign_url, bytes, attachment);
-  if (statusCode < 200 || statusCode >= 300) {
-    throw new Error(`${attachment.filename}: presigned PUT failed with status ${statusCode}`);
-  }
-  return upload.pending_blob_id;
-}
-
-function putPresignedBytes(args, presignUrl, bytes, attachment) {
-  const url = new URL(presignUrl);
-  const client = url.protocol === 'https:' ? https : http;
-  const aliases = args.presignHostAliases ?? new Map();
-  const requestOptions = {
-    method: 'PUT',
-    hostname: url.hostname,
-    port: url.port || (url.protocol === 'https:' ? 443 : 80),
-    path: `${url.pathname}${url.search}`,
-    headers: {
-      'content-length': bytes.byteLength,
-    },
-    lookup(hostname, options, callback) {
-      const alias = aliases.get(hostname.toLowerCase());
-      if (alias) {
-        const family = alias.includes(':') ? 6 : 4;
-        if (options?.all) {
-          callback(null, [{ address: alias, family }]);
-        } else {
-          callback(null, alias, family);
-        }
-        return;
-      }
-      dns.lookup(hostname, options, callback);
-    },
-  };
-
-  return new Promise((resolve, reject) => {
-    const request = client.request(requestOptions, (response) => {
-      response.resume();
-      response.on('end', () => resolve({ statusCode: response.statusCode ?? 0 }));
-    });
-    request.setTimeout(args.rpcTimeoutMs, () => {
-      request.destroy(new Error(`${attachment.filename}: presigned PUT timed out after ${args.rpcTimeoutMs}ms`));
-    });
-    request.on('error', reject);
-    request.end(bytes);
-  });
-}
-
-async function createFile(args, pageId, attachment, pendingBlobId, actorUserId) {
-  return await rpc(args, 'file_create', {
-    site_id: args.siteId,
-    page_id: pageId,
-    name: attachment.filename,
-    uploaded_blob_id: pendingBlobId,
-    revision_comments: ATTACHMENT_IMPORT_COMMENTS,
-    user_id: actorUserId,
-    bypass_filter: true,
-    ip_address: args.ipAddress,
-  }, { siteId: args.siteId, pageRef: pageId });
-}
-
-async function materializeRowAttachments(args, row, pageId) {
-  const attachments = Array.isArray(row.attachments) ? row.attachments : [];
-  if (args.skipAttachments) {
-    return {
-      attachments_requested: attachments.length,
-      attachments_uploaded: 0,
-      attachments_skipped_existing: 0,
-      attachments_deferred: attachments.length,
-    };
-  }
-  if (args.attachmentCreateMode === 'direct') {
-    return {
-      attachments_requested: attachments.length,
-      attachments_uploaded: 0,
-      attachments_skipped_existing: 0,
-    };
-  }
-  if (attachments.length === 0) {
-    return { attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0 };
-  }
-  if (!args.sessionToken) {
-    throw new Error(`${row.fullname}: attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN`);
-  }
-
-  let uploaded = 0;
-  let skippedExisting = 0;
-  const actorUserId = attachmentActorUserId(args, row);
-  for (const attachment of attachments) {
-    const bytes = readAttachmentBytes(row, attachment);
-    const existing = await getFile(args, pageId, attachment.filename);
-    if (existing !== null) {
-      assertExistingAttachmentMatches({ row, attachment, existing, bytes });
-      skippedExisting += 1;
-      continue;
-    }
-    const pendingBlobId = await uploadBlob(args, bytes, attachment, actorUserId);
-    await createFile(args, pageId, attachment, pendingBlobId, actorUserId);
-    uploaded += 1;
-  }
-  return {
-    attachments_requested: attachments.length,
-    attachments_uploaded: uploaded,
-    attachments_skipped_existing: skippedExisting,
-  };
-}
-
-function createAttachmentObjectStore(args) {
-  return createHttpObjectStoreClient({
-    endpoint: args.attachmentS3Endpoint,
-    bucket: args.attachmentS3Bucket,
-    accessKeyId: args.attachmentS3AccessKeyId,
-    secretAccessKey: args.attachmentS3SecretAccessKey,
-    region: args.attachmentS3Region ?? 'local',
-    pathStyle: args.attachmentS3PathStyle ?? true,
-  });
-}
-
-function summarizeAttachmentUpload(upload) {
-  return {
-    requested: upload.requested,
-    uploaded: upload.uploaded,
-    skipped_existing: upload.skipped_existing,
-    failed: upload.failed,
-    total_bytes: upload.total_bytes,
-    uploaded_bytes: upload.uploaded_bytes,
-  };
-}
-
-async function uploadDirectAttachmentBlobs(args, directPlan) {
-  if (directPlan.blobs.length === 0) {
-    return {
-      requested: 0,
-      uploaded: 0,
-      skipped_existing: 0,
-      failed: 0,
-      total_bytes: 0,
-      uploaded_bytes: 0,
-      results: [],
-    };
-  }
-  const objectStore = createAttachmentObjectStore(args);
-  return await uploadPlannedAttachmentBlobs({
-    blobs: directPlan.blobs,
-    objectStore,
-    readBlobBytes: async (blob) => fs.readFileSync(blob.first_file_path),
-  });
-}
-
-async function commitDirectAttachmentStaging(args, sqlExecutor, directPlan) {
-  const sql = buildAttachmentStagingSql({
-    siteId: args.siteId,
-    actorUserId: attachmentActorUserId(args),
-    attachments: directPlan.attachments,
-    revisionComments: ATTACHMENT_IMPORT_COMMENTS,
-    commit: true,
-  });
-  return parseAttachmentStagingResults(await sqlExecutor.runSql(sql, { capture: true }));
-}
+const rerenderPage = (args, pageId, categoryId) => rerenderCorpusImportPage(args, rpc, pageId, categoryId);
 
 function upsertSnapshotSql(args, row, pageId, revisionId, importRunId) {
   const metaText = metaJsonText(row);
@@ -1232,35 +956,6 @@ LIMIT 1;
 `;
   const output = await sqlExecutor.runSql(sql, { capture: true });
   return output === 'matching' ? 'matching' : 'mismatched';
-}
-
-function recordItemSql(row, pageId, importRunId, state, error = null) {
-  return `
-INSERT INTO wikidot_corpus_import_item (
-  import_run_id,
-  source_entity_id,
-  source_fullname,
-  page_id,
-  source_sha256,
-  meta_sha256,
-  state,
-  error
-) VALUES (
-  ${sqlInt(importRunId)},
-  ${sqlQuote(row.source_entity_id)},
-  ${sqlQuote(row.fullname)},
-  ${pageId === null ? 'NULL' : sqlInt(pageId)},
-  ${sqlByteaFromHex(row.source_sha256)},
-  ${sqlByteaFromHex(row.meta_sha256)},
-  ${sqlQuote(state)},
-  ${error === null ? 'NULL' : `${sqlQuote(JSON.stringify(error))}::jsonb`}
-)
-ON CONFLICT (import_run_id, source_entity_id) DO UPDATE SET
-  page_id = EXCLUDED.page_id,
-  state = EXCLUDED.state,
-  error = EXCLUDED.error,
-  updated_at = NOW();
-`;
 }
 
 function canCombineSnapshotReadyRecord(args) {
@@ -1722,14 +1417,6 @@ async function importRow(args, sqlExecutor, row, importRunId) {
   return { slug: row.fullname, action, page_id: pageId, revision_id: revisionId, rating: row.rating, tags: row.tags.length, ...attachmentSummary };
 }
 
-async function finishRun(args, sqlExecutor, importRunId, summary, state = 'done') {
-  await sqlExecutor.runSql(`
-UPDATE wikidot_corpus_import_run
-SET state = ${sqlQuote(state)}, finished_at = NOW(), summary = ${sqlQuote(JSON.stringify(summary))}::jsonb
-WHERE import_run_id = ${sqlInt(importRunId)};
-`);
-}
-
 async function upsertParentLinks(args, sqlExecutor, selectedRows) {
   // Attachment-only imports do not change page snapshots or page topology. The
   // selected rows can include existing pages whose include graph is outside
@@ -1809,8 +1496,8 @@ async function main() {
     try {
       if (directAttachmentPlan !== null) {
         summary.attachment_direct_plan = directAttachmentPlan.attachment_direct_plan;
-        directAttachmentUpload = await timePhase(phaseTimingsMs, 'upload_direct_attachment_blobs', () => uploadDirectAttachmentBlobs(args, directAttachmentPlan));
-        summary.attachment_direct_upload = summarizeAttachmentUpload(directAttachmentUpload);
+        directAttachmentUpload = await timePhase(phaseTimingsMs, 'upload_direct_attachment_blobs', () => uploadDirectCorpusAttachmentBlobs(args, directAttachmentPlan));
+        summary.attachment_direct_upload = summarizeCorpusAttachmentUpload(directAttachmentUpload);
       }
       if (canBatchCreateDbShellPages(args)) {
         let shellBatchCount = 0;
@@ -1850,7 +1537,7 @@ async function main() {
       if (directAttachmentPlan !== null) {
         let attachmentStaging = { summary: { total: 0, insert: 0, skip_existing: 0, fail_closed: 0 }, rows: [] };
         if (directAttachmentUpload.failed === 0) {
-          attachmentStaging = await timePhase(phaseTimingsMs, 'commit_direct_attachment_staging', () => commitDirectAttachmentStaging(args, sqlExecutor, directAttachmentPlan));
+          attachmentStaging = await timePhase(phaseTimingsMs, 'commit_direct_attachment_staging', () => commitDirectCorpusAttachmentStaging(args, sqlExecutor, directAttachmentPlan));
           summary.attachments_uploaded += attachmentStaging.summary.insert;
           summary.attachments_skipped_existing += attachmentStaging.summary.skip_existing;
         }

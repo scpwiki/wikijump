@@ -17,6 +17,7 @@ import {
   assertDistinctOutputDestinations,
   assertPinnedPilotWorkerIdentity,
   capturePending,
+  createPreparedWikidotXmlrpcAcquisition,
   derivePilotInventory,
   expectedWorkerExitCode,
   normalizeRunnerOptions,
@@ -49,6 +50,21 @@ function rawRows(count) {
     updated_at: `2026-07-${String(index + 1).padStart(2, "0")}T12:34:56+00:00`,
   }));
 }
+
+test("prepared XML-RPC acquisition freezes validated lifecycle inputs", () => {
+  const prepared = createPreparedWikidotXmlrpcAcquisition({
+    artifacts: { implementation: { object: { key: "implementation" } } },
+    campaign: { reference: { key: "campaign" } },
+    context: { identity: "context" },
+    inventory: { identity: { sha256: "a".repeat(64) }, rows: [] },
+    options: { principalId: "operator" },
+    selection: ["scp-173"],
+  });
+
+  assert.equal(Object.isFrozen(prepared), true);
+  assert.equal(Object.isFrozen(prepared.selection), true);
+  assert.deepEqual(prepared.selection, ["scp-173"]);
+});
 
 function summaryFor(rows, manifestBytes) {
   return Buffer.from(
