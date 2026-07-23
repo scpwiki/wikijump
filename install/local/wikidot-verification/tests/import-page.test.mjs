@@ -300,3 +300,22 @@ test('parseApplyOutput handles pretty dry-run output', () => {
   assert.deepEqual(parsed.rows, []);
   assert.deepEqual(parsed.summary, { dry_run: true, selected_rows: 3 });
 });
+
+test('parseApplyOutput rejects truncated, missing, and duplicate terminal summaries', () => {
+  assert.throws(
+    () => parseApplyOutput('{\n  "summary": {\n    "created": 1'),
+    /incomplete JSON object/,
+  );
+  assert.throws(
+    () => parseApplyOutput('{"slug":"scp-2000","action":"created"}'),
+    /missing its terminal summary/,
+  );
+  assert.throws(
+    () => parseApplyOutput('{"summary":{"created":1}}\n{"dry_run":true,"selected_rows":1}'),
+    /multiple terminal summaries/,
+  );
+  assert.deepEqual(
+    parseApplyOutput('{"slug":"scp-2000","action":"failed"}', {requireTerminal: false}),
+    {rows: [{slug: 'scp-2000', action: 'failed'}], summary: null},
+  );
+});

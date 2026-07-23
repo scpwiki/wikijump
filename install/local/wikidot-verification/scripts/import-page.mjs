@@ -262,7 +262,7 @@ async function main() {
       env: invocation.env,
       logPath: out(`apply-batch-${index}.log`),
     });
-    const parsed = parseApplyOutput(apply.stdout ?? '');
+    const parsed = parseApplyOutput(apply.stdout ?? '', {requireTerminal: apply.status === 0});
     applyResults.push(...parsed.rows);
     if (parsed.summary) applySummaries.push(parsed.summary);
     if (apply.status !== 0) {
