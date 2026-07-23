@@ -2665,6 +2665,100 @@ async fn listpages_categories_alias_selects_only_default_category_rows() {
 }
 
 #[tokio::test]
+async fn listpages_append_line_matches_wikidot_row_and_pager_ordering() {
+    const TAG: &str = "verification-listpages-append-line";
+    const PRE: &str = "LISTPAGES_APPEND_PRE";
+    const POST: &str = "LISTPAGES_APPEND_POST";
+    const ZERO_PRE: &str = "LISTPAGES_APPEND_ZERO_PRE";
+    const ZERO_POST: &str = "LISTPAGES_APPEND_ZERO_POST";
+    const INDEX_SLUG: &str = "fixture-listpages-append-line-index";
+    const ZERO_INDEX_SLUG: &str = "fixture-listpages-append-line-zero-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (
+            "fixture-listpages-append-line-alpha",
+            "Fixture ListPages Append Alpha",
+        ),
+        (
+            "fixture-listpages-append-line-beta",
+            "Fixture ListPages Append Beta",
+        ),
+        (
+            "fixture-listpages-append-line-gamma",
+            "Fixture ListPages Append Gamma",
+        ),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "ListPages appendLine target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Append Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-append-line\" order=\"name asc\" perPage=\"2\" separate=\"no\" prependLine=\"LISTPAGES_APPEND_PRE\" appendLine=\"LISTPAGES_APPEND_POST\"]]\n",
+            "%%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        ZERO_INDEX_SLUG,
+        "Fixture ListPages Append Zero Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-append-line-absent\" separate=\"no\" prependLine=\"LISTPAGES_APPEND_ZERO_PRE\" appendLine=\"LISTPAGES_APPEND_ZERO_POST\"]]\n",
+            "%%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    let pre = html.find(PRE).expect("prelude should render with rows");
+    let alpha = html
+        .find("fixture-listpages-append-line-alpha")
+        .expect("first ordered row should render");
+    let beta = html
+        .find("fixture-listpages-append-line-beta")
+        .expect("second ordered row should render");
+    let post = html.find(POST).expect("postlude should render with rows");
+    let pager = html
+        .find(r#"<div class="pager">"#)
+        .expect("perPage should render the pager after appendLine");
+    assert!(
+        pre < alpha && alpha < beta && beta < post && post < pager,
+        "appendLine must follow selected rows and precede the pager:\n{html}"
+    );
+    assert!(
+        !html.contains("fixture-listpages-append-line-gamma"),
+        "the first page must not render an extra perPage row:\n{html}"
+    );
+
+    let zero_html =
+        load_listpages_test_compiled_html(&runner, site_id, ZERO_INDEX_SLUG).await;
+    assert!(
+        !zero_html.contains(ZERO_PRE) && !zero_html.contains(ZERO_POST),
+        "zero-row ListPages must omit both prelude and postlude:\n{zero_html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_reverse_yes_reverses_the_selected_ordered_rows() {
     const TAG: &str = "verification-listpages-reverse-yes";
     const INDEX_SLUG: &str = "fixture-listpages-reverse-yes-index";

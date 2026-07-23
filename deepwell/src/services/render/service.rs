@@ -6843,6 +6843,7 @@ impl RenderService {
             name_pattern,
             data_form_fields,
             prepend_line,
+            append_line,
             separate,
             wrapper,
             unsupported_author_filter: _,
@@ -7122,7 +7123,9 @@ impl RenderService {
             output.push_str("[[div class=\"list-pages-box\"]]\n");
         }
         let mut included_pages = Vec::new();
-        if let Some(prepend_line) = prepend_line {
+        if !pages.is_empty()
+            && let Some(prepend_line) = prepend_line
+        {
             output.push_str(&prepend_line);
             output.push('\n');
         }
@@ -7287,6 +7290,13 @@ impl RenderService {
             }
         }
 
+        if !pages.is_empty()
+            && let Some(append_line) = append_line
+        {
+            output.push_str(&append_line);
+            output.push('\n');
+        }
+
         if let Some(per_page) = count_pages_per_page {
             push_list_pages_pager(
                 &mut output,
@@ -7351,6 +7361,7 @@ impl RenderService {
             slug,
             name_pattern,
             prepend_line: _,
+            append_line: _,
             data_form_fields,
             unsupported_author_filter: _,
             unsupported_score_filter: _,
@@ -8369,6 +8380,7 @@ struct ListPagesArguments {
     name_pattern: Option<Cow<'static, str>>,
     data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
+    append_line: Option<String>,
     separate: bool,
     wrapper: bool,
     unsupported_author_filter: bool,
@@ -8520,6 +8532,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut name_pattern = None;
     let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
+    let mut append_line = None;
     let mut separate = true;
     let mut wrapper = true;
     let mut unsupported_author_filter = false;
@@ -8657,6 +8670,9 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
             }
             "prependline" | "prepend_line" => {
                 prepend_line = Some(value.to_owned());
+            }
+            "appendline" => {
+                append_line = Some(value.to_owned());
             }
             "order" => {
                 if value.is_empty() {
@@ -8829,6 +8845,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         name_pattern,
         data_form_fields,
         prepend_line,
+        append_line,
         separate,
         wrapper,
         unsupported_author_filter,
@@ -12926,6 +12943,22 @@ mod tests {
         assert!(
             parse_list_pages_arguments(r#" tags="+fixture" reverse="no" "#).is_none(),
             "unverified reverse values must remain literal"
+        );
+    }
+
+    #[test]
+    fn parses_wikidot_list_pages_append_line_without_aliases() {
+        let arguments = parse_list_pages_arguments(
+            r#" tags="+fixture" separate="no" prependLine="PRE" appendLine="POST" "#,
+        )
+        .expect("live-evidenced appendLine should parse");
+
+        assert_eq!(arguments.prepend_line.as_deref(), Some("PRE"));
+        assert_eq!(arguments.append_line.as_deref(), Some("POST"));
+        assert!(
+            parse_list_pages_arguments(r#" tags="+fixture" append_line="POST" "#)
+                .is_none(),
+            "unverified appendLine aliases must remain literal"
         );
     }
 
