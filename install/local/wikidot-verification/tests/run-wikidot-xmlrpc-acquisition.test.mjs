@@ -17,10 +17,10 @@ import {
   assertDistinctOutputDestinations,
   assertPinnedPilotWorkerIdentity,
   capturePending,
-  createPreparedWikidotXmlrpcAcquisition,
   derivePilotInventory,
   expectedWorkerExitCode,
   normalizeRunnerOptions,
+  partitionRunnerOptions,
   scrubWikidotCredentials,
   takeCredentialsAfterSeal,
   WIKIDOT_XMLRPC_CANONICAL_COORDINATOR_SOURCE_PATHS,
@@ -51,19 +51,22 @@ function rawRows(count) {
   }));
 }
 
-test("prepared XML-RPC acquisition freezes validated lifecycle inputs", () => {
-  const prepared = createPreparedWikidotXmlrpcAcquisition({
-    artifacts: { implementation: { object: { key: "implementation" } } },
-    campaign: { reference: { key: "campaign" } },
-    context: { identity: "context" },
-    inventory: { identity: { sha256: "a".repeat(64) }, rows: [] },
-    options: { principalId: "operator" },
-    selection: ["scp-173"],
-  });
+test("runner options are partitioned into immutable workflow phase inputs", () => {
+  const phases = partitionRunnerOptions(normalizeRunnerOptions(runnerOptions()));
 
-  assert.equal(Object.isFrozen(prepared), true);
-  assert.equal(Object.isFrozen(prepared.selection), true);
-  assert.deepEqual(prepared.selection, ["scp-173"]);
+  assert.equal(Object.isFrozen(phases), true);
+  assert.equal(Object.isFrozen(phases.inventory), true);
+  assert.deepEqual(Object.keys(phases).sort(), [
+    "campaign",
+    "inventory",
+    "launch",
+    "outputs",
+    "runtime",
+    "source",
+    "storage",
+  ]);
+  assert.equal(phases.inventory.selectionCount, 128);
+  assert.equal(phases.campaign.principalId, 5700026);
 });
 
 function summaryFor(rows, manifestBytes) {
@@ -524,10 +527,12 @@ test("pilot worker identity is pinned before the coordinator can launch", () => 
       "source-tree": WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY.tree,
     }),
   );
-  assert.doesNotThrow(() => assertPinnedPilotWorkerIdentity(pinned));
+  assert.doesNotThrow(() => assertPinnedPilotWorkerIdentity(partitionRunnerOptions(pinned).source));
   assert.throws(
     () =>
-      assertPinnedPilotWorkerIdentity(normalizeRunnerOptions(runnerOptions())),
+      assertPinnedPilotWorkerIdentity(
+        partitionRunnerOptions(normalizeRunnerOptions(runnerOptions())).source,
+      ),
     /pilot_worker_identity_invalid/u,
   );
 });
@@ -535,14 +540,14 @@ test("pilot worker identity is pinned before the coordinator can launch", () => 
 test("runner rejects output destination aliases before a throttle can be sealed", async (t) => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "xmlrpc-output-"));
   t.after(() => fs.rm(root, { force: true, recursive: true }));
-  const options = normalizeRunnerOptions(
+  const options = partitionRunnerOptions(normalizeRunnerOptions(
     runnerOptions({
       "inventory-output": path.join(root, "inventory.json"),
       "result-receipt": path.join(root, "result.json"),
       "throttle-receipt": path.join(root, "throttle.json"),
       verdict: path.join(root, "verdict.json"),
     }),
-  );
+  )).outputs;
   await assert.doesNotReject(assertDistinctOutputDestinations(options));
   await assert.rejects(
     assertDistinctOutputDestinations({

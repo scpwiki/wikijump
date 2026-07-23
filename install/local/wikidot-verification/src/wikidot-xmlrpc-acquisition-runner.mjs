@@ -352,10 +352,55 @@ export function normalizeRunnerOptions(values) {
   });
 }
 
+export function partitionRunnerOptions(options) {
+  return Object.freeze({
+    campaign: Object.freeze({
+      campaignNonce: options.campaignNonce,
+      principalId: options.principalId,
+    }),
+    inventory: Object.freeze({
+      expectedFullInventorySha256: options.expectedFullInventorySha256,
+      expectedManifestSha256: options.expectedManifestSha256,
+      expectedSummarySha256: options.expectedSummarySha256,
+      fullInventoryPath: options.fullInventoryPath,
+      manifestPath: options.manifestPath,
+      selectionCount: options.selectionCount,
+      shards: options.shards,
+      summaryPath: options.summaryPath,
+    }),
+    launch: Object.freeze({
+      wikijumpCommit: options.wikijumpCommit,
+      wikijumpGitDirectory: options.wikijumpGitDirectory,
+      wikijumpTree: options.wikijumpTree,
+    }),
+    outputs: Object.freeze({
+      inventoryOutput: options.inventoryOutput,
+      resultReceipt: options.resultReceipt,
+      throttleReceipt: options.throttleReceipt,
+      verdict: options.verdict,
+    }),
+    runtime: Object.freeze({
+      pythonExecutablePath: options.runtimePython,
+      pythonVersion: options.runtimeVersion,
+      root: options.runtimeRoot,
+      venvConfigPath: options.runtimeVenvConfig,
+    }),
+    source: Object.freeze({
+      commitOid: options.sourceCommit,
+      gitDirectory: options.sourceGitDirectory,
+      treeOid: options.sourceTree,
+    }),
+    storage: Object.freeze({
+      capsuleParent: options.capsuleParent,
+      storeRoot: options.storeRoot,
+    }),
+  });
+}
+
 export function assertPinnedPilotWorkerIdentity(options) {
   if (
-    options.sourceCommit !== WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY.commit ||
-    options.sourceTree !== WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY.tree
+    options.commitOid !== WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY.commit ||
+    options.treeOid !== WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY.tree
   ) {
     fail("pilot_worker_identity_invalid");
   }
@@ -1055,7 +1100,7 @@ async function sealThrottleReceipt({
   artifacts,
   campaign,
   inventory,
-  options,
+  throttleReceipt,
   selection,
 }) {
   const key = artifactKey(inventory, artifacts.implementation);
@@ -1087,7 +1132,7 @@ async function sealThrottleReceipt({
     status: "sealed",
     throttle_config: config.object,
   };
-  await publishExactReceipt(options.throttleReceipt, canonicalBytes(receipt));
+  await publishExactReceipt(throttleReceipt, canonicalBytes(receipt));
   return Object.freeze({ artifactKey: key, config: config.object, receipt });
 }
 
@@ -1297,8 +1342,8 @@ function runReceipt({
   };
 }
 
-async function publishRunReceipt(options, receipt) {
-  await publishExactReceipt(options.resultReceipt, canonicalBytes(receipt));
+async function publishRunReceipt(resultReceipt, receipt) {
+  await publishExactReceipt(resultReceipt, canonicalBytes(receipt));
 }
 
 async function completedCount(completions) {
@@ -1310,46 +1355,69 @@ async function completedCount(completions) {
   }
 }
 
-export function createPreparedWikidotXmlrpcAcquisition({
-  artifacts,
-  campaign,
-  context,
-  inventory,
-  options,
-  selection,
-}) {
-  return Object.freeze({
-    artifacts,
-    campaign,
-    context,
-    inventory,
-    options,
-    selection: Object.freeze([...selection]),
-  });
+class AcquisitionSession {
+  constructor() {
+    this.capsule = null;
+    this.completions = null;
+    this.store = null;
+    this.worker = null;
+  }
+
+  async closeCaptureResources() {
+    const failures = [];
+    const worker = this.worker;
+    this.worker = null;
+    await stopWorker(worker).catch((error) => failures.push(error));
+    const capsule = this.capsule;
+    this.capsule = null;
+    await closeCapsule(capsule).catch((error) => failures.push(error));
+    if (failures.length > 0) {
+      throw new AggregateError(failures, "XML-RPC acquisition capture cleanup failed");
+    }
+  }
+
+  async closeCompletions() {
+    const completions = this.completions;
+    this.completions = null;
+    await completions?.close();
+  }
+
+  async closeStore() {
+    const store = this.store;
+    this.store = null;
+    await store?.close();
+  }
+
+  async close() {
+    const failures = [];
+    await this.closeCaptureResources().catch((error) => failures.push(error));
+    await this.closeCompletions().catch((error) => failures.push(error));
+    await this.closeStore().catch((error) => failures.push(error));
+    if (failures.length > 0) {
+      throw new AggregateError(failures, "XML-RPC acquisition session cleanup failed");
+    }
+  }
 }
 
 export async function runAcquisition(input) {
   let options = null;
-  let capsule = null;
-  let completions = null;
-  let store = null;
-  let worker = null;
   let sealed = null;
   let campaign = null;
   let artifacts = null;
   let context = null;
   let inventory = null;
   let lastCompleted = 0;
+  const resources = new AcquisitionSession();
   try {
-    options = normalizeRunnerOptions(input);
-    const coordinator = await assertMaterializedCoordinatorLaunch(options);
-    assertPinnedPilotWorkerIdentity(options);
-    await assertDistinctOutputDestinations(options);
+    options = partitionRunnerOptions(normalizeRunnerOptions(input));
+    const coordinator = await assertMaterializedCoordinatorLaunch(options.launch);
+    assertPinnedPilotWorkerIdentity(options.source);
+    await assertDistinctOutputDestinations(options.outputs);
     const [fullInventoryBytes, manifestBytes, summaryBytes] = await Promise.all(
       [
-        fs.readFile(options.fullInventoryPath),
-        fs.readFile(options.manifestPath),
-        fs.readFile(options.summaryPath),
+        fs.readFile(options.inventory.fullInventoryPath),
+        fs.readFile(options.inventory.manifestPath),
+        fs.readFile(options.inventory.summaryPath),
       ],
     );
     let fullInventory;
@@ -1361,32 +1429,24 @@ export async function runAcquisition(input) {
       fail("full_inventory_invalid");
     }
     const pilot = derivePilotInventory({
-      expectedFullInventorySha256: options.expectedFullInventorySha256,
-      expectedManifestSha256: options.expectedManifestSha256,
-      expectedSummarySha256: options.expectedSummarySha256,
+      expectedFullInventorySha256: options.inventory.expectedFullInventorySha256,
+      expectedManifestSha256: options.inventory.expectedManifestSha256,
+      expectedSummarySha256: options.inventory.expectedSummarySha256,
       fullInventory,
       manifestBytes,
-      selectionCount: options.selectionCount,
-      shardCount: options.shards,
+      selectionCount: options.inventory.selectionCount,
+      shardCount: options.inventory.shards,
       summaryBytes,
     });
-    await publishExactReceipt(options.inventoryOutput, pilot.inventoryBytes);
+    await publishExactReceipt(options.outputs.inventoryOutput, pilot.inventoryBytes);
     inventory = pilot.inventory;
     context = createReferenceAcquisitionContext(inventory, {
       expectedIdentitySha256: inventory.identity.sha256,
     });
-    store = await initializeReferenceObjectStore(options.storeRoot);
-    const runtime = await prepareWikidotXmlrpcRuntime({
-      pythonExecutablePath: options.runtimePython,
-      pythonVersion: options.runtimeVersion,
-      root: options.runtimeRoot,
-      venvConfigPath: options.runtimeVenvConfig,
-    });
-    const source = await prepareWikidotXmlrpcWorkerSource({
-      commitOid: options.sourceCommit,
-      gitDirectory: options.sourceGitDirectory,
-      treeOid: options.sourceTree,
-    });
+    resources.store = await initializeReferenceObjectStore(options.storage.storeRoot);
+    const store = resources.store;
+    const runtime = await prepareWikidotXmlrpcRuntime(options.runtime);
+    const source = await prepareWikidotXmlrpcWorkerSource(options.source);
     if (
       source.workerBlobOid !== WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY.blob ||
       source.workerFileSha256 !==
@@ -1404,39 +1464,31 @@ export async function runAcquisition(input) {
     campaign = await putWikidotXmlrpcCampaign(
       store,
       buildWikidotXmlrpcCampaign({
-        campaignNonce: options.campaignNonce,
+        campaignNonce: options.campaign.campaignNonce,
         implementation: artifacts.implementation.object,
         inventorySha256: inventory.identity.sha256,
-        principalId: options.principalId,
+        principalId: options.campaign.principalId,
       }),
     );
-    completions = await initializeWikidotXmlrpcCompletions(
+    resources.completions = await initializeWikidotXmlrpcCompletions(
       store,
       context,
       campaign.reference,
     );
-    const prepared = createPreparedWikidotXmlrpcAcquisition({
-      artifacts,
-      campaign,
-      context,
-      inventory,
-      options,
-      selection: pilot.selection,
-    });
-    let plan = await completions.planResume();
+    let plan = await resources.completions.planResume();
     if (plan.pending.length !== 0) {
-      capsule = await materializeWikidotXmlrpcPrivateCapsule({
-        capsuleParent: options.capsuleParent,
+      resources.capsule = await materializeWikidotXmlrpcPrivateCapsule({
+        capsuleParent: options.storage.capsuleParent,
         runtime,
         source,
       });
     }
     sealed = await sealThrottleReceipt({
-      artifacts: prepared.artifacts,
-      campaign: prepared.campaign,
-      inventory: prepared.inventory,
-      options: prepared.options,
-      selection: prepared.selection,
+      artifacts,
+      campaign,
+      inventory,
+      throttleReceipt: options.outputs.throttleReceipt,
+      selection: pilot.selection,
     });
     let outcome = "pass";
     let failure = null;
@@ -1446,28 +1498,26 @@ export async function runAcquisition(input) {
       if (credentials === null) {
         outcome = "credentials_unavailable";
       } else {
-        worker = new WikidotXmlrpcWorkerClient(capsule.spawn());
-        await worker.start(
-          options.principalId,
+        resources.worker = new WikidotXmlrpcWorkerClient(resources.capsule.spawn());
+        await resources.worker.start(
+          options.campaign.principalId,
           artifacts.environment.descriptor,
           credentials,
         );
         const capture = await capturePending({
-          completions,
+          completions: resources.completions,
           context,
           store,
-          worker,
+          worker: resources.worker,
         });
         outcome = capture.status;
         failure = capture.failure;
         workerExited = capture.workerExited;
       }
     }
-    if (!workerExited) await stopWorker(worker);
-    worker = null;
-    await closeCapsule(capsule);
-    capsule = null;
-    plan = await completions.planResume();
+    if (workerExited) resources.worker = null;
+    await resources.closeCaptureResources();
+    plan = await resources.completions.planResume();
     const completed = plan.complete.length;
     lastCompleted = completed;
     if (outcome === "complete" && plan.pending.length === 0) outcome = "pass";
@@ -1476,11 +1526,10 @@ export async function runAcquisition(input) {
       failure = { code: "incomplete_after_capture", retryable: false };
     }
     let verdict = null;
-    await completions.close();
-    completions = null;
+    await resources.closeCompletions();
     if (outcome === "pass") {
       const publication = await publishWikidotXmlrpcAcquisitionVerdict(
-        options.verdict,
+        options.outputs.verdict,
         { campaignReference: campaign.reference, context, store },
       );
       verdict = Object.freeze({
@@ -1502,9 +1551,8 @@ export async function runAcquisition(input) {
       throttle: sealed.config,
       verdict,
     });
-    await publishRunReceipt(options, receipt);
-    await store.close();
-    store = null;
+    await publishRunReceipt(options.outputs.resultReceipt, receipt);
+    await resources.closeStore();
     return Object.freeze({
       artifactKey: sealed.artifactKey,
       completed,
@@ -1512,11 +1560,10 @@ export async function runAcquisition(input) {
       outcome,
     });
   } catch (error) {
-    const failureCode = safeErrorCode(error);
-    await stopWorker(worker).catch(() => {});
-    worker = null;
-    await closeCapsule(capsule).catch(() => {});
-    capsule = null;
+    let failureCode = safeErrorCode(error);
+    await resources.closeCaptureResources().catch(() => {
+      failureCode = "coordinator_error";
+    });
     if (
       sealed !== null &&
       campaign !== null &&
@@ -1526,10 +1573,9 @@ export async function runAcquisition(input) {
       const receipt = runReceipt({
         artifactKey: sealed.artifactKey,
         campaign: campaign.reference,
-        completed:
-          completions === null
-            ? lastCompleted
-            : await completedCount(completions),
+        completed: resources.completions === null
+          ? lastCompleted
+          : await completedCount(resources.completions),
         failure: { code: failureCode, retryable: false },
         implementation: artifacts.implementation.object,
         inventory: Object.freeze({
@@ -1540,11 +1586,9 @@ export async function runAcquisition(input) {
         throttle: sealed.config,
         verdict: null,
       });
-      await completions?.close().catch(() => {});
-      completions = null;
-      await publishRunReceipt(options, receipt);
-      await store?.close().catch(() => {});
-      store = null;
+      await resources.closeCompletions();
+      await publishRunReceipt(options.outputs.resultReceipt, receipt);
+      await resources.closeStore();
       return Object.freeze({
         artifactKey: sealed.artifactKey,
         completed: receipt.completed,
@@ -1552,17 +1596,10 @@ export async function runAcquisition(input) {
         outcome: "coordinator_error",
       });
     }
-    await completions?.close().catch(() => {});
-    completions = null;
-    await store?.close().catch(() => {});
-    store = null;
     throw error;
   } finally {
     scrubWikidotCredentials();
-    await stopWorker(worker).catch(() => {});
-    await closeCapsule(capsule).catch(() => {});
-    await completions?.close().catch(() => {});
-    await store?.close().catch(() => {});
+    await resources.close();
   }
 }
 
