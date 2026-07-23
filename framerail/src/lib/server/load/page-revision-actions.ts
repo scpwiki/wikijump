@@ -9,7 +9,8 @@ import {
 import {
   failForActionError,
   failForMissingSession,
-  pageMutationBaseSchema
+  pageMutationBaseSchema,
+  readActionJson
 } from "$lib/server/load/page-action-shared"
 import { getRequestContext } from "$lib/server/load/request-ctx"
 import { fail, superValidate } from "sveltekit-superforms"
@@ -26,7 +27,7 @@ export async function pageHistoryAction({ request, locals }: RequestEvent) {
       pageId: number
       revisionNumber: Optional<number>
       limit: Optional<number>
-    } = await request.json()
+    } = await readActionJson(request)
 
     const { siteId, pageId, revisionNumber, limit } = requestData
     const res = await pageHistory(
@@ -50,7 +51,7 @@ export async function pageRevisionAction({ request, locals }: RequestEvent) {
       revisionNumber: number
       compiledHtml: Optional<boolean>
       wikitext: Optional<boolean>
-    } = await request.json()
+    } = await readActionJson(request)
 
     const { siteId, pageId, revisionNumber, compiledHtml, wikitext } = requestData
     const res = await pageRevision(
@@ -85,7 +86,7 @@ export async function pageRollbackAction({
       revisionNumber: number
       comments: Optional<string>
       lastRevisionId: number
-    } = await request.json()
+    } = await readActionJson(request)
 
     const { siteId, pageId, revisionNumber, comments, lastRevisionId } = requestData
     const res = await pageRollback(
@@ -112,7 +113,7 @@ export async function pageDeletedGetAction({ request }: RequestEvent) {
     const requestData: {
       siteId: number
       slug: string
-    } = await request.json()
+    } = await readActionJson(request)
     const { siteId, slug } = requestData
     const res = await pageDeletedGet(siteId, slug)
     return { res }

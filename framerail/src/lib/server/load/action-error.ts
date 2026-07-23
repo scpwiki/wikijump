@@ -1,4 +1,9 @@
 import type { JsonValue } from "$lib/types"
+import { fail } from "@sveltejs/kit"
+
+const DEEPWELL_PERMISSION_DENIED = 3106
+
+class InvalidActionRequestError extends Error {}
 
 export interface PublicActionError {
   message: string
@@ -47,4 +52,37 @@ export function normalizeActionError(error: unknown): PublicActionError {
     normalized.data = candidate.data
   }
   return normalized
+}
+
+export async function readActionJson<T>(request: Request): Promise<T> {
+  try {
+    return (await request.json()) as T
+  } catch {
+    throw new InvalidActionRequestError("Invalid JSON request body.")
+  }
+}
+
+export function failForMissingSession(body: Record<string, unknown> = {}) {
+  return fail(401, {
+    ...body,
+    message: "Authentication required."
+  })
+}
+
+export function failForActionError(
+  error: unknown,
+  body: Record<string, unknown> = {},
+  fallbackStatus = 500
+) {
+  const details = normalizeActionError(error)
+  const status =
+    error instanceof InvalidActionRequestError
+      ? 400
+      : details.code === DEEPWELL_PERMISSION_DENIED
+        ? 403
+        : fallbackStatus
+  return fail(status, {
+    ...body,
+    ...details
+  })
 }

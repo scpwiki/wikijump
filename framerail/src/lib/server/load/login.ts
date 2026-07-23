@@ -8,7 +8,7 @@ import {
   clearLoginPassword,
   redactAuthActionPayload
 } from "$lib/server/load/auth-form-redaction.js"
-import { normalizeActionError } from "$lib/server/load/action-error"
+import { failForActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -100,18 +100,9 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
         [submittedPassword]
       )
     } catch (error) {
-      const deepwellError = normalizeActionError(error)
-      return fail(
-        500,
-        redactAuthActionPayload(
-          {
-            form: clearLoginPassword(form),
-            message: deepwellError.message,
-            code: deepwellError.code,
-            data: deepwellError.data
-          },
-          [submittedPassword]
-        )
+      return failForActionError(
+        error,
+        redactAuthActionPayload({ form: clearLoginPassword(form) }, [submittedPassword])
       )
     }
   }
@@ -144,18 +135,9 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       [submittedPassword]
     )
   } catch (error) {
-    const deepwellError = normalizeActionError(error)
-    return fail(
-      500,
-      redactAuthActionPayload(
-        {
-          form: clearLoginPassword(form),
-          message: deepwellError.message,
-          code: deepwellError.code,
-          data: deepwellError.data
-        },
-        [submittedPassword]
-      )
+    return failForActionError(
+      error,
+      redactAuthActionPayload({ form: clearLoginPassword(form) }, [submittedPassword])
     )
   }
 }

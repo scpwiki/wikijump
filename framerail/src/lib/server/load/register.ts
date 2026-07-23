@@ -6,7 +6,7 @@ import {
   clearRegisterPasswords,
   redactAuthActionPayload
 } from "$lib/server/load/auth-form-redaction.js"
-import { normalizeActionError } from "$lib/server/load/action-error"
+import { failForActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -97,16 +97,9 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
       submittedPasswords
     )
   } catch (error) {
-    const details = normalizeActionError(error)
-    return fail(
-      500,
-      redactAuthActionPayload(
-        {
-          form: clearRegisterPasswords(form),
-          ...details
-        },
-        submittedPasswords
-      )
+    return failForActionError(
+      error,
+      redactAuthActionPayload({ form: clearRegisterPasswords(form) }, submittedPasswords)
     )
   }
 }

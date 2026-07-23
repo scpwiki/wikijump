@@ -28,7 +28,8 @@ import {
 import {
   failForActionError,
   failForMissingSession,
-  pageMutationBaseSchema
+  pageMutationBaseSchema,
+  readActionJson
 } from "$lib/server/load/page-action-shared"
 import {
   pageFileEditSchema,
@@ -655,7 +656,7 @@ export async function pageParentGetAction({ request }: RequestEvent) {
       siteId: number
       pageId: number
       slug: string
-    } = await request.json()
+    } = await readActionJson(request)
     const { siteId, pageId, slug } = requestData
     const res = await pageParentGet(siteId, pageId, slug)
     return { res }
@@ -670,7 +671,7 @@ export async function pageVoteGetAction({ request }: RequestEvent) {
     const requestData: {
       siteId: number
       pageId: number
-    } = await request.json()
+    } = await readActionJson(request)
     const { siteId, pageId } = requestData
     const res = await pageVoteList(pageId, { siteId, page: pageId })
     return { res }
@@ -689,7 +690,7 @@ export async function pageVoteCastAction({ request, cookies }: RequestEvent) {
       siteId: number
       pageId: number
       value: number
-    } = await request.json()
+    } = await readActionJson(request)
     const { siteId, pageId, value } = requestData
     if (!session) {
       return fail(401, { message: "login is required to rate this page" })
@@ -714,7 +715,7 @@ export async function pageVoteCancelAction({ request, cookies }: RequestEvent) {
     const requestData: {
       siteId: number
       pageId: number
-    } = await request.json()
+    } = await readActionJson(request)
     const { siteId, pageId } = requestData
     if (!session) {
       return fail(401, { message: "login is required to rate this page" })
@@ -738,7 +739,7 @@ export async function pageScoreAction({ request, params }: RequestEvent) {
     const requestData: {
       siteId: number
       pageId: number
-    } = await request.json()
+    } = await readActionJson(request)
     const { siteId, pageId } = requestData
     const res = await pageScore(siteId, pageId, slug)
     return { res }

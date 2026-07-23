@@ -13,7 +13,8 @@ import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-acto
 import {
   failForActionError,
   failForMissingSession,
-  pageMutationBaseSchema
+  pageMutationBaseSchema,
+  readActionJson
 } from "$lib/server/load/page-action-shared"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
@@ -27,7 +28,7 @@ import type { RequestEvent } from "@sveltejs/kit"
 export async function pageFileListAction({ request }: RequestEvent) {
   try {
     const requestData: { siteId: number; pageId: number; deleted: Optional<boolean> } =
-      await request.json()
+      await readActionJson(request)
     const { siteId, pageId, deleted } = requestData
     const res = await pageFileList(siteId, pageId, deleted)
     return { res }
@@ -88,7 +89,7 @@ export async function pageFileDeleteAction({ request, cookies }: RequestEvent) {
       fileId: number
       lastRevisionId: number
       comments: Optional<string>
-    } = await request.json()
+    } = await readActionJson(request)
 
     const { siteId, pageId, fileId, lastRevisionId, comments } = requestData
     const res = await pageFileDelete(
@@ -256,7 +257,7 @@ export async function pageFileHistoryAction({ request }: RequestEvent) {
       fileId: number
       revisionNumber: Optional<number>
       limit: Optional<number>
-    } = await request.json()
+    } = await readActionJson(request)
 
     const { siteId, pageId, fileId, revisionNumber, limit } = requestData
     const res = await pageFileHistory(siteId, pageId, fileId, revisionNumber, limit)
@@ -283,7 +284,7 @@ export async function pageFileRollbackAction({
       revisionNumber: number
       lastRevisionId: number
       comments: Optional<string>
-    } = await request.json()
+    } = await readActionJson(request)
 
     const { siteId, pageId, fileId, revisionNumber, lastRevisionId, comments } =
       requestData

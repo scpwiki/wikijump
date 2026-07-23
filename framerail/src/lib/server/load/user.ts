@@ -5,7 +5,7 @@ import { authGetSession } from "$lib/server/auth/get-session"
 import { getFileByHash } from "$lib/server/deepwell/file"
 import { translate } from "$lib/server/deepwell/translate"
 import { userEdit, userView } from "$lib/server/deepwell/user"
-import { normalizeActionError } from "$lib/server/load/action-error"
+import { failForActionError, failForMissingSession } from "$lib/server/load/action-error"
 import { getRequestContext } from "$lib/server/load/request-ctx"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { error, redirect } from "@sveltejs/kit"
@@ -183,11 +183,12 @@ export async function userEditAction({
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
+  if (!sessionToken) return failForMissingSession({ form })
 
   const ipAddress = getClientAddress()
 
   try {
+    const session = await authGetSession(sessionToken)
     const {
       name,
       realName,
@@ -228,11 +229,7 @@ export async function userEditAction({
 
     return withFiles({ form, res })
   } catch (error) {
-    const details = normalizeActionError(error)
-    return fail(500, {
-      form,
-      ...details
-    })
+    return failForActionError(error, { form })
   }
 }
 

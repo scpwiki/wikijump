@@ -3,7 +3,7 @@ import defaults from "$lib/defaults"
 import { parseAcceptLangHeader } from "$lib/locales"
 import { authLogout } from "$lib/server/auth/logout"
 import { translate } from "$lib/server/deepwell/translate"
-import { normalizeActionError } from "$lib/server/load/action-error"
+import { failForActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 
@@ -64,6 +64,6 @@ export async function logoutAction({ cookies, request }: RequestEvent) {
 
     return { success: true }
   } catch (error) {
-    return fail(500, normalizeActionError(error))
+    return failForActionError(error)
   }
 }

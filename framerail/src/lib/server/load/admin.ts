@@ -15,7 +15,7 @@ import {
   siteUpdate
 } from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
-import { normalizeActionError } from "$lib/server/load/action-error"
+import { failForActionError } from "$lib/server/load/action-error"
 import { adminView, type PreloadDataAsync } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { Layout } from "$lib/types"
@@ -297,11 +297,7 @@ export async function templateAction({
     )
     return { form, res }
   } catch (error) {
-    const details = normalizeActionError(error)
-    return fail(500, {
-      form,
-      ...details
-    })
+    return failForActionError(error, { form })
   }
 }
 
@@ -338,11 +334,7 @@ export async function licenseAction({
     )
     return { form, res }
   } catch (error) {
-    const details = normalizeActionError(error)
-    return fail(500, {
-      form,
-      ...details
-    })
+    return failForActionError(error, { form })
   }
 }
 
@@ -422,11 +414,7 @@ export async function navigationAction({
     )
     return { form, res }
   } catch (error) {
-    const details = normalizeActionError(error)
-    return fail(500, {
-      form,
-      ...details
-    })
+    return failForActionError(error, { form })
   }
 }
 
@@ -474,11 +462,7 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
 
     return { form, res: null }
   } catch (error) {
-    const details = normalizeActionError(error)
-    return fail(500, {
-      form,
-      ...details
-    })
+    return failForActionError(error, { form })
   }
 }
 
