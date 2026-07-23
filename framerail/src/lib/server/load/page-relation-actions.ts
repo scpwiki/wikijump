@@ -71,7 +71,7 @@ export async function pageParentGetAction(event: RequestEvent) {
   }
 }
 
-export async function pageVoteGetAction(event: RequestEvent) {
+export async function pageVoteListAction(event: RequestEvent) {
   const { request } = event
   try {
     const requestData: {
@@ -114,7 +114,7 @@ export async function pageVoteCastAction(event: RequestEvent) {
   }
 }
 
-export async function pageVoteCancelAction(event: RequestEvent) {
+export async function pageVoteRemoveAction(event: RequestEvent) {
   const { request } = event
   try {
     const requestData: {

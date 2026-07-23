@@ -187,7 +187,7 @@ export const pageEditSchema = object({
   layout: optional(nullable(vEnum(Layout)))
 })
 
-export async function layoutAction(event: RequestEvent) {
+export async function pageLayoutAction(event: RequestEvent) {
   const { request, getClientAddress } = event
   const form = await superValidate(request, valibot(layoutSchema))
   if (!form.valid) {

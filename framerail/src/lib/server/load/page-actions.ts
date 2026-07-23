@@ -1,8 +1,8 @@
 import {
-  layoutAction,
   pageDeleteAction,
   pageEditAction,
   pageEditPermissionAction,
+  pageLayoutAction,
   pageMoveAction
 } from "$lib/server/load/page-edit-actions"
 import {
@@ -19,9 +19,9 @@ import {
   pageParentGetAction,
   pageParentSetAction,
   pageScoreAction,
-  pageVoteCancelAction,
   pageVoteCastAction,
-  pageVoteGetAction
+  pageVoteListAction,
+  pageVoteRemoveAction
 } from "$lib/server/load/page-relation-actions"
 import {
   pageDeletedGetAction,
@@ -46,13 +46,13 @@ export const pageActions = {
   history: pageHistoryAction,
   revision: pageRevisionAction,
   rollback: pageRollbackAction,
-  layout: layoutAction,
+  layout: pageLayoutAction,
   move: pageMoveAction,
   parentSet: pageParentSetAction,
   parentGet: pageParentGetAction,
-  voteGet: pageVoteGetAction,
+  voteGet: pageVoteListAction,
   voteCast: pageVoteCastAction,
-  voteCancel: pageVoteCancelAction,
+  voteCancel: pageVoteRemoveAction,
   score: pageScoreAction,
   deletedGet: pageDeletedGetAction,
   restore: pageRestoreAction
