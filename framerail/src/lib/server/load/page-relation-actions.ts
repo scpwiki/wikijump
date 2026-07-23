@@ -11,6 +11,7 @@ import {
   pageMutationBaseSchema,
   readActionJson
 } from "$lib/server/load/page-action-shared"
+import { executePageAction } from "$lib/server/load/page-action-execution"
 import { resolvePageActionRequestContext } from "$lib/server/load/page-action-context"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
@@ -91,7 +92,7 @@ export async function pageVoteListAction(event: RequestEvent) {
 
 export async function pageVoteCastAction(event: RequestEvent) {
   const { request } = event
-  try {
+  return executePageAction(async () => {
     const requestData: {
       siteId: number
       pageId: number
@@ -108,10 +109,8 @@ export async function pageVoteCastAction(event: RequestEvent) {
       value,
       context.requestContext
     )
-    return { res }
-  } catch (error) {
-    return failForActionError(error)
-  }
+    return res
+  }, failForActionError)
 }
 
 export async function pageVoteRemoveAction(event: RequestEvent) {
