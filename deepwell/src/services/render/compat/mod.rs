@@ -1,3 +1,4 @@
+pub(super) mod color_and_inline_protection;
 mod fallback_code;
 pub(super) mod footnote_dom;
 mod html_fragments;
@@ -10,5 +11,6 @@ pub(super) mod wikidot_inline_markers;
 pub(super) mod wikidot_link_protection;
 pub(super) mod wikidot_residual_markers;
 
+pub(super) use self::color_and_inline_protection::*;
 pub(super) use self::fallback_code::*;
 pub(super) use self::html_fragments::*;

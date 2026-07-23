@@ -20,7 +20,10 @@
 
 pub(super) mod content_sections;
 pub(super) mod scanner;
+pub(super) mod substitution;
 pub(super) mod template;
+
+pub(super) use self::substitution::*;
 
 use super::prelude::*;
 use crate::models::page::{self, Entity as Page};
