@@ -2665,6 +2665,64 @@ async fn listpages_categories_alias_selects_only_default_category_rows() {
 }
 
 #[tokio::test]
+async fn listpages_reverse_yes_reverses_the_selected_ordered_rows() {
+    const TAG: &str = "verification-listpages-reverse-yes";
+    const INDEX_SLUG: &str = "fixture-listpages-reverse-yes-index";
+    const ALPHA_SLUG: &str = "fixture-listpages-reverse-yes-alpha";
+    const BETA_SLUG: &str = "fixture-listpages-reverse-yes-beta";
+    const GAMMA_SLUG: &str = "fixture-listpages-reverse-yes-gamma";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (ALPHA_SLUG, "Fixture ListPages Reverse Alpha"),
+        (BETA_SLUG, "Fixture ListPages Reverse Beta"),
+        (GAMMA_SLUG, "Fixture ListPages Reverse Gamma"),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "ListPages reverse target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Reverse Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-reverse-yes\" order=\"name asc\" reverse=\"yes\" limit=\"3\"]]\n",
+            "* %%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    let gamma = html
+        .find(GAMMA_SLUG)
+        .expect("reverse=yes should render the last ascending row");
+    let beta = html
+        .find(BETA_SLUG)
+        .expect("reverse=yes should render the middle ascending row");
+    let alpha = html
+        .find(ALPHA_SLUG)
+        .expect("reverse=yes should render the first ascending row");
+    assert!(
+        gamma < beta && beta < alpha,
+        "reverse=yes should reverse the selected ascending rows:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

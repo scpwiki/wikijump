@@ -6828,6 +6828,7 @@ impl RenderService {
             authors,
             author_filter_present,
             order,
+            reverse,
             limit,
             count_pages_explicit_limit: _,
             count_pages_per_page,
@@ -7026,10 +7027,13 @@ impl RenderService {
             .skip(offset as usize)
             .collect::<Vec<_>>();
         let total_selected = selected_pages.len();
-        let pages = selected_pages
+        let mut pages = selected_pages
             .into_iter()
             .take(requested_limit as usize)
             .collect::<Vec<_>>();
+        if reverse {
+            pages.reverse();
+        }
         let total = pages.len();
         let body = template.body();
         if wants_content && !expansion_budget.can_expand_content_rows(total) {
@@ -7333,6 +7337,7 @@ impl RenderService {
             authors,
             author_filter_present,
             order,
+            reverse: _,
             limit,
             count_pages_explicit_limit,
             count_pages_per_page: _,
@@ -8349,6 +8354,7 @@ struct ListPagesArguments {
     authors: Vec<Cow<'static, str>>,
     author_filter_present: bool,
     order: Option<OrderBySelector>,
+    reverse: bool,
     limit: Option<u64>,
     count_pages_explicit_limit: Option<u64>,
     count_pages_per_page: Option<u64>,
@@ -8495,6 +8501,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut authors = Vec::new();
     let mut author_filter_present = false;
     let mut order = None;
+    let mut reverse = false;
     let mut limit = None;
     let mut count_pages_explicit_limit = None;
     let mut count_pages_per_page = None;
@@ -8658,6 +8665,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 let value = list_pages_url_fallback(value).unwrap_or(value);
                 order = Some(parse_list_pages_order(value)?);
             }
+            "reverse" => match value.to_ascii_lowercase().as_str() {
+                "yes" => reverse = true,
+                _ => return None,
+            },
             "name" | "fullname" | "full_slug" | "fullslug" => {
                 let Some(value) = static_list_pages_selector(
                     value,
@@ -8803,6 +8814,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         authors,
         author_filter_present,
         order,
+        reverse,
         limit,
         count_pages_explicit_limit,
         count_pages_per_page,
@@ -12900,6 +12912,20 @@ mod tests {
             parse_list_pages_arguments(r#" category="_default" categories="fragment" "#)
                 .is_none(),
             "mixing category spellings remains unverified and must fail closed"
+        );
+    }
+
+    #[test]
+    fn parses_wikidot_list_pages_reverse_yes_only() {
+        let arguments = parse_list_pages_arguments(
+            r#" tags="+fixture" order="name asc" reverse="yes" limit="20" "#,
+        )
+        .expect("live-evidenced reverse=yes should parse");
+
+        assert!(arguments.reverse);
+        assert!(
+            parse_list_pages_arguments(r#" tags="+fixture" reverse="no" "#).is_none(),
+            "unverified reverse values must remain literal"
         );
     }
 
