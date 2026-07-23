@@ -7231,89 +7231,21 @@ impl RenderService {
         query: PageQuery<'_>,
         target_count: usize,
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
-        mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+        score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
     ) -> Result<ViewableListPagesRows> {
-        let mut score_filter_session = PageQueryScoreFilterSession::default();
-        if target_count > 0 && render_page_query_uses_single_scan(query.order) {
-            let mut query = query;
-            query.offset = 0;
-            query.pagination.limit = Some(random_page_query_scan_limit(target_count));
-            let mut found = PageQueryService::find_with_metadata_cached(
-                ctx,
-                query,
-                score_filter_cache.as_deref_mut(),
-                Some(&mut score_filter_session),
-            )
-            .await?;
-            if found.metadata.cap_exceeded {
-                found.metadata.cap_exceeded = false;
-            }
-            let raw_count = found.pages.pages.len();
-            let mut pages = Self::filter_viewable_list_pages_rows(
-                ctx,
-                found.pages.pages,
-                permission_cache,
-            )
-            .await?;
-            let view_permission_filtering_applied = pages.len() != raw_count;
-            pages.truncate(target_count);
-            return Ok(ViewableListPagesRows {
-                pages: FoundPages { pages },
-                metadata: found.metadata,
-                view_permission_filtering_applied,
-            });
-        }
-
-        let mut pages = Vec::new();
-        let mut raw_offset = 0;
-        let mut metadata = None;
-        let mut view_permission_filtering_applied = false;
-
-        while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
-            let mut query = query.clone();
-            query.offset = raw_offset;
-            let batch_limit =
-                render_page_query_batch_limit(target_count, pages.len(), raw_offset);
-            query.pagination.limit = Some(batch_limit);
-
-            let found = PageQueryService::find_with_metadata_cached(
-                ctx,
-                query,
-                score_filter_cache.as_deref_mut(),
-                Some(&mut score_filter_session),
-            )
-            .await?;
-            let cap_exceeded = found.metadata.cap_exceeded;
-            merge_render_page_query_metadata(&mut metadata, found.metadata);
-            if cap_exceeded {
-                return Ok(ViewableListPagesRows {
-                    pages: FoundPages { pages: Vec::new() },
-                    metadata: metadata.unwrap_or_default(),
-                    view_permission_filtering_applied: false,
-                });
-            }
-            let raw_count = found.pages.pages.len();
-            if raw_count == 0 {
-                break;
-            }
-            let viewable = Self::filter_viewable_list_pages_rows(
-                ctx,
-                found.pages.pages,
-                permission_cache,
-            )
-            .await?;
-            view_permission_filtering_applied |= viewable.len() != raw_count;
-            pages.extend(viewable);
-            if raw_count < batch_limit as usize {
-                break;
-            }
-            raw_offset = raw_offset.saturating_add(raw_count as u32);
-        }
-
+        let found = Self::find_viewable_render_page_rows(
+            ctx,
+            query,
+            target_count,
+            permission_cache,
+            score_filter_cache,
+            true,
+        )
+        .await?;
         Ok(ViewableListPagesRows {
-            pages: FoundPages { pages },
-            metadata: metadata.unwrap_or_default(),
-            view_permission_filtering_applied,
+            pages: found.pages,
+            metadata: found.metadata,
+            view_permission_filtering_applied: found.view_permission_filtering_applied,
         })
     }
 
@@ -7323,11 +7255,37 @@ impl RenderService {
         target_count: usize,
         permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
     ) -> Result<ViewableCountPagesRows> {
+        Self::find_viewable_render_page_rows(
+            ctx,
+            query,
+            target_count,
+            permission_cache,
+            None,
+            false,
+        )
+        .await
+    }
+
+    async fn find_viewable_render_page_rows(
+        ctx: &ServiceContext<'_>,
+        query: PageQuery<'_>,
+        target_count: usize,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
+        mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+        retain_score_filter_session: bool,
+    ) -> Result<ViewableCountPagesRows> {
+        let mut score_filter_session = PageQueryScoreFilterSession::default();
         if target_count > 0 && render_page_query_uses_single_scan(query.order) {
             let mut query = query;
             query.offset = 0;
             query.pagination.limit = Some(random_page_query_scan_limit(target_count));
-            let mut found = PageQueryService::find_with_metadata(ctx, query).await?;
+            let mut found = PageQueryService::find_with_metadata_cached(
+                ctx,
+                query,
+                score_filter_cache.as_deref_mut(),
+                retain_score_filter_session.then_some(&mut score_filter_session),
+            )
+            .await?;
             if found.metadata.cap_exceeded {
                 found.metadata.cap_exceeded = false;
             }
@@ -7361,7 +7319,13 @@ impl RenderService {
                 render_page_query_batch_limit(target_count, pages.len(), raw_offset);
             query.pagination.limit = Some(batch_limit);
 
-            let found = PageQueryService::find_with_metadata(ctx, query).await?;
+            let found = PageQueryService::find_with_metadata_cached(
+                ctx,
+                query,
+                score_filter_cache.as_deref_mut(),
+                retain_score_filter_session.then_some(&mut score_filter_session),
+            )
+            .await?;
             let cap_exceeded = found.metadata.cap_exceeded;
             merge_render_page_query_metadata(&mut metadata, found.metadata);
             if cap_exceeded {
