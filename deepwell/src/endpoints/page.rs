@@ -765,18 +765,15 @@ async fn build_page_output(
 ) -> Result<Option<GetPageOutput>> {
     let make_error = || Error::new("failed to build page output", ErrorType::Page);
 
-    // Get page revision
     let revision = PageRevisionService::get_latest(ctx, page.site_id, page.page_id)
         .await
         .or_raise(make_error)?;
 
-    // Get category slug from ID
     let category =
         CategoryService::get(ctx, page.site_id, Reference::from(page.page_category_id))
             .await
             .or_raise(make_error)?;
 
-    // Get text data, if requested
     let (wikitext, compiled_body_html, compiled_body_styles) = join!(
         TextService::get_conditional(ctx, details.wikitext, &revision.wikitext_hash),
         TextService::get_conditional(
@@ -804,14 +801,12 @@ async fn build_page_output(
         None
     };
 
-    // Calculate score and determine layout
     let (rating, layout) = join!(
         ScoreService::score(ctx, page.page_id),
         SettingsService::get_layout(ctx, page.site_id, Some(page.page_id)),
     );
     let (rating, layout) = raise_multiple!(rating, layout; make_error);
 
-    // Build result struct
     Ok(Some(GetPageOutput {
         page_id: page.page_id,
         page_created_at: page.created_at,
@@ -854,17 +849,14 @@ async fn build_page_deleted_output(
         )
     };
 
-    // Get page revision
     let revision = PageRevisionService::get_latest(ctx, page.site_id, page.page_id)
         .await
         .or_raise(make_error)?;
 
-    // Calculate score and determine layout
     let rating = ScoreService::score(ctx, page.page_id)
         .await
         .or_raise(make_error)?;
 
-    // Build result struct
     Ok(Some(GetDeletedPageOutput {
         page_id: page.page_id,
         page_created_at: page.created_at,
@@ -893,13 +885,11 @@ async fn build_page_file_output(
         )
     };
 
-    // Get file revision
     let revision =
         FileRevisionService::get_latest(ctx, file.site_id, file.page_id, file.file_id)
             .await
             .or_raise(make_error)?;
 
-    // Build result struct
     Ok(Some(GetFileOutput {
         file_id: file.file_id,
         file_created_at: file.created_at,

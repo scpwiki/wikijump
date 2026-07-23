@@ -59,50 +59,36 @@ where
         };
     }
 
-    // Storage of temporarily removed fields.
     let variants: Vec<_> = locale.variants().cloned().collect();
 
-    // Unmodified locale
-    // Language, script, region, variant
     try_iter!();
 
     if !variants.is_empty() {
-        // Remove variant
-        // Language, script, region
         locale.clear_variants();
         try_iter!();
     }
 
-    // Remove region
-    // Language, script
     let region = locale.region.take();
     if region.is_some() {
         try_iter!();
     }
 
     if locale.script.take().is_some() {
-        // Re-add region and variant, remove script
-        // Language, region, variant
         locale.region = region;
         locale.set_variants(&variants);
         try_iter!();
 
         if !variants.is_empty() {
-            // Remove variant
-            // Language, region
             locale.clear_variants();
             try_iter!();
         }
 
         if locale.region.is_some() {
-            // Remove region
-            // Language only
             locale.region = None;
             try_iter!();
         }
     }
 
-    // No results
     None
 }
 

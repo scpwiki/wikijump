@@ -66,11 +66,9 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
     let make_error = || Error::new("failed to seed database", ErrorType::DatabaseSeeder);
 
-    // Set up context
     let txn = state.database.begin().await.or_raise(make_error)?;
     let ctx = ServiceContext::new(state, &txn);
 
-    // Ensure seeding has not already been done
     let user_exists = UserService::exists(&ctx, Reference::from(ADMIN_USER_ID))
         .await
         .or_raise(make_error)?;
@@ -125,7 +123,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         .await
         .or_raise(make_error)?;
 
-    // Load seed data
     info!(
         "Loading seed data from {}",
         state.config.seeder_path.display(),
@@ -142,7 +139,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
     let mut user_aliases = Vec::new();
 
-    // Seed user data
     for user in users {
         info!("Creating seed user '{}' (ID {})", user.name, user.id);
 
@@ -151,7 +147,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             panic!("Seed user '{}' has positive ID {}", user.name, user.id);
         }
 
-        // Create users
         let CreateUserOutput { user_id, slug } = UserService::create(
             &ctx,
             CreateUser {
@@ -203,7 +198,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         assert_eq!(slug, user.slug, "Specified user slug doesn't match created");
     }
 
-    // Seed user alias data
     for (user_id, aliases) in user_aliases {
         info!("Creating aliases for user ID {user_id}");
 
@@ -226,7 +220,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         }
     }
 
-    // Seed site data
     let mut site_ids = HashMap::new();
     for site in sites {
         info!("Creating seed site '{}' (slug {})", site.name, site.slug);
@@ -305,7 +298,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         site_ids.insert(slug, site_id);
     }
 
-    // Seed page data
     let mut page_ids = HashMap::new();
     let mut seeded_page_ids = Vec::new();
     for (site_slug, pages) in pages {
@@ -366,9 +358,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         }
     }
 
-    // Seed files
     {
-        // Reused buffer for prepending the seeder path
         let mut path_buffer = state.config.seeder_path.clone();
 
         async fn load_file(buffer: &mut PathBuf, file_path: &Path) -> Result<Vec<u8>> {
@@ -401,10 +391,8 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             let mut file = fs::File::open(file_path).or_raise(make_error)?;
             file.read_to_end(&mut data).or_raise(make_error)?;
 
-            // Clean up
             buffer.pop();
 
-            // Return value
             Ok(data)
         }
 
@@ -426,7 +414,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                         .await
                         .or_raise(make_error)?;
 
-                    // Create the file entry
                     let CreateFileOutput {
                         file_id,
                         file_revision_id,
@@ -503,10 +490,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         }
     }
 
-    // Seed filters
     for filter in filters {
-        // Get site (if any)
-        // Also do logging
         let site_id = match filter.site_slug {
             Some(slug) => {
                 let site = {
@@ -551,7 +535,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         .or_raise(make_error)?;
     }
 
-    // Seed roles (done after pages/categories are seeded)
     for &site_id in site_ids.values() {
         info!("Creating roles for site '{}'", site_id);
 
@@ -585,7 +568,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             .await
             .or_raise(make_error)?;
 
-            // Assign permissions to role
             let mut permissions = Vec::with_capacity(role_template.permissions.len());
             for perm_spec in &role_template.permissions {
                 let parts = perm_spec.split(':').collect::<ArrayVec<_, 3>>();
