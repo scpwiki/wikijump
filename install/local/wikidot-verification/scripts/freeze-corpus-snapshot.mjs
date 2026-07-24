@@ -10,8 +10,14 @@ import {
   discoverCanonicalCorpusFiles,
 } from '../src/corpus-snapshot.mjs';
 import { stableStringify } from '../src/canonical-json.mjs';
+import {runCliIfMain} from '../src/cli-entry.mjs';
+import { CORPUS_SNAPSHOT_HASH_WORKER_URL } from '../src/corpus-snapshot-hash-worker.mjs';
 
-function parseArgs(argv) {
+export function usage() {
+  return 'Usage: freeze-corpus-snapshot.mjs --corpus-root <path> --output <lock.json> [--branch <name>...] [--repository <name>=<path>#<ref>...] [--hash-workers <count>]';
+}
+
+export function parseArgs(argv) {
   const args = {
     corpusRoot: null,
     output: null,
@@ -31,10 +37,8 @@ function parseArgs(argv) {
     else if (arg === '--branch') args.branches.push(next());
     else if (arg === '--repository') args.repositories.push(next());
     else if (arg === '--hash-workers') args.hashWorkers = Number.parseInt(next(), 10);
-    else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: freeze-corpus-snapshot.mjs --corpus-root <path> --output <lock.json> [--branch <name>...] [--repository <name>=<path>#<ref>...] [--hash-workers <count>]');
-      process.exit(0);
-    } else throw new Error(`unknown argument: ${arg}`);
+    else if (arg === '--help' || arg === '-h') return { help: true };
+    else throw new Error(`unknown argument: ${arg}`);
   }
   if (!args.corpusRoot) throw new Error('--corpus-root is required');
   if (!args.output) throw new Error('--output is required');
@@ -46,7 +50,7 @@ function parseArgs(argv) {
 
 function hashInWorker(paths) {
   return new Promise((resolve, reject) => {
-    const worker = new Worker(new URL('../src/corpus-snapshot-hash-worker.mjs', import.meta.url));
+    const worker = new Worker(CORPUS_SNAPSHOT_HASH_WORKER_URL);
     worker.once('message', (results) => {
       worker.terminate().then(() => resolve(results), reject);
     });
@@ -82,21 +86,35 @@ function repositorySnapshot(specification) {
   };
 }
 
-const args = parseArgs(process.argv.slice(2));
-const repositories = args.repositories.map(repositorySnapshot).sort((left, right) => left.name.localeCompare(right.name));
-const branches = args.branches.length === 0 ? null : args.branches;
-const canonicalFiles = discoverCanonicalCorpusFiles(args.corpusRoot, branches);
-const fileIntegrityCache = await hashFiles(canonicalFiles, args.hashWorkers);
-const snapshot = buildCorpusSnapshot({
-  corpusRoot: args.corpusRoot,
-  branches,
-  repositories,
-  fileIntegrityCache,
+export async function main(argv, { stdout = console.log } = {}) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    stdout(usage());
+    return 0;
+  }
+  const repositories = args.repositories.map(repositorySnapshot).sort((left, right) => left.name.localeCompare(right.name));
+  const branches = args.branches.length === 0 ? null : args.branches;
+  const canonicalFiles = discoverCanonicalCorpusFiles(args.corpusRoot, branches);
+  const fileIntegrityCache = await hashFiles(canonicalFiles, args.hashWorkers);
+  const snapshot = buildCorpusSnapshot({
+    corpusRoot: args.corpusRoot,
+    branches,
+    repositories,
+    fileIntegrityCache,
+  });
+  fs.mkdirSync(path.dirname(path.resolve(args.output)), { recursive: true });
+  fs.writeFileSync(args.output, `${stableStringify(snapshot)}\n`);
+  stdout(stableStringify({
+    output: path.resolve(args.output),
+    manifest_sha256: snapshot.manifest_sha256,
+    ...snapshot.totals,
+  }));
+  return 0;
+}
+
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error.stack ?? error.message);
+    return 1;
+  },
 });
-fs.mkdirSync(path.dirname(path.resolve(args.output)), { recursive: true });
-fs.writeFileSync(args.output, `${stableStringify(snapshot)}\n`);
-console.log(stableStringify({
-  output: path.resolve(args.output),
-  manifest_sha256: snapshot.manifest_sha256,
-  ...snapshot.totals,
-}));

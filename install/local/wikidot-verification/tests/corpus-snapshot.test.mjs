@@ -6,6 +6,11 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import {
+  CORPUS_SNAPSHOT_HASH_WORKER_URL,
+  hashCorpusSnapshotPaths,
+} from '../src/corpus-snapshot-hash-worker.mjs';
+import { parseArgs as parseFreezeArgs, usage as freezeUsage } from '../scripts/freeze-corpus-snapshot.mjs';
 import { buildCorpusSnapshot, discoverCorpusBranches } from '../src/corpus-snapshot.mjs';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -29,6 +34,24 @@ function fixtureCorpus(index = {
   write(path.join(root, 'en', '_runs', 'ignored.json'), 'not canonical');
   return root;
 }
+
+test('freeze CLI exposes deterministic argument validation', () => {
+  assert.deepEqual(parseFreezeArgs([
+    '--corpus-root', '/tmp/corpus',
+    '--output', '/tmp/snapshot.json',
+    '--branch', 'en',
+    '--repository', 'wikijump=/tmp/wikijump#develop',
+    '--hash-workers', '2',
+  ]), {
+    corpusRoot: '/tmp/corpus',
+    output: '/tmp/snapshot.json',
+    branches: ['en'],
+    repositories: ['wikijump=/tmp/wikijump#develop'],
+    hashWorkers: 2,
+  });
+  assert.deepEqual(parseFreezeArgs(['--help']), { help: true });
+  assert.match(freezeUsage(), /--hash-workers/u);
+});
 
 test('discoverCorpusBranches ignores operational directories', () => {
   const root = fixtureCorpus();
@@ -200,6 +223,26 @@ test('manifest identity is stable for identical corpus content', () => {
   const first = buildCorpusSnapshot({ corpusRoot: root });
   const second = buildCorpusSnapshot({ corpusRoot: root });
   assert.equal(first.manifest_sha256, second.manifest_sha256);
+});
+
+test('corpus snapshot hash worker exposes its entrypoint and exact hashes', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-hash-worker-'));
+  const first = path.join(root, 'first.txt');
+  const second = path.join(root, 'second.txt');
+  write(first, 'alpha');
+  write(second, 'beta');
+
+  assert.equal(CORPUS_SNAPSHOT_HASH_WORKER_URL.pathname.endsWith('/src/corpus-snapshot-hash-worker.mjs'), true);
+  assert.deepEqual(hashCorpusSnapshotPaths([first, second]), [
+    [first, {
+      bytes: 5,
+      sha256: '8ed3f6ad685b959ead7022518e1af76cd816f8e8ec7ccdda1ed4018e8f2223f8',
+    }],
+    [second, {
+      bytes: 4,
+      sha256: 'f44e64e75f3948e9f73f8dfa94721c4ce8cbb4f265c4790c702b2d41cfbf2753',
+    }],
+  ]);
 });
 
 test('freeze CLI hashes canonical files with a worker pool', () => {

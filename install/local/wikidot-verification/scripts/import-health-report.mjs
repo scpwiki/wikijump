@@ -10,11 +10,13 @@
 
 import fs from 'node:fs';
 
+import {runCliIfMain} from '../src/cli-entry.mjs';
+
 import { applyThreshold, buildImportHealthVerdict, parseImportLog } from '../src/import-health.mjs';
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = { log: null, output: null, runId: null, family: 'EN', threshold: null };
-  for (let i = 2; i < argv.length; i += 1) {
+  for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => argv[++i];
     if (arg === '--log') args.log = next();
@@ -22,21 +24,24 @@ function parseArgs(argv) {
     else if (arg === '--run-id') args.runId = next();
     else if (arg === '--family') args.family = next();
     else if (arg === '--threshold') args.threshold = Number(next());
-    else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: import-health-report.mjs --log <import.log> --output <verdict.json> ' +
-          '[--run-id id] [--family EN] [--threshold 0.95]',
-      );
-      process.exit(0);
-    } else throw new Error(`Unknown argument: ${arg}`);
+    else if (arg === '--help' || arg === '-h') return {help: true};
+    else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!args.log) throw new Error('--log is required');
   if (!args.output) throw new Error('--output is required');
   return args;
 }
 
-function main() {
-  const args = parseArgs(process.argv);
+export function usage() {
+  return 'Usage: import-health-report.mjs --log <import.log> --output <verdict.json> [--run-id id] [--family EN] [--threshold 0.95]';
+}
+
+export function main(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   const { rows, summary } = parseImportLog(fs.readFileSync(args.log, 'utf8'));
   const runId = args.runId ?? `v1-import-run-${summary?.import_run_id ?? 'unknown'}`;
   const { verdict, exitCode } = buildImportHealthVerdict({
@@ -47,7 +52,7 @@ function main() {
   });
   fs.writeFileSync(args.output, JSON.stringify(verdict, null, 1));
   console.log(JSON.stringify({ ...verdict.aggregate, run_id: runId }, null, 2));
-  process.exit(exitCode !== 0 ? exitCode : applyThreshold(verdict, args.threshold));
+  return exitCode !== 0 ? exitCode : applyThreshold(verdict, args.threshold);
 }
 
-main();
+await runCliIfMain(import.meta.url, main);

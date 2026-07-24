@@ -1,8 +1,20 @@
-import { types as utilTypes } from "node:util";
+import {stableStringify} from "./canonical-json.mjs";
+import {validateReferenceObject} from "./reference-object-store.mjs";
+import {
+  buildReferenceAcquisitionWorkTarget,
+  computeReferenceAcquisitionWorkIdentity,
+  normalizeReferenceAcquisitionProducer,
+  referenceAcquisitionInventoryBinding,
+} from "./reference-acquisition-work-target.mjs";
 
-import { sha256Hex, stableStringify } from "./canonical-json.mjs";
-import { validateReferenceAcquisitionInventory } from "./reference-acquisition-inventory-validation.mjs";
-import { validateReferenceObject } from "./reference-object-store.mjs";
+export {
+  buildReferenceAcquisitionWorkTarget,
+  createReferenceAcquisitionContext,
+  listReferenceAcquisitionWorkTargets,
+  referenceAcquisitionInventoryRow,
+  referenceAcquisitionInventorySha256,
+  validateReferenceAcquisitionContext,
+} from "./reference-acquisition-work-target.mjs";
 
 export const REFERENCE_ACQUISITION_ATTEMPT_SCHEMA =
   "wikijump_full_parity.reference_acquisition_attempt.v1";
@@ -13,7 +25,6 @@ const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u;
 const TIMESTAMP_RE =
   /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/u;
-const IDENTIFIER_RE = /^[a-z][a-z0-9_.-]{0,127}$/u;
 const ROLE_RE = /^[a-z][a-z0-9_]{0,63}$/u;
 const MEDIA_TYPE_RE =
   /^[a-z0-9][a-z0-9!#$&^_.+-]{0,63}\/[a-z0-9][a-z0-9!#$&^_.+-]{0,63}$/u;
@@ -30,30 +41,6 @@ const ATTEMPT_KEYS = Object.freeze([
   "started_at",
   "work_identity",
 ]);
-
-class ReferenceAcquisitionContext {
-  constructor(inventory, { expectedIdentitySha256 } = {}) {
-    const validated = validateReferenceAcquisitionInventory(inventory, {
-      expectedIdentitySha256,
-    });
-    this.inventorySha256 = validated.identity.sha256;
-    this.rows = Object.freeze(
-      validated.rows.map((row) =>
-        Object.freeze({
-          fixtureId: row.fixture_id,
-          fullname: row.fullname,
-          layers: Object.freeze([...row.requested_layers]),
-          ordinal: row.ordinal,
-          baseline: Object.freeze({ ...row.baseline }),
-          semanticRowSha256: row.semantic_row_sha256,
-          sourceEntityId: row.source_entity_id,
-          sourceUrl: row.source_url,
-        }),
-      ),
-    );
-    Object.freeze(this);
-  }
-}
 
 function assertObject(value, label) {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
@@ -83,19 +70,6 @@ function assertTimestamp(value, label) {
   }
 }
 
-function normalizeProducer(producer) {
-  assertExactKeys(producer, ["contract", "identity"], "attempt.producer");
-  const contract = producer.contract;
-  const identity = producer.identity;
-  if (!IDENTIFIER_RE.test(contract)) {
-    throw new Error("attempt.producer.contract must be a stable identifier");
-  }
-  return Object.freeze({
-    contract,
-    identity: validateReferenceObject(identity),
-  });
-}
-
 function normalizeFailure(failure, outcome) {
   if (outcome === "complete") {
     if (failure !== null)
@@ -104,12 +78,12 @@ function normalizeFailure(failure, outcome) {
   }
   assertExactKeys(failure, ["code", "retryable"], "attempt.failure");
   if (
-    !IDENTIFIER_RE.test(failure.code) ||
+    !/^[a-z][a-z0-9_.-]{0,127}$/u.test(failure.code) ||
     typeof failure.retryable !== "boolean"
   ) {
     throw new Error("attempt.failure is invalid");
   }
-  return Object.freeze({ code: failure.code, retryable: failure.retryable });
+  return Object.freeze({code: failure.code, retryable: failure.retryable});
 }
 
 function normalizeObjects(objects, outcome) {
@@ -145,201 +119,6 @@ function normalizeObjects(objects, outcome) {
   return Object.freeze(normalized);
 }
 
-function assertContext(context) {
-  if (!(context instanceof ReferenceAcquisitionContext)) {
-    throw new Error("reference acquisition context is required");
-  }
-}
-
-function inventoryBinding(context, ordinal) {
-  assertContext(context);
-  if (
-    !Number.isSafeInteger(ordinal) ||
-    ordinal < 0 ||
-    ordinal >= context.rows.length
-  ) {
-    throw new Error("attempt inventory ordinal is outside the inventory");
-  }
-  const row = context.rows[ordinal];
-  return Object.freeze({
-    fixture_id: row.fixtureId,
-    ordinal,
-    semantic_row_sha256: row.semanticRowSha256,
-    sha256: context.inventorySha256,
-  });
-}
-
-function computeWorkIdentity(context, binding, layer, producer) {
-  if (!context.rows[binding.ordinal].layers.includes(layer)) {
-    throw new Error("attempt layer is not requested by its inventory row");
-  }
-  const sha256 = sha256Hex(
-    stableStringify({ inventory: binding, layer, producer }),
-  );
-  return Object.freeze({
-    algorithm: "sha256",
-    canonicalization: "stable-json-v1",
-    sha256,
-  });
-}
-
-function buildWorkTarget(context, layer, ordinal, producer) {
-  const inventory = inventoryBinding(context, ordinal);
-  return Object.freeze({
-    inventory,
-    layer,
-    producer,
-    work_identity: computeWorkIdentity(context, inventory, layer, producer),
-  });
-}
-
-function normalizeLayerFilter(context, layers) {
-  if (layers === undefined) return null;
-  const available = new Set(context.rows[0].layers);
-  if (!Array.isArray(layers) || utilTypes.isProxy(layers)) {
-    throw new Error("acquisition layer filter must be a data array");
-  }
-  let keys;
-  let lengthDescriptor;
-  try {
-    keys = Reflect.ownKeys(layers);
-    lengthDescriptor = Reflect.getOwnPropertyDescriptor(layers, "length");
-  } catch {
-    throw new Error("acquisition layer filter must be a data array");
-  }
-  if (
-    lengthDescriptor === undefined ||
-    !("value" in lengthDescriptor) ||
-    !Number.isSafeInteger(lengthDescriptor.value) ||
-    lengthDescriptor.value < 1 ||
-    lengthDescriptor.value > available.size ||
-    keys.length !== lengthDescriptor.value + 1
-  ) {
-    throw new Error("acquisition layer filter must be a dense data array");
-  }
-  const selected = new Set();
-  for (let index = 0; index < lengthDescriptor.value; index += 1) {
-    const descriptor = Reflect.getOwnPropertyDescriptor(layers, String(index));
-    if (
-      descriptor === undefined ||
-      !descriptor.enumerable ||
-      !("value" in descriptor) ||
-      typeof descriptor.value !== "string" ||
-      !available.has(descriptor.value) ||
-      selected.has(descriptor.value)
-    ) {
-      throw new Error(
-        "acquisition layer filter contains an invalid or duplicate layer",
-      );
-    }
-    selected.add(descriptor.value);
-  }
-  if (
-    keys.some(
-      (key) =>
-        key !== "length" &&
-        (typeof key !== "string" ||
-          !Number.isSafeInteger(Number(key)) ||
-          String(Number(key)) !== key ||
-          Number(key) < 0 ||
-          Number(key) >= lengthDescriptor.value),
-    )
-  ) {
-    throw new Error("acquisition layer filter has unexpected fields");
-  }
-  return selected;
-}
-
-function snapshotWorkTargetListOptions(value) {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    Array.isArray(value) ||
-    utilTypes.isProxy(value)
-  ) {
-    throw new Error("work target list options must be a data object");
-  }
-  let prototype;
-  let keys;
-  try {
-    prototype = Reflect.getPrototypeOf(value);
-    keys = Reflect.ownKeys(value);
-  } catch {
-    throw new Error("work target list options must be a data object");
-  }
-  if (
-    ![Object.prototype, null].includes(prototype) ||
-    keys.some(
-      (key) =>
-        typeof key !== "string" ||
-        !["context", "layers", "producer"].includes(key),
-    ) ||
-    !keys.includes("context") ||
-    !keys.includes("producer") ||
-    keys.length < 2 ||
-    keys.length > 3
-  ) {
-    throw new Error("work target list options have unexpected fields");
-  }
-  const snapshot = {};
-  for (const key of keys) {
-    const descriptor = Reflect.getOwnPropertyDescriptor(value, key);
-    if (
-      descriptor === undefined ||
-      !descriptor.enumerable ||
-      !("value" in descriptor)
-    ) {
-      throw new Error("work target list options must contain data fields");
-    }
-    snapshot[key] = descriptor.value;
-  }
-  return snapshot;
-}
-
-export function buildReferenceAcquisitionWorkTarget({
-  context,
-  layer,
-  ordinal,
-  producer,
-}) {
-  return buildWorkTarget(context, layer, ordinal, normalizeProducer(producer));
-}
-
-export function listReferenceAcquisitionWorkTargets(options) {
-  const { context, layers, producer } = snapshotWorkTargetListOptions(options);
-  validateReferenceAcquisitionContext(context);
-  const normalizedProducer = normalizeProducer(producer);
-  const layerFilter = normalizeLayerFilter(context, layers);
-  return Object.freeze(
-    context.rows.flatMap((row) =>
-      row.layers
-        .filter((layer) => layerFilter === null || layerFilter.has(layer))
-        .map((layer) =>
-          buildWorkTarget(context, layer, row.ordinal, normalizedProducer),
-        ),
-    ),
-  );
-}
-
-export function referenceAcquisitionInventorySha256(context) {
-  assertContext(context);
-  return context.inventorySha256;
-}
-
-export function referenceAcquisitionInventoryRow(context, ordinal) {
-  assertContext(context);
-  if (
-    !Number.isSafeInteger(ordinal) ||
-    ordinal < 0 ||
-    ordinal >= context.rows.length
-  ) {
-    throw new Error(
-      "reference acquisition row ordinal is outside the inventory",
-    );
-  }
-  return context.rows[ordinal];
-}
-
 function normalizeAttempt(attempt, context) {
   assertExactKeys(attempt, ATTEMPT_KEYS, "attempt");
   if (attempt.schema !== REFERENCE_ACQUISITION_ATTEMPT_SCHEMA) {
@@ -361,12 +140,15 @@ function normalizeAttempt(attempt, context) {
     ["fixture_id", "ordinal", "semantic_row_sha256", "sha256"],
     "attempt.inventory",
   );
-  const binding = inventoryBinding(context, attempt.inventory.ordinal);
+  const binding = referenceAcquisitionInventoryBinding(
+    context,
+    attempt.inventory.ordinal,
+  );
   if (stableStringify(attempt.inventory) !== stableStringify(binding)) {
     throw new Error("attempt does not match its inventory row");
   }
-  const producer = normalizeProducer(attempt.producer);
-  const workIdentity = computeWorkIdentity(
+  const producer = normalizeReferenceAcquisitionProducer(attempt.producer);
+  const workIdentity = computeReferenceAcquisitionWorkIdentity(
     context,
     binding,
     attempt.layer,
@@ -435,15 +217,6 @@ export function buildReferenceAcquisitionAttempt({
     },
     context,
   );
-}
-
-export function createReferenceAcquisitionContext(inventory, options) {
-  return new ReferenceAcquisitionContext(inventory, options);
-}
-
-export function validateReferenceAcquisitionContext(context) {
-  assertContext(context);
-  return context;
 }
 
 export function validateReferenceAcquisitionAttempt(attempt, context) {

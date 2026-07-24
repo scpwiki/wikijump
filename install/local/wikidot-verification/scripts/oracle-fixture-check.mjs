@@ -17,11 +17,18 @@
 
 import fs from 'node:fs';
 
+import {runCliIfMain} from '../src/cli-entry.mjs';
+
 import { aggregateOracleVerdict, compareOracleEntry } from '../src/oracle-fixtures.mjs';
 
 const DEFAULT_API_URL = 'http://127.0.0.1:2747/jsonrpc';
 
-function parseArgs(argv) {
+export function usage() {
+  return 'Usage: oracle-fixture-check.mjs --oracle <entries.jsonl> --output <verdict.json> ' +
+    '[--api-url url] [--site-id id] [--slug-prefix p] [--run-id id]';
+}
+
+export function parseArgs(argv) {
   const args = {
     oracle: null,
     output: null,
@@ -33,7 +40,7 @@ function parseArgs(argv) {
     adminPass: process.env.WIKIDOT_VERIFY_ADMIN_PASS ?? 'wikijumpadmin1',
     userId: -1,
   };
-  for (let i = 2; i < argv.length; i += 1) {
+  for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => argv[++i];
     if (arg === '--oracle') args.oracle = next();
@@ -45,13 +52,8 @@ function parseArgs(argv) {
     else if (arg === '--admin-email') args.adminEmail = next();
     else if (arg === '--admin-pass') args.adminPass = next();
     else if (arg === '--user-id') args.userId = Number(next());
-    else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: oracle-fixture-check.mjs --oracle <entries.jsonl> --output <verdict.json> ' +
-          '[--api-url url] [--site-id id] [--slug-prefix p] [--run-id id]',
-      );
-      process.exit(0);
-    } else throw new Error(`Unknown argument: ${arg}`);
+    else if (arg === '--help' || arg === '-h') return {help: true};
+    else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!args.oracle) throw new Error('--oracle is required');
   if (!args.output) throw new Error('--output is required');
@@ -124,8 +126,12 @@ async function renderEntry(args, sessionToken, entry) {
   return rendered.compiled_body_html ?? '';
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
+export async function main(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   const entries = fs
     .readFileSync(args.oracle, 'utf8')
     .trim()
@@ -157,10 +163,12 @@ async function main() {
   const { verdict, exitCode } = aggregateOracleVerdict({ runId: args.runId, results });
   fs.writeFileSync(args.output, JSON.stringify(verdict, null, 1));
   console.log(JSON.stringify({ run_id: args.runId, ...verdict.aggregate }, null, 2));
-  process.exit(exitCode);
+  return exitCode;
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(2);
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error);
+    return 2;
+  },
 });

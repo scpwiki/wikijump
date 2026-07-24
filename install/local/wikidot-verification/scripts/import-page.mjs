@@ -31,6 +31,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import {runCliIfMain} from '../src/cli-entry.mjs';
 import { spawnSync } from 'node:child_process';
 
 import {
@@ -47,11 +49,19 @@ import {
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 
-function parseArgs(argv) {
+export function usage() {
+  return 'Usage: import-page.mjs --slug <page> [--slug <page>...] --corpus-root <path> --output-dir <dir> ' +
+    '[--inventory <lock.json>] [--branch en] [--family EN] [--site scp-wiki] [--site-id <id>] ' +
+    '[--source-site <site>] [--source-branch <branch>] [--host <domain>] [--rpc-url <url>] ' +
+    '[--db-container <name>] [--attachment-user-id -1] ' +
+    '[--batch-size 40] [--max-depth 8] [--adopt-existing] [--skip-health] [--dry-run]';
+}
+
+export function parseArgs(argv, env = process.env, warn = console.error) {
   const args = {
     slugs: [],
-    corpusRoot: process.env.WIKIDOT_VERIFY_CORPUS_ROOT ?? null,
-    inventory: process.env.WIKIDOT_VERIFY_INVENTORY ?? null,
+    corpusRoot: env.WIKIDOT_VERIFY_CORPUS_ROOT ?? null,
+    inventory: env.WIKIDOT_VERIFY_INVENTORY ?? null,
     outputDir: null,
     branch: 'en',
     family: null,
@@ -60,8 +70,8 @@ function parseArgs(argv) {
     sourceSite: null,
     sourceBranch: null,
     host: null,
-    rpcUrl: process.env.WIKIDOT_VERIFY_RPC_URL ?? 'http://127.0.0.1:2747/jsonrpc',
-    sessionToken: process.env.DEEPWELL_SESSION_TOKEN ?? null,
+    rpcUrl: env.WIKIDOT_VERIFY_RPC_URL ?? 'http://127.0.0.1:2747/jsonrpc',
+    sessionToken: env.DEEPWELL_SESSION_TOKEN ?? null,
     dbContainer: null,
     attachmentUserId: '-1',
     batchSize: 40,
@@ -70,7 +80,7 @@ function parseArgs(argv) {
     skipHealth: false,
     dryRun: false,
   };
-  for (let i = 2; i < argv.length; i += 1) {
+  for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => {
       i += 1;
@@ -96,16 +106,8 @@ function parseArgs(argv) {
     else if (arg === '--adopt-existing') args.adoptExisting = true;
     else if (arg === '--skip-health') args.skipHealth = true;
     else if (arg === '--dry-run') args.dryRun = true;
-    else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: import-page.mjs --slug <page> [--slug <page>...] --corpus-root <path> --output-dir <dir> ' +
-          '[--inventory <lock.json>] [--branch en] [--family EN] [--site scp-wiki] [--site-id <id>] ' +
-          '[--source-site <site>] [--source-branch <branch>] [--host <domain>] [--rpc-url <url>] ' +
-          '[--db-container <name>] [--attachment-user-id -1] ' +
-          '[--batch-size 40] [--max-depth 8] [--adopt-existing] [--skip-health] [--dry-run]',
-      );
-      return {help: true};
-    } else if (!arg.startsWith('--')) args.slugs.push(arg);
+    else if (arg === '--help' || arg === '-h') return {help: true};
+    else if (!arg.startsWith('--')) args.slugs.push(arg);
     else throw new Error(`Unknown argument: ${arg}`);
   }
   if (args.slugs.length === 0) throw new Error('at least one --slug is required');
@@ -117,7 +119,7 @@ function parseArgs(argv) {
   args.host ??= `${args.site}.wikijump.localhost`;
   const rpc = validateRpcUrl(args.rpcUrl);
   args.rpcUrl = rpc.rpcUrl;
-  for (const warning of rpc.warnings) console.error(`WARN: ${warning}`);
+  for (const warning of rpc.warnings) warn(`WARN: ${warning}`);
   return args;
 }
 
@@ -155,9 +157,12 @@ function fail(code, payload) {
   throw new ImportPageFailure(code, payload);
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
-  if (args.help) return 0;
+export async function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   fs.mkdirSync(args.outputDir, { recursive: true });
   const out = (...parts) => path.join(args.outputDir, ...parts);
 
@@ -322,9 +327,9 @@ async function main() {
   return 0;
 }
 
-main().then((code) => {
-  process.exitCode = code;
-}).catch((error) => {
-  console.error(error instanceof ImportPageFailure ? error.message : String(error?.stack ?? error));
-  process.exitCode = error instanceof ImportPageFailure ? error.code : 2;
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error instanceof ImportPageFailure ? error.message : String(error?.stack ?? error));
+    return error instanceof ImportPageFailure ? error.code : 2;
+  },
 });

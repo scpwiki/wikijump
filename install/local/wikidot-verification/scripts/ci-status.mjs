@@ -1,7 +1,10 @@
 #!/usr/bin/env node
+
+import {runCliIfMain} from "../src/cli-entry.mjs";
 import {collectCiStatus, defaultStatusPath, redactText} from "../src/ci-status.mjs";
 import {parsePositiveIntegerOption as parsePositiveInteger, readRequiredOptionValue as readValue, UsageError} from "../src/cli-options.mjs";
-function usage() {
+
+export function usage() {
   return [
     "Usage: node scripts/ci-status.mjs (--pr <N> | --branch <name> | --sha <sha>) [--repo <owner/name>] [--ttl <ms>] [--completed-ttl <ms>] [--refresh] [--json] [--quiet] [--status <path>] [--fail-on-failing] [--help]",
     "",
@@ -28,13 +31,15 @@ function usage() {
     `Example default PR path: ${defaultStatusPath({kind: "pr", prNumber: 330})}`,
   ].join("\n");
 }
+
 function setSubject(options, subject) {
   if (options.subject !== null) {
     throw new UsageError("exactly one of --pr, --branch, or --sha is required");
   }
   options.subject = subject;
 }
-function parseArgs(argv) {
+
+export function parseArgs(argv) {
   const options = {repo: "Rokurolize/wikijump", subject: null, ttlMs: 30000, completedTtlMs: 300000, refresh: false, quiet: false, statusPath: null, failOnFailing: false};
   let help = false;
   for (let index = 0; index < argv.length; index += 1) {
@@ -79,29 +84,39 @@ function parseArgs(argv) {
   }
   return {help, options};
 }
-try {
-  const parsed = parseArgs(process.argv.slice(2));
-  if (parsed.help) {
-    console.log(usage());
-  } else {
+
+export async function main(argv, {
+  collectStatus = collectCiStatus,
+  now = Date.now,
+  stdout = console.log,
+  stderr = console.error,
+} = {}) {
+  try {
+    const parsed = parseArgs(argv);
+    if (parsed.help) {
+      stdout(usage());
+      return 0;
+    }
+
     const {failOnFailing, quiet, ...statusOptions} = parsed.options;
-    const status = await collectCiStatus({
+    const status = await collectStatus({
       ...statusOptions,
       statusPath: statusOptions.statusPath ?? undefined,
-      nowMs: Date.now(),
+      nowMs: now(),
     });
     if (!quiet) {
-      console.log(JSON.stringify(status, null, 2));
+      stdout(JSON.stringify(status, null, 2));
     }
-    process.exitCode = failOnFailing && status.overall === "failing" ? 4 : 0;
-  }
-} catch (error) {
-  if (error instanceof UsageError) {
-    console.error(error.message);
-    console.error(usage());
-    process.exitCode = 2;
-  } else {
-    console.error(`ci-status failed: ${redactText(error.errorExcerpt ?? error.stderr ?? error.message)}`);
-    process.exitCode = 1;
+    return failOnFailing && status.overall === "failing" ? 4 : 0;
+  } catch (error) {
+    if (error instanceof UsageError) {
+      stderr(error.message);
+      stderr(usage());
+      return 2;
+    }
+    stderr(`ci-status failed: ${redactText(error.errorExcerpt ?? error.stderr ?? error.message)}`);
+    return 1;
   }
 }
+
+await runCliIfMain(import.meta.url, main);

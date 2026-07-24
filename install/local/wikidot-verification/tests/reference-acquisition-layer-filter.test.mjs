@@ -11,7 +11,7 @@ import {
   createReferenceAcquisitionContext,
   listReferenceAcquisitionWorkTargets,
   referenceAcquisitionInventorySha256,
-} from "../src/reference-acquisition-attempt.mjs";
+} from "../src/reference-acquisition-work-target.mjs";
 import {
   initializeReferenceAcquisitionCompletions,
   referenceAcquisitionCompletionRelativePath,

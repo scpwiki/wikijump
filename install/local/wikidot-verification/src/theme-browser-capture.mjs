@@ -1,7 +1,17 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 
 import {browserContextOptions, openBrowser} from "./browser-session.mjs";
+import {
+  prepareThemeArtifactDirectory,
+  writePrivateThemeFile,
+  writePrivateThemeJson,
+  writeThemeViewportArtifacts,
+} from "./theme-browser-artifacts.mjs";
+
+export {
+  prepareThemeArtifactDirectory,
+  writeThemeViewportArtifacts,
+} from "./theme-browser-artifacts.mjs";
 import {startCaptureEgressProxy} from "./capture-egress-proxy.mjs";
 import {collectLayoutShifts, collectTimingDiagnostics, installLayoutShiftObserver, installTimingObserver} from "./layout-diagnostics.mjs";
 import {findRawSyntaxLeaks} from "./render-health.mjs";
@@ -12,30 +22,6 @@ export const THEME_PERFORMANCE_ATTRIBUTION_SCHEMA = "wikijump_local_lab.theme_pe
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_SETTLE_MS = 250;
 const DEFAULT_INTERACTION_TIMEOUT_MS = 1_000;
-
-export async function prepareThemeArtifactDirectory(directory) {
-  const absolute = path.resolve(directory);
-  await fs.mkdir(absolute, {recursive: true, mode: 0o700});
-  const stat = await fs.lstat(absolute);
-  if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error("theme artifact path must be a real directory");
-  if ((stat.mode & 0o077) !== 0) throw new Error("theme artifact directory permissions must deny group and other access");
-  return absolute;
-}
-
-async function writePrivateFile(filePath, contents) {
-  const handle = await fs.open(filePath, "wx", 0o600);
-  try {
-    await handle.writeFile(contents);
-    await handle.sync();
-  } finally {
-    await handle.close();
-  }
-}
-
-async function assertPrivateFile(filePath) {
-  const stat = await fs.lstat(filePath);
-  if (!stat.isFile() || stat.isSymbolicLink() || (stat.mode & 0o077) !== 0) throw new Error("theme artifact file must be a private regular file");
-}
 
 function safeId(value, label) {
   if (typeof value !== "string" || !/^[a-z0-9][a-z0-9-]{0,63}$/u.test(value)) throw new Error(`${label} is not a safe artifact identifier`);
@@ -390,24 +376,6 @@ export async function collectThemePerformanceAttribution(page, webVitals, {maxLa
   return {schema: THEME_PERFORMANCE_ATTRIBUTION_SCHEMA, lcp_element: webVitals?.lcp_attribution ?? null, layout_shifts: layoutShifts, resource_timing: resourceTiming};
 }
 
-async function writeJson(filePath, value) {
-  await writePrivateFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
-}
-
-export async function writeThemeViewportArtifacts(directory, result) {
-  directory = await prepareThemeArtifactDirectory(directory);
-  const artifacts = {
-    dom: path.join(directory, "dom.html"), screenshot: path.join(directory, "screenshot.png"), computed_styles: path.join(directory, "computed-styles.json"), web_vitals: path.join(directory, "web-vitals.json"), performance_attribution: path.join(directory, "performance-attribution.json"), interactions: path.join(directory, "interactions.json"), network_errors: path.join(directory, "network-errors.json"), raw_syntax: path.join(directory, "raw-syntax.json"), verdict: path.join(directory, "verdict.json"),
-  };
-  if (result.screenshot_status !== "captured") throw new Error("theme screenshot artifact was not created");
-  await assertPrivateFile(artifacts.screenshot);
-  await writePrivateFile(artifacts.dom, result.dom ?? "");
-  await Promise.all([
-    writeJson(artifacts.computed_styles, result.computed_styles), writeJson(artifacts.web_vitals, {navigation_timing: result.navigation_timing, web_vitals: result.web_vitals}), writeJson(artifacts.performance_attribution, result.performance_attribution), writeJson(artifacts.interactions, result.interactions), writeJson(artifacts.network_errors, result.errors), writeJson(artifacts.raw_syntax, result.raw_syntax), writeJson(artifacts.verdict, result.verdict),
-  ]);
-  return artifacts;
-}
-
 export async function captureThemeViewport({context, target, viewport, capture, artifactDir, source, timeoutMs = DEFAULT_TIMEOUT_MS, settleMs = DEFAULT_SETTLE_MS, interactionTimeoutMs = DEFAULT_INTERACTION_TIMEOUT_MS}) {
   artifactDir = await prepareThemeArtifactDirectory(artifactDir);
   const page = await context.newPage();
@@ -451,7 +419,7 @@ export async function captureThemeViewport({context, target, viewport, capture, 
   performanceAttribution.errors = diagnosticErrors;
   const screenshotPath = path.join(artifactDir, "screenshot.png");
   let screenshotStatus = "missing";
-  try { await writePrivateFile(screenshotPath, await page.screenshot({fullPage: true})); screenshotStatus = "captured"; } catch (error) { captureErrors.push(`screenshot: ${error.message}`); }
+  try { await writePrivateThemeFile(screenshotPath, await page.screenshot({fullPage: true})); screenshotStatus = "captured"; } catch (error) { captureErrors.push(`screenshot: ${error.message}`); }
   const interactions = [];
   for (const interaction of capture.interactions) interactions.push(await captureInteraction(page, interaction, {timeoutMs: interactionTimeoutMs, visualResponseGateMs: capture.web_vitals.gates.visual_response_ms.value}));
   const finalUrl = page.url();
@@ -511,6 +479,6 @@ export async function captureThemeTierBrowserEvidence({tier, outputDir, source, 
   }
   const result = {schema: THEME_BROWSER_CAPTURE_SCHEMA, tier_id: tierId, status: targets.every((target) => target.verdict.status === "pass") ? "pass" : "fail", targets};
   const resultPath = path.join(tierDirectory, "browser-capture.json");
-  await writeJson(resultPath, result);
+  await writePrivateThemeJson(resultPath, result);
   return {...result, result_path: resultPath};
 }

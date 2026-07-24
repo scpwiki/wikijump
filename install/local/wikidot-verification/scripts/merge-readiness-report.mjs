@@ -13,9 +13,11 @@
 
 import fs from 'node:fs';
 
+import {runCliIfMain} from '../src/cli-entry.mjs';
+
 import { buildMergeReadiness, parseDeviationLog } from '../src/deviation-log.mjs';
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = {
     output: null,
     branch: null,
@@ -23,7 +25,7 @@ function parseArgs(argv) {
     validators: [],
     runId: `merge-readiness-${new Date().toISOString().replace(/[:.]/g, '-')}`,
   };
-  for (let i = 2; i < argv.length; i += 1) {
+  for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => argv[++i];
     if (arg === '--output') args.output = next();
@@ -33,20 +35,15 @@ function parseArgs(argv) {
     else if (arg === '--validator') {
       const [name, file] = next().split('=');
       args.validators.push({ name, file });
-    } else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: merge-readiness-report.mjs --output <report.json> [--branch name] ' +
-          '[--deviation-log <jsonl>] [--validator name=verdict.json ...] [--run-id id]',
-      );
-      process.exit(0);
-    } else throw new Error(`Unknown argument: ${arg}`);
+    } else if (arg === '--help' || arg === '-h') return {help: true};
+    else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!args.output) throw new Error('--output is required');
   return args;
 }
 
 // Derive an effective exit code from a verdict file's own aggregate.
-function verdictExitCode(verdict) {
+export function verdictExitCode(verdict) {
   if (typeof verdict.exit_code === 'number') return verdict.exit_code;
   const aggregate = verdict.aggregate ?? {};
   if (typeof aggregate.unclassified === 'number' && aggregate.unclassified > 0) return 2;
@@ -55,8 +52,16 @@ function verdictExitCode(verdict) {
   return 0;
 }
 
-function main() {
-  const args = parseArgs(process.argv);
+export function usage() {
+  return 'Usage: merge-readiness-report.mjs --output <report.json> [--branch name] [--deviation-log <jsonl>] [--validator name=verdict.json ...] [--run-id id]';
+}
+
+export function main(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   const validators = args.validators.map(({ name, file }) => {
     const verdict = JSON.parse(fs.readFileSync(file, 'utf8'));
     return { name, exitCode: verdictExitCode(verdict) };
@@ -73,12 +78,12 @@ function main() {
   });
   fs.writeFileSync(args.output, JSON.stringify(report, null, 1));
   console.log(JSON.stringify(report, null, 2));
-  process.exit(report.merge_ready ? 0 : 1);
+  return report.merge_ready ? 0 : 1;
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error);
-  process.exit(2);
-}
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error);
+    return 2;
+  },
+});

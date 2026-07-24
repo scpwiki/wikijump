@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import {runCliIfMain} from '../src/cli-entry.mjs';
 import {
   buildCorpusImportManifest,
   buildManifestSummary,
@@ -8,7 +9,11 @@ import {
 } from '../src/corpus-import-manifest.mjs';
 import { stableStringify } from '../src/canonical-json.mjs';
 
-function parseArgs(argv) {
+export function usage() {
+  return 'Usage: build-corpus-import-manifest.mjs (--corpus-root <path> [--branch en] | --source-bundle <path>) [--source-site site] [--source-branch branch] [--fullname <page>...] --output <manifest.jsonl> --summary <summary.json>';
+}
+
+export function parseArgs(argv) {
   const args = {
     corpusRoot: null,
     sourceBundle: null,
@@ -37,10 +42,8 @@ function parseArgs(argv) {
     else if (arg === '--output') args.output = next();
     else if (arg === '--summary') args.summary = next();
     else if (arg === '--fullname') args.fullnames.push(next());
-    else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: build-corpus-import-manifest.mjs (--corpus-root <path> [--branch en] | --source-bundle <path>) [--source-site site] [--source-branch branch] [--fullname <page>...] --output <manifest.jsonl> --summary <summary.json>');
-      process.exit(0);
-    } else {
+    else if (arg === '--help' || arg === '-h') return {help: true};
+    else {
       throw new Error(`unknown argument: ${arg}`);
     }
   }
@@ -57,20 +60,29 @@ function parseArgs(argv) {
   return args;
 }
 
-const args = parseArgs(process.argv.slice(2));
-const manifestInput = {
-  corpusRoot: args.corpusRoot === null ? null : path.resolve(args.corpusRoot),
-  sourceBundleRoot: args.sourceBundle === null ? null : path.resolve(args.sourceBundle),
-  branch: args.branch,
-  sourceSite: args.sourceSite,
-};
-if (args.sourceBranch !== null) manifestInput.sourceBranch = args.sourceBranch;
-if (args.fullnames.length > 0) manifestInput.fullnames = args.fullnames;
-const rows = buildCorpusImportManifest(manifestInput);
-const jsonl = formatJsonl(rows);
-const summary = buildManifestSummary(rows, jsonl);
-fs.mkdirSync(path.dirname(path.resolve(args.output)), { recursive: true });
-fs.mkdirSync(path.dirname(path.resolve(args.summary)), { recursive: true });
-fs.writeFileSync(args.output, jsonl);
-fs.writeFileSync(args.summary, `${stableStringify(summary)}\n`);
-console.log(stableStringify(summary));
+export function main(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
+  const manifestInput = {
+    corpusRoot: args.corpusRoot === null ? null : path.resolve(args.corpusRoot),
+    sourceBundleRoot: args.sourceBundle === null ? null : path.resolve(args.sourceBundle),
+    branch: args.branch,
+    sourceSite: args.sourceSite,
+  };
+  if (args.sourceBranch !== null) manifestInput.sourceBranch = args.sourceBranch;
+  if (args.fullnames.length > 0) manifestInput.fullnames = args.fullnames;
+  const rows = buildCorpusImportManifest(manifestInput);
+  const jsonl = formatJsonl(rows);
+  const summary = buildManifestSummary(rows, jsonl);
+  fs.mkdirSync(path.dirname(path.resolve(args.output)), { recursive: true });
+  fs.mkdirSync(path.dirname(path.resolve(args.summary)), { recursive: true });
+  fs.writeFileSync(args.output, jsonl);
+  fs.writeFileSync(args.summary, `${stableStringify(summary)}\n`);
+  console.log(stableStringify(summary));
+  return 0;
+}
+
+await runCliIfMain(import.meta.url, main);

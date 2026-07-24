@@ -1,11 +1,11 @@
 import { sha256Hex, stableStringify } from "./canonical-json.mjs";
+import {serializeReferenceAcquisitionInventory} from "./reference-acquisition-inventory.mjs";
 import {
   assertCanonicalFullname,
   assertTimestamp,
   codePointCompare,
-  serializeReferenceAcquisitionInventory,
   validateOrigin,
-} from "./reference-acquisition-inventory.mjs";
+} from "./reference-acquisition-inventory-source.mjs";
 
 const SHA256_RE = /^[0-9a-f]{64}$/u;
 const UUID_RE =

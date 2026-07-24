@@ -5,6 +5,7 @@ import {
   DEFAULT_COMPUTED_STYLE_WHITELIST,
   DEFAULT_SCP9506_DESCRIPTORS,
   buildTimingDiagnostics,
+  collectDocumentMetrics,
   collectElementDiagnostics,
   evaluateLayoutInvariants,
   layoutShiftSourceAttributionFromSnapshot,
@@ -20,6 +21,27 @@ test("parseViewport accepts width x height pairs", () => {
 test("parseViewport rejects malformed values", () => {
   assert.throws(() => parseViewport("390"), /viewport must use WIDTHxHEIGHT/);
   assert.throws(() => parseViewport("0x844"), /positive integers/);
+});
+
+test("collectDocumentMetrics returns the page-owned geometry snapshot", async () => {
+  const expected = {
+    title: "SCP-9506",
+    url: "https://scp-wiki.wikijump.localhost/scp-9506",
+    client_width: 1366,
+    client_height: 900,
+    scroll_width: 1366,
+    scroll_height: 2400,
+    body_scroll_width: 1366,
+    body_scroll_height: 2400,
+  };
+  const page = {
+    async evaluate(callback) {
+      assert.equal(typeof callback, "function");
+      return expected;
+    },
+  };
+
+  assert.deepEqual(await collectDocumentMetrics(page), expected);
 });
 
 test("collectElementDiagnostics passes descriptors and style whitelist to the page", async () => {

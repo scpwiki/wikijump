@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+
+import {runCliIfMain} from "../src/cli-entry.mjs";
 import {collectDockerStorageStatus, defaultStatusPath, redactText} from "../src/docker-storage-status.mjs";
 import {parsePositiveIntegerOption as parsePositiveInteger, readRequiredOptionValue as readValue, UsageError} from "../src/cli-options.mjs";
 
-function usage() {
+export function usage() {
   return [
     "Usage: node scripts/docker-storage-status.mjs [--ttl <ms>] [--refresh] [--json] [--quiet] [--status <path>] [--help]",
     "",
@@ -34,7 +36,7 @@ function usage() {
   ].join("\n");
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const options = {ttlMs: 300000, refresh: false, quiet: false, statusPath: null};
   let help = false;
 
@@ -62,29 +64,38 @@ function parseArgs(argv) {
   return {help, options};
 }
 
-try {
-  const parsed = parseArgs(process.argv.slice(2));
-  if (parsed.help) {
-    console.log(usage());
-  } else {
+export async function main(argv, {
+  collectStatus = collectDockerStorageStatus,
+  now = Date.now,
+  stdout = console.log,
+  stderr = console.error,
+} = {}) {
+  try {
+    const parsed = parseArgs(argv);
+    if (parsed.help) {
+      stdout(usage());
+      return 0;
+    }
+
     const {quiet, ...statusOptions} = parsed.options;
-    const status = await collectDockerStorageStatus({
+    const status = await collectStatus({
       ...statusOptions,
       statusPath: statusOptions.statusPath ?? undefined,
-      nowMs: Date.now(),
+      nowMs: now(),
     });
     if (!quiet) {
-      console.log(JSON.stringify(status, null, 2));
+      stdout(JSON.stringify(status, null, 2));
     }
-    process.exitCode = 0;
-  }
-} catch (error) {
-  if (error instanceof UsageError) {
-    console.error(error.message);
-    console.error(usage());
-    process.exitCode = 2;
-  } else {
-    console.error(`docker-storage-status failed: ${redactText(error.errorExcerpt ?? error.stderr ?? error.message)}`);
-    process.exitCode = 1;
+    return 0;
+  } catch (error) {
+    if (error instanceof UsageError) {
+      stderr(error.message);
+      stderr(usage());
+      return 2;
+    }
+    stderr(`docker-storage-status failed: ${redactText(error.errorExcerpt ?? error.stderr ?? error.message)}`);
+    return 1;
   }
 }
+
+await runCliIfMain(import.meta.url, main);

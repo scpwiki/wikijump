@@ -12,15 +12,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import {runCliIfMain} from '../src/cli-entry.mjs';
+
 import {
   buildBundleRegistry,
   resolveDependencyClosure,
   summarizeClosureReports,
 } from '../src/dependency-closure.mjs';
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = { inventory: null, slugFile: null, outputDir: null, family: null, maxDepth: 8 };
-  for (let i = 2; i < argv.length; i += 1) {
+  for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => argv[++i];
     if (arg === '--inventory') args.inventory = next();
@@ -28,13 +30,8 @@ function parseArgs(argv) {
     else if (arg === '--output-dir') args.outputDir = next();
     else if (arg === '--family') args.family = next();
     else if (arg === '--max-depth') args.maxDepth = Number(next());
-    else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: dependency-closure-report.mjs --inventory <lock.json> --slug-file <slugs.txt> ' +
-          '--output-dir <dir> [--family EN] [--max-depth 8]',
-      );
-      process.exit(0);
-    } else throw new Error(`Unknown argument: ${arg}`);
+    else if (arg === '--help' || arg === '-h') return {help: true};
+    else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!args.inventory) throw new Error('--inventory is required');
   if (!args.slugFile) throw new Error('--slug-file is required');
@@ -52,8 +49,16 @@ function readSourceArtifact(row) {
   }
 }
 
-function main() {
-  const args = parseArgs(process.argv);
+export function usage() {
+  return 'Usage: dependency-closure-report.mjs --inventory <lock.json> --slug-file <slugs.txt> --output-dir <dir> [--family EN] [--max-depth 8]';
+}
+
+export function main(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   const inventory = JSON.parse(fs.readFileSync(args.inventory, 'utf8'));
   const rows = inventory.rows ?? inventory;
   if (!Array.isArray(rows)) throw new Error('inventory has no rows array');
@@ -110,13 +115,13 @@ function main() {
     JSON.stringify(summary, null, 1),
   );
   console.log(JSON.stringify(summary, null, 2));
-  if (missing.length > 0) process.exit(2);
-  process.exit(summary.exit_code);
+  if (missing.length > 0) return 2;
+  return summary.exit_code;
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(String(error?.stack ?? error));
-  process.exit(2);
-}
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(String(error?.stack ?? error));
+    return 2;
+  },
+});

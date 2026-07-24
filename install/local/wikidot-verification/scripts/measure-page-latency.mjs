@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Measure local Wikijump article response latency and response-body stability.
-//
-// Example:
-//   measure-page-latency.mjs --url http://127.0.0.1/scp-173 --compare-url http://127.0.0.1/scp-173?baseline=1 --header Host:scp-wiki.wikijump.local --requests 50 --warmups 5 --require-stable-body --output latency.json
 
+import process from "node:process";
+
+import {runCliIfMain} from "../src/cli-entry.mjs";
 import { parseArgs, runPageLatency, writeReport } from "../src/page-latency.mjs";
 
-function usage() {
+export function usage() {
   return [
     "Usage: measure-page-latency.mjs --url <url> [options]",
     "",
@@ -20,27 +20,29 @@ function usage() {
   ].join("\n");
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
-  if (args.help) {
-    console.log(usage());
-    return;
-  }
-  const report = await runPageLatency(args);
-  const json = writeReport(report, args.output);
-  console.log(json);
-  if (report.summary.ok !== report.summary.requests) {
-    process.exit(2);
-  }
-  if (args.requireStableBody && !report.summary.body_stable) {
-    process.exit(3);
-  }
-  if (report.summary.comparison && (!report.summary.comparison.same_body || !report.summary.comparison.same_bytes)) {
-    process.exit(4);
+export async function main(argv, {
+  parse = parseArgs,
+  run = runPageLatency,
+  write = writeReport,
+  stdout = console.log,
+  stderr = console.error,
+} = {}) {
+  try {
+    const args = parse(argv);
+    if (args.help) {
+      stdout(usage());
+      return 0;
+    }
+    const report = await run(args);
+    stdout(write(report, args.output));
+    if (report.summary.ok !== report.summary.requests) return 2;
+    if (args.requireStableBody && !report.summary.body_stable) return 3;
+    if (report.summary.comparison && (!report.summary.comparison.same_body || !report.summary.comparison.same_bytes)) return 4;
+    return 0;
+  } catch (error) {
+    stderr(error.stack ?? error.message);
+    return 1;
   }
 }
 
-main().catch((error) => {
-  console.error(error.stack ?? error.message);
-  process.exit(1);
-});
+await runCliIfMain(import.meta.url, main, {argv: process.argv});

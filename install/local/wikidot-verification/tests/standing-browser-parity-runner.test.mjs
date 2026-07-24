@@ -1,10 +1,28 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { main as runParityCli, usage as parityCliUsage } from "../scripts/run-standing-browser-parity.mjs";
 import { closeParityBrowserResources } from "../src/standing-browser-parity-browser-session.mjs";
 import { parseStandingBrowserParityArgs } from "../src/standing-browser-parity-runner.mjs";
 
 const policy = "/tmp/standing-policy.json";
+
+test("standing parity CLI exposes result and help without opening a browser", async () => {
+  const output = [];
+  const code = await runParityCli(["node", "script", "--mode", "candidate"], {
+    parseArgs: () => ({mode: "candidate"}),
+    runParity: async () => ({mode: "candidate", status: "pass", output_dir: "/tmp/parity"}),
+    stdout: (line) => output.push(JSON.parse(line)),
+  });
+  assert.equal(code, 0);
+  assert.deepEqual(output, [{
+    schema: "wikijump.standing_browser_parity_cli_result.v1",
+    mode: "candidate",
+    status: "pass",
+    output_dir: "/tmp/parity",
+  }]);
+  assert.match(parityCliUsage(), /live-reference/u);
+});
 
 test("parity browser cleanup attempts every resource and reports every failure", async () => {
   const attempts = [];

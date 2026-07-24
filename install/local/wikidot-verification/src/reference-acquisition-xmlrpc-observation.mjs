@@ -3,7 +3,7 @@ import {
   buildReferenceAcquisitionWorkTarget,
   referenceAcquisitionInventoryRow,
 } from "./reference-acquisition-attempt.mjs";
-import { assertTimestamp } from "./reference-acquisition-inventory.mjs";
+import { assertTimestamp } from "./reference-acquisition-inventory-source.mjs";
 import { validateReferenceObject } from "./reference-object-store.mjs";
 
 export const WIKIDOT_XMLRPC_OBSERVATION_SCHEMA =
