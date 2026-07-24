@@ -6903,6 +6903,7 @@ impl RenderService {
         let wants_rating_votes = template.uses_rating_votes();
         let wants_site_domain = template.uses_site_domain();
         let wants_parent_fullname = template.uses_parent_fullname();
+        let wants_revisions = template.uses_revisions();
         let resolved_authors = Self::resolve_list_pages_authors_cached(
             ctx,
             current_site_id,
@@ -7162,7 +7163,8 @@ impl RenderService {
             || wants_commented_by
             || wants_commented_at
             || wants_rating_votes
-            || wants_parent_fullname;
+            || wants_parent_fullname
+            || wants_revisions;
         let loaded_snapshot_displays =
             if wants_snapshot_displays && prefetched_displays.is_none() {
                 Some(Self::load_list_pages_snapshot_displays(ctx, &pages).await?)
@@ -7186,6 +7188,41 @@ impl RenderService {
             // name, so the module stays literal instead.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
+        let revision_counts = if wants_revisions {
+            // An imported page carries Wikidot's own revision count; its local
+            // history is the single import revision, so counting local rows
+            // there would report 1 for every corpus page.
+            let mut missing_by_site = BTreeMap::<i64, Vec<i64>>::new();
+            for page in &pages {
+                if !snapshot_displays.contains_key(&page.page_id) {
+                    missing_by_site
+                        .entry(page.site_id)
+                        .or_default()
+                        .push(page.page_id);
+                }
+            }
+            let mut revision_counts = BTreeMap::<i64, u64>::new();
+            for (site_id, page_ids) in missing_by_site {
+                revision_counts.extend(
+                    PageRevisionService::get_revision_count_batch(
+                        ctx, site_id, &page_ids,
+                    )
+                    .await?,
+                );
+            }
+            if pages.iter().any(|page| {
+                list_pages_revision_count(page, snapshot_displays, &revision_counts)
+                    .is_none()
+            }) {
+                // A page with neither imported nor local history has no
+                // evidenced count, and the previous constant zero was a
+                // plausible-looking value rather than a measured one.
+                return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+            }
+            revision_counts
+        } else {
+            BTreeMap::new()
+        };
         // An imported page carries Wikidot's own parent name, which is singular
         // by construction; the relational table only answers for pages that
         // were never imported, where a second live parent is ambiguous.
@@ -7353,6 +7390,12 @@ impl RenderService {
                     snapshot_displays,
                     &relational_parent_fullnames,
                 ),
+                page_revision_count: wants_revisions.then(|| {
+                    list_pages_revision_count(page, snapshot_displays, &revision_counts)
+                        .expect(
+                            "revision-backed ListPages rows were validated before substitution",
+                        )
+                }),
                 expanded_content: Some(&expanded_content),
                 data_form_values: &data_form_values,
                 render_generated_html,
@@ -8105,6 +8148,7 @@ impl RenderService {
             commented_by_name: Option<String>,
             rating_votes: Option<i64>,
             parent_fullname: Option<String>,
+            source_revision_count: i32,
         }
 
         let page_ids = pages
@@ -8134,7 +8178,7 @@ impl RenderService {
                  SELECT snapshot.page_id, snapshot.source_created_at, snapshot.source_updated_at, \
                         snapshot.created_by_name, snapshot.updated_by_name, snapshot.comments, \
                         snapshot.commented_at, snapshot.commented_by_name, \
-                        snapshot.parent_fullname, \
+                        snapshot.parent_fullname, snapshot.source_revision_count, \
                         CASE \
                             WHEN snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
                                  AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
@@ -8165,6 +8209,7 @@ impl RenderService {
                              commented_by_name,
                              rating_votes,
                              parent_fullname,
+                             source_revision_count,
                          }| {
                             (
                                 page_id,
@@ -8178,6 +8223,7 @@ impl RenderService {
                                     commented_by_name,
                                     rating_votes,
                                     parent_fullname,
+                                    source_revision_count,
                                 },
                             )
                         },
@@ -8377,6 +8423,7 @@ struct ListPagesSnapshotDisplay {
     commented_by_name: Option<String>,
     rating_votes: Option<i64>,
     parent_fullname: Option<String>,
+    source_revision_count: i32,
 }
 
 #[derive(Debug, FromQueryResult)]
@@ -9837,6 +9884,7 @@ struct ListPagesSubstitutionContext<'a> {
     page_wikitext: Option<&'a str>,
     page_wikitext_scalar_count: Option<usize>,
     page_parent_fullname: Option<&'a str>,
+    page_revision_count: Option<u64>,
     expanded_content: Option<&'a BTreeMap<Option<usize>, String>>,
     data_form_values: &'a BTreeMap<String, String>,
     render_generated_html: bool,
@@ -10021,7 +10069,11 @@ fn substitute_list_pages_variables_with_fragments(
                     .page_wikitext_scalar_count
                     .map(|scalar_count| scalar_count.to_string())
                     .unwrap_or_else(|| captures[0].to_owned()),
-                "children" | "revisions" => "0".to_owned(),
+                "children" => "0".to_owned(),
+                "revisions" => context
+                    .page_revision_count
+                    .map(|revision_count| revision_count.to_string())
+                    .unwrap_or_else(|| captures[0].to_owned()),
                 "site_domain" if !context.site.is_empty() => {
                     format!("{}.wikidot.com", context.site)
                 }
@@ -10257,6 +10309,22 @@ fn render_list_pages_wikidot_user(
 
 fn render_list_pages_snapshot_user(name: &str) -> String {
     escape_list_pages_html_text(name)
+}
+
+/// Resolves the revision count for `%%revisions%%`.
+///
+/// An imported page reports Wikidot's own count, because its local history is
+/// the single import revision. A page that was never imported reports its
+/// stored revision rows.
+fn list_pages_revision_count(
+    page: &FoundPageRow,
+    snapshot_displays: &BTreeMap<i64, ListPagesSnapshotDisplay>,
+    revision_counts: &BTreeMap<i64, u64>,
+) -> Option<u64> {
+    match snapshot_displays.get(&page.page_id) {
+        Some(snapshot) => u64::try_from(snapshot.source_revision_count).ok(),
+        None => revision_counts.get(&page.page_id).copied(),
+    }
 }
 
 /// Resolves the parent full name for `%%parent_fullname%%`.
@@ -12541,7 +12609,7 @@ mod tests {
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_content_query_target, list_pages_has_unsupported_page_type_selector,
         list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
-        list_pages_row_scan_target, list_pages_tag_link_href,
+        list_pages_revision_count, list_pages_row_scan_target, list_pages_tag_link_href,
         native_list_page_link_default_label, page_query_cap_requires_original_module,
         parse_list_pages_arguments, parse_list_pages_date_selector,
         parse_wikidot_compat_color_descriptor, protect_forwarded_attachment_variables,
@@ -12614,6 +12682,7 @@ mod tests {
             page_wikitext_scalar_count: page_wikitext
                 .map(|wikitext| wikitext.chars().count()),
             page_parent_fullname: None,
+            page_revision_count: None,
             expanded_content: None,
             data_form_values,
             render_generated_html,
@@ -14792,6 +14861,110 @@ mod tests {
     }
 
     #[test]
+    fn resolves_wikidot_list_pages_revision_count_from_import_before_local_history() {
+        let page = FoundPageRow {
+            page_id: 101,
+            site_id: 1,
+            title: Some("Devereaux".to_owned()),
+            alt_title: None,
+            slug: Some("devereaux".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let source_created_at = time::OffsetDateTime::from_unix_timestamp(1_500_000_000)
+            .expect("fixture timestamp should be valid");
+        let snapshot = ListPagesSnapshotDisplay {
+            created_at: source_created_at,
+            updated_at: source_created_at,
+            created_by_name: None,
+            updated_by_name: None,
+            comments: 0,
+            commented_at: None,
+            commented_by_name: None,
+            rating_votes: None,
+            parent_fullname: None,
+            source_revision_count: 37,
+        };
+        let imported = BTreeMap::from([(101, snapshot.clone())]);
+        // An imported page stores exactly one local revision, so local history
+        // would report 1 where Wikidot reports the imported count.
+        let local_history = BTreeMap::from([(101, 1)]);
+        let empty_snapshots = BTreeMap::new();
+
+        assert_eq!(
+            list_pages_revision_count(&page, &imported, &local_history),
+            Some(37),
+            "an imported page reports Wikidot's own revision count",
+        );
+        assert_eq!(
+            list_pages_revision_count(&page, &empty_snapshots, &local_history),
+            Some(1),
+            "a page that was never imported reports its stored revisions",
+        );
+        assert_eq!(
+            list_pages_revision_count(&page, &empty_snapshots, &BTreeMap::new()),
+            None,
+            "a page with no history at all has no count to report",
+        );
+
+        let negative = BTreeMap::from([(
+            101,
+            ListPagesSnapshotDisplay {
+                source_revision_count: -1,
+                ..snapshot
+            },
+        )]);
+        assert_eq!(
+            list_pages_revision_count(&page, &negative, &local_history),
+            None,
+            "an unusable imported count must not fall through to local history",
+        );
+    }
+
+    #[test]
+    fn substitutes_wikidot_list_pages_revision_count() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Devereaux".to_owned()),
+            alt_title: None,
+            slug: Some("devereaux".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let user_displays = BTreeMap::new();
+        let data_form_values = BTreeMap::new();
+        let mut context =
+            list_pages_substitution_context(20, &user_displays, None, &data_form_values);
+
+        context.page_revision_count = Some(2);
+        assert_eq!(
+            substitute_list_pages_variables("%%revisions%%", &page, 1, 1, &context),
+            "2",
+            "a created and once-revised page reports two revisions",
+        );
+
+        context.page_revision_count = None;
+        assert_eq!(
+            substitute_list_pages_variables("%%revisions%%", &page, 1, 1, &context),
+            "%%revisions%%",
+            "an unavailable history must not fall back to a plausible zero",
+        );
+    }
+
+    #[test]
     fn resolves_wikidot_list_pages_parent_fullname_from_import_before_local_relations() {
         let page = FoundPageRow {
             page_id: 101,
@@ -14820,6 +14993,7 @@ mod tests {
             commented_by_name: None,
             rating_votes: None,
             parent_fullname: Some("component:offset-timeline".to_owned()),
+            source_revision_count: 2,
         };
         let imported = BTreeMap::from([(101, snapshot.clone())]);
         let relational =
@@ -14978,6 +15152,7 @@ mod tests {
                 commented_by_name: None,
                 rating_votes: None,
                 parent_fullname: None,
+                source_revision_count: 1,
             },
         )]);
         assert_eq!(
@@ -16544,6 +16719,7 @@ mod tests {
                 commented_by_name: Some("Aspenq".to_owned()),
                 rating_votes: Some(31),
                 parent_fullname: None,
+                source_revision_count: 37,
             },
         );
 
