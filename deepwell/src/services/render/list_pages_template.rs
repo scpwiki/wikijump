@@ -29,6 +29,7 @@ enum ListPagesVariable {
     Link,
     CreatedBy,
     CreatedByLinked,
+    CreatedByUnix,
     CreatedAt,
     UpdatedBy,
     UpdatedAt,
@@ -63,6 +64,10 @@ impl ListPagesVariable {
             "created_by_linked" | "createdbylinked" | "author" => {
                 Some(Self::CreatedByLinked)
             }
+            // Only the evidenced spelling is accepted. The collapsed aliases in
+            // this table were each observed live; an unobserved variant stays
+            // literal rather than being guessed from a naming pattern.
+            "created_by_unix" => Some(Self::CreatedByUnix),
             "created_at" | "createdat" | "date" => Some(Self::CreatedAt),
             "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
                 Some(Self::UpdatedBy)
@@ -179,7 +184,12 @@ impl ListPagesTemplatePlan {
         self.variables.intersects(&[
             ListPagesVariable::CreatedBy,
             ListPagesVariable::CreatedByLinked,
+            ListPagesVariable::CreatedByUnix,
         ])
+    }
+
+    pub(super) fn uses_created_by_unix(&self) -> bool {
+        self.variables.contains(ListPagesVariable::CreatedByUnix)
     }
 
     pub(super) fn uses_created_at(&self) -> bool {
@@ -240,6 +250,7 @@ fn found_page_fields(variables: ListPagesVariables) -> FoundPageFields {
     let created_by = variables.intersects(&[
         ListPagesVariable::CreatedBy,
         ListPagesVariable::CreatedByLinked,
+        ListPagesVariable::CreatedByUnix,
     ]);
     let rating_votes = variables.contains(ListPagesVariable::RatingVotes);
     FoundPageFields {
@@ -291,11 +302,12 @@ mod tests {
         let body = concat!(
             "%%createdbylinked%% %%date%% %%tagslinked%% %%_tags_linked%% %%updatedby%% ",
             "%%updatedat%% %%date_edited%% %%ratingvotes%% %%comments%% %%commentedby%% ",
-            "%%commentedat%% %%content%% %%form_raw{status}%% %%size%%",
+            "%%commentedat%% %%content%% %%form_raw{status}%% %%size%% %%created_by_unix%%",
         );
         let plan = ListPagesTemplatePlan::compile(body).expect("aliases should compile");
 
         assert!(plan.uses_created_by());
+        assert!(plan.uses_created_by_unix());
         assert!(plan.uses_created_at());
         assert!(plan.uses_updated_by());
         assert!(plan.uses_updated_at());
@@ -328,6 +340,7 @@ mod tests {
     #[test]
     fn rejects_unknown_and_argumentless_form_variables() {
         assert!(ListPagesTemplatePlan::compile("%%unsupported%%").is_none());
+        assert!(ListPagesTemplatePlan::compile("%%createdbyunix%%").is_none());
         assert!(ListPagesTemplatePlan::compile("%%form_data%%").is_none());
         assert!(ListPagesTemplatePlan::compile("%%form_raw%%").is_none());
     }
@@ -361,6 +374,7 @@ mod tests {
             "createdby",
             "created_by_linked",
             "createdbylinked",
+            "created_by_unix",
             "author",
             "created_at",
             "createdat",

@@ -6895,6 +6895,7 @@ impl RenderService {
         };
 
         let wants_created_by = template.uses_created_by();
+        let wants_created_by_unix = template.uses_created_by_unix();
         let wants_created_at = template.uses_created_at();
         let wants_updated_by = template.uses_updated_by();
         let wants_updated_at = template.uses_updated_at();
@@ -7141,6 +7142,17 @@ impl RenderService {
             .map(|displays| &displays.user_displays)
             .or(loaded_user_displays.as_ref())
             .unwrap_or(&empty_user_displays);
+        if wants_created_by_unix
+            && pages
+                .iter()
+                .any(|page| list_pages_created_by_unix(page, user_displays).is_none())
+        {
+            // Wikidot emits the creator's stored unix name, which is a separate
+            // account field from the display name. A row whose creator has no
+            // resolved unix name cannot supply one by lowercasing the display
+            // name, so the module stays literal instead.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let wants_comments = template.uses_comments();
         let wants_commented_by = template.uses_commented_by();
         let wants_commented_at = template.uses_commented_at();
@@ -9839,6 +9851,7 @@ fn substitute_list_pages_variables_with_fragments(
             })
         })
         .unwrap_or_default();
+    let created_by_unix = list_pages_created_by_unix(page, context.user_displays);
     let created_by_linked = created_by_snapshot
         .map(render_list_pages_snapshot_user)
         .or_else(|| {
@@ -9921,6 +9934,9 @@ fn substitute_list_pages_variables_with_fragments(
                 "created_by_linked" | "createdbylinked" | "author" => {
                     created_by_linked.clone()
                 }
+                "created_by_unix" => created_by_unix
+                    .clone()
+                    .unwrap_or_else(|| captures[0].to_owned()),
                 "created_at" | "createdat" | "date" => format_list_pages_created_at(
                     created_at,
                     captures.name("format").map(|matched| matched.as_str()),
@@ -10191,6 +10207,23 @@ fn render_list_pages_wikidot_user(
 
 fn render_list_pages_snapshot_user(name: &str) -> String {
     escape_list_pages_html_text(name)
+}
+
+/// Resolves the creator's Wikidot unix name for `%%created_by_unix%%`.
+///
+/// The unix name is stored per account, so it is read from the creator's user
+/// row rather than derived from a display name or from an imported snapshot
+/// author string, which carries no unix name.
+fn list_pages_created_by_unix(
+    page: &FoundPageRow,
+    user_displays: &BTreeMap<i64, WikidotUserDisplay>,
+) -> Option<String> {
+    let user = user_displays.get(&page.created_by?)?;
+    let slug = user.slug.as_deref()?;
+    if slug.is_empty() {
+        return None;
+    }
+    Some(slug.to_owned())
 }
 
 fn preserve_list_pages_generated_text_typography(value: &str) -> String {
@@ -14625,6 +14658,99 @@ mod tests {
             ),
             "%%size%%",
             "missing source must not be replaced with a plausible zero",
+        );
+    }
+
+    #[test]
+    fn substitutes_wikidot_list_pages_created_by_unix_from_account_unix_name() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Identity fixture".to_owned()),
+            alt_title: None,
+            slug: Some("identity-fixture".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: Some(8955132),
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let data_form_values = BTreeMap::new();
+        let user_displays = BTreeMap::from([(
+            8955132,
+            WikidotUserDisplay {
+                user_id: 8955132,
+                name: "Dr Wondertainment".to_owned(),
+                slug: "dr-wondertainment".to_owned().into(),
+                wikidot_profile: true,
+            },
+        )]);
+
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%created_by_unix%% %%created_by%%",
+                &page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &user_displays,
+                    None,
+                    &data_form_values,
+                ),
+            ),
+            "dr-wondertainment Dr Wondertainment",
+            "the unix name comes from the account field rather than the display name",
+        );
+
+        let slugless_displays = BTreeMap::from([(
+            8955132,
+            WikidotUserDisplay {
+                user_id: 8955132,
+                name: "Dr Wondertainment".to_owned(),
+                slug: None,
+                wikidot_profile: true,
+            },
+        )]);
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%created_by_unix%%",
+                &page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &slugless_displays,
+                    None,
+                    &data_form_values,
+                ),
+            ),
+            "%%created_by_unix%%",
+            "a creator without a stored unix name must not have one derived from the display name",
+        );
+
+        let anonymous_page = FoundPageRow {
+            created_by: None,
+            ..page.clone()
+        };
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%created_by_unix%%",
+                &anonymous_page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &user_displays,
+                    None,
+                    &data_form_values,
+                ),
+            ),
+            "%%created_by_unix%%",
+            "a row without a resolved creator account stays literal",
         );
     }
 
