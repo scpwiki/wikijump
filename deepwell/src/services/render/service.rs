@@ -8977,7 +8977,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     score.push(parse_list_pages_score_selector(value)?);
                 }
             }
-            "created_at" | "createdat" => {
+            // Wikidot's `date=` filters on creation, the same field `created_at`
+            // selects; the `date` spelling is only an ordering property in the
+            // separate `order=` grammar.
+            "created_at" | "createdat" | "date" => {
                 let Some(value) = static_list_pages_selector(
                     value,
                     &mut unsupported_count_pages_filter,
@@ -13293,6 +13296,49 @@ mod tests {
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("地下東京奇譚")]);
         assert_eq!(arguments.no_tags, vec![Cow::Borrowed("ハブ")]);
         assert!(!arguments.untagged);
+    }
+
+    #[test]
+    fn parses_corpus_list_pages_date_selector_alias() {
+        // articles-eligible-for-rewrite lines 4 to 22, the G28 representative.
+        let recent = parse_list_pages_arguments(
+            r#" category="_default" tags="+rewrite" date="last 12 month" rating="<-10""#,
+        )
+        .expect("the corpus relative date selector should parse");
+        assert!(
+            matches!(recent.creation_date, DateSelector::FromPresent { .. }),
+            "`last N unit` filters from the present: {:?}",
+            recent.creation_date,
+        );
+
+        for source in [
+            r#" category="_default" date="older than 12 month" "#,
+            r#" category="_default" date="older than 24 month" "#,
+        ] {
+            let arguments = parse_list_pages_arguments(source)
+                .unwrap_or_else(|| panic!("date selector should parse: {source}"));
+            assert!(
+                matches!(
+                    arguments.creation_date,
+                    DateSelector::Span {
+                        comparison: ComparisonOperation::LessThan,
+                        ..
+                    },
+                ),
+                "`older than` filters strictly before the computed instant: {source}",
+            );
+        }
+
+        let aliased =
+            parse_list_pages_arguments(r#" category="_default" date="2017.05" "#)
+                .expect("an absolute date selector should parse");
+        let created_at =
+            parse_list_pages_arguments(r#" category="_default" created_at="2017.05" "#)
+                .expect("the created_at spelling should parse");
+        assert_eq!(
+            aliased.creation_date, created_at.creation_date,
+            "`date` selects the same field as `created_at`",
+        );
     }
 
     #[test]
