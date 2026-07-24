@@ -5,7 +5,7 @@ import {
   handleCachedRequest,
   readCachedResponseWithFallback
 } from "../src/lib/server/cache/request-orchestration.ts"
-import { executePageAction } from "../src/lib/server/load/page-action-execution.ts"
+import { executePageAction } from "../src/lib/server/load/page/page-action-execution.ts"
 
 test("request cache hits receive security headers without resolving the app", async () => {
   const calls: string[] = []

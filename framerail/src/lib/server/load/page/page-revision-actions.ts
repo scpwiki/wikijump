@@ -7,26 +7,20 @@ import {
 } from "$lib/server/deepwell/page"
 import {
   failForActionError,
+  pageActionBaseSchema,
   pageMutationBaseSchema,
   readActionJson
 } from "$lib/server/load/page/page-action-shared"
 import { resolvePageActionRequestContext } from "$lib/server/load/page/page-action-context"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
-import { object, string } from "valibot"
-
-import type { Optional } from "$lib/types"
+import { boolean, number, object, optional, string } from "valibot"
 import type { RequestEvent } from "@sveltejs/kit"
 
 export async function pageHistoryAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      revisionNumber: Optional<number>
-      limit: Optional<number>
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageHistorySchema)
 
     const { siteId, pageId, revisionNumber, limit } = requestData
     const context = await resolvePageActionRequestContext(event, {
@@ -45,16 +39,16 @@ export async function pageHistoryAction(event: RequestEvent) {
   }
 }
 
+const pageHistorySchema = object({
+  ...pageActionBaseSchema,
+  revisionNumber: optional(number()),
+  limit: optional(number())
+})
+
 export async function pageRevisionAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      revisionNumber: number
-      compiledHtml: Optional<boolean>
-      wikitext: Optional<boolean>
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageRevisionSchema)
 
     const { siteId, pageId, revisionNumber, compiledHtml, wikitext } = requestData
     const context = await resolvePageActionRequestContext(event, {
@@ -74,18 +68,19 @@ export async function pageRevisionAction(event: RequestEvent) {
   }
 }
 
+const pageRevisionSchema = object({
+  ...pageActionBaseSchema,
+  revisionNumber: number(),
+  compiledHtml: optional(boolean()),
+  wikitext: optional(boolean())
+})
+
 export async function pageRollbackAction(event: RequestEvent) {
   const { request, params, getClientAddress } = event
   const { slug } = params
   const ipAddress = getClientAddress()
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      revisionNumber: number
-      comments: Optional<string>
-      lastRevisionId: number
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageRollbackSchema)
 
     const { siteId, pageId, revisionNumber, comments, lastRevisionId } = requestData
     const context = await resolvePageActionRequestContext(event, {
@@ -111,13 +106,16 @@ export async function pageRollbackAction(event: RequestEvent) {
   }
 }
 
+const pageRollbackSchema = object({
+  ...pageMutationBaseSchema,
+  revisionNumber: number(),
+  comments: optional(string())
+})
+
 export async function pageDeletedGetAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      slug: string
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageDeletedGetSchema)
     const { siteId, slug } = requestData
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId
@@ -128,6 +126,11 @@ export async function pageDeletedGetAction(event: RequestEvent) {
     return failForActionError(error)
   }
 }
+
+const pageDeletedGetSchema = object({
+  siteId: number(),
+  slug: string()
+})
 
 export async function pageRestoreAction(event: RequestEvent) {
   const { request, getClientAddress } = event

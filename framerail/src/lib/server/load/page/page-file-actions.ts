@@ -8,27 +8,28 @@ import {
   pageFileRestore,
   pageFileRollback
 } from "$lib/server/deepwell/page-file"
-import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import {
   failForActionError,
+  pageActionBaseSchema,
   pageMutationBaseSchema,
   readActionJson
 } from "$lib/server/load/page/page-action-shared"
 import { withPageFileClientAddress } from "$lib/server/deepwell/page-file-mutation-payloads"
-import { resolvePageActionRequestContext } from "$lib/server/load/page/page-action-context"
+import {
+  requirePageMutationUserId,
+  resolvePageActionRequestContext
+} from "$lib/server/load/page/page-action-context"
 import { fail } from "@sveltejs/kit"
 import { superValidate, withFiles } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
-import { file, number, object, optional, string } from "valibot"
+import { boolean, file, number, object, optional, string } from "valibot"
 
-import type { Optional } from "$lib/types"
 import type { RequestEvent } from "@sveltejs/kit"
 
 export async function pageFileListAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: { siteId: number; pageId: number; deleted: Optional<boolean> } =
-      await readActionJson(request)
+    const requestData = await readActionJson(request, pageFileListSchema)
     const { siteId, pageId, deleted } = requestData
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId
@@ -39,6 +40,11 @@ export async function pageFileListAction(event: RequestEvent) {
     return failForActionError(error)
   }
 }
+
+const pageFileListSchema = object({
+  ...pageActionBaseSchema,
+  deleted: optional(boolean())
+})
 
 export async function pageFileUploadAction(event: RequestEvent) {
   const { request, getClientAddress } = event
@@ -81,13 +87,7 @@ export const pageFileUploadSchema = object({
 export async function pageFileDeleteAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      fileId: number
-      lastRevisionId: number
-      comments: Optional<string>
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageFileDeleteSchema)
 
     const { siteId, pageId, fileId, lastRevisionId, comments } = requestData
     const context = await resolvePageActionRequestContext(event, {
@@ -110,6 +110,12 @@ export async function pageFileDeleteAction(event: RequestEvent) {
     return failForActionError(error)
   }
 }
+
+const pageFileDeleteSchema = object({
+  ...pageMutationBaseSchema,
+  fileId: number(),
+  comments: optional(string())
+})
 
 export async function pageFileEditAction(event: RequestEvent) {
   const { request, getClientAddress } = event
@@ -207,18 +213,7 @@ export async function pageFileRestoreAction(event: RequestEvent) {
       submittedSiteId: siteId,
       session: "optional"
     })
-    const userId = resolvePageMutationUserId(
-      context.sessionUserId,
-      context.siteSlug,
-      context.siteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        form,
-        message: "Permission denied."
-      })
-    }
+    const userId = requirePageMutationUserId(context, siteId)
     const res = await pageFileRestore(
       withPageFileClientAddress(getClientAddress, {
         siteId,
@@ -249,13 +244,7 @@ export const pageFileRestoreSchema = object({
 export async function pageFileHistoryAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      fileId: number
-      revisionNumber: Optional<number>
-      limit: Optional<number>
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageFileHistorySchema)
 
     const { siteId, pageId, fileId, revisionNumber, limit } = requestData
     const context = await resolvePageActionRequestContext(event, {
@@ -275,17 +264,17 @@ export async function pageFileHistoryAction(event: RequestEvent) {
   }
 }
 
+const pageFileHistorySchema = object({
+  ...pageActionBaseSchema,
+  fileId: number(),
+  revisionNumber: optional(number()),
+  limit: optional(number())
+})
+
 export async function pageFileRollbackAction(event: RequestEvent) {
   const { request, getClientAddress } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      fileId: number
-      revisionNumber: number
-      lastRevisionId: number
-      comments: Optional<string>
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageFileRollbackSchema)
 
     const { siteId, pageId, fileId, revisionNumber, lastRevisionId, comments } =
       requestData
@@ -293,17 +282,7 @@ export async function pageFileRollbackAction(event: RequestEvent) {
       submittedSiteId: siteId,
       session: "optional"
     })
-    const userId = resolvePageMutationUserId(
-      context.sessionUserId,
-      context.siteSlug,
-      context.siteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        message: "Permission denied."
-      })
-    }
+    const userId = requirePageMutationUserId(context, siteId)
     const res = await pageFileRollback(
       withPageFileClientAddress(getClientAddress, {
         siteId,
@@ -321,3 +300,10 @@ export async function pageFileRollbackAction(event: RequestEvent) {
     return failForActionError(error)
   }
 }
+
+const pageFileRollbackSchema = object({
+  ...pageMutationBaseSchema,
+  fileId: number(),
+  revisionNumber: number(),
+  comments: optional(string())
+})

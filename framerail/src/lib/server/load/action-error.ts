@@ -1,7 +1,9 @@
+import { DEEPWELL_PERMISSION_DENIED } from "../deepwell/public-error.js"
 import type { JsonValue } from "$lib/types"
 import { fail } from "@sveltejs/kit"
+import { parse } from "valibot"
 
-const DEEPWELL_PERMISSION_DENIED = 3106
+import type { GenericSchema, InferOutput } from "valibot"
 
 class InvalidActionRequestError extends Error {}
 export class MissingActionSessionError extends Error {}
@@ -59,9 +61,12 @@ export function normalizeActionError(error: unknown): PublicActionError {
   return normalized
 }
 
-export async function readActionJson<T>(request: Request): Promise<T> {
+export async function readActionJson<TSchema extends GenericSchema>(
+  request: Request,
+  schema: TSchema
+): Promise<InferOutput<TSchema>> {
   try {
-    return (await request.json()) as T
+    return parse(schema, await request.json())
   } catch {
     throw new InvalidActionRequestError("Invalid JSON request body.")
   }

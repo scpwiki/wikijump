@@ -5,12 +5,14 @@ import {
   pageLayout,
   pageMove
 } from "$lib/server/deepwell/page"
-import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import {
   failForActionError,
   pageMutationBaseSchema
 } from "$lib/server/load/page/page-action-shared"
-import { resolvePageActionRequestContext } from "$lib/server/load/page/page-action-context"
+import {
+  requirePageMutationUserId,
+  resolvePageActionRequestContext
+} from "$lib/server/load/page/page-action-context"
 import { DeleteOptions, Layout } from "$lib/types"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
@@ -42,18 +44,7 @@ export async function pageDeleteAction(event: RequestEvent) {
       submittedSiteId: siteId,
       session: "optional"
     })
-    const userId = resolvePageMutationUserId(
-      context.sessionUserId,
-      context.siteSlug,
-      context.siteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        form,
-        message: "Permission denied."
-      })
-    }
+    const userId = requirePageMutationUserId(context, siteId)
     if (option === DeleteOptions.Move) {
       const { newSlug } = form.data
       const res = await pageMove(
@@ -140,18 +131,7 @@ export async function pageEditAction(event: RequestEvent) {
       submittedSiteId: siteId,
       session: "optional"
     })
-    const userId = resolvePageMutationUserId(
-      context.sessionUserId,
-      context.siteSlug,
-      context.siteId,
-      siteId
-    )
-    if (userId === undefined) {
-      return fail(403, {
-        form,
-        message: "Permission denied."
-      })
-    }
+    const userId = requirePageMutationUserId(context, siteId)
     const tags = tagsStr.split(" ").filter((tag) => tag.length)
     const res = await pageEdit(
       {

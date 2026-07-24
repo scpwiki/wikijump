@@ -15,7 +15,10 @@ import {
   siteUpdate
 } from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
-import { failForActionError } from "$lib/server/load/action-error"
+import {
+  failForActionError,
+  PageActionContextMismatchError
+} from "$lib/server/load/action-error"
 import { adminView, type PreloadDataAsync } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { Layout } from "$lib/types"
@@ -112,7 +115,7 @@ export async function loadAdminPage(
 
   const viewData = {
     view: response.type,
-    html: response.data?.html,
+    html: response.type === "admin_permissions" ? response.data.html : undefined,
     internationalization,
     adminForm,
     navigationForm,
@@ -126,11 +129,13 @@ export async function loadAdminPage(
     pageTemplates: response.type === "site_found" ? response.data.page_templates : []
   }
 
+  const pageData = { ...parentData, ...viewData }
+
   if (errorStatus !== null) {
-    error(errorStatus, viewData)
+    error(errorStatus, pageData)
   }
 
-  return viewData
+  return pageData
 }
 
 export async function siteIconsAction({
@@ -284,16 +289,17 @@ export async function templateAction({
 
   const { siteId, categoryId, templatePageId } = form.data
   try {
+    const trustedSiteId = loadTrustedAdminSiteId(request, siteId)
     const session = await authGetSession(sessionToken)
     const res = await categoryTemplateUpdate(
       {
-        siteId,
+        siteId: trustedSiteId,
         categoryId,
         userId: session.user_id,
         userIpAddr: getClientAddress(),
         templatePageId
       },
-      { sessionToken, siteId }
+      { sessionToken, siteId: trustedSiteId }
     )
     return { form, res }
   } catch (error) {
@@ -320,17 +326,18 @@ export async function licenseAction({
   const { siteId, categoryId } = form.data
   const { license, licenseOther } = licenseUpdateValue(form.data)
   try {
+    const trustedSiteId = loadTrustedAdminSiteId(request, siteId)
     const session = await authGetSession(sessionToken)
     const res = await categoryLicenseUpdate(
       {
-        siteId,
+        siteId: trustedSiteId,
         categoryId,
         userId: session.user_id,
         userIpAddr: getClientAddress(),
         license,
         licenseOther
       },
-      { sessionToken, siteId }
+      { sessionToken, siteId: trustedSiteId }
     )
     return { form, res }
   } catch (error) {
@@ -400,17 +407,18 @@ export async function navigationAction({
   const { siteId, categoryId } = form.data
   const { topBarPage, sideBarPage } = navigationUpdateValues(form.data)
   try {
+    const trustedSiteId = loadTrustedAdminSiteId(request, siteId)
     const session = await authGetSession(sessionToken)
     const res = await categoryNavigationUpdate(
       {
-        siteId,
+        siteId: trustedSiteId,
         categoryId,
         userId: session.user_id,
         userIpAddr: getClientAddress(),
         topBarPage,
         sideBarPage
       },
-      { sessionToken, siteId }
+      { sessionToken, siteId: trustedSiteId }
     )
     return { form, res }
   } catch (error) {
@@ -440,10 +448,11 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
 
       const { name, slug, tagline, description, defaultPage, locale, layout, siteId } =
         form.data
+      const trustedSiteId = loadTrustedAdminSiteId(request, siteId)
 
       const res = await siteUpdate(
         {
-          siteId,
+          siteId: trustedSiteId,
           userId: session.user_id,
           userIpAddr: ipAddress,
           name,
@@ -454,7 +463,7 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
           locale,
           layout
         },
-        { sessionToken, siteId }
+        { sessionToken, siteId: trustedSiteId }
       )
 
       return { form, res }
@@ -464,6 +473,14 @@ export async function adminAction({ request, getClientAddress, cookies }: Reques
   } catch (error) {
     return failForActionError(error, { form })
   }
+}
+
+function loadTrustedAdminSiteId(request: Request, submittedSiteId: number): number {
+  const { siteId } = loadSiteInfo(request.headers)
+  if (submittedSiteId !== siteId) {
+    throw new PageActionContextMismatchError("Permission denied.")
+  }
+  return siteId
 }
 
 const adminSchema = object({
@@ -491,7 +508,7 @@ const licenseSchema = object({
   categoryId: number(),
   inherit: boolean(),
   license: string(),
-  licenseOther: maxLength(string(), 300)
+  licenseOther: pipe(string(), maxLength(300))
 })
 
 const templateSchema = object({

@@ -1,5 +1,6 @@
 import { authGetSession } from "$lib/server/auth/get-session"
 import { preloadView } from "$lib/server/deepwell/views"
+import { resolvePageMutationUserId } from "$lib/server/load/local-authoring-actor"
 import {
   MissingActionSessionError,
   PageActionContextMismatchError
@@ -34,6 +35,22 @@ export interface AuthenticatedPageActionRequestContext extends PageActionRequest
   sessionUserId: number
 }
 
+export function requirePageMutationUserId(
+  context: PageActionRequestContext,
+  mutationSiteId: number
+): number {
+  const userId = resolvePageMutationUserId(
+    context.sessionUserId,
+    context.siteSlug,
+    context.siteId,
+    mutationSiteId
+  )
+  if (userId === undefined) {
+    throw new PageActionContextMismatchError("Permission denied.")
+  }
+  return userId
+}
+
 export function resolvePageActionRequestContext(
   event: RequestEvent,
   options: PageActionContextOptions & { session: "required" }
@@ -51,7 +68,8 @@ export async function resolvePageActionRequestContext(
   const storedContext = getRequestContext(locals)
 
   if (
-    storedContext?.siteId !== siteId ||
+    !storedContext ||
+    storedContext.siteId !== siteId ||
     (submittedSiteId !== undefined && submittedSiteId !== siteId)
   ) {
     throw new PageActionContextMismatchError("Permission denied.")
@@ -72,7 +90,8 @@ export async function resolvePageActionRequestContext(
     const requestLocales = getPreloadRequestLocales(request)
     const backendLocales = getPreloadBackendLocales(requestLocales)
     const { site } = await preloadView(siteId, backendLocales, sessionToken)
-    requestContext = withDefaultPageContext(requestContext, site.default_page)
+    requestContext =
+      withDefaultPageContext(requestContext, site.default_page) ?? requestContext
   }
 
   return {

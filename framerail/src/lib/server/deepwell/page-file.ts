@@ -9,11 +9,10 @@ import {
   buildPageFileRestorePayload,
   buildPageFileRollbackPayload
 } from "$lib/server/deepwell/page-file-mutation-payloads"
+import { DEEPWELL_PERMISSION_DENIED } from "$lib/server/deepwell/public-error.js"
 
 import type { FileRevisionModel, FileRevisionType, Nullable, Optional } from "$lib/types"
 import type { RequestContext } from "../request-context"
-
-const DEEPWELL_PERMISSION_DENIED = 3106
 
 /* ----- Common Interface ----- */
 export interface PageFile {

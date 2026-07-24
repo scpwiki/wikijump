@@ -11,3 +11,8 @@ export const pageMutationBaseSchema = {
   siteId: number(),
   lastRevisionId: number()
 }
+
+export const pageActionBaseSchema = {
+  pageId: number(),
+  siteId: number()
+}

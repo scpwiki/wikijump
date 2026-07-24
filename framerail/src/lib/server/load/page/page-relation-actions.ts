@@ -8,6 +8,7 @@ import {
 } from "$lib/server/deepwell/page"
 import {
   failForActionError,
+  pageActionBaseSchema,
   pageMutationBaseSchema,
   readActionJson
 } from "$lib/server/load/page/page-action-shared"
@@ -15,7 +16,7 @@ import { executePageAction } from "$lib/server/load/page/page-action-execution"
 import { resolvePageActionRequestContext } from "$lib/server/load/page/page-action-context"
 import { fail, superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
-import { array, object, optional, string } from "valibot"
+import { array, number, object, optional, string } from "valibot"
 
 import type { RequestEvent } from "@sveltejs/kit"
 
@@ -56,11 +57,7 @@ export const pageParentSchema = object({
 export async function pageParentGetAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-      slug: string
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageParentGetSchema)
     const { siteId, pageId, slug } = requestData
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId
@@ -72,13 +69,15 @@ export async function pageParentGetAction(event: RequestEvent) {
   }
 }
 
+const pageParentGetSchema = object({
+  ...pageActionBaseSchema,
+  slug: string()
+})
+
 export async function pageVoteListAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageIdActionSchema)
     const { siteId, pageId } = requestData
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId
@@ -93,11 +92,7 @@ export async function pageVoteListAction(event: RequestEvent) {
 export async function pageVoteCastAction(event: RequestEvent) {
   const { request } = event
   return executePageAction(async () => {
-    const requestData: {
-      siteId: number
-      pageId: number
-      value: number
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageVoteCastSchema)
     const { siteId, pageId, value } = requestData
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId,
@@ -116,10 +111,7 @@ export async function pageVoteCastAction(event: RequestEvent) {
 export async function pageVoteRemoveAction(event: RequestEvent) {
   const { request } = event
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageIdActionSchema)
     const { siteId, pageId } = requestData
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId,
@@ -141,10 +133,7 @@ export async function pageScoreAction(event: RequestEvent) {
   const { slug } = params
 
   try {
-    const requestData: {
-      siteId: number
-      pageId: number
-    } = await readActionJson(request)
+    const requestData = await readActionJson(request, pageIdActionSchema)
     const { siteId, pageId } = requestData
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId
@@ -155,3 +144,10 @@ export async function pageScoreAction(event: RequestEvent) {
     return failForActionError(error)
   }
 }
+
+const pageIdActionSchema = object(pageActionBaseSchema)
+
+const pageVoteCastSchema = object({
+  ...pageActionBaseSchema,
+  value: number()
+})

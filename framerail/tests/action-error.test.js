@@ -1,5 +1,6 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
+import { number, object } from "valibot"
 
 import {
   failForActionError,
@@ -76,7 +77,23 @@ test("malformed action JSON is a client error", async () => {
     body: "{"
   })
 
-  await assert.rejects(readActionJson(request), (error) => {
+  await assert.rejects(readActionJson(request, object({ pageId: number() })), (error) => {
+    const failure = failForActionError(error)
+    assert.equal(failure.status, 400)
+    assert.deepEqual(failure.data, {
+      message: "Invalid JSON request body."
+    })
+    return true
+  })
+})
+
+test("action JSON fields are validated before use", async () => {
+  const request = new Request("https://example.test", {
+    method: "POST",
+    body: JSON.stringify({ pageId: "not-a-number" })
+  })
+
+  await assert.rejects(readActionJson(request, object({ pageId: number() })), (error) => {
     const failure = failForActionError(error)
     assert.equal(failure.status, 400)
     assert.deepEqual(failure.data, {
