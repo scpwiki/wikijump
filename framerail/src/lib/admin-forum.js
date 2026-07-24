@@ -4,6 +4,10 @@
  *   slug: string
  *   per_page_discussion: boolean | null
  * }} category
+ * @returns {{
+ *   categoryId: number
+ *   state: "default" | "enable" | "disable"
+ * }}
  */
 export const discussionFormValues = (category) => ({
   categoryId: category.category_id,

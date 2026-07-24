@@ -131,7 +131,7 @@ async function readAnonymousArticleResponseCacheForEvent(
 export const handle: Handle = async ({ event, resolve }) => {
   const { request, cookies, locals, params } = event
   const { responseStore, tokenStore } = getArticleResponseCacheStores()
-  const resolveWithWikidotRequestInfo = () =>
+  const resolveWithWikidotRequestInfo = async () =>
     resolve(event, {
       transformPageChunk: ({ html }) =>
         injectWikidotRequestInfo(html, locals.wikidotRequestInfo, locals.siteLocale)

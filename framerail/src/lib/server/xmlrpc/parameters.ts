@@ -94,7 +94,10 @@ export function getOptionalStructStringArray(
   if (value === undefined || value === null) {
     return null
   }
-  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+  if (!Array.isArray(value)) {
+    throw new XmlRpcFault(-32602, `Expected string array field: ${name}`)
+  }
+  if (!value.every((entry): entry is string => typeof entry === "string")) {
     throw new XmlRpcFault(-32602, `Expected string array field: ${name}`)
   }
   return value

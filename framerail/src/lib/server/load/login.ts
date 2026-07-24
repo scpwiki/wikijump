@@ -17,7 +17,7 @@ import { minLength, object, pipe, string } from "valibot"
 
 import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { TranslateKeys } from "$lib/types"
-import type { RequestEvent } from "@sveltejs/kit"
+import type { Cookies, RequestEvent } from "@sveltejs/kit"
 
 export async function loadLoginPage(request: Request, preloadData: PreloadDataAsync) {
   loadSiteInfo(request.headers)

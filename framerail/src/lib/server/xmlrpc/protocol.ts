@@ -1,5 +1,8 @@
 type XmlRpcScalar = string | number | boolean | null
-export type XmlRpcValue = XmlRpcScalar | XmlRpcValue[] | Record<string, XmlRpcValue>
+interface XmlRpcStruct {
+  [key: string]: XmlRpcValue
+}
+export type XmlRpcValue = XmlRpcScalar | XmlRpcValue[] | XmlRpcStruct
 
 export interface XmlRpcCall {
   methodName: string
@@ -371,6 +374,8 @@ function serializeValue(value: XmlRpcValue): string {
         )
         .join("")}</struct></value>`
   }
+
+  throw new TypeError("Unsupported XML-RPC value")
 }
 
 export function faultResponse(fault: XmlRpcFault): Response {
