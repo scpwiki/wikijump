@@ -44,6 +44,8 @@ enum ListPagesVariable {
     RawTags,
     Category,
     Size,
+    SiteDomain,
+    ParentFullname,
     EmptyCompatField,
     FormData,
     Content,
@@ -87,9 +89,9 @@ impl ListPagesVariable {
             "_tags" => Some(Self::RawTags),
             "category" => Some(Self::Category),
             "size" => Some(Self::Size),
-            "parent_fullname" | "children" | "rating_percent" | "revisions" => {
-                Some(Self::EmptyCompatField)
-            }
+            "site_domain" => Some(Self::SiteDomain),
+            "parent_fullname" => Some(Self::ParentFullname),
+            "children" | "rating_percent" | "revisions" => Some(Self::EmptyCompatField),
             "form_data" | "form_raw" if has_argument => Some(Self::FormData),
             "content" => Some(Self::Content),
             "index" => Some(Self::Index),
@@ -228,6 +230,14 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::Size)
     }
 
+    pub(super) fn uses_site_domain(&self) -> bool {
+        self.variables.contains(ListPagesVariable::SiteDomain)
+    }
+
+    pub(super) fn uses_parent_fullname(&self) -> bool {
+        self.variables.contains(ListPagesVariable::ParentFullname)
+    }
+
     pub(super) fn content_sections(&self) -> &BTreeSet<Option<usize>> {
         &self.content_sections
     }
@@ -302,7 +312,8 @@ mod tests {
         let body = concat!(
             "%%createdbylinked%% %%date%% %%tagslinked%% %%_tags_linked%% %%updatedby%% ",
             "%%updatedat%% %%date_edited%% %%ratingvotes%% %%comments%% %%commentedby%% ",
-            "%%commentedat%% %%content%% %%form_raw{status}%% %%size%% %%created_by_unix%%",
+            "%%commentedat%% %%content%% %%form_raw{status}%% %%size%% %%created_by_unix%% ",
+            "%%site_domain%% %%parent_fullname%%",
         );
         let plan = ListPagesTemplatePlan::compile(body).expect("aliases should compile");
 
@@ -317,6 +328,8 @@ mod tests {
         assert!(plan.uses_commented_at());
         assert!(plan.uses_content());
         assert!(plan.uses_size());
+        assert!(plan.uses_site_domain());
+        assert!(plan.uses_parent_fullname());
         assert_eq!(plan.content_sections(), &BTreeSet::from([None]));
         assert!(plan.uses_data_form());
         assert_eq!(plan.variable_traversals(), 1);
@@ -402,6 +415,7 @@ mod tests {
             "category",
             "tagslinked",
             "_tags",
+            "site_domain",
             "parent_fullname",
             "size",
             "children",

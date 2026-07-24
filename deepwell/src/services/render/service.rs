@@ -53,6 +53,7 @@ use super::issued_markers::restore_issued_html_text_markers;
 use super::list_pages_content_sections::{
     isolate_wikidot_content_section, wikidot_content_section,
 };
+use super::list_pages_parents::load_list_pages_parent_fullnames;
 use super::list_pages_scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
     first_list_pages_module_opening_candidate, has_count_pages_module_opening_candidate,
@@ -6900,6 +6901,8 @@ impl RenderService {
         let wants_updated_by = template.uses_updated_by();
         let wants_updated_at = template.uses_updated_at();
         let wants_rating_votes = template.uses_rating_votes();
+        let wants_site_domain = template.uses_site_domain();
+        let wants_parent_fullname = template.uses_parent_fullname();
         let resolved_authors = Self::resolve_list_pages_authors_cached(
             ctx,
             current_site_id,
@@ -7153,6 +7156,12 @@ impl RenderService {
             // name, so the module stays literal instead.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
+        if wants_site_domain && page_info.site.is_empty() {
+            // The domain is built from the site's Wikidot identity, which an
+            // empty site slug cannot supply. The local request host is not a
+            // substitute for it.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let wants_comments = template.uses_comments();
         let wants_commented_by = template.uses_commented_by();
         let wants_commented_at = template.uses_commented_at();
@@ -7163,7 +7172,8 @@ impl RenderService {
             || wants_comments
             || wants_commented_by
             || wants_commented_at
-            || wants_rating_votes;
+            || wants_rating_votes
+            || wants_parent_fullname;
         let loaded_snapshot_displays =
             if wants_snapshot_displays && prefetched_displays.is_none() {
                 Some(Self::load_list_pages_snapshot_displays(ctx, &pages).await?)
@@ -7175,6 +7185,18 @@ impl RenderService {
             .map(|displays| &displays.snapshot_displays)
             .or(loaded_snapshot_displays.as_ref())
             .unwrap_or(&empty_snapshot_displays);
+        // An imported page carries Wikidot's own parent name, which is singular
+        // by construction; the relational table only answers for pages that
+        // were never imported, where a second live parent is ambiguous.
+        let relational_parent_fullnames = if wants_parent_fullname
+            && pages
+                .iter()
+                .any(|page| !snapshot_displays.contains_key(&page.page_id))
+        {
+            load_list_pages_parent_fullnames(ctx, &pages).await?
+        } else {
+            BTreeMap::new()
+        };
         let mut output = String::new();
         if wrapper {
             output.push_str("[[div class=\"list-pages-box\"]]\n");
@@ -7325,6 +7347,11 @@ impl RenderService {
                         .flatten()
                         .expect("size-backed ListPages rows were validated before substitution")
                 }),
+                page_parent_fullname: list_pages_parent_fullname(
+                    page,
+                    snapshot_displays,
+                    &relational_parent_fullnames,
+                ),
                 expanded_content: Some(&expanded_content),
                 data_form_values: &data_form_values,
                 render_generated_html,
@@ -8076,6 +8103,7 @@ impl RenderService {
             commented_at: Option<time::OffsetDateTime>,
             commented_by_name: Option<String>,
             rating_votes: Option<i64>,
+            parent_fullname: Option<String>,
         }
 
         let page_ids = pages
@@ -8105,6 +8133,7 @@ impl RenderService {
                  SELECT snapshot.page_id, snapshot.source_created_at, snapshot.source_updated_at, \
                         snapshot.created_by_name, snapshot.updated_by_name, snapshot.comments, \
                         snapshot.commented_at, snapshot.commented_by_name, \
+                        snapshot.parent_fullname, \
                         CASE \
                             WHEN snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
                                  AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
@@ -8134,6 +8163,7 @@ impl RenderService {
                              commented_at,
                              commented_by_name,
                              rating_votes,
+                             parent_fullname,
                          }| {
                             (
                                 page_id,
@@ -8146,6 +8176,7 @@ impl RenderService {
                                     commented_at,
                                     commented_by_name,
                                     rating_votes,
+                                    parent_fullname,
                                 },
                             )
                         },
@@ -8344,6 +8375,7 @@ struct ListPagesSnapshotDisplay {
     commented_at: Option<time::OffsetDateTime>,
     commented_by_name: Option<String>,
     rating_votes: Option<i64>,
+    parent_fullname: Option<String>,
 }
 
 #[derive(Debug, FromQueryResult)]
@@ -9803,6 +9835,7 @@ struct ListPagesSubstitutionContext<'a> {
     snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
     page_wikitext: Option<&'a str>,
     page_wikitext_scalar_count: Option<usize>,
+    page_parent_fullname: Option<&'a str>,
     expanded_content: Option<&'a BTreeMap<Option<usize>, String>>,
     data_form_values: &'a BTreeMap<String, String>,
     render_generated_html: bool,
@@ -9984,7 +10017,19 @@ fn substitute_list_pages_variables_with_fragments(
                     .map(|scalar_count| scalar_count.to_string())
                     .unwrap_or_else(|| captures[0].to_owned()),
                 "children" | "revisions" => "0".to_owned(),
-                "parent_fullname" | "rating_percent" => String::new(),
+                "site_domain" if !context.site.is_empty() => {
+                    format!("{}.wikidot.com", context.site)
+                }
+                "site_domain" => captures[0].to_owned(),
+                // A row with no determinable parent keeps the empty output this
+                // variable already had. Wikidot's own value for that state was
+                // not captured, and preserving the module instead would turn
+                // the standard AJAX ListPages field set, which always requests
+                // this variable, into a hard failure for parentless pages.
+                "parent_fullname" => {
+                    context.page_parent_fullname.unwrap_or("").to_owned()
+                }
+                "rating_percent" => String::new(),
                 "form_data" | "form_raw" => captures
                     .name("argument")
                     .and_then(|matched| context.data_form_values.get(matched.as_str()))
@@ -10207,6 +10252,24 @@ fn render_list_pages_wikidot_user(
 
 fn render_list_pages_snapshot_user(name: &str) -> String {
     escape_list_pages_html_text(name)
+}
+
+/// Resolves the parent full name for `%%parent_fullname%%`.
+///
+/// An imported page reports the parent name Wikidot itself recorded, which is
+/// singular. A page that was never imported reports its one live parent; a
+/// second live parent is a local shape Wikidot cannot produce, and picking one
+/// of them would be a guess, so it resolves to nothing instead.
+fn list_pages_parent_fullname<'a>(
+    page: &FoundPageRow,
+    snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
+    relational_parent_fullnames: &'a BTreeMap<i64, String>,
+) -> Option<&'a str> {
+    let parent_fullname = match snapshot_displays.get(&page.page_id) {
+        Some(snapshot) => snapshot.parent_fullname.as_deref()?,
+        None => relational_parent_fullnames.get(&page.page_id)?.as_str(),
+    };
+    (!parent_fullname.is_empty()).then_some(parent_fullname)
 }
 
 /// Resolves the creator's Wikidot unix name for `%%created_by_unix%%`.
@@ -12459,18 +12522,19 @@ mod tests {
         list_pages_body_is_no_visible_tracking_markup,
         list_pages_body_uses_content_variable, list_pages_body_variables_supported,
         list_pages_content_query_target, list_pages_has_unsupported_page_type_selector,
-        list_pages_has_unsupported_parent_selector, list_pages_row_scan_target,
-        list_pages_tag_link_href, native_list_page_link_default_label,
-        page_query_cap_requires_original_module, parse_list_pages_arguments,
-        parse_list_pages_date_selector, parse_wikidot_compat_color_descriptor,
-        protect_forwarded_attachment_variables, push_list_pages_pager,
-        random_page_query_scan_limit, register_generated_list_pages_html,
-        render_clone_module, render_list_pages_numbered_rows,
-        render_list_pages_table_rows, render_list_pages_tags,
-        render_members_module_placeholder, render_native_list_inline_wikidot_spans,
-        render_native_list_page_link, render_new_page_module,
-        render_page_query_batch_limit, render_page_query_uses_single_scan,
-        render_read_only_rate_module, render_tag_cloud_box, requested_page_info_score,
+        list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
+        list_pages_row_scan_target, list_pages_tag_link_href,
+        native_list_page_link_default_label, page_query_cap_requires_original_module,
+        parse_list_pages_arguments, parse_list_pages_date_selector,
+        parse_wikidot_compat_color_descriptor, protect_forwarded_attachment_variables,
+        push_list_pages_pager, random_page_query_scan_limit,
+        register_generated_list_pages_html, render_clone_module,
+        render_list_pages_numbered_rows, render_list_pages_table_rows,
+        render_list_pages_tags, render_members_module_placeholder,
+        render_native_list_inline_wikidot_spans, render_native_list_page_link,
+        render_new_page_module, render_page_query_batch_limit,
+        render_page_query_uses_single_scan, render_read_only_rate_module,
+        render_tag_cloud_box, requested_page_info_score,
         restore_list_pages_literal_ellipsis_markers,
         should_render_current_page_list_pages_row, substitute_count_pages_variables,
         substitute_list_pages_variables, unsupported_list_pages_replacement,
@@ -12531,6 +12595,7 @@ mod tests {
             page_wikitext,
             page_wikitext_scalar_count: page_wikitext
                 .map(|wikitext| wikitext.chars().count()),
+            page_parent_fullname: None,
             expanded_content: None,
             data_form_values,
             render_generated_html,
@@ -14662,6 +14727,119 @@ mod tests {
     }
 
     #[test]
+    fn substitutes_wikidot_list_pages_offset_timeline_navigation_variables() {
+        // The live capture of https://scp-wiki.wikidot.com/component:offset-timeline
+        // renders its fragment children as offset links under
+        // https://scp-wiki.wikidot.com/component:offset-timeline/offset/, which is
+        // the host and path prefix both variables have to produce here.
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Offset 0".to_owned()),
+            alt_title: None,
+            slug: Some("fragment:component:offset-timeline-0".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let user_displays = BTreeMap::new();
+        let data_form_values = BTreeMap::new();
+        let mut context =
+            list_pages_substitution_context(20, &user_displays, None, &data_form_values);
+        context.page_parent_fullname = Some("component:offset-timeline");
+
+        assert_eq!(
+            substitute_list_pages_variables(
+                "https://%%site_domain%%/%%parent_fullname%%/offset/",
+                &page,
+                1,
+                2,
+                &context,
+            ),
+            "https://scp-wiki.wikidot.com/component:offset-timeline/offset/",
+            "both navigation variables must resolve inside the author's URL",
+        );
+
+        context.page_parent_fullname = None;
+        assert_eq!(
+            substitute_list_pages_variables("%%parent_fullname%%", &page, 1, 2, &context),
+            "",
+            "a row with no determinable parent keeps this variable's existing empty output",
+        );
+    }
+
+    #[test]
+    fn resolves_wikidot_list_pages_parent_fullname_from_import_before_local_relations() {
+        let page = FoundPageRow {
+            page_id: 101,
+            site_id: 1,
+            title: Some("Offset 0".to_owned()),
+            alt_title: None,
+            slug: Some("fragment:component:offset-timeline-0".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let source_created_at = time::OffsetDateTime::from_unix_timestamp(1_500_000_000)
+            .expect("fixture timestamp should be valid");
+        let snapshot = ListPagesSnapshotDisplay {
+            created_at: source_created_at,
+            updated_at: source_created_at,
+            created_by_name: None,
+            updated_by_name: None,
+            comments: 0,
+            commented_at: None,
+            commented_by_name: None,
+            rating_votes: None,
+            parent_fullname: Some("component:offset-timeline".to_owned()),
+        };
+        let imported = BTreeMap::from([(101, snapshot.clone())]);
+        let relational =
+            BTreeMap::from([(101, "component:some-locally-added-parent".to_owned())]);
+        let empty_snapshots = BTreeMap::new();
+        let empty_relations = BTreeMap::new();
+
+        assert_eq!(
+            list_pages_parent_fullname(&page, &imported, &relational),
+            Some("component:offset-timeline"),
+            "an imported page reports the parent Wikidot itself recorded",
+        );
+        assert_eq!(
+            list_pages_parent_fullname(&page, &empty_snapshots, &relational),
+            Some("component:some-locally-added-parent"),
+            "a page that was never imported reports its live parent",
+        );
+        assert_eq!(
+            list_pages_parent_fullname(&page, &empty_snapshots, &empty_relations),
+            None,
+            "a page with no parent from either source resolves to nothing",
+        );
+
+        let parentless_import = BTreeMap::from([(
+            101,
+            ListPagesSnapshotDisplay {
+                parent_fullname: None,
+                ..snapshot
+            },
+        )]);
+        assert_eq!(
+            list_pages_parent_fullname(&page, &parentless_import, &relational),
+            None,
+            "an imported page with no recorded parent does not fall through to local relations",
+        );
+    }
+
+    #[test]
     fn substitutes_wikidot_list_pages_created_by_unix_from_account_unix_name() {
         let page = FoundPageRow {
             page_id: 1,
@@ -16297,6 +16475,7 @@ mod tests {
                 commented_at: Some(source_commented_at),
                 commented_by_name: Some("Aspenq".to_owned()),
                 rating_votes: Some(31),
+                parent_fullname: None,
             },
         );
 

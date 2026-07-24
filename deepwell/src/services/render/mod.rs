@@ -45,6 +45,7 @@ mod issued_markers;
 #[allow(dead_code)]
 mod list_pages;
 mod list_pages_content_sections;
+mod list_pages_parents;
 mod list_pages_scanner;
 mod list_pages_template;
 mod literal_regions;
