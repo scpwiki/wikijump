@@ -244,7 +244,7 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         page_create,
         json!({
             "site_id": site_id,
-            "wikitext": "AJAX ListPages target body",
+            "wikitext": "😀e\u{301}",
             "title": "AJAX ListPages Target",
             "alt_title": null,
             "slug": TARGET_SLUG,
@@ -269,6 +269,7 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         "title",
         "created_at",
         "created_by_linked",
+        "created_by_unix",
         "updated_at",
         "updated_by_linked",
         "commented_at",
@@ -326,6 +327,20 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         output.body.contains(TARGET_SLUG)
             && output.body.contains("AJAX ListPages Target"),
         "AJAX ListPages should substitute target page metadata: {}",
+        output.body,
+    );
+    assert!(
+        output.body.contains(
+            r#"class="set size"><span class="name"> size </span><span class="value"> 3 </span>"#,
+        ),
+        "AJAX ListPages should count normalized saved-source Unicode scalar values: {}",
+        output.body,
+    );
+    assert!(
+        output.body.contains(
+            r#"class="set created_by_unix"><span class="name"> created_by_unix </span><span class="value"> administrator </span>"#,
+        ),
+        "AJAX ListPages should emit the creator account unix name rather than the display name: {}",
         output.body,
     );
     assert!(

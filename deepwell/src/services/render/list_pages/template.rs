@@ -30,6 +30,7 @@ enum ListPagesVariable {
     Link,
     CreatedBy,
     CreatedByLinked,
+    CreatedByUnix,
     CreatedAt,
     UpdatedBy,
     UpdatedAt,
@@ -43,6 +44,7 @@ enum ListPagesVariable {
     HiddenTagsLinked,
     RawTags,
     Category,
+    Size,
     EmptyCompatField,
     FormData,
     Content,
@@ -63,6 +65,10 @@ impl ListPagesVariable {
             "created_by_linked" | "createdbylinked" | "author" => {
                 Some(Self::CreatedByLinked)
             }
+            // Only the evidenced spelling is accepted. The collapsed aliases in
+            // this table were each observed live; an unobserved variant stays
+            // literal rather than being guessed from a naming pattern.
+            "created_by_unix" => Some(Self::CreatedByUnix),
             "created_at" | "createdat" | "date" => Some(Self::CreatedAt),
             "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
                 Some(Self::UpdatedBy)
@@ -81,7 +87,8 @@ impl ListPagesVariable {
             "_tags_linked" => Some(Self::HiddenTagsLinked),
             "_tags" => Some(Self::RawTags),
             "category" => Some(Self::Category),
-            "parent_fullname" | "size" | "children" | "rating_percent" | "revisions" => {
+            "size" => Some(Self::Size),
+            "parent_fullname" | "children" | "rating_percent" | "revisions" => {
                 Some(Self::EmptyCompatField)
             }
             "form_data" | "form_raw" if has_argument => Some(Self::FormData),
@@ -178,7 +185,12 @@ impl ListPagesTemplatePlan {
         self.variables.intersects(&[
             ListPagesVariable::CreatedBy,
             ListPagesVariable::CreatedByLinked,
+            ListPagesVariable::CreatedByUnix,
         ])
+    }
+
+    pub(in crate::services::render) fn uses_created_by_unix(&self) -> bool {
+        self.variables.contains(ListPagesVariable::CreatedByUnix)
     }
 
     pub(in crate::services::render) fn uses_created_at(&self) -> bool {
@@ -213,6 +225,10 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::Content)
     }
 
+    pub(in crate::services::render) fn uses_size(&self) -> bool {
+        self.variables.contains(ListPagesVariable::Size)
+    }
+
     pub(in crate::services::render) fn content_sections(
         &self,
     ) -> &BTreeSet<Option<usize>> {
@@ -237,6 +253,7 @@ fn found_page_fields(variables: ListPagesVariables) -> FoundPageFields {
     let created_by = variables.intersects(&[
         ListPagesVariable::CreatedBy,
         ListPagesVariable::CreatedByLinked,
+        ListPagesVariable::CreatedByUnix,
     ]);
     let rating_votes = variables.contains(ListPagesVariable::RatingVotes);
     FoundPageFields {
@@ -288,11 +305,12 @@ mod tests {
         let body = concat!(
             "%%createdbylinked%% %%date%% %%tagslinked%% %%_tags_linked%% %%updatedby%% ",
             "%%updatedat%% %%date_edited%% %%ratingvotes%% %%comments%% %%commentedby%% ",
-            "%%commentedat%% %%content%% %%form_raw{status}%%",
+            "%%commentedat%% %%content%% %%form_raw{status}%% %%size%% %%created_by_unix%%",
         );
         let plan = ListPagesTemplatePlan::compile(body).expect("aliases should compile");
 
         assert!(plan.uses_created_by());
+        assert!(plan.uses_created_by_unix());
         assert!(plan.uses_created_at());
         assert!(plan.uses_updated_by());
         assert!(plan.uses_updated_at());
@@ -301,6 +319,7 @@ mod tests {
         assert!(plan.uses_commented_by());
         assert!(plan.uses_commented_at());
         assert!(plan.uses_content());
+        assert!(plan.uses_size());
         assert_eq!(plan.content_sections(), &BTreeSet::from([None]));
         assert!(plan.uses_data_form());
         assert_eq!(plan.variable_traversals(), 1);
@@ -324,6 +343,7 @@ mod tests {
     #[test]
     fn rejects_unknown_and_argumentless_form_variables() {
         assert!(ListPagesTemplatePlan::compile("%%unsupported%%").is_none());
+        assert!(ListPagesTemplatePlan::compile("%%createdbyunix%%").is_none());
         assert!(ListPagesTemplatePlan::compile("%%form_data%%").is_none());
         assert!(ListPagesTemplatePlan::compile("%%form_raw%%").is_none());
     }
@@ -357,6 +377,7 @@ mod tests {
             "createdby",
             "created_by_linked",
             "createdbylinked",
+            "created_by_unix",
             "author",
             "created_at",
             "createdat",

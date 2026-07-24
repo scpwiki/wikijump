@@ -120,6 +120,8 @@ fn list_pages_substitution_context_with_mode<'a>(
         user_displays,
         snapshot_displays,
         page_wikitext,
+        page_wikitext_scalar_count: page_wikitext
+            .map(|wikitext| wikitext.chars().count()),
         expanded_content: None,
         data_form_values,
         render_generated_html,
@@ -2134,6 +2136,55 @@ fn accepts_corpus_list_pages_comments_placeholder() {
 }
 
 #[test]
+fn substitutes_wikidot_list_pages_size_from_saved_source_scalar_values() {
+    let page = FoundPageRow {
+        page_id: 1,
+        site_id: 1,
+        title: Some("Unicode fixture".to_owned()),
+        alt_title: None,
+        slug: Some("unicode-fixture".to_owned()),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: None,
+        created_at: None,
+        created_by: None,
+        updated_at: None,
+        updated_by: None,
+        score: None,
+    };
+    let user_displays = BTreeMap::new();
+    let data_form_values = BTreeMap::new();
+
+    for (source, expected) in [("😀", "1"), ("e\u{301}", "2"), ("a\nb", "3")] {
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%size%%",
+                &page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &user_displays,
+                    Some(source),
+                    &data_form_values,
+                ),
+            ),
+            expected,
+        );
+    }
+    assert_eq!(
+        substitute_list_pages_variables(
+            "%%size%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context(20, &user_displays, None, &data_form_values,),
+        ),
+        "%%size%%",
+    );
+}
+
+#[test]
 fn substitutes_wikidot_list_pages_content_sections() {
     let page = FoundPageRow {
         page_id: 1,
@@ -3401,6 +3452,71 @@ fn substitutes_wikidot_list_pages_author_and_created_at_variables() {
     );
     assert_eq!(rendered, "SeekGull / SeekGull");
     assert!(!rendered.contains("wikidot.com/user:info"));
+}
+
+#[test]
+fn substitutes_wikidot_list_pages_created_by_unix_from_account_unix_name() {
+    let page = FoundPageRow {
+        page_id: 1,
+        site_id: 1,
+        title: Some("Identity fixture".to_owned()),
+        alt_title: None,
+        slug: Some("identity-fixture".to_owned()),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: None,
+        created_at: None,
+        created_by: Some(8_955_132),
+        updated_at: None,
+        updated_by: None,
+        score: None,
+    };
+    let data_form_values = BTreeMap::new();
+    let user_displays = BTreeMap::from([(
+        8_955_132,
+        WikidotUserDisplay {
+            user_id: 8_955_132,
+            name: "Dr Wondertainment".to_owned(),
+            slug: Some("dr-wondertainment".to_owned()),
+            wikidot_profile: true,
+        },
+    )]);
+
+    assert_eq!(
+        substitute_list_pages_variables(
+            "%%created_by_unix%% %%created_by%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context(20, &user_displays, None, &data_form_values,),
+        ),
+        "dr-wondertainment Dr Wondertainment",
+    );
+
+    let slugless_displays = BTreeMap::from([(
+        8_955_132,
+        WikidotUserDisplay {
+            user_id: 8_955_132,
+            name: "Dr Wondertainment".to_owned(),
+            slug: None,
+            wikidot_profile: true,
+        },
+    )]);
+    assert_eq!(
+        substitute_list_pages_variables(
+            "%%created_by_unix%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context(
+                20,
+                &slugless_displays,
+                None,
+                &data_form_values,
+            ),
+        ),
+        "%%created_by_unix%%",
+    );
 }
 
 #[test]

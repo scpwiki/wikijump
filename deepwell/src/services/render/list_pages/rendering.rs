@@ -84,6 +84,8 @@ pub(in crate::services::render) struct ListPagesPageContext {
 #[derive(Debug, Default)]
 pub(in crate::services::render) struct ListPagesContentCache {
     pub(in crate::services::render) wikitext: BTreeMap<(i64, i64), Option<String>>,
+    pub(in crate::services::render) wikitext_scalar_count:
+        BTreeMap<(i64, i64), Option<usize>>,
 }
 
 #[derive(Debug)]
@@ -1056,6 +1058,7 @@ impl RenderService {
             exclude_current_page,
         );
         let wants_content = template.uses_content();
+        let wants_size = template.uses_size();
         if wants_content
             && render_page_query_uses_single_scan(order)
             && query_limit > expansion_budget.remaining_content_rows() as u64
@@ -1076,6 +1079,7 @@ impl RenderService {
         };
 
         let wants_created_by = template.uses_created_by();
+        let wants_created_by_unix = template.uses_created_by_unix();
         let wants_created_at = template.uses_created_at();
         let wants_updated_by = template.uses_updated_by();
         let wants_updated_at = template.uses_updated_at();
@@ -1246,6 +1250,50 @@ impl RenderService {
                 );
             }
         }
+        if wants_size {
+            let mut missing_by_site = BTreeMap::<i64, Vec<i64>>::new();
+            for page in &pages {
+                let cache_key = (page.site_id, page.page_id);
+                if content_cache.wikitext_scalar_count.contains_key(&cache_key) {
+                    continue;
+                }
+                if let Some(wikitext) = content_cache.wikitext.get(&cache_key) {
+                    content_cache.wikitext_scalar_count.insert(
+                        cache_key,
+                        wikitext.as_deref().map(|wikitext| wikitext.chars().count()),
+                    );
+                } else {
+                    missing_by_site
+                        .entry(page.site_id)
+                        .or_default()
+                        .push(page.page_id);
+                }
+            }
+            for (site_id, page_ids) in missing_by_site {
+                let loaded =
+                    PageRevisionService::get_wikitext_scalar_count_optional_batch(
+                        ctx, site_id, &page_ids,
+                    )
+                    .await?;
+                content_cache.wikitext_scalar_count.extend(
+                    loaded.into_iter().map(|(page_id, scalar_count)| {
+                        ((site_id, page_id), scalar_count)
+                    }),
+                );
+            }
+            if pages.iter().any(|page| {
+                content_cache
+                    .wikitext_scalar_count
+                    .get(&(page.site_id, page.page_id))
+                    .copied()
+                    .flatten()
+                    .is_none()
+            }) {
+                // Wikidot reports the Unicode scalar-value count of the normalized saved source.
+                // A missing latest source cannot be replaced with a plausible zero.
+                return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+            }
+        }
         let category_ids = pages
             .iter()
             .filter_map(|page| page.page_category_id)
@@ -1278,6 +1326,15 @@ impl RenderService {
             .map(|displays| &displays.user_displays)
             .or(loaded_user_displays.as_ref())
             .unwrap_or(&empty_user_displays);
+        if wants_created_by_unix
+            && pages
+                .iter()
+                .any(|page| list_pages_created_by_unix(page, user_displays).is_none())
+        {
+            // Wikidot emits the creator's stored unix name, which is separate
+            // from the display name. Missing account data must remain literal.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let wants_comments = template.uses_comments();
         let wants_commented_by = template.uses_commented_by();
         let wants_commented_at = template.uses_commented_at();
@@ -1442,6 +1499,14 @@ impl RenderService {
                 user_displays,
                 snapshot_displays,
                 page_wikitext: None,
+                page_wikitext_scalar_count: wants_size.then(|| {
+                    content_cache
+                        .wikitext_scalar_count
+                        .get(&cache_key)
+                        .copied()
+                        .flatten()
+                        .expect("size-backed ListPages rows were validated before substitution")
+                }),
                 expanded_content: Some(&expanded_content),
                 data_form_values: &data_form_values,
                 render_generated_html,
