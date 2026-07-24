@@ -2,7 +2,10 @@
 node_modules
 /build
 /.svelte-kit
+/.desloppify
 /package
+/playwright-report
+/test-results
 /static/wikidot/styles/*.css
 .env
 .env.*

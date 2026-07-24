@@ -149,9 +149,12 @@ export default defineConfig(
   [
     globalIgnores([
       "**/node_modules/**/*",
+      ".desloppify/**/*",
       "./build/**/*",
       "./svelte-kit/**/*",
       "./package/**/*",
+      "playwright-report/**/*",
+      "test-results/**/*",
       "**/.DS_Store",
       "**/node_modules",
       "build",
