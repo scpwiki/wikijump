@@ -19,10 +19,15 @@
  */
 
 pub(super) mod content_sections;
+mod rendering;
 pub(super) mod scanner;
 pub(super) mod substitution;
 pub(super) mod template;
 
+pub(super) use self::rendering::{
+    ListPagesExpansionBudget, ListPagesExpansionOptions,
+    register_generated_list_pages_html,
+};
 pub(super) use self::substitution::*;
 
 use super::prelude::*;

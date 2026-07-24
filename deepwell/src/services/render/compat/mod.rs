@@ -1,5 +1,6 @@
 pub(super) mod color_and_inline_protection;
 mod fallback_code;
+mod fallback_render;
 pub(super) mod footnote_dom;
 mod html_fragments;
 pub(super) mod issued_markers;
