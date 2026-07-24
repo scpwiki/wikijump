@@ -83,6 +83,7 @@ pub(in crate::services::render) struct ListPagesSnapshotDisplay {
     pub(in crate::services::render) commented_by_name: Option<String>,
     pub(in crate::services::render) rating_votes: Option<i64>,
     pub(in crate::services::render) parent_fullname: Option<String>,
+    pub(in crate::services::render) source_revision_count: i32,
 }
 
 #[derive(Debug, FromQueryResult)]
@@ -1540,6 +1541,7 @@ pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {
     pub(in crate::services::render) page_wikitext: Option<&'a str>,
     pub(in crate::services::render) page_wikitext_scalar_count: Option<usize>,
     pub(in crate::services::render) page_parent_fullname: Option<&'a str>,
+    pub(in crate::services::render) page_revision_count: Option<u64>,
     pub(in crate::services::render) expanded_content:
         Option<&'a BTreeMap<Option<usize>, String>>,
     pub(in crate::services::render) data_form_values: &'a BTreeMap<String, String>,
@@ -1724,7 +1726,11 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                     .page_wikitext_scalar_count
                     .map(|scalar_count| scalar_count.to_string())
                     .unwrap_or_else(|| captures[0].to_owned()),
-                "children" | "revisions" => "0".to_owned(),
+                "children" => "0".to_owned(),
+                "revisions" => context
+                    .page_revision_count
+                    .map(|revision_count| revision_count.to_string())
+                    .unwrap_or_else(|| captures[0].to_owned()),
                 "site_domain" if !context.site.is_empty() => {
                     format!("{}.wikidot.com", context.site)
                 }
@@ -1967,6 +1973,17 @@ pub(in crate::services::render) fn render_list_pages_wikidot_user(
 
 pub(in crate::services::render) fn render_list_pages_snapshot_user(name: &str) -> String {
     escape_list_pages_html_text(name)
+}
+
+pub(in crate::services::render) fn list_pages_revision_count(
+    page: &FoundPageRow,
+    snapshot_displays: &BTreeMap<i64, ListPagesSnapshotDisplay>,
+    revision_counts: &BTreeMap<i64, u64>,
+) -> Option<u64> {
+    match snapshot_displays.get(&page.page_id) {
+        Some(snapshot) => u64::try_from(snapshot.source_revision_count).ok(),
+        None => revision_counts.get(&page.page_id).copied(),
+    }
 }
 
 pub(in crate::services::render) fn list_pages_parent_fullname<'a>(

@@ -1563,6 +1563,48 @@ impl PageRevisionService {
         Ok(scalar_counts)
     }
 
+    /// Gets the number of stored revisions for several page IDs.
+    pub async fn get_revision_count_batch(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_ids: &[i64],
+    ) -> Result<BTreeMap<i64, u64>> {
+        if page_ids.is_empty() {
+            return Ok(BTreeMap::new());
+        }
+
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to count revisions for {} pages in site ID {}",
+                    page_ids.len(),
+                    site_id,
+                ),
+                ErrorType::PageRevision,
+            )
+        };
+        let rows = PageRevision::find()
+            .select_only()
+            .column(page_revision::Column::PageId)
+            .column_as(page_revision::Column::RevisionId.count(), "revision_count")
+            .join(JoinType::InnerJoin, page_revision::Relation::Page.def())
+            .filter(page::Column::SiteId.eq(site_id))
+            .filter(page_revision::Column::PageId.is_in(page_ids.iter().copied()))
+            .group_by(page_revision::Column::PageId)
+            .into_tuple::<(i64, i64)>()
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+
+        rows.into_iter()
+            .map(|(page_id, revision_count)| {
+                let revision_count =
+                    u64::try_from(revision_count).map_err(|_| make_error())?;
+                Ok((page_id, revision_count))
+            })
+            .collect()
+    }
+
     /// Gets the wikitext from the latest revision of a page.
     pub async fn get_wikitext(
         ctx: &ServiceContext<'_>,

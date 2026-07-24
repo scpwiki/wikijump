@@ -1087,6 +1087,7 @@ impl RenderService {
         let wants_rating_votes = template.uses_rating_votes();
         let wants_site_domain = template.uses_site_domain();
         let wants_parent_fullname = template.uses_parent_fullname();
+        let wants_revisions = template.uses_revisions();
         let resolved_authors = Self::resolve_list_pages_authors_cached(
             ctx,
             current_site_id,
@@ -1343,7 +1344,8 @@ impl RenderService {
             || wants_commented_by
             || wants_commented_at
             || wants_rating_votes
-            || wants_parent_fullname;
+            || wants_parent_fullname
+            || wants_revisions;
         let loaded_snapshot_displays =
             if wants_snapshot_displays && prefetched_displays.is_none() {
                 Some(Self::load_list_pages_snapshot_displays(ctx, &pages).await?)
@@ -1365,6 +1367,35 @@ impl RenderService {
             // so its account slug cannot stand in for the Wikidot author's unix name.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
+        let revision_counts = if wants_revisions {
+            let mut missing_by_site = BTreeMap::<i64, Vec<i64>>::new();
+            for page in &pages {
+                if !snapshot_displays.contains_key(&page.page_id) {
+                    missing_by_site
+                        .entry(page.site_id)
+                        .or_default()
+                        .push(page.page_id);
+                }
+            }
+            let mut revision_counts = BTreeMap::<i64, u64>::new();
+            for (site_id, page_ids) in missing_by_site {
+                revision_counts.extend(
+                    PageRevisionService::get_revision_count_batch(
+                        ctx, site_id, &page_ids,
+                    )
+                    .await?,
+                );
+            }
+            if pages.iter().any(|page| {
+                list_pages_revision_count(page, snapshot_displays, &revision_counts)
+                    .is_none()
+            }) {
+                return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+            }
+            revision_counts
+        } else {
+            BTreeMap::new()
+        };
         let relational_parent_fullnames = if wants_parent_fullname
             && pages
                 .iter()
@@ -1529,6 +1560,12 @@ impl RenderService {
                     snapshot_displays,
                     &relational_parent_fullnames,
                 ),
+                page_revision_count: wants_revisions.then(|| {
+                    list_pages_revision_count(page, snapshot_displays, &revision_counts)
+                        .expect(
+                            "revision-backed ListPages rows were validated before substitution",
+                        )
+                }),
                 expanded_content: Some(&expanded_content),
                 data_form_values: &data_form_values,
                 render_generated_html,
@@ -2064,6 +2101,7 @@ impl RenderService {
             commented_by_name: Option<String>,
             rating_votes: Option<i64>,
             parent_fullname: Option<String>,
+            source_revision_count: i32,
         }
 
         let page_ids = pages
@@ -2093,7 +2131,7 @@ impl RenderService {
                  SELECT snapshot.page_id, snapshot.source_created_at, snapshot.source_updated_at, \
                         snapshot.created_by_name, snapshot.updated_by_name, snapshot.comments, \
                         snapshot.commented_at, snapshot.commented_by_name, \
-                        snapshot.parent_fullname, \
+                        snapshot.parent_fullname, snapshot.source_revision_count, \
                         CASE \
                             WHEN snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
                                  AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
@@ -2124,6 +2162,7 @@ impl RenderService {
                              commented_by_name,
                              rating_votes,
                              parent_fullname,
+                             source_revision_count,
                          }| {
                             (
                                 page_id,
@@ -2137,6 +2176,7 @@ impl RenderService {
                                     commented_by_name,
                                     rating_votes,
                                     parent_fullname,
+                                    source_revision_count,
                                 },
                             )
                         },

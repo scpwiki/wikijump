@@ -51,7 +51,7 @@ use super::{
     list_pages_body_variables_supported, list_pages_content_query_target,
     list_pages_has_unsupported_page_type_selector,
     list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
-    list_pages_row_scan_target, list_pages_tag_link_href,
+    list_pages_revision_count, list_pages_row_scan_target, list_pages_tag_link_href,
     native_list_page_link_default_label, page_query_cap_requires_original_module,
     parse_list_pages_arguments, parse_list_pages_date_selector,
     parse_wikidot_compat_color_descriptor, protect_forwarded_attachment_variables,
@@ -124,6 +124,7 @@ fn list_pages_substitution_context_with_mode<'a>(
         page_wikitext_scalar_count: page_wikitext
             .map(|wikitext| wikitext.chars().count()),
         page_parent_fullname: None,
+        page_revision_count: None,
         expanded_content: None,
         data_form_values,
         render_generated_html,
@@ -3498,6 +3499,100 @@ fn substitutes_wikidot_list_pages_site_domain_and_parent_fullname() {
 }
 
 #[test]
+fn resolves_wikidot_list_pages_revision_count_from_import_before_local_history() {
+    let page = FoundPageRow {
+        page_id: 101,
+        site_id: 1,
+        title: Some("Devereaux".to_owned()),
+        alt_title: None,
+        slug: Some("devereaux".to_owned()),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: None,
+        created_at: None,
+        created_by: None,
+        updated_at: None,
+        updated_by: None,
+        score: None,
+    };
+    let snapshot = ListPagesSnapshotDisplay {
+        created_at: time::OffsetDateTime::UNIX_EPOCH,
+        updated_at: time::OffsetDateTime::UNIX_EPOCH,
+        created_by_name: None,
+        updated_by_name: None,
+        comments: 0,
+        commented_at: None,
+        commented_by_name: None,
+        rating_votes: None,
+        parent_fullname: None,
+        source_revision_count: 37,
+    };
+    let imported = BTreeMap::from([(101, snapshot.clone())]);
+    let local_history = BTreeMap::from([(101, 1)]);
+    let empty_snapshots = BTreeMap::new();
+
+    assert_eq!(
+        list_pages_revision_count(&page, &imported, &local_history),
+        Some(37),
+    );
+    assert_eq!(
+        list_pages_revision_count(&page, &empty_snapshots, &local_history),
+        Some(1),
+    );
+    assert_eq!(
+        list_pages_revision_count(&page, &empty_snapshots, &BTreeMap::new()),
+        None,
+    );
+
+    let negative = BTreeMap::from([(
+        101,
+        ListPagesSnapshotDisplay {
+            source_revision_count: -1,
+            ..snapshot
+        },
+    )]);
+    assert_eq!(
+        list_pages_revision_count(&page, &negative, &local_history),
+        None,
+    );
+}
+
+#[test]
+fn substitutes_wikidot_list_pages_revision_count() {
+    let page = FoundPageRow {
+        page_id: 1,
+        site_id: 1,
+        title: Some("Devereaux".to_owned()),
+        alt_title: None,
+        slug: Some("devereaux".to_owned()),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: None,
+        created_at: None,
+        created_by: None,
+        updated_at: None,
+        updated_by: None,
+        score: None,
+    };
+    let user_displays = BTreeMap::new();
+    let data_form_values = BTreeMap::new();
+    let mut context =
+        list_pages_substitution_context(20, &user_displays, None, &data_form_values);
+
+    context.page_revision_count = Some(2);
+    assert_eq!(
+        substitute_list_pages_variables("%%revisions%%", &page, 1, 1, &context),
+        "2",
+    );
+
+    context.page_revision_count = None;
+    assert_eq!(
+        substitute_list_pages_variables("%%revisions%%", &page, 1, 1, &context),
+        "%%revisions%%",
+    );
+}
+
+#[test]
 fn resolves_wikidot_list_pages_parent_fullname_from_import_before_relations() {
     let page = FoundPageRow {
         page_id: 101,
@@ -3525,6 +3620,7 @@ fn resolves_wikidot_list_pages_parent_fullname_from_import_before_relations() {
         commented_by_name: None,
         rating_votes: None,
         parent_fullname: Some("component:offset-timeline".to_owned()),
+        source_revision_count: 2,
     };
     let imported = BTreeMap::from([(101, snapshot.clone())]);
     let relational = BTreeMap::from([(101, "component:local-parent".to_owned())]);
@@ -3646,6 +3742,7 @@ fn substitutes_wikidot_list_pages_created_by_unix_from_account_unix_name() {
             commented_by_name: None,
             rating_votes: None,
             parent_fullname: None,
+            source_revision_count: 1,
         },
     )]);
     assert_eq!(
@@ -3976,6 +4073,7 @@ fn substitutes_imported_wikidot_snapshot_metadata_for_list_pages_rows() {
             commented_by_name: Some("Aspenq".to_owned()),
             rating_votes: Some(31),
             parent_fullname: None,
+            source_revision_count: 37,
         },
     );
 
