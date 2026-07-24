@@ -45,7 +45,6 @@ export async function loadPage(
   const siteLocale = parentData.site.locale
   if (locals) locals.siteLocale = siteLocale
 
-  const errorStatus = pageErrorStatus(response.type)
   if (locals && response.type === "found") {
     const requestHost = requestHostFromRequest(request)
     locals.wikidotRequestInfo = buildWikidotRequestInfo({
@@ -76,38 +75,39 @@ export async function loadPage(
       locales
     })
   )
+  const presentation = buildWikidotPagePresentation(response, {
+    hasSession: !!parentData.user_session,
+    siteLocale
+  })
+
+  if (response.type !== "found") {
+    const errorForms = await buildPageErrorForms(request, response)
+    const errorViewData = {
+      ...response.data,
+      view: response.type,
+      internationalization,
+      ...presentation
+    }
+    error(
+      pageErrorStatus(response.type),
+      buildPageLoadData(parentData, errorViewData, errorForms)
+    )
+  }
+
   const viewData = {
     ...response.data,
     view: response.type,
     internationalization,
-    ...buildWikidotPagePresentation(response, {
-      hasSession: !!parentData.user_session,
-      siteLocale
-    })
+    ...presentation
   }
-
-  if (errorStatus !== null) {
-    const errorForms = await buildPageErrorForms(request, response)
-    error(errorStatus, buildPageLoadData(parentData, viewData, errorForms))
-  }
-
   runRedirect(response.data, slug, extra, request.url)
 
   // Return to page for rendering
   return buildPageLoadData(parentData, viewData, await buildPageForms(request))
 }
 
-function pageErrorStatus(type: PageView["type"]): number | null {
-  switch (type) {
-    case "found":
-      return null
-    case "missing":
-      return 404
-    case "permissions":
-      return 403
-    default:
-      return 500
-  }
+function pageErrorStatus(type: Exclude<PageView["type"], "found">): number {
+  return type === "missing" ? 404 : 403
 }
 
 function runRedirect(

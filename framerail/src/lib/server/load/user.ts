@@ -117,12 +117,18 @@ export async function loadUser(
   const internationalization = await translate(locales, translateKeys)
 
   const userEditForm = await superValidate(request, valibot(userEditSchema))
-
-  if (errorStatus !== null) {
-    error(errorStatus, { ...viewData, view: response.type, internationalization })
+  const pageData = {
+    ...parentData,
+    ...viewData,
+    view: response.type,
+    internationalization
   }
 
-  return { ...viewData, view: response.type, internationalization, userEditForm }
+  if (errorStatus !== null) {
+    error(errorStatus, pageData)
+  }
+
+  return { ...pageData, userEditForm }
 }
 
 export function sanitizeUserData(
