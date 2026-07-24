@@ -12,6 +12,33 @@ export const ARTICLE_RESPONSE_FENCE_INVALIDATION_CHANNEL =
   "wikijump:article-response-fence-invalidation:v1"
 const SESSION_COOKIE = "wikijump_token"
 
+/**
+ * @param {{
+ *   siteId: number
+ *   siteSlug: string
+ *   requestHost: string
+ *   requestLocales: string[]
+ *   backendLocales: string[]
+ * }} identity
+ */
+export const hasValidArticleResponseCacheIdentity = ({
+  siteId,
+  siteSlug,
+  requestHost,
+  requestLocales,
+  backendLocales
+}) => {
+  return (
+    Number.isInteger(siteId) &&
+    siteId > 0 &&
+    Boolean(siteSlug) &&
+    typeof requestHost === "string" &&
+    requestHost.length > 0 &&
+    Array.isArray(requestLocales) &&
+    Array.isArray(backendLocales)
+  )
+}
+
 export const hasSessionCookie = (cookieHeader) => {
   if (!cookieHeader) return false
 

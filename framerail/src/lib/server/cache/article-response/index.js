@@ -1,6 +1,7 @@
 import {
   ARTICLE_RESPONSE_CACHE_TTL_SECONDS,
   hasSessionCookie,
+  hasValidArticleResponseCacheIdentity,
   sha256Hex,
   utf8Hex
 } from "./shared.js"
@@ -55,10 +56,17 @@ export const buildAnonymousArticleResponseCacheMetadata = ({
   publicContentFence = "0",
   permissionFence = PERMISSION_FENCE
 }) => {
-  if (!Number.isInteger(siteId) || siteId <= 0) return null
-  if (!siteSlug) return null
-  if (typeof requestHost !== "string" || requestHost.length === 0) return null
-  if (!Array.isArray(requestLocales) || !Array.isArray(backendLocales)) return null
+  if (
+    !hasValidArticleResponseCacheIdentity({
+      siteId,
+      siteSlug,
+      requestHost,
+      requestLocales,
+      backendLocales
+    })
+  ) {
+    return null
+  }
   if (!deepwellArticlePageCacheKey) return null
   if (!publicContentFence || !permissionFence) return null
 

@@ -1,5 +1,6 @@
 import {
   ARTICLE_RESPONSE_FENCE_INVALIDATION_CHANNEL,
+  hasValidArticleResponseCacheIdentity,
   PUBLIC_CONTENT_FENCE_PREFIX
 } from "./shared.js"
 
@@ -41,10 +42,17 @@ export const buildAnonymousArticleResponseCacheFences = ({
   publicContentFence,
   permissionFence
 }) => {
-  if (!Number.isInteger(siteId) || siteId <= 0) return null
-  if (!siteSlug) return null
-  if (typeof requestHost !== "string" || requestHost.length === 0) return null
-  if (!Array.isArray(requestLocales) || !Array.isArray(backendLocales)) return null
+  if (
+    !hasValidArticleResponseCacheIdentity({
+      siteId,
+      siteSlug,
+      requestHost,
+      requestLocales,
+      backendLocales
+    })
+  ) {
+    return null
+  }
   if (!publicContentFence || !permissionFence) return null
 
   return {
