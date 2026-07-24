@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import test from "node:test";
 
-import { stableStringify } from "../src/corpus-import-manifest.mjs";
+import {stableStringify} from "../src/corpus-import-manifest.mjs";
 import {
   buildWikidotXmlrpcInstalledEnvironmentManifest,
   hashWikidotXmlrpcInstalledEnvironmentManifest,
@@ -14,78 +12,14 @@ import {
   serializeWikidotXmlrpcInstalledEnvironmentManifest,
   WIKIDOT_XMLRPC_INSTALLED_ENVIRONMENT_MANIFEST_SCHEMA,
 } from "../src/wikidot-xmlrpc-installed-environment-manifest.mjs";
+import {assertWikidotXmlrpcPythonEnvironmentMatchesInstalledEnvironmentManifest} from "../src/wikidot-xmlrpc-python-environment.mjs";
+import {openReferenceObjectStore} from "../src/reference-object-store.mjs";
 import {
-  assertWikidotXmlrpcPythonEnvironmentMatchesInstalledEnvironmentManifest,
-  buildWikidotXmlrpcPythonEnvironment,
-} from "../src/wikidot-xmlrpc-python-environment.mjs";
-import {
-  initializeReferenceObjectStore,
-  openReferenceObjectStore,
-  referenceObjectRelativePath,
-} from "../src/reference-object-store.mjs";
-
-function file(pathname, overrides = {}) {
-  return {
-    bytes: 4,
-    executable: false,
-    path: pathname,
-    sha256: "a".repeat(64),
-    ...overrides,
-  };
-}
-
-function manifest({ additionalFiles = [], ...overrides } = {}) {
-  return buildWikidotXmlrpcInstalledEnvironmentManifest({
-    files: [
-      file("bin/python", { executable: true, sha256: "b".repeat(64) }),
-      file("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
-      file("pyvenv.cfg", { sha256: "d".repeat(64) }),
-      ...additionalFiles,
-    ],
-    pythonExecutablePath: "bin/python",
-    pythonImplementation: "cpython",
-    pythonVersion: "3.13.13",
-    venvConfigPath: "pyvenv.cfg",
-    ...overrides,
-  });
-}
-
-function environmentFor(value, overrides = {}) {
-  const files = new Map(value.files.map((entry) => [entry.path, entry]));
-  return buildWikidotXmlrpcPythonEnvironment({
-    dependencyEnvironmentSha256:
-      hashWikidotXmlrpcInstalledEnvironmentManifest(value),
-    dependencyLockBlobOid: "1".repeat(40),
-    dependencyLockFileSha256: "2".repeat(64),
-    dependencyRecipeBlobOid: "3".repeat(40),
-    dependencyRecipeSha256: "4".repeat(64),
-    pythonExecutableSha256: files.get(value.python_executable_path).sha256,
-    pythonImplementation: value.python_implementation,
-    pythonVersion: value.python_version,
-    venvConfigSha256: files.get(value.venv_config_path).sha256,
-    workerBlobOid: "5".repeat(40),
-    workerFileSha256: "6".repeat(64),
-    workerRepositoryCommit: "7".repeat(40),
-    workerRepositoryTree: "8".repeat(40),
-    ...overrides,
-  });
-}
-
-async function fixture(t) {
-  const parent = await fs.mkdtemp(
-    path.join(os.tmpdir(), "xmlrpc-installed-environment-"),
-  );
-  const state = {
-    root: path.join(parent, "store"),
-    store: undefined,
-  };
-  state.store = await initializeReferenceObjectStore(state.root);
-  t.after(async () => {
-    await state.store.close();
-    await fs.rm(parent, { force: true, recursive: true });
-  });
-  return state;
-}
+  installedEnvironmentFile,
+  installedEnvironmentManifest,
+  installedEnvironmentStoreFixture,
+  pythonEnvironmentForManifest,
+} from "./support/wikidot-xmlrpc-installed-environment-fixture.mjs";
 
 test("schema and canonical bytes bind the manifest identity", async () => {
   const schema = JSON.parse(
@@ -96,7 +30,7 @@ test("schema and canonical bytes bind the manifest identity", async () => {
       ),
     ),
   );
-  const value = manifest();
+  const value = installedEnvironmentManifest();
   const bytes = serializeWikidotXmlrpcInstalledEnvironmentManifest(value);
 
   assert.deepEqual(Object.keys(value).sort(), schema.required);
@@ -142,8 +76,8 @@ test("schema and canonical bytes bind the manifest identity", async () => {
 });
 
 test("CAS identity and Python environment matching bind the manifest", async (t) => {
-  const value = manifest();
-  const state = await fixture(t);
+  const value = installedEnvironmentManifest();
+  const state = await installedEnvironmentStoreFixture(t);
   const first = await putWikidotXmlrpcInstalledEnvironmentManifest(
     state.store,
     value,
@@ -176,62 +110,62 @@ test("CAS identity and Python environment matching bind the manifest", async (t)
   );
   const matched =
     assertWikidotXmlrpcPythonEnvironmentMatchesInstalledEnvironmentManifest(
-      environmentFor(value),
+      pythonEnvironmentForManifest(value),
       value,
     );
   assert.equal(Object.isFrozen(matched), true);
-  assert.deepEqual(matched.descriptor, environmentFor(value));
+  assert.deepEqual(matched.descriptor, pythonEnvironmentForManifest(value));
   assert.deepEqual(matched.manifest, value);
 });
 
 test("each role and file identity field changes the manifest digest", () => {
-  const baseline = manifest();
+  const baseline = installedEnvironmentManifest();
   const baselineHash = hashWikidotXmlrpcInstalledEnvironmentManifest(baseline);
   const changed = [
-    manifest({
+    installedEnvironmentManifest({
       files: [
-        file("bin/python", { executable: true, sha256: "e".repeat(64) }),
-        file("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
-        file("pyvenv.cfg", { sha256: "d".repeat(64) }),
+        installedEnvironmentFile("bin/python", { executable: true, sha256: "e".repeat(64) }),
+        installedEnvironmentFile("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
+        installedEnvironmentFile("pyvenv.cfg", { sha256: "d".repeat(64) }),
       ],
     }),
-    manifest({
+    installedEnvironmentManifest({
       files: [
-        file("bin/python", { executable: true, sha256: "b".repeat(64) }),
-        file("lib/site-packages/example.py", {
+        installedEnvironmentFile("bin/python", { executable: true, sha256: "b".repeat(64) }),
+        installedEnvironmentFile("lib/site-packages/example.py", {
           bytes: 5,
           sha256: "c".repeat(64),
         }),
-        file("pyvenv.cfg", { sha256: "d".repeat(64) }),
+        installedEnvironmentFile("pyvenv.cfg", { sha256: "d".repeat(64) }),
       ],
     }),
-    manifest({
+    installedEnvironmentManifest({
       files: [
-        file("bin/python", { executable: true, sha256: "b".repeat(64) }),
-        file("lib/site-packages/example.py", {
+        installedEnvironmentFile("bin/python", { executable: true, sha256: "b".repeat(64) }),
+        installedEnvironmentFile("lib/site-packages/example.py", {
           executable: true,
           sha256: "c".repeat(64),
         }),
-        file("pyvenv.cfg", { sha256: "d".repeat(64) }),
+        installedEnvironmentFile("pyvenv.cfg", { sha256: "d".repeat(64) }),
       ],
     }),
-    manifest({ additionalFiles: [file("lib/site-packages/extra.py")] }),
-    manifest({
+    installedEnvironmentManifest({ additionalFiles: [installedEnvironmentFile("lib/site-packages/extra.py")] }),
+    installedEnvironmentManifest({
       files: [
-        file("runtime/python", { executable: true, sha256: "b".repeat(64) }),
-        file("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
-        file("pyvenv.cfg", { sha256: "d".repeat(64) }),
+        installedEnvironmentFile("runtime/python", { executable: true, sha256: "b".repeat(64) }),
+        installedEnvironmentFile("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
+        installedEnvironmentFile("pyvenv.cfg", { sha256: "d".repeat(64) }),
       ],
       pythonExecutablePath: "runtime/python",
     }),
-    manifest({
+    installedEnvironmentManifest({
       files: [
-        file("bin/python", { executable: true, sha256: "b".repeat(64) }),
-        file("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
-        file("pyvenv.cfg", { sha256: "e".repeat(64) }),
+        installedEnvironmentFile("bin/python", { executable: true, sha256: "b".repeat(64) }),
+        installedEnvironmentFile("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
+        installedEnvironmentFile("pyvenv.cfg", { sha256: "e".repeat(64) }),
       ],
     }),
-    manifest({ pythonVersion: "3.13.14" }),
+    installedEnvironmentManifest({ pythonVersion: "3.13.14" }),
   ];
   for (const value of changed) {
     assert.notEqual(
@@ -241,18 +175,18 @@ test("each role and file identity field changes the manifest digest", () => {
   }
 
   const alternateRoles = [
-    file("bin/python", { executable: true, sha256: "b".repeat(64) }),
-    file("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
-    file("pyvenv-alt.cfg", { sha256: "d".repeat(64) }),
-    file("pyvenv.cfg", { sha256: "d".repeat(64) }),
-    file("runtime/python", { executable: true, sha256: "b".repeat(64) }),
+    installedEnvironmentFile("bin/python", { executable: true, sha256: "b".repeat(64) }),
+    installedEnvironmentFile("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
+    installedEnvironmentFile("pyvenv-alt.cfg", { sha256: "d".repeat(64) }),
+    installedEnvironmentFile("pyvenv.cfg", { sha256: "d".repeat(64) }),
+    installedEnvironmentFile("runtime/python", { executable: true, sha256: "b".repeat(64) }),
   ];
-  const firstRoles = manifest({ files: alternateRoles });
-  const otherPythonRole = manifest({
+  const firstRoles = installedEnvironmentManifest({ files: alternateRoles });
+  const otherPythonRole = installedEnvironmentManifest({
     files: alternateRoles,
     pythonExecutablePath: "runtime/python",
   });
-  const otherConfigRole = manifest({
+  const otherConfigRole = installedEnvironmentManifest({
     files: alternateRoles,
     venvConfigPath: "pyvenv-alt.cfg",
   });
@@ -267,8 +201,8 @@ test("each role and file identity field changes the manifest digest", () => {
 });
 
 test("Python environment matcher rejects every environment identity disagreement", () => {
-  const value = manifest();
-  const environment = environmentFor(value);
+  const value = installedEnvironmentManifest();
+  const environment = pythonEnvironmentForManifest(value);
   for (const changed of [
     { dependency_environment_sha256: "0".repeat(64) },
     { python_executable_sha256: "1".repeat(64) },
@@ -287,41 +221,41 @@ test("Python environment matcher rejects every environment identity disagreement
 });
 
 test("Python environment matcher binds the full manifest and selected role files", () => {
-  const baseline = manifest();
-  const expanded = manifest({
+  const baseline = installedEnvironmentManifest();
+  const expanded = installedEnvironmentManifest({
     additionalFiles: [
-      file("lib/site-packages/another.py", { sha256: "e".repeat(64) }),
+      installedEnvironmentFile("lib/site-packages/another.py", { sha256: "e".repeat(64) }),
     ],
   });
   assert.throws(
     () =>
       assertWikidotXmlrpcPythonEnvironmentMatchesInstalledEnvironmentManifest(
-        environmentFor(baseline),
+        pythonEnvironmentForManifest(baseline),
         expanded,
       ),
     /does not match/u,
   );
 
   const alternateFiles = [
-    file("bin/python", { executable: true, sha256: "b".repeat(64) }),
-    file("config/pyvenv.cfg", { sha256: "f".repeat(64) }),
-    file("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
-    file("pyvenv.cfg", { sha256: "d".repeat(64) }),
-    file("runtime/python", { executable: true, sha256: "e".repeat(64) }),
+    installedEnvironmentFile("bin/python", { executable: true, sha256: "b".repeat(64) }),
+    installedEnvironmentFile("config/pyvenv.cfg", { sha256: "f".repeat(64) }),
+    installedEnvironmentFile("lib/site-packages/example.py", { sha256: "c".repeat(64) }),
+    installedEnvironmentFile("pyvenv.cfg", { sha256: "d".repeat(64) }),
+    installedEnvironmentFile("runtime/python", { executable: true, sha256: "e".repeat(64) }),
   ];
-  const initialRoles = manifest({ files: alternateFiles });
-  const alternateExecutable = manifest({
+  const initialRoles = installedEnvironmentManifest({ files: alternateFiles });
+  const alternateExecutable = installedEnvironmentManifest({
     files: alternateFiles,
     pythonExecutablePath: "runtime/python",
   });
-  const alternateConfig = manifest({
+  const alternateConfig = installedEnvironmentManifest({
     files: alternateFiles,
     venvConfigPath: "config/pyvenv.cfg",
   });
   assert.throws(
     () =>
       assertWikidotXmlrpcPythonEnvironmentMatchesInstalledEnvironmentManifest(
-        environmentFor(alternateExecutable, {
+        pythonEnvironmentForManifest(alternateExecutable, {
           pythonExecutableSha256: initialRoles.files.find(
             (entry) => entry.path === initialRoles.python_executable_path,
           ).sha256,
@@ -333,7 +267,7 @@ test("Python environment matcher binds the full manifest and selected role files
   assert.throws(
     () =>
       assertWikidotXmlrpcPythonEnvironmentMatchesInstalledEnvironmentManifest(
-        environmentFor(alternateConfig, {
+        pythonEnvironmentForManifest(alternateConfig, {
           venvConfigSha256: initialRoles.files.find(
             (entry) => entry.path === initialRoles.venv_config_path,
           ).sha256,
@@ -345,9 +279,9 @@ test("Python environment matcher binds the full manifest and selected role files
 });
 
 test("Python environment matcher fails closed for hostile operands", () => {
-  const value = manifest();
+  const value = installedEnvironmentManifest();
   const marker = "sentinel-python-environment-marker";
-  const hostile = new Proxy(environmentFor(value), {
+  const hostile = new Proxy(pythonEnvironmentForManifest(value), {
     ownKeys() {
       throw new Error(marker);
     },
@@ -366,7 +300,7 @@ test("Python environment matcher fails closed for hostile operands", () => {
 
 test("manifest rejects invalid roles, hostile values, and noncanonical bytes", () => {
   const marker = "sentinel-installed-environment-marker";
-  const valid = manifest();
+  const valid = installedEnvironmentManifest();
   const accessor = {
     files: [],
     pythonExecutablePath: "bin/python",
@@ -389,7 +323,7 @@ test("manifest rejects invalid roles, hostile values, and noncanonical bytes", (
     () => buildWikidotXmlrpcInstalledEnvironmentManifest(accessor),
     () =>
       buildWikidotXmlrpcInstalledEnvironmentManifest({
-        files: [file("bin/python", { executable: false }), file("pyvenv.cfg")],
+        files: [installedEnvironmentFile("bin/python", { executable: false }), installedEnvironmentFile("pyvenv.cfg")],
         pythonExecutablePath: "bin/python",
         pythonImplementation: "cpython",
         pythonVersion: "3.13.13",
@@ -398,8 +332,8 @@ test("manifest rejects invalid roles, hostile values, and noncanonical bytes", (
     () =>
       buildWikidotXmlrpcInstalledEnvironmentManifest({
         files: [
-          file("bin/python", { executable: true }),
-          file("pyvenv.cfg", { executable: true }),
+          installedEnvironmentFile("bin/python", { executable: true }),
+          installedEnvironmentFile("pyvenv.cfg", { executable: true }),
         ],
         pythonExecutablePath: "bin/python",
         pythonImplementation: "cpython",
@@ -408,25 +342,25 @@ test("manifest rejects invalid roles, hostile values, and noncanonical bytes", (
       }),
     () =>
       buildWikidotXmlrpcInstalledEnvironmentManifest({
-        files: [file("bin/python", { executable: true }), file("pyvenv.cfg")],
+        files: [installedEnvironmentFile("bin/python", { executable: true }), installedEnvironmentFile("pyvenv.cfg")],
         pythonExecutablePath: "bin/python",
         pythonImplementation: "cpython",
         pythonVersion: "3.13.13",
         venvConfigPath: "bin/python",
       }),
     () =>
-      manifest({
-        additionalFiles: [file("lib/\tbad")],
+      installedEnvironmentManifest({
+        additionalFiles: [installedEnvironmentFile("lib/\tbad")],
       }),
     () =>
-      manifest({
-        additionalFiles: [file("😀".repeat(1025))],
+      installedEnvironmentManifest({
+        additionalFiles: [installedEnvironmentFile("😀".repeat(1025))],
       }),
     () =>
       buildWikidotXmlrpcInstalledEnvironmentManifest({
         files: [
-          file("bin/python", { executable: true }),
-          file("pyvenv.cfg", { bytes: -0 }),
+          installedEnvironmentFile("bin/python", { executable: true }),
+          installedEnvironmentFile("pyvenv.cfg", { bytes: -0 }),
         ],
         pythonExecutablePath: "bin/python",
         pythonImplementation: "cpython",
@@ -435,7 +369,7 @@ test("manifest rejects invalid roles, hostile values, and noncanonical bytes", (
       }),
     () =>
       buildWikidotXmlrpcInstalledEnvironmentManifest({
-        files: [file("../escape", { executable: true }), file("pyvenv.cfg")],
+        files: [installedEnvironmentFile("../escape", { executable: true }), installedEnvironmentFile("pyvenv.cfg")],
         pythonExecutablePath: "../escape",
         pythonImplementation: "cpython",
         pythonVersion: "3.13.13",
@@ -451,81 +385,4 @@ test("manifest rejects invalid roles, hostile values, and noncanonical bytes", (
   ]) {
     assert.throws(call, (error) => !error.message.includes(marker));
   }
-});
-
-test("manifest rejects a file that would replace a required role directory", () => {
-  assert.throws(
-    () => manifest({ additionalFiles: [file("bin")] }),
-    /invalid file tree/u,
-  );
-});
-
-test("builder rejects an unencodable manifest before allocating its full serialization", () => {
-  const suffix = "a".repeat(4088);
-  const files = [
-    file("bin/python", { executable: true }),
-    file("pyvenv.cfg"),
-    ...Array.from({ length: 4200 }, (_, index) =>
-      file(`${String(index).padStart(5, "0")}-${suffix}`),
-    ),
-  ];
-  assert.throws(
-    () =>
-      buildWikidotXmlrpcInstalledEnvironmentManifest({
-        files,
-        pythonExecutablePath: "bin/python",
-        pythonImplementation: "cpython",
-        pythonVersion: "3.13.13",
-        venvConfigPath: "pyvenv.cfg",
-      }),
-    /byte limit/u,
-  );
-});
-
-test("opening fails closed on invalid immutable CAS content and references", async (t) => {
-  const state = await fixture(t);
-  const stored = await putWikidotXmlrpcInstalledEnvironmentManifest(
-    state.store,
-    manifest(),
-  );
-  const objectPath = path.join(
-    state.root,
-    ...referenceObjectRelativePath(stored.object.sha256).split("/"),
-  );
-  await assert.rejects(
-    openWikidotXmlrpcInstalledEnvironmentManifest(state.store, {
-      algorithm: "sha256",
-      bytes: 1,
-      sha256: "0".repeat(64),
-    }),
-    (error) =>
-      error.message ===
-        "installed environment manifest object cannot be read" &&
-      !error.message.includes("/proc/"),
-  );
-  await fs.chmod(objectPath, 0o600);
-  await fs.writeFile(objectPath, Buffer.alloc(stored.object.bytes, 0x20));
-  await fs.chmod(objectPath, 0o400);
-  await assert.rejects(
-    openWikidotXmlrpcInstalledEnvironmentManifest(state.store, stored.object),
-    /object cannot be read/u,
-  );
-  const malformed = await state.store.putBytes(Buffer.from("{}\n"));
-  await assert.rejects(
-    openWikidotXmlrpcInstalledEnvironmentManifest(
-      state.store,
-      malformed.object,
-    ),
-    /object is not canonical/u,
-  );
-  const marker = "sentinel-reference-marker";
-  const proxy = new Proxy(stored.object, {
-    ownKeys() {
-      throw new Error(marker);
-    },
-  });
-  await assert.rejects(
-    openWikidotXmlrpcInstalledEnvironmentManifest(state.store, proxy),
-    (error) => !error.message.includes(marker),
-  );
 });

@@ -12,7 +12,7 @@ import {WIKIDOT_HELPER_PYTHON, WikidotJsonlHelperClient, WikidotThemePageAdapter
 import {targetRoundTripSourceSha256} from "../src/theme-source-roundtrip.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const HELPER_PATH = path.resolve(HERE, "../scripts/wikidot-theme-page-helper.py");
+const HELPER_PATH = path.resolve(HERE, "../scripts/wikidot_theme_page_helper.py");
 const SITE = "scpaiueouiuiuiui";
 
 function sha256(value) {
@@ -149,10 +149,10 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 backend = object.__new__(module.WikidotBackend)
 backend.inspect = lambda slug, kind="theme_page": None
-backend._amc = lambda body: {"status": "ok", "lock_id": "lock", "lock_secret": "secret", "page_revision_id": 99}
+backend._request_ajax_module_connector = lambda body: {"status": "ok", "lock_id": "lock", "lock_secret": "secret", "page_revision_id": 99}
 source = "fixture source"
 try:
-    backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source), ["テーマ"])
+    backend.create("codex-l10n:20260713-adapter-yossistyle", title="fixture", source=source, expected_source_sha256=module.sha256(source), tags=["テーマ"])
 except module.PublicError as error:
     print(error.code)
 `;
@@ -178,15 +178,17 @@ def amc(body):
     events.append(body.get("event", body.get("moduleName")))
     if body.get("moduleName") == "edit/PageEditModule": return {"status": "ok", "lock_id": "lock", "lock_secret": "secret"}
     return {"status": "ok"}
-backend._amc = amc
+backend._request_ajax_module_connector = amc
 backend.page_tags = lambda slug, kind="theme_page": ["テーマ"]
-print(backend.create("codex-l10n:20260713-adapter-yossistyle", "fixture", source, module.sha256(source), ["テーマ"])["identity"])
+created = backend.create("codex-l10n:20260713-adapter-yossistyle", title="fixture", source=source, expected_source_sha256=module.sha256(source), tags=["テーマ"])
+print(created["identity"])
+print(",".join(created["tags"]))
 print(",".join(events))
 `;
   const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});
   assert.equal(result.status, 0);
   assert.equal(result.stderr, "");
-  assert.equal(result.stdout.trim(), "7\nedit/PageEditModule,savePage,saveTags");
+  assert.equal(result.stdout.trim(), "7\nテーマ\nedit/PageEditModule,savePage,saveTags");
 });
 
 test("Wikidot round-trip hash removes only one observed terminal LF", () => {
@@ -282,6 +284,31 @@ module.serve(sys.stdin, sys.stdout, Backend())
   assert.equal((await client.request("inspect", {slug})).page.identity, 2);
   await assert.rejects(client.request("inspect", {slug, session_token: "forbidden"}), /forbidden secret field/);
   await client.close();
+});
+
+test("Python helper closes its backend when response delivery fails", () => {
+  const program = String.raw`
+import importlib.util, io, sys
+spec = importlib.util.spec_from_file_location("theme_helper", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+class Backend:
+    closed = False
+    def close(self): self.closed = True
+class BrokenOutput:
+    def write(self, value): raise OSError("closed pipe")
+    def flush(self): pass
+backend = Backend()
+try:
+    module.serve(io.StringIO('{"id":1,"action":"ping"}\n'), BrokenOutput(), backend)
+except OSError:
+    pass
+print(backend.closed)
+`;
+  const result = spawnSync("python3", ["-c", program, HELPER_PATH], {encoding: "utf8"});
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, "");
+  assert.equal(result.stdout.trim(), "True");
 });
 
 test("helper errors and process exits never expose credentials", async () => {

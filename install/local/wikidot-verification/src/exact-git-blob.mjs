@@ -56,7 +56,7 @@ function fail(code) {
   throw new ExactGitBlobError(code);
 }
 
-function dataObject(value, expectedKeys, code) {
+function validateExactDataRecord(value, expectedKeys, code) {
   if (value === null || typeof value !== "object") fail(code);
   let prototype;
   let keys;
@@ -123,7 +123,7 @@ function normalizePath(value) {
 }
 
 function normalizeReaderConfiguration(value) {
-  const input = dataObject(
+  const input = validateExactDataRecord(
     value,
     READER_CONFIGURATION_KEYS,
     "invalid_reader_configuration",
@@ -141,7 +141,7 @@ function normalizeReaderConfiguration(value) {
 }
 
 async function normalizeBinding(value, configuredGitExecutable) {
-  const input = dataObject(value, BINDING_KEYS, "invalid_git_binding");
+  const input = validateExactDataRecord(value, BINDING_KEYS, "invalid_git_binding");
   const segments = normalizePath(input.path);
   if (
     typeof input.gitDirectory !== "string" ||
@@ -182,7 +182,7 @@ async function normalizeBinding(value, configuredGitExecutable) {
 }
 
 async function normalizeTreeBinding(value, configuredGitExecutable) {
-  const input = dataObject(value, TREE_BINDING_KEYS, "invalid_tree_binding");
+  const input = validateExactDataRecord(value, TREE_BINDING_KEYS, "invalid_tree_binding");
   if (
     typeof input.gitDirectory !== "string" ||
     input.gitDirectory.length === 0 ||
@@ -218,7 +218,7 @@ async function normalizeTreeBinding(value, configuredGitExecutable) {
 }
 
 function normalizeExpected(value) {
-  const input = dataObject(value, EXPECTED_KEYS, "invalid_expected_identity");
+  const input = validateExactDataRecord(value, EXPECTED_KEYS, "invalid_expected_identity");
   for (const field of ["blobOid", "commitOid", "treeOid"]) {
     assertSha1(input[field]);
   }
@@ -232,7 +232,7 @@ function normalizeExpected(value) {
 }
 
 function normalizeOptions(value) {
-  const input = dataObject(value, OPTION_KEYS, "invalid_read_options");
+  const input = validateExactDataRecord(value, OPTION_KEYS, "invalid_read_options");
   if (
     !Number.isSafeInteger(input.maxBytes) ||
     input.maxBytes <= 0 ||
@@ -244,7 +244,7 @@ function normalizeOptions(value) {
 }
 
 function normalizeTreeExpected(value) {
-  const input = dataObject(value, TREE_EXPECTED_KEYS, "invalid_tree_identity");
+  const input = validateExactDataRecord(value, TREE_EXPECTED_KEYS, "invalid_tree_identity");
   for (const field of TREE_EXPECTED_KEYS) {
     assertSha1(input[field], "invalid_tree_identity");
   }
@@ -252,7 +252,7 @@ function normalizeTreeExpected(value) {
 }
 
 function normalizeTreeOptions(value) {
-  const input = dataObject(
+  const input = validateExactDataRecord(
     value,
     TREE_OPTION_KEYS,
     "invalid_tree_read_options",
@@ -347,11 +347,7 @@ function killProcessGroup(child) {
     process.kill(-child.pid, "SIGKILL");
     return;
   } catch {
-    try {
-      child.kill("SIGKILL");
-    } catch {
-      // The process already exited or could not be signalled.
-    }
+    child.kill("SIGKILL");
   }
 }
 

@@ -1,5 +1,5 @@
 import { publishBytesNoReplaceAt } from "./atomic-no-replace.mjs";
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 
 const SHA256_RE = /^[0-9a-f]{64}$/u;
 const INDEX_READ_BATCH_SIZE = 16;

@@ -47,6 +47,7 @@ export const WIKIDOT_XMLRPC_COORDINATOR_SOURCE_PATHS = Object.freeze(
     MATERIALIZED_ENTRYPOINT_PATH,
     COORDINATOR_ENTRY_PATH,
     "install/local/wikidot-verification/src/atomic-no-replace.mjs",
+    "install/local/wikidot-verification/src/canonical-json.mjs",
     "install/local/wikidot-verification/src/corpus-file-reader.mjs",
     "install/local/wikidot-verification/src/corpus-import-manifest.mjs",
     "install/local/wikidot-verification/src/exact-git-blob.mjs",
@@ -54,6 +55,7 @@ export const WIKIDOT_XMLRPC_COORDINATOR_SOURCE_PATHS = Object.freeze(
     "install/local/wikidot-verification/src/reference-acquisition-attempt.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-completion-index.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-completion.mjs",
+    "install/local/wikidot-verification/src/reference-acquisition-inventory-source.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-inventory-validation.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-inventory.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-summary.mjs",
@@ -61,6 +63,8 @@ export const WIKIDOT_XMLRPC_COORDINATOR_SOURCE_PATHS = Object.freeze(
     "install/local/wikidot-verification/src/reference-acquisition-xmlrpc-completion.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-xmlrpc-implementation.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-xmlrpc-observation.mjs",
+    "install/local/wikidot-verification/src/reference-acquisition-work-target.mjs",
+    "install/local/wikidot-verification/src/reference-object-descriptor.mjs",
     "install/local/wikidot-verification/src/reference-object-store.mjs",
     "install/local/wikidot-verification/src/resource-manifest.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-acquisition-verdict.mjs",
@@ -71,6 +75,7 @@ export const WIKIDOT_XMLRPC_COORDINATOR_SOURCE_PATHS = Object.freeze(
     "install/local/wikidot-verification/src/wikidot-xmlrpc-worker-attestation.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-worker-authority.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-worker-client.mjs",
+    "install/local/wikidot-verification/src/wikidot-xmlrpc-worker-protocol.mjs",
     "install/local/wikidot-verification/src/wikidot-xmlrpc-worker-session-capability.mjs",
   ].sort(),
 );
@@ -193,11 +198,7 @@ function killProcessGroup(child) {
     process.kill(-child.pid, "SIGKILL");
     return;
   } catch {
-    try {
-      child.kill("SIGKILL");
-    } catch {
-      // The process has already ended.
-    }
+    child.kill("SIGKILL");
   }
 }
 
@@ -590,7 +591,7 @@ function scrubCredentials(environment = process.env) {
   delete environment.WIKIDOT_API_KEY;
 }
 
-function childEnvironment(root) {
+function childEnvironment() {
   const environment = Object.create(null);
   for (const name of ["WIKIDOT_APP_NAME", "WIKIDOT_API_KEY"]) {
     const value = process.env[name];
@@ -660,11 +661,7 @@ function signalCoordinator(child, signal) {
     process.kill(-child.pid, signal);
     return;
   } catch {
-    try {
-      child.kill(signal);
-    } catch {
-      // The child is already gone.
-    }
+    child.kill(signal);
   }
 }
 
@@ -705,7 +702,7 @@ export async function runBootstrap(argv) {
       return 0;
     }
     coordinator = await materializeExactCoordinator(options);
-    const environment = childEnvironment(coordinator.root);
+    const environment = childEnvironment();
     scrubCredentials();
     const child = spawn(
       process.execPath,

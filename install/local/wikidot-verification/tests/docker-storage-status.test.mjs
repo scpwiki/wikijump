@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {fileURLToPath} from "node:url";
+import {main as runDockerStorageCli, parseArgs as parseDockerStorageArgs, usage as dockerStorageUsage} from "../scripts/docker-storage-status.mjs";
 import {collectDockerStorageStatus, parseDockerRootDir, parseSizeToBytes} from "../src/docker-storage-status.mjs";
 
 const PACKAGE_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -177,6 +178,44 @@ test("dockerDf unavailable degrades but still writes valid JSON", async (t) => {
   assert.ok(artifact.firstFailureExcerpt);
   assert.doesNotMatch(artifact.firstFailureExcerpt, /abc/);
   assert.equal(JSON.parse(readFileSync(statusPath, "utf8")).status, "degraded");
+});
+
+test("docker storage CLI exposes parsing and orchestration without process side effects", async () => {
+  assert.deepEqual(parseDockerStorageArgs([
+    "--ttl", "55",
+    "--refresh",
+    "--json",
+    "--quiet",
+    "--status", "/tmp/storage.json",
+  ]), {
+    help: false,
+    options: {
+      ttlMs: 55,
+      refresh: true,
+      quiet: true,
+      statusPath: "/tmp/storage.json",
+    },
+  });
+  assert.match(dockerStorageUsage(), /read-only/u);
+
+  const calls = [];
+  const output = [];
+  const code = await runDockerStorageCli(["--quiet"], {
+    collectStatus: async (options) => {
+      calls.push(options);
+      return {status: "ok"};
+    },
+    now: () => 5678,
+    stdout: (line) => output.push(line),
+  });
+  assert.equal(code, 0);
+  assert.equal(output.length, 0);
+  assert.deepEqual(calls, [{
+    ttlMs: 300000,
+    refresh: false,
+    statusPath: undefined,
+    nowMs: 5678,
+  }]);
 });
 
 test("cli help, usage errors, and quiet status smoke", async (t) => {

@@ -16,7 +16,7 @@ export function parseFixtureLocalResourceUrlToken(rawToken) {
     rawToken.length - withoutLeadingPunctuation.length,
   );
   const resourceUrl = withoutLeadingPunctuation.replace(
-    /["'`;,\)\].:!?|]+$/,
+    /["'`;,)\].:!?|]+$/,
     "",
   );
   const trailingText = withoutLeadingPunctuation.slice(resourceUrl.length);

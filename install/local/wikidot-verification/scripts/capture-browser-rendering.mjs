@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import {createRequire} from "node:module";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -10,11 +9,16 @@ import {startCaptureEgressProxy} from "../src/capture-egress-proxy.mjs";
 import {
   DEFAULT_REQUEST_INTERVAL_MS,
   acquireBrowserCaptureLock,
-  createBrowserResponseCache,
   createPersistentBrowserRequestGate,
-  installBrowserRequestGate,
   localBrowserCaptureOrigins,
 } from "../src/browser-request-gate.mjs";
+import {
+  browserContextOptions,
+  defaultBrowserRoot,
+  loadPlaywright,
+  openBrowser,
+  resolveStorageStates,
+} from "../src/browser-session.mjs";
 import {
   buildEvidenceRecord,
   readJson,
@@ -31,7 +35,6 @@ const DEFAULT_SETTLE_MS = 1_000;
 const POST_NAVIGATION_STATE_TIMEOUT_MS = 2_000;
 const VISIBLE_TEXT_SCOPES = new Set(["all-frames", "main-frame"]);
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 
 function nextArg(argv, index, flag) {
   const value = argv[index + 1];
@@ -53,7 +56,7 @@ function parseArgs(argv) {
     visibleTextScope: "all-frames",
   };
 
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--inventory") {
       args.inventory = path.resolve(nextArg(argv, index, arg));
@@ -131,7 +134,7 @@ function parseArgs(argv) {
     } else if (arg === "--json") {
       args.jsonOnly = true;
     } else if (arg === "--help") {
-      printHelpAndExit();
+      return {help: true};
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -142,179 +145,28 @@ function parseArgs(argv) {
   return args;
 }
 
-function printHelpAndExit() {
+function printHelp() {
   console.log(`Usage: capture-browser-rendering.mjs --inventory FILE --output-dir DIR [--shard-manifest FILE --shard-id ID] [--fixture-id ID ...] [--limit N] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--storage-state FILE | --source-storage-state FILE --local-storage-state FILE] [--actor-label LABEL] [--local-url-field local_https_url] [--timeout-ms 900000] [--settle-ms 1000] [--visible-text-scope all-frames|main-frame] [--ignore-https-errors] [--no-screenshot] [--json]
 
 Writes validator-compatible browser rendering evidence JSON plus DOM/screenshot artifacts for selected corpus inventory rows. The output directory should live under one of the render validator evidence roots, for example:
 
   $OUT/validation/browser-rendering/en-0001
 `);
-  process.exit(0);
 }
 
-export function defaultBrowserRoot() {
-  return path.resolve(SCRIPT_DIR, "../../../..", "framerail");
-}
-
-function requirePlaywright(browserRoot) {
-  const root = browserRoot ?? defaultBrowserRoot();
-  const requireFromRoot = createRequire(path.join(root, "package.json"));
-  try {
-    return requireFromRoot("playwright");
-  } catch (error) {
-    try {
-      return requireFromRoot("@playwright/test");
-    } catch (fallbackError) {
-      throw new AggregateError(
-        [error, fallbackError],
-        `could not load playwright or @playwright/test from ${root}; pass --browser-root pointing at a package with Playwright installed`,
-      );
-    }
+export function browserCaptureFailure(captureError, cleanupError) {
+  if (captureError !== null && cleanupError !== null) {
+    return new AggregateError([captureError, cleanupError], "browser capture and cleanup both failed");
   }
+  return captureError ?? cleanupError;
 }
 
-export function resolveStorageStates({storageState = null, sourceStorageState = null, localStorageState = null}) {
-  return {
-    sourceStorageState: sourceStorageState ?? storageState ?? null,
-    localStorageState: localStorageState ?? storageState ?? null,
-  };
-}
-
-export function browserContextOptions({ignoreHttpsErrors, storageState = null, proxyServer = null, blockServiceWorkers = false}) {
-  return {
-    ignoreHTTPSErrors: ignoreHttpsErrors,
-    ...(blockServiceWorkers ? {serviceWorkers: "block"} : {}),
-    ...(storageState ? {storageState} : {}),
-    ...(proxyServer ? {proxy: {server: proxyServer, bypass: "<-loopback>"}} : {}),
-  };
-}
-
-async function newContextPair({browser, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate = null, localOrigins = []}) {
-  let sourceContext = null;
-  let localContext = null;
-  const sourceResponseCache = requestGate ? createBrowserResponseCache() : null;
-  try {
-    sourceContext = await browser.newContext(
-      browserContextOptions({
-        ignoreHttpsErrors,
-        storageState: sourceStorageState,
-        proxyServer: sourceProxyServer,
-        blockServiceWorkers: Boolean(requestGate),
-      }),
-    );
-    if (requestGate) await installBrowserRequestGate(sourceContext, {gate: requestGate, responseCache: sourceResponseCache});
-    localContext = await browser.newContext(
-      browserContextOptions({
-        ignoreHttpsErrors,
-        storageState: localStorageState,
-        proxyServer: localProxyServer,
-        blockServiceWorkers: Boolean(requestGate),
-      }),
-    );
-    if (requestGate) await installBrowserRequestGate(localContext, {gate: requestGate, exemptOrigins: localOrigins});
-    return {sourceContext, localContext, sourceResponseCache};
-  } catch (error) {
-    if (localContext && localContext !== sourceContext) {
-      await localContext.close().catch(() => {});
-    }
-    if (sourceContext) {
-      await sourceContext.close().catch(() => {});
-    }
-    throw error;
-  }
-}
-
-async function closeContextPair({sourceContext, localContext}) {
-  if (localContext && localContext !== sourceContext) {
-    await localContext.close().catch(() => {});
-  }
-  if (sourceContext) {
-    await sourceContext.close().catch(() => {});
-  }
-}
-
-function browserSession({browser, sourceContext, localContext, sourceResponseCache, ignoreHttpsErrors, sourceStorageState, localStorageState, sourceProxyServer, localProxyServer, requestGate, localOrigins}) {
-  return {
-    browser,
-    context: sourceContext,
-    sourceContext,
-    localContext,
-    sourceResponseCache,
-    async newContextPair() {
-      return await newContextPair({
-        browser,
-        ignoreHttpsErrors,
-        sourceStorageState,
-        localStorageState,
-        sourceProxyServer,
-        localProxyServer,
-        requestGate,
-        localOrigins,
-      });
-    },
-    async close() {
-      await closeContextPair({sourceContext, localContext});
-      await browser.close().catch(() => {});
-    },
-  };
-}
-
-export async function openBrowser({
-  chromium,
-  cdpEndpoint,
-  browserExecutable,
-  ignoreHttpsErrors,
-  storageState = null,
-  sourceStorageState = null,
-  localStorageState = null,
-  createInitialContexts = true,
-  sourceProxyServer = null,
-  localProxyServer = null,
-  requestGate = null,
-  localOrigins = [],
-}) {
-  const resolvedStates = resolveStorageStates({storageState, sourceStorageState, localStorageState});
-  let browser = null;
-  if (cdpEndpoint) {
-    if (sourceProxyServer || localProxyServer) throw new Error("CDP capture cannot enforce the owned egress proxy");
-    browser = await chromium.connectOverCDP(cdpEndpoint);
-  } else {
-    browser = await chromium.launch({
-      executablePath: browserExecutable,
-    });
-  }
-
-  try {
-    const contexts = createInitialContexts
-      ? await newContextPair({
-          browser,
-          ignoreHttpsErrors,
-          sourceStorageState: resolvedStates.sourceStorageState,
-          localStorageState: resolvedStates.localStorageState,
-          sourceProxyServer,
-          localProxyServer,
-          requestGate,
-          localOrigins,
-        })
-      : {sourceContext: null, localContext: null};
-    return browserSession({
-      browser,
-      ...contexts,
-      ignoreHttpsErrors,
-      sourceStorageState: resolvedStates.sourceStorageState,
-      localStorageState: resolvedStates.localStorageState,
-      sourceProxyServer,
-      localProxyServer,
-      requestGate,
-      localOrigins,
-    });
-  } catch (error) {
-    if (browser) {
-      await browser.close().catch(() => {});
-    }
-    throw error;
-  }
-}
+export {
+  browserContextOptions,
+  defaultBrowserRoot,
+  openBrowser,
+  resolveStorageStates,
+};
 
 async function collectVisibleText(page, visibleTextScope = "all-frames") {
   const frames =
@@ -501,7 +353,11 @@ async function writeExclusiveJson(filePath, value) {
 }
 
 async function run() {
-  const args = parseArgs(process.argv);
+  const args = parseArgs(process.argv.slice(2));
+  if (args.help) {
+    printHelp();
+    return 0;
+  }
   if (args.shardManifest && !args.shardId) {
     throw new Error("--shard-id is required when --shard-manifest is provided");
   }
@@ -533,7 +389,7 @@ async function run() {
       throw new Error(`invalid local capture URL for ${row.fixture_id}: ${error.message}`);
     }
   }))].sort();
-  const {chromium} = requirePlaywright(args.browserRoot);
+  const {chromium} = loadPlaywright(args.browserRoot);
   const runId = crypto.randomUUID();
   const captureLock = await acquireBrowserCaptureLock({runId});
   const requestGateConfigPath = path.join(args.outputDir, "request-gate-config.json");
@@ -543,6 +399,9 @@ async function run() {
   let requestGate = null;
   let requestGateReady = false;
   let gateStateConfirmed = false;
+  let captureError = null;
+  let captureExitCode;
+  let cleanupError = null;
   try {
     requestGate = await createPersistentBrowserRequestGate({
       statePath: captureLock.statePath,
@@ -672,9 +531,11 @@ async function run() {
     }
 
     const captureErrors = records.flatMap((record) => record.capture_errors ?? []);
-    return captureErrors.length === 0 ? 0 : 1;
+    captureExitCode = captureErrors.length === 0 ? 0 : 1;
+  } catch (error) {
+    captureError = error;
   } finally {
-    let cleanupError = requestGateReady ? null : new Error("browser request gate was not initialized; retaining the capture lock for operator review");
+    cleanupError = requestGateReady ? null : new Error("browser request gate was not initialized; retaining the capture lock for operator review");
     try {
       await browserSession?.close();
     } catch (error) {
@@ -705,8 +566,10 @@ async function run() {
         cleanupError ??= error;
       }
     }
-    if (cleanupError) throw cleanupError;
   }
+  const failure = browserCaptureFailure(captureError, cleanupError);
+  if (failure !== null) throw failure;
+  return captureExitCode;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === SCRIPT_PATH) {

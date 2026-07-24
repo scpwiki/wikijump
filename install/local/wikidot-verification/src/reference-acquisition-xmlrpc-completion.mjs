@@ -1,6 +1,6 @@
 import { types as utilTypes } from "node:util";
 
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import {
   buildReferenceAcquisitionWorkTarget,
   readReferenceAcquisitionAttemptReceipt,
@@ -31,7 +31,7 @@ const LAYER = "xmlrpc_page";
 const MEDIA_TYPE = "application/json";
 const SEMANTIC_VALIDATION_BATCH_SIZE = 4;
 
-function dataObject(value, expectedKeys, label) {
+function validateExactDataRecord(value, expectedKeys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -75,12 +75,12 @@ function dataObject(value, expectedKeys, label) {
 
 function snapshotReference(value, label) {
   return validateReferenceObject(
-    dataObject(value, ["algorithm", "bytes", "sha256"], label),
+    validateExactDataRecord(value, ["algorithm", "bytes", "sha256"], label),
   );
 }
 
 function ordinalRequest(value) {
-  const request = dataObject(value, ["ordinal"], "XML-RPC completion request");
+  const request = validateExactDataRecord(value, ["ordinal"], "XML-RPC completion request");
   if (!Number.isSafeInteger(request.ordinal) || request.ordinal < 0) {
     throw new Error("XML-RPC completion ordinal must be a safe integer");
   }
@@ -222,7 +222,7 @@ class WikidotXmlrpcCompletions {
 
   async #resolveOrdinal(ordinal) {
     const campaign = await this.#openCampaign();
-    const { request, target } = this.#target(campaign, ordinal);
+    const {request, target} = this.#target(campaign, ordinal);
     const resolved = await this.#completions.resolveAttemptReceipt(request);
     if (resolved === null) return null;
     return this.#semanticRecord(resolved, target, campaign);
@@ -239,7 +239,7 @@ class WikidotXmlrpcCompletions {
     );
     const ordinal = ordinalRequest(value);
     const campaign = await this.#openCampaign();
-    const { request, target } = this.#target(campaign, ordinal);
+    const {target} = this.#target(campaign, ordinal);
     const attempt = await readReferenceAcquisitionAttemptReceipt(
       this.#store,
       reference,

@@ -11,7 +11,7 @@ import {
   DEFAULT_WIKIJUMP_ORIGIN,
   buildThemeLocalizationE2EPlan,
 } from "../src/theme-localization-e2e.mjs";
-import {GUARDED_THEME_WIKIJUMP_RPC_URL, runGuardedThemeAction, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
+import {executeGuardedThemeAction, GUARDED_THEME_WIKIJUMP_RPC_URL, recoverGuardedThemeAction, validateThemeCdpEndpoint, writeExecutableThemePlan} from "../src/theme-localization-runner.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
@@ -29,7 +29,7 @@ export function parseArgs(argv) {
     tiers: [],
   };
 
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--translation-root") {
       args.translationRoot = path.resolve(nextArg(argv, index, arg));
@@ -123,7 +123,7 @@ New plans reserve codex-l10n:<run-id>-<tier>; recovery also accepts exact legacy
 The exact site allowlist is ${ALLOWED_SITE_SLUG}. Execute and recover require WIKIJUMP_THEME_RPC_URL=${GUARDED_THEME_WIKIJUMP_RPC_URL}. Credentials are accepted only through WIKIDOT_USERNAME, WIKIDOT_PASSWORD, WIKIJUMP_THEME_ADMIN_EMAIL, and WIKIJUMP_THEME_ADMIN_PASSWORD. Optional browser flags are --browser-root, --browser-executable or --cdp-endpoint, --wikidot-storage-state, --wikijump-storage-state, and --ignore-https-errors.`);
 }
 
-export async function run(argv = process.argv) {
+export async function run(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   if (args.help) {
     printHelp();
@@ -138,8 +138,9 @@ export async function run(argv = process.argv) {
     }
   }
   if (args.mode !== "dry-run" && plan.preflight?.status === "pass") {
-    await runGuardedThemeAction({
-      mode: args.mode, plan, ledgerPath: args.ledgerPath, resultPath: args.resultPath, artifactDir: args.artifactDir,
+    const runAction = args.mode === "recover" ? recoverGuardedThemeAction : executeGuardedThemeAction;
+    await runAction({
+      plan, ledgerPath: args.ledgerPath, resultPath: args.resultPath, artifactDir: args.artifactDir,
       dependencyOptions: {browserRoot: args.browserRoot, browserExecutable: args.browserExecutable, cdpEndpoint: args.cdpEndpoint, wikidotStorageState: args.wikidotStorageState, wikijumpStorageState: args.wikijumpStorageState, ignoreHttpsErrors: args.ignoreHttpsErrors},
     });
   }

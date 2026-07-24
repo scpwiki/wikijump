@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+import {runCliIfMain} from '../src/cli-entry.mjs';
+
 import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
 import { assertEmptyDbImportTarget } from '../src/corpus-import-empty-target.mjs';
 import {
@@ -110,7 +112,13 @@ function parseBooleanString(value, label) {
   throw new Error(`${label} must be true or false`);
 }
 
-function parseArgs(argv) {
+export function usage() {
+  return `Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--assume-empty-db-import] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url <postgres-url>] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Non-dry-run --assume-empty-db-import is disabled until its site-level empty-page guard and DB shell writes are atomic; dry-run accepts the flag for planning without probing or changing the target. RPC attachment materialization requires DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with non-secret S3 config from --attachment-s3-* options and all S3 config from S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Secrets are accepted only through environment variables so they do not enter process arguments. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`;
+}
+
+export function parseArgs(argv) {
   const args = {
     manifest: null,
     migration: path.resolve('deepwell/migrations/20260625104500_wikidot_corpus_import.sql'),
@@ -168,7 +176,6 @@ function parseArgs(argv) {
     else if (arg === '--user-id') args.userId = Number.parseInt(next(), 10);
     else if (arg === '--attachment-user-id') args.attachmentUserId = Number.parseInt(next(), 10);
     else if (arg === '--ip-address') args.ipAddress = next();
-    else if (arg === '--session-token') args.sessionToken = next();
     else if (arg === '--presign-host-alias') args.presignHostAlias.push(next());
     else if (arg === '--rpc-timeout-ms') args.rpcTimeoutMs = Number.parseInt(next(), 10);
     else if (arg === '--text-hash-command') args.textHashCommand = next();
@@ -193,18 +200,13 @@ function parseArgs(argv) {
     else if (arg === '--attachment-s3-endpoint') args.attachmentS3Endpoint = next();
     else if (arg === '--attachment-s3-bucket') args.attachmentS3Bucket = next();
     else if (arg === '--attachment-s3-access-key-id') args.attachmentS3AccessKeyId = next();
-    else if (arg === '--attachment-s3-secret-access-key') args.attachmentS3SecretAccessKey = next();
     else if (arg === '--attachment-s3-region') args.attachmentS3Region = next();
     else if (arg === '--attachment-s3-path-style') args.attachmentS3PathStyle = parseBooleanString(next(), '--attachment-s3-path-style');
     else if (arg === '--dry-run') args.dryRun = true;
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
-    else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--assume-empty-db-import] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-secret-access-key <secret>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url postgres://wikijump:wikijump@127.0.0.1:5432/wikijump] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--session-token <token>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
-
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Non-dry-run --assume-empty-db-import is disabled until its site-level empty-page guard and DB shell writes are atomic; dry-run accepts the flag for planning without probing or changing the target. RPC attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN so Deepwell file_create has an authenticated request context. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with S3 config from --attachment-s3-* options or S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization without requiring a session token. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`);
-      process.exit(0);
-    } else {
+    else if (arg === '--help' || arg === '-h') return {help: true};
+    else {
       throw new Error(`unknown argument: ${arg}`);
     }
   }
@@ -1457,10 +1459,14 @@ async function rerenderParentLinkPages(args, sqlExecutor, selectedRows) {
   return { parent_link_parent_rerendered: rerendered };
 }
 
-async function main() {
+export async function main(argv) {
   const totalStartedAt = process.hrtime.bigint();
   const phaseTimingsMs = {};
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   const sqlExecutor = createSqlExecutor({ dbUrl: args.dbUrl, dbContainer: args.dbContainer });
   try {
     const manifestText = timePhaseSync(phaseTimingsMs, 'read_manifest', () => fs.readFileSync(args.manifest, 'utf8'));
@@ -1479,7 +1485,7 @@ async function main() {
         output.attachment_direct_plan = directAttachmentPlan.attachment_direct_plan;
       }
       console.log(JSON.stringify(output, null, 2));
-      return;
+      return 0;
     }
 
     timePhaseSync(phaseTimingsMs, 'precompute_db_text_hashes', () => precomputeDbTextHashes(args, selectedRows));
@@ -1557,13 +1563,15 @@ async function main() {
       await finishRun(args, sqlExecutor, importRunId, summary, finalState);
     }
     console.log(JSON.stringify({ summary }, null, 2));
-    if (finalState === 'failed') process.exitCode = 1;
+    return finalState === 'failed' ? 1 : 0;
   } finally {
     await sqlExecutor.close();
   }
 }
 
-main().catch((error) => {
-  console.error(error.stack || error.message);
-  process.exit(1);
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error.stack || error.message);
+    return 1;
+  },
 });

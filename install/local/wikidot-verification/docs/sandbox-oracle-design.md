@@ -34,7 +34,7 @@ allowlist, (2) the fixture corpus, and (3) the local-vs-frozen comparison wiring
   (shell-exportable, WIKIDOT_USERNAME and WIKIDOT_PASSWORD). Do not read, echo,
   or copy the values.
 - Authoring routes through the EXISTING helper
-  scripts/wikidot-theme-page-helper.py. Mechanics: source the env file, export
+  scripts/wikidot_theme_page_helper.py. Mechanics: source the env file, export
   the two vars, invoke the helper. The helper pops the vars from os.environ and
   its reject_secret_fields guard refuses any credential-shaped field passed
   anywhere other than the environment. Do not invent a new auth path.

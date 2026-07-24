@@ -160,21 +160,28 @@ export function mergeApplySummaries(summaries) {
 // Parse the stdout of one apply run: single-line JSON per-row action records,
 // followed by a pretty-printed {"summary": {...}} object (or a pretty-printed
 // {"dry_run": ...} object when --dry-run is used).
-export function parseApplyOutput(stdout) {
+export function parseApplyOutput(stdout, { requireTerminal = true } = {}) {
   const rows = [];
   let summary = null;
   let block = null;
+  const recordTerminal = (parsed) => {
+    const terminal = parsed !== null && typeof parsed === 'object' && 'summary' in parsed
+      ? parsed.summary
+      : parsed !== null && typeof parsed === 'object' && 'dry_run' in parsed
+        ? parsed
+        : null;
+    if (terminal === null) return false;
+    if (summary !== null) throw new Error('apply output contains multiple terminal summaries');
+    summary = terminal;
+    return true;
+  };
   for (const line of stdout.split('\n')) {
     if (block !== null) {
       block.push(line);
       try {
         const parsed = JSON.parse(block.join('\n'));
         block = null;
-        if (parsed !== null && typeof parsed === 'object' && 'summary' in parsed) {
-          summary = parsed.summary;
-        } else if (parsed !== null && typeof parsed === 'object' && 'dry_run' in parsed) {
-          summary = parsed;
-        }
+        if (!recordTerminal(parsed)) throw new Error('apply output contains an unexpected multiline JSON object');
       } catch (error) {
         if (!(error instanceof SyntaxError)) throw error;
         // Block is still incomplete; keep accumulating lines.
@@ -185,15 +192,16 @@ export function parseApplyOutput(stdout) {
     if (!text.startsWith('{')) continue;
     try {
       const parsed = JSON.parse(text);
-      if (parsed !== null && typeof parsed === 'object' && 'summary' in parsed) {
-        summary = parsed.summary;
-      } else {
+      if (!recordTerminal(parsed)) {
         rows.push(parsed);
       }
-    } catch {
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) throw error;
       // Start of a pretty-printed multi-line object.
       block = [line];
     }
   }
+  if (block !== null) throw new Error('apply output ended with an incomplete JSON object');
+  if (requireTerminal && summary === null) throw new Error('apply output is missing its terminal summary');
   return { rows, summary };
 }

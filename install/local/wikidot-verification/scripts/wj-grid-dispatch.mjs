@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import {readFile} from "node:fs/promises";
+import {runCliIfMain} from "../src/cli-entry.mjs";
 
 import {
   buildTmuxAttachCommand,
@@ -7,7 +8,7 @@ import {
   dispatchGridAssignmentToTmux,
 } from "../src/tmux-dispatcher.mjs";
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = {
     command: null,
     sessionName: "wj-codex-grid",
@@ -59,7 +60,7 @@ function parseArgs(argv) {
   return args;
 }
 
-function usage() {
+export function usage() {
   return [
     "Usage:",
     "  node scripts/wj-grid-dispatch.mjs enqueue --state-root <dir> --campaign-id <id> --lane <n> --assignment <json> [--session wj-codex-grid] [--window 0] [--pane 0] [--dry-run]",
@@ -68,23 +69,23 @@ function usage() {
   ].join("\n");
 }
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
+export async function main(argv) {
+  const args = parseArgs(argv);
   if (args.help || !args.command) {
     console.log(usage());
-    return;
+    return 0;
   }
 
   if (args.command === "attach") {
     console.log(JSON.stringify({command: buildTmuxAttachCommand({sessionName: args.sessionName})}, null, 2));
-    return;
+    return 0;
   }
 
   if (args.command === "reset") {
     console.log(
       JSON.stringify({command: buildTmuxResetCommand({sessionName: args.sessionName, confirmReset: args.confirmReset})}, null, 2),
     );
-    return;
+    return 0;
   }
 
   if (args.command !== "enqueue") {
@@ -106,9 +107,7 @@ async function main() {
     dryRun: args.dryRun,
   });
   console.log(JSON.stringify(result, null, 2));
+  return 0;
 }
 
-main().catch((error) => {
-  console.error(error.stack ?? error.message);
-  process.exitCode = 1;
-});
+await runCliIfMain(import.meta.url, main);

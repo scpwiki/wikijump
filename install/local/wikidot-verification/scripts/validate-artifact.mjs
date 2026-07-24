@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import {validateArtifactDirectory, artifactValidatorExitCode} from "../src/artifact-validator.mjs";
+import {artifactValidatorExitCode, validateArtifactDirectory} from "../src/artifact-validator.mjs";
+import {runCliIfMain} from "../src/cli-entry.mjs";
 
-function usage() {
+export function usage() {
   return [
     "Usage: node scripts/validate-artifact.mjs <artifact-root> [options]",
     "",
@@ -23,7 +24,7 @@ function readOptionValue(argv, index, optionName) {
   return value;
 }
 
-function parseArguments(argv) {
+export function parseArguments(argv) {
   const options = {
     artifactRoot: null,
     kind: "auto",
@@ -48,11 +49,7 @@ function parseArguments(argv) {
       continue;
     }
     if (argument === "--expected-assignment-id") {
-      options.expectedAssignmentId = readOptionValue(
-        argv,
-        index,
-        "--expected-assignment-id",
-      );
+      options.expectedAssignmentId = readOptionValue(argv, index, "--expected-assignment-id");
       index += 1;
       continue;
     }
@@ -83,18 +80,26 @@ function parseArguments(argv) {
   return {help: false, options};
 }
 
-try {
-  const {help, options} = parseArguments(process.argv.slice(2));
-  if (help) {
-    console.log(usage());
-    process.exit(0);
+export async function main(argv, {
+  validate = validateArtifactDirectory,
+  exitCode = artifactValidatorExitCode,
+  stdout = console.log,
+  stderr = console.error,
+} = {}) {
+  try {
+    const {help, options} = parseArguments(argv);
+    if (help) {
+      stdout(usage());
+      return 0;
+    }
+    const report = await validate(options);
+    stdout(JSON.stringify(report, null, 2));
+    return exitCode(report);
+  } catch (error) {
+    stderr(error.message);
+    stderr(usage());
+    return 1;
   }
-
-  const report = await validateArtifactDirectory(options);
-  console.log(JSON.stringify(report, null, 2));
-  process.exit(artifactValidatorExitCode(report));
-} catch (error) {
-  console.error(error.message);
-  console.error(usage());
-  process.exit(1);
 }
+
+await runCliIfMain(import.meta.url, main);

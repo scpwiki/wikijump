@@ -19,13 +19,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import {runCliIfMain} from '../src/cli-entry.mjs';
+
 import {
   aggregateCompareVerdict,
   comparePair,
   DEFAULT_CHANNELS,
 } from '../src/render-compare.mjs';
 
-function parseArgs(argv) {
+export function usage() {
+  return 'Usage: compare-render-evidence.mjs --pairs <catalog.json> --output-dir <dir> ' +
+    '[--mode frozen|records] [--records <records.json>] [--ledger <ledger.jsonl>] ' +
+    '[--run-id id] [--channel name=on|off ...]';
+}
+
+export function parseArgs(argv) {
   const args = {
     pairs: null,
     outputDir: null,
@@ -35,7 +43,7 @@ function parseArgs(argv) {
     runId: `v3-${new Date().toISOString().replace(/[:.]/g, '-')}`,
     channels: {},
   };
-  for (let i = 2; i < argv.length; i += 1) {
+  for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => argv[++i];
     if (arg === '--pairs') args.pairs = next();
@@ -49,12 +57,7 @@ function parseArgs(argv) {
       if (!(name in DEFAULT_CHANNELS)) throw new Error(`Unknown normalization channel: ${name}`);
       args.channels[name] = state !== 'off';
     } else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: compare-render-evidence.mjs --pairs <catalog.json> --output-dir <dir> ' +
-          '[--mode frozen|records] [--records <records.json>] [--ledger <ledger.jsonl>] ' +
-          '[--run-id id] [--channel name=on|off ...]',
-      );
-      process.exit(0);
+      return {help: true};
     } else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!args.pairs) throw new Error('--pairs is required');
@@ -96,8 +99,12 @@ function frozenRecordFor(pair, catalogDir) {
   return recordsByFixture(records).get(pair.fixture_id) ?? null;
 }
 
-function main() {
-  const args = parseArgs(process.argv);
+export function main(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   const catalog = JSON.parse(fs.readFileSync(args.pairs, 'utf8'));
   const ledger = loadLedger(args.ledger);
   const freshRecords =
@@ -156,12 +163,12 @@ function main() {
     ),
   );
   // Skipped pairs are structural: the catalog promised evidence we could not read.
-  process.exit(skipped.length > 0 ? 2 : exitCode);
+  return skipped.length > 0 ? 2 : exitCode;
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error);
-  process.exit(2);
-}
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error);
+    return 2;
+  },
+});

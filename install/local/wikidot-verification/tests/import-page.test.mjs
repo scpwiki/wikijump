@@ -7,6 +7,7 @@ import http from 'node:http';
 import { test } from 'node:test';
 import {fileURLToPath} from 'node:url';
 
+import {parseArgs as parseImportPageArgs, usage as importPageUsage} from '../scripts/import-page.mjs';
 import {
   batchSlugs,
   buildApplyInvocation,
@@ -19,6 +20,48 @@ import {
   slugFromDependencyLabel,
   validateRpcUrl,
 } from '../src/import-page.mjs';
+
+test('import-page CLI derives fail-closed defaults without running imports', () => {
+  assert.deepEqual(parseImportPageArgs([
+    '--slug', 'scp-2000',
+    '--corpus-root', '/tmp/corpus',
+    '--output-dir', '/tmp/output',
+    '--branch', 'en',
+    '--site', 'scp-wiki',
+    '--batch-size', '2',
+    '--max-depth', '3',
+    '--adopt-existing',
+    '--skip-health',
+    '--dry-run',
+  ], {}), {
+    slugs: ['scp-2000'],
+    corpusRoot: '/tmp/corpus',
+    inventory: null,
+    outputDir: '/tmp/output',
+    branch: 'en',
+    family: 'EN',
+    site: 'scp-wiki',
+    siteId: null,
+    sourceSite: 'scp-wiki',
+    sourceBranch: 'en',
+    host: 'scp-wiki.wikijump.localhost',
+    rpcUrl: 'http://127.0.0.1:2747/jsonrpc',
+    sessionToken: null,
+    dbContainer: null,
+    attachmentUserId: '-1',
+    batchSize: 2,
+    maxDepth: 3,
+    adoptExisting: true,
+    skipHealth: true,
+    dryRun: true,
+  });
+  assert.deepEqual(parseImportPageArgs(['--help'], {}), {help: true});
+  assert.match(importPageUsage(), /--skip-health/u);
+  assert.throws(
+    () => parseImportPageArgs(['--slug', 'scp-2000', '--output-dir', '/tmp/output'], {}),
+    /--corpus-root is required/u,
+  );
+});
 
 test('corpusPageStatus classifies ok, missing, and incomplete pages', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'import-page-'));
@@ -299,4 +342,23 @@ test('parseApplyOutput handles pretty dry-run output', () => {
   const parsed = parseApplyOutput(stdout);
   assert.deepEqual(parsed.rows, []);
   assert.deepEqual(parsed.summary, { dry_run: true, selected_rows: 3 });
+});
+
+test('parseApplyOutput rejects truncated, missing, and duplicate terminal summaries', () => {
+  assert.throws(
+    () => parseApplyOutput('{\n  "summary": {\n    "created": 1'),
+    /incomplete JSON object/,
+  );
+  assert.throws(
+    () => parseApplyOutput('{"slug":"scp-2000","action":"created"}'),
+    /missing its terminal summary/,
+  );
+  assert.throws(
+    () => parseApplyOutput('{"summary":{"created":1}}\n{"dry_run":true,"selected_rows":1}'),
+    /multiple terminal summaries/,
+  );
+  assert.deepEqual(
+    parseApplyOutput('{"slug":"scp-2000","action":"failed"}', {requireTerminal: false}),
+    {rows: [{slug: 'scp-2000', action: 'failed'}], summary: null},
+  );
 });

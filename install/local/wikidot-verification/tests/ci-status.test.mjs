@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {fileURLToPath} from "node:url";
+import {main as runCiStatusCli, parseArgs as parseCiStatusArgs, usage as ciStatusUsage} from "../scripts/ci-status.mjs";
 import {collectCiStatus, redactText} from "../src/ci-status.mjs";
 
 const PACKAGE_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -188,6 +189,55 @@ test("redactText removes secret assignments and URL userinfo and caps output", (
   assert.match(output, /TOKEN=\[redacted\]/);
   assert.match(output, /SECRET_KEY=\[redacted\]/);
   assert.equal(redactText("x".repeat(600)).length, 500);
+});
+
+test("CI status CLI exposes subject parsing and failing exit policy", async () => {
+  assert.deepEqual(parseCiStatusArgs([
+    "--pr", "331",
+    "--repo", "Rokurolize/wikijump",
+    "--ttl", "40",
+    "--completed-ttl", "400",
+    "--refresh",
+    "--json",
+    "--quiet",
+    "--status", "/tmp/ci.json",
+    "--fail-on-failing",
+  ]), {
+    help: false,
+    options: {
+      repo: "Rokurolize/wikijump",
+      subject: {kind: "pr", prNumber: 331},
+      ttlMs: 40,
+      completedTtlMs: 400,
+      refresh: true,
+      quiet: true,
+      statusPath: "/tmp/ci.json",
+      failOnFailing: true,
+    },
+  });
+  assert.match(ciStatusUsage(), /read-only/u);
+
+  const calls = [];
+  const output = [];
+  const code = await runCiStatusCli(["--sha", SHA_X, "--quiet", "--fail-on-failing"], {
+    collectStatus: async (options) => {
+      calls.push(options);
+      return {overall: "failing"};
+    },
+    now: () => 9876,
+    stdout: (line) => output.push(line),
+  });
+  assert.equal(code, 4);
+  assert.equal(output.length, 0);
+  assert.deepEqual(calls, [{
+    repo: "Rokurolize/wikijump",
+    subject: {kind: "sha", sha: SHA_X},
+    ttlMs: 30000,
+    completedTtlMs: 300000,
+    refresh: false,
+    statusPath: undefined,
+    nowMs: 9876,
+  }]);
 });
 
 test("cli help and subject usage errors do not run gh", () => {

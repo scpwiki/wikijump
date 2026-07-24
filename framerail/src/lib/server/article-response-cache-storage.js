@@ -113,7 +113,9 @@ export const readCachedArticleResponseEntry = async (store, key) => {
 }
 
 export const readCachedArticleResponse = async (store, key) => {
-  return deserializeCachedArticleResponse(await readCachedArticleResponseEntry(store, key))
+  return deserializeCachedArticleResponse(
+    await readCachedArticleResponseEntry(store, key)
+  )
 }
 
 export const writeCachedArticleResponse = async (

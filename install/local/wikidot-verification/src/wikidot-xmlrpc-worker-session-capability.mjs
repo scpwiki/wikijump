@@ -1,6 +1,6 @@
 import { types as utilTypes } from "node:util";
 
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 
 const CLIENT_OPTION_KEYS = Object.freeze([
   "captureTimeoutMs",

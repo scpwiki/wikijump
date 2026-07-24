@@ -112,18 +112,12 @@ test("reads the frame-policy environment at call time", () => {
   try {
     process.env.FRAMERAIL_ENV = "local"
     const localResponse = new Response("")
-    applyStaticSecurityHeaders(
-      localResponse,
-      "/-/wikidot-interwiki/styleFrame.html"
-    )
+    applyStaticSecurityHeaders(localResponse, "/-/wikidot-interwiki/styleFrame.html")
     assert.equal(localResponse.headers.get("x-frame-options"), "SAMEORIGIN")
 
     process.env.FRAMERAIL_ENV = "prod"
     const productionResponse = new Response("")
-    applyStaticSecurityHeaders(
-      productionResponse,
-      "/-/wikidot-interwiki/styleFrame.html"
-    )
+    applyStaticSecurityHeaders(productionResponse, "/-/wikidot-interwiki/styleFrame.html")
     assert.equal(productionResponse.headers.get("x-frame-options"), "DENY")
   } finally {
     if (previousFramerailEnvironment === undefined) delete process.env.FRAMERAIL_ENV

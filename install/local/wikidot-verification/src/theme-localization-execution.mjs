@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import {stableStringify} from "./canonical-json.mjs";
 import {
   ALLOWED_SITE_SLUG,
   LEGACY_RUN_OWNED_SLUG_PREFIX,
@@ -32,8 +33,8 @@ async function syncParentDirectory(filePath) {
   }
 }
 
-function same(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
+function canonicalJsonEqual(left, right) {
+  return stableStringify(left) === stableStringify(right);
 }
 
 function canonicalJson(value) {
@@ -65,7 +66,7 @@ function stableExecutionContract(plan, {allowLegacy = false} = {}) {
       throw new Error(`tier has invalid run-owned tags: ${tier.id}`);
     }
     const expectedChain = [...configuredTier.current_site_dependency_chain];
-    if (!same(tier.current_site_dependency_chain ?? [], expectedChain)) throw new Error(`tier has invalid current-site dependency chain: ${tier.id}`);
+    if (!canonicalJsonEqual(tier.current_site_dependency_chain ?? [], expectedChain)) throw new Error(`tier has invalid current-site dependency chain: ${tier.id}`);
     for (const slug of expectedChain) if (!expectedDependencySlugs.includes(slug)) expectedDependencySlugs.push(slug);
     for (const target of tier.targets) {
       if (!new Set(["wikidot", "wikijump"]).has(target.id)) {
@@ -92,7 +93,7 @@ function stableExecutionContract(plan, {allowLegacy = false} = {}) {
     }
   }
 
-  if (!same((plan.current_site_dependencies ?? []).map((dependency) => dependency.slug), expectedDependencySlugs)) {
+  if (!canonicalJsonEqual((plan.current_site_dependencies ?? []).map((dependency) => dependency.slug), expectedDependencySlugs)) {
     throw new Error("theme localization plan has an invalid current-site dependency order");
   }
   for (const dependency of plan.current_site_dependencies ?? []) {
@@ -100,7 +101,7 @@ function stableExecutionContract(plan, {allowLegacy = false} = {}) {
     if (!definition) throw new Error(`unknown current-site dependency: ${dependency.slug}`);
     const consumers = plan.tiers.filter((tier) => tier.current_site_dependency_chain.includes(dependency.slug)).map((tier) => tier.id);
     const preflight = plan.tiers.flatMap((tier) => tier.preflight.dependency_files?.current_site ?? []).find((candidate) => candidate.name === dependency.slug);
-    if (!same(dependency.consumers, consumers) || preflight?.status !== "pass" || dependency.source_path !== preflight.absolute_path || dependency.accepted_source_sha256 !== definition.accepted_source_sha256 || dependency.source_sha256 !== definition.materialized_source_sha256 || !same(dependency.source_transform, definition.source_transform)) {
+    if (!canonicalJsonEqual(dependency.consumers, consumers) || preflight?.status !== "pass" || dependency.source_path !== preflight.absolute_path || dependency.accepted_source_sha256 !== definition.accepted_source_sha256 || dependency.source_sha256 !== definition.materialized_source_sha256 || !canonicalJsonEqual(dependency.source_transform, definition.source_transform)) {
       throw new Error(`current-site dependency did not pass its exact source contract: ${dependency.slug}`);
     }
     const ownershipToken = currentSiteDependencyOwnershipToken(plan.run.id, dependency.slug);
@@ -121,7 +122,7 @@ function stableExecutionContract(plan, {allowLegacy = false} = {}) {
       ownership_token: ownershipToken,
       tags: [`codex-l10n-owner-${ownershipToken}`, "component"],
     };
-    if (!same(dependency.reference, expectedReference) || !same(dependency.candidate, expectedCandidate)) throw new Error(`current-site dependency target contract is invalid: ${dependency.slug}`);
+    if (!canonicalJsonEqual(dependency.reference, expectedReference) || !canonicalJsonEqual(dependency.candidate, expectedCandidate)) throw new Error(`current-site dependency target contract is invalid: ${dependency.slug}`);
     prerequisites.push({...expectedReference, slug: dependency.slug, source_sha256: dependency.source_sha256});
     resources.push({
       ...expectedCandidate,
@@ -329,7 +330,7 @@ function matchesExpected(actual, state, remoteSourceSha256) {
   if (state.identity === undefined || state.identity === null) return false;
   if (actual.source_sha256 !== remoteSourceSha256) return false;
   if (actual.title !== state.expected.title) return false;
-  if (!same(actual.tags, state.expected.tags)) return false;
+  if (!canonicalJsonEqual(actual.tags, state.expected.tags)) return false;
   return actual.identity === state.identity;
 }
 
@@ -399,7 +400,7 @@ export async function executeThemeRunOwnedPages({plan, ledgerPath, adapters, mat
   throwIfAborted(signal);
   for (const prerequisite of prerequisites) {
     const actual = await adapterFor(adapters, prerequisite).inspect(prerequisite);
-    if (actual === null || actual.title !== prerequisite.title || actual.source_sha256 !== prerequisite.source_sha256 || !same(actual.tags, prerequisite.tags)) {
+    if (actual === null || actual.title !== prerequisite.title || actual.source_sha256 !== prerequisite.source_sha256 || !canonicalJsonEqual(actual.tags, prerequisite.tags)) {
       throw new Error(`reference prerequisite mismatch: ${prerequisite.resource_id}`);
     }
     throwIfAborted(signal);
@@ -457,7 +458,7 @@ export async function recoverThemeExecution({ledgerPath, plan, adapters, now}) {
   validateRecoverableThemeExecutionPlan(plan);
   const {prerequisites, resources} = stableExecutionContract(plan, {allowLegacy: true});
   const ledger = await ThemeExecutionLedger.load(ledgerPath, {now});
-  if (ledger.header.run_id !== plan.run.id || ledger.header.fingerprint !== themeExecutionFingerprint(plan, {allowLegacy: true}) || !same(ledger.header.prerequisites, prerequisites) || !same(ledger.header.resources, resources)) {
+  if (ledger.header.run_id !== plan.run.id || ledger.header.fingerprint !== themeExecutionFingerprint(plan, {allowLegacy: true}) || !canonicalJsonEqual(ledger.header.prerequisites, prerequisites) || !canonicalJsonEqual(ledger.header.resources, resources)) {
     throw new Error("execution ledger does not match the requested plan");
   }
   await cleanupThemeExecution({ledger, adapters});

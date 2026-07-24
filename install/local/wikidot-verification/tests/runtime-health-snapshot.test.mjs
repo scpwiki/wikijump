@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {fileURLToPath} from "node:url";
+import {main as runRuntimeHealthCli, parseArgs as parseRuntimeHealthArgs, usage as runtimeHealthUsage} from "../scripts/runtime-health-snapshot.mjs";
 import {buildFingerprint, collectRuntimeHealthSnapshot, parseDockerContainers, redact} from "../src/runtime-health-snapshot.mjs";
 
 const PACKAGE_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -22,7 +23,7 @@ function goodRuntimeUrls() {
     {name: "deepwell", kind: "http", target: "http://127.0.0.1:2747/jsonrpc", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
     {name: "framerail", kind: "http", target: "http://127.0.0.1:3393/", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
     {name: "wws", kind: "http", target: "http://127.0.0.1:3466/-/health-check", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
-    {name: "caddy", kind: "http", target: "https://localhost/-/health-check/caddy", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
+    {name: "caddy", kind: "http", target: "https://wikijump.localhost/-/health-check/caddy", available: true, statusCode: 200, elapsedMs: 1, errorExcerpt: null},
     {name: "minio", kind: "tcp", target: "127.0.0.1:9000", available: true, elapsedMs: 1, errorExcerpt: null},
   ];
 }
@@ -260,6 +261,52 @@ test("degraded snapshot is still valid JSON with first failure", async (t) => {
   assert.equal(snapshot.status, "degraded");
   assert.ok(snapshot.firstFailureExcerpt);
   assert.equal(JSON.parse(readFileSync(snapshotPath, "utf8")).status, "degraded");
+});
+
+test("runtime health CLI exposes parsing and orchestration without process side effects", async () => {
+  assert.deepEqual(parseRuntimeHealthArgs([
+    "--ttl", "42",
+    "--refresh",
+    "--json",
+    "--quiet",
+    "--snapshot", "/tmp/runtime.json",
+    "--project", "wikijump",
+    "--db-container", "database",
+    "--fail-on-degraded",
+  ]), {
+    help: false,
+    options: {
+      ttlMs: 42,
+      refresh: true,
+      quiet: true,
+      snapshotPath: "/tmp/runtime.json",
+      project: "wikijump",
+      dbContainer: "database",
+      failOnDegraded: true,
+    },
+  });
+  assert.match(runtimeHealthUsage(), /--fail-on-degraded/u);
+
+  const calls = [];
+  const output = [];
+  const code = await runRuntimeHealthCli(["--quiet", "--fail-on-degraded"], {
+    collectSnapshot: async (options) => {
+      calls.push(options);
+      return {status: "degraded"};
+    },
+    now: () => 1234,
+    stdout: (line) => output.push(line),
+  });
+  assert.equal(code, 3);
+  assert.equal(output.length, 0);
+  assert.deepEqual(calls, [{
+    ttlMs: 30000,
+    refresh: false,
+    snapshotPath: undefined,
+    project: undefined,
+    dbContainer: undefined,
+    nowMs: 1234,
+  }]);
 });
 
 test("cli help, usage errors, and quiet snapshot smoke", async (t) => {

@@ -118,7 +118,7 @@ export async function materializeCorpusRowAttachments({ args, row, pageId, getFi
     return { attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0 };
   }
   if (!args.sessionToken) {
-    throw new Error(`${row.fullname}: attachment materialization requires --session-token or DEEPWELL_SESSION_TOKEN`);
+    throw new Error(`${row.fullname}: attachment materialization requires DEEPWELL_SESSION_TOKEN`);
   }
 
   let uploaded = 0;

@@ -247,7 +247,7 @@ async function createOrUpdatePreviewPage(client, siteId, sessionToken, preview, 
 
 function inferIncludes(source) {
   const includes = [];
-  const pattern = /\[\[include\s+([^\]\|\n]+)(?:[^\]]*)\]\]/gi;
+  const pattern = /\[\[include\s+([^\]|\n]+)(?:[^\]]*)\]\]/gi;
   for (const match of source.matchAll(pattern)) {
     includes.push(`include:${match[1].trim().replace(/\s+/g, "")}`);
   }

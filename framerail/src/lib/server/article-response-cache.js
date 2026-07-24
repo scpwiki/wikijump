@@ -3,9 +3,7 @@ import {
   sha256Hex,
   utf8Hex
 } from "./article-response-cache-shared.js"
-import {
-  readAnonymousArticleResponseCacheFences
-} from "./article-response-cache-fences.js"
+import { readAnonymousArticleResponseCacheFences } from "./article-response-cache-fences.js"
 import {
   readCachedArticleResponse,
   readCachedArticleResponseEntry,

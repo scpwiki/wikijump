@@ -1,6 +1,6 @@
 import { types as utilTypes } from "node:util";
 
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 
 export function exactDataRecord(value, expectedKeys, label) {
   if (value === null || typeof value !== "object" || Array.isArray(value) || utilTypes.isProxy(value)) {

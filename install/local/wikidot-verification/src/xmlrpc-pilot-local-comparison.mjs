@@ -2,7 +2,7 @@ import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import {
   LocalPageReadClient,
   LocalPageReadError,
@@ -18,7 +18,6 @@ import {
 import {
   openVerifiedXmlrpcPilotBundle,
   XMLRPC_EN_128_DESIGNATED_SOURCE,
-  XMLRPC_PILOT_MANIFEST_RECORD_SCHEMA,
 } from "./xmlrpc-pilot-local-comparison-bundle.mjs";
 
 export { LocalPageReadClient, LocalPageReadError } from "./local-page-read.mjs";
@@ -55,7 +54,7 @@ function sha256(value, label) {
   return value;
 }
 
-function same(left, right) {
+function canonicalJsonEqual(left, right) {
   return stableStringify(left) === stableStringify(right);
 }
 
@@ -277,7 +276,7 @@ function terminalSummary(records, expectedRows) {
     expected_ordinal_set_sha256: sha256Hex(stableStringify(expected)),
     observed_count: observed.length,
     observed_ordinal_set_sha256: sha256Hex(stableStringify(observed)),
-    terminal_set_equal: same(expected, observed),
+    terminal_set_equal: canonicalJsonEqual(expected, observed),
     status_counts: Object.freeze(statuses),
   });
 }
