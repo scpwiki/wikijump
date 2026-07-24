@@ -1,5 +1,9 @@
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { preloadView } from "$lib/server/deepwell/views"
+import {
+  getPreloadBackendLocales,
+  getPreloadRequestLocales
+} from "$lib/server/load/preload"
 
 const NOT_CONFIGURED_HEADERS = {
   "content-type": "text/plain; charset=utf-8"
@@ -20,7 +24,10 @@ export async function siteIconResponse(
   }) => string | null
 ): Promise<Response> {
   const { siteId } = loadSiteInfo(request.headers)
-  const preload = await preloadView(siteId, [], undefined)
+  // Deepwell rejects a preload with no locales, so this resolves them the same
+  // way an ordinary page request does rather than sending an empty list.
+  const locales = getPreloadBackendLocales(getPreloadRequestLocales(request))
+  const preload = await preloadView(siteId, locales, undefined)
   const source = select(preload?.site ?? { favicon_source: null, ios_icon_source: null })
 
   if (!source) {

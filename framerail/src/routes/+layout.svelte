@@ -133,6 +133,8 @@
   {#if siteFavicon}
     <link href={siteFavicon.href} rel="shortcut icon" />
     <link href={siteFavicon.href} rel="icon" type={siteFavicon.type} />
+  {:else}
+    <link href="data:," rel="icon" />
   {/if}
   {#if siteHasIosIcons}
     {#each IOS_ICON_DECLARATIONS as iosIcon (iosIcon.filename)}
