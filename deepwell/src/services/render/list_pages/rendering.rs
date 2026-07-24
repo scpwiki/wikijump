@@ -1010,6 +1010,7 @@ impl RenderService {
             authors,
             author_filter_present,
             order,
+            reverse,
             limit,
             count_pages_explicit_limit: _,
             count_pages_per_page,
@@ -1024,6 +1025,7 @@ impl RenderService {
             name_pattern,
             data_form_fields,
             prepend_line,
+            append_line,
             separate,
             wrapper,
             unsupported_author_filter: _,
@@ -1208,10 +1210,13 @@ impl RenderService {
             .skip(offset as usize)
             .collect::<Vec<_>>();
         let total_selected = selected_pages.len();
-        let pages = selected_pages
+        let mut pages = selected_pages
             .into_iter()
             .take(requested_limit as usize)
             .collect::<Vec<_>>();
+        if reverse {
+            pages.reverse();
+        }
         let total = pages.len();
         let body = template.body();
         if wants_content && !expansion_budget.can_expand_content_rows(total) {
@@ -1300,7 +1305,9 @@ impl RenderService {
             output.push_str("[[div class=\"list-pages-box\"]]\n");
         }
         let mut included_pages = Vec::new();
-        if let Some(prepend_line) = prepend_line {
+        if !pages.is_empty()
+            && let Some(prepend_line) = prepend_line
+        {
             output.push_str(&prepend_line);
             output.push('\n');
         }
@@ -1426,6 +1433,7 @@ impl RenderService {
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
                 ajax_module_response,
+                site: page_info.site.as_ref(),
                 category: page
                     .page_category_id
                     .and_then(|category_id| category_slugs.get(&category_id))
@@ -1445,7 +1453,7 @@ impl RenderService {
                 let body = substitute_list_pages_variables_with_fragments(
                     body,
                     page,
-                    index + 1,
+                    index + offset as usize + 1,
                     total,
                     &substitution_context,
                     &mut generated_fragments,
@@ -1463,6 +1471,13 @@ impl RenderService {
             } else {
                 output.push('\n');
             }
+        }
+
+        if !pages.is_empty()
+            && let Some(append_line) = append_line
+        {
+            output.push_str(&append_line);
+            output.push('\n');
         }
 
         if let Some(per_page) = count_pages_per_page {
@@ -1515,6 +1530,7 @@ impl RenderService {
             authors,
             author_filter_present,
             order,
+            reverse: _,
             limit,
             count_pages_explicit_limit,
             count_pages_per_page: _,
@@ -1528,6 +1544,7 @@ impl RenderService {
             slug,
             name_pattern,
             prepend_line: _,
+            append_line: _,
             data_form_fields,
             unsupported_author_filter: _,
             unsupported_score_filter: _,

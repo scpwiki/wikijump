@@ -1,7 +1,15 @@
 import { client } from "$lib/server/deepwell"
 import { Layout } from "$lib/types"
 
-import type { Nullable, Optional, PageCategoryModel, SiteModel } from "$lib/types"
+import type {
+  Nullable,
+  Optional,
+  PageCategoryModel,
+  PageRatingPermission,
+  PageRatingType,
+  PageRatingVisibility,
+  SiteModel
+} from "$lib/types"
 
 type SiteUpdateRequestContext = {
   sessionToken: string
@@ -69,6 +77,73 @@ export async function categoryTemplateUpdate(
       category: categoryId,
       user_id: userId,
       template_page_id: templatePageId,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
+export async function categoryRatingUpdate(
+  siteId: number,
+  categoryId: number,
+  userId: number,
+  userIpAddr: string,
+  enabled: Nullable<boolean>,
+  permission: Nullable<PageRatingPermission>,
+  visibility: Nullable<PageRatingVisibility>,
+  ratingType: Nullable<PageRatingType>,
+  requestContext: SiteUpdateRequestContext
+): Promise<PageCategoryModel> {
+  return client.request(
+    "category_update",
+    {
+      site: siteId,
+      category: categoryId,
+      user_id: userId,
+      rating_enabled: enabled,
+      rating_permission: permission,
+      rating_visibility: visibility,
+      rating_type: ratingType,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
+export async function categoryDiscussionUpdate(
+  siteId: number,
+  categoryId: number,
+  userId: number,
+  userIpAddr: string,
+  enabled: Nullable<boolean>,
+  requestContext: SiteUpdateRequestContext
+): Promise<PageCategoryModel> {
+  return client.request(
+    "category_update",
+    {
+      site: siteId,
+      category: categoryId,
+      user_id: userId,
+      per_page_discussion: enabled,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
+export async function siteForumNestingUpdate(
+  siteId: number,
+  userId: number,
+  userIpAddr: string,
+  maxNestLevel: number,
+  requestContext: SiteUpdateRequestContext
+): Promise<SiteModel> {
+  return client.request(
+    "site_update",
+    {
+      site: siteId,
+      user_id: userId,
+      forum_max_nest_level: maxNestLevel,
       ip_address: userIpAddr
     },
     requestContext

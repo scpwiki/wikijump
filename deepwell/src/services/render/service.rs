@@ -3608,9 +3608,15 @@ pub(super) fn format_wikidot_list_pages_date(
             Some('d') => output.push_str(&format!("{:02}", created_at.day())),
             Some('e') => output.push_str(&created_at.day().to_string()),
             Some('b') => output.push_str(month),
+            Some('m') => output.push_str(&format!("{:02}", created_at.month() as u8)),
             Some('Y') => output.push_str(&created_at.year().to_string()),
             Some('H') => output.push_str(&format!("{:02}", created_at.hour())),
             Some('M') => output.push_str(&format!("{:02}", created_at.minute())),
+            Some('R') => output.push_str(&format!(
+                "{:02}:{:02}",
+                created_at.hour(),
+                created_at.minute(),
+            )),
             Some('%') => output.push('%'),
             Some(other) => {
                 output.push('%');

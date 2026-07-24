@@ -26,6 +26,8 @@ enum ListPagesVariable {
     TitleLinked,
     Title,
     Slug,
+    FullSlug,
+    Link,
     CreatedBy,
     CreatedByLinked,
     CreatedAt,
@@ -38,6 +40,7 @@ enum ListPagesVariable {
     Comments,
     Tags,
     TagsLinked,
+    HiddenTagsLinked,
     RawTags,
     Category,
     EmptyCompatField,
@@ -53,9 +56,9 @@ impl ListPagesVariable {
         match name.to_ascii_lowercase().as_str() {
             "title_linked" | "linked_title" => Some(Self::TitleLinked),
             "title" => Some(Self::Title),
-            "name" | "slug" | "page_unix_name" | "fullname" | "full_slug" | "link" => {
-                Some(Self::Slug)
-            }
+            "name" | "slug" | "page_unix_name" => Some(Self::Slug),
+            "fullname" | "full_slug" => Some(Self::FullSlug),
+            "link" => Some(Self::Link),
             "created_by" | "createdby" => Some(Self::CreatedBy),
             "created_by_linked" | "createdbylinked" | "author" => {
                 Some(Self::CreatedByLinked)
@@ -64,7 +67,7 @@ impl ListPagesVariable {
             "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
                 Some(Self::UpdatedBy)
             }
-            "updated_at" | "updatedat" => Some(Self::UpdatedAt),
+            "updated_at" | "updatedat" | "date_edited" => Some(Self::UpdatedAt),
             "commented_by"
             | "commentedby"
             | "commented_by_linked"
@@ -75,6 +78,7 @@ impl ListPagesVariable {
             "comments" => Some(Self::Comments),
             "tags" => Some(Self::Tags),
             "tags_linked" | "tagslinked" => Some(Self::TagsLinked),
+            "_tags_linked" => Some(Self::HiddenTagsLinked),
             "_tags" => Some(Self::RawTags),
             "category" => Some(Self::Category),
             "parent_fullname" | "size" | "children" | "rating_percent" | "revisions" => {
@@ -244,6 +248,7 @@ fn found_page_fields(variables: ListPagesVariables) -> FoundPageFields {
         tags: variables.intersects(&[
             ListPagesVariable::Tags,
             ListPagesVariable::TagsLinked,
+            ListPagesVariable::HiddenTagsLinked,
             ListPagesVariable::RawTags,
         ]),
         updated_by: variables.contains(ListPagesVariable::UpdatedBy),
@@ -281,8 +286,8 @@ mod tests {
     #[test]
     fn compiles_aliases_into_field_and_dependency_requirements_once() {
         let body = concat!(
-            "%%createdbylinked%% %%date%% %%tagslinked%% %%updatedby%% ",
-            "%%updatedat%% %%ratingvotes%% %%comments%% %%commentedby%% ",
+            "%%createdbylinked%% %%date%% %%tagslinked%% %%_tags_linked%% %%updatedby%% ",
+            "%%updatedat%% %%date_edited%% %%ratingvotes%% %%comments%% %%commentedby%% ",
             "%%commentedat%% %%content%% %%form_raw{status}%%",
         );
         let plan = ListPagesTemplatePlan::compile(body).expect("aliases should compile");
@@ -362,6 +367,7 @@ mod tests {
             "updatedbylinked",
             "updated_at",
             "updatedat",
+            "date_edited",
             "commented_by",
             "commentedby",
             "commented_by_linked",
@@ -374,6 +380,7 @@ mod tests {
             "comments",
             "tags",
             "tags_linked",
+            "_tags_linked",
             "category",
             "tagslinked",
             "_tags",

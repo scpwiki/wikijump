@@ -1,6 +1,8 @@
 import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 
 const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"])
+const escapeHtml = (value) =>
+  value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
 
 /**
  * @typedef {object} WikidotPageActionLabels
@@ -24,6 +26,9 @@ const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"
  * @returns {boolean}
  */
 export const isWikidotFragmentPage = (tags) => tags?.includes("fragment") ?? false
+
+export const buildWikidotDiscussButtonHtml = (label) =>
+  `<a href="javascript:;" class="btn btn-default" id="discuss-button" onclick="WIKIDOT.page.listeners.createPageDiscussion(event)">${escapeHtml(label)}</a>`
 
 /**
  * @param {string | null | undefined} sourceSite

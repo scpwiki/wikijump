@@ -154,7 +154,7 @@ pub(in crate::services::render) struct BacklinksModulePage {
     pub(in crate::services::render) title: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) current_page_only: bool,
     pub(in crate::services::render) category_selector_present: bool,
@@ -169,6 +169,7 @@ pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) authors: Vec<Cow<'static, str>>,
     pub(in crate::services::render) author_filter_present: bool,
     pub(in crate::services::render) order: Option<OrderBySelector>,
+    pub(in crate::services::render) reverse: bool,
     pub(in crate::services::render) limit: Option<u64>,
     pub(in crate::services::render) count_pages_explicit_limit: Option<u64>,
     pub(in crate::services::render) count_pages_per_page: Option<u64>,
@@ -183,6 +184,7 @@ pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) name_pattern: Option<Cow<'static, str>>,
     pub(in crate::services::render) data_form_fields: Vec<DataFormSelector<'static>>,
     pub(in crate::services::render) prepend_line: Option<String>,
+    pub(in crate::services::render) append_line: Option<String>,
     pub(in crate::services::render) separate: bool,
     pub(in crate::services::render) wrapper: bool,
     pub(in crate::services::render) unsupported_author_filter: bool,
@@ -312,6 +314,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
 
     let mut category_all = true;
     let mut category_selector_present = false;
+    let mut category_argument_is_plural = None;
     let mut current_page_only = false;
     let mut include_current_category = false;
     let mut categories = Vec::new();
@@ -323,6 +326,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
     let mut authors = Vec::new();
     let mut author_filter_present = false;
     let mut order = None;
+    let mut reverse = false;
     let mut limit = None;
     let mut count_pages_explicit_limit = None;
     let mut count_pages_per_page = None;
@@ -341,6 +345,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
     let mut name_pattern = None;
     let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
+    let mut append_line = None;
     let mut separate = true;
     let mut wrapper = true;
     let mut unsupported_author_filter = false;
@@ -412,7 +417,14 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                     }
                 }
             }
-            "category" => {
+            "category" | "categories" => {
+                let is_plural = key == "categories";
+                if category_argument_is_plural
+                    .is_some_and(|previous| previous != is_plural)
+                {
+                    return None;
+                }
+                category_argument_is_plural.get_or_insert(is_plural);
                 category_selector_present = true;
                 let mut saw_included_category = false;
                 let Some(value) = static_list_pages_selector(
@@ -472,6 +484,9 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
             "prependline" | "prepend_line" => {
                 prepend_line = Some(value.to_owned());
             }
+            "appendline" => {
+                append_line = Some(value.to_owned());
+            }
             "order" => {
                 if value.is_empty() {
                     continue;
@@ -479,6 +494,10 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                 let value = list_pages_url_fallback(value).unwrap_or(value);
                 order = Some(parse_list_pages_order(value)?);
             }
+            "reverse" => match value.to_ascii_lowercase().as_str() {
+                "yes" => reverse = true,
+                _ => return None,
+            },
             "name" | "fullname" | "full_slug" | "fullslug" => {
                 let Some(value) = static_list_pages_selector(
                     value,
@@ -585,6 +604,10 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                 // out of FTML's generic module path, which otherwise panics on
                 // ListPages bodies that start with numbered-list markers.
             }
+            // Wikidot accepts these presentation arguments without applying them
+            // to the ListPages wrapper. Do not forward author-controlled values
+            // into generated markup.
+            "class" | "style" => {}
             _ if raw_key.starts_with('_') => {
                 let value = static_list_pages_selector(
                     value,
@@ -620,6 +643,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
         authors,
         author_filter_present,
         order,
+        reverse,
         limit,
         count_pages_explicit_limit,
         count_pages_per_page,
@@ -634,6 +658,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
         name_pattern,
         data_form_fields,
         prepend_line,
+        append_line,
         separate,
         wrapper,
         unsupported_author_filter,
@@ -1506,6 +1531,7 @@ pub(in crate::services::render) fn push_list_pages_pager_target(
 pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {
     pub(in crate::services::render) rendered_limit: usize,
     pub(in crate::services::render) ajax_module_response: bool,
+    pub(in crate::services::render) site: &'a str,
     pub(in crate::services::render) category: &'a str,
     pub(in crate::services::render) user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
     pub(in crate::services::render) snapshot_displays:
@@ -1526,6 +1552,13 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
     compat_html: &mut CompatHtmlFragments,
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
+    // Page-query rows already retain Wikidot's normalized full slug, including
+    // a non-default category prefix. Reconstructing it would duplicate that prefix.
+    let full_slug = slug.to_owned();
+    let link = format!(
+        "http://{}.wikidot.com/{full_slug}/noredirect/true",
+        context.site,
+    );
     let title = page.title.as_deref().unwrap_or(slug);
     let generated_wikitext_title = preserve_list_pages_generated_text_typography(title);
     let title_linked = if slug.is_empty() {
@@ -1598,6 +1631,11 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
         .filter(|tag| is_list_pages_visible_tag(tag))
         .cloned()
         .collect::<Vec<_>>();
+    let hidden_tags = tags
+        .iter()
+        .filter(|tag| is_list_pages_hidden_tag(tag))
+        .cloned()
+        .collect::<Vec<_>>();
     let tags_text = visible_tags.join(" ");
     let rating = format_list_pages_rating(page.score);
     // The frozen corpus predates vote-count capture. Keep this value typed as
@@ -1618,8 +1656,13 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                 "title_linked" => title_linked.clone(),
                 "linked_title" => title_linked.clone(),
                 "title" => generated_wikitext_title.clone(),
-                "name" | "slug" | "page_unix_name" | "fullname" | "full_slug"
-                | "link" => slug.to_owned(),
+                "name" | "slug" | "page_unix_name" => slug.to_owned(),
+                "fullname" | "full_slug" => full_slug.clone(),
+                "link" if !slug.is_empty() && !context.site.is_empty() => link.clone(),
+                "link" => captures
+                    .get(0)
+                    .map_or("", |matched| matched.as_str())
+                    .to_owned(),
                 "created_by" | "createdby" => created_by.clone(),
                 "created_by_linked" | "createdbylinked" | "author" => {
                     created_by_linked.clone()
@@ -1632,11 +1675,13 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                 "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
                     updated_by.clone()
                 }
-                "updated_at" | "updatedat" => format_list_pages_created_at(
-                    updated_at,
-                    captures.name("format").map(|matched| matched.as_str()),
-                    context.render_generated_html,
-                ),
+                "updated_at" | "updatedat" | "date_edited" => {
+                    format_list_pages_created_at(
+                        updated_at,
+                        captures.name("format").map(|matched| matched.as_str()),
+                        context.render_generated_html,
+                    )
+                }
                 "commented_by"
                 | "commentedby"
                 | "commented_by_linked"
@@ -1652,6 +1697,12 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                 "tags" => tags_text.clone(),
                 "tags_linked" | "tagslinked" => render_list_pages_tags(
                     &visible_tags,
+                    captures.name("format").map(|matched| matched.as_str()),
+                    context.render_generated_html,
+                    compat_html,
+                ),
+                "_tags_linked" => render_list_pages_tags(
+                    &hidden_tags,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                     compat_html,
@@ -1860,6 +1911,11 @@ pub(in crate::services::render) fn is_tag_cloud_visible_tag(tag: &str) -> bool {
 pub(in crate::services::render) fn is_list_pages_visible_tag(tag: &str) -> bool {
     let tag = tag.trim();
     !tag.is_empty() && !tag.starts_with('_')
+}
+
+pub(in crate::services::render) fn is_list_pages_hidden_tag(tag: &str) -> bool {
+    let tag = tag.trim();
+    !tag.is_empty() && tag.starts_with('_')
 }
 
 pub(in crate::services::render) fn render_list_pages_wikidot_user(

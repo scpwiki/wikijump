@@ -43,7 +43,7 @@ pub struct SiteService;
 
 const RESERVED_PLATFORM_HOSTNAME_SLUGS: &[&str] = &["acme", "dns", "ech"];
 
-const DEFAULT_FORUM_MAX_NEST_LEVEL: i16 = 10;
+#[allow(dead_code)] // TODO
 const DEFAULT_FORUM_PER_PAGE_DISCUSSION: bool = false;
 
 impl SiteService {
@@ -180,6 +180,17 @@ impl SiteService {
             .await
             .or_raise(|| Error::new("failed to update site data", ErrorType::Site))?;
 
+        if let Maybe::Set(max_nest_level) = input.forum_max_nest_level
+            && !(0..=10).contains(&max_nest_level)
+        {
+            bail!(Error::new(
+                format!(
+                    "forum max_nest_level must be between 0 and 10, got {max_nest_level}"
+                ),
+                ErrorType::BadRequest,
+            ));
+        }
+
         let mut model = site::ActiveModel {
             site_id: Set(site.site_id),
             ..Default::default()
@@ -231,6 +242,12 @@ impl SiteService {
             add_changed_field!(top_bar_page);
             add_changed_field!(side_bar_page);
             add_changed_field!(ref preferred_domain);
+
+            if let Maybe::Set(value) = input.forum_max_nest_level {
+                previous_fields.forum_max_nest_level =
+                    Maybe::Set(site.forum_max_nest_level);
+                changed_fields.forum_max_nest_level = Maybe::Set(value);
+            }
 
             if let Maybe::Set(layout) = input.layout {
                 let old_layout = site.layout.as_ref().map(|value| {
@@ -356,6 +373,10 @@ impl SiteService {
 
         if let Maybe::Set(license) = input.license {
             model.license = Set(license);
+        }
+
+        if let Maybe::Set(forum_max_nest_level) = input.forum_max_nest_level {
+            model.forum_max_nest_level = Set(forum_max_nest_level);
         }
 
         ctx.defer_public_content_cache_invalidate_site(site.site_id)
@@ -567,21 +588,21 @@ impl SiteService {
     }
 
     /// Gets site-wide forum settings.
-    ///
-    /// At present this is sourced from service defaults; the site row itself
-    /// does not yet carry dedicated forum configuration columns.
     pub async fn get_forum_settings(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<SiteForumSettings> {
-        let SiteModel { site_id, .. } =
-            Self::get(ctx, reference).await.or_raise(|| {
-                Error::new("failed to get site forum settings", ErrorType::Forum)
-            })?;
+        let SiteModel {
+            site_id,
+            forum_max_nest_level,
+            ..
+        } = Self::get(ctx, reference).await.or_raise(|| {
+            Error::new("failed to get site forum settings", ErrorType::Forum)
+        })?;
 
-        debug!("Using default forum settings for site ID {site_id}");
+        debug!("Using stored forum settings for site ID {site_id}");
         Ok(SiteForumSettings {
-            max_nest_level: DEFAULT_FORUM_MAX_NEST_LEVEL,
+            max_nest_level: forum_max_nest_level,
             per_page_discussion: DEFAULT_FORUM_PER_PAGE_DISCUSSION,
         })
     }

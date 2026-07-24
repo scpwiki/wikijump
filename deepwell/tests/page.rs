@@ -54,15 +54,16 @@ use deepwell::services::role::{
 };
 use deepwell::services::score::ScoreValue as QueryScoreValue;
 use deepwell::services::session::CreateSession;
+use deepwell::services::site::UpdateSiteBody;
 use deepwell::services::view::{GetArticleViewOutput, GetPageViewOutput};
 use deepwell::services::{
     FileRevisionService, ForumPostService, ForumService, ForumThreadService, LinkService,
     PageService, RenderService, RequestContext, SessionService, SettingsService,
-    TextService,
+    SiteService, TextService,
 };
 use deepwell::types::{
-    Action, ConnectionType, PageId, PageRevisionType, Permission, Reference, Resource,
-    TextBlockType,
+    Action, ConnectionType, Maybe, PageId, PageRevisionType, Permission, Reference,
+    Resource, TextBlockType,
 };
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, IntoActiveModel,
@@ -89,6 +90,22 @@ fn set_mutation_request_context(
         site_id: Some(site_id),
         page_reference: Some(page_reference),
     });
+}
+
+async fn set_stored_point_vote(runner: &TestRunner, page_id: i64, value: i16) {
+    let transaction = runner.context().transaction();
+    transaction
+        .execute(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (false, $1, $2, $3)",
+            [
+                Value::from(page_id),
+                Value::from(ADMIN_USER_ID),
+                Value::from(value),
+            ],
+        ))
+        .await
+        .expect("score fixture should receive its stored point vote");
 }
 
 async fn create_imported_breadcrumb_page(
@@ -465,6 +482,138 @@ async fn article_view_uses_category_license_and_site_fallback() {
         }),
     );
     assert_eq!(inherited.viewer.license_url, site.license.url());
+}
+
+#[tokio::test]
+async fn article_view_uses_effective_page_discussion_policy_and_stored_nesting() {
+    const SITE_SLUG: &str = "test";
+    const PAGE_SLUG: &str = "forum-policy:article";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded site should exist")
+        .site;
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site_id,
+        Reference::Slug(Cow::Borrowed(PAGE_SLUG)),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site_id,
+            "wikitext": "Page discussion policy fixture",
+            "title": "Page discussion policy fixture",
+            "alt_title": null,
+            "slug": PAGE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create discussion policy fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("page lookup should not fail")
+        .expect("created page should exist");
+
+    SiteService::update(
+        runner.context(),
+        Reference::Id(site.site_id),
+        UpdateSiteBody {
+            forum_max_nest_level: Maybe::Set(3),
+            ..Default::default()
+        },
+        ADMIN_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("forum nesting update should succeed");
+    assert_eq!(
+        SettingsService::get_forum_settings(runner.context(), site.site_id, None)
+            .await
+            .expect("stored forum settings should resolve")
+            .max_nest_level,
+        3
+    );
+    let invalid_nesting = SiteService::update(
+        runner.context(),
+        Reference::Id(site.site_id),
+        UpdateSiteBody {
+            forum_max_nest_level: Maybe::Set(11),
+            ..Default::default()
+        },
+        ADMIN_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect_err("forum nesting above ten must fail closed");
+    assert_contains_error!(invalid_nesting, ErrorType::BadRequest);
+
+    let default_category = CategoryService::get(
+        runner.context(),
+        site.site_id,
+        Reference::Slug(Cow::Borrowed("_default")),
+    )
+    .await
+    .expect("default category should exist");
+    let mut default_category = default_category.into_active_model();
+    default_category.per_page_discussion = Set(Some(true));
+    default_category
+        .update(runner.context().transaction())
+        .await
+        .expect("default discussion policy should update");
+
+    let inherited = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": PAGE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(matches!(
+        inherited.page,
+        GetPageViewOutput::Found {
+            page_discussion,
+            ..
+        } if page_discussion.enabled
+    ));
+
+    let category = PageCategoryTable::find_by_id(page.page_category_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("category lookup should not fail")
+        .expect("page category should exist");
+    let mut category = category.into_active_model();
+    category.per_page_discussion = Set(Some(false));
+    category
+        .update(runner.context().transaction())
+        .await
+        .expect("category discussion override should update");
+
+    let disabled = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": PAGE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    assert!(matches!(
+        disabled.page,
+        GetPageViewOutput::Found {
+            page_discussion,
+            ..
+        } if !page_discussion.enabled
+    ));
 }
 
 #[tokio::test]
@@ -2543,6 +2692,400 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     assert!(
         target_a < target_b && target_b < target_c,
         "target slugs should render in order a, b, c:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
+    const TAG: &str = "verification-listpages-presentation-noop";
+    const TARGET_SLUG: &str = "fixture-listpages-presentation-noop-target";
+    const INDEX_SLUG: &str = "fixture-listpages-presentation-noop-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Presentation No-op Target",
+        "Fixture ListPages presentation no-op target marker.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, TARGET_SLUG, target_revision, &[TAG])
+        .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Presentation No-op Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-presentation-noop\" limit=\"10\" ",
+            "class=\"g54-custom\" style=\"margin: 0; width: 100%;\"]]\n",
+            "* %%title%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains("Fixture ListPages Presentation No-op Target"),
+        "accepted ListPages presentation arguments should still render rows:\n{html}"
+    );
+    assert!(
+        html.contains(r#"<div class="list-pages-box">"#),
+        "the live fixed ListPages wrapper should remain present:\n{html}"
+    );
+    for forbidden in [
+        "g54-custom",
+        "margin: 0",
+        "width: 100%",
+        "[[module ListPages",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "ListPages class/style arguments must remain accepted no-ops, not forwarded output: {forbidden:?}\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_categories_alias_selects_only_default_category_rows() {
+    const TAG: &str = "verification-listpages-categories-alias";
+    const DEFAULT_SLUG: &str = "fixture-listpages-categories-alias-default";
+    const FOREIGN_SLUG: &str = "fragment:fixture-listpages-categories-alias-foreign";
+    const INDEX_SLUG: &str = "fixture-listpages-categories-alias-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let default_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        DEFAULT_SLUG,
+        "Fixture ListPages Categories Alias Default",
+        "Default-category ListPages alias target.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, DEFAULT_SLUG, default_revision, &[TAG])
+        .await;
+
+    let foreign_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        FOREIGN_SLUG,
+        "Fixture ListPages Categories Alias Foreign",
+        "Foreign-category ListPages alias target.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, FOREIGN_SLUG, foreign_revision, &[TAG])
+        .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Categories Alias Index",
+        concat!(
+            "[[module ListPages categories=\"_default\" tags=\"+verification-listpages-categories-alias\" limit=\"10\"]]\n",
+            "* %%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(DEFAULT_SLUG),
+        "categories alias should render matching default-category rows:\n{html}"
+    );
+    for forbidden in [FOREIGN_SLUG, "[[module ListPages"] {
+        assert!(
+            !html.contains(forbidden),
+            "categories alias must not widen to {forbidden:?}:\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_append_line_matches_wikidot_row_and_pager_ordering() {
+    const TAG: &str = "verification-listpages-append-line";
+    const PRE: &str = "LISTPAGES_APPEND_PRE";
+    const POST: &str = "LISTPAGES_APPEND_POST";
+    const ZERO_PRE: &str = "LISTPAGES_APPEND_ZERO_PRE";
+    const ZERO_POST: &str = "LISTPAGES_APPEND_ZERO_POST";
+    const INDEX_SLUG: &str = "fixture-listpages-append-line-index";
+    const ZERO_INDEX_SLUG: &str = "fixture-listpages-append-line-zero-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (
+            "fixture-listpages-append-line-alpha",
+            "Fixture ListPages Append Alpha",
+        ),
+        (
+            "fixture-listpages-append-line-beta",
+            "Fixture ListPages Append Beta",
+        ),
+        (
+            "fixture-listpages-append-line-gamma",
+            "Fixture ListPages Append Gamma",
+        ),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "ListPages appendLine target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Append Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-append-line\" order=\"name asc\" perPage=\"2\" separate=\"no\" prependLine=\"LISTPAGES_APPEND_PRE\" appendLine=\"LISTPAGES_APPEND_POST\"]]\n",
+            "%%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        ZERO_INDEX_SLUG,
+        "Fixture ListPages Append Zero Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-append-line-absent\" separate=\"no\" prependLine=\"LISTPAGES_APPEND_ZERO_PRE\" appendLine=\"LISTPAGES_APPEND_ZERO_POST\"]]\n",
+            "%%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    let pre = html.find(PRE).expect("prelude should render with rows");
+    let alpha = html
+        .find("fixture-listpages-append-line-alpha")
+        .expect("first ordered row should render");
+    let beta = html
+        .find("fixture-listpages-append-line-beta")
+        .expect("second ordered row should render");
+    let post = html.find(POST).expect("postlude should render with rows");
+    let pager = html
+        .find(r#"<div class="pager">"#)
+        .expect("perPage should render the pager after appendLine");
+    assert!(
+        pre < alpha && alpha < beta && beta < post && post < pager,
+        "appendLine must follow selected rows and precede the pager:\n{html}"
+    );
+    assert!(
+        !html.contains("fixture-listpages-append-line-gamma"),
+        "the first page must not render an extra perPage row:\n{html}"
+    );
+
+    let zero_html =
+        load_listpages_test_compiled_html(&runner, site_id, ZERO_INDEX_SLUG).await;
+    assert!(
+        !zero_html.contains(ZERO_PRE) && !zero_html.contains(ZERO_POST),
+        "zero-row ListPages must omit both prelude and postlude:\n{zero_html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_reverse_yes_reverses_the_selected_ordered_rows() {
+    const TAG: &str = "verification-listpages-reverse-yes";
+    const INDEX_SLUG: &str = "fixture-listpages-reverse-yes-index";
+    const ALPHA_SLUG: &str = "fixture-listpages-reverse-yes-alpha";
+    const BETA_SLUG: &str = "fixture-listpages-reverse-yes-beta";
+    const GAMMA_SLUG: &str = "fixture-listpages-reverse-yes-gamma";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (ALPHA_SLUG, "Fixture ListPages Reverse Alpha"),
+        (BETA_SLUG, "Fixture ListPages Reverse Beta"),
+        (GAMMA_SLUG, "Fixture ListPages Reverse Gamma"),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "ListPages reverse target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Reverse Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-reverse-yes\" order=\"name asc\" reverse=\"yes\" limit=\"3\"]]\n",
+            "* %%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    let gamma = html
+        .find(GAMMA_SLUG)
+        .expect("reverse=yes should render the last ascending row");
+    let beta = html
+        .find(BETA_SLUG)
+        .expect("reverse=yes should render the middle ascending row");
+    let alpha = html
+        .find(ALPHA_SLUG)
+        .expect("reverse=yes should render the first ascending row");
+    assert!(
+        gamma < beta && beta < alpha,
+        "reverse=yes should reverse the selected ascending rows:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_index_remains_absolute_after_offset() {
+    const TAG: &str = "verification-listpages-offset-index";
+    const INDEX_SLUG: &str = "fixture-listpages-offset-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (
+            "fixture-listpages-offset-index-alpha",
+            "Fixture ListPages Offset Index Alpha",
+        ),
+        (
+            "fixture-listpages-offset-index-beta",
+            "Fixture ListPages Offset Index Beta",
+        ),
+        (
+            "fixture-listpages-offset-index-gamma",
+            "Fixture ListPages Offset Index Gamma",
+        ),
+        (
+            "fixture-listpages-offset-index-delta",
+            "Fixture ListPages Offset Index Delta",
+        ),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "ListPages offset index target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Offset Index",
+        concat!(
+            "[[module ListPages tags=\"+verification-listpages-offset-index\" order=\"name asc\" offset=\"1\" limit=\"3\"]]\n",
+            "%%index%%:%%slug%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    let beta = html
+        .find("2:fixture-listpages-offset-index-beta")
+        .expect("the first offset row should keep its absolute index");
+    let delta = html
+        .find("3:fixture-listpages-offset-index-delta")
+        .expect("the second offset row should keep its absolute index");
+    let gamma = html
+        .find("4:fixture-listpages-offset-index-gamma")
+        .expect("the third offset row should keep its absolute index");
+    assert!(
+        beta < delta && delta < gamma,
+        "offset ListPages rows should retain their pre-offset indexes:\n{html}"
+    );
+    assert!(
+        !html.contains("1:fixture-listpages-offset-index-beta"),
+        "the selected post-offset row must not be renumbered from one:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_link_and_fullname_keep_distinct_wikidot_identities() {
+    const TAG: &str = "verification-listpages-link-fullname";
+    const TARGET_SLUG: &str = "component:fixture-listpages-link-fullname-target";
+    const INDEX_SLUG: &str = "fixture-listpages-link-fullname-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Link Fullname Target",
+        "ListPages link/fullname target.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, TARGET_SLUG, target_revision, &[TAG])
+        .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Link Fullname Index",
+        concat!(
+            "[[module ListPages category=\"*\" tags=\"+verification-listpages-link-fullname\" limit=\"1\"]]\n",
+            "[[[%%link%%|absolute link]]]\n",
+            "[[[%%fullname%%/noredirect/true|qualified name]]]\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(&format!(
+            "href=\"http://scp-wiki.wikidot.com/{TARGET_SLUG}/noredirect/true\""
+        )),
+        "%%link%% must render the complete live-compatible Wikidot URL:\n{html}"
+    );
+    assert!(
+        html.contains(&format!("href=\"/{TARGET_SLUG}/noredirect/true\"")),
+        "%%fullname%% must render the category-qualified internal page name:\n{html}"
+    );
+    assert!(
+        !html.contains(&format!("href=\"/{TARGET_SLUG}\"")),
+        "%%link%% must not collapse to the internal full-name URL:\n{html}"
     );
 }
 
@@ -7310,15 +7853,7 @@ async fn page_select_filters_pages_with_page_query_semantics() {
         set_listpages_test_tags(&mut runner, site_id, slug, output.revision_id, &[TAG])
             .await;
         if vote != 0 {
-            run_endpoint!(
-                runner,
-                vote_set,
-                json!({
-                    "page_id": output.page_id,
-                    "user_id": ADMIN_USER_ID,
-                    "value": vote,
-                }),
-            );
+            set_stored_point_vote(&runner, output.page_id, vote).await;
         }
     }
 
@@ -9492,15 +10027,7 @@ async fn page_query_score_order_returns_results() {
         set_listpages_test_tags(&mut runner, site_id, slug, output.revision_id, &[tag])
             .await;
         if vote != 0 {
-            run_endpoint!(
-                runner,
-                vote_set,
-                json!({
-                    "page_id": output.page_id,
-                    "user_id": ADMIN_USER_ID,
-                    "value": vote,
-                }),
-            );
+            set_stored_point_vote(&runner, output.page_id, vote).await;
         }
     }
 
@@ -9681,15 +10208,7 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
         (inactive_votes_id, 9),
         (deleted_page_id, 20),
     ] {
-        run_endpoint!(
-            runner,
-            vote_set,
-            json!({
-                "page_id": page_id,
-                "user_id": ADMIN_USER_ID,
-                "value": value,
-            }),
-        );
+        set_stored_point_vote(&runner, page_id, value).await;
     }
 
     create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 2).await;

@@ -1326,18 +1326,26 @@ fn score_selectors_condition(
                         SELECT filtered_score.page_id \
                         FROM (\
                             SELECT scored_page.page_id, \
-                                (COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value), 0)) AS effective_score \
+                                CASE \
+                                    WHEN COALESCE(score_category.rating_type, score_default_category.rating_type, 'plus_minus') = 'stars' \
+                                    THEN COALESCE(AVG(score_vote.value) FILTER (WHERE score_vote.rating_system = 'stars'), 0) \
+                                    ELSE COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value) FILTER (WHERE score_vote.rating_system = 'points' AND (score_snapshot.imported_rating IS NULL OR score_vote.from_wikidot = FALSE)), 0) \
+                                END AS effective_score \
                             FROM page scored_page \
+                            JOIN page_category score_category \
+                                ON score_category.category_id = scored_page.page_category_id \
+                            LEFT JOIN page_category score_default_category \
+                                ON score_default_category.site_id = scored_page.site_id \
+                                AND score_default_category.slug = '_default' \
                             LEFT JOIN wikidot_page_snapshot score_snapshot \
                                 ON score_snapshot.page_id = scored_page.page_id \
                             LEFT JOIN page_vote score_vote \
                                 ON score_vote.page_id = scored_page.page_id \
                                 AND score_vote.deleted_at IS NULL \
                                 AND score_vote.disabled_at IS NULL \
-                                AND (score_snapshot.imported_rating IS NULL OR score_vote.from_wikidot = FALSE) \
                             WHERE scored_page.site_id = $1 \
                                 AND scored_page.deleted_at IS NULL \
-                            GROUP BY scored_page.page_id, score_snapshot.imported_rating\
+                            GROUP BY scored_page.page_id, score_snapshot.imported_rating, score_category.rating_type, score_default_category.rating_type\
                         ) filtered_score \
                         WHERE {conditions}\
                     )"
@@ -1367,17 +1375,25 @@ fn score_selectors_condition(
                     "EXISTS (\
                         SELECT 1 \
                         FROM (\
-                            SELECT (COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value), 0)) AS effective_score \
+                            SELECT CASE \
+                                WHEN COALESCE(score_category.rating_type, score_default_category.rating_type, 'plus_minus') = 'stars' \
+                                THEN COALESCE(AVG(score_vote.value) FILTER (WHERE score_vote.rating_system = 'stars'), 0) \
+                                ELSE COALESCE(score_snapshot.imported_rating, 0) + COALESCE(SUM(score_vote.value) FILTER (WHERE score_vote.rating_system = 'points' AND (score_snapshot.imported_rating IS NULL OR score_vote.from_wikidot = FALSE)), 0) \
+                            END AS effective_score \
                             FROM page scored_page \
+                            JOIN page_category score_category \
+                                ON score_category.category_id = scored_page.page_category_id \
+                            LEFT JOIN page_category score_default_category \
+                                ON score_default_category.site_id = scored_page.site_id \
+                                AND score_default_category.slug = '_default' \
                             LEFT JOIN wikidot_page_snapshot score_snapshot \
                                 ON score_snapshot.page_id = scored_page.page_id \
                             LEFT JOIN page_vote score_vote \
                                 ON score_vote.page_id = scored_page.page_id \
                                 AND score_vote.deleted_at IS NULL \
                                 AND score_vote.disabled_at IS NULL \
-                                AND (score_snapshot.imported_rating IS NULL OR score_vote.from_wikidot = FALSE) \
                             WHERE scored_page.page_id = page.page_id \
-                            GROUP BY scored_page.page_id, score_snapshot.imported_rating\
+                            GROUP BY scored_page.page_id, score_snapshot.imported_rating, score_category.rating_type, score_default_category.rating_type\
                         ) filtered_score \
                         WHERE {conditions}\
                     )"
@@ -1680,7 +1696,13 @@ mod tests {
         assert!(
             statement
                 .sql
-                .contains("GROUP BY scored_page.page_id, score_snapshot.imported_rating")
+                .contains("GROUP BY scored_page.page_id, score_snapshot.imported_rating, score_category.rating_type, score_default_category.rating_type")
+        );
+        assert!(statement.sql.contains("score_vote.rating_system = 'stars'"));
+        assert!(
+            statement
+                .sql
+                .contains("score_vote.rating_system = 'points'")
         );
         assert!(
             statement
@@ -1824,6 +1846,7 @@ mod tests {
                 .build(DatabaseBackend::Postgres);
 
             assert_eq!(statement.sql.matches("SUM(score_vote.value)").count(), 1);
+            assert_eq!(statement.sql.matches("AVG(score_vote.value)").count(), 1);
             assert_eq!(statement.sql.matches("FROM page scored_page").count(), 1);
             assert!(
                 statement.sql.contains(expected_conditions),
