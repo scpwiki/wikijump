@@ -3707,6 +3707,7 @@ impl RenderService {
                 } else if let Some(arguments) = parse_list_pages_arguments(head) {
                     if arguments.unsupported_author_filter
                         || arguments.unsupported_score_filter
+                        || arguments.unsupported_list_pages_filter
                     {
                         ListPagesBlockPlan::PreserveOriginal
                     } else if let Some(template) = ListPagesTemplatePlan::compile(body) {
@@ -6850,6 +6851,7 @@ impl RenderService {
             separate,
             wrapper,
             unsupported_author_filter: _,
+            unsupported_list_pages_filter: _,
             unsupported_score_filter: _,
             unsupported_count_pages_filter: _,
         } = arguments;
@@ -7505,6 +7507,7 @@ impl RenderService {
             append_line: _,
             data_form_fields,
             unsupported_author_filter: _,
+            unsupported_list_pages_filter: _,
             unsupported_score_filter: _,
             unsupported_count_pages_filter: _,
             separate: _,
@@ -8536,6 +8539,7 @@ struct ListPagesArguments {
     separate: bool,
     wrapper: bool,
     unsupported_author_filter: bool,
+    unsupported_list_pages_filter: bool,
     unsupported_score_filter: bool,
     unsupported_count_pages_filter: bool,
 }
@@ -8689,6 +8693,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut separate = true;
     let mut wrapper = true;
     let mut unsupported_author_filter = false;
+    let mut unsupported_list_pages_filter = false;
     let mut unsupported_score_filter = false;
     let mut unsupported_count_pages_filter = false;
 
@@ -8727,6 +8732,12 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     }
                     if is_current_page_tag_selector(&tag) {
                         unsupported_count_pages_filter = true;
+                        // Wikidot resolves this to the current page's own tags.
+                        // Falling through would push the sentinel itself as a
+                        // literal tag, which matches nothing and renders an
+                        // empty list rather than the author's selection.
+                        unsupported_list_pages_filter = true;
+                        continue;
                     }
                     if let Some(tag) = tag.strip_prefix('-') {
                         no_tags.push(Cow::Owned(tag.to_owned()));
@@ -8755,6 +8766,12 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     }
                     if is_current_page_tag_selector(&tag) {
                         unsupported_count_pages_filter = true;
+                        // Wikidot resolves this to the current page's own tags.
+                        // Falling through would push the sentinel itself as a
+                        // literal tag, which matches nothing and renders an
+                        // empty list rather than the author's selection.
+                        unsupported_list_pages_filter = true;
+                        continue;
                     }
                     if let Some(tag) = tag.strip_prefix('-') {
                         no_tags.push(Cow::Owned(tag.to_owned()));
@@ -8908,6 +8925,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 }
                 "before" | "after" => {
                     unsupported_count_pages_filter = true;
+                    // Positional ranges are relative to the current page inside
+                    // the queried order. Ignoring one returns the whole result
+                    // set instead of the requested slice.
+                    unsupported_list_pages_filter = true;
                 }
                 _ => {}
             },
@@ -8948,9 +8969,13 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
             "votes" | "form" | "link_to" | "linkto" | "urlattrprefix" => {
                 unsupported_count_pages_filter = true;
                 // These filters need Wikidot-specific query semantics that are not
-                // fully implemented here. Parsing them keeps real corpus modules
-                // out of FTML's generic module path, which otherwise panics on
-                // ListPages bodies that start with numbered-list markers.
+                // implemented here. Parsing them keeps real corpus modules out of
+                // FTML's generic module path, which otherwise panics on ListPages
+                // bodies that start with numbered-list markers, but the module
+                // cannot render: dropping a filter returns pages the author asked
+                // to exclude, which reads as a correct list rather than a missing
+                // one.
+                unsupported_list_pages_filter = true;
             }
             // Wikidot accepts these presentation arguments without applying them
             // to the ListPages wrapper. Preserve that accepted no-op grammar, but
@@ -9011,6 +9036,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         separate,
         wrapper,
         unsupported_author_filter,
+        unsupported_list_pages_filter,
         unsupported_score_filter,
         unsupported_count_pages_filter,
     })
@@ -13214,6 +13240,32 @@ mod tests {
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("地下東京奇譚")]);
         assert_eq!(arguments.no_tags, vec![Cow::Borrowed("ハブ")]);
         assert!(!arguments.untagged);
+    }
+
+    #[test]
+    fn flags_wikidot_list_pages_selectors_that_cannot_be_honored() {
+        for source in [
+            r#" category="_default" link_to="scp-001" "#,
+            r#" category="_default" votes=">3" "#,
+            r#" category="_default" form="field=value" "#,
+            r#" category="_default" urlAttrPrefix="p" "#,
+            r#" category="_default" range="before" "#,
+            r#" category="_default" range="after" "#,
+            r#" category="_default" tags="=" "#,
+        ] {
+            let arguments = parse_list_pages_arguments(source)
+                .unwrap_or_else(|| panic!("selector should parse: {source}"));
+
+            assert!(
+                arguments.unsupported_list_pages_filter,
+                "an unhonored filter must block rendering rather than widen the query: {source}",
+            );
+        }
+
+        let honored =
+            parse_list_pages_arguments(r#" category="_default" tags="+fixture" "#)
+                .expect("a supported selector should parse");
+        assert!(!honored.unsupported_list_pages_filter);
     }
 
     #[test]
