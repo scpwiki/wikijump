@@ -3989,6 +3989,7 @@ impl RenderService {
                 any_present: &[],
                 all_present: &[],
                 none_present: &[],
+                untagged: false,
             },
             page_parent: PageParentSelector::All,
             contains_outgoing_links: &[],
@@ -6826,6 +6827,7 @@ impl RenderService {
             all_tags,
             default_tags,
             no_tags,
+            untagged,
             authors,
             author_filter_present,
             order,
@@ -6926,6 +6928,7 @@ impl RenderService {
                 any_present: &any_tags,
                 all_present: &all_tags,
                 none_present: &no_tags,
+                untagged,
             },
             page_parent,
             contains_outgoing_links: &[],
@@ -7481,6 +7484,7 @@ impl RenderService {
             all_tags,
             default_tags,
             no_tags,
+            untagged,
             authors,
             author_filter_present,
             order,
@@ -7551,6 +7555,7 @@ impl RenderService {
                 any_present: &any_tags,
                 all_present: &all_tags,
                 none_present: &no_tags,
+                untagged,
             },
             page_parent,
             contains_outgoing_links: &[],
@@ -8508,6 +8513,7 @@ struct ListPagesArguments {
     default_tags: Vec<Cow<'static, str>>,
     all_tags: Vec<Cow<'static, str>>,
     no_tags: Vec<Cow<'static, str>>,
+    untagged: bool,
     authors: Vec<Cow<'static, str>>,
     author_filter_present: bool,
     order: Option<OrderBySelector>,
@@ -8656,6 +8662,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut default_tags = Vec::new();
     let mut all_tags = Vec::new();
     let mut no_tags = Vec::new();
+    let mut untagged = false;
     let mut authors = Vec::new();
     let mut author_filter_present = false;
     let mut order = None;
@@ -8711,6 +8718,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 };
                 for tag in split_list_pages_values(value) {
                     if is_no_tags_selector(&tag) {
+                        untagged = true;
+                        // ListPages honors the selector below. CountPages keeps
+                        // its existing literal behavior for it, which this flag
+                        // drives and which no evidence here revisits.
                         unsupported_count_pages_filter = true;
                         continue;
                     }
@@ -8735,6 +8746,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 };
                 for tag in split_list_pages_values(value) {
                     if is_no_tags_selector(&tag) {
+                        untagged = true;
+                        // ListPages honors the selector below. CountPages keeps
+                        // its existing literal behavior for it, which this flag
+                        // drives and which no evidence here revisits.
                         unsupported_count_pages_filter = true;
                         continue;
                     }
@@ -8973,6 +8988,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         default_tags,
         all_tags,
         no_tags,
+        untagged,
         authors,
         author_filter_present,
         order,
@@ -13197,6 +13213,29 @@ mod tests {
         );
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("地下東京奇譚")]);
         assert_eq!(arguments.no_tags, vec![Cow::Borrowed("ハブ")]);
+        assert!(!arguments.untagged);
+    }
+
+    #[test]
+    fn parses_wikidot_list_pages_no_tags_selector_without_widening() {
+        for source in [
+            r#" category="_default" tags="-" limit="20" "#,
+            r#" category="_default" tag="-" limit="20" "#,
+        ] {
+            let arguments = parse_list_pages_arguments(source)
+                .expect("no-tags selector should parse");
+
+            assert!(
+                arguments.untagged,
+                "the no-tags sentinel must reach the query rather than being dropped",
+            );
+            assert!(
+                arguments.default_tags.is_empty()
+                    && arguments.all_tags.is_empty()
+                    && arguments.no_tags.is_empty(),
+                "the sentinel must not be treated as a literal tag named '-'",
+            );
+        }
     }
 
     #[test]

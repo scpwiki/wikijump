@@ -225,6 +225,7 @@ impl PageQueryService {
                     any_present: any_tags,
                     all_present: all_tags,
                     none_present: no_tags,
+                    untagged,
                 },
             page_parent,
             contains_outgoing_links,
@@ -614,8 +615,10 @@ impl PageQueryService {
             .filter(page::Column::DeletedAt.is_null())
             .filter(condition);
         let order = order.unwrap_or_default();
-        let needs_tag_filter =
-            !all_tags.is_empty() || !any_tags.is_empty() || !no_tags.is_empty();
+        let needs_tag_filter = !all_tags.is_empty()
+            || !any_tags.is_empty()
+            || !no_tags.is_empty()
+            || untagged;
         let needs_revision_join = needs_tag_filter
             || matches!(
                 order.property,
@@ -671,6 +674,17 @@ impl PageQueryService {
                     .binary(PgBinOper::Contains, Expr::val(vec![tag.to_string()]))
                     .not(),
             );
+        }
+
+        if untagged {
+            // Wikidot's `tags="-"` selects pages carrying no tag at all. Its
+            // behavior for a page holding only hidden `_` tags is uncaptured,
+            // so this stays with the literal reading rather than filtering the
+            // hidden ones out of the comparison first.
+            debug!("Restricting ListPages to pages with no tags");
+            query = query.filter(SimpleExpr::Custom(
+                "cardinality(page_revision.tags) = 0".into(),
+            ));
         }
 
         let materialized_score_filter_applied = if score.is_empty() {

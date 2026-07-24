@@ -65,6 +65,9 @@ pub struct TagCondition<'a> {
 
     /// Represents the NOT operator for the tags; page must *not* contain any of these tags.
     pub none_present: TagList<'a>,
+
+    /// Wikidot's `tags="-"` selector; page must carry no tags at all.
+    pub untagged: bool,
 }
 
 /// Selects pages by their creation author without overloading an empty list.

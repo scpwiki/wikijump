@@ -805,3 +805,96 @@ async fn child_listpages_expands_site_domain_and_parent_fullname() {
         "resolved navigation variables should not leak into the rendered body:\n{html}",
     );
 }
+
+#[tokio::test]
+async fn no_tags_listpages_selects_only_untagged_pages() {
+    const UNTAGGED_SLUG: &str = "no-tags-selector-untagged";
+    const TAGGED_SLUG: &str = "no-tags-selector-tagged";
+    const SOURCE_SLUG: &str = "no-tags-selector-source";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, tags) in [(UNTAGGED_SLUG, vec![]), (TAGGED_SLUG, vec!["fixture"])] {
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(slug.into())),
+        });
+        run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": "No-tags selector fixture",
+                "title": slug,
+                "alt_title": null,
+                "slug": slug,
+                "tags": tags,
+                "layout": "wikidot",
+                "revision_comments": "no-tags ListPages selector fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+    }
+
+    let source = concat!(
+        "[[module ListPages category=\"_default\" tags=\"-\" ",
+        "name=\"no-tags-selector-*\" separate=\"no\"]]\n",
+        "ROW %%name%%\n",
+        "[[/module]]",
+    );
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(SOURCE_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": source,
+            "title": "No-tags ListPages selector",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "no-tags ListPages selector smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": SOURCE_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("no-tags selector page_get should succeed")
+    .expect("no-tags selector page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains(UNTAGGED_SLUG),
+        "the untagged page should match tags=\"-\":\n{html}",
+    );
+    assert!(
+        !html.contains(TAGGED_SLUG),
+        "a tagged page must not be returned by tags=\"-\":\n{html}",
+    );
+}
