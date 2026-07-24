@@ -28,6 +28,7 @@ use super::super::runtime::*;
 use super::super::runtime_page_queries::*;
 use super::super::service::*;
 use super::content_sections::{isolate_wikidot_content_section, wikidot_content_section};
+use super::parents::load_list_pages_parent_fullnames;
 use super::scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
     has_count_pages_module_opening_candidate, has_list_pages_module_opening_candidate,
@@ -1084,6 +1085,8 @@ impl RenderService {
         let wants_updated_by = template.uses_updated_by();
         let wants_updated_at = template.uses_updated_at();
         let wants_rating_votes = template.uses_rating_votes();
+        let wants_site_domain = template.uses_site_domain();
+        let wants_parent_fullname = template.uses_parent_fullname();
         let resolved_authors = Self::resolve_list_pages_authors_cached(
             ctx,
             current_site_id,
@@ -1335,6 +1338,9 @@ impl RenderService {
             // from the display name. Missing account data must remain literal.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
+        if wants_site_domain && page_info.site.is_empty() {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let wants_comments = template.uses_comments();
         let wants_commented_by = template.uses_commented_by();
         let wants_commented_at = template.uses_commented_at();
@@ -1345,7 +1351,8 @@ impl RenderService {
             || wants_comments
             || wants_commented_by
             || wants_commented_at
-            || wants_rating_votes;
+            || wants_rating_votes
+            || wants_parent_fullname;
         let loaded_snapshot_displays =
             if wants_snapshot_displays && prefetched_displays.is_none() {
                 Some(Self::load_list_pages_snapshot_displays(ctx, &pages).await?)
@@ -1357,6 +1364,15 @@ impl RenderService {
             .map(|displays| &displays.snapshot_displays)
             .or(loaded_snapshot_displays.as_ref())
             .unwrap_or(&empty_snapshot_displays);
+        let relational_parent_fullnames = if wants_parent_fullname
+            && pages
+                .iter()
+                .any(|page| !snapshot_displays.contains_key(&page.page_id))
+        {
+            load_list_pages_parent_fullnames(ctx, &pages).await?
+        } else {
+            BTreeMap::new()
+        };
         let mut output = String::new();
         if wrapper {
             output.push_str("[[div class=\"list-pages-box\"]]\n");
@@ -1507,6 +1523,11 @@ impl RenderService {
                         .flatten()
                         .expect("size-backed ListPages rows were validated before substitution")
                 }),
+                page_parent_fullname: list_pages_parent_fullname(
+                    page,
+                    snapshot_displays,
+                    &relational_parent_fullnames,
+                ),
                 expanded_content: Some(&expanded_content),
                 data_form_values: &data_form_values,
                 render_generated_html,
@@ -2041,6 +2062,7 @@ impl RenderService {
             commented_at: Option<time::OffsetDateTime>,
             commented_by_name: Option<String>,
             rating_votes: Option<i64>,
+            parent_fullname: Option<String>,
         }
 
         let page_ids = pages
@@ -2070,6 +2092,7 @@ impl RenderService {
                  SELECT snapshot.page_id, snapshot.source_created_at, snapshot.source_updated_at, \
                         snapshot.created_by_name, snapshot.updated_by_name, snapshot.comments, \
                         snapshot.commented_at, snapshot.commented_by_name, \
+                        snapshot.parent_fullname, \
                         CASE \
                             WHEN snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
                                  AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
@@ -2099,6 +2122,7 @@ impl RenderService {
                              commented_at,
                              commented_by_name,
                              rating_votes,
+                             parent_fullname,
                          }| {
                             (
                                 page_id,
@@ -2111,6 +2135,7 @@ impl RenderService {
                                     commented_at,
                                     commented_by_name,
                                     rating_votes,
+                                    parent_fullname,
                                 },
                             )
                         },

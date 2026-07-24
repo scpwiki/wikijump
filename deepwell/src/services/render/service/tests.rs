@@ -50,13 +50,14 @@ use super::{
     list_pages_body_is_no_visible_tracking_markup, list_pages_body_uses_content_variable,
     list_pages_body_variables_supported, list_pages_content_query_target,
     list_pages_has_unsupported_page_type_selector,
-    list_pages_has_unsupported_parent_selector, list_pages_row_scan_target,
-    list_pages_tag_link_href, native_list_page_link_default_label,
-    page_query_cap_requires_original_module, parse_list_pages_arguments,
-    parse_list_pages_date_selector, parse_wikidot_compat_color_descriptor,
-    protect_forwarded_attachment_variables, push_list_pages_pager,
-    random_page_query_scan_limit, register_generated_list_pages_html,
-    render_clone_module, render_list_pages_numbered_rows, render_list_pages_table_rows,
+    list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
+    list_pages_row_scan_target, list_pages_tag_link_href,
+    native_list_page_link_default_label, page_query_cap_requires_original_module,
+    parse_list_pages_arguments, parse_list_pages_date_selector,
+    parse_wikidot_compat_color_descriptor, protect_forwarded_attachment_variables,
+    push_list_pages_pager, random_page_query_scan_limit,
+    register_generated_list_pages_html, render_clone_module,
+    render_list_pages_numbered_rows, render_list_pages_table_rows,
     render_list_pages_tags, render_members_module_placeholder,
     render_native_list_inline_wikidot_spans, render_native_list_page_link,
     render_new_page_module, render_page_query_batch_limit,
@@ -122,6 +123,7 @@ fn list_pages_substitution_context_with_mode<'a>(
         page_wikitext,
         page_wikitext_scalar_count: page_wikitext
             .map(|wikitext| wikitext.chars().count()),
+        page_parent_fullname: None,
         expanded_content: None,
         data_form_values,
         render_generated_html,
@@ -3455,6 +3457,107 @@ fn substitutes_wikidot_list_pages_author_and_created_at_variables() {
 }
 
 #[test]
+fn substitutes_wikidot_list_pages_site_domain_and_parent_fullname() {
+    let page = FoundPageRow {
+        page_id: 1,
+        site_id: 1,
+        title: Some("Offset 0".to_owned()),
+        alt_title: None,
+        slug: Some("fragment:component:offset-timeline-0".to_owned()),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: None,
+        created_at: None,
+        created_by: None,
+        updated_at: None,
+        updated_by: None,
+        score: None,
+    };
+    let user_displays = BTreeMap::new();
+    let data_form_values = BTreeMap::new();
+    let mut context =
+        list_pages_substitution_context(20, &user_displays, None, &data_form_values);
+    context.page_parent_fullname = Some("component:offset-timeline");
+
+    assert_eq!(
+        substitute_list_pages_variables(
+            "https://%%site_domain%%/%%parent_fullname%%/offset/",
+            &page,
+            1,
+            2,
+            &context,
+        ),
+        "https://scp-wiki.wikidot.com/component:offset-timeline/offset/",
+    );
+
+    context.page_parent_fullname = None;
+    assert_eq!(
+        substitute_list_pages_variables("%%parent_fullname%%", &page, 1, 2, &context),
+        "",
+    );
+}
+
+#[test]
+fn resolves_wikidot_list_pages_parent_fullname_from_import_before_relations() {
+    let page = FoundPageRow {
+        page_id: 101,
+        site_id: 1,
+        title: Some("Offset 0".to_owned()),
+        alt_title: None,
+        slug: Some("fragment:component:offset-timeline-0".to_owned()),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: None,
+        created_at: None,
+        created_by: None,
+        updated_at: None,
+        updated_by: None,
+        score: None,
+    };
+    let source_created_at = time::OffsetDateTime::UNIX_EPOCH;
+    let snapshot = ListPagesSnapshotDisplay {
+        created_at: source_created_at,
+        updated_at: source_created_at,
+        created_by_name: None,
+        updated_by_name: None,
+        comments: 0,
+        commented_at: None,
+        commented_by_name: None,
+        rating_votes: None,
+        parent_fullname: Some("component:offset-timeline".to_owned()),
+    };
+    let imported = BTreeMap::from([(101, snapshot.clone())]);
+    let relational = BTreeMap::from([(101, "component:local-parent".to_owned())]);
+    let empty_snapshots = BTreeMap::new();
+    let empty_relations = BTreeMap::new();
+
+    assert_eq!(
+        list_pages_parent_fullname(&page, &imported, &relational),
+        Some("component:offset-timeline"),
+    );
+    assert_eq!(
+        list_pages_parent_fullname(&page, &empty_snapshots, &relational),
+        Some("component:local-parent"),
+    );
+    assert_eq!(
+        list_pages_parent_fullname(&page, &empty_snapshots, &empty_relations),
+        None,
+    );
+
+    let parentless_import = BTreeMap::from([(
+        101,
+        ListPagesSnapshotDisplay {
+            parent_fullname: None,
+            ..snapshot
+        },
+    )]);
+    assert_eq!(
+        list_pages_parent_fullname(&page, &parentless_import, &relational),
+        None,
+    );
+}
+
+#[test]
 fn substitutes_wikidot_list_pages_created_by_unix_from_account_unix_name() {
     let page = FoundPageRow {
         page_id: 1,
@@ -3827,6 +3930,7 @@ fn substitutes_imported_wikidot_snapshot_metadata_for_list_pages_rows() {
             commented_at: Some(source_commented_at),
             commented_by_name: Some("Aspenq".to_owned()),
             rating_votes: Some(31),
+            parent_fullname: None,
         },
     );
 

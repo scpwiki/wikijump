@@ -82,6 +82,7 @@ pub(in crate::services::render) struct ListPagesSnapshotDisplay {
     pub(in crate::services::render) commented_at: Option<time::OffsetDateTime>,
     pub(in crate::services::render) commented_by_name: Option<String>,
     pub(in crate::services::render) rating_votes: Option<i64>,
+    pub(in crate::services::render) parent_fullname: Option<String>,
 }
 
 #[derive(Debug, FromQueryResult)]
@@ -1538,6 +1539,7 @@ pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {
         &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
     pub(in crate::services::render) page_wikitext: Option<&'a str>,
     pub(in crate::services::render) page_wikitext_scalar_count: Option<usize>,
+    pub(in crate::services::render) page_parent_fullname: Option<&'a str>,
     pub(in crate::services::render) expanded_content:
         Option<&'a BTreeMap<Option<usize>, String>>,
     pub(in crate::services::render) data_form_values: &'a BTreeMap<String, String>,
@@ -1719,7 +1721,14 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                     .map(|scalar_count| scalar_count.to_string())
                     .unwrap_or_else(|| captures[0].to_owned()),
                 "children" | "revisions" => "0".to_owned(),
-                "parent_fullname" | "rating_percent" => String::new(),
+                "site_domain" if !context.site.is_empty() => {
+                    format!("{}.wikidot.com", context.site)
+                }
+                "site_domain" => captures[0].to_owned(),
+                "parent_fullname" => {
+                    context.page_parent_fullname.unwrap_or("").to_owned()
+                }
+                "rating_percent" => String::new(),
                 "form_data" | "form_raw" => captures
                     .name("argument")
                     .and_then(|matched| context.data_form_values.get(matched.as_str()))
@@ -1954,6 +1963,18 @@ pub(in crate::services::render) fn render_list_pages_wikidot_user(
 
 pub(in crate::services::render) fn render_list_pages_snapshot_user(name: &str) -> String {
     escape_list_pages_html_text(name)
+}
+
+pub(in crate::services::render) fn list_pages_parent_fullname<'a>(
+    page: &FoundPageRow,
+    snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
+    relational_parent_fullnames: &'a BTreeMap<i64, String>,
+) -> Option<&'a str> {
+    let parent_fullname = match snapshot_displays.get(&page.page_id) {
+        Some(snapshot) => snapshot.parent_fullname.as_deref()?,
+        None => relational_parent_fullnames.get(&page.page_id)?.as_str(),
+    };
+    (!parent_fullname.is_empty()).then_some(parent_fullname)
 }
 
 pub(in crate::services::render) fn list_pages_created_by_unix(
