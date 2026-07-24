@@ -22,13 +22,14 @@
 mod common;
 
 use self::common::TestRunner;
+use deepwell::constants::ADMIN_USER_ID;
 use deepwell::error::ErrorType;
 use deepwell::models::known_user::Entity as KnownUser;
 use deepwell::models::user::Entity as User;
 use deepwell::models::wikidot_user::Entity as WikidotUser;
-use deepwell::services::ServiceContext;
 use deepwell::services::import::{ImportService, ImportUser, ImportedUserType};
 use deepwell::services::user::{CreateUser, UserService};
+use deepwell::services::{RequestContext, ServiceContext};
 use deepwell::types::UserType;
 use ftml::data::KarmaLevel;
 use sea_orm::{EntityTrait, TransactionTrait};
@@ -81,7 +82,7 @@ fn active_user(user_id: Option<i64>, fixture: &str, label: &str) -> CreateUser {
 
 #[tokio::test]
 async fn import_user_creates_known_user_and_can_be_reclaimed() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
     let (user_id, _, fixture) = fixture_ids();
 
     ImportService::add_user(runner.context(), import_user(user_id, &fixture, "missing"))
@@ -118,6 +119,10 @@ async fn import_user_creates_known_user_and_can_be_reclaimed() {
             .is_some(),
     );
 
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
     let sequenced = run_endpoint!(
         runner,
         user_create,

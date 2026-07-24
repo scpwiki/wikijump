@@ -73,3 +73,37 @@ pub enum PageRevisionChange {
     Slug,
     Tags,
 }
+
+impl PageRevisionChange {
+    pub const fn database_value(self) -> &'static str {
+        match self {
+            Self::Wikitext => "wikitext",
+            Self::Title => "title",
+            Self::AltTitle => "alt_title",
+            Self::Slug => "slug",
+            Self::Tags => "tags",
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn page_revision_change_database_values_match_the_schema() {
+        assert_eq!(PageRevisionChange::Wikitext.database_value(), "wikitext");
+        assert_eq!(PageRevisionChange::Title.database_value(), "title");
+        assert_eq!(PageRevisionChange::AltTitle.database_value(), "alt_title");
+        assert_eq!(PageRevisionChange::Slug.database_value(), "slug");
+        assert_eq!(PageRevisionChange::Tags.database_value(), "tags");
+    }
+
+    #[test]
+    fn page_revision_change_json_keeps_the_public_kebab_case_contract() {
+        assert_eq!(
+            serde_json::to_string(&PageRevisionChange::AltTitle).unwrap(),
+            r#""alt-title""#,
+        );
+    }
+}

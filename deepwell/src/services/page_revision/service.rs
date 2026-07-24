@@ -254,7 +254,7 @@ impl PageRevisionDraft {
             changes: Set(self
                 .changes
                 .into_iter()
-                .map(|change| change.to_string())
+                .map(|change| change.database_value().to_owned())
                 .collect()),
             wikitext_hash: Set(self.wikitext_hash),
             compiled_body_html_hash: Set(self.compiled_body_html_hash),
