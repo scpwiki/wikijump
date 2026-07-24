@@ -124,6 +124,7 @@ use std::time::{Duration, Instant};
 use tokio::task;
 use tokio::time::timeout;
 use uuid::Uuid;
+use wikidot_normalize::normalize;
 
 #[derive(Debug)]
 pub struct RenderService;
@@ -6850,12 +6851,17 @@ impl RenderService {
             append_line,
             separate,
             wrapper,
+            link_to,
             unsupported_author_filter: _,
             unsupported_list_pages_filter: _,
             unsupported_score_filter: _,
             unsupported_count_pages_filter: _,
         } = arguments;
         any_tags.extend(default_tags);
+        let link_to_references = link_to
+            .iter()
+            .map(|slug| Reference::Slug(Cow::Borrowed(slug.as_ref())))
+            .collect::<Vec<_>>();
         let (category_all, include_current_category) = if category_selector_present {
             (category_all, include_current_category)
         } else {
@@ -6933,7 +6939,7 @@ impl RenderService {
                 untagged,
             },
             page_parent,
-            contains_outgoing_links: &[],
+            contains_outgoing_links: &link_to_references,
             creation_date,
             update_date,
             author: resolved_authors.as_selector(),
@@ -7514,6 +7520,7 @@ impl RenderService {
             prepend_line: _,
             append_line: _,
             data_form_fields,
+            link_to,
             unsupported_author_filter: _,
             unsupported_list_pages_filter: _,
             unsupported_score_filter: _,
@@ -7530,6 +7537,10 @@ impl RenderService {
             .unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
             .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
         any_tags.extend(default_tags);
+        let link_to_references = link_to
+            .iter()
+            .map(|slug| Reference::Slug(Cow::Borrowed(slug.as_ref())))
+            .collect::<Vec<_>>();
         let (category_all, include_current_category) = if category_selector_present {
             (category_all, include_current_category)
         } else {
@@ -7569,7 +7580,7 @@ impl RenderService {
                 untagged,
             },
             page_parent,
-            contains_outgoing_links: &[],
+            contains_outgoing_links: &link_to_references,
             creation_date,
             update_date,
             author: resolved_authors.as_selector(),
@@ -8556,6 +8567,7 @@ struct ListPagesArguments {
     wrapper: bool,
     unsupported_author_filter: bool,
     unsupported_list_pages_filter: bool,
+    link_to: Vec<Cow<'static, str>>,
     unsupported_score_filter: bool,
     unsupported_count_pages_filter: bool,
 }
@@ -8710,6 +8722,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut wrapper = true;
     let mut unsupported_author_filter = false;
     let mut unsupported_list_pages_filter = false;
+    let mut link_to: Vec<Cow<'static, str>> = Vec::new();
     let mut unsupported_score_filter = false;
     let mut unsupported_count_pages_filter = false;
 
@@ -8982,7 +8995,29 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 };
                 update_date = parse_list_pages_date_selector(value)?;
             }
-            "votes" | "form" | "link_to" | "linkto" | "urlattrprefix" => {
+            "link_to" | "linkto" => {
+                let Some(value) = static_list_pages_selector(
+                    value,
+                    &mut unsupported_count_pages_filter,
+                ) else {
+                    unsupported_list_pages_filter = true;
+                    continue;
+                };
+                // The selector names one page. Only that single-target form is
+                // evidenced, so a list would have to guess whether Wikidot
+                // unions or intersects its targets; the module stays literal.
+                let target = value.trim();
+                if target.is_empty() || target.contains(',') {
+                    unsupported_count_pages_filter = true;
+                    unsupported_list_pages_filter = true;
+                    continue;
+                }
+                unsupported_count_pages_filter = true;
+                let mut target = target.to_owned();
+                normalize(&mut target);
+                link_to.push(Cow::Owned(target));
+            }
+            "votes" | "form" | "urlattrprefix" => {
                 unsupported_count_pages_filter = true;
                 // These filters need Wikidot-specific query semantics that are not
                 // implemented here. Parsing them keeps real corpus modules out of
@@ -9053,6 +9088,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         wrapper,
         unsupported_author_filter,
         unsupported_list_pages_filter,
+        link_to,
         unsupported_score_filter,
         unsupported_count_pages_filter,
     })
@@ -13260,6 +13296,24 @@ mod tests {
     }
 
     #[test]
+    fn parses_wikidot_list_pages_link_to_target() {
+        let arguments = parse_list_pages_arguments(
+            r#" category="*" link_to="CG LP Q7 002 Link Target" "#,
+        )
+        .expect("link_to selector should parse");
+
+        assert_eq!(
+            arguments.link_to,
+            vec![Cow::Borrowed("cg-lp-q7-002-link-target")],
+            "the target is normalized to a page slug before link resolution",
+        );
+        assert!(
+            !arguments.unsupported_list_pages_filter,
+            "a single evidenced target must render rather than stay literal",
+        );
+    }
+
+    #[test]
     fn parses_wikidot_list_pages_rating_order() {
         for (source, ascending) in [
             (r#" category="*" order="rating desc" "#, false),
@@ -13304,13 +13358,15 @@ mod tests {
     #[test]
     fn flags_wikidot_list_pages_selectors_that_cannot_be_honored() {
         for source in [
-            r#" category="_default" link_to="scp-001" "#,
             r#" category="_default" votes=">3" "#,
             r#" category="_default" form="field=value" "#,
             r#" category="_default" urlAttrPrefix="p" "#,
             r#" category="_default" range="before" "#,
             r#" category="_default" range="after" "#,
             r#" category="_default" tags="=" "#,
+            // link_to names one page; a list has no evidenced combining rule.
+            r#" category="_default" link_to="one, two" "#,
+            r#" category="_default" link_to="" "#,
         ] {
             let arguments = parse_list_pages_arguments(source)
                 .unwrap_or_else(|| panic!("selector should parse: {source}"));

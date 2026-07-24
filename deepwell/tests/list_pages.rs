@@ -1014,3 +1014,106 @@ async fn rating_order_listpages_sorts_by_descending_score() {
         "a rating-ordered module should render rather than stay literal:\n{html}",
     );
 }
+
+#[tokio::test]
+async fn link_to_listpages_selects_only_linking_pages() {
+    const TARGET_SLUG: &str = "link-to-target";
+    const LINKING_SLUG: &str = "link-to-linking";
+    const UNRELATED_SLUG: &str = "link-to-unrelated";
+    const SOURCE_SLUG: &str = "link-to-source";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, wikitext) in [
+        (TARGET_SLUG, "The link target".to_owned()),
+        (
+            LINKING_SLUG,
+            format!("See [[[{TARGET_SLUG}]]] for details."),
+        ),
+        (UNRELATED_SLUG, "No internal links here.".to_owned()),
+    ] {
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(slug.into())),
+        });
+        run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": wikitext,
+                "title": slug,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "link_to ListPages fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+    }
+
+    let source = format!(
+        concat!(
+            "[[module ListPages category=\"_default\" link_to=\"{}\" ",
+            "separate=\"no\"]]\n",
+            "ROW %%name%%\n",
+            "[[/module]]",
+        ),
+        TARGET_SLUG,
+    );
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(SOURCE_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": source,
+            "title": "link_to ListPages",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "link_to ListPages smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": SOURCE_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("link_to page_get should succeed")
+    .expect("link_to page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains(&format!("ROW {LINKING_SLUG}")),
+        "the linking page should match link_to:\n{html}",
+    );
+    assert!(
+        !html.contains(&format!("ROW {UNRELATED_SLUG}")),
+        "a page without the link must not be returned by link_to:\n{html}",
+    );
+}
