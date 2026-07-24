@@ -18,6 +18,7 @@ pub struct Model {
     pub from_wikidot: bool,
     pub page_id: i64,
     pub user_id: i64,
+    pub rating_system: String,
     pub value: i16,
 }
 

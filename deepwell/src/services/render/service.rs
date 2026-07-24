@@ -6828,6 +6828,7 @@ impl RenderService {
             authors,
             author_filter_present,
             order,
+            reverse,
             limit,
             count_pages_explicit_limit: _,
             count_pages_per_page,
@@ -6842,6 +6843,7 @@ impl RenderService {
             name_pattern,
             data_form_fields,
             prepend_line,
+            append_line,
             separate,
             wrapper,
             unsupported_author_filter: _,
@@ -7026,10 +7028,13 @@ impl RenderService {
             .skip(offset as usize)
             .collect::<Vec<_>>();
         let total_selected = selected_pages.len();
-        let pages = selected_pages
+        let mut pages = selected_pages
             .into_iter()
             .take(requested_limit as usize)
             .collect::<Vec<_>>();
+        if reverse {
+            pages.reverse();
+        }
         let total = pages.len();
         let body = template.body();
         if wants_content && !expansion_budget.can_expand_content_rows(total) {
@@ -7118,7 +7123,9 @@ impl RenderService {
             output.push_str("[[div class=\"list-pages-box\"]]\n");
         }
         let mut included_pages = Vec::new();
-        if let Some(prepend_line) = prepend_line {
+        if !pages.is_empty()
+            && let Some(prepend_line) = prepend_line
+        {
             output.push_str(&prepend_line);
             output.push('\n');
         }
@@ -7244,6 +7251,7 @@ impl RenderService {
             let substitution_context = ListPagesSubstitutionContext {
                 rendered_limit: requested_limit as usize,
                 ajax_module_response,
+                site: page_info.site.as_ref(),
                 category: page
                     .page_category_id
                     .and_then(|category_id| category_slugs.get(&category_id))
@@ -7263,7 +7271,7 @@ impl RenderService {
                 let body = substitute_list_pages_variables_with_fragments(
                     body,
                     page,
-                    index + 1,
+                    index + offset as usize + 1,
                     total,
                     &substitution_context,
                     &mut generated_fragments,
@@ -7281,6 +7289,13 @@ impl RenderService {
             } else {
                 output.push('\n');
             }
+        }
+
+        if !pages.is_empty()
+            && let Some(append_line) = append_line
+        {
+            output.push_str(&append_line);
+            output.push('\n');
         }
 
         if let Some(per_page) = count_pages_per_page {
@@ -7333,6 +7348,7 @@ impl RenderService {
             authors,
             author_filter_present,
             order,
+            reverse: _,
             limit,
             count_pages_explicit_limit,
             count_pages_per_page: _,
@@ -7346,6 +7362,7 @@ impl RenderService {
             slug,
             name_pattern,
             prepend_line: _,
+            append_line: _,
             data_form_fields,
             unsupported_author_filter: _,
             unsupported_score_filter: _,
@@ -8334,7 +8351,7 @@ struct BacklinksModulePage {
     title: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct ListPagesArguments {
     current_page_only: bool,
     category_selector_present: bool,
@@ -8349,6 +8366,7 @@ struct ListPagesArguments {
     authors: Vec<Cow<'static, str>>,
     author_filter_present: bool,
     order: Option<OrderBySelector>,
+    reverse: bool,
     limit: Option<u64>,
     count_pages_explicit_limit: Option<u64>,
     count_pages_per_page: Option<u64>,
@@ -8363,6 +8381,7 @@ struct ListPagesArguments {
     name_pattern: Option<Cow<'static, str>>,
     data_form_fields: Vec<DataFormSelector<'static>>,
     prepend_line: Option<String>,
+    append_line: Option<String>,
     separate: bool,
     wrapper: bool,
     unsupported_author_filter: bool,
@@ -8483,6 +8502,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
 
     let mut category_all = true;
     let mut category_selector_present = false;
+    let mut category_argument_is_plural = None;
     let mut current_page_only = false;
     let mut include_current_category = false;
     let mut categories = Vec::new();
@@ -8494,6 +8514,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut authors = Vec::new();
     let mut author_filter_present = false;
     let mut order = None;
+    let mut reverse = false;
     let mut limit = None;
     let mut count_pages_explicit_limit = None;
     let mut count_pages_per_page = None;
@@ -8512,6 +8533,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
     let mut name_pattern = None;
     let mut data_form_fields = Vec::new();
     let mut prepend_line = None;
+    let mut append_line = None;
     let mut separate = true;
     let mut wrapper = true;
     let mut unsupported_author_filter = false;
@@ -8583,7 +8605,14 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                     }
                 }
             }
-            "category" => {
+            "category" | "categories" => {
+                let is_plural = key == "categories";
+                if category_argument_is_plural
+                    .is_some_and(|previous| previous != is_plural)
+                {
+                    return None;
+                }
+                category_argument_is_plural.get_or_insert(is_plural);
                 category_selector_present = true;
                 let mut saw_included_category = false;
                 let Some(value) = static_list_pages_selector(
@@ -8643,6 +8672,9 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
             "prependline" | "prepend_line" => {
                 prepend_line = Some(value.to_owned());
             }
+            "appendline" => {
+                append_line = Some(value.to_owned());
+            }
             "order" => {
                 if value.is_empty() {
                     continue;
@@ -8650,6 +8682,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 let value = list_pages_url_fallback(value).unwrap_or(value);
                 order = Some(parse_list_pages_order(value)?);
             }
+            "reverse" => match value.to_ascii_lowercase().as_str() {
+                "yes" => reverse = true,
+                _ => return None,
+            },
             "name" | "fullname" | "full_slug" | "fullslug" => {
                 let Some(value) = static_list_pages_selector(
                     value,
@@ -8756,6 +8792,10 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
                 // out of FTML's generic module path, which otherwise panics on
                 // ListPages bodies that start with numbered-list markers.
             }
+            // Wikidot accepts these presentation arguments without applying them
+            // to the ListPages wrapper. Preserve that accepted no-op grammar, but
+            // do not forward author-controlled attributes into generated markup.
+            "class" | "style" => {}
             _ if raw_key.starts_with('_') => {
                 let value = static_list_pages_selector(
                     value,
@@ -8791,6 +8831,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         authors,
         author_filter_present,
         order,
+        reverse,
         limit,
         count_pages_explicit_limit,
         count_pages_per_page,
@@ -8805,6 +8846,7 @@ fn parse_list_pages_arguments(head: &str) -> Option<ListPagesArguments> {
         name_pattern,
         data_form_fields,
         prepend_line,
+        append_line,
         separate,
         wrapper,
         unsupported_author_filter,
@@ -9690,6 +9732,7 @@ fn push_list_pages_pager_target(
 struct ListPagesSubstitutionContext<'a> {
     rendered_limit: usize,
     ajax_module_response: bool,
+    site: &'a str,
     category: &'a str,
     user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
     snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
@@ -9708,6 +9751,14 @@ fn substitute_list_pages_variables_with_fragments(
     compat_html: &mut CompatHtmlFragments,
 ) -> String {
     let slug = page.slug.as_deref().unwrap_or("");
+    // Page-query rows retain Wikidot's normalized full slug, including a
+    // non-default category prefix. Do not reconstruct it from the category
+    // ID here: that would duplicate the prefix for ordinary queried rows.
+    let full_slug = slug.to_owned();
+    let link = format!(
+        "http://{}.wikidot.com/{full_slug}/noredirect/true",
+        context.site
+    );
     let title = page.title.as_deref().unwrap_or(slug);
     let generated_wikitext_title = preserve_list_pages_generated_text_typography(title);
     let title_linked = if slug.is_empty() {
@@ -9780,6 +9831,11 @@ fn substitute_list_pages_variables_with_fragments(
         .filter(|tag| is_list_pages_visible_tag(tag))
         .cloned()
         .collect::<Vec<_>>();
+    let hidden_tags = tags
+        .iter()
+        .filter(|tag| is_list_pages_hidden_tag(tag))
+        .cloned()
+        .collect::<Vec<_>>();
     let tags_text = visible_tags.join(" ");
     let rating = format_list_pages_rating(page.score);
     // The frozen corpus predates vote-count capture. Keep this value typed as
@@ -9800,8 +9856,13 @@ fn substitute_list_pages_variables_with_fragments(
                 "title_linked" => title_linked.clone(),
                 "linked_title" => title_linked.clone(),
                 "title" => generated_wikitext_title.clone(),
-                "name" | "slug" | "page_unix_name" | "fullname" | "full_slug"
-                | "link" => slug.to_owned(),
+                "name" | "slug" | "page_unix_name" => slug.to_owned(),
+                "fullname" | "full_slug" => full_slug.clone(),
+                "link" if !slug.is_empty() && !context.site.is_empty() => link.clone(),
+                "link" => captures
+                    .get(0)
+                    .map_or("", |matched| matched.as_str())
+                    .to_owned(),
                 "created_by" | "createdby" => created_by.clone(),
                 "created_by_linked" | "createdbylinked" | "author" => {
                     created_by_linked.clone()
@@ -9814,11 +9875,13 @@ fn substitute_list_pages_variables_with_fragments(
                 "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
                     updated_by.clone()
                 }
-                "updated_at" | "updatedat" => format_list_pages_created_at(
-                    updated_at,
-                    captures.name("format").map(|matched| matched.as_str()),
-                    context.render_generated_html,
-                ),
+                "updated_at" | "updatedat" | "date_edited" => {
+                    format_list_pages_created_at(
+                        updated_at,
+                        captures.name("format").map(|matched| matched.as_str()),
+                        context.render_generated_html,
+                    )
+                }
                 "commented_by"
                 | "commentedby"
                 | "commented_by_linked"
@@ -9834,6 +9897,12 @@ fn substitute_list_pages_variables_with_fragments(
                 "tags" => tags_text.clone(),
                 "tags_linked" | "tagslinked" => render_list_pages_tags(
                     &visible_tags,
+                    captures.name("format").map(|matched| matched.as_str()),
+                    context.render_generated_html,
+                    compat_html,
+                ),
+                "_tags_linked" => render_list_pages_tags(
+                    &hidden_tags,
                     captures.name("format").map(|matched| matched.as_str()),
                     context.render_generated_html,
                     compat_html,
@@ -10030,6 +10099,11 @@ fn is_tag_cloud_visible_tag(tag: &str) -> bool {
 fn is_list_pages_visible_tag(tag: &str) -> bool {
     let tag = tag.trim();
     !tag.is_empty() && !tag.starts_with('_')
+}
+
+fn is_list_pages_hidden_tag(tag: &str) -> bool {
+    let tag = tag.trim();
+    !tag.is_empty() && tag.starts_with('_')
 }
 
 fn render_list_pages_wikidot_user(
@@ -10268,9 +10342,15 @@ fn format_wikidot_list_pages_date(
             Some('d') => output.push_str(&format!("{:02}", created_at.day())),
             Some('e') => output.push_str(&created_at.day().to_string()),
             Some('b') => output.push_str(month),
+            Some('m') => output.push_str(&format!("{:02}", created_at.month() as u8)),
             Some('Y') => output.push_str(&created_at.year().to_string()),
             Some('H') => output.push_str(&format!("{:02}", created_at.hour())),
             Some('M') => output.push_str(&format!("{:02}", created_at.minute())),
+            Some('R') => output.push_str(&format!(
+                "{:02}:{:02}",
+                created_at.hour(),
+                created_at.minute()
+            )),
             Some('%') => output.push('%'),
             Some(other) => {
                 output.push('%');
@@ -12352,6 +12432,7 @@ mod tests {
         ListPagesSubstitutionContext {
             rendered_limit,
             ajax_module_response: false,
+            site: "scp-wiki",
             category: "",
             user_displays,
             snapshot_displays,
@@ -12873,6 +12954,55 @@ mod tests {
     }
 
     #[test]
+    fn parses_wikidot_list_pages_categories_alias_without_mixing_spellings() {
+        let singular = parse_list_pages_arguments(
+            r#" category="_default" tags="+fixture" limit="20" "#,
+        )
+        .expect("singular category selector should parse");
+        let plural = parse_list_pages_arguments(
+            r#" categories="_default" tags="+fixture" limit="20" "#,
+        )
+        .expect("Wikidot categories alias should parse");
+
+        assert_eq!(plural, singular);
+        assert!(
+            parse_list_pages_arguments(r#" category="_default" categories="fragment" "#)
+                .is_none(),
+            "mixing category spellings remains unverified and must fail closed"
+        );
+    }
+
+    #[test]
+    fn parses_wikidot_list_pages_reverse_yes_only() {
+        let arguments = parse_list_pages_arguments(
+            r#" tags="+fixture" order="name asc" reverse="yes" limit="20" "#,
+        )
+        .expect("live-evidenced reverse=yes should parse");
+
+        assert!(arguments.reverse);
+        assert!(
+            parse_list_pages_arguments(r#" tags="+fixture" reverse="no" "#).is_none(),
+            "unverified reverse values must remain literal"
+        );
+    }
+
+    #[test]
+    fn parses_wikidot_list_pages_append_line_without_aliases() {
+        let arguments = parse_list_pages_arguments(
+            r#" tags="+fixture" separate="no" prependLine="PRE" appendLine="POST" "#,
+        )
+        .expect("live-evidenced appendLine should parse");
+
+        assert_eq!(arguments.prepend_line.as_deref(), Some("PRE"));
+        assert_eq!(arguments.append_line.as_deref(), Some("POST"));
+        assert!(
+            parse_list_pages_arguments(r#" tags="+fixture" append_line="POST" "#)
+                .is_none(),
+            "unverified appendLine aliases must remain literal"
+        );
+    }
+
+    #[test]
     fn parses_singular_list_pages_tag_argument_with_exclusions() {
         let arguments = parse_list_pages_arguments(
             r#" tag="+scp -tale -goi-format -co-authored" category="-fragment" perPage="250""#,
@@ -12912,6 +13042,35 @@ mod tests {
         assert_eq!(
             arguments.prepend_line.as_deref(),
             Some("||~ ページ ||~ 投稿者 ||~ 投稿日 ||~ 評価 ||"),
+        );
+    }
+
+    #[test]
+    fn accepts_wikidot_list_pages_class_and_style_as_noops() {
+        let baseline = parse_list_pages_arguments(
+            r#" category="*" tags="fixture" limit="20" wrapper="no" "#,
+        )
+        .expect("baseline ListPages module should parse");
+
+        for head in [
+            r#" category="*" tags="fixture" limit="20" class="g54-custom" wrapper="no" "#,
+            r#" category="*" tags="fixture" limit="20" style="margin: 0; width: 100%;" wrapper="no" "#,
+            r#" category="*" tags="fixture" limit="20" class="" style="" wrapper="no" "#,
+            r#" category="*" tags="fixture" limit="20" class="first" class="second" style="color: red" style="display: block" wrapper="no" "#,
+        ] {
+            assert_eq!(
+                parse_list_pages_arguments(head),
+                Some(baseline.clone()),
+                "Wikidot accepts class/style as no-op ListPages grammar: {head}",
+            );
+        }
+
+        assert!(
+            parse_list_pages_arguments(
+                r#" category="*" tags="fixture" limit="20" data-custom="value" wrapper="no" "#,
+            )
+            .is_none(),
+            "only the live-evidenced class/style keys are accepted as no-ops"
         );
     }
 
@@ -14183,6 +14342,24 @@ mod tests {
         assert!(!protected.contains("data-wikijump-authored-compat-date"));
         let restored = fragments.restore(&protected);
         assert!(restored.contains("data-wikijump-compat-date=\"1\""));
+    }
+
+    #[test]
+    fn formats_wikidot_list_pages_numeric_month_and_24_hour_time() {
+        let created_at = time::Date::from_calendar_date(2024, time::Month::August, 8)
+            .expect("fixture date should be valid")
+            .with_hms(19, 44, 0)
+            .expect("fixture time should be valid")
+            .assume_utc();
+
+        let rendered = format_list_pages_created_at(
+            Some(created_at),
+            Some("%Y-%m-%d %R|agohover"),
+            true,
+        );
+
+        assert!(rendered.contains("format_%25Y-%25m-%25d%20%25R%7Cagohover"));
+        assert!(rendered.ends_with(">2024-08-09 04:44</span>"));
     }
 
     #[test]
@@ -15641,6 +15818,45 @@ mod tests {
     }
 
     #[test]
+    fn distinguishes_wikidot_list_pages_link_and_fullname() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Fixture component".to_owned()),
+            alt_title: None,
+            slug: Some("component:black-highlighter-theme-dev".to_owned()),
+            page_category_id: Some(1),
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let users = BTreeMap::new();
+        let data_form_values = BTreeMap::new();
+        let mut context =
+            list_pages_substitution_context(20, &users, None, &data_form_values);
+        context.category = "component";
+
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%fullname%%|%%full_slug%%|%%link%%",
+                &page,
+                1,
+                1,
+                &context,
+            ),
+            concat!(
+                "component:black-highlighter-theme-dev|",
+                "component:black-highlighter-theme-dev|",
+                "http://scp-wiki.wikidot.com/component:black-highlighter-theme-dev/noredirect/true",
+            ),
+        );
+    }
+
+    #[test]
     fn substitutes_wikidot_list_pages_author_tool_variables() {
         let updated_at = time::OffsetDateTime::from_unix_timestamp(1_782_005_400)
             .expect("fixture timestamp should be valid");
@@ -15680,6 +15896,7 @@ mod tests {
             "**Comments:** %%comments%%\n",
             "**Last Comment:** %%commented_by%% (//%%commented_at|%D %H:%M|agohover%%//)\n",
             "**Last Edit:** %%updated_by%% (//%%updated_at|%D %H:%M|agohover%%//)\n",
+            "**Edited date:** //%%date_edited|%D %H:%M|agohover%%//\n",
             "%%tags_linked%%\n",
             "%%link%%",
         );
@@ -15696,11 +15913,18 @@ mod tests {
         assert!(rendered.contains("[/scp-2693 SCP-2693]"));
         assert!(rendered.contains("**Rating:** +42"));
         assert!(rendered.contains("**Last Edit:** Calibold"));
-        assert!(rendered.contains(r#"<span class="odate time_1782005400"#));
+        assert_eq!(
+            rendered
+                .matches(r#"<span class="odate time_1782005400"#)
+                .count(),
+            2
+        );
         assert!(rendered.contains(r#"data-wikijump-compat-date="1""#));
         assert!(rendered.contains("[/system:page-tags/tag/scp scp]"));
         assert!(rendered.contains("[/system:page-tags/tag/safe safe]"));
-        assert!(rendered.ends_with("scp-2693"));
+        assert!(
+            rendered.ends_with("http://scp-wiki.wikidot.com/scp-2693/noredirect/true")
+        );
         assert!(!rendered.contains("%%updated_by%%"));
         assert!(!rendered.contains("%%tags_linked%%"));
     }
@@ -15945,6 +16169,74 @@ mod tests {
     }
 
     #[test]
+    fn substitutes_wikidot_list_pages_hidden_tags_as_links() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Hidden tags".to_owned()),
+            alt_title: None,
+            slug: Some("hidden-tags".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: Some(vec![
+                "_image".to_owned(),
+                "scp".to_owned(),
+                "_licensebox".to_owned(),
+                "safe".to_owned(),
+            ]),
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+
+        let rendered = substitute_list_pages_variables(
+            "%%_tags_linked%%",
+            &page,
+            1,
+            1,
+            &list_pages_substitution_context_with_mode(
+                20,
+                &BTreeMap::new(),
+                empty_list_pages_snapshot_displays(),
+                None,
+                &BTreeMap::new(),
+                true,
+            ),
+        );
+
+        assert_eq!(
+            rendered,
+            r#"<a href="/system:page-tags/tag/_image">_image</a> <a href="/system:page-tags/tag/_licensebox">_licensebox</a>"#,
+        );
+        assert!(!rendered.contains(">scp<"));
+        assert!(!rendered.contains(">safe<"));
+
+        let no_hidden_tags = FoundPageRow {
+            tags: Some(vec!["scp".to_owned(), "safe".to_owned()]),
+            ..page
+        };
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%_tags_linked%%",
+                &no_hidden_tags,
+                1,
+                1,
+                &list_pages_substitution_context_with_mode(
+                    20,
+                    &BTreeMap::new(),
+                    empty_list_pages_snapshot_displays(),
+                    None,
+                    &BTreeMap::new(),
+                    true,
+                ),
+            ),
+            ""
+        );
+    }
+
+    #[test]
     fn substitutes_artwork_hub_listpages_body_without_visible_html_or_parser_functions() {
         let created_at = time::OffsetDateTime::from_unix_timestamp(1_781_900_521)
             .expect("fixture timestamp should be valid");
@@ -16137,6 +16429,35 @@ mod tests {
                 r#"<style>@import url(https://scp-wiki-en-corpus-scp9506-slice-v2.wjfiles.localhost/local--code/component:betterfootnotes/1)</style>"#,
                 r#"</p>"#,
             ),
+        );
+    }
+
+    #[test]
+    fn renders_and_localizes_wikidot_file_attachment_link() {
+        let page_info = fallback_test_page_info("scp-2276", "SCP-2276");
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let tokens = ftml::tokenize("[[file elements.tsv | Download Catalog]]");
+        let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+        assert!(errors.is_empty(), "{errors:#?}");
+
+        let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+        assert_eq!(
+            rendered,
+            r#"<p><a href="https://scp-wiki.wjfiles.com/local--files/scp-2276/elements.tsv">Download Catalog</a></p>"#,
+        );
+
+        let site = wikidot_site("scp-wiki-en-corpus", Some("scp-wiki.wikidot.com"));
+        let mut config = Config::integration_testing();
+        config.files_domain = ".wjfiles.localhost".to_owned();
+        config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+
+        assert_eq!(
+            RenderService::restore_wikidot_render_compatibility(
+                &rendered,
+                Some(&site),
+                &config,
+            ),
+            r#"<p><a href="https://scp-wiki-en-corpus.wjfiles.localhost/local--files/scp-2276/elements.tsv">Download Catalog</a></p>"#,
         );
     }
 
@@ -21699,6 +22020,7 @@ mod tests {
             preferred_domain: preferred_domain.map(ToOwned::to_owned),
             layout: None,
             license: License::CcBySa30,
+            forum_max_nest_level: 10,
         }
     }
 }

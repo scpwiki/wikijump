@@ -71,6 +71,112 @@ pub struct ForumStructureSettings {
     pub per_page_discussion: bool,
 }
 
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Default, PartialEq, Eq)]
+pub struct PageDiscussionSettings {
+    pub enabled: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum PageRatingPermission {
+    Registered,
+    Members,
+}
+
+impl PageRatingPermission {
+    pub const fn as_storage(self) -> &'static str {
+        match self {
+            Self::Registered => "registered",
+            Self::Members => "members",
+        }
+    }
+
+    pub fn from_storage(value: &str) -> Option<Self> {
+        match value {
+            "registered" => Some(Self::Registered),
+            "members" => Some(Self::Members),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum PageRatingVisibility {
+    Visible,
+    Anonymous,
+}
+
+impl PageRatingVisibility {
+    pub const fn as_storage(self) -> &'static str {
+        match self {
+            Self::Visible => "visible",
+            Self::Anonymous => "anonymous",
+        }
+    }
+
+    pub fn from_storage(value: &str) -> Option<Self> {
+        match value {
+            "visible" => Some(Self::Visible),
+            "anonymous" => Some(Self::Anonymous),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum PageRatingType {
+    Plus,
+    PlusMinus,
+    Stars,
+}
+
+impl PageRatingType {
+    pub const fn as_storage(self) -> &'static str {
+        match self {
+            Self::Plus => "plus",
+            Self::PlusMinus => "plus_minus",
+            Self::Stars => "stars",
+        }
+    }
+
+    pub const fn vote_store_key(self) -> &'static str {
+        match self {
+            Self::Plus | Self::PlusMinus => "points",
+            Self::Stars => "stars",
+        }
+    }
+
+    pub fn from_storage(value: &str) -> Option<Self> {
+        match value {
+            "plus" => Some(Self::Plus),
+            "plus_minus" => Some(Self::PlusMinus),
+            "stars" => Some(Self::Stars),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+pub struct PageRatingSettings {
+    pub enabled: bool,
+    pub permission: PageRatingPermission,
+    pub visibility: PageRatingVisibility,
+    pub rating_type: PageRatingType,
+}
+
+impl Default for PageRatingSettings {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            permission: PageRatingPermission::Registered,
+            visibility: PageRatingVisibility::Visible,
+            rating_type: PageRatingType::PlusMinus,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -85,6 +191,38 @@ mod tests {
         match NavigationPage::from(String::from("_default")) {
             NavigationPage::Enabled(value) => assert_eq!(value, "_default"),
             NavigationPage::Disabled => panic!("non-empty slug was disabled"),
+        }
+    }
+
+    #[test]
+    fn page_rating_storage_values_and_defaults_match_wikidot_contract() {
+        let defaults = PageRatingSettings::default();
+        assert!(defaults.enabled);
+        assert_eq!(defaults.permission, PageRatingPermission::Registered);
+        assert_eq!(defaults.visibility, PageRatingVisibility::Visible);
+        assert_eq!(defaults.rating_type, PageRatingType::PlusMinus);
+
+        for (stored, value) in [
+            ("registered", PageRatingPermission::Registered),
+            ("members", PageRatingPermission::Members),
+        ] {
+            assert_eq!(PageRatingPermission::from_storage(stored), Some(value));
+            assert_eq!(value.as_storage(), stored);
+        }
+        for (stored, value) in [
+            ("visible", PageRatingVisibility::Visible),
+            ("anonymous", PageRatingVisibility::Anonymous),
+        ] {
+            assert_eq!(PageRatingVisibility::from_storage(stored), Some(value));
+            assert_eq!(value.as_storage(), stored);
+        }
+        for (stored, value) in [
+            ("plus", PageRatingType::Plus),
+            ("plus_minus", PageRatingType::PlusMinus),
+            ("stars", PageRatingType::Stars),
+        ] {
+            assert_eq!(PageRatingType::from_storage(stored), Some(value));
+            assert_eq!(value.as_storage(), stored);
         }
     }
 }

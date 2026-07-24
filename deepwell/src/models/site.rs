@@ -37,6 +37,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub layout: Option<String>,
     pub license: License,
+    pub forum_max_nest_level: i16,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -1,4 +1,5 @@
 import defaults from "$lib/defaults"
+import { discussionUpdateValue } from "$lib/admin-forum.js"
 import { licenseUpdateValue } from "$lib/admin-license.js"
 import { navigationUpdateValues } from "$lib/admin-navigation.js"
 
@@ -6,7 +7,10 @@ import { authGetSession } from "$lib/server/auth/getSession"
 import {
   categoryLicenseUpdate,
   categoryNavigationUpdate,
+  categoryDiscussionUpdate,
+  categoryRatingUpdate,
   categoryTemplateUpdate,
+  siteForumNestingUpdate,
   siteUpdate
 } from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
@@ -19,10 +23,14 @@ import { valibot } from "sveltekit-superforms/adapters"
 import {
   boolean,
   literal,
+  integer,
+  maxValue,
+  minValue,
   nullable,
   number,
   object,
   optional,
+  pipe,
   string,
   maxLength,
   enum as vEnum
@@ -95,6 +103,9 @@ export async function loadAdminPage(
   const navigationForm = await superValidate(request, valibot(navigationSchema))
   const licenseForm = await superValidate(request, valibot(licenseSchema))
   const templateForm = await superValidate(request, valibot(templateSchema))
+  const ratingForm = await superValidate(request, valibot(ratingSchema))
+  const forumNestingForm = await superValidate(request, valibot(forumNestingSchema))
+  const discussionForm = await superValidate(request, valibot(discussionSchema))
 
   const viewData = {
     view: response.type,
@@ -104,6 +115,9 @@ export async function loadAdminPage(
     navigationForm,
     licenseForm,
     templateForm,
+    ratingForm,
+    forumNestingForm,
+    discussionForm,
     categories: response.type === "site_found" ? response.data.categories : [],
     pageTemplates: response.type === "site_found" ? response.data.page_templates : []
   }
@@ -113,6 +127,89 @@ export async function loadAdminPage(
   }
 
   return viewData
+}
+
+export async function forumNestingAction({
+  request,
+  getClientAddress,
+  cookies
+}: RequestEvent) {
+  const form = await superValidate(request, valibot(forumNestingSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's forum settings"
+    })
+  }
+
+  try {
+    const res = await siteForumNestingUpdate(
+      form.data.siteId,
+      session.user_id,
+      getClientAddress(),
+      form.data.maxNestLevel,
+      { sessionToken, siteId: form.data.siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    const details = error as {
+      message?: string
+      code?: string
+      data?: Record<string, unknown>
+    }
+    return fail(500, {
+      form,
+      message: details.message,
+      code: details.code,
+      data: details.data
+    })
+  }
+}
+
+export async function discussionAction({
+  request,
+  getClientAddress,
+  cookies
+}: RequestEvent) {
+  const form = await superValidate(request, valibot(discussionSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's discussion settings"
+    })
+  }
+
+  try {
+    const res = await categoryDiscussionUpdate(
+      form.data.siteId,
+      form.data.categoryId,
+      session.user_id,
+      getClientAddress(),
+      discussionUpdateValue(form.data),
+      { sessionToken, siteId: form.data.siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    const details = error as {
+      message?: string
+      code?: string
+      data?: Record<string, unknown>
+    }
+    return fail(500, {
+      form,
+      message: details.message,
+      code: details.code,
+      data: details.data
+    })
+  }
 }
 
 export async function templateAction({
@@ -194,6 +291,49 @@ export async function licenseAction({
       message: error?.message,
       code: error?.code,
       data: error?.data
+    })
+  }
+}
+
+export async function ratingAction({ request, getClientAddress, cookies }: RequestEvent) {
+  const form = await superValidate(request, valibot(ratingSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's rating settings"
+    })
+  }
+
+  const { siteId, categoryId, inherit, enabled, permission, visibility, ratingType } =
+    form.data
+  try {
+    const res = await categoryRatingUpdate(
+      siteId,
+      categoryId,
+      session.user_id,
+      getClientAddress(),
+      inherit ? null : enabled,
+      inherit ? null : permission,
+      inherit ? null : visibility,
+      inherit ? null : ratingType,
+      { sessionToken, siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    const details = error as {
+      message?: string
+      code?: string
+      data?: Record<string, unknown>
+    }
+    return fail(500, {
+      form,
+      message: details.message,
+      code: details.code,
+      data: details.data
     })
   }
 }
@@ -321,4 +461,25 @@ const templateSchema = object({
   siteId: number(),
   categoryId: number(),
   templatePageId: nullable(number())
+})
+
+const ratingSchema = object({
+  siteId: number(),
+  categoryId: number(),
+  inherit: boolean(),
+  enabled: boolean(),
+  permission: vEnum({ REGISTERED: "registered", MEMBERS: "members" }),
+  visibility: vEnum({ VISIBLE: "visible", ANONYMOUS: "anonymous" }),
+  ratingType: vEnum({ PLUS: "plus", PLUS_MINUS: "plus_minus", STARS: "stars" })
+})
+
+const forumNestingSchema = object({
+  siteId: number(),
+  maxNestLevel: pipe(number(), integer(), minValue(0), maxValue(10))
+})
+
+const discussionSchema = object({
+  siteId: number(),
+  categoryId: number(),
+  state: vEnum({ DEFAULT: "default", ENABLE: "enable", DISABLE: "disable" })
 })

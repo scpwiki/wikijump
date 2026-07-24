@@ -39,6 +39,7 @@ impl VoteService {
             user_id,
             value,
         }: CreateVote,
+        rating_system: &str,
     ) -> Result<Option<PageVoteModel>> {
         let txn = ctx.transaction();
         info!(
@@ -58,7 +59,10 @@ impl VoteService {
 
         // Get previous vote, if any
         let key = GetVote { page_id, user_id };
-        if let Some(vote) = Self::get_optional(ctx, key).await.or_raise(make_error)? {
+        if let Some(vote) = Self::get_optional(ctx, key, rating_system)
+            .await
+            .or_raise(make_error)?
+        {
             // If it's the same value, no new vote is needed
             if vote.value == value {
                 return Ok(None);
@@ -74,6 +78,7 @@ impl VoteService {
         let model = page_vote::ActiveModel {
             page_id: Set(page_id),
             user_id: Set(user_id),
+            rating_system: Set(rating_system.to_owned()),
             value: Set(value),
             ..Default::default()
         };
@@ -83,14 +88,19 @@ impl VoteService {
     }
 
     #[inline]
-    pub async fn get(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
-        find_or_error!(Self::get_optional(ctx, key), "vote", Vote)
+    pub async fn get(
+        ctx: &ServiceContext<'_>,
+        key: GetVote,
+        rating_system: &str,
+    ) -> Result<PageVoteModel> {
+        find_or_error!(Self::get_optional(ctx, key, rating_system), "vote", Vote)
     }
 
     /// Gets any current vote for the current page and user.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         GetVote { page_id, user_id }: GetVote,
+        rating_system: &str,
     ) -> Result<Option<PageVoteModel>> {
         let txn = ctx.transaction();
         let vote = PageVote::find()
@@ -98,6 +108,7 @@ impl VoteService {
                 Condition::all()
                     .add(page_vote::Column::PageId.eq(page_id))
                     .add(page_vote::Column::UserId.eq(user_id))
+                    .add(page_vote::Column::RatingSystem.eq(rating_system))
                     .add(page_vote::Column::DeletedAt.is_null()),
             )
             .one(txn)
@@ -119,6 +130,7 @@ impl VoteService {
     pub async fn action(
         ctx: &ServiceContext<'_>,
         key: GetVote,
+        rating_system: &str,
         enable: bool,
         acting_user_id: i64,
     ) -> Result<PageVoteModel> {
@@ -142,7 +154,7 @@ impl VoteService {
         };
 
         let txn = ctx.transaction();
-        let mut vote = Self::get(ctx, key)
+        let mut vote = Self::get(ctx, key, rating_system)
             .await
             .or_raise(make_error)?
             .into_active_model();
@@ -162,7 +174,11 @@ impl VoteService {
     }
 
     /// Removes the vote specified.
-    pub async fn remove(ctx: &ServiceContext<'_>, key: GetVote) -> Result<PageVoteModel> {
+    pub async fn remove(
+        ctx: &ServiceContext<'_>,
+        key: GetVote,
+        rating_system: &str,
+    ) -> Result<PageVoteModel> {
         info!("Removing vote {key:?}");
 
         let make_error = || {
@@ -176,7 +192,7 @@ impl VoteService {
         };
 
         let txn = ctx.transaction();
-        let mut vote = Self::get(ctx, key)
+        let mut vote = Self::get(ctx, key, rating_system)
             .await
             .or_raise(make_error)?
             .into_active_model();
@@ -205,9 +221,16 @@ impl VoteService {
             disabled,
             limit,
         }: GetVoteHistory,
+        rating_system: Option<&str>,
     ) -> Result<Vec<PageVoteModel>> {
         let txn = ctx.transaction();
-        let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
+        let condition = Self::build_history_condition(
+            kind,
+            start_id,
+            deleted,
+            disabled,
+            rating_system,
+        );
 
         let votes = PageVote::find()
             .filter(condition)
@@ -231,9 +254,16 @@ impl VoteService {
             deleted,
             disabled,
         }: CountVoteHistory,
+        rating_system: Option<&str>,
     ) -> Result<u64> {
         let txn = ctx.transaction();
-        let condition = Self::build_history_condition(kind, start_id, deleted, disabled);
+        let condition = Self::build_history_condition(
+            kind,
+            start_id,
+            deleted,
+            disabled,
+            rating_system,
+        );
 
         let vote_count = PageVote::find()
             .filter(condition)
@@ -249,6 +279,7 @@ impl VoteService {
         start_id: i64,
         deleted: Option<bool>,
         disabled: Option<bool>,
+        rating_system: Option<&str>,
     ) -> Condition {
         let kind_condition = match kind {
             VoteHistoryKind::Page(page_id) => page_vote::Column::PageId.eq(page_id),
@@ -267,11 +298,15 @@ impl VoteService {
             None => None,
         };
 
-        Condition::all()
+        let mut condition = Condition::all()
             .add(page_vote::Column::PageVoteId.gt(start_id))
             .add(kind_condition)
             .add_option(deleted_condition)
-            .add_option(disabled_condition)
+            .add_option(disabled_condition);
+        if let Some(rating_system) = rating_system {
+            condition = condition.add(page_vote::Column::RatingSystem.eq(rating_system));
+        }
+        condition
     }
 
     fn build_history_error(

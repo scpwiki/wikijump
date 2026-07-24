@@ -304,8 +304,11 @@ export async function loadPage(
         rating: wikidotSnapshot?.imported_rating ?? null,
         comments: wikidotSnapshot?.comments ?? null,
         locale: siteLocale,
-        showRate: sourceShowsStandardActions,
-        showDiscuss: sourceShowsStandardActions && wikidotSnapshot?.comments !== 0
+        showRate: sourceShowsStandardActions && responseData.page_rating.enabled,
+        showDiscuss:
+          sourceShowsStandardActions &&
+          (responseData.page_discussion.enabled ||
+            responseData.page.discussion_thread_id !== null)
       })
 
       wikidotPageWatch = buildWikidotPageWatchLabel({
@@ -1110,7 +1113,13 @@ export async function pageVoteCastAction({ request, cookies }: RequestEvent) {
       value: number
     } = await request.json()
     const { siteId, pageId, value } = requestData
-    const res = await pageVoteCast(siteId, pageId, session?.user_id, value)
+    if (!sessionToken || !session) {
+      return fail(401, { message: "login is required to rate this page" })
+    }
+    const res = await pageVoteCast(siteId, pageId, session.user_id, value, {
+      sessionToken,
+      siteId
+    })
     return { res }
   } catch (e) {
     const error = e as DeepwellError
@@ -1129,7 +1138,13 @@ export async function pageVoteCancelAction({ request, cookies }: RequestEvent) {
       pageId: number
     } = await request.json()
     const { siteId, pageId } = requestData
-    const res = await pageVoteRemove(siteId, pageId, session?.user_id)
+    if (!sessionToken || !session) {
+      return fail(401, { message: "login is required to rate this page" })
+    }
+    const res = await pageVoteRemove(siteId, pageId, session.user_id, {
+      sessionToken,
+      siteId
+    })
     return { res }
   } catch (e) {
     const error = e as DeepwellError

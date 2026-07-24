@@ -90,4 +90,5 @@ pub struct UpdateSiteBody {
     pub preferred_domain: Maybe<Option<String>>,
     pub layout: Maybe<Option<Layout>>,
     pub license: Maybe<License>,
+    pub forum_max_nest_level: Maybe<i16>,
 }

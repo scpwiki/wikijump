@@ -26,6 +26,14 @@ pub struct Model {
     pub license: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub license_other: Option<String>,
+    pub rating_enabled: Option<bool>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub rating_permission: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub rating_visibility: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub rating_type: Option<String>,
+    pub per_page_discussion: Option<bool>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

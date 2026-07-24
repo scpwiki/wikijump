@@ -2,11 +2,19 @@ import { strict as assert } from "node:assert"
 import test from "node:test"
 
 import {
+  buildWikidotDiscussButtonHtml,
   buildWikidotPageActionLabels,
   formatSigned,
   isWikidotFragmentPage,
   sourceShowsStandardWikidotPageActions
 } from "../src/lib/wikidot-page-actions.js"
+
+test("discussion action uses the frozen Wikidot DOM marker and escapes its label", () => {
+  assert.equal(
+    buildWikidotDiscussButtonHtml('Discuss <"unsafe">'),
+    '<a href="javascript:;" class="btn btn-default" id="discuss-button" onclick="WIKIDOT.page.listeners.createPageDiscussion(event)">Discuss &lt;"unsafe"&gt;</a>'
+  )
+})
 
 test("formats imported Wikidot action labels with source rating and comment counts", () => {
   assert.deepEqual(buildWikidotPageActionLabels({ rating: 19, comments: 2 }), {

@@ -1,7 +1,9 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation"
+  import { discussionFormValues } from "$lib/admin-forum.js"
   import { licenseFormValues, licenseOptionsFor } from "$lib/admin-license.js"
   import { navigationFormValues } from "$lib/admin-navigation.js"
+  import { ratingFormValues } from "$lib/admin-rating.js"
   import { errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
   import { superForm } from "sveltekit-superforms"
@@ -131,9 +133,100 @@
     }
   )
 
+  const { form: ratingFormData, enhance: enhanceRating } = superForm(
+    untrack(() => data.ratingForm),
+    {
+      dataType: "json",
+      resetForm: false,
+      onSubmit: async ({ jsonData }) => {
+        jsonData({
+          ...$ratingFormData,
+          siteId: data.site.site_id
+        })
+      },
+      onResult: async ({ result }) => {
+        if (result.type === "success" && result.data) {
+          const updatedCategory = result.data.res
+          const categoryIndex = data.categories.findIndex(
+            (category) => category.category_id === updatedCategory?.category_id
+          )
+          if (categoryIndex !== -1) data.categories[categoryIndex] = updatedCategory
+        }
+        if (result.type === "failure" && result.data) {
+          errorPopupState.current = {
+            state: true,
+            message: result.data?.message,
+            data: result.data?.data
+          }
+        }
+      }
+    }
+  )
+
+  const { form: forumNestingFormData, enhance: enhanceForumNesting } = superForm(
+    untrack(() => data.forumNestingForm),
+    {
+      dataType: "json",
+      resetForm: false,
+      onSubmit: async ({ jsonData }) => {
+        jsonData({
+          ...$forumNestingFormData,
+          siteId: data.site.site_id
+        })
+      },
+      onResult: async ({ result }) => {
+        if (result.type === "success" && result.data?.res) {
+          data.site = result.data.res
+        }
+        if (result.type === "failure" && result.data) {
+          errorPopupState.current = {
+            state: true,
+            message: result.data?.message,
+            data: result.data?.data
+          }
+        }
+      }
+    }
+  )
+
+  const { form: discussionFormData, enhance: enhanceDiscussion } = superForm(
+    untrack(() => data.discussionForm),
+    {
+      dataType: "json",
+      resetForm: false,
+      onSubmit: async ({ jsonData }) => {
+        jsonData({
+          ...$discussionFormData,
+          siteId: data.site.site_id
+        })
+      },
+      onResult: async ({ result }) => {
+        if (result.type === "success" && result.data?.res) {
+          const updatedCategory = result.data.res
+          const categoryIndex = data.categories.findIndex(
+            (category) => category.category_id === updatedCategory.category_id
+          )
+          if (categoryIndex !== -1) data.categories[categoryIndex] = updatedCategory
+        }
+        if (result.type === "failure" && result.data) {
+          errorPopupState.current = {
+            state: true,
+            message: result.data?.message,
+            data: result.data?.data
+          }
+        }
+      }
+    }
+  )
+
   const licenseCanInherit = $derived(
     data.categories.find(
       (category) => category.category_id === $licenseFormData.categoryId
+    )?.slug !== "_default"
+  )
+  const ratingCanInherit = $derived(
+    data.categories.find(
+      (category) => category.category_id === $ratingFormData.categoryId
     )?.slug !== "_default"
   )
 
@@ -194,6 +287,41 @@
     loadTemplateCategory($templateFormData.categoryId)
   }
 
+  function loadRatingCategory(categoryId: number) {
+    const category = data.categories.find(
+      (candidate) => candidate.category_id === categoryId
+    )
+    if (!category) return
+    const defaultCategory = data.categories.find(
+      (candidate) => candidate.slug === "_default"
+    )
+    const values = ratingFormValues(category, defaultCategory)
+    $ratingFormData.categoryId = values.categoryId
+    $ratingFormData.inherit = values.inherit
+    $ratingFormData.enabled = values.enabled
+    $ratingFormData.permission = values.permission
+    $ratingFormData.visibility = values.visibility
+    $ratingFormData.ratingType = values.ratingType
+  }
+
+  function handleRatingCategoryChange() {
+    loadRatingCategory($ratingFormData.categoryId)
+  }
+
+  function loadDiscussionCategory(categoryId: number) {
+    const category = data.categories.find(
+      (candidate) => candidate.category_id === categoryId
+    )
+    if (!category) return
+    const values = discussionFormValues(category)
+    $discussionFormData.categoryId = values.categoryId
+    $discussionFormData.state = values.state
+  }
+
+  function handleDiscussionCategoryChange() {
+    loadDiscussionCategory($discussionFormData.categoryId)
+  }
+
   $effect(() => {
     if (
       data.categories.length > 0 &&
@@ -202,6 +330,33 @@
       )
     ) {
       loadNavigationCategory(data.categories[0].category_id)
+    }
+  })
+
+  $effect(() => {
+    $forumNestingFormData.siteId = data.site.site_id
+    $forumNestingFormData.maxNestLevel = data.site.forum_max_nest_level
+  })
+
+  $effect(() => {
+    if (
+      data.categories.length > 0 &&
+      !data.categories.some(
+        (category) => category.category_id === $discussionFormData.categoryId
+      )
+    ) {
+      loadDiscussionCategory(data.categories[0].category_id)
+    }
+  })
+
+  $effect(() => {
+    if (
+      data.categories.length > 0 &&
+      !data.categories.some(
+        (category) => category.category_id === $ratingFormData.categoryId
+      )
+    ) {
+      loadRatingCategory(data.categories[0].category_id)
     }
   })
 
@@ -556,6 +711,203 @@
   {/if}
 </section>
 
+<section id="forum-settings" class="admin-section">
+  <h2>Forum settings</h2>
+  <p>Choose the maximum nesting level for forum replies, from flat to ten levels.</p>
+
+  <form
+    class="editor forum-nesting-editor"
+    action="?/forumNesting"
+    method="POST"
+    use:enhanceForumNesting
+  >
+    <label for="max-nest-level">Maximum nesting level</label>
+    <select
+      id="max-nest-level"
+      name="maxNestLevel"
+      bind:value={$forumNestingFormData.maxNestLevel}
+    >
+      {#each Array.from({ length: 11 }, (_, value) => value) as level (level)}
+        <option value={level}>{level}</option>
+      {/each}
+    </select>
+    <input name="siteId" type="hidden" bind:value={$forumNestingFormData.siteId} />
+    <div class="action-row editor-actions">
+      <button
+        id="sm-forum-nesting-save"
+        class="action-button editor-button button-save clickable"
+        type="submit"
+      >
+        Save changes
+      </button>
+    </div>
+  </form>
+</section>
+
+<section id="per-page-discussion-settings" class="admin-section">
+  <h2>Per page discussion</h2>
+  <p>Choose whether pages in each category receive a dedicated Discuss action.</p>
+
+  {#if data.categories.length > 0}
+    {@const discussionCategory = data.categories.find(
+      (category) => category.category_id === $discussionFormData.categoryId
+    )}
+    <form
+      class="editor discussion-editor"
+      action="?/discussion"
+      method="POST"
+      use:enhanceDiscussion
+    >
+      <label for="sm-forum-perpage-cats">Category</label>
+      <select
+        id="sm-forum-perpage-cats"
+        name="categoryId"
+        onchange={handleDiscussionCategoryChange}
+        bind:value={$discussionFormData.categoryId}
+      >
+        {#each data.categories as category (category.category_id)}
+          <option value={category.category_id}>{category.slug}</option>
+        {/each}
+      </select>
+
+      {#if discussionCategory?.slug !== "_default"}
+        <label class="radio-label">
+          <input
+            name="state"
+            type="radio"
+            value="default"
+            bind:group={$discussionFormData.state}
+          />
+          default
+        </label>
+      {/if}
+      <label class="radio-label">
+        <input
+          id={`cat234-${$discussionFormData.categoryId}-e`}
+          name="state"
+          type="radio"
+          value="enable"
+          bind:group={$discussionFormData.state}
+        />
+        enable
+      </label>
+      <label class="radio-label">
+        <input
+          id={`cat234-${$discussionFormData.categoryId}-d`}
+          name="state"
+          type="radio"
+          value="disable"
+          bind:group={$discussionFormData.state}
+        />
+        disable
+      </label>
+
+      <input name="siteId" type="hidden" bind:value={$discussionFormData.siteId} />
+      <div class="action-row editor-actions">
+        <button
+          id="sm-forum-perpage-save"
+          class="action-button editor-button button-save clickable"
+          type="submit"
+        >
+          Save changes
+        </button>
+      </div>
+    </form>
+  {:else}
+    <p>No page categories are available.</p>
+  {/if}
+</section>
+
+<section id="page-rating-settings" class="admin-section">
+  <h2>Page rating</h2>
+  <p>Configure page rating behavior by category.</p>
+
+  {#if data.categories.length > 0}
+    <form class="editor rating-editor" action="?/rating" method="POST" use:enhanceRating>
+      <label for="sm-pagerate-cats">Category</label>
+      <select
+        id="sm-pagerate-cats"
+        name="categoryId"
+        onchange={handleRatingCategoryChange}
+        bind:value={$ratingFormData.categoryId}
+      >
+        {#each data.categories as category (category.category_id)}
+          <option value={category.category_id}>{category.slug}</option>
+        {/each}
+      </select>
+
+      <div class:default-category={!ratingCanInherit}>
+        <label class="checkbox-label" for="sm-pagerate-inherit">
+          <input
+            id="sm-pagerate-inherit"
+            name="inherit"
+            disabled={!ratingCanInherit}
+            type="checkbox"
+            bind:checked={$ratingFormData.inherit}
+          />
+          Inherit from <code>_default</code>
+        </label>
+      </div>
+
+      <div class="rating-fields" class:inherited={$ratingFormData.inherit}>
+        <label class="checkbox-label" for="sm-pagerate-enabled">
+          <input
+            id="sm-pagerate-enabled"
+            name="enabled"
+            type="checkbox"
+            bind:checked={$ratingFormData.enabled}
+          />
+          Enable page rating
+        </label>
+
+        <label for="sm-pagerate-permission">Who can rate pages?</label>
+        <select
+          id="sm-pagerate-permission"
+          name="permission"
+          bind:value={$ratingFormData.permission}
+        >
+          <option value="registered">Registered users</option>
+          <option value="members">Site members</option>
+        </select>
+
+        <label for="sm-pagerate-visibility">Votes</label>
+        <select
+          id="sm-pagerate-visibility"
+          name="visibility"
+          bind:value={$ratingFormData.visibility}
+        >
+          <option value="visible">Visible</option>
+          <option value="anonymous">Anonymous</option>
+        </select>
+
+        <label for="sm-pagerate-type">Rating type</label>
+        <select
+          id="sm-pagerate-type"
+          name="ratingType"
+          bind:value={$ratingFormData.ratingType}
+        >
+          <option value="plus">+ only</option>
+          <option value="plus_minus">+/-</option>
+          <option value="stars">Stars</option>
+        </select>
+      </div>
+
+      <input name="siteId" type="hidden" bind:value={$ratingFormData.siteId} />
+      <div class="action-row editor-actions">
+        <button
+          id="sm-pagerate-save"
+          class="action-button editor-button button-save clickable"
+          type="submit"
+        >
+          Save changes
+        </button>
+      </div>
+    </form>
+  {:else}
+    <p>No page categories are available.</p>
+  {/if}
+</section>
+
 <section id="license-settings" class="admin-section">
   <h2>License</h2>
   <p>Set up a license for your Wiki.</p>
@@ -685,6 +1037,17 @@
   }
 
   .license-fields.inherited {
+    display: none;
+  }
+
+  .rating-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .rating-fields.inherited,
+  #page-rating-settings .default-category {
     display: none;
   }
 
