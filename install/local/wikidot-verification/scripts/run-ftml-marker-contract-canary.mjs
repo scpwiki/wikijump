@@ -14,6 +14,8 @@ import process from "node:process";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
+import { runCliIfMain } from "../src/cli-entry.mjs";
+
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIR, "../../../..");
@@ -27,10 +29,10 @@ const REQUIRED_SURFACES = ["heading", "separator", "div", "span", "alignment"];
 const OWNER = "ftml-marker-contract-canary";
 const EXPIRY_HOURS = 8;
 
-function usage() {
-  console.log(`Usage: run-ftml-marker-contract-canary.mjs --candidate-ftml SHA --output-dir DIR [--baseline-ftml SHA] [--work-root DIR] [--dry-run]
+export function usage() {
+  return `Usage: run-ftml-marker-contract-canary.mjs --candidate-ftml SHA --output-dir DIR [--baseline-ftml SHA] [--work-root DIR] [--dry-run]
 
-Creates baseline and candidate throwaway worktrees, builds Deepwell under registered leases, starts only disposable non-443 database/cache/files/Deepwell/Framerail services, and compares fixture visible text with the existing V3 Local Lab comparator. It never reads or writes a standing runtime or corpus volume.`);
+Creates baseline and candidate throwaway worktrees, builds Deepwell under registered leases, starts only disposable non-443 database/cache/files/Deepwell/Framerail services, and compares fixture visible text with the existing V3 Local Lab comparator. It never reads or writes a standing runtime or corpus volume.`;
 }
 
 function sha(value) {
@@ -39,12 +41,12 @@ function sha(value) {
   return value;
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = {
     workRoot: path.join(os.tmpdir(), "wikijump-ftml-marker-contract"),
     dryRun: false,
   };
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     const value = () => {
       const next = argv[++index];
@@ -57,11 +59,10 @@ function parseArgs(argv) {
     else if (arg === "--output-dir") args.outputDir = path.resolve(value());
     else if (arg === "--work-root") args.workRoot = path.resolve(value());
     else if (arg === "--dry-run") args.dryRun = true;
-    else if (arg === "--help" || arg === "-h") {
-      usage();
-      process.exit(0);
-    } else throw new Error(`unknown argument: ${arg}`);
+    else if (arg === "--help" || arg === "-h") args.help = true;
+    else throw new Error(`unknown argument: ${arg}`);
   }
+  if (args.help) return args;
   if (!args.candidateFtml) throw new Error("--candidate-ftml is required");
   if (!args.outputDir) throw new Error("--output-dir is required");
   return args;
@@ -147,7 +148,7 @@ function currentImages() {
   };
 }
 
-function composeDocument({
+export function composeDocument({
   project,
   images,
   labels,
@@ -157,7 +158,11 @@ function composeDocument({
   locales,
   deepwellPort,
   framerailPort,
+  credentials,
 }) {
+  const databaseUrl = new URL("postgres://database/wikijump");
+  databaseUrl.username = "wikijump";
+  databaseUrl.password = credentials.databasePassword;
   const labelLines = Object.entries(labels)
     .map(([key, value]) => `      ${key}: ${JSON.stringify(value)}`)
     .join("\n");
@@ -169,7 +174,7 @@ services:
     environment:
       POSTGRES_DB: wikijump
       POSTGRES_USER: wikijump
-      POSTGRES_PASSWORD: wikijump
+      POSTGRES_PASSWORD: ${JSON.stringify(credentials.databasePassword)}
       POSTGRES_HOST_AUTH_METHOD: md5
     volumes:
       - database:/var/lib/postgresql/data
@@ -198,8 +203,8 @@ ${labelLines}
     image: ${images.files}
     pull_policy: never
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: defaultpassword
+      MINIO_ROOT_USER: ${JSON.stringify(credentials.filesAccessKey)}
+      MINIO_ROOT_PASSWORD: ${JSON.stringify(credentials.filesSecretKey)}
       MINIO_REGION_NAME: local
       INITIAL_BUCKETS: deepwell-files deepwell-text-blocks
       DATA_DIR: /data
@@ -222,15 +227,15 @@ ${labelLines}
     # become network-healthy while its first-run init scripts are still active.
     command: ["/bin/sh", "-ec", "until /usr/local/cargo/bin/sqlx migrate run --source /opt/marker/migrations; do sleep 1; done; exec /opt/marker/deepwell /opt/marker/config.toml"]
     environment:
-      DATABASE_URL: postgres://wikijump:wikijump@database/wikijump
+      DATABASE_URL: ${JSON.stringify(databaseUrl.href)}
       REDIS_URL: redis://cache
       S3_FILES_BUCKET: deepwell-files
       S3_TEXT_BLOCKS_BUCKET: deepwell-text-blocks
       S3_REGION_NAME: local
       S3_PATH_STYLE: "true"
       S3_CUSTOM_ENDPOINT: http://files:9000
-      S3_ACCESS_KEY_ID: minio
-      S3_SECRET_ACCESS_KEY: defaultpassword
+      S3_ACCESS_KEY_ID: ${JSON.stringify(credentials.filesAccessKey)}
+      S3_SECRET_ACCESS_KEY: ${JSON.stringify(credentials.filesSecretKey)}
     ports:
       - "127.0.0.1:${deepwellPort}:2747"
     volumes:
@@ -314,12 +319,31 @@ async function rpc(url, method, params = {}, headers = {}) {
   return body.result;
 }
 
-async function seedFixtures({ rpcUrl, fixtures, expectedFtml }) {
+export async function readSeedAdministrator(repository) {
+  const users = JSON.parse(
+    await fs.readFile(path.join(repository, "deepwell/seeder/users.json"), "utf8"),
+  );
+  const administrator = users.find((user) => user?.slug === "administrator");
+  if (
+    typeof administrator?.email !== "string" ||
+    administrator.email.length === 0 ||
+    typeof administrator?.password !== "string" ||
+    administrator.password.length === 0
+  ) {
+    throw new Error("seeded administrator credentials are unavailable");
+  }
+  return Object.freeze({
+    email: administrator.email,
+    password: administrator.password,
+  });
+}
+
+async function seedFixtures({ rpcUrl, fixtures, expectedFtml, administrator }) {
   const site = await rpc(rpcUrl, "site_get", { site: fixtures.site_slug });
   assert.ok(site?.site_id, `seeded ${fixtures.site_slug} site is missing`);
   const login = await rpc(rpcUrl, "login", {
-    name_or_email: "admin@wikijump",
-    password: "wikijumpadmin1",
+    name_or_email: administrator.email,
+    password: administrator.password,
     ip_address: "127.0.0.1",
     user_agent: OWNER,
   });
@@ -472,10 +496,14 @@ function makeCatalog(baselineDir, fixtures) {
   };
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
+export async function main(argv, { stdout = process.stdout } = {}) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   try {
-    await runCanary(args);
+    await runCanary(args, { stdout });
   } catch (error) {
     await writeJson(path.join(args.outputDir, "failure.json"), {
       schema: "wikijump.ftml_marker_contract_canary_failure.v1",
@@ -487,9 +515,10 @@ async function main() {
     }).catch(() => {});
     throw error;
   }
+  return 0;
 }
 
-async function runCanary(args) {
+export async function runCanary(args, { stdout = process.stdout } = {}) {
   const fixtures = JSON.parse(await fs.readFile(FIXTURES_PATH, "utf8"));
   assert.deepEqual(
     [...new Set(fixtures.fixtures.map((fixture) => fixture.surface))].sort(),
@@ -512,7 +541,7 @@ async function runCanary(args) {
     resource_disposition: "delete-on-close",
   };
   if (args.dryRun) {
-    process.stdout.write(
+    stdout.write(
       `${JSON.stringify({ ...layout, fixtures: fixtures.fixtures.map(({ fixture_id, slug, surface }) => ({ fixture_id, slug, surface })) }, null, 2)}\n`,
     );
     return;
@@ -524,6 +553,11 @@ async function runCanary(args) {
   const candidateWorktree = path.join(runRoot, "candidate");
   const targetRoot = path.join(runRoot, "targets");
   const stackRoot = path.join(runRoot, "stack");
+  const credentials = Object.freeze({
+    databasePassword: crypto.randomBytes(32).toString("hex"),
+    filesAccessKey: `marker${crypto.randomBytes(12).toString("hex")}`,
+    filesSecretKey: crypto.randomBytes(32).toString("hex"),
+  });
   let project = null;
   let composePath = null;
   try {
@@ -634,6 +668,7 @@ async function runCanary(args) {
           locales: path.join(worktree, "locales"),
           deepwellPort: ports.deepwell,
           framerailPort: ports.framerail,
+          credentials,
         }),
         { mode: 0o600 },
       );
@@ -668,10 +703,12 @@ async function runCanary(args) {
       let seeded;
       let records;
       try {
+        const administrator = await readSeedAdministrator(worktree);
         seeded = await seedFixtures({
           rpcUrl: `http://127.0.0.1:${ports.deepwell}/jsonrpc`,
           fixtures,
           expectedFtml: stageFtml,
+          administrator,
         });
         records = await captureStage({
           baseUrl: `http://127.0.0.1:${ports.framerail}`,
@@ -759,7 +796,7 @@ async function runCanary(args) {
         verdict: path.join(comparisonDir, "verdict.json"),
       },
     });
-    process.stdout.write(
+    stdout.write(
       `${JSON.stringify({ status: "pass", run_id: runId, baseline_ftml: baselineFtml, candidate_ftml: args.candidateFtml, comparator: path.join(comparisonDir, "verdict.json") })}\n`,
     );
   } finally {
@@ -790,7 +827,9 @@ async function runCanary(args) {
   }
 }
 
-main().catch((error) => {
-  console.error(error.stack ?? error);
-  process.exitCode = 1;
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error.stack ?? error);
+    return 1;
+  },
 });
