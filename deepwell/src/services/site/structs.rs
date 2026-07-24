@@ -91,4 +91,7 @@ pub struct UpdateSiteBody {
     pub layout: Maybe<Option<Layout>>,
     pub license: Maybe<License>,
     pub forum_max_nest_level: Maybe<i16>,
+    pub favicon_source: Maybe<Option<String>>,
+    pub ios_icon_source: Maybe<Option<String>>,
+    pub windows_tile_source: Maybe<Option<String>>,
 }

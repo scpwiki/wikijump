@@ -27,6 +27,9 @@ export interface SiteModel {
   layout: Nullable<Layout>
   license: License
   forum_max_nest_level: number
+  favicon_source: Nullable<string>
+  ios_icon_source: Nullable<string>
+  windows_tile_source: Nullable<string>
 }
 
 // deepwell src/models/page_category.rs

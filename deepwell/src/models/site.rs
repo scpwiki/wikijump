@@ -38,6 +38,12 @@ pub struct Model {
     pub layout: Option<String>,
     pub license: License,
     pub forum_max_nest_level: i16,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub favicon_source: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub ios_icon_source: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub windows_tile_source: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

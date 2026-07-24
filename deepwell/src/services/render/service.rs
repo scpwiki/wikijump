@@ -22746,6 +22746,9 @@ mod tests {
             layout: None,
             license: License::CcBySa30,
             forum_max_nest_level: 10,
+            favicon_source: None,
+            ios_icon_source: None,
+            windows_tile_source: None,
         }
     }
 }
