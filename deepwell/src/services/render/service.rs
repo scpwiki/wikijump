@@ -7263,10 +7263,20 @@ impl RenderService {
             output.push_str("[[div class=\"list-pages-box\"]]\n");
         }
         let mut included_pages = Vec::new();
+        if template.has_sections() && pages.is_empty() {
+            // Wikidot's output for a sectioned template that matched nothing is
+            // uncaptured, so the module is left alone rather than guessing
+            // whether the head and foot still appear.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         if !pages.is_empty()
             && let Some(prepend_line) = prepend_line
         {
             output.push_str(&prepend_line);
+            output.push('\n');
+        }
+        if let Some(head) = template.head_section() {
+            output.push_str(head);
             output.push('\n');
         }
 
@@ -7448,6 +7458,11 @@ impl RenderService {
             } else {
                 output.push('\n');
             }
+        }
+
+        if let Some(foot) = template.foot_section() {
+            output.push_str(foot);
+            output.push('\n');
         }
 
         if !pages.is_empty()
