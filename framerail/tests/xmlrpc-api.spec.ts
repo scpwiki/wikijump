@@ -12,6 +12,16 @@ test.describe.configure({ mode: "serial" })
 
 const fixtureUrl = `http://127.0.0.1:${process.env.PLAYWRIGHT_FIXTURE_PORT ?? "42747"}`
 
+const requiredEnvironmentValue = (name: string): string => {
+  const value = process.env[name]
+  if (!value) throw new Error(`Missing required test environment variable: ${name}`)
+  return value
+}
+
+const wikidotAppName = requiredEnvironmentValue("WIKIDOT_APP_NAME")
+const wikidotApiKey = requiredEnvironmentValue("WIKIDOT_API_KEY")
+const xmlRpcWritePassword = requiredEnvironmentValue("XML_RPC_WRITE_PASSWORD")
+
 const xmlRpcListMethodsRequest = `<?xml version="1.0"?>
 <methodCall>
   <methodName>system.listMethods</methodName>
@@ -588,7 +598,7 @@ function xmlRpcMulticallWithChildCount(count: number): string {
 </methodCall>`
 }
 
-const basicAuth = `Basic ${Buffer.from("test-app:test-key").toString("base64")}`
+const basicAuth = `Basic ${Buffer.from(`${wikidotAppName}:${wikidotApiKey}`).toString("base64")}`
 const legacyBasicAuth = `Basic ${Buffer.from("legacy-app:legacy-key").toString("base64")}`
 
 const xmlRpcHeaders = {
@@ -1610,8 +1620,8 @@ test("XML-RPC endpoint returns the authenticated XML-RPC principal", async ({
     expect(body).toContain("<name>name</name><value><string>rokurokubi</string></value>")
     expect(body).toContain("<name>title</name><value><string>Rokurokubi</string></value>")
     expect(body).toContain("<name>id</name><value><int>123</int></value>")
-    expect(body).not.toContain("test-key")
-    expect(body).not.toContain("wikijumpadmin1")
+    expect(body).not.toContain(wikidotApiKey)
+    expect(body).not.toContain(xmlRpcWritePassword)
     expect(body).not.toContain("fixture-session-token")
   }
 
@@ -1650,7 +1660,7 @@ test("XML-RPC endpoint accepts Basic auth scheme case-insensitively", async ({
   const response = await request.post("/xml-rpc-api.php", {
     data: xmlRpcListMethodsRequest,
     headers: {
-      authorization: `basic ${Buffer.from("test-app:test-key").toString("base64")}`,
+      authorization: basicAuth.replace(/^Basic/u, "basic"),
       "content-type": "text/xml"
     }
   })
@@ -1681,7 +1691,7 @@ test("XML-RPC endpoint returns XML-RPC faults for unauthenticated requests", asy
   expect(body).toContain("<methodResponse>")
   expect(body).toContain("<fault>")
   expect(body).toContain("<name>faultCode</name><value><int>401</int></value>")
-  expect(body).not.toContain("test-key")
+  expect(body).not.toContain(wikidotApiKey)
 })
 
 test("XML-RPC endpoint returns XML-RPC faults for invalid Basic auth headers", async ({

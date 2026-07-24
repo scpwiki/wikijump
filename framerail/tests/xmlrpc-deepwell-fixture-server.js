@@ -546,8 +546,8 @@ const server = createServer((request, response) => {
         "password",
         "user_agent"
       ]) &&
-      rpcRequest.params.name_or_email === "admin@wikijump" &&
-      rpcRequest.params.password === "wikijumpadmin1" &&
+      rpcRequest.params.name_or_email === process.env.XML_RPC_WRITE_USERNAME &&
+      rpcRequest.params.password === process.env.XML_RPC_WRITE_PASSWORD &&
       typeof rpcRequest.params.ip_address === "string" &&
       rpcRequest.params.user_agent === "wikijump-xmlrpc-api/0.1"
     ) {
