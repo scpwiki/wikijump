@@ -659,3 +659,125 @@ async fn imported_rating_baseline_adds_only_local_votes() {
         deepwell::services::score::ScoreValue::Integer(10635)
     );
 }
+
+#[tokio::test]
+async fn child_listpages_expands_site_domain_and_parent_fullname() {
+    const PARENT_SLUG: &str = "component:offset-timeline-parity";
+    const FIRST_CHILD_SLUG: &str = "fragment:offset-timeline-parity-0";
+    const SECOND_CHILD_SLUG: &str = "fragment:offset-timeline-parity-1";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    macro_rules! create_page {
+        ($slug:expr, $wikitext:expr $(,)?) => {{
+            runner.set_request_context(RequestContext {
+                session: None,
+                user_id: Some(ADMIN_USER_ID),
+                site_id: Some(site_id),
+                page_reference: Some(Reference::Slug($slug.to_owned().into())),
+            });
+            run_endpoint!(
+                runner,
+                page_create,
+                json!({
+                    "site_id": site_id,
+                    "wikitext": $wikitext,
+                    "title": $slug,
+                    "alt_title": null,
+                    "slug": $slug,
+                    "layout": "wikidot",
+                    "revision_comments": "offset timeline navigation parity fixture",
+                    "user_id": ADMIN_USER_ID,
+                    "bypass_filter": true,
+                    "ip_address": common::IP_ADDRESS,
+                }),
+            )
+        }};
+    }
+
+    let parent = create_page!(PARENT_SLUG, "Placeholder body");
+    create_page!(FIRST_CHILD_SLUG, "First offset");
+    create_page!(SECOND_CHILD_SLUG, "Second offset");
+
+    for child in [FIRST_CHILD_SLUG, SECOND_CHILD_SLUG] {
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(child.to_owned().into())),
+        });
+        run_endpoint!(
+            runner,
+            parent_set,
+            json!({
+                "site_id": site_id,
+                "parent": PARENT_SLUG,
+                "child": child,
+            }),
+        )
+        .expect("parent relationship should be created");
+    }
+
+    // The live capture of component:offset-timeline builds each offset link from
+    // %%site_domain%% plus %%parent_fullname%%, so the module is installed after
+    // the children exist and are linked.
+    let source = concat!(
+        "[[module ListPages parent=\".\" category=\"fragment\" ",
+        "order=\"created_at\" separate=\"no\"]]\n",
+        "https://%%site_domain%%/%%parent_fullname%%/offset/%%title%%\n",
+        "[[/module]]",
+    );
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(PARENT_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": PARENT_SLUG,
+            "last_revision_id": parent.revision_id,
+            "revision_comments": "install offset timeline navigation module",
+            "user_id": ADMIN_USER_ID,
+            "wikitext": source,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("installing the navigation module should create a revision");
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": PARENT_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("navigation parity page_get should succeed")
+    .expect("navigation parity page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for child in [FIRST_CHILD_SLUG, SECOND_CHILD_SLUG] {
+        assert!(
+            html.contains(&format!(
+                "https://scp-wiki.wikidot.com/{PARENT_SLUG}/offset/{child}"
+            )),
+            "row {child} should build its offset link from the site domain and parent full name:\n{html}",
+        );
+    }
+    assert!(
+        !html.contains("%%site_domain%%") && !html.contains("%%parent_fullname%%"),
+        "resolved navigation variables should not leak into the rendered body:\n{html}",
+    );
+}
