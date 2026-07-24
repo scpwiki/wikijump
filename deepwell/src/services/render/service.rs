@@ -7145,17 +7145,6 @@ impl RenderService {
             .map(|displays| &displays.user_displays)
             .or(loaded_user_displays.as_ref())
             .unwrap_or(&empty_user_displays);
-        if wants_created_by_unix
-            && pages
-                .iter()
-                .any(|page| list_pages_created_by_unix(page, user_displays).is_none())
-        {
-            // Wikidot emits the creator's stored unix name, which is a separate
-            // account field from the display name. A row whose creator has no
-            // resolved unix name cannot supply one by lowercasing the display
-            // name, so the module stays literal instead.
-            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
-        }
         if wants_site_domain && page_info.site.is_empty() {
             // The domain is built from the site's Wikidot identity, which an
             // empty site slug cannot supply. The local request host is not a
@@ -7185,6 +7174,18 @@ impl RenderService {
             .map(|displays| &displays.snapshot_displays)
             .or(loaded_snapshot_displays.as_ref())
             .unwrap_or(&empty_snapshot_displays);
+        if wants_created_by_unix
+            && pages.iter().any(|page| {
+                list_pages_created_by_unix(page, user_displays, snapshot_displays)
+                    .is_none()
+            })
+        {
+            // Wikidot emits the creator's stored unix name, which is a separate
+            // account field from the display name. A row whose creator has no
+            // resolved unix name cannot supply one by lowercasing the display
+            // name, so the module stays literal instead.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         // An imported page carries Wikidot's own parent name, which is singular
         // by construction; the relational table only answers for pages that
         // were never imported, where a second live parent is ambiguous.
@@ -9884,7 +9885,11 @@ fn substitute_list_pages_variables_with_fragments(
             })
         })
         .unwrap_or_default();
-    let created_by_unix = list_pages_created_by_unix(page, context.user_displays);
+    let created_by_unix = list_pages_created_by_unix(
+        page,
+        context.user_displays,
+        context.snapshot_displays,
+    );
     let created_by_linked = created_by_snapshot
         .map(render_list_pages_snapshot_user)
         .or_else(|| {
@@ -10280,7 +10285,20 @@ fn list_pages_parent_fullname<'a>(
 fn list_pages_created_by_unix(
     page: &FoundPageRow,
     user_displays: &BTreeMap<i64, WikidotUserDisplay>,
+    snapshot_displays: &BTreeMap<i64, ListPagesSnapshotDisplay>,
 ) -> Option<String> {
+    // An imported row's author is the Wikidot account named in its snapshot,
+    // while its local creating revision belongs to the account that ran the
+    // import. Reading the local account's unix name there would report the
+    // importer under the imported author's name, so the row resolves to
+    // nothing until Wikidot user identity is imported alongside the page.
+    if snapshot_displays
+        .get(&page.page_id)
+        .and_then(|snapshot| snapshot.created_by_name.as_deref())
+        .is_some_and(|created_by_name| !created_by_name.is_empty())
+    {
+        return None;
+    }
     let user = user_displays.get(&page.created_by?)?;
     let slug = user.slug.as_deref()?;
     if slug.is_empty() {
@@ -14929,6 +14947,56 @@ mod tests {
             ),
             "%%created_by_unix%%",
             "a row without a resolved creator account stays literal",
+        );
+
+        // An imported row's creating revision belongs to the account that ran
+        // the import, not to the Wikidot author its snapshot names.
+        let source_created_at = time::OffsetDateTime::from_unix_timestamp(1_500_000_000)
+            .expect("fixture timestamp should be valid");
+        let importer_displays = BTreeMap::from([(
+            -1,
+            WikidotUserDisplay {
+                user_id: -1,
+                name: "Administrator".to_owned(),
+                slug: Some("administrator".to_owned()),
+                wikidot_profile: false,
+            },
+        )]);
+        let imported_page = FoundPageRow {
+            created_by: Some(-1),
+            ..page.clone()
+        };
+        let imported_snapshots = BTreeMap::from([(
+            1,
+            ListPagesSnapshotDisplay {
+                created_at: source_created_at,
+                updated_at: source_created_at,
+                created_by_name: Some("INT_Translator".to_owned()),
+                updated_by_name: None,
+                comments: 0,
+                commented_at: None,
+                commented_by_name: None,
+                rating_votes: None,
+                parent_fullname: None,
+            },
+        )]);
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%created_by%% %%created_by_unix%%",
+                &imported_page,
+                1,
+                1,
+                &list_pages_substitution_context_with_mode(
+                    20,
+                    &importer_displays,
+                    &imported_snapshots,
+                    None,
+                    &data_form_values,
+                    false,
+                ),
+            ),
+            "INT_Translator %%created_by_unix%%",
+            "an imported row must not report the importing account's unix name as the author's",
         );
     }
 
