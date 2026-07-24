@@ -1,12 +1,17 @@
 <script lang="ts">
   import { wikidotCollapsibles } from "$lib/wikidot/wikidot-collapsibles"
 
+  import type { HTMLAnchorAttributes } from "svelte/elements"
+
+  const pageTopAnchorAttributes: HTMLAnchorAttributes & { name: string } = {
+    name: "page-top"
+  }
+
   let { header, topBar, loginStatus, sideBar, content, footer, license } = $props()
 </script>
 
 <div id="skrollr-body" use:wikidotCollapsibles>
-  <!-- svelte-ignore a11y_consider_explicit_label -->
-  <a name="page-top"></a>
+  <a {...pageTopAnchorAttributes}></a>
   <div id="container-wrap-wrap">
     <div id="container-wrap">
       <div id="container">

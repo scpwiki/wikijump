@@ -6,22 +6,31 @@
   import { Layout } from "$lib/types"
   import { SvelteMap } from "svelte/reactivity"
   import { fileProxy, superForm } from "sveltekit-superforms"
+
+  import FileHistoryPanel from "./FileHistoryPanel.svelte"
+  import FileList from "./FileList.svelte"
+  import FileUploadPanel from "./FileUploadPanel.svelte"
   import { untrack } from "svelte"
 
   import type { PageProps } from "./$types"
   import type { PageFile, PageFileDelete } from "$lib/server/deepwell/page-file"
-  import type { FileRevisionModel, Optional } from "$lib/types"
+  import type { FileAction } from "./file-pane-state"
 
   let { data }: PageProps = $props()
 
   const pageLayoutContext = getPageLayoutContext()
 
-  type FileAction = "upload" | "edit" | "move" | "restore" | "history"
   let activeFileAction = $state<FileAction | null>(null)
 
   let fileMap = new SvelteMap<number, PageFile>()
   let fileEditId = $state<number>(0)
-  let fileRevisionMap = new SvelteMap<number, FileRevisionModel>()
+  let historyRequestId = $state(0)
+
+  function openFileHistory(fileId: number) {
+    fileEditId = fileId
+    activeFileAction = "history"
+    historyRequestId += 1
+  }
 
   async function getFileList(deleted = false) {
     const res = await fetch("?/fileList", {
@@ -51,40 +60,6 @@
       })
     }
   }
-
-  const {
-    form: uploadForm,
-    enhance: uploadEnhance,
-    reset: uploadReset
-  } = superForm(
-    untrack(() => data.forms.fileUploadForm),
-    {
-      dataType: "json",
-      onSubmit: async ({ jsonData }) => {
-        const submitForm = {
-          ...$uploadForm,
-          siteId: data.site.site_id,
-          pageId: data.page?.page_id
-        }
-        jsonData(submitForm)
-      },
-      onResult: async ({ result }) => {
-        if (result.type === "success" && result.data) {
-          uploadReset()
-          activeFileAction = null
-          await getFileList()
-        }
-        if (result.type === "failure" && result.data) {
-          errorPopupState.current = {
-            state: true,
-            message: result.data.message,
-            data: result.data.data
-          }
-        }
-      }
-    }
-  )
-  const uploadFile = fileProxy(uploadForm, "file")
 
   async function deleteFile(fileId: number, lastRevisionId: number) {
     const res = await fetch("?/fileDelete", {
@@ -217,69 +192,6 @@
     }
   )
 
-  async function handleFileHistory(fileId: number) {
-    const res = await fetch("?/fileHistory", {
-      method: "POST",
-      body: JSON.stringify({
-        siteId: data.site.site_id,
-        pageId: data.page?.page_id,
-        fileId
-      })
-    }).then((res) => res.text())
-
-    const result = deserialize<
-      { res: FileRevisionModel[] },
-      { message: string; code: string; data: Record<string, unknown> }
-    >(res)
-
-    if (result.type === "failure" && result.data?.message) {
-      errorPopupState.current = {
-        state: true,
-        message: result.data.message,
-        data: result.data
-      }
-    } else if (result.type === "success" && result.data?.res) {
-      fileRevisionMap.clear()
-      result.data.res.forEach((rev) => {
-        fileRevisionMap.set(rev.revision_number, rev)
-      })
-      activeFileAction = "history"
-    }
-  }
-
-  async function rollbackFileRevision(revisionNumber: number, comments?: string) {
-    const res = await fetch("?/fileRollback", {
-      method: "POST",
-      body: JSON.stringify({
-        siteId: data.site.site_id,
-        pageId: data.page?.page_id,
-        fileId: fileEditId,
-        revisionNumber,
-        lastRevisionId: fileMap.get(fileEditId)?.revision_id,
-        comments
-      })
-    }).then((res) => res.text())
-
-    const result = deserialize<
-      { res: Optional<PageFile> },
-      { message: string; code: string; data: Record<string, unknown> }
-    >(res)
-
-    if (result.type === "failure" && result.data?.message) {
-      errorPopupState.current = {
-        state: true,
-        message: result.data.message,
-        data: result.data
-      }
-    } else if (result.type === "success" && result.data?.res) {
-      await getFileList()
-      activeFileAction = null
-      fileRevisionMap.clear()
-      await handleFileHistory(fileEditId)
-      await invalidateAll()
-    }
-  }
-
   $effect(() => {
     getFileList(false)
   })
@@ -296,283 +208,23 @@
 {/if}
 
 <div class="file-panel">
-  {#if pageLayoutContext.current === Layout.WIKIDOT}
-    <div class="buttons">
-      <input
-        class="btn btn-primary"
-        onclick={() => (activeFileAction = "upload")}
-        type="button"
-        value={data.internationalization?.upload}
-      />
-      <input
-        class="btn btn-default"
-        onclick={() => getFileList(true)}
-        type="button"
-        value={data.internationalization?.restore}
-      />
-    </div>
-  {:else}
-    <div class="action-row file-action">
-      <button
-        class="action-button upload-file clickable"
-        onclick={() => (activeFileAction = "upload")}
-        type="button"
-      >
-        {data.internationalization?.upload}
-      </button>
-      <button
-        class="action-button deleted-file clickable"
-        onclick={() => getFileList(true)}
-        type="button"
-      >
-        {data.internationalization?.restore}
-      </button>
-    </div>
-  {/if}
+  <FileList
+    {data}
+    {deleteFile}
+    {fileMap}
+    {getFileList}
+    {openFileHistory}
+    wikidot={pageLayoutContext.current === Layout.WIKIDOT}
+    bind:activeFileAction
+    bind:fileEditId
+  />
 
-  {#if fileMap.size > 0}
-    <div class="file-list">
-      <div class="file-list-header">
-        <div class="file-attribute name">
-          {data.internationalization?.["wiki-page-file.name"]}
-        </div>
-        <div class="file-attribute created-at">
-          {data.internationalization?.["wiki-page-file.created-at"]}
-        </div>
-        <div class="file-attribute updated-at">
-          {data.internationalization?.["wiki-page-file.updated-at"]}
-        </div>
-        {#if pageLayoutContext.current !== Layout.WIKIDOT}
-          <div class="file-attribute mime">
-            {data.internationalization?.["wiki-page-file.mime"]}
-          </div>
-        {/if}
-        <div class="file-attribute size">
-          {data.internationalization?.["wiki-page-file.size"]}
-        </div>
-        <div class="file-attribute action"></div>
-      </div>
-      {#each [...fileMap].sort((a, b) => b[0] - a[0]) as [id, file] (id)}
-        <div class="file-row" data-id={id}>
-          <div class="file-attribute name">
-            <a
-              href={`//${data.site_file_domain}/-/file/${data.page?.slug}/${file.name}`}
-              rel="external"
-            >
-              {file.name}
-            </a>
-          </div>
-          <div class="file-attribute created-at">
-            {new Date(file.file_created_at).toLocaleString()}
-          </div>
-          <div class="file-attribute updated-at">
-            {file.file_updated_at ? new Date(file.file_updated_at).toLocaleString() : "-"}
-          </div>
-          {#if pageLayoutContext.current !== Layout.WIKIDOT}
-            <div class="file-attribute mime">
-              {file.mime}
-            </div>
-          {/if}
-          <div class="file-attribute size">
-            {file.size}
-          </div>
-          <div class="file-attribute action">
-            {#if pageLayoutContext.current === Layout.WIKIDOT}
-              {#if file.revision_type === "delete"}
-                <!-- svelte-ignore a11y_invalid_attribute -->
-                <a
-                  class="btn btn-primary btn-sm btn-small"
-                  href="javascript:;"
-                  onclick={() => {
-                    fileEditId = file.file_id
-                    activeFileAction = "restore"
-                  }}
-                >
-                  {data.internationalization?.restore}
-                </a>
-              {:else}
-                <!-- svelte-ignore a11y_invalid_attribute -->
-                <a
-                  class="btn btn-primary btn-sm btn-small"
-                  href="javascript:;"
-                  onclick={() => {
-                    activeFileAction = "history"
-                    handleFileHistory(file.file_id)
-                  }}
-                >
-                  {data.internationalization?.history}
-                </a>
-                <!-- svelte-ignore a11y_invalid_attribute -->
-                <a
-                  class="btn btn-primary btn-sm btn-small"
-                  href="javascript:;"
-                  onclick={() => {
-                    fileEditId = file.file_id
-                    activeFileAction = "move"
-                  }}
-                >
-                  {data.internationalization?.move}
-                </a>
-                <!-- svelte-ignore a11y_invalid_attribute -->
-                <a
-                  class="btn btn-primary btn-sm btn-small"
-                  href="javascript:;"
-                  onclick={() => {
-                    fileEditId = file.file_id
-                    activeFileAction = "edit"
-                  }}
-                >
-                  {data.internationalization?.edit}
-                </a>
-                <!-- svelte-ignore a11y_invalid_attribute -->
-                <a
-                  class="btn btn-primary btn-sm btn-small"
-                  href="javascript:;"
-                  onclick={() => {
-                    deleteFile(file.file_id, file.revision_id)
-                  }}
-                >
-                  {data.internationalization?.delete}
-                </a>
-              {/if}
-            {:else if file.revision_type === "delete"}
-              <button
-                class="action-button restore-file clickable"
-                onclick={() => {
-                  fileEditId = file.file_id
-                  activeFileAction = "restore"
-                }}
-                type="button"
-              >
-                {data.internationalization?.restore}
-              </button>
-            {:else}
-              <button
-                class="action-button file-history clickable"
-                onclick={() => {
-                  activeFileAction = "history"
-                  handleFileHistory(file.file_id)
-                }}
-                type="button"
-              >
-                {data.internationalization?.history}
-              </button>
-              <button
-                class="action-button move-file clickable"
-                onclick={() => {
-                  fileEditId = file.file_id
-                  activeFileAction = "move"
-                }}
-                type="button"
-              >
-                {data.internationalization?.move}
-              </button>
-              <button
-                class="action-button edit-file clickable"
-                onclick={() => {
-                  fileEditId = file.file_id
-                  activeFileAction = "edit"
-                }}
-                type="button"
-              >
-                {data.internationalization?.edit}
-              </button>
-              <button
-                class="action-button delete-file clickable"
-                onclick={() => deleteFile(file.file_id, file.revision_id)}
-                type="button"
-              >
-                {data.internationalization?.delete}
-              </button>
-            {/if}
-          </div>
-        </div>
-      {/each}
-    </div>
-  {:else}
-    <div class="file-list">
-      <div class="file-list-message">
-        {data.internationalization?.["wiki-page-file-no-files"]}
-      </div>
-    </div>
-  {/if}
-
-  {#if activeFileAction === "upload"}
-    <form
-      id="file-upload"
-      class="file-upload"
-      action="?/fileUpload"
-      enctype="multipart/form-data"
-      method="POST"
-      use:uploadEnhance
-    >
-      <div class="file-form-field">
-        <label for="file">
-          {data.internationalization?.["wiki-page-file-upload.select"]}
-        </label>
-        <input
-          name="file"
-          class="file-attribute file"
-          type="file"
-          bind:files={$uploadFile}
-        />
-      </div>
-      <div class="file-form-field">
-        <label for="name">
-          {data.internationalization?.["wiki-page-file-upload.name"]}
-        </label>
-        <input
-          name="name"
-          class="file-attribute name"
-          placeholder={$uploadFile?.[0]?.name}
-          type="text"
-          bind:value={$uploadForm.name}
-        />
-      </div>
-      <textarea
-        name="comments"
-        class="file-form-field file-comments"
-        placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-        bind:value={$uploadForm.comments}></textarea>
-      {#if pageLayoutContext.current === Layout.WIKIDOT}
-        <div class="buttons">
-          <input
-            class="btn btn-default"
-            onclick={() => {
-              uploadReset()
-              activeFileAction = null
-            }}
-            type="button"
-            value={data.internationalization?.cancel}
-          />
-          <input
-            class="btn btn-primary"
-            type="submit"
-            value={data.internationalization?.upload}
-          />
-        </div>
-      {:else}
-        <div class="action-row file-upload-actions">
-          <button
-            class="action-button file-upload-button button-cancel clickable"
-            onclick={() => {
-              uploadReset()
-              activeFileAction = null
-            }}
-            type="button"
-          >
-            {data.internationalization?.cancel}
-          </button>
-          <button
-            class="action-button file-upload-button button-upload clickable"
-            type="submit"
-          >
-            {data.internationalization?.upload}
-          </button>
-        </div>
-      {/if}
-    </form>
-  {/if}
+  <FileUploadPanel
+    {data}
+    {getFileList}
+    wikidot={pageLayoutContext.current === Layout.WIKIDOT}
+    bind:activeFileAction
+  />
 
   {#if activeFileAction === "edit"}
     <form
@@ -778,106 +430,18 @@
     </form>
   {/if}
 
-  {#if activeFileAction === "history"}
-    <div class="revision-list">
-      <div class="revision-header">
-        <div class="revision-attribute action"></div>
-        <div class="revision-attribute revision-number">
-          {data.internationalization?.["wiki-page-revision-number"]}
-        </div>
-        <div class="revision-attribute revision-type">
-          {data.internationalization?.["wiki-page-file-revision-type"]}
-        </div>
-        <div class="revision-attribute created-at">
-          {data.internationalization?.["wiki-page-file.created-at"]}
-        </div>
-        <div class="revision-attribute user">
-          {data.internationalization?.["wiki-page-revision-user"]}
-        </div>
-        <div class="revision-attribute page">
-          {data.internationalization?.["wiki-page-file.page"]}
-        </div>
-        <div class="revision-attribute name">
-          {data.internationalization?.["wiki-page-file.name"]}
-        </div>
-        <div class="revision-attribute mime">
-          {data.internationalization?.["wiki-page-file.mime"]}
-        </div>
-        <div class="revision-attribute size">
-          {data.internationalization?.["wiki-page-file.size"]}
-        </div>
-        <div class="revision-attribute comments">
-          {data.internationalization?.["wiki-page-revision-comments"]}
-        </div>
-      </div>
-      <!-- Here we sort the list in descending order. -->
-      {#each [...fileRevisionMap].sort((a, b) => b[0] - a[0]) as [index, revisionItem] (index)}
-        <div class="revision-row" data-id={revisionItem.revision_id}>
-          <div class="revision-attribute action">
-            {#if ["create", "regular"].includes(revisionItem.revision_type)}
-              {#if pageLayoutContext.current === Layout.WIKIDOT}
-                <!-- svelte-ignore a11y_invalid_attribute -->
-                <a
-                  class="btn btn-primary btn-sm btn-small"
-                  href="javascript:;"
-                  onclick={() => {
-                    fileEditId = revisionItem.file_id
-                    rollbackFileRevision(revisionItem.revision_number)
-                  }}
-                >
-                  {data.internationalization?.["wiki-page-revision-rollback"]}
-                </a>
-              {:else}
-                <button
-                  class="action-button revision-rollback clickable"
-                  onclick={() => {
-                    fileEditId = revisionItem.file_id
-                    rollbackFileRevision(revisionItem.revision_number)
-                  }}
-                  type="button"
-                >
-                  {data.internationalization?.["wiki-page-revision-rollback"]}
-                </button>
-              {/if}
-            {/if}
-          </div>
-          <div class="revision-attribute revision-number">
-            {revisionItem.revision_number}
-          </div>
-          <div class="revision-attribute revision-type">
-            {data.internationalization?.[
-              `wiki-page-file-revision-type.${revisionItem.revision_type}`
-            ]}
-          </div>
-          <div class="revision-attribute created-at">
-            {new Date(revisionItem.created_at).toLocaleString()}
-          </div>
-          <div class="revision-attribute user">
-            {revisionItem.user_id}
-          </div>
-          <div class="revision-attribute page">
-            {revisionItem.page_id}
-          </div>
-          <div class="revision-attribute name">
-            {revisionItem.name}
-          </div>
-          <div class="revision-attribute mime">
-            {revisionItem.mime}
-          </div>
-          <div class="revision-attribute size">
-            {revisionItem.size}
-          </div>
-          <div class="revision-attribute comments">
-            {revisionItem.comments}
-          </div>
-        </div>
-      {/each}
-    </div>
-  {/if}
+  <FileHistoryPanel
+    {data}
+    {fileMap}
+    {getFileList}
+    {historyRequestId}
+    wikidot={pageLayoutContext.current === Layout.WIKIDOT}
+    bind:activeFileAction
+    bind:fileEditId
+  />
 </div>
 
 <style lang="scss">
-  .file-upload,
   .file-edit,
   .file-move,
   .file-restore {
@@ -887,34 +451,5 @@
     align-items: stretch;
     justify-content: stretch;
     width: 100%;
-  }
-
-  .file-list {
-    display: table;
-    width: 100%;
-    padding: 0 0 2em;
-
-    .file-list-header,
-    .file-row {
-      display: table-row;
-
-      .file-attribute {
-        display: table-cell;
-      }
-    }
-  }
-
-  .revision-list {
-    display: table;
-    width: 100%;
-
-    .revision-header,
-    .revision-row {
-      display: table-row;
-
-      .revision-attribute {
-        display: table-cell;
-      }
-    }
   }
 </style>
