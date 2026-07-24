@@ -73,11 +73,7 @@ function killProcessGroup(child) {
     process.kill(-child.pid, "SIGKILL");
     return;
   } catch {
-    try {
-      child.kill("SIGKILL");
-    } catch {
-      // The Git process has already ended.
-    }
+    child.kill("SIGKILL");
   }
 }
 
@@ -262,7 +258,7 @@ async function trustedGitDirectory(value) {
   return resolved;
 }
 
-function dataObject(value, keys, code) {
+function validateExactDataRecord(value, keys, code) {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     fail(code);
   }
@@ -303,7 +299,7 @@ function safeDestination(root, relative, code) {
 }
 
 function normalizeDescriptor(value) {
-  const input = dataObject(
+  const input = validateExactDataRecord(
     value,
     [
       "coordinator_path",
@@ -334,7 +330,7 @@ function normalizeDescriptor(value) {
   const files = [];
   let previous = null;
   for (const value of input.files) {
-    const file = dataObject(
+    const file = validateExactDataRecord(
       value,
       ["blob_oid", "bytes", "path", "sha256"],
       "descriptor_invalid",

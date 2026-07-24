@@ -238,7 +238,12 @@ export function aggregateVerdict({ runId, family, pages, threshold = null }) {
     schema: RENDER_HEALTH_SCHEMA,
     run_id: runId,
     family,
-    pages: pages.map(({ findings, needs_review, ...page }) => page),
+    pages: pages.map((page) => {
+      const summary = {...page};
+      delete summary.findings;
+      delete summary.needs_review;
+      return summary;
+    }),
     aggregate: {
       family,
       pages_total: pages.length,

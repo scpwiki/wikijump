@@ -27,6 +27,24 @@ extern crate unic_langid;
 mod check;
 mod messages;
 
-fn main() {
-    check::run("../fluent");
+use check::ValidationOutcome;
+use std::process::ExitCode;
+
+fn main() -> ExitCode {
+    match check::run("../fluent") {
+        Ok(ValidationOutcome::Valid) => {
+            println!();
+            println!("Everything looks in order.");
+            ExitCode::SUCCESS
+        }
+        Ok(ValidationOutcome::Invalid) => {
+            eprintln!();
+            eprintln!("Some validation issues found! See above.");
+            ExitCode::FAILURE
+        }
+        Err(error) => {
+            eprintln!("Unable to validate Fluent files: {error}");
+            ExitCode::FAILURE
+        }
+    }
 }

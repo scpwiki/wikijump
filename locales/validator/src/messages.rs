@@ -20,6 +20,7 @@
 
 use fluent_syntax::ast;
 use std::collections::{HashMap, HashSet};
+use std::fmt;
 use std::ops::Deref;
 use unic_langid::LanguageIdentifier;
 
@@ -47,21 +48,27 @@ pub struct Catalog {
 }
 
 impl Catalog {
-    pub fn add_message(&mut self, locale: LanguageIdentifier, message: &ast::Message<&str>) {
+    pub fn add_message(
+        &mut self,
+        locale: LanguageIdentifier,
+        message: &ast::Message<&str>,
+    ) -> Result<(), DuplicateMessageError> {
         let base_key = message.id.name;
         let messages = self.locales.entry(locale).or_default();
 
         if let Some(ast::Pattern { elements }) = &message.value {
             let key = str!(base_key);
             let usages = MessageUsages::from_elements(elements);
-            messages.add(key, usages);
+            messages.add(key, usages)?;
         }
 
         for ast::Attribute { id, value } in &message.attributes {
             let key = format!("{}.{}", base_key, id.name);
             let usages = MessageUsages::from_elements(&value.elements);
-            messages.add(key, usages);
+            messages.add(key, usages)?;
         }
+
+        Ok(())
     }
 
     pub fn add_term(&mut self, term: &ast::Term<&str>) {
@@ -168,16 +175,27 @@ pub struct Messages {
     inner: HashMap<String, MessageUsages>,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct DuplicateMessageError {
+    key: String,
+}
+
+impl fmt::Display for DuplicateMessageError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "Duplicate message key: {}", self.key)
+    }
+}
+
+impl std::error::Error for DuplicateMessageError {}
+
 impl Messages {
-    pub fn add(&mut self, key: String, usages: MessageUsages) {
+    pub fn add(&mut self, key: String, usages: MessageUsages) -> Result<(), DuplicateMessageError> {
         if self.inner.contains_key(&key) {
-            // We do check/panic instead of insert()
-            // because the key is gone once we insert,
-            // so we can't use it in our message without cloning.
-            panic!("Duplicate message key: {}", key);
+            return Err(DuplicateMessageError { key });
         }
 
         self.inner.insert(key, usages);
+        Ok(())
     }
 }
 
@@ -246,5 +264,25 @@ impl MessageUsages {
             VariableReference { id, .. } => self.variables.push(str!(id.name)),
             Placeable { expression } => self.add_expression(expression),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{MessageUsages, Messages};
+
+    #[test]
+    fn duplicate_message_key_returns_error_without_replacing_original() {
+        let mut messages = Messages::default();
+        messages
+            .add("welcome".to_owned(), MessageUsages::default())
+            .unwrap();
+
+        let error = messages
+            .add("welcome".to_owned(), MessageUsages::default())
+            .unwrap_err();
+
+        assert_eq!(error.to_string(), "Duplicate message key: welcome");
+        assert_eq!(messages.len(), 1);
     }
 }

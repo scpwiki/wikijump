@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
-import {createRequire} from "node:module";
 import fs from "node:fs/promises";
 import path from "node:path";
-import process from "node:process";
-import {fileURLToPath} from "node:url";
 
-import {openBrowser} from "./capture-browser-rendering.mjs";
+import {loadPlaywright, openBrowser} from "../src/browser-session.mjs";
+import {runCliIfMain} from "../src/cli-entry.mjs";
 import {
   DEFAULT_COMPUTED_STYLE_WHITELIST,
   DEFAULT_SCP9506_DESCRIPTORS,
@@ -22,8 +20,6 @@ import {
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_SETTLE_MS = 1_000;
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 
 function nextArg(argv, index, flag) {
   const value = argv[index + 1];
@@ -42,7 +38,7 @@ export function parseArgs(argv) {
     ignoreHttpsErrors: false,
   };
 
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--url") {
       args.url = nextArg(argv, index, arg);
@@ -76,7 +72,7 @@ export function parseArgs(argv) {
     } else if (arg === "--json") {
       args.jsonOnly = true;
     } else if (arg === "--help" || arg === "-h") {
-      printHelpAndExit();
+      return {help: true};
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -103,30 +99,11 @@ function nonNegativeInteger(value, flag) {
   return Number.parseInt(value, 10);
 }
 
-function printHelpAndExit() {
-  console.log(`Usage: layout-diagnostics.mjs --url URL --output-dir DIR [--fixture-id EN:scp-9506] [--viewport 1366x900 ...] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--timeout-ms 30000] [--settle-ms 1000] [--ignore-https-errors] [--json]
+export function usage() {
+  return `Usage: layout-diagnostics.mjs --url URL --output-dir DIR [--fixture-id EN:scp-9506] [--viewport 1366x900 ...] [--browser-root framerail] [--browser-executable /usr/bin/google-chrome | --cdp-endpoint http://127.0.0.1:9222] [--timeout-ms 30000] [--settle-ms 1000] [--ignore-https-errors] [--json]
 
 Writes local-only layout diagnostic JSON for a page. This is adjunct evidence for layout triage, not a V2/V3 fidelity verdict.
-`);
-  process.exit(0);
-}
-
-function defaultBrowserRoot() {
-  return path.resolve(SCRIPT_DIR, "../../../..", "framerail");
-}
-
-function requirePlaywright(browserRoot) {
-  const root = browserRoot ?? defaultBrowserRoot();
-  const requireFromRoot = createRequire(path.join(root, "package.json"));
-  try {
-    return requireFromRoot("playwright");
-  } catch (error) {
-    try {
-      return requireFromRoot("@playwright/test");
-    } catch (fallbackError) {
-      throw new Error(`could not load playwright or @playwright/test from ${root}; pass --browser-root pointing at a package with Playwright installed (${error.message}; ${fallbackError.message})`);
-    }
-  }
+`;
 }
 
 async function captureViewport({browser, args, viewport}) {
@@ -185,9 +162,13 @@ async function captureViewport({browser, args, viewport}) {
   }
 }
 
-async function run() {
-  const args = parseArgs(process.argv);
-  const {chromium} = requirePlaywright(args.browserRoot);
+export async function run(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
+  const {chromium} = loadPlaywright(args.browserRoot);
   const session = await openBrowser({
     chromium,
     cdpEndpoint: args.cdpEndpoint,
@@ -226,11 +207,4 @@ async function run() {
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === SCRIPT_PATH) {
-  run().then((code) => {
-    process.exitCode = code;
-  }).catch((error) => {
-    console.error(error.message);
-    process.exitCode = 1;
-  });
-}
+await runCliIfMain(import.meta.url, run);

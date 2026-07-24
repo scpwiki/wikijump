@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import {constants as fsConstants} from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -309,7 +310,7 @@ test("corpus-discover rejects malformed metadata JSON without echoing its conten
 
   await fs.mkdir(pageDir, { recursive: true });
   await fs.writeFile(path.join(pageDir, "source.wikidot.txt"), "ordinary source\n");
-  await fs.writeFile(path.join(pageDir, "meta.json"), `{\"title\":\"${contentMarker}\"`);
+  await fs.writeFile(path.join(pageDir, "meta.json"), `{"title":"${contentMarker}"`);
   await fs.writeFile(path.join(pageDir, "entity_id.txt"), "1001\n");
 
   await assert.rejects(
@@ -355,6 +356,30 @@ test("descriptor reader rejects a deterministic pathname swap after open", async
 
   assert.equal(await fs.readFile(openedPath, "utf8"), "original-safe-value\n");
   assert.equal(await fs.readFile(targetPath, "utf8"), `${replacementMarker}\n`);
+});
+
+test("descriptor opener preserves both open and cleanup failures", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-corpus-reader-cleanup-"));
+  const corpus = path.join(root, "corpus");
+  const missingPath = path.join(corpus, "missing.txt");
+  const cleanupError = new Error("simulated descriptor cleanup failure");
+  await fs.mkdir(corpus);
+
+  await assert.rejects(
+    openCorpusFileNoSymlinks(corpus, missingPath, fsConstants.O_RDONLY, {
+      async closeHandles(handles) {
+        for (const handle of handles) await handle.close();
+        throw cleanupError;
+      },
+    }),
+    (error) => {
+      assert(error instanceof AggregateError);
+      assert.equal(error.errors.length, 2);
+      assert.equal(error.errors[0].code, "ENOENT");
+      assert.equal(error.errors[1], cleanupError);
+      return true;
+    },
+  );
 });
 
 test("descriptor reader rejects a pathname swapped to a symlink of the opened file", async () => {

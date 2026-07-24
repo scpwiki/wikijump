@@ -10,3 +10,6 @@
 # Python
 __pycache__/
 *.py[cod]
+
+# Local desloppify state
+.desloppify/

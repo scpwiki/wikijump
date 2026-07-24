@@ -9,6 +9,7 @@ import {
   STANDING_BROWSER_CANARIES,
   defaultCanaryPairs,
 } from "../src/standing-browser-canaries.mjs";
+import { main as runAdmissionCli, parseArgs as parseAdmissionArgs, usage as admissionCliUsage } from "../scripts/verify-standing-candidate-parity-admission.mjs";
 import { buildCandidateParityReceipt } from "../src/standing-browser-parity-receipt.mjs";
 import { buildLiveReferenceLedger } from "../src/standing-browser-parity-reference.mjs";
 import { verifyStandingCandidateParityAdmission } from "../src/standing-browser-promotion-admission.mjs";
@@ -23,6 +24,35 @@ import {
   sha256File,
   sha256Value,
 } from "../src/standing-browser-parity-util.mjs";
+
+test("standing admission CLI binds all evidence paths before sealing", async () => {
+  const argv = [
+    "--receipt", "receipt.json",
+    "--candidate-identity", "identity.json",
+    "--live-reference", "reference.json",
+    "--live-completion-policy", "policy.json",
+    "--output", "admission.json",
+  ];
+  const parsed = parseAdmissionArgs(argv);
+  assert.equal(parsed.receipt, path.resolve("receipt.json"));
+  assert.match(admissionCliUsage(), /does not publish port 443/u);
+  const calls = [];
+  const output = [];
+  const code = await runAdmissionCli(argv, {
+    verifyAdmission: async (options) => {
+      calls.push(["verify", options]);
+      return {status: "pass"};
+    },
+    seal: async (outputPath, admission) => {
+      calls.push(["seal", outputPath, admission]);
+      return {path: outputPath, sha256: "a".repeat(64)};
+    },
+    stdout: (line) => output.push(JSON.parse(line)),
+  });
+  assert.equal(code, 0);
+  assert.equal(calls.length, 2);
+  assert.equal(output[0].status, "pass");
+});
 
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 const git = (character) => character.repeat(40);

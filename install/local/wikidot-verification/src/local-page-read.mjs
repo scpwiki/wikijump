@@ -1,5 +1,5 @@
 import { validateLocalDeepwellRpcUrl } from "./theme-localization-deepwell-adapter.mjs";
-import { assertTimestamp } from "./reference-acquisition-inventory.mjs";
+import { assertTimestamp } from "./reference-acquisition-inventory-source.mjs";
 
 const MAX_LOCAL_RPC_RESPONSE_BYTES = 32 * 1024 * 1024;
 const RFC3339_RE =

@@ -46,7 +46,6 @@ import { collectCandidateExecutionIdentity } from "./standing-browser-execution-
 import {
   createPrivateEmptyDirectory,
   readJsonObject,
-  requireNonEmptyString,
   requireSha256,
   sealJsonNoReplace,
   sha256File,
@@ -431,7 +430,6 @@ async function collectCandidateParity({
 
 async function sealCandidateParity({
   args,
-  policy,
   candidateIdentity,
   browserEnvironment,
   finalGateSnapshot,
@@ -633,7 +631,6 @@ export async function runStandingBrowserParity(args) {
         })
       : await sealCandidateParity({
           args,
-          policy,
           candidateIdentity,
           browserEnvironment,
           finalGateSnapshot,

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
+
+import {runCliIfMain} from "../src/cli-entry.mjs";
 import {collectRuntimeHealthSnapshot, defaultSnapshotPath} from "../src/runtime-health-snapshot.mjs";
+import {parsePositiveIntegerOption as parsePositiveInteger, readRequiredOptionValue as readValue, UsageError} from "../src/cli-options.mjs";
 
-class UsageError extends Error {}
-
-function usage() {
+export function usage() {
   return [
     "Usage: node scripts/runtime-health-snapshot.mjs [--ttl <ms>] [--refresh] [--json] [--quiet] [--snapshot <path>] [--project <name>] [--db-container <name>] [--fail-on-degraded] [--help]",
     "",
@@ -39,26 +40,7 @@ function usage() {
   ].join("\n");
 }
 
-function readValue(argv, index, flag) {
-  const value = argv[index + 1];
-  if (value === undefined) {
-    throw new UsageError(`${flag} needs a value`);
-  }
-  return value;
-}
-
-function parsePositiveInteger(value, flag) {
-  if (!/^[0-9]+$/.test(value)) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  return parsed;
-}
-
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const options = {
     ttlMs: 30000,
     refresh: false,
@@ -102,33 +84,40 @@ function parseArgs(argv) {
   return {help, options};
 }
 
-// Set process.exitCode instead of calling process.exit() so pending async
-// writes to piped stdout/stderr flush before the process exits naturally.
-try {
-  const parsed = parseArgs(process.argv.slice(2));
-  if (parsed.help) {
-    console.log(usage());
-  } else {
+export async function main(argv, {
+  collectSnapshot = collectRuntimeHealthSnapshot,
+  now = Date.now,
+  stdout = console.log,
+  stderr = console.error,
+} = {}) {
+  try {
+    const parsed = parseArgs(argv);
+    if (parsed.help) {
+      stdout(usage());
+      return 0;
+    }
+
     const {failOnDegraded, quiet, ...snapshotOptions} = parsed.options;
-    const snapshot = await collectRuntimeHealthSnapshot({
+    const snapshot = await collectSnapshot({
       ...snapshotOptions,
       snapshotPath: snapshotOptions.snapshotPath ?? undefined,
       project: snapshotOptions.project ?? undefined,
       dbContainer: snapshotOptions.dbContainer ?? undefined,
-      nowMs: Date.now(),
+      nowMs: now(),
     });
     if (!quiet) {
-      console.log(JSON.stringify(snapshot, null, 2));
+      stdout(JSON.stringify(snapshot, null, 2));
     }
-    process.exitCode = failOnDegraded && snapshot.status === "degraded" ? 3 : 0;
-  }
-} catch (error) {
-  if (error instanceof UsageError) {
-    console.error(error.message);
-    console.error(usage());
-    process.exitCode = 2;
-  } else {
-    console.error(error.stack ?? error.message);
-    process.exitCode = 1;
+    return failOnDegraded && snapshot.status === "degraded" ? 3 : 0;
+  } catch (error) {
+    if (error instanceof UsageError) {
+      stderr(error.message);
+      stderr(usage());
+      return 2;
+    }
+    stderr(error.stack ?? error.message);
+    return 1;
   }
 }
+
+await runCliIfMain(import.meta.url, main);

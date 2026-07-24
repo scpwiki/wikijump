@@ -56,7 +56,7 @@ function createContext() {
   };
 }
 
-function createRoute(url, {continueError = null, method = "GET", resourceType = "script", headers = {}, fetchResponse = null} = {}) {
+function createRoute(url, {abortError = null, continueError = null, method = "GET", resourceType = "script", headers = {}, fetchResponse = null} = {}) {
   const actions = [];
   return {
     actions,
@@ -69,6 +69,7 @@ function createRoute(url, {continueError = null, method = "GET", resourceType = 
     },
     async abort(reason) {
       actions.push({type: "abort", reason});
+      if (abortError) throw abortError;
     },
     async fetch(options) {
       actions.push({type: "fetch", options});
@@ -227,10 +228,19 @@ test("unsupported, malformed, and failed request paths fail closed and leave the
     {type: "continue"},
     {type: "abort", reason: "blockedbyclient"},
   ]);
+  const disposedDuringAbort = createRoute("https://scp-wiki.wikidot.com/disposed-during-abort", {
+    abortError: new Error("route disposed"),
+    continueError: new Error("route disposed"),
+  });
+  await handler(disposedDuringAbort);
+  assert.deepEqual(disposedDuringAbort.actions, [
+    {type: "continue"},
+    {type: "abort", reason: "blockedbyclient"},
+  ]);
   const recovery = await gate.acquire();
 
-  assert.equal(recovery.released_at_epoch_ms, 8_000);
-  assert.equal(gate.snapshot().unsupported_requests_blocked, 3);
+  assert.equal(recovery.released_at_epoch_ms, 12_000);
+  assert.equal(gate.snapshot().unsupported_requests_blocked, 4);
 });
 
 test("a persisted gate prevents a later capture process from granting before the prior interval", async () => {
@@ -423,7 +433,15 @@ test("capture lock refuses an unsealed stale owner when durable state is unavail
 
       await assert.rejects(
         () => acquireBrowserCaptureLock({lockPath, runId: "blocked", hostname: "test-host", processStartTicks}),
-        /unconfirmed request-gate state from run stale-run; operator review is required/
+        (error) => {
+          assert.match(error.message, /unconfirmed request-gate state from run stale-run; operator review is required/);
+          if (state === null) {
+            assert.equal(error.cause, undefined);
+          } else {
+            assert.match(error.cause.message, /browser request gate state is malformed/);
+          }
+          return true;
+        },
       );
     });
   }

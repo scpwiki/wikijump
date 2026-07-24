@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import {writeFile} from "node:fs/promises";
+import {runCliIfMain} from "../src/cli-entry.mjs";
 
 import {runLaneWorkerOnce, writeCodexResultArtifact} from "../src/grid-worker.mjs";
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = {};
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -29,7 +30,7 @@ function parseArgs(argv) {
   return args;
 }
 
-function usage() {
+export function usage() {
   return "Usage: node scripts/wj-grid-worker-once.mjs --state-root <dir> --campaign-id <id> --lane <n> [--executor loopback]";
 }
 
@@ -50,11 +51,11 @@ async function executeAssignment({assignment, artifactRoot, logPath}) {
   return {exit_code: 0, stop_code: null};
 }
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
+export async function main(argv) {
+  const args = parseArgs(argv);
   if (args.help) {
     console.log(usage());
-    return;
+    return 0;
   }
   if (!args.stateRoot || !args.campaignId || !Number.isInteger(args.lane)) {
     throw new Error(usage());
@@ -66,9 +67,7 @@ async function main() {
     executeAssignment,
   });
   console.log(JSON.stringify(status, null, 2));
+  return 0;
 }
 
-main().catch((error) => {
-  console.error(error.stack ?? error.message);
-  process.exitCode = 1;
-});
+await runCliIfMain(import.meta.url, main);

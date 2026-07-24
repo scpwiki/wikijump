@@ -1,11 +1,11 @@
 #!/usr/bin/env node
+import {runCliIfMain} from "../src/cli-entry.mjs";
 import {runMeasuredCommand} from "../src/command-ledger.mjs";
+import {parsePositiveIntegerOption as parsePositiveInteger, readRequiredOptionValue as readValue, UsageError} from "../src/cli-options.mjs";
 
 const SAFE_FAMILY_RE = /^[A-Za-z0-9_.:-]+$/;
 
-class UsageError extends Error {}
-
-function usage() {
+export function usage() {
   return [
     "Usage: node scripts/measure.mjs --family <name> [--label <label>] [--ledger <path>] [--timeout <ms>] [--quiet] -- <command> [args...]",
     "",
@@ -15,26 +15,7 @@ function usage() {
   ].join("\n");
 }
 
-function readValue(argv, index, flag) {
-  const value = argv[index + 1];
-  if (value === undefined) {
-    throw new UsageError(`${flag} needs a value`);
-  }
-  return value;
-}
-
-function parsePositiveInteger(value, flag) {
-  if (!/^[0-9]+$/.test(value)) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    throw new UsageError(`${flag} must be a positive integer`);
-  }
-  return parsed;
-}
-
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const separator = argv.indexOf("--");
   const optionArgv = separator === -1 ? argv : argv.slice(0, separator);
 
@@ -94,26 +75,29 @@ function parseArgs(argv) {
   return {help: false, options};
 }
 
-// Set process.exitCode instead of calling process.exit() so pending async
-// writes to piped stdout/stderr flush before the process exits naturally.
-try {
-  const parsed = parseArgs(process.argv.slice(2));
-  if (parsed.help) {
-    console.log(usage());
-  } else {
-    const result = await runMeasuredCommand({
-      ...parsed.options,
-      cwd: process.cwd(),
-    });
-    process.exitCode = result.exitCode;
-  }
-} catch (error) {
-  if (error instanceof UsageError) {
-    console.error(error.message);
-    console.error(usage());
-    process.exitCode = 2;
-  } else {
-    console.error(error.stack ?? error.message);
-    process.exitCode = 1;
+export async function main(argv, {
+  run = runMeasuredCommand,
+  cwd = process.cwd,
+  stdout = console.log,
+  stderr = console.error,
+} = {}) {
+  try {
+    const parsed = parseArgs(argv);
+    if (parsed.help) {
+      stdout(usage());
+      return 0;
+    }
+    const result = await run({...parsed.options, cwd: cwd()});
+    return result.exitCode;
+  } catch (error) {
+    if (error instanceof UsageError) {
+      stderr(error.message);
+      stderr(usage());
+      return 2;
+    }
+    stderr(error.stack ?? error.message);
+    return 1;
   }
 }
+
+await runCliIfMain(import.meta.url, main);

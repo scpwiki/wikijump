@@ -350,8 +350,10 @@ export async function createPersistentBrowserRequestGate({statePath, intervalMs 
 async function abortRoute(route) {
   try {
     await route.abort("blockedbyclient");
+    return true;
   } catch {
     // A route can already be disposed after navigation teardown. Never continue it after a failed gate path.
+    return false;
   }
 }
 
@@ -520,12 +522,18 @@ export async function acquireBrowserCaptureLock({lockPath = DEFAULT_BROWSER_CAPT
       if (existingTicks === existing.process_start_ticks) throw new Error(`browser capture source lock is held by run ${existing.run_id}`);
       if (existing.state_confirmation !== "sealed") {
         let persistedState = null;
+        let persistedStateError = null;
         try {
           persistedState = await secureJsonFile(`${absolute}.state.json`);
-        } catch {
-          // The operator-review error below intentionally covers every state-file validation failure.
+        } catch (error) {
+          persistedStateError = error;
         }
-        if (!validState(persistedState)) throw new Error(`browser capture source lock has unconfirmed request-gate state from run ${existing.run_id}; operator review is required`);
+        if (!validState(persistedState)) {
+          throw new Error(
+            `browser capture source lock has unconfirmed request-gate state from run ${existing.run_id}; operator review is required`,
+            persistedStateError === null ? undefined : {cause: persistedStateError},
+          );
+        }
       }
       const current = await fs.lstat(absolute);
       if (current.dev !== stat.dev || current.ino !== stat.ino) throw new Error("browser capture lock changed while recovering stale owner");

@@ -1,6 +1,6 @@
 import { types as utilTypes } from "node:util";
 
-import { sha256Hex, stableStringify } from "./corpus-import-manifest.mjs";
+import { sha256Hex, stableStringify } from "./canonical-json.mjs";
 import {
   isReferenceObjectStore,
   validateReferenceObject,
@@ -97,7 +97,7 @@ function dataArray(value, label) {
   return Object.freeze(snapshot);
 }
 
-function dataObject(value, expectedKeys, label) {
+function validateExactDataRecord(value, expectedKeys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -206,7 +206,7 @@ function compareUtf8(left, right) {
 }
 
 function normalizeFile(value) {
-  const input = dataObject(value, FILE_KEYS, "installed environment file");
+  const input = validateExactDataRecord(value, FILE_KEYS, "installed environment file");
   if (
     !Number.isSafeInteger(input.bytes) ||
     input.bytes < 0 ||
@@ -288,7 +288,7 @@ function manifestFile(files, path, label) {
 }
 
 function normalizeManifest(value) {
-  const input = dataObject(
+  const input = validateExactDataRecord(
     value,
     MANIFEST_KEYS,
     "installed environment manifest",
@@ -374,7 +374,7 @@ function assertStore(store) {
 
 // Canonicalizes a declared regular-file application-dependency capsule image. Every entry is an ordinary file; a future collector/materializer must reject source symlinks or copy a verified referent as a regular file before it produces this manifest. The declaration is not proof of a complete system runtime; the private capsule must enforce the wider execution boundary before spawning.
 export function buildWikidotXmlrpcInstalledEnvironmentManifest(options) {
-  const input = dataObject(
+  const input = validateExactDataRecord(
     options,
     BUILD_KEYS,
     "installed environment manifest build options",
@@ -445,7 +445,7 @@ export async function openWikidotXmlrpcInstalledEnvironmentManifest(
 ) {
   assertStore(store);
   const object = validateReferenceObject(
-    dataObject(
+    validateExactDataRecord(
       reference,
       ["algorithm", "bytes", "sha256"],
       "installed environment manifest reference",

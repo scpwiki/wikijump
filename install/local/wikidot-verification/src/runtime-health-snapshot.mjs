@@ -130,7 +130,7 @@ async function probeDb({dbContainerSetting}, dockerResult) {
   return {available: result.ok, mode: "docker-pg-isready", container, elapsedMs: result.elapsedMs, errorExcerpt: result.ok ? null : result.errorExcerpt};
 }
 
-function probeHttpEndpoint({name, method, url, headers = {}, rejectUnauthorized = true, okStatus}) {
+function probeHttpEndpoint({name, method, url, headers = {}, okStatus}) {
   const startNs = process.hrtime.bigint();
   const parsed = new URL(url);
   const client = parsed.protocol === "https:" ? https : http;
@@ -143,7 +143,7 @@ function probeHttpEndpoint({name, method, url, headers = {}, rejectUnauthorized 
       settled = true;
       resolve({name, kind: "http", target: url, available: false, statusCode: null, elapsedMs: elapsedSince(startNs), errorExcerpt: null, ...entry});
     };
-    const request = client.request(parsed, {method, headers, rejectUnauthorized, timeout: PROBE_TIMEOUT_MS}, (response) => {
+    const request = client.request(parsed, {method, headers, timeout: PROBE_TIMEOUT_MS}, (response) => {
       response.resume();
       const available = okStatus(response.statusCode ?? 0);
       finish({available, statusCode: response.statusCode ?? null, errorExcerpt: available ? null : `HTTP ${response.statusCode ?? "unknown"}`});
@@ -184,7 +184,7 @@ async function probeRuntimeUrls() {
     probeHttpEndpoint({name: "deepwell", method: "POST", url: "http://127.0.0.1:2747/jsonrpc", headers: {"content-type": "application/json"}, okStatus: (statusCode) => statusCode === 200}),
     probeHttpEndpoint({name: "framerail", method: "HEAD", url: "http://127.0.0.1:3393/", headers: {"x-wikijump-site-slug": "www", "x-wikijump-site-id": "6000000"}, okStatus: (statusCode) => statusCode < 500}),
     probeHttpEndpoint({name: "wws", method: "HEAD", url: "http://127.0.0.1:3466/-/health-check", okStatus: (statusCode) => statusCode >= 200 && statusCode < 300}),
-    probeHttpEndpoint({name: "caddy", method: "HEAD", url: "https://localhost/-/health-check/caddy", headers: {host: "wikijump.localhost"}, rejectUnauthorized: false, okStatus: (statusCode) => statusCode >= 200 && statusCode < 300}),
+    probeHttpEndpoint({name: "caddy", method: "HEAD", url: "https://wikijump.localhost/-/health-check/caddy", okStatus: (statusCode) => statusCode >= 200 && statusCode < 300}),
     probeTcpEndpoint({name: "minio", host: "127.0.0.1", port: 9000}),
   ]);
 }

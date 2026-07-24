@@ -2,7 +2,10 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { codePointCompare, sha256Hex, stableStringify } from './canonical-json.mjs';
 import { isWikidotResourceHost } from './resource-manifest.mjs';
+
+export { sha256Hex, stableStringify } from './canonical-json.mjs';
 
 const REQUIRED_META_KEYS = [
   'children',
@@ -34,25 +37,6 @@ const ATTACHMENT_MANIFEST_FILENAME = 'files.json';
 const ATTACHMENT_STATE_MANIFEST_FILENAME = '_state.json';
 const ATTACHMENT_FILES_DIRECTORY = 'files';
 const SHA256_RE = /^[0-9a-f]{64}$/iu;
-
-export function sha256Hex(bufferOrString) {
-  return crypto.createHash('sha256').update(bufferOrString).digest('hex');
-}
-
-function codePointCompare(left, right) {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
-export function stableStringify(value) {
-  if (value === null || typeof value !== 'object') {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map((item) => stableStringify(item)).join(',')}]`;
-  }
-  const entries = Object.entries(value).sort(([left], [right]) => codePointCompare(left, right));
-  return `{${entries.map(([key, entryValue]) => `${JSON.stringify(key)}:${stableStringify(entryValue)}`).join(',')}}`;
-}
 
 function readUtf8File(filePath) {
   const buffer = fs.readFileSync(filePath);
@@ -439,7 +423,7 @@ function attachmentEntriesFromStateManifest(statePath) {
   });
 }
 
-function readAttachmentManifest({ pageDir, manifestRoot, rowPath }) {
+function readAttachmentManifest({ pageDir, manifestRoot }) {
   let manifestPath = path.join(pageDir, ATTACHMENT_MANIFEST_FILENAME);
   let manifest;
   if (fs.existsSync(manifestPath)) {
@@ -678,7 +662,6 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
     const attachments = readAttachmentManifest({
       pageDir,
       manifestRoot: corpusRoot,
-      rowPath: pageDir,
     });
 
     rows.push(rowFromRecord({
@@ -773,7 +756,6 @@ export function buildSourceBundleImportManifest({ sourceBundleRoot, sourceSite =
     const attachments = readAttachmentManifest({
       pageDir,
       manifestRoot: sourceBundleRoot,
-      rowPath: pageDir,
     });
 
     rows.push(rowFromRecord({

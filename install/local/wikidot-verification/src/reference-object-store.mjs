@@ -4,43 +4,26 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { publishBytesNoReplaceAt } from "./atomic-no-replace.mjs";
-import { stableStringify } from "./corpus-import-manifest.mjs";
 import { assertDescriptorTraversalSupport } from "./corpus-file-reader.mjs";
+import {
+  assertReferenceObjectBytes as assertBytes,
+  assertReferenceObjectSha256 as assertSha256,
+  REFERENCE_OBJECT_STORE_DESCRIPTOR_BYTES as STORE_DESCRIPTOR_BYTES,
+  REFERENCE_OBJECT_STORE_DESCRIPTOR_MISMATCH as STORE_DESCRIPTOR_MISMATCH,
+  validateReferenceObject,
+} from "./reference-object-descriptor.mjs";
+
+export {
+  referenceObjectRelativePath,
+  referenceObjectStoreDescriptorBytes,
+  validateReferenceObject,
+} from "./reference-object-descriptor.mjs";
 
 const DIRECTORY_FLAGS =
   fsConstants.O_RDONLY | fsConstants.O_DIRECTORY | fsConstants.O_NOFOLLOW;
 const FILE_FLAGS =
   fsConstants.O_RDONLY | fsConstants.O_NONBLOCK | fsConstants.O_NOFOLLOW;
-const SHA256_RE = /^[0-9a-f]{64}$/u;
 const REFERENCE_OBJECT_STORES = new WeakSet();
-const STORE_DESCRIPTOR = Object.freeze({
-  digest_encoding: "lowercase-hex",
-  hash_algorithm: "sha256",
-  object_encoding: "raw",
-  object_path_template: "objects/sha256/{prefix2}/{sha256}",
-  reference_schema:
-    "https://wikijump.org/schemas/reference-object-v1.schema.json",
-  schema: "wikijump_full_parity.reference_object_store.v1",
-});
-const STORE_DESCRIPTOR_BYTES = Buffer.from(
-  `${stableStringify(STORE_DESCRIPTOR)}\n`,
-  "utf8",
-);
-const STORE_DESCRIPTOR_MISMATCH =
-  "store.json does not match the canonical reference store descriptor";
-
-function assertSha256(value, label = "sha256") {
-  if (typeof value !== "string" || !SHA256_RE.test(value)) {
-    throw new Error(`${label} must be a lowercase SHA-256 digest`);
-  }
-}
-
-function assertBytes(value, label = "bytes") {
-  if (!Number.isSafeInteger(value) || value < 0) {
-    throw new Error(`${label} must be a non-negative safe integer`);
-  }
-}
-
 function assertComponent(name) {
   if (
     typeof name !== "string" ||
@@ -268,36 +251,8 @@ async function openRoot(root, create) {
   }
 }
 
-export function validateReferenceObject(object) {
-  if (object === null || typeof object !== "object" || Array.isArray(object)) {
-    throw new Error("reference object must be an object");
-  }
-  if (
-    stableStringify(Object.keys(object).sort()) !==
-    stableStringify(["algorithm", "bytes", "sha256"])
-  ) {
-    throw new Error(
-      "reference object must contain only algorithm, bytes, and sha256",
-    );
-  }
-  const algorithm = object.algorithm;
-  const bytes = object.bytes;
-  const sha256 = object.sha256;
-  if (algorithm !== "sha256") {
-    throw new Error("reference object algorithm must be sha256");
-  }
-  assertBytes(bytes, "reference object bytes");
-  assertSha256(sha256, "reference object sha256");
-  return Object.freeze({ algorithm, bytes, sha256 });
-}
-
 export function isReferenceObjectStore(value) {
   return REFERENCE_OBJECT_STORES.has(value);
-}
-
-export function referenceObjectRelativePath(sha256) {
-  assertSha256(sha256);
-  return path.posix.join("objects", "sha256", sha256.slice(0, 2), sha256);
 }
 
 async function assertStoreHandleBindings(handles) {
@@ -517,14 +472,10 @@ async function prepareStore(root, create) {
   }
 }
 
-export function initializeReferenceObjectStore(root) {
-  return prepareStore(root, true);
+export async function initializeReferenceObjectStore(root) {
+  return await prepareStore(root, true);
 }
 
-export function openReferenceObjectStore(root) {
-  return prepareStore(root, false);
-}
-
-export function referenceObjectStoreDescriptorBytes() {
-  return Buffer.from(STORE_DESCRIPTOR_BYTES);
+export async function openReferenceObjectStore(root) {
+  return await prepareStore(root, false);
 }

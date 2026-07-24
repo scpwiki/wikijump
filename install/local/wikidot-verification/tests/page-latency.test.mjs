@@ -1,7 +1,21 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
+import { main as runPageLatencyCli, usage as pageLatencyUsage } from "../scripts/measure-page-latency.mjs";
 import { parseArgs, percentile, runPageLatency, summarizeSamples, writeReport } from "../src/page-latency.mjs";
+
+test("page latency CLI maps unstable bodies to exit code 3", async () => {
+  const output = [];
+  const code = await runPageLatencyCli(["node", "script"], {
+    parse: () => ({requireStableBody: true, output: null}),
+    run: async () => ({summary: {ok: 2, requests: 2, body_stable: false}}),
+    write: () => "{\"status\":\"measured\"}",
+    stdout: (line) => output.push(line),
+  });
+  assert.equal(code, 3);
+  assert.deepEqual(output, ['{"status":"measured"}']);
+  assert.match(pageLatencyUsage(), /--compare-url/u);
+});
 
 function fakeResponse(body, status = 200) {
   return {

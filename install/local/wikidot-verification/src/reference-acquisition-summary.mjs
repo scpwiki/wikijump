@@ -1,4 +1,4 @@
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 
 function assertExactArray(actual, expected, label) {
   if (

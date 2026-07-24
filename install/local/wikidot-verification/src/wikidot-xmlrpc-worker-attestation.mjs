@@ -1,6 +1,6 @@
 import { types as utilTypes } from "node:util";
 
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import {
   parseWikidotXmlrpcPythonEnvironment,
   serializeWikidotXmlrpcPythonEnvironment,
@@ -17,7 +17,7 @@ const ATTESTATION_KEYS = Object.freeze([
 ]);
 const RUNTIME_KEYS = Object.freeze(["implementation", "version"]);
 
-function dataObject(value, expectedKeys, label) {
+function validateExactDataRecord(value, expectedKeys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -126,8 +126,8 @@ function expectedVersion(environment) {
  */
 export function validateWikidotXmlrpcWorkerAttestation(environment, value) {
   const expected = normalizedEnvironment(environment);
-  const input = dataObject(value, ATTESTATION_KEYS, "worker attestation");
-  const runtime = dataObject(
+  const input = validateExactDataRecord(value, ATTESTATION_KEYS, "worker attestation");
+  const runtime = validateExactDataRecord(
     input.runtime,
     RUNTIME_KEYS,
     "worker attestation runtime",

@@ -17,13 +17,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 import https from 'node:https';
 
+import {runCliIfMain} from '../src/cli-entry.mjs';
+
 import {
   aggregateVerdict,
   classifyRenderedPage,
   renderDashboardHtml,
 } from '../src/render-health.mjs';
 
-function parseArgs(argv) {
+export function usage() {
+  return 'Usage: render-health-sweep.mjs --manifest <manifest.jsonl> --host <site-host> --output-dir <dir> ' +
+    '[--run-id id] [--family EN] [--threshold 0.9] [--concurrency 8] [--previous verdict.json] ' +
+    '[--import-summary summary.json] [--disposition category=disposition ...]';
+}
+
+export function parseArgs(argv) {
   const args = {
     manifest: null,
     host: null,
@@ -39,7 +47,7 @@ function parseArgs(argv) {
     dispositions: {},
     insecureLocalTls: false,
   };
-  for (let i = 2; i < argv.length; i += 1) {
+  for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => argv[++i];
     if (arg === '--manifest') args.manifest = next();
@@ -57,14 +65,8 @@ function parseArgs(argv) {
     else if (arg === '--disposition') {
       const [category, disposition] = next().split('=');
       args.dispositions[category] = disposition;
-    } else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: render-health-sweep.mjs --manifest <manifest.jsonl> --host <site-host> --output-dir <dir> ' +
-          '[--run-id id] [--family EN] [--threshold 0.9] [--concurrency 8] [--previous verdict.json] ' +
-          '[--import-summary summary.json] [--disposition category=disposition ...]',
-      );
-      process.exit(0);
-    } else throw new Error(`Unknown argument: ${arg}`);
+    } else if (arg === '--help' || arg === '-h') return {help: true};
+    else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!args.manifest) throw new Error('--manifest is required');
   if (!args.host) throw new Error('--host is required');
@@ -131,8 +133,12 @@ function readSource(row) {
   }
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
+export async function main(argv) {
+  const args = parseArgs(argv);
+  if (args.help) {
+    console.log(usage());
+    return 0;
+  }
   const rows = fs
     .readFileSync(args.manifest, 'utf8')
     .trim()
@@ -181,10 +187,12 @@ async function main() {
     renderDashboardHtml({ verdict, importSummary, previous }),
   );
   console.log(JSON.stringify({ ...verdict.aggregate, run_id: verdict.run_id, exit_code: exitCode }, null, 2));
-  process.exit(exitCode);
+  return exitCode;
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(2);
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error);
+    return 2;
+  },
 });

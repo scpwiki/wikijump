@@ -154,10 +154,11 @@ const MAX_XML_RPC_FILTER_VALUES = 100
 const PAGE_SELECT_DECIMAL_RATING_PATTERN =
   /^[+-]?(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:[eE][+-]?\d+)?$/
 const XML_RPC_DEFAULT_REQUEST_IP = "127.0.0.1"
-const XML_RPC_WRITE_USERNAME = process.env.XML_RPC_WRITE_USERNAME
-const XML_RPC_WRITE_PASSWORD = process.env.XML_RPC_WRITE_PASSWORD
-const WIKIDOT_XMLRPC_OWNER_USERNAME =
-  process.env.WIKIDOT_XMLRPC_OWNER_USERNAME?.trim() || undefined
+const xmlRpcAuthenticationConfiguration = () => ({
+  ownerUsername: process.env.WIKIDOT_XMLRPC_OWNER_USERNAME?.trim() || undefined,
+  writePassword: process.env.XML_RPC_WRITE_PASSWORD,
+  writeUsername: process.env.XML_RPC_WRITE_USERNAME
+})
 const XML_WHITESPACE = "[ \\t\\r\\n]"
 const METHOD_DEFINITIONS: Record<string, MethodDefinition> = {
   "system.listMethods": {
@@ -1143,10 +1144,11 @@ async function getXmlRpcWriteContext(
 async function getAuthenticatedUser(
   requestIp: string
 ): Promise<Record<string, XmlRpcValue>> {
-  const principal = WIKIDOT_XMLRPC_OWNER_USERNAME
+  const { ownerUsername } = xmlRpcAuthenticationConfiguration()
+  const principal = ownerUsername
     ? {
         context: undefined,
-        user: WIKIDOT_XMLRPC_OWNER_USERNAME
+        user: ownerUsername
       }
     : await getXmlRpcWriteUserLookup(requestIp)
   const user = await requestDeepwell(
@@ -1179,7 +1181,8 @@ async function getXmlRpcWriteUserLookup(
 async function getXmlRpcWritePrincipal(
   requestIp: string
 ): Promise<{ sessionToken: string; userId: number }> {
-  if (!XML_RPC_WRITE_USERNAME || !XML_RPC_WRITE_PASSWORD) {
+  const { writePassword, writeUsername } = xmlRpcAuthenticationConfiguration()
+  if (!writeUsername || !writePassword) {
     throw new XmlRpcFault(
       403,
       "XML-RPC write actor authentication is not configured",
@@ -1190,8 +1193,8 @@ async function getXmlRpcWritePrincipal(
   let login: DeepwellLoginOutput
   try {
     login = (await client.request("login", {
-      name_or_email: XML_RPC_WRITE_USERNAME,
-      password: XML_RPC_WRITE_PASSWORD,
+      name_or_email: writeUsername,
+      password: writePassword,
       ip_address: requestIp,
       user_agent: "wikijump-xmlrpc-api/0.1"
     })) as DeepwellLoginOutput

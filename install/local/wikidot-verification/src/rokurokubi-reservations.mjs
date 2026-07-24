@@ -286,7 +286,8 @@ function dedupeRows(rows) {
   for (const row of rows) {
     const existing = byKey.get(row.source_key);
     if (!existing) {
-      const { source_key: _sourceKey, ...publicRow } = row;
+      const publicRow = {...row};
+      delete publicRow.source_key;
       byKey.set(row.source_key, publicRow);
       continue;
     }

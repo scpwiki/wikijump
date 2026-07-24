@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { stableStringify } from '../src/corpus-import-manifest.mjs';
+import { stableStringify } from '../src/canonical-json.mjs';
 import { buildFixtureResourceTargetPath } from '../src/resource-manifest.mjs';
 import {
   createHttpFixtureResourceLoader,

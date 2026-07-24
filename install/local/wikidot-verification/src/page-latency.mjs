@@ -145,7 +145,11 @@ export async function runPageLatency({ url, compareUrl = null, requests = 20, wa
     url,
     warmups,
     summary,
-    samples: samples.map(({ body, ...sample }, index) => ({ index: index + 1, ...sample, duration_ms: round(sample.duration_ms) })),
+    samples: samples.map((sample, index) => {
+      const reportSample = {...sample};
+      delete reportSample.body;
+      return {index: index + 1, ...reportSample, duration_ms: round(sample.duration_ms)};
+    }),
   };
 }
 

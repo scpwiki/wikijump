@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import {runCliIfMain} from "../src/cli-entry.mjs";
 import { dirname } from "node:path";
 import {
   DEFAULT_CANONICAL_MIRROR_ORIGIN,
@@ -9,7 +10,7 @@ import {
   sha256Hex
 } from "../src/rokurokubi-reservations.mjs";
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = {
     mirrorOrigin: DEFAULT_CANONICAL_MIRROR_ORIGIN,
     sourceLabel: null,
@@ -87,7 +88,7 @@ function parseArgs(argv) {
   return args;
 }
 
-function usage() {
+export function usage() {
   return `Usage:
   node install/local/wikidot-verification/scripts/extract-rokurokubi-reservations.mjs \
     --source <csv> --output <csv> --manifest <json> \
@@ -128,7 +129,10 @@ async function loadSheetManifest(path) {
   for (const [index, sheet] of parsed.sheets.entries()) {
     const csvPath = requireValue(sheet.csv ?? sheet.source ?? sheet.path, `Sheet ${index + 1} is missing csv/source/path`);
     const csvText = await readFile(csvPath, "utf8");
-    const { csv, source, path: sourcePath, ...metadata } = sheet;
+    const metadata = {...sheet};
+    delete metadata.csv;
+    delete metadata.source;
+    delete metadata.path;
     sheets.push({
       ...metadata,
       csvText,
@@ -139,15 +143,16 @@ async function loadSheetManifest(path) {
       label: sheet.label
     });
   }
-  const { sheets: _sheets, ...metadata } = parsed;
+  const metadata = {...parsed};
+  delete metadata.sheets;
   return { sheets, metadata };
 }
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
+export async function main(argv) {
+  const args = parseArgs(argv);
   if (args.help) {
     console.log(usage());
-    return;
+    return 0;
   }
   if (!args.output || !args.manifest) {
     throw new Error(usage());
@@ -205,9 +210,12 @@ async function main() {
     mapped_scp_wiki_count: enrichedManifest.mapped_scp_wiki_count,
     unmapped_count: enrichedManifest.unmapped_count
   }));
+  return 0;
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exitCode = 1;
+await runCliIfMain(import.meta.url, main, {
+  onError: (error) => {
+    console.error(error.message);
+    return 1;
+  },
 });

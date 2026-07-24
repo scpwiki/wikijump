@@ -6,7 +6,7 @@ import {
   AtomicPublicationAmbiguousError,
   publishBytesNoReplace,
 } from "./atomic-no-replace.mjs";
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import { referenceAcquisitionInventorySha256 } from "./reference-acquisition-attempt.mjs";
 import { openWikidotXmlrpcCampaign } from "./reference-acquisition-xmlrpc-campaign.mjs";
 import { openWikidotXmlrpcCompletions } from "./reference-acquisition-xmlrpc-completion.mjs";
@@ -25,7 +25,7 @@ const VERDICT_KEYS = Object.freeze([
   "status",
 ]);
 
-function dataObject(value, expectedKeys, label) {
+function validateExactDataRecord(value, expectedKeys, label) {
   if (
     value === null ||
     typeof value !== "object" ||
@@ -69,12 +69,12 @@ function dataObject(value, expectedKeys, label) {
 
 function snapshotReference(value, label) {
   return validateReferenceObject(
-    dataObject(value, ["algorithm", "bytes", "sha256"], label),
+    validateExactDataRecord(value, ["algorithm", "bytes", "sha256"], label),
   );
 }
 
 function normalizeFinalVerdict(value) {
-  const verdict = dataObject(
+  const verdict = validateExactDataRecord(
     value,
     VERDICT_KEYS,
     "XML-RPC acquisition verdict",
@@ -133,7 +133,7 @@ async function readPublishedVerdict(output) {
 }
 
 function publicationOptions(value) {
-  const options = dataObject(
+  const options = validateExactDataRecord(
     value,
     ["campaignReference", "context", "store"],
     "XML-RPC final verdict publication options",

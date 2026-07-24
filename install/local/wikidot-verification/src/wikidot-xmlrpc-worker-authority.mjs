@@ -1,10 +1,11 @@
 import { types as utilTypes } from "node:util";
 
-import { stableStringify } from "./corpus-import-manifest.mjs";
+import { stableStringify } from "./canonical-json.mjs";
 import {
   isReferenceObjectStore,
   validateReferenceObject,
 } from "./reference-object-store.mjs";
+import { exactDataRecord as dataObject } from "./wikidot-xmlrpc-exact-data-record.mjs";
 
 export const WIKIDOT_XMLRPC_WORKER_AUTHORITY_SCHEMA =
   "wikijump_full_parity.wikidot_xmlrpc_worker_authority.v1";
@@ -48,52 +49,6 @@ const MAX_BYTES = 8 * 1024;
 const MAX_PYTHON_VERSION_CHARS = 64;
 const PYTHON_VERSION_RE = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u;
 const SHA256_RE = /^[0-9a-f]{64}$/u;
-
-function dataObject(value, expectedKeys, label) {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    Array.isArray(value) ||
-    utilTypes.isProxy(value)
-  ) {
-    throw new Error(`${label} must be a data object`);
-  }
-  let prototype;
-  let keys;
-  let descriptors;
-  try {
-    prototype = Reflect.getPrototypeOf(value);
-    keys = Reflect.ownKeys(value);
-    descriptors = keys.map((key) =>
-      Reflect.getOwnPropertyDescriptor(value, key),
-    );
-  } catch {
-    throw new Error(`${label} must be a data object`);
-  }
-  if (
-    ![Object.prototype, null].includes(prototype) ||
-    keys.some((key) => typeof key !== "string") ||
-    stableStringify([...keys].sort()) !== stableStringify(expectedKeys)
-  ) {
-    throw new Error(`${label} has unexpected fields or prototype`);
-  }
-  const snapshot = {};
-  for (const [index, key] of keys.entries()) {
-    const descriptor = descriptors[index];
-    if (
-      descriptor === undefined ||
-      !descriptor.enumerable ||
-      !("value" in descriptor)
-    ) {
-      throw new Error(`${label} must contain only enumerable data fields`);
-    }
-    Object.defineProperty(snapshot, key, {
-      enumerable: true,
-      value: descriptor.value,
-    });
-  }
-  return Object.freeze(snapshot);
-}
 
 function assertSha256(value, label) {
   if (typeof value !== "string" || !SHA256_RE.test(value)) {

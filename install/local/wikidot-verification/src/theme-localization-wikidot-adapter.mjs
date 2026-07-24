@@ -9,7 +9,7 @@ import {targetRoundTripSourceSha256} from "./theme-source-roundtrip.mjs";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const SECRET_KEY = /password|cookie|credential|session|token/iu;
-const HELPER_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../scripts/wikidot-theme-page-helper.py");
+const HELPER_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../scripts/wikidot_theme_page_helper.py");
 export const WIKIDOT_HELPER_PYTHON = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.venv/bin/python");
 const REFERENCE_PREREQUISITE_TITLES = new Map([
   ["component:image-block-base", "Image Block Base"],

@@ -225,13 +225,26 @@ export async function launchParityBrowser({
         executable_sha256: await sha256File(executable),
       },
       async close() {
-        await context.close().catch(() => undefined);
-        await browser.close().catch(() => undefined);
+        await closeParityBrowserResources(context, browser);
       },
     };
   } catch (error) {
-    await context?.close().catch(() => undefined);
-    await browser.close().catch(() => undefined);
+    try {
+      await closeParityBrowserResources(context, browser);
+    } catch (cleanupError) {
+      throw new AggregateError([error, cleanupError], "browser initialization and cleanup both failed");
+    }
     throw error;
+  }
+}
+
+export async function closeParityBrowserResources(context, browser) {
+  const failures = [];
+  if (context !== null) {
+    await context.close().catch((error) => failures.push(error));
+  }
+  await browser.close().catch((error) => failures.push(error));
+  if (failures.length > 0) {
+    throw new AggregateError(failures, "parity browser resources failed to close");
   }
 }
