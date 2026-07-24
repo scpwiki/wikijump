@@ -168,6 +168,7 @@ pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) default_tags: Vec<Cow<'static, str>>,
     pub(in crate::services::render) all_tags: Vec<Cow<'static, str>>,
     pub(in crate::services::render) no_tags: Vec<Cow<'static, str>>,
+    pub(in crate::services::render) untagged: bool,
     pub(in crate::services::render) authors: Vec<Cow<'static, str>>,
     pub(in crate::services::render) author_filter_present: bool,
     pub(in crate::services::render) order: Option<OrderBySelector>,
@@ -325,6 +326,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
     let mut default_tags = Vec::new();
     let mut all_tags = Vec::new();
     let mut no_tags = Vec::new();
+    let mut untagged = false;
     let mut authors = Vec::new();
     let mut author_filter_present = false;
     let mut order = None;
@@ -380,6 +382,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                 };
                 for tag in split_list_pages_values(value) {
                     if is_no_tags_selector(&tag) {
+                        untagged = true;
                         unsupported_count_pages_filter = true;
                         continue;
                     }
@@ -404,6 +407,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                 };
                 for tag in split_list_pages_values(value) {
                     if is_no_tags_selector(&tag) {
+                        untagged = true;
                         unsupported_count_pages_filter = true;
                         continue;
                     }
@@ -642,6 +646,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
         default_tags,
         all_tags,
         no_tags,
+        untagged,
         authors,
         author_filter_present,
         order,

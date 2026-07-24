@@ -703,6 +703,26 @@ fn accepts_wikidot_list_pages_class_and_style_as_noops() {
 }
 
 #[test]
+fn parses_wikidot_list_pages_no_tags_selector_without_widening_countpages() {
+    for source in [
+        r#" category="_default" tags="-" limit="20" "#,
+        r#" category="_default" tag="-" limit="20" "#,
+    ] {
+        let arguments =
+            parse_list_pages_arguments(source).expect("no-tags selector should parse");
+
+        assert!(arguments.untagged);
+        assert!(arguments.default_tags.is_empty());
+        assert!(arguments.all_tags.is_empty());
+        assert!(arguments.no_tags.is_empty());
+        assert!(
+            count_pages_should_remain_literal(&arguments),
+            "the ListPages no-tags evidence must not widen CountPages behavior",
+        );
+    }
+}
+
+#[test]
 fn parses_singular_list_pages_tag_argument_with_exclusions() {
     let arguments = parse_list_pages_arguments(
         r#" tag="+scp -tale -goi-format -co-authored" category="-fragment" perPage="250""#,

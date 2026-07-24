@@ -239,6 +239,7 @@ impl PageQueryService {
                     any_present: any_tags,
                     all_present: all_tags,
                     none_present: no_tags,
+                    untagged,
                 },
             page_parent,
             contains_outgoing_links,
@@ -609,8 +610,10 @@ impl PageQueryService {
             .filter(page::Column::DeletedAt.is_null())
             .filter(condition);
         let order = order.unwrap_or_default();
-        let needs_tag_filter =
-            !all_tags.is_empty() || !any_tags.is_empty() || !no_tags.is_empty();
+        let needs_tag_filter = !all_tags.is_empty()
+            || !any_tags.is_empty()
+            || !no_tags.is_empty()
+            || untagged;
         let needs_revision_join = needs_tag_filter
             || matches!(
                 order.property,
@@ -651,6 +654,13 @@ impl PageQueryService {
                     .binary(PgBinOper::Contains, Expr::val(vec![tag.to_string()]))
                     .not(),
             );
+        }
+
+        if untagged {
+            debug!("Restricting ListPages to pages with no tags");
+            query = query.filter(SimpleExpr::Custom(
+                "cardinality(page_revision.tags) = 0".into(),
+            ));
         }
 
         query = apply_score_filters(

@@ -666,6 +666,7 @@ async fn select_child_content_pages(
                 any_present: &[],
                 all_present: &[],
                 none_present: &[],
+                untagged: false,
             },
             page_parent: PageParentSelector::ChildOf,
             contains_outgoing_links: &[],

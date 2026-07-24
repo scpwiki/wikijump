@@ -269,6 +269,7 @@ impl PageQueryService {
                     any_present: &tags_any,
                     all_present: &tags_all,
                     none_present: &tags_none,
+                    untagged: false,
                 },
                 page_parent,
                 contains_outgoing_links: &[],
