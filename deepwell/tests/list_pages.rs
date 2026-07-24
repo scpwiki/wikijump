@@ -898,3 +898,119 @@ async fn no_tags_listpages_selects_only_untagged_pages() {
         "a tagged page must not be returned by tags=\"-\":\n{html}",
     );
 }
+
+#[tokio::test]
+async fn rating_order_listpages_sorts_by_descending_score() {
+    const HIGH_SLUG: &str = "rating-order-high";
+    const MID_SLUG: &str = "rating-order-mid";
+    const LOW_SLUG: &str = "rating-order-low";
+    const SOURCE_SLUG: &str = "rating-order-source";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, rating) in [(LOW_SLUG, 3), (HIGH_SLUG, 129), (MID_SLUG, 49)] {
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(slug.into())),
+        });
+        let page = run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": "Rating order fixture",
+                "title": slug,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "rating order ListPages fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+
+        let transaction = runner.context().transaction();
+        transaction
+            .execute(Statement::from_sql_and_values(
+                transaction.get_database_backend(),
+                "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (false, $1, $2, $3)",
+                [
+                    Value::from(page.page_id),
+                    Value::from(ADMIN_USER_ID),
+                    Value::from(rating),
+                ],
+            ))
+            .await
+            .expect("deterministic legacy aggregate should be stored");
+    }
+
+    let source = concat!(
+        "[[module ListPages category=\"_default\" name=\"rating-order-*\" ",
+        "order=\"rating desc\" separate=\"no\"]]\n",
+        "ROW %%name%%\n",
+        "[[/module]]",
+    );
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(SOURCE_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": source,
+            "title": "Rating order ListPages",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "rating order ListPages smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": SOURCE_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("rating order page_get should succeed")
+    .expect("rating order page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let high = html
+        .find(HIGH_SLUG)
+        .expect("the highest rated row should render");
+    let mid = html
+        .find(MID_SLUG)
+        .expect("the middle rated row should render");
+    let low = html
+        .find(LOW_SLUG)
+        .expect("the lowest rated row should render");
+    assert!(
+        high < mid && mid < low,
+        "rows should descend by rating:\n{html}",
+    );
+    assert!(
+        !html.contains("[[module ListPages"),
+        "a rating-ordered module should render rather than stay literal:\n{html}",
+    );
+}

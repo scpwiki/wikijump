@@ -6946,7 +6946,15 @@ impl RenderService {
             slugs: &[],
             data_form_fields: &data_form_fields,
             order,
-            candidate_limit: if data_form_fields.is_empty() {
+            // Score ordering, like data form filtering, is resolved in Rust over
+            // the whole candidate set rather than by SQL ORDER BY, so both need
+            // the scan bound that tells the caller to preserve the module
+            // instead of sorting an unbounded result set in memory.
+            candidate_limit: if data_form_fields.is_empty()
+                && !matches!(
+                    order.map(|order| order.property),
+                    Some(OrderProperty::Score)
+                ) {
                 None
             } else {
                 Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
@@ -7574,7 +7582,15 @@ impl RenderService {
             slugs: &[],
             data_form_fields: &data_form_fields,
             order,
-            candidate_limit: if data_form_fields.is_empty() {
+            // Score ordering, like data form filtering, is resolved in Rust over
+            // the whole candidate set rather than by SQL ORDER BY, so both need
+            // the scan bound that tells the caller to preserve the module
+            // instead of sorting an unbounded result set in memory.
+            candidate_limit: if data_form_fields.is_empty()
+                && !matches!(
+                    order.map(|order| order.property),
+                    Some(OrderProperty::Score)
+                ) {
                 None
             } else {
                 Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
@@ -9738,6 +9754,7 @@ fn parse_list_pages_order(value: &str) -> Option<OrderBySelector> {
         "created_at" | "createdat" | "created" | "date" => OrderProperty::CreatedAt,
         "updated_at" | "updatedat" | "updated" => OrderProperty::UpdatedAt,
         "size" => OrderProperty::Size,
+        "rating" | "score" => OrderProperty::Score,
         "random" => OrderProperty::Random,
         _ => return None,
     };
@@ -13240,6 +13257,48 @@ mod tests {
         assert_eq!(arguments.default_tags, vec![Cow::Borrowed("地下東京奇譚")]);
         assert_eq!(arguments.no_tags, vec![Cow::Borrowed("ハブ")]);
         assert!(!arguments.untagged);
+    }
+
+    #[test]
+    fn parses_wikidot_list_pages_rating_order() {
+        for (source, ascending) in [
+            (r#" category="*" order="rating desc" "#, false),
+            (r#" category="*" order="rating asc" "#, true),
+            (r#" category="*" order="score desc" "#, false),
+            (r#" category="*" order="-rating" "#, false),
+            (r#" category="*" order="rating" "#, true),
+        ] {
+            let arguments = parse_list_pages_arguments(source)
+                .unwrap_or_else(|| panic!("rating order should parse: {source}"));
+
+            assert_eq!(
+                arguments.order,
+                Some(OrderBySelector {
+                    property: OrderProperty::Score,
+                    ascending,
+                }),
+                "rating order should reach the query layer: {source}",
+            );
+        }
+    }
+
+    #[test]
+    fn parses_corpus_list_pages_rating_order_module() {
+        // cowscantgomoo line 229, the G29 representative.
+        let arguments = parse_list_pages_arguments(
+            r#" created_by="CowscantgoMoo" order="rating desc" perPage="250" separate="no""#,
+        )
+        .expect("the corpus rating-order module should parse");
+
+        assert_eq!(
+            arguments.order,
+            Some(OrderBySelector {
+                property: OrderProperty::Score,
+                ascending: false,
+            }),
+        );
+        assert!(!arguments.unsupported_author_filter);
+        assert!(!arguments.unsupported_list_pages_filter);
     }
 
     #[test]
