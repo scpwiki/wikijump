@@ -81,7 +81,7 @@ export interface DeepwellParentRelationship {
 export function expectDeepwellCategories(
   value: unknown,
   method: string
-): Array<{ slug: string }> {
+): { slug: string }[] {
   return expectArray(
     value,
     method,

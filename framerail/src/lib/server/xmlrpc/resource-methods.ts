@@ -24,7 +24,6 @@ import {
   isDeepwellPageRevision,
   isDeepwellPageView,
   type DeepwellFile,
-  type DeepwellForumPost,
   type DeepwellForumPostSummary,
   type DeepwellPage
 } from "$lib/server/xmlrpc/deepwell-responses"
