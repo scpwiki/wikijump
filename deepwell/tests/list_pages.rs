@@ -239,7 +239,7 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         site_id: Some(site_id),
         page_reference: Some(Reference::Slug(TARGET_SLUG.into())),
     });
-    run_endpoint!(
+    let created = run_endpoint!(
         runner,
         page_create,
         json!({
@@ -255,6 +255,23 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
+
+    // The live G37 target reported two revisions after one edit, so the title
+    // change here leaves the saved source, and its %%size%%, untouched.
+    run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": TARGET_SLUG,
+            "last_revision_id": created.revision_id,
+            "revision_comments": "retitle the AJAX ListPages target",
+            "user_id": ADMIN_USER_ID,
+            "title": "AJAX ListPages Target Revised",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("retitling the target should create a second revision");
 
     runner.set_request_context(RequestContext {
         session: None,
@@ -341,6 +358,13 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
             r#"class="set created_by_unix"><span class="name"> created_by_unix </span><span class="value"> administrator </span>"#,
         ),
         "AJAX ListPages should emit the creator account unix name rather than the display name: {}",
+        output.body,
+    );
+    assert!(
+        output.body.contains(
+            r#"class="set revisions"><span class="name"> revisions </span><span class="value"> 2 </span>"#,
+        ),
+        "AJAX ListPages should count the created and revised page's stored revisions: {}",
         output.body,
     );
     assert!(

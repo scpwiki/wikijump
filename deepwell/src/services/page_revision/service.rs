@@ -1564,6 +1564,9 @@ impl PageRevisionService {
     }
 
     /// Gets the number of stored revisions for several page IDs.
+    ///
+    /// Pages with no stored revision are absent from the result rather than
+    /// present with a zero, so callers can distinguish missing history.
     pub async fn get_revision_count_batch(
         ctx: &ServiceContext<'_>,
         site_id: i64,
