@@ -6874,6 +6874,7 @@ impl RenderService {
             exclude_current_page,
         );
         let wants_content = template.uses_content();
+        let wants_size = template.uses_size();
         if wants_content
             && render_page_query_uses_single_scan(order)
             && query_limit > expansion_budget.remaining_content_rows() as u64
@@ -7062,6 +7063,50 @@ impl RenderService {
                         .into_iter()
                         .map(|(page_id, wikitext)| ((site_id, page_id), wikitext)),
                 );
+            }
+        }
+        if wants_size {
+            let mut missing_by_site = BTreeMap::<i64, Vec<i64>>::new();
+            for page in &pages {
+                let cache_key = (page.site_id, page.page_id);
+                if content_cache.wikitext_scalar_count.contains_key(&cache_key) {
+                    continue;
+                }
+                if let Some(wikitext) = content_cache.wikitext.get(&cache_key) {
+                    content_cache.wikitext_scalar_count.insert(
+                        cache_key,
+                        wikitext.as_deref().map(|wikitext| wikitext.chars().count()),
+                    );
+                } else {
+                    missing_by_site
+                        .entry(page.site_id)
+                        .or_default()
+                        .push(page.page_id);
+                }
+            }
+            for (site_id, page_ids) in missing_by_site {
+                let loaded =
+                    PageRevisionService::get_wikitext_scalar_count_optional_batch(
+                        ctx, site_id, &page_ids,
+                    )
+                    .await?;
+                content_cache.wikitext_scalar_count.extend(
+                    loaded.into_iter().map(|(page_id, scalar_count)| {
+                        ((site_id, page_id), scalar_count)
+                    }),
+                );
+            }
+            if pages.iter().any(|page| {
+                content_cache
+                    .wikitext_scalar_count
+                    .get(&(page.site_id, page.page_id))
+                    .copied()
+                    .flatten()
+                    .is_none()
+            }) {
+                // Wikidot reports the Unicode scalar-value count of the normalized saved source.
+                // A missing latest source cannot be replaced with a plausible zero.
+                return Ok(ListPagesBlockRenderResult::PreserveOriginal);
             }
         }
         let category_ids = pages
@@ -7260,6 +7305,14 @@ impl RenderService {
                 user_displays,
                 snapshot_displays,
                 page_wikitext: None,
+                page_wikitext_scalar_count: wants_size.then(|| {
+                    content_cache
+                        .wikitext_scalar_count
+                        .get(&cache_key)
+                        .copied()
+                        .flatten()
+                        .expect("size-backed ListPages rows were validated before substitution")
+                }),
                 expanded_content: Some(&expanded_content),
                 data_form_values: &data_form_values,
                 render_generated_html,
@@ -9737,6 +9790,7 @@ struct ListPagesSubstitutionContext<'a> {
     user_displays: &'a BTreeMap<i64, WikidotUserDisplay>,
     snapshot_displays: &'a BTreeMap<i64, ListPagesSnapshotDisplay>,
     page_wikitext: Option<&'a str>,
+    page_wikitext_scalar_count: Option<usize>,
     expanded_content: Option<&'a BTreeMap<Option<usize>, String>>,
     data_form_values: &'a BTreeMap<String, String>,
     render_generated_html: bool,
@@ -9909,7 +9963,11 @@ fn substitute_list_pages_variables_with_fragments(
                 ),
                 "_tags" => tags.join(" "),
                 "category" => context.category.to_owned(),
-                "size" | "children" | "revisions" => "0".to_owned(),
+                "size" => context
+                    .page_wikitext_scalar_count
+                    .map(|scalar_count| scalar_count.to_string())
+                    .unwrap_or_else(|| captures[0].to_owned()),
+                "children" | "revisions" => "0".to_owned(),
                 "parent_fullname" | "rating_percent" => String::new(),
                 "form_data" | "form_raw" => captures
                     .name("argument")
@@ -11758,6 +11816,7 @@ struct ListPagesPageContext {
 #[derive(Debug, Default)]
 struct ListPagesContentCache {
     wikitext: BTreeMap<(i64, i64), Option<String>>,
+    wikitext_scalar_count: BTreeMap<(i64, i64), Option<usize>>,
 }
 
 #[derive(Debug)]
@@ -12437,6 +12496,8 @@ mod tests {
             user_displays,
             snapshot_displays,
             page_wikitext,
+            page_wikitext_scalar_count: page_wikitext
+                .map(|wikitext| wikitext.chars().count()),
             expanded_content: None,
             data_form_values,
             render_generated_html,
@@ -14478,6 +14539,92 @@ mod tests {
         assert_eq!(
             render_list_pages_numbered_rows(&substituted),
             "<ol>\n<li>() <a href=\"/scp-655-jp\">SCP-655-JP</a> (評価: 12 コメント:  最終コメント: )</li>\n</ol>\n",
+        );
+    }
+
+    #[test]
+    fn substitutes_wikidot_list_pages_size_from_saved_source_scalar_values() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Unicode fixture".to_owned()),
+            alt_title: None,
+            slug: Some("unicode-fixture".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let user_displays = BTreeMap::new();
+        let data_form_values = BTreeMap::new();
+
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%size%%",
+                &page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &user_displays,
+                    Some("😀"),
+                    &data_form_values,
+                ),
+            ),
+            "1",
+            "Wikidot counts Unicode scalar values rather than UTF-16 code units or UTF-8 bytes",
+        );
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%size%%",
+                &page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &user_displays,
+                    Some("e\u{301}"),
+                    &data_form_values,
+                ),
+            ),
+            "2",
+            "Wikidot does not collapse a combining sequence into one grapheme",
+        );
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%size%%",
+                &page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &user_displays,
+                    Some("a\nb"),
+                    &data_form_values,
+                ),
+            ),
+            "3",
+            "the count applies to the normalized saved source",
+        );
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%size%%",
+                &page,
+                1,
+                1,
+                &list_pages_substitution_context(
+                    20,
+                    &user_displays,
+                    None,
+                    &data_form_values,
+                ),
+            ),
+            "%%size%%",
+            "missing source must not be replaced with a plausible zero",
         );
     }
 

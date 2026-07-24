@@ -38,7 +38,7 @@ use ftml::data::PageInfo;
 use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use ref_map::*;
-use sea_query::{Order, Query};
+use sea_query::{Order, Query, SimpleExpr};
 use std::collections::BTreeMap;
 use std::num::NonZeroI32;
 use std::sync::LazyLock;
@@ -1376,6 +1376,60 @@ impl PageRevisionService {
             .or_raise(make_error)?;
         wikitext.extend(rows);
         Ok(wikitext)
+    }
+
+    /// Gets the Unicode scalar-value count of the latest saved wikitext for several page IDs.
+    ///
+    /// The stored generated column is `char_length(contents)::BIGINT`, which counts decoded
+    /// PostgreSQL text characters rather than UTF-8 bytes. With PostgreSQL's valid UTF-8 text
+    /// invariant, this is the same count as Rust `str::chars()`.
+    pub async fn get_wikitext_scalar_count_optional_batch(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_ids: &[i64],
+    ) -> Result<BTreeMap<i64, Option<usize>>> {
+        let mut scalar_counts = page_ids
+            .iter()
+            .copied()
+            .map(|page_id| (page_id, None))
+            .collect::<BTreeMap<_, _>>();
+        if page_ids.is_empty() {
+            return Ok(scalar_counts);
+        }
+
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to get latest wikitext scalar counts for {} pages in site ID {}",
+                    page_ids.len(),
+                    site_id,
+                ),
+                ErrorType::PageRevision,
+            )
+        };
+        let rows = Page::find()
+            .select_only()
+            .column(page::Column::PageId)
+            .expr_as(
+                SimpleExpr::Custom("text.character_count".into()),
+                "wikitext_scalar_count",
+            )
+            .join(JoinType::LeftJoin, page::Relation::PageRevision.def())
+            .join(JoinType::LeftJoin, page_revision::Relation::Text1.def())
+            .filter(page::Column::SiteId.eq(site_id))
+            .filter(page::Column::PageId.is_in(page_ids.iter().copied()))
+            .into_tuple::<(i64, Option<i64>)>()
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+        for (page_id, scalar_count) in rows {
+            let scalar_count = scalar_count
+                .map(usize::try_from)
+                .transpose()
+                .map_err(|_| make_error())?;
+            scalar_counts.insert(page_id, scalar_count);
+        }
+        Ok(scalar_counts)
     }
 
     /// Gets the wikitext from the latest revision of a page.

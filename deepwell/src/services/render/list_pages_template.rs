@@ -42,6 +42,7 @@ enum ListPagesVariable {
     HiddenTagsLinked,
     RawTags,
     Category,
+    Size,
     EmptyCompatField,
     FormData,
     Content,
@@ -80,7 +81,8 @@ impl ListPagesVariable {
             "_tags_linked" => Some(Self::HiddenTagsLinked),
             "_tags" => Some(Self::RawTags),
             "category" => Some(Self::Category),
-            "parent_fullname" | "size" | "children" | "rating_percent" | "revisions" => {
+            "size" => Some(Self::Size),
+            "parent_fullname" | "children" | "rating_percent" | "revisions" => {
                 Some(Self::EmptyCompatField)
             }
             "form_data" | "form_raw" if has_argument => Some(Self::FormData),
@@ -212,6 +214,10 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::Content)
     }
 
+    pub(super) fn uses_size(&self) -> bool {
+        self.variables.contains(ListPagesVariable::Size)
+    }
+
     pub(super) fn content_sections(&self) -> &BTreeSet<Option<usize>> {
         &self.content_sections
     }
@@ -285,7 +291,7 @@ mod tests {
         let body = concat!(
             "%%createdbylinked%% %%date%% %%tagslinked%% %%_tags_linked%% %%updatedby%% ",
             "%%updatedat%% %%date_edited%% %%ratingvotes%% %%comments%% %%commentedby%% ",
-            "%%commentedat%% %%content%% %%form_raw{status}%%",
+            "%%commentedat%% %%content%% %%form_raw{status}%% %%size%%",
         );
         let plan = ListPagesTemplatePlan::compile(body).expect("aliases should compile");
 
@@ -298,6 +304,7 @@ mod tests {
         assert!(plan.uses_commented_by());
         assert!(plan.uses_commented_at());
         assert!(plan.uses_content());
+        assert!(plan.uses_size());
         assert_eq!(plan.content_sections(), &BTreeSet::from([None]));
         assert!(plan.uses_data_form());
         assert_eq!(plan.variable_traversals(), 1);

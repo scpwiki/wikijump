@@ -244,7 +244,7 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         page_create,
         json!({
             "site_id": site_id,
-            "wikitext": "AJAX ListPages target body",
+            "wikitext": "😀e\u{301}",
             "title": "AJAX ListPages Target",
             "alt_title": null,
             "slug": TARGET_SLUG,
@@ -326,6 +326,13 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         output.body.contains(TARGET_SLUG)
             && output.body.contains("AJAX ListPages Target"),
         "AJAX ListPages should substitute target page metadata: {}",
+        output.body,
+    );
+    assert!(
+        output.body.contains(
+            r#"class="set size"><span class="name"> size </span><span class="value"> 3 </span>"#,
+        ),
+        "AJAX ListPages should count normalized saved-source Unicode scalar values: {}",
         output.body,
     );
     assert!(
