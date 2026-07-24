@@ -46,6 +46,7 @@ mod issued_markers;
 mod list_pages;
 mod list_pages_content_sections;
 mod list_pages_parents;
+mod list_pages_row_values;
 mod list_pages_scanner;
 mod list_pages_template;
 mod literal_regions;
