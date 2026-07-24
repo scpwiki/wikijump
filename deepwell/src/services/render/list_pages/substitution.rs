@@ -1588,7 +1588,11 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
             })
         })
         .unwrap_or_default();
-    let created_by_unix = list_pages_created_by_unix(page, context.user_displays);
+    let created_by_unix = list_pages_created_by_unix(
+        page,
+        context.user_displays,
+        context.snapshot_displays,
+    );
     let created_by_linked = created_by_snapshot
         .map(render_list_pages_snapshot_user)
         .or_else(|| {
@@ -1980,7 +1984,15 @@ pub(in crate::services::render) fn list_pages_parent_fullname<'a>(
 pub(in crate::services::render) fn list_pages_created_by_unix(
     page: &FoundPageRow,
     user_displays: &BTreeMap<i64, WikidotUserDisplay>,
+    snapshot_displays: &BTreeMap<i64, ListPagesSnapshotDisplay>,
 ) -> Option<String> {
+    if snapshot_displays
+        .get(&page.page_id)
+        .and_then(|snapshot| snapshot.created_by_name.as_deref())
+        .is_some_and(|created_by_name| !created_by_name.is_empty())
+    {
+        return None;
+    }
     let user = user_displays.get(&page.created_by?)?;
     let slug = user.slug.as_deref()?;
     if slug.is_empty() {

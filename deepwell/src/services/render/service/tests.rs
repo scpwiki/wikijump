@@ -3620,6 +3620,51 @@ fn substitutes_wikidot_list_pages_created_by_unix_from_account_unix_name() {
         ),
         "%%created_by_unix%%",
     );
+
+    let importer_displays = BTreeMap::from([(
+        -1,
+        WikidotUserDisplay {
+            user_id: -1,
+            name: "Administrator".to_owned(),
+            slug: Some("administrator".to_owned()),
+            wikidot_profile: false,
+        },
+    )]);
+    let imported_page = FoundPageRow {
+        created_by: Some(-1),
+        ..page
+    };
+    let imported_snapshots = BTreeMap::from([(
+        1,
+        ListPagesSnapshotDisplay {
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            updated_at: time::OffsetDateTime::UNIX_EPOCH,
+            created_by_name: Some("INT_Translator".to_owned()),
+            updated_by_name: None,
+            comments: 0,
+            commented_at: None,
+            commented_by_name: None,
+            rating_votes: None,
+            parent_fullname: None,
+        },
+    )]);
+    assert_eq!(
+        substitute_list_pages_variables(
+            "%%created_by%% %%created_by_unix%%",
+            &imported_page,
+            1,
+            1,
+            &list_pages_substitution_context_with_mode(
+                20,
+                &importer_displays,
+                &imported_snapshots,
+                None,
+                &data_form_values,
+                false,
+            ),
+        ),
+        "INT_Translator %%created_by_unix%%",
+    );
 }
 
 #[test]

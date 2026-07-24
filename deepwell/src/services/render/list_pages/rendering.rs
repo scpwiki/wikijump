@@ -1329,15 +1329,6 @@ impl RenderService {
             .map(|displays| &displays.user_displays)
             .or(loaded_user_displays.as_ref())
             .unwrap_or(&empty_user_displays);
-        if wants_created_by_unix
-            && pages
-                .iter()
-                .any(|page| list_pages_created_by_unix(page, user_displays).is_none())
-        {
-            // Wikidot emits the creator's stored unix name, which is separate
-            // from the display name. Missing account data must remain literal.
-            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
-        }
         if wants_site_domain && page_info.site.is_empty() {
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
@@ -1364,6 +1355,16 @@ impl RenderService {
             .map(|displays| &displays.snapshot_displays)
             .or(loaded_snapshot_displays.as_ref())
             .unwrap_or(&empty_snapshot_displays);
+        if wants_created_by_unix
+            && pages.iter().any(|page| {
+                list_pages_created_by_unix(page, user_displays, snapshot_displays)
+                    .is_none()
+            })
+        {
+            // An imported row's local creating revision belongs to the importer,
+            // so its account slug cannot stand in for the Wikidot author's unix name.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         let relational_parent_fullnames = if wants_parent_fullname
             && pages
                 .iter()
