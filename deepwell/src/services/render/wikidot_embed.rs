@@ -31,6 +31,21 @@ static WIKIDOT_RAW_EMBED_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
+static WIKIDOT_EMBED_BLOCK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    // Live Wikidot answers embed, embedaudio, and embedvideo with one identical
+    // unsupported-payload response, so the three share this pass.
+    Regex::new(
+        r#"(?is)\[\[(?P<block>embed|embedaudio|embedvideo)\]\](?P<payload>.*?)\[\[/(?P<close>embed|embedaudio|embedvideo)\]\]"#,
+    )
+    .unwrap()
+});
+
+/// Live Wikidot's response to an Embed payload it cannot match to a provider.
+///
+/// The deprecated block does not alias arbitrary content to HTML, so an
+/// unmatched payload renders this error rather than the payload itself.
+const WIKIDOT_EMBED_NO_MATCH_HTML: &str =
+    r#"<div class="error-block">Sorry, no match for the embedded content.</div>"#;
 static WIKIDOT_RENDERED_ANCHOR_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(?s)<a href="[^"]+">(.*?)</a>"#).unwrap());
 static WIKIDOT_STYLEFRAME_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -49,24 +64,38 @@ static WIKIDOT_INTERWIKI_FRAME_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| 
 impl RenderService {
     pub(super) fn protect_wikidot_embed_iframes(wikitext: &mut String) -> Vec<String> {
         let mut iframes = Vec::new();
-        let protected = WIKIDOT_RAW_EMBED_IFRAME_REGEX
+        let protected = WIKIDOT_EMBED_BLOCK_REGEX
             .replace_all(wikitext, |captures: &regex::Captures<'_>| {
-                let Some(iframe_match) = captures.name("iframe") else {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_owned();
-                };
-                let iframe = iframe_match.as_str().trim();
-                let Some(iframe) = Self::allowed_wikidot_embed_iframe(iframe) else {
-                    return captures.get(0).map_or("", |m| m.as_str()).to_owned();
-                };
+                let whole = captures.get(0).map_or("", |m| m.as_str());
+                // Without backreferences the pattern can pair an opening block
+                // with a different closing one; that is not a block at all, so
+                // it stays exactly as authored.
+                let opened = captures.name("block").map(|m| m.as_str());
+                let closed = captures.name("close").map(|m| m.as_str());
+                if opened != closed {
+                    return whole.to_owned();
+                }
+                // An allowed iframe keeps its evidenced element; every other
+                // payload renders live Wikidot's no-match error instead of the
+                // payload, so nothing author-supplied reaches the document.
+                let rendered = Self::allowed_wikidot_embed_iframe_block(whole)
+                    .unwrap_or_else(|| WIKIDOT_EMBED_NO_MATCH_HTML.to_owned());
 
                 let marker =
                     format!("{WIKIDOT_EMBED_IFRAME_SENTINEL_PREFIX}{}X", iframes.len());
-                iframes.push(iframe);
+                iframes.push(rendered);
                 marker
             })
             .into_owned();
         *wikitext = protected;
         iframes
+    }
+
+    /// The allowed iframe for a whole `[[embed]]` block, if it holds one.
+    fn allowed_wikidot_embed_iframe_block(block: &str) -> Option<String> {
+        let captures = WIKIDOT_RAW_EMBED_IFRAME_REGEX.captures(block)?;
+        let iframe = captures.name("iframe")?.as_str().trim();
+        Self::allowed_wikidot_embed_iframe(iframe)
     }
 
     pub(super) fn restore_protected_wikidot_embed_iframes(

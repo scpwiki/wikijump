@@ -18520,17 +18520,41 @@ mod tests {
     }
 
     #[test]
-    fn leaves_unsupported_raw_wikidot_embed_iframe_unprotected() {
-        let original = concat!(
-            "[[embed]]\n",
-            r#"<iframe src="//example.com/widget" style="display: none"></iframe>"#,
-            "\n[[/embed]]",
-        );
-        let mut wikitext = original.to_owned();
+    fn renders_wikidot_no_match_error_for_an_unsupported_embed_payload() {
+        // Live Wikidot answered an arbitrary Embed payload with this error
+        // block rather than aliasing the payload to HTML.
+        for (block, payload) in [
+            (
+                "embed",
+                r#"<iframe src="//example.com/widget" style="display: none"></iframe>"#,
+            ),
+            (
+                "embed",
+                r#"<div id="doc-embed-probe">DOC_EMBED_PAYLOAD</div>"#,
+            ),
+            ("embed", "<script>alert(1)</script>"),
+            ("embed", ""),
+            // Live answers these two with the identical error DOM.
+            ("embedaudio", r#"<div id="probe">PAYLOAD</div>"#),
+            ("embedaudio", ""),
+            ("embedvideo", r#"<div id="probe">PAYLOAD</div>"#),
+        ] {
+            let mut wikitext = format!("[[{block}]]\n{payload}\n[[/{block}]]");
 
-        let iframes = RenderService::protect_wikidot_embed_iframes(&mut wikitext);
-        assert!(iframes.is_empty());
-        assert_eq!(wikitext, original);
+            let embeds = RenderService::protect_wikidot_embed_iframes(&mut wikitext);
+            assert_eq!(
+                embeds,
+                vec![
+                    r#"<div class="error-block">Sorry, no match for the embedded content.</div>"#
+                        .to_owned()
+                ],
+                "an unmatched payload renders the evidenced error: {block} {payload}",
+            );
+            assert!(
+                !wikitext.contains(payload) || payload.is_empty(),
+                "the payload itself must not survive into the document: {block} {payload}",
+            );
+        }
     }
 
     #[test]
