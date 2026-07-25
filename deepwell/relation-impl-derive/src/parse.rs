@@ -19,7 +19,7 @@ impl Parse for RelationSettings {
         let mut name = None;
         let mut dest = None;
         let mut from = None;
-        let mut data_type = None;
+        let mut data_type: Option<Option<Type>> = None; // outer for set/unset, inner for optional type
         let mut define_create = true;
         let mut define_struct = true;
 
@@ -82,8 +82,9 @@ impl Parse for RelationSettings {
                 //
                 //  data => UserBlockData
                 "data" => {
+                    error_if_set!(data_type);
                     let t_type: Type = input.parse()?;
-                    data_type = Some(t_type);
+                    data_type = Some(process_type(t_type));
                 }
 
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
@@ -92,10 +93,13 @@ impl Parse for RelationSettings {
 
         // Gather fields and return
 
+        // Required fields
         let (relation_name, field_name) =
             name.ok_or_else(|| make_error("no 'name' argument passed"))?;
         let dest = dest.ok_or_else(|| make_error("no 'dest' argument passed"))?;
         let from = from.ok_or_else(|| make_error("no 'from' argument passed"))?;
+        // Default fields
+        let data_type = data_type.unwrap_or(None);
 
         Ok(RelationSettings {
             relation_name,
@@ -106,6 +110,16 @@ impl Parse for RelationSettings {
             define_create,
             define_struct,
         })
+    }
+}
+
+/// Convert `Type` to `Option<Type>` (`None` is if the type is `()`)).
+fn process_type(t_type: Type) -> Option<Type> {
+    match t_type {
+        Type::Paren(inner_type) => process_type(*inner_type.elem),
+        Type::Tuple(inner_type) if inner_type.elems.is_empty() => None,
+        // leave as-is
+        _ => Some(t_type),
     }
 }
 
