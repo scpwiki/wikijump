@@ -42,6 +42,7 @@ impl Parse for RelationSettings {
                     let field_name = make_ident(field_name_str);
                     name = Some((relation_name, field_name));
                 }
+
                 // Define the "dest" name and type
                 //
                 //  dest => blocked_user: User
@@ -51,6 +52,7 @@ impl Parse for RelationSettings {
                     let field_type: Type = input.parse()?;
                     dest = Some((field_name, field_type));
                 }
+
                 // Define the "from" name and type
                 //
                 //  from => blocking_user: User
@@ -60,6 +62,7 @@ impl Parse for RelationSettings {
                     let field_type: Type = input.parse()?;
                     from = Some((field_name, field_type));
                 }
+
                 // Define the associated metadata type for this relation
                 // This key is optional, by default no extra metadata is included
                 //
@@ -68,6 +71,7 @@ impl Parse for RelationSettings {
                     let t_type: Type = input.parse()?;
                     data_type = Some(t_type);
                 }
+
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
             }
         }
