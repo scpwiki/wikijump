@@ -84,12 +84,13 @@ export const createMemoryArticleResponseCacheStore = ({
      * @param {string} value
      * @param {number} [ttlSeconds]
      */
-    async set(key, value, ttlSeconds = ARTICLE_RESPONSE_CACHE_TTL_SECONDS) {
+    async set(key, value, ttlSeconds) {
+      const effectiveTtlSeconds = ttlSeconds ?? ARTICLE_RESPONSE_CACHE_TTL_SECONDS
       return entries.insert(
         key,
         value,
         serializedByteLength(value),
-        now() + ttlSeconds * 1000
+        now() + effectiveTtlSeconds * 1000
       )
     },
 

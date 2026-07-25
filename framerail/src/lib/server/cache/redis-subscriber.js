@@ -48,8 +48,9 @@ export class RedisFenceInvalidationSubscriber {
   }
 
   /** @param {SubscriptionCallbacks} callbacks */
-  subscribe({ channel, onSubscribed, onMessage, onDisconnect, onMalformed }) {
+  subscribe(callbacks) {
     if (this.started) return
+    const { channel, onSubscribed, onMessage, onDisconnect, onMalformed } = callbacks
     this.started = true
     this.stopped = false
     this.channel = channel

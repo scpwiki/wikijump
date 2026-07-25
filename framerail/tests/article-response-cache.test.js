@@ -760,7 +760,8 @@ test("memory article response fence cache closes subscriber handle", () => {
   let closed = 0
   const fenceCache = createMemoryArticleResponseFenceCache({
     subscriber: {
-      subscribe() {
+      subscribe(callbacks) {
+        assert.equal(callbacks.channel, "wikijump:article-response-fence-invalidation:v1")
         return {
           close() {
             closed += 1
@@ -1046,7 +1047,10 @@ test("anonymous article response cache store helpers fail closed", async () => {
     async get() {
       return "{not json"
     },
-    async set() {
+    async set(key, value, ttlSeconds) {
+      assert.equal(key, "key")
+      assert.equal(typeof value, "string")
+      assert.equal(ttlSeconds, 60)
       throw new Error("redis unavailable")
     }
   }
