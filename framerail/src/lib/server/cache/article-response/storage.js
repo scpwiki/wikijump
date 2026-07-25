@@ -5,8 +5,25 @@ import {
   ARTICLE_RESPONSE_CACHE_TTL_SECONDS,
   serializedByteLength
 } from "./shared.js"
+import { createByteLimitedCache } from "./byte-limited-cache.js"
 import { normalizeCachedArticleResponseEntry } from "./entry.js"
 
+/**
+ * @typedef {object} ArticleResponseCacheStore
+ * @property {(key: string) => Promise<unknown>} get
+ * @property {(
+ *   key: string,
+ *   value: string,
+ *   ttlSeconds?: number
+ * ) => Promise<unknown>} set
+ */
+
+/**
+ * @param {Response} response
+ * @returns {Promise<
+ *   NonNullable<ReturnType<typeof normalizeCachedArticleResponseEntry>>
+ * >}
+ */
 export const serializeArticleResponseForCache = async (response) => {
   return {
     status: response.status,
@@ -17,13 +34,19 @@ export const serializeArticleResponseForCache = async (response) => {
   }
 }
 
+/**
+ * @param {{
+ *   now?: () => number
+ *   maxEntries?: number
+ *   maxBytes?: number
+ * }} [options]
+ * @returns {ArticleResponseCacheStore & { size: () => number }}
+ */
 export const createMemoryArticleResponseCacheStore = ({
   now = () => Date.now(),
   maxEntries = ARTICLE_RESPONSE_CACHE_MAX_ENTRIES,
   maxBytes = ARTICLE_RESPONSE_CACHE_MAX_BYTES
 } = {}) => {
-  const entries = new Map()
-  let totalBytes = 0
   const maxEntryCount =
     Number.isInteger(maxEntries) && maxEntries > 0
       ? maxEntries
@@ -32,65 +55,49 @@ export const createMemoryArticleResponseCacheStore = ({
     Number.isInteger(maxBytes) && maxBytes > 0
       ? maxBytes
       : ARTICLE_RESPONSE_CACHE_MAX_BYTES
-
-  const deleteEntry = (key) => {
-    const entry = entries.get(key)
-    if (!entry) return
-    totalBytes -= entry.bytes
-    entries.delete(key)
-  }
-
-  const pruneExpired = (nowMs) => {
-    for (const [key, entry] of entries) {
-      if (entry.expiresAt <= nowMs) deleteEntry(key)
-    }
-  }
-
-  const pruneOverflow = () => {
-    while (entries.size > maxEntryCount || totalBytes > maxTotalBytes) {
-      const oldest = entries.keys().next()
-      if (oldest.done) return
-      deleteEntry(oldest.value)
-    }
-  }
+  /**
+   * @type {{
+   *   get: (key: string) => string | null
+   *   insert: (
+   *     key: string,
+   *     value: string,
+   *     bytes: number,
+   *     expiresAt: number
+   *   ) => boolean
+   *   size: () => number
+   * }}
+   */
+  const entries = createByteLimitedCache({
+    now,
+    maxEntries: maxEntryCount,
+    maxBytes: maxTotalBytes
+  })
 
   return {
+    /** @param {string} key */
     async get(key) {
-      const entry = entries.get(key)
-      if (!entry) return null
-      if (entry.expiresAt <= now()) {
-        deleteEntry(key)
-        return null
-      }
-      return entry.value
+      return entries.get(key)
     },
 
+    /**
+     * @param {string} key
+     * @param {string} value
+     * @param {number} [ttlSeconds]
+     */
     async set(key, value, ttlSeconds = ARTICLE_RESPONSE_CACHE_TTL_SECONDS) {
-      const nowMs = now()
-      const expiresAt = nowMs + ttlSeconds * 1000
-
-      pruneExpired(nowMs)
-      if (expiresAt <= nowMs) {
-        deleteEntry(key)
-        return false
-      }
-
-      const bytes = serializedByteLength(value)
-      deleteEntry(key)
-      if (bytes > maxTotalBytes) return false
-
-      entries.set(key, { value, expiresAt, bytes })
-      totalBytes += bytes
-      pruneOverflow()
-      return entries.has(key)
+      return entries.insert(
+        key,
+        value,
+        serializedByteLength(value),
+        now() + ttlSeconds * 1000
+      )
     },
 
-    size() {
-      return entries.size
-    }
+    size: entries.size
   }
 }
 
+/** @param {unknown} value */
 export const deserializeCachedArticleResponse = (value) => {
   const entry = normalizeCachedArticleResponseEntry(value)
   if (!entry) return null
@@ -101,6 +108,10 @@ export const deserializeCachedArticleResponse = (value) => {
   })
 }
 
+/**
+ * @param {ArticleResponseCacheStore} store
+ * @param {string} key
+ */
 export const readCachedArticleResponseEntry = async (store, key) => {
   try {
     const cached = await store.get(key)
@@ -112,12 +123,25 @@ export const readCachedArticleResponseEntry = async (store, key) => {
   }
 }
 
+/**
+ * @param {ArticleResponseCacheStore} store
+ * @param {string} key
+ */
 export const readCachedArticleResponse = async (store, key) => {
   return deserializeCachedArticleResponse(
     await readCachedArticleResponseEntry(store, key)
   )
 }
 
+/**
+ * @param {ArticleResponseCacheStore} store
+ * @param {string} key
+ * @param {NonNullable<
+ *   ReturnType<typeof normalizeCachedArticleResponseEntry>
+ * >} entry
+ * @param {number} ttlSeconds
+ * @param {{ maxSerializedBytes?: number }} [options]
+ */
 export const writeCachedArticleResponse = async (
   store,
   key,

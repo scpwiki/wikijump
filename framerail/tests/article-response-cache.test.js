@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert"
 import net from "node:net"
 import test from "node:test"
 
+import { createByteLimitedCache } from "../src/lib/server/cache/article-response/byte-limited-cache.js"
 import { normalizeCachedArticleResponseEntry } from "../src/lib/server/cache/article-response/entry.js"
 import { parseFenceInvalidationMessage } from "../src/lib/server/cache/article-response/fence-message.js"
 import { applyFenceInvalidationToSites } from "../src/lib/server/cache/article-response/fence-reducer.js"
@@ -38,6 +39,11 @@ import {
   writeAnonymousArticleResponseCache,
   writeCachedArticleResponse
 } from "../src/lib/server/cache/article-response/index.js"
+import {
+  createRedisCommandState,
+  resetRedisCommandState,
+  writeRedisCommand
+} from "../src/lib/server/cache/redis-command-state.js"
 import { connectRedisSocket } from "../src/lib/server/cache/redis-connection.js"
 import {
   encodeRedisCommand,
@@ -421,6 +427,47 @@ test("Redis protocol encodes commands and parses nested replies", () => {
     value: ["value", 7],
     nextOffset: 19
   })
+})
+
+test("Redis command state owns pending request cleanup", async () => {
+  let destroyed = false
+  let written = ""
+  const socket = /** @type {import("node:net").Socket} */ (
+    /** @type {unknown} */ ({
+      get destroyed() {
+        return destroyed
+      },
+      write(command) {
+        written = `${command}`
+        return true
+      },
+      destroy() {
+        destroyed = true
+        return this
+      }
+    })
+  )
+  const state = createRedisCommandState()
+  state.socket = socket
+  const command = writeRedisCommand({
+    state,
+    parts: ["GET", "cache-key"],
+    timeoutMs: 1000,
+    unavailableMessage: "Redis fixture unavailable",
+    timeoutMessage: "Redis fixture timed out",
+    onTimeout() {
+      throw new Error("fixture command should be reset before timeout")
+    }
+  })
+
+  assert.match(written, /^\*2\r\n\$3\r\nGET\r\n/u)
+  assert.equal(state.pending.length, 1)
+  resetRedisCommandState(state, "Redis fixture closed")
+
+  await assert.rejects(command, { message: "Redis fixture closed" })
+  assert.equal(state.pending.length, 0)
+  assert.equal(state.socket, null)
+  assert.equal(destroyed, true)
 })
 
 test("Redis connection helper opens a plain socket", async () => {
@@ -1092,6 +1139,27 @@ test("cached article response writes reject oversized serialized entries", async
     false
   )
   assert.equal(await readCachedArticleResponse(store, "large"), null)
+})
+
+test("byte-limited cache preserves insertion order when reads do not touch", () => {
+  let now = 0
+  const cache = createByteLimitedCache({
+    now: () => now,
+    maxEntries: 2,
+    maxBytes: 10
+  })
+
+  assert.equal(cache.insert("first", "a", 1, 10), true)
+  assert.equal(cache.insert("second", "b", 1, 10), true)
+  assert.equal(cache.get("first"), "a")
+  assert.equal(cache.insert("third", "c", 1, 10), true)
+  assert.equal(cache.get("first"), null)
+  assert.equal(cache.get("second"), "b")
+
+  now = 11
+  assert.equal(cache.get("second"), null)
+  assert.equal(cache.get("third"), null)
+  assert.equal(cache.size(), 0)
 })
 
 test("byte-limited LRU tracks recency, capacity, and expiry", () => {
