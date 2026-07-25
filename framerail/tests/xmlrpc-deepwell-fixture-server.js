@@ -255,6 +255,23 @@ const pages = {
     compiled_body_html:
       '<div id="folded-collapsible" class="collapsible-block"><div class="collapsible-block-folded"><a class="collapsible-block-link" href="javascript:;">+&nbsp;Show</a></div><div class="collapsible-block-unfolded" style="display:none"><div class="collapsible-block-unfolded-link"><a class="collapsible-block-link" href="javascript:;">-&nbsp;Hide</a></div><div class="collapsible-block-content"><p>Folded body</p></div><div class="collapsible-block-unfolded-link"><a class="collapsible-block-link" href="javascript:;">-&nbsp;Hide</a></div></div></div><div id="open-collapsible" class="collapsible-block"><div class="collapsible-block-folded" style="display:none"><a class="collapsible-block-link" href="javascript:;">+&nbsp;Open</a></div><div class="collapsible-block-unfolded"><div class="collapsible-block-unfolded-link"><a class="collapsible-block-link" href="javascript:;">-&nbsp;Close</a></div><div class="collapsible-block-content"><p>Open body</p></div></div></div><details id="native-collapsible"><summary>Native summary</summary><p>Native body</p></details>'
   },
+  "wikidot-code-highlighting": {
+    page_id: 3000350,
+    revision_id: 9000350,
+    page_created_at: "2026-07-23T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-23T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Wikidot Code Highlighting",
+    slug: "wikidot-code-highlighting",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: '[[code type="css"]]\n#header h2 span { color: red; }\n[[/code]]',
+    compiled_body_html:
+      '<div class="code" data-wj-language="css"><pre><code>#header h2 span { color: red; }</code></pre></div>'
+  },
   "page-workflow-probe": {
     page_id: 3000340,
     revision_id: 9000340,
