@@ -11,6 +11,7 @@ import {
   categoryRatingUpdate,
   categoryTemplateUpdate,
   siteForumNestingUpdate,
+  siteIconsUpdate,
   siteUpdate
 } from "$lib/server/deepwell/admin"
 import { translate } from "$lib/server/deepwell/translate"
@@ -104,6 +105,7 @@ export async function loadAdminPage(
   const licenseForm = await superValidate(request, valibot(licenseSchema))
   const templateForm = await superValidate(request, valibot(templateSchema))
   const ratingForm = await superValidate(request, valibot(ratingSchema))
+  const siteIconsForm = await superValidate(request, valibot(siteIconsSchema))
   const forumNestingForm = await superValidate(request, valibot(forumNestingSchema))
   const discussionForm = await superValidate(request, valibot(discussionSchema))
 
@@ -116,6 +118,7 @@ export async function loadAdminPage(
     licenseForm,
     templateForm,
     ratingForm,
+    siteIconsForm,
     forumNestingForm,
     discussionForm,
     categories: response.type === "site_found" ? response.data.categories : [],
@@ -127,6 +130,56 @@ export async function loadAdminPage(
   }
 
   return viewData
+}
+
+export async function siteIconsAction({
+  request,
+  getClientAddress,
+  cookies
+}: RequestEvent) {
+  const form = await superValidate(request, valibot(siteIconsSchema))
+  if (!form.valid) return fail(400, { form })
+
+  const sessionToken = cookies.get("wikijump_token")
+  const session = await authGetSession(sessionToken)
+  if (!sessionToken || !session) {
+    return fail(401, {
+      form,
+      message: "user does not have permission to edit this site's icons"
+    })
+  }
+
+  try {
+    const res = await siteIconsUpdate(
+      form.data.siteId,
+      session.user_id,
+      getClientAddress(),
+      {
+        faviconSource: emptyToNull(form.data.faviconSource),
+        iosIconSource: emptyToNull(form.data.iosIconSource),
+        windowsTileSource: emptyToNull(form.data.windowsTileSource)
+      },
+      { sessionToken, siteId: form.data.siteId }
+    )
+    return { form, res }
+  } catch (error) {
+    const details = error as {
+      message?: string
+      code?: string
+      data?: Record<string, unknown>
+    }
+    return fail(500, {
+      form,
+      message: details.message,
+      code: details.code,
+      data: details.data
+    })
+  }
+}
+
+function emptyToNull(value: string): string | null {
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
 }
 
 export async function forumNestingAction({
@@ -471,6 +524,15 @@ const ratingSchema = object({
   permission: vEnum({ REGISTERED: "registered", MEMBERS: "members" }),
   visibility: vEnum({ VISIBLE: "visible", ANONYMOUS: "anonymous" }),
   ratingType: vEnum({ PLUS: "plus", PLUS_MINUS: "plus_minus", STARS: "stars" })
+})
+
+// Wikidot accepts a local upload or an existing URL per icon slot. This slice
+// records the source; an empty field clears the slot.
+const siteIconsSchema = object({
+  siteId: number(),
+  faviconSource: optional(string(), ""),
+  iosIconSource: optional(string(), ""),
+  windowsTileSource: optional(string(), "")
 })
 
 const forumNestingSchema = object({

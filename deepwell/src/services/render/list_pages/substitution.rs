@@ -39,6 +39,7 @@ use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::LazyLock;
 use uuid::Uuid;
+use wikidot_normalize::normalize;
 
 use super::super::compat::CompatHtmlFragments;
 use super::super::compat::preparation::neutralize_authored_markers;
@@ -191,6 +192,8 @@ pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) separate: bool,
     pub(in crate::services::render) wrapper: bool,
     pub(in crate::services::render) unsupported_author_filter: bool,
+    pub(in crate::services::render) unsupported_list_pages_filter: bool,
+    pub(in crate::services::render) link_to: Vec<Cow<'static, str>>,
     pub(in crate::services::render) unsupported_score_filter: bool,
     pub(in crate::services::render) unsupported_count_pages_filter: bool,
 }
@@ -353,6 +356,8 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
     let mut separate = true;
     let mut wrapper = true;
     let mut unsupported_author_filter = false;
+    let mut unsupported_list_pages_filter = false;
+    let mut link_to = Vec::new();
     let mut unsupported_score_filter = false;
     let mut unsupported_count_pages_filter = false;
 
@@ -388,6 +393,8 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                     }
                     if is_current_page_tag_selector(&tag) {
                         unsupported_count_pages_filter = true;
+                        unsupported_list_pages_filter = true;
+                        continue;
                     }
                     if let Some(tag) = tag.strip_prefix('-') {
                         no_tags.push(Cow::Owned(tag.to_owned()));
@@ -413,6 +420,8 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                     }
                     if is_current_page_tag_selector(&tag) {
                         unsupported_count_pages_filter = true;
+                        unsupported_list_pages_filter = true;
+                        continue;
                     }
                     if let Some(tag) = tag.strip_prefix('-') {
                         no_tags.push(Cow::Owned(tag.to_owned()));
@@ -566,6 +575,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                 }
                 "before" | "after" => {
                     unsupported_count_pages_filter = true;
+                    unsupported_list_pages_filter = true;
                 }
                 _ => {}
             },
@@ -585,7 +595,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                     score.push(parse_list_pages_score_selector(value)?);
                 }
             }
-            "created_at" | "createdat" => {
+            "created_at" | "createdat" | "date" => {
                 let Some(value) = static_list_pages_selector(
                     value,
                     &mut unsupported_count_pages_filter,
@@ -603,12 +613,28 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                 };
                 update_date = parse_list_pages_date_selector(value)?;
             }
-            "votes" | "form" | "link_to" | "linkto" | "urlattrprefix" => {
+            "link_to" | "linkto" => {
+                let Some(value) = static_list_pages_selector(
+                    value,
+                    &mut unsupported_count_pages_filter,
+                ) else {
+                    unsupported_list_pages_filter = true;
+                    continue;
+                };
+                let target = value.trim();
+                if target.is_empty() || target.contains(',') {
+                    unsupported_count_pages_filter = true;
+                    unsupported_list_pages_filter = true;
+                    continue;
+                }
                 unsupported_count_pages_filter = true;
-                // These filters need Wikidot-specific query semantics that are not
-                // fully implemented here. Parsing them keeps real corpus modules
-                // out of FTML's generic module path, which otherwise panics on
-                // ListPages bodies that start with numbered-list markers.
+                let mut target = target.to_owned();
+                normalize(&mut target);
+                link_to.push(Cow::Owned(target));
+            }
+            "votes" | "form" | "urlattrprefix" => {
+                unsupported_count_pages_filter = true;
+                unsupported_list_pages_filter = true;
             }
             // Wikidot accepts these presentation arguments without applying them
             // to the ListPages wrapper. Do not forward author-controlled values
@@ -669,6 +695,8 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
         separate,
         wrapper,
         unsupported_author_filter,
+        unsupported_list_pages_filter,
+        link_to,
         unsupported_score_filter,
         unsupported_count_pages_filter,
     })
@@ -1341,6 +1369,7 @@ pub(in crate::services::render) fn parse_list_pages_order(
         "created_at" | "createdat" | "created" | "date" => OrderProperty::CreatedAt,
         "updated_at" | "updatedat" | "updated" => OrderProperty::UpdatedAt,
         "size" => OrderProperty::Size,
+        "rating" | "score" => OrderProperty::Score,
         "random" => OrderProperty::Random,
         _ => return None,
     };

@@ -128,6 +128,7 @@ impl ListPagesVariables {
 #[derive(Debug)]
 pub(in crate::services::render) struct ListPagesTemplatePlan {
     body: String,
+    sections: ListPagesSections,
     variables: ListPagesVariables,
     fields: FoundPageFields,
     content_sections: BTreeSet<Option<usize>>,
@@ -137,8 +138,64 @@ pub(in crate::services::render) struct ListPagesTemplatePlan {
     variable_traversals: usize,
 }
 
+/// The `[[head]]`, `[[body]]`, and `[[foot]]` split of a ListPages template.
+///
+/// Wikidot emits the head once, the body once per selected row, and the foot
+/// once, all inside the result wrapper. A template without any marker is one
+/// undivided per-row body.
+#[derive(Debug, Default, PartialEq, Eq)]
+struct ListPagesSections {
+    head: Option<String>,
+    foot: Option<String>,
+}
+
+/// Splits a template into its once-emitted sections and its per-row body.
+///
+/// Returns `None` for a shape whose live output is uncaptured: a repeated
+/// marker, a marker that never closes, or a `[[head]]`/`[[foot]]` without the
+/// `[[body]]` that would separate them from the row template.
+fn split_list_pages_sections(body: &str) -> Option<(ListPagesSections, String)> {
+    let mut sections = ListPagesSections::default();
+    let mut row_body = None;
+
+    for (name, slot) in [("head", 0), ("body", 1), ("foot", 2)] {
+        let open = format!("[[{name}]]");
+        let close = format!("[[/{name}]]");
+        let mut matches = body.match_indices(&open);
+        let Some((open_start, _)) = matches.next() else {
+            continue;
+        };
+        if matches.next().is_some() {
+            return None;
+        }
+        if body.matches(&close).count() != 1 {
+            return None;
+        }
+        let content_start = open_start + open.len();
+        let close_start = body[content_start..].find(&close)? + content_start;
+        let content = body[content_start..close_start].to_owned();
+        match slot {
+            0 => sections.head = Some(content),
+            1 => row_body = Some(content),
+            _ => sections.foot = Some(content),
+        }
+    }
+
+    match row_body {
+        Some(row_body) => Some((sections, row_body)),
+        // A head or foot with no body has no evidenced row template to pair it
+        // with, so the module is left alone rather than guessed at.
+        None if sections == ListPagesSections::default() => {
+            Some((sections, body.to_owned()))
+        }
+        None => None,
+    }
+}
+
 impl ListPagesTemplatePlan {
     pub(in crate::services::render) fn compile(body: &str) -> Option<Self> {
+        let (sections, body) = split_list_pages_sections(body)?;
+        let body = body.as_str();
         let mut variables = ListPagesVariables::default();
         let mut content_sections = BTreeSet::new();
         let mut variable_count = 0;
@@ -161,8 +218,19 @@ impl ListPagesTemplatePlan {
             }
         }
 
+        // A row variable in a once-emitted section has no row to read from, and
+        // Wikidot's output for that shape is uncaptured.
+        if [sections.head.as_deref(), sections.foot.as_deref()]
+            .into_iter()
+            .flatten()
+            .any(|section| LISTPAGES_VARIABLE_REGEX.is_match(section))
+        {
+            return None;
+        }
+
         Some(Self {
             body: body.to_owned(),
+            sections,
             variables,
             fields: found_page_fields(variables),
             content_sections,
@@ -175,6 +243,21 @@ impl ListPagesTemplatePlan {
 
     pub(in crate::services::render) fn body(&self) -> &str {
         &self.body
+    }
+
+    /// The section emitted once before the rows, if the template declares one.
+    pub(in crate::services::render) fn head_section(&self) -> Option<&str> {
+        self.sections.head.as_deref()
+    }
+
+    /// The section emitted once after the rows, if the template declares one.
+    pub(in crate::services::render) fn foot_section(&self) -> Option<&str> {
+        self.sections.foot.as_deref()
+    }
+
+    /// Whether the template splits itself into once-emitted sections.
+    pub(in crate::services::render) fn has_sections(&self) -> bool {
+        self.sections != ListPagesSections::default()
     }
 
     pub(in crate::services::render) fn fields(&self) -> FoundPageFields {
@@ -490,5 +573,72 @@ mod tests {
             191,
         );
         assert!(plans.iter().all(ListPagesTemplatePlan::uses_only_rating));
+    }
+}
+
+#[cfg(test)]
+mod section_tests {
+    use super::*;
+
+    #[test]
+    fn splits_the_evidenced_head_body_foot_template() {
+        // The G59 probe template, whose live output was one head, four body
+        // rows, and one foot inside the result wrapper.
+        let plan = ListPagesTemplatePlan::compile(
+            "[[head]]G59_HEAD;[[/head]][[body]]G59_BODY=%%name%%;[[/body]][[foot]]G59_FOOT;[[/foot]]",
+        )
+        .expect("the sectioned template should compile");
+
+        assert_eq!(plan.head_section(), Some("G59_HEAD;"));
+        assert_eq!(plan.body(), "G59_BODY=%%name%%;");
+        assert_eq!(plan.foot_section(), Some("G59_FOOT;"));
+        assert!(plan.has_sections());
+    }
+
+    #[test]
+    fn an_unsectioned_template_is_one_per_row_body() {
+        let plan = ListPagesTemplatePlan::compile("%%title_linked%%")
+            .expect("an ordinary template should compile");
+
+        assert_eq!(plan.head_section(), None);
+        assert_eq!(plan.foot_section(), None);
+        assert_eq!(plan.body(), "%%title_linked%%");
+        assert!(!plan.has_sections());
+    }
+
+    #[test]
+    fn head_or_foot_without_a_body_has_no_row_template() {
+        assert!(ListPagesTemplatePlan::compile("[[head]]H[[/head]]%%name%%").is_none());
+        assert!(ListPagesTemplatePlan::compile("[[foot]]F[[/foot]]%%name%%").is_none());
+    }
+
+    #[test]
+    fn repeated_or_unclosed_markers_do_not_compile() {
+        assert!(
+            ListPagesTemplatePlan::compile("[[body]]A[[/body]][[body]]B[[/body]]")
+                .is_none(),
+            "a repeated marker has no evidenced precedence",
+        );
+        assert!(
+            ListPagesTemplatePlan::compile("[[body]]A").is_none(),
+            "an unclosed marker has no evidenced extent",
+        );
+        assert!(
+            ListPagesTemplatePlan::compile(
+                "[[head]]H[[/head]][[body]]A[[/body]][[foot]]F"
+            )
+            .is_none(),
+        );
+    }
+
+    #[test]
+    fn a_row_variable_in_a_once_emitted_section_does_not_compile() {
+        assert!(
+            ListPagesTemplatePlan::compile(
+                "[[head]]%%title%%[[/head]][[body]]%%name%%[[/body]]"
+            )
+            .is_none(),
+            "a head emitted once has no row to read a page variable from",
+        );
     }
 }

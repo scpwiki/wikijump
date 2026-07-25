@@ -215,6 +215,7 @@ impl RenderService {
                     ListPagesBlockPlan::PreserveOriginal
                 } else if let Some(arguments) = parse_list_pages_arguments(head) {
                     if arguments.unsupported_author_filter
+                        || arguments.unsupported_list_pages_filter
                         || arguments.unsupported_score_filter
                     {
                         ListPagesBlockPlan::PreserveOriginal
@@ -1034,10 +1035,16 @@ impl RenderService {
             separate,
             wrapper,
             unsupported_author_filter: _,
+            unsupported_list_pages_filter: _,
+            link_to,
             unsupported_score_filter: _,
             unsupported_count_pages_filter: _,
         } = arguments;
         any_tags.extend(default_tags);
+        let link_to_references = link_to
+            .iter()
+            .map(|slug| Reference::Slug(Cow::Borrowed(slug.as_ref())))
+            .collect::<Vec<_>>();
         let (category_all, include_current_category) = if category_selector_present {
             (category_all, include_current_category)
         } else {
@@ -1115,7 +1122,7 @@ impl RenderService {
                 untagged,
             },
             page_parent,
-            contains_outgoing_links: &[],
+            contains_outgoing_links: &link_to_references,
             creation_date,
             update_date,
             author: resolved_authors.as_selector(),
@@ -1128,7 +1135,11 @@ impl RenderService {
             slugs: &[],
             data_form_fields: &data_form_fields,
             order,
-            candidate_limit: if data_form_fields.is_empty() {
+            candidate_limit: if data_form_fields.is_empty()
+                && !matches!(
+                    order.map(|order| order.property),
+                    Some(OrderProperty::Score)
+                ) {
                 None
             } else {
                 Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
@@ -1413,10 +1424,17 @@ impl RenderService {
             output.push_str("[[div class=\"list-pages-box\"]]\n");
         }
         let mut included_pages = Vec::new();
+        if template.has_sections() && pages.is_empty() {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         if !pages.is_empty()
             && let Some(prepend_line) = prepend_line
         {
             output.push_str(&prepend_line);
+            output.push('\n');
+        }
+        if let Some(head) = template.head_section() {
+            output.push_str(head);
             output.push('\n');
         }
 
@@ -1600,6 +1618,11 @@ impl RenderService {
             }
         }
 
+        if let Some(foot) = template.foot_section() {
+            output.push_str(foot);
+            output.push('\n');
+        }
+
         if !pages.is_empty()
             && let Some(append_line) = append_line
         {
@@ -1675,6 +1698,8 @@ impl RenderService {
             append_line: _,
             data_form_fields,
             unsupported_author_filter: _,
+            unsupported_list_pages_filter: _,
+            link_to,
             unsupported_score_filter: _,
             unsupported_count_pages_filter: _,
             separate: _,
@@ -1689,6 +1714,10 @@ impl RenderService {
             .unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))
             .min(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
         any_tags.extend(default_tags);
+        let link_to_references = link_to
+            .iter()
+            .map(|slug| Reference::Slug(Cow::Borrowed(slug.as_ref())))
+            .collect::<Vec<_>>();
         let (category_all, include_current_category) = if category_selector_present {
             (category_all, include_current_category)
         } else {
@@ -1728,7 +1757,7 @@ impl RenderService {
                 untagged: false,
             },
             page_parent,
-            contains_outgoing_links: &[],
+            contains_outgoing_links: &link_to_references,
             creation_date,
             update_date,
             author: resolved_authors.as_selector(),
@@ -1741,7 +1770,11 @@ impl RenderService {
             slugs: &[],
             data_form_fields: &data_form_fields,
             order,
-            candidate_limit: if data_form_fields.is_empty() {
+            candidate_limit: if data_form_fields.is_empty()
+                && !matches!(
+                    order.map(|order| order.property),
+                    Some(OrderProperty::Score)
+                ) {
                 None
             } else {
                 Some(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS))

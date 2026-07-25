@@ -32,6 +32,12 @@
     shouldUseSandboxWikidotChrome
   } from "$lib/wikidot-chrome"
   import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot-styleframe"
+  import {
+    IOS_ICON_DECLARATIONS,
+    IOS_ICON_ROUTE_PREFIX,
+    faviconDeclaration,
+    hasIosIcons
+  } from "$lib/site-icons"
 
   let { children } = $props()
 
@@ -82,6 +88,8 @@
   )
   const useSandboxWikidotChrome = $derived(shouldUseSandboxWikidotChrome(viewData))
   const wikidotSiteTitle = $derived(resolveWikidotSiteTitle(viewData))
+  const siteFavicon = $derived(faviconDeclaration(viewData?.site ?? null))
+  const siteHasIosIcons = $derived(hasIosIcons(viewData?.site ?? null))
   const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
   const wikidotSessionUserName = $derived(resolveWikidotSessionUserName(viewData))
   const shellStyleFrameStylesheets = $derived(
@@ -122,6 +130,21 @@
 
 <svelte:head>
   <title>{viewData?.site?.name}</title>
+  {#if siteFavicon}
+    <link href={siteFavicon.href} rel="shortcut icon" />
+    <link href={siteFavicon.href} rel="icon" type={siteFavicon.type} />
+  {:else}
+    <link href="data:," rel="icon" />
+  {/if}
+  {#if siteHasIosIcons}
+    {#each IOS_ICON_DECLARATIONS as iosIcon (iosIcon.filename)}
+      <link
+        href={`${IOS_ICON_ROUTE_PREFIX}${iosIcon.filename}`}
+        rel="apple-touch-icon"
+        sizes={iosIcon.sizes ?? undefined}
+      />
+    {/each}
+  {/if}
   {#if currentLayout === Layout.WIKIDOT}
     <link href="/wikidot/styles/wikidot-base-165bc434fd1d.css" rel="stylesheet" />
     <link href="/wikidot/styles/pagerate-db0bffe086ed.css" rel="stylesheet" />

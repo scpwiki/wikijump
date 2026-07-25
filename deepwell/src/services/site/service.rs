@@ -379,6 +379,18 @@ impl SiteService {
             model.forum_max_nest_level = Set(forum_max_nest_level);
         }
 
+        if let Maybe::Set(favicon_source) = input.favicon_source {
+            model.favicon_source = Set(favicon_source);
+        }
+
+        if let Maybe::Set(ios_icon_source) = input.ios_icon_source {
+            model.ios_icon_source = Set(ios_icon_source);
+        }
+
+        if let Maybe::Set(windows_tile_source) = input.windows_tile_source {
+            model.windows_tile_source = Set(windows_tile_source);
+        }
+
         ctx.defer_public_content_cache_invalidate_site(site.site_id)
             .or_raise(make_error)?;
 

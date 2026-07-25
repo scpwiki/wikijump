@@ -20,6 +20,7 @@
 
 use deepwell::api::{build_server_at, build_server_state_without_workers};
 use deepwell::config::{Config, Secrets};
+use deepwell::error::ErrorType;
 use serde_json::{Value, json};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
@@ -68,9 +69,14 @@ async fn production_rpc_stack_dispatches_registered_method() {
 async fn production_rpc_stack_converts_endpoint_errors() {
     let response = rpc_request("error", json!([])).await;
     assert!(response.get("result").is_none());
+    assert_eq!(response["error"]["code"], ErrorType::BadRequest.code());
+    assert_eq!(
+        response["error"]["message"],
+        ErrorType::BadRequest.summary(),
+    );
     assert!(
-        response["error"]["message"]
+        response["error"]["data"]["call_trace"]
             .as_str()
-            .is_some_and(|message| message.contains("always fails"))
+            .is_some_and(|trace| trace.contains("always fails")),
     );
 }

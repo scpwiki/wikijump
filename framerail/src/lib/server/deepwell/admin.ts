@@ -150,6 +150,31 @@ export async function siteForumNestingUpdate(
   )
 }
 
+export async function siteIconsUpdate(
+  siteId: number,
+  userId: number,
+  userIpAddr: string,
+  icons: {
+    faviconSource: Nullable<string>
+    iosIconSource: Nullable<string>
+    windowsTileSource: Nullable<string>
+  },
+  requestContext: SiteUpdateRequestContext
+): Promise<SiteModel> {
+  return client.request(
+    "site_update",
+    {
+      site: siteId,
+      user_id: userId,
+      favicon_source: icons.faviconSource,
+      ios_icon_source: icons.iosIconSource,
+      windows_tile_source: icons.windowsTileSource,
+      ip_address: userIpAddr
+    },
+    requestContext
+  )
+}
+
 export async function siteUpdate(
   siteId: number,
   userId: number,

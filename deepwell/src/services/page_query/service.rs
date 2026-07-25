@@ -801,11 +801,9 @@ impl PageQueryService {
                 debug!("Limiting ListPages to a maximum of {limit} pages total");
                 query = query.limit(limit);
             }
-        } else if !data_form_fields.is_empty()
-            && let Some(candidate_limit) = candidate_limit
-        {
+        } else if let Some(candidate_limit) = candidate_limit {
             debug!(
-                "Limiting ListPages data form candidate scan to {candidate_limit} pages"
+                "Limiting ListPages deferred candidate scan to {candidate_limit} pages"
             );
             query = query.limit(candidate_limit);
         }
@@ -825,7 +823,11 @@ impl PageQueryService {
         // Execute it!
         let mut pages = query.all(txn).await.or_raise(make_error)?;
         let candidate_count = Some(pages.len());
-        let cap_exceeded = filtering_deferred_to_rust
+        // Both deferred paths resolve in Rust over the fetched candidate set, so
+        // a scan that filled its bound may be missing rows that belong in the
+        // result. The caller preserves the module rather than rendering a list
+        // sorted or filtered from a truncated candidate set.
+        let cap_exceeded = defer_offset_limit
             && candidate_limit
                 .and_then(|limit| usize::try_from(limit).ok())
                 .is_some_and(|limit| pages.len() >= limit);

@@ -163,6 +163,32 @@
     }
   )
 
+  const { form: siteIconsFormData, enhance: enhanceSiteIcons } = superForm(
+    untrack(() => data.siteIconsForm),
+    {
+      dataType: "json",
+      resetForm: false,
+      onSubmit: async ({ jsonData }) => {
+        jsonData({
+          ...$siteIconsFormData,
+          siteId: data.site.site_id
+        })
+      },
+      onResult: async ({ result }) => {
+        if (result.type === "success" && result.data?.res) {
+          data.site = result.data.res
+        }
+        if (result.type === "failure" && result.data) {
+          errorPopupState.current = {
+            state: true,
+            message: result.data?.message,
+            data: result.data?.data
+          }
+        }
+      }
+    }
+  )
+
   const { form: forumNestingFormData, enhance: enhanceForumNesting } = superForm(
     untrack(() => data.forumNestingForm),
     {
@@ -336,6 +362,10 @@
   $effect(() => {
     $forumNestingFormData.siteId = data.site.site_id
     $forumNestingFormData.maxNestLevel = data.site.forum_max_nest_level
+    $siteIconsFormData.siteId = data.site.site_id
+    $siteIconsFormData.faviconSource = data.site.favicon_source ?? ""
+    $siteIconsFormData.iosIconSource = data.site.ios_icon_source ?? ""
+    $siteIconsFormData.windowsTileSource = data.site.windows_tile_source ?? ""
   })
 
   $effect(() => {
@@ -709,6 +739,53 @@
   {:else}
     <p>No page categories are available.</p>
   {/if}
+</section>
+
+<section id="site-icons" class="admin-section">
+  <h2>Icons</h2>
+  <p>
+    Set this site's favicon, iOS icon, and Windows 8 tile. Each accepts the address of an
+    existing image. Leave a field empty to declare no icon.
+  </p>
+
+  <form
+    class="editor site-icons-editor"
+    action="?/siteIcons"
+    method="POST"
+    use:enhanceSiteIcons
+  >
+    <label for="favicon-source">Favicon</label>
+    <input
+      id="favicon-source"
+      name="faviconSource"
+      type="text"
+      bind:value={$siteIconsFormData.faviconSource}
+    />
+    <label for="ios-icon-source">iOS icon</label>
+    <input
+      id="ios-icon-source"
+      name="iosIconSource"
+      type="text"
+      bind:value={$siteIconsFormData.iosIconSource}
+    />
+    <label for="windows-tile-source">Windows 8 tile</label>
+    <input
+      id="windows-tile-source"
+      name="windowsTileSource"
+      type="text"
+      bind:value={$siteIconsFormData.windowsTileSource}
+    />
+    <input name="siteId" type="hidden" bind:value={$siteIconsFormData.siteId} />
+    <div class="action-row editor-actions">
+      <button
+        id="sm-site-icons-save"
+        class="action-button editor-button button-save clickable"
+        type="submit"
+      >
+        Save
+      </button>
+    </div>
+  </form>
 </section>
 
 <section id="forum-settings" class="admin-section">
