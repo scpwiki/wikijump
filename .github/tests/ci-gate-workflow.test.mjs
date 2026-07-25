@@ -220,9 +220,14 @@ test("Framerail unit and browser suites remain separate", () => {
   const full = workflow("full-ci.yaml")
   const playwright = read("framerail/playwright.config.ts")
 
-  assert.match(pkg.scripts["test:unit"], /^node --test(?: tests\/[\w-]+\.test\.(?:js|ts))+$/)
+  // The unit suite may name files or glob them, but it must reach only `*.test.*`;
+  // Playwright's specs are `*.spec.*` and belong to the browser suite alone.
+  assert.match(pkg.scripts["test:unit"], /^node --test(?: tests\/(?:\*|[\w-]+)\.test\.(?:js|ts))+$/)
   assert.doesNotMatch(pkg.scripts["test:unit"], /\.spec\.(?:js|ts)/)
-  assert.equal(pkg.scripts.test, "playwright test")
+  // `test` is the browser suite, run through a script because Playwright needs run-time ports.
+  // It must not chain the unit suite: ci-gate runs that already, and full-ci would repeat it.
+  assert.equal(pkg.scripts.test, "node tests/playwright-runner.js")
+  assert.doesNotMatch(pkg.scripts.test, /test:unit/)
   for (const command of ["build", "test:unit", "lint"]) assert.ok(gate.includes(`pnpm --dir framerail ${command}`), command)
   assert.match(full, /pnpm --dir framerail test/)
   assert.doesNotMatch(playwright, /\.test\.(?:js|ts)/)
