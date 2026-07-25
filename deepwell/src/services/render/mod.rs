@@ -54,6 +54,8 @@ mod runtime_modules;
 mod runtime_page_queries;
 mod service;
 mod structs;
+mod url_arguments;
+mod wikidot_hosts;
 
 pub(crate) use self::corpus::{
     CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerPass,
@@ -66,7 +68,6 @@ pub(crate) use self::diagnostics::{
     StageGuard, is_corpus_render_timing,
 };
 pub(crate) use self::literal_regions::LiteralRegionIndex;
-pub use self::pages_by_tag::wikitext_reads_url_arguments;
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
 };
@@ -79,3 +80,4 @@ pub(crate) use self::service::{
     CorpusReplayPreparedWikitext, CorpusReplayStageTimings, CorpusReplaySyntaxFeatures,
 };
 pub use self::structs::*;
+pub use self::url_arguments::wikitext_reads_url_arguments;

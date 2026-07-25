@@ -37,7 +37,7 @@ use regex::Regex;
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement};
 use std::sync::LazyLock;
 
-static PAGES_BY_TAG_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static PAGES_BY_TAG_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+PagesByTag(?P<head>[^\]]*)\]\]").unwrap()
 });
 
@@ -53,18 +53,6 @@ pub(super) struct PagesByTagPage {
     pub page_category_id: i64,
     pub slug: String,
     pub title: String,
-}
-
-/// Whether this wikitext holds a module whose output depends on the request's
-/// URL path arguments.
-///
-/// The page view uses this to decide whether a request carrying arguments
-/// needs a render of its own instead of the revision's stored HTML. It looks
-/// at the page's own source only: a module reached through `[[include]]`
-/// renders as it does without arguments, which is the same result Wikijump
-/// produced before arguments were routed at all.
-pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
-    PAGES_BY_TAG_MODULE_REGEX.is_match(wikitext)
 }
 
 /// Extracts the `tag` argument from a `[[module PagesByTag ...]]` head.

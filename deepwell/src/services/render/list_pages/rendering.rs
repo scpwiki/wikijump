@@ -129,10 +129,24 @@ impl ListPagesExpansionBudget {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub(in crate::services::render) struct ListPagesExpansionOptions {
+pub(in crate::services::render) struct ListPagesExpansionOptions<'a> {
     pub(in crate::services::render) current_site_id: Option<i64>,
     pub(in crate::services::render) current_page_id: Option<i64>,
     pub(in crate::services::render) include_budget: IncludeExpansionBudget,
+
+    /// The `tag` Wikidot URL path argument, which a `tags` selector can name
+    /// as `@URL`. `None` for every render that is not serving a page view.
+    pub(in crate::services::render) url_tag: Option<&'a str>,
+}
+
+/// The request a CountPages expansion is answering.
+pub(in crate::services::render) struct CountPagesExpansionOptions<'a> {
+    pub(in crate::services::render) current_site_id: Option<i64>,
+    pub(in crate::services::render) current_page_id: Option<i64>,
+
+    /// The `tag` Wikidot URL path argument, which a `tags` selector can name
+    /// as `@URL`. `None` for every render that is not serving a page view.
+    pub(in crate::services::render) url_tag: Option<&'a str>,
 }
 
 impl RenderService {
@@ -145,12 +159,13 @@ impl RenderService {
         compat_html: &mut CompatHtmlFragments,
         include_source_cache: &mut IncludeSourceCache,
         compat_text: &mut CompatTextFragments,
-        options: ListPagesExpansionOptions,
+        options: ListPagesExpansionOptions<'_>,
     ) -> Result<IncludeExpansion> {
         let ListPagesExpansionOptions {
             current_site_id,
             current_page_id,
             mut include_budget,
+            url_tag,
         } = options;
         let (Some(current_site_id), Some(current_page_id)) =
             (current_site_id, current_page_id)
@@ -213,7 +228,9 @@ impl RenderService {
                     || list_pages_has_unsupported_page_type_selector(head)
                 {
                     ListPagesBlockPlan::PreserveOriginal
-                } else if let Some(arguments) = parse_list_pages_arguments(head) {
+                } else if let Some(arguments) =
+                    parse_list_pages_arguments_with_url(head, url_tag)
+                {
                     if arguments.unsupported_author_filter
                         || arguments.unsupported_list_pages_filter
                         || arguments.unsupported_score_filter
@@ -578,10 +595,14 @@ impl RenderService {
         wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
+        options: CountPagesExpansionOptions<'_>,
         compat_text: &mut CompatTextFragments,
     ) -> Result<String> {
+        let CountPagesExpansionOptions {
+            current_site_id,
+            current_page_id,
+            url_tag,
+        } = options;
         let (Some(current_site_id), Some(current_page_id)) =
             (current_site_id, current_page_id)
         else {
@@ -663,7 +684,8 @@ impl RenderService {
                 continue;
             }
 
-            let Some(arguments) = parse_list_pages_arguments(head) else {
+            let Some(arguments) = parse_list_pages_arguments_with_url(head, url_tag)
+            else {
                 expanded.push_str(&compat_text.push_escaped_html_text(mtch.as_str()));
                 cursor = mtch.end();
                 continue;
@@ -787,6 +809,9 @@ impl RenderService {
             {
                 continue;
             }
+            // This prefetch only serves CountPages, whose own URL-argument
+            // behavior is uncaptured, so a head naming `@URL` keeps the
+            // module literal rather than resolving here.
             let Some(arguments) = parse_list_pages_arguments(head) else {
                 continue;
             };

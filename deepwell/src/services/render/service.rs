@@ -91,6 +91,10 @@ use super::runtime_page_queries::{
     random_page_query_scan_limit, render_page_query_batch_limit,
     render_page_query_uses_single_scan,
 };
+use super::wikidot_hosts::{
+    direct_wdfiles_local_file_url, local_file_host_site_slug, preferred_domain_host,
+    preferred_domain_wikidot_slug,
+};
 use crate::hash::{TextHash, k12_hash};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
@@ -1144,6 +1148,7 @@ impl RenderService {
                     current_site_id,
                     current_page_id,
                     include_budget,
+                    url_tag,
                 },
             )
             .await
@@ -1162,8 +1167,11 @@ impl RenderService {
                 wikitext,
                 page_info,
                 settings,
-                current_site_id,
-                current_page_id,
+                CountPagesExpansionOptions {
+                    current_site_id,
+                    current_page_id,
+                    url_tag,
+                },
                 &mut wikidot_compat_text,
             )
             .await
@@ -5176,76 +5184,6 @@ fn preferred_domain_matches_wikidot_slug(
     };
 
     wikidot_slug.eq_ignore_ascii_case(site_slug)
-}
-
-fn preferred_domain_wikidot_slug(preferred_domain: &str) -> Option<String> {
-    let host = preferred_domain_host(preferred_domain)?;
-    let wikidot_slug = host.strip_suffix(".wikidot.com").unwrap_or(host.as_str());
-
-    (!wikidot_slug.is_empty()).then(|| wikidot_slug.to_owned())
-}
-
-fn preferred_domain_host(preferred_domain: &str) -> Option<String> {
-    let trimmed = preferred_domain.trim().trim_end_matches('.');
-    let host = trimmed
-        .strip_prefix("https://")
-        .or_else(|| trimmed.strip_prefix("http://"))
-        .unwrap_or(trimmed)
-        .split('/')
-        .next()
-        .unwrap_or(trimmed)
-        .split(':')
-        .next()
-        .unwrap_or(trimmed)
-        .trim_end_matches('.');
-
-    (!host.is_empty()).then(|| host.to_ascii_lowercase())
-}
-
-fn local_file_host_site_slug(host: &str, config: &Config) -> Option<String> {
-    let host = host.trim().trim_end_matches('.').to_ascii_lowercase();
-
-    [".wikidot.com", ".wdfiles.com", ".wjfiles.com"]
-        .iter()
-        .find_map(|suffix| host.strip_suffix(suffix).map(ToOwned::to_owned))
-        .filter(|slug| !slug.is_empty())
-        .or_else(|| {
-            let suffix = config.files_domain.to_ascii_lowercase();
-            host.strip_suffix(&suffix)
-                .map(ToOwned::to_owned)
-                .filter(|slug| !slug.is_empty())
-        })
-}
-
-fn direct_wdfiles_local_file_url(host: &str, path: &str) -> Option<String> {
-    if !path.starts_with("/local--files/") {
-        return None;
-    }
-
-    let host = host.trim().trim_end_matches('.').to_ascii_lowercase();
-    let site_slug = host.strip_suffix(".wikidot.com")?;
-    if site_slug.is_empty()
-        || !site_slug
-            .chars()
-            .all(|character| character.is_ascii_alphanumeric() || character == '-')
-        || !site_slug
-            .as_bytes()
-            .first()
-            .is_some_and(u8::is_ascii_alphanumeric)
-        || !site_slug
-            .as_bytes()
-            .last()
-            .is_some_and(u8::is_ascii_alphanumeric)
-    {
-        return None;
-    }
-
-    Some(format!("https://{site_slug}.wdfiles.com{path}"))
-}
-
-#[allow(dead_code)]
-fn public_url_port_suffix(port: Option<u16>) -> String {
-    port.map(|port| format!(":{port}")).unwrap_or_default()
 }
 
 pub(super) fn rendered_wikidot_mailform_attribute(

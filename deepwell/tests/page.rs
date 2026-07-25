@@ -2667,6 +2667,131 @@ async fn pages_by_tag_module_reads_the_url_tag_argument() {
 }
 
 #[tokio::test]
+async fn list_pages_url_tag_selector_reads_the_url_tag_argument() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let url_tag = "fixture-lp-url-tag";
+    let fallback_tag = "fixture-lp-fallback-tag";
+    let holder_slug = "fixture-lp-url-holder";
+
+    for (slug, title, tag) in [
+        ("fixture-lp-url-page", "LP URL Probe", url_tag),
+        (
+            "fixture-lp-fallback-page",
+            "LP Fallback Probe",
+            fallback_tag,
+        ),
+    ] {
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, slug, title, "Probe body.")
+                .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision_id, &[tag]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture LP URL Holder",
+        "placeholder",
+    )
+    .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("ListPages URL holder should exist");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(holder_slug))),
+    });
+    let page_info = PageInfo {
+        page: Cow::Borrowed(holder_slug),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Fixture LP URL Holder"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: holder.page_category_id,
+        page_id: holder.page_id,
+    };
+
+    let render = async |wikitext: &str, url_tag: Option<&str>| {
+        RenderService::render_page(
+            runner.context(),
+            wikitext.to_owned(),
+            &page_info,
+            Layout::Wikidot,
+            page_id,
+            url_tag,
+        )
+        .await
+        .expect("ListPages render should succeed")
+        .html_output
+        .body
+    };
+
+    let bare = concat!(
+        "[[module ListPages tags=\"@URL\" name=\"fixture-lp-*\" separate=\"no\"]]\n",
+        "ROW %%name%%\n",
+        "[[/module]]",
+    );
+    let html = render(bare, Some(url_tag)).await;
+    assert!(
+        html.contains("fixture-lp-url-page"),
+        "the URL tag selects its tagged page: {html}",
+    );
+    assert!(
+        !html.contains("fixture-lp-fallback-page"),
+        "a page carrying a different tag must not appear: {html}",
+    );
+
+    // Live drops an unresolved `@URL` rather than matching nothing, so the
+    // query widens to every page the remaining selectors allow.
+    for absent in [None, Some("")] {
+        let html = render(bare, absent).await;
+        assert!(
+            html.contains("fixture-lp-url-page")
+                && html.contains("fixture-lp-fallback-page"),
+            "an unresolved @URL widens instead of matching nothing: {html}",
+        );
+    }
+
+    // A fallback answers only when the URL supplies nothing.
+    let with_fallback = format!(
+        concat!(
+            "[[module ListPages tags=\"@URL|{fallback}\" name=\"fixture-lp-*\" ",
+            "separate=\"no\"]]\nROW %%name%%\n[[/module]]",
+        ),
+        fallback = fallback_tag,
+    );
+    let html = render(&with_fallback, None).await;
+    assert!(
+        html.contains("fixture-lp-fallback-page")
+            && !html.contains("fixture-lp-url-page"),
+        "without a URL tag the fallback selects: {html}",
+    );
+
+    let html = render(&with_fallback, Some(url_tag)).await;
+    assert!(
+        html.contains("fixture-lp-url-page")
+            && !html.contains("fixture-lp-fallback-page"),
+        "the URL tag beats the fallback: {html}",
+    );
+}
+
+#[tokio::test]
 async fn backlinks_module_renders_current_page_incoming_links() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
