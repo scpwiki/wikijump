@@ -38,7 +38,6 @@ pub type BlobHexHash = ArrayString<U128>;
 
 /// Produces a byte array containing the SHA-512 hash for the given data.
 pub fn sha512_hash(data: &[u8]) -> BlobHash {
-    // Perform hash
     let mut hasher = Sha512::new();
     hasher.update(data);
     let result = hasher.finalize();

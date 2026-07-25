@@ -39,13 +39,6 @@ pub async fn parent_relationships_get(
         relationship_type,
     } = parse!(params, PageParent);
 
-    info!(
-        "Getting all {} pages from {:?} in site ID {}",
-        relationship_type.name(),
-        reference,
-        site_id,
-    );
-
     ParentService::get_relationships(ctx, site_id, reference, relationship_type)
         .await
         .or_raise(|| {
@@ -61,11 +54,6 @@ pub async fn parent_get(
     params: Params<'static>,
 ) -> Result<Option<PageParentModel>> {
     let input: ParentDescription = parse!(params, PageParent);
-
-    info!(
-        "Getting parental relationship {:?} -> {:?} in site ID {}",
-        input.parent, input.child, input.site_id,
-    );
 
     ParentService::get_optional(ctx, input).await.or_raise(|| {
         Error::new(
@@ -146,8 +134,6 @@ pub async fn parent_get_all(
     params: Params<'static>,
 ) -> Result<Vec<String>> {
     let GetPageReference { site_id, page } = parse!(params, PageParent);
-
-    info!("Getting parents for child {page:?} in site ID {site_id}");
 
     let make_error = || {
         Error::new(

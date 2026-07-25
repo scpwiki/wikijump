@@ -24,59 +24,29 @@
 //! Framerail (the API consumer). No guarantees are made as to backwards compatibility.
 //!
 //! This module should only contain definitions for the web server and its routes, and
-//! not any of the implementations themselves. Those should be in the `methods` module.
+//! not any of the implementations themselves. Those belong in the `endpoints` module.
 
 use crate::config::{Config, Secrets};
 use crate::endpoints::all::*;
 use crate::error::prelude::*;
 use crate::locales::Localizations;
 use crate::middleware::{RequestContextHeaders, RequestContextLayer};
+use crate::runtime::ServerStateInner;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobWorker;
 use crate::services::{RequestContext, ServiceContext, SessionService};
-use crate::utils::debug_pointer;
 use crate::{database, info, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
-use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use reqwest::Client as ReqwestClient;
-use rsmq_async::Rsmq;
 use s3::bucket::Bucket;
-use sea_orm::{DatabaseConnection, TransactionTrait};
-use std::fmt::{self, Debug};
+use sea_orm::TransactionTrait;
+use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
 const BUCKET_REQUEST_TIMEOUT: Duration = Duration::from_millis(500);
 
-pub type ServerState = Arc<ServerStateInner>;
-
-pub struct ServerStateInner {
-    pub config: Config,
-    pub database: DatabaseConnection,
-    pub redis: RedisMultiplexedConnection,
-    pub rsmq: Rsmq,
-    pub localizations: Localizations,
-    pub mime_analyzer: MimeAnalyzer,
-    pub s3_files_bucket: Box<Bucket>,
-    pub s3_tblocks_bucket: Box<Bucket>,
-    pub mailcheck_api_client: ReqwestClient,
-}
-
-impl Debug for ServerStateInner {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("ServerStateInner")
-            .field("config", &self.config)
-            .field("database", &self.database)
-            .field("redis", &self.redis)
-            .field("rsmq", &debug_pointer(&self.rsmq))
-            .field("localizations", &self.localizations)
-            .field("mime_analyzer", &self.mime_analyzer)
-            .field("s3_files_bucket", &self.s3_files_bucket)
-            .field("s3_tblocks_bucket", &self.s3_tblocks_bucket)
-            .field("mailcheck_api_client", &self.mailcheck_api_client)
-            .finish()
-    }
-}
+pub use crate::runtime::ServerState;
 
 pub async fn build_server_state(config: Config, secrets: Secrets) -> Result<ServerState> {
     build_server_state_inner(config, secrets, true).await
@@ -88,7 +58,7 @@ pub async fn build_server_state(config: Config, secrets: Secrets) -> Result<Serv
 /// but are read-only diagnostics. Starting the normal queue workers here would make
 /// their behavior depend on unrelated jobs and could mutate the corpus while a replay
 /// is collecting evidence.
-pub(crate) async fn build_server_state_without_workers(
+pub async fn build_server_state_without_workers(
     config: Config,
     secrets: Secrets,
 ) -> Result<ServerState> {
@@ -203,17 +173,29 @@ async fn build_server_state_inner(
 }
 
 pub async fn build_server(app_state: ServerState) -> Result<ServerHandle> {
-    let make_error = || Error::new("failed to build server", ErrorType::ServerSetup);
     let socket_address = app_state.config.address;
+    let (_, handle) = build_server_at(app_state, socket_address).await?;
+    Ok(handle)
+}
+
+/// Start the production RPC stack at an explicit address and return the bound address.
+///
+/// Passing port zero lets integration tests exercise registration, middleware, transaction handling, and RPC error conversion without reserving a fixed host port.
+pub async fn build_server_at(
+    app_state: ServerState,
+    socket_address: SocketAddr,
+) -> Result<(SocketAddr, ServerHandle)> {
+    let make_error = || Error::new("failed to build server", ErrorType::ServerSetup);
     let server = Server::builder()
         .set_http_middleware(tower::ServiceBuilder::new().layer(RequestContextLayer))
         .build(socket_address)
         .await
         .or_raise(make_error)?;
+    let local_address = server.local_addr().or_raise(make_error)?;
 
     let module = build_module(app_state).await.or_raise(make_error)?;
     let handle = server.start(module);
-    Ok(handle)
+    Ok((local_address, handle))
 }
 
 async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> {

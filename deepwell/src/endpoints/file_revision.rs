@@ -18,24 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::file::ensure_parent_page_view_permission;
 use super::prelude::*;
 use crate::models::file_revision::Model as FileRevisionModel;
+use crate::services::MutationAuthorization;
 use crate::services::file::GetFile;
 use crate::services::file_revision::{
-    FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
+    CountFileRevisions, FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange,
+    UpdateFileRevision,
 };
+use crate::types::{Action, Permission, Reference, Resource};
 
 pub async fn file_revision_count(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<FileRevisionCountOutput> {
-    let GetFile {
-        site_id,
-        page_id,
-        file: file_reference,
-    } = parse!(params, FileRevision);
-
-    info!("Getting latest revision for file ID {page_id} in site ID {site_id}");
+    let input: GetFile<'_> = parse!(params, FileRevision);
+    let site_id = input.site_id;
+    let page_id = input.page_id;
 
     let make_error = || {
         Error::new(
@@ -44,13 +44,22 @@ pub async fn file_revision_count(
         )
     };
 
-    let file_id = FileService::get_id(ctx, site_id, file_reference)
+    ensure_parent_page_view_permission(ctx, site_id, page_id)
         .await
         .or_raise(make_error)?;
 
-    let revision_count = FileRevisionService::count(ctx, page_id, file_id)
-        .await
-        .or_raise(make_error)?;
+    let file_id = FileService::get_id(ctx, input).await.or_raise(make_error)?;
+
+    let revision_count = FileRevisionService::count(
+        ctx,
+        CountFileRevisions {
+            site_id,
+            page_id,
+            file_id,
+        },
+    )
+    .await
+    .or_raise(make_error)?;
 
     Ok(FileRevisionCountOutput {
         revision_count,
@@ -64,11 +73,14 @@ pub async fn file_revision_get(
     params: Params<'static>,
 ) -> Result<Option<FileRevisionModel>> {
     let input: GetFileRevision = parse!(params, FileRevision);
-
-    info!(
-        "Getting file revision {} for file ID {} on page ID {}",
-        input.revision_number, input.file_id, input.page_id,
-    );
+    ensure_parent_page_view_permission(ctx, input.site_id, input.page_id)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to check file revision parent-page visibility",
+                ErrorType::FileRevision,
+            )
+        })?;
 
     FileRevisionService::get_optional(ctx, input)
         .await
@@ -80,6 +92,14 @@ pub async fn file_revision_range(
     params: Params<'static>,
 ) -> Result<Vec<FileRevisionModel>> {
     let input: GetFileRevisionRange = parse!(params, FileRevision);
+    ensure_parent_page_view_permission(ctx, input.site_id, input.page_id)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to check file revision range parent-page visibility",
+                ErrorType::FileRevision,
+            )
+        })?;
 
     FileRevisionService::get_range(ctx, input)
         .await
@@ -96,6 +116,23 @@ pub async fn file_revision_edit(
     params: Params<'static>,
 ) -> Result<FileRevisionModel> {
     let input: UpdateFileRevision = parse!(params, FileRevision);
+    MutationAuthorization::require_matching_actor(
+        ctx,
+        input.user_id,
+        "edit file revision visibility",
+    )?;
+    MutationAuthorization::require_permission(
+        ctx,
+        input.site_id,
+        Some(Reference::Id(input.page_id)),
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: None,
+            action: Action::Edit,
+        },
+        "edit file revision visibility",
+    )
+    .await?;
 
     info!(
         "Editing file revision ID {} for file ID {} on page {}",

@@ -27,18 +27,17 @@ use crate::services::filter::{FilterClass, FilterType};
 use crate::services::page_revision::{
     CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
-    CreateTombstonePageRevision, RerenderType,
+    CreateTombstonePageRevision, GetPageRevision,
 };
-use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::permission::PermissionService;
 use crate::services::{
-    BlueprintPageService, CategoryService, FilterService, PageRevisionService,
-    SiteService, TextBlockService, TextService,
+    CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,
+    TextService,
 };
 use crate::types::{
-    Action, PageId, PageOrder, PageRevisionType, Permission, Reference, RerenderDepth,
-    Resource,
+    Action, PageId, PageOrder, PageRevisionType, Permission, Reference, Resource,
 };
-use crate::utils::{get_category_name, split_category, trim_default};
+use crate::utils::{get_category_name, trim_default};
 use ftml::layout::Layout;
 use ref_map::*;
 use sea_orm::ActiveValue;
@@ -114,21 +113,6 @@ impl PageService {
             ..Default::default()
         };
         let PageModel { page_id, .. } = model.insert(txn).await.or_raise(make_error)?;
-        let (category_slug, page_slug) = split_category(&slug);
-        let template_wikitext = BlueprintPageService::get_page_template(
-            ctx,
-            site_id,
-            category_slug,
-            page_slug,
-        )
-        .await
-        .or_raise(make_error)?;
-        let rerender_after_latest_revision =
-            needs_latest_revision_for_first_render(&wikitext)
-                || template_wikitext
-                    .as_deref()
-                    .is_some_and(needs_latest_revision_for_first_render);
-
         // Commit first revision
         let revision_input = CreateFirstPageRevision {
             user_id,
@@ -144,6 +128,7 @@ impl PageService {
         let CreateFirstPageRevisionOutput {
             revision_id,
             parser_errors,
+            followups,
         } = PageRevisionService::create_first(
             ctx,
             PageId {
@@ -164,20 +149,17 @@ impl PageService {
         };
         let page = model.update(txn).await.or_raise(make_error)?;
         assert_latest_revision(&page);
-        if rerender_after_latest_revision {
-            PageRevisionService::rerender(
-                ctx,
-                PageId {
-                    site_id,
-                    category_id,
-                    page_id,
-                },
-                RerenderDepth::default(),
-                RerenderType::Full,
-            )
-            .await
-            .or_raise(make_error)?;
-        }
+        PageRevisionService::apply_first_followups(
+            ctx,
+            PageId {
+                site_id,
+                category_id,
+                page_id,
+            },
+            followups,
+        )
+        .await
+        .or_raise(make_error)?;
 
         // Audit log
         AuditService::log(
@@ -292,12 +274,13 @@ impl PageService {
             },
         };
 
-        let revision_output =
+        let persisted_revision =
             PageRevisionService::create(ctx, id, revision_input, last_revision)
                 .await
                 .or_raise(make_error)?;
 
-        let revision_id = revision_output.ref_map(|output| output.revision_id);
+        let revision_id =
+            persisted_revision.ref_map(|revision| revision.output.revision_id);
 
         // Set page updated_at and latest_revision_id columns.
         //
@@ -315,6 +298,15 @@ impl PageService {
 
         let page = model.update(txn).await.or_raise(make_error)?;
         assert_latest_revision(&page);
+
+        let revision_output = match persisted_revision {
+            Some(revision) => Some(
+                PageRevisionService::apply_followups(ctx, id, revision)
+                    .await
+                    .or_raise(make_error)?,
+            ),
+            None => None,
+        };
 
         // Audit log
         AuditService::log(
@@ -418,13 +410,13 @@ impl PageService {
             },
         };
 
-        let revision_output =
+        let persisted_revision =
             PageRevisionService::create(ctx, id, revision_input, last_revision)
                 .await
                 .or_raise(make_error)?;
 
-        let latest_revision_id = match revision_output {
-            Some(ref output) => ActiveValue::Set(Some(output.revision_id)),
+        let latest_revision_id = match persisted_revision {
+            Some(ref revision) => ActiveValue::Set(Some(revision.output.revision_id)),
             None => ActiveValue::NotSet,
         };
 
@@ -444,6 +436,15 @@ impl PageService {
 
         let page = model.update(txn).await.or_raise(make_error)?;
         assert_latest_revision(&page);
+
+        let revision_output = match persisted_revision {
+            Some(revision) => Some(
+                PageRevisionService::apply_followups(ctx, id, revision)
+                    .await
+                    .or_raise(make_error)?,
+            ),
+            None => None,
+        };
 
         // Build and return
         match revision_output {
@@ -751,7 +752,14 @@ impl PageService {
 
         // Get target revision and latest revision
         let (target_revision, last_revision) = join!(
-            PageRevisionService::get(ctx, site_id, page_id, revision_number),
+            PageRevisionService::get(
+                ctx,
+                GetPageRevision {
+                    site_id,
+                    page_id,
+                    revision_number,
+                },
+            ),
             PageRevisionService::get_latest(ctx, site_id, page_id),
         );
         let (target_revision, last_revision) =
@@ -816,13 +824,13 @@ impl PageService {
             },
         };
 
-        let revision_output =
+        let persisted_revision =
             PageRevisionService::create(ctx, id, revision_input, last_revision)
                 .await
                 .or_raise(make_error)?;
 
-        let latest_revision_id = match revision_output {
-            Some(ref output) => ActiveValue::Set(Some(output.revision_id)),
+        let latest_revision_id = match persisted_revision {
+            Some(ref revision) => ActiveValue::Set(Some(revision.output.revision_id)),
             None => ActiveValue::NotSet,
         };
 
@@ -834,7 +842,17 @@ impl PageService {
             ..Default::default()
         };
 
-        model.update(txn).await.or_raise(make_error)?;
+        let page = model.update(txn).await.or_raise(make_error)?;
+        assert_latest_revision(&page);
+
+        let revision_output = match persisted_revision {
+            Some(revision) => Some(
+                PageRevisionService::apply_followups(ctx, id, revision)
+                    .await
+                    .or_raise(make_error)?,
+            ),
+            None => None,
+        };
 
         // Audit log
         AuditService::log(
@@ -853,27 +871,6 @@ impl PageService {
 
         // Build and return
         Ok(revision_output)
-    }
-
-    /// Undoes a past revision, applying the inverse of its changes.
-    ///
-    /// It looks at the changes made in that revision, and does the
-    /// inverse there specifically. It is contextual, and preserves
-    /// all other changes made since.
-    ///
-    /// However, this can cause it to conflict, which will occur if
-    /// the reversed changes interfere with other changes made since.
-    ///
-    /// This is equivalent to git's concept of a "revert".
-    #[allow(dead_code)]
-    pub async fn undo(
-        _ctx: &ServiceContext<'_>,
-        _site_id: i64,
-        _page_id: i64,
-        _revision_number: i32,
-    ) -> Result<EditPageOutput> {
-        // TODO update audit-log.md
-        todo!()
     }
 
     /// Sets the layout override for a page.
@@ -1292,7 +1289,6 @@ impl PageService {
 
     pub async fn check_user_permission(
         ctx: &ServiceContext<'_>,
-        _permission_context: &CheckPermissionContext<'_>,
         action: Action,
     ) -> Result<bool> {
         let make_error =
@@ -1318,14 +1314,6 @@ impl PageService {
         .await
         .or_raise(make_error)
     }
-}
-
-fn needs_latest_revision_for_first_render(wikitext: &str) -> bool {
-    let lower = wikitext.to_ascii_lowercase();
-    lower.contains("[[module countpages")
-        || lower.contains("[[module listpages")
-        || lower.contains("[[module tagcloud")
-        || lower.contains("[[include")
 }
 
 /// Verifies that a `last_revision_id` passed into this function is actually the latest.

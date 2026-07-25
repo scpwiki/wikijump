@@ -56,7 +56,6 @@ use ftml::render::html::HtmlOutput;
 use ref_map::*;
 use sea_orm::{FromQueryResult, Statement};
 use std::borrow::Cow;
-use std::mem;
 use time::OffsetDateTime;
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
@@ -307,10 +306,10 @@ impl ViewService {
             )
         };
 
-        let mut locales = parse_locales(&locales_str)?;
+        let locales = parse_locales(&locales_str)?;
         let viewer = Self::get_viewer(
             ctx,
-            &mut locales,
+            locales,
             site_id,
             session_token.ref_map(|s| s.as_str()),
             ViewType::Preload,
@@ -1251,7 +1250,7 @@ ORDER BY breadcrumb_chain.depth ASC
     /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
-        locales: &mut Vec<LanguageIdentifier>,
+        mut locales: Vec<LanguageIdentifier>,
         site_id: i64,
         session_token: Option<&str>,
         view_type: ViewType,
@@ -1285,19 +1284,10 @@ ORDER BY breadcrumb_chain.depth ASC
                     // For instance, if the browser is requesting [X, Y], but the user
                     // prefers [A, B], we want to end up with [A, B, X, Y].
                     //
-                    // But the most efficient method to use here is append().
-                    // So we append all the requested locales to the end of the user
-                    // locales we just got, then swap the contents.
-                    //
-                    // The end goal is that 'locales' ends up with the new locales at
-                    // the start before the previous items, and 'user_locales' ends up
-                    // drained since it was inserted into the preserved 'locales' vector.
-
                     let mut user_locales =
                         parse_locales(&user.locales).or_raise(make_error)?;
-                    user_locales.append(locales);
-                    mem::swap(locales, &mut user_locales);
-                    debug_assert!(user_locales.is_empty());
+                    user_locales.append(&mut locales);
+                    locales = user_locales;
                 }
 
                 Some(UserSession { session, user })
@@ -1319,7 +1309,7 @@ ORDER BY breadcrumb_chain.depth ASC
             .or_raise(make_error)?;
 
         let site_file_domain = DomainService::get_files(config, &site.slug);
-        let license_name = site.license.translate(ctx.localization(), locales)?;
+        let license_name = site.license.translate(ctx.localization(), &locales)?;
         let license_url = site.license.url();
 
         // Return

@@ -24,11 +24,13 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod compat_select;
 mod count_pages;
 mod list_pages;
 mod service;
 mod structs;
 
+pub use self::compat_select::*;
 pub use self::count_pages::*;
 pub use self::list_pages::*;
 pub use self::service::PageQueryService;

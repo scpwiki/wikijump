@@ -876,11 +876,11 @@ impl BlobService {
             }
         };
 
-        if let Some(user_id) = deleter_user_id {
+        if deleter_user_id.is_some() {
             // Delete and blacklist the hash, nobody should be uploading new versions
             // Only do so if we are actually mutating.
             let (result1, result2) = join!(
-                BlobService::add_blacklist(ctx, s3_hash, user_id),
+                BlobService::add_blacklist(ctx, s3_hash),
                 BlobService::hard_delete(ctx, &s3_hash),
             );
             raise_multiple!(result1, result2; make_error);
@@ -971,22 +971,21 @@ impl BlobService {
         Ok(())
     }
 
-    pub async fn add_blacklist(
-        ctx: &ServiceContext<'_>,
-        hash: BlobHash,
-        created_by: i64,
-    ) -> Result<()> {
+    pub async fn add_blacklist(ctx: &ServiceContext<'_>, hash: BlobHash) -> Result<()> {
+        let created_by = Self::require_platform_staff(ctx, "add a blob blacklist entry")?;
         info!("Adding hash {} to blacklist", blob_hash_to_hex(&hash));
 
-        // This should never happen because the callers already
-        // should be calling hash_not_empty()
+        let make_error =
+            || Error::new("failed to add blob to blacklist", ErrorType::Blob);
+        Self::check_hash_not_empty(hash).or_raise(make_error)?;
+        Self::check_hash_in_use(ctx, hash)
+            .await
+            .or_raise(make_error)?;
+
         debug_assert_ne!(
             hash, EMPTY_BLOB_HASH,
             "Empty blob hash passed to add_blacklist()",
         );
-
-        let make_error =
-            || Error::new("failed to add blob to blacklist", ErrorType::Blob);
 
         if Self::on_blacklist(ctx, hash).await.or_raise(make_error)? {
             debug!("Already blacklisted, skipping");
@@ -1007,6 +1006,7 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: BlobHash,
     ) -> Result<()> {
+        Self::require_platform_staff(ctx, "remove a blob blacklist entry")?;
         info!("Removing hash {} to blacklist", blob_hash_to_hex(&hash));
 
         let txn = ctx.transaction();
@@ -1146,14 +1146,14 @@ impl BlobService {
     ///
     /// This utility conditionally retrieves the
     /// text given by the specified hash only
-    /// if the flag `should_fetch` is true.
+    /// if the flag `requested` is true.
     /// Otherwise, it does no action, returning `None`.
-    pub async fn get_maybe(
+    pub async fn fetch_if_requested(
         ctx: &ServiceContext<'_>,
-        should_fetch: bool,
+        requested: bool,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
-        if should_fetch {
+        if requested {
             let data = Self::get(ctx, hash).await.or_raise(|| {
                 Error::new("failed to conditionally get blob data", ErrorType::Blob)
             })?;

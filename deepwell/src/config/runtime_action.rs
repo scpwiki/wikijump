@@ -25,11 +25,9 @@
 //! as if motivated by a script.
 
 use super::{Config, SetupConfig};
-use crate::services::corpus_render_finalizer::{
-    CorpusRenderFinalizerService, RenderFinalizerSettings,
-};
-use crate::services::corpus_render_inventory::{
-    CorpusRenderInventoryService, RenderInventorySettings,
+use crate::services::render::{
+    CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerSettings,
+    RenderInventorySettings,
 };
 use crate::services::render::{
     RenderReplayService, RenderReplaySettings, run_worker_action,
@@ -89,7 +87,7 @@ async fn run_seeder() -> i32 {
     println!("Running action: Database seeder");
 
     let SetupConfig { secrets, config } = SetupConfig::load_only();
-    let app_state = match api::build_server_state(config, secrets).await {
+    let app_state = match api::build_server_state_without_workers(config, secrets).await {
         Ok(app_state) => app_state,
         Err(error) => {
             println!("error:");
@@ -121,7 +119,7 @@ async fn run_render_finalize() -> i32 {
     };
 
     let SetupConfig { secrets, config } = SetupConfig::load_only();
-    let app_state = match api::build_server_state(config, secrets).await {
+    let app_state = match api::build_server_state_without_workers(config, secrets).await {
         Ok(app_state) => app_state,
         Err(error) => {
             eprintln!("{error:?}");
@@ -157,7 +155,7 @@ async fn run_render_inventory() -> i32 {
     };
 
     let SetupConfig { secrets, config } = SetupConfig::load_only();
-    let app_state = match api::build_server_state(config, secrets).await {
+    let app_state = match api::build_server_state_without_workers(config, secrets).await {
         Ok(app_state) => app_state,
         Err(error) => {
             eprintln!("{error:?}");
@@ -187,7 +185,7 @@ async fn run_render_replay() -> i32 {
     let settings = match RenderReplaySettings::from_env() {
         Ok(settings) => settings,
         Err(error) => {
-            eprintln!("{error}");
+            eprintln!("{error:?}");
             return 1;
         }
     };

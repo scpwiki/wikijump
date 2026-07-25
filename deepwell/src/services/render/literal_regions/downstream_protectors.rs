@@ -22,7 +22,7 @@ use super::LiteralRegionIndex;
 use super::block_candidates::{
     RuntimeModuleHeadCandidate, collect_head_candidate_streams,
 };
-use super::list_pages::collect_list_pages_downstream_css_ranges;
+use super::list_pages_protection::collect_list_pages_downstream_css_ranges;
 use regex::Regex;
 use std::ops::Range;
 use std::sync::LazyLock;

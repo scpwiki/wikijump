@@ -65,33 +65,73 @@ where
     }
 
     fn call(&mut self, mut request: Request<Body>) -> Self::Future {
-        let session_token: Option<String> = request
-            .headers()
-            .get("X-Deepwell-Session-Token")
-            .and_then(|v| v.to_str().ok())
-            .map(str::to_owned);
-        let site_id: Option<i64> = request
-            .headers()
-            .get("X-Deepwell-Site-Id")
-            .and_then(|v| v.to_str().ok())
-            .and_then(|s| s.parse().ok());
-        let page_ref: Option<Reference<'static>> = request
-            .headers()
-            .get("X-Deepwell-Page")
-            .and_then(|v| v.to_str().ok())
-            .map(|s| {
-                // TODO: Figure out if this can cause a bug: if the slug is a number, it will be parsed as an ID instead of a slug.
-                s.parse::<i64>()
-                    .map(Reference::Id)
-                    .unwrap_or_else(|_| Reference::Slug(Cow::Owned(s.to_owned())))
-            });
-
-        let context = RequestContextHeaders {
-            session_token,
-            site_id,
-            page_ref,
-        };
+        let context = request_context_headers(&request);
         request.extensions_mut().insert(context);
         self.service.call(request)
+    }
+}
+
+fn request_context_headers<Body>(request: &Request<Body>) -> RequestContextHeaders {
+    let session_token = request
+        .headers()
+        .get("X-Deepwell-Session-Token")
+        .and_then(|value| value.to_str().ok())
+        .map(str::to_owned);
+    let site_id = request
+        .headers()
+        .get("X-Deepwell-Site-Id")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.parse().ok());
+    let page_ref = request
+        .headers()
+        .get("X-Deepwell-Page")
+        .and_then(|value| value.to_str().ok())
+        .map(|value| {
+            value
+                .parse::<i64>()
+                .map(Reference::Id)
+                .unwrap_or_else(|_| Reference::Slug(Cow::Owned(value.to_owned())))
+        });
+
+    RequestContextHeaders {
+        session_token,
+        site_id,
+        page_ref,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extracts_request_context_headers() {
+        let request = Request::builder()
+            .header("X-Deepwell-Session-Token", "session-token")
+            .header("X-Deepwell-Site-Id", "42")
+            .header("X-Deepwell-Page", "category:page")
+            .body(())
+            .expect("request should build");
+
+        let headers = request_context_headers(&request);
+        assert_eq!(headers.session_token.as_deref(), Some("session-token"));
+        assert_eq!(headers.site_id, Some(42));
+        assert_eq!(
+            headers.page_ref,
+            Some(Reference::Slug(Cow::Borrowed("category:page")))
+        );
+    }
+
+    #[test]
+    fn numeric_page_header_uses_id_reference() {
+        let request = Request::builder()
+            .header("X-Deepwell-Page", "123")
+            .body(())
+            .expect("request should build");
+
+        assert_eq!(
+            request_context_headers(&request).page_ref,
+            Some(Reference::Id(123))
+        );
     }
 }

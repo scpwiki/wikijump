@@ -17,7 +17,7 @@ mod common;
 mod count_pages;
 #[allow(dead_code)]
 mod downstream_protectors;
-pub(in crate::services::render) mod list_pages;
+pub(in crate::services::render) mod list_pages_protection;
 mod parser_candidates;
 mod text_owners;
 mod token_boundaries;
@@ -30,11 +30,11 @@ pub(in crate::services::render) use self::downstream_protectors::{
     DownstreamProtectorFamily, DownstreamProtectorRange,
     collect_downstream_protector_ranges,
 };
-pub(in crate::services::render) use self::list_pages::ListPagesSourceProjection;
+pub(in crate::services::render) use self::list_pages_protection::ListPagesSourceProjection;
 #[cfg(test)]
-use self::list_pages::collect_list_pages_runtime_recovery_ranges;
-pub(super) use self::list_pages::project_list_pages_typography_in_place;
-use self::list_pages::{
+use self::list_pages_protection::collect_list_pages_runtime_recovery_ranges;
+pub(super) use self::list_pages_protection::project_list_pages_typography_in_place;
+use self::list_pages_protection::{
     collect_already_projected_list_pages_literal_ranges,
     collect_list_pages_downstream_css_ranges, collect_list_pages_literal_ranges,
 };

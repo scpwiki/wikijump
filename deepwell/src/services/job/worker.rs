@@ -21,7 +21,7 @@
 //! Module for the worker which consumes `Job`s and performs the relevant task.
 
 use super::prelude::*;
-use crate::api::ServerState;
+use crate::runtime::ServerState;
 use crate::services::page_revision::RerenderType;
 use crate::services::{
     BlobService, PageRevisionService, SessionService, TextService, UserService,
@@ -48,6 +48,36 @@ enum JobProcessStatus {
 enum NextJob {
     Next { job: Job, delay: Option<Duration> },
     Done,
+}
+
+trait JobQueue {
+    async fn receive_job(&mut self) -> Result<Option<RsmqMessage<Vec<u8>>>>;
+    async fn delete_job(&mut self, message_id: &str) -> Result<()>;
+    async fn queue_follow_up(&mut self, job: &Job, delay: Option<Duration>)
+    -> Result<()>;
+}
+
+impl JobQueue for Rsmq {
+    async fn receive_job(&mut self) -> Result<Option<RsmqMessage<Vec<u8>>>> {
+        self.receive_message(JOB_QUEUE_NAME, None)
+            .await
+            .or_raise(|| Error::new("failed to receive queued job", ErrorType::Job))
+    }
+
+    async fn delete_job(&mut self, message_id: &str) -> Result<()> {
+        self.delete_message(JOB_QUEUE_NAME, message_id)
+            .await
+            .or_raise(|| Error::new("failed to delete queued job", ErrorType::Job))?;
+        Ok(())
+    }
+
+    async fn queue_follow_up(
+        &mut self,
+        job: &Job,
+        delay: Option<Duration>,
+    ) -> Result<()> {
+        JobService::queue_job_inner(self, job, delay).await
+    }
 }
 
 #[derive(Clone)]
@@ -158,11 +188,7 @@ impl JobWorker {
         let make_error =
             || Error::new("failed to process job from queue", ErrorType::Job);
 
-        let next_job = self
-            .rsmq
-            .receive_message(JOB_QUEUE_NAME, None)
-            .await
-            .or_raise(make_error)?;
+        let next_job = self.rsmq.receive_job().await.or_raise(make_error)?;
 
         let data: RsmqMessage<Vec<u8>> = match next_job {
             None => return Ok(JobProcessStatus::NoJob),
@@ -174,7 +200,11 @@ impl JobWorker {
         debug!("* Previously received: {}", data.rc);
         debug!("* Created:             {}", data.sent);
         debug!("* Received:            {}", data.fr);
-        let job = serde_json::from_slice(&data.message).or_raise(make_error)?;
+        let no_more_retries =
+            is_final_attempt(data.rc, self.state.config.job_max_attempts);
+        let job = decode_job_message(&mut self.rsmq, &data, no_more_retries)
+            .await
+            .or_raise(make_error)?;
 
         let make_error = || {
             Error::new(
@@ -183,15 +213,7 @@ impl JobWorker {
             )
         };
 
-        let no_more_retries = data.rc >= u64::from(self.state.config.job_max_attempts);
-        if no_more_retries {
-            debug!("Last attempt for this message, it will not be retried if it fails");
-            self.rsmq
-                .delete_message(JOB_QUEUE_NAME, &data.id)
-                .await
-                .or_raise(make_error)?;
-        }
-
+        let execution: Result<NextJob> = async {
         debug!("Received job from queue: {job:?}");
         trace!("Setting up ServiceContext for job processing");
         let txn = self.state.database.begin().await.or_raise(make_error)?;
@@ -286,30 +308,6 @@ impl JobWorker {
             }
         };
 
-        // Don't delete more than once
-        //
-        // NOTE: We're only at this point if the job succeeded.
-        if !no_more_retries {
-            trace!("Job execution finished, deleting message");
-            self.rsmq
-                .delete_message(JOB_QUEUE_NAME, &data.id)
-                .await
-                .or_raise(make_error)?;
-        }
-
-        // Add follow-up job to queue, if required.
-        match next {
-            NextJob::Done => debug!("Job execution finished, no follow-up job to add"),
-            NextJob::Next { job, delay } => {
-                debug!("Job execution finished, follow-up job has been produced");
-                trace!("* Job:   {job:?}");
-                trace!("* Delay: {delay:?}");
-                JobService::queue_job(ctx, &job, delay)
-                    .await
-                    .or_raise(make_error)?;
-            }
-        }
-
         let post_commit_actions = ctx.drain_post_commit_actions().or_raise(make_error)?;
 
         trace!("Committing transaction, returning success");
@@ -322,8 +320,69 @@ impl JobWorker {
         {
             error!("job committed but post-commit actions failed: {}", error);
         }
+        Ok(next)
+        }
+        .await;
+
+        settle_job_execution(&mut self.rsmq, &data.id, no_more_retries, execution)
+            .await
+            .or_raise(make_error)?;
+
         Ok(JobProcessStatus::ReceivedJob)
     }
+}
+
+async fn decode_job_message<Q: JobQueue>(
+    queue: &mut Q,
+    data: &RsmqMessage<Vec<u8>>,
+    no_more_retries: bool,
+) -> Result<Job> {
+    match serde_json::from_slice(&data.message) {
+        Ok(job) => Ok(job),
+        Err(error) => {
+            if no_more_retries {
+                queue.delete_job(&data.id).await?;
+            }
+            Err(error).or_raise(|| {
+                Error::new(
+                    format!("queued job {} contains malformed JSON", data.id),
+                    ErrorType::Job,
+                )
+            })
+        }
+    }
+}
+
+async fn settle_job_execution<Q: JobQueue>(
+    queue: &mut Q,
+    message_id: &str,
+    no_more_retries: bool,
+    execution: Result<NextJob>,
+) -> Result<()> {
+    let next = match execution {
+        Ok(next) => next,
+        Err(error) if no_more_retries => {
+            debug!("Final job attempt failed; deleting the exhausted message");
+            queue.delete_job(message_id).await?;
+            return Err(error);
+        }
+        Err(error) => return Err(error),
+    };
+
+    match next {
+        NextJob::Done => debug!("Job execution finished, no follow-up job to add"),
+        NextJob::Next { job, delay } => {
+            debug!("Job execution finished, follow-up job has been produced");
+            queue.queue_follow_up(&job, delay).await?;
+        }
+    }
+
+    trace!("Job execution finished, deleting message");
+    queue.delete_job(message_id).await
+}
+
+fn is_final_attempt(receive_count: u64, max_attempts: u16) -> bool {
+    receive_count >= u64::from(max_attempts)
 }
 
 impl Debug for JobWorker {
@@ -333,5 +392,198 @@ impl Debug for JobWorker {
             .field("rsmq", &debug_pointer(&self.rsmq))
             .field("id", &self.id)
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use uuid::Uuid;
+
+    #[derive(Debug, Default)]
+    struct MockJobQueue {
+        received: Option<RsmqMessage<Vec<u8>>>,
+        deleted: Vec<String>,
+        follow_ups: Vec<(String, Option<Duration>)>,
+    }
+
+    impl JobQueue for MockJobQueue {
+        async fn receive_job(&mut self) -> Result<Option<RsmqMessage<Vec<u8>>>> {
+            Ok(self.received.take())
+        }
+
+        async fn delete_job(&mut self, message_id: &str) -> Result<()> {
+            self.deleted.push(message_id.to_owned());
+            Ok(())
+        }
+
+        async fn queue_follow_up(
+            &mut self,
+            job: &Job,
+            delay: Option<Duration>,
+        ) -> Result<()> {
+            self.follow_ups.push((format!("{job:?}"), delay));
+            Ok(())
+        }
+    }
+
+    fn message(payload: &[u8], receive_count: u64) -> RsmqMessage<Vec<u8>> {
+        RsmqMessage {
+            id: "message-id".to_owned(),
+            message: payload.to_vec(),
+            rc: receive_count,
+            fr: 0,
+            sent: 0,
+        }
+    }
+
+    fn execution_error() -> Error {
+        Error::new("job execution failed", ErrorType::Job)
+    }
+
+    #[test]
+    fn final_attempt_policy_keeps_retryable_failures() {
+        assert!(!is_final_attempt(1, 3));
+        assert!(!is_final_attempt(2, 3));
+        assert!(is_final_attempt(3, 3));
+        assert!(is_final_attempt(4, 3));
+    }
+
+    #[tokio::test]
+    async fn empty_queue_has_no_message_to_execute() {
+        let mut queue = MockJobQueue::default();
+        assert!(queue.receive_job().await.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn malformed_retryable_job_is_retained() {
+        let mut queue = MockJobQueue::default();
+        let error = decode_job_message(&mut queue, &message(b"not-json", 1), false)
+            .await
+            .unwrap_err();
+        assert_eq!(error.error_type, ErrorType::Job);
+        assert!(queue.deleted.is_empty());
+    }
+
+    #[tokio::test]
+    async fn malformed_final_job_is_deleted() {
+        let mut queue = MockJobQueue::default();
+        decode_job_message(&mut queue, &message(br#"{"unknown-job":true}"#, 3), true)
+            .await
+            .unwrap_err();
+        assert_eq!(queue.deleted, ["message-id"]);
+    }
+
+    #[tokio::test]
+    async fn successful_job_is_deleted() {
+        let mut queue = MockJobQueue::default();
+        settle_job_execution(&mut queue, "message-id", false, Ok(NextJob::Done))
+            .await
+            .unwrap();
+        assert_eq!(queue.deleted, ["message-id"]);
+        assert!(queue.follow_ups.is_empty());
+    }
+
+    #[tokio::test]
+    async fn retryable_failure_is_retained() {
+        let mut queue = MockJobQueue::default();
+        settle_job_execution(
+            &mut queue,
+            "message-id",
+            false,
+            Err(execution_error().into()),
+        )
+        .await
+        .unwrap_err();
+        assert!(queue.deleted.is_empty());
+    }
+
+    #[tokio::test]
+    async fn final_failure_is_deleted() {
+        let mut queue = MockJobQueue::default();
+        settle_job_execution(
+            &mut queue,
+            "message-id",
+            true,
+            Err(execution_error().into()),
+        )
+        .await
+        .unwrap_err();
+        assert_eq!(queue.deleted, ["message-id"]);
+    }
+
+    #[tokio::test]
+    async fn delayed_follow_up_is_queued_before_acknowledgement() {
+        let mut queue = MockJobQueue::default();
+        let delay = Duration::from_secs(30);
+        settle_job_execution(
+            &mut queue,
+            "message-id",
+            false,
+            Ok(NextJob::Next {
+                job: Job::PruneSessions,
+                delay: Some(delay),
+            }),
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            queue.follow_ups,
+            [("PruneSessions".to_owned(), Some(delay))]
+        );
+        assert_eq!(queue.deleted, ["message-id"]);
+    }
+
+    #[tokio::test]
+    #[ignore = "requires an isolated Redis instance in REDIS_URL"]
+    async fn real_redis_adapter_round_trip() {
+        let redis_url =
+            std::env::var("REDIS_URL").expect("REDIS_URL is required for this test");
+        let client = redis::Client::open(redis_url).expect("Redis URL should be valid");
+        let connection = client
+            .get_multiplexed_async_connection()
+            .await
+            .expect("Redis should accept a connection");
+        let namespace = format!("deepwell-job-adapter-test-{}", Uuid::new_v4());
+        let mut queue = Rsmq::new_with_connection(connection, false, Some(&namespace))
+            .await
+            .expect("RSMQ adapter should initialize");
+        queue
+            .create_queue(
+                JOB_QUEUE_NAME,
+                JOB_QUEUE_PROCESS_TIME,
+                JOB_QUEUE_DELAY,
+                JOB_QUEUE_MAXIMUM_SIZE,
+            )
+            .await
+            .expect("test queue should be created");
+
+        queue
+            .queue_follow_up(&Job::PruneSessions, Some(Duration::ZERO))
+            .await
+            .expect("adapter should enqueue a job");
+        let received = queue
+            .receive_job()
+            .await
+            .expect("adapter should receive a job")
+            .expect("queued job should be present");
+        let decoded: Job =
+            serde_json::from_slice(&received.message).expect("job payload should decode");
+        queue
+            .delete_job(&received.id)
+            .await
+            .expect("adapter should acknowledge a job");
+        let empty_after_delete = queue
+            .receive_job()
+            .await
+            .expect("adapter should query the emptied queue")
+            .is_none();
+        queue
+            .delete_queue(JOB_QUEUE_NAME)
+            .await
+            .expect("test queue should be deleted");
+
+        assert!(matches!(decoded, Job::PruneSessions));
+        assert!(empty_after_delete);
     }
 }

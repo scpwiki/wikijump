@@ -36,11 +36,6 @@ pub async fn file_get(
 ) -> Result<Option<GetFileOutput>> {
     let GetFileDetails { input, details } = parse!(params, File);
 
-    info!(
-        "Getting file {:?} from page ID {} in site ID {}",
-        input.file, input.page_id, input.site_id,
-    );
-
     let make_error = || Error::new("failed to get file", ErrorType::File);
 
     ensure_parent_page_view_permission(ctx, input.site_id, input.page_id)
@@ -342,7 +337,7 @@ fn require_authenticated_file_mutation_actor(
     }
 }
 
-async fn ensure_parent_page_view_permission(
+pub(super) async fn ensure_parent_page_view_permission(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     page_id: i64,
@@ -410,7 +405,7 @@ async fn build_file_response(
     revision: FileRevisionModel,
     details: FileDetails,
 ) -> Result<GetFileOutput> {
-    let data = BlobService::get_maybe(ctx, details.data, &revision.s3_hash)
+    let data = BlobService::fetch_if_requested(ctx, details.data, &revision.s3_hash)
         .await
         .or_raise(|| Error::new("failed to build a file response", ErrorType::File))?;
 

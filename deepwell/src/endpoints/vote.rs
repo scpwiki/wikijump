@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::models::page_vote::Model as PageVoteModel;
+use crate::services::MutationAuthorization;
 use crate::services::relation::{GetSiteMember, RelationService};
 use crate::services::settings::{
     PageRatingPermission, PageRatingSettings, PageRatingType, PageRatingVisibility,
@@ -48,19 +49,11 @@ async fn ensure_actor_can_rate(
     submitted_user_id: i64,
     value: Option<i16>,
 ) -> Result<PageRatingSettings> {
-    let actor_user_id = ctx.request().user_id().or_raise(|| {
-        Error::new(
-            "login is required to rate this page",
-            ErrorType::PermissionDenied,
-        )
-    })?;
-    if actor_user_id != submitted_user_id {
-        return Err(Error::new(
-            "a page rating cannot be submitted for another user",
-            ErrorType::PermissionDenied,
-        )
-        .into());
-    }
+    let actor_user_id = MutationAuthorization::require_matching_actor(
+        ctx,
+        submitted_user_id,
+        "rate a page",
+    )?;
     let (page, settings) = page_rating_settings(ctx, page_id).await?;
     if !settings.enabled {
         return Err(Error::new(
@@ -125,11 +118,6 @@ pub async fn vote_get(
     let input: GetVote = parse!(params, PageVote);
     let page_id = input.page_id;
     let user_id = input.user_id;
-
-    info!(
-        "Getting vote cast by user ID {} on page ID {}",
-        user_id, page_id,
-    );
 
     let (_, settings) = page_rating_settings(ctx, page_id).await?;
     if settings.visibility == PageRatingVisibility::Anonymous
@@ -214,6 +202,15 @@ pub async fn vote_action(
         enable,
         acting_user_id,
     } = parse!(params, PageVote);
+    let actor_user_id =
+        MutationAuthorization::require_platform_staff(ctx, "moderate a page vote")?;
+    if acting_user_id != actor_user_id {
+        return Err(Error::new(
+            "request actor does not match the page vote moderator attribution",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
 
     // e.g. enable or disable a vote
     let key = GetVote { page_id, user_id };

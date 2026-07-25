@@ -18,7 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO replace ParentService with a new relation type
+//! Page parenting is a specialized relation backed by `page_parent`.
+//!
+//! It remains separate from generic user and site relations because it enforces
+//! page-specific same-site and cycle invariants.
 
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
@@ -203,21 +206,7 @@ impl ParentService {
         Ok(model)
     }
 
-    #[inline]
-    #[allow(dead_code)] // TODO
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
-        description: ParentDescription<'_>,
-    ) -> Result<PageParentModel> {
-        find_or_error!(
-            Self::get_optional(ctx, description),
-            "page parent",
-            PageParent,
-        )
-    }
-
     /// Gets all relationships of the given type.
-    // NOTE: This will need renaming when we migrate this to a relation.
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -252,31 +241,6 @@ impl ParentService {
             .or_raise(make_error)?;
 
         Ok(models)
-    }
-
-    /// Gets all children of the given page.
-    #[allow(dead_code)] // TEMP
-    pub async fn get_children(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<Vec<PageParentModel>> {
-        Self::get_relationships(
-            ctx,
-            site_id,
-            reference.borrow(),
-            ParentalRelationshipType::Child,
-        )
-        .await
-        .or_raise(|| {
-            Error::new(
-                format!(
-                    "failed to get children of page {:?} in site ID {}",
-                    reference, site_id,
-                ),
-                ErrorType::PageParent,
-            )
-        })
     }
 
     /// Gets all parents of the given page.

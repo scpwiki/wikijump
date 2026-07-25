@@ -20,8 +20,30 @@
 
 use super::prelude::*;
 use crate::models::page_lock::Model as PageLockModel;
-use crate::services::PageLockService;
 use crate::services::page_lock::{CreatePageLockInput, RemovePageLockInput};
+use crate::services::{MutationAuthorization, PageLockService};
+use crate::types::{Action, Permission, Resource};
+
+async fn require_page_lock_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_ref: crate::types::Reference<'_>,
+    action: &str,
+) -> Result<()> {
+    MutationAuthorization::require_permission(
+        ctx,
+        site_id,
+        Some(page_ref),
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: None,
+            action: Action::BypassLock,
+        },
+        action,
+    )
+    .await?;
+    Ok(())
+}
 
 pub async fn page_lock_create(
     ctx: &ServiceContext<'_>,
@@ -39,6 +61,8 @@ pub async fn page_lock_create(
     let page_ref = request
         .page_reference()
         .or_raise(|| Error::new("no page reference found", ErrorType::PageLock))?;
+    require_page_lock_permission(ctx, site_id, page_ref.borrow(), "create a page lock")
+        .await?;
 
     info!(
         "Creating page lock of type {:?} for page {:?} in site {}",
@@ -68,6 +92,8 @@ pub async fn page_lock_remove(
     let page_ref = request
         .page_reference()
         .or_raise(|| Error::new("no page reference found", ErrorType::PageLock))?;
+    require_page_lock_permission(ctx, site_id, page_ref.borrow(), "remove a page lock")
+        .await?;
 
     info!(
         "Removing active page lock for page {:?} in site {}",
@@ -92,11 +118,6 @@ pub async fn page_lock_get_history(
     let page_ref = request
         .page_reference()
         .or_raise(|| Error::new("no page reference found", ErrorType::PageLock))?;
-
-    info!(
-        "Fetching lock history for page {:?} in site {}",
-        page_ref, site_id,
-    );
 
     PageLockService::get_locks_for_page(ctx, site_id, page_ref.borrow())
         .await

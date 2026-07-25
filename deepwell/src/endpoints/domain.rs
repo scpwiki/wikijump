@@ -20,8 +20,28 @@
 
 use super::prelude::*;
 use crate::models::site_domain::Model as SiteDomainModel;
+use crate::services::MutationAuthorization;
 use crate::services::domain::{CreateCustomDomain, DomainService};
-use crate::types::Reference;
+use crate::types::{Action, Permission, Reference, Resource};
+
+async fn require_custom_domain_permission(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    action: &str,
+) -> Result<i64> {
+    MutationAuthorization::require_permission(
+        ctx,
+        site_id,
+        None,
+        Permission {
+            resource_type: Resource::Site,
+            resource_category: None,
+            action: Action::Edit,
+        },
+        action,
+    )
+    .await
+}
 
 pub async fn site_get_domain(
     ctx: &ServiceContext<'_>,
@@ -43,6 +63,8 @@ pub async fn site_custom_domain_create(
     params: Params<'static>,
 ) -> Result<()> {
     let input: CreateCustomDomain = parse!(params, SiteSettings);
+    require_custom_domain_permission(ctx, input.site_id, "create a custom domain")
+        .await?;
 
     DomainService::create_custom(ctx, input).await.or_raise(|| {
         Error::new("failed to add a new custom domain", ErrorType::SiteSettings)
@@ -56,6 +78,21 @@ pub async fn site_custom_domain_remove(
     params: Params<'static>,
 ) -> Result<()> {
     let domain: String = parse_one!(params, SiteSettings);
+    let site = DomainService::site_from_custom_domain_optional(ctx, &domain)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to authorize custom domain removal",
+                ErrorType::SiteSettings,
+            )
+        })?
+        .ok_or_raise(|| {
+            Error::new(
+                format!("cannot remove custom domain '{domain}', not found"),
+                ErrorType::CustomDomainNotFound,
+            )
+        })?;
+    require_custom_domain_permission(ctx, site.site_id, "remove a custom domain").await?;
 
     DomainService::remove_custom(ctx, domain)
         .await

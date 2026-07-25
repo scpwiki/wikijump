@@ -488,7 +488,6 @@ impl SettingsService {
     /// Gets forum settings, combining site defaults and category overrides.
     ///
     /// Category settings (if specified) override site-level defaults.
-    #[allow(dead_code)] // TODO
     pub async fn get_forum_settings(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -542,7 +541,6 @@ impl SettingsService {
         })
     }
 
-    #[allow(dead_code)] // TODO
     #[inline]
     pub async fn get_forum_max_nest_level(
         ctx: &ServiceContext<'_>,
@@ -551,17 +549,6 @@ impl SettingsService {
     ) -> Result<i16> {
         let settings = Self::get_forum_settings(ctx, site_id, forum_category_id).await?;
         Ok(settings.max_nest_level)
-    }
-
-    #[allow(dead_code)] // TODO
-    #[inline]
-    pub async fn get_forum_per_page_discussion(
-        ctx: &ServiceContext<'_>,
-        site_id: i64,
-        forum_category_id: Option<i64>,
-    ) -> Result<bool> {
-        let settings = Self::get_forum_settings(ctx, site_id, forum_category_id).await?;
-        Ok(settings.per_page_discussion)
     }
 }
 

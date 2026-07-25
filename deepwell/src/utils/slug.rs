@@ -24,7 +24,7 @@ use wikidot_normalize::normalize;
 /// Normalize a name to a slug. Does not preseve `:`.
 ///
 /// Meant for use in sites and users.
-pub fn get_regular_slug<S: Into<String>>(name: S) -> String {
+pub fn normalize_slug_without_category_separator<S: Into<String>>(name: S) -> String {
     let mut slug = name.into();
     replace_in_place(&mut slug, ":", "-");
     normalize(&mut slug);
@@ -32,7 +32,7 @@ pub fn get_regular_slug<S: Into<String>>(name: S) -> String {
 }
 
 /// Normalize a name to a slug.
-pub fn get_slug<S: Into<String>>(name: S) -> String {
+pub fn normalize_page_slug<S: Into<String>>(name: S) -> String {
     let mut slug = name.into();
     normalize(&mut slug);
     slug
@@ -40,16 +40,22 @@ pub fn get_slug<S: Into<String>>(name: S) -> String {
 
 #[test]
 fn regular_slug_replaces_category_separator() {
-    assert_eq!(get_regular_slug("forum:staff"), "forum-staff");
+    assert_eq!(
+        normalize_slug_without_category_separator("forum:staff"),
+        "forum-staff"
+    );
 }
 
 #[test]
 fn page_slug_preserves_category_separator() {
-    assert_eq!(get_slug("forum:staff"), "forum:staff");
+    assert_eq!(normalize_page_slug("forum:staff"), "forum:staff");
 }
 
 #[test]
 fn slug_normalization_handles_case_and_spacing() {
-    assert_eq!(get_regular_slug("  Mixed Case  "), "mixed-case");
-    assert_eq!(get_slug("  Mixed Case  "), "mixed-case");
+    assert_eq!(
+        normalize_slug_without_category_separator("  Mixed Case  "),
+        "mixed-case"
+    );
+    assert_eq!(normalize_page_slug("  Mixed Case  "), "mixed-case");
 }

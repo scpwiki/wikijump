@@ -22,6 +22,13 @@
 //!
 //! This allows you to customize how the server is run, and work with
 //! the crate's types and systems.
+//!
+//! The supported embedding facade is `config`, `runtime`, `services`, `types`,
+//! and the server startup functions re-exported from `start`. Infrastructure
+//! modules are public because the binary is a separate crate target. `endpoints`
+//! and `models` remain public for the direct integration-test harness and
+//! migration tooling; their paths are internal contracts and may change with
+//! Deepwell and Framerail in the same delivery.
 
 #[macro_use]
 extern crate exn;
@@ -66,6 +73,7 @@ pub mod license;
 pub mod locales;
 pub mod middleware;
 pub mod redis;
+pub mod runtime;
 pub mod services;
 pub mod types;
 pub mod utils;

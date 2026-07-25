@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::hash::slice_to_blob_hash;
+use crate::services::MutationAuthorization;
 use crate::services::blob::{
     BlobMetadata, CancelBlobUpload, GetBlobOutput, HardDelete, HardDeleteOutput,
     StartBlobUpload, StartBlobUploadOutput,
@@ -33,7 +34,6 @@ pub async fn blob_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<GetBlobOutput> {
-    info!("Getting blob for S3 hash");
     let hash: Bytes = parse!(params, Blob);
 
     let make_error = || Error::new("failed to get blob data", ErrorType::Blob);
@@ -69,6 +69,11 @@ pub async fn blob_cancel(
         user_id,
         pending_blob_id,
     } = parse!(params, Blob);
+    MutationAuthorization::require_matching_actor(
+        ctx,
+        user_id,
+        "cancel a pending blob upload",
+    )?;
 
     BlobService::cancel_upload(ctx, user_id, &pending_blob_id)
         .await
@@ -90,6 +95,11 @@ pub async fn blob_upload(
 ) -> Result<StartBlobUploadOutput> {
     info!("Creating new pending blob upload");
     let input: StartBlobUpload = parse!(params, Blob);
+    MutationAuthorization::require_matching_actor(
+        ctx,
+        input.user_id,
+        "start a blob upload",
+    )?;
 
     BlobService::start_upload(ctx, input)
         .await
@@ -103,22 +113,15 @@ pub async fn blob_blacklist_add(
     #[derive(Deserialize, Debug)]
     struct AddBlacklist {
         s3_hash: Bytes<'static>,
-        user_id: i64,
     }
 
     let make_error =
         || Error::new("failed to add a blob to the blacklist", ErrorType::Blob);
 
-    let AddBlacklist { s3_hash, user_id } = params.parse().or_raise(make_error)?;
+    let AddBlacklist { s3_hash } = params.parse().or_raise(make_error)?;
     let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
 
-    BlobService::check_hash_not_empty(s3_hash).or_raise(make_error)?;
-
-    BlobService::check_hash_in_use(ctx, s3_hash)
-        .await
-        .or_raise(make_error)?;
-
-    BlobService::add_blacklist(ctx, s3_hash, user_id)
+    BlobService::add_blacklist(ctx, s3_hash)
         .await
         .or_raise(make_error)
 }

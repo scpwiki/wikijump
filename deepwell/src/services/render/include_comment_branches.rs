@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::compat_text_fragments::CompatTextFragments;
+use super::compat::text_fragments::CompatTextFragments;
 
 const UNRESOLVED_BRANCH_OPEN_PREFIX: &str = "[!-- {$";
 const COMMENT_BOUNDARY_MARKER: &str = "[!----]";

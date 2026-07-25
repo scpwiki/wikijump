@@ -82,3 +82,74 @@ async fn blob_hard_delete_uses_admin_request_actor() {
         .expect("hard delete should blacklist the blob hash");
     assert_eq!(blacklist.created_by, ADMIN_USER_ID);
 }
+
+#[tokio::test]
+async fn blob_blacklist_mutations_require_admin_request_context() {
+    let mut runner = TestRunner::setup().await;
+
+    let add_error = run_endpoint_err!(
+        runner,
+        blob_blacklist_add,
+        json!({ "s3_hash": TEST_BLOB_HASH, "user_id": ADMIN_USER_ID }),
+    );
+    assert_contains_error!(add_error, ErrorType::PermissionDenied);
+
+    let remove_error = run_endpoint_err!(
+        runner,
+        blob_blacklist_remove,
+        json!({ "s3_hash": TEST_BLOB_HASH }),
+    );
+    assert_contains_error!(remove_error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(12345),
+        ..Default::default()
+    });
+    let non_admin_add_error = run_endpoint_err!(
+        runner,
+        blob_blacklist_add,
+        json!({ "s3_hash": TEST_BLOB_HASH }),
+    );
+    assert_contains_error!(non_admin_add_error, ErrorType::PermissionDenied);
+
+    let non_admin_remove_error = run_endpoint_err!(
+        runner,
+        blob_blacklist_remove,
+        json!({ "s3_hash": TEST_BLOB_HASH }),
+    );
+    assert_contains_error!(non_admin_remove_error, ErrorType::PermissionDenied);
+}
+
+#[tokio::test]
+async fn blob_blacklist_uses_admin_request_actor() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    run_endpoint!(
+        runner,
+        blob_blacklist_add,
+        json!({ "s3_hash": TEST_BLOB_HASH, "user_id": 12345 }),
+    );
+
+    let hash = hex::decode(TEST_BLOB_HASH).expect("valid test blob hash");
+    let blacklist = BlobBlacklistTable::find_by_id(hash.clone())
+        .one(runner.context().transaction())
+        .await
+        .expect("blob blacklist lookup should succeed")
+        .expect("admin request should blacklist the blob hash");
+    assert_eq!(blacklist.created_by, ADMIN_USER_ID);
+
+    run_endpoint!(
+        runner,
+        blob_blacklist_remove,
+        json!({ "s3_hash": TEST_BLOB_HASH }),
+    );
+    let removed = BlobBlacklistTable::find_by_id(hash)
+        .one(runner.context().transaction())
+        .await
+        .expect("blob blacklist lookup should succeed");
+    assert!(removed.is_none());
+}

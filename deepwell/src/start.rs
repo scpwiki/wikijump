@@ -32,12 +32,10 @@ use std::io::Write;
 use std::process;
 
 pub async fn start() -> Result<()> {
-    // Load the configuration so we can set up
     let SetupConfig { secrets, config } = SetupConfig::load().await;
     let address = config.address;
     let run_seeder = config.run_seeder;
 
-    // Contextual error
     let make_error = || {
         Error::new(
             format!("failed to start deepwell server on {address} (seeder {run_seeder})"),
@@ -45,7 +43,6 @@ pub async fn start() -> Result<()> {
         )
     };
 
-    // Configure the logger
     if config.logger {
         femme::with_level(config.logger_level);
         info!("Loaded server configuration:");
@@ -54,7 +51,6 @@ pub async fn start() -> Result<()> {
         color_backtrace::install();
     }
 
-    // Write PID file
     if let Some(ref path) = config.pid_file {
         info!(
             "Writing process ID ({}) to {}",
@@ -66,7 +62,6 @@ pub async fn start() -> Result<()> {
         writeln!(&mut file, "{}", process::id()).or_raise(make_error)?;
     }
 
-    // Set up restart-on-config change (if feature enabled)
     #[cfg(feature = "watch")]
     let _watcher;
 
@@ -81,21 +76,18 @@ pub async fn start() -> Result<()> {
         }
     }
 
-    // Set up server state
     let app_state = api::build_server_state(config, secrets)
         .await
         .or_raise(make_error)?;
 
-    // Run seeder, if enabled
     if run_seeder {
         database::seed(&app_state).await.or_raise(make_error)?;
     }
 
-    // Build and run server
     info!("Building server...");
     let server = api::build_server(app_state).await.or_raise(make_error)?;
 
     info!("Listening to connections on {address}...");
-    server.stopped().await; // block until end
+    server.stopped().await;
     Ok(())
 }

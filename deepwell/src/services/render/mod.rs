@@ -30,25 +30,17 @@ mod prelude {
     pub use ftml::{self};
 }
 
-mod compat_fallback_code;
-mod compat_html_fragments;
-mod compat_text_fragments;
+mod compat;
+mod corpus;
 mod diagnostics;
-mod footnote_dom;
 mod generator;
 mod html_text;
 mod iftags;
 mod include_attachment_owners;
 mod include_comment_branches;
 mod include_variable_iftags;
-mod issued_markers;
 #[allow(dead_code)]
 mod list_pages;
-mod list_pages_content_sections;
-mod list_pages_parents;
-mod list_pages_row_values;
-mod list_pages_scanner;
-mod list_pages_template;
 mod literal_regions;
 mod metacomponent;
 mod native_list_context;
@@ -56,14 +48,17 @@ mod pages_by_tag;
 mod percent_encoding;
 mod render_dependency;
 mod replay;
+mod runtime;
+mod runtime_modules;
+mod runtime_page_queries;
 mod service;
 mod structs;
-mod wikidot_compat_restore;
-mod wikidot_embed;
-mod wikidot_inline_markers;
-mod wikidot_link_protection;
-mod wikidot_residual_markers;
 
+pub(crate) use self::corpus::{
+    CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerPass,
+    RenderFinalizerSettings, RenderFinalizerSummary, RenderInventoryPass,
+    RenderInventorySettings, RenderInventorySummary,
+};
 pub(crate) use self::diagnostics::{
     CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, CorpusRenderDimension,
     CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, CorpusRenderTraceSnapshot,

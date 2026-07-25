@@ -24,8 +24,14 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod compat_query;
 mod service;
 mod structs;
 
+pub use self::compat_query::{
+    ForumPostGetInput, ForumPostIdInput, ForumPostPageSummary, ForumPostPageSummaryInput,
+    ForumPostSelectInput, WikidotForumPost, forum_post_get, forum_post_page_summary,
+    forum_post_select,
+};
 pub use self::service::ForumPostService;
 pub use self::structs::*;

@@ -79,22 +79,18 @@ impl FileService {
             )
         };
 
-        // Verify filename is valid
-        check_file_name(&mut name).or_raise(make_error)?;
+        normalize_and_validate_file_name(&mut name).or_raise(make_error)?;
 
-        // Ensure row consistency
         Self::check_conflicts(ctx, page_id, &name, "create")
             .await
             .or_raise(make_error)?;
 
-        // Perform filter validation
         if !bypass_filter {
             Self::run_filter(ctx, site_id, None, Some(&name), ip_address)
                 .await
                 .or_raise(make_error)?;
         }
 
-        // Finish blob upload
         let FinalizeBlobUploadOutput {
             s3_hash,
             mime,
@@ -118,7 +114,6 @@ impl FileService {
             }
         };
 
-        // Add new file
         let model = file::ActiveModel {
             name: Set(name.clone()),
             site_id: Set(site_id),
@@ -200,7 +195,7 @@ impl FileService {
         if let Maybe::Set(ref mut name) = name {
             new_name = ActiveValue::Set(name.clone());
 
-            check_file_name(name).or_raise(make_error)?;
+            normalize_and_validate_file_name(name).or_raise(make_error)?;
 
             Self::check_conflicts(ctx, page_id, name, "update")
                 .await
@@ -250,7 +245,6 @@ impl FileService {
             }
         };
 
-        // Update file metadata
         let model = file::ActiveModel {
             file_id: Set(file_id),
             name: new_name,
@@ -259,7 +253,6 @@ impl FileService {
         };
         model.update(txn).await.or_raise(make_error)?;
 
-        // Add new file revision
         let revision_output = FileRevisionService::create(
             ctx,
             CreateFileRevision {
@@ -315,13 +308,11 @@ impl FileService {
 
         check_last_revision(&last_revision, last_revision_id).or_raise(make_error)?;
 
-        // Get destination page id
         let destination_page_id =
             PageService::get_id(ctx, site_id, destination_page.borrow())
                 .await
                 .or_raise(make_error)?;
 
-        // Get destination filename
         let mut name = name.unwrap_or_else(|| last_revision.name.clone());
 
         info!(
@@ -329,15 +320,12 @@ impl FileService {
             file_id, current_page_id, destination_page_id,
         );
 
-        // Verify filename is valid
-        check_file_name(&mut name).or_raise(make_error)?;
+        normalize_and_validate_file_name(&mut name).or_raise(make_error)?;
 
-        // Ensure there isn't a file with this name on the destination page
         Self::check_conflicts(ctx, destination_page_id, &name, "move")
             .await
             .or_raise(make_error)?;
 
-        // Update file metadata
         let model = file::ActiveModel {
             file_id: Set(file_id),
             updated_at: Set(Some(now())),
@@ -347,7 +335,6 @@ impl FileService {
         };
         model.update(txn).await.or_raise(make_error)?;
 
-        // Add new file revision
         let revision_output = FileRevisionService::create(
             ctx,
             CreateFileRevision {
@@ -411,7 +398,6 @@ impl FileService {
     ) -> Result<DeleteFileOutput> {
         let txn = ctx.transaction();
 
-        // Ensure file exists
         let FileModel { file_id, .. } = Self::get(
             ctx,
             GetFile {
@@ -440,8 +426,6 @@ impl FileService {
 
         check_last_revision(&last_revision, last_revision_id).or_raise(make_error)?;
 
-        // Create tombstone revision
-        // This outdates the page, etc
         let output = FileRevisionService::create_tombstone(
             ctx,
             CreateTombstoneFileRevision {
@@ -457,7 +441,6 @@ impl FileService {
         .await
         .or_raise(make_error)?;
 
-        // Set deletion flag
         let model = file::ActiveModel {
             file_id: Set(file_id),
             deleted_at: Set(Some(now())),
@@ -510,7 +493,7 @@ impl FileService {
                 .or_raise(make_error)?;
 
         let mut new_name = new_name.unwrap_or(file.name);
-        check_file_name(&mut new_name).or_raise(make_error)?;
+        normalize_and_validate_file_name(&mut new_name).or_raise(make_error)?;
 
         // Do page checks:
         // - Page is correct
@@ -554,8 +537,6 @@ impl FileService {
                 .await
                 .or_raise(make_error)?;
 
-        // Create resurrection revision
-        // This outdates the page, etc
         let output = FileRevisionService::create_resurrection(
             ctx,
             CreateResurrectionFileRevision {
@@ -572,7 +553,6 @@ impl FileService {
         .await
         .or_raise(make_error)?;
 
-        // Set deletion flag
         let model = file::ActiveModel {
             file_id: Set(file_id),
             page_id: Set(new_page_id),
@@ -610,7 +590,6 @@ impl FileService {
     ) -> Result<Option<EditFileOutput>> {
         let txn = ctx.transaction();
 
-        // Ensure file exists
         let FileModel { file_id, .. } = Self::get(
             ctx,
             GetFile {
@@ -632,7 +611,6 @@ impl FileService {
             )
         };
 
-        // Get target revision and latest revision
         let get_revision_input = GetFileRevision {
             site_id,
             page_id,
@@ -647,10 +625,8 @@ impl FileService {
         let (target_revision, last_revision) =
             raise_multiple!(target_revision_result, last_revision_result; make_error);
 
-        // Check last revision ID
         check_last_revision(&last_revision, last_revision_id).or_raise(make_error)?;
 
-        // Extract fields from target revision
         let FileRevisionModel {
             name,
             s3_hash,
@@ -667,7 +643,6 @@ impl FileService {
 
         let mut new_name = ActiveValue::NotSet;
 
-        // Check name change
         if !hide_name && last_revision.name != name {
             new_name = ActiveValue::Set(name.clone());
 
@@ -681,10 +656,6 @@ impl FileService {
                     .or_raise(make_error)?;
             }
         }
-
-        // Create new revision
-        //
-        // Copy the body of the target revision
 
         let blob = if hide_s3_hash || hide_mime || hide_size {
             Maybe::Unset
@@ -718,13 +689,11 @@ impl FileService {
             },
         };
 
-        // Add new file revision
         let revision_output =
             FileRevisionService::create(ctx, revision_input, last_revision)
                 .await
                 .or_raise(make_error)?;
 
-        // Update file metadata
         let model = file::ActiveModel {
             file_id: Set(file_id),
             name: new_name,
@@ -783,9 +752,9 @@ impl FileService {
     /// Gets all files on a page, with potential conditions.
     ///
     /// The `deleted` argument:
-    /// * If it is `Some(true)`, then it only returns pages which have been deleted.
-    /// * If it is `Some(false)`, then it only returns pages which are extant.
-    /// * If it is `None`, then it returns all pages regardless of deletion status.
+    /// * If it is `Some(true)`, then it only returns files which have been deleted.
+    /// * If it is `Some(false)`, then it only returns files which are extant.
+    /// * If it is `None`, then it returns all files regardless of deletion status.
     // TODO add pagination
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
@@ -832,50 +801,9 @@ impl FileService {
         Ok(files)
     }
 
-    /// Gets the file ID from a reference, looking up if necessary.
-    ///
-    /// Convenience method since this is much more common than the optional
-    /// case, and we don't want to perform a redundant check for site existence
-    /// later as part of the actual query.
-    pub async fn get_id(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        reference: Reference<'_>,
-    ) -> Result<i64> {
-        let make_error = || {
-            Error::new(
-                format!("failed to get ID for file on page ID {}", page_id),
-                ErrorType::File,
-            )
-        };
-
-        match reference {
-            Reference::Id(id) => Ok(id),
-            Reference::Slug(ref name) => {
-                let txn = ctx.transaction();
-                let result: Option<(i64,)> = File::find()
-                    .select_only()
-                    .column(file::Column::FileId)
-                    .filter(
-                        Condition::all()
-                            .add(file::Column::PageId.eq(page_id))
-                            .add(file::Column::Name.eq(name.as_ref()))
-                            .add(file::Column::DeletedAt.is_null()),
-                    )
-                    .into_tuple()
-                    .one(txn)
-                    .await
-                    .or_raise(make_error)?;
-
-                match result {
-                    Some(tuple) => Ok(tuple.0),
-                    None => bail!(Error::new(
-                        format!("cannot get ID for file '{}', does not exist", name),
-                        ErrorType::FileNotFound
-                    )),
-                }
-            }
-        }
+    /// Gets the ID of an active file within an explicit site and page scope.
+    pub async fn get_id(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<i64> {
+        Self::get(ctx, input).await.map(|file| file.file_id)
     }
 
     pub async fn get_direct_optional(
@@ -1026,12 +954,10 @@ impl FileService {
 /// This helper function is generally read-only, but if
 /// it finds a name which has leading or trailing whitespace,
 /// then it trims that off in-place.
-fn check_file_name(name: &mut String) -> Result<()> {
-    // Removes leading or trailing whitespace
+fn normalize_and_validate_file_name(name: &mut String) -> Result<()> {
     trim_spaces_in_place(name);
     debug!("Trimmed file name: '{name}'");
 
-    // Disallow empty filenames
     if name.is_empty() {
         error!("File name is empty");
         bail!(Error::new(
@@ -1040,7 +966,6 @@ fn check_file_name(name: &mut String) -> Result<()> {
         ));
     }
 
-    // Limit filename length
     if name.len() >= MAXIMUM_FILE_NAME_LENGTH {
         error!(
             "File name of invalid length: {} > {}",
@@ -1079,7 +1004,6 @@ fn check_file_name(name: &mut String) -> Result<()> {
         ));
     }
 
-    // Looks good
     Ok(())
 }
 

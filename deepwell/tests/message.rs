@@ -23,7 +23,7 @@ mod common;
 
 use self::common::TestRunner;
 use deepwell::constants::{ADMIN_USER_ID, SAMPLE_USER_ID};
-use deepwell::services::MessageService;
+use deepwell::services::{MessageService, RequestContext};
 use serde_json::json;
 
 fn draft_params(subject: &str, wikitext: &str) -> serde_json::Value {
@@ -42,7 +42,11 @@ fn draft_params(subject: &str, wikitext: &str) -> serde_json::Value {
 
 #[tokio::test]
 async fn message_draft_lifecycle_sends_and_deletes_drafts() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
 
     let draft = run_endpoint!(
         runner,
@@ -51,6 +55,29 @@ async fn message_draft_lifecycle_sends_and_deletes_drafts() {
     );
     assert_eq!(draft.user_id, ADMIN_USER_ID);
     assert_eq!(draft.subject, "Initial subject");
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(SAMPLE_USER_ID),
+        ..Default::default()
+    });
+    let error = run_endpoint_err!(
+        runner,
+        message_draft_edit,
+        json!({
+            "message_draft_id": draft.external_id,
+            "recipients": [SAMPLE_USER_ID],
+            "carbon_copy": [],
+            "blind_carbon_copy": [],
+            "locale": "en",
+            "subject": "Unauthorized update",
+            "wikitext": "Unauthorized body",
+        }),
+    );
+    assert_contains_error!(error, deepwell::error::ErrorType::PermissionDenied);
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
 
     let edited = run_endpoint!(
         runner,

@@ -76,8 +76,6 @@ pub async fn list_site_roles(
     params: Params<'static>,
 ) -> Result<Vec<RoleModel>> {
     let ListSiteRolesInput { site_id } = parse!(params, Role);
-    info!("Listing roles in site ID {site_id}");
-
     RoleService::get_all_roles_for_site(ctx, site_id)
         .await
         .or_raise(|| Error::new("failed to list roles", ErrorType::Role))
@@ -134,11 +132,6 @@ pub async fn role_get(
     params: Params<'static>,
 ) -> Result<RoleModel> {
     let input: GetRoleInput = parse!(params, Role);
-    info!(
-        "Getting role {:?} in site ID {}",
-        input.role_reference, input.site_id
-    );
-
     RoleService::get(ctx, input.site_id, input.role_reference)
         .await
         .or_raise(|| Error::new("role not found", ErrorType::Role))
@@ -211,11 +204,6 @@ pub async fn get_role_permissions(
     params: Params<'static>,
 ) -> Result<Vec<Permission<'static>>> {
     let input: GetRolePermissionsInput = parse!(params, Role);
-    info!(
-        "Getting permissions for role {:?} in site ID {}",
-        input.role_reference, input.site_id
-    );
-
     PermissionService::get_permissions_for_role(ctx, input)
         .await
         .or_raise(|| Error::new("failed to get role permissions", ErrorType::Role))
@@ -226,11 +214,6 @@ pub async fn get_decorated_role_permissions(
     params: Params<'static>,
 ) -> Result<Vec<DecoratedPermission<'static>>> {
     let input: GetRolePermissionsInput = parse!(params, Role);
-    info!(
-        "Getting permissions for role {:?} in site ID {}",
-        input.role_reference, input.site_id
-    );
-
     PermissionService::get_decorated_permissions_for_role(ctx, input)
         .await
         .or_raise(|| Error::new("failed to get role permissions", ErrorType::Role))
@@ -259,11 +242,6 @@ pub async fn get_user_roles(
     params: Params<'static>,
 ) -> Result<Vec<RoleModel>> {
     let input: GetUserRolesInput = parse!(params, Role);
-    info!(
-        "Getting roles for user ID {:?} in site ID {}",
-        input.user_id, input.site_id
-    );
-
     RoleService::get_all_roles_for_user_and_site(ctx, input)
         .await
         .or_raise(|| Error::new("failed to get user roles", ErrorType::Role))

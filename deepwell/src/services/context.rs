@@ -18,11 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::ServerState;
 use crate::config::Config;
 use crate::error::prelude::*;
 use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
+use crate::runtime::ServerState;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::permission::{PermissionCache, PermissionService};
 use crate::services::public_cache::PublicContentCache;
