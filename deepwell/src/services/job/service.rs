@@ -71,13 +71,14 @@ impl JobService {
         job: &Job,
         delay: Option<Duration>,
     ) -> Result<()> {
-        info!("Queuing job {job:?} (delay {delay:?})");
+        let job_kind = job.kind();
+        let delay_seconds = delay.map(|duration| duration.as_secs());
+        info!("Queuing job: kind={job_kind}, delay_seconds={delay_seconds:?}");
 
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to queue job to RSMQ: {:#?} (delay {:?})",
-                    job, delay,
+                    "failed to queue job to RSMQ: kind={job_kind}, delay_seconds={delay_seconds:?}"
                 ),
                 ErrorType::Job,
             )

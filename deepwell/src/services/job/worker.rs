@@ -198,26 +198,32 @@ impl JobWorker {
             Some(data) => data,
         };
 
-        debug!("Received raw data from queue (worker {})", self.id);
-        debug!("* Message ID:          {}", data.id);
-        debug!("* Previously received: {}", data.rc);
-        debug!("* Created:             {}", data.sent);
-        debug!("* Received:            {}", data.fr);
         let no_more_retries =
             is_final_attempt(data.rc, self.state.config.job_max_attempts);
         let job = decode_job_message(&mut self.rsmq, &data, no_more_retries)
             .await
             .or_raise(make_error)?;
+        let job_kind = job.kind();
+        debug!(
+            "Received job from queue: worker_id={}, message_id={}, kind={}, receive_count={}, max_attempts={}, final_attempt={}, sent_at={}, first_received_at={}",
+            self.id,
+            data.id,
+            job_kind,
+            data.rc,
+            self.state.config.job_max_attempts,
+            no_more_retries,
+            data.sent,
+            data.fr,
+        );
 
         let make_error = || {
             Error::new(
-                format!("failed to process job ID {}: {:#?}", data.id, job),
+                format!("failed to process job ID {} ({job_kind})", data.id),
                 ErrorType::Job,
             )
         };
 
         let execution: Result<NextJob> = async {
-        debug!("Received job from queue: {job:?}");
         trace!("Setting up ServiceContext for job processing");
         let txn = self.state.database.begin().await.or_raise(make_error)?;
         let ctx = &ServiceContext::new(&self.state, &txn);

@@ -79,8 +79,6 @@ pub async fn site_update(
         ip_address,
     } = parse!(params, Site);
 
-    info!("Updating site {site:?}");
-
     let actor_user_id = ctx.request().user_id().or_raise(|| {
         Error::new(
             "user does not have permission to edit this site",
@@ -98,6 +96,8 @@ pub async fn site_update(
             .into());
         }
     };
+
+    info!("Updating site ID {site_id} as user ID {actor_user_id}");
 
     let can_edit = PermissionService::check_user_can(
         ctx,
