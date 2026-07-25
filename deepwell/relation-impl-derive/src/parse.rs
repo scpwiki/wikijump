@@ -24,7 +24,7 @@ impl Parse for RelationSettings {
         let mut define_struct: Option<bool> = None;
 
         // Iterate through all entries in the macro's arguments
-        loop {
+        while !input.is_empty() {
             // Parse one "key => value" entry.
             // The processing depends on what the key is.
             let key = input.parse::<Ident>()?.to_string();
@@ -71,6 +71,8 @@ impl Parse for RelationSettings {
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
             }
         }
+
+        Ok(todo!())
     }
 }
 
