@@ -23,6 +23,17 @@ impl Parse for RelationSettings {
         let mut define_create = true;
         let mut define_struct = true;
 
+        macro_rules! error_if_set {
+            ($field:expr) => {
+                if $field.is_some() {
+                    return Err(make_error(format!(
+                        "argument '{}' present multiple times",
+                        stringify!($field),
+                    )));
+                }
+            };
+        }
+
         // Iterate through all entries in the macro's arguments
         while !input.is_empty() {
             // Parse one "key => value" entry.
@@ -36,6 +47,7 @@ impl Parse for RelationSettings {
                 //
                 //  name => UserBlock
                 "name" => {
+                    error_if_set!(name);
                     let relation_name: Ident = input.parse()?;
                     let relation_name_str = relation_name.to_string();
                     let field_name_str = pascal_to_snake_case(&relation_name_str);
@@ -47,6 +59,7 @@ impl Parse for RelationSettings {
                 //
                 //  dest => blocked_user: User
                 "dest" => {
+                    error_if_set!(dest);
                     let field_name: Ident = input.parse()?;
                     let _: Token![:] = input.parse()?;
                     let field_type: Type = input.parse()?;
@@ -57,6 +70,7 @@ impl Parse for RelationSettings {
                 //
                 //  from => blocking_user: User
                 "from" => {
+                    error_if_set!(from);
                     let field_name: Ident = input.parse()?;
                     let _: Token![:] = input.parse()?;
                     let field_type: Type = input.parse()?;
