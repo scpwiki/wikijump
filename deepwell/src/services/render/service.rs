@@ -85,7 +85,7 @@ use super::metacomponent::{
     MetacomponentSourceContext, select_metacomponent_documentation,
 };
 use super::native_list_context::NativeListSourceContext;
-use super::pages_by_tag::expand_pages_by_tag_modules;
+use super::pages::expand_page_index_modules;
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
 use super::render_options::{
@@ -1205,19 +1205,18 @@ impl RenderService {
             .await
             .or_raise(make_error)?
         };
-        wikitext = {
-            let _stage = StageGuard::new(trace, CorpusRenderStage::PagesByTag);
-            expand_pages_by_tag_modules(
-                ctx,
-                wikitext,
-                settings,
-                current_site_id,
-                url.tag,
-                &mut wikidot_compat_html,
-            )
-            .await
-            .or_raise(make_error)?
-        };
+        wikitext = expand_page_index_modules(
+            ctx,
+            wikitext,
+            page_info,
+            settings,
+            current_site_id,
+            url,
+            trace,
+            &mut wikidot_compat_html,
+        )
+        .await
+        .or_raise(make_error)?;
         {
             let _stage = StageGuard::new(trace, CorpusRenderStage::RegistryModules);
             wikitext = Self::expand_registry_modules_with_registry(

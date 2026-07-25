@@ -24,6 +24,7 @@
 //! path arguments is only answered correctly if the view re-renders. This
 //! module decides when that is necessary.
 
+use super::pages::PAGES_MODULE_REGEX;
 use super::pages_by_tag::PAGES_BY_TAG_MODULE_REGEX;
 use regex::Regex;
 use std::sync::LazyLock;
@@ -70,18 +71,52 @@ static LIST_PAGES_PAGINATED_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 /// renders as it does without arguments, which is the same result Wikijump
 /// produced before arguments were routed at all.
 pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
-    PAGES_BY_TAG_MODULE_REGEX.is_match(wikitext)
+    wikitext_has_bare_pages_module(wikitext)
+        || PAGES_BY_TAG_MODULE_REGEX.is_match(wikitext)
         || LIST_PAGES_URL_SELECTOR_REGEX.is_match(wikitext)
         || LIST_PAGES_PAGINATED_REGEX.is_match(wikitext)
 }
 
+/// Whether a page view must render from source even without URL arguments.
+///
+/// `Pages` is a live site index. Its first page changes when pages are created,
+/// renamed, deleted, or become visible, so stored revision HTML cannot answer
+/// even the bare request.
+pub fn wikitext_requires_runtime_render(wikitext: &str) -> bool {
+    wikitext_has_bare_pages_module(wikitext)
+}
+
+fn wikitext_has_bare_pages_module(wikitext: &str) -> bool {
+    PAGES_MODULE_REGEX.captures_iter(wikitext).any(|captures| {
+        captures
+            .name("head")
+            .is_none_or(|head| head.as_str().trim().is_empty())
+    })
+}
+
 #[cfg(test)]
 mod tests {
-    use super::wikitext_reads_url_arguments;
+    use super::{wikitext_reads_url_arguments, wikitext_requires_runtime_render};
 
     #[test]
     fn a_pages_by_tag_module_reads_url_arguments() {
         assert!(wikitext_reads_url_arguments("[[module PagesByTag]]"));
+    }
+
+    #[test]
+    fn a_pages_module_reads_url_arguments() {
+        assert!(wikitext_reads_url_arguments("[[module Pages]]"));
+    }
+
+    #[test]
+    fn a_pages_module_always_requires_runtime_rendering() {
+        assert!(wikitext_requires_runtime_render("[[module Pages]]"));
+        assert!(!wikitext_requires_runtime_render(
+            "[[module ListPages category=\"news\"]]%%title%%[[/module]]"
+        ));
+        assert!(!wikitext_requires_runtime_render(
+            "[[module Pages limit=\"5\"]]"
+        ));
     }
 
     #[test]
