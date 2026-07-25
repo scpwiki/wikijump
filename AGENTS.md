@@ -62,3 +62,11 @@ node --test install/local/wikidot-verification/tests/<focused-test>.mjs
 For browser-visible parity claims, also produce fresh source/local browser evidence with the local Wikidot verification tooling; unit tests and DB rows are supporting evidence only.
 
 Before merging, verify current branch protection and required checks from GitHub. Do not bypass required checks, force/admin merge, or push to upstream `scpwiki/*` repositories.
+
+## Merging is not delivering
+
+A merged PR changes `develop`. It does not change the standing runtime, which serves whatever SHA its containers were built from. Reporting a browser-visible change as done because CI passed and the PR merged asserts something unverified: the URL still serves the old build.
+
+After merging a change that alters anything a browser can observe, run the Tier 1 refresh in `install/standing/README.md`, then re-fetch the affected URL and compare it against the live Wikidot page. Quote the fetched result. Until that comparison exists, the accurate report is that the change is merged and not yet observable, never that the defect is fixed.
+
+Deploying is not configuring either. A feature whose behavior depends on site or page state stays invisible until that state exists, so name the missing state explicitly rather than implying the surface is complete.
