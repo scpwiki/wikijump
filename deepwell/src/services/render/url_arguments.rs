@@ -48,6 +48,9 @@ pub struct UrlArguments<'a> {
 
     /// `/p/<n>`, the 1-based page a paginated `ListPages` renders.
     pub page: Option<u32>,
+
+    /// `/category/<value>`, read by a `category="@URL"` selector.
+    pub category: Option<&'a str>,
 }
 
 /// A ListPages module opening that paginates, and so answers `/p/<n>`.

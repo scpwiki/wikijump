@@ -32,6 +32,7 @@ use crate::services::page_query::{
     list_pages_render_diagnostics, normalize_wikidot_author_name,
     parse_static_wikidot_data_form_values,
 };
+use crate::services::render::UrlArguments;
 use crate::types::PageId;
 use regex::Regex;
 use sea_orm::FromQueryResult;
@@ -324,17 +325,17 @@ pub(in crate::services::render) fn union_found_page_fields(
 pub(in crate::services::render) fn parse_list_pages_arguments(
     head: &str,
 ) -> Option<ListPagesArguments> {
-    parse_list_pages_arguments_with_url(head, None)
+    parse_list_pages_arguments_with_url(head, UrlArguments::default())
 }
 
 /// Parse a ListPages head against the request that is asking for it.
 ///
-/// `url_tag` is the `tag` Wikidot URL path argument, which a `tags` selector
-/// can name as `@URL`. Pass `None` for any render that is not serving a page
-/// view, including the render that produces a revision's stored HTML.
+/// `url` carries the Wikidot URL path arguments, which a selector can name as
+/// `@URL`. Pass the default for any render that is not serving a page view,
+/// including the render that produces a revision's stored HTML.
 pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
     head: &str,
-    url_tag: Option<&str>,
+    url: UrlArguments<'_>,
 ) -> Option<ListPagesArguments> {
     if !list_pages_runtime_head_is_safe(head) {
         return None;
@@ -407,16 +408,16 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
         match key.as_str() {
             "tags" => {
                 let resolved_url_tag;
-                let value = match resolve_url_tag_selector(value, url_tag) {
-                    UrlTagSelector::Static(value) => value,
-                    UrlTagSelector::Resolved(tag) => {
+                let value = match resolve_url_selector(value, url.tag) {
+                    UrlSelector::Static(value) => value,
+                    UrlSelector::Resolved(tag) => {
                         // A resolved `@URL` still leaves CountPages literal:
                         // its own URL-argument behavior has not been captured.
                         unsupported_count_pages_filter = true;
                         resolved_url_tag = tag;
                         resolved_url_tag.as_str()
                     }
-                    UrlTagSelector::Dropped => {
+                    UrlSelector::Dropped => {
                         unsupported_count_pages_filter = true;
                         continue;
                     }
@@ -476,14 +477,28 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                     return None;
                 }
                 category_argument_is_plural.get_or_insert(is_plural);
-                category_selector_present = true;
                 let mut saw_included_category = false;
-                let Some(value) = static_list_pages_selector(
-                    value,
-                    &mut unsupported_count_pages_filter,
-                ) else {
-                    continue;
+                let resolved_url_category;
+                let value = match resolve_url_selector(value, url.category) {
+                    UrlSelector::Static(value) => value,
+                    UrlSelector::Resolved(category) => {
+                        // As with a resolved tag, CountPages stays literal:
+                        // its own URL-argument behavior is uncaptured.
+                        unsupported_count_pages_filter = true;
+                        resolved_url_category = category;
+                        resolved_url_category.as_str()
+                    }
+                    UrlSelector::Dropped => {
+                        // A dropped selector leaves the module exactly as it
+                        // would be with no `category` argument at all, which
+                        // live answers with the current page's category. It
+                        // must not be recorded as a selector, or the query
+                        // widens to every category instead.
+                        unsupported_count_pages_filter = true;
+                        continue;
+                    }
                 };
+                category_selector_present = true;
                 for category in split_list_pages_values(value) {
                     if category == "*" {
                         category_all = true;
@@ -1301,8 +1316,8 @@ pub(in crate::services::render) fn list_pages_url_fallback(value: &str) -> Optio
     })
 }
 
-/// What a `tags` selector resolves to once the request's URL is known.
-pub(in crate::services::render) enum UrlTagSelector<'a> {
+/// What an `@URL` selector resolves to once the request's URL is known.
+pub(in crate::services::render) enum UrlSelector<'a> {
     /// The selector names no `@URL`, or names one whose fallback applies.
     Static(&'a str),
 
@@ -1310,28 +1325,34 @@ pub(in crate::services::render) enum UrlTagSelector<'a> {
     Resolved(String),
 
     /// `@URL` with nothing to resolve to and no fallback. Live drops the
-    /// constraint rather than matching nothing, so the query widens to every
-    /// page the rest of the selectors allow.
+    /// constraint rather than matching nothing, so the module falls back to
+    /// whatever it would do without the selector. For `tags` that widens to
+    /// the whole site; for `category` it means the default category, not
+    /// every category. Dropping is not the same as matching everything.
     Dropped,
 }
 
-/// Resolve a `tags` selector against the `tag` URL path argument.
+/// Resolve an `@URL` selector against the URL path argument of the same name.
 ///
-/// An empty argument is treated as an absent one here: live renders the same
-/// whole-site list for `/tag`, `/tag/`, and a bare page URL. PagesByTag draws
-/// that line differently, which is why neither module reuses the other's rule.
-pub(in crate::services::render) fn resolve_url_tag_selector<'a>(
+/// A selector names the argument it reads: `tags="@URL"` reads `/tag/<value>`
+/// and `category="@URL"` reads `/category/<value>`. An empty argument counts
+/// as absent for both, which live confirms by rendering `/tag` and `/category`
+/// identically to the bare page URL. PagesByTag draws that line differently,
+/// which is why neither module reuses the other's rule.
+pub(in crate::services::render) fn resolve_url_selector<'a>(
     value: &'a str,
-    url_tag: Option<&str>,
-) -> UrlTagSelector<'a> {
+    url_value: Option<&str>,
+) -> UrlSelector<'a> {
     if !is_dynamic_list_pages_value(value) {
-        return UrlTagSelector::Static(value);
+        return UrlSelector::Static(value);
     }
-    match url_tag {
-        Some(tag) if !tag.is_empty() => UrlTagSelector::Resolved(tag.to_owned()),
+    match url_value {
+        Some(resolved) if !resolved.is_empty() => {
+            UrlSelector::Resolved(resolved.to_owned())
+        }
         _ => match list_pages_url_fallback(value) {
-            Some(fallback) => UrlTagSelector::Static(fallback),
-            None => UrlTagSelector::Dropped,
+            Some(fallback) => UrlSelector::Static(fallback),
+            None => UrlSelector::Dropped,
         },
     }
 }

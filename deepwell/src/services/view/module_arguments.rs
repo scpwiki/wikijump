@@ -47,6 +47,12 @@ pub struct PageModuleArguments {
     /// than erroring, so those parse as absent and the module renders its
     /// first page.
     pub page: Option<u32>,
+
+    /// `/category/<value>`, read by a `ListPages` `category="@URL"` selector.
+    ///
+    /// As with [`tag`](Self::tag), `Some("")` is kept distinct from `None` so
+    /// the renderer decides what an empty segment means.
+    pub category: Option<String>,
 }
 
 impl PageModuleArguments {
@@ -65,12 +71,20 @@ impl PageModuleArguments {
             .and_then(|(_, raw)| raw.parse::<u32>().ok())
             .filter(|page| *page > 0);
 
-        PageModuleArguments { tag, page }
+        let category = arguments
+            .get(&UniCase::unicode("category"))
+            .map(|(_, raw)| (*raw).to_owned());
+
+        PageModuleArguments {
+            tag,
+            page,
+            category,
+        }
     }
 
     /// Whether the path addressed any module at all.
     pub fn is_empty(&self) -> bool {
-        self.tag.is_none() && self.page.is_none()
+        self.tag.is_none() && self.page.is_none() && self.category.is_none()
     }
 }
 
@@ -93,6 +107,21 @@ mod tests {
                 "{extra} should not yield a page number",
             );
         }
+    }
+
+    #[test]
+    fn a_category_argument_is_read_verbatim() {
+        assert_eq!(
+            PageModuleArguments::parse("/category/wjcatzone")
+                .category
+                .as_deref(),
+            Some("wjcatzone"),
+        );
+        assert_eq!(
+            PageModuleArguments::parse("/category").category.as_deref(),
+            Some(""),
+        );
+        assert_eq!(PageModuleArguments::parse("/tag/x").category, None);
     }
 
     #[test]

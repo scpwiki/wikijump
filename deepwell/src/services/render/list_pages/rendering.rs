@@ -232,7 +232,7 @@ impl RenderService {
                 {
                     ListPagesBlockPlan::PreserveOriginal
                 } else if let Some(arguments) =
-                    parse_list_pages_arguments_with_url(head, url.tag)
+                    parse_list_pages_arguments_with_url(head, url)
                 {
                     if arguments.unsupported_author_filter
                         || arguments.unsupported_list_pages_filter
@@ -692,8 +692,7 @@ impl RenderService {
                 continue;
             }
 
-            let Some(arguments) = parse_list_pages_arguments_with_url(head, url.tag)
-            else {
+            let Some(arguments) = parse_list_pages_arguments_with_url(head, url) else {
                 expanded.push_str(&compat_text.push_escaped_html_text(mtch.as_str()));
                 cursor = mtch.end();
                 continue;

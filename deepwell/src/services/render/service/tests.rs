@@ -77,6 +77,7 @@ use crate::services::page_query::{
     FoundPageFields, FoundPageRow, PageQueryResultMetadata,
     parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
+use crate::services::render::UrlArguments;
 use crate::types::{License, PageId};
 use crate::utils::{locale_for_ftml, now};
 use ftml::data::PageRef;
@@ -386,28 +387,49 @@ fn restores_wikidot_email_visibility() {
     );
 }
 
+/// A request that carried only a `tag` path argument.
+fn url_tag(tag: Option<&str>) -> UrlArguments<'_> {
+    UrlArguments {
+        tag,
+        ..UrlArguments::default()
+    }
+}
+
+/// A request that carried only a `category` path argument.
+fn url_category(category: Option<&str>) -> UrlArguments<'_> {
+    UrlArguments {
+        category,
+        ..UrlArguments::default()
+    }
+}
+
 #[test]
 fn a_url_tag_selector_resolves_to_the_requests_tag() {
-    let arguments =
-        parse_list_pages_arguments_with_url(r#" tags="@URL""#, Some("golem-of-prague"))
-            .expect("url tag selector should parse");
+    let arguments = parse_list_pages_arguments_with_url(
+        r#" tags="@URL""#,
+        url_tag(Some("golem-of-prague")),
+    )
+    .expect("url tag selector should parse");
 
     assert_eq!(arguments.default_tags, vec!["golem-of-prague"]);
 }
 
 #[test]
 fn a_url_tag_selector_beats_its_own_fallback() {
-    let arguments =
-        parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, Some("golem-of-prague"))
-            .expect("url tag selector should parse");
+    let arguments = parse_list_pages_arguments_with_url(
+        r#" tags="@URL|_""#,
+        url_tag(Some("golem-of-prague")),
+    )
+    .expect("url tag selector should parse");
 
     assert_eq!(arguments.default_tags, vec!["golem-of-prague"]);
 }
 
 #[test]
 fn a_url_tag_selector_without_a_tag_falls_back() {
-    let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, None)
-        .expect("url tag selector should parse");
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, url_tag(None))
+            .expect("url tag selector should parse");
 
     assert_eq!(arguments.default_tags, vec!["_"]);
 }
@@ -416,9 +438,10 @@ fn a_url_tag_selector_without_a_tag_falls_back() {
 fn an_unresolved_url_tag_selector_widens_rather_than_matching_nothing() {
     // Live lists the whole site here rather than rendering an empty list,
     // which is why `system:page-tags` writes the `|_` fallback.
-    for url_tag in [None, Some("")] {
-        let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL""#, url_tag)
-            .expect("url tag selector should parse");
+    for tag in [None, Some("")] {
+        let arguments =
+            parse_list_pages_arguments_with_url(r#" tags="@URL""#, url_tag(tag))
+                .expect("url tag selector should parse");
 
         assert!(arguments.default_tags.is_empty());
         assert!(arguments.all_tags.is_empty());
@@ -428,26 +451,90 @@ fn an_unresolved_url_tag_selector_widens_rather_than_matching_nothing() {
 
 #[test]
 fn an_empty_url_tag_still_takes_the_fallback() {
-    let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, Some(""))
-        .expect("url tag selector should parse");
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, url_tag(Some("")))
+            .expect("url tag selector should parse");
 
     assert_eq!(arguments.default_tags, vec!["_"]);
 }
 
 #[test]
 fn a_resolved_url_tag_keeps_count_pages_literal() {
-    let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL""#, Some("alpha"))
-        .expect("url tag selector should parse");
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" tags="@URL""#, url_tag(Some("alpha")))
+            .expect("url tag selector should parse");
 
     assert!(arguments.unsupported_count_pages_filter);
 }
 
 #[test]
 fn a_static_tags_selector_ignores_the_url_tag() {
-    let arguments = parse_list_pages_arguments_with_url(r#" tags="alpha""#, Some("beta"))
-        .expect("static tags selector should parse");
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" tags="alpha""#, url_tag(Some("beta")))
+            .expect("static tags selector should parse");
 
     assert_eq!(arguments.default_tags, vec!["alpha"]);
+}
+
+#[test]
+fn a_url_category_selector_resolves_to_the_requests_category() {
+    let arguments = parse_list_pages_arguments_with_url(
+        r#" category="@URL""#,
+        url_category(Some("wjcatzone")),
+    )
+    .expect("url category selector should parse");
+
+    assert_eq!(arguments.categories, vec!["wjcatzone"]);
+}
+
+#[test]
+fn a_url_category_selector_beats_its_own_fallback() {
+    let arguments = parse_list_pages_arguments_with_url(
+        r#" category="@URL|_default""#,
+        url_category(Some("wjcatzone")),
+    )
+    .expect("url category selector should parse");
+
+    assert_eq!(arguments.categories, vec!["wjcatzone"]);
+}
+
+#[test]
+fn a_url_category_selector_without_a_category_falls_back() {
+    let arguments = parse_list_pages_arguments_with_url(
+        r#" category="@URL|_default""#,
+        url_category(None),
+    )
+    .expect("url category selector should parse");
+
+    assert_eq!(arguments.categories, vec!["_default"]);
+}
+
+#[test]
+fn an_unresolved_url_category_selector_names_no_category() {
+    // Live drops the constraint, which for `category` means the module's own
+    // default rather than every category. Dropping is not matching everything.
+    for category in [None, Some("")] {
+        let arguments = parse_list_pages_arguments_with_url(
+            r#" category="@URL""#,
+            url_category(category),
+        )
+        .expect("url category selector should parse");
+
+        assert!(arguments.categories.is_empty());
+        assert!(arguments.excluded_categories.is_empty());
+    }
+}
+
+#[test]
+fn a_url_tag_does_not_resolve_a_category_selector() {
+    // Each selector reads the path argument of its own name.
+    let arguments = parse_list_pages_arguments_with_url(
+        r#" category="@URL""#,
+        url_tag(Some("alpha")),
+    )
+    .expect("url category selector should parse");
+
+    assert!(arguments.categories.is_empty());
 }
 
 #[test]

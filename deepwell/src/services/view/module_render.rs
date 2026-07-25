@@ -105,6 +105,7 @@ pub(super) async fn render_body_for_module_arguments(
         UrlArguments {
             tag: module_arguments.tag.as_deref(),
             page: module_arguments.page,
+            category: module_arguments.category.as_deref(),
         },
     )
     .await?;

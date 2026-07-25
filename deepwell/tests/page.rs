@@ -2609,7 +2609,7 @@ async fn pages_by_tag_module_reads_the_url_tag_argument() {
             page_id,
             UrlArguments {
                 tag: url_tag,
-                page: None,
+                ..UrlArguments::default()
             },
         )
         .await
@@ -2740,7 +2740,7 @@ async fn list_pages_url_tag_selector_reads_the_url_tag_argument() {
             page_id,
             UrlArguments {
                 tag: url_tag,
-                page: None,
+                ..UrlArguments::default()
             },
         )
         .await
@@ -2861,8 +2861,8 @@ async fn list_pages_url_page_number_composes_with_the_module_offset() {
             Layout::Wikidot,
             page_id,
             UrlArguments {
-                tag: None,
                 page: url_page,
+                ..UrlArguments::default()
             },
         )
         .await
@@ -2922,6 +2922,109 @@ async fn list_pages_url_page_number_composes_with_the_module_offset() {
             rows(&clamped),
             vec!["Delta", "Echo"],
             "/p/{beyond} clamps to the last page: {clamped}",
+        );
+    }
+}
+
+#[tokio::test]
+async fn list_pages_url_category_selector_reads_the_url_category_argument() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let holder_slug = "fixture-lp-cat-holder";
+
+    // One page in the default category and one in a named category, so a
+    // resolved selector can be told apart from a dropped one.
+    for (slug, title) in [
+        ("fixture-lp-cat-default", "Cat Default Probe"),
+        ("fixturelpcat:zoned", "Cat Zoned Probe"),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, "Probe body.")
+            .await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture LP Category Holder",
+        "placeholder",
+    )
+    .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("ListPages category holder should exist");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(holder_slug))),
+    });
+    let page_info = PageInfo {
+        page: Cow::Borrowed(holder_slug),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Fixture LP Category Holder"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: holder.page_category_id,
+        page_id: holder.page_id,
+    };
+
+    let render = async |wikitext: &str, url_category: Option<&str>| {
+        RenderService::render_page(
+            runner.context(),
+            wikitext.to_owned(),
+            &page_info,
+            Layout::Wikidot,
+            page_id,
+            UrlArguments {
+                category: url_category,
+                ..UrlArguments::default()
+            },
+        )
+        .await
+        .expect("ListPages category render should succeed")
+        .html_output
+        .body
+    };
+
+    let source = concat!(
+        "[[module ListPages category=\"@URL\" name=\"*\" separate=\"no\" ",
+        "limit=\"50\"]]\nROW %%title%%\n[[/module]]",
+    );
+
+    let zoned = render(source, Some("fixturelpcat")).await;
+    assert!(
+        zoned.contains("ROW Cat Zoned Probe"),
+        "the URL category selects its own category: {zoned}",
+    );
+    assert!(
+        !zoned.contains("ROW Cat Default Probe"),
+        "a page outside the named category must not appear: {zoned}",
+    );
+
+    // Live drops the constraint here, which means the module's own default
+    // category rather than every category.
+    for absent in [None, Some("")] {
+        let dropped = render(source, absent).await;
+        assert!(
+            dropped.contains("ROW Cat Default Probe"),
+            "an unresolved @URL falls back to the default category: {dropped}",
+        );
+        assert!(
+            !dropped.contains("ROW Cat Zoned Probe"),
+            "dropping the selector must not widen across categories: {dropped}",
         );
     }
 }
