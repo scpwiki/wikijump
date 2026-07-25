@@ -10965,20 +10965,15 @@ async fn listpages_deferred_forms_remain_unsupported() {
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
 
-    for (slug_suffix, module_head, body, raw_indicator) in [
-        (
-            "unknown-variable",
-            r#"tags="+verification-list-negative-unknown-variable" limit="10" order="name""#,
-            "* %%unsupported_variable%%",
-            "%%unsupported_variable%%",
-        ),
-        (
-            "not-current-author",
-            r#"created_by="-=" tags="+verification-list-negative-not-current-author" limit="10" order="name""#,
-            "NOT_CURRENT_AUTHOR=%%fullname%%",
-            "%%fullname%%",
-        ),
-    ] {
+    // `created_by="-="` used to belong here. It is now supported and evidenced,
+    // and `created_by_exclusion_omits_the_containing_pages_author` in
+    // tests/list_pages.rs asserts the rendered exclusion instead.
+    for (slug_suffix, module_head, body, raw_indicator) in [(
+        "unknown-variable",
+        r#"tags="+verification-list-negative-unknown-variable" limit="10" order="name""#,
+        "* %%unsupported_variable%%",
+        "%%unsupported_variable%%",
+    )] {
         let slug_prefix = format!("fixture-listpages-negative-{slug_suffix}");
         let tag = format!("verification-list-negative-{slug_suffix}");
         let html = render_listpages_test_fixture(

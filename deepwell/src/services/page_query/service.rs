@@ -557,6 +557,37 @@ impl PageQueryService {
                     condition = condition.add(SimpleExpr::Custom("FALSE".into()));
                 }
             }
+            AuthorSelector::NotAny {
+                user_ids,
+                wikidot_snapshot_names,
+            } => {
+                let normalized_snapshot_names = wikidot_snapshot_names
+                    .iter()
+                    .map(|name| normalize_wikidot_author_name(name))
+                    .filter(|name| !name.is_empty())
+                    .collect::<Vec<_>>();
+
+                if !user_ids.is_empty() {
+                    let placeholders = postgres_bind_placeholders(user_ids.len());
+                    condition = condition.add(Expr::cust_with_values(
+                        format!(
+                            "NOT EXISTS (SELECT 1 FROM page_revision pr WHERE pr.page_id = page.page_id AND pr.user_id IN ({placeholders}) AND pr.revision_id = (SELECT pr2.revision_id FROM page_revision pr2 WHERE pr2.page_id = page.page_id ORDER BY pr2.revision_number ASC, pr2.revision_id ASC LIMIT 1))"
+                        ),
+                        user_ids.iter().copied(),
+                    ));
+                }
+
+                if !normalized_snapshot_names.is_empty() {
+                    let placeholders =
+                        postgres_bind_placeholders(normalized_snapshot_names.len());
+                    condition = condition.add(Expr::cust_with_values(
+                        format!(
+                            "NOT EXISTS (SELECT 1 FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = page.page_id AND replace(replace(lower(btrim(snapshot.created_by_name)), '_', '-'), ' ', '-') IN ({placeholders}))"
+                        ),
+                        normalized_snapshot_names,
+                    ));
+                }
+            }
         }
 
         // Contains-link

@@ -1059,7 +1059,11 @@ fn parses_corpus_list_pages_created_by_argument() {
         .expect("not-current author selector should remain identifiable");
     assert!(not_current.authors.is_empty());
     assert!(not_current.author_filter_present);
-    assert!(not_current.unsupported_author_filter);
+    assert!(
+        not_current.exclude_current_page_author,
+        "the sentinel excludes the containing page's author rather than blocking",
+    );
+    assert!(!not_current.unsupported_author_filter);
     assert!(not_current.unsupported_count_pages_filter);
 }
 

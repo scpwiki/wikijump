@@ -22,12 +22,33 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
+use deepwell::constants::{ADMIN_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID};
 use deepwell::hash::k12_hash;
 use deepwell::services::{RequestContext, TextService};
 use deepwell::types::Reference;
 use sea_orm::{ConnectionTrait, Statement, Value};
 use serde_json::json;
+
+/// Reassigns a page's creating revision to another user.
+///
+/// Page creation is permission-checked against the request actor, so a fixture
+/// needing two distinct authors sets the stored author directly rather than
+/// granting create rights to a second account.
+async fn set_page_creating_user(runner: &TestRunner, page_id: i64, user_id: i64) {
+    let transaction = runner.context().transaction();
+    let statement = Statement::from_string(
+        transaction.get_database_backend(),
+        format!(
+            "UPDATE page_revision SET user_id = {user_id} \
+             WHERE page_id = {page_id} AND revision_number = 0",
+        ),
+    );
+
+    transaction
+        .execute(statement)
+        .await
+        .expect("failed to set deterministic page author");
+}
 
 async fn set_page_created_at(runner: &TestRunner, page_id: i64, created_at: &str) {
     let transaction = runner.context().transaction();
@@ -1211,5 +1232,104 @@ async fn listpages_total_counts_matches_beyond_the_rendered_page() {
     assert!(
         !html.contains("ROW 3 OF"),
         "only the requested limit of rows should render:\n{html}",
+    );
+}
+
+#[tokio::test]
+async fn created_by_exclusion_omits_the_containing_pages_author() {
+    const OWN_SLUG: &str = "author-exclusion-own";
+    const OTHER_SLUG: &str = "author-exclusion-other";
+    const SOURCE_SLUG: &str = "author-exclusion-source";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    // Both pages are created by the permitted account, then the other page's
+    // stored author is reassigned, which is what the exclusion reads.
+    for (slug, author) in [(OWN_SLUG, ADMIN_USER_ID), (OTHER_SLUG, SAMPLE_USER_ID)] {
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(slug.into())),
+        });
+        let created = run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": "Author exclusion fixture",
+                "title": slug,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "author exclusion fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+        if author != ADMIN_USER_ID {
+            set_page_creating_user(&runner, created.page_id, author).await;
+        }
+    }
+
+    // The module lives on a page authored by ADMIN_USER_ID, so `-=` excludes
+    // that author's pages and keeps the other author's.
+    let source = concat!(
+        "[[module ListPages category=\"_default\" name=\"author-exclusion-*\" ",
+        "created_by=\"-=\" separate=\"no\"]]\n",
+        "ROW %%name%%\n",
+        "[[/module]]",
+    );
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(SOURCE_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": source,
+            "title": "Author exclusion",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "author exclusion smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": SOURCE_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("author exclusion page_get should succeed")
+    .expect("author exclusion page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains(&format!("ROW {OTHER_SLUG}")),
+        "a page by another author should remain:\n{html}",
+    );
+    assert!(
+        !html.contains(&format!("ROW {OWN_SLUG}")),
+        "the excluded author's page must not be returned:\n{html}",
     );
 }

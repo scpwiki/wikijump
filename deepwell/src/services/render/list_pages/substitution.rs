@@ -97,6 +97,7 @@ pub(in crate::services::render) struct CurrentPageAuthorSource {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::services::render) struct ListPagesAuthorCacheKey {
     pub(in crate::services::render) filter_present: bool,
+    pub(in crate::services::render) negated: bool,
     pub(in crate::services::render) normalized_names: Vec<String>,
 }
 
@@ -119,6 +120,7 @@ pub(in crate::services::render) fn list_pages_author_cache_key(
         .collect();
     ListPagesAuthorCacheKey {
         filter_present: author_filter_present,
+        negated: false,
         normalized_names,
     }
 }
@@ -127,6 +129,10 @@ pub(in crate::services::render) fn list_pages_author_cache_key(
 pub(in crate::services::render) enum ResolvedListPagesAuthors {
     All,
     Any {
+        user_ids: Vec<i64>,
+        wikidot_snapshot_names: Vec<Cow<'static, str>>,
+    },
+    NotAny {
         user_ids: Vec<i64>,
         wikidot_snapshot_names: Vec<Cow<'static, str>>,
     },
@@ -141,6 +147,13 @@ impl ResolvedListPagesAuthors {
                 user_ids,
                 wikidot_snapshot_names,
             } => AuthorSelector::Any {
+                user_ids,
+                wikidot_snapshot_names,
+            },
+            Self::NotAny {
+                user_ids,
+                wikidot_snapshot_names,
+            } => AuthorSelector::NotAny {
                 user_ids,
                 wikidot_snapshot_names,
             },
@@ -191,6 +204,7 @@ pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) append_line: Option<String>,
     pub(in crate::services::render) separate: bool,
     pub(in crate::services::render) wrapper: bool,
+    pub(in crate::services::render) exclude_current_page_author: bool,
     pub(in crate::services::render) unsupported_author_filter: bool,
     pub(in crate::services::render) unsupported_list_pages_filter: bool,
     pub(in crate::services::render) link_to: Vec<Cow<'static, str>>,
@@ -356,6 +370,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
     let mut separate = true;
     let mut wrapper = true;
     let mut unsupported_author_filter = false;
+    let mut exclude_current_page_author = false;
     let mut unsupported_list_pages_filter = false;
     let mut link_to = Vec::new();
     let mut unsupported_score_filter = false;
@@ -556,8 +571,11 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
                     .trim_start_matches('[')
                     .trim_end_matches(']')
                     .trim();
+                // Wikidot's `=` resolves to the author of the page holding
+                // the module, so `-=` excludes that author rather than the
+                // viewer.
                 if author == "-=" {
-                    unsupported_author_filter = true;
+                    exclude_current_page_author = true;
                     unsupported_count_pages_filter = true;
                     continue;
                 }
@@ -694,6 +712,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
         append_line,
         separate,
         wrapper,
+        exclude_current_page_author,
         unsupported_author_filter,
         unsupported_list_pages_filter,
         link_to,

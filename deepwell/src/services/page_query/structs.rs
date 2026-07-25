@@ -81,6 +81,14 @@ pub enum AuthorSelector<'a> {
         user_ids: &'a [i64],
         wikidot_snapshot_names: &'a [Cow<'a, str>],
     },
+    /// Wikidot's `created_by="-="`; pages this author did not create.
+    ///
+    /// Both representations are excluded together, so a page matching either
+    /// the local creator ID or the imported snapshot name is left out.
+    NotAny {
+        user_ids: &'a [i64],
+        wikidot_snapshot_names: &'a [Cow<'a, str>],
+    },
     None,
 }
 

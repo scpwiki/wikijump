@@ -1034,6 +1034,7 @@ impl RenderService {
             append_line,
             separate,
             wrapper,
+            exclude_current_page_author,
             unsupported_author_filter: _,
             unsupported_list_pages_filter: _,
             link_to,
@@ -1104,6 +1105,7 @@ impl RenderService {
             current_page_id,
             &authors,
             author_filter_present,
+            exclude_current_page_author,
             author_resolution_cache,
         )
         .await?;
@@ -1360,6 +1362,17 @@ impl RenderService {
             .map(|displays| &displays.user_displays)
             .or(loaded_user_displays.as_ref())
             .unwrap_or(&empty_user_displays);
+        if let ResolvedListPagesAuthors::NotAny {
+            user_ids,
+            wikidot_snapshot_names,
+        } = &resolved_authors
+            && user_ids.is_empty()
+            && wikidot_snapshot_names.is_empty()
+        {
+            // The excluded author did not resolve, and rendering without the
+            // exclusion would return exactly the pages the author excluded.
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
         if wants_site_domain && page_info.site.is_empty() {
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
@@ -1720,6 +1733,7 @@ impl RenderService {
             prepend_line: _,
             append_line: _,
             data_form_fields,
+            exclude_current_page_author: _,
             unsupported_author_filter: _,
             unsupported_list_pages_filter: _,
             link_to,
@@ -1762,6 +1776,9 @@ impl RenderService {
             current_page_id,
             &authors,
             author_filter_present,
+            // CountPages keeps its existing literal behavior for the exclusion
+            // sentinel, which `unsupported_count_pages_filter` already drives.
+            false,
         )
         .await?;
         let query = PageQuery {
@@ -2252,9 +2269,11 @@ impl RenderService {
         current_page_id: i64,
         author_names: &[Cow<'static, str>],
         author_filter_present: bool,
+        exclude_current_page_author: bool,
         cache: &mut BTreeMap<ListPagesAuthorCacheKey, ResolvedListPagesAuthors>,
     ) -> Result<ResolvedListPagesAuthors> {
-        let key = list_pages_author_cache_key(author_names, author_filter_present);
+        let mut key = list_pages_author_cache_key(author_names, author_filter_present);
+        key.negated = exclude_current_page_author;
         if let Some(resolved) = cache.get(&key) {
             return Ok(resolved.clone());
         }
@@ -2264,6 +2283,7 @@ impl RenderService {
             current_page_id,
             author_names,
             author_filter_present,
+            exclude_current_page_author,
         )
         .await?;
         cache.insert(key, resolved.clone());
@@ -2276,6 +2296,7 @@ impl RenderService {
         current_page_id: i64,
         author_names: &[Cow<'static, str>],
         author_filter_present: bool,
+        exclude_current_page_author: bool,
     ) -> Result<ResolvedListPagesAuthors> {
         if !author_filter_present {
             return Ok(ResolvedListPagesAuthors::All);
@@ -2283,7 +2304,7 @@ impl RenderService {
 
         let mut snapshot_names = BTreeSet::new();
         let mut user_ids = BTreeSet::new();
-        let mut include_current_page_author = false;
+        let mut include_current_page_author = exclude_current_page_author;
         for author in author_names {
             if author.as_ref() == "=" {
                 include_current_page_author = true;
@@ -2343,6 +2364,17 @@ impl RenderService {
         }
 
         user_ids.extend(Self::load_wikidot_author_ids(ctx, &snapshot_names).await?);
+        if exclude_current_page_author {
+            // An exclusion that resolved to nobody would silently widen the
+            // query back to every page, so the caller preserves the module.
+            return Ok(ResolvedListPagesAuthors::NotAny {
+                user_ids: user_ids.into_iter().collect(),
+                wikidot_snapshot_names: snapshot_names
+                    .into_iter()
+                    .map(Cow::Owned)
+                    .collect(),
+            });
+        }
         if user_ids.is_empty() && snapshot_names.is_empty() {
             Ok(ResolvedListPagesAuthors::None)
         } else {
