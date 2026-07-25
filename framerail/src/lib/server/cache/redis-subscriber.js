@@ -1,16 +1,16 @@
+import {
+  attachRedisCommandSocket,
+  createRedisCommandState,
+  resetRedisCommandState,
+  writeRedisCommand
+} from "./redis-command-state.js"
 import { connectRedisSocket } from "./redis-connection.js"
-import { encodeRedisCommand, parseRedisResponse } from "./redis-protocol.js"
+import { parseRedisResponse } from "./redis-protocol.js"
 
 const REDIS_COMMAND_TIMEOUT_MS = 1000
 const REDIS_SUBSCRIBER_RETRY_DELAY_MS = 100
 
 /** @typedef {string | number | null | unknown[]} RedisValue */
-/**
- * @typedef {{
- *   resolve: (value: RedisValue) => void
- *   reject: (error: Error) => void
- * }} PendingRedisRequest
- */
 /**
  * @typedef {object} SubscriptionCallbacks
  * @property {string} channel
@@ -28,11 +28,7 @@ export class RedisFenceInvalidationSubscriber {
   constructor(redisUrl, authCommands) {
     this.redisUrl = redisUrl
     this.authCommands = authCommands
-    /** @type {import("node:net").Socket | import("node:tls").TLSSocket | null} */
-    this.socket = null
-    this.buffer = Buffer.alloc(0)
-    /** @type {PendingRedisRequest[]} */
-    this.pending = []
+    this.commandState = createRedisCommandState()
     this.started = false
     this.running = false
     /** @type {NodeJS.Timeout | null} */
@@ -52,8 +48,9 @@ export class RedisFenceInvalidationSubscriber {
   }
 
   /** @param {SubscriptionCallbacks} callbacks */
-  subscribe({ channel, onSubscribed, onMessage, onDisconnect, onMalformed }) {
+  subscribe(callbacks) {
     if (this.started) return
+    const { channel, onSubscribed, onMessage, onDisconnect, onMalformed } = callbacks
     this.started = true
     this.stopped = false
     this.channel = channel
@@ -69,9 +66,7 @@ export class RedisFenceInvalidationSubscriber {
     this.running = true
     try {
       await this.connect()
-      for (const command of this.authCommands) {
-        await this.command(command)
-      }
+      for (const command of this.authCommands) await this.command(command)
       const channel = this.channel
       if (!channel) {
         this.reset()
@@ -107,34 +102,24 @@ export class RedisFenceInvalidationSubscriber {
   }
 
   async connect() {
-    if (this.socket && !this.socket.destroyed) return
+    const currentSocket = this.commandState.socket
+    if (currentSocket && !currentSocket.destroyed) return
 
     const socket = await connectRedisSocket(
       this.redisUrl,
       "Redis subscriber connection timed out"
     )
-    this.socket = socket
-    this.buffer = Buffer.alloc(0)
-    socket.on("data", (chunk) => this.handleData(chunk))
-    const resetIfCurrent = () => {
-      if (this.socket === socket) this.reset()
-    }
-    socket.on("error", resetIfCurrent)
-    socket.on("close", resetIfCurrent)
+    attachRedisCommandSocket({
+      state: this.commandState,
+      socket,
+      onData: (chunk) => this.handleData(chunk),
+      onDisconnect: () => this.reset()
+    })
   }
 
   reset() {
     this.subscribed = false
-    if (this.socket && !this.socket.destroyed) {
-      this.socket.destroy()
-    }
-    this.socket = null
-    this.buffer = Buffer.alloc(0)
-    const pending = this.pending
-    this.pending = []
-    for (const request of pending) {
-      request.reject(new Error("Redis subscriber connection closed"))
-    }
+    resetRedisCommandState(this.commandState, "Redis subscriber connection closed")
     this.onDisconnect?.()
     this.scheduleRetry()
   }
@@ -151,32 +136,28 @@ export class RedisFenceInvalidationSubscriber {
 
   /** @param {Buffer} chunk */
   handleData(chunk) {
-    this.buffer = Buffer.concat([this.buffer, chunk])
+    const state = this.commandState
+    state.buffer = Buffer.concat([state.buffer, chunk])
 
-    while (this.buffer.length > 0) {
+    while (state.buffer.length > 0) {
       let parsed
       try {
-        parsed = parseRedisResponse(this.buffer)
+        parsed = parseRedisResponse(state.buffer)
       } catch (error) {
-        const request = this.pending.shift()
-        if (request) {
-          request.reject(error instanceof Error ? error : new Error(String(error)))
-        }
+        state.pending
+          .shift()
+          ?.reject(error instanceof Error ? error : new Error(String(error)))
         this.onMalformed?.()
-        this.buffer = Buffer.alloc(0)
+        state.buffer = Buffer.alloc(0)
         this.reset()
         return
       }
-
       if (!parsed) return
 
-      this.buffer = this.buffer.subarray(parsed.nextOffset)
-      const request = this.pending.shift()
-      if (request) {
-        request.resolve(parsed.value)
-      } else {
-        this.handlePubSubMessage(parsed.value)
-      }
+      state.buffer = state.buffer.subarray(parsed.nextOffset)
+      const request = state.pending.shift()
+      if (request) request.resolve(parsed.value)
+      else this.handlePubSubMessage(parsed.value)
     }
   }
 
@@ -191,45 +172,22 @@ export class RedisFenceInvalidationSubscriber {
       this.onMessage?.(value[2])
       return
     }
-
     this.onMalformed?.()
   }
 
   /**
    * @param {(string | number)[]} parts
-   * @returns {Promise<RedisValue>}
+   * @returns {Promise<unknown>}
    */
   async command(parts) {
     await this.connect()
-    if (!this.socket || this.socket.destroyed) {
-      throw new Error("Redis subscriber connection unavailable")
-    }
-    const socket = this.socket
-
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        this.pending = this.pending.filter((request) => request !== pendingRequest)
-        reject(new Error("Redis subscriber command timed out"))
-        this.reset()
-      }, REDIS_COMMAND_TIMEOUT_MS)
-      /** @type {PendingRedisRequest} */
-      const pendingRequest = {
-        resolve: (value) => {
-          clearTimeout(timeout)
-          resolve(value)
-        },
-        reject: (error) => {
-          clearTimeout(timeout)
-          reject(error)
-        }
-      }
-      this.pending.push(pendingRequest)
-      socket.write(encodeRedisCommand(parts), "utf8", (error) => {
-        if (error) {
-          this.pending = this.pending.filter((request) => request !== pendingRequest)
-          pendingRequest.reject(error)
-        }
-      })
+    return writeRedisCommand({
+      state: this.commandState,
+      parts,
+      timeoutMs: REDIS_COMMAND_TIMEOUT_MS,
+      unavailableMessage: "Redis subscriber connection unavailable",
+      timeoutMessage: "Redis subscriber command timed out",
+      onTimeout: () => this.reset()
     })
   }
 }
