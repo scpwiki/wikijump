@@ -5,12 +5,13 @@ import {
   safeInlineStyleFrameCss
 } from "./wikidot-styleframe-contract.js"
 import { buildWikidotStyleFrameRuntime } from "./wikidot-styleframe-runtime.js"
+import { extractWikidotStyleFrameStylesheets } from "./wikidot-styleframe-stylesheets.js"
 
 export {
   isUsableStyleFrameCss,
-  localizeWikidotThemeUrl
-} from "./wikidot-styleframe-contract.js"
-export { extractWikidotStyleFrameStylesheets } from "./wikidot-styleframe-stylesheets.js"
+  localizeWikidotThemeUrl,
+  extractWikidotStyleFrameStylesheets
+}
 
 /**
  * @typedef {{
