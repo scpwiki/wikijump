@@ -210,7 +210,7 @@ pub async fn auth_mfa_verify(
         )
     };
 
-    info!("Verifying user's MFA for login (temporary session token {session_token})");
+    info!("Verifying user's MFA for login");
 
     let user = AuthenticationService::auth_mfa(
         ctx,

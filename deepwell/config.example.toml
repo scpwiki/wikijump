@@ -12,6 +12,8 @@ enable = true
 # - "info"
 # - "debug"
 # - "trace"
+#
+# Trace requests are capped at debug because dependency traces can expose authentication bearers.
 level = "info"
 
 

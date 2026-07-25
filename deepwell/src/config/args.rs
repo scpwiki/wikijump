@@ -55,7 +55,7 @@ fn command() -> Command {
                 .value_name("LEVEL")
                 .value_parser(NonEmptyStringValueParser::new())
                 .action(ArgAction::Set)
-                .help("What logging level to use."),
+                .help("What logging level to use; trace requests are capped at debug."),
         )
         .arg(
             Arg::new("host")

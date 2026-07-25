@@ -258,6 +258,14 @@ impl Config {
         Ok(config)
     }
 
+    /// Caps operational logging below dependency traces that can expose authentication bearers.
+    pub fn operational_logger_level(&self) -> LevelFilter {
+        match self.logger_level {
+            LevelFilter::Trace => LevelFilter::Debug,
+            level => level,
+        }
+    }
+
     pub fn log(&self) {
         #[inline]
         fn bool_str(value: bool) -> &'static str {
@@ -350,5 +358,20 @@ impl Config {
             maximum_message_body_bytes: 10_000,
             maximum_message_recipients: 3,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn operational_logger_level_caps_trace_at_debug() {
+        let mut config = Config::integration_testing();
+        config.logger_level = LevelFilter::Trace;
+        assert_eq!(config.operational_logger_level(), LevelFilter::Debug);
+
+        config.logger_level = LevelFilter::Info;
+        assert_eq!(config.operational_logger_level(), LevelFilter::Info);
     }
 }

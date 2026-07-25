@@ -31,6 +31,16 @@ use std::fs::File;
 use std::io::Write;
 use std::process;
 
+fn start_logging(config: &crate::config::Config) {
+    let logger_level = config.operational_logger_level();
+    femme::with_level(logger_level);
+    if config.logger_level == femme::LevelFilter::Trace {
+        warn!(
+            "Trace logging is disabled because dependency traces can expose authentication bearers"
+        );
+    }
+}
+
 pub async fn start() -> Result<()> {
     let SetupConfig { secrets, config } = SetupConfig::load().await;
     let address = config.address;
@@ -44,7 +54,7 @@ pub async fn start() -> Result<()> {
     };
 
     if config.logger {
-        femme::with_level(config.logger_level);
+        start_logging(&config);
         info!("Loaded server configuration:");
         config.log();
 
@@ -90,4 +100,19 @@ pub async fn start() -> Result<()> {
     info!("Listening to connections on {address}...");
     server.stopped().await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn production_logging_caps_trace_at_debug() {
+        let mut config = crate::config::Config::integration_testing();
+        config.logger_level = femme::LevelFilter::Trace;
+
+        start_logging(&config);
+
+        assert_eq!(log::max_level(), femme::LevelFilter::Debug);
+    }
 }
