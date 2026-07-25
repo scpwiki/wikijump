@@ -2338,6 +2338,199 @@ async fn non_scp_page_render_does_not_hardcode_scp_image_block_include() {
     }
 }
 
+/// Live capture (sandbox-for-codex, 2026-07-25): `[[module PagesByTag tag="x"]]`
+/// emits an anchor, an `h2`, and `div#tagged-pages-list.pages-list` holding one
+/// `pages-list-item` per tagged page, ordered case-insensitively by title. A tag
+/// with no pages still emits the heading and an empty list; 55 tagged pages
+/// emitted all 55 rows and no pager.
+#[tokio::test]
+async fn pages_by_tag_module_renders_tagged_pages_ordered_by_title() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "fixture-pbt-tag";
+    let holder_slug = "fixture-pbt-holder";
+
+    // Titles chosen so byte ordering and case-insensitive ordering disagree:
+    // live Wikidot put "aardvark probe" before "Zulu Probe".
+    for (slug, title) in [
+        ("fixture-pbt-zulu", "Zulu Probe"),
+        ("fixture-pbt-aardvark", "aardvark probe"),
+        ("fixture-pbt-mango", "Mango Probe"),
+    ] {
+        let revision_id = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "Tagged probe body.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision_id, &[tag]).await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-pbt-untagged",
+        "Fixture PBT Untagged",
+        "This page carries no probe tag.",
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture PBT Holder",
+        &format!("PBT_START\n\n[[module PagesByTag tag=\"{tag}\"]]\n\nPBT_END"),
+    )
+    .await;
+
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("PagesByTag holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": holder_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("PagesByTag holder should exist after rerender");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in [
+        "PBT_START",
+        r#"<a name="pages"></a>"#,
+        &format!("<h2>List of pages tagged with <em>{tag}</em>:</h2>"),
+        r#"<div class="pages-list" id="tagged-pages-list">"#,
+        r#"<a href="/fixture-pbt-aardvark">aardvark probe</a>"#,
+        r#"<a href="/fixture-pbt-mango">Mango Probe</a>"#,
+        r#"<a href="/fixture-pbt-zulu">Zulu Probe</a>"#,
+        "PBT_END",
+    ] {
+        assert!(html.contains(expected), "missing {expected}: {html}");
+    }
+
+    assert!(
+        !html.contains("fixture-pbt-untagged"),
+        "untagged page must not appear: {html}",
+    );
+    assert!(
+        !html.contains(r#"<div class="pager">"#),
+        "live emitted no pager for this module: {html}",
+    );
+
+    let aardvark = html.find("fixture-pbt-aardvark").expect("aardvark row");
+    let mango = html.find("fixture-pbt-mango").expect("mango row");
+    let zulu = html.find("fixture-pbt-zulu").expect("zulu row");
+    assert!(
+        aardvark < mango && mango < zulu,
+        "rows must follow case-insensitive title order: {html}",
+    );
+}
+
+/// A tag matching nothing still renders the heading and an empty list, while
+/// argument forms with no live capture stay literal.
+#[tokio::test]
+async fn pages_by_tag_module_renders_empty_list_and_preserves_unevidenced_forms() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let holder_slug = "fixture-pbt-edge-holder";
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture PBT Edge Holder",
+        concat!(
+            "EMPTY_START\n\n",
+            "[[module PagesByTag tag=\"fixture-pbt-nothing-has-this\"]]\n\n",
+            "EMPTY_END\n\n",
+            "LITERAL_START\n\n",
+            "[[module PagesByTag tag=\"a\" limit=\"5\"]]\n\n",
+            "LITERAL_END\n\n",
+            "NOARG_START\n\n",
+            "[[module PagesByTag]]\n\n",
+            "NOARG_END",
+        ),
+    )
+    .await;
+
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("PagesByTag edge holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": holder_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("PagesByTag edge holder should exist after rerender");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains(
+            "<h2>List of pages tagged with <em>fixture-pbt-nothing-has-this</em>:</h2>",
+        ),
+        "empty tag still renders its heading: {html}",
+    );
+    assert!(
+        !html.contains("pages-list-item"),
+        "no tagged page exists, so no row may render: {html}",
+    );
+    assert!(
+        html.contains("[[module PagesByTag tag=&quot;a&quot; limit=&quot;5&quot;]]"),
+        "an unevidenced argument form must stay literal: {html}",
+    );
+    // Live renders nothing for a tagless module unless a URL argument supplies
+    // the tag, and Wikijump routes no URL arguments yet.
+    let noarg = &html[html.find("NOARG_START").expect("noarg marker")
+        ..html.find("NOARG_END").expect("noarg end marker")];
+    assert!(
+        !noarg.contains("tagged-pages-list") && !noarg.contains("PagesByTag"),
+        "tagless module renders nothing: {noarg}",
+    );
+}
+
 #[tokio::test]
 async fn backlinks_module_renders_current_page_incoming_links() {
     let mut runner = TestRunner::setup().await;

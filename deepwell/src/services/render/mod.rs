@@ -44,6 +44,7 @@ mod list_pages;
 mod literal_regions;
 mod metacomponent;
 mod native_list_context;
+mod pages_by_tag;
 mod percent_encoding;
 mod render_dependency;
 mod replay;

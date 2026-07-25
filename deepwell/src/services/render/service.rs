@@ -79,6 +79,7 @@ use super::metacomponent::{
     MetacomponentSourceContext, select_metacomponent_documentation,
 };
 use super::native_list_context::NativeListSourceContext;
+use super::pages_by_tag::expand_pages_by_tag_modules;
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
 use super::runtime::{IncludeSourceCache, RenderRuntime};
@@ -1155,6 +1156,18 @@ impl RenderService {
                 settings,
                 current_site_id,
                 current_page_id,
+                &mut wikidot_compat_html,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::PagesByTag);
+            expand_pages_by_tag_modules(
+                ctx,
+                wikitext,
+                settings,
+                current_site_id,
                 &mut wikidot_compat_html,
             )
             .await
