@@ -26,7 +26,7 @@ pub(super) mod substitution;
 pub(super) mod template;
 
 pub(super) use self::rendering::{
-    ListPagesExpansionBudget, ListPagesExpansionOptions,
+    CountPagesExpansionOptions, ListPagesExpansionBudget, ListPagesExpansionOptions,
     register_generated_list_pages_html,
 };
 pub(super) use self::substitution::*;

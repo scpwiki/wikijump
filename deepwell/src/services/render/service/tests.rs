@@ -53,11 +53,11 @@ use super::{
     list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
     list_pages_revision_count, list_pages_row_scan_target, list_pages_tag_link_href,
     native_list_page_link_default_label, page_query_cap_requires_original_module,
-    parse_list_pages_arguments, parse_list_pages_date_selector,
-    parse_wikidot_compat_color_descriptor, protect_forwarded_attachment_variables,
-    push_list_pages_pager, random_page_query_scan_limit,
-    register_generated_list_pages_html, render_clone_module,
-    render_list_pages_numbered_rows, render_list_pages_table_rows,
+    parse_list_pages_arguments, parse_list_pages_arguments_with_url,
+    parse_list_pages_date_selector, parse_wikidot_compat_color_descriptor,
+    protect_forwarded_attachment_variables, push_list_pages_pager,
+    random_page_query_scan_limit, register_generated_list_pages_html,
+    render_clone_module, render_list_pages_numbered_rows, render_list_pages_table_rows,
     render_list_pages_tags, render_members_module_placeholder,
     render_native_list_inline_wikidot_spans, render_native_list_page_link,
     render_new_page_module, render_page_query_batch_limit,
@@ -384,6 +384,70 @@ fn restores_wikidot_email_visibility() {
             r#"<br /></p>"#,
         ),
     );
+}
+
+#[test]
+fn a_url_tag_selector_resolves_to_the_requests_tag() {
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" tags="@URL""#, Some("golem-of-prague"))
+            .expect("url tag selector should parse");
+
+    assert_eq!(arguments.default_tags, vec!["golem-of-prague"]);
+}
+
+#[test]
+fn a_url_tag_selector_beats_its_own_fallback() {
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, Some("golem-of-prague"))
+            .expect("url tag selector should parse");
+
+    assert_eq!(arguments.default_tags, vec!["golem-of-prague"]);
+}
+
+#[test]
+fn a_url_tag_selector_without_a_tag_falls_back() {
+    let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, None)
+        .expect("url tag selector should parse");
+
+    assert_eq!(arguments.default_tags, vec!["_"]);
+}
+
+#[test]
+fn an_unresolved_url_tag_selector_widens_rather_than_matching_nothing() {
+    // Live lists the whole site here rather than rendering an empty list,
+    // which is why `system:page-tags` writes the `|_` fallback.
+    for url_tag in [None, Some("")] {
+        let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL""#, url_tag)
+            .expect("url tag selector should parse");
+
+        assert!(arguments.default_tags.is_empty());
+        assert!(arguments.all_tags.is_empty());
+        assert!(arguments.no_tags.is_empty());
+    }
+}
+
+#[test]
+fn an_empty_url_tag_still_takes_the_fallback() {
+    let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL|_""#, Some(""))
+        .expect("url tag selector should parse");
+
+    assert_eq!(arguments.default_tags, vec!["_"]);
+}
+
+#[test]
+fn a_resolved_url_tag_keeps_count_pages_literal() {
+    let arguments = parse_list_pages_arguments_with_url(r#" tags="@URL""#, Some("alpha"))
+        .expect("url tag selector should parse");
+
+    assert!(arguments.unsupported_count_pages_filter);
+}
+
+#[test]
+fn a_static_tags_selector_ignores_the_url_tag() {
+    let arguments = parse_list_pages_arguments_with_url(r#" tags="alpha""#, Some("beta"))
+        .expect("static tags selector should parse");
+
+    assert_eq!(arguments.default_tags, vec!["alpha"]);
 }
 
 #[test]
