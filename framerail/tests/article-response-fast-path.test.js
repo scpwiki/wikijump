@@ -611,7 +611,8 @@ test("article response fast path uses trusted shared local hot replay", async ()
     get() {
       throw new Error("fast path should not fall back to entry copy")
     },
-    set() {
+    store(_key, _value, _options = {}) {
+      void _options
       throw new Error("fast path should not refill on a hot replay hit")
     }
   }

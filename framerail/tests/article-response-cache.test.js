@@ -2,6 +2,9 @@ import { strict as assert } from "node:assert"
 import net from "node:net"
 import test from "node:test"
 
+import { normalizeCachedArticleResponseEntry } from "../src/lib/server/cache/article-response/entry.js"
+import { createByteLimitedLru } from "../src/lib/server/cache/article-response/local-lru.js"
+import { normalizeCachedArticleResponseReplay } from "../src/lib/server/cache/article-response/replay.js"
 import {
   ARTICLE_RESPONSE_CACHE_MAX_BYTES,
   ARTICLE_RESPONSE_CACHE_MAX_ENTRIES,
@@ -615,7 +618,7 @@ test("memory article response fence cache ignores non-anonymous user permission 
   }
   const hotCache = createLocalArticleResponseHotCache()
   assert.equal(
-    hotCache.set("token", {
+    hotCache.store("token", {
       status: 200,
       headers: [["content-type", "text/html"]],
       body: "<!doctype html><html><body>cached body</body></html>"
@@ -930,6 +933,71 @@ test("cached article response writes reject oversized serialized entries", async
   assert.equal(await readCachedArticleResponse(store, "large"), null)
 })
 
+test("byte-limited LRU tracks recency, capacity, and expiry", () => {
+  let now = 0
+  const cache = createByteLimitedLru({
+    now: () => now,
+    ttlMs: 10,
+    maxEntries: 2,
+    maxBytes: 10
+  })
+
+  assert.equal(cache.insert("first", "a", 1), true)
+  assert.equal(cache.insert("second", "b", 1), true)
+  assert.equal(cache.get("first"), "a")
+  assert.equal(cache.insert("third", "c", 1), true)
+  assert.equal(cache.get("second"), null)
+  assert.equal(cache.get("first"), "a")
+
+  now = 11
+  assert.equal(cache.get("first"), null)
+  assert.equal(cache.size(), 1)
+  cache.clear()
+  assert.equal(cache.size(), 0)
+})
+
+test("cached article response entry normalization validates and copies headers", () => {
+  const headers = [["content-type", "text/html"]]
+  const normalized = normalizeCachedArticleResponseEntry({
+    status: 200,
+    headers,
+    body: "cached body"
+  })
+
+  assert.deepEqual(normalized, {
+    status: 200,
+    headers: [["content-type", "text/html"]],
+    body: "cached body"
+  })
+  headers[0][1] = "text/plain"
+  assert.deepEqual(normalized.headers, [["content-type", "text/html"]])
+  assert.equal(
+    normalizeCachedArticleResponseEntry({ status: 200, headers: ["bad"], body: "x" }),
+    null
+  )
+})
+
+test("cached article response replay normalization prepares immutable transport state", () => {
+  const replay = normalizeCachedArticleResponseReplay(
+    {
+      status: 200,
+      headers: [["content-type", "text/html"]],
+      body: "cached body"
+    },
+    {
+      status: 200,
+      headers: [["x-final", "safe"]],
+      bodyBuffer: Buffer.from("cached body")
+    }
+  )
+
+  assert.equal(replay.status, 200)
+  assert.deepEqual(replay.headers, [["x-final", "safe"]])
+  assert.deepEqual(replay.nodeRawHeaders, ["x-final", "safe"])
+  assert.equal(replay.bodyBuffer.toString("utf8"), "cached body")
+  assert.throws(() => replay.headers.push(["x-extra", "nope"]), TypeError)
+})
+
 test("local article response hot cache keeps an isolated body replay copy", () => {
   const hotCache = createLocalArticleResponseHotCache()
 
@@ -938,7 +1006,7 @@ test("local article response hot cache keeps an isolated body replay copy", () =
     headers: [["content-type", "text/html"]],
     body: "<!doctype html><html><body>cached body</body></html>"
   }
-  assert.equal(hotCache.set("token", entry), true)
+  assert.equal(hotCache.store("token", entry), true)
   entry.headers[0][1] = "text/plain"
   entry.body = "mutated"
 
@@ -954,7 +1022,7 @@ test("local article response hot cache reuses immutable prepared replay state", 
   const bodyBuffer = Buffer.from("cached body")
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1003,7 +1071,7 @@ test("local article response hot cache getReplay body mutation does not poison l
   const hotCache = createLocalArticleResponseHotCache()
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1032,7 +1100,7 @@ test("local article response hot cache exposes trusted shared replay without cop
   const hotCache = createLocalArticleResponseHotCache()
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1077,7 +1145,7 @@ test("local article response hot cache protects public replay variant buffers", 
   const gzipBody = Buffer.from("gzip replay")
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1127,7 +1195,7 @@ test("local article response hot cache shares internal replay variant buffers", 
   const hotCache = createLocalArticleResponseHotCache()
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1180,7 +1248,7 @@ test("local article response hot cache byte accounting includes replay variants"
   })
 
   assert.equal(
-    hotCache.set(key, entry, {
+    hotCache.store(key, entry, {
       replay: {
         status: 200,
         headers: [["content-type", "text/html"]],
