@@ -61,12 +61,10 @@ export function finalizePreloadData(response: Viewer, locales: string[]): Preloa
  * user session and locales
  */
 export async function loadPreload(request: Request, cookies: Cookies) {
-  // Set up parameters
   const { siteId } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
   const locales = getPreloadRequestLocales(request)
 
-  // Request data from backend
   // Includes fallback locale in case there is no Accept-Language header
   const response = await preloadView(
     siteId,
@@ -74,6 +72,5 @@ export async function loadPreload(request: Request, cookies: Cookies) {
     sessionToken
   )
 
-  // Handover data to subsequent requests for rendering
   return finalizePreloadData(response, locales)
 }

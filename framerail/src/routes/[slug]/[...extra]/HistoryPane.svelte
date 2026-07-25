@@ -1,8 +1,8 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
-  import { errorPopupState } from "$lib/stores.svelte"
-  import { getPageLayoutContext } from "$lib/page-layout-context"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
+  import { getPageLayoutContext } from "$lib/layout/page-layout-context"
 
   import { Layout } from "$lib/types"
   import { SvelteMap } from "svelte/reactivity"
@@ -60,9 +60,7 @@
     compiledHtml: boolean,
     wikitext: boolean
   ) {
-    // Get cached revision if we have it
     const rev = revisionMap.get(revisionNumber)
-    // Try to see if the cached revision already has the wanted data
     if (compiledHtml && rev?.compiled_body_html) {
       setRevision(rev)
       revision = rev
@@ -70,7 +68,6 @@
       setRevision(rev)
       revision = rev
     } else {
-      // Request from server
       const res = await fetch("?/revision", {
         method: "POST",
         body: JSON.stringify({

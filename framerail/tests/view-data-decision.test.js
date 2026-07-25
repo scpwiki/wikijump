@@ -10,6 +10,8 @@ const fixture = (label) => ({
   site: { locale: `${label}-locale` },
   license_name: `${label}-license`,
   license_url: `https://${label}.invalid/license`,
+  license_kind: `${label}-kind`,
+  license_html: `<span>${label}-license</span>`,
   wikidot_snapshot: { source_site: `${label}-source` }
 })
 
@@ -22,6 +24,8 @@ test("error data consistently wins over retained page data", () => {
     locale: "error-locale",
     licenseName: "error-license",
     licenseUrl: "https://error.invalid/license",
+    licenseKind: "error-kind",
+    licenseHtml: "<span>error-license</span>",
     sourceSite: "error-source"
   })
 })
@@ -40,6 +44,8 @@ test("error-only and null states remain coherent", () => {
     locale: undefined,
     licenseName: undefined,
     licenseUrl: undefined,
+    licenseKind: undefined,
+    licenseHtml: undefined,
     sourceSite: undefined
   })
 })
@@ -54,6 +60,8 @@ test("an empty error payload remains authoritative instead of reviving retained 
     locale: undefined,
     licenseName: undefined,
     licenseUrl: undefined,
+    licenseKind: undefined,
+    licenseHtml: undefined,
     sourceSite: undefined
   })
 })

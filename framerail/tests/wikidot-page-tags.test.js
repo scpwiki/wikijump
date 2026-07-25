@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { buildWikidotPageTagsHtml } from "../src/lib/wikidot-page-tags.js"
+import { buildWikidotPageTagsHtml } from "../src/lib/wikidot/wikidot-page-tags.js"
 
 test("renders imported Wikidot page tag links without visible separators", () => {
   const html = buildWikidotPageTagsHtml(["_cc", "_licensebox", "alive"])

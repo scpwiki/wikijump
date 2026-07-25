@@ -4,24 +4,23 @@
   import { resolve } from "$app/paths"
   import { goto, invalidateAll } from "$app/navigation"
   import { Layout } from "$lib/types"
-  import { errorPopupState } from "$lib/stores.svelte"
-  import { getPageLayoutContext } from "$lib/page-layout-context"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
+  import { getPageLayoutContext } from "$lib/layout/page-layout-context"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 
-  import type { PageData } from "./$types"
   import type { PageDeletedGet } from "$lib/server/deepwell/page"
   import type { PageTemplateSummary } from "$lib/server/deepwell/views"
+  import type { buildPageErrorForms } from "$lib/server/load/page/page-forms"
 
-  type TemplateErrorData = {
+  type PageErrorData = NonNullable<typeof page.error> & {
+    view: "missing" | "permissions"
+    forms: Awaited<ReturnType<typeof buildPageErrorForms>>
     page_templates?: PageTemplateSummary[]
     selected_template_page_id?: number | null
   }
 
-  let errorData: PageData | null = $derived(page.error as unknown as PageData)
-  let templateErrorData: TemplateErrorData | null = $derived(
-    errorData as TemplateErrorData | null
-  )
+  let errorData: PageErrorData = $derived(page.error as PageErrorData)
 
   const pageLayoutContext = getPageLayoutContext()
 
@@ -65,10 +64,10 @@
   )
 
   let activeTemplatePageId = $state<number | null>(
-    untrack(() => templateErrorData?.selected_template_page_id ?? null)
+    untrack(() => errorData.selected_template_page_id ?? null)
   )
   let selectedTemplatePageId = $state<number | null>(
-    untrack(() => templateErrorData?.selected_template_page_id ?? null)
+    untrack(() => errorData.selected_template_page_id ?? null)
   )
   let activeTemplateSource = $state<string>(untrack(() => $editForm.wikitext))
 
@@ -85,7 +84,7 @@
       return
     }
 
-    const template = templateErrorData?.page_templates?.find(
+    const template = errorData.page_templates?.find(
       (candidate) => candidate.page_id === selectedTemplatePageId
     )
     activeTemplatePageId = selectedTemplatePageId
@@ -164,7 +163,7 @@
     {/if}
 
     <form id="editor" class="editor" action="?/edit" method="POST" use:editEnhance>
-      {#if templateErrorData?.page_templates?.length}
+      {#if errorData.page_templates?.length}
         <div class="page-template-selector">
           <label for="page-templates">Initial template:</label>
           <select
@@ -173,7 +172,7 @@
             bind:value={selectedTemplatePageId}
           >
             <option value={null}>no template</option>
-            {#each templateErrorData.page_templates as template (template.page_id)}
+            {#each errorData.page_templates as template (template.page_id)}
               <option value={template.page_id}>{template.title}</option>
             {/each}
           </select>

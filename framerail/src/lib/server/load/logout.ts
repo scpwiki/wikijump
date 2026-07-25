@@ -3,22 +3,16 @@ import defaults from "$lib/defaults"
 import { parseAcceptLangHeader } from "$lib/locales"
 import { authLogout } from "$lib/server/auth/logout"
 import { translate } from "$lib/server/deepwell/translate"
+import { failForActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 
 import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { TranslateKeys } from "$lib/types"
-import type { Cookies, RequestEvent } from "@sveltejs/kit"
+import type { RequestEvent } from "@sveltejs/kit"
 
-export async function loadLogoutPage(
-  request: Request,
-  cookies: Cookies,
-  preloadData: PreloadDataAsync
-) {
-  // Set up parameters
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { siteId } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
+export async function loadLogoutPage(request: Request, preloadData: PreloadDataAsync) {
+  loadSiteInfo(request.headers)
 
   const parentData = await preloadData()
   const locales = parentData.locales
@@ -45,19 +39,20 @@ export async function loadLogoutPage(
 export async function logoutAction({ cookies, request }: RequestEvent) {
   const sessionToken = cookies.get("wikijump_token")
 
-  try {
-    // If we can't get the session token, the user must have logged out already
-    if (!sessionToken) {
-      const locales = parseAcceptLangHeader(request)
-      if (!locales.includes(defaults.fallbackLocale)) {
-        locales.push(defaults.fallbackLocale)
-      }
-      const translateStrings = await translate(locales, {
-        "error-api.NOT_LOGGED_IN": {}
-      })
-      throw new Error(translateStrings?.["error-api.NOT_LOGGED_IN"])
+  if (!sessionToken) {
+    const locales = parseAcceptLangHeader(request)
+    if (!locales.includes(defaults.fallbackLocale)) {
+      locales.push(defaults.fallbackLocale)
     }
+    const translateStrings = await translate(locales, {
+      "error-api.NOT_LOGGED_IN": {}
+    })
+    return fail(400, {
+      message: translateStrings?.["error-api.NOT_LOGGED_IN"]
+    })
+  }
 
+  try {
     await authLogout(sessionToken)
 
     cookies.delete("wikijump_token", {
@@ -69,10 +64,6 @@ export async function logoutAction({ cookies, request }: RequestEvent) {
 
     return { success: true }
   } catch (error) {
-    return fail(400, {
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForActionError(error)
   }
 }

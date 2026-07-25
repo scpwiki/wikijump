@@ -1,19 +1,17 @@
-// TODO refactor into proper TS service
-
 import { JSONRPCClient } from "json-rpc-2.0"
 
 import type { Nullable } from "$lib/types"
 import type { JSONRPCRequest } from "json-rpc-2.0"
-import type { RequestContext } from "../load/request-ctx"
+import type { RequestContext } from "../request-context"
 import { stripPrivateDeepwellErrorData } from "./public-error.js"
 
 export const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
 export const DEEPWELL_PORT = process.env.DEEPWELL_PORT || 2747
 export const DEEPWELL_URL = `http://${DEEPWELL_HOST}:${DEEPWELL_PORT}/jsonrpc`
 
-export const client = new JSONRPCClient<RequestContext>(processRawRequest)
+export const client = new JSONRPCClient<RequestContext>(sendJsonRpcRequest)
 
-async function processRawRequest(
+async function sendJsonRpcRequest(
   request: JSONRPCRequest,
   reqContext: RequestContext = {}
 ): Promise<void> {

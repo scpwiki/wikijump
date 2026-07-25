@@ -2,7 +2,7 @@ import {
   buildWikidotInterwikiFrameHtml,
   buildWikidotInterwikiSourceUrl,
   fetchCromInterwikiPage
-} from "$lib/wikidot-interwiki"
+} from "$lib/wikidot/wikidot-interwiki"
 import type { RequestHandler } from "./$types"
 
 const FRAME_HEADERS = {

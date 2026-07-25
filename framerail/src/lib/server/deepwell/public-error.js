@@ -1,3 +1,5 @@
+export const DEEPWELL_PERMISSION_DENIED = 3106
+
 /**
  * Remove structured Deepwell diagnostics before a JSON-RPC error crosses
  * the Framerail public boundary. Plain string data is retained for

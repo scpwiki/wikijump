@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto, invalidateAll } from "$app/navigation"
-  import { errorPopupState } from "$lib/stores.svelte"
-  import { getPageLayoutContext } from "$lib/page-layout-context"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
+  import { getPageLayoutContext } from "$lib/layout/page-layout-context"
   import { DeleteOptions, Layout, PagePane } from "$lib/types"
   import { resolve } from "$app/paths"
   import { superForm } from "sveltekit-superforms"

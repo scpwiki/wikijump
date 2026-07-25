@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { highlightWikidotCodeSource } from "../src/lib/wikidot-code-highlighting.ts"
+import { highlightWikidotCodeSource } from "../src/lib/wikidot/wikidot-code-highlighting.ts"
 
 test("highlights CSS using the existing Wikijump token class contract", async () => {
   const highlighted = await highlightWikidotCodeSource(
@@ -24,6 +24,19 @@ test("loads optional grammars and normalizes common aliases", async () => {
   assert.equal(highlighted?.language, "python")
   assert.match(highlighted?.html ?? "", /wj-code-keyword/)
   assert.match(highlighted?.html ?? "", /wj-code-boolean/)
+})
+
+test("escapes source markup before inserting highlighted HTML", async () => {
+  const highlighted = await highlightWikidotCodeSource(
+    "<script>alert(1)</script>",
+    "html"
+  )
+
+  // Case-insensitive, and covering the closing tag: an escaper that let
+  // `<SCRIPT>` or `</script>` through would satisfy a literal `<script>`
+  // check while still emitting live markup.
+  assert.doesNotMatch(highlighted?.html ?? "", /<\/?script/i)
+  assert.match(highlighted?.html ?? "", /&lt;/)
 })
 
 test("leaves unknown and oversized source as DOM text", async () => {

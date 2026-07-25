@@ -5,13 +5,13 @@ import vm from "node:vm"
 import {
   buildWikidotInterwikiFrameHtml,
   extractWikidotInterwikiLinks
-} from "../src/lib/wikidot-interwiki.js"
+} from "../src/lib/wikidot/wikidot-interwiki.js"
 import {
   buildWikidotStyleFrameHtml,
   extractWikidotStyleFrameStylesheets,
   isUsableStyleFrameCss,
   localizeWikidotThemeUrl
-} from "../src/lib/wikidot-styleframe.js"
+} from "../src/lib/wikidot/wikidot-styleframe.js"
 
 test("extracts priority-ordered styleFrame stylesheets for initial document CSS", () => {
   assert.deepEqual(

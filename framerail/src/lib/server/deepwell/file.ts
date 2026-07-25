@@ -1,5 +1,7 @@
 import { client } from "$lib/server/deepwell"
 
+export { uploadToPresignUrl } from "$lib/server/deepwell/presigned-upload"
+
 export async function getFileByHash(
   /** Either a Uint8Array or a hex string */
   fileHash: Uint8Array | string
@@ -23,12 +25,5 @@ export async function cancelBlobUpload(userId: number, pendingBlobId: string) {
   return await client.request("blob_cancel", {
     user_id: userId,
     pending_blob_id: pendingBlobId
-  })
-}
-
-export async function uploadToPresignUrl(url: string, file: File) {
-  return await fetch(url, {
-    method: "PUT",
-    body: file
   })
 }

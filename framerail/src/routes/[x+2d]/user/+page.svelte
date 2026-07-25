@@ -1,7 +1,7 @@
 <script lang="ts">
   import Page from "./[slug]/page.svelte"
 
-  import { errorPopupState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
   import { invalidateAll } from "$app/navigation"
   import { fileProxy, superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { errorPopupState } from "$lib/stores.svelte"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
   import { goto } from "$app/navigation"
   import { resolve } from "$app/paths"
   import { untrack } from "svelte"

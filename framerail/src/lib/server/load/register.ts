@@ -6,6 +6,7 @@ import {
   clearRegisterPasswords,
   redactAuthActionPayload
 } from "$lib/server/load/auth-form-redaction.js"
+import { failForActionError } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -24,17 +25,10 @@ import {
 
 import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import { UserType, type TranslateKeys } from "$lib/types"
-import type { Cookies, RequestEvent } from "@sveltejs/kit"
+import type { RequestEvent } from "@sveltejs/kit"
 
-export async function loadRegisterPage(
-  request: Request,
-  cookies: Cookies,
-  preloadData: PreloadDataAsync
-) {
-  // Set up parameters
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { siteId } = loadSiteInfo(request.headers)
-  const sessionToken = cookies.get("wikijump_token")
+export async function loadRegisterPage(request: Request, preloadData: PreloadDataAsync) {
+  loadSiteInfo(request.headers)
 
   const parentData = await preloadData()
   const locales = parentData.locales
@@ -89,31 +83,23 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
   const { data } = form
 
   try {
-    const res = await userCreate(
-      UserType.Regular,
-      data.username,
-      data.email,
-      data.locale,
-      data.password,
+    const res = await userCreate({
+      userType: UserType.Regular,
+      name: data.username,
+      email: data.email,
+      locales: data.locale,
+      password: data.password,
       ipAddress
-    )
+    })
 
     return redactAuthActionPayload(
       { form: clearRegisterPasswords(form), res, isRegistered: true },
       submittedPasswords
     )
   } catch (error) {
-    return fail(
-      500,
-      redactAuthActionPayload(
-        {
-          form: clearRegisterPasswords(form),
-          message: error?.message,
-          code: error?.code,
-          data: error?.data
-        },
-        submittedPasswords
-      )
+    return failForActionError(
+      error,
+      redactAuthActionPayload({ form: clearRegisterPasswords(form) }, submittedPasswords)
     )
   }
 }

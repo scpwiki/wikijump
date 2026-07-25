@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getPageLayoutContext } from "$lib/page-layout-context"
-  import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
+  import { getPageLayoutContext } from "$lib/layout/page-layout-context"
+  import { errorPopupState, pageLayoutState } from "$lib/layout/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"

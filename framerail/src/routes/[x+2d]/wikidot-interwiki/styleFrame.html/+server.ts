@@ -1,5 +1,5 @@
 import type { RequestHandler } from "./$types"
-import { buildWikidotStyleFrameHtml } from "$lib/wikidot-styleframe"
+import { buildWikidotStyleFrameHtml } from "$lib/wikidot/wikidot-styleframe"
 
 const FRAME_HEADERS = {
   "content-type": "text/html; charset=utf-8",

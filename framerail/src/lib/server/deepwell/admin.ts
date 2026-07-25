@@ -16,13 +16,24 @@ type SiteUpdateRequestContext = {
   siteId: number
 }
 
+interface CategoryNavigationUpdateInput {
+  siteId: number
+  categoryId: number
+  userId: number
+  userIpAddr: string
+  topBarPage: Nullable<string>
+  sideBarPage: Nullable<string>
+}
+
 export async function categoryNavigationUpdate(
-  siteId: number,
-  categoryId: number,
-  userId: number,
-  userIpAddr: string,
-  topBarPage: Nullable<string>,
-  sideBarPage: Nullable<string>,
+  {
+    siteId,
+    categoryId,
+    userId,
+    userIpAddr,
+    topBarPage,
+    sideBarPage
+  }: CategoryNavigationUpdateInput,
   requestContext: SiteUpdateRequestContext
 ): Promise<PageCategoryModel> {
   return client.request(
@@ -39,13 +50,24 @@ export async function categoryNavigationUpdate(
   )
 }
 
+interface CategoryLicenseUpdateInput {
+  siteId: number
+  categoryId: number
+  userId: number
+  userIpAddr: string
+  license: Nullable<string>
+  licenseOther: Nullable<string>
+}
+
 export async function categoryLicenseUpdate(
-  siteId: number,
-  categoryId: number,
-  userId: number,
-  userIpAddr: string,
-  license: Nullable<string>,
-  licenseOther: Nullable<string>,
+  {
+    siteId,
+    categoryId,
+    userId,
+    userIpAddr,
+    license,
+    licenseOther
+  }: CategoryLicenseUpdateInput,
   requestContext: SiteUpdateRequestContext
 ): Promise<PageCategoryModel> {
   return client.request(
@@ -62,12 +84,16 @@ export async function categoryLicenseUpdate(
   )
 }
 
+interface CategoryTemplateUpdateInput {
+  siteId: number
+  categoryId: number
+  userId: number
+  userIpAddr: string
+  templatePageId: Nullable<number>
+}
+
 export async function categoryTemplateUpdate(
-  siteId: number,
-  categoryId: number,
-  userId: number,
-  userIpAddr: string,
-  templatePageId: Nullable<number>,
+  { siteId, categoryId, userId, userIpAddr, templatePageId }: CategoryTemplateUpdateInput,
   requestContext: SiteUpdateRequestContext
 ): Promise<PageCategoryModel> {
   return client.request(
@@ -175,17 +201,32 @@ export async function siteIconsUpdate(
   )
 }
 
+interface SiteUpdateInput {
+  siteId: number
+  userId: number
+  userIpAddr: string
+  name: Optional<string>
+  slug: Optional<string>
+  tagline: Optional<string>
+  description: Optional<string>
+  defaultPage: Optional<string>
+  locale: Optional<string>
+  layout: Optional<Nullable<Layout>>
+}
+
 export async function siteUpdate(
-  siteId: number,
-  userId: number,
-  userIpAddr: string,
-  name: Optional<string>,
-  slug: Optional<string>,
-  tagline: Optional<string>,
-  description: Optional<string>,
-  defaultPage: Optional<string>,
-  locale: Optional<string>,
-  layout: Optional<Nullable<Layout>>,
+  {
+    siteId,
+    userId,
+    userIpAddr,
+    name,
+    slug,
+    tagline,
+    description,
+    defaultPage,
+    locale,
+    layout
+  }: SiteUpdateInput,
   requestContext: SiteUpdateRequestContext
 ): Promise<SiteModel> {
   return client.request(

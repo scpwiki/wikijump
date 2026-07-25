@@ -123,6 +123,8 @@ export default defineConfig(
       "svelte/sort-attributes": "warn",
       "svelte/spaced-html-comment": "warn",
 
+      // Bindable props are observable by their parent even when not read again locally.
+      "no-useless-assignment": "off",
       "svelte/no-at-html-tags": "off"
     }
   },
@@ -147,9 +149,12 @@ export default defineConfig(
   [
     globalIgnores([
       "**/node_modules/**/*",
+      ".desloppify/**/*",
       "./build/**/*",
       "./svelte-kit/**/*",
       "./package/**/*",
+      "playwright-report/**/*",
+      "test-results/**/*",
       "**/.DS_Store",
       "**/node_modules",
       "build",

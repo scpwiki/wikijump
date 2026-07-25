@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { buildWikidotPageWatchLabel } from "../src/lib/wikidot-page-watch.js"
+import { buildWikidotPageWatchLabel } from "../src/lib/wikidot/wikidot-page-watch.js"
 
 test("renders authenticated sandbox site watch text", () => {
   assert.deepEqual(

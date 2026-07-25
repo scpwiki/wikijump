@@ -60,7 +60,7 @@ import { createServer } from "node:http"
  * }} RecordedRpcRequest
  */
 
-const PORT = 42747
+const PORT = Number(process.env.PLAYWRIGHT_FIXTURE_PORT ?? "42747")
 /** @type {RecordedRpcRequest | null} */
 let lastPageTagsSelectRequest = null
 /** @type {RpcParams | null} */
@@ -76,16 +76,22 @@ const pageReadRequests = {
   parentRelationshipsGet: [],
   siteGet: []
 }
+const articleReadRequests = {
+  articleView: [],
+  articleViewCacheMetadata: []
+}
 /** @type {Record<string, RecordedRpcRequest[]>} */
 const pageWriteRequests = {
   login: [],
   pageCreate: [],
   pageEdit: [],
+  pageRollback: [],
   pageMove: [],
   parentGetAll: [],
   parentUpdate: [],
   sessionGet: [],
-  userGet: []
+  userGet: [],
+  voteSet: []
 }
 /** @type {Record<string, RecordedRpcRequest[]>} */
 const fileRequests = {
@@ -93,6 +99,7 @@ const fileRequests = {
   fileCreate: [],
   fileEdit: [],
   fileGet: [],
+  fileRestore: [],
   pageGetFiles: []
 }
 /** @type {Record<string, Buffer>} */
@@ -247,6 +254,22 @@ const pages = {
       '[[collapsible show="+ Show" hide="- Hide" hideLocation="both"]]Folded body[[/collapsible]]\n[[collapsible folded="no" show="+ Open" hide="- Close"]]Open body[[/collapsible]]',
     compiled_body_html:
       '<div id="folded-collapsible" class="collapsible-block"><div class="collapsible-block-folded"><a class="collapsible-block-link" href="javascript:;">+&nbsp;Show</a></div><div class="collapsible-block-unfolded" style="display:none"><div class="collapsible-block-unfolded-link"><a class="collapsible-block-link" href="javascript:;">-&nbsp;Hide</a></div><div class="collapsible-block-content"><p>Folded body</p></div><div class="collapsible-block-unfolded-link"><a class="collapsible-block-link" href="javascript:;">-&nbsp;Hide</a></div></div></div><div id="open-collapsible" class="collapsible-block"><div class="collapsible-block-folded" style="display:none"><a class="collapsible-block-link" href="javascript:;">+&nbsp;Open</a></div><div class="collapsible-block-unfolded"><div class="collapsible-block-unfolded-link"><a class="collapsible-block-link" href="javascript:;">-&nbsp;Close</a></div><div class="collapsible-block-content"><p>Open body</p></div></div></div><details id="native-collapsible"><summary>Native summary</summary><p>Native body</p></details>'
+  },
+  "page-workflow-probe": {
+    page_id: 3000340,
+    revision_id: 9000340,
+    page_created_at: "2026-07-23T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-23T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Page Workflow Probe",
+    slug: "page-workflow-probe",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: "Page workflow probe",
+    compiled_body_html: "<p>Page workflow probe</p>"
   }
 }
 
@@ -274,9 +297,9 @@ const toArticleViewResult = (page) => ({
   license_name: "CC BY-SA 3.0",
   license_url: "https://creativecommons.org/licenses/by-sa/3.0/",
   user_session: null,
-  article_page_cache_key: null,
-  public_content_cache_fence: null,
-  anonymous_permission_cache_fence: null,
+  article_page_cache_key: `deepwell:article-view:page:v1:site=6000005:page=${page.page_id}:rev=${page.revision_id}:updated=0:permission=site=0,user=0:body=fixture`,
+  public_content_cache_fence: "0",
+  anonymous_permission_cache_fence: "site=0,user=0",
   page: {
     type: "found",
     data: {
@@ -410,7 +433,7 @@ const server = createServer((request, response) => {
       chunks.push(Buffer.from(chunk))
     })
     request.on("end", () => {
-      if (request.headers.host !== "files:42747") {
+      if (request.headers.host !== `127.0.0.1:${PORT}`) {
         response.writeHead(400).end("Unexpected signed upload Host")
         return
       }
@@ -435,6 +458,14 @@ const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/last-page-read-requests") {
     const snapshot = structuredClone(pageReadRequests)
     resetPageReadRequests()
+    response
+      .writeHead(200, { "content-type": "application/json" })
+      .end(JSON.stringify(snapshot))
+    return
+  }
+  if (request.method === "GET" && request.url === "/last-article-read-requests") {
+    const snapshot = structuredClone(articleReadRequests)
+    resetArticleReadRequests()
     response
       .writeHead(200, { "content-type": "application/json" })
       .end(JSON.stringify(snapshot))
@@ -515,8 +546,8 @@ const server = createServer((request, response) => {
         "password",
         "user_agent"
       ]) &&
-      rpcRequest.params.name_or_email === "admin@wikijump" &&
-      rpcRequest.params.password === "wikijumpadmin1" &&
+      rpcRequest.params.name_or_email === process.env.XML_RPC_WRITE_USERNAME &&
+      rpcRequest.params.password === process.env.XML_RPC_WRITE_PASSWORD &&
       typeof rpcRequest.params.ip_address === "string" &&
       rpcRequest.params.user_agent === "wikijump-xmlrpc-api/0.1"
     ) {
@@ -583,7 +614,26 @@ const server = createServer((request, response) => {
       rpcRequest.params.route.extra === "" &&
       pages[rpcRequest.params.route.slug]
     ) {
+      articleReadRequests.articleView.push(rpcRequest.params)
       result = toArticleViewResult(pages[rpcRequest.params.route.slug])
+    } else if (
+      rpcRequest.method === "article_view_cache_metadata" &&
+      hasExactKeys(rpcRequest.params, ["locales", "route", "session_token", "site_id"]) &&
+      rpcRequest.params.site_id === 6000005 &&
+      rpcRequest.params.session_token === null &&
+      Array.isArray(rpcRequest.params.locales) &&
+      hasExactKeys(rpcRequest.params.route, ["extra", "slug"]) &&
+      typeof rpcRequest.params.route.slug === "string" &&
+      rpcRequest.params.route.extra === "" &&
+      pages[rpcRequest.params.route.slug]
+    ) {
+      articleReadRequests.articleViewCacheMetadata.push(rpcRequest.params)
+      const page = pages[rpcRequest.params.route.slug]
+      result = {
+        article_page_cache_key: `deepwell:article-view:page:v1:site=6000005:page=${page.page_id}:rev=${page.revision_id}:updated=0:permission=site=0,user=0:body=fixture`,
+        public_content_cache_fence: "0",
+        anonymous_permission_cache_fence: "site=0,user=0"
+      }
     } else if (
       rpcRequest.method === "translate" &&
       hasExactKeys(rpcRequest.params, ["locales", "messages", "strip_message_keys"]) &&
@@ -889,21 +939,28 @@ const server = createServer((request, response) => {
     } else if (
       rpcRequest.method === "page_edit" &&
       rpcRequest.params.site_id === 6000005 &&
-      typeof rpcRequest.params.page === "string" &&
-      pages[rpcRequest.params.page] &&
+      ((typeof rpcRequest.params.page === "string" && pages[rpcRequest.params.page]) ||
+        (typeof rpcRequest.params.page === "number" &&
+          pageById(rpcRequest.params.page))) &&
       typeof rpcRequest.params.last_revision_id === "number" &&
       typeof rpcRequest.params.revision_comments === "string" &&
       typeof rpcRequest.params.user_id === "number" &&
       typeof rpcRequest.params.ip_address === "string" &&
       request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
       request.headers["x-deepwell-site-id"] === "6000005" &&
-      request.headers["x-deepwell-page"] === rpcRequest.params.page
+      request.headers["x-deepwell-page"] ===
+        (typeof rpcRequest.params.page === "string"
+          ? rpcRequest.params.page
+          : pageById(rpcRequest.params.page)?.slug)
     ) {
       pageWriteRequests.pageEdit.push({
         headers: requestContextHeaders(request),
         params: rpcRequest.params
       })
-      const page = pages[rpcRequest.params.page]
+      const page =
+        typeof rpcRequest.params.page === "string"
+          ? pages[rpcRequest.params.page]
+          : pageById(rpcRequest.params.page)
       if (typeof rpcRequest.params.wikitext === "string") {
         page.wikitext = rpcRequest.params.wikitext
         page.compiled_body_html = `<p>${rpcRequest.params.wikitext}</p>`
@@ -922,6 +979,51 @@ const server = createServer((request, response) => {
       result = {
         revision_id: page.revision_id,
         revision_number: page.page_revision_count - 1
+      }
+    } else if (
+      rpcRequest.method === "page_rollback" &&
+      rpcRequest.params.site_id === 6000005 &&
+      typeof rpcRequest.params.page === "number" &&
+      pageById(rpcRequest.params.page) &&
+      typeof rpcRequest.params.last_revision_id === "number" &&
+      typeof rpcRequest.params.revision_number === "number" &&
+      typeof rpcRequest.params.revision_comments === "string" &&
+      rpcRequest.params.user_id === 123 &&
+      typeof rpcRequest.params.ip_address === "string" &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005" &&
+      request.headers["x-deepwell-page"] === pageById(rpcRequest.params.page)?.slug
+    ) {
+      pageWriteRequests.pageRollback.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      const page = pageById(rpcRequest.params.page)
+      page.revision_id = nextRevisionId++
+      page.page_revision_count += 1
+      result = {
+        revision_id: page.revision_id,
+        revision_number: page.page_revision_count - 1
+      }
+    } else if (
+      rpcRequest.method === "vote_set" &&
+      hasExactKeys(rpcRequest.params, ["page_id", "user_id", "value"]) &&
+      pageById(rpcRequest.params.page_id) &&
+      rpcRequest.params.user_id === 123 &&
+      (rpcRequest.params.value === -1 || rpcRequest.params.value === 1) &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005" &&
+      request.headers["x-deepwell-page"] === pageById(rpcRequest.params.page_id)?.slug
+    ) {
+      pageWriteRequests.voteSet.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      result = {
+        page_vote_id: 7000001,
+        page_id: rpcRequest.params.page_id,
+        user_id: rpcRequest.params.user_id,
+        value: rpcRequest.params.value
       }
     } else if (
       rpcRequest.method === "parent_get_all" &&
@@ -1032,7 +1134,7 @@ const server = createServer((request, response) => {
       const pendingBlobId = `fixture-blob-${nextPendingBlobId++}`
       result = {
         pending_blob_id: pendingBlobId,
-        presign_url: `http://files:42747/upload/${encodeURIComponent(pendingBlobId)}`
+        presign_url: `http://127.0.0.1:${PORT}/upload/${encodeURIComponent(pendingBlobId)}`
       }
     } else if (
       rpcRequest.method === "file_create" &&
@@ -1153,6 +1255,28 @@ const server = createServer((request, response) => {
       result = {
         file_id: existing.file_id,
         revision_id: existing.revision_id
+      }
+    } else if (
+      rpcRequest.method === "file_restore" &&
+      rpcRequest.params.site_id === 6000005 &&
+      typeof rpcRequest.params.page_id === "number" &&
+      pageById(rpcRequest.params.page_id) &&
+      typeof rpcRequest.params.file_id === "number" &&
+      typeof rpcRequest.params.revision_comments === "string" &&
+      rpcRequest.params.user_id === 123 &&
+      typeof rpcRequest.params.ip_address === "string" &&
+      request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
+      request.headers["x-deepwell-site-id"] === "6000005" &&
+      request.headers["x-deepwell-page"] === pageById(rpcRequest.params.page_id)?.slug
+    ) {
+      fileRequests.fileRestore.push({
+        headers: requestContextHeaders(request),
+        params: rpcRequest.params
+      })
+      result = {
+        file_id: rpcRequest.params.file_id,
+        page_id: rpcRequest.params.page_id,
+        revision_id: nextRevisionId++
       }
     } else {
       const requestShape =
@@ -1286,6 +1410,12 @@ const requestContextHeaders = (request) => ({
 
 const resetPageReadRequests = () => {
   for (const requests of Object.values(pageReadRequests)) {
+    requests.length = 0
+  }
+}
+
+const resetArticleReadRequests = () => {
+  for (const requests of Object.values(articleReadRequests)) {
     requests.length = 0
   }
 }

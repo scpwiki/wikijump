@@ -7,7 +7,7 @@ import {
   formatSigned,
   isWikidotFragmentPage,
   sourceShowsStandardWikidotPageActions
-} from "../src/lib/wikidot-page-actions.js"
+} from "../src/lib/wikidot/wikidot-page-actions.js"
 
 test("discussion action uses the frozen Wikidot DOM marker and escapes its label", () => {
   assert.equal(

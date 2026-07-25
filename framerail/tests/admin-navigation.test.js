@@ -4,7 +4,7 @@ import { describe, it } from "node:test"
 import {
   navigationFormValues,
   navigationUpdateValues
-} from "../src/lib/admin-navigation.js"
+} from "../src/lib/admin/admin-navigation.js"
 
 const site = { top_bar_page: "nav:top", side_bar_page: "nav:side" }
 

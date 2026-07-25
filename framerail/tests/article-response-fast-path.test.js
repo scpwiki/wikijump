@@ -13,7 +13,7 @@ import {
   createLocalArticleResponseHotCache,
   createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore
-} from "../src/lib/server/article-response-cache.js"
+} from "../src/lib/server/cache/article-response/index.js"
 import {
   createArticleResponseFastPathHandler,
   writeArticleResponseFastPathHit

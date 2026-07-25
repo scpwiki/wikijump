@@ -1,0 +1,49 @@
+.debug {
+  width: 100%;
+  height: 60vh;
+}
+
+.page-content,
+.page-tags-container,
+.page-meta-info-container,
+.editor-actions,
+.other-actions {
+  padding: 0 0 2em;
+}
+
+.sigma-esque-container .page-tags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.page-meta-info-container {
+  text-align: right;
+}
+
+textarea.page-source {
+  width: 100%;
+  height: 60vh;
+}
+
+div.page-source {
+  width: calc(100% - 4em - 2px);
+  height: fit-content;
+  padding: 1em 2em;
+  white-space: pre-wrap;
+}
+
+.action-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: stretch;
+  justify-content: flex-end;
+  width: 100%;
+}

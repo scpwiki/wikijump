@@ -10,7 +10,7 @@ import type {
   PageVoteModel,
   ParseError
 } from "$lib/types"
-import type { RequestContext } from "../load/request-ctx"
+import type { RequestContext } from "../request-context"
 
 /* ----- Page Delete ----- */
 interface PageDelete {
@@ -18,16 +18,21 @@ interface PageDelete {
   revision_id: number
   revision_number: number
 }
+export interface PageDeleteInput {
+  siteId: number
+  pageId: Optional<number>
+  userId: number
+  userIpAddr: string
+  slug: string
+  lastRevisionId: number
+  revisionComments: Optional<string>
+}
 export async function pageDelete(
-  siteId: number,
-  pageId: Optional<number>,
-  userId: number,
-  userIpAddr: string,
-  slug: string,
-  lastRevisionId: number,
-  revisionComments: Optional<string>,
+  input: PageDeleteInput,
   requestContext: RequestContext
 ): Promise<PageDelete> {
+  const { siteId, pageId, userId, userIpAddr, slug, lastRevisionId, revisionComments } =
+    input
   return client.request(
     "page_delete",
     {
@@ -48,21 +53,38 @@ export interface CreatePageRevisionOutput {
   revision_number: number
   parser_errors: Nullable<ParseError[]>
 }
+export interface PageEditInput {
+  siteId: number
+  pageId: Optional<number>
+  userId: Optional<number>
+  userIpAddr: string
+  slug: string
+  lastRevisionId: Optional<number>
+  revisionComments: Optional<string>
+  wikitext: Optional<string>
+  title: Optional<string>
+  altTitle: Optional<string>
+  tags: string[]
+  layout: Optional<Nullable<Layout>>
+}
 export async function pageEdit(
-  siteId: number,
-  pageId: Optional<number>,
-  userId: Optional<number>,
-  userIpAddr: string,
-  slug: string,
-  lastRevisionId: Optional<number>,
-  revisionComments: Optional<string>,
-  wikitext: Optional<string>,
-  title: Optional<string>,
-  altTitle: Optional<string>,
-  tags: string[],
-  layout: Optional<Nullable<Layout>>,
+  input: PageEditInput,
   requestContext: RequestContext
 ): Promise<CreatePageRevisionOutput> {
+  const {
+    siteId,
+    pageId,
+    userId,
+    userIpAddr,
+    slug,
+    lastRevisionId,
+    revisionComments,
+    wikitext,
+    title,
+    altTitle,
+    tags,
+    layout
+  } = input
   return client.request(
     pageId ? "page_edit" : "page_create",
     {
@@ -146,17 +168,30 @@ interface PageMove {
   revision_number: number
   parser_errors: Nullable<ParseError[]>
 }
+export interface PageMoveInput {
+  siteId: number
+  pageId: Optional<number>
+  userId: number
+  userIpAddr: string
+  slug: string
+  lastRevisionId: number
+  newSlug: string
+  revisionComments: Optional<string>
+}
 export async function pageMove(
-  siteId: number,
-  pageId: Optional<number>,
-  userId: number,
-  userIpAddr: string,
-  slug: string,
-  lastRevisionId: number,
-  newSlug: string,
-  revisionComments: Optional<string>,
+  input: PageMoveInput,
   requestContext: RequestContext
 ): Promise<PageMove> {
+  const {
+    siteId,
+    pageId,
+    userId,
+    userIpAddr,
+    slug,
+    lastRevisionId,
+    newSlug,
+    revisionComments
+  } = input
   return client.request(
     "page_move",
     {
@@ -197,17 +232,30 @@ export async function pageRevision(
 }
 
 /* ----- Page Rollback ----- */
+export interface PageRollbackInput {
+  siteId: number
+  pageId: Optional<number>
+  userId: number
+  userIpAddr: string
+  slug: string
+  lastRevisionId: number
+  revisionNumber: Optional<number>
+  revisionComments: Optional<string>
+}
 export async function pageRollback(
-  siteId: number,
-  pageId: Optional<number>,
-  userId: number,
-  userIpAddr: string,
-  slug: string,
-  lastRevisionId: number,
-  revisionNumber: Optional<number>,
-  revisionComments: Optional<string>,
+  input: PageRollbackInput,
   requestContext: RequestContext
 ): Promise<Nullable<CreatePageRevisionOutput>> {
+  const {
+    siteId,
+    pageId,
+    userId,
+    userIpAddr,
+    slug,
+    lastRevisionId,
+    revisionNumber,
+    revisionComments
+  } = input
   return client.request(
     "page_rollback",
     {
@@ -225,22 +273,25 @@ export async function pageRollback(
 
 /* ----- Page Vote List ----- */
 export async function pageVoteList(
-  siteId: number,
-  pageId: Optional<number>
+  pageId: Optional<number>,
+  requestContext: RequestContext
 ): Promise<PageVoteModel[]> {
-  return client.request("vote_list", {
-    type: "Page",
-    id: pageId,
-    deleted: false,
-    disabled: false,
-    start_id: 0,
-    limit: 100
-  })
+  return client.request(
+    "vote_list",
+    {
+      type: "Page",
+      id: pageId,
+      deleted: false,
+      disabled: false,
+      start_id: 0,
+      limit: 100
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Vote Cast ----- */
 export async function pageVoteCast(
-  siteId: number,
   pageId: Optional<number>,
   userId: number,
   value: number,
@@ -259,7 +310,6 @@ export async function pageVoteCast(
 
 /* ----- Page Vote Remove ----- */
 export async function pageVoteRemove(
-  siteId: number,
   pageId: Optional<number>,
   userId: number,
   requestContext: RequestContext
@@ -335,12 +385,17 @@ export async function pageParentUpdate(
 export async function pageParentGet(
   siteId: number,
   pageId: Optional<number>,
-  slug: string
+  slug: string,
+  requestContext: RequestContext
 ): Promise<string[]> {
-  return client.request("parent_get_all", {
-    site_id: siteId,
-    page: pageId ?? slug
-  })
+  return client.request(
+    "parent_get_all",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Deleted Get ----- */
@@ -361,12 +416,17 @@ export interface PageDeletedGet {
 }
 export async function pageDeletedGet(
   siteId: number,
-  slug: string
+  slug: string,
+  requestContext: RequestContext
 ): Promise<PageDeletedGet[]> {
-  return client.request("page_get_deleted", {
-    site_id: siteId,
-    slug
-  })
+  return client.request(
+    "page_get_deleted",
+    {
+      site_id: siteId,
+      slug
+    },
+    requestContext
+  )
 }
 
 /* ----- Page Restore ----- */
@@ -405,10 +465,15 @@ export interface PageScore {
 export async function pageScore(
   siteId: number,
   pageId: Optional<number>,
-  slug: string
+  slug: string,
+  requestContext: RequestContext
 ): Promise<PageScore> {
-  return client.request("page_get_score", {
-    site_id: siteId,
-    page: pageId ?? slug
-  })
+  return client.request(
+    "page_get_score",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
 }

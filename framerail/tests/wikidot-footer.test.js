@@ -10,7 +10,7 @@ import {
   formatWikidotLicenseName,
   isImportedWikidotView,
   shouldUseWikidotLicenseHtml
-} from "../src/lib/wikidot-footer.js"
+} from "../src/lib/wikidot/wikidot-footer.js"
 
 test("uses Wikidot footer labels in source order", () => {
   assert.deepEqual(

@@ -1,10 +1,12 @@
 import defaults from "$lib/defaults"
 
 import { limitLocalePreferences } from "$lib/locales"
-import { authGetSession } from "$lib/server/auth/getSession"
+import { authGetSession } from "$lib/server/auth/get-session"
 import { getFileByHash } from "$lib/server/deepwell/file"
 import { translate } from "$lib/server/deepwell/translate"
 import { userEdit, userView } from "$lib/server/deepwell/user"
+import { failForActionError, failForMissingSession } from "$lib/server/load/action-error"
+import { getRequestContext } from "$lib/server/request-context"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
@@ -115,12 +117,18 @@ export async function loadUser(
   const internationalization = await translate(locales, translateKeys)
 
   const userEditForm = await superValidate(request, valibot(userEditSchema))
-
-  if (errorStatus !== null) {
-    error(errorStatus, { ...viewData, view: response.type, internationalization })
+  const pageData = {
+    ...parentData,
+    ...viewData,
+    view: response.type,
+    internationalization
   }
 
-  return { ...viewData, view: response.type, internationalization, userEditForm }
+  if (errorStatus !== null) {
+    error(errorStatus, pageData)
+  }
+
+  return { ...pageData, userEditForm }
 }
 
 export function sanitizeUserData(
@@ -172,7 +180,8 @@ export function sanitizeUserData(
 export async function userEditAction({
   request,
   cookies,
-  getClientAddress
+  getClientAddress,
+  locals
 }: RequestEvent) {
   const form = await superValidate(request, valibot(userEditSchema))
   if (!form.valid) {
@@ -180,11 +189,12 @@ export async function userEditAction({
   }
 
   const sessionToken = cookies.get("wikijump_token")
-  const session = await authGetSession(sessionToken)
+  if (!sessionToken) return failForMissingSession({ form })
 
   const ipAddress = getClientAddress()
 
   try {
+    const session = await authGetSession(sessionToken)
     const {
       name,
       realName,
@@ -199,33 +209,33 @@ export async function userEditAction({
       locales
     } = form.data
 
-    const res = await userEdit(session?.user_id, ipAddress, {
-      name,
-      email,
-      locales: locales
-        ? limitLocalePreferences(
-            locales.replaceAll("_", "-").replaceAll(",", " ").split(" ")
-          )
-        : undefined,
-      avatar,
-      realName,
-      gender,
-      birthday,
-      location,
-      biography,
-      website,
-      userPage,
-      bypassFilter: false
-    })
+    const res = await userEdit(
+      session?.user_id,
+      ipAddress,
+      {
+        name,
+        email,
+        locales: locales
+          ? limitLocalePreferences(
+              locales.replaceAll("_", "-").replaceAll(",", " ").split(" ")
+            )
+          : undefined,
+        avatar,
+        realName,
+        gender,
+        birthday,
+        location,
+        biography,
+        website,
+        userPage,
+        bypassFilter: false
+      },
+      getRequestContext(locals)
+    )
 
     return withFiles({ form, res })
   } catch (error) {
-    return fail(500, {
-      form,
-      message: error.message,
-      code: error.code,
-      data: error.data
-    })
+    return failForActionError(error, { form })
   }
 }
 
