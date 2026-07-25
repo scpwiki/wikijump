@@ -74,7 +74,8 @@ impl Parse for RelationSettings {
 
         // Gather fields and return
 
-        let (relation_name, field_name) = name.ok_or_else(|| make_error("no 'name' argument passed"))?;
+        let (relation_name, field_name) =
+            name.ok_or_else(|| make_error("no 'name' argument passed"))?;
         let dest = dest.ok_or_else(|| make_error("no 'dest' argument passed"))?;
         let from = from.ok_or_else(|| make_error("no 'from' argument passed"))?;
 
