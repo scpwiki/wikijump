@@ -18,33 +18,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::endpoints::user;
+use super::structs::{
+    DeleteRoleInput, GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput,
+    InternalReparentRoleInput, RevokeUserRoleInput, UpdateRoleInput,
+};
+use crate::error::prelude::{Result, ResultExt};
 use crate::error::{Error, ErrorType};
-use crate::models::prelude::Page;
 use crate::models::role::{self, Entity as Role, Model as RoleModel};
-use crate::models::role_permission::{
-    self, Entity as RolePermission, Model as RolePermissionModel,
-};
+use crate::models::user_role;
 use crate::models::user_role::{Entity as UserRole, Model as UserRoleModel};
-use crate::models::{page, user_role};
 use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::permission::{
-    CheckPermissionContext, PermissionCache, PermissionService,
-    resolve_category_reference,
-};
-use crate::services::relation::{
-    GetPageAttributions, GetSiteBan, GetSiteMember, SiteMemberAccepted,
-};
+use crate::services::permission::{PermissionCache, PermissionService};
+use crate::services::relation::{GetPageAttributions, GetSiteBan, GetSiteMember};
 use crate::services::role::SystemRole;
-use crate::services::{PageService, RelationService, ServiceContext};
-use crate::types::{Action, Permission, Reference, Resource};
-use crate::utils::{now, trim_default};
+use crate::services::{RelationService, ServiceContext};
+use crate::types::Maybe;
+use crate::types::Reference;
+use crate::utils::now;
+use paste::paste;
 use sea_orm::prelude::Expr;
-use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
-use std::net::IpAddr;
-use std::str::FromStr;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, JoinType, QueryFilter,
+    QuerySelect, RelationTrait, Set,
+};
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct RoleService;

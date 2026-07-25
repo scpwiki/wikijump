@@ -20,8 +20,11 @@
 
 //! Module for the worker which consumes `Job`s and performs the relevant task.
 
-use super::prelude::*;
+use super::service::{JOB_QUEUE_NAME, JobService};
+use super::structs::Job;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::runtime::ServerState;
+use crate::services::ServiceContext;
 use crate::services::page_revision::RerenderType;
 use crate::services::{
     BlobService, PageRevisionService, SessionService, TextService, UserService,
@@ -398,6 +401,9 @@ impl Debug for JobWorker {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::services::job::{
+        JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_PROCESS_TIME,
+    };
     use uuid::Uuid;
 
     #[derive(Debug, Default)]

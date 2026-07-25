@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(unused_imports)]
+#![warn(clippy::wildcard_imports)]
 
 //! The "services" module, providing low-level logical operations.
 //!
@@ -33,22 +33,6 @@
 //!
 //! These methods are called as component operations either by other
 //! services or by route implementations found in the `endpoints` module.
-
-mod prelude {
-    pub use super::context::{RequestContext, ServiceContext};
-    pub use crate::config::Config;
-    pub use crate::error::prelude::*;
-    pub use crate::types::{Maybe, Reference};
-    pub use crate::utils::{
-        ConvertToI16, ConvertToI32, ConvertToI64, ConvertToU64, ConvertToUsize, now,
-    };
-    pub use paste::paste;
-    pub use sea_orm::{
-        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult,
-        EntityTrait, IntoActiveModel, JoinType, ModelTrait, PaginatorTrait, QueryFilter,
-        QueryOrder, QuerySelect, RelationTrait, Set,
-    };
-}
 
 #[macro_use]
 mod macros;

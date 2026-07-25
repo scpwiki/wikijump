@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::Job;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::services::ServiceContext;
 use crate::services::page_revision::RerenderType;
 use crate::types::{PageId, RerenderDepth};
 use rsmq_async::{Rsmq, RsmqConnection};

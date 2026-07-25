@@ -18,7 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{ScoreType, VoteType};
+use crate::error::prelude::Result;
+use ftml::data::ScoreValue;
+use sea_orm::{Condition, DatabaseTransaction};
+use std::future::Future;
 
 pub trait Scorer {
     /// What kind of score this scorer evaluates.

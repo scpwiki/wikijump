@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use crate::hash::BlobHash;
 use crate::types::Bytes;
+use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
 #[derive(Deserialize, Debug, Clone)]

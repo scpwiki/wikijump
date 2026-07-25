@@ -19,9 +19,12 @@
  */
 
 use super::locale::validate_locales;
-use super::prelude::*;
+use super::structs::{CreateUser, CreateUserOutput, UpdateUserBody};
+use crate::config::Config;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::known_user::{self, Entity as KnownUser, Model as KnownUserModel};
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::ServiceContext;
 use crate::services::alias::CreateAlias;
 use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
 use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
@@ -29,8 +32,12 @@ use crate::services::email::{EmailClassification, EmailService, EmailValidationO
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
 use crate::types::{AliasType, UserType};
+use crate::types::{Maybe, Reference};
+use crate::utils::now;
 use crate::utils::regex_replace_in_place;
+use paste::paste;
 use regex::Regex;
+use sea_orm::{ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, Set};
 use sea_orm::{ActiveValue, DbErr, SqlErr};
 use serde_json::Value as JsonValue;
 use std::borrow::Cow;
@@ -1209,7 +1216,9 @@ fn should_check_filter(
     user_type: UserType,
     user_id: Option<i64>,
 ) -> bool {
-    use crate::constants::*;
+    use crate::constants::{
+        ADMIN_USER_ID, ANONYMOUS_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID,
+    };
 
     // If bypass_filter flag is set, never check
     if bypass_filter {

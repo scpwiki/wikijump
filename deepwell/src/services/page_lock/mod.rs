@@ -18,13 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod service;
 mod structs;
 
 pub use self::service::PageLockService;
-pub use self::structs::*;
+pub use self::structs::{CreatePageLockInput, RemovePageLockInput};

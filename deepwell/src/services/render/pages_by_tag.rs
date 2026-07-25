@@ -26,13 +26,16 @@
 //! `tag` argument is evidenced; every other form stays literal.
 
 use super::compat::CompatHtmlFragments;
-use super::prelude::*;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
 };
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::types::Reference;
 use crate::types::{Action, Permission, Resource};
 use ftml::settings::WikitextSettings;
+use ftml::{self};
 use regex::Regex;
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement};
 use std::sync::LazyLock;

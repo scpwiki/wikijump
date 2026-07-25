@@ -24,16 +24,6 @@
 //! Method implementations should instead work with the relevant concept
 //! service instead, for instance the `FileService`.
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::service::{
-        EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, EMPTY_BLOB_TIMESTAMP, PRESIGN_DIRECTORY,
-    };
-    pub use super::structs::*;
-    pub use crate::hash::{BlobHash, blob_hash_to_hex, sha512_hash};
-}
-
 mod mime;
 mod service;
 mod structs;
@@ -43,4 +33,7 @@ pub use self::service::{
     BlobService, EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, EMPTY_BLOB_TIMESTAMP,
     PRESIGN_DIRECTORY,
 };
-pub use self::structs::*;
+pub use self::structs::{
+    BlobMetadata, CancelBlobUpload, FinalizeBlobUploadOutput, GetBlobOutput, HardDelete,
+    HardDeleteOutput, StartBlobUpload, StartBlobUploadOutput,
+};

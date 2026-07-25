@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::error::prelude::*;
+use crate::error::prelude::{EnumConversionError, StdResult};
 use crate::types::Reference;
 use std::str::FromStr;
 

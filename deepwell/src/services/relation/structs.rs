@@ -20,7 +20,7 @@
 
 use crate::models::relation;
 use crate::types::{RelationObjectType, RelationType};
-use sea_orm::{ColumnTrait, Condition, DeriveValueType, EnumIter};
+use sea_orm::{ColumnTrait, Condition};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum RelationObject {

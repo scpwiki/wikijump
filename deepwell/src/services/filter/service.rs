@@ -18,10 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::matcher::{FilterMatcher, FilterSummary};
+use super::structs::{CreateFilter, FilterClass, FilterType, UpdateFilter};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::filter::{self, Entity as Filter, Model as FilterModel};
+use crate::services::ServiceContext;
+use crate::types::Maybe;
+use crate::utils::now;
 use crate::utils::trim_start_matches_in_place;
+use paste::paste;
 use regex::{Regex, RegexSet};
+use sea_orm::{ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, Set};
 
 #[derive(Debug)]
 pub struct FilterService;

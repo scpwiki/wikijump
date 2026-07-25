@@ -27,9 +27,18 @@
 //! This relation describes which site a site-user corresponds to.
 //! As such, it is an invariant that all users linked here are of the type `site`.
 
-use super::prelude::*;
+use super::RelationService;
+use super::structs::{
+    RelationDirection, RelationObject, RelationReference, relation_type_condition,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::models::relation::{self, Entity as Relation, Model as RelationModel};
+use crate::services::ServiceContext;
 use crate::services::UserService;
+use crate::types::Reference;
 use crate::types::{RelationObjectType, RelationType, UserType};
+use paste::paste;
+use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder};
 
 impl_relation!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL);
 

@@ -18,14 +18,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{
+    CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileBody,
+    EditFileOutput, GetFile, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput,
+    RollbackFile,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::hash::slice_to_blob_hash;
 use crate::models::file::{self, Entity as File, Model as FileModel};
-use crate::models::file_revision::{
-    self, Entity as FileRevision, Model as FileRevisionModel,
-};
-use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
-use crate::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput};
+use crate::models::file_revision::Model as FileRevisionModel;
+use crate::services::ServiceContext;
+use crate::services::audit::ObjectScope;
+use crate::services::blob::FinalizeBlobUploadOutput;
 use crate::services::file_revision::{
     CreateFileRevision, CreateFileRevisionBody, CreateFirstFileRevision,
     CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
@@ -34,8 +38,14 @@ use crate::services::file_revision::{
 use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{BlobService, FileRevisionService, FilterService, PageService};
 use crate::types::{FileOrder, FileRevisionType};
+use crate::types::{Maybe, Reference};
+use crate::utils::now;
 use crate::utils::trim_spaces_in_place;
+use paste::paste;
 use sea_orm::ActiveValue;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder, Set,
+};
 use std::net::IpAddr;
 
 pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;

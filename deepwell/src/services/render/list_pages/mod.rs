@@ -26,14 +26,43 @@ pub(super) mod scanner;
 pub(super) mod substitution;
 pub(super) mod template;
 
+pub(super) use self::rendering::{CountPagesExpansionOptions, ListPagesExpansionOptions};
+#[cfg(test)]
 pub(super) use self::rendering::{
-    CountPagesExpansionOptions, ListPagesExpansionBudget, ListPagesExpansionOptions,
-    register_generated_list_pages_html,
+    ListPagesExpansionBudget, register_generated_list_pages_html,
 };
-pub(super) use self::substitution::*;
+pub(super) use self::substitution::{
+    BacklinksModulePage, CurrentPageAuthorSource, ExactNameListPagesBatchKey,
+    ListPagesArguments, ListPagesAuthorCacheKey, ListPagesBatchDisplayRequirements,
+    ListPagesBatchDisplays, ListPagesSnapshotDisplay, ListPagesSubstitutionContext,
+    ResolvedListPagesAuthors, WikidotUserDisplay, build_wikidot_list_pages_module_source,
+    count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
+    count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
+    count_pages_scan_requires_preservation, count_pages_should_remain_literal,
+    count_pages_unbounded_total, current_page_info_list_pages_row,
+    exact_name_list_pages_batch_key, is_tag_cloud_visible_tag,
+    list_pages_author_cache_key, list_pages_content_query_target,
+    list_pages_created_by_unix, list_pages_has_unsupported_page_type_selector,
+    list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
+    list_pages_revision_count, list_pages_row_scan_target,
+    page_query_cap_requires_original_module, parse_list_pages_arguments,
+    parse_list_pages_arguments_with_url, push_list_pages_pager, render_tag_cloud_box,
+    requested_page_info_score, restore_list_pages_literal_ellipsis_markers,
+    should_render_current_page_list_pages_row, substitute_count_pages_variables,
+    substitute_list_pages_rating_only, substitute_list_pages_variables_with_fragments,
+    union_found_page_fields, unsupported_list_pages_replacement,
+};
+#[cfg(test)]
+pub(super) use self::substitution::{
+    format_list_pages_created_at, list_pages_body_is_no_visible_tracking_markup,
+    list_pages_body_uses_content_variable, list_pages_body_variables_supported,
+    list_pages_tag_link_href, parse_list_pages_date_selector, render_list_pages_tags,
+    substitute_list_pages_variables,
+};
 
-use super::prelude::*;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
+use crate::services::ServiceContext;
 use crate::services::page_query::{
     AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
     IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
@@ -42,8 +71,10 @@ use crate::services::page_query::{
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::score::ScoreValue;
 use crate::services::{PageQueryService, PageRevisionService, ScoreService};
+use crate::types::Reference;
 use crate::types::{Action, PageId, Permission, Resource};
 use regex::Regex;
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;

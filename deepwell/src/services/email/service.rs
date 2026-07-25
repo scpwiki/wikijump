@@ -18,8 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{
+    EmailClassification, EmailProviderClassification, EmailValidationOutput,
+    MailCheckFailureResponse, MailCheckResponse, MailCheckSuccessResponse,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::runtime::ServerState;
+use crate::services::ServiceContext;
 
 #[derive(Debug)]
 pub struct EmailService;

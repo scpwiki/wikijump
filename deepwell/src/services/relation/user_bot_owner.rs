@@ -18,10 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::RelationService;
+use super::structs::{RelationDirection, RelationObject, RelationReference};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::models::relation::Model as RelationModel;
 use crate::models::user::Model as UserModel;
+use crate::services::ServiceContext;
 use crate::types::UserType;
+use crate::types::{RelationObjectType, RelationType};
 use crate::utils::trim_spaces_in_place;
+use paste::paste;
+use serde::Serialize;
 use time::OffsetDateTime;
 
 // External structures

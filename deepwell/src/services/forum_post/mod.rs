@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod compat_query;
 mod service;
 mod structs;
@@ -34,4 +28,8 @@ pub use self::compat_query::{
     forum_post_select,
 };
 pub use self::service::ForumPostService;
-pub use self::structs::*;
+pub use self::structs::{
+    CreateForumPost, CreateForumPostOutput, DeleteForumPost, ForumPostNode, GetForumPost,
+    GetForumPosts, GetStructuredForumPosts, RestoreForumPost, UpdateForumPost,
+    UpdateForumPostBody, UpdateForumPostOutput,
+};

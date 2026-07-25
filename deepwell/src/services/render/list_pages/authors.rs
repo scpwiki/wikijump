@@ -25,15 +25,21 @@
 //! lookups across a page of rows and caching them for the rest of the render,
 //! which is what these functions do for `rendering.rs`.
 
-use super::super::prelude::*;
-use super::super::runtime::*;
-use super::super::runtime_page_queries::*;
-use super::super::service::*;
-use super::*;
+use super::super::service::RenderService;
+use super::{
+    Cow, CurrentPageAuthorSource, ListPagesAuthorCacheKey, ListPagesSnapshotDisplay,
+    PageRevisionService, ResolvedListPagesAuthors, WikidotUserDisplay,
+    list_pages_author_cache_key,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::user::{self, Entity as UserTable};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
-use crate::services::page_query::*;
-use sea_orm::{ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, Statement, Value};
+use crate::services::ServiceContext;
+use crate::services::page_query::{FoundPageRow, normalize_wikidot_author_name};
+use sea_orm::{
+    ColumnTrait, ConnectionTrait, EntityTrait, FromQueryResult, QueryFilter, Statement,
+    Value,
+};
 use std::collections::{BTreeMap, BTreeSet};
 
 impl RenderService {

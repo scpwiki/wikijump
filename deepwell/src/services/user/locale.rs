@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::types::UserType;
 use crate::utils::validate_locale;
 use std::collections::HashSet;

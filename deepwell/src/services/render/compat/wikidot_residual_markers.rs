@@ -19,7 +19,9 @@
  */
 
 use super::super::html_text::html_data_segments;
-use super::super::service::*;
+use super::super::service::{
+    RenderService, WIKIDOT_RESIDUAL_DIV_PARAGRAPH_REGEX, wikidot_inline_span_marker_open,
+};
 use std::ops::Range;
 
 impl RenderService {

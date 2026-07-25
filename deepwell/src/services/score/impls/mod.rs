@@ -21,15 +21,13 @@
 // TEMP
 #![allow(dead_code)]
 
-mod prelude {
-    pub use super::super::prelude::*;
+use crate::error::prelude::{Error, ErrorType};
 
-    pub fn make_error(method: &str) -> Error {
-        Error::new(
-            format!("failed to calculate {} score for page", method),
-            ErrorType::PageVote,
-        )
-    }
+fn make_error(method: &str) -> Error {
+    Error::new(
+        format!("failed to calculate {} score for page", method),
+        ErrorType::PageVote,
+    )
 }
 
 mod mean;
@@ -80,7 +78,7 @@ mod tests {
 
     #[test]
     fn scorer_error_includes_method_name() {
-        let error = prelude::make_error("mean");
+        let error = make_error("mean");
 
         assert!(error.to_string().contains("mean score"));
     }

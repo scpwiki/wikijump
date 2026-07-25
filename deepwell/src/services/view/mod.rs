@@ -18,14 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::module_arguments::PageModuleArguments;
-    pub use super::options::PageOptions;
-    pub use super::structs::*;
-}
-
 mod article_cache;
 mod module_arguments;
 mod module_render;
@@ -35,4 +27,9 @@ mod service;
 mod structs;
 
 pub use self::service::ViewService;
-pub use self::structs::*;
+pub use self::structs::{
+    GetAdminView, GetAdminViewOutput, GetArticleViewCacheMetadataOutput,
+    GetArticleViewOutput, GetPageView, GetPageViewOutput, GetPreloadView,
+    GetPreloadViewOutput, GetUserView, GetUserViewOutput, PageTemplateSummary, ViewType,
+    ViewerLicenseKind,
+};

@@ -22,10 +22,8 @@ mod generic_heads;
 mod head_index;
 mod quote_lines;
 
-#[cfg(test)]
-pub(super) use self::generic_heads::collect_generic_head_candidates;
 pub(super) use self::generic_heads::{
-    HeadCandidateStreams, RuntimeModuleHeadCandidate, collect_head_candidate_streams,
+    RuntimeModuleHeadCandidate, collect_head_candidate_streams,
     collect_head_candidate_streams_with_context,
 };
 pub(super) use self::head_index::HeadContext;

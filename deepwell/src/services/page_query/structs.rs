@@ -21,8 +21,8 @@
 // TODO: add serde, include time fmt conversions
 #![allow(dead_code)] // TEMP
 
-use super::prelude::*;
 use crate::services::score::ScoreValue;
+use crate::types::Reference;
 use sea_orm::prelude::TimeDateTimeWithTimeZone;
 use std::borrow::Cow;
 

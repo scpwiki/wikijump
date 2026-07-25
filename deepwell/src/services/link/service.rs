@@ -18,17 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use super::resolver::resolve_connection_counts;
+use super::structs::{
+    GetConnectionsFromOutput, GetLinksExternalFromOutput, GetLinksExternalToOutput,
+    GetLinksFromOutput, GetLinksToMissingOutput, GetLinksToOutput, ToExternalLink,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page;
 use crate::models::page_connection::{self, Entity as PageConnection};
 use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::models::page_link::{self, Entity as PageLink, Model as PageLinkModel};
 use crate::services::PageService;
+use crate::services::ServiceContext;
 use crate::types::ConnectionType;
+use crate::types::Reference;
+use crate::utils::now;
 use ftml::data::Backlinks;
 use sea_orm::NotSet;
 use sea_orm::sea_query::OnConflict;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, JoinType, PaginatorTrait,
+    QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set,
+};
 use std::collections::HashMap;
 
 /// Forms an optional `Condition` from a list of connection types.

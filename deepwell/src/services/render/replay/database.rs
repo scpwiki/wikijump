@@ -1,5 +1,5 @@
 use super::settings::{RenderReplaySettings, states_sql};
-use crate::error::prelude::*;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::runtime::ServerState;
 use crate::services::context::ServiceContext;
 use crate::services::render::{CorpusReplayExpandedWikitext, RenderService};

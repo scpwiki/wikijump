@@ -1,2 +1,3 @@
 # Code smells
 disallowed-names = ["foo", "bar", "baz", "todo"]
+warn-on-all-wildcard-imports = true

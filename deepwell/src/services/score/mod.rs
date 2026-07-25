@@ -18,23 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::Scorer;
-    pub use super::structs::*;
-    pub use crate::models::page_vote::{self, Entity as PageVote};
-    pub use ftml::data::ScoreValue;
-    pub use sea_orm::{DatabaseTransaction, FromQueryResult};
-    pub use std::future::Future;
-}
-
 mod impls;
 mod scorer;
 mod service;
 mod structs;
 
-pub use self::impls::*;
+pub use self::impls::{MeanScorer, NullScorer, PercentScorer, SumScorer, TestScorer};
 pub use self::scorer::Scorer;
 pub use self::service::ScoreService;
 pub use ftml::data::ScoreValue;

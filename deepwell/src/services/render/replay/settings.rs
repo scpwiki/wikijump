@@ -1,5 +1,5 @@
 use super::model::MAX_REPLAY_CONCURRENCY;
-use crate::error::prelude::*;
+use crate::error::prelude::{Error, ErrorType, ExnError, Result};
 use std::env;
 use std::path::PathBuf;
 use std::time::Duration;

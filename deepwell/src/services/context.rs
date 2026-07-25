@@ -19,7 +19,7 @@
  */
 
 use crate::config::Config;
-use crate::error::prelude::*;
+use crate::error::prelude::{Error, ErrorType, OptionExt, Result, ResultExt};
 use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
 use crate::runtime::ServerState;

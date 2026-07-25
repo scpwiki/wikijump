@@ -27,7 +27,7 @@
 //!
 //! Instead we have it in a thread and ferry requests and responses back and forth.
 
-use super::prelude::*;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt, StdResult};
 use filemagic::{FileMagicError, Flags as MagicFlags, Magic};
 use std::thread;
 use tokio::sync::{mpsc, oneshot};

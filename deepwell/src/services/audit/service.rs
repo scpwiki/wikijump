@@ -18,8 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::models::audit_log::{self, Entity as AuditLog, Model as AuditLogModel};
+use super::structs::{AuditEvent, RawAuditEvent};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::models::audit_log::{self, Entity as AuditLog};
+use crate::services::ServiceContext;
+use sea_orm::{EntityTrait, Set};
 use std::net::IpAddr;
 
 #[derive(Debug)]

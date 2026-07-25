@@ -18,7 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::RelationService;
+use super::structs::{RelationDirection, RelationObject, RelationReference};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::models::relation::Model as RelationModel;
+use crate::services::ServiceContext;
+use crate::types::RelationType;
+use paste::paste;
 
 impl_relation!(
     UserFollow,

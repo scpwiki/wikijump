@@ -18,20 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use crate::models::alias::Model as AliasModel;
 use crate::models::user::Model as UserModel;
-use crate::models::wikidot_user::Model as WikidotUserModel;
-use crate::types::{Bytes, UserType};
+use crate::types::UserType;
+use crate::types::{Maybe, Reference};
 use std::net::IpAddr;
 use time::Date;
-
-#[derive(Serialize, Debug, Clone)]
-#[serde(tag = "user_record_type", rename_all = "snake_case")]
-pub enum User {
-    Wikijump(UserModel),
-    Wikidot(WikidotUserModel),
-}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateUser {

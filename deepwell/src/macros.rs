@@ -57,7 +57,7 @@ macro_rules! cow {
 /// Convenience macro like `cow!`, but for `Option<Cow<str>>`.
 macro_rules! cow_opt {
     ($s:expr) => {{
-        use ref_map::*;
+        use ref_map::OptionRefMap;
         $s.ref_map(|s| cow!(s))
     }};
 }

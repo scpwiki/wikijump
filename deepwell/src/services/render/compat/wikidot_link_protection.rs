@@ -19,7 +19,13 @@
  */
 
 use super::super::literal_regions::LiteralRegionIndex;
-use super::super::service::*;
+use super::super::service::{
+    ProtectedWikidotCompatLink, RenderService, WIKIDOT_ANCHOR_MARKER_REGEX,
+    WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX, WIKIDOT_CURRENT_PAGE_LINK_REGEX,
+    WIKIDOT_STAR_LOCAL_LINK_REGEX, WIKIDOT_WIKIPEDIA_LINK_REGEX,
+    WIKIDOT_WIKIPEDIA_LINK_SENTINEL_NONCE_LEN, WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX,
+    escape_list_pages_html_attr, escape_list_pages_html_text,
+};
 use super::issued_markers::restore_issued_html_text_markers;
 use ftml::settings::WikitextSettings;
 use std::borrow::Cow;

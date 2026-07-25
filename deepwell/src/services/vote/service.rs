@@ -19,9 +19,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{
+    CountVoteHistory, CreateVote, GetVote, GetVoteHistory, VoteHistoryKind,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page_vote::{self, Entity as PageVote, Model as PageVoteModel};
+use crate::services::ServiceContext;
+use crate::utils::now;
+use paste::paste;
 use sea_orm::IntoActiveModel;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter,
+    QueryOrder, QuerySelect, Set,
+};
 
 #[derive(Debug)]
 pub struct VoteService;
