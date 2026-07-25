@@ -28,7 +28,7 @@ use super::super::runtime::*;
 use super::super::runtime_page_queries::*;
 use super::super::service::*;
 use super::content_sections::{isolate_wikidot_content_section, wikidot_content_section};
-use super::parents::load_list_pages_parent_fullnames;
+use super::parents::{load_list_pages_child_counts, load_list_pages_parent_fullnames};
 use super::scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
     has_count_pages_module_opening_candidate, has_list_pages_module_opening_candidate,
@@ -1097,6 +1097,7 @@ impl RenderService {
         let wants_site_domain = template.uses_site_domain();
         let wants_parent_fullname = template.uses_parent_fullname();
         let wants_revisions = template.uses_revisions();
+        let wants_children = template.uses_children();
         let resolved_authors = Self::resolve_list_pages_authors_cached(
             ctx,
             current_site_id,
@@ -1396,6 +1397,11 @@ impl RenderService {
             // so its account slug cannot stand in for the Wikidot author's unix name.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
+        let child_counts = if wants_children {
+            load_list_pages_child_counts(ctx, &pages).await?
+        } else {
+            BTreeMap::new()
+        };
         let revision_counts = if wants_revisions {
             let mut missing_by_site = BTreeMap::<i64, Vec<i64>>::new();
             for page in &pages {
@@ -1596,6 +1602,8 @@ impl RenderService {
                     snapshot_displays,
                     &relational_parent_fullnames,
                 ),
+                page_child_count: wants_children
+                    .then(|| child_counts.get(&page.page_id).copied().unwrap_or(0)),
                 page_revision_count: wants_revisions.then(|| {
                     list_pages_revision_count(page, snapshot_displays, &revision_counts)
                         .expect(

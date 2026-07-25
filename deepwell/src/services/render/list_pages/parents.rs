@@ -30,6 +30,69 @@ use crate::services::page_query::FoundPageRow;
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement};
 use std::collections::{BTreeMap, BTreeSet};
 
+/// The number of direct children each given row has, keyed by page ID.
+///
+/// Live Wikidot reports this as `%%children%%`: `component:offset-timeline`
+/// answers 2 for its two fragment children, and a page with none answers 0.
+/// Deleted children are not counted, matching the parent lookup below.
+pub(in crate::services::render) async fn load_list_pages_child_counts(
+    ctx: &ServiceContext<'_>,
+    pages: &[FoundPageRow],
+) -> Result<BTreeMap<i64, u64>> {
+    #[derive(FromQueryResult, Debug)]
+    struct ChildCountRow {
+        parent_page_id: i64,
+        child_count: i64,
+    }
+
+    let page_ids = pages
+        .iter()
+        .map(|page| page.page_id)
+        .collect::<BTreeSet<_>>();
+    if page_ids.is_empty() {
+        return Ok(BTreeMap::new());
+    }
+
+    let make_error = || {
+        Error::new(
+            "failed to count child pages for ListPages render",
+            ErrorType::Render,
+        )
+    };
+    let values = page_ids
+        .iter()
+        .map(|page_id| format!("({page_id})"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let txn = ctx.transaction();
+    let statement = Statement::from_string(
+        txn.get_database_backend(),
+        format!(
+            "WITH input(page_id) AS (VALUES {values}) \
+             SELECT input.page_id AS parent_page_id, count(child.page_id) AS child_count \
+             FROM input \
+             LEFT JOIN page_parent ON page_parent.parent_page_id = input.page_id \
+             LEFT JOIN page child ON child.page_id = page_parent.child_page_id \
+                 AND child.deleted_at IS NULL \
+             GROUP BY input.page_id",
+        ),
+    );
+
+    let rows = ChildCountRow::find_by_statement(statement)
+        .all(txn)
+        .await
+        .or_raise(make_error)?;
+
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.parent_page_id, row.child_count.max(0) as u64))
+        .collect())
+}
+
+/// The parent full names of the given result rows, keyed by child page ID.
+///
+/// Rows without exactly one live parent are absent from the map rather than
+/// present with an empty value.
 pub(in crate::services::render) async fn load_list_pages_parent_fullnames(
     ctx: &ServiceContext<'_>,
     pages: &[FoundPageRow],

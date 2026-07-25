@@ -1575,6 +1575,7 @@ pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {
     pub(in crate::services::render) page_wikitext: Option<&'a str>,
     pub(in crate::services::render) page_wikitext_scalar_count: Option<usize>,
     pub(in crate::services::render) page_parent_fullname: Option<&'a str>,
+    pub(in crate::services::render) page_child_count: Option<u64>,
     pub(in crate::services::render) page_revision_count: Option<u64>,
     pub(in crate::services::render) expanded_content:
         Option<&'a BTreeMap<Option<usize>, String>>,
@@ -1760,7 +1761,10 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                     .page_wikitext_scalar_count
                     .map(|scalar_count| scalar_count.to_string())
                     .unwrap_or_else(|| captures[0].to_owned()),
-                "children" => "0".to_owned(),
+                "children" => context
+                    .page_child_count
+                    .map(|child_count| child_count.to_string())
+                    .unwrap_or_else(|| captures[0].to_owned()),
                 "revisions" => context
                     .page_revision_count
                     .map(|revision_count| revision_count.to_string())
@@ -1772,7 +1776,10 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                 "parent_fullname" => {
                     context.page_parent_fullname.unwrap_or("").to_owned()
                 }
-                "rating_percent" => String::new(),
+                // Live Wikidot leaves this variable unsubstituted on a
+                // plus/minus site, so the authored text survives rather than
+                // collapsing to an empty cell.
+                "rating_percent" => captures[0].to_owned(),
                 "form_data" | "form_raw" => captures
                     .name("argument")
                     .and_then(|matched| context.data_form_values.get(matched.as_str()))

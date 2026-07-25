@@ -48,6 +48,7 @@ enum ListPagesVariable {
     SiteDomain,
     ParentFullname,
     Revisions,
+    Children,
     EmptyCompatField,
     FormData,
     Content,
@@ -94,7 +95,8 @@ impl ListPagesVariable {
             "site_domain" => Some(Self::SiteDomain),
             "parent_fullname" => Some(Self::ParentFullname),
             "revisions" => Some(Self::Revisions),
-            "children" | "rating_percent" => Some(Self::EmptyCompatField),
+            "children" => Some(Self::Children),
+            "rating_percent" => Some(Self::EmptyCompatField),
             "form_data" | "form_raw" if has_argument => Some(Self::FormData),
             "content" => Some(Self::Content),
             "index" => Some(Self::Index),
@@ -332,6 +334,10 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::Revisions)
     }
 
+    pub(in crate::services::render) fn uses_children(&self) -> bool {
+        self.variables.contains(ListPagesVariable::Children)
+    }
+
     pub(in crate::services::render) fn content_sections(
         &self,
     ) -> &BTreeSet<Option<usize>> {
@@ -409,7 +415,7 @@ mod tests {
             "%%createdbylinked%% %%date%% %%tagslinked%% %%_tags_linked%% %%updatedby%% ",
             "%%updatedat%% %%date_edited%% %%ratingvotes%% %%comments%% %%commentedby%% ",
             "%%commentedat%% %%content%% %%form_raw{status}%% %%size%% %%created_by_unix%% ",
-            "%%site_domain%% %%parent_fullname%% %%revisions%%",
+            "%%site_domain%% %%parent_fullname%% %%revisions%% %%children%%",
         );
         let plan = ListPagesTemplatePlan::compile(body).expect("aliases should compile");
 
@@ -427,6 +433,7 @@ mod tests {
         assert!(plan.uses_site_domain());
         assert!(plan.uses_parent_fullname());
         assert!(plan.uses_revisions());
+        assert!(plan.uses_children());
         assert_eq!(plan.content_sections(), &BTreeSet::from([None]));
         assert!(plan.uses_data_form());
         assert_eq!(plan.variable_traversals(), 1);

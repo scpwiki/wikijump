@@ -124,6 +124,7 @@ fn list_pages_substitution_context_with_mode<'a>(
         page_wikitext_scalar_count: page_wikitext
             .map(|wikitext| wikitext.chars().count()),
         page_parent_fullname: None,
+        page_child_count: None,
         page_revision_count: None,
         expanded_content: None,
         data_form_values,
@@ -3515,6 +3516,53 @@ fn substitutes_wikidot_list_pages_site_domain_and_parent_fullname() {
     assert_eq!(
         substitute_list_pages_variables("%%parent_fullname%%", &page, 1, 2, &context),
         "",
+    );
+}
+
+#[test]
+fn substitutes_wikidot_list_pages_child_count_and_leaves_rating_percent_literal() {
+    let page = FoundPageRow {
+        page_id: 1,
+        site_id: 1,
+        title: Some("Offset timeline".to_owned()),
+        alt_title: None,
+        slug: Some("component:offset-timeline".to_owned()),
+        page_category_id: None,
+        page_revision_id: None,
+        tags: None,
+        created_at: None,
+        created_by: None,
+        updated_at: None,
+        updated_by: None,
+        score: None,
+    };
+    let user_displays = BTreeMap::new();
+    let data_form_values = BTreeMap::new();
+    let mut context =
+        list_pages_substitution_context(20, &user_displays, None, &data_form_values);
+
+    context.page_child_count = Some(2);
+    assert_eq!(
+        substitute_list_pages_variables(
+            "%%children%% %%rating_percent%%",
+            &page,
+            1,
+            1,
+            &context,
+        ),
+        "2 %%rating_percent%%",
+    );
+
+    context.page_child_count = Some(0);
+    assert_eq!(
+        substitute_list_pages_variables("%%children%%", &page, 1, 1, &context),
+        "0",
+    );
+
+    context.page_child_count = None;
+    assert_eq!(
+        substitute_list_pages_variables("%%children%%", &page, 1, 1, &context),
+        "%%children%%",
     );
 }
 
