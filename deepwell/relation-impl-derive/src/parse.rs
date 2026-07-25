@@ -19,7 +19,7 @@ impl Parse for RelationSettings {
         let mut name = None;
         let mut dest = None;
         let mut from = None;
-        let mut data_type: Option<()> = None;
+        let mut data_type = None;
         let mut define_create: Option<bool> = None;
         let mut define_struct: Option<bool> = None;
 
@@ -60,9 +60,13 @@ impl Parse for RelationSettings {
                     let field_type: Type = input.parse()?;
                     from = Some((field_name, field_type));
                 }
-                // TODO
+                // Define the associated metadata type for this relation
+                // This key is optional, by default no extra metadata is included
+                //
+                //  data => UserBlockData
                 "data" => {
-                    todo!();
+                    let t_type: Type = input.parse()?;
+                    data_type = Some(t_type);
                 }
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
             }
