@@ -163,14 +163,6 @@ impl ResolvedListPagesAuthors {
     }
 }
 
-#[derive(Debug, FromQueryResult)]
-pub(in crate::services::render) struct BacklinksModulePage {
-    pub(in crate::services::render) page_id: i64,
-    pub(in crate::services::render) page_category_id: i64,
-    pub(in crate::services::render) slug: String,
-    pub(in crate::services::render) title: String,
-}
-
 #[derive(Clone, Debug, PartialEq)]
 pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) current_page_only: bool,

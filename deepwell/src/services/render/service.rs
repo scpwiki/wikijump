@@ -306,7 +306,6 @@ pub(super) const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 pub(super) const MAX_WIKIDOT_AJAX_MODULE_BODY_BYTES: usize = 65_536;
 pub(super) const MAX_WIKIDOT_AJAX_MODULE_PARAMETERS: usize = 64;
 pub(super) const MAX_WIKIDOT_AJAX_MODULE_PARAMETER_BYTES: usize = 4_096;
-pub(super) const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
 const LONG_NATIVE_LIST_RENDER_MIN_ITEMS: usize = 8;
 const MAX_NATIVE_LIST_COMPAT_DEPTH: usize = 64;
 pub(super) const MAX_FTML_COMPAT_PARSE_BYTES: usize = 768_000;
@@ -363,9 +362,6 @@ pub(super) static WIKIDOT_RATE_ANCHOR_REGEX: LazyLock<Regex> = LazyLock::new(|| 
 });
 pub(super) static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
-});
-pub(super) static BACKLINKS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[module\s+Backlinks(?P<head>[^\]]*)\]\]").unwrap()
 });
 pub(super) static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone)(?P<head>[^\]]*)\]\]")
@@ -4654,23 +4650,6 @@ pub(super) fn wikidot_module_argument<'a>(head: &'a str, name: &str) -> Option<&
     }
 
     None
-}
-
-pub(super) fn render_backlinks_module_box(pages: &[BacklinksModulePage]) -> String {
-    let mut output = String::from(
-        "\n<div class=\"backlinks-module-box\" data-wikijump-compat-backlinks=\"1\"><ul>",
-    );
-
-    for page in pages {
-        output.push_str(r#"<li><a href="/"#);
-        output.push_str(&escape_list_pages_html_attr(&page.slug));
-        output.push_str(r#"">"#);
-        output.push_str(&escape_list_pages_html_text(&page.title));
-        output.push_str("</a></li>");
-    }
-
-    output.push_str("</ul></div>\n");
-    output
 }
 
 pub(super) fn render_members_module_placeholder(group: &str) -> String {

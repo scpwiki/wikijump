@@ -30,6 +30,7 @@ mod prelude {
     pub use ftml::{self};
 }
 
+mod backlinks;
 mod compat;
 mod corpus;
 mod diagnostics;
