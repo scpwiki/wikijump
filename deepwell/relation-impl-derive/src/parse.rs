@@ -39,7 +39,7 @@ impl Parse for RelationSettings {
                     let relation_name: Ident = input.parse()?;
                     let relation_name_str = relation_name.to_string();
                     let field_name_str = pascal_to_snake_case(&relation_name_str);
-                    let field_name = Ident::new(&field_name_str, Span::call_site());
+                    let field_name = make_ident(field_name_str);
                     name = Some((relation_name, field_name));
                 }
                 // Define the "dest" name and type
@@ -62,6 +62,11 @@ impl Parse for RelationSettings {
             }
         }
     }
+}
+
+#[inline]
+fn make_ident(value: impl AsRef<str>) -> Ident {
+    Ident::new(value.as_ref(), Span::call_site())
 }
 
 #[inline]
