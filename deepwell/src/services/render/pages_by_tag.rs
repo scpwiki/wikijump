@@ -25,7 +25,7 @@
 //! `#tagged-pages-list .pages-list-item .title` keeps working. Only the
 //! `tag` argument is evidenced; every other form stays literal.
 
-use super::compat_html_fragments::CompatHtmlFragments;
+use super::compat::CompatHtmlFragments;
 use super::prelude::*;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
