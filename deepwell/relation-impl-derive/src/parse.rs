@@ -17,8 +17,8 @@ pub struct RelationSettings {
 impl Parse for RelationSettings {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut name = None;
-        let mut dest: Option<()> = None;
-        let mut from: Option<()> = None;
+        let mut dest = None;
+        let mut from = None;
         let mut data_type: Option<()> = None;
         let mut define_create: Option<bool> = None;
         let mut define_struct: Option<bool> = None;
@@ -46,13 +46,19 @@ impl Parse for RelationSettings {
                 //
                 //  dest => blocked_user: User
                 "dest" => {
-                    todo!();
+                    let field_name: Ident = input.parse()?;
+                    let _: Token![:] = input.parse()?;
+                    let field_type: Type = input.parse()?;
+                    dest = Some((field_name, field_type));
                 }
                 // Define the "from" name and type
                 //
                 //  from => blocking_user: User
                 "from" => {
-                    todo!();
+                    let field_name: Ident = input.parse()?;
+                    let _: Token![:] = input.parse()?;
+                    let field_type: Type = input.parse()?;
+                    from = Some((field_name, field_type));
                 }
                 // TODO
                 "data" => {
