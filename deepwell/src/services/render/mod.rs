@@ -47,6 +47,7 @@ mod native_list_context;
 mod pages_by_tag;
 mod percent_encoding;
 mod render_dependency;
+mod render_options;
 mod replay;
 mod runtime;
 mod runtime_modules;
@@ -65,6 +66,7 @@ pub(crate) use self::diagnostics::{
     StageGuard, is_corpus_render_timing,
 };
 pub(crate) use self::literal_regions::LiteralRegionIndex;
+pub use self::pages_by_tag::wikitext_reads_url_arguments;
 pub use self::render_dependency::{
     RenderDependencyClass, RenderDependencyClasses, classify_render_dependencies,
 };

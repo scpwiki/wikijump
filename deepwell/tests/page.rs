@@ -2139,6 +2139,7 @@ async fn render_scoped_include_source_cache_preserves_occurrence_semantics() {
             category_id: cycle_consumer.page_category_id,
             page_id: cycle_consumer.page_id,
         },
+        None,
     )
     .await
     .expect_err("raw-source cache hits must not bypass include cycle depth checks");
@@ -2522,12 +2523,146 @@ async fn pages_by_tag_module_renders_empty_list_and_preserves_unevidenced_forms(
         "an unevidenced argument form must stay literal: {html}",
     );
     // Live renders nothing for a tagless module unless a URL argument supplies
-    // the tag, and Wikijump routes no URL arguments yet.
+    // the tag. A stored revision render answers no request, so it has none.
     let noarg = &html[html.find("NOARG_START").expect("noarg marker")
         ..html.find("NOARG_END").expect("noarg end marker")];
     assert!(
         !noarg.contains("tagged-pages-list") && !noarg.contains("PagesByTag"),
         "tagless module renders nothing: {noarg}",
+    );
+}
+
+/// A `/tag/<value>` URL argument supplies the tag for a module that carries
+/// none, and a module that names its own tag ignores the URL.
+///
+/// Captured live on `sandbox-for-codex` on 2026-07-25 against a holder page
+/// whose source is exactly `[[module PagesByTag]]`.
+#[tokio::test]
+async fn pages_by_tag_module_reads_the_url_tag_argument() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let url_tag = "fixture-pbt-url-tag";
+    let module_tag = "fixture-pbt-module-tag";
+    let holder_slug = "fixture-pbt-url-holder";
+
+    for (slug, title, tag) in [
+        ("fixture-pbt-url-page", "URL Argument Probe", url_tag),
+        (
+            "fixture-pbt-module-page",
+            "Module Argument Probe",
+            module_tag,
+        ),
+    ] {
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, slug, title, "Probe body.")
+                .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision_id, &[tag]).await;
+    }
+
+    let page = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture PBT URL Holder",
+        "placeholder",
+    )
+    .await;
+    let _ = page;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("PagesByTag URL holder should exist");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(holder_slug))),
+    });
+    let page_info = PageInfo {
+        page: Cow::Borrowed(holder_slug),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Fixture PBT URL Holder"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: holder.page_category_id,
+        page_id: holder.page_id,
+    };
+
+    let render = async |wikitext: &str, url_tag: Option<&str>| {
+        RenderService::render_page(
+            runner.context(),
+            wikitext.to_owned(),
+            &page_info,
+            Layout::Wikidot,
+            page_id,
+            url_tag,
+        )
+        .await
+        .expect("PagesByTag render should succeed")
+        .html_output
+        .body
+    };
+
+    let tagless = "PBT_START\n\n[[module PagesByTag]]\n\nPBT_END";
+    let html = render(tagless, Some(url_tag)).await;
+    assert!(
+        html.contains(&format!(
+            "<h2>List of pages tagged with <em>{url_tag}</em>:</h2>"
+        )),
+        "the URL tag supplies the heading: {html}",
+    );
+    assert!(
+        html.contains(r#"<a href="/fixture-pbt-url-page">URL Argument Probe</a>"#),
+        "the URL tag selects its tagged page: {html}",
+    );
+    assert!(
+        !html.contains("fixture-pbt-module-page"),
+        "a page carrying a different tag must not appear: {html}",
+    );
+
+    // The module's own argument answers the question, so the URL cannot
+    // change which tag it lists.
+    let self_tagged =
+        format!("PBT_START\n\n[[module PagesByTag tag=\"{module_tag}\"]]\n\nPBT_END");
+    let html = render(&self_tagged, Some(url_tag)).await;
+    assert!(
+        html.contains(&format!(
+            "<h2>List of pages tagged with <em>{module_tag}</em>:</h2>"
+        )),
+        "the module argument wins over the URL: {html}",
+    );
+    assert!(
+        !html.contains("fixture-pbt-url-page"),
+        "the URL tag must not leak into a module that names its own: {html}",
+    );
+
+    // Live renders `<em></em>` and an empty list for `/holder/tag` and
+    // `/holder/tag/`, which is distinct from omitting the argument.
+    let html = render(tagless, Some("")).await;
+    assert!(
+        html.contains("<h2>List of pages tagged with <em></em>:</h2>"),
+        "an empty URL tag still renders its heading: {html}",
+    );
+    assert!(
+        !html.contains("pages-list-item"),
+        "no page carries an empty tag, so no row may render: {html}",
+    );
+
+    let html = render(tagless, None).await;
+    assert!(
+        !html.contains("tagged-pages-list"),
+        "with neither argument the module renders nothing: {html}",
     );
 }
 
@@ -7248,6 +7383,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect("a structurally isolated content section should expand independently");
@@ -7266,6 +7402,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect("an unselected include must not create content section separators");
@@ -7303,6 +7440,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect(
@@ -7339,6 +7477,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect(
@@ -7376,6 +7515,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect("128 direct and 128 ListPages includes should fit the public limit");
@@ -7392,6 +7532,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect_err("separate ListPages blocks must charge the repeated child occurrence");
@@ -7433,6 +7574,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect_err("ListPages child content must not reset the public include budget");
@@ -7538,6 +7680,7 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect("content runtime overflow should preserve the complete module");
@@ -7672,6 +7815,7 @@ async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect_err("ordinary render must retain the public include ceiling");
@@ -7708,6 +7852,7 @@ async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
         &page_info,
         Layout::Wikidot,
         page_id,
+        None,
     )
     .await
     .expect_err("ordinary ListPages content must retain the public include ceiling");

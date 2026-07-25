@@ -55,6 +55,18 @@ pub(super) struct PagesByTagPage {
     pub title: String,
 }
 
+/// Whether this wikitext holds a module whose output depends on the request's
+/// URL path arguments.
+///
+/// The page view uses this to decide whether a request carrying arguments
+/// needs a render of its own instead of the revision's stored HTML. It looks
+/// at the page's own source only: a module reached through `[[include]]`
+/// renders as it does without arguments, which is the same result Wikijump
+/// produced before arguments were routed at all.
+pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
+    PAGES_BY_TAG_MODULE_REGEX.is_match(wikitext)
+}
+
 /// Extracts the `tag` argument from a `[[module PagesByTag ...]]` head.
 ///
 /// Returns `None` for any head this has no live evidence for, which keeps the
@@ -109,16 +121,22 @@ pub(super) fn render_pages_by_tag_module(tag: &str, pages: &[PagesByTagPage]) ->
 
 /// Expands `[[module PagesByTag tag="..."]]` into the live Wikidot DOM.
 ///
-/// Live Wikidot resolves the tag from the module argument first and from a
-/// `/tag/<value>` URL argument otherwise. Wikijump routes no URL arguments
-/// yet, so only the argument branch can occur here; a module with no `tag`
-/// argument renders nothing, which is what live Wikidot does when no URL
-/// argument supplies one either.
+/// Live Wikidot resolves the tag from the module argument when the module
+/// carries one, and from the request's `/tag/<value>` URL argument otherwise.
+/// A module with neither renders nothing at all. Captured on
+/// `sandbox-for-codex` on 2026-07-25: `/holder` emits nothing, `/holder/tag/x`
+/// emits the list for `x`, and a module written `tag="y"` keeps emitting `y`
+/// whatever the URL says.
+///
+/// An empty `url_tag` is a real value rather than an absent one, because live
+/// renders the heading with an empty `<em></em>` and an empty list for
+/// `/holder/tag` and `/holder/tag/`.
 pub(super) async fn expand_pages_by_tag_modules(
     ctx: &ServiceContext<'_>,
     wikitext: String,
     settings: &WikitextSettings,
     current_site_id: Option<i64>,
+    url_tag: Option<&str>,
     compat_html: &mut CompatHtmlFragments,
 ) -> Result<String> {
     if !settings.enable_page_syntax || !PAGES_BY_TAG_MODULE_REGEX.is_match(&wikitext) {
@@ -143,17 +161,21 @@ pub(super) async fn expand_pages_by_tag_modules(
         }
 
         let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-        if head.trim().is_empty() {
-            // Live emits nothing at all for a tagless module on a URL that
-            // carries no tag argument, which is every URL Wikijump serves.
-            continue;
-        }
-
-        let Some(tag) = parse_pages_by_tag_tag(head) else {
-            // Unevidenced argument forms stay literal rather than resolve to
-            // a guessed query.
-            expanded.push_str(mtch.as_str());
-            continue;
+        let tag = if head.trim().is_empty() {
+            match url_tag {
+                Some(url_tag) => url_tag.to_owned(),
+                // Neither the module nor the URL names a tag, so live emits
+                // nothing at all rather than an empty list.
+                None => continue,
+            }
+        } else {
+            let Some(tag) = parse_pages_by_tag_tag(head) else {
+                // Unevidenced argument forms stay literal rather than resolve
+                // to a guessed query.
+                expanded.push_str(mtch.as_str());
+                continue;
+            };
+            tag
         };
 
         let pages = load_pages_by_tag_pages(ctx, current_site_id, &tag).await?;

@@ -21,9 +21,20 @@
 use unicase::UniCase;
 use wikidot_path::{ArgumentSchema, ArgumentValue, PageArguments};
 
-const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
+/// Every URL path argument name Wikidot recognizes here.
+///
+/// Membership matters beyond the names this module itself consumes: a solo key
+/// such as `norender` decides whether the next segment is its value or the next
+/// pair's name by looking the segment up in this list. So a module argument
+/// like `tag` must appear here even though [`PageOptions`] ignores it, or
+/// `/norender/tag/alpha` would parse as `norender=tag` plus `alpha=`.
+pub(super) const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
     valid_keys: &[
         "edit",
+        // Read by the viewed page's modules, not by PageOptions.
+        // See services/view/module_arguments.rs.
+        "tag",
+        "p",
         "title",
         "parentPage",
         "parent",
@@ -158,6 +169,12 @@ impl PageOptions {
                 _ => error!("Invalid page template ID: {original}"),
             }
         }
+
+        // Arguments addressed to the page's modules rather than to the view.
+        // PageModuleArguments reads these from the same path; drop them here so
+        // they are not reported as unused.
+        arguments.remove(unicase!("tag"));
+        arguments.remove(unicase!("p"));
 
         // Done processing arguments
         // Now go through anything remaining and emitting warnings for them

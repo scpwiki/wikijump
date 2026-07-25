@@ -82,6 +82,9 @@ use super::native_list_context::NativeListSourceContext;
 use super::pages_by_tag::expand_pages_by_tag_modules;
 use super::percent_encoding::percent_encode_path_segment;
 use super::prelude::*;
+use super::render_options::{
+    RenderContext, RenderExpansionOptions, RenderInnerOptions, RenderPageOptions,
+};
 use super::runtime::{IncludeSourceCache, RenderRuntime};
 use super::runtime_page_queries::{
     CountPagesRawScanCompletion, count_pages_raw_scan_completion,
@@ -622,6 +625,7 @@ impl RenderService {
                 max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
                 trace: None,
                 persist_compiled_text: true,
+                url_tag: None,
             },
         ))
         .await
@@ -678,6 +682,9 @@ impl RenderService {
                 max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
                 trace: None,
                 persist_compiled_text: false,
+                // An AMC module call carries its own parameters rather than a
+                // page path, so there is no URL argument to route here.
+                url_tag: None,
             },
         ))
         .await
@@ -703,6 +710,11 @@ impl RenderService {
         })
     }
 
+    /// Render a page.
+    ///
+    /// `url_tag` carries the `tag` Wikidot URL path argument when this render
+    /// is serving a page view whose request supplied one. Pass `None` when
+    /// producing a revision's stored HTML, which has no request behind it.
     pub async fn render_page(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -713,6 +725,7 @@ impl RenderService {
             category_id,
             page_id,
         }: PageId,
+        url_tag: Option<&str>,
     ) -> Result<RenderPageOutput> {
         Box::pin(Self::render_page_with_include_limit(
             ctx,
@@ -724,8 +737,11 @@ impl RenderService {
                 category_id,
                 page_id,
             },
-            MAX_INCLUDE_EXPANSION_TOTAL,
-            None,
+            RenderPageOptions {
+                max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
+                url_tag,
+                trace: None,
+            },
         ))
         .await
     }
@@ -746,8 +762,11 @@ impl RenderService {
             page_info,
             layout,
             id,
-            MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
-            None,
+            RenderPageOptions {
+                max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+                url_tag: None,
+                trace: None,
+            },
         ))
         .await
     }
@@ -766,8 +785,11 @@ impl RenderService {
             page_info,
             layout,
             id,
-            MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
-            Some(trace),
+            RenderPageOptions {
+                max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
+                url_tag: None,
+                trace: Some(trace),
+            },
         ))
         .await
     }
@@ -782,8 +804,11 @@ impl RenderService {
             category_id,
             page_id,
         }: PageId,
-        max_include_expansions: usize,
-        trace: Option<&CorpusRenderTrace>,
+        RenderPageOptions {
+            max_include_expansions,
+            url_tag,
+            trace,
+        }: RenderPageOptions<'_>,
     ) -> Result<RenderPageOutput> {
         let page_settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let nav_settings = WikitextSettings::from_mode(WikitextMode::PageNav, layout);
@@ -817,6 +842,7 @@ impl RenderService {
                 max_include_expansions,
                 trace: trace.map(|trace| (trace, CorpusRenderScope::Body)),
                 persist_compiled_text: true,
+                url_tag,
             },
         )
         .await
@@ -850,6 +876,10 @@ impl RenderService {
                             max_include_expansions,
                             trace: trace.map(|trace| (trace, scope)),
                             persist_compiled_text: true,
+                            // Whether a nav bar's own modules read the viewed
+                            // page's URL arguments is not captured, so they
+                            // keep rendering as they do without one.
+                            url_tag: None,
                         },
                     )
                     .await;
@@ -927,6 +957,8 @@ impl RenderService {
                 current_page_id: Some(id.page_id),
                 max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
                 trace: None,
+                // Corpus replay renders stored wikitext, never a live request.
+                url_tag: None,
             },
         )
         .await?;
@@ -1028,6 +1060,7 @@ impl RenderService {
             current_page_id,
             max_include_expansions,
             trace,
+            url_tag,
         } = options;
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
@@ -1168,6 +1201,7 @@ impl RenderService {
                 wikitext,
                 settings,
                 current_site_id,
+                url_tag,
                 &mut wikidot_compat_html,
             )
             .await
@@ -1344,6 +1378,7 @@ impl RenderService {
             max_include_expansions,
             trace,
             persist_compiled_text,
+            url_tag,
         } = options;
         let RenderContext {
             current_site_id,
@@ -1379,6 +1414,7 @@ impl RenderService {
                 current_page_id,
                 max_include_expansions,
                 trace,
+                url_tag,
             },
         )
         .await?;
@@ -4758,63 +4794,6 @@ struct FtmlRenderOutput {
     errors: Vec<ParseError>,
     html_block_texts: Vec<String>,
     code_blocks: Vec<CodeBlock<'static>>,
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-struct RenderContext {
-    current_site_id: Option<i64>,
-    current_page_id: Option<i64>,
-    text_block_page_id: Option<i64>,
-}
-
-#[derive(Clone, Copy, Debug)]
-struct RenderInnerOptions<'a> {
-    render_context: RenderContext,
-    max_include_expansions: usize,
-    trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
-    persist_compiled_text: bool,
-}
-
-#[derive(Clone, Copy, Debug)]
-struct RenderExpansionOptions<'a> {
-    current_site_id: Option<i64>,
-    current_page_id: Option<i64>,
-    max_include_expansions: usize,
-    trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
-}
-
-impl RenderContext {
-    fn none() -> Self {
-        Self {
-            current_site_id: None,
-            current_page_id: None,
-            text_block_page_id: None,
-        }
-    }
-
-    fn page(site_id: i64, page_id: i64) -> Self {
-        Self {
-            current_site_id: Some(site_id),
-            current_page_id: Some(page_id),
-            text_block_page_id: Some(page_id),
-        }
-    }
-
-    fn page_nav(site_id: i64, current_page_id: i64) -> Self {
-        Self {
-            current_site_id: Some(site_id),
-            current_page_id: Some(current_page_id),
-            text_block_page_id: None,
-        }
-    }
-
-    fn ajax_module(site_id: i64) -> Self {
-        Self {
-            current_site_id: Some(site_id),
-            current_page_id: Some(0),
-            text_block_page_id: None,
-        }
-    }
 }
 
 #[derive(Debug)]

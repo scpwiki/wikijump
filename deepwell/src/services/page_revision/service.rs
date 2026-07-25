@@ -988,7 +988,9 @@ impl PageRevisionService {
         } else if allow_corpus_dense_includes {
             RenderService::render_corpus_page(ctx, wikitext, &page_info, layout, id).await
         } else {
-            RenderService::render_page(ctx, wikitext, &page_info, layout, id).await
+            // A stored revision render answers no particular request, so it
+            // carries no URL arguments.
+            RenderService::render_page(ctx, wikitext, &page_info, layout, id, None).await
         }
         .or_raise(make_error)?;
 

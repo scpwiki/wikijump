@@ -21,11 +21,14 @@
 #[allow(unused_imports)]
 mod prelude {
     pub use super::super::prelude::*;
+    pub use super::module_arguments::PageModuleArguments;
     pub use super::options::PageOptions;
     pub use super::structs::*;
 }
 
 mod article_cache;
+mod module_arguments;
+mod module_render;
 mod options;
 mod redirect;
 mod service;

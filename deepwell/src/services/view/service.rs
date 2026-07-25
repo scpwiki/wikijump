@@ -30,6 +30,7 @@
 //! requesting domain and session token into a site and user, respectively.
 
 use super::article_cache::ArticlePageCache;
+use super::module_render::render_body_for_module_arguments;
 use super::prelude::*;
 use super::redirect::wikidot_redirect_location;
 use crate::license::WikidotLicense;
@@ -363,6 +364,7 @@ impl ViewService {
 
         let redirect_page = Self::should_redirect_page(page_full_slug);
         let options = PageOptions::parse(page_extra);
+        let module_arguments = PageModuleArguments::parse(page_extra);
 
         // Get page, revision, and text fields
         let (category_slug, page_only_slug) = split_category(page_full_slug);
@@ -520,6 +522,22 @@ impl ViewService {
                         compiled_top_bar_html,
                         compiled_side_bar_html,
                     ) = raise_multiple!(wikitext_result, compiled_body_result, compiled_body_styles_result, compiled_top_bar_result, compiled_side_bar_result; make_error);
+
+                    // The stored HTML belongs to the revision, so it answers
+                    // the page's bare URL. A request carrying module arguments
+                    // is a different question and needs its own render.
+                    let compiled_body_html = render_body_for_module_arguments(
+                        ctx,
+                        &module_arguments,
+                        &wikitext,
+                        &page,
+                        &page_revision,
+                        &site,
+                        compiled_body_html,
+                    )
+                    .await
+                    .or_raise(make_error)?;
+
                     let compiled_body_styles = compiled_body_styles
                         .map(|styles| serde_json::from_str(&styles))
                         .transpose()
