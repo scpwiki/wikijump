@@ -139,8 +139,15 @@ class RedisCacheStore {
         this.socket = socket
         this.buffer = Buffer.alloc(0)
         socket.on("data", (chunk) => this.handleData(chunk))
-        socket.on("error", () => this.reset())
-        socket.on("close", () => this.reset())
+        // A socket that has already been replaced must not reset the store.
+        // `reset()` destroys the current socket and rejects everything queued
+        // on it, so a `close` arriving after a reconnect would otherwise fail
+        // the new connection's in-flight commands.
+        const resetIfCurrent = () => {
+          if (this.socket === socket) this.reset()
+        }
+        socket.on("error", resetIfCurrent)
+        socket.on("close", resetIfCurrent)
 
         try {
           for (const command of this.authCommands) {
@@ -363,8 +370,15 @@ class RedisFenceInvalidationSubscriber {
         this.socket = socket
         this.buffer = Buffer.alloc(0)
         socket.on("data", (chunk) => this.handleData(chunk))
-        socket.on("error", () => this.reset())
-        socket.on("close", () => this.reset())
+        // A socket that has already been replaced must not reset the store.
+        // `reset()` destroys the current socket and rejects everything queued
+        // on it, so a `close` arriving after a reconnect would otherwise fail
+        // the new connection's in-flight commands.
+        const resetIfCurrent = () => {
+          if (this.socket === socket) this.reset()
+        }
+        socket.on("error", resetIfCurrent)
+        socket.on("close", resetIfCurrent)
         resolve()
       }
       const onError = (error) => {

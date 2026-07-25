@@ -298,6 +298,57 @@ test("Redis cache store reconnects after a command timeout", async () => {
   }
 })
 
+test("Redis cache store ignores a superseded socket's close event", async () => {
+  const sockets = new Set()
+  let connections = 0
+  let releaseSecond
+  const secondAllowed = new Promise((resolve) => {
+    releaseSecond = resolve
+  })
+  const server = net.createServer((socket) => {
+    connections += 1
+    const connection = connections
+    sockets.add(socket)
+    socket.on("close", () => sockets.delete(socket))
+    socket.on("data", () => {
+      if (connection === 1) socket.write("$5\r\nvalue\r\n")
+      else void secondAllowed.then(() => socket.write("$5\r\nvalue\r\n"))
+    })
+  })
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const store = createRedisCacheStore(`redis://127.0.0.1:${address.port}`)
+
+  try {
+    assert.equal(await store.get("cache-key"), "value")
+    const superseded = store.socket
+    assert.ok(superseded)
+
+    // Drop the connection the way a command timeout does, then reconnect.
+    store.reset()
+    const second = store.get("cache-key")
+    await waitFor(
+      () => store.pending.length > 0,
+      "the reconnected command should be in flight"
+    )
+
+    // The dead socket's `close` arrives after the new one is serving. It must
+    // not reject the command the new connection is holding.
+    superseded.emit("close")
+    releaseSecond()
+
+    assert.equal(await second, "value")
+    assert.equal(connections, 2)
+  } finally {
+    releaseSecond()
+    for (const socket of sockets) socket.destroy()
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
+})
+
 test("Redis cache store authenticates and selects a database before commands", async () => {
   const sockets = new Set()
   let authReceivedResolve
