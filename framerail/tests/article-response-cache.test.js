@@ -3,24 +3,33 @@ import net from "node:net"
 import test from "node:test"
 
 import { normalizeCachedArticleResponseEntry } from "../src/lib/server/cache/article-response/entry.js"
+import { parseFenceInvalidationMessage } from "../src/lib/server/cache/article-response/fence-message.js"
+import { applyFenceInvalidationToSites } from "../src/lib/server/cache/article-response/fence-reducer.js"
+import { createArticleResponseFenceState } from "../src/lib/server/cache/article-response/fence-state.js"
+import {
+  normalizeFenceVersion,
+  parsePermissionFence
+} from "../src/lib/server/cache/article-response/fence-values.js"
+import {
+  buildAnonymousArticleResponseCacheFences,
+  buildAnonymousPermissionFenceKeys,
+  buildPublicContentFenceKey,
+  createMemoryArticleResponseFenceCache,
+  readAnonymousArticleResponseCacheFences
+} from "../src/lib/server/cache/article-response/fences.js"
 import { createByteLimitedLru } from "../src/lib/server/cache/article-response/local-lru.js"
 import { normalizeCachedArticleResponseReplay } from "../src/lib/server/cache/article-response/replay.js"
 import {
   ARTICLE_RESPONSE_CACHE_MAX_BYTES,
   ARTICLE_RESPONSE_CACHE_MAX_ENTRIES,
   ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES,
-  buildAnonymousArticleResponseCacheFences,
   buildAnonymousArticleResponseCacheKey,
   buildAnonymousArticleResponseCacheMetadata,
   buildAnonymousArticleResponseTokenKey,
-  buildAnonymousPermissionFenceKeys,
-  buildPublicContentFenceKey,
   canConsiderAnonymousArticleResponseCache,
   createLocalArticleResponseHotCache,
-  createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore,
   deserializeCachedArticleResponse,
-  readAnonymousArticleResponseCacheFences,
   readAnonymousArticleResponseCache,
   readAnonymousArticleResponseToken,
   readCachedArticleResponse,
@@ -183,6 +192,158 @@ test("anonymous article response cache key requires Deepwell eligibility metadat
     }),
     null
   )
+})
+
+test("article response fence values normalize stored versions", () => {
+  assert.equal(normalizeFenceVersion(undefined), "0")
+  assert.equal(normalizeFenceVersion("17"), "17")
+  assert.equal(normalizeFenceVersion("invalid"), null)
+  assert.deepEqual(parsePermissionFence("site=11,user=13"), {
+    sitePermissionFence: "11",
+    userPermissionFence: "13"
+  })
+  assert.equal(parsePermissionFence("site=11"), null)
+})
+
+test("article response fence invalidation messages are validated before use", () => {
+  assert.deepEqual(
+    parseFenceInvalidationMessage(
+      JSON.stringify({ type: "public-content", site_id: 6000005, version: "8" })
+    ),
+    { type: "public-content", siteId: 6000005, version: "8" }
+  )
+  assert.deepEqual(
+    parseFenceInvalidationMessage(
+      JSON.stringify({
+        type: "anonymous-permission",
+        site_id: 6000005,
+        site_version: "12",
+        user_version: "13"
+      })
+    ),
+    {
+      type: "anonymous-permission",
+      siteId: 6000005,
+      siteVersion: "12",
+      userVersion: "13"
+    }
+  )
+  assert.deepEqual(
+    parseFenceInvalidationMessage(
+      JSON.stringify({
+        type: "user-permission",
+        site_id: 6000005,
+        user_id: 123,
+        version: "19"
+      })
+    ),
+    { type: "user-permission" }
+  )
+  assert.equal(parseFenceInvalidationMessage("{not-json"), null)
+  assert.equal(
+    parseFenceInvalidationMessage(
+      JSON.stringify({ type: "public-content", site_id: 6000005, version: "bad" })
+    ),
+    null
+  )
+})
+
+test("article response fence reducer updates only advancing versions", () => {
+  const sites = new Map([
+    [
+      6000005,
+      {
+        publicContentFence: "7",
+        sitePermissionFence: "11",
+        userPermissionFence: "13"
+      }
+    ]
+  ])
+  let invalidations = 0
+  const clearHotResponses = () => {
+    invalidations += 1
+  }
+
+  applyFenceInvalidationToSites({
+    sites,
+    message: { type: "public-content", siteId: 6000005, version: "7" },
+    clearHotResponses
+  })
+  assert.equal(invalidations, 0)
+
+  applyFenceInvalidationToSites({
+    sites,
+    message: {
+      type: "anonymous-permission",
+      siteId: 6000005,
+      siteVersion: "12",
+      userVersion: "13"
+    },
+    clearHotResponses
+  })
+  assert.deepEqual(sites.get(6000005), {
+    publicContentFence: "7",
+    sitePermissionFence: "12",
+    userPermissionFence: "13"
+  })
+  assert.equal(invalidations, 1)
+})
+
+test("article response fence state tracks trusted local versions", () => {
+  let invalidations = 0
+  const state = createArticleResponseFenceState({
+    clearHotResponses: () => {
+      invalidations += 1
+    }
+  })
+
+  assert.equal(state.isTrusted(), false)
+  state.markTrusted()
+  assert.equal(state.isTrusted(), true)
+  assert.deepEqual(
+    state.seedSite({
+      siteId: 6000005,
+      seedRevision: state.revision(),
+      fences: { publicContentFence: "7", permissionFence: "site=11,user=13" }
+    }),
+    {
+      publicContentFence: "7",
+      sitePermissionFence: "11",
+      userPermissionFence: "13"
+    }
+  )
+  assert.equal(
+    state.areFencesCurrent({
+      siteId: 6000005,
+      publicContentFence: "7",
+      permissionFence: "site=11,user=13"
+    }),
+    true
+  )
+
+  state.applyMessage({ type: "public-content", siteId: 6000005, version: "8" })
+  assert.deepEqual(state.readFences(6000005), {
+    publicContentFence: "8",
+    permissionFence: "site=11,user=13"
+  })
+  assert.equal(invalidations, 1)
+
+  state.applyMessage({
+    type: "anonymous-permission",
+    siteId: 6000005,
+    siteVersion: "12",
+    userVersion: "13"
+  })
+  assert.deepEqual(state.readFences(6000005), {
+    publicContentFence: "8",
+    permissionFence: "site=12,user=13"
+  })
+  assert.equal(invalidations, 2)
+
+  state.poison()
+  assert.equal(state.isTrusted(), false)
+  assert.equal(state.readFences(6000005), null)
+  assert.equal(invalidations, 3)
 })
 
 test("anonymous article response cache fence helpers read Redis keys with default zero", async () => {
