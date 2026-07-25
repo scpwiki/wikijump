@@ -31,7 +31,9 @@ export const buildWikidotStyleFrameRuntime = ({ priority, themes, css }) => {
     const registration = registry.owners.get(owner);
     targetDocument.querySelectorAll(
       '[data-wikidot-style-owner="' + owner + '"]'
-    ).forEach((node) => node.remove());
+    ).forEach((node) => {
+      if (node !== registration?.frame) node.remove();
+    });
     if (registration?.frame?.dataset.wikidotStyleOwner === owner) {
       delete registration.frame.dataset.wikidotStyleOwner;
     }
