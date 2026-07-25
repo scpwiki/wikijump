@@ -47,6 +47,7 @@ enum ListPagesVariable {
     SiteDomain,
     ParentFullname,
     Revisions,
+    Children,
     EmptyCompatField,
     FormData,
     Content,
@@ -93,7 +94,8 @@ impl ListPagesVariable {
             "site_domain" => Some(Self::SiteDomain),
             "parent_fullname" => Some(Self::ParentFullname),
             "revisions" => Some(Self::Revisions),
-            "children" | "rating_percent" => Some(Self::EmptyCompatField),
+            "children" => Some(Self::Children),
+            "rating_percent" => Some(Self::EmptyCompatField),
             "form_data" | "form_raw" if has_argument => Some(Self::FormData),
             "content" => Some(Self::Content),
             "index" => Some(Self::Index),
@@ -329,6 +331,10 @@ impl ListPagesTemplatePlan {
 
     pub(super) fn uses_revisions(&self) -> bool {
         self.variables.contains(ListPagesVariable::Revisions)
+    }
+
+    pub(super) fn uses_children(&self) -> bool {
+        self.variables.contains(ListPagesVariable::Children)
     }
 
     pub(super) fn content_sections(&self) -> &BTreeSet<Option<usize>> {

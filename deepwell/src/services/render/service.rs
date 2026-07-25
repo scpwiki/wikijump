@@ -53,7 +53,9 @@ use super::issued_markers::restore_issued_html_text_markers;
 use super::list_pages_content_sections::{
     isolate_wikidot_content_section, wikidot_content_section,
 };
-use super::list_pages_parents::load_list_pages_parent_fullnames;
+use super::list_pages_parents::{
+    load_list_pages_child_counts, load_list_pages_parent_fullnames,
+};
 use super::list_pages_row_values::{
     list_pages_created_by_unix, list_pages_parent_fullname, list_pages_revision_count,
     render_list_pages_snapshot_user, render_list_pages_wikidot_user,
@@ -6918,6 +6920,7 @@ impl RenderService {
         let wants_site_domain = template.uses_site_domain();
         let wants_parent_fullname = template.uses_parent_fullname();
         let wants_revisions = template.uses_revisions();
+        let wants_children = template.uses_children();
         let resolved_authors = Self::resolve_list_pages_authors_cached(
             ctx,
             current_site_id,
@@ -7238,6 +7241,11 @@ impl RenderService {
             // name, so the module stays literal instead.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
+        let child_counts = if wants_children {
+            load_list_pages_child_counts(ctx, &pages).await?
+        } else {
+            BTreeMap::new()
+        };
         let revision_counts = if wants_revisions {
             // An imported page carries Wikidot's own revision count; its local
             // history is the single import revision, so counting local rows
@@ -7450,6 +7458,8 @@ impl RenderService {
                     snapshot_displays,
                     &relational_parent_fullnames,
                 ),
+                page_child_count: wants_children
+                    .then(|| child_counts.get(&page.page_id).copied().unwrap_or(0)),
                 page_revision_count: wants_revisions.then(|| {
                     list_pages_revision_count(page, snapshot_displays, &revision_counts)
                         .expect(
@@ -10028,6 +10038,7 @@ struct ListPagesSubstitutionContext<'a> {
     page_wikitext: Option<&'a str>,
     page_wikitext_scalar_count: Option<usize>,
     page_parent_fullname: Option<&'a str>,
+    page_child_count: Option<u64>,
     page_revision_count: Option<u64>,
     expanded_content: Option<&'a BTreeMap<Option<usize>, String>>,
     data_form_values: &'a BTreeMap<String, String>,
@@ -10213,7 +10224,10 @@ fn substitute_list_pages_variables_with_fragments(
                     .page_wikitext_scalar_count
                     .map(|scalar_count| scalar_count.to_string())
                     .unwrap_or_else(|| captures[0].to_owned()),
-                "children" => "0".to_owned(),
+                "children" => context
+                    .page_child_count
+                    .map(|child_count| child_count.to_string())
+                    .unwrap_or_else(|| captures[0].to_owned()),
                 "revisions" => context
                     .page_revision_count
                     .map(|revision_count| revision_count.to_string())
@@ -10230,7 +10244,10 @@ fn substitute_list_pages_variables_with_fragments(
                 "parent_fullname" => {
                     context.page_parent_fullname.unwrap_or("").to_owned()
                 }
-                "rating_percent" => String::new(),
+                // Live Wikidot leaves this variable unsubstituted on a
+                // plus/minus site, so the authored text survives rather than
+                // collapsing to an empty cell.
+                "rating_percent" => captures[0].to_owned(),
                 "form_data" | "form_raw" => captures
                     .name("argument")
                     .and_then(|matched| context.data_form_values.get(matched.as_str()))
@@ -12733,6 +12750,7 @@ mod tests {
             page_wikitext_scalar_count: page_wikitext
                 .map(|wikitext| wikitext.chars().count()),
             page_parent_fullname: None,
+            page_child_count: None,
             page_revision_count: None,
             expanded_content: None,
             data_form_values,
@@ -15062,6 +15080,57 @@ mod tests {
             substitute_list_pages_variables("%%parent_fullname%%", &page, 1, 2, &context),
             "",
             "a row with no determinable parent keeps this variable's existing empty output",
+        );
+    }
+
+    #[test]
+    fn substitutes_wikidot_list_pages_child_count_and_leaves_rating_percent_literal() {
+        let page = FoundPageRow {
+            page_id: 1,
+            site_id: 1,
+            title: Some("Offset timeline".to_owned()),
+            alt_title: None,
+            slug: Some("component:offset-timeline".to_owned()),
+            page_category_id: None,
+            page_revision_id: None,
+            tags: None,
+            created_at: None,
+            created_by: None,
+            updated_at: None,
+            updated_by: None,
+            score: None,
+        };
+        let user_displays = BTreeMap::new();
+        let data_form_values = BTreeMap::new();
+        let mut context =
+            list_pages_substitution_context(20, &user_displays, None, &data_form_values);
+
+        // Live scp-wiki answers children=2 for component:offset-timeline, which
+        // has two fragment children, and leaves %%rating_percent%% unsubstituted.
+        context.page_child_count = Some(2);
+        assert_eq!(
+            substitute_list_pages_variables(
+                "%%children%% %%rating_percent%%",
+                &page,
+                1,
+                1,
+                &context,
+            ),
+            "2 %%rating_percent%%",
+        );
+
+        context.page_child_count = Some(0);
+        assert_eq!(
+            substitute_list_pages_variables("%%children%%", &page, 1, 1, &context),
+            "0",
+            "a page with no children reports zero rather than staying literal",
+        );
+
+        context.page_child_count = None;
+        assert_eq!(
+            substitute_list_pages_variables("%%children%%", &page, 1, 1, &context),
+            "%%children%%",
+            "an uncounted row must not report a plausible zero",
         );
     }
 
