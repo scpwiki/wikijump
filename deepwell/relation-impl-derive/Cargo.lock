@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "load-dump-derive"
+name = "deepwell-relation-impl-derive"
 version = "0.0.1"
 dependencies = [
  "proc-macro2",
