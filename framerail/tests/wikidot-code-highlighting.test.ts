@@ -32,7 +32,10 @@ test("escapes source markup before inserting highlighted HTML", async () => {
     "html"
   )
 
-  assert.doesNotMatch(highlighted?.html ?? "", /<script>/)
+  // Case-insensitive, and covering the closing tag: an escaper that let
+  // `<SCRIPT>` or `</script>` through would satisfy a literal `<script>`
+  // check while still emitting live markup.
+  assert.doesNotMatch(highlighted?.html ?? "", /<\/?script/i)
   assert.match(highlighted?.html ?? "", /&lt;/)
 })
 
