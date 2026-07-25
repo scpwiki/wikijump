@@ -18,12 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::endpoints::{parent, site};
+use super::structs::DecoratedPermission;
+use crate::error::prelude::{ExnError, Result, ResultExt};
 use crate::error::{Error, ErrorType};
 use crate::models::prelude::{Role, RolePermission};
-use crate::models::role_permission::Model as RolePermissionModel;
-use crate::models::{role, role_permission, user_role};
+use crate::models::{role, role_permission};
 use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::resolvers::resolve_category_slug;
@@ -37,10 +36,8 @@ use crate::services::role::{
 };
 use crate::types::{Action, Permission, Reference, Resource};
 use futures::future::try_join_all;
-use std::borrow::Cow;
+use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder, Set};
 use std::collections::HashSet;
-use std::hash::Hash;
-use std::net::IpAddr;
 
 #[derive(Debug)]
 pub struct PermissionService;

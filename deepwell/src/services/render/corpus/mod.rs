@@ -26,11 +26,5 @@ mod inventory_query;
 #[cfg(test)]
 mod inventory_tests;
 
-pub(crate) use self::finalizer::{
-    CorpusRenderFinalizerService, RenderFinalizerPass, RenderFinalizerSettings,
-    RenderFinalizerSummary,
-};
-pub(crate) use self::inventory::{
-    CorpusRenderInventoryService, RenderInventoryPass, RenderInventorySettings,
-    RenderInventorySummary,
-};
+pub(crate) use self::finalizer::{CorpusRenderFinalizerService, RenderFinalizerSettings};
+pub(crate) use self::inventory::{CorpusRenderInventoryService, RenderInventorySettings};

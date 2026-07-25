@@ -18,13 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::{
     forum_post, forum_post::Entity as ForumPost, forum_post::Model as ForumPostModel,
     forum_post_revision::Entity as ForumPostRevision, forum_thread,
     forum_thread::Entity as ForumThread, forum_thread::Model as ForumThreadModel, page,
     page::Model as PageModel,
 };
+use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{PageService, TextService, UserService};
 use crate::types::{Action, Permission, Reference, Resource};

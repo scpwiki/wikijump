@@ -23,7 +23,7 @@ use super::super::literal_regions::{
     LiteralRegionIndex, TextTokenCursor, WikidotArgumentValueKind,
     WikidotTagArgumentScan, WikidotWholeHeadScan, double_quote_ends_wikidot_argument,
     left_block_start_in_run, project_list_pages_typography_in_place, quote_is_escaped,
-    right_bracket_token, rollback_start_in_left_run, scan_wikidot_whole_head_value,
+    rollback_start_in_left_run, scan_wikidot_whole_head_value,
     wikidot_right_bracket_token, wikidot_trimmed_name,
 };
 #[path = "scanner/count_reachability.rs"]

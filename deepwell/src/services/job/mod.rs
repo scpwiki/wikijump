@@ -23,20 +23,13 @@
 //! At present we do not use a separate service which stores jobs durably. This
 //! can mean that if this DEEPWELL node fails, the queued jobs will not be run.
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::service::{
-        JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME,
-        JobService,
-    };
-    pub use super::structs::*;
-}
-
 mod service;
 mod structs;
 mod worker;
 
-pub use self::service::*;
-pub use self::structs::*;
+pub use self::service::{
+    JOB_QUEUE_DELAY, JOB_QUEUE_MAXIMUM_SIZE, JOB_QUEUE_NAME, JOB_QUEUE_PROCESS_TIME,
+    JobService,
+};
+pub use self::structs::Job;
 pub use self::worker::JobWorker;

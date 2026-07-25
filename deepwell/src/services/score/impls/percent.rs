@@ -18,8 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::super::scorer::Scorer;
+use super::super::structs::{ScoreType, VoteType};
+use super::make_error;
+use crate::error::prelude::{Result, ResultExt};
 use crate::services::ScoreService;
+use ftml::data::ScoreValue;
+use sea_orm::{Condition, DatabaseTransaction};
 
 #[derive(Debug)]
 pub struct PercentScorer;

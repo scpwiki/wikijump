@@ -18,12 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{
+    ForumStructureSettings, NavigationPage, NavigationPageHtml, NavigationPageSlugs,
+    NavigationPageWikitext, PageDiscussionSettings, PageRatingPermission,
+    PageRatingSettings, PageRatingType, PageRatingVisibility,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::license::WikidotLicense;
+use crate::services::ServiceContext;
 use crate::services::forum::GetForumCategory;
 use crate::services::{
     CategoryService, ForumService, PageRevisionService, PageService, SiteService,
 };
+use crate::types::Reference;
 use crate::types::parse_layout;
 use ftml::layout::Layout;
 use std::borrow::Cow;

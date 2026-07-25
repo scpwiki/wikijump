@@ -18,17 +18,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::prelude::*;
-use super::super::service::*;
+use super::super::service::{
+    MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
+    MAX_FTML_COMPAT_PARSE_BYTES, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
+    MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
+    MIN_FTML_COMPAT_TABBED_MARKERS, MIN_FTML_COMPAT_TABBED_RENDER_BYTES, RenderService,
+    WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_RATE_ANCHOR_REGEX,
+    WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX, WIKIDOT_TABVIEW_INIT_SCRIPT,
+    WIKIDOT_TABVIEW_SCRIPT, WikidotCompatLinkTitleMap,
+    collect_wikidot_compat_empty_label_link_slugs, escape_list_pages_html_attr,
+    escape_list_pages_html_text, push_escaped_html,
+    render_native_list_inline_html_with_titles, render_native_list_inline_wikidot_spans,
+};
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
-use super::*;
+use super::{
+    WikidotCompatibilityFallbackOutput, sanitize_wikidot_compat_inline_tag,
+    scan_compat_code_blocks,
+};
+use crate::config::Config;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page_revision;
 use crate::models::site::Model as SiteModel;
 use crate::services::PageService;
+use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::types::Reference;
 use crate::types::{Action, Permission, Resource};
+use ftml::data::PageInfo;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::borrow::Cow;
 use std::collections::BTreeMap;

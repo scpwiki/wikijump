@@ -18,10 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use crate::constants::ADMIN_USER_ID;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
-use crate::types::Permission;
+use crate::types::{Permission, Reference};
 
 /// Common actor checks for mutation boundaries.
 ///

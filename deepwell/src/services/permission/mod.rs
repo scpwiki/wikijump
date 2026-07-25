@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod cache;
 mod resolvers;
 mod service;
@@ -35,4 +29,4 @@ pub use self::cache::{
 };
 pub use self::resolvers::resolve_category_reference;
 pub use self::service::PermissionService;
-pub use self::structs::*;
+pub use self::structs::{CheckPermissionContext, DecoratedPermission};

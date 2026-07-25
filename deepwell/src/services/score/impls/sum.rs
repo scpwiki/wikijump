@@ -18,7 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::super::scorer::Scorer;
+use super::super::structs::{ScoreType, VoteType};
+use super::make_error;
+use crate::error::prelude::{Result, ResultExt};
+use crate::models::page_vote::{self, Entity as PageVote};
+use ftml::data::ScoreValue;
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseTransaction, EntityTrait, FromQueryResult,
+    QueryFilter, QuerySelect,
+};
 
 #[derive(Debug)]
 pub struct SumScorer;

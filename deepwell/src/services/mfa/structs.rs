@@ -18,12 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::config::Config;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::PasswordService;
 use crate::utils::assert_is_csprng;
 use data_encoding::BASE32_NOPAD;
+use rand::RngExt;
 use rand::distr::{Alphanumeric, SampleString};
-use rand::{Rng, RngExt};
 use std::iter;
 use std::net::IpAddr;
 

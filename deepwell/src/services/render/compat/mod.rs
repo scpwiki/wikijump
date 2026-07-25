@@ -12,6 +12,8 @@ pub(super) mod wikidot_inline_markers;
 pub(super) mod wikidot_link_protection;
 pub(super) mod wikidot_residual_markers;
 
-pub(super) use self::color_and_inline_protection::*;
-pub(super) use self::fallback_code::*;
-pub(super) use self::html_fragments::*;
+pub(super) use self::color_and_inline_protection::sanitize_wikidot_compat_inline_tag;
+pub(super) use self::fallback_code::{
+    WikidotCompatibilityFallbackOutput, scan_compat_code_blocks,
+};
+pub(super) use self::html_fragments::CompatHtmlFragments;

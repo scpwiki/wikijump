@@ -19,31 +19,36 @@
  */
 
 use super::compat::CompatHtmlFragments;
-use super::compat::color_and_inline_protection::*;
-use super::compat::footnote_dom::restore_wikidot_footnote_list_dom;
-use super::compat::issued_markers::restore_issued_html_text_markers;
+use super::compat::color_and_inline_protection::{
+    ProtectedWikidotColorSpans, ProtectedWikidotInlineHtml, decode_numeric_html_entity,
+    protect_wikidot_color_spans, protect_wikidot_inline_html_spans,
+    restore_protected_wikidot_color_spans, restore_protected_wikidot_inline_html,
+    sanitize_wikidot_compat_inline_tag,
+};
+#[cfg(test)]
+use super::compat::color_and_inline_protection::{
+    ProtectedWikidotCompatHtml, parse_wikidot_compat_color_descriptor,
+    render_wikidot_protected_inline_body_html,
+    substitute_wikidot_protected_inline_dashes,
+    substitute_wikidot_protected_inline_dashes_with_scan_count,
+    wikidot_compat_html_marker,
+};
 use super::compat::preparation::{
     extract_css_modules, neutralize_authored_markers,
     protect_css_modules_before_first_list_pages,
 };
-use super::compat::text_fragments::{COMPAT_TEXT_MARKER_PREFIX, CompatTextFragments};
-use super::compat::wikidot_inline_markers::{
-    WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
-};
+use super::compat::text_fragments::CompatTextFragments;
 use super::compat::wikidot_link_protection::{
     ProtectedWikidotWikipediaLink, WikidotWikipediaLink, build_wikidot_wikipedia_link,
 };
-use super::compat::{WikidotCompatibilityFallbackOutput, scan_compat_code_blocks};
 use super::diagnostics::{
     CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
     StageGuard,
 };
 use super::generator::COMPILED_GENERATOR;
-use super::html_text::html_data_segments;
 use super::iftags::{
     resolve_outermost_wikidot_iftags,
     resolve_outermost_wikidot_iftags_before_include_expansion,
-    wikidot_tag_conditions_match,
 };
 use super::include_attachment_owners::{
     AttachmentOwner, AttachmentProvenanceRegistry, AttachmentVariableOwners,
@@ -52,102 +57,73 @@ use super::include_attachment_owners::{
     qualify_relative_image_variable_attachments, relative, semantic_attachment_value,
     split_wikidot_include_argument_segments, wikidot_include_segment_is_space,
 };
-use super::include_comment_branches::{
-    remove_unresolved_include_comment_branches,
-    remove_unresolved_include_comment_branches_source_local,
-};
-use super::include_variable_iftags::{
-    resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
-};
+use super::include_comment_branches::remove_unresolved_include_comment_branches;
+use super::include_variable_iftags::resolve_unbound_include_variable_iftags;
+#[cfg(test)]
 use super::include_variables::{
     apply_include_variables, apply_include_variables_before_resolving_iftags,
-    default_include_variable_value, is_include_variable_name,
-    prepare_include_source_variables_and_comment_branches, protect_include_variables,
-    trim_include_variable_value, unprotect_include_variables,
+    default_include_variable_value, trim_include_variable_value,
 };
-use super::list_pages::content_sections::{
-    isolate_wikidot_content_section, wikidot_content_section,
+use super::include_variables::{
+    is_include_variable_name, prepare_include_source_variables_and_comment_branches,
+    protect_include_variables, unprotect_include_variables,
 };
-use super::list_pages::scanner::{
-    CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
-    first_list_pages_module_opening_candidate, has_count_pages_module_opening_candidate,
-    has_list_pages_module_opening_candidate, list_pages_runtime_head_is_safe,
+#[cfg(test)]
+use super::list_pages::ResolvedListPagesAuthors;
+use super::list_pages::{
+    CountPagesExpansionOptions, ListPagesExpansionOptions,
+    build_wikidot_list_pages_module_source, restore_list_pages_literal_ellipsis_markers,
 };
-use super::list_pages::template::{
-    LISTPAGES_VARIABLE_REGEX, ListPagesOutputShape, ListPagesTemplatePlan,
-};
-use super::list_pages::*;
-use super::literal_regions::{
-    ListPagesSourceProjection, LiteralRegionCursor, LiteralRegionIndex,
-    WikidotNativeQuoteIndex,
-};
+use super::literal_regions::LiteralRegionIndex;
 use super::metacomponent::{
     MetacomponentSourceContext, select_metacomponent_documentation,
 };
 use super::native_list_context::NativeListSourceContext;
 use super::pages::expand_page_index_modules;
 use super::percent_encoding::percent_encode_path_segment;
-use super::prelude::*;
 use super::render_options::{
     RenderContext, RenderExpansionOptions, RenderInnerOptions, RenderPageOptions,
 };
 use super::runtime::{IncludeSourceCache, RenderRuntime};
-use super::runtime_page_queries::{
-    CountPagesRawScanCompletion, count_pages_raw_scan_completion,
-    random_page_query_scan_limit, render_page_query_batch_limit,
-    render_page_query_uses_single_scan,
-};
+use super::structs::{RenderOutput, RenderPageOutput};
 use super::url_arguments::UrlArguments;
 use super::wikidot_hosts::{
     direct_wdfiles_local_file_url, local_file_host_site_slug, preferred_domain_host,
     preferred_domain_wikidot_slug,
 };
+use crate::config::Config;
+use crate::error::prelude::{Error, ErrorType, ExnError, OptionExt, Result, ResultExt};
 use crate::hash::{TextHash, k12_hash};
-use crate::models::page::{self, Entity as Page};
-use crate::models::page_category::{self, Entity as PageCategory};
-use crate::models::page_revision;
 use crate::models::site::Model as SiteModel;
-use crate::models::user::{self, Entity as UserTable};
-use crate::models::wikidot_user::{self, Entity as WikidotUser};
-use crate::services::page_query::{
-    AuthorSelector, CategoriesSelector, ComparisonOperation,
-    CountPagesExactCountEligibilityDiagnostics, CountPagesExactCountEligibilityInput,
-    DataFormSelector, DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow,
-    FoundPages, IncludedCategories, ListPagesRenderDiagnosticsInput,
-    MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQuery, PageQueryResultMetadata, PageQueryScoreFilterCache, PageTypeSelector,
-    PaginationSelector, RangeSelector, ScoreSelector, TagCondition,
-    count_pages_exact_count_eligibility_diagnostics, list_pages_render_diagnostics,
-    normalize_wikidot_author_name, parse_static_wikidot_data_form_values,
-    static_wikidot_data_form_matches,
-};
-use crate::services::page_revision::GetPageRevision;
-use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::ServiceContext;
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
 use crate::services::text_block::{
     MIME_HTML, TextBlock, TextBlockService, mime_for_language,
 };
-use crate::services::{
-    CategoryService, PageRevisionService, PageService, SiteService, TextService,
-};
-use crate::types::{Action, PageId, Permission, Resource, TextBlockType};
+use crate::services::{SiteService, TextService};
+use crate::types::Reference;
+use crate::types::{PageId, TextBlockType};
 use crate::utils::locale_for_ftml;
+use crate::utils::now;
 use ftml::data::PageRef;
 use ftml::includes::{FetchedPage, IncludeRef};
-use ftml::prelude::*;
+use ftml::prelude::{
+    Includer, Layout, PageInfo, ParseError, Render, ScoreValue, WikitextMode,
+    WikitextSettings,
+};
+use ftml::render::html::{HtmlOutput, HtmlRender};
 use ftml::tree::{CodeBlock, VariableMap};
+use ftml::{self};
 use regex::Regex;
-use sea_orm::{ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, Statement, Value};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::future::Future;
 use std::ops::Range;
 use std::pin::Pin;
 use std::sync::LazyLock;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tokio::task;
 use tokio::time::timeout;
-use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct RenderService;

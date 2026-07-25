@@ -18,16 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::UpdateCategoryBody;
+use crate::error::prelude::{Error, ErrorType, OptionExt, Result, ResultExt};
 use crate::license::validate_wikidot_license_override;
 use crate::models::page;
 use crate::models::page_category::{
     self, Entity as PageCategory, Model as PageCategoryModel,
 };
 use crate::services::OutdateService;
+use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService, PageCategoryFields};
 use crate::types::RerenderDepth;
+use crate::types::{Maybe, Reference};
 use crate::utils::get_category_name;
+use crate::utils::now;
+use paste::paste;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, IntoActiveModel, QueryFilter,
+    QueryOrder, Set,
+};
 use sea_query::{Expr, ExprTrait, Func, Query};
 use std::net::IpAddr;
 

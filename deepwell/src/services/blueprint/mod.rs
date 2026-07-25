@@ -23,16 +23,10 @@
 //! This encompasses per-site configurable templates such as `_404`,
 //! which display custom "this page does not exist" content.
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod service;
 mod structs;
 mod template;
 
 pub use self::service::BlueprintPageService;
-pub use self::structs::*;
+pub use self::structs::{BlueprintPageType, GetBlueprintPageOutput};
 pub(crate) use self::template::compose_template;

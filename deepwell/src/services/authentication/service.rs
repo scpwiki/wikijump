@@ -18,11 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{
+    AuthenticateUser, AuthenticateUserOutput, MultiFactorAuthenticateUser, UserAuthInfo,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::services::ServiceContext;
 use crate::services::{MfaService, PasswordService, SessionService};
 use crate::types::UserType;
 use sea_orm::sea_query::Expr;
+use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder};
 
 #[derive(Debug)]
 pub struct AuthenticationService;

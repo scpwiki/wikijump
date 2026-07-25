@@ -18,8 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{
+    MultiFactorResetOutput, MultiFactorSetupOutput, RecoveryCodes, generate_totp_secret,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::user::Model as UserModel;
+use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService, UpdateMfaOperation};
 use crate::services::{PasswordService, UserService};
 use crate::types::UserType;

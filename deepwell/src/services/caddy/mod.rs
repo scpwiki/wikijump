@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod service;
 mod structs;
 
@@ -31,4 +25,4 @@ mod structs;
 mod test;
 
 pub use self::service::CaddyService;
-pub use self::structs::*;
+pub use self::structs::CaddyfileOptions;

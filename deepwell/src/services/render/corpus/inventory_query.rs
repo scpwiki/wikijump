@@ -12,11 +12,11 @@
 
 //! PostgreSQL inventory loading for the corpus render gate.
 
-use super::super::prelude::*;
 use super::inventory::{
     CorpusRenderInventoryService, InventoryRow, InventoryRunContext, RenderInventoryPass,
     RenderInventorySettings, RenderInventorySummary, build_summary,
 };
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::runtime::ServerState;
 use crate::services::render::CORPUS_RENDER_BUDGET_US;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, Value};

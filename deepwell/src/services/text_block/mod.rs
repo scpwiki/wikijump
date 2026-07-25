@@ -18,16 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod mime;
 mod service;
 mod structs;
 
-pub use self::mime::*;
+pub use self::mime::{MIME_HTML, mime_for_language};
 pub use self::service::TextBlockService;
-pub use self::structs::*;
+pub use self::structs::{TextBlock, TextBlockIndex};

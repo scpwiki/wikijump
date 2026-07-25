@@ -22,7 +22,6 @@ use crate::services::file_revision::{
     CreateFileRevisionOutput, CreateFirstFileRevisionOutput,
 };
 use crate::types::{Bytes, FileDetails, FileRevisionType, Maybe, Reference};
-use serde_json::Value as JsonValue;
 use std::net::IpAddr;
 use time::OffsetDateTime;
 

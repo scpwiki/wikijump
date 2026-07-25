@@ -27,10 +27,11 @@
 //! link table is not touched, because a page view is a read.
 
 use super::module_arguments::PageModuleArguments;
-use super::prelude::*;
+use crate::error::prelude::Result;
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
+use crate::services::ServiceContext;
 use crate::services::blueprint::BlueprintPageService;
 use crate::services::render::{
     RenderService, UrlArguments, wikitext_reads_url_arguments,
@@ -41,7 +42,7 @@ use crate::services::settings::SettingsService;
 use crate::types::PageId;
 use crate::utils::{locale_for_ftml, split_category};
 use ftml::data::PageInfo;
-use ref_map::*;
+use ref_map::OptionRefMap;
 
 /// Decides whether this request needs its own render, and performs it.
 ///

@@ -20,7 +20,7 @@
 
 //! Unit testing for our generated `Caddyfile`s.
 
-use super::prelude::*;
+use super::structs::{CaddyfileOptions, CustomDomainData, SiteData, SiteDomainData};
 use crate::config::Config;
 use crate::services::CaddyService;
 use maplit::hashmap;
@@ -29,13 +29,6 @@ use std::fs::File;
 use std::io::{Read, Write};
 
 fn build_config(main_domain: &str, files_domain: &str) -> Config {
-    use femme::LevelFilter;
-    use ftml::layout::Layout;
-    use std::num::NonZeroU16;
-    use std::path::PathBuf;
-    use std::time::Duration as StdDuration;
-    use time::Duration as TimeDuration;
-
     assert!(!main_domain.starts_with('.'));
     assert!(!files_domain.starts_with('.'));
 

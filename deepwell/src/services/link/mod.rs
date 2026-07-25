@@ -35,15 +35,13 @@
 //! types, and tables make it hard to modularize. Instead, the logic is hopefully
 //! clear enough to be acceptable when repeated over a few slightly distinct cases.
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod resolver;
 mod service;
 mod structs;
 
 pub use self::service::LinkService;
-pub use self::structs::*;
+pub use self::structs::{
+    GetLinksExternalFrom, GetLinksExternalFromOutput, GetLinksExternalTo,
+    GetLinksExternalToOutput, GetLinksFrom, GetLinksFromOutput, GetLinksTo,
+    GetLinksToMissing, GetLinksToMissingOutput, GetLinksToOutput,
+};

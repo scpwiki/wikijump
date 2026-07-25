@@ -18,11 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::impls::*;
-use super::prelude::*;
+use super::impls::{MeanScorer, SumScorer};
+use super::scorer::Scorer;
+use super::structs::{ScoreType, VoteMap, VoteType, VoteValue};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::models::page_vote::{self, Entity as PageVote};
+use crate::services::ServiceContext;
 use crate::services::settings::PageRatingType;
 use crate::services::{PageService, SettingsService};
+use ftml::data::ScoreValue;
 use sea_orm::Statement;
+use sea_orm::{
+    ColumnTrait, Condition, ConnectionTrait, DatabaseTransaction, EntityTrait,
+    FromQueryResult, QueryFilter, QuerySelect,
+};
 
 #[derive(Debug)]
 pub struct ScoreService;

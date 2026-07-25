@@ -3,21 +3,22 @@
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 
-use sea_orm::{ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, Statement};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
 use super::compat::CompatHtmlFragments;
 use super::list_pages::{is_tag_cloud_visible_tag, render_tag_cloud_box};
 use super::literal_regions::LiteralRegionIndex;
-use super::prelude::*;
 use super::service::{
     RATE_MODULE_REGEX, REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
     render_clone_module, render_members_module_placeholder, render_new_page_module,
     render_read_only_rate_module, wikidot_module_argument,
 };
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_revision;
-use crate::services::permission::{CheckPermissionContext, PermissionService};
-use crate::types::{Action, Permission, Resource};
+use crate::services::ServiceContext;
+use ftml::data::PageInfo;
+use ftml::settings::WikitextSettings;
 
 impl RenderService {
     pub(super) fn expand_rate_modules_with_registry(

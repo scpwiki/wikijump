@@ -18,18 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::html_text::html_data_segments;
 use super::super::literal_regions::LiteralRegionIndex;
-use super::super::prelude::WikitextSettings;
+#[cfg(test)]
+use super::super::service::WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX;
 use super::super::service::{
     WIKIDOT_BOLD_COLOR_SPAN_REGEX, WIKIDOT_BOLD_OUTER_COLOR_SPAN_REGEX,
     WIKIDOT_BOLD_UNDERLINE_SPAN_REGEX, WIKIDOT_COLOR_SPAN_REGEX,
-    WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_ESCAPED_NBSP_REGEX,
-    WIKIDOT_INLINE_HTML_SENTINEL_PREFIX, escape_list_pages_html_attr,
-    render_native_list_inline_html, render_native_list_inline_wikidot_strong,
+    WIKIDOT_ESCAPED_NBSP_REGEX, WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
+    escape_list_pages_html_attr, render_native_list_inline_html,
+    render_native_list_inline_wikidot_strong,
     render_native_list_inline_wikidot_underlines,
 };
 use super::CompatHtmlFragments;
+use ftml::settings::WikitextSettings;
 use std::borrow::Cow;
 use uuid::Uuid;
 

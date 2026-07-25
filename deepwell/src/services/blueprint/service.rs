@@ -18,18 +18,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::structs::{BlueprintPageType, GetBlueprintPageOutput};
 use super::template::{compose_template, exact_template_slug};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::site::Model as SiteModel;
+use crate::services::ServiceContext;
 use crate::services::{PageRevisionService, PageService, RenderService, TextService};
 use crate::types::Reference;
-use crate::utils::{regex_replace_in_place, split_category, strip_fluent_control_chars};
+use crate::utils::{split_category, strip_fluent_control_chars};
 use fluent::{FluentArgs, FluentValue};
-use ftml::prelude::*;
-use ref_map::*;
-use regex::Regex;
+use ftml::prelude::{Layout, PageInfo, WikitextMode, WikitextSettings};
+use ref_map::OptionRefMap;
 use std::borrow::Cow;
-use std::sync::LazyLock;
 use unic_langid::LanguageIdentifier;
 
 // TODO: check config fields for blueprint pages starts with the page prefix

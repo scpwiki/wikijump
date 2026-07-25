@@ -20,12 +20,6 @@
 
 use strum_macros::{Display, EnumString, IntoStaticStr};
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumString, Display, IntoStaticStr)]
 #[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
 #[allow(dead_code)]
@@ -44,4 +38,9 @@ mod service;
 mod structs;
 
 pub use self::service::RoleService;
-pub use self::structs::*;
+pub use self::structs::{
+    CreateRoleInput, DeleteRoleInput, GetRoleInput, GetRolePermissionsInput,
+    GetUserRolesInput, GrantUserRoleInput, InternalCreateRoleInput,
+    InternalReparentRoleInput, ListSiteRolesInput, ReparentRoleInput,
+    RevokeUserRoleInput, UpdateRoleInput, UpdateRolePermissionsInput,
+};

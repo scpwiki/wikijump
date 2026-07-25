@@ -18,21 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod compat_select;
 mod count_pages;
 mod list_pages;
 mod service;
 mod structs;
 
-pub use self::compat_select::*;
-pub use self::count_pages::*;
-pub use self::list_pages::*;
+pub use self::compat_select::{SelectPageTags, SelectPages};
+pub use self::count_pages::{
+    CountPagesExactCountEligibilityDiagnostics, CountPagesExactCountEligibilityInput,
+    count_pages_exact_count_eligibility_diagnostics,
+};
+pub use self::list_pages::{
+    ListPagesRenderDiagnosticsInput, list_pages_render_diagnostics,
+};
 pub use self::service::PageQueryService;
 pub(crate) use self::service::{PageQueryScoreFilterCache, PageQueryScoreFilterSession};
-pub use self::structs::*;
+pub(crate) use self::structs::MAX_PAGE_QUERY_SCORE_SELECTORS;
+pub use self::structs::{
+    AuthorSelector, CategoriesSelector, ComparisonOperation, DataFormSelector,
+    DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow, FoundPages,
+    IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
+    PageQueryResultMetadata, PageTypeSelector, PaginationSelector, RangeSelector,
+    ScoreSelector, TagCondition, normalize_wikidot_author_name,
+    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
+};

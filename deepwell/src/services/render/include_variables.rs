@@ -28,12 +28,13 @@
 use super::compat::text_fragments::CompatTextFragments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches_source_local;
 use super::include_variable_iftags::resolve_include_variable_iftags;
-use super::prelude::*;
 use super::service::{
     INCLUDE_VARIABLE_CLOSE_SENTINEL, INCLUDE_VARIABLE_OPEN_SENTINEL,
     INCLUDE_VARIABLE_REGEX, MAX_INCLUDE_EXPANSION_DEPTH,
 };
+use ftml::data::PageInfo;
 use ftml::includes::IncludeRef;
+use ftml::{self};
 use std::borrow::Cow;
 
 pub(super) fn apply_include_variables(content: &mut String, include: &IncludeRef<'_>) {

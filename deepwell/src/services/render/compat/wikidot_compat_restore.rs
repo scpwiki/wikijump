@@ -18,11 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::service::*;
+use super::super::service::{
+    RenderService, WIKIDOT_COMPAT_STYLE_BLOCK_REGEX, WIKIDOT_EMAIL_SPAN_REGEX,
+    WIKIDOT_EMBED_PARAGRAPH_REGEX, WIKIDOT_RENDERED_MAILFORM_DEFAULT_REGEX,
+    WIKIDOT_RENDERED_MAILFORM_FIELD_REGEX, WIKIDOT_RENDERED_MAILFORM_MAX_LENGTH_REGEX,
+    WIKIDOT_RENDERED_MAILFORM_REGEX, WIKIDOT_TABVIEW_INIT_SCRIPT, WIKIDOT_TABVIEW_SCRIPT,
+    WIKIJUMP_CODE_BLOCK_OPEN_REGEX, WIKIJUMP_CODE_BLOCK_PANEL_REGEX,
+    WIKIJUMP_FOOTNOTE_DATA_ID_REGEX, WIKIJUMP_FOOTNOTE_MARKER_REGEX,
+    WIKIJUMP_FOOTNOTE_REF_LEADING_SPACE_REGEX, WIKIJUMP_FOOTNOTE_REF_SPAN_WRAPPER_REGEX,
+    WIKIJUMP_INLINE_MATH_REGEX, WIKIJUMP_SELECTED_TAB_BUTTON_REGEX,
+    WIKIJUMP_TAB_BUTTON_LIST_REGEX, WIKIJUMP_TAB_BUTTON_REGEX,
+    WIKIJUMP_TAB_PANEL_LIST_OPEN_REGEX, WIKIJUMP_TAB_PANEL_REGEX,
+    decode_wikidot_email_html_entities, escape_list_pages_html_attr,
+    escape_list_pages_html_text, rendered_wikidot_mailform_attribute,
+};
 use super::footnote_dom::restore_wikidot_footnote_list_dom;
 use crate::config::Config;
 use crate::models::site::Model as SiteModel;
-use std::ops::Range;
 
 impl RenderService {
     pub(in crate::services::render) fn restore_wikidot_render_compatibility(

@@ -18,7 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::RelationService;
+use super::structs::{RelationDirection, RelationObject, RelationReference};
+use super::user_follow::RemoveUserFollow;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::models::relation::Model as RelationModel;
+use crate::services::ServiceContext;
+use crate::types::RelationType;
+use paste::paste;
+use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct UserBlockData {

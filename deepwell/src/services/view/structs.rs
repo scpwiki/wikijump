@@ -19,7 +19,6 @@
  */
 
 use super::options::PageOptions;
-use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::page_revision::Model as PageRevisionModel;
@@ -28,6 +27,7 @@ use crate::models::site::Model as SiteModel;
 use crate::models::user::Model as UserModel;
 use crate::services::relation::PageAttribution;
 use crate::services::settings::{PageDiscussionSettings, PageRatingSettings};
+use crate::types::Reference;
 use time::OffsetDateTime;
 
 // NOTE: Any changes to the output structures here, including the variant names,

@@ -18,41 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::template::{
-    LISTPAGES_VARIABLE_REGEX, ListPagesOutputShape, ListPagesTemplatePlan,
-};
+use super::template::{LISTPAGES_VARIABLE_REGEX, ListPagesTemplatePlan};
 use crate::services::page_query::{
-    AuthorSelector, CategoriesSelector, ComparisonOperation,
-    CountPagesExactCountEligibilityDiagnostics, CountPagesExactCountEligibilityInput,
-    DataFormSelector, DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow,
-    IncludedCategories, ListPagesRenderDiagnosticsInput, MAX_PAGE_QUERY_SCORE_SELECTORS,
-    OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
-    PageQueryResultMetadata, PageTypeSelector, PaginationSelector, RangeSelector,
-    ScoreSelector, TagCondition, count_pages_exact_count_eligibility_diagnostics,
-    list_pages_render_diagnostics, normalize_wikidot_author_name,
-    parse_static_wikidot_data_form_values,
+    AuthorSelector, ComparisonOperation, CountPagesExactCountEligibilityDiagnostics,
+    CountPagesExactCountEligibilityInput, DataFormSelector, DateSelector,
+    DateTimeResolution, FoundPageFields, FoundPageRow, MAX_PAGE_QUERY_SCORE_SELECTORS,
+    OrderBySelector, OrderProperty, PageParentSelector, PageQueryResultMetadata,
+    PageTypeSelector, ScoreSelector, count_pages_exact_count_eligibility_diagnostics,
+    normalize_wikidot_author_name,
 };
 use crate::services::render::UrlArguments;
-use crate::types::PageId;
-use regex::Regex;
 use sea_orm::FromQueryResult;
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::LazyLock;
 use uuid::Uuid;
 use wikidot_normalize::normalize;
 
 use super::super::compat::CompatHtmlFragments;
 use super::super::compat::preparation::neutralize_authored_markers;
-use super::super::compat::text_fragments::CompatTextFragments;
-use super::super::literal_regions::{
-    ListPagesSourceProjection, LiteralRegionCursor, LiteralRegionIndex,
-};
+use super::super::literal_regions::LiteralRegionCursor;
 use super::super::percent_encoding::percent_encode_path_segment;
-use super::super::prelude::*;
-use super::super::runtime_page_queries::{
-    CountPagesRawScanCompletion, count_pages_raw_scan_completion,
-};
+use super::super::runtime_page_queries::CountPagesRawScanCompletion;
 use super::super::service::{
     CountPagesRequiredTagBatchResult, LISTPAGES_ARGUMENT_REGEX,
     MAX_LISTPAGES_RENDER_LIMIT, MAX_LISTPAGES_RENDER_OFFSET,
@@ -65,6 +51,8 @@ use super::super::service::{
 };
 use super::content_sections::wikidot_content_section;
 use super::scanner::list_pages_runtime_head_is_safe;
+use ftml::data::PageInfo;
+use ftml::{self};
 
 #[derive(Debug, Clone)]
 pub(in crate::services::render) struct WikidotUserDisplay {

@@ -23,11 +23,18 @@
 //! This service has two components, management of canonical domains (e.g. `scp-wiki.wikijump.com`)
 //! and custom domains (e.g. `scpwiki.com`).
 
-use super::prelude::*;
+use super::structs::CreateCustomDomain;
+use crate::config::Config;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
-use crate::services::SiteService;
+use crate::services::ServiceContext;
+use crate::utils::now;
 use regex::Regex;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, DeleteResult, EntityTrait, JoinType, QueryFilter,
+    QuerySelect, RelationTrait, Set,
+};
 use std::borrow::Cow;
 use std::sync::LazyLock;
 

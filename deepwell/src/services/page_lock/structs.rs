@@ -21,7 +21,7 @@
 use std::net::IpAddr;
 use time::OffsetDateTime;
 
-use crate::types::{PageLockType, Reference};
+use crate::types::PageLockType;
 
 // TODO: Add ip_address to request context
 #[derive(Deserialize, Debug, Clone)]

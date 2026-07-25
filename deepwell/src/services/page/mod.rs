@@ -18,14 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-}
-
 mod service;
 mod structs;
 
 pub use self::service::PageService;
-pub use self::structs::*;
+pub use self::structs::{
+    CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
+    GetDeletedPageOutput, GetPageAnyDetails, GetPageOutput, GetPageReference,
+    GetPageReferenceDetails, GetPageScoreOutput, GetPageSlug, MovePage, MovePageOutput,
+    PageEditPermissionOutput, RestorePage, RestorePageOutput, RollbackPage,
+    SetPageLayout,
+};

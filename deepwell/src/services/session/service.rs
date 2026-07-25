@@ -30,11 +30,18 @@
 //! expiry (30 minutes) which needs to be renewed by the client
 //! periodically.
 
-use super::prelude::*;
+use super::structs::{CreateSession, RenewSession};
+use crate::config::Config;
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::session::{self, Entity as Session, Model as SessionModel};
-use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::models::user::{Entity as User, Model as UserModel};
+use crate::services::ServiceContext;
 use crate::utils::assert_is_csprng;
+use crate::utils::now;
 use rand::distr::{Alphanumeric, SampleString};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, QueryFilter, Set,
+};
 
 #[derive(Debug)]
 pub struct SessionService;

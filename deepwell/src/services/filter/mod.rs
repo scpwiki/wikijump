@@ -27,17 +27,10 @@
 //! registered, where a user site filter would prevent the user from
 //! joining.
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::matcher::{FilterMatcher, FilterSummary};
-    pub use super::structs::*;
-}
-
 mod matcher;
 mod service;
 mod structs;
 
 pub use self::matcher::{FilterMatcher, FilterSummary};
 pub use self::service::FilterService;
-pub use self::structs::*;
+pub use self::structs::{CreateFilter, FilterClass, FilterType};

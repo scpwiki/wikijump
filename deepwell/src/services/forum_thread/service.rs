@@ -20,12 +20,24 @@
 
 #![allow(dead_code)] // TEMP
 
-use super::prelude::*;
+use super::structs::{
+    CreateForumThread, DeleteForumThread, ForumThreadListOrder, GetForumThread,
+    GetForumThreads, TouchForumThread, UpdateForumThread, UpdateForumThreadBody,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::forum_thread::{
     self, Entity as ForumThread, Model as ForumThreadModel,
 };
 use crate::models::{forum_post, forum_post_revision};
 use crate::services::ForumService;
+use crate::services::ServiceContext;
+use crate::types::Maybe;
+use crate::utils::now;
+use paste::paste;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder,
+    QuerySelect, Set,
+};
 
 #[derive(Debug)]
 pub struct ForumThreadService;

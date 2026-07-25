@@ -18,18 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-    pub use ftml::data::PageInfo;
-    pub use ftml::parsing::ParseError;
-    pub use ftml::render::Render;
-    pub use ftml::render::html::{HtmlOutput, HtmlRender};
-    pub use ftml::settings::WikitextSettings;
-    pub use ftml::{self};
-}
-
 mod backlinks;
 mod compat;
 mod corpus;
@@ -61,14 +49,13 @@ mod url_arguments;
 mod wikidot_hosts;
 
 pub(crate) use self::corpus::{
-    CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerPass,
-    RenderFinalizerSettings, RenderFinalizerSummary, RenderInventoryPass,
-    RenderInventorySettings, RenderInventorySummary,
+    CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerSettings,
+    RenderInventorySettings,
 };
 pub(crate) use self::diagnostics::{
-    CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, CorpusRenderDimension,
-    CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, CorpusRenderTraceSnapshot,
-    StageGuard, is_corpus_render_timing,
+    CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, CorpusRenderScope,
+    CorpusRenderStage, CorpusRenderTrace, CorpusRenderTraceSnapshot, StageGuard,
+    is_corpus_render_timing,
 };
 pub(crate) use self::literal_regions::LiteralRegionIndex;
 pub use self::render_dependency::{
@@ -80,9 +67,8 @@ pub(crate) use self::replay::{
 pub use self::service::RenderService;
 pub(crate) use self::service::{
     CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-    CorpusReplayPreparedWikitext, CorpusReplayStageTimings, CorpusReplaySyntaxFeatures,
 };
-pub use self::structs::*;
+pub use self::structs::{RenderOutput, RenderPageOutput};
 pub use self::url_arguments::{
     UrlArguments, wikitext_reads_url_arguments, wikitext_requires_runtime_render,
 };

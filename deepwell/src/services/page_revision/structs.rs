@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::types::Maybe;
 use crate::types::{FetchDirection, PageDetails, PageId, PageRevisionType};
 use ftml::layout::Layout;
 use ftml::parsing::ParseError;

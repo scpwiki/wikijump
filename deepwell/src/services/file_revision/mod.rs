@@ -18,16 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(unused_imports)]
-mod prelude {
-    pub use super::super::prelude::*;
-    pub use super::structs::*;
-    pub use crate::hash::BlobHash;
-    pub use crate::types::FileRevisionType;
-}
-
 mod service;
 mod structs;
 
 pub use self::service::FileRevisionService;
-pub use self::structs::*;
+pub use self::structs::{
+    CountFileRevisions, CreateFileRevision, CreateFileRevisionBody,
+    CreateFileRevisionOutput, CreateFirstFileRevision, CreateFirstFileRevisionOutput,
+    CreateResurrectionFileRevision, CreateTombstoneFileRevision, FileBlob,
+    FileRevisionCountOutput, GetFileRevision, GetFileRevisionRange, UpdateFileRevision,
+};

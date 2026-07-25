@@ -18,17 +18,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::hash::{BlobHash, blob_hash_to_hex, slice_to_blob_hash};
+use super::structs::{
+    CountFileRevisions, CreateFileRevision, CreateFileRevisionOutput,
+    CreateFirstFileRevision, CreateFirstFileRevisionOutput,
+    CreateResurrectionFileRevision, CreateTombstoneFileRevision, GetFileRevision,
+    GetFileRevisionRange, UpdateFileRevision,
+};
+use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::file_revision::{
     self, Entity as FileRevision, Model as FileRevisionModel,
 };
-use crate::models::{file, page, site};
-use crate::services::blob::{EMPTY_BLOB_HASH, EMPTY_BLOB_MIME, FinalizeBlobUploadOutput};
-use crate::services::{BlobService, OutdateService, PageService};
-use crate::types::{Bytes, FetchDirection, RerenderDepth};
-use sea_orm::FromQueryResult;
-use sea_orm::prelude::*;
+use crate::services::ServiceContext;
+use crate::services::blob::EMPTY_BLOB_HASH;
+use crate::services::{OutdateService, PageService};
+use crate::types::{FetchDirection, RerenderDepth};
+use crate::types::{FileRevisionType, Maybe, Reference};
+use paste::paste;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter,
+    QueryOrder, QuerySelect, Set,
+};
 use std::num::NonZeroI32;
 use std::sync::LazyLock;
 

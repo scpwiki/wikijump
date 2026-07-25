@@ -18,8 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::hash::BlobHash;
 use crate::services::page_revision::PageRevisionCountOutput;
+use crate::types::Maybe;
 use crate::types::{FetchDirection, FileRevisionType};
 
 #[derive(Debug, Clone)]
