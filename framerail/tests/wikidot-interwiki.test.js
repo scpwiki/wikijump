@@ -11,6 +11,9 @@ import {
   localizeWikidotThemeUrl,
   safeStyleFrameScriptJson
 } from "../src/lib/wikidot/wikidot-styleframe-contract.js"
+import { STYLEFRAME_INSERTION_RUNTIME_SOURCE } from "../src/lib/wikidot/wikidot-styleframe-runtime-insertion.js"
+import { STYLEFRAME_ORDERING_RUNTIME_SOURCE } from "../src/lib/wikidot/wikidot-styleframe-runtime-ordering.js"
+import { STYLEFRAME_OWNER_RUNTIME_SOURCE } from "../src/lib/wikidot/wikidot-styleframe-runtime-owner.js"
 import { buildWikidotStyleFrameRuntime } from "../src/lib/wikidot/wikidot-styleframe-runtime.js"
 import { extractWikidotStyleFrameStylesheets } from "../src/lib/wikidot/wikidot-styleframe-stylesheets.js"
 import { buildWikidotStyleFrameHtml } from "../src/lib/wikidot/wikidot-styleframe.js"
@@ -25,7 +28,15 @@ test("serializes styleFrame runtime values without closing the script", () => {
   assert.match(script, /const priority = "2\\u003cscript>"/u)
   assert.match(script, /theme\.css\?\\u003cunsafe>/u)
   assert.match(script, /const css = "body::before \{ content: '\\u003c\/script>'/u)
-  assert.match(script, /delete link\.dataset\.wikidotStylePreloaded/u)
+  assert.match(STYLEFRAME_OWNER_RUNTIME_SOURCE, /node !== registration\?\.frame/u)
+  assert.match(STYLEFRAME_ORDERING_RUNTIME_SOURCE, /restoreStyleFrameOrder/u)
+  assert.match(
+    STYLEFRAME_INSERTION_RUNTIME_SOURCE,
+    /delete link\.dataset\.wikidotStylePreloaded/u
+  )
+  assert.ok(script.includes(STYLEFRAME_OWNER_RUNTIME_SOURCE))
+  assert.ok(script.includes(STYLEFRAME_ORDERING_RUNTIME_SOURCE))
+  assert.ok(script.includes(STYLEFRAME_INSERTION_RUNTIME_SOURCE))
   assert.doesNotMatch(script, /<\/script>/u)
   assert.equal(safeStyleFrameScriptJson("<script>"), '"\\u003cscript>"')
 })
