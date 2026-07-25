@@ -64,6 +64,10 @@ For rendered Wikidot content, this fork's priority is faithful emulation over mo
 
 ## Validation expectations
 
+Enable the hooks once per clone: `git config core.hooksPath .githooks`. The pre-commit hook rejects a commit that breaks the source-size budget, and the pre-push hook runs `scripts/preflight.sh`, which runs the checks CI would run for the paths you changed. Both honor `WIKIJUMP_SKIP_PREFLIGHT=1`. Finding a failure locally costs seconds; finding it in CI costs minutes and a round trip.
+
+`scripts/preflight.sh` selects checks with `.github/scripts/classify-changes.mjs`, the same script `ci-gate.yaml` uses, so it cannot drift from CI. Pass `--full` to add the deepwell integration tests and the framerail build. `.github/workflows/README.md` records what each workflow is for and why its trigger is scoped the way it is.
+
 Run the narrowest meaningful validation for the touched surface, then broaden before PR/merge when behavior is user-visible or cross-cutting.
 
 ```bash

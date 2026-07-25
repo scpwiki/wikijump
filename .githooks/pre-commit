@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# Reject a commit that would break the source-size budget.
+#
+# This one check runs at commit time rather than push time because it is the
+# cheapest and the most annoying to discover late: it fails on the merge
+# result, so a PR that passed on its own can start failing when develop moves.
+# Catching a file crossing its ceiling as it is written is far cheaper than
+# restructuring a finished branch.
+#
+# Set WIKIJUMP_SKIP_PREFLIGHT=1 or use --no-verify to bypass.
+
+set -uo pipefail
+
+if [[ "${WIKIJUMP_SKIP_PREFLIGHT:-0}" == "1" ]]; then
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if [[ ! -x "${REPO_ROOT}/scripts/check-source-size.sh" ]]; then
+  exit 0
+fi
+
+if ! "${REPO_ROOT}/scripts/check-source-size.sh" >/tmp/wikijump-source-size.$$ 2>&1; then
+  grep -E '::error' /tmp/wikijump-source-size.$$ >&2 || cat /tmp/wikijump-source-size.$$ >&2
+  echo "" >&2
+  echo "pre-commit: source-size budget rejected this commit." >&2
+  echo "pre-commit: move code into a new module rather than raising a ceiling." >&2
+  rm -f /tmp/wikijump-source-size.$$
+  exit 1
+fi
+rm -f /tmp/wikijump-source-size.$$
