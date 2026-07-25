@@ -1117,3 +1117,99 @@ async fn link_to_listpages_selects_only_linking_pages() {
         "a page without the link must not be returned by link_to:\n{html}",
     );
 }
+
+#[tokio::test]
+async fn listpages_total_counts_matches_beyond_the_rendered_page() {
+    // Deliberately outside the selector glob below; a source page that matched
+    // its own query would be counted among the results.
+    const SOURCE_SLUG: &str = "total-window-holder";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 0..4 {
+        let slug = format!("total-beyond-page-{index}");
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(slug.clone().into())),
+        });
+        run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": "Total fixture",
+                "title": slug,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "total ListPages fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+    }
+
+    // Wikidot's tales-by-year renders one perPage window while %%total%%
+    // reports every match, which is what lets the template number rows as
+    // `%%total%% - %%index%% + 1`.
+    let source = concat!(
+        "[[module ListPages category=\"_default\" name=\"total-beyond-page-*\" ",
+        "order=\"name\" limit=\"2\" separate=\"no\"]]\n",
+        "ROW %%index%% OF %%total%%\n",
+        "[[/module]]",
+    );
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(SOURCE_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": source,
+            "title": "Total beyond page",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "total ListPages smoke test",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": SOURCE_SLUG,
+            "details": {
+                "compiled": true
+            },
+        })),
+    )
+    .await
+    .expect("total page_get should succeed")
+    .expect("total page_get should return page data");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("ROW 1 OF 4") && html.contains("ROW 2 OF 4"),
+        "the two rendered rows should report all four matches:\n{html}",
+    );
+    assert!(
+        !html.contains("ROW 3 OF"),
+        "only the requested limit of rows should render:\n{html}",
+    );
+}
