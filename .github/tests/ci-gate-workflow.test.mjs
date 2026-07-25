@@ -249,3 +249,15 @@ test("actions in touched workflows are immutable pins with version comments", ()
     assert.equal(uses.length, (source.match(/^\s*uses:/gm) ?? []).length, name)
   }
 })
+
+test("caching ~/.cargo/bin also caches cargo's install registry", () => {
+  const source = workflow("ci-gate.yaml")
+  const blocks = source.split(/^\s*- name: /m).filter((block) => block.includes("~/.cargo/bin"))
+  assert.ok(blocks.length > 0)
+  for (const block of blocks) {
+    // Without .crates.toml/.crates2.json cargo has no record of having installed
+    // the cached binary, so `cargo install` aborts on the unexpected file.
+    assert.match(block, /~\/\.cargo\/\.crates\.toml/)
+    assert.match(block, /~\/\.cargo\/\.crates2\.json/)
+  }
+})

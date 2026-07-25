@@ -86,7 +86,7 @@ jobs:
         run: node --test .github/tests/*.test.mjs
 
   deepwell_draft:
-    name: Deepwell draft checks
+    name: Deepwell lint and unit tests
     needs: classify
     if: needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.draft == 'true'
     runs-on: ubuntu-latest
@@ -104,6 +104,9 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
             deepwell/target
           key: ${{ runner.os }}-${{ runner.arch }}-deepwell-draft-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
 
@@ -122,7 +125,7 @@ jobs:
           cargo test --locked --lib --no-default-features
 
   deepwell_candidate:
-    name: Deepwell candidate checks
+    name: Deepwell lint, unit, and integration tests
     needs: classify
     if: needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.candidate == 'true'
     runs-on: ubuntu-latest
@@ -170,6 +173,9 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
             deepwell/target
           key: ${{ runner.os }}-${{ runner.arch }}-deepwell-candidate-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
 
@@ -216,7 +222,7 @@ jobs:
           cargo test --locked --all-features -- --nocapture --test-threads 1
 
   wws:
-    name: WWS required checks
+    name: WWS lint and unit tests
     needs: classify
     if: needs.classify.outputs.wws == 'true'
     runs-on: ubuntu-latest
@@ -239,6 +245,9 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
             wws/target
           key: ${{ runner.os }}-${{ runner.arch }}-wws-required-${{ hashFiles('wws/Cargo.lock', 'rust-toolchain.toml') }}
 
@@ -255,7 +264,7 @@ jobs:
           node --test tests/resize-iframe.test.mjs
 
   framerail:
-    name: Framerail required checks
+    name: Framerail lint, build, and unit tests
     needs: classify
     if: needs.classify.outputs.framerail == 'true'
     runs-on: ubuntu-latest
@@ -287,7 +296,7 @@ jobs:
           pnpm --dir framerail lint
 
   locales:
-    name: Locales required checks
+    name: Locales lint and validator run
     needs: classify
     if: needs.classify.outputs.locales == 'true'
     runs-on: ubuntu-latest
