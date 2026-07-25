@@ -137,7 +137,17 @@ test("one Full CI workflow owns coverage and browser validation", () => {
   for (const job of ["deepwell_coverage", "export_deepwell_coverage", "wws_coverage", "export_wws_coverage", "framerail_browser"]) {
     assert.ok(hasYamlLine(source, `${job}:`), job)
   }
-  assert.equal((source.match(/contains\(github\.event\.pull_request\.labels\.\*\.name, 'full-ci'\)/g) ?? []).length, 3)
+  // Only the browser job is gated behind the full-ci label on a pull request.
+  // Both coverage jobs feed Codecov, whose export already refuses to run on a
+  // pull request, so they run on push events instead of duplicating the
+  // candidate suite for an artifact nothing reads.
+  assert.equal((source.match(/contains\(github\.event\.pull_request\.labels\.\*\.name, 'full-ci'\)/g) ?? []).length, 1)
+  for (const job of ["deepwell_coverage", "wws_coverage", "export_deepwell_coverage", "export_wws_coverage"]) {
+    const start = source.indexOf(`  ${job}:\n`)
+    assert.ok(start >= 0, job)
+    const condition = source.slice(start, source.indexOf("\n    runs-on:", start))
+    assert.match(condition, /if: \$\{\{ github\.event_name != 'pull_request' \}\}/, job)
+  }
   assert.match(concurrency, /format\('full-ci-pr-\{0\}', github\.event\.pull_request\.number\)/)
   assert.match(concurrency, /format\('full-ci-run-\{0\}', github\.run_id\)/)
   assert.match(concurrency, /github\.event\.action == 'unlabeled'\) && github\.event\.label\.name == 'full-ci'/)
@@ -148,8 +158,8 @@ test("one Full CI workflow owns coverage and browser validation", () => {
     "github.event.action != 'closed'",
     "github.event.action != 'converted_to_draft'",
     "github.event.action == 'labeled' && github.event.label.name == 'full-ci'"
-  ]) assert.equal(source.split(condition).length - 1, 3, condition)
-  assert.ok(source.split("github.event.action == 'edited' && github.event.changes.base != null").length - 1 >= 3)
+  ]) assert.equal(source.split(condition).length - 1, 1, condition)
+  assert.ok(source.split("github.event.action == 'edited' && github.event.changes.base != null").length - 1 >= 1)
   const deepwellCoverage = source.slice(source.indexOf("  deepwell_coverage:\n"), source.indexOf("  export_deepwell_coverage:\n"))
   assert.match(deepwellCoverage, /cargo \+nightly tarpaulin.*-- --test-threads 1/)
   assert.match(source, /pnpm --dir framerail test/)

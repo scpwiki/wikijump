@@ -9,10 +9,26 @@
 - Use `docs/ftml-boundary.md` for the FTML/Wikijump responsibility boundary, pin-bump canary rule, and syntax-shim deviation process.
 - Use `install/local/wikidot-verification/` for browser parity capture and validator tooling.
 - Use `install/local/wikidot-verification/docs/sandbox-oracle-design.md` for the driftless sandbox-oracle design: fixture condition matrix, comparison layers, and the live-Wikidot mutation-allowlist sign-off requirement.
+- Use the `wikidot-sandbox-access` and `wikidot-py-operations` skills to obtain live Wikidot evidence; see "Capturing live evidence" below.
 
 ## Product language
 
 Wikijump is a Wikidot-compatible local runtime. For imported Wikidot content, source-of-truth is live Wikidot evidence or corpus data with provenance. Local Wikijump output is never its own oracle.
+
+## Capturing live evidence
+
+Because local output is never its own oracle, closing a parity gap normally requires observing live Wikidot. Two skills carry that path: `wikidot-sandbox-access` for account selection, sandbox routing, and mutation boundaries, and `wikidot-py-operations` for driving `Rokurolize/wikidot.py`. Reach for them before recording a gap as blocked on missing evidence.
+
+Prefer the cheapest observation that answers the question:
+
+- `edit/PagePreviewModule` renders arbitrary wikitext read-only and anonymously, which settles most syntax and block questions without touching any page.
+- `list/ListPagesModule` through `amc_request` answers variable and selector questions against a public site, also read-only.
+- Fetching a live page that already exercises the construct needs no session at all.
+- A run-owned sandbox page is the last resort, for behavior that depends on page or site state you must create.
+
+Use an anonymous client whenever the observation is read-only; a session buys nothing there. The library refuses to send a session over HTTP, and that refusal is correct: opt into the exact-site transport override only when a task genuinely requires authenticated access to an HTTP-only site. Never print credentials or session cookies into logs, receipts, or issue comments.
+
+These tools do not answer everything. A module that renders only inside a page context can return an empty body to both the preview renderer and a bare module call, and a live page can turn out to build its listing client-side. When that happens, record what was attempted and what each attempt returned, so the next person starts from the failed routes rather than repeating them.
 
 Browser-visible behavior matters: visible text, meaningful DOM structure, links, modules, includes, files, metadata, permissions, actor state, and network/resource behavior can all be product surface. Do not hide meaningful differences through CSS, broad normalization, source surgery, or validator shortcuts. If a difference is intentionally accepted, record the policy reason and evidence.
 
@@ -62,3 +78,11 @@ node --test install/local/wikidot-verification/tests/<focused-test>.mjs
 For browser-visible parity claims, also produce fresh source/local browser evidence with the local Wikidot verification tooling; unit tests and DB rows are supporting evidence only.
 
 Before merging, verify current branch protection and required checks from GitHub. Do not bypass required checks, force/admin merge, or push to upstream `scpwiki/*` repositories.
+
+## Merging is not delivering
+
+A merged PR changes `develop`. It does not change the standing runtime, which serves whatever SHA its containers were built from. Reporting a browser-visible change as done because CI passed and the PR merged asserts something unverified: the URL still serves the old build.
+
+After merging a change that alters anything a browser can observe, run the Tier 1 refresh in `install/standing/README.md`, then re-fetch the affected URL and compare it against the live Wikidot page. Quote the fetched result. Until that comparison exists, the accurate report is that the change is merged and not yet observable, never that the defect is fixed.
+
+Deploying is not configuring either. A feature whose behavior depends on site or page state stays invisible until that state exists, so name the missing state explicitly rather than implying the surface is complete.
