@@ -5730,17 +5730,34 @@ fn protects_wikidot_jp_interwiki_embed_iframe_before_ftml() {
 }
 
 #[test]
-fn leaves_unsupported_raw_wikidot_embed_iframe_unprotected() {
-    let original = concat!(
-        "[[embed]]\n",
-        r#"<iframe src="//example.com/widget" style="display: none"></iframe>"#,
-        "\n[[/embed]]",
-    );
-    let mut wikitext = original.to_owned();
+fn renders_wikidot_no_match_error_for_an_unsupported_embed_payload() {
+    for (block, payload) in [
+        (
+            "embed",
+            r#"<iframe src="//example.com/widget" style="display: none"></iframe>"#,
+        ),
+        (
+            "embed",
+            r#"<div id="doc-embed-probe">DOC_EMBED_PAYLOAD</div>"#,
+        ),
+        ("embed", "<script>alert(1)</script>"),
+        ("embed", ""),
+        ("embedaudio", r#"<div id="probe">PAYLOAD</div>"#),
+        ("embedaudio", ""),
+        ("embedvideo", r#"<div id="probe">PAYLOAD</div>"#),
+    ] {
+        let mut wikitext = format!("[[{block}]]\n{payload}\n[[/{block}]]");
 
-    let iframes = RenderService::protect_wikidot_embed_iframes(&mut wikitext);
-    assert!(iframes.is_empty());
-    assert_eq!(wikitext, original);
+        let embeds = RenderService::protect_wikidot_embed_iframes(&mut wikitext);
+        assert_eq!(
+            embeds,
+            vec![
+                r#"<div class="error-block">Sorry, no match for the embedded content.</div>"#
+                    .to_owned(),
+            ],
+        );
+        assert!(!wikitext.contains(payload) || payload.is_empty());
+    }
 }
 
 #[test]
