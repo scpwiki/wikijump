@@ -20,8 +20,8 @@ impl Parse for RelationSettings {
         let mut dest = None;
         let mut from = None;
         let mut data_type = None;
-        let mut define_create: Option<bool> = None;
-        let mut define_struct: Option<bool> = None;
+        let mut define_create = true;
+        let mut define_struct = true;
 
         // Iterate through all entries in the macro's arguments
         while !input.is_empty() {
@@ -72,7 +72,21 @@ impl Parse for RelationSettings {
             }
         }
 
-        Ok(todo!())
+        // Gather fields and return
+
+        let (relation_name, field_name) = name.ok_or_else(|| make_error("no 'name' argument passed"))?;
+        let dest = dest.ok_or_else(|| make_error("no 'dest' argument passed"))?;
+        let from = from.ok_or_else(|| make_error("no 'from' argument passed"))?;
+
+        Ok(RelationSettings {
+            relation_name,
+            field_name,
+            dest,
+            from,
+            data_type,
+            define_create,
+            define_struct,
+        })
     }
 }
 
