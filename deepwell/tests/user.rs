@@ -558,7 +558,7 @@ async fn user_mutations_enforce_request_actor_and_staff_only_fields() {
         user_add_name_change,
         json!({"user": target.user_id}),
     );
-    assert_eq!(name_changes, 3);
+    assert_eq!(name_changes, runner.config().maximum_name_changes);
 
     runner.set_request_context(RequestContext {
         user_id: Some(target.user_id),
