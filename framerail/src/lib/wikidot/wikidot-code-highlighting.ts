@@ -121,6 +121,11 @@ function isWikidotCodeBlock(element: Element): element is HTMLElement {
   return element.matches(WIKIDOT_CODE_SELECTOR)
 }
 
+export function replaceWikidotCodeHtml(code: HTMLElement, html: string): void {
+  const parsed = new DOMParser().parseFromString(html, "text/html")
+  code.replaceChildren(...Array.from(parsed.body.childNodes))
+}
+
 export function highlightWikidotCodeBlock(block: HTMLElement): Promise<void> {
   const currentJob = highlightJobs.get(block)
   if (currentJob) return currentJob
@@ -136,7 +141,7 @@ export function highlightWikidotCodeBlock(block: HTMLElement): Promise<void> {
       const previous = highlightStates.get(block)
       if (previous?.language === language && previous.source === source) {
         if (previous.html !== null && code.innerHTML !== previous.html) {
-          code.innerHTML = previous.html
+          replaceWikidotCodeHtml(code, previous.html)
         }
         return
       }
@@ -151,7 +156,7 @@ export function highlightWikidotCodeBlock(block: HTMLElement): Promise<void> {
       }
 
       const html = highlighted?.html ?? null
-      if (html !== null) code.innerHTML = html
+      if (html !== null) replaceWikidotCodeHtml(code, html)
       highlightStates.set(block, { html, language, source })
       return
     }
