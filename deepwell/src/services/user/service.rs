@@ -168,9 +168,10 @@ impl UserService {
         validate_locales(user_type, &locales).or_raise(make_error)?;
 
         match override_user_id {
-            // If an ID is being specified, adding a new user here is legal
-            // if the Wikidot user behind it (if it exists) has a matching
-            // slug.
+            // If an ID is being specified for a normal creation, adding a new
+            // user here is legal if the Wikidot user behind it (if it exists)
+            // has a matching slug. Import activation uses the Wikidot ID as
+            // the identity and may choose a new Wikijump name.
             Some(user_id) => {
                 let result = WikidotUser::find()
                     .filter(
@@ -186,6 +187,7 @@ impl UserService {
                 if let Some(found_user) = result
                     && let Some(found_user_slug) = found_user.slug
                     && found_user_slug != slug
+                    && !reuse_existing_known_user
                 {
                     error!(
                         "Wikidot user exists with user ID {}, but has an incompatible user slug: {} != {}",
