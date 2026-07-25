@@ -30,7 +30,10 @@ concurrency:
 jobs:
   deepwell_coverage:
     name: Deepwell coverage
-    if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'full-ci') && github.event.action != 'closed' && github.event.action != 'converted_to_draft' && ((github.event.action != 'labeled' && github.event.action != 'unlabeled' && github.event.action != 'edited') || (github.event.action == 'labeled' && github.event.label.name == 'full-ci') || (github.event.action == 'edited' && github.event.changes.base != null))) }}
+    # Coverage exists to feed Codecov, and its export step already refuses to
+    # run on a pull request, so on a PR this job produced an artifact nothing
+    # consumed. It runs where the export runs.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: xd009642/tarpaulin:develop-nightly
@@ -147,7 +150,10 @@ jobs:
 
   wws_coverage:
     name: WWS coverage
-    if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'full-ci') && github.event.action != 'closed' && github.event.action != 'converted_to_draft' && ((github.event.action != 'labeled' && github.event.action != 'unlabeled' && github.event.action != 'edited') || (github.event.action == 'labeled' && github.event.label.name == 'full-ci') || (github.event.action == 'edited' && github.event.changes.base != null))) }}
+    # Coverage exists to feed Codecov, and its export step already refuses to
+    # run on a pull request, so on a PR this job produced an artifact nothing
+    # consumed. It runs where the export runs.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: xd009642/tarpaulin:develop-nightly
