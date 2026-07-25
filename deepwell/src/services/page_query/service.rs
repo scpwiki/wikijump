@@ -275,7 +275,34 @@ impl PageQueryService {
             variables,
             fields,
         } = query;
-        info!("Building ListPages query from specification");
+        let (category_mode, included_category_count) = match &included_categories {
+            IncludedCategories::All => ("all", 0),
+            IncludedCategories::List(categories) => ("list", categories.len()),
+        };
+        let (parent_mode, parent_count) = match &page_parent {
+            PageParentSelector::All => ("all", 0),
+            PageParentSelector::NoParent => ("none", 0),
+            PageParentSelector::SameParents => ("same", 0),
+            PageParentSelector::DifferentParents => ("different", 0),
+            PageParentSelector::ChildOf => ("children", 0),
+            PageParentSelector::HasParents(parents) => ("list", parents.len()),
+        };
+        let order = order.unwrap_or_default();
+        debug!(
+            "Building ListPages query: site_id={queried_site_id}, page_type={page_type:?}, category_mode={category_mode}, included_category_count={included_category_count}, excluded_category_count={}, parent_mode={parent_mode}, parent_count={parent_count}, outgoing_link_count={}, exact_slug_count={}, name_pattern={}, any_tag_count={}, all_tag_count={}, excluded_tag_count={}, untagged={untagged}, score_filter_count={}, data_form_filter_count={}, order={:?}, ascending={}, offset={offset}, limit={:?}, candidate_limit={candidate_limit:?}",
+            excluded_categories.len(),
+            contains_outgoing_links.len(),
+            slugs.len() + usize::from(slug.is_some()),
+            name.is_some(),
+            any_tags.len(),
+            all_tags.len(),
+            no_tags.len(),
+            score.len(),
+            data_form_fields.len(),
+            order.property,
+            order.ascending,
+            pagination.limit,
+        );
 
         let make_error =
             || Error::new("failed to create ListPages query", ErrorType::PageQuery);
@@ -303,181 +330,120 @@ impl PageQueryService {
         }
         let mut condition = Condition::all();
 
-        // Site ID
-        //
-        // The site to query from. If not specified, then this is the current site.
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
-        debug!("Selecting pages from site ID: {queried_site_id}");
 
-        // Page Type
         let hidden_condition = Expr::cust_with_expr(
             r#"regexp_replace($1, '^.*:', '') LIKE '\_%' ESCAPE '\'"#,
             Expr::col((Page, page::Column::Slug)),
         );
         match page_type {
             PageTypeSelector::Hidden => {
-                // Hidden pages are any which have slugs that start with '_'.
-                debug!("Selecting page slugs starting with '_'");
                 condition = condition.add(hidden_condition);
             }
             PageTypeSelector::Normal => {
-                // Normal pages are anything not in the above category.
-                debug!("Selecting page slugs not starting with '_'");
                 condition = condition.add(hidden_condition.not());
             }
-            PageTypeSelector::All => {
-                // If we're getting everything, then do nothing.
-                debug!("Selecting all page slugs, normal or hidden");
-            }
+            PageTypeSelector::All => {}
         }
 
         // Categories (included and excluded)
-        let page_category_condition =
-            match included_categories {
-                // If all categories are selected (using an asterisk or by only specifying excluded categories),
-                // then filter only by site_id and exclude the specified excluded categories.
-                IncludedCategories::All => {
-                    debug!("Selecting all categories with exclusions");
-
-                    page::Column::PageCategoryId.in_subquery(
-                        Query::select()
-                            .column(page_category::Column::CategoryId)
-                            .from(PageCategory)
-                            .and_where(page_category::Column::SiteId.eq(queried_site_id))
-                            .and_where(page_category::Column::Slug.is_not_in(
-                                excluded_categories.iter().map(|c| c.as_ref()),
-                            ))
-                            .to_owned(),
+        let page_category_condition = match included_categories {
+            // If all categories are selected (using an asterisk or by only specifying excluded categories),
+            // then filter only by site_id and exclude the specified excluded categories.
+            IncludedCategories::All => page::Column::PageCategoryId.in_subquery(
+                Query::select()
+                    .column(page_category::Column::CategoryId)
+                    .from(PageCategory)
+                    .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                    .and_where(
+                        page_category::Column::Slug
+                            .is_not_in(excluded_categories.iter().map(|c| c.as_ref())),
                     )
-                }
+                    .to_owned(),
+            ),
 
-                // If a specific list of categories is provided, filter by site_id, inclusion in the
-                // specified included categories, and exclude the specified excluded categories.
-                //
-                // NOTE: Exclusion can only have an effect in this query if it is *also* included.
-                //       Although by definition this is the same as not including the category in the
-                //       included categories to begin with, it is still accounted for to preserve
-                //       backwards-compatibility with poorly-constructed ListPages modules.
-                IncludedCategories::List(included_categories) => {
-                    debug!("Selecting included categories only");
-
-                    page::Column::PageCategoryId.in_subquery(
-                        Query::select()
-                            .column(page_category::Column::CategoryId)
-                            .from(PageCategory)
-                            .and_where(page_category::Column::SiteId.eq(queried_site_id))
-                            .and_where(
-                                page_category::Column::Slug.is_in(
-                                    included_categories.iter().map(|c| c.as_ref()),
-                                ),
-                            )
-                            .and_where(page_category::Column::Slug.is_not_in(
+            // If a specific list of categories is provided, filter by site_id, inclusion in the
+            // specified included categories, and exclude the specified excluded categories.
+            //
+            // NOTE: Exclusion can only have an effect in this query if it is *also* included.
+            //       Although by definition this is the same as not including the category in the
+            //       included categories to begin with, it is still accounted for to preserve
+            //       backwards-compatibility with poorly-constructed ListPages modules.
+            IncludedCategories::List(included_categories) => page::Column::PageCategoryId
+                .in_subquery(
+                    Query::select()
+                        .column(page_category::Column::CategoryId)
+                        .from(PageCategory)
+                        .and_where(page_category::Column::SiteId.eq(queried_site_id))
+                        .and_where(
+                            page_category::Column::Slug
+                                .is_in(included_categories.iter().map(|c| c.as_ref())),
+                        )
+                        .and_where(
+                            page_category::Column::Slug.is_not_in(
                                 excluded_categories.iter().map(|c| c.as_ref()),
-                            ))
-                            .to_owned(),
-                    )
-                }
-            };
+                            ),
+                        )
+                        .to_owned(),
+                ),
+        };
         condition = condition.add(page_category_condition);
-
-        // Page Parents
-        //
-        // Adds constraints based on the presence of parent pages.
 
         let page_parent_condition = match page_parent {
             PageParentSelector::All => None,
+            PageParentSelector::NoParent => Some(
+                page::Column::PageId.not_in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .to_owned(),
+                ),
+            ),
 
-            // Pages with no parents.
-            // This means that there should be no rows in `page_parent`
-            // where they are the child page.
-            PageParentSelector::NoParent => {
-                debug!("Selecting pages with no parents");
-
-                Some(
-                    page::Column::PageId.not_in_subquery(
-                        Query::select()
-                            .column(page_parent::Column::ChildPageId)
-                            .from(PageParent)
-                            .to_owned(),
-                    ),
-                )
-            }
-
-            // Pages which are siblings of the current page,
-            // i.e., they share parents in common with the current page.
-            PageParentSelector::SameParents => {
-                debug!("Selecting pages are siblings under the given parents");
-
-                Some(
-                    page::Column::PageId.in_subquery(
-                        Query::select()
-                            .column(page_parent::Column::ChildPageId)
-                            .from(PageParent)
-                            .and_where(
-                                page_parent::Column::ParentPageId.is_in(
-                                    current_parent_ids(
-                                        ctx,
-                                        current_site_id,
-                                        current_page_id,
-                                    )
+            PageParentSelector::SameParents => Some(
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(
+                            page_parent::Column::ParentPageId.is_in(
+                                current_parent_ids(ctx, current_site_id, current_page_id)
                                     .await
                                     .or_raise(make_error)?,
-                                ),
-                            )
-                            .to_owned(),
-                    ),
-                )
-            }
+                            ),
+                        )
+                        .to_owned(),
+                ),
+            ),
 
-            // Pages which are not siblings of the current page,
-            // i.e., they do not share any parents with the current page.
-            PageParentSelector::DifferentParents => {
-                debug!("Selecting pages which are not siblings under the given parents");
-
-                Some(
-                    page::Column::PageId.not_in_subquery(
-                        Query::select()
-                            .column(page_parent::Column::ChildPageId)
-                            .from(PageParent)
-                            .and_where(
-                                page_parent::Column::ParentPageId.is_in(
-                                    current_parent_ids(
-                                        ctx,
-                                        current_site_id,
-                                        current_page_id,
-                                    )
+            PageParentSelector::DifferentParents => Some(
+                page::Column::PageId.not_in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(
+                            page_parent::Column::ParentPageId.is_in(
+                                current_parent_ids(ctx, current_site_id, current_page_id)
                                     .await
                                     .or_raise(make_error)?,
-                                ),
-                            )
-                            .to_owned(),
-                    ),
-                )
-            }
+                            ),
+                        )
+                        .to_owned(),
+                ),
+            ),
 
-            // Pages which are children of the current page.
-            PageParentSelector::ChildOf => {
-                debug!("Selecting pages which are children of the current page");
+            PageParentSelector::ChildOf => Some(
+                page::Column::PageId.in_subquery(
+                    Query::select()
+                        .column(page_parent::Column::ChildPageId)
+                        .from(PageParent)
+                        .and_where(page_parent::Column::ParentPageId.eq(current_page_id))
+                        .to_owned(),
+                ),
+            ),
 
-                Some(
-                    page::Column::PageId.in_subquery(
-                        Query::select()
-                            .column(page_parent::Column::ChildPageId)
-                            .from(PageParent)
-                            .and_where(
-                                page_parent::Column::ParentPageId.eq(current_page_id),
-                            )
-                            .to_owned(),
-                    ),
-                )
-            }
-
-            // Pages with any of the specified parents.
-            // TODO: Possibly allow either *any* or *all* of specified parents
-            //       rather than only any, in the future.
+            // Wikidot's parent selector is any-of rather than all-of.
             PageParentSelector::HasParents(parents) => {
-                debug!("Selecting on pages which have one of the given as parents");
-
                 let parent_ids = PageService::get_pages(ctx, queried_site_id, parents)
                     .await
                     .or_raise(make_error)?
@@ -511,17 +477,14 @@ impl PageQueryService {
                 .into());
             }
             let slug = slug.as_ref();
-            debug!("Filtering based on slug {slug}");
             condition = condition.add(page::Column::Slug.eq(slug));
         }
         if !slugs.is_empty() {
-            debug!("Filtering based on {} exact slugs", slugs.len());
             condition = condition
                 .add(page::Column::Slug.is_in(slugs.iter().map(|slug| slug.as_ref())));
         }
         if let Some(name) = name {
             let pattern = wikidot_name_pattern(name.as_ref());
-            debug!("Filtering based on page name pattern {pattern}");
             condition = condition.add(page::Column::Slug.like(pattern));
         }
 
@@ -655,7 +618,6 @@ impl PageQueryService {
         let mut query = Page::find()
             .filter(page::Column::DeletedAt.is_null())
             .filter(condition);
-        let order = order.unwrap_or_default();
         let needs_tag_filter = !all_tags.is_empty()
             || !any_tags.is_empty()
             || !no_tags.is_empty()
@@ -703,7 +665,6 @@ impl PageQueryService {
         }
 
         if untagged {
-            debug!("Restricting ListPages to pages with no tags");
             query = query.filter(SimpleExpr::Custom(
                 "cardinality(page_revision.tags) = 0".into(),
             ));
@@ -731,13 +692,10 @@ impl PageQueryService {
                 ascending,
             } = order;
 
-            debug!("Ordering ListPages using {property:?} (ascending: {ascending})");
-
             let order = if ascending { Order::Asc } else { Order::Desc };
 
             match property {
                 OrderProperty::PageSlug => {
-                    debug!("Ordering by page slug (no category)");
                     let expr = Expr::cust_with_expr(
                         "regexp_replace(regexp_replace($1, '^.*:', ''), '[^[:alnum:]]', '', 'g')",
                         Expr::col((Page, page::Column::Slug)),
@@ -747,34 +705,27 @@ impl PageQueryService {
                         .order_by(Expr::col((Page, page::Column::Slug)), order);
                 }
                 OrderProperty::FullSlug => {
-                    debug!("Ordering by page slug (with category)");
                     query = query.order_by(page::Column::Slug, order);
                 }
                 OrderProperty::Title => {
-                    debug!("Ordering by title");
                     query = query.order_by(page_revision::Column::Title, order);
                 }
                 OrderProperty::AltTitle => {
-                    debug!("Ordering by alt title");
                     query = query.order_by(page_revision::Column::AltTitle, order);
                 }
                 OrderProperty::CreatedBy => {
-                    debug!("Ordering by initial page author");
                     let expr = SimpleExpr::Custom(
                         "(SELECT pr.user_id FROM page_revision pr WHERE pr.page_id = page.page_id ORDER BY pr.revision_number ASC, pr.revision_id ASC LIMIT 1)".into(),
                     );
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::CreatedAt => {
-                    debug!("Ordering by page creation timestamp");
                     query = query.order_by(page::Column::CreatedAt, order);
                 }
                 OrderProperty::UpdatedAt => {
-                    debug!("Ordering by page last update timestamp");
                     query = query.order_by(page::Column::UpdatedAt, order);
                 }
                 OrderProperty::Size => {
-                    debug!("Ordering by page size");
                     query = query.join(
                         if needs_tag_filter {
                             JoinType::Join
@@ -786,37 +737,30 @@ impl PageQueryService {
                     let expr = SimpleExpr::Custom("text.character_count".into());
                     query = query.order_by(expr, order);
                 }
-                OrderProperty::Score => {
-                    debug!("Ordering by page score after ScoreService evaluation");
-                }
+                OrderProperty::Score => {}
                 OrderProperty::Votes => {
-                    debug!("Ordering by page vote count");
                     let expr = SimpleExpr::Custom(
                         "COALESCE((SELECT COUNT(*) FROM page_vote pv WHERE pv.page_id = page.page_id AND pv.deleted_at IS NULL AND pv.disabled_at IS NULL), 0)".into(),
                     );
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Revisions => {
-                    debug!("Ordering by page revision count");
                     let expr = SimpleExpr::Custom(
                         "COALESCE((SELECT COUNT(*) FROM page_revision pr WHERE pr.page_id = page.page_id), 0)".into(),
                     );
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Comments => {
-                    debug!("Ordering by forum comment count");
                     let expr = SimpleExpr::Custom(
                         "COALESCE((SELECT COUNT(*) FROM forum_post fp JOIN forum_thread ft ON fp.forum_thread_id = ft.forum_thread_id WHERE ft.page_id = page.page_id AND fp.deleted_at IS NULL AND ft.deleted_at IS NULL), 0)".into(),
                     );
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::Random => {
-                    debug!("Ordering by random value");
                     let expr = SimpleExpr::FunctionCall(Func::random());
                     query = query.order_by(expr, order);
                 }
                 OrderProperty::DataFormFieldName => {
-                    debug!("Rejecting unsupported data form field ordering");
                     return Err(Error::new(
                         "ListPages data form field ordering is not implemented",
                         ErrorType::PageQuery,
@@ -840,17 +784,12 @@ impl PageQueryService {
             !defer_offset_limit && (offset > 0 || pagination.limit.is_some());
         if !defer_offset_limit {
             if offset > 0 {
-                debug!("Offsetting ListPages by {offset} pages");
                 query = query.offset(u64::from(offset));
             }
             if let Some(limit) = pagination.limit {
-                debug!("Limiting ListPages to a maximum of {limit} pages total");
                 query = query.limit(limit);
             }
         } else if let Some(candidate_limit) = candidate_limit {
-            debug!(
-                "Limiting ListPages deferred candidate scan to {candidate_limit} pages"
-            );
             query = query.limit(candidate_limit);
         }
 
@@ -1022,7 +961,6 @@ async fn project_page_query_results(
     let txn = ctx.transaction();
     let make_error =
         || Error::new("failed to project ListPages query", ErrorType::PageQuery);
-    debug!("Query returned {} pages, building FoundPages", pages.len());
 
     let mut page_ids = pages.iter().map(|page| page.page_id).collect::<Vec<_>>();
     let score_by_page_id: BTreeMap<i64, f32> =
