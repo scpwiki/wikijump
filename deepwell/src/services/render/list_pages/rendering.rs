@@ -1213,6 +1213,14 @@ impl RenderService {
             ));
             found.pages
         };
+        let query_returned_every_match =
+            list_pages_metadata.as_ref().is_some_and(|(metadata, _)| {
+                !metadata.cap_exceeded
+                    && !metadata.filtering_deferred_to_rust
+                    && metadata.candidate_count.is_some_and(|candidate_count| {
+                        (candidate_count as u64) < MAX_LISTPAGES_RENDER_LIMIT
+                    })
+            });
         if let Some((metadata, view_permission_filtering_applied)) = list_pages_metadata {
             let diagnostics =
                 list_pages_render_diagnostics(ListPagesRenderDiagnosticsInput {
@@ -1239,9 +1247,16 @@ impl RenderService {
         if reverse {
             pages.reverse();
         }
-        let total = pages.len();
+        let exact_total =
+            (query_returned_every_match && offset == 0 && !exclude_current_page)
+                .then_some(total_selected);
+        if template.uses_total() && exact_total.is_none() {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
+        let rendered_rows = pages.len();
+        let total = exact_total.unwrap_or(rendered_rows);
         let body = template.body();
-        if wants_content && !expansion_budget.can_expand_content_rows(total) {
+        if wants_content && !expansion_budget.can_expand_content_rows(rendered_rows) {
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
         let wants_data_form_values = template.uses_data_form();
@@ -1644,7 +1659,7 @@ impl RenderService {
             output.push_str("[[/div]]");
         }
         if wants_content {
-            expansion_budget.consume_content_rows(total);
+            expansion_budget.consume_content_rows(rendered_rows);
         }
         Ok(ListPagesBlockRenderResult::Expanded(IncludeExpansion {
             wikitext: output,

@@ -324,6 +324,10 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::ParentFullname)
     }
 
+    pub(in crate::services::render) fn uses_total(&self) -> bool {
+        self.variables.contains(ListPagesVariable::Total)
+    }
+
     pub(in crate::services::render) fn uses_revisions(&self) -> bool {
         self.variables.contains(ListPagesVariable::Revisions)
     }
