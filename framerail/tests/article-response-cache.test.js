@@ -26,7 +26,13 @@ import {
   writeAnonymousArticleResponseCache,
   writeCachedArticleResponse
 } from "../src/lib/server/cache/article-response/index.js"
+import { connectRedisSocket } from "../src/lib/server/cache/redis-connection.js"
+import {
+  encodeRedisCommand,
+  parseRedisResponse
+} from "../src/lib/server/cache/redis-protocol.js"
 import { createRedisCacheStore } from "../src/lib/server/cache/redis-store.js"
+import { RedisFenceInvalidationSubscriber } from "../src/lib/server/cache/redis-subscriber.js"
 
 const REQUEST_HOST = "scp-wiki.example"
 
@@ -242,6 +248,37 @@ test("anonymous article response cache fence helpers fail closed on malformed va
   )
 })
 
+test("Redis protocol encodes commands and parses nested replies", () => {
+  assert.equal(
+    encodeRedisCommand(["GET", "cache-key"]),
+    "*2\r\n$3\r\nGET\r\n$9\r\ncache-key\r\n"
+  )
+  assert.deepEqual(parseRedisResponse(Buffer.from("*2\r\n$5\r\nvalue\r\n:7\r\n")), {
+    value: ["value", 7],
+    nextOffset: 19
+  })
+})
+
+test("Redis connection helper opens a plain socket", async () => {
+  const server = net.createServer()
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const socket = await connectRedisSocket(
+    `redis://127.0.0.1:${address.port}`,
+    "Redis connection timed out"
+  )
+
+  try {
+    assert.equal(socket.destroyed, false)
+  } finally {
+    socket.destroy()
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
+})
+
 test("Redis cache store times out unanswered commands", async () => {
   const sockets = new Set()
   const server = net.createServer((socket) => {
@@ -441,11 +478,12 @@ test("Redis cache store times out unanswered authentication", async () => {
 test("Redis article response fence subscriber retries after initial subscribe failure", async () => {
   const channel = "test:article-response-fence"
   const port = await getUnusedPort()
-  const store = createRedisCacheStore(`redis://127.0.0.1:${port}`)
+  const redisUrl = `redis://127.0.0.1:${port}`
   let disconnects = 0
   let subscribed = 0
 
-  const subscriber = store.subscribe({
+  const subscriber = new RedisFenceInvalidationSubscriber(redisUrl, [])
+  subscriber.subscribe({
     channel,
     onSubscribed: () => {
       subscribed += 1
@@ -480,8 +518,11 @@ test("Redis article response fence subscriber resubscribes after socket close", 
       firstSocket ??= socket
     }
   })
-  const store = createRedisCacheStore(`redis://127.0.0.1:${redis.port}`)
-  const subscriber = store.subscribe({
+  const subscriber = new RedisFenceInvalidationSubscriber(
+    `redis://127.0.0.1:${redis.port}`,
+    []
+  )
+  subscriber.subscribe({
     channel,
     onSubscribed: () => {
       subscribed += 1
@@ -533,7 +574,8 @@ test("memory article response fence cache does not store a seed raced by invalid
   const currentSeed = ["8", "11", "13"]
   let calls = 0
   const store = {
-    async mget() {
+    async mget(keys) {
+      assert.equal(keys.length, 3)
       calls += 1
       if (calls === 1) {
         seedStartedResolve()
@@ -565,7 +607,8 @@ test("memory article response fence cache does not store a seed raced by invalid
 test("memory article response fence cache ignores non-anonymous user permission messages", async () => {
   let reads = 0
   const store = {
-    async mget() {
+    async mget(keys) {
+      assert.equal(keys.length, 3)
       reads += 1
       return ["7", "11", "13"]
     }
