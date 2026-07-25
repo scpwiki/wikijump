@@ -41,8 +41,8 @@ use crate::services::{PageService, ParentService, ScoreService};
 use crate::types::Reference;
 use sea_orm::DatabaseTransaction;
 use sea_orm::{
-    ColumnTrait, Condition, ConnectionTrait, EntityTrait, JoinType, QueryFilter,
-    QueryOrder, QuerySelect, RelationTrait,
+    ColumnTrait, Condition, ConnectionTrait, EntityTrait, ExprTrait, JoinType,
+    QueryFilter, QueryOrder, QuerySelect, RelationTrait,
 };
 use sea_query::extension::postgres::PgBinOper;
 use sea_query::{Expr, Query, SimpleExpr, Value};
@@ -684,7 +684,6 @@ impl PageQueryService {
         let score_order = matches!(order.property, OrderProperty::Score);
         {
             use sea_orm::query::Order;
-            use sea_query::SimpleExpr;
             use sea_query::func::Func;
 
             let OrderBySelector {
@@ -1001,7 +1000,7 @@ async fn project_page_query_results(
             pages.drain(..skip);
         }
         if let Some(limit) = pagination.limit {
-            pages.truncate(limit.min(usize::MAX as u64) as usize);
+            pages.truncate(std::cmp::Ord::min(limit, usize::MAX as u64) as usize);
         }
         page_ids = pages.iter().map(|page| page.page_id).collect();
     }
@@ -1407,10 +1406,7 @@ fn score_membership_condition(membership: ScoreFilterMembership) -> SimpleExpr {
     };
     Expr::cust_with_exprs(
         operator,
-        [
-            Expr::col((Page, page::Column::PageId)).into(),
-            Expr::val(page_ids).into(),
-        ],
+        [Expr::col((Page, page::Column::PageId)), Expr::val(page_ids)],
     )
 }
 
@@ -1595,7 +1591,8 @@ mod tests {
     };
     use crate::services::score::ScoreValue;
     use sea_orm::{
-        DatabaseBackend, EntityTrait, QueryFilter, QueryOrder, QueryTrait, Value,
+        DatabaseBackend, EntityTrait, ExprTrait, QueryFilter, QueryOrder, QueryTrait,
+        Value,
     };
     use sea_query::{SimpleExpr, func::Func};
 

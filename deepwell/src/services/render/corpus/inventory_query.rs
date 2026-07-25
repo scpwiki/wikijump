@@ -57,7 +57,7 @@ async fn select_latest_import_run(state: &ServerState) -> Result<Option<i64>> {
     );
     state
         .database
-        .query_one(statement)
+        .query_one_raw(statement)
         .await
         .or_raise(make_error)?
         .map(|row| row.try_get("", "import_run_id").or_raise(make_error))
@@ -107,7 +107,7 @@ async fn load_run_context(
     );
     state
         .database
-        .query_one(statement)
+        .query_one_raw(statement)
         .await
         .or_raise(make_error)?
         .map(|row| {
@@ -205,7 +205,7 @@ async fn load_inventory_rows(
     );
     state
         .database
-        .query_all(statement)
+        .query_all_raw(statement)
         .await
         .or_raise(make_error)?
         .into_iter()

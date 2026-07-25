@@ -216,7 +216,7 @@ impl TextBlockService {
         // This doesn't require us to know which need to be kept
         // because we're just INSERTing over all of it.
 
-        let DeleteResult { rows_affected } = TextBlockTable::delete_many()
+        let DeleteResult { rows_affected, .. } = TextBlockTable::delete_many()
             .filter(
                 Condition::all()
                     .add(text_block::Column::BlockType.eq(block_type))

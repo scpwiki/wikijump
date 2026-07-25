@@ -24,9 +24,10 @@ use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::session::Model as SessionModel;
 use crate::models::site::Model as SiteModel;
-use crate::models::user::Model as UserModel;
+use crate::models::user::Model as WikijumpUserModel;
 use crate::services::relation::PageAttribution;
 use crate::services::settings::{PageDiscussionSettings, PageRatingSettings};
+use crate::services::user::User;
 use crate::types::Reference;
 use time::OffsetDateTime;
 
@@ -214,8 +215,7 @@ pub struct GetUserView<'a> {
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetUserViewOutput {
-    UserFound { user: UserModel },
-
+    UserFound { user: User },
     UserMissing,
 }
 
@@ -270,7 +270,7 @@ pub enum ViewerLicenseKind {
 #[derive(Serialize, Debug, Clone)]
 pub struct UserSession {
     pub session: SessionModel,
-    pub user: UserModel,
+    pub user: WikijumpUserModel,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]

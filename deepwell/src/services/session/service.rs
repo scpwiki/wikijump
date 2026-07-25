@@ -376,7 +376,7 @@ impl SessionService {
             || Error::new("failed to invalidate session", ErrorType::Session);
 
         let txn = ctx.transaction();
-        let DeleteResult { rows_affected } = Session::delete_by_id(session_token)
+        let DeleteResult { rows_affected, .. } = Session::delete_by_id(session_token)
             .exec(txn)
             .await
             .or_raise(make_error)?;
@@ -438,7 +438,7 @@ impl SessionService {
         }
 
         // Delete all sessions from user_id, except if it's this session_token
-        let DeleteResult { rows_affected } = Session::delete_many()
+        let DeleteResult { rows_affected, .. } = Session::delete_many()
             .filter(
                 Condition::all()
                     .add(session::Column::SessionToken.ne(session_token))
@@ -463,7 +463,7 @@ impl SessionService {
             || Error::new("failed to prune all expired sessions", ErrorType::Session);
 
         let txn = ctx.transaction();
-        let DeleteResult { rows_affected } = Session::delete_many()
+        let DeleteResult { rows_affected, .. } = Session::delete_many()
             .filter(session::Column::ExpiresAt.lte(now()))
             .exec(txn)
             .await

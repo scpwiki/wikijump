@@ -27,7 +27,7 @@ use crate::services::ServiceContext;
 use crate::services::{MfaService, PasswordService, SessionService};
 use crate::types::UserType;
 use sea_orm::sea_query::Expr;
-use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder};
+use sea_orm::{ColumnTrait, Condition, EntityTrait, ExprTrait, QueryFilter, QueryOrder};
 
 #[derive(Debug)]
 pub struct AuthenticationService;

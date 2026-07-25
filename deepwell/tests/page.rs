@@ -96,7 +96,7 @@ fn set_mutation_request_context(
 async fn set_stored_point_vote(runner: &TestRunner, page_id: i64, value: i16) {
     let transaction = runner.context().transaction();
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (false, $1, $2, $3)",
             [
@@ -1187,7 +1187,7 @@ INSERT INTO wikidot_page_snapshot (
                 ),
             ] {
                 transaction
-                    .execute(Statement::from_string(
+                    .execute_raw(Statement::from_string(
                         transaction.get_database_backend(),
                         sql,
                     ))
@@ -5063,7 +5063,7 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
     let duplicate_insert = runner
         .context()
         .transaction()
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             runner.context().transaction().get_database_backend(),
             "INSERT INTO page (created_at, from_wikidot, site_id, page_category_id, slug, layout) SELECT TIMESTAMPTZ '2030-01-01 00:00:00+00' + duplicates.duplicate_number * INTERVAL '1 minute', source.from_wikidot, source.site_id, source.page_category_id, source.slug, source.layout FROM page AS source CROSS JOIN generate_series(1, 1000) AS duplicates(duplicate_number) WHERE source.site_id = $1 AND source.slug = $2 AND source.deleted_at IS NULL",
             [
@@ -9155,7 +9155,7 @@ async fn create_listpages_test_import_run(
 ) {
     let transaction = runner.context().transaction();
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             r#"
 INSERT INTO wikidot_corpus_import_run (
@@ -9199,7 +9199,7 @@ async fn set_imported_author(
 
     let transaction = runner.context().transaction();
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             r#"
 INSERT INTO wikidot_page_snapshot (
@@ -11148,7 +11148,7 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
 
     let transaction = runner.context().transaction();
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             "UPDATE wikidot_page_snapshot SET imported_rating = 7 WHERE page_id = $1",
             [Value::from(imported_id)],
@@ -11156,7 +11156,7 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
         .await
         .expect("imported score fixture should receive its snapshot rating");
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             "UPDATE wikidot_page_snapshot SET imported_rating = $1 WHERE page_id = $2",
             [
@@ -11167,7 +11167,7 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
         .await
         .expect("large integer score fixture should receive its snapshot rating");
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (true, $1, $2, -5), (true, $3, $2, 3)",
             [
@@ -11179,7 +11179,7 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
         .await
         .expect("Wikidot vote fixtures should be inserted");
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             "INSERT INTO page_vote (page_id, user_id, value, deleted_at, disabled_at, disabled_by) VALUES ($1, $2, -20, NOW(), NULL, NULL), ($1, $3, -20, NULL, NOW(), $4)",
             [
@@ -11211,7 +11211,7 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
         .expect("score fixture page should exist")
         .page_category_id;
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             "INSERT INTO page (site_id, page_category_id, slug) SELECT $1, $2, $3 || '-' || value FROM generate_series(1, 513) AS value",
             [

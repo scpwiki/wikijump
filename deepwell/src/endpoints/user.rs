@@ -24,7 +24,8 @@ use crate::models::user::Model as UserModel;
 use crate::models::wikidot_user::Entity as WikidotUser;
 use crate::services::MutationAuthorization;
 use crate::services::user::{
-    CreateUser, CreateUserOutput, GetUser, GetUserOutput, UpdateUser,
+    ActivateUserFromWikidot, CreateUser, CreateUserOutput, GetUser, GetUserOutput,
+    UpdateUser, User,
 };
 use crate::types::{AliasType, Reference, UserType};
 use sea_orm::EntityTrait;
@@ -102,6 +103,23 @@ pub async fn user_import(
     }
 }
 
+pub async fn user_activate_from_wikidot(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<UserModel> {
+    info!("Activating a new user from a Wikidot user record");
+    MutationAuthorization::require_platform_staff(ctx, "Wikidot user activation")?;
+    let input: ActivateUserFromWikidot = parse!(params, User);
+    UserService::activate_from_wikidot(ctx, input)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to create a Wikijump user by activating a Wikidot user record",
+                ErrorType::User,
+            )
+        })
+}
+
 pub async fn user_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -114,14 +132,26 @@ pub async fn user_get(
         .or_raise(make_error)?;
 
     match user {
+        // No user match
         None => Ok(None),
-        Some(user) => {
+
+        // Fetch and populate alias data
+        Some(User::Wikijump(user)) => {
             let aliases = AliasService::get_all(ctx, AliasType::User, user.user_id)
                 .await
                 .or_raise(make_error)?;
 
-            Ok(Some(GetUserOutput { user, aliases }))
+            Ok(Some(GetUserOutput {
+                user: User::Wikijump(user),
+                aliases,
+            }))
         }
+
+        // Aliases aren't a thing on Wikidot user records
+        Some(user) => Ok(Some(GetUserOutput {
+            user,
+            aliases: vec![],
+        })),
     }
 }
 
@@ -135,7 +165,7 @@ pub async fn user_edit(
         body,
     } = parse!(params, User);
 
-    let target = UserService::get(ctx, reference)
+    let target = UserService::get_real(ctx, reference)
         .await
         .or_raise(|| Error::new("failed to authorize user update", ErrorType::User))?;
     let actor_user_id = MutationAuthorization::require_self_or_platform_staff(
@@ -164,7 +194,7 @@ pub async fn user_delete(
     params: Params<'static>,
 ) -> Result<UserModel> {
     let GetUser { user: reference } = parse!(params, User);
-    let target = UserService::get(ctx, reference)
+    let target = UserService::get_real(ctx, reference)
         .await
         .or_raise(|| Error::new("failed to authorize user deletion", ErrorType::User))?;
     MutationAuthorization::require_self_or_platform_staff(
@@ -192,7 +222,9 @@ pub async fn user_add_name_change(
     )?;
 
     info!("Adding user name change token to {reference:?}");
-    let user = UserService::get(ctx, reference)
+
+    // Wikidot users don't have name change tokens
+    let user = UserService::get_real(ctx, reference)
         .await
         .or_raise(make_error)?;
 

@@ -379,6 +379,7 @@ async fn ban_site_user_until(
             },
             created_by: SYSTEM_USER_ID,
         },
+        common::IP_ADDRESS,
     )
     .await
     .expect("Failed to create site ban");

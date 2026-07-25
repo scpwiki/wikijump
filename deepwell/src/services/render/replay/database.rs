@@ -37,7 +37,7 @@ pub(super) async fn expand_candidate(
     };
     let transaction = state.database.begin().await.or_raise(make_error)?;
     transaction
-        .execute(Statement::from_string(
+        .execute_raw(Statement::from_string(
             DatabaseBackend::Postgres,
             "SET TRANSACTION READ ONLY",
         ))
@@ -111,7 +111,7 @@ pub(super) async fn select_import_run(
         );
         if state
             .database
-            .query_one(statement)
+            .query_one_raw(statement)
             .await
             .or_raise(make_error)?
             .is_none()
@@ -137,7 +137,7 @@ pub(super) async fn select_import_run(
     );
     state
         .database
-        .query_one(statement)
+        .query_one_raw(statement)
         .await
         .or_raise(make_error)?
         .map(|row| row.try_get("", "import_run_id").or_raise(make_error))
@@ -171,7 +171,7 @@ pub(super) async fn list_candidates(
     };
     state
         .database
-        .query_all(statement)
+        .query_all_raw(statement)
         .await
         .or_raise(make_error)?
         .into_iter()

@@ -19,10 +19,6 @@
  */
 
 use regex::Regex;
-use std::sync::LazyLock;
-
-static LEADING_TRAILING_SPACES: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(^\s+)|(\s+$)").unwrap());
 
 // General replacement
 
@@ -76,7 +72,7 @@ pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
 // Specific replacement
 #[inline]
 pub fn trim_spaces_in_place(string: &mut String) {
-    regex_replace_in_place(string, &LEADING_TRAILING_SPACES, "");
+    regex_replace_in_place(string, regex!(r"(^\s+)|(\s+$)"), "");
 }
 
 /// This helper function removes U+2068 and U+2069 control characters from a string.
@@ -93,10 +89,7 @@ pub fn trim_spaces_in_place(string: &mut String) {
 /// See the [Fluent Docs](https://fluent-compiler.readthedocs.io/en/latest/usage.html#:~:text=You%20will%20notice%20the%20extra%20characters%20\u2068%20and%20\u2069%20in%20the%20output.)
 #[inline]
 pub fn strip_fluent_control_chars(string: &mut String) {
-    static CONTROL_CHAR_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new("[\u{2068}\u{2069}]").unwrap());
-
-    regex_replace_in_place(string, &CONTROL_CHAR_REGEX, "");
+    regex_replace_in_place(string, regex!("[\u{2068}\u{2069}]"), "");
 }
 
 // Tests
@@ -132,8 +125,7 @@ fn test_regex_replace_in_place() {
     macro_rules! test {
         ($input:expr => $output:expr, $regex:expr => $replacement:expr $(,)?) => {{
             let mut string = str!($input);
-            let regex = Regex::new($regex).expect("Unable to compile regex");
-            regex_replace_in_place(&mut string, &regex, $replacement);
+            regex_replace_in_place(&mut string, regex!($regex), $replacement);
             assert_eq!(string, $output, "Replaced contents did not match expected");
         }};
     }

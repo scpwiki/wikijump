@@ -54,6 +54,7 @@ use crate::services::relation::{
 };
 use crate::services::render::RenderOutput;
 use crate::services::settings::{NavigationPageHtml, SettingsService};
+use crate::services::user::User;
 use crate::services::view::ViewType;
 use crate::services::{
     BlueprintPageService, CategoryService, DomainService, PageRevisionService,
@@ -1074,13 +1075,14 @@ ORDER BY breadcrumb_chain.depth ASC
         // TODO Check if user-agent and IP match?
 
         // Get data to return for this user.
+        // Supports either type, since we're getting a user view.
         let user = match user_ref {
             Some(ref user_ref) => UserService::get_optional(ctx, user_ref.borrow())
                 .await
                 .or_raise(make_error)?,
 
             // For users visiting their own user info page
-            None => user_session.map(|session| session.user),
+            None => user_session.map(|session| User::Wikijump(session.user)),
         };
 
         let output = match user {
@@ -1295,13 +1297,14 @@ ORDER BY breadcrumb_chain.depth ASC
         };
 
         // Get user data from session token (if present)
+        // Sessions can only be for real users, so we assert
         let user_session = match session_token {
             Some("") | None => None,
             Some(token) => {
                 let session =
                     SessionService::get(ctx, token).await.or_raise(make_error)?;
 
-                let user = UserService::get(ctx, Reference::Id(session.user_id))
+                let user = UserService::get_real(ctx, Reference::Id(session.user_id))
                     .await
                     .or_raise(make_error)?;
 
@@ -1360,13 +1363,14 @@ ORDER BY breadcrumb_chain.depth ASC
         let make_error = || Error::new("failed to get user session", ErrorType::Session);
 
         // Get user data from session token (if present)
+        // Sessions can only be for real users, so we assert
         let user_session = match session_token {
             Some("") | None => None,
             Some(token) => {
                 let session =
                     SessionService::get(ctx, token).await.or_raise(make_error)?;
 
-                let user = UserService::get(ctx, Reference::Id(session.user_id))
+                let user = UserService::get_real(ctx, Reference::Id(session.user_id))
                     .await
                     .or_raise(make_error)?;
 

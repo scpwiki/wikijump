@@ -74,6 +74,7 @@ pub async fn connect(redis_uri: &str) -> Result<(MultiplexedConnection, Rsmq)> {
         queue_job!(PruneSessions);
         queue_job!(PrunePendingUploads);
         queue_job!(PruneText);
+        queue_job!(LiftExpiredPunishments);
     }
 
     Ok((connection, rsmq))

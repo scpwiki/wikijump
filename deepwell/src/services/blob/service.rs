@@ -1223,7 +1223,13 @@ impl BlobService {
 #[must_use]
 fn s3_error(response: &ResponseData, action: &str) -> Error {
     let error_message = match str::from_utf8(response.bytes()) {
-        Ok("") => "(no content)",
+        Ok("") => match response.status_code() {
+            // handling for specific error codes
+            // (for when S3 doesn't provide messages)
+            // add as needed
+            507 => "insufficient storage",
+            _ => "(no content)",
+        },
         Ok(m) => m,
         Err(_) => "(invalid UTF-8)",
     };

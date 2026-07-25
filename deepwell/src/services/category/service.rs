@@ -412,13 +412,13 @@ impl CategoryService {
                     Query::select()
                         .column(page::Column::PageCategoryId)
                         .from(page::Entity)
-                        .and_where(Expr::col(page::Column::SiteId).eq(site_id))
+                        .and_where(Expr::column(page::Column::SiteId).eq(site_id))
                         .group_by_columns([
                             page::Column::PageCategoryId,
                             page::Column::DeletedAt,
                         ])
                         .and_having(
-                            Func::coalesce([Expr::col(page::Column::DeletedAt).into()])
+                            Func::coalesce([Expr::column(page::Column::DeletedAt)])
                                 .is_null(),
                         )
                         .to_owned(),

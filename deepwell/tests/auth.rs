@@ -267,7 +267,7 @@ async fn mfa_setup_reset_disable_and_totp_login_flow() {
         runner.config().recovery_code_count,
     );
 
-    let user = UserService::get(runner.context(), Reference::Id(user_id))
+    let user = UserService::get_real(runner.context(), Reference::Id(user_id))
         .await
         .expect("user lookup after MFA setup should succeed");
     assert_eq!(
@@ -337,7 +337,7 @@ async fn mfa_setup_reset_disable_and_totp_login_flow() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    let user = UserService::get(runner.context(), Reference::Id(user_id))
+    let user = UserService::get_real(runner.context(), Reference::Id(user_id))
         .await
         .expect("user lookup after MFA disable should succeed");
     assert!(user.multi_factor_secret.is_none());

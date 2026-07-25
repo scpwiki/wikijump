@@ -55,6 +55,7 @@ fn import_user(user_id: i32, fixture: &str, label: &str) -> ImportUser {
             name: format!("Import {label} {fixture}"),
             slug: format!("import-{label}-{fixture}"),
         },
+        avatar_uploaded_blob_id: None,
         real_name: None,
         gender: None,
         birthday: None,
@@ -63,6 +64,8 @@ fn import_user(user_id: i32, fixture: &str, label: &str) -> ImportUser {
         website: None,
         karma: KarmaLevel::Three,
         is_pro: false,
+        importing_user_id: ADMIN_USER_ID,
+        ip_address: common::IP_ADDRESS,
     }
 }
 

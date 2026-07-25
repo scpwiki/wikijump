@@ -94,6 +94,7 @@ CREATE TABLE wikidot_user (
     is_deleted BOOLEAN NOT NULL,
     name TEXT UNIQUE CHECK (length(name) > 0),
     slug TEXT UNIQUE CHECK (length(slug) > 0),
+    avatar_s3_hash BYTEA,
     -- Biographical fields (optional)
     real_name TEXT,
     gender TEXT,

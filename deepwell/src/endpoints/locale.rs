@@ -110,7 +110,7 @@ pub async fn translate_strings(
     info!(
         "Translating {} message keys in locale {} (or {} fallbacks)",
         messages.len(),
-        &locales_str[0],
+        locales_str[0],
         locales_str.len() - 1,
     );
     debug!("Message keys to translate: {messages:?}");

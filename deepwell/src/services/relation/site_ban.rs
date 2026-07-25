@@ -19,15 +19,21 @@
  */
 
 use super::RelationService;
-use super::site_member::RemoveSiteMember;
+use super::site_member::{GetSiteMember, RemoveSiteMember};
 use super::structs::{RelationDirection, RelationObject, RelationReference};
+use crate::constants::SYSTEM_USER_ID;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
-use crate::models::relation::Model as RelationModel;
+use crate::models::relation::{self, Entity as Relation, Model as RelationModel};
+use crate::models::user_role::{self, Entity as UserRole};
 use crate::services::ServiceContext;
+use crate::services::audit::{AuditEvent, AuditService};
+use crate::services::role::{RevokeUserRoleInput, RoleService};
 use crate::types::RelationType;
 use crate::utils::now;
 use paste::paste;
+use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
 use serde::Serialize;
+use std::net::{IpAddr, Ipv6Addr};
 use time::Date;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -87,6 +93,7 @@ impl RelationService {
             created_by,
             metadata,
         }: CreateSiteBan,
+        ip_address: IpAddr,
     ) -> Result<()> {
         let make_error = || {
             Error::new(
@@ -98,24 +105,119 @@ impl RelationService {
             )
         };
 
-        Self::remove_site_member(
+        if Self::site_member_exists(ctx, GetSiteMember { site_id, user_id })
+            .await
+            .or_raise(make_error)?
+        {
+            Self::remove_site_member(
+                ctx,
+                RemoveSiteMember {
+                    site_id,
+                    user_id,
+                    removed_by: created_by,
+                },
+            )
+            .await
+            .or_raise(make_error)?;
+        }
+
+        // TODO: remove site member applications
+
+        let user_roles = UserRole::find()
+            .filter(
+                Condition::all()
+                    .add(user_role::Column::UserId.eq(user_id))
+                    .add(user_role::Column::SiteId.eq(site_id))
+                    .add(user_role::Column::DeletedAt.is_null()),
+            )
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+
+        for user_role in user_roles {
+            RoleService::revoke_role_from_user(
+                ctx,
+                RevokeUserRoleInput {
+                    user_id,
+                    role_id: user_role.role_id,
+                    site_id,
+                    revoking_user_id: created_by,
+                    ip_address,
+                },
+            )
+            .await
+            .or_raise(make_error)?;
+        }
+
+        let create_result: Result<()> = create_operation!(
+            ctx, SiteBan, Site, site_id, User, user_id, created_by, &metadata,
+            make_error,
+        );
+
+        create_result?;
+
+        AuditService::log(
             ctx,
-            RemoveSiteMember {
+            ip_address,
+            AuditEvent::SiteBanCreate {
                 site_id,
                 user_id,
-                removed_by: created_by,
+                banning_user_id: created_by,
+                banned_until: metadata.banned_until,
+                reason: &metadata.reason,
             },
         )
         .await
         .or_raise(make_error)?;
 
-        // TODO: remove site member applications
-        // TODO: remove site roles
+        Ok(())
+    }
 
-        create_operation!(
-            ctx, SiteBan, Site, site_id, User, user_id, created_by, &metadata,
-            make_error,
+    pub async fn remove_site_ban_with_audit(
+        ctx: &ServiceContext<'_>,
+        RemoveSiteBan {
+            site_id,
+            user_id,
+            removed_by,
+        }: RemoveSiteBan,
+        ip_address: IpAddr,
+        reason: &str,
+    ) -> Result<RelationModel> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to remove ban from site ID {} for user ID {}, as removed by ID {}",
+                    site_id, user_id, removed_by,
+                ),
+                ErrorType::SiteBanRelation,
+            )
+        };
+
+        let relation = Self::remove_site_ban(
+            ctx,
+            RemoveSiteBan {
+                site_id,
+                user_id,
+                removed_by,
+            },
         )
+        .await
+        .or_raise(make_error)?;
+
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::SiteBanRemove {
+                site_id,
+                user_id,
+                unbanning_user_id: removed_by,
+                reason,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        Ok(relation)
     }
 
     /// Helper method for rejecting an relation if the user is banned.
@@ -139,7 +241,7 @@ impl RelationService {
             .or_raise(make_error)?
         {
             error!(
-                "User ID {} cannot {} site ID {} because they are banned",
+                "User ID {} cannot {} because they are banned on site ID {}",
                 body.user_id, action, body.site_id,
             );
             bail!(Error::new(
@@ -152,5 +254,71 @@ impl RelationService {
         }
 
         Ok(())
+    }
+
+    /// Soft-deletes all active site bans whose expiry date has passed.
+    ///
+    /// Permanent bans, represented by a null `banned_until`, are left unmodified.
+    ///
+    /// # Returns
+    /// The number of site bans lifted.
+    pub async fn lift_expired_site_bans(ctx: &ServiceContext<'_>) -> Result<u64> {
+        info!("Lifting expired site bans");
+
+        let make_error = || {
+            Error::new(
+                "failed to lift expired site bans",
+                ErrorType::SiteBanRelation,
+            )
+        };
+
+        let txn = ctx.transaction();
+        let today = now().date();
+
+        let site_bans = Relation::find()
+            .filter(
+                Condition::all()
+                    .add(relation::Column::RelationType.eq(RelationType::SiteBan))
+                    .add(relation::Column::OverwrittenAt.is_null())
+                    .add(relation::Column::DeletedAt.is_null()),
+            )
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        let mut lifted = 0;
+
+        for site_ban in site_bans {
+            let metadata: SiteBanData =
+                serde_json::from_value(site_ban.metadata.clone()).or_raise(make_error)?;
+
+            let Some(banned_until) = metadata.banned_until else {
+                // Null means this is a permanent ban.
+                continue;
+            };
+
+            if banned_until > today {
+                // The ban has not expired yet.
+                continue;
+            }
+
+            Self::remove_site_ban_with_audit(
+                ctx,
+                RemoveSiteBan {
+                    site_id: site_ban.dest_id,
+                    user_id: site_ban.from_id,
+                    removed_by: SYSTEM_USER_ID,
+                },
+                IpAddr::V6(Ipv6Addr::LOCALHOST),
+                "Site ban expired",
+            )
+            .await
+            .or_raise(make_error)?;
+
+            lifted += 1;
+        }
+
+        debug!("{lifted} expired site bans were lifted");
+        Ok(lifted)
     }
 }
