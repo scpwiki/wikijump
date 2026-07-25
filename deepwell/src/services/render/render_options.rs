@@ -26,6 +26,7 @@
 //! which Wikidot URL path arguments the request carried.
 
 use super::diagnostics::{CorpusRenderScope, CorpusRenderTrace};
+use super::url_arguments::UrlArguments;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct RenderContext {
@@ -41,10 +42,10 @@ pub(super) struct RenderInnerOptions<'a> {
     pub(super) trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
     pub(super) persist_compiled_text: bool,
 
-    /// The `tag` Wikidot URL path argument for this request, if the request
-    /// carried one. `None` for every render that is not serving a page view,
-    /// including the render that produces a revision's stored HTML.
-    pub(super) url_tag: Option<&'a str>,
+    /// The Wikidot URL path arguments this request carried. Empty for every
+    /// render that is not serving a page view, including the render that
+    /// produces a revision's stored HTML.
+    pub(super) url: UrlArguments<'a>,
 }
 
 /// What distinguishes one page render from another beyond its wikitext.
@@ -52,8 +53,8 @@ pub(super) struct RenderInnerOptions<'a> {
 pub(super) struct RenderPageOptions<'a> {
     pub(super) max_include_expansions: usize,
 
-    /// The `tag` Wikidot URL path argument for this request, if any.
-    pub(super) url_tag: Option<&'a str>,
+    /// The Wikidot URL path arguments this request carried.
+    pub(super) url: UrlArguments<'a>,
 
     pub(super) trace: Option<&'a CorpusRenderTrace>,
 }
@@ -64,7 +65,7 @@ pub(super) struct RenderExpansionOptions<'a> {
     pub(super) current_page_id: Option<i64>,
     pub(super) max_include_expansions: usize,
     pub(super) trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
-    pub(super) url_tag: Option<&'a str>,
+    pub(super) url: UrlArguments<'a>,
 }
 
 impl RenderContext {

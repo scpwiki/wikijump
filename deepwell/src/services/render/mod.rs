@@ -39,6 +39,7 @@ mod iftags;
 mod include_attachment_owners;
 mod include_comment_branches;
 mod include_variable_iftags;
+mod include_variables;
 #[allow(dead_code)]
 mod list_pages;
 mod literal_regions;
@@ -80,4 +81,4 @@ pub(crate) use self::service::{
     CorpusReplayPreparedWikitext, CorpusReplayStageTimings, CorpusReplaySyntaxFeatures,
 };
 pub use self::structs::*;
-pub use self::url_arguments::wikitext_reads_url_arguments;
+pub use self::url_arguments::{UrlArguments, wikitext_reads_url_arguments};

@@ -59,6 +59,12 @@ use super::include_comment_branches::{
 use super::include_variable_iftags::{
     resolve_include_variable_iftags, resolve_unbound_include_variable_iftags,
 };
+use super::include_variables::{
+    apply_include_variables, apply_include_variables_before_resolving_iftags,
+    default_include_variable_value, is_include_variable_name,
+    prepare_include_source_variables_and_comment_branches, protect_include_variables,
+    trim_include_variable_value, unprotect_include_variables,
+};
 use super::list_pages::content_sections::{
     isolate_wikidot_content_section, wikidot_content_section,
 };
@@ -91,6 +97,7 @@ use super::runtime_page_queries::{
     random_page_query_scan_limit, render_page_query_batch_limit,
     render_page_query_uses_single_scan,
 };
+use super::url_arguments::UrlArguments;
 use super::wikidot_hosts::{
     direct_wdfiles_local_file_url, local_file_host_site_slug, preferred_domain_host,
     preferred_domain_wikidot_slug,
@@ -281,7 +288,7 @@ struct InnerPreparedRenderWikitext {
     wikidot_embed_iframes: Vec<String>,
     timings: CorpusReplayStageTimings,
 }
-const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
+pub(super) const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 // The frozen EN corpus contains a page with 1,266 direct includes. Only the
 // trusted corpus finalizer receives this higher ceiling; user-controlled
@@ -310,8 +317,8 @@ pub(super) const MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS: usize = 12;
 pub(super) const MIN_FTML_COMPAT_TABBED_RENDER_BYTES: usize = 100_000;
 pub(super) const MIN_FTML_COMPAT_TABBED_MARKERS: usize = 10;
 pub(super) const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
-const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
-const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
+pub(super) const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
+pub(super) const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
 pub(super) const WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATHTML";
 pub(super) const WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX: &str = "WIKIJUMPWIKIDOTCOMPATLINK";
@@ -331,7 +338,7 @@ const MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS: usize = 128;
 
 pub(super) type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
 
-static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
+pub(super) static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
 pub(super) static WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| {
@@ -629,7 +636,7 @@ impl RenderService {
                 max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
                 trace: None,
                 persist_compiled_text: true,
-                url_tag: None,
+                url: UrlArguments::default(),
             },
         ))
         .await
@@ -688,7 +695,7 @@ impl RenderService {
                 persist_compiled_text: false,
                 // An AMC module call carries its own parameters rather than a
                 // page path, so there is no URL argument to route here.
-                url_tag: None,
+                url: UrlArguments::default(),
             },
         ))
         .await
@@ -716,9 +723,9 @@ impl RenderService {
 
     /// Render a page.
     ///
-    /// `url_tag` carries the `tag` Wikidot URL path argument when this render
-    /// is serving a page view whose request supplied one. Pass `None` when
-    /// producing a revision's stored HTML, which has no request behind it.
+    /// `url` carries the Wikidot URL path arguments when this render is
+    /// serving a page view. Pass the default when producing a revision's
+    /// stored HTML, which has no request behind it.
     pub async fn render_page(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -729,7 +736,7 @@ impl RenderService {
             category_id,
             page_id,
         }: PageId,
-        url_tag: Option<&str>,
+        url: UrlArguments<'_>,
     ) -> Result<RenderPageOutput> {
         Box::pin(Self::render_page_with_include_limit(
             ctx,
@@ -743,7 +750,7 @@ impl RenderService {
             },
             RenderPageOptions {
                 max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
-                url_tag,
+                url,
                 trace: None,
             },
         ))
@@ -768,7 +775,7 @@ impl RenderService {
             id,
             RenderPageOptions {
                 max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
-                url_tag: None,
+                url: UrlArguments::default(),
                 trace: None,
             },
         ))
@@ -791,7 +798,7 @@ impl RenderService {
             id,
             RenderPageOptions {
                 max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
-                url_tag: None,
+                url: UrlArguments::default(),
                 trace: Some(trace),
             },
         ))
@@ -810,7 +817,7 @@ impl RenderService {
         }: PageId,
         RenderPageOptions {
             max_include_expansions,
-            url_tag,
+            url,
             trace,
         }: RenderPageOptions<'_>,
     ) -> Result<RenderPageOutput> {
@@ -846,7 +853,7 @@ impl RenderService {
                 max_include_expansions,
                 trace: trace.map(|trace| (trace, CorpusRenderScope::Body)),
                 persist_compiled_text: true,
-                url_tag,
+                url,
             },
         )
         .await
@@ -883,7 +890,7 @@ impl RenderService {
                             // Whether a nav bar's own modules read the viewed
                             // page's URL arguments is not captured, so they
                             // keep rendering as they do without one.
-                            url_tag: None,
+                            url: UrlArguments::default(),
                         },
                     )
                     .await;
@@ -962,7 +969,7 @@ impl RenderService {
                 max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
                 trace: None,
                 // Corpus replay renders stored wikitext, never a live request.
-                url_tag: None,
+                url: UrlArguments::default(),
             },
         )
         .await?;
@@ -1064,7 +1071,7 @@ impl RenderService {
             current_page_id,
             max_include_expansions,
             trace,
-            url_tag,
+            url,
         } = options;
         let make_error =
             || Error::new("failed to perform render operation", ErrorType::Render);
@@ -1148,7 +1155,7 @@ impl RenderService {
                     current_site_id,
                     current_page_id,
                     include_budget,
-                    url_tag,
+                    url,
                 },
             )
             .await
@@ -1170,7 +1177,7 @@ impl RenderService {
                 CountPagesExpansionOptions {
                     current_site_id,
                     current_page_id,
-                    url_tag,
+                    url,
                 },
                 &mut wikidot_compat_text,
             )
@@ -1209,7 +1216,7 @@ impl RenderService {
                 wikitext,
                 settings,
                 current_site_id,
-                url_tag,
+                url.tag,
                 &mut wikidot_compat_html,
             )
             .await
@@ -1386,7 +1393,7 @@ impl RenderService {
             max_include_expansions,
             trace,
             persist_compiled_text,
-            url_tag,
+            url,
         } = options;
         let RenderContext {
             current_site_id,
@@ -1422,7 +1429,7 @@ impl RenderService {
                 current_page_id,
                 max_include_expansions,
                 trace,
-                url_tag,
+                url,
             },
         )
         .await?;
@@ -4953,103 +4960,6 @@ fn own_include_ref(include: &IncludeRef<'_>) -> IncludeRef<'static> {
     IncludeRef::new(include.page_ref().clone(), variables)
 }
 
-fn apply_include_variables(content: &mut String, include: &IncludeRef<'_>) {
-    for _ in 0..MAX_INCLUDE_EXPANSION_DEPTH {
-        let mut expanded = String::with_capacity(content.len());
-        let mut previous_end = 0;
-        let mut matched = false;
-        let mut changed = false;
-
-        for capture in INCLUDE_VARIABLE_REGEX.captures_iter(content) {
-            let mtch = capture.get(0).unwrap();
-            let name = &capture["name"];
-
-            if let Some(value) = include
-                .variables()
-                .get(name)
-                .map(|value| Cow::Borrowed(trim_include_variable_value(value)))
-                .or_else(|| default_include_variable_value(name).map(Cow::Owned))
-            {
-                expanded.push_str(&content[previous_end..mtch.start()]);
-                expanded.push_str(&value);
-                previous_end = mtch.end();
-                matched = true;
-                changed |= value != mtch.as_str();
-            }
-        }
-
-        if !matched {
-            break;
-        }
-
-        expanded.push_str(&content[previous_end..]);
-        *content = expanded;
-        if !changed {
-            break;
-        }
-    }
-}
-
-fn apply_include_variables_before_resolving_iftags(
-    content: &mut String,
-    include: &IncludeRef<'_>,
-    page_info: &PageInfo<'_>,
-) {
-    apply_include_variables(content, include);
-    resolve_include_variable_iftags(content, include.variables(), page_info);
-}
-
-fn prepare_include_source_variables_and_comment_branches(
-    content: &mut String,
-    include: &IncludeRef<'_>,
-    page_info: &PageInfo<'_>,
-    compat_text: &mut CompatTextFragments,
-) {
-    apply_include_variables_before_resolving_iftags(content, include, page_info);
-    // A comment branch is local to the included source once its callsite
-    // variables are bound. Remove inactive branches before recursively
-    // preparing that source so their conditional and include delimiters
-    // cannot pair with delimiters from sibling expansions.
-    remove_unresolved_include_comment_branches_source_local(content, compat_text);
-}
-
-fn trim_include_variable_value(value: &str) -> &str {
-    value.trim_end_matches([' ', '\t', '\r', '\n'])
-}
-
-fn default_include_variable_value(name: &str) -> Option<String> {
-    match name.to_ascii_lowercase().as_str() {
-        "author" => Some("%%created_by%%".to_owned()),
-        "shadow" => Some("no".to_owned()),
-        _ => None,
-    }
-}
-
-fn is_include_variable_name(name: &str) -> bool {
-    !name.is_empty()
-        && name.chars().all(|character| {
-            character.is_ascii_alphanumeric() || character == '_' || character == '-'
-        })
-}
-
-fn protect_include_variables(content: &mut String) {
-    if !content.contains("{$") {
-        return;
-    }
-    let protected = INCLUDE_VARIABLE_REGEX
-        .replace_all(content, |capture: &regex::Captures<'_>| {
-            format!(
-                "{}{}{}",
-                INCLUDE_VARIABLE_OPEN_SENTINEL,
-                &capture["name"],
-                INCLUDE_VARIABLE_CLOSE_SENTINEL,
-            )
-        })
-        .to_string();
-
-    *content = protected;
-}
-
 fn has_include_opening_candidate(content: &str) -> bool {
     let bytes = content.as_bytes();
     let mut search = 0;
@@ -5071,12 +4981,6 @@ fn has_include_opening_candidate(content: &str) -> bool {
         search = cursor.max(search + offset + 2);
     }
     false
-}
-
-fn unprotect_include_variables(content: &mut String) {
-    *content = content
-        .replace(INCLUDE_VARIABLE_OPEN_SENTINEL, "{$")
-        .replace(INCLUDE_VARIABLE_CLOSE_SENTINEL, "}");
 }
 
 pub(super) fn site_matches_wikidot_slug(site: &SiteModel, site_slug: &str) -> bool {

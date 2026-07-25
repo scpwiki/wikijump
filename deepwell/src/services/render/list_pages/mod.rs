@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub(super) mod authors;
 pub(super) mod content_sections;
 mod parents;
 mod rendering;

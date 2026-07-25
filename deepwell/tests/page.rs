@@ -49,6 +49,7 @@ use deepwell::services::page_query::{
 use deepwell::services::permission::{
     CheckPermissionContext, PermissionCache, PermissionService,
 };
+use deepwell::services::render::UrlArguments;
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
@@ -2139,7 +2140,7 @@ async fn render_scoped_include_source_cache_preserves_occurrence_semantics() {
             category_id: cycle_consumer.page_category_id,
             page_id: cycle_consumer.page_id,
         },
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect_err("raw-source cache hits must not bypass include cycle depth checks");
@@ -2606,7 +2607,10 @@ async fn pages_by_tag_module_reads_the_url_tag_argument() {
             &page_info,
             Layout::Wikidot,
             page_id,
-            url_tag,
+            UrlArguments {
+                tag: url_tag,
+                page: None,
+            },
         )
         .await
         .expect("PagesByTag render should succeed")
@@ -2734,7 +2738,10 @@ async fn list_pages_url_tag_selector_reads_the_url_tag_argument() {
             &page_info,
             Layout::Wikidot,
             page_id,
-            url_tag,
+            UrlArguments {
+                tag: url_tag,
+                page: None,
+            },
         )
         .await
         .expect("ListPages render should succeed")
@@ -2789,6 +2796,134 @@ async fn list_pages_url_tag_selector_reads_the_url_tag_argument() {
             && !html.contains("fixture-lp-fallback-page"),
         "the URL tag beats the fallback: {html}",
     );
+}
+
+#[tokio::test]
+async fn list_pages_url_page_number_composes_with_the_module_offset() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let holder_slug = "fixture-lp-page-holder";
+    let tag = "fixture-lp-page-tag";
+
+    // Titles sort into a known order so the rendered slice is checkable.
+    for title in ["Alpha", "Bravo", "Charlie", "Delta", "Echo"] {
+        let slug = format!("fixture-lp-page-{}", title.to_lowercase());
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, &slug, title, "Row body.")
+                .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision_id, &[tag]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture LP Page Holder",
+        "placeholder",
+    )
+    .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("ListPages pagination holder should exist");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(holder_slug))),
+    });
+    let page_info = PageInfo {
+        page: Cow::Borrowed(holder_slug),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Fixture LP Page Holder"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: holder.page_category_id,
+        page_id: holder.page_id,
+    };
+
+    let render = async |wikitext: &str, url_page: Option<u32>| {
+        RenderService::render_page(
+            runner.context(),
+            wikitext.to_owned(),
+            &page_info,
+            Layout::Wikidot,
+            page_id,
+            UrlArguments {
+                tag: None,
+                page: url_page,
+            },
+        )
+        .await
+        .expect("ListPages pagination render should succeed")
+        .html_output
+        .body
+    };
+
+    // `offset="1"` drops Alpha, leaving four rows paginated two at a time.
+    let source = format!(
+        concat!(
+            "[[module ListPages tags=\"{tag}\" name=\"fixture-lp-page-*\" ",
+            "order=\"title\" separate=\"no\" perPage=\"2\" offset=\"1\"]]\n",
+            "ROW %%title%%\n[[/module]]",
+        ),
+        tag = tag,
+    );
+
+    let rows = |html: &str| {
+        ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
+            .into_iter()
+            .filter(|title| html.contains(&format!("ROW {title}")))
+            .collect::<Vec<_>>()
+    };
+
+    let first = render(&source, None).await;
+    assert_eq!(
+        rows(&first),
+        vec!["Bravo", "Charlie"],
+        "the offset skips Alpha and the first page holds two rows: {first}",
+    );
+    let explicit_first = render(&source, Some(1)).await;
+    assert_eq!(
+        rows(&explicit_first),
+        vec!["Bravo", "Charlie"],
+        "/p/1 renders the same page as no argument: {explicit_first}",
+    );
+
+    // Page two skips `offset + perPage`, not `offset` alone.
+    let second = render(&source, Some(2)).await;
+    assert_eq!(
+        rows(&second),
+        vec!["Delta", "Echo"],
+        "/p/2 continues after the offset: {second}",
+    );
+
+    // Four rows at two per page is two pages, counted after the offset.
+    assert!(
+        second.contains("page 2 of 2"),
+        "the pager counts pages after the offset: {second}",
+    );
+
+    // Live clamps a number past the end to the last page.
+    for beyond in [3, 99] {
+        let clamped = render(&source, Some(beyond)).await;
+        assert_eq!(
+            rows(&clamped),
+            vec!["Delta", "Echo"],
+            "/p/{beyond} clamps to the last page: {clamped}",
+        );
+    }
 }
 
 #[tokio::test]
@@ -7508,7 +7643,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect("a structurally isolated content section should expand independently");
@@ -7527,7 +7662,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect("an unselected include must not create content section separators");
@@ -7565,7 +7700,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect(
@@ -7602,7 +7737,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect(
@@ -7640,7 +7775,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect("128 direct and 128 ListPages includes should fit the public limit");
@@ -7657,7 +7792,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect_err("separate ListPages blocks must charge the repeated child occurrence");
@@ -7699,7 +7834,7 @@ async fn listpages_content_shares_the_render_include_budget() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect_err("ListPages child content must not reset the public include budget");
@@ -7805,7 +7940,7 @@ async fn listpages_content_runtime_budget_preserves_later_modules() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect("content runtime overflow should preserve the complete module");
@@ -7940,7 +8075,7 @@ async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect_err("ordinary render must retain the public include ceiling");
@@ -7977,7 +8112,7 @@ async fn corpus_render_supports_dense_includes_without_raising_public_limit() {
         &page_info,
         Layout::Wikidot,
         page_id,
-        None,
+        UrlArguments::default(),
     )
     .await
     .expect_err("ordinary ListPages content must retain the public include ceiling");

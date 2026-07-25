@@ -32,7 +32,9 @@ use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
 use crate::services::blueprint::BlueprintPageService;
-use crate::services::render::{RenderService, wikitext_reads_url_arguments};
+use crate::services::render::{
+    RenderService, UrlArguments, wikitext_reads_url_arguments,
+};
 use crate::services::score::ScoreService;
 use crate::services::settings::SettingsService;
 use crate::types::PageId;
@@ -100,7 +102,10 @@ pub(super) async fn render_body_for_module_arguments(
         &page_info,
         layout,
         id,
-        module_arguments.tag.as_deref(),
+        UrlArguments {
+            tag: module_arguments.tag.as_deref(),
+            page: module_arguments.page,
+        },
     )
     .await?;
 

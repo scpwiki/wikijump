@@ -40,6 +40,13 @@ pub struct PageModuleArguments {
     /// for `/tag` and `/tag/`, and renders nothing at all when the argument is
     /// absent.
     pub tag: Option<String>,
+
+    /// `/p/<n>`, the 1-based page number a paginated `ListPages` renders.
+    ///
+    /// Only a positive integer counts. Live ignores `/p/0` and `/p/abc` rather
+    /// than erroring, so those parse as absent and the module renders its
+    /// first page.
+    pub page: Option<u32>,
 }
 
 impl PageModuleArguments {
@@ -53,18 +60,47 @@ impl PageModuleArguments {
             .get(&UniCase::unicode("tag"))
             .map(|(_, raw)| (*raw).to_owned());
 
-        PageModuleArguments { tag }
+        let page = arguments
+            .get(&UniCase::unicode("p"))
+            .and_then(|(_, raw)| raw.parse::<u32>().ok())
+            .filter(|page| *page > 0);
+
+        PageModuleArguments { tag, page }
     }
 
     /// Whether the path addressed any module at all.
     pub fn is_empty(&self) -> bool {
-        self.tag.is_none()
+        self.tag.is_none() && self.page.is_none()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_page_number_is_read_as_a_positive_integer() {
+        assert_eq!(PageModuleArguments::parse("/p/3").page, Some(3));
+        assert_eq!(PageModuleArguments::parse("/p/1").page, Some(1));
+    }
+
+    #[test]
+    fn a_page_number_that_is_not_a_positive_integer_is_absent() {
+        for extra in ["/p/0", "/p/abc", "/p/-2", "/p/", "/p/2.5"] {
+            assert_eq!(
+                PageModuleArguments::parse(extra).page,
+                None,
+                "{extra} should not yield a page number",
+            );
+        }
+    }
+
+    #[test]
+    fn a_page_number_and_a_tag_can_share_one_path() {
+        let arguments = PageModuleArguments::parse("/tag/alpha/p/2");
+        assert_eq!(arguments.tag.as_deref(), Some("alpha"));
+        assert_eq!(arguments.page, Some(2));
+    }
 
     #[test]
     fn no_arguments_address_no_module() {

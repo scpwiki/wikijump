@@ -24,6 +24,7 @@ use crate::models::page_revision::{
     self, Entity as PageRevision, Model as PageRevisionModel,
 };
 use crate::models::text::{self, Entity as Text, Model as TextModel};
+use crate::services::render::UrlArguments;
 use crate::services::render::{
     CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, RenderPageOutput, StageGuard,
 };
@@ -990,7 +991,15 @@ impl PageRevisionService {
         } else {
             // A stored revision render answers no particular request, so it
             // carries no URL arguments.
-            RenderService::render_page(ctx, wikitext, &page_info, layout, id, None).await
+            RenderService::render_page(
+                ctx,
+                wikitext,
+                &page_info,
+                layout,
+                id,
+                UrlArguments::default(),
+            )
+            .await
         }
         .or_raise(make_error)?;
 
