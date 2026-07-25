@@ -7,11 +7,28 @@ import {
   extractWikidotInterwikiLinks
 } from "../src/lib/wikidot/wikidot-interwiki.js"
 import {
-  buildWikidotStyleFrameHtml,
-  extractWikidotStyleFrameStylesheets,
   isUsableStyleFrameCss,
-  localizeWikidotThemeUrl
-} from "../src/lib/wikidot/wikidot-styleframe.js"
+  localizeWikidotThemeUrl,
+  safeStyleFrameScriptJson
+} from "../src/lib/wikidot/wikidot-styleframe-contract.js"
+import { buildWikidotStyleFrameRuntime } from "../src/lib/wikidot/wikidot-styleframe-runtime.js"
+import { extractWikidotStyleFrameStylesheets } from "../src/lib/wikidot/wikidot-styleframe-stylesheets.js"
+import { buildWikidotStyleFrameHtml } from "../src/lib/wikidot/wikidot-styleframe.js"
+
+test("serializes styleFrame runtime values without closing the script", () => {
+  const script = buildWikidotStyleFrameRuntime({
+    priority: "2<script>",
+    themes: ["https://example.com/theme.css?<unsafe>"],
+    css: "body::before { content: '</script>'; }"
+  })
+
+  assert.match(script, /const priority = "2\\u003cscript>"/u)
+  assert.match(script, /theme\.css\?\\u003cunsafe>/u)
+  assert.match(script, /const css = "body::before \{ content: '\\u003c\/script>'/u)
+  assert.match(script, /delete link\.dataset\.wikidotStylePreloaded/u)
+  assert.doesNotMatch(script, /<\/script>/u)
+  assert.equal(safeStyleFrameScriptJson("<script>"), '"\\u003cscript>"')
+})
 
 test("extracts priority-ordered styleFrame stylesheets for initial document CSS", () => {
   assert.deepEqual(
