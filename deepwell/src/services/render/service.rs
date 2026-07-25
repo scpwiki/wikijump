@@ -7038,6 +7038,21 @@ impl RenderService {
             ));
             found.pages
         };
+        // Wikidot reports the complete matching count, not the rendered page of
+        // rows. That is only knowable here when the query returned every match:
+        // a SQL window, a filled scan cap, or deferred filtering all mean rows
+        // exist that this render never saw.
+        // The render path always applies its own row window, so the test is not
+        // whether a window existed but whether it truncated anything: a
+        // candidate count short of the window means every match came back.
+        let query_returned_every_match =
+            list_pages_metadata.as_ref().is_some_and(|(metadata, _)| {
+                !metadata.cap_exceeded
+                    && !metadata.filtering_deferred_to_rust
+                    && metadata.candidate_count.is_some_and(|candidate_count| {
+                        (candidate_count as u64) < MAX_LISTPAGES_RENDER_LIMIT
+                    })
+            });
         if let Some((metadata, view_permission_filtering_applied)) = list_pages_metadata {
             let diagnostics =
                 list_pages_render_diagnostics(ListPagesRenderDiagnosticsInput {
@@ -7064,9 +7079,21 @@ impl RenderService {
         if reverse {
             pages.reverse();
         }
-        let total = pages.len();
+        // `total_selected` counts the actor-visible matches this render saw,
+        // before the displayed page was taken from them. An offset or a
+        // current-page exclusion removes rows from that count, and Wikidot's
+        // total under either is uncaptured, so those keep the module literal
+        // rather than reporting a count this fork cannot justify.
+        let exact_total =
+            (query_returned_every_match && offset == 0 && !exclude_current_page)
+                .then_some(total_selected);
+        if template.uses_total() && exact_total.is_none() {
+            return Ok(ListPagesBlockRenderResult::PreserveOriginal);
+        }
+        let rendered_rows = pages.len();
+        let total = exact_total.unwrap_or(rendered_rows);
         let body = template.body();
-        if wants_content && !expansion_budget.can_expand_content_rows(total) {
+        if wants_content && !expansion_budget.can_expand_content_rows(rendered_rows) {
             return Ok(ListPagesBlockRenderResult::PreserveOriginal);
         }
         let wants_data_form_values = template.uses_data_form();

@@ -323,6 +323,10 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::ParentFullname)
     }
 
+    pub(super) fn uses_total(&self) -> bool {
+        self.variables.contains(ListPagesVariable::Total)
+    }
+
     pub(super) fn uses_revisions(&self) -> bool {
         self.variables.contains(ListPagesVariable::Revisions)
     }
