@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod backlinks;
 mod compat;
 mod corpus;
 mod diagnostics;
@@ -33,6 +34,7 @@ mod list_pages;
 mod literal_regions;
 mod metacomponent;
 mod native_list_context;
+mod pages;
 mod pages_by_tag;
 mod percent_encoding;
 mod render_dependency;
@@ -67,4 +69,6 @@ pub(crate) use self::service::{
     CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
 };
 pub use self::structs::{RenderOutput, RenderPageOutput};
-pub use self::url_arguments::{UrlArguments, wikitext_reads_url_arguments};
+pub use self::url_arguments::{
+    UrlArguments, wikitext_reads_url_arguments, wikitext_requires_runtime_render,
+};

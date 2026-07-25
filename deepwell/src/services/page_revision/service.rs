@@ -293,6 +293,7 @@ fn needs_latest_revision_for_render(wikitext: &str) -> bool {
     let lower = wikitext.to_ascii_lowercase();
     lower.contains("[[module countpages")
         || lower.contains("[[module listpages")
+        || lower.contains("[[module pages")
         || lower.contains("[[module tagcloud")
         || lower.contains("[[include")
 }
@@ -1950,7 +1951,10 @@ fn first_revision_followups_detect_runtime_content_in_page_or_template() {
         "ordinary page text",
         Some("[[include component:license]]"),
     );
+    let pages_followups =
+        first_revision_followups(str!("guide"), "[[module Pages]]", None);
 
     assert!(page_followups.rerender_after_latest_revision);
     assert!(template_followups.rerender_after_latest_revision);
+    assert!(pages_followups.rerender_after_latest_revision);
 }

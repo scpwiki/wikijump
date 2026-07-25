@@ -119,7 +119,7 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         session_token: &str,
     ) -> Result<SessionModel> {
-        info!("Looking up session with token {session_token}");
+        info!("Looking up session by token");
 
         let make_error =
             |error_type| Error::new("failed to look up session by token", error_type);
@@ -308,7 +308,7 @@ impl SessionService {
         }: RenewSession,
         restricted: bool,
     ) -> Result<String> {
-        info!("Renewing session ID {old_session_token}");
+        info!("Renewing session");
 
         let make_error = || {
             Error::new(
@@ -370,7 +370,7 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         session_token: String,
     ) -> Result<()> {
-        info!("Invalidating session ID {session_token}");
+        info!("Invalidating session");
 
         let make_error =
             || Error::new("failed to invalidate session", ErrorType::Session);

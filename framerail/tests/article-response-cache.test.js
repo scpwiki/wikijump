@@ -2,22 +2,34 @@ import { strict as assert } from "node:assert"
 import net from "node:net"
 import test from "node:test"
 
+import { normalizeCachedArticleResponseEntry } from "../src/lib/server/cache/article-response/entry.js"
+import { parseFenceInvalidationMessage } from "../src/lib/server/cache/article-response/fence-message.js"
+import { applyFenceInvalidationToSites } from "../src/lib/server/cache/article-response/fence-reducer.js"
+import { createArticleResponseFenceState } from "../src/lib/server/cache/article-response/fence-state.js"
+import {
+  normalizeFenceVersion,
+  parsePermissionFence
+} from "../src/lib/server/cache/article-response/fence-values.js"
+import {
+  buildAnonymousArticleResponseCacheFences,
+  buildAnonymousPermissionFenceKeys,
+  buildPublicContentFenceKey,
+  createMemoryArticleResponseFenceCache,
+  readAnonymousArticleResponseCacheFences
+} from "../src/lib/server/cache/article-response/fences.js"
+import { createByteLimitedLru } from "../src/lib/server/cache/article-response/local-lru.js"
+import { normalizeCachedArticleResponseReplay } from "../src/lib/server/cache/article-response/replay.js"
 import {
   ARTICLE_RESPONSE_CACHE_MAX_BYTES,
   ARTICLE_RESPONSE_CACHE_MAX_ENTRIES,
   ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES,
-  buildAnonymousArticleResponseCacheFences,
   buildAnonymousArticleResponseCacheKey,
   buildAnonymousArticleResponseCacheMetadata,
   buildAnonymousArticleResponseTokenKey,
-  buildAnonymousPermissionFenceKeys,
-  buildPublicContentFenceKey,
   canConsiderAnonymousArticleResponseCache,
   createLocalArticleResponseHotCache,
-  createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore,
   deserializeCachedArticleResponse,
-  readAnonymousArticleResponseCacheFences,
   readAnonymousArticleResponseCache,
   readAnonymousArticleResponseToken,
   readCachedArticleResponse,
@@ -26,7 +38,13 @@ import {
   writeAnonymousArticleResponseCache,
   writeCachedArticleResponse
 } from "../src/lib/server/cache/article-response/index.js"
+import { connectRedisSocket } from "../src/lib/server/cache/redis-connection.js"
+import {
+  encodeRedisCommand,
+  parseRedisResponse
+} from "../src/lib/server/cache/redis-protocol.js"
 import { createRedisCacheStore } from "../src/lib/server/cache/redis-store.js"
+import { RedisFenceInvalidationSubscriber } from "../src/lib/server/cache/redis-subscriber.js"
 
 const REQUEST_HOST = "scp-wiki.example"
 
@@ -176,6 +194,158 @@ test("anonymous article response cache key requires Deepwell eligibility metadat
   )
 })
 
+test("article response fence values normalize stored versions", () => {
+  assert.equal(normalizeFenceVersion(undefined), "0")
+  assert.equal(normalizeFenceVersion("17"), "17")
+  assert.equal(normalizeFenceVersion("invalid"), null)
+  assert.deepEqual(parsePermissionFence("site=11,user=13"), {
+    sitePermissionFence: "11",
+    userPermissionFence: "13"
+  })
+  assert.equal(parsePermissionFence("site=11"), null)
+})
+
+test("article response fence invalidation messages are validated before use", () => {
+  assert.deepEqual(
+    parseFenceInvalidationMessage(
+      JSON.stringify({ type: "public-content", site_id: 6000005, version: "8" })
+    ),
+    { type: "public-content", siteId: 6000005, version: "8" }
+  )
+  assert.deepEqual(
+    parseFenceInvalidationMessage(
+      JSON.stringify({
+        type: "anonymous-permission",
+        site_id: 6000005,
+        site_version: "12",
+        user_version: "13"
+      })
+    ),
+    {
+      type: "anonymous-permission",
+      siteId: 6000005,
+      siteVersion: "12",
+      userVersion: "13"
+    }
+  )
+  assert.deepEqual(
+    parseFenceInvalidationMessage(
+      JSON.stringify({
+        type: "user-permission",
+        site_id: 6000005,
+        user_id: 123,
+        version: "19"
+      })
+    ),
+    { type: "user-permission" }
+  )
+  assert.equal(parseFenceInvalidationMessage("{not-json"), null)
+  assert.equal(
+    parseFenceInvalidationMessage(
+      JSON.stringify({ type: "public-content", site_id: 6000005, version: "bad" })
+    ),
+    null
+  )
+})
+
+test("article response fence reducer updates only advancing versions", () => {
+  const sites = new Map([
+    [
+      6000005,
+      {
+        publicContentFence: "7",
+        sitePermissionFence: "11",
+        userPermissionFence: "13"
+      }
+    ]
+  ])
+  let invalidations = 0
+  const clearHotResponses = () => {
+    invalidations += 1
+  }
+
+  applyFenceInvalidationToSites({
+    sites,
+    message: { type: "public-content", siteId: 6000005, version: "7" },
+    clearHotResponses
+  })
+  assert.equal(invalidations, 0)
+
+  applyFenceInvalidationToSites({
+    sites,
+    message: {
+      type: "anonymous-permission",
+      siteId: 6000005,
+      siteVersion: "12",
+      userVersion: "13"
+    },
+    clearHotResponses
+  })
+  assert.deepEqual(sites.get(6000005), {
+    publicContentFence: "7",
+    sitePermissionFence: "12",
+    userPermissionFence: "13"
+  })
+  assert.equal(invalidations, 1)
+})
+
+test("article response fence state tracks trusted local versions", () => {
+  let invalidations = 0
+  const state = createArticleResponseFenceState({
+    clearHotResponses: () => {
+      invalidations += 1
+    }
+  })
+
+  assert.equal(state.isTrusted(), false)
+  state.markTrusted()
+  assert.equal(state.isTrusted(), true)
+  assert.deepEqual(
+    state.seedSite({
+      siteId: 6000005,
+      seedRevision: state.revision(),
+      fences: { publicContentFence: "7", permissionFence: "site=11,user=13" }
+    }),
+    {
+      publicContentFence: "7",
+      sitePermissionFence: "11",
+      userPermissionFence: "13"
+    }
+  )
+  assert.equal(
+    state.areFencesCurrent({
+      siteId: 6000005,
+      publicContentFence: "7",
+      permissionFence: "site=11,user=13"
+    }),
+    true
+  )
+
+  state.applyMessage({ type: "public-content", siteId: 6000005, version: "8" })
+  assert.deepEqual(state.readFences(6000005), {
+    publicContentFence: "8",
+    permissionFence: "site=11,user=13"
+  })
+  assert.equal(invalidations, 1)
+
+  state.applyMessage({
+    type: "anonymous-permission",
+    siteId: 6000005,
+    siteVersion: "12",
+    userVersion: "13"
+  })
+  assert.deepEqual(state.readFences(6000005), {
+    publicContentFence: "8",
+    permissionFence: "site=12,user=13"
+  })
+  assert.equal(invalidations, 2)
+
+  state.poison()
+  assert.equal(state.isTrusted(), false)
+  assert.equal(state.readFences(6000005), null)
+  assert.equal(invalidations, 3)
+})
+
 test("anonymous article response cache fence helpers read Redis keys with default zero", async () => {
   assert.equal(
     buildPublicContentFenceKey(6000005),
@@ -240,6 +410,37 @@ test("anonymous article response cache fence helpers fail closed on malformed va
     await readAnonymousArticleResponseCacheFences({ store, siteId: 6000005 }),
     null
   )
+})
+
+test("Redis protocol encodes commands and parses nested replies", () => {
+  assert.equal(
+    encodeRedisCommand(["GET", "cache-key"]),
+    "*2\r\n$3\r\nGET\r\n$9\r\ncache-key\r\n"
+  )
+  assert.deepEqual(parseRedisResponse(Buffer.from("*2\r\n$5\r\nvalue\r\n:7\r\n")), {
+    value: ["value", 7],
+    nextOffset: 19
+  })
+})
+
+test("Redis connection helper opens a plain socket", async () => {
+  const server = net.createServer()
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  const address = server.address()
+  assert.equal(typeof address, "object")
+  const socket = await connectRedisSocket(
+    `redis://127.0.0.1:${address.port}`,
+    "Redis connection timed out"
+  )
+
+  try {
+    assert.equal(socket.destroyed, false)
+  } finally {
+    socket.destroy()
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()))
+    })
+  }
 })
 
 test("Redis cache store times out unanswered commands", async () => {
@@ -441,11 +642,12 @@ test("Redis cache store times out unanswered authentication", async () => {
 test("Redis article response fence subscriber retries after initial subscribe failure", async () => {
   const channel = "test:article-response-fence"
   const port = await getUnusedPort()
-  const store = createRedisCacheStore(`redis://127.0.0.1:${port}`)
+  const redisUrl = `redis://127.0.0.1:${port}`
   let disconnects = 0
   let subscribed = 0
 
-  const subscriber = store.subscribe({
+  const subscriber = new RedisFenceInvalidationSubscriber(redisUrl, [])
+  subscriber.subscribe({
     channel,
     onSubscribed: () => {
       subscribed += 1
@@ -480,8 +682,11 @@ test("Redis article response fence subscriber resubscribes after socket close", 
       firstSocket ??= socket
     }
   })
-  const store = createRedisCacheStore(`redis://127.0.0.1:${redis.port}`)
-  const subscriber = store.subscribe({
+  const subscriber = new RedisFenceInvalidationSubscriber(
+    `redis://127.0.0.1:${redis.port}`,
+    []
+  )
+  subscriber.subscribe({
     channel,
     onSubscribed: () => {
       subscribed += 1
@@ -533,7 +738,8 @@ test("memory article response fence cache does not store a seed raced by invalid
   const currentSeed = ["8", "11", "13"]
   let calls = 0
   const store = {
-    async mget() {
+    async mget(keys) {
+      assert.equal(keys.length, 3)
       calls += 1
       if (calls === 1) {
         seedStartedResolve()
@@ -565,14 +771,15 @@ test("memory article response fence cache does not store a seed raced by invalid
 test("memory article response fence cache ignores non-anonymous user permission messages", async () => {
   let reads = 0
   const store = {
-    async mget() {
+    async mget(keys) {
+      assert.equal(keys.length, 3)
       reads += 1
       return ["7", "11", "13"]
     }
   }
   const hotCache = createLocalArticleResponseHotCache()
   assert.equal(
-    hotCache.set("token", {
+    hotCache.store("token", {
       status: 200,
       headers: [["content-type", "text/html"]],
       body: "<!doctype html><html><body>cached body</body></html>"
@@ -887,6 +1094,71 @@ test("cached article response writes reject oversized serialized entries", async
   assert.equal(await readCachedArticleResponse(store, "large"), null)
 })
 
+test("byte-limited LRU tracks recency, capacity, and expiry", () => {
+  let now = 0
+  const cache = createByteLimitedLru({
+    now: () => now,
+    ttlMs: 10,
+    maxEntries: 2,
+    maxBytes: 10
+  })
+
+  assert.equal(cache.insert("first", "a", 1), true)
+  assert.equal(cache.insert("second", "b", 1), true)
+  assert.equal(cache.get("first"), "a")
+  assert.equal(cache.insert("third", "c", 1), true)
+  assert.equal(cache.get("second"), null)
+  assert.equal(cache.get("first"), "a")
+
+  now = 11
+  assert.equal(cache.get("first"), null)
+  assert.equal(cache.size(), 1)
+  cache.clear()
+  assert.equal(cache.size(), 0)
+})
+
+test("cached article response entry normalization validates and copies headers", () => {
+  const headers = [["content-type", "text/html"]]
+  const normalized = normalizeCachedArticleResponseEntry({
+    status: 200,
+    headers,
+    body: "cached body"
+  })
+
+  assert.deepEqual(normalized, {
+    status: 200,
+    headers: [["content-type", "text/html"]],
+    body: "cached body"
+  })
+  headers[0][1] = "text/plain"
+  assert.deepEqual(normalized.headers, [["content-type", "text/html"]])
+  assert.equal(
+    normalizeCachedArticleResponseEntry({ status: 200, headers: ["bad"], body: "x" }),
+    null
+  )
+})
+
+test("cached article response replay normalization prepares immutable transport state", () => {
+  const replay = normalizeCachedArticleResponseReplay(
+    {
+      status: 200,
+      headers: [["content-type", "text/html"]],
+      body: "cached body"
+    },
+    {
+      status: 200,
+      headers: [["x-final", "safe"]],
+      bodyBuffer: Buffer.from("cached body")
+    }
+  )
+
+  assert.equal(replay.status, 200)
+  assert.deepEqual(replay.headers, [["x-final", "safe"]])
+  assert.deepEqual(replay.nodeRawHeaders, ["x-final", "safe"])
+  assert.equal(replay.bodyBuffer.toString("utf8"), "cached body")
+  assert.throws(() => replay.headers.push(["x-extra", "nope"]), TypeError)
+})
+
 test("local article response hot cache keeps an isolated body replay copy", () => {
   const hotCache = createLocalArticleResponseHotCache()
 
@@ -895,7 +1167,7 @@ test("local article response hot cache keeps an isolated body replay copy", () =
     headers: [["content-type", "text/html"]],
     body: "<!doctype html><html><body>cached body</body></html>"
   }
-  assert.equal(hotCache.set("token", entry), true)
+  assert.equal(hotCache.store("token", entry), true)
   entry.headers[0][1] = "text/plain"
   entry.body = "mutated"
 
@@ -911,7 +1183,7 @@ test("local article response hot cache reuses immutable prepared replay state", 
   const bodyBuffer = Buffer.from("cached body")
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -960,7 +1232,7 @@ test("local article response hot cache getReplay body mutation does not poison l
   const hotCache = createLocalArticleResponseHotCache()
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -989,7 +1261,7 @@ test("local article response hot cache exposes trusted shared replay without cop
   const hotCache = createLocalArticleResponseHotCache()
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1034,7 +1306,7 @@ test("local article response hot cache protects public replay variant buffers", 
   const gzipBody = Buffer.from("gzip replay")
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1084,7 +1356,7 @@ test("local article response hot cache shares internal replay variant buffers", 
   const hotCache = createLocalArticleResponseHotCache()
 
   assert.equal(
-    hotCache.set(
+    hotCache.store(
       "token",
       {
         status: 200,
@@ -1137,7 +1409,7 @@ test("local article response hot cache byte accounting includes replay variants"
   })
 
   assert.equal(
-    hotCache.set(key, entry, {
+    hotCache.store(key, entry, {
       replay: {
         status: 200,
         headers: [["content-type", "text/html"]],

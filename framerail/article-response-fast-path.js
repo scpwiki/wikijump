@@ -1,12 +1,14 @@
 import {
-  buildAnonymousArticleResponseCacheFences,
   buildAnonymousArticleResponseCacheMetadata,
   buildAnonymousArticleResponseTokenKey,
-  createLocalArticleResponseHotCache,
   readAnonymousArticleResponseCacheEntry,
-  readAnonymousArticleResponseCacheFences,
   readAnonymousArticleResponseToken
 } from "./src/lib/server/cache/article-response/index.js"
+import {
+  buildAnonymousArticleResponseCacheFences,
+  readAnonymousArticleResponseCacheFences
+} from "./src/lib/server/cache/article-response/fences.js"
+import { createLocalArticleResponseHotCache } from "./src/lib/server/cache/article-response/hot.js"
 import { hasSessionCookie } from "./src/lib/server/cache/article-response/shared.js"
 import { applyStaticSecurityHeadersToNodeResponse } from "./src/lib/server/security-headers.js"
 import { parseAcceptLangHeader, withFallbackLocale } from "./src/lib/locales.js"
@@ -419,7 +421,7 @@ export const readArticleResponseFastPathEntryFromStores = async ({
       cachedEntry,
       candidate.pathname
     )
-    localHotCache?.set(tokenKey, cachedEntry, { replay })
+    localHotCache?.store(tokenKey, cachedEntry, { replay })
     return replay
   } catch {
     return null

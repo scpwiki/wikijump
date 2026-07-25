@@ -5,7 +5,7 @@ import {
   ARTICLE_RESPONSE_CACHE_TTL_SECONDS,
   serializedByteLength
 } from "./shared.js"
-import { normalizeCachedArticleResponseEntry } from "./hot.js"
+import { normalizeCachedArticleResponseEntry } from "./entry.js"
 
 export const serializeArticleResponseForCache = async (response) => {
   return {

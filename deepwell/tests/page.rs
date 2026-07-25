@@ -2340,6 +2340,214 @@ async fn non_scp_page_render_does_not_hardcode_scp_image_block_include() {
     }
 }
 
+/// Live capture (sandbox-for-codex, 2026-07-25): `[[module Pages]]` emits
+/// `div.list-pages-box` with 20 title-linked rows per page and a Wikidot pager.
+/// `/p/999` clamps to the final page.
+#[tokio::test]
+async fn pages_module_renders_the_site_index_and_clamps_pagination() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let holder_slug = "fixture-pages-holder";
+    let private_category = "fixture-pages-private";
+
+    make_listpages_test_category_admin_only(&runner, site_id, private_category).await;
+
+    for (slug, title) in [
+        ("fixture-pages-zulu", "!! Fixture Pages Zulu"),
+        ("fixture-pages-aardvark", "!! Fixture Pages aardvark"),
+        ("fixture-pages-private:hidden", "!! Fixture Pages Private"),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "Pages module fixture.",
+        )
+        .await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "!! Fixture Pages Holder",
+        concat!(
+            "PAGES_START\n\n",
+            "[[module Pages]]\n\n",
+            "PAGES_END\n\n",
+            "LITERAL_START\n\n",
+            "[[module Pages limit=\"5\"]]\n\n",
+            "LITERAL_END",
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": holder_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("Pages holder should exist after creation");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    for expected in [
+        "PAGES_START",
+        r#"<div class="list-pages-box">"#,
+        r#"<div class="list-pages-item">"#,
+        r#"<a href="/fixture-pages-aardvark">!! Fixture Pages aardvark</a>"#,
+        r#"<a href="/fixture-pages-holder">!! Fixture Pages Holder</a>"#,
+        r#"<a href="/fixture-pages-zulu">!! Fixture Pages Zulu</a>"#,
+        r#"<div class="pager">"#,
+        "PAGES_END",
+    ] {
+        assert!(html.contains(expected), "missing {expected}: {html}");
+    }
+    let aardvark = html.find("fixture-pages-aardvark").expect("aardvark row");
+    let holder_row = html.find("fixture-pages-holder").expect("holder row");
+    let zulu = html.find("fixture-pages-zulu").expect("zulu row");
+    assert!(
+        aardvark < holder_row && holder_row < zulu,
+        "rows must follow case-insensitive title order: {html}",
+    );
+    assert!(
+        !html.contains("fixture-pages-private"),
+        "an anonymously hidden category must not contribute a row: {html}",
+    );
+    assert!(
+        html.contains("[[module Pages limit=&quot;5&quot;]]"),
+        "unevidenced arguments must stay literal: {html}",
+    );
+
+    let template_category = "fixture-pages-template";
+    CategoryService::get_or_create(runner.context(), site_id, template_category)
+        .await
+        .expect("Pages template category should be created");
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-pages-template:_template",
+        "Fixture Pages Template",
+        "TEMPLATE_START\n\n[[module Pages]]\n\n%%content%%\n\nTEMPLATE_END",
+    )
+    .await;
+    let template_holder_slug = "fixture-pages-template:holder";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        template_holder_slug,
+        "Fixture Pages Template Holder",
+        "TEMPLATE_CONTENT",
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-pages-new",
+        "!! Fixture Pages Newly Created",
+        "Created after the Pages holder.",
+    )
+    .await;
+    let refreshed_view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": holder_slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let refreshed_page = match refreshed_view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found Pages view, got {other:?}"),
+    };
+    assert!(
+        refreshed_page.contains("fixture-pages-new"),
+        "a bare page view must reflect pages created after its stored render: {refreshed_page}",
+    );
+    let refreshed_template_view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": template_holder_slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let refreshed_template_page = match refreshed_template_view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found templated Pages view, got {other:?}"),
+    };
+    assert!(
+        refreshed_template_page.contains("fixture-pages-new")
+            && refreshed_template_page.contains("TEMPLATE_CONTENT"),
+        "a templated bare page view must refresh its Pages index: {refreshed_template_page}",
+    );
+
+    let second_view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": holder_slug, "extra": "/p/2"},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let second_page = match second_view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found Pages view, got {other:?}"),
+    };
+    assert!(
+        second_page.contains("page 2 of ")
+            && !second_page.contains("fixture-pages-aardvark"),
+        "the real /p/2 view must rerender the second slice: {second_page}",
+    );
+
+    let last_view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": holder_slug, "extra": "/p/999"},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let last_page = match last_view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found Pages view, got {other:?}"),
+    };
+
+    assert!(
+        last_page.contains("« previous") && !last_page.contains("next »"),
+        "an out-of-range request must clamp to the final page: {last_page}",
+    );
+    assert!(
+        !last_page.contains("fixture-pages-aardvark"),
+        "the final page must not repeat the first page: {last_page}",
+    );
+}
+
 /// Live capture (sandbox-for-codex, 2026-07-25): `[[module PagesByTag tag="x"]]`
 /// emits an anchor, an `h2`, and `div#tagged-pages-list.pages-list` holding one
 /// `pages-list-item` per tagged page, ordered case-insensitively by title. A tag
@@ -2609,7 +2817,7 @@ async fn pages_by_tag_module_reads_the_url_tag_argument() {
             page_id,
             UrlArguments {
                 tag: url_tag,
-                page: None,
+                ..UrlArguments::default()
             },
         )
         .await
@@ -2740,7 +2948,7 @@ async fn list_pages_url_tag_selector_reads_the_url_tag_argument() {
             page_id,
             UrlArguments {
                 tag: url_tag,
-                page: None,
+                ..UrlArguments::default()
             },
         )
         .await
@@ -2861,8 +3069,8 @@ async fn list_pages_url_page_number_composes_with_the_module_offset() {
             Layout::Wikidot,
             page_id,
             UrlArguments {
-                tag: None,
                 page: url_page,
+                ..UrlArguments::default()
             },
         )
         .await
@@ -2922,6 +3130,109 @@ async fn list_pages_url_page_number_composes_with_the_module_offset() {
             rows(&clamped),
             vec!["Delta", "Echo"],
             "/p/{beyond} clamps to the last page: {clamped}",
+        );
+    }
+}
+
+#[tokio::test]
+async fn list_pages_url_category_selector_reads_the_url_category_argument() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let holder_slug = "fixture-lp-cat-holder";
+
+    // One page in the default category and one in a named category, so a
+    // resolved selector can be told apart from a dropped one.
+    for (slug, title) in [
+        ("fixture-lp-cat-default", "Cat Default Probe"),
+        ("fixturelpcat:zoned", "Cat Zoned Probe"),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, "Probe body.")
+            .await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture LP Category Holder",
+        "placeholder",
+    )
+    .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("ListPages category holder should exist");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(holder_slug))),
+    });
+    let page_info = PageInfo {
+        page: Cow::Borrowed(holder_slug),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Fixture LP Category Holder"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: holder.page_category_id,
+        page_id: holder.page_id,
+    };
+
+    let render = async |wikitext: &str, url_category: Option<&str>| {
+        RenderService::render_page(
+            runner.context(),
+            wikitext.to_owned(),
+            &page_info,
+            Layout::Wikidot,
+            page_id,
+            UrlArguments {
+                category: url_category,
+                ..UrlArguments::default()
+            },
+        )
+        .await
+        .expect("ListPages category render should succeed")
+        .html_output
+        .body
+    };
+
+    let source = concat!(
+        "[[module ListPages category=\"@URL\" name=\"*\" separate=\"no\" ",
+        "limit=\"50\"]]\nROW %%title%%\n[[/module]]",
+    );
+
+    let zoned = render(source, Some("fixturelpcat")).await;
+    assert!(
+        zoned.contains("ROW Cat Zoned Probe"),
+        "the URL category selects its own category: {zoned}",
+    );
+    assert!(
+        !zoned.contains("ROW Cat Default Probe"),
+        "a page outside the named category must not appear: {zoned}",
+    );
+
+    // Live drops the constraint here, which means the module's own default
+    // category rather than every category.
+    for absent in [None, Some("")] {
+        let dropped = render(source, absent).await;
+        assert!(
+            dropped.contains("ROW Cat Default Probe"),
+            "an unresolved @URL falls back to the default category: {dropped}",
+        );
+        assert!(
+            !dropped.contains("ROW Cat Zoned Probe"),
+            "dropping the selector must not widen across categories: {dropped}",
         );
     }
 }

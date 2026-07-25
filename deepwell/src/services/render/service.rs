@@ -37,8 +37,6 @@ use super::compat::preparation::{
     extract_css_modules, neutralize_authored_markers,
     protect_css_modules_before_first_list_pages,
 };
-#[cfg(test)]
-use super::compat::text_fragments::COMPAT_TEXT_MARKER_PREFIX;
 use super::compat::text_fragments::CompatTextFragments;
 use super::compat::wikidot_link_protection::{
     ProtectedWikidotWikipediaLink, WikidotWikipediaLink, build_wikidot_wikipedia_link,
@@ -48,8 +46,6 @@ use super::diagnostics::{
     StageGuard,
 };
 use super::generator::COMPILED_GENERATOR;
-#[cfg(test)]
-use super::iftags::wikidot_tag_conditions_match;
 use super::iftags::{
     resolve_outermost_wikidot_iftags,
     resolve_outermost_wikidot_iftags_before_include_expansion,
@@ -73,59 +69,22 @@ use super::include_variables::{
     protect_include_variables, unprotect_include_variables,
 };
 #[cfg(test)]
-use super::list_pages::content_sections::wikidot_content_section;
-#[cfg(test)]
-use super::list_pages::scanner::{
-    find_list_pages_module_matches, first_list_pages_module_opening_candidate,
-    has_count_pages_module_opening_candidate, has_list_pages_module_opening_candidate,
-};
-#[cfg(test)]
-use super::list_pages::template::ListPagesTemplatePlan;
+use super::list_pages::ResolvedListPagesAuthors;
 use super::list_pages::{
-    BacklinksModulePage, CountPagesExpansionOptions, ListPagesExpansionOptions,
+    CountPagesExpansionOptions, ListPagesExpansionOptions,
     build_wikidot_list_pages_module_source, restore_list_pages_literal_ellipsis_markers,
 };
-#[cfg(test)]
-use super::list_pages::{
-    ListPagesBatchDisplayRequirements, ListPagesExpansionBudget,
-    ListPagesSnapshotDisplay, ListPagesSubstitutionContext, ResolvedListPagesAuthors,
-    WikidotUserDisplay, count_pages_capture_is_literal,
-    count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,
-    count_pages_required_tag_batch_selector, count_pages_scan_requires_preservation,
-    count_pages_should_remain_literal, count_pages_unbounded_total,
-    current_page_info_list_pages_row, exact_name_list_pages_batch_key,
-    format_list_pages_created_at, list_pages_author_cache_key,
-    list_pages_body_is_no_visible_tracking_markup, list_pages_body_uses_content_variable,
-    list_pages_body_variables_supported, list_pages_content_query_target,
-    list_pages_has_unsupported_page_type_selector,
-    list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
-    list_pages_revision_count, list_pages_row_scan_target, list_pages_tag_link_href,
-    page_query_cap_requires_original_module, parse_list_pages_arguments,
-    parse_list_pages_arguments_with_url, parse_list_pages_date_selector,
-    push_list_pages_pager, register_generated_list_pages_html, render_list_pages_tags,
-    render_tag_cloud_box, requested_page_info_score,
-    should_render_current_page_list_pages_row, substitute_count_pages_variables,
-    substitute_list_pages_variables, unsupported_list_pages_replacement,
-};
-#[cfg(test)]
-use super::literal_regions::ListPagesSourceProjection;
 use super::literal_regions::LiteralRegionIndex;
 use super::metacomponent::{
     MetacomponentSourceContext, select_metacomponent_documentation,
 };
 use super::native_list_context::NativeListSourceContext;
-use super::pages_by_tag::expand_pages_by_tag_modules;
+use super::pages::expand_page_index_modules;
 use super::percent_encoding::percent_encode_path_segment;
 use super::render_options::{
     RenderContext, RenderExpansionOptions, RenderInnerOptions, RenderPageOptions,
 };
 use super::runtime::{IncludeSourceCache, RenderRuntime};
-#[cfg(test)]
-use super::runtime_page_queries::{
-    CountPagesRawScanCompletion, count_pages_raw_scan_completion,
-    random_page_query_scan_limit, render_page_query_batch_limit,
-    render_page_query_uses_single_scan,
-};
 use super::structs::{RenderOutput, RenderPageOutput};
 use super::url_arguments::UrlArguments;
 use super::wikidot_hosts::{
@@ -137,10 +96,6 @@ use crate::error::prelude::{Error, ErrorType, ExnError, OptionExt, Result, Resul
 use crate::hash::{TextHash, k12_hash};
 use crate::models::site::Model as SiteModel;
 use crate::services::ServiceContext;
-#[cfg(test)]
-use crate::services::page_query::{
-    MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector, OrderProperty,
-};
 use crate::services::settings::{NavigationPageWikitext, SettingsService};
 use crate::services::text_block::{
     MIME_HTML, TextBlock, TextBlockService, mime_for_language,
@@ -327,7 +282,6 @@ pub(super) const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 5_000;
 pub(super) const MAX_WIKIDOT_AJAX_MODULE_BODY_BYTES: usize = 65_536;
 pub(super) const MAX_WIKIDOT_AJAX_MODULE_PARAMETERS: usize = 64;
 pub(super) const MAX_WIKIDOT_AJAX_MODULE_PARAMETER_BYTES: usize = 4_096;
-pub(super) const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
 const LONG_NATIVE_LIST_RENDER_MIN_ITEMS: usize = 8;
 const MAX_NATIVE_LIST_COMPAT_DEPTH: usize = 64;
 pub(super) const MAX_FTML_COMPAT_PARSE_BYTES: usize = 768_000;
@@ -384,9 +338,6 @@ pub(super) static WIKIDOT_RATE_ANCHOR_REGEX: LazyLock<Regex> = LazyLock::new(|| 
 });
 pub(super) static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
-});
-pub(super) static BACKLINKS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[module\s+Backlinks(?P<head>[^\]]*)\]\]").unwrap()
 });
 pub(super) static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone)(?P<head>[^\]]*)\]\]")
@@ -1230,19 +1181,18 @@ impl RenderService {
             .await
             .or_raise(make_error)?
         };
-        wikitext = {
-            let _stage = StageGuard::new(trace, CorpusRenderStage::PagesByTag);
-            expand_pages_by_tag_modules(
-                ctx,
-                wikitext,
-                settings,
-                current_site_id,
-                url.tag,
-                &mut wikidot_compat_html,
-            )
-            .await
-            .or_raise(make_error)?
-        };
+        wikitext = expand_page_index_modules(
+            ctx,
+            wikitext,
+            page_info,
+            settings,
+            current_site_id,
+            url,
+            trace,
+            &mut wikidot_compat_html,
+        )
+        .await
+        .or_raise(make_error)?;
         {
             let _stage = StageGuard::new(trace, CorpusRenderStage::RegistryModules);
             wikitext = Self::expand_registry_modules_with_registry(
@@ -4675,23 +4625,6 @@ pub(super) fn wikidot_module_argument<'a>(head: &'a str, name: &str) -> Option<&
     }
 
     None
-}
-
-pub(super) fn render_backlinks_module_box(pages: &[BacklinksModulePage]) -> String {
-    let mut output = String::from(
-        "\n<div class=\"backlinks-module-box\" data-wikijump-compat-backlinks=\"1\"><ul>",
-    );
-
-    for page in pages {
-        output.push_str(r#"<li><a href="/"#);
-        output.push_str(&escape_list_pages_html_attr(&page.slug));
-        output.push_str(r#"">"#);
-        output.push_str(&escape_list_pages_html_text(&page.title));
-        output.push_str("</a></li>");
-    }
-
-    output.push_str("</ul></div>\n");
-    output
 }
 
 pub(super) fn render_members_module_placeholder(group: &str) -> String {

@@ -35,6 +35,7 @@ pub(super) const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
         // See services/view/module_arguments.rs.
         "tag",
         "p",
+        "category",
         "title",
         "parentPage",
         "parent",
@@ -175,6 +176,7 @@ impl PageOptions {
         // they are not reported as unused.
         arguments.remove(unicase!("tag"));
         arguments.remove(unicase!("p"));
+        arguments.remove(unicase!("category"));
 
         // Done processing arguments
         // Now go through anything remaining and emitting warnings for them

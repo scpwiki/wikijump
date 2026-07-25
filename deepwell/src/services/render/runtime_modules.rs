@@ -3,29 +3,22 @@
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 
-use sea_orm::{ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, Statement};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
 use super::compat::CompatHtmlFragments;
-use super::list_pages::{
-    BacklinksModulePage, is_tag_cloud_visible_tag, render_tag_cloud_box,
-};
+use super::list_pages::{is_tag_cloud_visible_tag, render_tag_cloud_box};
 use super::literal_regions::LiteralRegionIndex;
 use super::service::{
-    BACKLINKS_MODULE_REGEX, MAX_BACKLINKS_MODULE_ROWS, RATE_MODULE_REGEX,
-    REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
-    render_backlinks_module_box, render_clone_module, render_members_module_placeholder,
-    render_new_page_module, render_read_only_rate_module, wikidot_module_argument,
+    RATE_MODULE_REGEX, REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
+    render_clone_module, render_members_module_placeholder, render_new_page_module,
+    render_read_only_rate_module, wikidot_module_argument,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_revision;
 use crate::services::ServiceContext;
-use crate::services::permission::{CheckPermissionContext, PermissionService};
-use crate::types::Reference;
-use crate::types::{Action, Permission, Resource};
 use ftml::data::PageInfo;
 use ftml::settings::WikitextSettings;
-use sea_orm::ConnectionTrait;
 
 impl RenderService {
     pub(super) fn expand_rate_modules_with_registry(
@@ -198,118 +191,6 @@ impl RenderService {
         Ok(TAGCLOUD_MODULE_REGEX
             .replace_all(&wikitext, replacement.as_str())
             .into_owned())
-    }
-
-    pub(super) async fn expand_backlinks_modules(
-        ctx: &ServiceContext<'_>,
-        wikitext: String,
-        settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
-        compat_html: &mut CompatHtmlFragments,
-    ) -> Result<String> {
-        if !settings.enable_page_syntax || !BACKLINKS_MODULE_REGEX.is_match(&wikitext) {
-            return Ok(wikitext);
-        }
-
-        let (Some(current_site_id), Some(current_page_id)) =
-            (current_site_id, current_page_id)
-        else {
-            return Ok(wikitext);
-        };
-
-        let mut expanded = String::with_capacity(wikitext.len());
-        let mut cursor = 0;
-
-        for captures in BACKLINKS_MODULE_REGEX.captures_iter(&wikitext) {
-            let mtch = captures.get(0).unwrap();
-            expanded.push_str(&wikitext[cursor..mtch.start()]);
-
-            if Self::is_inside_wikidot_literal_region(&wikitext, mtch.start()) {
-                expanded.push_str(mtch.as_str());
-                cursor = mtch.end();
-                continue;
-            }
-
-            let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-            if !head.trim().is_empty() {
-                expanded.push_str(mtch.as_str());
-                cursor = mtch.end();
-                continue;
-            }
-
-            let pages =
-                Self::load_backlinks_module_pages(ctx, current_site_id, current_page_id)
-                    .await?;
-            expanded
-                .push_str(&compat_html.push_html(render_backlinks_module_box(&pages)));
-            cursor = mtch.end();
-        }
-
-        expanded.push_str(&wikitext[cursor..]);
-        Ok(expanded)
-    }
-
-    async fn load_backlinks_module_pages(
-        ctx: &ServiceContext<'_>,
-        current_site_id: i64,
-        current_page_id: i64,
-    ) -> Result<Vec<BacklinksModulePage>> {
-        let make_error = || {
-            Error::new(
-                format!(
-                    "failed to load Backlinks module rows for page ID {} in site ID {}",
-                    current_page_id, current_site_id,
-                ),
-                ErrorType::Render,
-            )
-        };
-        let txn = ctx.transaction();
-        let statement = Statement::from_string(
-            txn.get_database_backend(),
-            format!(
-                "SELECT p.page_id, p.page_category_id, p.slug, pr.title \
-                 FROM page_connection pc \
-                 JOIN page p ON p.page_id = pc.from_page_id \
-                 JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
-                 WHERE pc.to_page_id = {current_page_id} \
-                   AND pc.connection_type = 'link' \
-                   AND p.site_id = {current_site_id} \
-                   AND p.deleted_at IS NULL \
-                 ORDER BY lower(pr.title), p.slug \
-                 LIMIT {MAX_BACKLINKS_MODULE_ROWS}",
-            ),
-        );
-
-        let rows = BacklinksModulePage::find_by_statement(statement)
-            .all(txn)
-            .await
-            .or_raise(make_error)?;
-
-        let mut viewable = Vec::with_capacity(rows.len());
-        for row in rows {
-            let anonymously_viewable = PermissionService::check_user_can(
-                ctx,
-                &CheckPermissionContext {
-                    user_id: None,
-                    site_id: current_site_id,
-                    page_reference: Some(Reference::Id(row.page_id)),
-                },
-                Permission {
-                    resource_type: Resource::Page,
-                    resource_category: Some(Reference::Id(row.page_category_id)),
-                    action: Action::View,
-                },
-            )
-            .await
-            .or_raise(make_error)?;
-
-            if anonymously_viewable {
-                viewable.push(row);
-            }
-        }
-
-        Ok(viewable)
     }
 
     async fn load_tag_cloud_counts(

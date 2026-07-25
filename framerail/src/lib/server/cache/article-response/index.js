@@ -224,10 +224,8 @@ export {
   createMemoryArticleResponseFenceCache,
   readAnonymousArticleResponseCacheFences
 } from "./fences.js"
-export {
-  createLocalArticleResponseHotCache,
-  normalizeCachedArticleResponseEntry
-} from "./hot.js"
+export { normalizeCachedArticleResponseEntry } from "./entry.js"
+export { createLocalArticleResponseHotCache } from "./hot.js"
 export {
   createMemoryArticleResponseCacheStore,
   deserializeCachedArticleResponse,

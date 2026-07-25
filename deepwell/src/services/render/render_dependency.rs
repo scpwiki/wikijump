@@ -112,6 +112,11 @@ pub fn classify_render_dependencies(source: &str) -> RenderDependencyClasses {
         };
 
         let name = name.to_ascii_lowercase();
+        if name == "pages" {
+            classes.insert(RenderDependencyClass::QueryDependent);
+            classes.insert(RenderDependencyClass::RequestDependent);
+            continue;
+        }
         if MODULE_QUERY_NAMES.contains(&name.as_str()) {
             classes.insert(RenderDependencyClass::QueryDependent);
             continue;
@@ -199,6 +204,7 @@ mod tests {
         for source in [
             "[[module ListPages category=\"fragment\"]]%%content%%[[/module]]",
             "[[module CountPages category=\"news\"]][[/module]]",
+            "[[module Pages]]",
         ] {
             let classes = classify_render_dependencies(source);
 
@@ -221,6 +227,15 @@ mod tests {
         let classes = classify_render_dependencies(
             "[[module CountPages category=\"news\" offset=\"@URL|0\"]][[/module]]",
         );
+
+        assert!(classes.contains(RenderDependencyClass::QueryDependent));
+        assert!(classes.contains(RenderDependencyClass::RequestDependent));
+        assert!(!classes.contains(RenderDependencyClass::RevisionLocal));
+    }
+
+    #[test]
+    fn pages_is_query_and_request_dependent() {
+        let classes = classify_render_dependencies("[[module Pages]]");
 
         assert!(classes.contains(RenderDependencyClass::QueryDependent));
         assert!(classes.contains(RenderDependencyClass::RequestDependent));

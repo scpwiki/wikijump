@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#
+# Run the checks CI would run for the paths this push changes.
+#
+# CI feedback costs minutes; this costs seconds for most changes. Set
+# WIKIJUMP_SKIP_PREFLIGHT=1 to push without it, or --no-verify.
+
+set -uo pipefail
+
+if [[ "${WIKIJUMP_SKIP_PREFLIGHT:-0}" == "1" ]]; then
+  echo "pre-push: preflight skipped (WIKIJUMP_SKIP_PREFLIGHT=1)"
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if [[ ! -x "${REPO_ROOT}/scripts/preflight.sh" ]]; then
+  exit 0
+fi
+
+# git passes the remote name and URL as arguments; preflight takes neither,
+# and reads the refs being pushed from the working tree instead.
+echo "pre-push: running preflight; WIKIJUMP_SKIP_PREFLIGHT=1 skips it"
+"${REPO_ROOT}/scripts/preflight.sh"
+status=$?
+if [[ ${status} -ne 0 ]]; then
+  echo ""
+  echo "pre-push: preflight failed, so CI would fail too. Fix it, or set"
+  echo "pre-push: WIKIJUMP_SKIP_PREFLIGHT=1 if you are pushing deliberately."
+fi
+exit ${status}
