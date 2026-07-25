@@ -4,6 +4,7 @@ import test from "node:test"
 
 import { normalizeCachedArticleResponseEntry } from "../src/lib/server/cache/article-response/entry.js"
 import { parseFenceInvalidationMessage } from "../src/lib/server/cache/article-response/fence-message.js"
+import { applyFenceInvalidationToSites } from "../src/lib/server/cache/article-response/fence-reducer.js"
 import { createArticleResponseFenceState } from "../src/lib/server/cache/article-response/fence-state.js"
 import {
   normalizeFenceVersion,
@@ -245,6 +246,47 @@ test("article response fence invalidation messages are validated before use", ()
     ),
     null
   )
+})
+
+test("article response fence reducer updates only advancing versions", () => {
+  const sites = new Map([
+    [
+      6000005,
+      {
+        publicContentFence: "7",
+        sitePermissionFence: "11",
+        userPermissionFence: "13"
+      }
+    ]
+  ])
+  let invalidations = 0
+  const clearHotResponses = () => {
+    invalidations += 1
+  }
+
+  applyFenceInvalidationToSites({
+    sites,
+    message: { type: "public-content", siteId: 6000005, version: "7" },
+    clearHotResponses
+  })
+  assert.equal(invalidations, 0)
+
+  applyFenceInvalidationToSites({
+    sites,
+    message: {
+      type: "anonymous-permission",
+      siteId: 6000005,
+      siteVersion: "12",
+      userVersion: "13"
+    },
+    clearHotResponses
+  })
+  assert.deepEqual(sites.get(6000005), {
+    publicContentFence: "7",
+    sitePermissionFence: "12",
+    userPermissionFence: "13"
+  })
+  assert.equal(invalidations, 1)
 })
 
 test("article response fence state tracks trusted local versions", () => {

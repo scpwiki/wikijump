@@ -1,3 +1,4 @@
+import { applyFenceInvalidationToSites } from "./fence-reducer.js"
 import { parsePermissionFence } from "./fence-values.js"
 
 /**
@@ -11,26 +12,6 @@ import { parsePermissionFence } from "./fence-values.js"
  * @property {string} publicContentFence
  * @property {string} permissionFence
  */
-/**
- * @typedef {object} PublicContentFenceMessage
- * @property {"public-content"} type
- * @property {number} siteId
- * @property {string} version
- */
-/**
- * @typedef {object} AnonymousPermissionFenceMessage
- * @property {"anonymous-permission"} type
- * @property {number} siteId
- * @property {string} siteVersion
- * @property {string} userVersion
- */
-/** @typedef {{ type: "user-permission" }} UserPermissionFenceMessage */
-/**
- * @typedef {PublicContentFenceMessage
- *   | AnonymousPermissionFenceMessage
- *   | UserPermissionFenceMessage} FenceInvalidationMessage
- */
-
 /** @param {{ clearHotResponses: () => void }} input */
 export const createArticleResponseFenceState = ({ clearHotResponses }) => {
   /** @type {Map<number, FenceSiteState>} */
@@ -80,35 +61,6 @@ export const createArticleResponseFenceState = ({ clearHotResponses }) => {
     return site
   }
 
-  /** @param {PublicContentFenceMessage} message */
-  const applyPublicContentMessage = (message) => {
-    fenceRevision += 1
-    const site = sites.get(message.siteId)
-    if (!site) {
-      clearHotResponses()
-      return
-    }
-    if (BigInt(message.version) <= BigInt(site.publicContentFence)) return
-    site.publicContentFence = message.version
-    clearHotResponses()
-  }
-
-  /** @param {AnonymousPermissionFenceMessage} message */
-  const applyAnonymousPermissionMessage = (message) => {
-    fenceRevision += 1
-    const site = sites.get(message.siteId)
-    if (!site) {
-      clearHotResponses()
-      return
-    }
-    const siteAdvanced = BigInt(message.siteVersion) > BigInt(site.sitePermissionFence)
-    const userAdvanced = BigInt(message.userVersion) > BigInt(site.userPermissionFence)
-    if (!siteAdvanced && !userAdvanced) return
-    site.sitePermissionFence = message.siteVersion
-    site.userPermissionFence = message.userVersion
-    clearHotResponses()
-  }
-
   return {
     isTrusted: () => trusted,
     revision: () => fenceRevision,
@@ -141,13 +93,14 @@ export const createArticleResponseFenceState = ({ clearHotResponses }) => {
       return trusted && sites.has(siteId)
     },
 
-    /** @param {FenceInvalidationMessage} message */
+    /**
+     * @param {Parameters<
+     *   typeof applyFenceInvalidationToSites
+     * >[0]["message"]} message
+     */
     applyMessage(message) {
-      if (message.type === "public-content") {
-        applyPublicContentMessage(message)
-      } else if (message.type === "anonymous-permission") {
-        applyAnonymousPermissionMessage(message)
-      }
+      if (message.type !== "user-permission") fenceRevision += 1
+      applyFenceInvalidationToSites({ sites, message, clearHotResponses })
     }
   }
 }
