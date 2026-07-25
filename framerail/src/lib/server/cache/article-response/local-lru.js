@@ -1,7 +1,26 @@
+/**
+ * @template T
+ * @typedef {object} LruEntry
+ * @property {T} value
+ * @property {number} expiresAt
+ * @property {number} bytes
+ */
+
+/**
+ * @template T
+ * @param {{
+ *   now: () => number
+ *   ttlMs: number
+ *   maxEntries: number
+ *   maxBytes: number
+ * }} options
+ */
 export const createByteLimitedLru = ({ now, ttlMs, maxEntries, maxBytes }) => {
+  /** @type {Map<string, LruEntry<T>>} */
   const entries = new Map()
   let totalBytes = 0
 
+  /** @param {string} key */
   const deleteEntry = (key) => {
     const entry = entries.get(key)
     if (!entry) return
@@ -9,6 +28,7 @@ export const createByteLimitedLru = ({ now, ttlMs, maxEntries, maxBytes }) => {
     entries.delete(key)
   }
 
+  /** @param {number} nowMs */
   const pruneExpired = (nowMs) => {
     for (const [key, entry] of entries) {
       if (entry.expiresAt <= nowMs) deleteEntry(key)
@@ -23,6 +43,10 @@ export const createByteLimitedLru = ({ now, ttlMs, maxEntries, maxBytes }) => {
     }
   }
 
+  /**
+   * @param {string} key
+   * @returns {T | null}
+   */
   const get = (key) => {
     const entry = entries.get(key)
     if (!entry) return null
@@ -37,6 +61,11 @@ export const createByteLimitedLru = ({ now, ttlMs, maxEntries, maxBytes }) => {
     return entry.value
   }
 
+  /**
+   * @param {string} key
+   * @param {T} value
+   * @param {number} bytes
+   */
   const insert = (key, value, bytes) => {
     const nowMs = now()
     pruneExpired(nowMs)

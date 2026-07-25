@@ -4,6 +4,13 @@ import { connect as tlsConnect } from "node:tls"
 const DEFAULT_REDIS_PORT = 6379
 const REDIS_CONNECT_TIMEOUT_MS = 1000
 
+/**
+ * @param {string} redisUrl
+ * @param {string} timeoutMessage
+ * @returns {Promise<
+ *   import("node:net").Socket | import("node:tls").TLSSocket
+ * >}
+ */
 export const connectRedisSocket = (redisUrl, timeoutMessage) =>
   new Promise((resolve, reject) => {
     const url = new URL(redisUrl)
@@ -28,6 +35,7 @@ export const connectRedisSocket = (redisUrl, timeoutMessage) =>
       cleanup()
       resolve(socket)
     }
+    /** @param {Error} error */
     const onError = (error) => {
       cleanup()
       socket.destroy()

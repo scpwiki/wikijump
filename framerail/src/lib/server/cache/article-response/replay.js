@@ -1,21 +1,84 @@
 import { isHeaderPair } from "./entry.js"
 import { serializedByteLength } from "./shared.js"
 
+/** @typedef {[string, string]} HeaderPair */
+/** @typedef {"br" | "gzip"} ReplayEncoding */
+/**
+ * @typedef {object} CachedArticleResponseEntry
+ * @property {number} status
+ * @property {HeaderPair[]} headers
+ * @property {string} body
+ */
+/**
+ * @typedef {object} ReplayVariantInput
+ * @property {HeaderPair[]} headers
+ * @property {Buffer} bodyBuffer
+ */
+/** @typedef {{ br?: ReplayVariantInput; gzip?: ReplayVariantInput }} ReplayVariantsInput */
+/**
+ * @typedef {object} ReplayInput
+ * @property {number} [status]
+ * @property {HeaderPair[]} [headers]
+ * @property {Buffer} [bodyBuffer]
+ * @property {ReplayVariantsInput} [variants]
+ * @property {boolean} [finalHeaders]
+ */
+/**
+ * @typedef {object} PreparedReplayVariant
+ * @property {ReadonlyArray<Readonly<HeaderPair>>} headers
+ * @property {ReadonlyArray<string>} nodeRawHeaders
+ * @property {Buffer} bodyBuffer
+ */
+/**
+ * @typedef {Readonly<
+ *   Partial<Record<ReplayEncoding, PreparedReplayVariant>>
+ * >} PreparedReplayVariants
+ */
+/**
+ * @typedef {object} PreparedReplay
+ * @property {number} status
+ * @property {ReadonlyArray<Readonly<HeaderPair>>} headers
+ * @property {ReadonlyArray<string>} nodeRawHeaders
+ * @property {Buffer} bodyBuffer
+ * @property {PreparedReplayVariants | undefined} variants
+ * @property {boolean} finalHeaders
+ */
+
+const REPLAY_ENCODINGS = /** @type {const} */ (["br", "gzip"])
+
+/**
+ * @param {HeaderPair[]} headers
+ * @returns {ReadonlyArray<Readonly<HeaderPair>>}
+ */
 const freezeHeaderEntries = (headers) => {
-  return Object.freeze(headers.map(([name, value]) => Object.freeze([name, value])))
+  return Object.freeze(
+    headers.map(([name, value]) =>
+      Object.freeze(/** @type {HeaderPair} */ ([name, value]))
+    )
+  )
 }
 
+/**
+ * @param {HeaderPair[]} headers
+ * @returns {ReadonlyArray<string>}
+ */
 const freezeNodeRawHeaders = (headers) => {
   return Object.freeze(headers.flatMap(([name, value]) => [name, value]))
 }
 
+/**
+ * @param {unknown} variants
+ * @returns {PreparedReplayVariants | null | undefined}
+ */
 const normalizeReplayVariants = (variants) => {
   if (variants === undefined) return undefined
   if (variants === null || typeof variants !== "object") return null
 
+  const replayVariants = /** @type {ReplayVariantsInput} */ (variants)
+  /** @type {Partial<Record<ReplayEncoding, PreparedReplayVariant>>} */
   const normalized = {}
-  for (const encoding of ["br", "gzip"]) {
-    const variant = variants[encoding]
+  for (const encoding of REPLAY_ENCODINGS) {
+    const variant = replayVariants[encoding]
     if (variant === undefined) continue
     if (
       !variant ||
@@ -36,6 +99,11 @@ const normalizeReplayVariants = (variants) => {
   return Object.freeze(normalized)
 }
 
+/**
+ * @param {CachedArticleResponseEntry} entry
+ * @param {ReplayInput | undefined} replay
+ * @returns {PreparedReplay | null}
+ */
 export const normalizeCachedArticleResponseReplay = (entry, replay) => {
   const status = replay?.status ?? entry.status
   const headers = replay?.headers ?? entry.headers
@@ -60,10 +128,15 @@ export const normalizeCachedArticleResponseReplay = (entry, replay) => {
   })
 }
 
+/**
+ * @param {PreparedReplayVariants | undefined} variants
+ * @returns {PreparedReplayVariants | undefined}
+ */
 const copyReplayVariants = (variants) => {
   if (variants === undefined) return undefined
+  /** @type {Partial<Record<ReplayEncoding, PreparedReplayVariant>>} */
   const copy = {}
-  for (const encoding of ["br", "gzip"]) {
+  for (const encoding of REPLAY_ENCODINGS) {
     const variant = variants[encoding]
     if (!variant) continue
     copy[encoding] = Object.freeze({
@@ -75,6 +148,10 @@ const copyReplayVariants = (variants) => {
   return Object.freeze(copy)
 }
 
+/**
+ * @param {PreparedReplay} replay
+ * @returns {PreparedReplay}
+ */
 export const copyCachedArticleResponseReplay = (replay) => {
   return Object.freeze({
     status: replay.status,
@@ -86,6 +163,11 @@ export const copyCachedArticleResponseReplay = (replay) => {
   })
 }
 
+/**
+ * @param {string} key
+ * @param {CachedArticleResponseEntry} entry
+ * @param {PreparedReplay | undefined} replay
+ */
 export const cachedArticleResponseEntryByteLength = (key, entry, replay) => {
   let bytes = serializedByteLength(key) + 8
   bytes += serializedByteLength(entry.body)

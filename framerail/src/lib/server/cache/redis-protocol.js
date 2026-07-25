@@ -1,5 +1,10 @@
 const CRLF = "\r\n"
 
+/** @typedef {string | number | null | unknown[]} RedisValue */
+/** @typedef {{ value: RedisValue; nextOffset: number }} ParsedRedisResponse */
+/** @typedef {{ value: string; nextOffset: number }} ParsedRedisLine */
+
+/** @param {(string | number)[]} parts */
 export const encodeRedisCommand = (parts) => {
   let command = `*${parts.length}${CRLF}`
   for (const part of parts) {
@@ -9,6 +14,11 @@ export const encodeRedisCommand = (parts) => {
   return command
 }
 
+/**
+ * @param {Buffer} buffer
+ * @param {number} offset
+ * @returns {ParsedRedisLine | null}
+ */
 const parseLine = (buffer, offset) => {
   const end = buffer.indexOf(CRLF, offset, "utf8")
   if (end === -1) return null
@@ -18,6 +28,11 @@ const parseLine = (buffer, offset) => {
   }
 }
 
+/**
+ * @param {Buffer} buffer
+ * @param {number} [offset]
+ * @returns {ParsedRedisResponse | null}
+ */
 export const parseRedisResponse = (buffer, offset = 0) => {
   if (offset >= buffer.length) return null
 
@@ -60,9 +75,11 @@ export const parseRedisResponse = (buffer, offset = 0) => {
       throw new Error("invalid Redis array length")
     }
 
+    /** @type {RedisValue[]} */
     const values = []
     let nextOffset = line.nextOffset
     for (let index = 0; index < length; index += 1) {
+      /** @type {ParsedRedisResponse | null} */
       const parsed = parseRedisResponse(buffer, nextOffset)
       if (!parsed) return null
       values.push(parsed.value)

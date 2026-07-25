@@ -1,3 +1,16 @@
+/** @typedef {[string, string]} HeaderPair */
+/**
+ * @typedef {object} CachedArticleResponseEntry
+ * @property {number} status
+ * @property {HeaderPair[]} headers
+ * @property {string} body
+ * @property {Buffer} [bodyBuffer]
+ */
+
+/**
+ * @param {unknown} value
+ * @returns {value is HeaderPair}
+ */
 export const isHeaderPair = (value) => {
   return (
     Array.isArray(value) &&
@@ -7,19 +20,27 @@ export const isHeaderPair = (value) => {
   )
 }
 
+/**
+ * @param {unknown} value
+ * @returns {value is CachedArticleResponseEntry}
+ */
 const isCachedArticleResponse = (value) => {
+  if (value === null || typeof value !== "object") return false
+  const candidate = /** @type {Partial<CachedArticleResponseEntry>} */ (value)
   return (
-    value !== null &&
-    typeof value === "object" &&
-    Number.isInteger(value.status) &&
-    value.status >= 200 &&
-    value.status <= 599 &&
-    Array.isArray(value.headers) &&
-    value.headers.every(isHeaderPair) &&
-    typeof value.body === "string"
+    Number.isInteger(candidate.status) &&
+    Number(candidate.status) >= 200 &&
+    Number(candidate.status) <= 599 &&
+    Array.isArray(candidate.headers) &&
+    candidate.headers.every(isHeaderPair) &&
+    typeof candidate.body === "string"
   )
 }
 
+/**
+ * @param {unknown} value
+ * @returns {CachedArticleResponseEntry | null}
+ */
 export const normalizeCachedArticleResponseEntry = (value) => {
   if (!isCachedArticleResponse(value)) return null
 
@@ -30,7 +51,12 @@ export const normalizeCachedArticleResponseEntry = (value) => {
   }
 }
 
+/**
+ * @param {CachedArticleResponseEntry} entry
+ * @returns {CachedArticleResponseEntry}
+ */
 export const copyCachedArticleResponseEntry = (entry) => {
+  /** @type {CachedArticleResponseEntry} */
   const copy = {
     status: entry.status,
     headers: entry.headers.map(([name, value]) => [name, value]),
