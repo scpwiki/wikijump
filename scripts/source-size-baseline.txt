@@ -1,2 +1,6 @@
 # Maximum grandfathered size for pre-existing files above the severe limit.
-22907 deepwell/src/services/render/service.rs
+# Ratchet-only: check-source-size.sh rejects additions and increases, so a
+# ceiling lowered here can never be raised again. Lower an entry whenever
+# extraction work frees room, and delete it once the file is under the
+# severe limit.
+5284 deepwell/src/services/render/service.rs
