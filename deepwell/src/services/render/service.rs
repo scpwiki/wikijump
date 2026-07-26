@@ -65,7 +65,7 @@ use super::include_attachment_owners::{
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::include_missing::{
     PreparedIncluder, collect_include_display_pages,
-    collect_missing_include_display_pages, expand_malformed_include_targets,
+    collect_missing_include_replacements, expand_malformed_include_targets,
     wikidot_no_such_include_replacement,
 };
 use super::include_variable_iftags::resolve_unbound_include_variable_iftags;
@@ -261,7 +261,7 @@ struct OuterPreparedRenderWikitext {
 }
 
 pub(super) const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
-const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
+pub(super) const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 // The frozen EN corpus contains a page with 1,266 direct includes. Only the
 // trusted corpus finalizer receives this higher ceiling; user-controlled
 // render paths retain the ordinary limit above.
@@ -1373,7 +1373,7 @@ impl RenderService {
         }
     }
 
-    async fn render_inner(
+    pub(super) async fn render_inner(
         ctx: &ServiceContext<'_>,
         wikitext: String,
         page_info: &PageInfo<'_>,
@@ -3382,17 +3382,18 @@ impl RenderService {
                 nested_included_pages.push(expansion.included_pages);
             }
 
-            let missing_display_pages = collect_missing_include_display_pages(
+            let missing_replacements = collect_missing_include_replacements(
                 &includes,
                 &fetched_pages,
                 &mut include_display_pages,
+                compat_text,
             );
             let (mut expanded, direct_included_pages) = ftml::include(
                 &wikitext,
                 expansion_context.settings,
                 PreparedIncluder {
                     pages: fetched_pages,
-                    missing_display_pages,
+                    missing_replacements,
                 },
                 include_error,
             )?;
@@ -4790,10 +4791,10 @@ fn corpus_replay_syntax_features(wikitext: &str) -> CorpusReplaySyntaxFeatures {
 }
 
 #[derive(Debug)]
-struct RenderInnerOutput {
-    html_output: HtmlOutput,
-    errors: Vec<ParseError>,
-    compiled_hash: TextHash,
+pub(super) struct RenderInnerOutput {
+    pub(super) html_output: HtmlOutput,
+    pub(super) errors: Vec<ParseError>,
+    pub(super) compiled_hash: TextHash,
 }
 
 #[derive(Debug)]
@@ -4891,6 +4892,7 @@ fn own_include_ref(include: &IncludeRef<'_>) -> IncludeRef<'static> {
         .collect::<VariableMap<'static>>();
 
     IncludeRef::new(include.page_ref().clone(), variables)
+        .with_spaced_empty_separator(include.has_spaced_empty_separator())
 }
 
 fn has_include_opening_candidate(content: &str) -> bool {

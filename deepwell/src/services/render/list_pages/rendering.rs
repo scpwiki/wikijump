@@ -205,15 +205,14 @@ impl RenderService {
             mut include_budget,
             url,
         } = options;
-        let (Some(current_site_id), Some(current_page_id)) =
-            (current_site_id, current_page_id)
-        else {
+        let Some(current_site_id) = current_site_id else {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
                 expanded_include_count: 0,
             });
         };
+        let current_page_id = current_page_id.unwrap_or(0);
 
         if !settings.enable_page_syntax {
             return Ok(IncludeExpansion {
@@ -643,11 +642,10 @@ impl RenderService {
             current_page_id,
             url,
         } = options;
-        let (Some(current_site_id), Some(current_page_id)) =
-            (current_site_id, current_page_id)
-        else {
+        let Some(current_site_id) = current_site_id else {
             return Ok(wikitext);
         };
+        let current_page_id = current_page_id.unwrap_or(0);
 
         if !settings.enable_page_syntax {
             return Ok(wikitext);
@@ -1069,7 +1067,7 @@ impl RenderService {
             page_id: current_page_id,
             url_page,
         } = page_context;
-        let ajax_module_response = current_page_id == 0;
+        let ajax_module_response = page_info.page.as_ref() == "_ajax-module-connector";
         let initial_remaining_include_expansions = include_budget.remaining;
         let ListPagesArguments {
             current_page_only,

@@ -399,7 +399,7 @@ test("runner keeps a static tabview match incomplete without browser evidence", 
   assert.equal(report.comparisons[0].status, "static-match-browser-required");
 });
 
-test("runner compares a runtime PagePreview fallback through a cleaned local page", async () => {
+test("runner compares a runtime PagePreview fallback without saving a local page", async () => {
   const caseValue = runtimeCase("preview-fallback");
   let inspectedPage = null;
   const report = await runGenericRuntimeDifferential({
@@ -408,10 +408,13 @@ test("runner compares a runtime PagePreview fallback through a cleaned local pag
     externalReferences: [externalReference(caseValue)],
     runtimeIdentity,
     adapter: {
-      async withCompiledPage(page, inspect) {
+      async withPreview(page, inspect) {
         inspectedPage = page;
         await inspect("<p>alpha</p>");
-        return {slug: page.slug, cleanup: {status: "removed"}};
+        return {
+          execution_context: "unsaved-page-preview",
+          cleanup: {status: "not-required"},
+        };
       },
     },
   });
@@ -424,7 +427,58 @@ test("runner compares a runtime PagePreview fallback through a cleaned local pag
   assert.equal(report.comparisons[0].identities.observation_tier, "page-preview");
   assert.equal(inspectedPage.source, caseValue.source);
   assert.match(inspectedPage.slug, /^run-owned:ftml-preview-[0-9a-f]{24}$/u);
-  assert.deepEqual(report.page_receipts[0].cleanup, {status: "removed"});
+  assert.equal(report.page_receipts[0].execution_context, "unsaved-page-preview");
+  assert.deepEqual(report.page_receipts[0].cleanup, {status: "not-required"});
+});
+
+test("Deepwell adapter renders an unsaved preview without page mutation", async () => {
+  const methods = [];
+  const fetchImpl = async (_url, options) => {
+    const request = JSON.parse(options.body);
+    methods.push(request.method);
+    let result;
+    if (request.method === "ping") result = "pong";
+    else if (request.method === "site_get") result = {site_id: 7};
+    else if (request.method === "login") result = {session_token: "token"};
+    else if (request.method === "user_get") result = {user_id: 9};
+    else if (request.method === "wikidot_page_preview") {
+      assert.deepEqual(request.params, {
+        site_id: 7,
+        title: "Preview",
+        wikitext: "[[module ListPages]]%%title%%[[/module]]",
+      });
+      result = {body: "<p>rendered</p>", styles: [".fixture{}"]};
+    } else {
+      throw new Error(`unexpected method: ${request.method}`);
+    }
+    return {ok: true, json: async () => ({jsonrpc: "2.0", id: request.id, result})};
+  };
+  const adapter = new DeepwellRpcAdapter({
+    rpcUrl: "http://127.0.0.1:2741/jsonrpc",
+    textBlockBaseUrl: "http://127.0.0.1:9000/deepwell-text-blocks/",
+    siteSlug: "sandbox-for-codex",
+    administratorEmail: "admin@example.test",
+    administratorPassword: "secret",
+    fetchImpl,
+  });
+  let inspected = null;
+  const source = "[[module ListPages]]%%title%%[[/module]]";
+  const receipt = await adapter.withPreview(
+    {
+      slug: "unused-preview-identity",
+      title: "Preview",
+      source,
+      source_sha256: sha256(source),
+    },
+    async (html) => {
+      inspected = html;
+    },
+  );
+  assert.equal(inspected, "<p>rendered</p>");
+  assert.equal(receipt.execution_context, "unsaved-page-preview");
+  assert.deepEqual(receipt.styles, [".fixture{}"]);
+  assert.ok(!methods.includes("page_create"));
+  assert.ok(!methods.includes("page_delete"));
 });
 
 test("runtime state diagnostics do not mistake deterministic file and email rendering for state", () => {

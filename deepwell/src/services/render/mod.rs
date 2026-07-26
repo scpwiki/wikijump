@@ -38,6 +38,7 @@ mod list_pages;
 mod literal_regions;
 mod metacomponent;
 mod native_list_context;
+mod page_preview;
 mod page_tree;
 mod pages;
 mod pages_by_tag;

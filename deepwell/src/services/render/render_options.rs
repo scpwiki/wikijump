@@ -106,4 +106,31 @@ impl RenderContext {
             text_block_page_id: None,
         }
     }
+
+    pub(super) fn page_preview(site_id: i64) -> Self {
+        Self {
+            current_site_id: Some(site_id),
+            current_category_id: None,
+            current_page_id: None,
+            text_block_page_id: None,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn page_preview_has_site_state_without_saved_page_identity() {
+        assert_eq!(
+            RenderContext::page_preview(7),
+            RenderContext {
+                current_site_id: Some(7),
+                current_category_id: None,
+                current_page_id: None,
+                text_block_page_id: None,
+            },
+        );
+    }
 }

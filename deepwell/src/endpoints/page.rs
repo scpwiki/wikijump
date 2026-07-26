@@ -63,6 +63,47 @@ pub struct WikidotListPagesModuleOutput {
     pub body: String,
 }
 
+#[derive(Deserialize)]
+struct WikidotPagePreviewInput {
+    site_id: i64,
+    title: String,
+    wikitext: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct WikidotPagePreviewOutput {
+    pub body: String,
+    pub styles: Vec<String>,
+}
+
+pub async fn wikidot_page_preview(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<WikidotPagePreviewOutput> {
+    let input: WikidotPagePreviewInput = parse!(params, Page);
+    let output = RenderService::render_wikidot_page_preview(
+        ctx,
+        input.site_id,
+        &input.title,
+        input.wikitext,
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            format!(
+                "failed to render Wikidot page preview in site ID {}",
+                input.site_id,
+            ),
+            ErrorType::Page,
+        )
+    })?;
+
+    Ok(WikidotPagePreviewOutput {
+        body: output.html_output.body,
+        styles: output.html_output.styles,
+    })
+}
+
 pub async fn wikidot_list_pages_module(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,

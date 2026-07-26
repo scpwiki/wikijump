@@ -549,7 +549,7 @@ export async function runGenericRuntimeDifferential({
     const runtimeCase = selection.casesById.get(caseId);
     const slug = `run-owned:ftml-preview-${runtimeCase.source_sha256.slice(0, 24)}`;
     try {
-      const receipt = await adapter.withCompiledPage(
+      const receipt = await adapter.withPreview(
         {
           slug,
           title: reference.syntax_case.title,
@@ -1007,6 +1007,32 @@ export class DeepwellRpcAdapter {
       revision_id: inspected.revision_id,
       html_blocks: htmlBlockEvidence.blocks,
       cleanup,
+    };
+  }
+
+  async withPreview(page, inspect) {
+    await this.connect();
+    if (sha256(page.source) !== page.source_sha256) {
+      throw new Error(`local runtime source identity changed: ${page.slug}`);
+    }
+    const preview = await this.rpc(
+      'wikidot_page_preview',
+      {
+        site_id: this.connection.siteId,
+        title: page.title,
+        wikitext: page.source,
+      },
+      this.context(''),
+    );
+    if (!preview || typeof preview.body !== 'string' || !Array.isArray(preview.styles)) {
+      throw new Error(`local runtime preview returned no rendered body: ${page.slug}`);
+    }
+    await inspect(preview.body);
+    return {
+      source_sha256: page.source_sha256,
+      execution_context: 'unsaved-page-preview',
+      styles: preview.styles,
+      cleanup: {status: 'not-required'},
     };
   }
 
