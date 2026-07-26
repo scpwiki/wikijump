@@ -205,6 +205,191 @@ export function externalStateReasons(source) {
   return reasons;
 }
 
+function attribute(node, name) {
+  return node.attrs?.find((entry) => entry.name === name)?.value ?? null;
+}
+
+function hasClass(node, className) {
+  return attribute(node, 'class')?.split(/\s+/u).includes(className) ?? false;
+}
+
+function isTabviewRoot(node) {
+  return node?.type === 'element' && node.name === 'div' && hasClass(node, 'yui-navset');
+}
+
+function tabviewId(node) {
+  if (!isTabviewRoot(node)) return null;
+  const id = attribute(node, 'id');
+  return /^wiki-tabview-[0-9a-f]{32}$/u.test(id ?? '') ? id : null;
+}
+
+function knownTabviewLoader(node) {
+  if (node.type !== 'element' || node.name !== 'script' || node.children.length !== 0) {
+    return false;
+  }
+  const attrs = new Map(node.attrs.map((entry) => [entry.name, entry.value]));
+  if (
+    attrs.size !== 2 ||
+    attrs.get('type') !== 'text/javascript' ||
+    typeof attrs.get('src') !== 'string'
+  ) {
+    return false;
+  }
+  let url;
+  try {
+    url = new URL(attrs.get('src'));
+  } catch {
+    return false;
+  }
+  return (
+    ['http:', 'https:'].includes(url.protocol) &&
+    url.hostname === 'd3g0gp89917ko0.cloudfront.net' &&
+    /^\/v--[0-9a-f]+\/common--javascript\/yahooui\/tabview-min\.js$/u.test(url.pathname) &&
+    url.search === '' &&
+    url.hash === ''
+  );
+}
+
+function knownTabviewInitializer(node) {
+  if (
+    node.type !== 'element' ||
+    node.name !== 'script' ||
+    node.children.length !== 1 ||
+    node.children[0].type !== 'text'
+  ) {
+    return null;
+  }
+  const attrs = new Map(node.attrs.map((entry) => [entry.name, entry.value]));
+  if (attrs.size !== 1 || attrs.get('type') !== 'text/javascript') return null;
+  const match = /^\s*\/\/<!\[CDATA\[\s*OZONE\.dom\.onDomReady\(function\(\)\{\s*var tabView(?<nonce>[0-9a-f]{32}) = new YAHOO\.widget\.TabView\('wiki-tabview-\k<nonce>'\);\s*\}, "dummy-ondomready-block"\);\s*\/\/\]\]>\s*$/u.exec(
+    node.children[0].value,
+  );
+  if (!match) return null;
+  return `wiki-tabview-${match.groups.nonce}`;
+}
+
+function knownWikijumpTabviewPlaceholder(node) {
+  if (
+    node.type === 'comment' &&
+    node.value.trim() === 'Wikidot tabview bootstrap omitted'
+  ) {
+    return 'placeholder';
+  }
+  if (node.type !== 'element' || node.name !== 'script' || node.children.length !== 0) {
+    return null;
+  }
+  const attrs = new Map(node.attrs.map((entry) => [entry.name, entry.value]));
+  return attrs.size === 1 && attrs.get('type') === 'text/javascript'
+    ? 'inert-script'
+    : null;
+}
+
+function collectTabviewIds(nodes, ids = new Set()) {
+  for (const node of nodes) {
+    const id = tabviewId(node);
+    if (id) ids.add(id);
+    collectTabviewIds(node.children ?? [], ids);
+  }
+  return ids;
+}
+
+function tabviewProjection(dom) {
+  const ids = collectTabviewIds(dom);
+  const idTokens = new Map();
+  const initialized = new Set();
+  const transport = {loaders: 0, initializers: 0, placeholders: 0, inert_scripts: 0};
+  let invalidTransport = false;
+
+  const projectNodes = (nodes) => {
+    const projected = [];
+    for (let index = 0; index < nodes.length; index += 1) {
+      const node = nodes[index];
+      const nextIsTabview = tabviewId(nodes[index + 1]) !== null;
+      const previousTabviewId = tabviewId(nodes[index - 1]);
+      const previousIsTabview = previousTabviewId !== null;
+      if (knownTabviewLoader(node) && nextIsTabview) {
+        transport.loaders += 1;
+        continue;
+      }
+      const initializerId = knownTabviewInitializer(node);
+      if (initializerId) {
+        if (!ids.has(initializerId) || initialized.has(initializerId)) {
+          invalidTransport = true;
+        } else {
+          initialized.add(initializerId);
+          transport.initializers += 1;
+          continue;
+        }
+      }
+      const placeholder = knownWikijumpTabviewPlaceholder(node);
+      if (placeholder && (nextIsTabview || previousIsTabview)) {
+        transport[placeholder === 'placeholder' ? 'placeholders' : 'inert_scripts'] += 1;
+        continue;
+      }
+      if (node.name === 'script' || node.type === 'comment') {
+        invalidTransport = true;
+      }
+
+      if (node.type !== 'element') {
+        projected.push(node);
+        continue;
+      }
+      const id = tabviewId(node);
+      const attrs = node.attrs.map((entry) => {
+        if (entry.name !== 'id' || !id) return entry;
+        if (!idTokens.has(id)) {
+          idTokens.set(id, `wiki-tabview-instance-${idTokens.size}`);
+        }
+        return {...entry, value: idTokens.get(id)};
+      });
+      projected.push({
+        ...node,
+        attrs,
+        children: projectNodes(node.children),
+      });
+    }
+    return projected;
+  };
+
+  const projected = projectNodes(dom);
+  const roots = [];
+  const collectRoots = (nodes, insideTabview = false) => {
+    for (const node of nodes) {
+      const tabview = isTabviewRoot(node);
+      if (tabview && !insideTabview) {
+        roots.push(node);
+        continue;
+      }
+      collectRoots(node.children ?? [], insideTabview || tabview);
+    }
+  };
+  collectRoots(projected);
+  return {roots, tabviewCount: ids.size, transport, invalidTransport};
+}
+
+function tabviewTransportStatus(wikidot, wikijump) {
+  if (wikidot.invalidTransport || wikijump.invalidTransport) return 'mismatch';
+  const completeYui = (value) =>
+    value.transport.loaders === value.tabviewCount &&
+    value.transport.initializers === value.tabviewCount &&
+    value.transport.placeholders === 0 &&
+    value.transport.inert_scripts === 0;
+  const completePlaceholder = (value) =>
+    value.transport.loaders === 0 &&
+    value.transport.initializers === 0 &&
+    value.transport.placeholders + value.transport.inert_scripts === value.tabviewCount;
+  if (completeYui(wikidot) && completePlaceholder(wikijump)) {
+    return 'expected-platform-substitution';
+  }
+  if (
+    (completeYui(wikidot) && completeYui(wikijump)) ||
+    (completePlaceholder(wikidot) && completePlaceholder(wikijump))
+  ) {
+    return 'match';
+  }
+  return 'mismatch';
+}
+
 export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
   const wikidotDom = canonicalDom(wikidotHtml);
   const wikijumpDom = canonicalDom(wikijumpHtml);
@@ -212,6 +397,46 @@ export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
   const wikijumpText = visibleText(wikijumpHtml);
   const domMatches = JSON.stringify(wikidotDom) === JSON.stringify(wikijumpDom);
   const textMatches = wikidotText === wikijumpText;
+  const hasTabview = /\[\[(?:tabs|tabview)(?:\s|\])/iu.test(runtimeCase.source);
+  const wikidotTabview = hasTabview ? tabviewProjection(wikidotDom) : null;
+  const wikijumpTabview = hasTabview ? tabviewProjection(wikijumpDom) : null;
+  const tabviewStaticMatches = hasTabview &&
+    wikidotTabview.roots.length > 0 &&
+    JSON.stringify(wikidotTabview.roots) === JSON.stringify(wikijumpTabview.roots);
+  const tabviewTransport = hasTabview
+    ? tabviewTransportStatus(wikidotTabview, wikijumpTabview)
+    : null;
+  const tabviewChecks = hasTabview
+    ? {
+        tabview_static_contract: {
+          status: tabviewStaticMatches ? 'match' : 'mismatch',
+          tabview_count: wikidotTabview.tabviewCount,
+        },
+        tabview_bootstrap_transport: {
+          status: tabviewTransport,
+          wikidot: wikidotTabview.transport,
+          wikijump: wikijumpTabview.transport,
+        },
+        tabview_activation_contract: {status: 'not-run'},
+      }
+    : {};
+  if (
+    hasTabview &&
+    tabviewStaticMatches &&
+    textMatches &&
+    ['match', 'expected-platform-substitution'].includes(tabviewTransport)
+  ) {
+    return {
+      case_id: runtimeCase.case_id,
+      status: 'static-match-browser-required',
+      checks: {
+        dom_tree: {status: domMatches ? 'match' : 'mismatch'},
+        visible_text: {status: 'match', wikidot: wikidotText, wikijump: wikijumpText},
+        ...tabviewChecks,
+      },
+      diagnostic: {wikidot_html: wikidotHtml, wikijump_html: wikijumpHtml},
+    };
+  }
   if (domMatches && textMatches) {
     return {
       case_id: runtimeCase.case_id,
@@ -219,6 +444,7 @@ export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
       checks: {
         dom_tree: {status: 'match'},
         visible_text: {status: 'match', wikidot: wikidotText, wikijump: wikijumpText},
+        ...tabviewChecks,
       },
     };
   }
@@ -234,6 +460,7 @@ export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
         wikidot: wikidotText,
         wikijump: wikijumpText,
       },
+      ...tabviewChecks,
     },
     diagnostic: {wikidot_html: wikidotHtml, wikijump_html: wikijumpHtml},
   };
@@ -356,8 +583,13 @@ export async function runGenericRuntimeDifferential({
   const count = (status) => comparisons.filter((value) => value.status === status).length;
   const summary = {
     total: selection.cases.length,
-    compared: count('match') + count('state-precondition-mismatch') + count('true-mismatch'),
+    compared:
+      count('match') +
+      count('static-match-browser-required') +
+      count('state-precondition-mismatch') +
+      count('true-mismatch'),
     match: count('match'),
+    static_match_browser_required: count('static-match-browser-required'),
     external_reference: count('external-reference'),
     acquisition_failed: count('acquisition-failed'),
     state_precondition_mismatch: count('state-precondition-mismatch'),
@@ -366,6 +598,7 @@ export async function runGenericRuntimeDifferential({
   };
   const status =
     summary.acquisition_failed === 0 &&
+    summary.static_match_browser_required === 0 &&
     summary.state_precondition_mismatch === 0 &&
     summary.true_mismatch === 0 &&
     summary.runtime_error === 0

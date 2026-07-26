@@ -191,6 +191,185 @@ test("fragment comparison never hides mismatches behind inferred state precondit
   assert.equal(mismatch.status, "true-mismatch");
 });
 
+function liveTabview(id, {
+  secondClass = "",
+  secondDisplay = "display:none",
+  secondPanel = "Second panel",
+  secondPanelHtml = null,
+  initializerId = id,
+  initializerSuffix = "",
+} = {}) {
+  const nonce = initializerId.slice("wiki-tabview-".length);
+  return [
+    '<script src="http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/yahooui/tabview-min.js" type="text/javascript"></script>',
+    `<div class="yui-navset" id="${id}">`,
+    '<ul class="yui-nav">',
+    '<li class="selected"><a href="javascript:;"><em>First</em></a></li>',
+    `<li${secondClass}><a href="javascript:;"><em>Second</em></a></li>`,
+    "</ul>",
+    '<div class="yui-content">',
+    '<div><p>First panel</p></div>',
+    `<div style="${secondDisplay}">${secondPanelHtml ?? `<p>${secondPanel}</p>`}</div>`,
+    "</div>",
+    "</div>",
+    '<script type="text/javascript">',
+    "//<![CDATA[",
+    "OZONE.dom.onDomReady(function(){",
+    `        var tabView${nonce} = new YAHOO.widget.TabView('${initializerId}');`,
+    '                }, "dummy-ondomready-block");',
+    initializerSuffix,
+    "//]]>",
+    "</script>",
+  ].join("\n");
+}
+
+function localTabview(id, {
+  secondClass = "",
+  secondDisplay = "display:none",
+  secondPanel = "Second panel",
+  secondPanelHtml = null,
+} = {}) {
+  return [
+    "<!-- Wikidot tabview bootstrap omitted -->",
+    `<div id="${id}" class="yui-navset">`,
+    '<ul class="yui-nav">',
+    '<li class="selected"><a href="javascript:;"><em>First</em></a></li>',
+    `<li${secondClass}><a href="javascript:;"><em>Second</em></a></li>`,
+    "</ul>",
+    '<div class="yui-content">',
+    '<div><p>First panel</p></div>',
+    `<div style="${secondDisplay}">${secondPanelHtml ?? `<p>${secondPanel}</p>`}</div>`,
+    "</div>",
+    "</div>",
+  ].join("\n");
+}
+
+test("tabview projection separates volatile bootstrap transport from static DOM", () => {
+  const wikidotId = `wiki-tabview-${"a".repeat(32)}`;
+  const wikijumpId = `wiki-tabview-${"b".repeat(32)}`;
+  const comparison = compareRuntimeFragment(
+    runtimeCase("tabview", "[[tabview]]"),
+    liveTabview(wikidotId),
+    localTabview(wikijumpId),
+  );
+
+  assert.equal(comparison.status, "static-match-browser-required");
+  assert.equal(comparison.checks.dom_tree.status, "mismatch");
+  assert.equal(comparison.checks.tabview_static_contract.status, "match");
+  assert.equal(comparison.checks.tabview_static_contract.tabview_count, 1);
+  assert.equal(
+    comparison.checks.tabview_bootstrap_transport.status,
+    "expected-platform-substitution",
+  );
+  assert.equal(comparison.checks.tabview_activation_contract.status, "not-run");
+});
+
+test("tabview projection keeps selected state, display, content, and identity uniqueness visible", () => {
+  const wikidotId = `wiki-tabview-${"a".repeat(32)}`;
+  const wikijumpId = `wiki-tabview-${"b".repeat(32)}`;
+  const variants = [
+    localTabview(wikijumpId, {secondClass: ' class="selected"'}),
+    localTabview(wikijumpId, {secondDisplay: "display:block"}),
+    localTabview(wikijumpId, {secondPanel: "Changed panel"}),
+    `${localTabview(wikijumpId)}${localTabview(wikijumpId)}`,
+  ];
+
+  for (const html of variants) {
+    const comparison = compareRuntimeFragment(
+      runtimeCase("tabview", "[[tabview]]"),
+      liveTabview(wikidotId),
+      html,
+    );
+    assert.equal(comparison.status, "true-mismatch");
+    assert.equal(comparison.checks.tabview_static_contract.status, "mismatch");
+  }
+});
+
+test("tabview projection preserves nested ownership", () => {
+  const wikidotOuter = `wiki-tabview-${"a".repeat(32)}`;
+  const wikidotInner = `wiki-tabview-${"b".repeat(32)}`;
+  const wikijumpOuter = `wiki-tabview-${"c".repeat(32)}`;
+  const wikijumpInner = `wiki-tabview-${"d".repeat(32)}`;
+  const wikidot = liveTabview(wikidotOuter, {
+    secondPanelHtml: liveTabview(wikidotInner),
+  });
+  const localNested = localTabview(wikijumpOuter, {
+    secondPanelHtml: localTabview(wikijumpInner),
+  });
+  const matching = compareRuntimeFragment(
+    runtimeCase("nested-tabview", "[[tabview]][[tabview]]"),
+    wikidot,
+    localNested,
+  );
+  assert.equal(
+    matching.status,
+    "static-match-browser-required",
+    JSON.stringify(matching, null, 2),
+  );
+  assert.equal(matching.checks.tabview_static_contract.status, "match");
+  assert.equal(matching.checks.tabview_static_contract.tabview_count, 2);
+
+  const moved = compareRuntimeFragment(
+    runtimeCase("nested-tabview", "[[tabview]][[tabview]]"),
+    wikidot,
+    `${localTabview(wikijumpOuter)}${localTabview(wikijumpInner)}`,
+  );
+  assert.equal(moved.status, "true-mismatch");
+  assert.equal(moved.checks.tabview_static_contract.status, "mismatch");
+});
+
+test("tabview projection rejects unknown or incorrectly bound initializer scripts", () => {
+  const wikidotId = `wiki-tabview-${"a".repeat(32)}`;
+  const wikijumpId = `wiki-tabview-${"b".repeat(32)}`;
+  const wrongId = `wiki-tabview-${"c".repeat(32)}`;
+  const missingLoader = liveTabview(wikidotId).replace(
+    /^<script src="[^"]+" type="text\/javascript"><\/script>\n/u,
+    "",
+  );
+  for (const html of [
+    liveTabview(wikidotId, {initializerId: wrongId}),
+    liveTabview(wikidotId, {initializerSuffix: "alert('unexpected');"}),
+    missingLoader,
+    `${liveTabview(wikidotId)}<script type="text/javascript"></script>`,
+  ]) {
+    const comparison = compareRuntimeFragment(
+      runtimeCase("tabview", "[[tabview]]"),
+      html,
+      localTabview(wikijumpId),
+    );
+    assert.equal(comparison.status, "true-mismatch");
+    assert.equal(comparison.checks.tabview_bootstrap_transport.status, "mismatch");
+  }
+});
+
+test("runner keeps a static tabview match incomplete without browser evidence", async () => {
+  const caseValue = runtimeCase("tabview-browser-required", "[[tabview]]");
+  const wikidotId = `wiki-tabview-${"a".repeat(32)}`;
+  const wikijumpId = `wiki-tabview-${"b".repeat(32)}`;
+  const saved = capture(caseValue, {fragment: liveTabview(wikidotId)});
+  const marker = saved.page_plan.cases[0];
+  const compiled =
+    `<div id="page-content"><p>${marker.marker_begin}</p>${localTabview(wikijumpId)}` +
+    `<p>${marker.marker_end}</p></div>`;
+  const report = await runGenericRuntimeDifferential({
+    cases: [caseValue],
+    captureFiles: [{path: "captures.jsonl", captures: [saved]}],
+    externalReferences: [],
+    runtimeIdentity,
+    adapter: {
+      async withCompiledPage(page, inspect) {
+        await inspect(compiled);
+        return {slug: page.slug, cleanup: {status: "removed"}};
+      },
+    },
+  });
+
+  assert.equal(report.status, "incomplete");
+  assert.equal(report.summary.compared, 1);
+  assert.equal(report.summary.static_match_browser_required, 1);
+  assert.equal(report.comparisons[0].status, "static-match-browser-required");
+});
+
 test("runtime state diagnostics do not mistake deterministic file and email rendering for state", () => {
   assert.deepEqual(externalStateReasons("[[include component:card]]"), ["include-target-state"]);
   assert.deepEqual(externalStateReasons("[[include :scp-wiki:component:card]]"), [
