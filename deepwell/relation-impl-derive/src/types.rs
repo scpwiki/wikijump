@@ -34,7 +34,7 @@ impl GenerateMethod {
         }
     }
 
-    pub fn into_vis_and_suffix(self) -> Option<(Visibility, &'static str)> {
+    pub fn vis_and_suffix(self) -> Option<(Visibility, &'static str)> {
         match self {
             GenerateMethod::Public => Some((public(), "")),
             GenerateMethod::Private => Some((private(), "_inner")),
