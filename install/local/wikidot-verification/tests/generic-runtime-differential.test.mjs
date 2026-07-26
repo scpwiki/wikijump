@@ -140,6 +140,19 @@ test("capture validation rejects a changed saved source", () => {
   );
 });
 
+test("capture validation rejects an isolated runtime case on a shared page", () => {
+  const isolated = {...runtimeCase("isolated"), page_scope: "isolated"};
+  const companion = runtimeCase("companion");
+  const shared = combinedCapture([isolated, companion]);
+  assert.throws(
+    () => selectLatestSuccessfulCaptures(
+      [isolated, companion],
+      [{path: "invalid.jsonl", captures: [shared]}],
+    ),
+    /isolated runtime case shares a page: isolated/u,
+  );
+});
+
 test("fragment comparison never hides mismatches behind inferred state preconditions", () => {
   const matching = compareRuntimeFragment(runtimeCase("match"), "<p>alpha</p>", "<p>alpha</p>");
   assert.equal(matching.status, "match");

@@ -52,18 +52,11 @@ function caseId(relativePath) {
 
 export function classifyFixture(relativePath, source, siblingNames = new Set()) {
   if (relativePath === 'test/include/elements/input.ftml') {
-    return {execution_class: 'not-applicable', reasons: ['ftml-only-include-elements']};
-  }
-  const moduleNames = [...source.matchAll(/\[\[\s*module\s+([A-Za-z][A-Za-z0-9_-]*)/giu)]
-    .map((match) => match[1].toLowerCase());
-  if (
-    RUNTIME_PATTERNS.some((pattern) => pattern.test(source)) ||
-    moduleNames.some((name) => name !== 'css')
-  ) {
-    return {execution_class: 'wikijump-runtime', reasons: ['page-or-site-runtime']};
-  }
-  if (moduleNames.length > 0) {
-    return {execution_class: 'page-preview-isolated', reasons: ['context-free-css-module']};
+    return {
+      execution_class: 'not-applicable',
+      page_scope: 'batch-safe',
+      reasons: ['ftml-only-include-elements'],
+    };
   }
   const pathRequiresIsolation = /(?:^|\/)(?:fail|revert|malformed[^/]*|wikidot-invalid)(?:\/|$)/u.test(relativePath);
   const sourceRequiresIsolation =
@@ -73,13 +66,41 @@ export function classifyFixture(relativePath, source, siblingNames = new Set()) 
     /(?:^|\n)(?:\+{1,6}\s|>{1,}\s?|\*+\s|#+\s|\|)/u.test(source) ||
     /(?:^|\n).+_\s*$/u.test(source) ||
     /\\\n?$/u.test(source);
-  if (pathRequiresIsolation || siblingNames.has('errors.json') || sourceRequiresIsolation) {
-    const reasons = [];
-    if (pathRequiresIsolation || siblingNames.has('errors.json')) reasons.push('malformed-or-recovery');
-    if (sourceRequiresIsolation) reasons.push('position-or-boundary-sensitive');
-    return {execution_class: 'page-preview-isolated', reasons};
+  const isolationReasons = [];
+  if (pathRequiresIsolation || siblingNames.has('errors.json')) isolationReasons.push('malformed-or-recovery');
+  if (sourceRequiresIsolation) isolationReasons.push('position-or-boundary-sensitive');
+  const pageScope = isolationReasons.length > 0 ? 'isolated' : 'batch-safe';
+  const moduleNames = [...source.matchAll(/\[\[\s*module\s+([A-Za-z][A-Za-z0-9_-]*)/giu)]
+    .map((match) => match[1].toLowerCase());
+  if (
+    RUNTIME_PATTERNS.some((pattern) => pattern.test(source)) ||
+    moduleNames.some((name) => name !== 'css')
+  ) {
+    return {
+      execution_class: 'wikijump-runtime',
+      page_scope: pageScope,
+      reasons: ['page-or-site-runtime', ...isolationReasons],
+    };
   }
-  return {execution_class: 'saved-page-batch', reasons: ['conservative-static-pack-safe']};
+  if (moduleNames.length > 0) {
+    return {
+      execution_class: 'page-preview-isolated',
+      page_scope: 'isolated',
+      reasons: ['context-free-css-module'],
+    };
+  }
+  if (pathRequiresIsolation || siblingNames.has('errors.json') || sourceRequiresIsolation) {
+    return {
+      execution_class: 'page-preview-isolated',
+      page_scope: 'isolated',
+      reasons: isolationReasons,
+    };
+  }
+  return {
+    execution_class: 'saved-page-batch',
+    page_scope: 'batch-safe',
+    reasons: ['conservative-static-pack-safe'],
+  };
 }
 
 export function collectFtmlFixtureCases(ftmlRoot) {
@@ -144,7 +165,11 @@ export function collectFtmlRecordedCases(recordPaths) {
       const sourceBytes = Buffer.byteLength(record.source);
       let classification =
         sourceCharacters > 160_000 || sourceBytes > 500_000
-          ? {execution_class: 'not-applicable', reasons: ['exceeds-wikidot-single-page-limit']}
+          ? {
+              execution_class: 'not-applicable',
+              page_scope: 'isolated',
+              reasons: ['exceeds-wikidot-single-page-limit'],
+            }
           : classifyFixture(`record/${record.test_name ?? 'unnamed'}/input.ftml`, record.source);
       if (
         classification.execution_class === 'saved-page-batch' &&
@@ -152,6 +177,7 @@ export function collectFtmlRecordedCases(recordPaths) {
       ) {
         classification = {
           execution_class: 'page-preview-isolated',
+          page_scope: 'isolated',
           reasons: ['exceeds-observed-safe-batch-size'],
         };
       }
@@ -208,18 +234,31 @@ export function buildSavedPagePlans(cases, options = {}) {
   let currentLength = 0;
   for (const [index, value] of batchCases.entries()) {
     const embedded = embeddedCaseSource(value, nonce, index + 1);
-    const separatorLength = current.length === 0 ? 0 : 2;
     const embeddedLength = codePointLength(embedded.source);
     if (embeddedLength > hardCharacters) {
-      throw new Error(`one batch-safe case exceeds the hard page limit: ${value.case_id}`);
+      throw new Error(`one case exceeds the hard page limit: ${value.case_id}`);
     }
+    const plannedCase = {
+      ...value,
+      marker_begin: embedded.begin,
+      marker_end: embedded.end,
+      embedded_source: embedded.source,
+    };
+    if (value.page_scope === 'isolated') {
+      if (current.length > 0) pages.push(current);
+      pages.push([plannedCase]);
+      current = [];
+      currentLength = 0;
+      continue;
+    }
+    const separatorLength = current.length === 0 ? 0 : 2;
     if (current.length > 0 && currentLength + separatorLength + embeddedLength > targetCharacters) {
       pages.push(current);
       current = [];
       currentLength = 0;
     }
-    current.push({...value, marker_begin: embedded.begin, marker_end: embedded.end, embedded_source: embedded.source});
-    currentLength += separatorLength + embeddedLength;
+    current.push(plannedCase);
+    currentLength += (current.length === 1 ? 0 : separatorLength) + embeddedLength;
   }
   if (current.length > 0) pages.push(current);
   return pages.map((pageCases, pageIndex) => {
@@ -257,6 +296,7 @@ export function isolateBatchInteractions(cases, verification) {
       ? {
           ...value,
           execution_class: 'page-preview-isolated',
+          page_scope: 'isolated',
           reasons: ['measured-batch-context-interaction'],
         }
       : value,

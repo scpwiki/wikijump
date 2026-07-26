@@ -16,7 +16,14 @@ import {extractMarkedFragments} from '../scripts/verify-ftml-live-pages.mjs';
 import {compareFragment} from '../scripts/compare-wikidot-live-pages.mjs';
 
 test('fixture classification separates pack-safe, isolated, runtime, and FTML-only cases', () => {
-  assert.equal(classifyFixture('test/bold/basic/input.ftml', '**alpha**').execution_class, 'saved-page-batch');
+  assert.deepEqual(
+    classifyFixture('test/bold/basic/input.ftml', '**alpha**'),
+    {
+      execution_class: 'saved-page-batch',
+      page_scope: 'batch-safe',
+      reasons: ['conservative-static-pack-safe'],
+    },
+  );
   assert.equal(
     classifyFixture('test/code/basic/input.ftml', '[[code]]\nalpha\n[[/code]]').execution_class,
     'page-preview-isolated',
@@ -80,6 +87,22 @@ test('fixture classification separates pack-safe, isolated, runtime, and FTML-on
   assert.equal(
     classifyFixture('test/module/rate/input.ftml', '[[module Rate]]').execution_class,
     'wikijump-runtime',
+  );
+  assert.equal(
+    classifyFixture('record/toc/input.ftml', '[[toc]]\n+ Heading\n[[[target-page]]]').page_scope,
+    'isolated',
+  );
+  assert.equal(
+    classifyFixture('record/footnote/input.ftml', '[[footnote]][[module Rate]][[/footnote]]').page_scope,
+    'isolated',
+  );
+  assert.equal(
+    classifyFixture('record/comment/input.ftml', '[!--[[include]]--]visible').page_scope,
+    'isolated',
+  );
+  assert.equal(
+    classifyFixture('test/module/rate/input.ftml', '[[module Rate]]').page_scope,
+    'batch-safe',
   );
   assert.equal(
     classifyFixture('test/include/elements/input.ftml', '[[include-elements x]]').execution_class,
@@ -201,6 +224,49 @@ test('page builder can select runtime cases for saved-page observation', () => {
   });
   assert.equal(pages.length, 1);
   assert.deepEqual(pages[0].cases.map((value) => value.case_id), ['runtime']);
+});
+
+test('page builder keeps isolated runtime cases on singleton pages', () => {
+  const cases = [
+    {
+      case_id: 'safe-before',
+      source: '[[module Rate]]',
+      source_sha256: '1'.repeat(64),
+      execution_class: 'wikijump-runtime',
+      page_scope: 'batch-safe',
+    },
+    {
+      case_id: 'isolated',
+      source: '[[toc]]\n+ Heading\n[[[target-page]]]',
+      source_sha256: '2'.repeat(64),
+      execution_class: 'wikijump-runtime',
+      page_scope: 'isolated',
+    },
+    {
+      case_id: 'safe-after-one',
+      source: '[[module Rate]]',
+      source_sha256: '3'.repeat(64),
+      execution_class: 'wikijump-runtime',
+      page_scope: 'batch-safe',
+    },
+    {
+      case_id: 'safe-after-two',
+      source: '[[module Rate]]',
+      source_sha256: '4'.repeat(64),
+      execution_class: 'wikijump-runtime',
+      page_scope: 'batch-safe',
+    },
+  ];
+  const pages = buildSavedPagePlans(cases, {
+    executionClass: 'wikijump-runtime',
+    slugPrefix: 'run-owned:ftml-diff-20260726',
+    targetCharacters: 8_000,
+    hardCharacters: 9_000,
+  });
+  assert.deepEqual(
+    pages.map((page) => page.cases.map((value) => value.case_id)),
+    [['safe-before'], ['isolated'], ['safe-after-one', 'safe-after-two']],
+  );
 });
 
 test('failed preview retry builder keeps only pages with missing markers', () => {

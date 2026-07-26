@@ -19,7 +19,8 @@ function validateCase(value) {
     value?.schema !== LIVE_CASE_SCHEMA ||
     typeof value.case_id !== 'string' ||
     typeof value.source !== 'string' ||
-    value.execution_class !== 'wikijump-runtime'
+    value.execution_class !== 'wikijump-runtime' ||
+    (value.page_scope != null && !['batch-safe', 'isolated'].includes(value.page_scope))
   ) {
     throw new Error('runtime case is invalid');
   }
@@ -69,6 +70,9 @@ function validateCapture(value, casesById) {
   for (const marker of page.cases) {
     const runtimeCase = casesById.get(marker.case_id);
     if (!runtimeCase) continue;
+    if (runtimeCase.page_scope === 'isolated' && page.cases.length !== 1) {
+      throw new Error(`isolated runtime case shares a page: ${marker.case_id}`);
+    }
     assertSha(marker.source_sha256, `page case source hash for ${marker.case_id}`);
     if (marker.source_sha256 !== runtimeCase.source_sha256) {
       throw new Error(`page case source identity changed: ${marker.case_id}`);
