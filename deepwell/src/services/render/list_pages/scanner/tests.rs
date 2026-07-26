@@ -1367,6 +1367,42 @@ fn list_pages_scanner_keeps_completed_matches_before_an_unclosed_body() {
 }
 
 #[test]
+fn list_pages_scanner_keeps_adjacent_custom_listing_modules() {
+    let source = r#"[[div class="top-border"]]
+[[/div]]
+[[div style="text-align: center;"]]
++ SCPs
+[[module Listpages created_by="=" category="-fragment" tag="+scp -co-authored" limit="1" order="random"]]
+([[[*%%link%%|Random]]])
+[[/module]]
+-----
+[[/div]]
+
+[[module Listpages created_by="=" order="" category="-fragment" tag="+scp -co-authored" perPage="250"]]
+[[div class="content-box no"]]
+++ **%%title_linked%%**
+[[div class="content-section"]]
+------
+**Rating:** +%%rating%%
+**Comments:** %%comments%%
+**+/- :** +[[#expr ((%%rating%%+%%rating_votes%%)/2)]]/-[[#expr ((%%rating_votes%%-%%rating%%)/2)]]
+[[/div]]
+[[/module]]"#;
+
+    let second_start = source.rfind("[[module Listpages").unwrap();
+    assert_eq!(
+        find_list_pages_module_matches(&source[..second_start]).len(),
+        1
+    );
+    assert_eq!(
+        find_list_pages_module_matches(&source[second_start..]).len(),
+        1
+    );
+    let modules = find_list_pages_module_matches(source);
+    assert_eq!(modules.len(), 2);
+}
+
+#[test]
 fn linear_list_pages_scanner_ignores_literal_module_tokens() {
     let source = concat!(
         "@@[[module ListPages name=\"inline-literal\"]]@@\n",
