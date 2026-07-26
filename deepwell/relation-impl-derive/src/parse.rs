@@ -11,7 +11,6 @@ pub struct RelationSettings {
     pub data_type: Option<Type>,
     pub create_fn: bool,
     pub remove_fn: bool,
-    pub define_struct: bool,
 }
 
 impl Parse for RelationSettings {
@@ -22,7 +21,6 @@ impl Parse for RelationSettings {
         let mut data_type = None;
         let mut create_fn = None;
         let mut remove_fn = None;
-        let mut define_struct = None;
 
         macro_rules! error_if_set {
             ($field:expr) => {
@@ -107,16 +105,6 @@ impl Parse for RelationSettings {
                     remove_fn = Some(t_bool.value);
                 }
 
-                // Permit the caller to disable relation struct definition.
-                // This key is optional, default is "true".
-                //
-                //  define_struct => false
-                "define_struct" => {
-                    error_if_set!(define_struct);
-                    let t_bool: LitBool = input.parse()?;
-                    define_struct = Some(t_bool.value);
-                }
-
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
             }
 
@@ -139,7 +127,6 @@ impl Parse for RelationSettings {
         let data_type = data_type.unwrap_or(None);
         let create_fn = create_fn.unwrap_or(true);
         let remove_fn = remove_fn.unwrap_or(true);
-        let define_struct = define_struct.unwrap_or(true);
 
         Ok(RelationSettings {
             struct_name,
@@ -149,7 +136,6 @@ impl Parse for RelationSettings {
             data_type,
             create_fn,
             remove_fn,
-            define_struct,
         })
     }
 }
