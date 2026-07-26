@@ -29,7 +29,8 @@ pub(super) mod template;
 pub(super) use self::rendering::{CountPagesExpansionOptions, ListPagesExpansionOptions};
 #[cfg(test)]
 pub(super) use self::rendering::{
-    ListPagesExpansionBudget, register_generated_list_pages_html,
+    ListPagesExpansionBudget, preserve_list_pages_following_paragraph_boundary,
+    register_generated_list_pages_html,
 };
 pub(super) use self::substitution::{
     CurrentPageAuthorSource, ExactNameListPagesBatchKey, ListPagesArguments,

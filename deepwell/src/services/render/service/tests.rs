@@ -41,10 +41,11 @@ use super::super::list_pages::{
     list_pages_revision_count, list_pages_row_scan_target, list_pages_tag_link_href,
     page_query_cap_requires_original_module, parse_list_pages_arguments,
     parse_list_pages_arguments_with_url, parse_list_pages_date_selector,
-    push_list_pages_pager, register_generated_list_pages_html, render_list_pages_tags,
-    render_tag_cloud_box, requested_page_info_score,
-    should_render_current_page_list_pages_row, substitute_count_pages_variables,
-    substitute_list_pages_variables, unsupported_list_pages_replacement,
+    preserve_list_pages_following_paragraph_boundary, push_list_pages_pager,
+    register_generated_list_pages_html, render_list_pages_tags, render_tag_cloud_box,
+    requested_page_info_score, should_render_current_page_list_pages_row,
+    substitute_count_pages_variables, substitute_list_pages_variables,
+    unsupported_list_pages_replacement,
 };
 use super::super::literal_regions::ListPagesSourceProjection;
 use super::super::runtime_page_queries::{
@@ -2156,6 +2157,35 @@ fn list_pages_compat_registry_ignores_code_block_fragments() {
     let rendered = render_wikidot_page_body_after_compat_restore(&protected);
     assert!(!rendered.contains(r#"<img src=x onerror="alert(document.domain)">"#));
     assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+}
+
+#[test]
+fn expanded_list_pages_wrapper_preserves_the_following_paragraph_boundary() {
+    let mut replacement = "[[div class=\"list-pages-box\"]]\nrow\n[[/div]]".to_owned();
+
+    preserve_list_pages_following_paragraph_boundary(&mut replacement, "\nafter");
+
+    let rendered =
+        render_wikidot_page_body_after_compat_restore(&format!("{replacement}\nafter"));
+    assert_eq!(
+        rendered,
+        "<div class=\"list-pages-box\"><p>row</p></div><p>after</p>",
+    );
+
+    let mut ordinary_div = "[[div]]\nrow\n[[/div]]".to_owned();
+    preserve_list_pages_following_paragraph_boundary(&mut ordinary_div, "\nafter");
+    assert_eq!(ordinary_div, "[[div]]\nrow\n[[/div]]");
+
+    let mut existing_blank_line =
+        "[[div class=\"list-pages-box\"]]\nrow\n[[/div]]".to_owned();
+    preserve_list_pages_following_paragraph_boundary(
+        &mut existing_blank_line,
+        "\n\nafter",
+    );
+    assert_eq!(
+        existing_blank_line,
+        "[[div class=\"list-pages-box\"]]\nrow\n[[/div]]",
+    );
 }
 
 #[test]

@@ -419,11 +419,15 @@ impl RenderService {
                     .await?;
                     match rendered {
                         ListPagesBlockRenderResult::Expanded(IncludeExpansion {
-                            wikitext: replacement,
+                            wikitext: mut replacement,
                             included_pages: replacement_included_pages,
                             expanded_include_count: replacement_expanded_include_count,
                         }) => {
                             include_budget.consume(replacement_expanded_include_count);
+                            preserve_list_pages_following_paragraph_boundary(
+                                &mut replacement,
+                                &wikitext[block.end..],
+                            );
                             expanded.push_str(&register_generated_list_pages_html(
                                 replacement,
                                 compat_html,
@@ -482,11 +486,15 @@ impl RenderService {
                     .await?;
                     match rendered {
                         ListPagesBlockRenderResult::Expanded(IncludeExpansion {
-                            wikitext: replacement,
+                            wikitext: mut replacement,
                             included_pages: replacement_included_pages,
                             expanded_include_count: replacement_expanded_include_count,
                         }) => {
                             include_budget.consume(replacement_expanded_include_count);
+                            preserve_list_pages_following_paragraph_boundary(
+                                &mut replacement,
+                                &wikitext[block.end..],
+                            );
                             expanded.push_str(&register_generated_list_pages_html(
                                 replacement,
                                 compat_html,
@@ -2186,4 +2194,26 @@ pub(in crate::services::render) fn register_generated_list_pages_html(
             compat_html.push_html(html)
         })
         .into_owned()
+}
+
+pub(in crate::services::render) fn preserve_list_pages_following_paragraph_boundary(
+    replacement: &mut String,
+    suffix: &str,
+) {
+    if !replacement.starts_with("[[div class=\"list-pages-box\"]]\n")
+        || !replacement.ends_with("[[/div]]")
+    {
+        return;
+    }
+
+    let suffix = suffix
+        .strip_prefix("\r\n")
+        .or_else(|| suffix.strip_prefix('\n'))
+        .or_else(|| suffix.strip_prefix('\r'));
+    if let Some(suffix) = suffix
+        && !suffix.is_empty()
+        && !suffix.starts_with(['\r', '\n'])
+    {
+        replacement.push('\n');
+    }
 }
