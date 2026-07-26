@@ -1,5 +1,6 @@
 //! Live-compatible output for missing Wikidot include targets.
 
+use super::compat::text_fragments::CompatTextFragments;
 use super::literal_regions::LiteralRegionIndex;
 use crate::error::prelude::{Error, ErrorType, ExnError, Result};
 use ftml::data::PageRef;
@@ -25,12 +26,27 @@ static INCLUDE_TARGET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 pub(super) fn missing_include_source(page: &str, site: Option<&str>) -> String {
+    let message = missing_include_message(page, site);
+    format!("[[div class=\"error-block\"]]\n{message}\n[[/div]]")
+}
+
+fn spaced_empty_separator_missing_include_source(
+    page: &str,
+    site: Option<&str>,
+    compat_text: &mut CompatTextFragments,
+) -> String {
+    let opener = compat_text.push_escaped_html_text(r#"[[div class="error-block"]]"#);
+    let message = missing_include_message(page, site);
+    format!("{opener}\n{message}")
+}
+
+fn missing_include_message(page: &str, site: Option<&str>) -> String {
     let edit_url = match site {
         Some(site) => format!("http://{site}.wikidot.com/{page}/edit/true"),
         None => format!("/{page}/edit/true"),
     };
     format!(
-        "[[div class=\"error-block\"]]\nIncluded page \"{page}\" does not exist ([[a href=\"{edit_url}\"]]create it now[[/a]])\n[[/div]]"
+        "Included page \"{page}\" does not exist ([[a href=\"{edit_url}\"]]create it now[[/a]])"
     )
 }
 
@@ -66,10 +82,11 @@ pub(super) fn collect_include_display_pages(
     pages
 }
 
-pub(super) fn collect_missing_include_display_pages(
+pub(super) fn collect_missing_include_replacements(
     includes: &[IncludeRef<'_>],
     fetched_pages: &[Option<String>],
     include_display_pages: &mut HashMap<PageRef, VecDeque<String>>,
+    compat_text: &mut CompatTextFragments,
 ) -> VecDeque<String> {
     includes
         .iter()
@@ -77,10 +94,21 @@ pub(super) fn collect_missing_include_display_pages(
         .rev()
         .filter_map(|(include, fetched_page)| {
             fetched_page.is_none().then(|| {
-                include_display_pages
+                let display_page = include_display_pages
                     .get_mut(include.page_ref())
                     .and_then(VecDeque::pop_back)
-                    .unwrap_or_else(|| include.page_ref().page().to_owned())
+                    .unwrap_or_else(|| include.page_ref().page().to_owned());
+                if is_optional_no_visible_wikidot_include(include.page_ref()) {
+                    String::new()
+                } else if include.has_spaced_empty_separator() {
+                    spaced_empty_separator_missing_include_source(
+                        &display_page,
+                        include.page_ref().site(),
+                        compat_text,
+                    )
+                } else {
+                    missing_include_source(&display_page, include.page_ref().site())
+                }
             })
         })
         .collect()
@@ -89,7 +117,7 @@ pub(super) fn collect_missing_include_display_pages(
 #[derive(Debug)]
 pub(super) struct PreparedIncluder {
     pub(super) pages: Vec<Option<String>>,
-    pub(super) missing_display_pages: VecDeque<String>,
+    pub(super) missing_replacements: VecDeque<String>,
 }
 
 impl<'t> Includer<'t> for PreparedIncluder {
@@ -118,17 +146,10 @@ impl<'t> Includer<'t> for PreparedIncluder {
     }
 
     fn no_such_include(&mut self, page_ref: &PageRef) -> Result<Cow<'t, str>> {
-        let Some(display_page) = self.missing_display_pages.pop_front() else {
+        let Some(replacement) = self.missing_replacements.pop_front() else {
             return Ok(wikidot_no_such_include_replacement(page_ref));
         };
-        if is_optional_no_visible_wikidot_include(page_ref) {
-            Ok(Cow::Borrowed(""))
-        } else {
-            Ok(Cow::Owned(missing_include_source(
-                &display_page,
-                page_ref.site(),
-            )))
-        }
+        Ok(Cow::Owned(replacement))
     }
 }
 
@@ -248,13 +269,43 @@ mod tests {
             .collect::<Vec<_>>();
         let fetched_pages = vec![None, None, None];
 
-        assert_eq!(
-            collect_missing_include_display_pages(
-                &includes,
-                &fetched_pages,
-                &mut display_pages,
-            ),
-            VecDeque::from(["f".to_owned(), "d".to_owned(), "b".to_owned()]),
+        let mut compat_text = CompatTextFragments::new(source);
+        let replacements = collect_missing_include_replacements(
+            &includes,
+            &fetched_pages,
+            &mut display_pages,
+            &mut compat_text,
+        );
+        assert!(replacements[0].contains("Included page \"f\""));
+        assert!(replacements[1].contains("Included page \"d\""));
+        assert!(replacements[2].contains("Included page \"b\""));
+    }
+
+    #[test]
+    fn spaced_empty_separator_uses_protected_literal_opener() {
+        let source = "[[include PAGE | ]]";
+        let mut display_pages = collect_include_display_pages(source);
+        let includes = vec![
+            IncludeRef::page_only(PageRef::page_only("PAGE"))
+                .with_spaced_empty_separator(true),
+        ];
+        let mut compat_text = CompatTextFragments::new(source);
+
+        let replacements = collect_missing_include_replacements(
+            &includes,
+            &[None],
+            &mut display_pages,
+            &mut compat_text,
+        );
+        let replacement = replacements.front().expect("replacement exists");
+
+        assert!(!replacement.contains("[[div class=\"error-block\"]]"));
+        assert!(replacement.contains("Included page \"page\""));
+        assert!(!replacement.contains("[[/div]]"));
+        assert!(
+            compat_text
+                .restore(replacement)
+                .starts_with("[[div class=&quot;error-block&quot;]]\nIncluded page")
         );
     }
 }

@@ -2692,18 +2692,23 @@ fn optional_no_visible_wikidot_includes_do_not_render_missing_page_text() {
 fn missing_cross_site_include_uses_raw_page_for_display_and_canonical_ref_for_lookup() {
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let source = "[[include :scp-wiki:deleted:protected:component:magic]]";
-    let display_pages = super::collect_include_display_pages(source);
+    let mut display_pages = super::collect_include_display_pages(source);
     let canonical =
         PageRef::page_and_site("scp-wiki", "deleted:protected:component:magic");
+    let includes = vec![IncludeRef::page_only(canonical.clone())];
+    let mut compat_text = CompatTextFragments::new(source);
+    let missing_replacements = super::collect_missing_include_replacements(
+        &includes,
+        &[None],
+        &mut display_pages,
+        &mut compat_text,
+    );
     let (expanded, included_pages) = ftml::include(
         source,
         &settings,
         PreparedIncluder {
             pages: vec![None],
-            missing_display_pages: display_pages
-                .get(&canonical)
-                .cloned()
-                .expect("raw include display page should be collected"),
+            missing_replacements,
         },
         include_error,
     )
@@ -2717,6 +2722,55 @@ fn missing_cross_site_include_uses_raw_page_for_display_and_canonical_ref_for_lo
             "([[a href=\"http://scp-wiki.wikidot.com/deleted:protected:component:magic/edit/true\"]]",
             "create it now[[/a]])\n",
             "[[/div]]",
+        ),
+    );
+}
+
+#[test]
+fn missing_include_with_spaced_empty_separator_matches_live_browser_dom() {
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let page_info = fallback_test_page_info("debug", "Debug");
+    let source = "[[include PAGE | ]]";
+    let mut display_pages = super::collect_include_display_pages(source);
+    let includes = vec![
+        IncludeRef::page_only(PageRef::page_only("PAGE"))
+            .with_spaced_empty_separator(true),
+    ];
+    let mut compat_text = CompatTextFragments::new(source);
+    let missing_replacements = super::collect_missing_include_replacements(
+        &includes,
+        &[None],
+        &mut display_pages,
+        &mut compat_text,
+    );
+    let (mut expanded, _) = ftml::include(
+        source,
+        &settings,
+        PreparedIncluder {
+            pages: vec![None],
+            missing_replacements,
+        },
+        include_error,
+    )
+    .expect("missing include should expand");
+
+    ftml::preprocess_for_layout(&mut expanded, settings.layout);
+    let tokens = ftml::tokenize(&expanded);
+    let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
+    let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+    let restored = RenderService::restore_wikidot_render_compatibility(
+        &rendered,
+        None,
+        &Config::integration_testing(),
+    );
+    let restored = compat_text.restore(&restored);
+
+    assert_eq!(
+        restored,
+        concat!(
+            "<p>[[div class=&quot;error-block&quot;]]<br>\n",
+            "Included page &quot;page&quot; does not exist ",
+            "(<a href=\"/page/edit/true\">create it now</a>)</p>",
         ),
     );
 }
@@ -7118,7 +7172,7 @@ fn expands_included_fragment_wikidot_image_blocks_before_generic_includes() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(fragment_wikitext)],
-            missing_display_pages: Default::default(),
+            missing_replacements: Default::default(),
         },
         include_error,
     )
@@ -7283,7 +7337,7 @@ fn strips_included_comment_usage_examples_after_expansion() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(component_source)],
-            missing_display_pages: Default::default(),
+            missing_replacements: Default::default(),
         },
         include_error,
     )
@@ -7763,7 +7817,7 @@ fn malformed_include_comment_branch_cannot_claim_sibling_boundary() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(start), Some(malformed), Some(end)],
-            missing_display_pages: Default::default(),
+            missing_replacements: Default::default(),
         },
         include_error,
     )
