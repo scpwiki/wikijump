@@ -109,6 +109,36 @@ function canonicalAttributeValue(node, name, value) {
   return url.href;
 }
 
+function canonicalWikidotEmail(node) {
+  const classes = node.attrs?.find((attr) => attr.name === 'class')?.value.split(/\s+/u) ?? [];
+  if (node.tagName !== 'span' || !classes.includes('wiki-email') || node.childNodes?.length !== 1) {
+    return null;
+  }
+  const child = node.childNodes[0];
+  if (child.nodeName !== '#text') return null;
+  const separator = child.value.indexOf('#');
+  if (separator <= 0 || child.value.slice(0, separator) !== child.value.slice(separator + 1)) {
+    return null;
+  }
+  const address = [...child.value.slice(0, separator)].reverse().join('').replace('|', '@');
+  return {
+    type: 'element',
+    name: 'span',
+    namespace: node.namespaceURI,
+    attrs: [
+      {name: 'class', value: 'wiki-email', namespace: null, prefix: null},
+      {name: 'style', value: 'visibility: visible;', namespace: null, prefix: null},
+    ],
+    children: [{
+      type: 'element',
+      name: 'a',
+      namespace: node.namespaceURI,
+      attrs: [{name: 'href', value: `mailto:${address}`, namespace: null, prefix: null}],
+      children: [{type: 'text', value: address}],
+    }],
+  };
+}
+
 function canonicalNode(node, preformatted = false) {
   if (node.nodeName === '#text') {
     if (!preformatted && /^\s*$/u.test(node.value)) return null;
@@ -116,6 +146,8 @@ function canonicalNode(node, preformatted = false) {
   }
   if (node.nodeName === '#comment') return {type: 'comment', value: node.data};
   if (!node.tagName) return null;
+  const email = canonicalWikidotEmail(node);
+  if (email) return email;
   return {
     type: 'element',
     name: node.tagName,

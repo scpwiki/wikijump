@@ -135,6 +135,14 @@ test('canonical DOM requires hierarchy, attribute values, and preformatted white
     canonicalDom('<img src="http://www.wikidot.com/avatar.php?userid=9318&amp;amp;size=small">'),
     canonicalDom('<img src="http://www.wikidot.com/avatar.php?userid=2506&amp;amp;size=small">'),
   );
+  assert.deepEqual(
+    canonicalDom('<span class="wiki-email">moc.elpmaxe|cba#moc.elpmaxe|cba</span>'),
+    canonicalDom('<span class="wiki-email" style="visibility: visible;"><a href="mailto:abc@example.com">abc@example.com</a></span>'),
+  );
+  assert.notDeepEqual(
+    canonicalDom('<span class="wiki-email">moc.elpmaxe|cba#different</span>'),
+    canonicalDom('<span class="wiki-email" style="visibility: visible;"><a href="mailto:abc@example.com">abc@example.com</a></span>'),
+  );
 });
 
 test('FTML input carries the immutable preview page context', () => {
