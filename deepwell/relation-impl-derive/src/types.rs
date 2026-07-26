@@ -1,4 +1,3 @@
-use crate::util::make_error;
 use syn::parse::{Lookahead1, ParseStream};
 use syn::{LitBool, Token};
 
