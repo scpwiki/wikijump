@@ -5,9 +5,13 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "completion": "node scripts/run-completion-controller.mjs",
-    "reference-inventory": "node scripts/build-reference-acquisition-inventory.mjs"
+    "syntax-dispositions": "node scripts/check-syntax-differential-dispositions.mjs",
+    "reference-inventory": "node scripts/build-reference-acquisition-inventory.mjs",
+    "runtime-differential": "node scripts/run-generic-runtime-differential.mjs",
+    "runtime-differential-stack": "node scripts/run-generic-runtime-differential-stack.mjs"
   },
   "dependencies": {
+    "parse5": "^8.0.1",
     "pg": "^8.22.0"
   },
   "devDependencies": {

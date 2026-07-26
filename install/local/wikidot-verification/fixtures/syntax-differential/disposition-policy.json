@@ -1,0 +1,59 @@
+{
+  "schema": "wikijump_syntax_differential.disposition_policy.v1",
+  "cases": [
+    {
+      "case_id": "record--041d27d62e8796931e5bf45e",
+      "source_sha256": "041d27d62e8796931e5bf45e63281d423a745ce4e6b94e8f52570ad218d9db33",
+      "disposition": "live-observation-tier-conflict",
+      "reason": "PagePreview keeps the indented list marker literal, while saved-page evidence activates the list; imported saved pages are authoritative."
+    },
+    {
+      "case_id": "record--1508f615cacfeb5911b05a8f",
+      "source_sha256": "1508f615cacfeb5911b05a8f8665abead3acf8344966f7f3425ca6676e6f4494",
+      "disposition": "live-observation-tier-conflict",
+      "reason": "PagePreview keeps the indented list marker literal, while saved-page evidence activates the list; imported saved pages are authoritative."
+    },
+    {
+      "case_id": "record--1aa38fcab11f0786a323ec84",
+      "source_sha256": "1aa38fcab11f0786a323ec848de1b7693180e8f4994f99ece0f839f05d177894",
+      "disposition": "live-observation-resource-failure",
+      "reason": "Live Wikidot returned no preview body for this resource-exhausting malformed block run."
+    },
+    {
+      "case_id": "record--4b790c0731c4d8e0d29b3b2e",
+      "source_sha256": "4b790c0731c4d8e0d29b3b2ec8f168bbc40850822af5618f4270e4e9f329ed44",
+      "disposition": "live-observation-resource-failure",
+      "reason": "Live Wikidot returned no preview body for this resource-exhausting nested collapsible run."
+    },
+    {
+      "case_id": "record--b41cb7d94f78e297ed4b91b9",
+      "source_sha256": "b41cb7d94f78e297ed4b91b9d1f08279575488d23f1fbda771d09d41d414d6fd",
+      "disposition": "intentional-security-boundary",
+      "reason": "FTML keeps the style injection payload literal instead of reproducing Wikidot's unsafe attribute behavior."
+    },
+    {
+      "case_id": "record--b70d8e87e7200f8e3ce2abd4",
+      "source_sha256": "b70d8e87e7200f8e3ce2abd4e7b5edded26ee1b2571d9fcd7f32d256745826ed",
+      "disposition": "wikijump-runtime-boundary",
+      "reason": "The relative uploaded-file URL requires page and file state that the context-free FTML runner does not own."
+    },
+    {
+      "case_id": "record--cbe1eb71be3bc18ae6477ce7",
+      "source_sha256": "cbe1eb71be3bc18ae6477ce7f84f21b768f95c85de889ec89290daab59cd9042",
+      "disposition": "live-observation-resource-failure",
+      "reason": "Live Wikidot returned an empty preview after exhausting resources on the repeated crossed block input."
+    },
+    {
+      "case_id": "record--d4b2e038dd0a3ec266412748",
+      "source_sha256": "d4b2e038dd0a3ec266412748292650094540624db77fbe0d9ac307a83183811a",
+      "disposition": "live-observation-resource-failure",
+      "reason": "Live Wikidot returned no preview body for this resource-exhausting malformed block run."
+    },
+    {
+      "case_id": "record--d40a0fe016a2ae0e02de10aa",
+      "source_sha256": "d40a0fe016a2ae0e02de10aad1138cd1f728f728d9cf8cf7e61ca301fd7f7d0b",
+      "disposition": "live-observation-tier-conflict",
+      "reason": "PagePreview keeps the indented list marker literal, while saved-page evidence activates the list; imported saved pages are authoritative."
+    }
+  ]
+}

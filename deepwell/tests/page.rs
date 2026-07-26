@@ -1565,6 +1565,89 @@ async fn included_iftags_closer_survives_unmatched_inline_raw_on_an_earlier_line
 }
 
 #[tokio::test]
+async fn unbound_include_variables_remain_literal_in_attributes_and_text() {
+    const COMPONENT_SLUG: &str = "component:fixture-unbound-include-variable";
+    const CONSUMER_SLUG: &str = "fixture-unbound-include-variable-consumer";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(COMPONENT_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": concat!(
+                "[[div_ class=\"fixture {$missing}\"]]\n",
+                "[[div_ class=\"label\"]]\n",
+                "{$missing}\n",
+                "[[/div]]\n",
+                "[[/div]]",
+            ),
+            "title": "Unbound Include Variable",
+            "alt_title": null,
+            "slug": COMPONENT_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create unbound include variable fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(CONSUMER_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": format!("[[include {COMPONENT_SLUG}]]"),
+            "title": "Unbound Include Variable Consumer",
+            "alt_title": null,
+            "slug": CONSUMER_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create unbound include variable consumer",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site.site.site_id,
+            "page": CONSUMER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("unbound include variable consumer should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("class=\"fixture {$missing}\""),
+        "unbound class variable should remain literal: {html}",
+    );
+    assert!(
+        html.contains("<div class=\"label\">{$missing}</div>"),
+        "unbound text variable should remain literal: {html}",
+    );
+}
+
+#[tokio::test]
 async fn nested_include_image_blocks_keep_their_attachment_page_owner() {
     const SITE_SLUG: &str = "scp-wiki";
     const FRAGMENT_SLUG: &str = "fragment:attachment-owner-leaf";
@@ -1749,8 +1832,14 @@ async fn nested_include_image_blocks_keep_their_attachment_page_owner() {
     );
     assert_eq!(
         html.matches(cross_owned).count(),
-        2,
-        "cross-site nested src and href must retain the remote leaf owner: {html}"
+        0,
+        "an unqualified nested include in a cross-site source resolves against the original callsite site: {html}",
+    );
+    assert!(
+        html.contains(
+            "Included page &quot;component:attachment-owner-cross-wrapper&quot; does not exist",
+        ),
+        "the missing callsite-local nested target must remain visible: {html}",
     );
     assert!(
         html.contains("/local--files/fixture-attachment-owner-consumer/root.png"),
@@ -1927,8 +2016,10 @@ async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page(
     assert!(html.contains("Before missing remote include."), "{html}");
     assert!(html.contains("After missing remote include."), "{html}");
     assert_eq!(
-        html.matches("No such page: :missing-remote:missing-remote-include-self-cycle")
-            .count(),
+        html.matches(
+            "Included page &quot;missing-remote-include-self-cycle&quot; does not exist",
+        )
+        .count(),
         2,
         "{html}",
     );
@@ -2069,7 +2160,9 @@ async fn render_scoped_include_source_cache_preserves_occurrence_semantics() {
     assert!(private_html.contains("After private includes."));
     assert!(!private_html.contains("PRIVATE_INCLUDE_SOURCE_MUST_NOT_RENDER"));
     assert_eq!(
-        private_html.matches("No such page").count(),
+        private_html
+            .matches("Included page &quot;component:include-source-cache-private&quot; does not exist")
+            .count(),
         2,
         "a cached permission denial must still render each missing occurrence",
     );
@@ -2218,7 +2311,7 @@ async fn page_render_emits_wikidot_rate_widget_structure() {
     let html = output.html_output.body;
 
     assert!(html.contains(
-        r#"<div style="text-align: center;"><div class="page-rate-widget-box"><span class="rate-points">rating: <span class="number prw54353">+396</span></span>"#,
+        "<div style=\"text-align: center;\"><div class=\"page-rate-widget-box\"><span class=\"rate-points\">rating:\u{a0}<span class=\"number prw54353\">+396</span></span>",
     ), "rate widget must be a direct child of its alignment container:\n{html}");
     assert!(html.contains(
         r#"<span class="rateup btn btn-default"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>"#,
@@ -3351,7 +3444,7 @@ async fn backlinks_module_renders_current_page_incoming_links() {
 }
 
 #[tokio::test]
-async fn backlinks_module_with_unsupported_arguments_remains_literal() {
+async fn backlinks_module_page_argument_targets_the_named_page() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
@@ -3410,14 +3503,255 @@ async fn backlinks_module_with_unsupported_arguments_remains_literal() {
         .compiled_body_html
         .expect("compiled body should be included in page_get details");
 
-    assert!(
-        html.contains("TODO: module Backlinks") || html.contains("[[module Backlinks"),
-        "unsupported Backlinks arguments should remain literal/degraded:\n{html}"
-    );
+    assert!(html.contains(r#"<div class="backlinks-module-box">"#));
+    assert!(!html.contains("TODO: module Backlinks"));
+    assert!(!html.contains("[[module Backlinks"));
     assert!(
         !html.contains("Fixture Backlinks Unsupported Linker"),
-        "unsupported Backlinks arguments must not render a guessed incoming-link list:\n{html}"
+        "page=\"start\" must not render backlinks to the containing page:\n{html}"
     );
+}
+
+#[tokio::test]
+async fn categories_module_lists_active_categories_and_honors_include_hidden() {
+    const VISIBLE_CATEGORY: &str = "fixture-categories-visible";
+    const HIDDEN_CATEGORY: &str = "_fixture-categories-hidden";
+    const VISIBLE_PAGE: &str = "fixture-categories-visible-page";
+    const HIDDEN_PAGE: &str = "fixture-categories-hidden-page";
+    const INDEX_PAGE: &str = "fixture-categories-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        VISIBLE_PAGE,
+        "Fixture Categories Visible",
+        "visible category page",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HIDDEN_PAGE,
+        "Fixture Categories Hidden",
+        "hidden category page",
+    )
+    .await;
+
+    let visible_category =
+        CategoryService::get_or_create(runner.context(), site_id, VISIBLE_CATEGORY)
+            .await
+            .expect("visible category should be created");
+    let hidden_category =
+        CategoryService::get_or_create(runner.context(), site_id, HIDDEN_CATEGORY)
+            .await
+            .expect("hidden category should be created");
+    for (page_slug, category_id) in [
+        (VISIBLE_PAGE, visible_category.category_id),
+        (HIDDEN_PAGE, hidden_category.category_id),
+    ] {
+        let page = PageTable::find()
+            .filter(
+                sea_orm::Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::Slug.eq(page_slug)),
+            )
+            .one(runner.context().transaction())
+            .await
+            .expect("category fixture page lookup should not fail")
+            .expect("category fixture page should exist");
+        let mut page = page.into_active_model();
+        page.page_category_id = Set(category_id);
+        page.update(runner.context().transaction())
+            .await
+            .expect("category fixture page should move categories");
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_PAGE,
+        "Fixture Categories Index",
+        concat!(
+            "[[module Categories]]\n",
+            "[[module categories includeHidden=\"true\"]]\n",
+            "[[module CATEGORIES INCLUDEHIDDEN=\"false\"]]",
+        ),
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_PAGE,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("Categories index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert_eq!(
+        html.matches(&format!("<h3>{VISIBLE_CATEGORY}</h3>"))
+            .count(),
+        3
+    );
+    assert_eq!(
+        html.matches(&format!("<h3>{HIDDEN_CATEGORY}</h3>")).count(),
+        1
+    );
+    assert_eq!(
+        html.matches("<h3>_default</h3>").count(),
+        3,
+        "_default remains visible without includeHidden:\n{html}"
+    );
+    for (category, category_id) in [
+        (VISIBLE_CATEGORY, visible_category.category_id),
+        (HIDDEN_CATEGORY, hidden_category.category_id),
+    ] {
+        assert!(
+            html.contains(&format!(
+                concat!(
+                    "<h3>{category}</h3>\n",
+                    "<a href=\"javascript:;\" id=\"category-pages-toggler-{category_id}\" ",
+                    "onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, {category_id})\">+ list pages</a>"
+                ),
+                category = category,
+                category_id = category_id,
+            )),
+            "Categories should use the live Wikidot DOM for {category}:\n{html}"
+        );
+    }
+    assert!(!html.contains("TODO: module Categories"));
+    assert!(!html.contains("[[module Categories"));
+}
+
+#[tokio::test]
+async fn page_tree_module_renders_current_page_hierarchy_with_live_depth_dom() {
+    const ROOT: &str = "fixture-pagetree-root";
+    const ALPHA: &str = "fixture-pagetree-alpha";
+    const BETA: &str = "fixture-pagetree-beta";
+    const GRANDCHILD: &str = "fixture-pagetree-grandchild";
+    const GREAT_GRANDCHILD: &str = "fixture-pagetree-great-grandchild";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        ROOT,
+        "PageTree Root",
+        concat!(
+            "PT_DEFAULT_START\n[[module PageTree depth=\"2\"]]\nPT_DEFAULT_END\n",
+            "PT_SHOW_START\n[[module PageTree showRoot=\"true\" depth=\"1\"]]\nPT_SHOW_END\n",
+            "PT_CASE_START\n[[module PageTree Showroot=\"true\" Depth=\"1\"]]\nPT_CASE_END",
+        ),
+    )
+    .await;
+    for (slug, title) in [
+        (ALPHA, "Alpha Child"),
+        (BETA, "Beta Child"),
+        (GRANDCHILD, "Alpha Grandchild"),
+        (GREAT_GRANDCHILD, "Alpha Great Grandchild"),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, "PageTree fixture")
+            .await;
+    }
+    for (child, parent) in [
+        (ALPHA, ROOT),
+        (BETA, ROOT),
+        (GRANDCHILD, ALPHA),
+        (GREAT_GRANDCHILD, GRANDCHILD),
+    ] {
+        set_listpages_test_parent(&mut runner, site_id, child, parent).await;
+    }
+
+    let root = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": ROOT,
+        }),
+    )
+    .expect("PageTree root should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": root.page_category_id,
+            "page_id": root.page_id,
+        }),
+    );
+    let root = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": ROOT,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("rerendered PageTree root should exist");
+    let html = root
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+    let section = |start: &str, end: &str| {
+        let start = html.find(start).expect("section start should render");
+        let end = html[start..]
+            .find(end)
+            .map(|offset| start + offset)
+            .expect("section end should render");
+        &html[start..end]
+    };
+
+    let default = section("PT_DEFAULT_START", "PT_DEFAULT_END");
+    assert!(
+        default.contains(&format!(r#"<a href="/{ALPHA}">Alpha Child</a>"#)),
+        "{default}",
+    );
+    assert!(
+        default.contains(&format!(r#"<a href="/{GRANDCHILD}">Alpha Grandchild</a>"#))
+    );
+    assert!(default.contains(&format!(r#"<a href="/{BETA}">Beta Child</a>"#)));
+    assert!(!default.contains("PageTree Root"));
+    assert!(!default.contains("Alpha Great Grandchild"));
+    assert!(
+        default.find("Alpha Child") < default.find("Beta Child"),
+        "siblings should preserve page_parent creation order:\n{default}"
+    );
+
+    let show_root = section("PT_SHOW_START", "PT_SHOW_END");
+    assert!(show_root.contains(&format!(r#"<a href="/{ROOT}">PageTree Root</a>"#)));
+    assert!(show_root.contains("Alpha Child"));
+    assert!(show_root.contains("Beta Child"));
+    assert!(!show_root.contains("Alpha Grandchild"));
+
+    let case_variant = section("PT_CASE_START", "PT_CASE_END");
+    assert!(!case_variant.contains("PageTree Root"));
+    assert!(case_variant.contains("Alpha Great Grandchild"));
+    for unsupported_wrapper in ["class=", " id=", "data-"] {
+        assert!(
+            !case_variant.contains(unsupported_wrapper),
+            "PageTree DOM must remain plain ul, li, and a elements:\n{case_variant}"
+        );
+    }
+    assert!(!html.contains("[[module PageTree"));
+    assert!(!html.contains("TODO: module PageTree"));
 }
 
 #[tokio::test]
@@ -3595,7 +3929,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
 }
 
 #[tokio::test]
-async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
+async fn listpages_live_evidenced_noop_arguments_render_rows() {
     const TAG: &str = "verification-listpages-presentation-noop";
     const TARGET_SLUG: &str = "fixture-listpages-presentation-noop-target";
     const INDEX_SLUG: &str = "fixture-listpages-presentation-noop-index";
@@ -3623,7 +3957,7 @@ async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
         "Fixture ListPages Presentation No-op Index",
         concat!(
             "[[module ListPages tags=\"+verification-listpages-presentation-noop\" limit=\"10\" ",
-            "class=\"g54-custom\" style=\"margin: 0; width: 100%;\"]]\n",
+            "class=\"g54-custom\" custom=\"@URL\" style=\"margin: 0; width: 100%;\" unknown=\"kept\"]]\n",
             "* %%title%%\n",
             "[[/module]]",
         ),
@@ -3641,13 +3975,15 @@ async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
     );
     for forbidden in [
         "g54-custom",
+        "@URL",
+        "kept",
         "margin: 0",
         "width: 100%",
         "[[module ListPages",
     ] {
         assert!(
             !html.contains(forbidden),
-            "ListPages class/style arguments must remain accepted no-ops, not forwarded output: {forbidden:?}\n{html}"
+            "ListPages no-op arguments must remain accepted without forwarding output: {forbidden:?}\n{html}"
         );
     }
 }

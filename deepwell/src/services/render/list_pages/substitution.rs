@@ -670,10 +670,10 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                 unsupported_count_pages_filter = true;
                 unsupported_list_pages_filter = true;
             }
-            // Wikidot accepts these presentation arguments without applying them
-            // to the ListPages wrapper. Do not forward author-controlled values
-            // into generated markup.
-            "class" | "style" => {}
+            // Wikidot accepts these arguments without applying them to the
+            // ListPages query or wrapper. Do not forward author-controlled
+            // values into generated markup.
+            "class" | "custom" | "style" | "unknown" => {}
             _ if raw_key.starts_with('_') => {
                 let value = static_list_pages_selector(
                     value,
@@ -1583,7 +1583,7 @@ pub(in crate::services::render) fn push_list_pages_pager(
         return;
     }
 
-    output.push_str(r#"[[div class="pager"]]"#);
+    output.push_str("[[div class=\"pager\"]]\n");
     output.push_str(&format!(
         r#"[[span class="pager-no"]]page {current_page} of {page_count}[[/span]]"#
     ));
@@ -1622,7 +1622,7 @@ pub(in crate::services::render) fn push_list_pages_pager(
         push_list_pages_pager_target(output, page_info, current_page + 1, "next »");
     }
 
-    output.push_str("[[/div]]\n");
+    output.push_str("\n[[/div]]\n");
 }
 
 pub(in crate::services::render) fn push_list_pages_pager_target(
@@ -1631,13 +1631,13 @@ pub(in crate::services::render) fn push_list_pages_pager_target(
     target_page: usize,
     label: &str,
 ) {
-    output.push_str(r#"[[span class="target"]][/"#);
+    output.push_str(r#"[[span class="target"]][[[/"#);
     output.push_str(&percent_encode_path_segment(page_info.page.as_ref()));
     output.push_str("/p/");
     output.push_str(&target_page.to_string());
-    output.push(' ');
+    output.push('|');
     output.push_str(label);
-    output.push_str("][[/span]]");
+    output.push_str("]]][[/span]]");
 }
 
 pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {
@@ -1729,6 +1729,17 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
             })
         })
         .unwrap_or_default();
+    let updated_by_linked = updated_by_snapshot
+        .map(render_list_pages_snapshot_user)
+        .or_else(|| {
+            page.updated_by.map(|user_id| {
+                render_list_pages_wikidot_user(
+                    user_id,
+                    context.user_displays.get(&user_id),
+                )
+            })
+        })
+        .unwrap_or_default();
     let commented_by = commented_by_snapshot.map(str::to_owned).unwrap_or_default();
     let created_at = snapshot
         .map(|snapshot| snapshot.created_at)
@@ -1778,6 +1789,17 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                 "linked_title" => title_linked.clone(),
                 "title" => generated_wikitext_title.clone(),
                 "name" | "slug" | "page_unix_name" => slug.to_owned(),
+                "fullname" | "full_slug"
+                    if list_pages_variable_starts_triple_link_target(
+                        template,
+                        captures
+                            .get(0)
+                            .expect("ListPages variable capture exists")
+                            .start(),
+                    ) =>
+                {
+                    format!("/{full_slug}")
+                }
                 "fullname" | "full_slug" => full_slug.clone(),
                 "link" if !slug.is_empty() && !context.site.is_empty() => link.clone(),
                 "link" => captures
@@ -1786,34 +1808,55 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
                     .to_owned(),
                 "created_by" | "createdby" => created_by.clone(),
                 "created_by_linked" | "createdbylinked" | "author" => {
-                    created_by_linked.clone()
+                    protect_list_pages_generated_html(
+                        created_by_linked.clone(),
+                        context.render_generated_html,
+                        compat_html,
+                    )
                 }
                 "created_by_unix" => created_by_unix
                     .clone()
                     .unwrap_or_else(|| captures[0].to_owned()),
-                "created_at" | "createdat" | "date" => format_list_pages_created_at(
-                    created_at,
-                    captures.name("format").map(|matched| matched.as_str()),
-                    context.render_generated_html,
-                ),
-                "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
-                    updated_by.clone()
-                }
-                "updated_at" | "updatedat" | "date_edited" => {
+                "created_at" | "createdat" | "date" => protect_list_pages_generated_html(
                     format_list_pages_created_at(
-                        updated_at,
+                        created_at,
                         captures.name("format").map(|matched| matched.as_str()),
                         context.render_generated_html,
+                    ),
+                    context.render_generated_html,
+                    compat_html,
+                ),
+                "updated_by" | "updatedby" => updated_by.clone(),
+                "updated_by_linked" | "updatedbylinked" => {
+                    protect_list_pages_generated_html(
+                        updated_by_linked.clone(),
+                        context.render_generated_html,
+                        compat_html,
+                    )
+                }
+                "updated_at" | "updatedat" | "date_edited" => {
+                    protect_list_pages_generated_html(
+                        format_list_pages_created_at(
+                            updated_at,
+                            captures.name("format").map(|matched| matched.as_str()),
+                            context.render_generated_html,
+                        ),
+                        context.render_generated_html,
+                        compat_html,
                     )
                 }
                 "commented_by"
                 | "commentedby"
                 | "commented_by_linked"
                 | "commentedbylinked" => commented_by.clone(),
-                "commented_at" | "commentedat" => format_list_pages_created_at(
-                    commented_at,
-                    captures.name("format").map(|matched| matched.as_str()),
+                "commented_at" | "commentedat" => protect_list_pages_generated_html(
+                    format_list_pages_created_at(
+                        commented_at,
+                        captures.name("format").map(|matched| matched.as_str()),
+                        context.render_generated_html,
+                    ),
                     context.render_generated_html,
+                    compat_html,
                 ),
                 "rating" => rating.clone(),
                 "rating_votes" | "ratingvotes" => rating_votes.clone(),
@@ -1887,6 +1930,12 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
         .into_owned();
 
     RenderService::resolve_wikidot_parser_functions(&substituted)
+}
+
+fn list_pages_variable_starts_triple_link_target(template: &str, start: usize) -> bool {
+    template[..start]
+        .rfind("[[[")
+        .is_some_and(|opening| template[opening + 3..start].trim().is_empty())
 }
 
 #[cfg(test)]
@@ -2076,7 +2125,7 @@ pub(in crate::services::render) fn render_list_pages_wikidot_user(
     let slug = user.slug.as_deref().unwrap_or(&user.name);
     format!(
         concat!(
-            r#"<span class="printuser avatarhover">"#,
+            r#"<span class="printuser avatarhover" data-wikijump-compat-listpages-user="1">"#,
             r#"<a href="http://www.wikidot.com/user:info/{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">"#,
             r#"<img alt="{name}" class="small" src="http://www.wikidot.com/avatar.php?userid={user_id}&amp;size=small"/>"#,
             r#"</a><a href="http://www.wikidot.com/user:info/{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">{name}</a>"#,
@@ -2188,5 +2237,17 @@ pub(in crate::services::render) fn format_list_pages_created_at(
             encoded_format,
             escape_list_pages_html_text(&text),
         )
+    }
+}
+
+fn protect_list_pages_generated_html(
+    html: String,
+    rendered_inside_generated_html: bool,
+    compat_html: &mut CompatHtmlFragments,
+) -> String {
+    if html.is_empty() || rendered_inside_generated_html {
+        html
+    } else {
+        compat_html.push_html(html)
     }
 }

@@ -63,6 +63,47 @@ pub struct WikidotListPagesModuleOutput {
     pub body: String,
 }
 
+#[derive(Deserialize)]
+struct WikidotPagePreviewInput {
+    site_id: i64,
+    title: String,
+    wikitext: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct WikidotPagePreviewOutput {
+    pub body: String,
+    pub styles: Vec<String>,
+}
+
+pub async fn wikidot_page_preview(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<WikidotPagePreviewOutput> {
+    let input: WikidotPagePreviewInput = parse!(params, Page);
+    let output = RenderService::render_wikidot_page_preview(
+        ctx,
+        input.site_id,
+        &input.title,
+        input.wikitext,
+    )
+    .await
+    .or_raise(|| {
+        Error::new(
+            format!(
+                "failed to render Wikidot page preview in site ID {}",
+                input.site_id,
+            ),
+            ErrorType::Page,
+        )
+    })?;
+
+    Ok(WikidotPagePreviewOutput {
+        body: output.html_output.body,
+        styles: output.html_output.styles,
+    })
+}
+
 pub async fn wikidot_list_pages_module(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -86,8 +127,21 @@ pub async fn wikidot_list_pages_module(
     })?;
 
     Ok(WikidotListPagesModuleOutput {
-        body: normalize_wikidot_list_pages_set_pairs(&output.html_output.body),
+        body: normalize_wikidot_list_pages_set_spacing(
+            &normalize_wikidot_list_pages_set_pairs(&output.html_output.body),
+        ),
     })
+}
+
+fn normalize_wikidot_list_pages_set_spacing(body: &str) -> String {
+    body.replace(
+        r#"</span><span class="value">"#,
+        r#"</span> <span class="value">"#,
+    )
+    .replace(
+        r#"</span><span class="set "#,
+        r#"</span> <span class="set "#,
+    )
 }
 
 /// FTML renders adjacent inline spans as sibling nodes in this module shape.

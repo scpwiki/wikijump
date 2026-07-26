@@ -317,7 +317,7 @@ impl<'a> ModuleEventScanner<'a> {
                     (candidate..run_end.saturating_sub(1)).find(|marker| {
                         self.lowercase.as_bytes().get(*marker..*marker + 3)
                             == Some(&b"[[#"[..])
-                            && unresolved_parser_function_prefix(
+                            && unresolved_conditional_parser_function_prefix(
                                 &self.source[*marker + 3..],
                             )
                     })
@@ -337,7 +337,9 @@ impl<'a> ModuleEventScanner<'a> {
                 continue;
             }
             if self.lowercase.as_bytes().get(start..start + 3) == Some(&b"[[#"[..])
-                && unresolved_parser_function_prefix(&self.source[start + 3..])
+                && unresolved_conditional_parser_function_prefix(
+                    &self.source[start + 3..],
+                )
             {
                 self.ambiguous_whole_head = true;
                 self.advance_to(self.lowercase.len());
@@ -1408,8 +1410,8 @@ pub(in crate::services::render) fn runtime_regex_recognizes_entire_head(
     super::super::service::list_pages_runtime_regex_recognizes_entire_head(source)
 }
 
-fn unresolved_parser_function_prefix(source: &str) -> bool {
-    ["ifexpr", "if", "expr"].into_iter().any(|name| {
+fn unresolved_conditional_parser_function_prefix(source: &str) -> bool {
+    ["ifexpr", "if"].into_iter().any(|name| {
         source
             .get(..name.len())
             .is_some_and(|prefix| prefix.eq_ignore_ascii_case(name))

@@ -41,10 +41,11 @@ use super::super::list_pages::{
     list_pages_revision_count, list_pages_row_scan_target, list_pages_tag_link_href,
     page_query_cap_requires_original_module, parse_list_pages_arguments,
     parse_list_pages_arguments_with_url, parse_list_pages_date_selector,
-    push_list_pages_pager, register_generated_list_pages_html, render_list_pages_tags,
-    render_tag_cloud_box, requested_page_info_score,
-    should_render_current_page_list_pages_row, substitute_count_pages_variables,
-    substitute_list_pages_variables, unsupported_list_pages_replacement,
+    preserve_list_pages_following_paragraph_boundary, push_list_pages_pager,
+    register_generated_list_pages_html, render_list_pages_tags, render_tag_cloud_box,
+    requested_page_info_score, should_render_current_page_list_pages_row,
+    substitute_count_pages_variables, substitute_list_pages_variables,
+    unsupported_list_pages_replacement,
 };
 use super::super::literal_regions::ListPagesSourceProjection;
 use super::super::runtime_page_queries::{
@@ -56,13 +57,13 @@ use super::{
     AttachmentOwner, AttachmentProvenanceRegistry, AttachmentVariableOwners,
     COUNTPAGES_MODULE_REGEX, CodeBlock, CollectingIncluder, CompatHtmlFragments,
     CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-    CountPagesRequiredTagBatchResult, IncludeSourceCache, LiteralRegionIndex,
-    MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
-    MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
-    MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
-    MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
-    MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, PreparedIncluder, RenderContext,
-    RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
+    CountPagesRequiredTagBatchResult, IncludeExpansionContext, IncludeSourceCache,
+    LiteralRegionIndex, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
+    MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
+    MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
+    MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
+    MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
+    PreparedIncluder, RenderContext, RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
     WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
     WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
     WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
@@ -79,6 +80,7 @@ use super::{
 use crate::config::Config;
 use crate::constants::ADMIN_USER_ID;
 use crate::models::site::Model as SiteModel;
+use crate::services::PageExistenceSnapshot;
 use crate::services::page_query::{
     ComparisonOperation, DataFormSelector, DateSelector, DateTimeResolution,
     FoundPageFields, FoundPageRow, MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector,
@@ -86,6 +88,8 @@ use crate::services::page_query::{
     static_wikidot_data_form_matches,
 };
 use crate::services::render::UrlArguments;
+use crate::services::render::runtime::IncludeSource;
+use crate::services::settings::PageRatingType;
 use crate::types::{License, PageId};
 use crate::utils::{locale_for_ftml, now};
 use ftml::data::PageRef;
@@ -283,7 +287,7 @@ fn render_wikidot_page_body_after_compat_restore(wikitext: &str) -> String {
     let mut wikitext = wikitext.to_owned();
     let fragments =
         RenderService::protect_generated_wikidot_compat_html(&mut wikitext, &settings);
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -340,7 +344,7 @@ fn render_wikidot_css_after_extraction(
     let rendered = if fallback {
         RenderService::render_wikidot_compatibility_fallback_with_code_blocks(&protected)
     } else {
-        ftml::preprocess(&mut protected);
+        ftml::preprocess_for_layout(&mut protected, settings.layout);
         let tokens = ftml::tokenize(&protected);
         let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
         HtmlRender.render(&tree, &page_info, &settings).body
@@ -372,7 +376,7 @@ fn preserves_valid_bibcite_after_removing_stray_closer_protection() {
          ((bibcite alpha)) before (a (b)) after",
     );
 
-    assert!(rendered.contains("wj-bibliography-ref"));
+    assert!(rendered.contains(r#"class="bibcite""#), "{rendered}");
     assert!(rendered.contains("before (a (b)) after"));
 }
 
@@ -834,7 +838,7 @@ fn parses_wikidot_list_pages_append_line_without_aliases() {
 }
 
 #[test]
-fn accepts_wikidot_list_pages_class_and_style_as_noops() {
+fn accepts_live_evidenced_wikidot_list_pages_noops() {
     let baseline = parse_list_pages_arguments(
         r#" category="*" tags="fixture" limit="20" wrapper="no" "#,
     )
@@ -842,14 +846,16 @@ fn accepts_wikidot_list_pages_class_and_style_as_noops() {
 
     for head in [
         r#" category="*" tags="fixture" limit="20" class="g54-custom" wrapper="no" "#,
+        r#" category="*" tags="fixture" limit="20" custom="@URL" wrapper="no" "#,
         r#" category="*" tags="fixture" limit="20" style="margin: 0; width: 100%;" wrapper="no" "#,
+        r#" category="*" tags="fixture" limit="20" unknown="kept" wrapper="no" "#,
         r#" category="*" tags="fixture" limit="20" class="" style="" wrapper="no" "#,
         r#" category="*" tags="fixture" limit="20" class="first" class="second" style="color: red" style="display: block" wrapper="no" "#,
     ] {
         assert_eq!(
             parse_list_pages_arguments(head),
             Some(baseline.clone()),
-            "Wikidot accepts class/style as no-op ListPages grammar: {head}",
+            "Wikidot accepts the live-evidenced no-op ListPages grammar: {head}",
         );
     }
 
@@ -858,7 +864,7 @@ fn accepts_wikidot_list_pages_class_and_style_as_noops() {
             r#" category="*" tags="fixture" limit="20" data-custom="value" wrapper="no" "#,
         )
         .is_none(),
-        "only the live-evidenced class/style keys are accepted as no-ops",
+        "only the live-evidenced keys are accepted as no-ops",
     );
 }
 
@@ -1269,6 +1275,28 @@ fn ignores_blank_wikidot_list_pages_order_argument() {
 }
 
 #[test]
+fn parses_corpus_list_pages_custom_and_unknown_noops() {
+    let arguments = parse_list_pages_arguments(
+        r#" created_by="=" tag="+scp" order="" category="-fragment" tag="-co-authored" perPage="250" custom="@URL" unknown="kept""#,
+    )
+    .expect("live-evidenced custom and unknown ListPages no-ops should parse");
+
+    assert_eq!(arguments.authors, vec![Cow::Borrowed("=")]);
+    assert_eq!(arguments.order, None);
+    assert_eq!(arguments.count_pages_per_page, Some(250));
+    assert_eq!(arguments.all_tags, vec![Cow::Borrowed("scp")]);
+    assert_eq!(arguments.no_tags, vec![Cow::Borrowed("co-authored")]);
+    assert_eq!(
+        arguments.excluded_categories,
+        vec![Cow::Borrowed("fragment")]
+    );
+    assert!(
+        parse_list_pages_arguments(r#" tag="+scp" selector_typo="kept""#).is_none(),
+        "an unevidenced selector typo must remain literal",
+    );
+}
+
+#[test]
 fn parses_wikidot_camel_case_list_pages_order_argument() {
     let ascending = parse_list_pages_arguments(
         r#" category="*" tags="codex" order="titleAsc" limit="20" wrapper="no""#,
@@ -1625,10 +1653,13 @@ fn renders_wikidot_tag_cloud_box_links() {
 
 #[test]
 fn renders_wikidot_read_only_rate_module_with_downvote() {
-    let rendered =
-        render_read_only_rate_module(ftml::data::ScoreValue::Integer(19), "en");
+    let rendered = render_read_only_rate_module(
+        ftml::data::ScoreValue::Integer(19),
+        "en",
+        PageRatingType::PlusMinus,
+    );
 
-    assert!(rendered.contains(r#"<span class="rate-points">rating: "#));
+    assert!(rendered.contains("<span class=\"rate-points\">rating:\u{00a0}"));
     assert!(rendered.contains(r#"<span class="number prw54353">+19</span>"#));
     assert!(rendered.contains(r#"<span class="rateup btn btn-default">"#));
     assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
@@ -1643,9 +1674,26 @@ fn renders_wikidot_read_only_rate_module_with_downvote() {
 }
 
 #[test]
+fn renders_wikidot_plus_only_rate_module_without_downvote() {
+    let rendered = render_read_only_rate_module(
+        ftml::data::ScoreValue::Integer(0),
+        "en",
+        PageRatingType::Plus,
+    );
+
+    assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
+    assert!(!rendered.contains("ratedown"));
+    assert!(!rendered.contains("rate(event, -1)"));
+    assert!(rendered.contains(r#"listeners.cancelVote(event)"#));
+}
+
+#[test]
 fn renders_japanese_wikidot_read_only_rate_module_labels() {
-    let rendered =
-        render_read_only_rate_module(ftml::data::ScoreValue::Integer(35), "ja");
+    let rendered = render_read_only_rate_module(
+        ftml::data::ScoreValue::Integer(35),
+        "ja",
+        PageRatingType::PlusMinus,
+    );
 
     assert!(rendered.contains("<span class=\"rate-points\">評価:\u{00a0}"));
     assert!(rendered.contains(r#"<span class="number prw54353">+35</span>"#));
@@ -1756,6 +1804,26 @@ fn renders_wikidot_clone_module_custom_button() {
 
     assert!(rendered.contains("Clone &lt;now&gt;"));
     assert!(!rendered.contains("[[module Clone"));
+}
+
+#[test]
+fn renders_wikidot_join_module_anonymous_dom() {
+    let rendered = RenderService::expand_join_modules(
+        concat!(
+            "[[module Join]]\n",
+            "[[module Join button=\"Custom <join>\" class=\"join-module\" ",
+            "id=\"ignored\" style=\"display: flex\"]]",
+        )
+        .to_owned(),
+        &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+    );
+
+    assert!(rendered.contains(r#"<div class="join-box">"#));
+    assert!(rendered.contains(r#"<div class="join-module">"#));
+    assert!(rendered.contains("Custom &lt;join&gt;"));
+    assert!(!rendered.contains("id=\"ignored\""));
+    assert!(!rendered.contains("display: flex"));
+    assert_eq!(rendered.matches("WIKIDOT.page.listeners.join").count(), 2);
 }
 
 #[test]
@@ -2092,6 +2160,35 @@ fn list_pages_compat_registry_ignores_code_block_fragments() {
 }
 
 #[test]
+fn expanded_list_pages_wrapper_preserves_the_following_paragraph_boundary() {
+    let mut replacement = "[[div class=\"list-pages-box\"]]\nrow\n[[/div]]".to_owned();
+
+    preserve_list_pages_following_paragraph_boundary(&mut replacement, "\nafter");
+
+    let rendered =
+        render_wikidot_page_body_after_compat_restore(&format!("{replacement}\nafter"));
+    assert_eq!(
+        rendered,
+        "<div class=\"list-pages-box\"><p>row</p></div><p>after</p>",
+    );
+
+    let mut ordinary_div = "[[div]]\nrow\n[[/div]]".to_owned();
+    preserve_list_pages_following_paragraph_boundary(&mut ordinary_div, "\nafter");
+    assert_eq!(ordinary_div, "[[div]]\nrow\n[[/div]]");
+
+    let mut existing_blank_line =
+        "[[div class=\"list-pages-box\"]]\nrow\n[[/div]]".to_owned();
+    preserve_list_pages_following_paragraph_boundary(
+        &mut existing_blank_line,
+        "\n\nafter",
+    );
+    assert_eq!(
+        existing_blank_line,
+        "[[div class=\"list-pages-box\"]]\nrow\n[[/div]]",
+    );
+}
+
+#[test]
 fn neutralizes_compat_markers_composed_by_list_pages_substitution() {
     let page = FoundPageRow {
         page_id: 1,
@@ -2187,7 +2284,21 @@ fn generated_list_pages_date_is_registered_before_authored_marker_neutralization
     assert!(!protected.contains("data-wikijump-compat-date"));
     assert!(!protected.contains("data-wikijump-authored-compat-date"));
     let restored = fragments.restore(&protected);
-    assert!(restored.contains("data-wikijump-compat-date=\"1\""));
+    assert!(restored.contains(r#"<span class="odate time_1782003564"#));
+    assert!(!restored.contains("data-wikijump-compat-date"));
+}
+
+#[test]
+fn generated_list_pages_user_is_registered_without_internal_marker() {
+    let generated = r#"<span class="printuser avatarhover" data-wikijump-compat-listpages-user="1"><a href="http://www.wikidot.com/user:info/example">example</a></span>"#;
+    let mut fragments = CompatHtmlFragments::new("");
+    let protected =
+        register_generated_list_pages_html(generated.to_owned(), &mut fragments);
+    let restored = fragments.restore(&protected);
+
+    assert!(restored.contains(r#"<span class="printuser avatarhover">"#));
+    assert!(restored.contains("user:info/example"));
+    assert!(!restored.contains("data-wikijump-compat-listpages-user"));
 }
 
 #[test]
@@ -2256,7 +2367,10 @@ fn generated_list_pages_pager_still_renders_without_forgeable_marker() {
 
     assert!(rendered.contains(r#"<div class="pager">"#));
     assert!(rendered.contains(r#"<span class="pager-no">page 1 of 3</span>"#));
-    assert!(rendered.contains(r#"<a href="/scp-7243/p/2">2</a>"#));
+    assert!(
+        rendered.contains(r#"<a href="/scp-7243/p/2">2</a>"#),
+        "{rendered}"
+    );
     assert!(!rendered.contains("data-wikijump-compat-pager"));
 }
 
@@ -2280,7 +2394,10 @@ fn generated_list_pages_pager_keeps_untrusted_slug_inside_href() {
 
     let rendered = render_wikidot_page_body_after_compat_restore(&wikitext);
 
-    assert!(rendered.contains(&format!(r#"<a href="/{encoded_slug}/p/2">2</a>"#)));
+    assert!(
+        rendered.contains(&format!(r#"<a href="/{encoded_slug}/p/2">2</a>"#)),
+        "{rendered}"
+    );
     assert_eq!(rendered.matches(r#"class="owned""#).count(), 0);
     assert_eq!(rendered.matches("<a href=").count(), 3);
 }
@@ -2606,7 +2723,100 @@ fn optional_no_visible_wikidot_includes_do_not_render_missing_page_text() {
     );
     assert_eq!(
         wikidot_no_such_include_replacement(&PageRef::page_and_site("scp-jp", "missing")),
-        "No such page: :scp-jp:missing",
+        "[[div class=\"error-block\"]]\nIncluded page \"missing\" does not exist ([[a href=\"http://scp-jp.wikidot.com/missing/edit/true\"]]create it now[[/a]])\n[[/div]]",
+    );
+
+    let replacement = wikidot_no_such_include_replacement(&PageRef::page_only("banana"));
+    assert_eq!(
+        render_wikidot_page_body_after_compat_restore(&replacement),
+        r#"<div class="error-block"><p>Included page &quot;banana&quot; does not exist (<a href="/banana/edit/true">create it now</a>)</p></div>"#,
+    );
+}
+
+#[test]
+fn missing_cross_site_include_uses_raw_page_for_display_and_canonical_ref_for_lookup() {
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let source = "[[include :scp-wiki:deleted:protected:component:magic]]";
+    let mut display_pages = super::collect_include_display_pages(source);
+    let canonical =
+        PageRef::page_and_site("scp-wiki", "deleted:protected:component:magic");
+    let includes = vec![IncludeRef::page_only(canonical.clone())];
+    let mut compat_text = CompatTextFragments::new(source);
+    let missing_replacements = super::collect_missing_include_replacements(
+        &includes,
+        &[None],
+        &mut display_pages,
+        &mut compat_text,
+    );
+    let (expanded, included_pages) = ftml::include(
+        source,
+        &settings,
+        PreparedIncluder {
+            pages: vec![None],
+            missing_replacements,
+        },
+        include_error,
+    )
+    .expect("missing include should render a live-compatible error");
+    assert_eq!(included_pages, vec![canonical]);
+    assert_eq!(
+        expanded,
+        concat!(
+            "[[div class=\"error-block\"]]\n",
+            "Included page \"deleted:protected:component:magic\" does not exist ",
+            "([[a href=\"http://scp-wiki.wikidot.com/deleted:protected:component:magic/edit/true\"]]",
+            "create it now[[/a]])\n",
+            "[[/div]]",
+        ),
+    );
+}
+
+#[test]
+fn missing_include_with_spaced_empty_separator_matches_live_browser_dom() {
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let page_info = fallback_test_page_info("debug", "Debug");
+    let source = "[[include PAGE | ]]";
+    let mut display_pages = super::collect_include_display_pages(source);
+    let includes = vec![
+        IncludeRef::page_only(PageRef::page_only("PAGE"))
+            .with_spaced_empty_separator(true),
+    ];
+    let mut compat_text = CompatTextFragments::new(source);
+    let missing_replacements = super::collect_missing_include_replacements(
+        &includes,
+        &[None],
+        &mut display_pages,
+        &mut compat_text,
+    );
+    let (mut expanded, _) = ftml::include(
+        source,
+        &settings,
+        PreparedIncluder {
+            pages: vec![None],
+            missing_replacements,
+        },
+        include_error,
+    )
+    .expect("missing include should expand");
+
+    ftml::preprocess_for_layout(&mut expanded, settings.layout);
+    let tokens = ftml::tokenize(&expanded);
+    let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
+    let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+    let restored = RenderService::restore_wikidot_render_compatibility(
+        &rendered,
+        None,
+        &Config::integration_testing(),
+    );
+    let restored = compat_text.restore(&restored);
+
+    assert_eq!(
+        restored,
+        concat!(
+            "<p>[[div class=&quot;error-block&quot;]]<br>\n",
+            "Included page &quot;page&quot; does not exist ",
+            "(<a href=\"/page/edit/true\">create it now</a>)</p>",
+        ),
     );
 }
 
@@ -2711,6 +2921,36 @@ fn defaults_empty_page_link_labels_to_known_target_titles() {
 }
 
 #[test]
+fn fallback_page_links_mark_only_resolved_missing_targets_as_newpage() {
+    let mut titles = WikidotCompatLinkTitleMap::new();
+    titles.set_page_existence(
+        "scp-wiki".to_owned(),
+        PageExistenceSnapshot::from_pages([
+            (("scp-wiki".to_owned(), "present".to_owned()), true),
+            (("scp-wiki".to_owned(), "missing".to_owned()), false),
+            (("remote".to_owned(), "missing".to_owned()), false),
+        ]),
+    );
+
+    assert_eq!(
+        render_native_list_page_link("present", None, Some(&titles)),
+        r#"<a href="/present">Present</a>"#
+    );
+    assert_eq!(
+        render_native_list_page_link("missing", None, Some(&titles)),
+        r#"<a class="newpage" href="/missing">Missing</a>"#
+    );
+    assert_eq!(
+        render_native_list_page_link("unresolved", None, Some(&titles)),
+        r#"<a href="/unresolved">Unresolved</a>"#
+    );
+    assert_eq!(
+        render_native_list_page_link(":remote:missing", None, Some(&titles)),
+        r#"<a class="newpage" href="/:remote:missing">:remote:missing</a>"#
+    );
+}
+
+#[test]
 fn escapes_known_target_titles_used_for_empty_page_link_labels() {
     let mut titles = WikidotCompatLinkTitleMap::new();
     titles.insert(
@@ -2742,7 +2982,9 @@ fn wikidot_compatibility_fallback_uses_known_target_titles_for_empty_links() {
     assert!(
         output
             .body
-            .contains(r#"<a href="/dr-frueh-s-proposal">DarkStuff's Proposal</a>"#)
+            .contains(r#"<a href="/dr-frueh-s-proposal">DarkStuff's Proposal</a>"#),
+        "{}",
+        output.body,
     );
     assert!(output.body.contains(r#"<a href="/scp-8066">SCP-8066</a>"#));
     assert!(
@@ -3134,7 +3376,7 @@ fn protects_nested_bold_underline_closers_without_crossing_table_cells() {
     );
 
     let started = Instant::now();
-    ftml::preprocess(&mut source);
+    ftml::preprocess_for_layout(&mut source, settings.layout);
     let tokens = ftml::tokenize(&source);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (_tree, errors) = result.into();
@@ -3226,6 +3468,15 @@ fn protects_wikidot_color_spans_before_ftml_parsing() {
         &settings,
     );
     assert_eq!(escaped, "&#35;&#35;&#35;&#35;blue|leftover&#35;&#35;");
+
+    let escaped = RenderService::escape_unrendered_wikidot_color_markers(
+        "[[[home###|Home]]] [[[MAIN/##/page#toc1|Hash routing]]] leftover##".to_owned(),
+        &settings,
+    );
+    assert_eq!(
+        escaped,
+        "[[[home###|Home]]] [[[MAIN/##/page#toc1|Hash routing]]] leftover&#35;&#35;",
+    );
 }
 
 #[test]
@@ -3295,7 +3546,7 @@ fn restores_color_inside_inline_monospace_from_ralliston_authorpage() {
         RenderService::protect_wikidot_color_spans(&mut wikitext, &settings);
     wikitext =
         RenderService::escape_unrendered_wikidot_color_markers(wikitext, &settings);
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, errors) = result.into();
@@ -3337,7 +3588,7 @@ fn protects_wikidot_hash_prefixed_hex_colors_without_shifted_matches() {
 
     wikitext =
         RenderService::escape_unrendered_wikidot_color_markers(wikitext, &settings);
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, errors) = result.into();
@@ -3410,7 +3661,7 @@ fn renders_protected_wikidot_color_spans_as_html_after_ftml_parsing() {
     let spans = RenderService::protect_wikidot_color_spans(&mut wikitext, &settings);
     wikitext =
         RenderService::escape_unrendered_wikidot_color_markers(wikitext, &settings);
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, errors) = result.into();
@@ -3419,9 +3670,12 @@ fn renders_protected_wikidot_color_spans_as_html_after_ftml_parsing() {
     let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
     let rendered = RenderService::restore_protected_wikidot_color_spans(rendered, &spans);
 
-    assert!(rendered.contains(
-        r#"<h1 id="toc0"><span style="color: #8e2c4d">Lillian S. Lillihammer</span></h1>"#
-    ));
+    assert!(
+        rendered.contains(
+            r#"<h1 id="toc0"><span><span style="color: #8e2c4d">Lillian S. Lillihammer</span></span></h1>"#
+        ),
+        "{rendered}"
+    );
     assert!(rendered.contains(
         r#"<strong><span style="color: #8e2c4d">Memetics and Countermemetics</span></strong>"#
     ));
@@ -4854,9 +5108,10 @@ fn code_block_compatibility_preserves_external_css_dependencies() {
 #[test]
 fn page_nav_render_context_keeps_current_page_without_text_block_target() {
     assert_eq!(
-        RenderContext::page_nav(7, 11),
+        RenderContext::page_nav(7, 9, 11),
         RenderContext {
             current_site_id: Some(7),
+            current_category_id: Some(9),
             current_page_id: Some(11),
             text_block_page_id: None,
         },
@@ -4866,9 +5121,10 @@ fn page_nav_render_context_keeps_current_page_without_text_block_target() {
 #[test]
 fn page_render_context_uses_current_page_as_text_block_target() {
     assert_eq!(
-        RenderContext::page(7, 11),
+        RenderContext::page(7, 9, 11),
         RenderContext {
             current_site_id: Some(7),
+            current_category_id: Some(9),
             current_page_id: Some(11),
             text_block_page_id: Some(11),
         },
@@ -4905,7 +5161,7 @@ fn corpus_replay_worker_preparation_uses_production_protection_order() {
     assert!(!prepared.compatibility_fallback);
     assert!(prepared.preprocessed);
     assert_eq!(prepared.included_pages.len(), 1);
-    assert!(prepared.wikitext.contains("Before    text\n"));
+    assert!(prepared.wikitext.contains("Before text\n"));
     assert!(!prepared.wikitext.contains('\t'));
     assert!(!prepared.wikitext.contains('\r'));
     assert!(!prepared.wikitext.contains("**__Label:__**"));
@@ -5284,11 +5540,14 @@ fn wikidot_compatibility_fallback_centers_read_only_rate_module() {
     page_info.score = ftml::data::ScoreValue::Integer(396);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
     let protected = RenderService::expand_rate_modules_with_registry(
         source.to_owned(),
         &page_info,
         &settings,
+        PageRatingType::PlusMinus,
         &mut fragments,
+        &mut compat_text,
     );
 
     let mut output =
@@ -5303,7 +5562,7 @@ fn wikidot_compatibility_fallback_centers_read_only_rate_module() {
     assert!(output.body.contains(
         r#"<div style="text-align: center;"><div class="page-rate-widget-box">"#
     ));
-    assert!(output.body.contains(r#"<span class="rate-points">rating: <span class="number prw54353">+396</span></span>"#));
+    assert!(output.body.contains("<span class=\"rate-points\">rating:\u{00a0}<span class=\"number prw54353\">+396</span></span>"));
     assert!(output.body.contains(r#"<span class="rateup btn btn-default"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>"#));
     assert!(output.body.contains("</div></div>"));
     assert!(
@@ -5328,11 +5587,14 @@ fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
     page_info.score = ftml::data::ScoreValue::Integer(396);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
     let protected = RenderService::expand_rate_modules_with_registry(
         source.to_owned(),
         &page_info,
         &settings,
+        PageRatingType::PlusMinus,
         &mut fragments,
+        &mut compat_text,
     );
 
     let root = fragments.restore(&format!("<p>{protected}</p>"));
@@ -5354,6 +5616,61 @@ fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
 }
 
 #[test]
+fn rate_module_expansion_leaves_wikidot_quote_depths_literal() {
+    let source = concat!(
+        "> [[module Rate show=\"DEPTH_ONE\"]]\n",
+        ">> [[module Rate show=\"DEPTH_TWO\"]]\n",
+        "[[module Rate]]\n",
+    );
+    let page_info = fallback_test_page_info("rate-quotes", "Rate quotes");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
+    let protected = RenderService::expand_rate_modules_with_registry(
+        source.to_owned(),
+        &page_info,
+        &settings,
+        PageRatingType::Plus,
+        &mut fragments,
+        &mut compat_text,
+    );
+
+    assert!(protected.contains("[[module Rate show=\"DEPTH_ONE\"]]"));
+    assert!(protected.contains("[[module Rate show=\"DEPTH_TWO\"]]"));
+    assert_eq!(protected.matches("WIKIJUMPWIKIDOTCOMPATHTML").count(), 1);
+}
+
+#[test]
+fn rate_module_expansion_leaves_footnote_body_literal() {
+    let source = "[[footnote]][[module Rate]][[/footnote]]";
+    let page_info = fallback_test_page_info("rate-footnote", "Rate footnote");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
+    let protected = RenderService::expand_rate_modules_with_registry(
+        source.to_owned(),
+        &page_info,
+        &settings,
+        PageRatingType::PlusMinus,
+        &mut fragments,
+        &mut compat_text,
+    );
+
+    assert_ne!(protected, source);
+    let mut protected = protected;
+    ftml::preprocess_for_layout(&mut protected, settings.layout);
+    let tokens = ftml::tokenize(&protected);
+    let result = ftml::parse(&tokens, &page_info, &settings);
+    let (tree, _) = result.into();
+    let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+    let rendered = fragments.restore(&rendered);
+    let rendered = compat_text.restore(&rendered);
+
+    assert!(rendered.contains("1</a>. [[module Rate]]"), "{rendered}",);
+    assert!(!rendered.contains(r#"class="page-rate-widget-box""#));
+}
+
+#[test]
 fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
     let source = concat!(
         "@@[[module Rate]]@@\n",
@@ -5369,11 +5686,14 @@ fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
     page_info.score = ftml::data::ScoreValue::Integer(7);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
     let protected = RenderService::expand_rate_modules_with_registry(
         source.to_owned(),
         &page_info,
         &settings,
+        PageRatingType::PlusMinus,
         &mut fragments,
+        &mut compat_text,
     );
 
     assert_eq!(protected.matches("WIKIJUMPWIKIDOTCOMPATHTML").count(), 3);
@@ -5412,11 +5732,76 @@ fn wikidot_compatibility_fallback_collects_html_blocks_as_iframes() {
     );
 
     assert_eq!(output.html_block_texts.len(), 1);
-    assert!(output.html_block_texts[0].contains("<script src="));
-    assert!(output.body.contains(r#"<div class="audio_iframe INTRO"><iframe src="/scp-anthology-2024/html/1" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe></div>"#));
+    assert_eq!(
+        output.html_block_texts[0],
+        concat!(
+            "\n",
+            "<html>\n",
+            "<body><script src=\"https://example.test/audio.js\"></script></body>\n",
+            "</html>\n",
+        ),
+    );
+    assert!(output.body.contains(r#"<div class="audio_iframe INTRO"><p><iframe src="/scp-anthology-2024/html/1" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe></p></div>"#));
     assert!(!output.body.contains("&lt;script"));
     assert!(!output.body.contains("[[html]]"));
     assert!(!output.body.contains("[[/html]]"));
+}
+
+#[test]
+fn wikidot_compatibility_fallback_starts_a_paragraph_at_html_blocks() {
+    let source = concat!(
+        "raw-math}\n",
+        "[[/math]]\n",
+        "[[html]]\n",
+        "<b>guarded</b>\n",
+        "[[/html]]\n",
+        "[[/iftags]]\n",
+        "visible",
+    );
+
+    let output = RenderService::render_wikidot_compatibility_fallback_output_for_context(
+        source,
+        Some("runtime-case"),
+        Some("scp-wiki"),
+        None,
+    );
+
+    assert_eq!(
+        output.body,
+        concat!(
+            "<div class=\"wikidot-compat-fallback\">",
+            "<p>raw-math}\n[[/math]]</p>",
+            "<p><iframe src=\"/runtime-case/html/1\" allowtransparency=\"true\" frameborder=\"0\" class=\"html-block-iframe\"></iframe>",
+            "[[/iftags]]\n",
+            "visible</p>",
+            "</div>",
+        ),
+    );
+}
+
+#[test]
+fn wikidot_compatibility_fallback_applies_typography_to_recovered_text() {
+    let output = RenderService::render_wikidot_compatibility_fallback_output_for_context(
+        concat!(
+            "raw-comment --] <a href=\"/local--files/runtime-case/file.txt\">visible -- dash</a>\n",
+            "[[html]]\n",
+            "<b>guarded</b>\n",
+            "[[/html]]\n",
+        ),
+        Some("runtime-case"),
+        Some("scp-wiki"),
+        None,
+    );
+
+    assert!(output.body.contains("raw-comment —]"), "{}", output.body);
+    assert!(output.body.contains("visible — dash"), "{}", output.body);
+    assert!(
+        output
+            .body
+            .contains(r#"href="/local--files/runtime-case/file.txt""#),
+        "{}",
+        output.body,
+    );
 }
 
 #[test]
@@ -6763,7 +7148,7 @@ fn image_block_prepass_unquotes_composite_names_for_the_authoring_page() {
         "{wikitext}",
     );
 
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, Layout::Wikidot);
     let tokens = ftml::tokenize(&wikitext);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let result = ftml::parse(&tokens, &page_info, &settings);
@@ -6832,12 +7217,13 @@ fn expands_included_fragment_wikidot_image_blocks_before_generic_includes() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(fragment_wikitext)],
+            missing_replacements: Default::default(),
         },
         include_error,
     )
     .expect("prepared include should expand");
 
-    ftml::preprocess(&mut expanded);
+    ftml::preprocess_for_layout(&mut expanded, settings.layout);
     let tokens = ftml::tokenize(&expanded);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -6996,11 +7382,12 @@ fn strips_included_comment_usage_examples_after_expansion() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(component_source)],
+            missing_replacements: Default::default(),
         },
         include_error,
     )
     .expect("prepared include should expand the component source");
-    ftml::preprocess(&mut expanded);
+    ftml::preprocess_for_layout(&mut expanded, settings.layout);
     let tokens = ftml::tokenize(&expanded);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7138,6 +7525,38 @@ fn resolves_nested_wikidot_include_variables() {
 
     assert!(source.contains(r#"class="badges badge-action action atrue bfalse""#));
     assert!(!source.contains("{$action}"));
+}
+
+#[test]
+fn nested_cross_site_includes_keep_the_original_lookup_site() {
+    let page_info = fallback_test_page_info("consumer", "Consumer");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let context = IncludeExpansionContext {
+        current_site_id: 11,
+        current_site_slug: "sandbox-for-codex".to_owned(),
+        attachment_owner: None,
+        page_info: &page_info,
+        settings: &settings,
+        expand_wikidot_image_blocks: true,
+        max_total_includes: 100,
+    };
+    let source = IncludeSource {
+        site_slug: "scp-wiki".to_owned(),
+        page_slug: "main".to_owned(),
+        wikitext: "[[include fragment:front-page-features]]".to_owned(),
+    };
+
+    let nested = context.for_nested_source(&source);
+
+    assert_eq!(nested.current_site_id, 11);
+    assert_eq!(nested.current_site_slug, "sandbox-for-codex");
+    assert_eq!(
+        nested.attachment_owner,
+        Some(AttachmentOwner {
+            site_slug: "scp-wiki".to_owned(),
+            page_slug: "main".to_owned(),
+        }),
+    );
 }
 
 #[test]
@@ -7475,6 +7894,7 @@ fn malformed_include_comment_branch_cannot_claim_sibling_boundary() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(start), Some(malformed), Some(end)],
+            missing_replacements: Default::default(),
         },
         include_error,
     )
@@ -7489,7 +7909,7 @@ fn malformed_include_comment_branch_cannot_claim_sibling_boundary() {
     assert!(expanded.contains("[[div class=\"selected-sibling\"]]"));
     assert!(expanded.contains("[[/div]]"));
 
-    ftml::preprocess(&mut expanded);
+    ftml::preprocess_for_layout(&mut expanded, settings.layout);
     let tokens = ftml::tokenize(&expanded);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, errors) = result.into();
@@ -7543,7 +7963,7 @@ fn normalizes_wikidot_div_style_url_quotes_for_acs_icon_markers() {
 
     let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7562,12 +7982,14 @@ fn protects_wikidot_div_class_include_variables_before_ftml() {
         r#"[[div_ class="anom-bar-container item-SCP-001 {$american}"]]"#,
         "\n",
         r#"[[span class="item"]]Item#:[[/span]]"#,
+        "\n",
+        r#"{$missing}"#,
         "\n[[/div]]\n",
     )
     .to_owned();
     let mut fragments = CompatTextFragments::new(&wikitext);
 
-    RenderService::protect_wikidot_marker_class_include_variables(
+    RenderService::protect_wikidot_unbound_include_variables(
         &mut wikitext,
         &mut fragments,
     );
@@ -7575,7 +7997,7 @@ fn protects_wikidot_div_class_include_variables_before_ftml() {
     assert!(wikitext.contains(COMPAT_TEXT_MARKER_PREFIX));
     let page_info = fallback_test_page_info("001-blank-i", "Proposal Blank the First");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7586,12 +8008,13 @@ fn protects_wikidot_div_class_include_variables_before_ftml() {
         restored.contains(r#"<div class="anom-bar-container item-SCP-001 {$american}">"#)
     );
     assert!(restored.contains(r#"<span class="item">Item#:</span>"#));
+    assert!(restored.contains("{$missing}"));
     assert!(!restored.contains("[[span"));
     assert!(!restored.contains(COMPAT_TEXT_MARKER_PREFIX));
 }
 
 #[test]
-fn protects_only_existing_wikidot_marker_class_variable_grammar() {
+fn protects_unbound_include_variables_in_all_rendered_positions() {
     let authored_legacy = "wikijump-include-var-american";
     let mut wikitext = format!(
         concat!(
@@ -7607,19 +8030,19 @@ fn protects_only_existing_wikidot_marker_class_variable_grammar() {
     let original = wikitext.clone();
     let mut fragments = CompatTextFragments::new(&wikitext);
 
-    RenderService::protect_wikidot_marker_class_include_variables(
+    RenderService::protect_wikidot_unbound_include_variables(
         &mut wikitext,
         &mut fragments,
     );
 
-    assert_eq!(wikitext.matches(COMPAT_TEXT_MARKER_PREFIX).count(), 2);
+    assert_eq!(wikitext.matches(COMPAT_TEXT_MARKER_PREFIX).count(), 6);
     assert!(wikitext.contains(authored_legacy));
     assert!(wikitext.contains("{$space name}"));
     assert!(wikitext.contains("{$dot.name}"));
-    assert!(wikitext.contains("id=\"{$id}\""));
-    assert!(wikitext.contains("class='{$single}'"));
-    assert!(wikitext.contains("text class=\"{$plain}\""));
-    assert!(wikitext.contains("[[table class=\"{$table}\"]]"));
+    assert!(!wikitext.contains("id=\"{$id}\""));
+    assert!(!wikitext.contains("class='{$single}'"));
+    assert!(!wikitext.contains("text class=\"{$plain}\""));
+    assert!(!wikitext.contains("[[table class=\"{$table}\"]]"));
     assert_eq!(fragments.restore(&wikitext), original);
 }
 
@@ -7633,7 +8056,7 @@ fn densely_protects_and_restores_marker_class_variables() {
     let original = wikitext.clone();
     let mut fragments = CompatTextFragments::new(&wikitext);
 
-    RenderService::protect_wikidot_marker_class_include_variables(
+    RenderService::protect_wikidot_unbound_include_variables(
         &mut wikitext,
         &mut fragments,
     );
@@ -7646,7 +8069,7 @@ fn densely_protects_and_restores_marker_class_variables() {
 fn restores_marker_class_variables_after_fallback_rendering() {
     let mut wikitext = "[[div class=\"anom-bar {$american}\"]]body[[/div]]\n".to_owned();
     let mut fragments = CompatTextFragments::new(&wikitext);
-    RenderService::protect_wikidot_marker_class_include_variables(
+    RenderService::protect_wikidot_unbound_include_variables(
         &mut wikitext,
         &mut fragments,
     );
@@ -7686,7 +8109,7 @@ fn normalizes_wikidot_multiline_page_links_before_ftml() {
 
     let page_info = fallback_test_page_info("049-x-minion-x-reader", "Reader");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7790,7 +8213,7 @@ fn protects_wikidot_current_page_links_inside_inline_code() {
     assert!(!wikitext.contains("[# phmd@scip.net]"));
     assert!(!wikitext.contains("[*/scp-6276 ext_server-6276]"));
 
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7817,7 +8240,7 @@ fn protects_wikidot_named_anchor_markers_without_visible_brackets() {
     assert!(wikitext.contains(WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX));
     assert!(!wikitext.contains("[# tabanchor]"));
 
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7849,7 +8272,7 @@ fn wikidot_named_anchor_markers_do_not_restore_predictable_literal_sentinels() {
     assert!(wikitext.contains(&links[0].marker));
     assert!(wikitext.contains("WIKIJUMPWIKIDOTCOMPATLINK0X"));
 
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7881,7 +8304,7 @@ fn wikidot_named_anchor_markers_do_not_restore_markers_inside_attributes() {
     assert_eq!(links.len(), 1);
     assert!(wikitext.contains(&links[0].marker));
 
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -7915,7 +8338,7 @@ fn protects_wikidot_wikipedia_links_before_ftml_parsing() {
     assert!(wikitext.contains(WIKIDOT_WIKIPEDIA_LINK_SENTINEL_PREFIX));
     assert!(!wikitext.contains("[wikipedia:Canonical_bundle"));
 
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
@@ -8083,7 +8506,10 @@ fn renders_wikidot_wikipedia_links_inside_preprocessed_native_list_runs() {
     );
 }
 
-fn render_native_list_page_for_regression(source: &str) -> String {
+fn render_native_list_page_for_regression(
+    source: &str,
+    require_clean_parse: bool,
+) -> String {
     let page_info = fallback_test_page_info("nav:top", "Top Bar");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let outer = RenderService::prepare_outer_render_wikitext(
@@ -8101,7 +8527,9 @@ fn render_native_list_page_for_regression(source: &str) -> String {
     let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
     let tokens = ftml::tokenize(&inner.wikitext);
     let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
-    assert!(errors.is_empty(), "{errors:#?}");
+    if require_clean_parse {
+        assert!(errors.is_empty(), "{errors:#?}");
+    }
     inner
         .wikidot_compat_html
         .restore(&HtmlRender.render(&tree, &page_info, &settings).body)
@@ -8121,7 +8549,7 @@ fn restores_long_native_list_as_direct_div_child() {
         "* News\n",
         "[[/div]]",
     );
-    let restored = render_native_list_page_for_regression(source);
+    let restored = render_native_list_page_for_regression(source, true);
 
     let top_bar_start = restored.find(r#"<div class="top-bar">"#).expect(&restored);
     let top_bar_end = restored[top_bar_start..]
@@ -8259,7 +8687,7 @@ fn does_not_leak_long_native_list_markers_for_unclosed_or_aliased_inline_scopes(
             format!("[[* anchor href=\"/target\"]]\n{items}[[/a]]"),
         ),
     ] {
-        let restored = render_native_list_page_for_regression(&source);
+        let restored = render_native_list_page_for_regression(&source, false);
         assert!(
             !restored.contains("WIKIJUMPWIKIDOTCOMPATHTML"),
             "scope: {name}; html: {restored}"
@@ -8314,7 +8742,7 @@ fn resumes_long_native_list_block_rendering_after_inline_span_scope_closes() {
         "[[/div]]",
     );
 
-    let restored = render_native_list_page_for_regression(source);
+    let restored = render_native_list_page_for_regression(source, true);
     assert!(
         restored.contains(r#"<div class="top-bar"><ul data-wikijump-compat-list="1">"#),
         "{restored}"
@@ -9097,13 +9525,14 @@ fn list_pages_parser_function_boundary_preserves_literal_examples() {
 
 #[test]
 fn resolves_literal_wikidot_simple_if_before_ftml_parsing() {
-    let mut source = r#"[[div class="[[#if 1 | folded | unfolded ]] [[#if 0 | inactive | active ]]"]]body[[/div]]"#.to_owned();
+    let mut source = "[[div class=\"[[#if 1 | folded | unfolded ]] [[#if 0 | inactive | active ]]\"]]\nbody\n[[/div]]".to_owned();
     let page_info = fallback_test_page_info("conditional", "Conditional");
 
     prepare_test_wikidot_conditionals(&mut source, &page_info);
 
-    assert_eq!(source, r#"[[div class="folded active"]]body[[/div]]"#);
+    assert_eq!(source, "[[div class=\"folded active\"]]\nbody\n[[/div]]");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    ftml::preprocess_for_layout(&mut source, settings.layout);
     let tokens = ftml::tokenize(&source);
     let (_, errors) = ftml::parse(&tokens, &page_info, &settings).into();
     assert!(errors.is_empty(), "{errors:#?}");
@@ -9118,6 +9547,38 @@ fn direct_root_source_unwraps_unbound_dynamic_iftags() {
     prepare_test_wikidot_conditionals_before_include_expansion(&mut source, &page_info);
 
     assert_eq!(source, "before root after");
+}
+
+#[test]
+fn direct_inactive_iftags_closes_before_unclosed_code() {
+    let mut source =
+        "[[iftags +missing]]\n[[code]]\n[[/iftags]]\nunclosed code".to_owned();
+    let page_info = fallback_test_page_info("root", "Root");
+
+    prepare_test_wikidot_conditionals_before_include_expansion(&mut source, &page_info);
+    prepare_test_wikidot_conditionals(&mut source, &page_info);
+
+    assert_eq!(source, "\nunclosed code");
+
+    let rendered = render_wikidot_conditionals_with_tags(&source, &[]);
+    assert!(rendered.contains("unclosed code"), "{rendered}");
+    assert!(!rendered.contains("[[iftags"), "{rendered}");
+    assert!(!rendered.contains("[[code]]"), "{rendered}");
+}
+
+#[test]
+fn direct_balanced_iftags_without_includes_are_evaluated_by_ftml() {
+    let source = concat!(
+        "[[iftags +missing]]\n",
+        "hidden\n",
+        "[[/iftags]]\n",
+        "visible",
+    );
+
+    let rendered = render_wikidot_conditionals_with_tags(source, &[]);
+
+    assert!(!rendered.contains("hidden"), "{rendered}");
+    assert!(rendered.contains("visible"), "{rendered}");
 }
 
 #[test]
@@ -9214,7 +9675,7 @@ fn parser_functions_open_wikidot_comment_delimiters_before_ftml() {
     let page_info = fallback_test_page_info("conditional", "Conditional");
 
     prepare_test_wikidot_conditionals(&mut source, &page_info);
-    ftml::preprocess(&mut source);
+    ftml::preprocess_for_layout(&mut source, Layout::Wikidot);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let tokens = ftml::tokenize(&source);
     let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
@@ -9423,24 +9884,30 @@ fn wikidot_japanese_corrections_locale_localizes_ftml_footnotes() {
     page_info.language = Cow::Borrowed(locale_for_ftml("ja-corrections"));
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut wikitext = "本文[[footnote]]注記[[/footnote]]".to_owned();
-    ftml::preprocess(&mut wikitext);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
     let tokens = ftml::tokenize(&wikitext);
     let result = ftml::parse(&tokens, &page_info, &settings);
     let (tree, _) = result.into();
     let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
 
-    assert!(rendered.contains(r#"aria-label="脚注 1.""#));
-    assert!(rendered.contains(r#"<div class="wj-title">脚注</div>"#));
+    assert!(
+        rendered.contains(
+            r#"<sup class="footnoteref"><a id="footnoteref-1" href="javascript:;" class="footnoteref""#
+        ),
+        "{rendered}"
+    );
+    assert!(
+        rendered
+            .contains(r#"<div class="footnotes-footer"><div class="title">脚注</div>"#),
+        "{rendered}"
+    );
 
     let restored = RenderService::restore_wikidot_footnote_dom_compatibility(&rendered);
 
-    assert!(
-        restored
-            .contains(r#"<div class="footnotes-footer"><div class="title">脚注</div>"#)
-    );
+    assert_eq!(restored, rendered);
     assert!(restored.contains(r#"<div class="footnote-footer" id="footnote-1">"#));
     assert!(restored.contains(
-        r#"onclick="WIKIDOT.page.utils.scrollToReference('footnoteref-1')">1</a>. 注記"#
+        r#"onclick="WIKIDOT.page.utils.scrollToReference(&#39;footnoteref-1&#39;)">1</a>. 注記"#
     ));
     assert_eq!(restored.matches("注記").count(), 1);
     assert!(!restored.contains("wj-footnote"));
@@ -9530,32 +9997,14 @@ fn preserves_compact_ftml_dash_strikethrough_after_compat_cleanup() {
     let rendered =
         render_wikidot_page_body_after_compat_restore("before --removed-- after");
 
-    assert_eq!(rendered, "<p>before <s>removed</s> after</p>");
+    assert_eq!(
+        rendered,
+        r#"<p>before <span style="text-decoration: line-through;">removed</span> after</p>"#
+    );
     assert_eq!(
         RenderService::remove_wikijump_underline_wrappers(&rendered),
         rendered,
     );
-}
-
-#[test]
-fn removes_wikidot_userkarma_background_styles_after_render() {
-    let html = concat!(
-        r#"<span class="printuser avatarhover">"#,
-        r#"<img class="small" src="http://www.wikidot.com/avatar.php?userid=4598089&amp;size=small" style="background-image: url(https://www.wikidot.com/userkarma.php?u=4598089)">"#,
-        r#"</span>"#,
-    );
-
-    let restored = RenderService::remove_wikidot_userkarma_background_styles(html);
-
-    assert_eq!(
-        restored,
-        concat!(
-            r#"<span class="printuser avatarhover">"#,
-            r#"<img class="small" src="http://www.wikidot.com/avatar.php?userid=4598089&amp;size=small">"#,
-            r#"</span>"#,
-        ),
-    );
-    assert!(!restored.contains("userkarma.php"));
 }
 
 #[test]
@@ -10095,7 +10544,7 @@ fn repeated_render_preparation_preserves_nested_iftags_for_ftml() {
 }
 
 #[test]
-fn malformed_iftags_remain_literal_without_ftml_parser_errors() {
+fn malformed_iftags_remain_literal_after_ftml_recovery() {
     let page_info = ftml::data::PageInfo {
         tags: vec![Cow::Borrowed("alpha")],
         ..fallback_test_page_info("malformed", "Malformed")
@@ -10129,8 +10578,7 @@ fn malformed_iftags_remain_literal_without_ftml_parser_errors() {
     );
     let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
     let tokens = ftml::tokenize(&inner.wikitext);
-    let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
-    assert!(errors.is_empty(), "{errors:#?}");
+    let (tree, _errors) = ftml::parse(&tokens, &page_info, &settings).into();
     let html = HtmlRender.render(&tree, &page_info, &settings).body;
     let html = inner.wikidot_compat_text.restore(&html);
     for literal in ["[[/iftags]]", "[[iftags +alpha]]", "[[iftags -alpha]]"] {

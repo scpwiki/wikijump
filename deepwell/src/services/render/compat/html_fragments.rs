@@ -66,8 +66,9 @@ impl CompatHtmlFragments {
     }
 
     pub(in crate::services::render) fn restore(&self, text: &str) -> String {
-        let data_segments = html_data_segments(text);
-        self.restore_with(text, None, Some(&data_segments), true, |fragment| {
+        let text = self.restore_block_marker_paragraphs(text);
+        let data_segments = html_data_segments(&text);
+        self.restore_with(&text, None, Some(&data_segments), true, |fragment| {
             match fragment {
                 CompatFragment::Html(html) | CompatFragment::BlockHtml(html) => {
                     Some(html.as_str())
@@ -75,6 +76,69 @@ impl CompatHtmlFragments {
                 CompatFragment::Plain { html, .. } => Some(html.as_str()),
             }
         })
+    }
+
+    fn restore_block_marker_paragraphs(&self, text: &str) -> String {
+        if self.fragments.is_empty() || !text.contains(&self.namespace) {
+            return text.to_owned();
+        }
+
+        let mut output = String::with_capacity(text.len());
+        let mut cursor = 0;
+        while let Some(relative_start) = text[cursor..].find("<p>") {
+            let start = cursor + relative_start;
+            let body_start = start + "<p>".len();
+            let Some(relative_end) = text[body_start..].find("</p>") else {
+                break;
+            };
+            let body_end = body_start + relative_end;
+            output.push_str(&text[cursor..start]);
+            let body = &text[body_start..body_end];
+            if block_html_parent_is_safe(&output)
+                && let Some(restored) = self.block_marker_paragraph(body)
+            {
+                output.push_str(&restored);
+                cursor = body_end + "</p>".len();
+                continue;
+            }
+            output.push_str(&text[start..body_end + "</p>".len()]);
+            cursor = body_end + "</p>".len();
+        }
+        output.push_str(&text[cursor..]);
+        output
+    }
+
+    fn block_marker_paragraph(&self, body: &str) -> Option<String> {
+        let mut output = String::new();
+        let mut cursor = 0;
+        let mut count = 0;
+        while cursor < body.len() {
+            let rest = &body[cursor..];
+            if let Some(stripped) = rest.strip_prefix("<br>") {
+                cursor = body.len() - stripped.len();
+                continue;
+            }
+            if let Some(stripped) = rest.strip_prefix("<br/>") {
+                cursor = body.len() - stripped.len();
+                continue;
+            }
+            let whitespace = rest
+                .bytes()
+                .take_while(|byte| byte.is_ascii_whitespace())
+                .count();
+            if whitespace > 0 {
+                cursor += whitespace;
+                continue;
+            }
+            let (index, len) = self.marker_at(rest)?;
+            let CompatFragment::BlockHtml(html) = &self.fragments[index] else {
+                return None;
+            };
+            output.push_str(html);
+            count += 1;
+            cursor += len;
+        }
+        (count > 0).then_some(output)
     }
 
     #[cfg(test)]
@@ -205,22 +269,27 @@ fn restore_block_html_from_paragraph(
     let Some(paragraph_start) = output.rfind("<p>") else {
         return false;
     };
-    if output[paragraph_start + 3..].contains('<') {
+    let leading = &output[paragraph_start + 3..];
+    if !contains_only_text_and_breaks(leading) {
         return false;
     }
     let Some(paragraph_end) = text[marker_end..].find("</p>") else {
         return false;
     };
     let trailing_end = marker_end + paragraph_end;
-    if text[marker_end..trailing_end].contains('<') {
+    let trailing = &text[marker_end..trailing_end];
+    if !contains_only_text_and_breaks(trailing) {
         return false;
     }
     if !block_html_parent_is_safe(&output[..paragraph_start]) {
         return false;
     }
 
+    let leading_end = trailing_break_start(leading).unwrap_or(leading.len());
+    let trailing_start = leading_break_end(trailing).unwrap_or(0);
+    output.truncate(paragraph_start + 3 + leading_end);
     let leading_is_empty = output[paragraph_start + 3..].trim().is_empty();
-    let trailing_is_empty = text[marker_end..trailing_end].trim().is_empty();
+    let trailing_is_empty = trailing[trailing_start..].trim().is_empty();
     if leading_is_empty {
         output.truncate(paragraph_start);
     } else {
@@ -231,9 +300,44 @@ fn restore_block_html_from_paragraph(
         *cursor = trailing_end + "</p>".len();
     } else {
         output.push_str("<p>");
-        *cursor = marker_end;
+        *cursor = marker_end + trailing_start;
     }
     true
+}
+
+fn contains_only_text_and_breaks(value: &str) -> bool {
+    let mut rest = value;
+    while let Some(start) = rest.find('<') {
+        rest = &rest[start..];
+        if let Some(after) = rest
+            .strip_prefix("<br>")
+            .or_else(|| rest.strip_prefix("<br/>"))
+            .or_else(|| rest.strip_prefix("<br />"))
+        {
+            rest = after;
+        } else {
+            return false;
+        }
+    }
+    true
+}
+
+fn trailing_break_start(value: &str) -> Option<usize> {
+    let trimmed_end = value.trim_end().len();
+    ["<br>", "<br/>", "<br />"]
+        .into_iter()
+        .find_map(|tag| value[..trimmed_end].strip_suffix(tag).map(str::len))
+}
+
+fn leading_break_end(value: &str) -> Option<usize> {
+    let leading_whitespace = value.len() - value.trim_start().len();
+    let rest = &value[leading_whitespace..];
+    ["<br>", "<br/>", "<br />"].into_iter().find_map(|tag| {
+        rest.strip_prefix(tag).map(|after| {
+            let trailing_whitespace = after.len() - after.trim_start().len();
+            leading_whitespace + tag.len() + trailing_whitespace
+        })
+    })
 }
 
 /// A trusted block fragment may enter only the root or an open block container.
@@ -432,6 +536,10 @@ mod tests {
                 .restore(&format!("<p>before {marker} after</p>"))
                 .contains("<p><div")
         );
+        assert_eq!(
+            fragments.restore(&format!("<p>before<br>\n{marker}<br>\nafter</p>")),
+            "<p>before</p><div>trusted block</div><p>after</p>",
+        );
     }
 
     #[test]
@@ -554,6 +662,18 @@ mod tests {
             let html = format!("<{parent}><p>{marker}</p></{parent}>");
             assert_eq!(fragments.restore(&html), html, "parent: {parent}");
         }
+    }
+
+    #[test]
+    fn adjacent_block_markers_split_the_paragraph_ftml_puts_around_them() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let first = fragments.push_block_html("<div>first</div>".to_owned());
+        let second = fragments.push_block_html("<div>second</div>".to_owned());
+
+        assert_eq!(
+            fragments.restore(&format!("<p>{first}<br>{second}</p>")),
+            "<div>first</div><div>second</div>",
+        );
     }
 
     #[test]

@@ -149,7 +149,6 @@ pub(super) fn pinned_module_close_end(bytes: &[u8], start: usize) -> Option<usiz
     }
     let (name, name_end) = wikidot_trimmed_name(bytes, cursor);
     let name = name?;
-    let name = name.strip_suffix(b"_").unwrap_or(name);
     if !name.eq_ignore_ascii_case(b"module") && !name.eq_ignore_ascii_case(b"module654") {
         return None;
     }

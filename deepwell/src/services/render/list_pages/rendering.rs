@@ -205,15 +205,14 @@ impl RenderService {
             mut include_budget,
             url,
         } = options;
-        let (Some(current_site_id), Some(current_page_id)) =
-            (current_site_id, current_page_id)
-        else {
+        let Some(current_site_id) = current_site_id else {
             return Ok(IncludeExpansion {
                 wikitext,
                 included_pages: Vec::new(),
                 expanded_include_count: 0,
             });
         };
+        let current_page_id = current_page_id.unwrap_or(0);
 
         if !settings.enable_page_syntax {
             return Ok(IncludeExpansion {
@@ -420,11 +419,15 @@ impl RenderService {
                     .await?;
                     match rendered {
                         ListPagesBlockRenderResult::Expanded(IncludeExpansion {
-                            wikitext: replacement,
+                            wikitext: mut replacement,
                             included_pages: replacement_included_pages,
                             expanded_include_count: replacement_expanded_include_count,
                         }) => {
                             include_budget.consume(replacement_expanded_include_count);
+                            preserve_list_pages_following_paragraph_boundary(
+                                &mut replacement,
+                                &wikitext[block.end..],
+                            );
                             expanded.push_str(&register_generated_list_pages_html(
                                 replacement,
                                 compat_html,
@@ -483,11 +486,15 @@ impl RenderService {
                     .await?;
                     match rendered {
                         ListPagesBlockRenderResult::Expanded(IncludeExpansion {
-                            wikitext: replacement,
+                            wikitext: mut replacement,
                             included_pages: replacement_included_pages,
                             expanded_include_count: replacement_expanded_include_count,
                         }) => {
                             include_budget.consume(replacement_expanded_include_count);
+                            preserve_list_pages_following_paragraph_boundary(
+                                &mut replacement,
+                                &wikitext[block.end..],
+                            );
                             expanded.push_str(&register_generated_list_pages_html(
                                 replacement,
                                 compat_html,
@@ -643,11 +650,10 @@ impl RenderService {
             current_page_id,
             url,
         } = options;
-        let (Some(current_site_id), Some(current_page_id)) =
-            (current_site_id, current_page_id)
-        else {
+        let Some(current_site_id) = current_site_id else {
             return Ok(wikitext);
         };
+        let current_page_id = current_page_id.unwrap_or(0);
 
         if !settings.enable_page_syntax {
             return Ok(wikitext);
@@ -1069,7 +1075,7 @@ impl RenderService {
             page_id: current_page_id,
             url_page,
         } = page_context;
-        let ajax_module_response = current_page_id == 0;
+        let ajax_module_response = page_info.page.as_ref() == "_ajax-module-connector";
         let initial_remaining_include_expansions = include_budget.remaining;
         let ListPagesArguments {
             current_page_only,
@@ -1710,11 +1716,13 @@ impl RenderService {
                 data_form_values: &data_form_values,
                 render_generated_html,
             };
-            let mut body = if template.uses_only_rating() {
-                substitute_list_pages_rating_only(body, page)
+            let body = if template.uses_only_rating() {
+                let mut body = substitute_list_pages_rating_only(body, page);
+                neutralize_authored_markers(&mut body);
+                body
             } else {
                 let mut generated_fragments = CompatHtmlFragments::new(body);
-                let body = substitute_list_pages_variables_with_fragments(
+                let mut body = substitute_list_pages_variables_with_fragments(
                     body,
                     page,
                     index + offset as usize + 1,
@@ -1722,9 +1730,9 @@ impl RenderService {
                     &substitution_context,
                     &mut generated_fragments,
                 );
+                neutralize_authored_markers(&mut body);
                 generated_fragments.restore(&body)
             };
-            neutralize_authored_markers(&mut body);
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
             } else {
@@ -2184,8 +2192,33 @@ pub(in crate::services::render) fn register_generated_list_pages_html(
                 return full_match.as_str().to_owned();
             }
 
-            let html = compat_html.restore(full_match.as_str());
+            let html = compat_html
+                .restore(full_match.as_str())
+                .replace(r#" data-wikijump-compat-date="1""#, "")
+                .replace(r#" data-wikijump-compat-listpages-user="1""#, "");
             compat_html.push_html(html)
         })
         .into_owned()
+}
+
+pub(in crate::services::render) fn preserve_list_pages_following_paragraph_boundary(
+    replacement: &mut String,
+    suffix: &str,
+) {
+    if !replacement.starts_with("[[div class=\"list-pages-box\"]]\n")
+        || !replacement.ends_with("[[/div]]")
+    {
+        return;
+    }
+
+    let suffix = suffix
+        .strip_prefix("\r\n")
+        .or_else(|| suffix.strip_prefix('\n'))
+        .or_else(|| suffix.strip_prefix('\r'));
+    if let Some(suffix) = suffix
+        && !suffix.is_empty()
+        && !suffix.starts_with(['\r', '\n'])
+    {
+        replacement.push('\n');
+    }
 }

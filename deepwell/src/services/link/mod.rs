@@ -39,6 +39,7 @@ mod resolver;
 mod service;
 mod structs;
 
+pub(crate) use self::resolver::PageExistenceSnapshot;
 pub use self::service::LinkService;
 pub use self::structs::{
     GetLinksExternalFrom, GetLinksExternalFromOutput, GetLinksExternalTo,

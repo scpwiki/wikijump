@@ -201,7 +201,7 @@ mod tests {
             language: Cow::Borrowed("en"),
         };
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
-        ftml::preprocess(&mut wikitext);
+        ftml::preprocess_for_layout(&mut wikitext, settings.layout);
         let tokens = ftml::tokenize(&wikitext);
         let result = ftml::parse(&tokens, &page_info, &settings);
         let (tree, errors) = result.into();
@@ -210,7 +210,7 @@ mod tests {
 
         assert!(
             html.contains(
-                r#"<div class="authorlink-wrapper"><a href="javascript:;">Ecronak</a><div class="authorbox"><div class="authorcontent">"#,
+                "<div class=\"authorlink-wrapper\"><a href=\"javascript:;\">Ecronak</a>\n<div class=\"authorbox\"><div class=\"authorcontent\">",
             ),
             "{html}",
         );

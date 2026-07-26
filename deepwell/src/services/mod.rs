@@ -108,6 +108,7 @@ pub use self::forum_thread::ForumThreadService;
 pub use self::import::ImportService;
 pub use self::job::JobService;
 pub use self::link::LinkService;
+pub(crate) use self::link::PageExistenceSnapshot;
 pub use self::message::MessageService;
 pub use self::message_report::MessageReportService;
 pub use self::mfa::MfaService;

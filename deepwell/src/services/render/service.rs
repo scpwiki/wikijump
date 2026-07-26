@@ -39,12 +39,17 @@ use super::compat::preparation::{
 };
 use super::compat::text_fragments::CompatTextFragments;
 use super::compat::wikidot_link_protection::{
-    ProtectedWikidotWikipediaLink, WikidotWikipediaLink, build_wikidot_wikipedia_link,
+    WikidotWikipediaLink, build_wikidot_wikipedia_link,
 };
 use super::diagnostics::{
     CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
     StageGuard,
 };
+use super::ftml_page_existence::{
+    FtmlRenderOutput, InnerPreparedRenderWikitext, ParsedFtmlRender,
+    WikidotCompatLinkTitleMap, native_list_page_link_ref,
+};
+use super::ftml_user_info::UserInfoSnapshot;
 use super::generator::COMPILED_GENERATOR;
 use super::iftags::{
     resolve_outermost_wikidot_iftags,
@@ -58,6 +63,11 @@ use super::include_attachment_owners::{
     split_wikidot_include_argument_segments, wikidot_include_segment_is_space,
 };
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
+use super::include_missing::{
+    PreparedIncluder, collect_include_display_pages,
+    collect_missing_include_replacements, expand_malformed_include_targets,
+    wikidot_no_such_include_replacement,
+};
 use super::include_variable_iftags::resolve_unbound_include_variable_iftags;
 #[cfg(test)]
 use super::include_variables::{
@@ -84,7 +94,7 @@ use super::percent_encoding::percent_encode_path_segment;
 use super::render_options::{
     RenderContext, RenderExpansionOptions, RenderInnerOptions, RenderPageOptions,
 };
-use super::runtime::{IncludeSourceCache, RenderRuntime};
+use super::runtime::{IncludeSource, IncludeSourceCache, RenderRuntime};
 use super::structs::{RenderOutput, RenderPageOutput};
 use super::url_arguments::UrlArguments;
 use super::wikidot_hosts::{
@@ -96,11 +106,13 @@ use crate::error::prelude::{Error, ErrorType, ExnError, OptionExt, Result, Resul
 use crate::hash::{TextHash, k12_hash};
 use crate::models::site::Model as SiteModel;
 use crate::services::ServiceContext;
-use crate::services::settings::{NavigationPageWikitext, SettingsService};
+use crate::services::settings::{
+    NavigationPageWikitext, PageRatingType, SettingsService,
+};
 use crate::services::text_block::{
     MIME_HTML, TextBlock, TextBlockService, mime_for_language,
 };
-use crate::services::{SiteService, TextService};
+use crate::services::{LinkService, SiteService, TextService};
 use crate::types::Reference;
 use crate::types::{PageId, TextBlockType};
 use crate::utils::locale_for_ftml;
@@ -108,10 +120,9 @@ use crate::utils::now;
 use ftml::data::PageRef;
 use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::{
-    Includer, Layout, PageInfo, ParseError, Render, ScoreValue, WikitextMode,
-    WikitextSettings,
+    Includer, Layout, PageInfo, ParseError, ScoreValue, WikitextMode, WikitextSettings,
 };
-use ftml::render::html::{HtmlOutput, HtmlRender};
+use ftml::render::html::HtmlOutput;
 use ftml::tree::{CodeBlock, VariableMap};
 use ftml::{self};
 use regex::Regex;
@@ -249,23 +260,8 @@ struct OuterPreparedRenderWikitext {
     timings: CorpusReplayStageTimings,
 }
 
-#[derive(Debug)]
-struct InnerPreparedRenderWikitext {
-    wikitext: String,
-    included_pages: Vec<PageRef>,
-    wikidot_css_modules: Vec<String>,
-    wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
-    wikidot_color_spans: ProtectedWikidotColorSpans,
-    wikidot_compat_links: Vec<ProtectedWikidotCompatLink>,
-    wikidot_wikipedia_links: Vec<ProtectedWikidotWikipediaLink>,
-    wikidot_compat_html: CompatHtmlFragments,
-    wikidot_compat_text: CompatTextFragments,
-    native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
-    wikidot_embed_iframes: Vec<String>,
-    timings: CorpusReplayStageTimings,
-}
 pub(super) const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
-const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
+pub(super) const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 // The frozen EN corpus contains a page with 1,266 direct includes. Only the
 // trusted corpus finalizer receives this higher ceiling; user-controlled
 // render paths retain the ordinary limit above.
@@ -311,8 +307,6 @@ pub(super) const WIKIDOT_TABVIEW_INIT_SCRIPT: &str =
     r#"<script type="text/javascript"></script>"#;
 const MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS: usize = 128;
 
-pub(super) type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
-
 pub(super) static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
 pub(super) static WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_REGEX: LazyLock<Regex> =
@@ -340,12 +334,14 @@ pub(super) static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
 });
 pub(super) static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone)(?P<head>[^\]]*)\]\]")
-        .unwrap()
+    Regex::new(
+        r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone|Join)(?P<head>[^\]]*)\]\]",
+    )
+    .unwrap()
 });
 pub(super) static GENERATED_LISTPAGES_HTML_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">.*?</table>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">[^<>]*</span>"#,
+        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">.*?</table>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">[^<>]*</span>|<span class="printuser avatarhover" data-wikijump-compat-listpages-user="1">.*?</span>"#,
     )
     .unwrap()
 });
@@ -403,16 +399,16 @@ pub(super) static WIKIDOT_CURRENT_PAGE_LINK_REGEX: LazyLock<Regex> =
 pub(super) static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\*/(?P<target>[^\s\]\n]+)\s+(?P<label>[^\]\n]+)\]").unwrap()
 });
-static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]\n]*)\]\]\]").unwrap()
 });
 static WIKIDOT_MULTILINE_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?s)\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]]*\n[^\]]*)\]\]\]")
         .unwrap()
 });
-static WIKIDOT_QUADRUPLE_LINK_REGEX: LazyLock<Regex> =
+pub(super) static WIKIDOT_QUADRUPLE_LINK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\[\[(?P<target>[^\]\n]+)\]\]\]\]").unwrap());
-static WIKIDOT_UNLABELED_LINK_REGEX: LazyLock<Regex> =
+pub(super) static WIKIDOT_UNLABELED_LINK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\[(?P<target>[^\]\n]+)\]\]\]").unwrap());
 static WIKIDOT_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[/(?P<target>[^\s\]\n]+)\s+(?P<label>[^\]\n]+)\]").unwrap()
@@ -488,10 +484,6 @@ pub(super) static WIKIDOT_COMPAT_STYLE_BLOCK_REGEX: LazyLock<Regex> =
         Regex::new(r#"(?is)<style\b[^>]*\btype\s*=\s*["']text/css["'][^>]*>.*?</style>"#)
             .unwrap()
     });
-static WIKIDOT_USERKARMA_BACKGROUND_STYLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"\sstyle="background-image:\s*url\(https?://www\.wikidot\.com/userkarma\.php\?u=[0-9]+\)""#)
-        .unwrap()
-});
 pub(super) static WIKIDOT_RENDERED_MAILFORM_REGEX: LazyLock<Regex> = LazyLock::new(
     || {
         Regex::new(
@@ -821,7 +813,7 @@ impl RenderService {
             page_info,
             &page_settings,
             RenderInnerOptions {
-                render_context: RenderContext::page(site_id, page_id),
+                render_context: RenderContext::page(site_id, category_id, page_id),
                 max_include_expansions,
                 trace: trace.map(|trace| (trace, CorpusRenderScope::Body)),
                 persist_compiled_text: true,
@@ -855,7 +847,11 @@ impl RenderService {
                         page_info,
                         nav_settings,
                         RenderInnerOptions {
-                            render_context: RenderContext::page_nav(site_id, page_id),
+                            render_context: RenderContext::page_nav(
+                                site_id,
+                                category_id,
+                                page_id,
+                            ),
                             max_include_expansions,
                             trace: trace.map(|trace| (trace, scope)),
                             persist_compiled_text: true,
@@ -937,6 +933,7 @@ impl RenderService {
             &settings,
             RenderExpansionOptions {
                 current_site_id: Some(id.site_id),
+                current_category_id: Some(id.category_id),
                 current_page_id: Some(id.page_id),
                 max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
                 trace: None,
@@ -1040,6 +1037,7 @@ impl RenderService {
     ) -> Result<ExpandedRenderWikitext> {
         let RenderExpansionOptions {
             current_site_id,
+            current_category_id,
             current_page_id,
             max_include_expansions,
             trace,
@@ -1181,6 +1179,15 @@ impl RenderService {
             .await
             .or_raise(make_error)?
         };
+        wikitext = Self::expand_categories_and_page_tree_modules(
+            ctx,
+            wikitext,
+            settings,
+            (current_site_id, current_page_id),
+            &mut wikidot_compat_html,
+        )
+        .await
+        .or_raise(make_error)?;
         wikitext = expand_page_index_modules(
             ctx,
             wikitext,
@@ -1200,11 +1207,26 @@ impl RenderService {
                 settings,
                 &mut wikidot_compat_html,
             );
+            let rating_type = match (
+                RATE_MODULE_REGEX.is_match(&wikitext),
+                current_site_id,
+                current_category_id,
+            ) {
+                (true, Some(site_id), Some(category_id)) => {
+                    SettingsService::get_page_rating_settings(ctx, site_id, category_id)
+                        .await
+                        .or_raise(make_error)?
+                        .rating_type
+                }
+                _ => PageRatingType::PlusMinus,
+            };
             wikitext = Self::expand_rate_modules_with_registry(
                 wikitext,
                 page_info,
                 settings,
+                rating_type,
                 &mut wikidot_compat_html,
+                &mut wikidot_compat_text,
             );
         }
 
@@ -1259,7 +1281,7 @@ impl RenderService {
             );
             Self::normalize_wikidot_cross_closed_div_collapsibles(&mut expanded.wikitext);
             Self::normalize_wikidot_div_style_url_quotes(&mut expanded.wikitext);
-            Self::protect_wikidot_marker_class_include_variables(
+            Self::protect_wikidot_unbound_include_variables(
                 &mut expanded.wikitext,
                 &mut wikidot_compat_text,
             );
@@ -1332,7 +1354,7 @@ impl RenderService {
 
         observer(CorpusReplayPreparationStage::Preprocess);
         let started = Instant::now();
-        ftml::preprocess(&mut outer.wikitext);
+        ftml::preprocess_for_layout(&mut outer.wikitext, settings.layout);
         outer.timings.preprocess_us = elapsed_micros(started);
 
         InnerPreparedRenderWikitext {
@@ -1351,7 +1373,7 @@ impl RenderService {
         }
     }
 
-    async fn render_inner(
+    pub(super) async fn render_inner(
         ctx: &ServiceContext<'_>,
         wikitext: String,
         page_info: &PageInfo<'_>,
@@ -1368,6 +1390,7 @@ impl RenderService {
         } = options;
         let RenderContext {
             current_site_id,
+            current_category_id,
             current_page_id,
             text_block_page_id,
         } = render_context;
@@ -1397,6 +1420,7 @@ impl RenderService {
             settings,
             RenderExpansionOptions {
                 current_site_id,
+                current_category_id,
                 current_page_id,
                 max_include_expansions,
                 trace,
@@ -1443,9 +1467,11 @@ impl RenderService {
             );
             let fallback_link_titles = {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::FallbackTitles);
-                if let Some(site_id) = current_site_id {
+                if let (Some(site_id), Some(site)) =
+                    (current_site_id, current_site.as_ref())
+                {
                     Self::load_wikidot_compat_fallback_link_titles(
-                        ctx, site_id, &wikitext,
+                        ctx, site_id, &site.slug, &wikitext,
                     )
                     .await
                     .or_raise(make_error)?
@@ -1613,15 +1639,64 @@ impl RenderService {
         let render_timeout =
             Self::ftml_compat_render_timeout(&render_config, &outer.wikitext);
         let worker_trace = trace.map(|(trace, scope)| (trace.clone(), scope));
-        let queued_at = worker_trace.as_ref().map(|_| Instant::now());
-
-        let render_task = task::spawn_blocking(move || {
-            let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
-            if let (Some((trace, scope)), Some(queued_at)) = (trace, queued_at) {
+        let parse_worker_trace = worker_trace.clone();
+        let parse_page_info = render_page_info.clone();
+        let parse_settings = render_settings.clone();
+        let parse_queued_at = parse_worker_trace.as_ref().map(|_| Instant::now());
+        let parse_started = Instant::now();
+        let parse_task = task::spawn_blocking(move || {
+            let trace = parse_worker_trace
+                .as_ref()
+                .map(|(trace, scope)| (trace, *scope));
+            if let (Some((trace, scope)), Some(queued_at)) = (trace, parse_queued_at) {
                 trace.record_elapsed(scope, CorpusRenderStage::WorkerQueue, queued_at);
             }
+            let prepared = Self::prepare_inner_render_wikitext(outer, &parse_settings);
+            ParsedFtmlRender::parse(prepared, &parse_page_info, &parse_settings, trace)
+        });
+        let parsed = timeout(render_timeout, parse_task)
+            .await
+            .or_raise(|| {
+                Error::new("failed to parse due to timeout", ErrorType::RenderTimeout)
+            })?
+            .or_raise(|| Error::new("failed to join parse task", ErrorType::Render))?;
+        let parse_elapsed = parse_started.elapsed();
+        let page_references = parsed.tree.page_references();
+        let user_references = parsed.tree.user_references();
+        let page_existence = match current_site_id {
+            Some(site_id) => Some(
+                LinkService::resolve_page_existence(
+                    ctx,
+                    site_id,
+                    &render_page_info.site,
+                    &page_references,
+                )
+                .await
+                .or_raise(make_error)?,
+            ),
+            None => None,
+        };
+        let user_info = UserInfoSnapshot::load(ctx, &user_references).await?;
+        let render_queued_at = worker_trace.as_ref().map(|_| Instant::now());
+        let render_task = task::spawn_blocking(move || {
+            let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
+            if let (Some((trace, scope)), Some(queued_at)) = (trace, render_queued_at) {
+                trace.record_elapsed(scope, CorpusRenderStage::WorkerQueue, queued_at);
+            }
+            let mut html_output = parsed.render(
+                &render_page_info,
+                &render_settings,
+                page_existence.as_ref(),
+                &user_info,
+                trace,
+            );
+            let ParsedFtmlRender {
+                prepared,
+                tree,
+                errors,
+            } = parsed;
             let InnerPreparedRenderWikitext {
-                wikitext,
+                wikitext: _,
                 included_pages,
                 wikidot_css_modules,
                 wikidot_inline_html,
@@ -1632,29 +1707,8 @@ impl RenderService {
                 wikidot_compat_text,
                 native_list_wikipedia_links,
                 wikidot_embed_iframes,
-                timings,
-            } = Self::prepare_inner_render_wikitext(outer, &render_settings);
-            if let Some((trace, scope)) = trace {
-                trace.add_us(
-                    scope,
-                    CorpusRenderStage::InnerProtect,
-                    timings.inner_protection_us,
-                );
-                trace.add_us(scope, CorpusRenderStage::Preprocess, timings.preprocess_us);
-            }
-            let tokens = {
-                let _stage = StageGuard::new(trace, CorpusRenderStage::Tokenize);
-                ftml::tokenize(&wikitext)
-            };
-            let result = {
-                let _stage = StageGuard::new(trace, CorpusRenderStage::Parse);
-                ftml::parse(&tokens, &render_page_info, &render_settings)
-            };
-            let (tree, errors) = result.into();
-            let mut html_output = {
-                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlRender);
-                HtmlRender.render(&tree, &render_page_info, &render_settings)
-            };
+                timings: _,
+            } = prepared;
             // Deepwell's Wikidot compatibility scanner identifies actual CSS module
             // syntax before raw HTML fragments are restored. Keeping that typed
             // provenance separate ensures authored <style> HTML stays in the body.
@@ -1766,17 +1820,12 @@ impl RenderService {
             errors,
             html_block_texts,
             code_blocks,
-        } = timeout(render_timeout, render_task)
+        } = timeout(render_timeout.saturating_sub(parse_elapsed), render_task)
             .await
             .or_raise(|| {
-                Error::new(
-                    "failed to parse and render due to timeout",
-                    ErrorType::RenderTimeout,
-                )
+                Error::new("failed to render due to timeout", ErrorType::RenderTimeout)
             })?
-            .or_raise(|| {
-                Error::new("failed to join parse and render task", ErrorType::Render)
-            })?;
+            .or_raise(|| Error::new("failed to join render task", ErrorType::Render))?;
 
         if let Some((trace, CorpusRenderScope::Body)) = trace {
             trace.set_dimension(
@@ -2323,57 +2372,18 @@ impl RenderService {
         }
     }
 
-    fn protect_wikidot_marker_class_include_variables(
+    fn protect_wikidot_unbound_include_variables(
         wikitext: &mut String,
         fragments: &mut CompatTextFragments,
     ) {
         if !wikitext.contains("{$") {
             return;
         }
-
-        let mut normalized = String::with_capacity(wikitext.len());
-        let mut changed = false;
-
-        for line in wikitext.split_inclusive('\n') {
-            let trimmed = line.trim_start();
-            if !(trimmed.starts_with("[[div") || trimmed.starts_with("[[span"))
-                || !line.contains("class=\"")
-                || !line.contains("{$")
-            {
-                normalized.push_str(line);
-                continue;
-            }
-
-            let mut line = line.to_owned();
-            let mut search_start = 0usize;
-            while let Some(attr_offset) = line[search_start..].find("class=\"") {
-                let value_start = search_start + attr_offset + "class=\"".len();
-                let Some(value_end_offset) = line[value_start..].find('"') else {
-                    break;
-                };
-                let value_end = value_start + value_end_offset;
-                let value = &line[value_start..value_end];
-                let protected = INCLUDE_VARIABLE_REGEX
-                    .replace_all(value, |captures: &regex::Captures<'_>| {
-                        fragments.push(captures.get(0).expect("full match").as_str())
-                    })
-                    .into_owned();
-
-                if protected != value {
-                    line.replace_range(value_start..value_end, &protected);
-                    changed = true;
-                    search_start = value_start + protected.len();
-                } else {
-                    search_start = value_end + 1;
-                }
-            }
-
-            normalized.push_str(&line);
-        }
-
-        if changed {
-            *wikitext = normalized;
-        }
+        *wikitext = INCLUDE_VARIABLE_REGEX
+            .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                fragments.push(captures.get(0).expect("full match").as_str())
+            })
+            .into_owned();
     }
 
     fn normalize_wikidot_multiline_page_links(wikitext: &mut String) {
@@ -2501,12 +2511,6 @@ impl RenderService {
         // FTML uses semantic <s> elements for paired Wikidot --text--
         // strikethrough. Those are visible formatting, not plain wrappers.
         html.replace("<u>", "").replace("</u>", "")
-    }
-
-    pub(super) fn remove_wikidot_userkarma_background_styles(html: &str) -> String {
-        WIKIDOT_USERKARMA_BACKGROUND_STYLE_REGEX
-            .replace_all(html, "")
-            .into_owned()
     }
 
     fn normalize_wikidot_ta_badge_multiline_includes(wikitext: &mut String) {
@@ -3187,6 +3191,9 @@ impl RenderService {
         Box::pin(async move {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
+            if expansion_context.settings.layout.legacy() {
+                expand_malformed_include_targets(&mut wikitext);
+            }
             Self::prepare_wikidot_conditionals_before_include_expansion(
                 &mut wikitext,
                 expansion_context.page_info,
@@ -3221,6 +3228,7 @@ impl RenderService {
                 });
             }
 
+            let mut include_display_pages = collect_include_display_pages(&wikitext);
             let mut includes = Vec::new();
             ftml::include(
                 &wikitext,
@@ -3334,23 +3342,11 @@ impl RenderService {
                     MetacomponentSourceContext::Included,
                 );
 
-                let attachment_owner = AttachmentOwner {
-                    site_slug: source.site_slug.clone(),
-                    page_slug: source.page_slug.clone(),
-                };
+                let nested_context = expansion_context.for_nested_source(&source);
                 let expansion = Self::expand_includes_for_site(
                     ctx,
                     source.wikitext,
-                    IncludeExpansionContext {
-                        current_site_id: source.site_id,
-                        current_site_slug: source.site_slug,
-                        attachment_owner: Some(attachment_owner),
-                        page_info: expansion_context.page_info,
-                        settings: expansion_context.settings,
-                        expand_wikidot_image_blocks: expansion_context
-                            .expand_wikidot_image_blocks,
-                        max_total_includes: expansion_context.max_total_includes,
-                    },
+                    nested_context,
                     include_source_cache,
                     compat_text,
                     depth + 1,
@@ -3374,11 +3370,18 @@ impl RenderService {
                 nested_included_pages.push(expansion.included_pages);
             }
 
+            let missing_replacements = collect_missing_include_replacements(
+                &includes,
+                &fetched_pages,
+                &mut include_display_pages,
+                compat_text,
+            );
             let (mut expanded, direct_included_pages) = ftml::include(
                 &wikitext,
                 expansion_context.settings,
                 PreparedIncluder {
                     pages: fetched_pages,
+                    missing_replacements,
                 },
                 include_error,
             )?;
@@ -3570,7 +3573,20 @@ impl RenderService {
             return wikitext;
         }
 
-        wikitext.replace("##", "&#35;&#35;")
+        let literal_regions = LiteralRegionIndex::new_wikidot_protection(&wikitext);
+        let mut output = String::with_capacity(wikitext.len());
+        let mut cursor = 0;
+        for (start, _) in wikitext.match_indices("##") {
+            output.push_str(&wikitext[cursor..start]);
+            if literal_regions.contains(start) {
+                output.push_str("##");
+            } else {
+                output.push_str("&#35;&#35;");
+            }
+            cursor = start + 2;
+        }
+        output.push_str(&wikitext[cursor..]);
+        output
     }
 
     fn render_long_native_list_runs_with_registry(
@@ -4313,8 +4329,15 @@ fn render_native_list_page_link(
                 .unwrap_or_else(|| native_list_page_link_default_label(target))
         });
     let href = native_list_page_link_href(target);
+    let class = native_list_page_link_ref(target)
+        .filter(|page_ref| {
+            link_titles.is_some_and(|titles| titles.page_is_missing(page_ref))
+        })
+        .map(|_| r#" class="newpage""#)
+        .unwrap_or_default();
     format!(
-        r#"<a href="{href}">{label}</a>"#,
+        r#"<a{class} href="{href}">{label}</a>"#,
+        class = class,
         href = escape_list_pages_html_attr(&href),
         label = label,
     )
@@ -4325,9 +4348,7 @@ fn native_list_page_link_title_label(
     link_titles: Option<&WikidotCompatLinkTitleMap>,
 ) -> Option<String> {
     let slug = native_list_page_link_slug(target)?;
-    link_titles?
-        .get(&slug)
-        .map(|title| escape_list_pages_html_text(title))
+    link_titles?.title(&slug).map(escape_list_pages_html_text)
 }
 
 fn native_list_page_link_href(target: &str) -> String {
@@ -4354,7 +4375,7 @@ fn native_list_page_link_href(target: &str) -> String {
     format!("/{}", slug.trim_matches('-'))
 }
 
-fn native_list_page_link_slug(target: &str) -> Option<String> {
+pub(super) fn native_list_page_link_slug(target: &str) -> Option<String> {
     let target = target.trim();
     if target.is_empty()
         || target.starts_with("http://")
@@ -4550,9 +4571,22 @@ pub(super) fn format_list_pages_rating(score: Option<f32>) -> String {
 pub(super) fn render_read_only_rate_module(
     score: ftml::data::ScoreValue,
     language: &str,
+    rating_type: PageRatingType,
 ) -> String {
     let score = format_score_value(score);
     let labels = wikidot_rate_module_labels(language);
+    let downvote = if rating_type == PageRatingType::PlusMinus {
+        format!(
+            concat!(
+                "<span class=\"ratedown btn btn-default\">",
+                "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"{}\">–</a>",
+                "</span>",
+            ),
+            labels.down_title,
+        )
+    } else {
+        String::new()
+    };
 
     format!(
         concat!(
@@ -4563,19 +4597,13 @@ pub(super) fn render_read_only_rate_module(
             "<span class=\"rateup btn btn-default\">",
             "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"{}\">+</a>",
             "</span>",
-            "<span class=\"ratedown btn btn-default\">",
-            "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"{}\">–</a>",
-            "</span>",
+            "{}",
             "<span class=\"cancel btn btn-default\">",
             "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"{}\">x</a>",
             "</span>",
             "</div>"
         ),
-        labels.rating_prefix,
-        score,
-        labels.up_title,
-        labels.down_title,
-        labels.cancel_title,
+        labels.rating_prefix, score, labels.up_title, downvote, labels.cancel_title,
     )
 }
 
@@ -4597,7 +4625,7 @@ fn wikidot_rate_module_labels(language: &str) -> WikidotRateModuleLabels {
         }
     } else {
         WikidotRateModuleLabels {
-            rating_prefix: "rating: ",
+            rating_prefix: "rating:\u{00a0}",
             up_title: "I like it",
             down_title: "I don't like it",
             cancel_title: "Cancel my vote",
@@ -4751,18 +4779,10 @@ fn corpus_replay_syntax_features(wikitext: &str) -> CorpusReplaySyntaxFeatures {
 }
 
 #[derive(Debug)]
-struct RenderInnerOutput {
-    html_output: HtmlOutput,
-    errors: Vec<ParseError>,
-    compiled_hash: TextHash,
-}
-
-#[derive(Debug)]
-struct FtmlRenderOutput {
-    html_output: HtmlOutput,
-    errors: Vec<ParseError>,
-    html_block_texts: Vec<String>,
-    code_blocks: Vec<CodeBlock<'static>>,
+pub(super) struct RenderInnerOutput {
+    pub(super) html_output: HtmlOutput,
+    pub(super) errors: Vec<ParseError>,
+    pub(super) compiled_hash: TextHash,
 }
 
 #[derive(Debug)]
@@ -4816,6 +4836,24 @@ struct IncludeExpansionContext<'a> {
     max_total_includes: usize,
 }
 
+impl<'a> IncludeExpansionContext<'a> {
+    fn for_nested_source(&self, source: &IncludeSource) -> Self {
+        Self {
+            // Wikidot resolves an unqualified include inside a cross-site include against the original callsite site. The fetched source still owns its relative attachments.
+            current_site_id: self.current_site_id,
+            current_site_slug: self.current_site_slug.clone(),
+            attachment_owner: Some(AttachmentOwner {
+                site_slug: source.site_slug.clone(),
+                page_slug: source.page_slug.clone(),
+            }),
+            page_info: self.page_info,
+            settings: self.settings,
+            expand_wikidot_image_blocks: self.expand_wikidot_image_blocks,
+            max_total_includes: self.max_total_includes,
+        }
+    }
+}
+
 #[derive(Debug)]
 struct CollectingIncluder<'a> {
     includes: &'a mut Vec<IncludeRef<'static>>,
@@ -4844,58 +4882,6 @@ impl<'a, 't> Includer<'t> for CollectingIncluder<'a> {
     }
 }
 
-#[derive(Debug)]
-struct PreparedIncluder {
-    pages: Vec<Option<String>>,
-}
-
-impl<'t> Includer<'t> for PreparedIncluder {
-    type Error = ExnError;
-
-    fn include_pages(
-        &mut self,
-        includes: &[IncludeRef<'t>],
-    ) -> Result<Vec<FetchedPage<'t>>> {
-        if includes.len() != self.pages.len() {
-            return Err(include_error());
-        }
-
-        let pages = std::mem::take(&mut self.pages);
-
-        Ok(includes
-            .iter()
-            .zip(pages)
-            .map(|(include, content)| {
-                let page_ref = include.page_ref().clone();
-                let content = content.map(Cow::Owned);
-
-                FetchedPage { page_ref, content }
-            })
-            .collect())
-    }
-
-    fn no_such_include(&mut self, page_ref: &PageRef) -> Result<Cow<'t, str>> {
-        Ok(wikidot_no_such_include_replacement(page_ref))
-    }
-}
-
-fn wikidot_no_such_include_replacement(page_ref: &PageRef) -> Cow<'static, str> {
-    if is_optional_no_visible_wikidot_include(page_ref) {
-        Cow::Borrowed("")
-    } else {
-        Cow::Owned(format!("No such page: {page_ref}"))
-    }
-}
-
-fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
-    let Some(site) = page_ref.site() else {
-        return false;
-    };
-    let page = page_ref.page();
-    (site.eq_ignore_ascii_case("drizzles") && page.eq_ignore_ascii_case("raven"))
-        || (site.eq_ignore_ascii_case("crom") && page.eq_ignore_ascii_case("pixel"))
-}
-
 fn include_error() -> ExnError {
     Error::new(
         "include expansion returned mismatched page references",
@@ -4912,6 +4898,7 @@ fn own_include_ref(include: &IncludeRef<'_>) -> IncludeRef<'static> {
         .collect::<VariableMap<'static>>();
 
     IncludeRef::new(include.page_ref().clone(), variables)
+        .with_spaced_empty_separator(include.has_spaced_empty_separator())
 }
 
 fn has_include_opening_candidate(content: &str) -> bool {

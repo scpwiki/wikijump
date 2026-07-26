@@ -391,6 +391,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("page_tags_select", page_tags_select);
     register!("page_select", page_select);
     register!("wikidot_list_pages_module", wikidot_list_pages_module);
+    register!("wikidot_page_preview", wikidot_page_preview);
     register!("page_edit", page_edit);
     register!("page_edit_permission", page_edit_permission);
     register!("page_delete", page_delete);

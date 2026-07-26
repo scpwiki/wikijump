@@ -19,14 +19,18 @@
  */
 
 mod backlinks;
+mod categories;
 mod compat;
 mod corpus;
 mod diagnostics;
+mod ftml_page_existence;
+mod ftml_user_info;
 mod generator;
 mod html_text;
 mod iftags;
 mod include_attachment_owners;
 mod include_comment_branches;
+mod include_missing;
 mod include_variable_iftags;
 mod include_variables;
 #[allow(dead_code)]
@@ -34,6 +38,8 @@ mod list_pages;
 mod literal_regions;
 mod metacomponent;
 mod native_list_context;
+mod page_preview;
+mod page_tree;
 mod pages;
 mod pages_by_tag;
 mod percent_encoding;

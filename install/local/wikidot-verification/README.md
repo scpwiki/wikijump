@@ -2,6 +2,96 @@
 
 The scripts in this directory import frozen Wikidot corpus data, inspect a local runtime, capture browser evidence, and reduce large runs into machine-readable verdicts. Expected behavior must come from the frozen corpus, reviewed compatibility policy, or sealed real-Wikidot evidence. Local Wikijump output is diagnostic evidence, not an oracle.
 
+## Syntax differential runner
+
+The syntax differential runner answers context-free “what does this wikitext render as?” questions by freezing anonymous live Wikidot previews once, then streaming the same syntax cases through one long-lived FTML process. The checked-in starter matrix is `fixtures/syntax-differential/preview-cases.jsonl`.
+
+Capture a new no-replace Wikidot reference file with the repository-pinned `wikidot.py` environment:
+
+```sh
+install/local/wikidot-verification/.venv/bin/python \
+  install/local/wikidot-verification/scripts/capture_wikidot_preview_references.py \
+  --cases install/local/wikidot-verification/fixtures/syntax-differential/preview-cases.jsonl \
+  --output /absolute/evidence/path/preview-references.jsonl
+```
+
+Build FTML's `render_html_jsonl` example once, then reuse that executable for every local run:
+
+```sh
+cargo build --manifest-path /path/to/ftml/Cargo.toml --example render_html_jsonl
+node install/local/wikidot-verification/scripts/run-syntax-differential.mjs \
+  --references /absolute/evidence/path/preview-references.jsonl \
+  --renderer /path/to/ftml/target/debug/examples/render_html_jsonl \
+  --output /absolute/evidence/path/verdict.json
+```
+
+Each syntax case declares a `wikidot_observation_tier`, a `local_execution_tier`, and the page title supplied to both renderers. The current acquisition command accepts only `page-preview`; it performs no authentication or mutation. The current local runner executes only `ftml` cases and reports `wikijump-runtime` cases as `not-applicable`.
+
+The verdict requires parsed DOM tree, DOM signature, and visible text parity. Parsing both fragments before comparison accounts for browser parser behavior such as implicit `tbody` insertion without hiding hierarchy, child order, attribute value, comment, or text-node differences. A mismatch retains both raw HTML fragments for diagnosis. The verdict also records the renderer executable SHA-256 and FTML engine revision. Live references record the resolved Wikidot site and domain, the pinned `wikidot.py` commit and version, and the dependency-file SHA-256.
+
+Review the remaining static mismatches against the checked-in identity-bound policy:
+
+```sh
+pnpm --dir install/local/wikidot-verification syntax-dispositions -- \
+  --verdict /absolute/evidence/path/verdict.json \
+  --policy install/local/wikidot-verification/fixtures/syntax-differential/disposition-policy.json
+```
+
+The policy accepts only `intentional-security-boundary`, `wikijump-runtime-boundary`, and `live-observation-resource-failure`, and binds every entry to both its case ID and source SHA-256. An unknown mismatch, changed source, runner error, missing policy case, resolved exception, or policy entry aimed at a `not-applicable` case fails the check. Runtime cases remain outside this exception path: declare `local_execution_tier: wikijump-runtime` and let the syntax runner report them as `not-applicable`, then exercise them through the saved-page runtime lane.
+
+Recorded batch-safe cases default to the measured 8,000-character target and 9,000-character hard limit. The 2026-07-26 matrix needed 68 batch requests plus 130 isolated interaction retries at this size. A 20,000-character run needed 33 successful or retry requests plus 173 isolated retries, while a 50,000-character run needed 18 successful or retry requests plus 186 isolated retries; the smaller default therefore minimized total Wikidot requests. Wikidot also returned empty previews for content-dependent 20,000-character and 50,000-character shards, and for every measured 84,528-character and roughly 150,000-character shard. Run `build-failed-preview-retries.mjs` and recapture only failed shards at the default retry size. `compare-wikidot-live-pages.mjs` accepts repeated `--captures` arguments, replaces failed parent shards with successful retries, and fails if any case remains unresolved. Cases whose batched rendering differs from their isolated FTML rendering must then move to the isolated lane; source length alone is not proof that cases are context-independent.
+
+Includes, page-existence checks, permissions, and runtime modules use the saved-page runtime lane because PagePreview does not execute them. `capture_wikidot_existing_pages.py` reads an existing Wikidot page anonymously and freezes its page ID, latest revision ID and number, source hash, selected rendered subtree, actor state, resolved site and domain, capture time, and pinned acquisition dependencies. It accepts only the read-only `scp-wiki`, `scp-jp`, and `sandbox-for-codex` sites and mutates none of them.
+
+```sh
+install/local/wikidot-verification/.venv/bin/python \
+  install/local/wikidot-verification/scripts/capture_wikidot_existing_pages.py \
+  --plans /absolute/evidence/path/saved-page-plans.jsonl \
+  --output /absolute/evidence/path/saved-page-references.jsonl
+
+node install/local/wikidot-verification/scripts/run-saved-page-runtime-differential.mjs \
+  --references /absolute/evidence/path/saved-page-references.jsonl \
+  --runtime-identity /absolute/evidence/path/runtime-identity.json \
+  --local-base https://scp-wiki.wikijump.localhost \
+  --output /absolute/evidence/path/saved-page-runtime-verdict.json
+```
+
+The runtime verdict compares the selected parsed DOM hierarchy, child order, attribute values, and visible text, then checks required class tokens and forbidden unexpanded directives. It binds the Wikidot source and revision identities to the exact Wikijump SHA, FTML SHA, dependency lock hash, executable or image hash, and runtime configuration hash. Output creation is no-replace. The first canary is the existing read-only `scp-9507` page and its stray-open-bracket include shape from Issue 899.
+
+## Generic marker runtime differential
+
+`scripts/run-generic-runtime-differential.mjs` replays the generic saved-page marker captures against an already-running disposable Deepwell runtime. It validates every case, capture, page plan, saved-source hash, marker identity, PagePreview reclassification, and candidate runtime identity before mutation. For each selected capture page it creates exactly one local page, reads its compiled body, compares the marked fragments, and deletes the page in `finally` before moving to the next capture page. The runner does not start or own Docker resources.
+
+```bash
+WIKIDOT_VERIFY_ADMIN_EMAIL=... WIKIDOT_VERIFY_ADMIN_PASS=... \
+node install/local/wikidot-verification/scripts/run-generic-runtime-differential.mjs \
+  --cases /absolute/evidence/path/runtime-cases.jsonl \
+  --captures /absolute/evidence/path/runtime-captures.jsonl \
+  --external-reference /absolute/evidence/path/runtime-preview-references.jsonl \
+  --runtime-identity /absolute/evidence/path/runtime-identity.json \
+  --rpc-url http://127.0.0.1:2741/jsonrpc \
+  --text-block-url http://127.0.0.1:9000/deepwell-text-blocks/ \
+  --output /absolute/evidence/path/generic-runtime-verdict.json
+```
+
+Repeat `--captures` and `--external-reference` for multiple artifacts. `--text-block-url` must name the loopback-only anonymous-read endpoint for the disposable `deepwell-text-blocks` bucket. The runner reads each persisted HTML block before comparison, records its ordinal, byte count, SHA-1, and SHA-256, and requires the object to return 404 after page cleanup. Selection is the latest successful fragment capture by `captured_at`; a later failed attempt does not erase an earlier valid observation. Observed differences remain `true-mismatch`; syntax-derived state preconditions are diagnostic hints and never hide an include or module implementation defect. The one explicit exception is a traversal-bearing `[[file ...]]` target: when Wikijump preserves that exact single construct literally while Wikidot emits a link, the report records `accepted-security-deviation`, never `match`. Categories comparisons normalize only the volatile numeric category ID after checking category names and order, toggler/pages/options linkage, and ID uniqueness. Acquisition gaps make the verdict incomplete, while true mismatches and runtime failures fail it. A cleanup failure aborts the run before another page can inherit contaminated state. Output creation is no-replace and credentials are accepted only through the two environment variables shown above.
+
+`scripts/run-generic-runtime-differential-stack.mjs` is the end-to-end controller. It requires a clean Wikijump candidate, builds a manifest-bound Deepwell binary, starts only a labeled disposable database/cache/files/Deepwell stack, exposes Deepwell and anonymous reads for that run's text-block bucket on separate loopback ports, invokes the runner, saves stack logs next to the verdict, and removes every container, named volume, network, target directory, temporary configuration, and loopback listener it created. The files bucket stays private. It reads immutable image IDs from the standing containers but never mounts standing volumes. Repeat `--state-fixture` to apply provenance-backed `wikijump_syntax_differential.runtime_state_fixture.v1` JSON artifacts before comparison. Each artifact binds present-page wikitext to SHA-256 and source provenance, deletes declared absent pages, keeps run-owned seed pages for declared active category slugs, and imports provenance-bound Wikidot user identities. `capture-reference-runtime-state-fixture.mjs` accepts repeated `--categories-case` and `--users-case` inputs plus declared absent pages; user imports use the saved-page capture time and reject any inconsistent printuser ID, name, slug, avatar, or karma linkage. The verdict records each input file SHA-256 and every user import, create, edit, delete, category seed, and rerender receipt. State fixtures are rejected outside this disposable-stack controller and can never target the standing runtime through this path.
+
+```bash
+pnpm runtime-differential-stack \
+  --repository /absolute/clean/wikijump-worktree \
+  --cases /absolute/evidence/path/runtime-cases.jsonl \
+  --captures /absolute/evidence/path/runtime-captures.jsonl \
+  --external-reference /absolute/evidence/path/runtime-preview-references.jsonl \
+  --state-fixture /absolute/evidence/path/runtime-state-fixture.json \
+  --output /absolute/evidence/path/generic-runtime-verdict.json
+```
+
+Run-owned Wikidot mutations remain a separate path. `capture_wikidot_saved_pages.py` permits only `sandbox-for-codex`, only slugs matching `run-owned:ftml-diff-YYYYMMDD-NNN`, and create-only operation followed by identity-checked cleanup. It refuses sources above 160,000 characters or 500,000 bytes, existing slugs, changed cleanup targets, and insecure authenticated transport outside that exact site. Real EN and JP sites remain read-only.
+
+The 2026-07-26 benchmark streamed 10,000 frozen matching cases through one debug FTML renderer process and completed the local render and comparison in 1.72 seconds with 302,324 KiB maximum RSS. Treat this as a throughput baseline, not a fixed performance gate.
+
 ## Python environment
 
 The authenticated Wikidot helper runs from this component's private `.venv`, with the owner's `Rokurolize/wikidot.py` fork pinned by commit in `requirements.txt`. Create or refresh the environment before using the theme-localization execution path:

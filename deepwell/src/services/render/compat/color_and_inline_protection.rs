@@ -303,6 +303,29 @@ pub(in crate::services::render) fn substitute_wikidot_protected_inline_typograph
     output
 }
 
+pub(in crate::services::render) fn substitute_wikidot_protected_inline_dashes_in_html(
+    html: &str,
+) -> String {
+    let mut output = String::with_capacity(html.len());
+    let mut rest = html;
+
+    while let Some(tag_start) = rest.find('<') {
+        let (before, after_start) = rest.split_at(tag_start);
+        output.push_str(&substitute_wikidot_protected_inline_dashes(before));
+
+        let Some(tag_end) = after_start.find('>') else {
+            output.push_str(&substitute_wikidot_protected_inline_dashes(after_start));
+            return output;
+        };
+        let (tag, after_tag) = after_start.split_at(tag_end + 1);
+        output.push_str(tag);
+        rest = after_tag;
+    }
+
+    output.push_str(&substitute_wikidot_protected_inline_dashes(rest));
+    output
+}
+
 pub(in crate::services::render) fn substitute_wikidot_protected_inline_text_typography(
     value: &str,
 ) -> String {

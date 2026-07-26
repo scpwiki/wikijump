@@ -20,7 +20,7 @@ use super::super::literal_regions::{
 /// construct rather than a body owner. `div`, `blockquote`/`quote`, and the
 /// four symbolic alignment rules are the deliberately small safe set, and
 /// only after a valid matching close.
-pub(super) fn collect_unproven_scope_ranges(
+pub(in crate::services::render) fn collect_unproven_scope_ranges(
     source: &str,
     literals: &LiteralRegionIndex,
 ) -> Vec<Range<usize>> {
