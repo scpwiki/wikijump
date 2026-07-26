@@ -71,6 +71,9 @@ wikidot-normalize = "0.12"
 wikidot-path = "0.6"
 arrayvec = "0.7.6"
 
+# Local crates
+deepwell-relation-impl-derive = { path = "relation-impl-derive" }
+
 [dev-dependencies]
 maplit = "1"
 pretty_assertions = "1"
