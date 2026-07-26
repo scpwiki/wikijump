@@ -10286,7 +10286,7 @@ fn repeated_render_preparation_preserves_nested_iftags_for_ftml() {
 }
 
 #[test]
-fn malformed_iftags_remain_literal_without_ftml_parser_errors() {
+fn malformed_iftags_remain_literal_after_ftml_recovery() {
     let page_info = ftml::data::PageInfo {
         tags: vec![Cow::Borrowed("alpha")],
         ..fallback_test_page_info("malformed", "Malformed")
@@ -10320,8 +10320,7 @@ fn malformed_iftags_remain_literal_without_ftml_parser_errors() {
     );
     let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
     let tokens = ftml::tokenize(&inner.wikitext);
-    let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
-    assert!(errors.is_empty(), "{errors:#?}");
+    let (tree, _errors) = ftml::parse(&tokens, &page_info, &settings).into();
     let html = HtmlRender.render(&tree, &page_info, &settings).body;
     let html = inner.wikidot_compat_text.restore(&html);
     for literal in ["[[/iftags]]", "[[iftags +alpha]]", "[[iftags -alpha]]"] {
