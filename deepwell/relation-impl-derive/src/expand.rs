@@ -18,6 +18,27 @@ pub fn expand_stream(
         define_struct,
     }: RelationSettings,
 ) -> TokenStream {
+    let context = GenerationContext {
+        field_name: &field_name,
+        struct_name: &struct_name,
+        dest_name: &dest_name,
+        dest_type: &dest_type,
+        from_name: &from_name,
+        from_type: &from_type,
+    };
+
+    let get_method_impl = generate_get_methods(context);
+
+    let CreateDefinitions {
+        create_struct_def,
+        create_method_impl,
+    } = generate_create_defs(context, data_type.as_ref(), create_fn);
+
+    let RemoveDefinitions {
+        remove_struct_def,
+        remove_method_impl,
+    } = generate_remove_defs(context, data_type.as_ref(), remove_fn);
+
     todo!()
 }
 
@@ -128,7 +149,7 @@ fn generate_get_methods(
     .into()
 }
 
-fn generate_create_impl(
+fn generate_create_defs(
     GenerationContext {
         field_name,
         struct_name,
@@ -140,10 +161,7 @@ fn generate_create_impl(
     data_type: Option<&Type>,
     create_fn: bool,
 ) -> CreateDefinitions {
-    let error_name = make_ident(format!("{}Relation", struct_name));
-
     let create_struct = make_ident(format!("Create{}", struct_name));
-
     let create_struct_def = match data_type {
         Some(data_type) => quote! {
             #[derive(Deserialize, Debug, Clone)]
@@ -172,6 +190,7 @@ fn generate_create_impl(
             (private(), "_inner")
         };
 
+        let error_name = make_ident(format!("{}Relation", struct_name));
         let method_name = make_ident(format!("create_{field_name}{suffix}"));
 
         quote! {
@@ -212,7 +231,7 @@ fn generate_create_impl(
     }
 }
 
-fn generate_remove_impl(
+fn generate_remove_defs(
     GenerationContext {
         field_name,
         struct_name,
