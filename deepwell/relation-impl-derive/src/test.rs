@@ -38,8 +38,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "second");
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
-        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
-        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.create_fn, GenerateMethod::Public);
+        assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 
     {
@@ -58,8 +58,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "user_id");
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
-        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
-        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.create_fn, GenerateMethod::Public);
+        assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 
     {
@@ -77,8 +77,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "user_id");
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
-        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
-        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.create_fn, GenerateMethod::Public);
+        assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 
     {
@@ -98,8 +98,8 @@ fn parse() {
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "UserBlockData");
-        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
-        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.create_fn, GenerateMethod::Public);
+        assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 
     {
@@ -120,8 +120,8 @@ fn parse() {
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "SiteBanData");
-        assert_eq!(settings.create_fn, GenerateMethod::PrivateImpl);
-        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.create_fn, GenerateMethod::Private);
+        assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 
     {
@@ -142,7 +142,7 @@ fn parse() {
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "UserBotMetadata");
-        assert_eq!(settings.create_fn, GenerateMethod::NoImpl);
-        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.create_fn, GenerateMethod::Skip);
+        assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 }
