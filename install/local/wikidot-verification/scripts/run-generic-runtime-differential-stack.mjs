@@ -26,6 +26,7 @@ export function parseArgs(argv) {
     cases: null,
     captures: [],
     externalReferences: [],
+    stateFixtures: [],
     output: null,
     site: "sandbox-for-codex",
   };
@@ -34,6 +35,9 @@ export function parseArgs(argv) {
     if (option === "--repository") args.repository = path.resolve(valueAfter(argv, index++, option));
     else if (option === "--cases") args.cases = path.resolve(valueAfter(argv, index++, option));
     else if (option === "--captures") args.captures.push(path.resolve(valueAfter(argv, index++, option)));
+    else if (option === "--state-fixture") {
+      args.stateFixtures.push(path.resolve(valueAfter(argv, index++, option)));
+    }
     else if (option === "--external-reference") {
       args.externalReferences.push(path.resolve(valueAfter(argv, index++, option)));
     } else if (option === "--output") args.output = path.resolve(valueAfter(argv, index++, option));
@@ -375,6 +379,7 @@ export async function main(argv) {
       "--cases", args.cases,
       ...args.captures.flatMap((file) => ["--captures", file]),
       ...args.externalReferences.flatMap((file) => ["--external-reference", file]),
+      ...args.stateFixtures.flatMap((file) => ["--state-fixture", file]),
       "--runtime-identity", identityPath,
       "--rpc-url", `http://127.0.0.1:${rpcPort}/jsonrpc`,
       "--text-block-url", `http://127.0.0.1:${textBlockPort}/deepwell-text-blocks/`,
@@ -388,6 +393,7 @@ export async function main(argv) {
         ...process.env,
         WIKIDOT_VERIFY_ADMIN_EMAIL: administrator.email,
         WIKIDOT_VERIFY_ADMIN_PASS: administrator.password,
+        WIKIDOT_VERIFY_DISPOSABLE_RUN_ID: runId,
       },
     });
     if (!fs.existsSync(args.output)) {

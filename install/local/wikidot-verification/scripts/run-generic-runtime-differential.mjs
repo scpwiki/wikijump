@@ -20,6 +20,7 @@ export function parseArgs(argv) {
     cases: null,
     captures: [],
     externalReferences: [],
+    stateFixtures: [],
     runtimeIdentity: null,
     rpcUrl: null,
     textBlockUrl: null,
@@ -30,6 +31,9 @@ export function parseArgs(argv) {
     const option = argv[index];
     if (option === '--cases') args.cases = valueAfter(argv, index++, option);
     else if (option === '--captures') args.captures.push(valueAfter(argv, index++, option));
+    else if (option === '--state-fixture') {
+      args.stateFixtures.push(valueAfter(argv, index++, option));
+    }
     else if (option === '--external-reference') {
       args.externalReferences.push(valueAfter(argv, index++, option));
     } else if (option === '--runtime-identity') {
@@ -82,10 +86,17 @@ export async function main(argv) {
       externalReferences: args.externalReferences.flatMap(readJsonLines),
       runtimeIdentity: JSON.parse(fs.readFileSync(args.runtimeIdentity, 'utf8')),
       adapter,
+      stateFixtures: args.stateFixtures.map((path) => ({
+        path,
+        sha256: fileIdentity(path).sha256,
+        fixture: JSON.parse(fs.readFileSync(path, 'utf8')),
+      })),
+      disposableRunId: process.env.WIKIDOT_VERIFY_DISPOSABLE_RUN_ID ?? null,
       inputIdentities: {
         cases: fileIdentity(args.cases),
         captures: args.captures.map(fileIdentity),
         external_references: args.externalReferences.map(fileIdentity),
+        state_fixtures: args.stateFixtures.map(fileIdentity),
         runtime_identity: fileIdentity(args.runtimeIdentity),
       },
     });

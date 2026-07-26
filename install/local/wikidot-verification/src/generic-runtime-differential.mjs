@@ -6,6 +6,7 @@ import {
   sha1,
 } from './runtime-html-blocks.mjs';
 import {validateRuntimeIdentity} from './saved-page-runtime-differential.mjs';
+import {validateRuntimeStateFixtureInput} from './runtime-state-fixture.mjs';
 import {extractMarkedFragments} from '../scripts/verify-ftml-live-pages.mjs';
 
 export const REPORT_SCHEMA = 'wikijump_syntax_differential.generic_runtime_verdict.v1';
@@ -403,6 +404,97 @@ function tabviewTransportStatus(wikidot, wikijump) {
   return 'mismatch';
 }
 
+function containsElement(nodes, name) {
+  return nodes.some((node) =>
+    (node.type === 'element' && node.name === name) ||
+    containsElement(node.children ?? [], name)
+  );
+}
+
+function isAcceptedFileTraversalDeviation(runtimeCase, wikidotDom, wikijumpText) {
+  const match = runtimeCase.source.match(
+    /^\s*\[\[\s*file\s+([^\]\s|]+)(?:\s*\|\s*[^\]]*)?\]\]\s*$/iu,
+  );
+  if (!match || !match[1].split(/[\\/]/u).includes('..')) return false;
+  return wikijumpText.trim() === runtimeCase.source.trim() && containsElement(wikidotDom, 'a');
+}
+
+function nodeText(node) {
+  if (node.type === 'text') return node.value;
+  return (node.children ?? []).map(nodeText).join('');
+}
+
+function projectCategoriesDom(dom) {
+  const categoryIds = new Map();
+  const idCategories = new Map();
+  let invalid = false;
+  let categoryCount = 0;
+  const project = (node) => {
+    const children = (node.children ?? []).map(project);
+    if (node.type !== 'element' || node.name !== 'div') return {...node, children};
+    const elements = children.filter((child) => child.type === 'element');
+    if (
+      elements.length !== 4 ||
+      elements[0].name !== 'h3' ||
+      elements[1].name !== 'a' ||
+      elements[2].name !== 'div' ||
+      elements[3].name !== 'div'
+    ) {
+      return {...node, children};
+    }
+    const category = nodeText(elements[0]);
+    const toggler = elements[1];
+    const pages = elements[2];
+    const options = elements[3];
+    const togglerId = attribute(toggler, 'id')?.match(/^category-pages-toggler-(\d+)$/u)?.[1];
+    const pagesId = attribute(pages, 'id')?.match(/^category-pages-(\d+)$/u)?.[1];
+    const optionsId = attribute(options, 'id')?.match(/^category-pages-(\d+)-options$/u)?.[1];
+    const onclickId = attribute(toggler, 'onclick')?.match(
+      /^WIKIDOT\.modules\.WikiCategoriesModule\.listeners\.toggleListPages\(event, (\d+)\)$/u,
+    )?.[1];
+    if (
+      category.length === 0 ||
+      togglerId == null ||
+      togglerId !== pagesId ||
+      togglerId !== optionsId ||
+      togglerId !== onclickId ||
+      attribute(toggler, 'href') !== 'javascript:;' ||
+      attribute(pages, 'style') !== 'display: none' ||
+      attribute(options, 'style') !== 'display: none' ||
+      (categoryIds.has(category) && categoryIds.get(category) !== togglerId) ||
+      (idCategories.has(togglerId) && idCategories.get(togglerId) !== category)
+    ) {
+      invalid = true;
+      return {...node, children};
+    }
+    categoryIds.set(category, togglerId);
+    idCategories.set(togglerId, category);
+    categoryCount += 1;
+    const token = `category-id:${category}`;
+    const replaceAttribute = (entry) => {
+      if (entry.name === 'id') {
+        return {
+          ...entry,
+          value: entry.value
+            .replace(`category-pages-toggler-${togglerId}`, `category-pages-toggler-${token}`)
+            .replace(`category-pages-${togglerId}`, `category-pages-${token}`),
+        };
+      }
+      if (entry.name === 'onclick') {
+        return {...entry, value: entry.value.replace(`event, ${togglerId})`, `event, ${token})`)};
+      }
+      return entry;
+    };
+    const projected = children.map((child) => {
+      if (![toggler, pages, options].includes(child)) return child;
+      return {...child, attrs: child.attrs.map(replaceAttribute)};
+    });
+    return {...node, children: projected};
+  };
+  const projected = dom.map(project);
+  return {dom: projected, invalid: invalid || categoryCount === 0, category_count: categoryCount};
+}
+
 export function compareRuntimeFragment(
   runtimeCase,
   wikidotHtml,
@@ -446,6 +538,30 @@ export function compareRuntimeFragment(
   const effectiveDomMatches = hasHtmlBlocks
     ? htmlBlockProjectedDomMatches
     : domMatches;
+  const hasCategories = /\[\[\s*module\s+categories(?:\s|\])/iu.test(runtimeCase.source);
+  const wikidotCategories = hasCategories ? projectCategoriesDom(effectiveWikidotDom) : null;
+  const wikijumpCategories = hasCategories ? projectCategoriesDom(effectiveWikijumpDom) : null;
+  const categoryProjectedDomMatches =
+    hasCategories &&
+    !wikidotCategories.invalid &&
+    !wikijumpCategories.invalid &&
+    JSON.stringify(wikidotCategories.dom) === JSON.stringify(wikijumpCategories.dom);
+  const contractDomMatches = hasCategories ? categoryProjectedDomMatches : effectiveDomMatches;
+  const categoryChecks = hasCategories
+    ? {
+        categories_contract: {
+          status: categoryProjectedDomMatches ? 'match' : 'mismatch',
+          wikidot: {
+            invalid: wikidotCategories.invalid,
+            category_count: wikidotCategories.category_count,
+          },
+          wikijump: {
+            invalid: wikijumpCategories.invalid,
+            category_count: wikijumpCategories.category_count,
+          },
+        },
+      }
+    : {};
   const htmlBlockChecks = hasHtmlBlocks
     ? {
         html_block_contract: {
@@ -497,12 +613,13 @@ export function compareRuntimeFragment(
         dom_tree: {status: domMatches ? 'match' : 'mismatch'},
         visible_text: {status: 'match', wikidot: wikidotText, wikijump: wikijumpText},
         ...htmlBlockChecks,
+        ...categoryChecks,
         ...tabviewChecks,
       },
       diagnostic: {wikidot_html: wikidotHtml, wikijump_html: wikijumpHtml},
     };
   }
-  if (effectiveDomMatches && textMatches) {
+  if (contractDomMatches && textMatches) {
     return {
       case_id: runtimeCase.case_id,
       status: 'match',
@@ -510,8 +627,25 @@ export function compareRuntimeFragment(
         dom_tree: {status: domMatches ? 'match' : 'mismatch'},
         visible_text: {status: 'match', wikidot: wikidotText, wikijump: wikijumpText},
         ...htmlBlockChecks,
+        ...categoryChecks,
         ...tabviewChecks,
       },
+    };
+  }
+  if (isAcceptedFileTraversalDeviation(runtimeCase, wikidotDom, wikijumpText)) {
+    return {
+      case_id: runtimeCase.case_id,
+      status: 'accepted-security-deviation',
+      deviation: 'file-traversal-target-preserved-literal',
+      checks: {
+        dom_tree: {status: 'intentionally-different'},
+        visible_text: {
+          status: textMatches ? 'match' : 'intentionally-different',
+          wikidot: wikidotText,
+          wikijump: wikijumpText,
+        },
+      },
+      diagnostic: {wikidot_html: wikidotHtml, wikijump_html: wikijumpHtml},
     };
   }
   const stateReasons = externalStateReasons(runtimeCase.source);
@@ -527,6 +661,7 @@ export function compareRuntimeFragment(
         wikijump: wikijumpText,
       },
       ...htmlBlockChecks,
+      ...categoryChecks,
       ...tabviewChecks,
     },
     diagnostic: {wikidot_html: wikidotHtml, wikijump_html: wikijumpHtml},
@@ -540,8 +675,15 @@ export async function runGenericRuntimeDifferential({
   runtimeIdentity,
   adapter,
   inputIdentities = {},
+  stateFixtures = [],
+  disposableRunId = null,
 }) {
   const identity = validateRuntimeIdentity(runtimeIdentity);
+  const validatedStateFixtures = stateFixtures.map(validateRuntimeStateFixtureInput);
+  const stateFixtureReceipts = [];
+  for (const stateFixture of validatedStateFixtures) {
+    stateFixtureReceipts.push(await adapter.applyStateFixture(stateFixture, disposableRunId));
+  }
   const selection = selectLatestSuccessfulCaptures(cases, captureFiles, externalReferences);
   const comparisons = [...selection.acquisitionFailed];
   const pageReceipts = [];
@@ -697,10 +839,12 @@ export async function runGenericRuntimeDifferential({
     compared:
       count('match') +
       count('static-match-browser-required') +
+      count('accepted-security-deviation') +
       count('state-precondition-mismatch') +
       count('true-mismatch'),
     match: count('match'),
     static_match_browser_required: count('static-match-browser-required'),
+    accepted_security_deviation: count('accepted-security-deviation'),
     external_reference: selection.external.size,
     acquisition_failed: count('acquisition-failed'),
     state_precondition_mismatch: count('state-precondition-mismatch'),
@@ -724,6 +868,7 @@ export async function runGenericRuntimeDifferential({
     input_identities: inputIdentities,
     summary,
     comparisons,
+    state_fixture_receipts: stateFixtureReceipts,
     page_receipts: pageReceipts,
   };
 }
@@ -774,6 +919,7 @@ export class DeepwellRpcAdapter {
     this.textBlockFetchImpl = textBlockFetchImpl;
     this.nextId = 1;
     this.connection = null;
+    this.sites = new Map();
   }
 
   async rpc(method, params = {}, headers = {}) {
@@ -809,14 +955,207 @@ export class DeepwellRpcAdapter {
       sessionToken: login.session_token,
       userId: administrator.user_id,
     };
+    this.sites.set(this.siteSlug, site.site_id);
     return this.connection;
   }
 
-  context(slug) {
+  context(slug, siteId = this.connection.siteId) {
     return {
       'X-Deepwell-Session-Token': this.connection.sessionToken,
-      'X-Deepwell-Site-Id': String(this.connection.siteId),
+      'X-Deepwell-Site-Id': String(siteId),
       'X-Deepwell-Page': slug,
+    };
+  }
+
+  async siteId(siteSlug) {
+    await this.connect();
+    const known = this.sites.get(siteSlug);
+    if (known != null) return known;
+    const site = await this.rpc('site_get', {site: siteSlug});
+    if (!Number.isSafeInteger(site?.site_id)) {
+      throw new Error(`runtime state fixture site does not exist: ${siteSlug}`);
+    }
+    this.sites.set(siteSlug, site.site_id);
+    return site.site_id;
+  }
+
+  async getPageInSite(siteId, slug) {
+    return await this.rpc('page_get', {
+      site_id: siteId,
+      page: slug,
+      details: {wikitext: true, compiled: false},
+    });
+  }
+
+  async createFixturePage(siteId, page) {
+    return await this.rpc(
+      'page_create',
+      {
+        site_id: siteId,
+        slug: page.slug,
+        title: page.title,
+        alt_title: null,
+        wikitext: page.wikitext,
+        layout: 'wikidot',
+        user_id: this.connection.userId,
+        ip_address: '127.0.0.1',
+        tags: [],
+        revision_comments: 'generic runtime differential state fixture',
+      },
+      this.context(page.slug, siteId),
+    );
+  }
+
+  async deleteFixturePage(siteId, page) {
+    await this.rpc(
+      'page_delete',
+      {
+        site_id: siteId,
+        page: page.page_id,
+        last_revision_id: page.revision_id,
+        revision_comments: 'generic runtime differential state fixture',
+        user_id: this.connection.userId,
+        ip_address: '127.0.0.1',
+      },
+      this.context(page.slug, siteId),
+    );
+  }
+
+  async applyStateFixture(input, disposableRunId) {
+    if (typeof disposableRunId !== 'string' || !/^runtime-diff-[0-9a-f-]{12}$/u.test(disposableRunId)) {
+      throw new Error('runtime state fixtures require the disposable stack controller');
+    }
+    await this.connect();
+    const operations = [];
+    const presentPages = [];
+    for (const page of input.fixture.pages) {
+      const siteId = await this.siteId(page.site);
+      let current = await this.getPageInSite(siteId, page.slug);
+      let action;
+      if (current == null) {
+        await this.createFixturePage(siteId, page);
+        action = 'created';
+      } else {
+        const contentChanged = current.wikitext !== page.wikitext || current.title !== page.title;
+        const layoutChanged = current.layout !== 'wikidot';
+        if (contentChanged) {
+          await this.rpc(
+            'page_edit',
+            {
+              site_id: siteId,
+              page: current.page_id,
+              last_revision_id: current.revision_id,
+              revision_comments: 'generic runtime differential state fixture',
+              user_id: this.connection.userId,
+              ip_address: '127.0.0.1',
+              wikitext: page.wikitext,
+              title: page.title,
+            },
+            this.context(page.slug, siteId),
+          );
+        }
+        if (layoutChanged) {
+          await this.rpc(
+            'page_set_layout',
+            {
+              site_id: siteId,
+              page_id: current.page_id,
+              layout: 'wikidot',
+              user_id: this.connection.userId,
+              ip_address: '127.0.0.1',
+            },
+            this.context(page.slug, siteId),
+          );
+        }
+        action = contentChanged || layoutChanged ? 'edited' : 'unchanged';
+      }
+      current = await this.getPageInSite(siteId, page.slug);
+      if (
+        current?.wikitext !== page.wikitext ||
+        current.title !== page.title ||
+        current.layout !== 'wikidot' ||
+        sha256(current.wikitext) !== page.source_sha256
+      ) {
+        throw new Error(`runtime state fixture page did not round-trip: ${page.site}:${page.slug}`);
+      }
+      presentPages.push({siteId, page: current});
+      operations.push({
+        kind: 'page',
+        site: page.site,
+        slug: page.slug,
+        source_sha256: page.source_sha256,
+        page_id: current.page_id,
+        revision_id: current.revision_id,
+        action,
+      });
+    }
+    for (const page of input.fixture.absent_pages) {
+      const siteId = await this.siteId(page.site);
+      const current = await this.getPageInSite(siteId, page.slug);
+      if (current != null) await this.deleteFixturePage(siteId, current);
+      if (await this.getPageInSite(siteId, page.slug)) {
+        throw new Error(`runtime state fixture page remains present: ${page.site}:${page.slug}`);
+      }
+      operations.push({
+        kind: 'absent-page',
+        site: page.site,
+        slug: page.slug,
+        action: current == null ? 'already-absent' : 'deleted',
+      });
+    }
+    for (const category of input.fixture.categories) {
+      const siteId = await this.siteId(category.site);
+      let current = await this.rpc('category_get', {site: siteId, category: category.slug});
+      let action = 'unchanged';
+      if (current == null) {
+        const separator = category.slug === '_default' ? '' : `${category.slug}:`;
+        const slug = `${separator}run-owned-state-fixture-${disposableRunId}`;
+        if (await this.getPageInSite(siteId, slug)) {
+          throw new Error(`runtime state fixture category seed page already exists: ${category.site}:${slug}`);
+        }
+        const temporary = {
+          slug,
+          title: slug,
+          wikitext: '',
+        };
+        const created = await this.createFixturePage(siteId, temporary);
+        const page = await this.getPageInSite(siteId, slug);
+        if (!Number.isSafeInteger(created?.page_id) || page == null) {
+          throw new Error(`runtime state fixture could not seed category: ${category.site}:${category.slug}`);
+        }
+        await this.deleteFixturePage(siteId, page);
+        current = await this.rpc('category_get', {site: siteId, category: category.slug});
+        action = 'created';
+      }
+      if (current?.slug !== category.slug) {
+        throw new Error(`runtime state fixture category did not round-trip: ${category.site}:${category.slug}`);
+      }
+      operations.push({
+        kind: 'category',
+        site: category.site,
+        slug: category.slug,
+        category_id: current.category_id,
+        action,
+      });
+    }
+    for (const {siteId, page} of presentPages.reverse()) {
+      await this.rpc(
+        'page_rerender',
+        {
+          site_id: siteId,
+          category_id: page.page_category_id,
+          page_id: page.page_id,
+        },
+        this.context(page.slug, siteId),
+      );
+    }
+    return {
+      schema: input.fixture.schema,
+      path: input.path,
+      sha256: input.sha256,
+      captured_at: input.fixture.captured_at,
+      capture_source: input.fixture.capture_source,
+      operations,
     };
   }
 

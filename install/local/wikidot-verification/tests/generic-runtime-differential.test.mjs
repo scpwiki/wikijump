@@ -11,6 +11,10 @@ import {
 } from "../src/generic-runtime-differential.mjs";
 import {sha256} from "../src/syntax-differential.mjs";
 import {
+  RUNTIME_STATE_FIXTURE_SCHEMA,
+  validateRuntimeStateFixture,
+} from "../src/runtime-state-fixture.mjs";
+import {
   bindLocalHtmlBlockPayloads,
   sha1,
 } from "../src/runtime-html-blocks.mjs";
@@ -221,6 +225,85 @@ test("fragment comparison never hides mismatches behind inferred state precondit
     "<p>beta</p>",
   );
   assert.equal(mismatch.status, "true-mismatch");
+});
+
+function categoryHtml(category, id) {
+  return [
+    "<div>",
+    `<h3>${category}</h3>`,
+    `<a href="javascript:;" id="category-pages-toggler-${id}" onclick="WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, ${id})">+ list pages</a>`,
+    `<div id="category-pages-${id}" style="display: none"></div>`,
+    `<div id="category-pages-${id}-options" style="display: none"></div>`,
+    "</div>",
+  ].join("");
+}
+
+test("Categories projection normalizes only internally linked volatile category IDs", () => {
+  const caseValue = runtimeCase("categories", "[[module Categories]]");
+  const matching = compareRuntimeFragment(
+    caseValue,
+    `${categoryHtml("_default", 46101607)}${categoryHtml("nav", 46101600)}`,
+    `${categoryHtml("_default", 100000005)}${categoryHtml("nav", 100000006)}`,
+  );
+  assert.equal(matching.status, "match", JSON.stringify(matching, null, 2));
+  assert.equal(matching.checks.dom_tree.status, "mismatch");
+  assert.equal(matching.checks.categories_contract.status, "match");
+
+  const wrongLinkage = categoryHtml("_default", 100000005).replace(
+    "category-pages-100000005-options",
+    "category-pages-100000006-options",
+  );
+  const mismatch = compareRuntimeFragment(caseValue, categoryHtml("_default", 46101607), wrongLinkage);
+  assert.equal(mismatch.status, "true-mismatch");
+  assert.equal(mismatch.checks.categories_contract.status, "mismatch");
+  assert.equal(mismatch.checks.categories_contract.wikijump.invalid, true);
+
+  const wrongOrder = compareRuntimeFragment(
+    caseValue,
+    `${categoryHtml("_default", 1)}${categoryHtml("nav", 2)}`,
+    `${categoryHtml("nav", 3)}${categoryHtml("_default", 4)}`,
+  );
+  assert.equal(wrongOrder.status, "true-mismatch");
+});
+
+test("file traversal is recorded only as an explicit accepted security deviation", () => {
+  const accepted = compareRuntimeFragment(
+    runtimeCase("traversal", "[[file ../elements.tsv | Download Catalog]]"),
+    '<p><a href="/local--files/elements.tsv">Download Catalog</a></p>',
+    "<p>[[file ../elements.tsv | Download Catalog]]</p>",
+  );
+  assert.equal(accepted.status, "accepted-security-deviation");
+  assert.equal(accepted.deviation, "file-traversal-target-preserved-literal");
+
+  const unrelatedDifference = compareRuntimeFragment(
+    runtimeCase("traversal-with-context", "before\n[[file ../elements.tsv]]"),
+    '<p>before</p><p><a href="/local--files/elements.tsv">elements.tsv</a></p>',
+    "<p>before changed</p><p>[[file ../elements.tsv]]</p>",
+  );
+  assert.equal(unrelatedDifference.status, "true-mismatch");
+});
+
+test("runner counts an accepted security deviation separately from matches", async () => {
+  const caseValue = runtimeCase("traversal", "[[file ../elements.tsv | Download Catalog]]");
+  const saved = capture(caseValue, {
+    fragment: '<p><a href="/local--files/elements.tsv">Download Catalog</a></p>',
+  });
+  const report = await runGenericRuntimeDifferential({
+    cases: [caseValue],
+    captureFiles: [{path: "captures.jsonl", captures: [saved]}],
+    externalReferences: [],
+    runtimeIdentity,
+    adapter: {
+      async withCompiledPage(page, inspect) {
+        await inspect(`<p>${page.source}</p>`);
+        return {slug: page.slug, cleanup: {status: "removed"}};
+      },
+    },
+  });
+  assert.equal(report.status, "pass");
+  assert.equal(report.summary.compared, 1);
+  assert.equal(report.summary.match, 0);
+  assert.equal(report.summary.accepted_security_deviation, 1);
 });
 
 function liveTabview(id, {
@@ -983,17 +1066,213 @@ test("Deepwell adapter cleans a page created before a transport failure", async 
   assert.equal(deleteCalls, 1);
 });
 
+function stateFixture({
+  pages = [],
+  absentPages = [],
+  categories = [],
+} = {}) {
+  return {
+    schema: RUNTIME_STATE_FIXTURE_SCHEMA,
+    captured_at: "2026-07-26T00:00:00Z",
+    capture_source: {
+      kind: "standing-corpus",
+      database_container: "wikijump-standing-database-1",
+    },
+    roots: [],
+    unresolved_pages: [],
+    pages,
+    absent_pages: absentPages,
+    categories,
+  };
+}
+
+function fixturePage(site, slug, wikitext, title = slug) {
+  return {
+    site,
+    slug,
+    title,
+    wikitext,
+    source_sha256: sha256(wikitext),
+    provenance: {
+      source: "standing-corpus",
+      page_id: 1,
+      revision_id: 2,
+      wikitext_hash: "a".repeat(32),
+    },
+  };
+}
+
+test("runtime state fixture validation binds page source hashes and provenance", () => {
+  const valid = stateFixture({pages: [fixturePage("scp-wiki", "component:fixture", "fixture")]});
+  assert.equal(validateRuntimeStateFixture(valid), valid);
+  assert.throws(
+    () => validateRuntimeStateFixture({
+      ...valid,
+      pages: [{...valid.pages[0], source_sha256: "0".repeat(64)}],
+    }),
+    /source hash does not match/u,
+  );
+  assert.throws(
+    () => validateRuntimeStateFixture({
+      ...valid,
+      pages: [{...valid.pages[0], provenance: null}],
+    }),
+    /provenance must be an object/u,
+  );
+});
+
+test("runner applies all validated state fixtures before comparisons and retains receipts", async () => {
+  const caseValue = runtimeCase("state-backed");
+  let applied = false;
+  const fixture = stateFixture({
+    pages: [fixturePage("scp-wiki", "component:fixture", "fixture")],
+  });
+  const report = await runGenericRuntimeDifferential({
+    cases: [caseValue],
+    captureFiles: [{path: "captures.jsonl", captures: [capture(caseValue)]}],
+    externalReferences: [],
+    runtimeIdentity,
+    stateFixtures: [{path: "/tmp/state.json", sha256: "c".repeat(64), fixture}],
+    disposableRunId: "runtime-diff-abcdef123456",
+    adapter: {
+      async applyStateFixture(input, runId) {
+        applied = true;
+        assert.equal(input.fixture, fixture);
+        assert.equal(runId, "runtime-diff-abcdef123456");
+        return {path: input.path, sha256: input.sha256, operations: [{action: "created"}]};
+      },
+      async withCompiledPage(page, inspect) {
+        assert.equal(applied, true);
+        await inspect(`<p>${page.source}</p>`);
+        return {slug: page.slug, cleanup: {status: "removed"}};
+      },
+    },
+  });
+  assert.equal(report.status, "pass");
+  assert.deepEqual(report.state_fixture_receipts, [{
+    path: "/tmp/state.json",
+    sha256: "c".repeat(64),
+    operations: [{action: "created"}],
+  }]);
+});
+
+test("Deepwell adapter applies state fixture pages and records disposable receipts", async () => {
+  const pages = new Map([
+    ["8:existing", {
+      page_id: 20,
+      revision_id: 21,
+      page_category_id: 30,
+      slug: "existing",
+      title: "Old",
+      wikitext: "old",
+      layout: "new",
+    }],
+    ["8:remove-me", {
+      page_id: 22,
+      revision_id: 23,
+      page_category_id: 30,
+      slug: "remove-me",
+      title: "Remove",
+      wikitext: "remove",
+      layout: "wikidot",
+    }],
+  ]);
+  let nextPageId = 40;
+  const methods = [];
+  const fetchImpl = async (_url, options) => {
+    const request = JSON.parse(options.body);
+    methods.push(request.method);
+    const {method, params} = request;
+    let result;
+    if (method === "ping") result = "pong";
+    else if (method === "site_get") {
+      result = {site_id: params.site === "sandbox-for-codex" ? 7 : 8};
+    } else if (method === "login") result = {session_token: "token"};
+    else if (method === "user_get") result = {user_id: 9};
+    else if (method === "page_get") result = pages.get(`${params.site_id}:${params.page}`) ?? null;
+    else if (method === "page_create") {
+      const page = {
+        page_id: nextPageId++,
+        revision_id: nextPageId++,
+        page_category_id: 30,
+        slug: params.slug,
+        title: params.title,
+        wikitext: params.wikitext,
+        layout: params.layout,
+      };
+      pages.set(`${params.site_id}:${params.slug}`, page);
+      result = {page_id: page.page_id, revision_id: page.revision_id};
+    } else if (method === "page_edit") {
+      const entry = [...pages.entries()].find(([, page]) => page.page_id === params.page);
+      assert.ok(entry);
+      entry[1].title = params.title;
+      entry[1].wikitext = params.wikitext;
+      entry[1].revision_id += 1;
+      result = {page_id: entry[1].page_id, revision_id: entry[1].revision_id};
+    } else if (method === "page_delete") {
+      const entry = [...pages.entries()].find(([, page]) => page.page_id === params.page);
+      assert.ok(entry);
+      pages.delete(entry[0]);
+      result = {page_id: params.page};
+    } else if (method === "page_set_layout") {
+      const entry = [...pages.entries()].find(([, page]) => page.page_id === params.page_id);
+      assert.ok(entry);
+      entry[1].layout = params.layout;
+      result = null;
+    } else if (method === "category_get") {
+      result = {category_id: 30, slug: params.category};
+    } else if (method === "page_rerender") result = {page_id: params.page_id};
+    else throw new Error(`unexpected method: ${method}`);
+    return {ok: true, json: async () => ({jsonrpc: "2.0", id: request.id, result})};
+  };
+  const adapter = new DeepwellRpcAdapter({
+    rpcUrl: "http://127.0.0.1:2741/jsonrpc",
+    textBlockBaseUrl: "http://127.0.0.1:9000/deepwell-text-blocks/",
+    siteSlug: "sandbox-for-codex",
+    administratorEmail: "admin@example.test",
+    administratorPassword: "secret",
+    fetchImpl,
+  });
+  const fixture = validateRuntimeStateFixture(stateFixture({
+    pages: [
+      fixturePage("scp-wiki", "new", "new source", "New"),
+      fixturePage("scp-wiki", "existing", "new source", "Existing"),
+    ],
+    absentPages: [{site: "scp-wiki", slug: "remove-me"}],
+    categories: [{site: "scp-wiki", slug: "component"}],
+  }));
+  const input = {path: "/tmp/state.json", sha256: "b".repeat(64), fixture};
+  await assert.rejects(adapter.applyStateFixture(input, null), /disposable stack controller/u);
+  const receipt = await adapter.applyStateFixture(input, "runtime-diff-abcdef123456");
+  assert.deepEqual(
+    receipt.operations.map(({kind, slug, action}) => ({kind, slug, action})),
+    [
+      {kind: "page", slug: "new", action: "created"},
+      {kind: "page", slug: "existing", action: "edited"},
+      {kind: "absent-page", slug: "remove-me", action: "deleted"},
+      {kind: "category", slug: "component", action: "unchanged"},
+    ],
+  );
+  assert.equal(receipt.sha256, "b".repeat(64));
+  assert.equal(pages.has("8:remove-me"), false);
+  assert.equal(pages.get("8:existing").wikitext, "new source");
+  assert.equal(methods.filter((method) => method === "page_rerender").length, 2);
+});
+
 test("CLI requires explicit artifacts and preserves repeated capture inputs", () => {
   const args = parseArgs([
     "--cases", "cases.jsonl",
     "--captures", "first.jsonl",
     "--captures", "second.jsonl",
+    "--state-fixture", "state-a.json",
+    "--state-fixture", "state-b.json",
     "--runtime-identity", "identity.json",
     "--rpc-url", "http://127.0.0.1:2741/jsonrpc",
     "--text-block-url", "http://127.0.0.1:9000/deepwell-text-blocks/",
     "--output", "report.json",
   ]);
   assert.deepEqual(args.captures, ["first.jsonl", "second.jsonl"]);
+  assert.deepEqual(args.stateFixtures, ["state-a.json", "state-b.json"]);
   assert.equal(args.site, "sandbox-for-codex");
   assert.throws(() => parseArgs([]), /--cases is required/u);
 });
@@ -1004,9 +1283,11 @@ test("disposable stack controller binds resources and candidate identity", () =>
     "--cases", "/tmp/cases.jsonl",
     "--captures", "/tmp/first.jsonl",
     "--captures", "/tmp/second.jsonl",
+    "--state-fixture", "/tmp/state.json",
     "--output", "/tmp/report.json",
   ]);
   assert.deepEqual(args.captures, ["/tmp/first.jsonl", "/tmp/second.jsonl"]);
+  assert.deepEqual(args.stateFixtures, ["/tmp/state.json"]);
   const labels = {"example.owner": "runtime-diff"};
   const compose = composeDocument({
     project: "runtime-diff-test",
