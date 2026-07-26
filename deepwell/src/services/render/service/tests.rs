@@ -3312,6 +3312,15 @@ fn protects_wikidot_color_spans_before_ftml_parsing() {
         &settings,
     );
     assert_eq!(escaped, "&#35;&#35;&#35;&#35;blue|leftover&#35;&#35;");
+
+    let escaped = RenderService::escape_unrendered_wikidot_color_markers(
+        "[[[home###|Home]]] [[[MAIN/##/page#toc1|Hash routing]]] leftover##".to_owned(),
+        &settings,
+    );
+    assert_eq!(
+        escaped,
+        "[[[home###|Home]]] [[[MAIN/##/page#toc1|Hash routing]]] leftover&#35;&#35;",
+    );
 }
 
 #[test]

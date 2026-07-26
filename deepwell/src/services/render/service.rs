@@ -3572,7 +3572,20 @@ impl RenderService {
             return wikitext;
         }
 
-        wikitext.replace("##", "&#35;&#35;")
+        let literal_regions = LiteralRegionIndex::new_wikidot_protection(&wikitext);
+        let mut output = String::with_capacity(wikitext.len());
+        let mut cursor = 0;
+        for (start, _) in wikitext.match_indices("##") {
+            output.push_str(&wikitext[cursor..start]);
+            if literal_regions.contains(start) {
+                output.push_str("##");
+            } else {
+                output.push_str("&#35;&#35;");
+            }
+            cursor = start + 2;
+        }
+        output.push_str(&wikitext[cursor..]);
+        output
     }
 
     fn render_long_native_list_runs_with_registry(
