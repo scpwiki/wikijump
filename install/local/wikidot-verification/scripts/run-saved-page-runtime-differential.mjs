@@ -25,6 +25,7 @@ function parseArgs(argv) {
     rerenderReceipt: null,
     caseIds: [],
     localBase: null,
+    localCa: null,
     output: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -34,6 +35,7 @@ function parseArgs(argv) {
     else if (option === "--rerender-receipt") args.rerenderReceipt = valueAfter(argv, index++, option);
     else if (option === "--case-id") args.caseIds.push(valueAfter(argv, index++, option));
     else if (option === "--local-base") args.localBase = valueAfter(argv, index++, option);
+    else if (option === "--local-ca") args.localCa = valueAfter(argv, index++, option);
     else if (option === "--output") args.output = valueAfter(argv, index++, option);
     else throw new Error(`unknown option: ${option}`);
   }
@@ -48,11 +50,12 @@ function parseArgs(argv) {
   return args;
 }
 
-async function fetchLocal(reference, localBase) {
+async function fetchLocal(reference, localBase, localCa) {
   const url = new URL(`/${reference.page.slug}`, localBase);
   const html = await new Promise((resolve, reject) => {
     const request = https.get(
       url,
+      localHttpsOptions(url, localCa),
       (response) => {
         if (response.statusCode !== 200) {
           response.resume();
@@ -69,8 +72,19 @@ async function fetchLocal(reference, localBase) {
   return {url: url.href, html};
 }
 
+export function localHttpsOptions(url, localCa) {
+  if (url.protocol !== "https:" || !url.hostname.endsWith(".wikijump.localhost")) {
+    throw new Error("local TLS trust is limited to a Wikijump localhost origin");
+  }
+  if (!Buffer.isBuffer(localCa) || localCa.length === 0) {
+    throw new Error("local TLS trust requires a CA certificate");
+  }
+  return {ca: localCa};
+}
+
 export async function main(argv) {
   const args = parseArgs(argv);
+  const localCa = fs.readFileSync(args.localCa);
   const references = selectSavedPageReferences(
     fs
       .readFileSync(args.references, "utf8")
@@ -90,7 +104,7 @@ export async function main(argv) {
   );
   const comparisons = [];
   for (const reference of references) {
-    const local = await fetchLocal(reference, args.localBase);
+    const local = await fetchLocal(reference, args.localBase, localCa);
     comparisons.push({
       ...compareSavedPageRuntime(reference, local.html, runtimeIdentity),
       local_url: local.url,
