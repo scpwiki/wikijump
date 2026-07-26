@@ -184,7 +184,11 @@ pub(super) fn expand_malformed_include_targets(wikitext: &mut String) {
     let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
     let mut replacements = EMPTY_INCLUDE_TARGET_REGEX
         .find_iter(wikitext)
-        .filter(|matched| !literal_regions.contains(matched.start()))
+        .filter(|matched| {
+            // Live preserves exactly one ASCII space, while two or more spaces and tabs resolve as a missing empty target.
+            !matched.as_str().eq_ignore_ascii_case("[[include ]]")
+                && !literal_regions.contains(matched.start())
+        })
         .map(|matched| (matched.range(), missing_include_source("", None)))
         .collect::<Vec<_>>();
     for captures in SITE_ONLY_INCLUDE_TARGET_REGEX.captures_iter(wikitext) {
@@ -216,14 +220,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn empty_include_targets_become_the_live_missing_page_source() {
-        let mut source = "[[include    ]]\n[[include\t]]".to_owned();
+    fn targetless_include_spacing_matches_each_live_shape() {
+        let mut source =
+            "[[include ]]\n[[include  ]]\n[[include   ]]\n[[include     ]]\n[[include\t]]"
+                .to_owned();
         expand_malformed_include_targets(&mut source);
+        assert!(source.starts_with("[[include ]]\n"));
         assert_eq!(
             source.matches("Included page \"\" does not exist").count(),
-            2
+            4
         );
-        assert_eq!(source.matches("href=\"//edit/true\"").count(), 2);
+        assert_eq!(source.matches("href=\"//edit/true\"").count(), 4);
     }
 
     #[test]
