@@ -7,10 +7,10 @@ use syn::{LitBool, Token, Visibility};
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum GenerateMethod {
     /// Implement a public method to be used.
-    ImplPublic,
+    PublicImpl,
 
     /// Implement a private "inner" method as a helper.
-    ImplPrivate,
+    PrivateImpl,
 
     /// Don't implement the method or struct, have the caller do it themselves.
     NoImpl,
@@ -22,9 +22,9 @@ impl GenerateMethod {
         if token.peek(LitBool) {
             let t_bool: LitBool = input.parse()?;
             if t_bool.value {
-                Ok(GenerateMethod::ImplPublic)
+                Ok(GenerateMethod::PublicImpl)
             } else {
-                Ok(GenerateMethod::ImplPrivate)
+                Ok(GenerateMethod::PrivateImpl)
             }
         } else if token.peek(Token![extern]) {
             let _: Token![extern] = input.parse()?;
@@ -36,8 +36,8 @@ impl GenerateMethod {
 
     pub fn into_vis_and_suffix(self) -> Option<(Visibility, &'static str)> {
         match self {
-            GenerateMethod::ImplPublic => Some((public(), "")),
-            GenerateMethod::ImplPrivate => Some((private(), "_inner")),
+            GenerateMethod::PublicImpl => Some((public(), "")),
+            GenerateMethod::PrivateImpl => Some((private(), "_inner")),
             GenerateMethod::NoImpl => None,
         }
     }
@@ -46,7 +46,7 @@ impl GenerateMethod {
 impl Default for GenerateMethod {
     #[inline]
     fn default() -> Self {
-        GenerateMethod::ImplPublic
+        GenerateMethod::PublicImpl
     }
 }
 
