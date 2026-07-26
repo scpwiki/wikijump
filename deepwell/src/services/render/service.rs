@@ -58,6 +58,7 @@ use super::include_attachment_owners::{
     split_wikidot_include_argument_segments, wikidot_include_segment_is_space,
 };
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
+use super::include_missing::{expand_empty_include_targets, missing_include_source};
 use super::include_variable_iftags::resolve_unbound_include_variable_iftags;
 #[cfg(test)]
 use super::include_variables::{
@@ -342,8 +343,10 @@ pub(super) static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
 });
 pub(super) static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone)(?P<head>[^\]]*)\]\]")
-        .unwrap()
+    Regex::new(
+        r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone|Join)(?P<head>[^\]]*)\]\]",
+    )
+    .unwrap()
 });
 pub(super) static GENERATED_LISTPAGES_HTML_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -3180,6 +3183,9 @@ impl RenderService {
         Box::pin(async move {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
+            if expansion_context.settings.layout.legacy() {
+                expand_empty_include_targets(&mut wikitext);
+            }
             Self::prepare_wikidot_conditionals_before_include_expansion(
                 &mut wikitext,
                 expansion_context.page_info,
@@ -4597,7 +4603,7 @@ fn wikidot_rate_module_labels(language: &str) -> WikidotRateModuleLabels {
         }
     } else {
         WikidotRateModuleLabels {
-            rating_prefix: "rating: ",
+            rating_prefix: "rating:\u{00a0}",
             up_title: "I like it",
             down_title: "I don't like it",
             cancel_title: "Cancel my vote",
@@ -4675,6 +4681,24 @@ pub(super) fn render_clone_module(head: &str) -> String {
 
     format!(
         r#"<a class="button" data-wikijump-compat-clone="1" href="javascript:;">{button}</a>"#,
+        button = escape_list_pages_html_text(button),
+    )
+}
+
+pub(super) fn render_join_module(head: &str) -> String {
+    let button = wikidot_module_argument(head, "button")
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("Join");
+    let class = wikidot_module_argument(head, "class")
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("join-box");
+    format!(
+        concat!(
+            r#"<div class="{class}">"#,
+            r#"<a href="javascript:;" onclick="WIKIDOT.page.listeners.join(event, 'unified')">{button}</a>"#,
+            "</div>",
+        ),
+        class = escape_list_pages_html_attr(class),
         button = escape_list_pages_html_text(button),
     )
 }
@@ -4883,14 +4907,7 @@ fn wikidot_no_such_include_replacement(page_ref: &PageRef) -> Cow<'static, str> 
     if is_optional_no_visible_wikidot_include(page_ref) {
         Cow::Borrowed("")
     } else {
-        let page = page_ref.page();
-        let edit_url = match page_ref.site() {
-            Some(site) => format!("http://{site}.wikidot.com/{page}/edit/true"),
-            None => format!("/{page}/edit/true"),
-        };
-        Cow::Owned(format!(
-            "[[div class=\"error-block\"]]\nIncluded page \"{page}\" does not exist ([[a href=\"{edit_url}\"]]create it now[[/a]])\n[[/div]]"
-        ))
+        Cow::Owned(missing_include_source(page_ref.page(), page_ref.site()))
     }
 }
 

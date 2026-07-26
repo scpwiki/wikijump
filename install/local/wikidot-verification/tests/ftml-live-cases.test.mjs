@@ -303,6 +303,14 @@ test('marked fragment extraction requires direct ordered paragraph markers', () 
   );
 });
 
+test('marked fragment extraction identifies the missing sentinel', () => {
+  const page = {cases: [{case_id: 'a', marker_begin: 'BEGIN_A', marker_end: 'END_A'}]};
+  assert.throws(
+    () => extractMarkedFragments('<div id="page-content"><p>END_A</p></div>', page),
+    /marker integrity failed for a: missing BEGIN_A/u,
+  );
+});
+
 test('marked fragment extraction preserves Wikidot output that ejects an end marker from its paragraph', () => {
   const page = {cases: [{case_id: 'list', marker_begin: 'BEGIN_LIST', marker_end: 'END_LIST'}]};
   const fragments = extractMarkedFragments(

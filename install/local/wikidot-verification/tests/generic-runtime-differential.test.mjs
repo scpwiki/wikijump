@@ -81,6 +81,30 @@ function capture(caseValue, {
   return value;
 }
 
+function combinedCapture(caseValues) {
+  const markers = caseValues.map((caseValue) => ({
+    case_id: caseValue.case_id,
+    source_sha256: caseValue.source_sha256,
+    marker_begin: `WJDIFF_BEGIN_${caseValue.case_id}`,
+    marker_end: `WJDIFF_END_${caseValue.case_id}`,
+  }));
+  const source = markers.map((marker, index) =>
+    `${marker.marker_begin}\n${caseValues[index].source}\n${marker.marker_end}`
+  ).join("\n");
+  const pageContentHtml = `<div id="page-content">${markers.map((marker, index) =>
+    `<p>${marker.marker_begin}</p><p>${caseValues[index].source}</p><p>${marker.marker_end}</p>`
+  ).join("")}</div>`;
+  const value = capture(caseValues[0]);
+  value.saved_source = source;
+  value.saved_source_sha256 = sha256(source);
+  value.page_plan.source = source;
+  value.page_plan.source_sha256 = sha256(source);
+  value.page_plan.cases = markers;
+  value.page_content_html = pageContentHtml;
+  value.page_content_html_sha256 = sha256(pageContentHtml);
+  return value;
+}
+
 test("latest successful capture is selected by capture time, not input order", () => {
   const caseValue = runtimeCase("latest");
   const laterFailure = capture(caseValue, {
@@ -210,6 +234,32 @@ test("runner turns adapter failures into a fail-closed runtime error", async () 
   assert.equal(report.status, "fail");
   assert.equal(report.summary.runtime_error, 1);
   assert.match(report.comparisons[0].diagnostic.error, /cleanup failed/u);
+});
+
+test("runner isolates a marker failure to the case that lost its sentinel", async () => {
+  const brokenCase = runtimeCase("broken-marker");
+  const intactCase = runtimeCase("intact-marker");
+  const captured = combinedCapture([brokenCase, intactCase]);
+  const intactMarker = captured.page_plan.cases[1];
+  const localHtml =
+    `<div id="page-content"><p>broken without sentinels</p><p>${intactMarker.marker_begin}</p>` +
+    `<p>${intactCase.source}</p><p>${intactMarker.marker_end}</p></div>`;
+  const report = await runGenericRuntimeDifferential({
+    cases: [brokenCase, intactCase],
+    captureFiles: [{path: "captures.jsonl", captures: [captured]}],
+    externalReferences: [],
+    runtimeIdentity,
+    adapter: {
+      async withCompiledPage(page, inspect) {
+        await inspect(localHtml);
+        return {slug: page.slug, cleanup: {status: "removed"}};
+      },
+    },
+  });
+  assert.equal(report.summary.runtime_error, 1);
+  assert.equal(report.summary.match, 1);
+  assert.equal(report.comparisons.find((value) => value.case_id === brokenCase.case_id).status, "runtime-error");
+  assert.equal(report.comparisons.find((value) => value.case_id === intactCase.case_id).status, "match");
 });
 
 test("Deepwell adapter removes a created page when inspection fails", async () => {

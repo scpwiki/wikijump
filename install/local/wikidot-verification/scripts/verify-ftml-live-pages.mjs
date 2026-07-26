@@ -72,8 +72,11 @@ export function extractMarkedFragments(html, page) {
 
 function uniqueMarkerIndex(html, marker, caseId) {
   const index = html.indexOf(marker);
-  if (index < 0 || html.indexOf(marker, index + marker.length) >= 0) {
-    throw new Error(`FTML marker integrity failed for ${caseId}`);
+  if (index < 0) {
+    throw new Error(`FTML marker integrity failed for ${caseId}: missing ${marker}`);
+  }
+  if (html.indexOf(marker, index + marker.length) >= 0) {
+    throw new Error(`FTML marker integrity failed for ${caseId}: duplicate ${marker}`);
   }
   return index;
 }

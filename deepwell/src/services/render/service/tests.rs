@@ -1632,7 +1632,7 @@ fn renders_wikidot_read_only_rate_module_with_downvote() {
         PageRatingType::PlusMinus,
     );
 
-    assert!(rendered.contains(r#"<span class="rate-points">rating: "#));
+    assert!(rendered.contains("<span class=\"rate-points\">rating:\u{00a0}"));
     assert!(rendered.contains(r#"<span class="number prw54353">+19</span>"#));
     assert!(rendered.contains(r#"<span class="rateup btn btn-default">"#));
     assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
@@ -1777,6 +1777,26 @@ fn renders_wikidot_clone_module_custom_button() {
 
     assert!(rendered.contains("Clone &lt;now&gt;"));
     assert!(!rendered.contains("[[module Clone"));
+}
+
+#[test]
+fn renders_wikidot_join_module_anonymous_dom() {
+    let rendered = RenderService::expand_join_modules(
+        concat!(
+            "[[module Join]]\n",
+            "[[module Join button=\"Custom <join>\" class=\"join-module\" ",
+            "id=\"ignored\" style=\"display: flex\"]]",
+        )
+        .to_owned(),
+        &WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot),
+    );
+
+    assert!(rendered.contains(r#"<div class="join-box">"#));
+    assert!(rendered.contains(r#"<div class="join-module">"#));
+    assert!(rendered.contains("Custom &lt;join&gt;"));
+    assert!(!rendered.contains("id=\"ignored\""));
+    assert!(!rendered.contains("display: flex"));
+    assert_eq!(rendered.matches("WIKIDOT.page.listeners.join").count(), 2);
 }
 
 #[test]

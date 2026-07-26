@@ -10,8 +10,8 @@ use super::list_pages::{is_tag_cloud_visible_tag, render_tag_cloud_box};
 use super::literal_regions::LiteralRegionIndex;
 use super::service::{
     RATE_MODULE_REGEX, REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
-    render_clone_module, render_members_module_placeholder, render_new_page_module,
-    render_read_only_rate_module, wikidot_module_argument,
+    render_clone_module, render_join_module, render_members_module_placeholder,
+    render_new_page_module, render_read_only_rate_module, wikidot_module_argument,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
@@ -111,11 +111,18 @@ impl RenderService {
                 render_members_module_placeholder(group)
             } else if name.eq_ignore_ascii_case("NewPage") {
                 render_new_page_module(head)
-            } else {
-                debug_assert!(name.eq_ignore_ascii_case("Clone"));
+            } else if name.eq_ignore_ascii_case("Clone") {
                 render_clone_module(head)
+            } else {
+                debug_assert!(name.eq_ignore_ascii_case("Join"));
+                render_join_module(head)
             };
-            output.push_str(&compat_html.push_html(rendered));
+            let marker = if name.eq_ignore_ascii_case("Join") {
+                compat_html.push_block_html(rendered)
+            } else {
+                compat_html.push_html(rendered)
+            };
+            output.push_str(&marker);
             cursor = matched.end();
         }
         if cursor == 0 {
@@ -166,6 +173,21 @@ impl RenderService {
             settings,
             &mut fragments,
             |name| name.eq_ignore_ascii_case("Clone"),
+        );
+        fragments.restore(&protected)
+    }
+
+    #[cfg(test)]
+    pub(super) fn expand_join_modules(
+        wikitext: String,
+        settings: &WikitextSettings,
+    ) -> String {
+        let mut fragments = CompatHtmlFragments::new(&wikitext);
+        let protected = Self::expand_registry_modules_matching(
+            wikitext,
+            settings,
+            &mut fragments,
+            |name| name.eq_ignore_ascii_case("Join"),
         );
         fragments.restore(&protected)
     }

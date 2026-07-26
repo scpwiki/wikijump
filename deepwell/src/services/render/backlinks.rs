@@ -127,8 +127,9 @@ impl RenderService {
                 }
                 None => Vec::new(),
             };
-            expanded
-                .push_str(&compat_html.push_html(render_backlinks_module_box(&pages)));
+            expanded.push_str(
+                &compat_html.push_block_html(render_backlinks_module_box(&pages)),
+            );
             cursor = mtch.end();
         }
 

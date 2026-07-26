@@ -275,10 +275,32 @@ export async function runGenericRuntimeDifferential({
           source_sha256: capture.saved_source_sha256,
         },
         async (compiledBodyHtml) => {
-          const fragments = extractMarkedFragments(compiledBodyHtml, capture.page_plan);
+          let fragments = null;
+          try {
+            fragments = extractMarkedFragments(compiledBodyHtml, capture.page_plan);
+          } catch {
+            // A syntax case can consume or suppress its own sentinel without
+            // invalidating later, independently extractable cases on the page.
+          }
           for (const caseId of page.case_ids) {
-            const localHtml = fragments.get(caseId);
-            if (localHtml == null) throw new Error(`local marker extraction failed: ${caseId}`);
+            const marker = capture.page_plan.cases.find((value) => value.case_id === caseId);
+            let localHtml = fragments?.get(caseId);
+            try {
+              if (localHtml == null) {
+                localHtml = extractMarkedFragments(compiledBodyHtml, {cases: [marker]}).get(caseId);
+              }
+              if (localHtml == null) throw new Error(`local marker extraction failed: ${caseId}`);
+            } catch (error) {
+              pageComparisons.push({
+                case_id: caseId,
+                status: 'runtime-error',
+                diagnostic: {
+                  slug: capture.page_plan.slug,
+                  error: error instanceof Error ? error.message : String(error),
+                },
+              });
+              continue;
+            }
             const reference = selection.selected.get(caseId);
             const comparison = compareRuntimeFragment(
               selection.casesById.get(caseId),

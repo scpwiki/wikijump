@@ -27,6 +27,7 @@ mod html_text;
 mod iftags;
 mod include_attachment_owners;
 mod include_comment_branches;
+mod include_missing;
 mod include_variable_iftags;
 mod include_variables;
 #[allow(dead_code)]
