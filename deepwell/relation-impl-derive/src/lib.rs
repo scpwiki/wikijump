@@ -1,7 +1,6 @@
 mod case;
 mod expand;
 mod parse;
-mod types;
 mod util;
 
 #[cfg(test)]
