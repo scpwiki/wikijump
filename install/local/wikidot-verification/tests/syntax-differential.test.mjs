@@ -79,6 +79,10 @@ test('visibleText follows parsed browser text and preserves preformatted whitesp
     visibleText('<span class="wiki-email">moc.elpmaxe|cba#moc.elpmaxe|cba</span>'),
     'abc@example.com',
   );
+  assert.equal(
+    visibleText('<span class="wiki-email">c|b|a#c|b|a</span>'),
+    'a@b@c',
+  );
 });
 
 test('syntax comparison requires both DOM signature and visible text parity', () => {
@@ -158,6 +162,10 @@ test('canonical DOM requires hierarchy, attribute values, and preformatted white
   assert.deepEqual(
     canonicalDom('<span class="wiki-email">moc.elpmaxe|cba#moc.elpmaxe|cba</span>'),
     canonicalDom('<span class="wiki-email" style="visibility: visible;"><a href="mailto:abc@example.com">abc@example.com</a></span>'),
+  );
+  assert.deepEqual(
+    canonicalDom('<span class="wiki-email">c|b|a#c|b|a</span>'),
+    canonicalDom('<span class="wiki-email" style="visibility: visible;"><a href="mailto:a@b@c">a@b@c</a></span>'),
   );
   assert.notDeepEqual(
     canonicalDom('<span class="wiki-email">moc.elpmaxe|cba#different</span>'),

@@ -10,6 +10,7 @@ export const FTML_RENDER_RESULT_SCHEMA = 'wikijump_syntax_differential.ftml_rend
 export const SYNTAX_COMPARISON_SCHEMA = 'wikijump_syntax_differential.syntax_comparison.v1';
 
 export function sha256(value) {
+  // lgtm[js/insufficient-password-hash] This hashes captured content for identity checks, not passwords.
   return createHash('sha256').update(value).digest('hex');
 }
 
@@ -131,7 +132,7 @@ function wikidotObfuscatedEmailAddress(node) {
   if (separator <= 0 || child.value.slice(0, separator) !== child.value.slice(separator + 1)) {
     return null;
   }
-  return [...child.value.slice(0, separator)].reverse().join('').replace('|', '@');
+  return [...child.value.slice(0, separator)].reverse().join('').replaceAll('|', '@');
 }
 
 function canonicalWikidotEmail(node) {

@@ -42,7 +42,6 @@ async function fetchLocal(reference, localBase) {
   const html = await new Promise((resolve, reject) => {
     const request = https.get(
       url,
-      {rejectUnauthorized: false},
       (response) => {
         if (response.statusCode !== 200) {
           response.resume();
