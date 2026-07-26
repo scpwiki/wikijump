@@ -12,14 +12,21 @@ SPEC.loader.exec_module(MODULE)
 
 
 def page_plan(source: str = "alpha") -> dict:
+    source_hash = MODULE.sha256(source)
     return {
         "schema": MODULE.PAGE_PLAN_SCHEMA,
         "page_index": 1,
         "slug": "run-owned:ftml-diff-20260726-001",
         "title": "FTML differential 001",
         "source": source,
-        "source_sha256": MODULE.sha256(source),
-        "cases": [{"case_id": "alpha", "marker_begin": "BEGIN_ALPHA", "marker_end": "END_ALPHA"}],
+        "source_sha256": source_hash,
+        "cases": [{
+            "case_id": "alpha",
+            "source_sha256": source_hash,
+            "page_scope": "batch-safe",
+            "marker_begin": "WJDIFF_BEGIN_ALPHA",
+            "marker_end": "WJDIFF_END_ALPHA",
+        }],
     }
 
 
@@ -39,6 +46,22 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "saved-page limit"):
             MODULE.validate_plan(page_plan("x" * (MODULE.MAX_SOURCE_CHARACTERS + 1)))
 
+    def test_plan_validation_accepts_one_sentinel_free_isolated_case(self):
+        plan = page_plan("alpha_")
+        plan["cases"] = [{
+            "case_id": "alpha",
+            "source_sha256": plan["source_sha256"],
+            "page_scope": "isolated",
+        }]
+        self.assertEqual(MODULE.validate_plan(plan)["cases"][0]["case_id"], "alpha")
+        MODULE.verify_saved_markers(plan, {
+            "saved_source": "alpha_",
+            "saved_source_sha256": plan["source_sha256"],
+        })
+        plan["cases"][0]["marker_end"] = "WJDIFF_END_ALPHA"
+        with self.assertRaisesRegex(ValueError, "not sentinel-free"):
+            MODULE.validate_plan(plan)
+
     def test_ledger_appends_durable_json_lines(self):
         with tempfile.TemporaryDirectory() as root:
             ledger = Path(root) / "ledger.jsonl"
@@ -50,8 +73,8 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
     def test_saved_marker_validation_accepts_server_source_normalization(self):
         plan = page_plan()
         snapshot = {
-            "saved_source": "BEGIN_ALPHA\nalpha normalized\nEND_ALPHA",
-            "saved_source_sha256": MODULE.sha256("BEGIN_ALPHA\nalpha normalized\nEND_ALPHA"),
+            "saved_source": "WJDIFF_BEGIN_ALPHA\nalpha normalized\nWJDIFF_END_ALPHA",
+            "saved_source_sha256": MODULE.sha256("WJDIFF_BEGIN_ALPHA\nalpha normalized\nWJDIFF_END_ALPHA"),
         }
         MODULE.verify_saved_markers(plan, snapshot)
         snapshot["saved_source"] = "alpha normalized"

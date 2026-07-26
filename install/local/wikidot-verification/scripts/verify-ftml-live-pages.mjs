@@ -47,6 +47,9 @@ export function extractMarkedFragments(html, page) {
     (node) => node.tagName === 'div' && node.attrs?.some((attr) => attr.name === 'id' && attr.value === 'page-content'),
   );
   const children = pageContent?.childNodes ?? fragmentChildren;
+  if (page.cases.length === 1 && page.cases[0].page_scope === 'isolated') {
+    return new Map([[page.cases[0].case_id, children.map(serializeOuter).join('')]]);
+  }
   const markerIndices = new Map();
   for (const [index, node] of children.entries()) {
     if (node.tagName !== 'p') continue;

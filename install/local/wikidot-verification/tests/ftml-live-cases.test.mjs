@@ -267,6 +267,13 @@ test('page builder keeps isolated runtime cases on singleton pages', () => {
     pages.map((page) => page.cases.map((value) => value.case_id)),
     [['safe-before'], ['isolated'], ['safe-after-one', 'safe-after-two']],
   );
+  assert.equal(pages[1].source, cases[1].source);
+  assert.deepEqual(pages[1].cases, [{
+    case_id: 'isolated',
+    source_sha256: '2'.repeat(64),
+    page_scope: 'isolated',
+  }]);
+  assert.doesNotMatch(pages[1].source, /WJDIFF_/u);
 });
 
 test('failed preview retry builder keeps only pages with missing markers', () => {
@@ -384,6 +391,21 @@ test('marked fragment extraction preserves Wikidot output that ejects an end mar
     page,
   );
   assert.equal(fragments.get('list'), '<ul><li>alpha</li></ul>');
+});
+
+test('isolated fragment extraction uses the whole page content without sentinels', () => {
+  const page = {
+    cases: [{
+      case_id: 'isolated',
+      source_sha256: '1'.repeat(64),
+      page_scope: 'isolated',
+    }],
+  };
+  const fragments = extractMarkedFragments(
+    '<div id="page-content"><style>body { color: red; }</style><p>visible</p></div>',
+    page,
+  );
+  assert.equal(fragments.get('isolated'), '<style>body { color: red; }</style><p>visible</p>');
 });
 
 test('live fragment comparison requires parsed DOM and visible text parity', () => {

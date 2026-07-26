@@ -70,12 +70,23 @@ function validateCapture(value, casesById) {
   for (const marker of page.cases) {
     const runtimeCase = casesById.get(marker.case_id);
     if (!runtimeCase) continue;
-    if (runtimeCase.page_scope === 'isolated' && page.cases.length !== 1) {
-      throw new Error(`isolated runtime case shares a page: ${marker.case_id}`);
-    }
     assertSha(marker.source_sha256, `page case source hash for ${marker.case_id}`);
     if (marker.source_sha256 !== runtimeCase.source_sha256) {
       throw new Error(`page case source identity changed: ${marker.case_id}`);
+    }
+    if (runtimeCase.page_scope === 'isolated') {
+      if (page.cases.length !== 1) {
+        throw new Error(`isolated runtime case shares a page: ${marker.case_id}`);
+      }
+      if (
+        marker.page_scope !== 'isolated' ||
+        marker.marker_begin != null ||
+        marker.marker_end != null ||
+        page.source !== runtimeCase.source
+      ) {
+        throw new Error(`isolated runtime case is not sentinel-free: ${marker.case_id}`);
+      }
+      continue;
     }
     for (const field of ['marker_begin', 'marker_end']) {
       if (typeof marker[field] !== 'string' || !marker[field].startsWith('WJDIFF_')) {

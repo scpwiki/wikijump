@@ -233,7 +233,9 @@ export function buildSavedPagePlans(cases, options = {}) {
   let current = [];
   let currentLength = 0;
   for (const [index, value] of batchCases.entries()) {
-    const embedded = embeddedCaseSource(value, nonce, index + 1);
+    const embedded = value.page_scope === 'isolated'
+      ? {begin: null, end: null, source: value.source}
+      : embeddedCaseSource(value, nonce, index + 1);
     const embeddedLength = codePointLength(embedded.source);
     if (embeddedLength > hardCharacters) {
       throw new Error(`one case exceeds the hard page limit: ${value.case_id}`);
@@ -275,11 +277,11 @@ export function buildSavedPagePlans(cases, options = {}) {
       source_bytes: Buffer.byteLength(source),
       manifest_sha256: manifestSha256,
       run_nonce: nonce,
-      cases: pageCases.map(({case_id, source_sha256, marker_begin, marker_end}) => ({
+      cases: pageCases.map(({case_id, source_sha256, page_scope, marker_begin, marker_end}) => ({
         case_id,
         source_sha256,
-        marker_begin,
-        marker_end,
+        page_scope,
+        ...(page_scope === 'isolated' ? {} : {marker_begin, marker_end}),
       })),
     };
   });
@@ -305,6 +307,7 @@ export function isolateBatchInteractions(cases, verification) {
 
 function containsOrderedMarkers(html, page) {
   if (typeof html !== 'string') return false;
+  if (page.cases.length === 1 && page.cases[0].page_scope === 'isolated') return true;
   let previous = -1;
   for (const value of page.cases) {
     const begin = html.indexOf(value.marker_begin, previous + 1);

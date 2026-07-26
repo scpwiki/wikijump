@@ -48,6 +48,32 @@ def validate_plan(value: object) -> dict[str, Any]:
     cases = value.get("cases")
     if not isinstance(cases, list) or not cases:
         raise ValueError(f"page plan has no cases for {slug}")
+    for case in cases:
+        if (
+            not isinstance(case, dict)
+            or not isinstance(case.get("case_id"), str)
+            or not case["case_id"]
+            or not isinstance(case.get("source_sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", case["source_sha256"]) is None
+            or case.get("page_scope", "batch-safe") not in {"batch-safe", "isolated"}
+        ):
+            raise ValueError(f"page plan case identity is invalid for {slug}")
+    isolated = [case for case in cases if case.get("page_scope") == "isolated"]
+    if isolated:
+        case = isolated[0]
+        if (
+            len(cases) != 1
+            or case.get("marker_begin") is not None
+            or case.get("marker_end") is not None
+            or case["source_sha256"] != source_sha256
+        ):
+            raise ValueError(f"isolated page plan is not sentinel-free for {slug}")
+    elif any(
+        not isinstance(case.get(field), str) or not case[field].startswith("WJDIFF_")
+        for case in cases
+        for field in ("marker_begin", "marker_end")
+    ):
+        raise ValueError(f"batch page plan marker is invalid for {slug}")
     return value
 
 
@@ -102,6 +128,8 @@ def saved_snapshot(site: Any, plan: dict[str, Any]) -> dict[str, Any]:
 
 
 def verify_saved_markers(plan: dict[str, Any], snapshot: dict[str, Any]) -> None:
+    if plan["cases"][0].get("page_scope") == "isolated":
+        return
     source = snapshot["saved_source"]
     markers = [
         marker

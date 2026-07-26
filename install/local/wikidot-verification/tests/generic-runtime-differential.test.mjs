@@ -42,13 +42,22 @@ function capture(caseValue, {
   status = "captured",
   slug = "run-owned:ftml-diff-20260726-001",
 } = {}) {
-  const marker = {
-    case_id: caseValue.case_id,
-    source_sha256: caseValue.source_sha256,
-    marker_begin: `WJDIFF_BEGIN_${caseValue.case_id}`,
-    marker_end: `WJDIFF_END_${caseValue.case_id}`,
-  };
-  const source = `${marker.marker_begin}\n${caseValue.source}\n${marker.marker_end}`;
+  const isolated = caseValue.page_scope === "isolated";
+  const marker = isolated
+    ? {
+        case_id: caseValue.case_id,
+        source_sha256: caseValue.source_sha256,
+        page_scope: "isolated",
+      }
+    : {
+        case_id: caseValue.case_id,
+        source_sha256: caseValue.source_sha256,
+        marker_begin: `WJDIFF_BEGIN_${caseValue.case_id}`,
+        marker_end: `WJDIFF_END_${caseValue.case_id}`,
+      };
+  const source = isolated
+    ? caseValue.source
+    : `${marker.marker_begin}\n${caseValue.source}\n${marker.marker_end}`;
   const value = {
     schema: "wikijump_syntax_differential.wikidot_saved_page_capture.v1",
     captured_at: capturedAt,
@@ -71,7 +80,9 @@ function capture(caseValue, {
     },
     ...(status === "captured"
       ? {
-          page_content_html: `<div id="page-content"><p>${marker.marker_begin}</p>${fragment}<p>${marker.marker_end}</p></div>`,
+          page_content_html: isolated
+            ? `<div id="page-content">${fragment}</div>`
+            : `<div id="page-content"><p>${marker.marker_begin}</p>${fragment}<p>${marker.marker_end}</p></div>`,
         }
       : {}),
   };
@@ -151,6 +162,15 @@ test("capture validation rejects an isolated runtime case on a shared page", () 
     ),
     /isolated runtime case shares a page: isolated/u,
   );
+});
+
+test("sentinel-free isolated capture uses the whole page content", () => {
+  const isolated = {...runtimeCase("isolated", "alpha_"), page_scope: "isolated"};
+  const selection = selectLatestSuccessfulCaptures(
+    [isolated],
+    [{path: "isolated.jsonl", captures: [capture(isolated, {fragment: "<p>EOF</p>"})]}],
+  );
+  assert.equal(selection.selected.get("isolated").wikidot_html, "<p>EOF</p>");
 });
 
 test("fragment comparison never hides mismatches behind inferred state preconditions", () => {
