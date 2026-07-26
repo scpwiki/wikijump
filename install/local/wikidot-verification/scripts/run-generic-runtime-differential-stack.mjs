@@ -327,11 +327,11 @@ export async function main(argv) {
     await fsp.writeFile(composePath, compose, {mode: 0o600});
     const identity = runtimeIdentity(manifest, compose, config);
     await fsp.writeFile(identityPath, `${JSON.stringify(identity, null, 2)}\n`, {mode: 0o600});
+    composeStarted = true;
     run("docker", [
       "compose", "-p", project, "-f", composePath,
       "up", "--detach", "--wait", "--wait-timeout", "600", "deepwell",
     ]);
-    composeStarted = true;
     const ratingUpdate = run("docker", [
       "compose", "-p", project, "-f", composePath,
       "exec", "--no-TTY", "--user", "wikijump",
