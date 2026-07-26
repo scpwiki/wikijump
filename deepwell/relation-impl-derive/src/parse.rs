@@ -1,6 +1,6 @@
 use crate::case::pascal_to_snake_case;
-use proc_macro2::Span;
-use std::fmt::Display;
+use crate::types::GenerateMethod;
+use crate::util::*;
 use syn::parse::{Parse, ParseStream};
 use syn::{Ident, Token, Type};
 
@@ -10,7 +10,8 @@ pub struct RelationSettings {
     dest: (Ident, Type),
     from: (Ident, Type),
     data_type: Option<Type>,
-    define_create: bool,
+    create_fn: GenerateMethod,
+    remove_fn: GenerateMethod,
     define_struct: bool,
 }
 
@@ -19,9 +20,10 @@ impl Parse for RelationSettings {
         let mut name = None;
         let mut dest = None;
         let mut from = None;
-        let mut data_type: Option<Option<Type>> = None; // outer for set/unset, inner for optional type
-        let mut define_create = true;
-        let mut define_struct = true;
+        let mut data_type = None;
+        let mut create_fn = None;
+        let mut remove_fn = None;
+        let mut define_struct = None;
 
         macro_rules! error_if_set {
             ($field:expr) => {
@@ -87,6 +89,36 @@ impl Parse for RelationSettings {
                     data_type = Some(process_type(t_type));
                 }
 
+                // Designate how the create method should be generated
+                // This key is optional, default is "true".
+                //
+                //  create_fn => false
+                //
+                // The following values are accepted:
+                // * true  - Implement a public "create_{name}" method.
+                // * false - Do not implement a create method,
+                //           caller must implement "create_{name}".
+                // * fn    - Implement a private "create_{name}_inner method,
+                //           caller must implement "create_{name}".
+                "create_fn" => {
+                    error_if_set!(create_fn);
+                    let token = input.lookahead1();
+                    let setting = GenerateMethod::parse(input, token)?;
+                    create_fn = Some(setting);
+                }
+
+                // Designate how the remove method should be generated
+                // This key is optional, default is "true".
+                // Same accepted values as "create_fn".
+                //
+                //  remove_fn => true
+                "remove_fn" => {
+                    error_if_set!(remove_fn);
+                    let token = input.lookahead1();
+                    let setting = GenerateMethod::parse(input, token)?;
+                    remove_fn = Some(setting);
+                }
+
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
             }
         }
@@ -100,6 +132,9 @@ impl Parse for RelationSettings {
         let from = from.ok_or_else(|| make_error("no 'from' argument passed"))?;
         // Default fields
         let data_type = data_type.unwrap_or(None);
+        let create_fn = create_fn.unwrap_or(GenerateMethod::default());
+        let remove_fn = remove_fn.unwrap_or(GenerateMethod::default());
+        let define_struct = define_struct.unwrap_or(true);
 
         Ok(RelationSettings {
             relation_name,
@@ -107,28 +142,9 @@ impl Parse for RelationSettings {
             dest,
             from,
             data_type,
-            define_create,
+            create_fn,
+            remove_fn,
             define_struct,
         })
     }
-}
-
-/// Convert `Type` to `Option<Type>` (`None` is if the type is `()`)).
-fn process_type(t_type: Type) -> Option<Type> {
-    match t_type {
-        Type::Paren(inner_type) => process_type(*inner_type.elem),
-        Type::Tuple(inner_type) if inner_type.elems.is_empty() => None,
-        // leave as-is
-        _ => Some(t_type),
-    }
-}
-
-#[inline]
-fn make_ident(value: impl AsRef<str>) -> Ident {
-    Ident::new(value.as_ref(), Span::call_site())
-}
-
-#[inline]
-fn make_error(message: impl Display) -> syn::Error {
-    syn::Error::new(Span::call_site(), message)
 }

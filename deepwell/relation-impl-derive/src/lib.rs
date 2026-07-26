@@ -1,6 +1,8 @@
 mod case;
 mod expand;
 mod parse;
+mod types;
+mod util;
 
 use self::expand::expand_stream;
 use self::parse::RelationSettings;
