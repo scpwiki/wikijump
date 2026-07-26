@@ -14,6 +14,5 @@ use syn::parse_macro_input;
 #[proc_macro]
 pub fn impl_relation(stream: TokenStream) -> TokenStream {
     let settings = parse_macro_input!(stream as RelationSettings);
-    let generated = expand_stream(settings);
-    generated
+    expand_stream(settings).into()
 }
