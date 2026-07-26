@@ -131,6 +131,13 @@ impl Parse for RelationSettings {
 
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
             }
+
+            if input.is_empty() {
+                // Trailing comma is optional
+                break;
+            }
+
+            let _: Token![,] = input.parse()?;
         }
 
         // Gather fields and return
