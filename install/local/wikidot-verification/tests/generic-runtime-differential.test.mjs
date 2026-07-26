@@ -1341,7 +1341,7 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
   );
   assert.deepEqual(importUserParams, {
     user_id: 2026083,
-    created_at: "2026-07-26T07:54:55.612162+00:00",
+    created_at: "2026-07-26T07:54:55.611Z",
     fetched_at: "2026-07-26T07:54:55.612162+00:00",
     user_type: "extant",
     name: "Dr_Grom",

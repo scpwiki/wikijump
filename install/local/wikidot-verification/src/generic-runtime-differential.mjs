@@ -1032,9 +1032,10 @@ export class DeepwellRpcAdapter {
       let current = await this.rpc('user_get', {user: user.user_id});
       let action = 'unchanged';
       if (current == null) {
+        const createdAt = new Date(Date.parse(user.provenance.captured_at) - 1).toISOString();
         const imported = await this.rpc('import_wikidot_user', {
           user_id: user.user_id,
-          created_at: user.provenance.captured_at,
+          created_at: createdAt,
           fetched_at: user.provenance.captured_at,
           user_type: 'extant',
           name: user.name,
