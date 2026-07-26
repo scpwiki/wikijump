@@ -126,12 +126,10 @@ impl Cache {
         page_id: i64,
         filename: &str,
     ) -> Result<Option<FileData>> {
-        type FileDataTuple = (Option<i64>, Option<String>, Option<i64>, Option<String>);
-
         let mut conn = get_connection!(self.client);
         let key = redis_key!(file_name => site_id, page_id, filename);
         let fields = &["id", "mime", "size", "s3_hash"];
-        let values = conn.hget::<_, _, FileDataTuple>(&key, fields).await?;
+        let values = conn.hmget(&key, fields).await?;
         match values {
             // Ideally, all of these should be non-null, if it's a cache hit.
             (Some(file_id), Some(mime), Some(size), Some(s3_hash)) => {

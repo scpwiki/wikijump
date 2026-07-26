@@ -481,7 +481,7 @@ async fn resolve_optional_user_filter(
         .await
         .or_raise(|| Error::new("failed to resolve forum post user", ErrorType::User))?;
 
-    Ok(user.map(|user| Some(user.user_id)))
+    Ok(user.map(|user| Some(user.user_id())))
 }
 
 fn parse_parent_post_filter(reply_to: Option<&str>) -> Result<ParentPostFilter> {
@@ -523,7 +523,7 @@ async fn user_slug(ctx: &ServiceContext<'_>, user_id: i64) -> Result<String> {
         .or_raise(|| Error::new("failed to resolve forum post user", ErrorType::User))?;
 
     Ok(user
-        .map(|user| user.slug)
+        .and_then(|user| user.slug().map(str::to_owned))
         .unwrap_or_else(|| user_id.to_string()))
 }
 

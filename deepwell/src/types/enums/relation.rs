@@ -190,19 +190,16 @@ mod tests {
     fn relation_type_round_trips_sea_orm_values_with_legacy_display() {
         for (relation_type, legacy_value, variant_value) in relation_cases() {
             let value: Value = relation_type.into();
-            assert_eq!(
-                value,
-                Value::String(Some(Box::new(legacy_value.to_owned()))),
-            );
+            assert_eq!(value, Value::String(Some(legacy_value.to_owned())),);
             assert_eq!(
                 <RelationType as ValueType>::try_from(value)
                     .expect("round-trip legacy relation database value"),
                 relation_type,
             );
             assert_eq!(
-                <RelationType as ValueType>::try_from(Value::String(Some(Box::new(
+                <RelationType as ValueType>::try_from(Value::String(Some(
                     variant_value.to_owned(),
-                ))))
+                )))
                 .expect("read variant relation database value"),
                 relation_type,
             );

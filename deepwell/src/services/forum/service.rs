@@ -39,6 +39,7 @@ use paste::paste;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder, Set,
 };
+use sea_query::Expr;
 use std::collections::BTreeMap;
 
 #[derive(Debug)]
@@ -775,7 +776,7 @@ impl ForumService {
     fn deleted_condition(
         include_deleted: bool,
         column: impl ColumnTrait,
-    ) -> Option<sea_orm::sea_query::SimpleExpr> {
+    ) -> Option<Expr> {
         if include_deleted {
             None
         } else {

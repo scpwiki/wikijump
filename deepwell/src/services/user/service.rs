@@ -19,11 +19,16 @@
  */
 
 use super::locale::validate_locales;
-use super::structs::{CreateUser, CreateUserOutput, UpdateUserBody};
+use super::structs::{
+    ActivateUserFromWikidot, CreateUser, CreateUserOutput, UpdateUserBody, User,
+};
 use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::known_user::{self, Entity as KnownUser, Model as KnownUserModel};
-use crate::models::user::{self, Entity as User, Model as UserModel};
+use crate::models::user::{self, Entity as WikijumpUser, Model as WikijumpUserModel};
+use crate::models::wikidot_user::{
+    self, Entity as WikidotUser, Model as WikidotUserModel,
+};
 use crate::services::ServiceContext;
 use crate::services::alias::CreateAlias;
 use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
@@ -36,14 +41,14 @@ use crate::types::{Maybe, Reference};
 use crate::utils::now;
 use crate::utils::regex_replace_in_place;
 use paste::paste;
-use regex::Regex;
-use sea_orm::{ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, Set};
-use sea_orm::{ActiveValue, DbErr, SqlErr};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, DbErr, EntityTrait, NotSet,
+    QueryFilter, Set, SqlErr,
+};
 use serde_json::Value as JsonValue;
 use std::borrow::Cow;
 use std::cmp;
 use std::net::IpAddr;
-use std::sync::LazyLock;
 
 /// Notes that this user account does not have a password set.
 /// It is not possible for any password hash to match this value,
@@ -51,10 +56,6 @@ use std::sync::LazyLock;
 pub const DISABLED_PASSWORD_HASH: &str = "!";
 
 const VERIFIED_EMAIL_UNIQUE_INDEX: &str = "user_verified_email_active_unique_idx";
-
-static LEADING_TRAILING_CHARS: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(^[\-\s]+)|([\-\s+]$)").unwrap());
-
 #[derive(Debug)]
 pub struct UserService;
 
@@ -92,7 +93,8 @@ impl UserService {
         let slug = get_user_slug(&name, user_type);
 
         debug!("Normalizing user data (name '{name}', slug '{slug}')");
-        regex_replace_in_place(&mut name, &LEADING_TRAILING_CHARS, "");
+        let leading_trailing_regex = regex!(r"(^[\-\s]+)|([\-\s+]$)");
+        regex_replace_in_place(&mut name, leading_trailing_regex, "");
 
         let make_error = || {
             Error::new(
@@ -146,17 +148,7 @@ impl UserService {
             }
             None => {
                 info!("Attempting to create user '{name}' ('{slug}') with sequence ID");
-
-                // Get user ID from known_user sequence
-                let KnownUserModel { user_id } = known_user::ActiveModel {
-                    user_id: ActiveValue::NotSet,
-                }
-                .insert(txn)
-                .await
-                .or_raise(make_error)?;
-
-                debug!("Got next user ID {user_id} in sequence from known_user");
-                user_id
+                Self::get_next_user_id(ctx).await.or_raise(make_error)?
             }
         };
 
@@ -175,8 +167,84 @@ impl UserService {
         // Validate locales for this type
         validate_locales(user_type, &locales).or_raise(make_error)?;
 
+        match override_user_id {
+            // If an ID is being specified for a normal creation, adding a new
+            // user here is legal if the Wikidot user behind it (if it exists)
+            // has a matching slug. Import activation uses the Wikidot ID as
+            // the identity and may choose a new Wikijump name.
+            Some(user_id) => {
+                let result = WikidotUser::find()
+                    .filter(
+                        Condition::all()
+                            .add(wikidot_user::Column::UserId.eq(user_id))
+                            .add(wikidot_user::Column::IsDeleted.eq(false)),
+                    )
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?;
+
+                // We only care if it exists, if it's missing it's fine.
+                if let Some(found_user) = result
+                    && let Some(found_user_slug) = found_user.slug
+                    && found_user_slug != slug
+                    && !reuse_existing_known_user
+                {
+                    error!(
+                        "Wikidot user exists with user ID {}, but has an incompatible user slug: {} != {}",
+                        user_id, found_user_slug, slug,
+                    );
+                    bail!(Error::new(
+                        format!(
+                            "cannot create user, a wikidot user with the same ID exists and has a different slug. ID is {}, Wikidot had slug '{}', request had slug '{}'",
+                            user_id, found_user_slug, slug,
+                        ),
+                        ErrorType::UserExists,
+                    ));
+                }
+            }
+
+            // If no override_user_id, we are inserting a new user
+            // Fail if there's an existing Wikidot record (they should be
+            // importing from Wikidot instead)
+            None => {
+                let result = WikidotUser::find()
+                    .filter(
+                        Condition::all()
+                            .add(
+                                Condition::any()
+                                    .add(wikidot_user::Column::Name.eq(name.as_str()))
+                                    .add(wikidot_user::Column::Slug.eq(slug.as_str())),
+                            )
+                            .add(wikidot_user::Column::IsDeleted.eq(false)),
+                    )
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?;
+
+                // Any existing user is a conflict
+                if let Some(found_user) = result {
+                    error!(
+                        "Wikidot user with conflicting name or slug already exists, cannot create"
+                    );
+                    error!("Checked name '{name}', slug '{slug}', found {found_user:#?}");
+                    bail!(Error::new(
+                        format!(
+                            "cannot create user, a wikidot user with a conflicting name or slug exists. checked name '{}', slug '{}', found user '{}' (ID {})",
+                            name,
+                            slug,
+                            found_user
+                                .slug
+                                .expect("No wikidot slug on non-deleted user"),
+                            found_user.user_id,
+                        ),
+                        ErrorType::UserExists,
+                    ));
+                }
+            }
+        }
+
         // Check for name conflicts
-        let result = User::find()
+        let result = WikijumpUser::find()
             .filter(
                 Condition::all()
                     .add(
@@ -224,7 +292,7 @@ impl UserService {
         //
         // Other kinds of accounts do not need unique emails.
         if user_type == UserType::Regular {
-            let result = User::find()
+            let result = WikijumpUser::find()
                 .filter(
                     Condition::all()
                         .add(user::Column::Email.eq(email.as_str()))
@@ -347,7 +415,7 @@ impl UserService {
             ..Default::default()
         };
 
-        let user_id = User::insert(user)
+        let user_id = WikijumpUser::insert(user)
             .exec(txn)
             .await
             .or_raise(make_error)?
@@ -360,15 +428,168 @@ impl UserService {
         Ok(CreateUserOutput { user_id, slug })
     }
 
-    // TODO complete ownership verification for reclaiming Wikidot-imported accounts
-    //
-    //      if the user is already present in the database, then this verifies their ownership and
-    //      updates the user so it now belongs to them (e.g. email, password, etc)
-    //
-    //      if the user is not in the database, either (TBD) error, or ad hoc scrape the data from
-    //      Wikidot and do the ingestion, then the above verification stuff
-    //
-    //      https://scuttle.atlassian.net/browse/WJ-272
+    pub async fn activate_from_wikidot(
+        ctx: &ServiceContext<'_>,
+        ActivateUserFromWikidot {
+            user_id,
+            user_type,
+            email,
+            locales,
+            password,
+            bypass_filter,
+            bypass_email_verification,
+            ip_address,
+        }: ActivateUserFromWikidot,
+    ) -> Result<WikijumpUserModel> {
+        if !matches!(user_type, UserType::Regular | UserType::Bot) {
+            bail!(Error::new(
+                format!("illegal type for wikidot user import: {}", user_type),
+                ErrorType::DatabaseImport,
+            ));
+        }
+
+        let make_error = || {
+            Error::new(
+                format!("failed to import user ID {} from wikidot", user_id),
+                ErrorType::DatabaseImport,
+            )
+        };
+
+        let existing_user = Self::get(ctx, Reference::Id(user_id))
+            .await
+            .or_raise(make_error)?;
+
+        let WikidotUserModel {
+            user_id: _,
+            created_at,
+            fetched_at,
+            is_deleted,
+            name,
+            slug,
+            avatar_s3_hash,
+            real_name,
+            gender,
+            birthday,
+            location,
+            biography,
+            website,
+            karma,
+            is_pro,
+        } = match existing_user {
+            User::Wikidot(user) => user,
+            User::Wikijump(user) => {
+                bail!(Error::new(
+                    format!(
+                        "cannot import wikidot user ID {}, wikijump user '{}' (slug '{}') already exists",
+                        user_id, user.name, user.slug,
+                    ),
+                    ErrorType::DatabaseImport
+                ));
+            }
+        };
+
+        let (name, slug) = match (name, slug) {
+            (Some(name), Some(slug)) => (name, slug),
+            _ => {
+                bail!(Error::new(
+                    format!("cannot import wikidot user ID {}, is deleted", user_id),
+                    ErrorType::DatabaseImport,
+                ));
+            }
+        };
+
+        assert!(
+            !is_deleted,
+            "Wikidot user ID {} is marked as deleted after name check",
+            user_id,
+        );
+        info!(
+            "Fetched wikidot user '{}' (ID {}, slug '{}'), created at {}, fetched at {}, karma level {}, {} account",
+            name,
+            user_id,
+            slug,
+            created_at,
+            fetched_at,
+            karma,
+            if is_pro { "pro" } else { "free" },
+        );
+
+        AuditService::log(ctx, ip_address, AuditEvent::UserActivateWikidot { user_id })
+            .await
+            .or_raise(make_error)?;
+
+        // Run normal method to create the user
+        // So we're reusing common logic like filters, etc
+        Self::import_wikidot(
+            ctx,
+            CreateUser {
+                user_type,
+                name,
+                email,
+                locales,
+                password,
+                bypass_filter,
+                bypass_email_verification,
+                override_user_id: Some(user_id),
+                ip_address,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        // Update other fields
+
+        Self::update(
+            ctx,
+            Reference::Id(user_id),
+            ip_address,
+            UpdateUserBody {
+                // set in initial user creation
+                name: Maybe::Unset,
+                email: Maybe::Unset,
+                email_verified: Maybe::Unset,
+                password: Maybe::Unset,
+                locales: Maybe::Unset,
+
+                // set manually, down below
+                avatar_uploaded_blob_id: Maybe::Unset,
+
+                // bio fields
+                real_name: Maybe::Set(real_name),
+                gender: Maybe::Set(gender),
+                birthday: Maybe::Set(birthday),
+                location: Maybe::Set(location),
+                biography: Maybe::Set(biography),
+                website: Maybe::Set(website),
+
+                // not a wikidot field
+                user_page: Maybe::Unset,
+
+                // miscellaneous
+                bypass_filter,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        // Update account creation time and avatar
+        //
+        // The creation time is not something we can fix
+        // with Self::update(), and the second involves
+        // unnecessary steps since the avatar is already
+        // uploaded.
+
+        let model = user::ActiveModel {
+            user_id: Set(user_id),
+            created_at: Set(created_at),
+            avatar_s3_hash: Set(avatar_s3_hash),
+            ..Default::default()
+        };
+
+        let txn = ctx.transaction();
+        let new_user = model.update(txn).await.or_raise(make_error)?;
+        Ok(new_user)
+    }
 
     #[inline]
     pub async fn exists(
@@ -380,10 +601,11 @@ impl UserService {
             .map(|user| user.is_some())
     }
 
+    /// Optional version of `get()`.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         mut reference: Reference<'_>,
-    ) -> Result<Option<UserModel>> {
+    ) -> Result<Option<User>> {
         let txn = ctx.transaction();
         let make_error = || Error::new("failed to get user", ErrorType::User);
 
@@ -412,14 +634,16 @@ impl UserService {
             reference = Reference::Id(alias.target_id);
         }
 
-        let user = match reference {
-            Reference::Id(id) => {
-                User::find_by_id(id).one(txn).await.or_raise(make_error)?
-            }
-            Reference::Slug(slug) => User::find()
+        let wikijump_user = match reference {
+            Reference::Id(id) => WikijumpUser::find_by_id(id)
+                .one(txn)
+                .await
+                .or_raise(make_error)?,
+
+            Reference::Slug(ref slug) => WikijumpUser::find()
                 .filter(
                     Condition::all()
-                        .add(user::Column::Slug.eq(slug))
+                        .add(user::Column::Slug.eq(slug.as_ref()))
                         .add(user::Column::DeletedAt.is_null()),
                 )
                 .one(txn)
@@ -427,15 +651,73 @@ impl UserService {
                 .or_raise(make_error)?,
         };
 
-        Ok(user)
+        if let Some(user) = wikijump_user {
+            debug!("Found Wikijump user '{}' (ID {})", user.slug, user.user_id);
+            return Ok(Some(User::Wikijump(user)));
+        }
+
+        // No Wikijump user found, check Wikidot users and return what we find
+
+        fn i64_to_i32(value: i64) -> Option<i32> {
+            value.try_into().ok()
+        }
+
+        let wikidot_user = match reference {
+            Reference::Id(id) => match i64_to_i32(id) {
+                // If it doesn't fit into a 32-bit int,
+                // there's no way it's a real Wikidot user.
+                None => None,
+
+                // Could be a valid ID
+                Some(id) => WikidotUser::find_by_id(id)
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?,
+            },
+
+            Reference::Slug(ref slug) => WikidotUser::find()
+                .filter(
+                    Condition::all()
+                        .add(wikidot_user::Column::Slug.eq(slug.as_ref()))
+                        .add(wikidot_user::Column::IsDeleted.eq(true)),
+                )
+                .one(txn)
+                .await
+                .or_raise(make_error)?,
+        };
+
+        Ok(wikidot_user.map(User::Wikidot))
     }
 
+    /// Fetches a Wikijump user, or Wikidot user record as fallback.
     #[inline]
-    pub async fn get(
+    pub async fn get(ctx: &ServiceContext<'_>, reference: Reference<'_>) -> Result<User> {
+        find_or_error!(Self::get_optional(ctx, reference), "user", User)
+    }
+
+    /// Optional version of `get_real()`.
+    #[inline]
+    pub async fn get_real_optional(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
-    ) -> Result<UserModel> {
-        find_or_error!(Self::get_optional(ctx, reference), "user", User)
+    ) -> Result<Option<WikijumpUserModel>> {
+        match Self::get_optional(ctx, reference).await? {
+            None => Ok(None),
+            Some(user) => {
+                let user = user.unwrap_wikijump()?;
+                Ok(Some(user))
+            }
+        }
+    }
+
+    /// Fetches the real (Wikijump) user associated with the given reference, if any.
+    /// This method ignores any Wikidot user records.
+    #[inline]
+    pub async fn get_real(
+        ctx: &ServiceContext<'_>,
+        reference: Reference<'_>,
+    ) -> Result<WikijumpUserModel> {
+        Self::get(ctx, reference).await?.unwrap_wikijump()
     }
 
     pub async fn update(
@@ -443,11 +725,12 @@ impl UserService {
         reference: Reference<'_>,
         ip_address: IpAddr,
         input: UpdateUserBody,
-    ) -> Result<UserModel> {
+    ) -> Result<WikijumpUserModel> {
         use crate::services::audit::UserFields;
 
+        // Wikidot user records are fixed, so this must be for a Wikijump user.
         let txn = ctx.transaction();
-        let user = Self::get(ctx, reference)
+        let user = Self::get_real(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to update user", ErrorType::User))?;
 
@@ -732,7 +1015,7 @@ impl UserService {
             condition = condition.add(user::Column::UserId.ne(user_id));
         }
 
-        User::find()
+        WikijumpUser::find()
             .filter(condition)
             .one(ctx.transaction())
             .await
@@ -753,7 +1036,7 @@ impl UserService {
     async fn update_name(
         ctx: &ServiceContext<'_>,
         new_name: String,
-        user: &UserModel,
+        user: &WikijumpUserModel,
         model: &mut user::ActiveModel,
         should_check_filter: bool,
         ip_address: IpAddr,
@@ -880,7 +1163,7 @@ impl UserService {
         };
 
         let txn = ctx.transaction();
-        let users = User::find()
+        let users = WikijumpUser::find()
             .filter(user::Column::LastNameChangeAddedAt.gte(needs_token_time))
             .all(txn)
             .await
@@ -906,7 +1189,7 @@ impl UserService {
     /// The current number of rename tokens the user has.
     pub async fn add_name_change_token(
         ctx: &ServiceContext<'_>,
-        user: &UserModel,
+        user: &WikijumpUserModel,
     ) -> Result<i16> {
         let txn = ctx.transaction();
         let max_name_changes = ctx.config().maximum_name_changes;
@@ -966,7 +1249,7 @@ impl UserService {
     /// Removes a recovery code from the list provided for a user.
     pub async fn remove_recovery_code(
         ctx: &ServiceContext<'_>,
-        user: &UserModel,
+        user: &WikijumpUserModel,
         recovery_code: &str,
     ) -> Result<()> {
         let txn = ctx.transaction();
@@ -999,9 +1282,12 @@ impl UserService {
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
-    ) -> Result<UserModel> {
+    ) -> Result<WikijumpUserModel> {
         let txn = ctx.transaction();
-        let user = Self::get(ctx, reference)
+
+        // Wikidot user records aren't deletable in Wikijump,
+        // so this must be a Wikijump user.
+        let user = Self::get_real(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to delete user", ErrorType::User))?;
 
@@ -1080,6 +1366,46 @@ impl UserService {
             .or_raise(make_error)?;
 
         Ok(())
+    }
+    /// Adds a record for the `known_user` table, if it doesn't already exist.
+    pub(crate) async fn insert_known_user_id(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let model = known_user::ActiveModel {
+            user_id: Set(user_id),
+        };
+
+        KnownUser::insert(model)
+            .on_conflict_do_nothing()
+            .exec(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!("failed to insert user ID {user_id} into known_user"),
+                    ErrorType::User,
+                )
+            })?;
+
+        Ok(())
+    }
+
+    /// Gets the next user ID from the `known_user` sequence.
+    async fn get_next_user_id(ctx: &ServiceContext<'_>) -> Result<i64> {
+        let txn = ctx.transaction();
+        let KnownUserModel { user_id } = known_user::ActiveModel { user_id: NotSet }
+            .insert(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to insert into known_user and get next ID in sequence",
+                    ErrorType::User,
+                )
+            })?;
+
+        debug!("Got next user ID {user_id} in sequence from known_user");
+        Ok(user_id)
     }
 }
 

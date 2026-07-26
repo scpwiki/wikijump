@@ -45,7 +45,7 @@ async fn set_page_creating_user(runner: &TestRunner, page_id: i64, user_id: i64)
     );
 
     transaction
-        .execute(statement)
+        .execute_raw(statement)
         .await
         .expect("failed to set deterministic page author");
 }
@@ -60,7 +60,7 @@ async fn set_page_created_at(runner: &TestRunner, page_id: i64, created_at: &str
     );
 
     transaction
-        .execute(statement)
+        .execute_raw(statement)
         .await
         .expect("failed to set deterministic page creation timestamp");
 }
@@ -101,7 +101,7 @@ async fn exact_name_listpages_expands_created_at_and_rating() {
 
     let transaction = runner.context().transaction();
     transaction
-        .execute(Statement::from_sql_and_values(
+        .execute_raw(Statement::from_sql_and_values(
             transaction.get_database_backend(),
             "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (false, $1, $2, 1135)",
             [Value::from(target.page_id), Value::from(ADMIN_USER_ID)],
@@ -487,7 +487,7 @@ async fn execute_sql(runner: &TestRunner, sql: &str) {
     let statement =
         Statement::from_string(transaction.get_database_backend(), sql.to_owned());
     transaction
-        .execute(statement)
+        .execute_raw(statement)
         .await
         .expect("failed to execute test SQL");
 }
@@ -958,7 +958,7 @@ async fn rating_order_listpages_sorts_by_descending_score() {
 
         let transaction = runner.context().transaction();
         transaction
-            .execute(Statement::from_sql_and_values(
+            .execute_raw(Statement::from_sql_and_values(
                 transaction.get_database_backend(),
                 "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES (false, $1, $2, $3)",
                 [

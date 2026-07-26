@@ -612,7 +612,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             // Make test user admin
             // TODO: remove in prod
             if role_template.name == "admin" {
-                let user = UserService::get(&ctx, Reference::from(ADMIN_USER_ID))
+                let user = UserService::get_real(&ctx, Reference::from(ADMIN_USER_ID))
                     .await
                     .or_raise(make_error)?;
 
@@ -697,11 +697,13 @@ async fn restart_sequence_with(
 }
 
 async fn run_query(txn: &DatabaseTransaction, sql: String) -> Result<()> {
-    txn.execute(Statement::from_string(DatabaseBackend::Postgres, &sql))
+    let sql2 = sql.clone();
+
+    txn.query_one_raw(Statement::from_string(DatabaseBackend::Postgres, sql))
         .await
         .or_raise(|| {
             Error::new(
-                format!("failed to run query: {sql}"),
+                format!("failed to run query: {sql2}"),
                 ErrorType::DatabaseSeeder,
             )
         })?;

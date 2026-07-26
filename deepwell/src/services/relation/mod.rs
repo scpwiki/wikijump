@@ -52,7 +52,7 @@ pub use self::page_attribution::{
 };
 pub use self::page_star::{CreatePageStar, GetPageStar, RemovePageStar};
 pub use self::page_watch::{CreatePageWatch, GetPageWatch, RemovePageWatch};
-pub use self::site_ban::{CreateSiteBan, GetSiteBan, SiteBanData};
+pub use self::site_ban::{CreateSiteBan, GetSiteBan, RemoveSiteBan, SiteBanData};
 pub use self::site_member::{
     CreateSiteMember, GetSiteMember, RemoveSiteMember, SiteMemberAccepted, SiteMemberData,
 };

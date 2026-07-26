@@ -414,7 +414,7 @@ impl AliasService {
         };
 
         let txn = ctx.transaction();
-        let DeleteResult { rows_affected } = Alias::delete_many()
+        let DeleteResult { rows_affected, .. } = Alias::delete_many()
             .filter(
                 Condition::all()
                     .add(alias::Column::AliasType.eq(alias_type))

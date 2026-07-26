@@ -360,6 +360,11 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("site_update", site_update);
     register!("site_domain", site_get_domain);
 
+    // Site bans
+    register!("site_ban_set", site_ban_set);
+    register!("site_ban_get", site_ban_get);
+    register!("site_ban_remove", site_ban_remove);
+
     // Site custom domain
     register!("custom_domain_create", site_custom_domain_create);
     register!("custom_domain_remove", site_custom_domain_remove);
@@ -469,7 +474,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
 
     // User
     register!("user_create", user_create);
-    register!("user_import", user_import);
+    register!("user_activate_from_wikidot", user_activate_from_wikidot);
     register!("user_get", user_get);
     register!("user_edit", user_edit);
     register!("user_delete", user_delete);
@@ -498,6 +503,11 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("vote_action", vote_action);
     register!("vote_list", vote_list_get);
     register!("vote_list_count", vote_list_count);
+
+    // Wikidot data import
+    register!("import_wikidot_user", import_wikidot_user);
+    register!("import_wikidot_site", import_wikidot_site);
+    register!("import_wikidot_page", import_wikidot_page);
 
     // Return
     Ok(module)

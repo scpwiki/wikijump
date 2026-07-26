@@ -81,7 +81,7 @@ mod tests {
             );
 
             let value: Value = lock_type.into();
-            assert_eq!(value, Value::String(Some(Box::new(canonical.to_owned()))),);
+            assert_eq!(value, Value::String(Some(canonical.to_owned())),);
             assert_eq!(
                 <PageLockType as ValueType>::try_from(value)
                     .expect("round-trip canonical page lock database value"),
@@ -95,7 +95,7 @@ mod tests {
         let canonical_value: Value = AUTHOR_LOCK.into();
         assert_eq!(
             canonical_value,
-            Value::String(Some(Box::new("author-or-permission-only".to_owned()))),
+            Value::String(Some("author-or-permission-only".to_owned())),
         );
         assert_eq!(
             <PageLockType as ValueType>::try_from(canonical_value)
@@ -110,9 +110,9 @@ mod tests {
             "AUTHOR-ONLY",
         ] {
             assert_eq!(
-                <PageLockType as ValueType>::try_from(Value::String(Some(Box::new(
+                <PageLockType as ValueType>::try_from(Value::String(Some(
                     compatible_value.to_owned(),
-                ))))
+                )))
                 .expect("Unable to read a compatible database value"),
                 AUTHOR_LOCK,
             );
@@ -120,9 +120,9 @@ mod tests {
 
         for invalid_value in ["author", "permission_only"] {
             assert!(
-                <PageLockType as ValueType>::try_from(Value::String(Some(Box::new(
+                <PageLockType as ValueType>::try_from(Value::String(Some(
                     invalid_value.to_owned(),
-                ))))
+                )))
                 .is_err()
             );
         }

@@ -408,7 +408,7 @@ impl CorpusRenderFinalizerService {
 
         state
             .database
-            .query_one(statement)
+            .query_one_raw(statement)
             .await
             .or_raise(make_error)?
             .map(|row| row.try_get("", "import_run_id").or_raise(make_error))
@@ -467,7 +467,7 @@ impl CorpusRenderFinalizerService {
 
         state
             .database
-            .query_all(statement)
+            .query_all_raw(statement)
             .await
             .or_raise(make_error)?
             .into_iter()
@@ -588,7 +588,7 @@ impl CorpusRenderFinalizerService {
 
         state
             .database
-            .query_all(statement)
+            .query_all_raw(statement)
             .await
             .or_raise(make_error)?
             .into_iter()
@@ -942,7 +942,7 @@ impl CorpusRenderFinalizerService {
             ],
         );
         let row = txn
-            .query_one(statement)
+            .query_one_raw(statement)
             .await
             .or_raise(make_error)?
             .ok_or_else(make_error)?;
@@ -1071,7 +1071,7 @@ impl CorpusRenderFinalizerService {
             ],
         );
         let row = txn
-            .query_one(statement)
+            .query_one_raw(statement)
             .await
             .or_raise(make_error)?
             .ok_or_else(make_error)?;
@@ -1196,7 +1196,7 @@ impl CorpusRenderFinalizerService {
         );
         let txn = state.database.begin().await.or_raise(make_error)?;
         let row = txn
-            .query_one(statement)
+            .query_one_raw(statement)
             .await
             .or_raise(make_error)?
             .ok_or_else(make_error)?;

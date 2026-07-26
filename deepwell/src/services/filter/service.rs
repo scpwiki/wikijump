@@ -28,7 +28,9 @@ use crate::utils::now;
 use crate::utils::trim_start_matches_in_place;
 use paste::paste;
 use regex::{Regex, RegexSet};
-use sea_orm::{ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, Set};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, ExprTrait, QueryFilter, Set,
+};
 
 #[derive(Debug)]
 pub struct FilterService;

@@ -38,8 +38,8 @@ use crate::utils::now;
 use paste::paste;
 use sea_orm::prelude::Expr;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, JoinType, QueryFilter,
-    QuerySelect, RelationTrait, Set,
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, ExprTrait, JoinType,
+    QueryFilter, QuerySelect, RelationTrait, Set,
 };
 use std::collections::HashMap;
 
@@ -355,6 +355,14 @@ impl RoleService {
                 ErrorType::GrantUserRole,
             )
         };
+
+        crate::services::RelationService::check_site_ban(
+            ctx,
+            crate::services::relation::GetSiteBan { site_id, user_id },
+            "receive a site role",
+        )
+        .await
+        .or_raise(make_error)?;
 
         let role = Self::get(ctx, site_id, role_id.into()).await?;
 
