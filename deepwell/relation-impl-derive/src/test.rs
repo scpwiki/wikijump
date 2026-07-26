@@ -8,6 +8,19 @@ fn parse() {
         syn::parse_str(input).expect("failed to parse macro code")
     }
 
+    fn assert_type(t_type: Type, name: &str) {
+        let Type::Path(path_type) = t_type else {
+            panic!("type does not match path with '{name}'")
+        };
+
+        assert!(path_type.attrs.is_empty(), "attributes in type");
+        assert!(path_type.qself.is_none(), "QSelf in type is set");
+        assert!(
+            path_type.path.is_ident(name),
+            "type path doesn't match expected",
+        );
+    }
+
     // Test cases
 
     {
@@ -22,9 +35,9 @@ fn parse() {
         assert_eq!(settings.relation_name.to_string(), "Foo");
         assert_eq!(settings.field_name.to_string(), "foo");
         assert_eq!(settings.dest.0.to_string(), "first");
-        assert!(matches!(settings.dest.1, Type::Path(_)));
+        assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "second");
-        assert!(matches!(settings.from.1, Type::Path(_)));
+        assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
         assert_eq!(settings.create_fn, GenerateMethod::ImplPublic);
         assert_eq!(settings.remove_fn, GenerateMethod::ImplPublic);
@@ -43,9 +56,9 @@ fn parse() {
         assert_eq!(settings.relation_name.to_string(), "PageStar");
         assert_eq!(settings.field_name.to_string(), "page_star");
         assert_eq!(settings.dest.0.to_string(), "page_id");
-        assert!(matches!(settings.dest.1, Type::Path(_)));
+        assert_type(settings.dest.1, "Page");
         assert_eq!(settings.from.0.to_string(), "user_id");
-        assert!(matches!(settings.from.1, Type::Path(_)));
+        assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
         assert_eq!(settings.create_fn, GenerateMethod::ImplPublic);
         assert_eq!(settings.remove_fn, GenerateMethod::ImplPublic);
@@ -63,9 +76,9 @@ fn parse() {
         assert_eq!(settings.relation_name.to_string(), "PageWatch");
         assert_eq!(settings.field_name.to_string(), "page_watch");
         assert_eq!(settings.dest.0.to_string(), "page_id");
-        assert!(matches!(settings.dest.1, Type::Path(_)));
+        assert_type(settings.dest.1, "Page");
         assert_eq!(settings.from.0.to_string(), "user_id");
-        assert!(matches!(settings.from.1, Type::Path(_)));
+        assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
         assert_eq!(settings.create_fn, GenerateMethod::ImplPublic);
         assert_eq!(settings.remove_fn, GenerateMethod::ImplPublic);
@@ -84,9 +97,9 @@ fn parse() {
         assert_eq!(settings.relation_name.to_string(), "UserBlock");
         assert_eq!(settings.field_name.to_string(), "user_block");
         assert_eq!(settings.dest.0.to_string(), "blocked_user");
-        assert!(matches!(settings.dest.1, Type::Path(_)));
+        assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "blocking_user");
-        assert!(matches!(settings.from.1, Type::Path(_)));
+        assert_type(settings.from.1, "User");
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
         assert_eq!(settings.create_fn, GenerateMethod::ImplPublic);
         assert_eq!(settings.remove_fn, GenerateMethod::ImplPublic);
@@ -106,9 +119,9 @@ fn parse() {
         assert_eq!(settings.relation_name.to_string(), "SiteBan");
         assert_eq!(settings.field_name.to_string(), "site_ban");
         assert_eq!(settings.dest.0.to_string(), "site_id");
-        assert!(matches!(settings.dest.1, Type::Path(_)));
+        assert_type(settings.dest.1, "Site");
         assert_eq!(settings.from.0.to_string(), "user_id");
-        assert!(matches!(settings.from.1, Type::Path(_)));
+        assert_type(settings.from.1, "User");
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
         assert_eq!(settings.create_fn, GenerateMethod::NoImpl);
         assert_eq!(settings.remove_fn, GenerateMethod::ImplPublic);
@@ -129,9 +142,9 @@ fn parse() {
         assert_eq!(settings.relation_name.to_string(), "UserBotOwner");
         assert_eq!(settings.field_name.to_string(), "user_bot_owner");
         assert_eq!(settings.dest.0.to_string(), "bot_user");
-        assert!(matches!(settings.dest.1, Type::Path(_)));
+        assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "owner_user");
-        assert!(matches!(settings.from.1, Type::Path(_)));
+        assert_type(settings.from.1, "User");
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
         assert_eq!(settings.create_fn, GenerateMethod::ImplPrivate);
         assert_eq!(settings.remove_fn, GenerateMethod::ImplPublic);
