@@ -75,6 +75,10 @@ test('visibleText follows parsed browser text and preserves preformatted whitesp
   assert.equal(visibleText('<ul>\n<li>one</li>\n<li>two</li>\n</ul>'), 'one\ntwo');
   assert.equal(visibleText('<dl>\n<dt>term</dt>\n<dd>definition</dd>\n</dl>'), 'term\ndefinition');
   assert.equal(visibleText('<pre>  alpha\n beta  </pre>'), '  alpha\n beta  ');
+  assert.equal(
+    visibleText('<span class="wiki-email">moc.elpmaxe|cba#moc.elpmaxe|cba</span>'),
+    'abc@example.com',
+  );
 });
 
 test('syntax comparison requires both DOM signature and visible text parity', () => {

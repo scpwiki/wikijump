@@ -56,6 +56,11 @@ export function visibleText(html) {
       return;
     }
     if (!node.tagName || hidden.has(node.tagName)) return;
+    const email = wikidotObfuscatedEmailAddress(node);
+    if (email) {
+      tokens.push({kind: preformatted ? 'pre' : 'normal', value: email});
+      return;
+    }
     if (node.tagName === 'br') {
       pushBreak();
       return;
@@ -109,7 +114,7 @@ function canonicalAttributeValue(node, name, value) {
   return url.href;
 }
 
-function canonicalWikidotEmail(node) {
+function wikidotObfuscatedEmailAddress(node) {
   const classes = node.attrs?.find((attr) => attr.name === 'class')?.value.split(/\s+/u) ?? [];
   if (node.tagName !== 'span' || !classes.includes('wiki-email') || node.childNodes?.length !== 1) {
     return null;
@@ -120,7 +125,12 @@ function canonicalWikidotEmail(node) {
   if (separator <= 0 || child.value.slice(0, separator) !== child.value.slice(separator + 1)) {
     return null;
   }
-  const address = [...child.value.slice(0, separator)].reverse().join('').replace('|', '@');
+  return [...child.value.slice(0, separator)].reverse().join('').replace('|', '@');
+}
+
+function canonicalWikidotEmail(node) {
+  const address = wikidotObfuscatedEmailAddress(node);
+  if (!address) return null;
   return {
     type: 'element',
     name: 'span',
