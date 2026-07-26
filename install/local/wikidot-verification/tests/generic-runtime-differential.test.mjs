@@ -699,9 +699,7 @@ test("runner compiles every saved-page case from its exact source in a cleaned s
     brokenCase.source_sha256,
     intactCase.source_sha256,
   ]);
-  assert.ok(calls.every((page) =>
-    page.slug === `run-owned:ftml-singleton-${page.source_sha256.slice(0, 24)}`
-  ));
+  assert.ok(calls.every((page) => page.slug === captured.page_plan.slug));
   assert.equal(report.page_receipts.length, 2);
   assert.ok(report.page_receipts.every((receipt) => receipt.cleanup.status === "removed"));
   assert.equal(report.comparisons.find((value) => value.case_id === brokenCase.case_id).status, "match");

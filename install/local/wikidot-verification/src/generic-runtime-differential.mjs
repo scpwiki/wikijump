@@ -617,7 +617,7 @@ export async function runGenericRuntimeDifferential({
   for (const [caseId, reference] of selection.selected) {
     const runtimeCase = selection.casesById.get(caseId);
     const capture = reference.capture;
-    const slug = `run-owned:ftml-singleton-${runtimeCase.source_sha256.slice(0, 24)}`;
+    const slug = capture.page_plan.slug;
     try {
       const receipt = await adapter.withCompiledPage(
         {
