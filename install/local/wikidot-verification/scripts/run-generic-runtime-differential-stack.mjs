@@ -340,6 +340,18 @@ export async function main(argv) {
     if (!ratingUpdate.endsWith("UPDATE 1")) {
       throw new Error("sandbox oracle rating state did not update exactly one category");
     }
+    const userInsert = run("docker", [
+      "compose", "-p", project, "-f", composePath,
+      "exec", "--no-TTY", "--user", "wikijump",
+      "database", "psql",
+      "--dbname", "wikijump",
+      "--set", "ON_ERROR_STOP=1",
+      "--command",
+      "INSERT INTO wikidot_user (user_id, created_at, fetched_at, is_deleted, name, slug, karma, is_pro) VALUES (2506, NOW(), NOW(), FALSE, 'Alice', 'alice', 0, FALSE), (9318, NOW(), NOW(), FALSE, 'Bob', 'bob', 0, FALSE), (111115, NOW(), NOW(), FALSE, 'Missing', 'missing', 0, FALSE), (122357, NOW(), NOW(), FALSE, 'system', 'system', 0, FALSE);",
+    ]);
+    if (!userInsert.endsWith("INSERT 0 4")) {
+      throw new Error("sandbox oracle user state did not insert exactly four users");
+    }
     const administrator = readAdministrator(args.repository);
     const runnerArgs = [
       path.join(path.dirname(new URL(import.meta.url).pathname), "run-generic-runtime-differential.mjs"),
