@@ -20,17 +20,18 @@
 
 //! The Wikidot `Backlinks` module: which pages link to this one.
 //!
-//! Recognition, the row query, the anonymous-view filter, and the rendered
-//! box live together here. A head carrying any argument is left literal,
-//! because no argument form has a live capture behind it.
+//! Recognition, target-page resolution, the row query, the anonymous-view
+//! filter, and the rendered box live together here. Wikidot accepts a `page`
+//! argument and ignores unrelated arguments.
 
 use super::compat::CompatHtmlFragments;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
+    wikidot_module_argument,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
-use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::{PageService, ServiceContext};
 use crate::types::Reference;
 use crate::types::{Action, Permission, Resource};
 use ftml::settings::WikitextSettings;
@@ -54,6 +55,10 @@ pub(in crate::services::render) struct BacklinksModulePage {
 }
 
 pub(super) fn render_backlinks_module_box(pages: &[BacklinksModulePage]) -> String {
+    if pages.is_empty() {
+        return "\n<div class=\"backlinks-module-box\">\n</div>\n".to_owned();
+    }
+
     let mut output = String::from(
         "\n<div class=\"backlinks-module-box\" data-wikijump-compat-backlinks=\"1\"><ul>",
     );
@@ -103,15 +108,25 @@ impl RenderService {
             }
 
             let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-            if !head.trim().is_empty() {
-                expanded.push_str(mtch.as_str());
-                cursor = mtch.end();
-                continue;
-            }
-
-            let pages =
-                Self::load_backlinks_module_pages(ctx, current_site_id, current_page_id)
-                    .await?;
+            let target_page_id = if let Some(slug) = wikidot_module_argument(head, "page")
+            {
+                PageService::get_optional(ctx, current_site_id, Reference::from(slug))
+                    .await?
+                    .map(|page| page.page_id)
+            } else {
+                Some(current_page_id)
+            };
+            let pages = match target_page_id {
+                Some(target_page_id) => {
+                    Self::load_backlinks_module_pages(
+                        ctx,
+                        current_site_id,
+                        target_page_id,
+                    )
+                    .await?
+                }
+                None => Vec::new(),
+            };
             expanded
                 .push_str(&compat_html.push_html(render_backlinks_module_box(&pages)));
             cursor = mtch.end();
@@ -181,5 +196,18 @@ impl RenderService {
         }
 
         Ok(viewable)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::render_backlinks_module_box;
+
+    #[test]
+    fn empty_backlinks_box_matches_live_wikidot() {
+        assert_eq!(
+            render_backlinks_module_box(&[]),
+            "\n<div class=\"backlinks-module-box\">\n</div>\n",
+        );
     }
 }

@@ -66,8 +66,9 @@ impl CompatHtmlFragments {
     }
 
     pub(in crate::services::render) fn restore(&self, text: &str) -> String {
-        let data_segments = html_data_segments(text);
-        self.restore_with(text, None, Some(&data_segments), true, |fragment| {
+        let text = self.restore_block_marker_paragraphs(text);
+        let data_segments = html_data_segments(&text);
+        self.restore_with(&text, None, Some(&data_segments), true, |fragment| {
             match fragment {
                 CompatFragment::Html(html) | CompatFragment::BlockHtml(html) => {
                     Some(html.as_str())
@@ -75,6 +76,69 @@ impl CompatHtmlFragments {
                 CompatFragment::Plain { html, .. } => Some(html.as_str()),
             }
         })
+    }
+
+    fn restore_block_marker_paragraphs(&self, text: &str) -> String {
+        if self.fragments.is_empty() || !text.contains(&self.namespace) {
+            return text.to_owned();
+        }
+
+        let mut output = String::with_capacity(text.len());
+        let mut cursor = 0;
+        while let Some(relative_start) = text[cursor..].find("<p>") {
+            let start = cursor + relative_start;
+            let body_start = start + "<p>".len();
+            let Some(relative_end) = text[body_start..].find("</p>") else {
+                break;
+            };
+            let body_end = body_start + relative_end;
+            output.push_str(&text[cursor..start]);
+            let body = &text[body_start..body_end];
+            if block_html_parent_is_safe(&output)
+                && let Some(restored) = self.block_marker_paragraph(body)
+            {
+                output.push_str(&restored);
+                cursor = body_end + "</p>".len();
+                continue;
+            }
+            output.push_str(&text[start..body_end + "</p>".len()]);
+            cursor = body_end + "</p>".len();
+        }
+        output.push_str(&text[cursor..]);
+        output
+    }
+
+    fn block_marker_paragraph(&self, body: &str) -> Option<String> {
+        let mut output = String::new();
+        let mut cursor = 0;
+        let mut count = 0;
+        while cursor < body.len() {
+            let rest = &body[cursor..];
+            if let Some(stripped) = rest.strip_prefix("<br>") {
+                cursor = body.len() - stripped.len();
+                continue;
+            }
+            if let Some(stripped) = rest.strip_prefix("<br/>") {
+                cursor = body.len() - stripped.len();
+                continue;
+            }
+            let whitespace = rest
+                .bytes()
+                .take_while(|byte| byte.is_ascii_whitespace())
+                .count();
+            if whitespace > 0 {
+                cursor += whitespace;
+                continue;
+            }
+            let (index, len) = self.marker_at(rest)?;
+            let CompatFragment::BlockHtml(html) = &self.fragments[index] else {
+                return None;
+            };
+            output.push_str(html);
+            count += 1;
+            cursor += len;
+        }
+        (count > 0).then_some(output)
     }
 
     #[cfg(test)]
@@ -554,6 +618,18 @@ mod tests {
             let html = format!("<{parent}><p>{marker}</p></{parent}>");
             assert_eq!(fragments.restore(&html), html, "parent: {parent}");
         }
+    }
+
+    #[test]
+    fn adjacent_block_markers_split_the_paragraph_ftml_puts_around_them() {
+        let mut fragments = CompatHtmlFragments::new("");
+        let first = fragments.push_block_html("<div>first</div>".to_owned());
+        let second = fragments.push_block_html("<div>second</div>".to_owned());
+
+        assert_eq!(
+            fragments.restore(&format!("<p>{first}<br>{second}</p>")),
+            "<div>first</div><div>second</div>",
+        );
     }
 
     #[test]

@@ -69,6 +69,30 @@ pub(super) fn resolve_outermost_wikidot_iftags_before_include_expansion(
     );
 }
 
+pub(super) fn has_unclosed_hidden_body_inside_iftags(wikitext: &str) -> bool {
+    let wikitext = wikitext.to_ascii_lowercase();
+    let mut conditional_start = 0;
+    while let Some(relative_open) = wikitext[conditional_start..].find("[[iftags") {
+        let open = conditional_start + relative_open;
+        let Some(relative_close) = wikitext[open..].find("[[/iftags]]") else {
+            return false;
+        };
+        let close = open + relative_close;
+        let body = &wikitext[open..close];
+        for name in ["code", "html", "raw"] {
+            let opener = format!("[[{name}");
+            let closer = format!("[[/{name}]]");
+            if let Some(hidden_open) = body.find(&opener)
+                && !body[hidden_open..].contains(&closer)
+            {
+                return true;
+            }
+        }
+        conditional_start = close + "[[/iftags]]".len();
+    }
+    false
+}
+
 fn resolve_outermost_wikidot_iftags_with_mode(
     wikitext: &mut String,
     tags: &[Cow<'_, str>],

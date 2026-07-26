@@ -3434,7 +3434,7 @@ async fn backlinks_module_renders_current_page_incoming_links() {
 }
 
 #[tokio::test]
-async fn backlinks_module_with_unsupported_arguments_remains_literal() {
+async fn backlinks_module_page_argument_targets_the_named_page() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
@@ -3493,13 +3493,14 @@ async fn backlinks_module_with_unsupported_arguments_remains_literal() {
         .compiled_body_html
         .expect("compiled body should be included in page_get details");
 
-    assert!(
-        html.contains("TODO: module Backlinks") || html.contains("[[module Backlinks"),
-        "unsupported Backlinks arguments should remain literal/degraded:\n{html}"
-    );
+    assert!(html.contains(
+        r#"<div class="backlinks-module-box" data-wikijump-compat-backlinks="1">"#
+    ));
+    assert!(!html.contains("TODO: module Backlinks"));
+    assert!(!html.contains("[[module Backlinks"));
     assert!(
         !html.contains("Fixture Backlinks Unsupported Linker"),
-        "unsupported Backlinks arguments must not render a guessed incoming-link list:\n{html}"
+        "page=\"start\" must not render backlinks to the containing page:\n{html}"
     );
 }
 

@@ -176,12 +176,13 @@ export function selectLatestSuccessfulCaptures(cases, captureFiles, externalRefe
 
 export function externalStateReasons(source) {
   const reasons = [];
-  if (/\[\[include(?:\s|\])/iu.test(source)) reasons.push('include-target-state');
-  if (/\[\[\[/u.test(source)) reasons.push('page-existence-state');
-  if (/\[\[(?:file|user)(?:\s|\])/iu.test(source)) reasons.push('site-object-state');
-  if (/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu.test(source)) {
-    reasons.push('user-lookup-state');
+  if (/\[\[include\s+:[^:\]\s]+:/iu.test(source)) {
+    reasons.push('cross-site-include-state');
+  } else if (/\[\[include(?:\s|\])/iu.test(source)) {
+    reasons.push('include-target-state');
   }
+  if (/\[\[\[/u.test(source)) reasons.push('page-existence-state');
+  if (/\[\[\*?user(?:\s|\])/iu.test(source)) reasons.push('user-identity-state');
   const modules = [...source.matchAll(/\[\[\s*module\s+([A-Za-z][A-Za-z0-9_-]*)/giu)]
     .map((match) => match[1].toLowerCase())
     .filter((name) => name !== 'css');

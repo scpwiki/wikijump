@@ -93,7 +93,7 @@ function canonicalAttributeValue(node, name, value) {
   } catch {
     return value;
   }
-  const match = /^(?<site>.+)\.(?:wdfiles|wjfiles)\.com$/u.exec(url.hostname);
+  const match = /^(?<site>.+)\.(?:wdfiles\.com|wjfiles\.(?:com|localhost))$/u.exec(url.hostname);
   if (!match) return value;
   url.protocol = 'https:';
   url.hostname = `${match.groups.site}.files.invalid`;

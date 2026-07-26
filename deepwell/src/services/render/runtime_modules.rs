@@ -17,6 +17,7 @@ use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_revision;
 use crate::services::ServiceContext;
+use crate::services::settings::PageRatingType;
 use ftml::data::PageInfo;
 use ftml::settings::WikitextSettings;
 
@@ -25,6 +26,7 @@ impl RenderService {
         wikitext: String,
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
+        rating_type: PageRatingType,
         compat_html: &mut CompatHtmlFragments,
     ) -> String {
         if !settings.enable_page_syntax {
@@ -39,10 +41,20 @@ impl RenderService {
             if literal_regions.contains(matched.start()) {
                 continue;
             }
+            let line_start = wikitext[..matched.start()]
+                .rfind('\n')
+                .map_or(0, |index| index + 1);
+            if wikitext[line_start..matched.start()]
+                .trim_start()
+                .starts_with('>')
+            {
+                continue;
+            }
             output.push_str(&wikitext[cursor..matched.start()]);
             output.push_str(&compat_html.push_block_html(render_read_only_rate_module(
                 page_info.score,
                 &page_info.language,
+                rating_type,
             )));
             cursor = matched.end();
         }

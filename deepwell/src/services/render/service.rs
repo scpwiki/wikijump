@@ -47,7 +47,7 @@ use super::diagnostics::{
 };
 use super::generator::COMPILED_GENERATOR;
 use super::iftags::{
-    resolve_outermost_wikidot_iftags,
+    has_unclosed_hidden_body_inside_iftags, resolve_outermost_wikidot_iftags,
     resolve_outermost_wikidot_iftags_before_include_expansion,
 };
 use super::include_attachment_owners::{
@@ -96,7 +96,9 @@ use crate::error::prelude::{Error, ErrorType, ExnError, OptionExt, Result, Resul
 use crate::hash::{TextHash, k12_hash};
 use crate::models::site::Model as SiteModel;
 use crate::services::ServiceContext;
-use crate::services::settings::{NavigationPageWikitext, SettingsService};
+use crate::services::settings::{
+    NavigationPageWikitext, PageRatingType, SettingsService,
+};
 use crate::services::text_block::{
     MIME_HTML, TextBlock, TextBlockService, mime_for_language,
 };
@@ -821,7 +823,7 @@ impl RenderService {
             page_info,
             &page_settings,
             RenderInnerOptions {
-                render_context: RenderContext::page(site_id, page_id),
+                render_context: RenderContext::page(site_id, category_id, page_id),
                 max_include_expansions,
                 trace: trace.map(|trace| (trace, CorpusRenderScope::Body)),
                 persist_compiled_text: true,
@@ -855,7 +857,11 @@ impl RenderService {
                         page_info,
                         nav_settings,
                         RenderInnerOptions {
-                            render_context: RenderContext::page_nav(site_id, page_id),
+                            render_context: RenderContext::page_nav(
+                                site_id,
+                                category_id,
+                                page_id,
+                            ),
                             max_include_expansions,
                             trace: trace.map(|trace| (trace, scope)),
                             persist_compiled_text: true,
@@ -937,6 +943,7 @@ impl RenderService {
             &settings,
             RenderExpansionOptions {
                 current_site_id: Some(id.site_id),
+                current_category_id: Some(id.category_id),
                 current_page_id: Some(id.page_id),
                 max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
                 trace: None,
@@ -1040,6 +1047,7 @@ impl RenderService {
     ) -> Result<ExpandedRenderWikitext> {
         let RenderExpansionOptions {
             current_site_id,
+            current_category_id,
             current_page_id,
             max_include_expansions,
             trace,
@@ -1200,10 +1208,24 @@ impl RenderService {
                 settings,
                 &mut wikidot_compat_html,
             );
+            let rating_type = match (
+                RATE_MODULE_REGEX.is_match(&wikitext),
+                current_site_id,
+                current_category_id,
+            ) {
+                (true, Some(site_id), Some(category_id)) => {
+                    SettingsService::get_page_rating_settings(ctx, site_id, category_id)
+                        .await
+                        .or_raise(make_error)?
+                        .rating_type
+                }
+                _ => PageRatingType::PlusMinus,
+            };
             wikitext = Self::expand_rate_modules_with_registry(
                 wikitext,
                 page_info,
                 settings,
+                rating_type,
                 &mut wikidot_compat_html,
             );
         }
@@ -1368,6 +1390,7 @@ impl RenderService {
         } = options;
         let RenderContext {
             current_site_id,
+            current_category_id,
             current_page_id,
             text_block_page_id,
         } = render_context;
@@ -1397,6 +1420,7 @@ impl RenderService {
             settings,
             RenderExpansionOptions {
                 current_site_id,
+                current_category_id,
                 current_page_id,
                 max_include_expansions,
                 trace,
@@ -2152,7 +2176,11 @@ impl RenderService {
         if wikitext.contains("[[#") {
             *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         }
-        Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
+        if has_include_opening_candidate(wikitext)
+            || !has_unclosed_hidden_body_inside_iftags(wikitext)
+        {
+            Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
+        }
     }
 
     fn normalize_wikidot_cross_closed_div_collapsibles(wikitext: &mut String) {
@@ -2259,11 +2287,15 @@ impl RenderService {
         if wikitext.contains("[[#") {
             *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         }
-        resolve_outermost_wikidot_iftags_before_include_expansion(
-            wikitext,
-            &page_info.tags,
-            preserved,
-        );
+        if has_include_opening_candidate(wikitext)
+            || !has_unclosed_hidden_body_inside_iftags(wikitext)
+        {
+            resolve_outermost_wikidot_iftags_before_include_expansion(
+                wikitext,
+                &page_info.tags,
+                preserved,
+            );
+        }
     }
 
     fn resolve_wikidot_iftags(
@@ -4511,9 +4543,22 @@ pub(super) fn format_list_pages_rating(score: Option<f32>) -> String {
 pub(super) fn render_read_only_rate_module(
     score: ftml::data::ScoreValue,
     language: &str,
+    rating_type: PageRatingType,
 ) -> String {
     let score = format_score_value(score);
     let labels = wikidot_rate_module_labels(language);
+    let downvote = if rating_type == PageRatingType::PlusMinus {
+        format!(
+            concat!(
+                "<span class=\"ratedown btn btn-default\">",
+                "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"{}\">–</a>",
+                "</span>",
+            ),
+            labels.down_title,
+        )
+    } else {
+        String::new()
+    };
 
     format!(
         concat!(
@@ -4524,19 +4569,13 @@ pub(super) fn render_read_only_rate_module(
             "<span class=\"rateup btn btn-default\">",
             "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\" title=\"{}\">+</a>",
             "</span>",
-            "<span class=\"ratedown btn btn-default\">",
-            "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\" title=\"{}\">–</a>",
-            "</span>",
+            "{}",
             "<span class=\"cancel btn btn-default\">",
             "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\" title=\"{}\">x</a>",
             "</span>",
             "</div>"
         ),
-        labels.rating_prefix,
-        score,
-        labels.up_title,
-        labels.down_title,
-        labels.cancel_title,
+        labels.rating_prefix, score, labels.up_title, downvote, labels.cancel_title,
     )
 }
 
@@ -4844,7 +4883,14 @@ fn wikidot_no_such_include_replacement(page_ref: &PageRef) -> Cow<'static, str> 
     if is_optional_no_visible_wikidot_include(page_ref) {
         Cow::Borrowed("")
     } else {
-        Cow::Owned(format!("No such page: {page_ref}"))
+        let page = page_ref.page();
+        let edit_url = match page_ref.site() {
+            Some(site) => format!("http://{site}.wikidot.com/{page}/edit/true"),
+            None => format!("/{page}/edit/true"),
+        };
+        Cow::Owned(format!(
+            "[[div class=\"error-block\"]]\nIncluded page \"{page}\" does not exist ([[a href=\"{edit_url}\"]]create it now[[/a]])\n[[/div]]"
+        ))
     }
 }
 

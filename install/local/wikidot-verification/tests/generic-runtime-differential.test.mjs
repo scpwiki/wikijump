@@ -5,6 +5,7 @@ import {
   DeepwellRpcAdapter,
   RuntimeCleanupError,
   compareRuntimeFragment,
+  externalStateReasons,
   runGenericRuntimeDifferential,
   selectLatestSuccessfulCaptures,
 } from "../src/generic-runtime-differential.mjs";
@@ -131,6 +132,31 @@ test("fragment comparison never hides mismatches behind inferred state precondit
     "<p>beta</p>",
   );
   assert.equal(mismatch.status, "true-mismatch");
+});
+
+test("runtime state diagnostics do not mistake deterministic file and email rendering for state", () => {
+  assert.deepEqual(externalStateReasons("[[include component:card]]"), ["include-target-state"]);
+  assert.deepEqual(externalStateReasons("[[include :scp-wiki:component:card]]"), [
+    "cross-site-include-state",
+  ]);
+  assert.deepEqual(externalStateReasons("[[file attachment.txt]]"), []);
+  assert.deepEqual(externalStateReasons("[[file ../attachment.txt]]"), []);
+  assert.deepEqual(externalStateReasons("[[*user Alice]]"), ["user-identity-state"]);
+  assert.deepEqual(externalStateReasons("alice@example.com"), []);
+});
+
+test("file host normalization keeps page slug differences visible", () => {
+  const caseValue = runtimeCase("file", "[[file attachment.txt]]");
+  const wikidot =
+    '<p><a href="http://sandbox-for-codex.wdfiles.com/local--files/run-owned:fixture/attachment.txt">file</a></p>';
+  const samePage =
+    '<p><a href="https://sandbox-for-codex.wjfiles.localhost/local--files/run-owned:fixture/attachment.txt">file</a></p>';
+  const changedPage =
+    '<p><a href="https://sandbox-for-codex.wjfiles.localhost/local--files/fixture/attachment.txt">file</a></p>';
+  assert.equal(compareRuntimeFragment(caseValue, wikidot, samePage).status, "match");
+  const mismatch = compareRuntimeFragment(caseValue, wikidot, changedPage);
+  assert.equal(mismatch.status, "true-mismatch");
+  assert.deepEqual(mismatch.suspected_state_preconditions, []);
 });
 
 test("runner reports acquisition failures and cleans each page before the next", async () => {

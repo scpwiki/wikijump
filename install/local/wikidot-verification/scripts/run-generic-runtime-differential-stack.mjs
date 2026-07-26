@@ -332,6 +332,18 @@ export async function main(argv) {
       "up", "--detach", "--wait", "--wait-timeout", "600", "deepwell",
     ]);
     composeStarted = true;
+    const ratingUpdate = run("docker", [
+      "compose", "-p", project, "-f", composePath,
+      "exec", "--no-TTY", "--user", "wikijump",
+      "database", "psql",
+      "--dbname", "wikijump",
+      "--set", "ON_ERROR_STOP=1",
+      "--command",
+      "UPDATE page_category SET rating_type = 'plus' WHERE site_id = (SELECT site_id FROM site WHERE slug = 'sandbox-for-codex') AND slug = '_default';",
+    ]);
+    if (!ratingUpdate.endsWith("UPDATE 1")) {
+      throw new Error("sandbox oracle rating state did not update exactly one category");
+    }
     const administrator = readAdministrator(args.repository);
     const runnerArgs = [
       path.join(path.dirname(new URL(import.meta.url).pathname), "run-generic-runtime-differential.mjs"),

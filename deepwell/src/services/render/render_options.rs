@@ -31,6 +31,7 @@ use super::url_arguments::UrlArguments;
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct RenderContext {
     pub(super) current_site_id: Option<i64>,
+    pub(super) current_category_id: Option<i64>,
     pub(super) current_page_id: Option<i64>,
     pub(super) text_block_page_id: Option<i64>,
 }
@@ -62,6 +63,7 @@ pub(super) struct RenderPageOptions<'a> {
 #[derive(Clone, Copy, Debug)]
 pub(super) struct RenderExpansionOptions<'a> {
     pub(super) current_site_id: Option<i64>,
+    pub(super) current_category_id: Option<i64>,
     pub(super) current_page_id: Option<i64>,
     pub(super) max_include_expansions: usize,
     pub(super) trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
@@ -72,22 +74,25 @@ impl RenderContext {
     pub(super) fn none() -> Self {
         Self {
             current_site_id: None,
+            current_category_id: None,
             current_page_id: None,
             text_block_page_id: None,
         }
     }
 
-    pub(super) fn page(site_id: i64, page_id: i64) -> Self {
+    pub(super) fn page(site_id: i64, category_id: i64, page_id: i64) -> Self {
         Self {
             current_site_id: Some(site_id),
+            current_category_id: Some(category_id),
             current_page_id: Some(page_id),
             text_block_page_id: Some(page_id),
         }
     }
 
-    pub(super) fn page_nav(site_id: i64, current_page_id: i64) -> Self {
+    pub(super) fn page_nav(site_id: i64, category_id: i64, current_page_id: i64) -> Self {
         Self {
             current_site_id: Some(site_id),
+            current_category_id: Some(category_id),
             current_page_id: Some(current_page_id),
             text_block_page_id: None,
         }
@@ -96,6 +101,7 @@ impl RenderContext {
     pub(super) fn ajax_module(site_id: i64) -> Self {
         Self {
             current_site_id: Some(site_id),
+            current_category_id: None,
             current_page_id: Some(0),
             text_block_page_id: None,
         }

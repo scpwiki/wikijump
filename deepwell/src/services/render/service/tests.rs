@@ -86,6 +86,7 @@ use crate::services::page_query::{
     static_wikidot_data_form_matches,
 };
 use crate::services::render::UrlArguments;
+use crate::services::settings::PageRatingType;
 use crate::types::{License, PageId};
 use crate::utils::{locale_for_ftml, now};
 use ftml::data::PageRef;
@@ -1625,8 +1626,11 @@ fn renders_wikidot_tag_cloud_box_links() {
 
 #[test]
 fn renders_wikidot_read_only_rate_module_with_downvote() {
-    let rendered =
-        render_read_only_rate_module(ftml::data::ScoreValue::Integer(19), "en");
+    let rendered = render_read_only_rate_module(
+        ftml::data::ScoreValue::Integer(19),
+        "en",
+        PageRatingType::PlusMinus,
+    );
 
     assert!(rendered.contains(r#"<span class="rate-points">rating: "#));
     assert!(rendered.contains(r#"<span class="number prw54353">+19</span>"#));
@@ -1643,9 +1647,26 @@ fn renders_wikidot_read_only_rate_module_with_downvote() {
 }
 
 #[test]
+fn renders_wikidot_plus_only_rate_module_without_downvote() {
+    let rendered = render_read_only_rate_module(
+        ftml::data::ScoreValue::Integer(0),
+        "en",
+        PageRatingType::Plus,
+    );
+
+    assert!(rendered.contains(r#"listeners.rate(event, 1)"#));
+    assert!(!rendered.contains("ratedown"));
+    assert!(!rendered.contains("rate(event, -1)"));
+    assert!(rendered.contains(r#"listeners.cancelVote(event)"#));
+}
+
+#[test]
 fn renders_japanese_wikidot_read_only_rate_module_labels() {
-    let rendered =
-        render_read_only_rate_module(ftml::data::ScoreValue::Integer(35), "ja");
+    let rendered = render_read_only_rate_module(
+        ftml::data::ScoreValue::Integer(35),
+        "ja",
+        PageRatingType::PlusMinus,
+    );
 
     assert!(rendered.contains("<span class=\"rate-points\">評価:\u{00a0}"));
     assert!(rendered.contains(r#"<span class="number prw54353">+35</span>"#));
@@ -2612,7 +2633,13 @@ fn optional_no_visible_wikidot_includes_do_not_render_missing_page_text() {
     );
     assert_eq!(
         wikidot_no_such_include_replacement(&PageRef::page_and_site("scp-jp", "missing")),
-        "No such page: :scp-jp:missing",
+        "[[div class=\"error-block\"]]\nIncluded page \"missing\" does not exist ([[a href=\"http://scp-jp.wikidot.com/missing/edit/true\"]]create it now[[/a]])\n[[/div]]",
+    );
+
+    let replacement = wikidot_no_such_include_replacement(&PageRef::page_only("banana"));
+    assert_eq!(
+        render_wikidot_page_body_after_compat_restore(&replacement),
+        r#"<div class="error-block"><p>Included page &quot;banana&quot; does not exist (<a href="/banana/edit/true">create it now</a>)</p></div>"#,
     );
 }
 
@@ -4863,9 +4890,10 @@ fn code_block_compatibility_preserves_external_css_dependencies() {
 #[test]
 fn page_nav_render_context_keeps_current_page_without_text_block_target() {
     assert_eq!(
-        RenderContext::page_nav(7, 11),
+        RenderContext::page_nav(7, 9, 11),
         RenderContext {
             current_site_id: Some(7),
+            current_category_id: Some(9),
             current_page_id: Some(11),
             text_block_page_id: None,
         },
@@ -4875,9 +4903,10 @@ fn page_nav_render_context_keeps_current_page_without_text_block_target() {
 #[test]
 fn page_render_context_uses_current_page_as_text_block_target() {
     assert_eq!(
-        RenderContext::page(7, 11),
+        RenderContext::page(7, 9, 11),
         RenderContext {
             current_site_id: Some(7),
+            current_category_id: Some(9),
             current_page_id: Some(11),
             text_block_page_id: Some(11),
         },
@@ -5297,6 +5326,7 @@ fn wikidot_compatibility_fallback_centers_read_only_rate_module() {
         source.to_owned(),
         &page_info,
         &settings,
+        PageRatingType::PlusMinus,
         &mut fragments,
     );
 
@@ -5341,6 +5371,7 @@ fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
         source.to_owned(),
         &page_info,
         &settings,
+        PageRatingType::PlusMinus,
         &mut fragments,
     );
 
@@ -5363,6 +5394,29 @@ fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
 }
 
 #[test]
+fn rate_module_expansion_leaves_wikidot_quote_depths_literal() {
+    let source = concat!(
+        "> [[module Rate show=\"DEPTH_ONE\"]]\n",
+        ">> [[module Rate show=\"DEPTH_TWO\"]]\n",
+        "[[module Rate]]\n",
+    );
+    let page_info = fallback_test_page_info("rate-quotes", "Rate quotes");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut fragments = CompatHtmlFragments::new(source);
+    let protected = RenderService::expand_rate_modules_with_registry(
+        source.to_owned(),
+        &page_info,
+        &settings,
+        PageRatingType::Plus,
+        &mut fragments,
+    );
+
+    assert!(protected.contains("[[module Rate show=\"DEPTH_ONE\"]]"));
+    assert!(protected.contains("[[module Rate show=\"DEPTH_TWO\"]]"));
+    assert_eq!(protected.matches("WIKIJUMPWIKIDOTCOMPATHTML").count(), 1);
+}
+
+#[test]
 fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
     let source = concat!(
         "@@[[module Rate]]@@\n",
@@ -5382,6 +5436,7 @@ fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
         source.to_owned(),
         &page_info,
         &settings,
+        PageRatingType::PlusMinus,
         &mut fragments,
     );
 
@@ -9136,6 +9191,38 @@ fn direct_root_source_unwraps_unbound_dynamic_iftags() {
     prepare_test_wikidot_conditionals_before_include_expansion(&mut source, &page_info);
 
     assert_eq!(source, "before root after");
+}
+
+#[test]
+fn direct_ordinary_iftags_without_includes_remain_for_ftml() {
+    let original = "[[iftags +missing]]\n[[code]]\n[[/iftags]]\nunclosed code".to_owned();
+    let page_info = fallback_test_page_info("root", "Root");
+    let mut source = original.clone();
+
+    prepare_test_wikidot_conditionals_before_include_expansion(&mut source, &page_info);
+    prepare_test_wikidot_conditionals(&mut source, &page_info);
+
+    assert_eq!(source, original);
+
+    let rendered = render_wikidot_conditionals_with_tags(&source, &[]);
+    assert!(rendered.contains("unclosed code"), "{rendered}");
+    assert!(!rendered.contains("[[iftags"), "{rendered}");
+    assert!(!rendered.contains("[[code]]"), "{rendered}");
+}
+
+#[test]
+fn direct_balanced_iftags_without_includes_are_evaluated_by_ftml() {
+    let source = concat!(
+        "[[iftags +missing]]\n",
+        "hidden\n",
+        "[[/iftags]]\n",
+        "visible",
+    );
+
+    let rendered = render_wikidot_conditionals_with_tags(source, &[]);
+
+    assert!(!rendered.contains("hidden"), "{rendered}");
+    assert!(rendered.contains("visible"), "{rendered}");
 }
 
 #[test]
