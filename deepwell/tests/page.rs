@@ -1565,6 +1565,89 @@ async fn included_iftags_closer_survives_unmatched_inline_raw_on_an_earlier_line
 }
 
 #[tokio::test]
+async fn unbound_include_variables_remain_literal_in_attributes_and_text() {
+    const COMPONENT_SLUG: &str = "component:fixture-unbound-include-variable";
+    const CONSUMER_SLUG: &str = "fixture-unbound-include-variable-consumer";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(COMPONENT_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": concat!(
+                "[[div_ class=\"fixture {$missing}\"]]\n",
+                "[[div_ class=\"label\"]]\n",
+                "{$missing}\n",
+                "[[/div]]\n",
+                "[[/div]]",
+            ),
+            "title": "Unbound Include Variable",
+            "alt_title": null,
+            "slug": COMPONENT_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create unbound include variable fixture",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site.site_id,
+        Reference::Slug(Cow::Borrowed(CONSUMER_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site.site_id,
+            "wikitext": format!("[[include {COMPONENT_SLUG}]]"),
+            "title": "Unbound Include Variable Consumer",
+            "alt_title": null,
+            "slug": CONSUMER_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create unbound include variable consumer",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site.site.site_id,
+            "page": CONSUMER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("unbound include variable consumer should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("class=\"fixture {$missing}\""),
+        "unbound class variable should remain literal: {html}",
+    );
+    assert!(
+        html.contains("<div class=\"label\">{$missing}</div>"),
+        "unbound text variable should remain literal: {html}",
+    );
+}
+
+#[tokio::test]
 async fn nested_include_image_blocks_keep_their_attachment_page_owner() {
     const SITE_SLUG: &str = "scp-wiki";
     const FRAGMENT_SLUG: &str = "fragment:attachment-owner-leaf";

@@ -1583,7 +1583,7 @@ pub(in crate::services::render) fn push_list_pages_pager(
         return;
     }
 
-    output.push_str(r#"[[div class="pager"]]"#);
+    output.push_str("[[div class=\"pager\"]]\n");
     output.push_str(&format!(
         r#"[[span class="pager-no"]]page {current_page} of {page_count}[[/span]]"#
     ));
@@ -1622,7 +1622,7 @@ pub(in crate::services::render) fn push_list_pages_pager(
         push_list_pages_pager_target(output, page_info, current_page + 1, "next »");
     }
 
-    output.push_str("[[/div]]\n");
+    output.push_str("\n[[/div]]\n");
 }
 
 pub(in crate::services::render) fn push_list_pages_pager_target(
@@ -1631,13 +1631,13 @@ pub(in crate::services::render) fn push_list_pages_pager_target(
     target_page: usize,
     label: &str,
 ) {
-    output.push_str(r#"[[span class="target"]][/"#);
+    output.push_str(r#"[[span class="target"]][[[/"#);
     output.push_str(&percent_encode_path_segment(page_info.page.as_ref()));
     output.push_str("/p/");
     output.push_str(&target_page.to_string());
-    output.push(' ');
+    output.push('|');
     output.push_str(label);
-    output.push_str("][[/span]]");
+    output.push_str("]]][[/span]]");
 }
 
 pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {

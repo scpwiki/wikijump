@@ -234,8 +234,11 @@ fn pinned_whitespace_and_control_token_boundaries_are_explicit() {
     for source in ["\n\n", "\r\r", "\r\n\r\n", "\r\n\r", "\r\n\n", "\n\r\n"] {
         assert_single_content_token(source, Token::ParagraphBreak);
     }
-    for source in ["\u{00a0}", "\u{2007}", "\0", "\u{000b}", "\u{000c}"] {
+    for source in ["\u{00a0}", "\u{2007}"] {
         assert_single_content_token(source, Token::Other);
+    }
+    for source in ["\0", "\u{000b}", "\u{000c}"] {
+        assert_single_content_token(source, Token::DiscardedControl);
     }
 
     assert_eq!(

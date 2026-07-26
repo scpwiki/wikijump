@@ -74,12 +74,9 @@ fn pinned_css_closer_variants_own_runtime_modules() {
     for closer in [
         "[[/ module]]",
         "[[/module ]]",
-        "[[/module_]]",
         "[[/module654]]",
         "[[/[[module]]",
         "[[/ [[ module]]",
-        "[[/[[module_]]",
-        "[[/ [[ module654_]]",
     ] {
         let source = format!(
             "[[module CSS]]\n\
@@ -314,7 +311,7 @@ fn dense_malformed_email_heads_preserve_forward_token_cursor_progress() {
     const HEADS: usize = 4_096;
     let mut source = "a@b.example [[module CSS x=y\n".repeat(HEADS);
     let live_start = source.len();
-    source.push_str("[[ module CSS note=\"x]y\"]]x[[/module_]]");
+    source.push_str("[[ module CSS note=\"x]y\"]]x[[/module]]");
     let ranges = collect_downstream_css_module_ranges(&source);
 
     assert_eq!(ranges, vec![live_start..source.len()]);

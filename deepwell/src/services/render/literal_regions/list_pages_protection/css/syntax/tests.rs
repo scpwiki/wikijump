@@ -25,13 +25,9 @@ fn pinned_css_closer_scanner_matches_the_bounded_ftml_oracle() {
         "[[/module]]",
         "[[/ module]]",
         "[[/module ]]",
-        "[[/module_]]",
         "[[/module654]]",
-        "[[/module654_]]",
         "[[/[[module]]",
         "[[/ [[ module]]",
-        "[[/[[module_]]",
-        "[[/ [[ module654_]]",
         "[[/module\n]]",
         "[[/module\r]]",
         "[[/module\r\n]]",
@@ -47,7 +43,11 @@ fn pinned_css_closer_scanner_matches_the_bounded_ftml_oracle() {
         "[[/module]]]]",
         "[[/module \n]]",
         "[[/module\t\r\n]]",
+        "[[/module_]]",
+        "[[/module654_]]",
         "[[/module__]]",
+        "[[/[[module_]]",
+        "[[/ [[ module654_]]",
         "[[/module other]]",
         "[[/[[[module]]",
         "[[/[[module]]]",
@@ -84,6 +84,8 @@ fn pinned_ftml_accepts_css_closer(closer: &str) -> bool {
         language: Cow::Borrowed("default"),
     };
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut source = source;
+    ftml::preprocess_for_layout(&mut source, settings.layout);
     let tokenization = ftml::tokenize(&source);
     let (tree, _) = ftml::parse(&tokenization, &page_info, &settings).into();
     tree.elements

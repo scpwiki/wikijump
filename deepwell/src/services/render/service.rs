@@ -1259,7 +1259,7 @@ impl RenderService {
             );
             Self::normalize_wikidot_cross_closed_div_collapsibles(&mut expanded.wikitext);
             Self::normalize_wikidot_div_style_url_quotes(&mut expanded.wikitext);
-            Self::protect_wikidot_marker_class_include_variables(
+            Self::protect_wikidot_unbound_include_variables(
                 &mut expanded.wikitext,
                 &mut wikidot_compat_text,
             );
@@ -1332,7 +1332,7 @@ impl RenderService {
 
         observer(CorpusReplayPreparationStage::Preprocess);
         let started = Instant::now();
-        ftml::preprocess(&mut outer.wikitext);
+        ftml::preprocess_for_layout(&mut outer.wikitext, settings.layout);
         outer.timings.preprocess_us = elapsed_micros(started);
 
         InnerPreparedRenderWikitext {
@@ -2323,57 +2323,18 @@ impl RenderService {
         }
     }
 
-    fn protect_wikidot_marker_class_include_variables(
+    fn protect_wikidot_unbound_include_variables(
         wikitext: &mut String,
         fragments: &mut CompatTextFragments,
     ) {
         if !wikitext.contains("{$") {
             return;
         }
-
-        let mut normalized = String::with_capacity(wikitext.len());
-        let mut changed = false;
-
-        for line in wikitext.split_inclusive('\n') {
-            let trimmed = line.trim_start();
-            if !(trimmed.starts_with("[[div") || trimmed.starts_with("[[span"))
-                || !line.contains("class=\"")
-                || !line.contains("{$")
-            {
-                normalized.push_str(line);
-                continue;
-            }
-
-            let mut line = line.to_owned();
-            let mut search_start = 0usize;
-            while let Some(attr_offset) = line[search_start..].find("class=\"") {
-                let value_start = search_start + attr_offset + "class=\"".len();
-                let Some(value_end_offset) = line[value_start..].find('"') else {
-                    break;
-                };
-                let value_end = value_start + value_end_offset;
-                let value = &line[value_start..value_end];
-                let protected = INCLUDE_VARIABLE_REGEX
-                    .replace_all(value, |captures: &regex::Captures<'_>| {
-                        fragments.push(captures.get(0).expect("full match").as_str())
-                    })
-                    .into_owned();
-
-                if protected != value {
-                    line.replace_range(value_start..value_end, &protected);
-                    changed = true;
-                    search_start = value_start + protected.len();
-                } else {
-                    search_start = value_end + 1;
-                }
-            }
-
-            normalized.push_str(&line);
-        }
-
-        if changed {
-            *wikitext = normalized;
-        }
+        *wikitext = INCLUDE_VARIABLE_REGEX
+            .replace_all(wikitext, |captures: &regex::Captures<'_>| {
+                fragments.push(captures.get(0).expect("full match").as_str())
+            })
+            .into_owned();
     }
 
     fn normalize_wikidot_multiline_page_links(wikitext: &mut String) {

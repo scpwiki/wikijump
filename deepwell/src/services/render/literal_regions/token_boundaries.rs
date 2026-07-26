@@ -153,6 +153,23 @@ fn scan_identifier(bytes: &[u8], start: usize) -> usize {
     end
 }
 
+fn is_discarded_control(byte: u8) -> bool {
+    matches!(
+        byte,
+        b'\0'
+            | b'\x01'
+            | b'\x08'
+            | b'\x0b'
+            | b'\x0c'
+            | b'\x0e'
+            | b'\x1a'
+            | b'\x1b'
+            | b'\x1c'
+            | b'\x1f'
+            | b'\x7f'
+    )
+}
+
 fn scan_email(bytes: &[u8], start: usize, identifier_end: usize) -> EmailScan {
     match bytes.get(identifier_end) {
         Some(b' ' | b'\t' | b'\n' | b'\r') | None => {
@@ -167,6 +184,7 @@ fn scan_email(bytes: &[u8], start: usize, identifier_end: usize) -> EmailScan {
     // scanner. Punctuation outside this set remains owned by the email token.
     let mut at = identifier_end;
     while at < bytes.len()
+        && !is_discarded_control(bytes[at])
         && !matches!(
             bytes[at],
             b' ' | b'\t' | b'@' | b'[' | b']' | b'{' | b'}' | b'<' | b'>' | b'\n' | b'\r'
@@ -181,6 +199,7 @@ fn scan_email(bytes: &[u8], start: usize, identifier_end: usize) -> EmailScan {
 
     let mut dot = at + 1;
     while dot < bytes.len()
+        && !is_discarded_control(bytes[dot])
         && !matches!(
             bytes[dot],
             b' ' | b'\t'
@@ -205,6 +224,7 @@ fn scan_email(bytes: &[u8], start: usize, identifier_end: usize) -> EmailScan {
 
     let mut end = dot + 1;
     while end < bytes.len()
+        && !is_discarded_control(bytes[end])
         && !matches!(
             bytes[end],
             b' ' | b'\t' | b'[' | b']' | b'{' | b'}' | b'<' | b'>' | b'\n' | b'\r'
@@ -232,6 +252,7 @@ fn scan_url(bytes: &[u8], start: usize) -> Option<usize> {
     };
     let mut end = body_start;
     while end < bytes.len()
+        && !is_discarded_control(bytes[end])
         && !matches!(bytes[end], b'\n' | b'\r' | b' ' | b'"' | b'|' | b'[' | b']')
         && !bytes[end..].starts_with(b">@")
     {
