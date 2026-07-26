@@ -1832,8 +1832,14 @@ async fn nested_include_image_blocks_keep_their_attachment_page_owner() {
     );
     assert_eq!(
         html.matches(cross_owned).count(),
-        2,
-        "cross-site nested src and href must retain the remote leaf owner: {html}"
+        0,
+        "an unqualified nested include in a cross-site source resolves against the original callsite site: {html}",
+    );
+    assert!(
+        html.contains(
+            "Included page &quot;component:attachment-owner-cross-wrapper&quot; does not exist",
+        ),
+        "the missing callsite-local nested target must remain visible: {html}",
     );
     assert!(
         html.contains("/local--files/fixture-attachment-owner-consumer/root.png"),
@@ -2010,8 +2016,10 @@ async fn missing_remote_site_include_does_not_fall_back_to_same_slug_local_page(
     assert!(html.contains("Before missing remote include."), "{html}");
     assert!(html.contains("After missing remote include."), "{html}");
     assert_eq!(
-        html.matches("No such page: :missing-remote:missing-remote-include-self-cycle")
-            .count(),
+        html.matches(
+            "Included page &quot;missing-remote-include-self-cycle&quot; does not exist",
+        )
+        .count(),
         2,
         "{html}",
     );
@@ -2152,7 +2160,9 @@ async fn render_scoped_include_source_cache_preserves_occurrence_semantics() {
     assert!(private_html.contains("After private includes."));
     assert!(!private_html.contains("PRIVATE_INCLUDE_SOURCE_MUST_NOT_RENDER"));
     assert_eq!(
-        private_html.matches("No such page").count(),
+        private_html
+            .matches("Included page &quot;component:include-source-cache-private&quot; does not exist")
+            .count(),
         2,
         "a cached permission denial must still render each missing occurrence",
     );
@@ -2301,7 +2311,7 @@ async fn page_render_emits_wikidot_rate_widget_structure() {
     let html = output.html_output.body;
 
     assert!(html.contains(
-        r#"<div style="text-align: center;"><div class="page-rate-widget-box"><span class="rate-points">rating: <span class="number prw54353">+396</span></span>"#,
+        "<div style=\"text-align: center;\"><div class=\"page-rate-widget-box\"><span class=\"rate-points\">rating:\u{a0}<span class=\"number prw54353\">+396</span></span>",
     ), "rate widget must be a direct child of its alignment container:\n{html}");
     assert!(html.contains(
         r#"<span class="rateup btn btn-default"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>"#,
@@ -3493,9 +3503,7 @@ async fn backlinks_module_page_argument_targets_the_named_page() {
         .compiled_body_html
         .expect("compiled body should be included in page_get details");
 
-    assert!(html.contains(
-        r#"<div class="backlinks-module-box" data-wikijump-compat-backlinks="1">"#
-    ));
+    assert!(html.contains(r#"<div class="backlinks-module-box">"#));
     assert!(!html.contains("TODO: module Backlinks"));
     assert!(!html.contains("[[module Backlinks"));
     assert!(
@@ -3712,7 +3720,10 @@ async fn page_tree_module_renders_current_page_hierarchy_with_live_depth_dom() {
     };
 
     let default = section("PT_DEFAULT_START", "PT_DEFAULT_END");
-    assert!(default.contains(&format!(r#"<a href="/{ALPHA}">Alpha Child</a>"#)));
+    assert!(
+        default.contains(&format!(r#"<a href="/{ALPHA}">Alpha Child</a>"#)),
+        "{default}",
+    );
     assert!(
         default.contains(&format!(r#"<a href="/{GRANDCHILD}">Alpha Grandchild</a>"#))
     );

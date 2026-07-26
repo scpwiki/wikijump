@@ -2284,7 +2284,21 @@ fn generated_list_pages_date_is_registered_before_authored_marker_neutralization
     assert!(!protected.contains("data-wikijump-compat-date"));
     assert!(!protected.contains("data-wikijump-authored-compat-date"));
     let restored = fragments.restore(&protected);
-    assert!(restored.contains("data-wikijump-compat-date=\"1\""));
+    assert!(restored.contains(r#"<span class="odate time_1782003564"#));
+    assert!(!restored.contains("data-wikijump-compat-date"));
+}
+
+#[test]
+fn generated_list_pages_user_is_registered_without_internal_marker() {
+    let generated = r#"<span class="printuser avatarhover" data-wikijump-compat-listpages-user="1"><a href="http://www.wikidot.com/user:info/example">example</a></span>"#;
+    let mut fragments = CompatHtmlFragments::new("");
+    let protected =
+        register_generated_list_pages_html(generated.to_owned(), &mut fragments);
+    let restored = fragments.restore(&protected);
+
+    assert!(restored.contains(r#"<span class="printuser avatarhover">"#));
+    assert!(restored.contains("user:info/example"));
+    assert!(!restored.contains("data-wikijump-compat-listpages-user"));
 }
 
 #[test]

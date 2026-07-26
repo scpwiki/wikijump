@@ -335,7 +335,7 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         wikidot_list_pages_module,
         json!({
             "site_id": site_id,
-            "module_body": format!("[[div class=\"page\"]]{module_body}[[/div]]"),
+            "module_body": format!("[[div class=\"page\"]]\n{module_body}\n[[/div]]"),
             "parameters": {
                 "pagetype": "*",
                 "category": "_default",
@@ -356,7 +356,7 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
     );
     assert!(
         output.body.contains(&format!(
-            r#"<span class="set fullname"><span class="name"> fullname </span><span class="value"> {TARGET_SLUG} </span></span>"#
+            r#"<span class="set fullname"><span class="name">fullname</span> <span class="value">{TARGET_SLUG}</span></span>"#
         )),
         "AJAX ListPages should retain each client set name and value in one record: {}",
         output.body,
@@ -369,28 +369,36 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
     );
     assert!(
         output.body.contains(
-            r#"class="set size"><span class="name"> size </span><span class="value"> 3 </span>"#,
+            r#"class="set size"><span class="name">size</span> <span class="value">3</span>"#,
         ),
         "AJAX ListPages should count normalized saved-source Unicode scalar values: {}",
         output.body,
     );
     assert!(
         output.body.contains(
-            r#"class="set created_by_unix"><span class="name"> created_by_unix </span><span class="value"> administrator </span>"#,
+            r#"class="set created_by_unix"><span class="name">created_by_unix</span> <span class="value">administrator</span>"#,
         ),
         "AJAX ListPages should emit the creator account unix name rather than the display name: {}",
         output.body,
     );
     assert!(
         output.body.contains(
-            r#"class="set revisions"><span class="name"> revisions </span><span class="value"> 2 </span>"#,
+            r#"class="set revisions"><span class="name">revisions</span> <span class="value">2</span>"#,
         ),
         "AJAX ListPages should count the created and revised page's stored revisions: {}",
         output.body,
     );
     assert!(
-        output.body.contains(r#"class="set category"><span class="name"> category </span><span class="value"> _default </span>"#),
+        output.body.contains(r#"class="set category"><span class="name">category</span> <span class="value">_default</span>"#),
         "AJAX ListPages should substitute the matched page category: {}",
+        output.body,
+    );
+    assert!(
+        output
+            .body
+            .contains(r#"<span class="value"><span class="odate time_"#)
+            && !output.body.contains("&lt;span class=&quot;odate"),
+        "AJAX ListPages should emit generated date markup as nested HTML: {}",
         output.body,
     );
     assert!(

@@ -94,24 +94,23 @@ pub(super) fn collect_missing_include_replacements(
         .iter()
         .zip(fetched_pages)
         .rev()
-        .filter_map(|(include, fetched_page)| {
-            fetched_page.is_none().then(|| {
-                let display_page = include_display_pages
-                    .get_mut(include.page_ref())
-                    .and_then(VecDeque::pop_back)
-                    .unwrap_or_else(|| include.page_ref().page().to_owned());
-                if is_optional_no_visible_wikidot_include(include.page_ref()) {
-                    String::new()
-                } else if include.has_spaced_empty_separator() {
-                    spaced_empty_separator_missing_include_source(
-                        &display_page,
-                        include.page_ref().site(),
-                        compat_text,
-                    )
-                } else {
-                    missing_include_source(&display_page, include.page_ref().site())
-                }
-            })
+        .filter(|(_, fetched_page)| fetched_page.is_none())
+        .map(|(include, _)| {
+            let display_page = include_display_pages
+                .get_mut(include.page_ref())
+                .and_then(VecDeque::pop_back)
+                .unwrap_or_else(|| include.page_ref().page().to_owned());
+            if is_optional_no_visible_wikidot_include(include.page_ref()) {
+                String::new()
+            } else if include.has_spaced_empty_separator() {
+                spaced_empty_separator_missing_include_source(
+                    &display_page,
+                    include.page_ref().site(),
+                    compat_text,
+                )
+            } else {
+                missing_include_source(&display_page, include.page_ref().site())
+            }
         })
         .collect()
 }

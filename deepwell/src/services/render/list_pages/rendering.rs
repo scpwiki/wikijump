@@ -1716,11 +1716,13 @@ impl RenderService {
                 data_form_values: &data_form_values,
                 render_generated_html,
             };
-            let mut body = if template.uses_only_rating() {
-                substitute_list_pages_rating_only(body, page)
+            let body = if template.uses_only_rating() {
+                let mut body = substitute_list_pages_rating_only(body, page);
+                neutralize_authored_markers(&mut body);
+                body
             } else {
                 let mut generated_fragments = CompatHtmlFragments::new(body);
-                let body = substitute_list_pages_variables_with_fragments(
+                let mut body = substitute_list_pages_variables_with_fragments(
                     body,
                     page,
                     index + offset as usize + 1,
@@ -1728,9 +1730,9 @@ impl RenderService {
                     &substitution_context,
                     &mut generated_fragments,
                 );
+                neutralize_authored_markers(&mut body);
                 generated_fragments.restore(&body)
             };
-            neutralize_authored_markers(&mut body);
             if let Some(table) = render_list_pages_table_rows(&body) {
                 output.push_str(&table);
             } else {
@@ -2190,7 +2192,10 @@ pub(in crate::services::render) fn register_generated_list_pages_html(
                 return full_match.as_str().to_owned();
             }
 
-            let html = compat_html.restore(full_match.as_str());
+            let html = compat_html
+                .restore(full_match.as_str())
+                .replace(r#" data-wikijump-compat-date="1""#, "")
+                .replace(r#" data-wikijump-compat-listpages-user="1""#, "");
             compat_html.push_html(html)
         })
         .into_owned()

@@ -127,8 +127,21 @@ pub async fn wikidot_list_pages_module(
     })?;
 
     Ok(WikidotListPagesModuleOutput {
-        body: normalize_wikidot_list_pages_set_pairs(&output.html_output.body),
+        body: normalize_wikidot_list_pages_set_spacing(
+            &normalize_wikidot_list_pages_set_pairs(&output.html_output.body),
+        ),
     })
+}
+
+fn normalize_wikidot_list_pages_set_spacing(body: &str) -> String {
+    body.replace(
+        r#"</span><span class="value">"#,
+        r#"</span> <span class="value">"#,
+    )
+    .replace(
+        r#"</span><span class="set "#,
+        r#"</span> <span class="set "#,
+    )
 }
 
 /// FTML renders adjacent inline spans as sibling nodes in this module shape.

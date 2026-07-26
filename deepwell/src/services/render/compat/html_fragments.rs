@@ -269,22 +269,27 @@ fn restore_block_html_from_paragraph(
     let Some(paragraph_start) = output.rfind("<p>") else {
         return false;
     };
-    if output[paragraph_start + 3..].contains('<') {
+    let leading = &output[paragraph_start + 3..];
+    if !contains_only_text_and_breaks(leading) {
         return false;
     }
     let Some(paragraph_end) = text[marker_end..].find("</p>") else {
         return false;
     };
     let trailing_end = marker_end + paragraph_end;
-    if text[marker_end..trailing_end].contains('<') {
+    let trailing = &text[marker_end..trailing_end];
+    if !contains_only_text_and_breaks(trailing) {
         return false;
     }
     if !block_html_parent_is_safe(&output[..paragraph_start]) {
         return false;
     }
 
+    let leading_end = trailing_break_start(leading).unwrap_or(leading.len());
+    let trailing_start = leading_break_end(trailing).unwrap_or(0);
+    output.truncate(paragraph_start + 3 + leading_end);
     let leading_is_empty = output[paragraph_start + 3..].trim().is_empty();
-    let trailing_is_empty = text[marker_end..trailing_end].trim().is_empty();
+    let trailing_is_empty = trailing[trailing_start..].trim().is_empty();
     if leading_is_empty {
         output.truncate(paragraph_start);
     } else {
@@ -295,9 +300,44 @@ fn restore_block_html_from_paragraph(
         *cursor = trailing_end + "</p>".len();
     } else {
         output.push_str("<p>");
-        *cursor = marker_end;
+        *cursor = marker_end + trailing_start;
     }
     true
+}
+
+fn contains_only_text_and_breaks(value: &str) -> bool {
+    let mut rest = value;
+    while let Some(start) = rest.find('<') {
+        rest = &rest[start..];
+        if let Some(after) = rest
+            .strip_prefix("<br>")
+            .or_else(|| rest.strip_prefix("<br/>"))
+            .or_else(|| rest.strip_prefix("<br />"))
+        {
+            rest = after;
+        } else {
+            return false;
+        }
+    }
+    true
+}
+
+fn trailing_break_start(value: &str) -> Option<usize> {
+    let trimmed_end = value.trim_end().len();
+    ["<br>", "<br/>", "<br />"]
+        .into_iter()
+        .find_map(|tag| value[..trimmed_end].strip_suffix(tag).map(str::len))
+}
+
+fn leading_break_end(value: &str) -> Option<usize> {
+    let leading_whitespace = value.len() - value.trim_start().len();
+    let rest = &value[leading_whitespace..];
+    ["<br>", "<br/>", "<br />"].into_iter().find_map(|tag| {
+        rest.strip_prefix(tag).map(|after| {
+            let trailing_whitespace = after.len() - after.trim_start().len();
+            leading_whitespace + tag.len() + trailing_whitespace
+        })
+    })
 }
 
 /// A trusted block fragment may enter only the root or an open block container.
@@ -495,6 +535,10 @@ mod tests {
             !fragments
                 .restore(&format!("<p>before {marker} after</p>"))
                 .contains("<p><div")
+        );
+        assert_eq!(
+            fragments.restore(&format!("<p>before<br>\n{marker}<br>\nafter</p>")),
+            "<p>before</p><div>trusted block</div><p>after</p>",
         );
     }
 
