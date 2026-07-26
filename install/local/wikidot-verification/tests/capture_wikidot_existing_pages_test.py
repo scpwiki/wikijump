@@ -45,6 +45,24 @@ class CaptureWikidotExistingPagesTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "class selector"):
             MODULE.validate_plan(plan)
 
+    def test_dependency_identity_requires_matching_wikidot_py_pins(self):
+        with tempfile.TemporaryDirectory() as root:
+            requirements = Path(root) / "requirements.txt"
+            lock = Path(root) / "requirements.lock"
+            requirements.write_text(
+                f"wikidot @ git+https://github.com/Rokurolize/wikidot.py@{'a' * 40}\n"
+            )
+            lock.write_text(
+                f"wikidot @ git+https://github.com/Rokurolize/wikidot.py@{'a' * 40}\n"
+            )
+            identity = MODULE.pinned_dependency_identity(requirements, lock)
+            self.assertEqual(identity["wikidot_py_commit"], "a" * 40)
+            lock.write_text(
+                f"wikidot @ git+https://github.com/Rokurolize/wikidot.py@{'b' * 40}\n"
+            )
+            with self.assertRaisesRegex(RuntimeError, "different wikidot.py commits"):
+                MODULE.pinned_dependency_identity(requirements, lock)
+
 
 if __name__ == "__main__":
     unittest.main()

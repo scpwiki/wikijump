@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -81,6 +82,56 @@ class RefreshStandingTest(unittest.TestCase):
                 "KEEP=value\nSTANDING_WIKIJUMP_SHA=new\n",
             )
             self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+
+    def test_runtime_differential_identity_binds_lock_image_and_compose_config(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            source_root = Path(temporary_dir)
+            lock_path = source_root / "deepwell" / "Cargo.lock"
+            lock_path.parent.mkdir()
+            lock_path.write_bytes(b"locked dependencies\n")
+            source_identity = {
+                "wikijump_sha": "a" * 40,
+                "ftml_sha": "b" * 40,
+            }
+            images = {"deepwell": {"id": f"sha256:{'c' * 64}"}}
+            config = "services:\n  deepwell:\n    image: candidate\n"
+            identity = REFRESH.runtime_differential_identity(
+                source_root, source_identity, images, config
+            )
+            self.assertEqual(
+                identity,
+                {
+                    "schema": "wikijump_syntax_differential.wikijump_runtime_identity.v1",
+                    **source_identity,
+                    "dependency_lock_sha256": hashlib.sha256(
+                        b"locked dependencies\n"
+                    ).hexdigest(),
+                    "executable_sha256": "c" * 64,
+                    "runtime_config_sha256": hashlib.sha256(
+                        config.encode("utf-8")
+                    ).hexdigest(),
+                },
+            )
+
+    def test_runtime_differential_identity_rejects_non_digest_image_id(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            source_root = Path(temporary_dir)
+            lock_path = source_root / "deepwell" / "Cargo.lock"
+            lock_path.parent.mkdir()
+            lock_path.write_text("", encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError, "Deepwell image identity is not one SHA-256 digest"
+            ):
+                REFRESH.runtime_differential_identity(
+                    source_root,
+                    {"wikijump_sha": "a" * 40, "ftml_sha": "b" * 40},
+                    {"deepwell": {"id": "candidate"}},
+                    "services: {}",
+                )
 
 
 if __name__ == "__main__":

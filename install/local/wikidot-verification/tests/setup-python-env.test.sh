@@ -12,14 +12,14 @@ cp "${PROJECT_ROOT}/requirements.lock" "${FIXTURE_ROOT}/project/"
 cat >"${FIXTURE_ROOT}/bin/python3" <<'PYTHON'
 #!/usr/bin/env bash
 set -euo pipefail
-[[ "$1" == "-m" && "$2" == "venv" && -n "$3" ]]
-mkdir -p "$3/bin"
-cat >"$3/bin/python" <<'VENV_PYTHON'
+[[ "$1" == "-m" && "$2" == "venv" && "$3" == "--clear" && -n "$4" ]]
+mkdir -p "$4/bin"
+cat >"$4/bin/python" <<'VENV_PYTHON'
 #!/usr/bin/env bash
 set -euo pipefail
 printf '%s\n' "$*" >"${SETUP_TEST_LOG}"
 VENV_PYTHON
-chmod +x "$3/bin/python"
+chmod +x "$4/bin/python"
 PYTHON
 chmod +x "${FIXTURE_ROOT}/bin/python3"
 

@@ -46,16 +46,46 @@ export function validateSavedPageReference(reference) {
   if (reference.actor?.authenticated !== false || reference.provenance?.mutated !== false) {
     throw new Error("Wikidot saved-page reference must be an anonymous read");
   }
+  if (reference.provenance.transport !== "anonymous-https") {
+    throw new Error("Wikidot saved-page reference transport is unsupported");
+  }
+  validateSha(reference.provenance.wikidot_py_commit, "wikidot.py commit", 40);
+  validateSha(reference.provenance.requirements_sha256, "Python requirements SHA");
   const selector = reference.case?.selector;
   if (typeof selector !== "string" || !/^\.[A-Za-z0-9_-]+$/u.test(selector)) {
     throw new Error("saved-page selector must be one class selector");
   }
   validateSha(reference.page?.source_sha256, "Wikidot source SHA");
+  if (
+    reference.page.source_wikitext !== undefined &&
+    (typeof reference.page.source_wikitext !== "string" ||
+      sha256(reference.page.source_wikitext) !== reference.page.source_sha256)
+  ) {
+    throw new Error("Wikidot source text does not match its identity");
+  }
+  if (reference.page.source_wikitext !== undefined) {
+    validateSha(reference.provenance.requirements_lock_sha256, "Python requirements lock SHA");
+  }
   validateSha(reference.selected_html_sha256, "Wikidot selected HTML SHA");
   if (reference.selected_html_sha256 !== sha256(reference.selected_html ?? "")) {
     throw new Error("Wikidot selected HTML does not match its identity");
   }
   return reference;
+}
+
+export function selectSavedPageReferences(references, caseIds) {
+  const validated = references.map(validateSavedPageReference);
+  if (caseIds.length === 0) return validated;
+  if (new Set(caseIds).size !== caseIds.length) {
+    throw new Error("saved-page case filters must be unique");
+  }
+  const byCaseId = new Map(validated.map((reference) => [reference.case.case_id, reference]));
+  const selected = caseIds.map((caseId) => byCaseId.get(caseId));
+  const missing = caseIds.filter((_, index) => selected[index] === undefined);
+  if (missing.length > 0) {
+    throw new Error(`saved-page case filters are absent from the references: ${missing.join(", ")}`);
+  }
+  return selected;
 }
 
 export function extractSelectedHtml(documentHtml, selector) {
@@ -79,6 +109,22 @@ function classCheck(html, requiredTokens) {
     return requiredTokens.every((token) => tokens.has(token));
   });
   return {status: matching ? "match" : "mismatch", required_tokens: requiredTokens};
+}
+
+export function compiledGeneratorCheck(documentHtml, ftmlSha) {
+  const observed = Array.from(
+    documentHtml.matchAll(/"compiled_generator"\s*:\s*"([^"]+)"/gu),
+    (match) => match[1],
+  );
+  const expectedRevision = ftmlSha.slice(0, 8);
+  return {
+    status:
+      observed.length === 1 && observed[0].includes(`[${expectedRevision}]`)
+        ? "match"
+        : "mismatch",
+    expected_ftml_revision: expectedRevision,
+    observed,
+  };
 }
 
 export function compareSavedPageRuntime(reference, localDocumentHtml, runtimeIdentity) {
@@ -106,6 +152,10 @@ export function compareSavedPageRuntime(reference, localDocumentHtml, runtimeIde
     },
     required_class_shape: classShape,
     unexpanded_directives: unexpandedDirectives,
+    compiled_generator: compiledGeneratorCheck(
+      localDocumentHtml,
+      runtimeIdentity.ftml_sha,
+    ),
   };
   const status = Object.values(checks).every((check) => check.status === "match")
     ? "match"

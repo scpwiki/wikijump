@@ -26,13 +26,15 @@ The controller performs one fixed sequence:
 2. Build Deepwell, Framerail, and WWS from `install/local/<service>/Dockerfile`; Framerail receives `--build-arg FRAMERAIL_ENV=local`.
 3. Atomically update the three `STANDING_*_IMAGE` values, `STANDING_WIKIJUMP_SHA`, `STANDING_FTML_SHA`, `STANDING_LOCALES_SOURCE`, and the refresh resource expiry in the runtime `.env`. The locales bind points at the same clean source root used for the image builds.
 4. Run `docker compose --project-name wikijump-standing up --detach --no-deps deepwell framerail wws` with the checked-in refresh label overlay. The overlay adds owner and expiry labels to the three recreated containers and has no volume declarations.
-5. Wait for all three services to become healthy, fetch `http://scp-wiki.wikijump.localhost/scp-9506`, require the expected document markers, and overwrite `refresh-receipt.json` with the exact source, image, health, canary, and resource-disposition record.
+5. Wait for all three services to become healthy, fetch `http://scp-wiki.wikijump.localhost/scp-9506`, require the expected document markers, and overwrite `runtime-differential-identity.json` and `refresh-receipt.json` with the exact source, FTML pin, dependency lock, Deepwell image, effective Compose configuration, health, canary, and resource-disposition record.
 
 The script refuses unknown arguments, including `-v`, `--volumes`, and `--remove-volumes`. There is no argument that is forwarded to Docker or Docker Compose.
 
 ## Rendering the canonical home
 
 `render.py` materializes the canonical home from a clean checkout at an exact merged Wikijump revision. It copies the production Deepwell config and replaces only the production domain pair with `wikijump.localhost` and `wjfiles.localhost`; it emits the absolute source-root locales path used by the read-only `/opt/locales` bind. The renderer fails closed if the production domain block changes, the requested FTML revision is absent, either required Deepwell runtime source is missing, or the checkout identity is not exact. `identity.json` records the source tree, FTML pin, config hash, image inputs, and persistent volume names.
+
+`identity.json` describes the materialized topology and is updated only by `render.py`. `runtime-differential-identity.json` describes the application artifacts currently activated by the latest successful Tier 1 refresh and is the identity input for saved-page runtime comparisons.
 
 Rendering does not mutate the running stack. A routine Tier 1 refresh uses the already materialized home; a topology change uses Tier 2.
 
