@@ -1107,23 +1107,23 @@ export class DeepwellRpcAdapter {
       const siteId = await this.siteId(category.site);
       let current = await this.rpc('category_get', {site: siteId, category: category.slug});
       let action = 'unchanged';
+      let seedPage = null;
       if (current == null) {
         const separator = category.slug === '_default' ? '' : `${category.slug}:`;
         const slug = `${separator}run-owned-state-fixture-${disposableRunId}`;
         if (await this.getPageInSite(siteId, slug)) {
           throw new Error(`runtime state fixture category seed page already exists: ${category.site}:${slug}`);
         }
-        const temporary = {
+        const seed = {
           slug,
           title: slug,
           wikitext: '',
         };
-        const created = await this.createFixturePage(siteId, temporary);
-        const page = await this.getPageInSite(siteId, slug);
-        if (!Number.isSafeInteger(created?.page_id) || page == null) {
+        const created = await this.createFixturePage(siteId, seed);
+        seedPage = await this.getPageInSite(siteId, slug);
+        if (!Number.isSafeInteger(created?.page_id) || seedPage == null) {
           throw new Error(`runtime state fixture could not seed category: ${category.site}:${category.slug}`);
         }
-        await this.deleteFixturePage(siteId, page);
         current = await this.rpc('category_get', {site: siteId, category: category.slug});
         action = 'created';
       }
@@ -1136,6 +1136,9 @@ export class DeepwellRpcAdapter {
         slug: category.slug,
         category_id: current.category_id,
         action,
+        ...(seedPage == null
+          ? {}
+          : {seed_page_id: seedPage.page_id, seed_page_slug: seedPage.slug}),
       });
     }
     for (const {siteId, page} of presentPages.reverse()) {

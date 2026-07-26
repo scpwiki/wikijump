@@ -1179,6 +1179,7 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
   ]);
   let nextPageId = 40;
   const methods = [];
+  const categories = new Set(["component"]);
   const fetchImpl = async (_url, options) => {
     const request = JSON.parse(options.body);
     methods.push(request.method);
@@ -1191,6 +1192,8 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
     else if (method === "user_get") result = {user_id: 9};
     else if (method === "page_get") result = pages.get(`${params.site_id}:${params.page}`) ?? null;
     else if (method === "page_create") {
+      const category = params.slug.includes(":") ? params.slug.split(":", 1)[0] : "_default";
+      categories.add(category);
       const page = {
         page_id: nextPageId++,
         revision_id: nextPageId++,
@@ -1220,7 +1223,9 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
       entry[1].layout = params.layout;
       result = null;
     } else if (method === "category_get") {
-      result = {category_id: 30, slug: params.category};
+      result = categories.has(params.category)
+        ? {category_id: 30, slug: params.category}
+        : null;
     } else if (method === "page_rerender") result = {page_id: params.page_id};
     else throw new Error(`unexpected method: ${method}`);
     return {ok: true, json: async () => ({jsonrpc: "2.0", id: request.id, result})};
@@ -1239,7 +1244,10 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
       fixturePage("scp-wiki", "existing", "new source", "Existing"),
     ],
     absentPages: [{site: "scp-wiki", slug: "remove-me"}],
-    categories: [{site: "scp-wiki", slug: "component"}],
+    categories: [
+      {site: "scp-wiki", slug: "component"},
+      {site: "scp-wiki", slug: "seeded"},
+    ],
   }));
   const input = {path: "/tmp/state.json", sha256: "b".repeat(64), fixture};
   await assert.rejects(adapter.applyStateFixture(input, null), /disposable stack controller/u);
@@ -1251,7 +1259,19 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
       {kind: "page", slug: "existing", action: "edited"},
       {kind: "absent-page", slug: "remove-me", action: "deleted"},
       {kind: "category", slug: "component", action: "unchanged"},
+      {kind: "category", slug: "seeded", action: "created"},
     ],
+  );
+  const seededCategory = receipt.operations.find(
+    ({kind, slug}) => kind === "category" && slug === "seeded",
+  );
+  assert.equal(
+    seededCategory.seed_page_slug,
+    "seeded:run-owned-state-fixture-runtime-diff-abcdef123456",
+  );
+  assert.equal(
+    pages.has("8:seeded:run-owned-state-fixture-runtime-diff-abcdef123456"),
+    true,
   );
   assert.equal(receipt.sha256, "b".repeat(64));
   assert.equal(pages.has("8:remove-me"), false);
