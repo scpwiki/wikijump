@@ -70,6 +70,10 @@ export function validateRuntimeStateFixture(value) {
       throw new Error(`runtime state fixture ${field} must be an array`);
     }
   }
+  const wikidotUsers = value.wikidot_users ?? [];
+  if (!Array.isArray(wikidotUsers)) {
+    throw new Error('runtime state fixture wikidot_users must be an array');
+  }
   for (const [index, root] of value.roots.entries()) {
     assertString(root, `runtime state fixture roots[${index}]`);
   }
@@ -113,7 +117,45 @@ export function validateRuntimeStateFixture(value) {
     }
     categories.add(identity);
   }
-  return value;
+  const userIds = new Set();
+  const userNames = new Set();
+  const userSlugs = new Set();
+  for (const [index, user] of wikidotUsers.entries()) {
+    const name = `runtime state fixture wikidot_users[${index}]`;
+    if (user == null || typeof user !== 'object' || Array.isArray(user)) {
+      throw new Error(`${name} must be an object`);
+    }
+    if (!Number.isSafeInteger(user.user_id) || user.user_id <= 0 || user.user_id > 2_147_483_647) {
+      throw new Error(`${name}.user_id must be a positive 32-bit integer`);
+    }
+    assertString(user.name, `${name}.name`);
+    assertString(user.slug, `${name}.slug`);
+    if (!/^[a-z0-9-]+$/u.test(user.slug)) {
+      throw new Error(`${name}.slug is invalid`);
+    }
+    validateProvenance(user.provenance, `${name}.provenance`);
+    if (Number.isNaN(Date.parse(user.provenance.captured_at))) {
+      throw new Error(`${name}.provenance.captured_at is invalid`);
+    }
+    assertSha256(user.provenance.capture_file_sha256, `${name}.provenance.capture_file_sha256`);
+    assertSha256(user.provenance.saved_source_sha256, `${name}.provenance.saved_source_sha256`);
+    assertSha256(user.provenance.wikidot_html_sha256, `${name}.provenance.wikidot_html_sha256`);
+    if (
+      !Number.isSafeInteger(user.provenance.capture_line) ||
+      user.provenance.capture_line <= 0 ||
+      !Number.isSafeInteger(user.provenance.page_identity) ||
+      user.provenance.page_identity <= 0
+    ) {
+      throw new Error(`${name}.provenance capture identity is invalid`);
+    }
+    if (userIds.has(user.user_id) || userNames.has(user.name) || userSlugs.has(user.slug)) {
+      throw new Error(`${name} identity is duplicated`);
+    }
+    userIds.add(user.user_id);
+    userNames.add(user.name);
+    userSlugs.add(user.slug);
+  }
+  return {...value, wikidot_users: wikidotUsers};
 }
 
 export function validateRuntimeStateFixtureInput(value) {

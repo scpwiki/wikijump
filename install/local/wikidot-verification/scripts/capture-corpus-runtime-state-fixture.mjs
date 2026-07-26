@@ -164,6 +164,7 @@ export async function main(argv) {
     unresolved_pages: missing.sort(),
     absent_pages: [],
     categories: [],
+    wikidot_users: [],
   };
   await fs.writeFile(args.output, `${JSON.stringify(fixture, null, 2)}\n`, {
     encoding: "utf8",

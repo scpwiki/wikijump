@@ -24,6 +24,10 @@ import {
   parseArgs as parseStackArgs,
   runtimeIdentity as stackRuntimeIdentity,
 } from "../scripts/run-generic-runtime-differential-stack.mjs";
+import {
+  parseArgs as parseReferenceFixtureArgs,
+  wikidotUsersFromComparison,
+} from "../scripts/capture-reference-runtime-state-fixture.mjs";
 
 const runtimeIdentity = {
   schema: "wikijump_syntax_differential.wikijump_runtime_identity.v1",
@@ -1071,6 +1075,7 @@ function stateFixture({
   pages = [],
   absentPages = [],
   categories = [],
+  wikidotUsers = [],
 } = {}) {
   return {
     schema: RUNTIME_STATE_FIXTURE_SCHEMA,
@@ -1084,6 +1089,7 @@ function stateFixture({
     pages,
     absent_pages: absentPages,
     categories,
+    wikidot_users: wikidotUsers,
   };
 }
 
@@ -1103,9 +1109,26 @@ function fixturePage(site, slug, wikitext, title = slug) {
   };
 }
 
+function fixtureUser(userId, name, slug) {
+  return {
+    user_id: userId,
+    name,
+    slug,
+    provenance: {
+      source: "/tmp/capture.jsonl",
+      capture_file_sha256: "a".repeat(64),
+      captured_at: "2026-07-26T07:54:55.612162+00:00",
+      capture_line: 8,
+      page_identity: 1469051295,
+      saved_source_sha256: "c".repeat(64),
+      wikidot_html_sha256: "b".repeat(64),
+    },
+  };
+}
+
 test("runtime state fixture validation binds page source hashes and provenance", () => {
   const valid = stateFixture({pages: [fixturePage("scp-wiki", "component:fixture", "fixture")]});
-  assert.equal(validateRuntimeStateFixture(valid), valid);
+  assert.deepEqual(validateRuntimeStateFixture(valid), valid);
   assert.throws(
     () => validateRuntimeStateFixture({
       ...valid,
@@ -1119,6 +1142,19 @@ test("runtime state fixture validation binds page source hashes and provenance",
       pages: [{...valid.pages[0], provenance: null}],
     }),
     /provenance must be an object/u,
+  );
+  assert.deepEqual(
+    validateRuntimeStateFixture({...valid, wikidot_users: undefined}),
+    valid,
+  );
+  assert.throws(
+    () => validateRuntimeStateFixture(stateFixture({
+      wikidotUsers: [
+        fixtureUser(334454, "Aelanna", "aelanna"),
+        fixtureUser(334454, "Changed", "changed"),
+      ],
+    })),
+    /identity is duplicated/u,
   );
 });
 
@@ -1138,7 +1174,7 @@ test("runner applies all validated state fixtures before comparisons and retains
     adapter: {
       async applyStateFixture(input, runId) {
         applied = true;
-        assert.equal(input.fixture, fixture);
+        assert.deepEqual(input.fixture, fixture);
         assert.equal(runId, "runtime-diff-abcdef123456");
         return {path: input.path, sha256: input.sha256, operations: [{action: "created"}]};
       },
@@ -1181,6 +1217,15 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
   let nextPageId = 40;
   const methods = [];
   const categories = new Set(["component"]);
+  const wikidotUsers = new Map([
+    [334454, {
+      user_id: 334454,
+      user_type: "wikidot",
+      name: "Aelanna",
+      slug: "aelanna",
+    }],
+  ]);
+  let importUserParams = null;
   const fetchImpl = async (_url, options) => {
     const request = JSON.parse(options.body);
     methods.push(request.method);
@@ -1190,7 +1235,21 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
     else if (method === "site_get") {
       result = {site_id: params.site === "sandbox-for-codex" ? 7 : 8};
     } else if (method === "login") result = {session_token: "token"};
-    else if (method === "user_get") result = {user_id: 9};
+    else if (method === "user_get") {
+      result = params.user === "administrator"
+        ? {user_id: 9}
+        : wikidotUsers.get(params.user) ?? null;
+    } else if (method === "import_wikidot_user") {
+      importUserParams = params;
+      const user = {
+        user_id: params.user_id,
+        user_type: "wikidot",
+        name: params.name,
+        slug: params.slug,
+      };
+      wikidotUsers.set(params.user_id, user);
+      result = {user_id: params.user_id};
+    }
     else if (method === "page_get") result = pages.get(`${params.site_id}:${params.page}`) ?? null;
     else if (method === "page_create") {
       const category = params.slug.includes(":") ? params.slug.split(":", 1)[0] : "_default";
@@ -1249,6 +1308,10 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
       {site: "scp-wiki", slug: "component"},
       {site: "scp-wiki", slug: "seeded"},
     ],
+    wikidotUsers: [
+      fixtureUser(334454, "Aelanna", "aelanna"),
+      fixtureUser(2026083, "Dr_Grom", "dr-grom"),
+    ],
   }));
   const input = {path: "/tmp/state.json", sha256: "b".repeat(64), fixture};
   await assert.rejects(adapter.applyStateFixture(input, null), /disposable stack controller/u);
@@ -1256,6 +1319,8 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
   assert.deepEqual(
     receipt.operations.map(({kind, slug, action}) => ({kind, slug, action})),
     [
+      {kind: "wikidot-user", slug: "aelanna", action: "unchanged"},
+      {kind: "wikidot-user", slug: "dr-grom", action: "imported"},
       {kind: "page", slug: "new", action: "created"},
       {kind: "page", slug: "existing", action: "edited"},
       {kind: "absent-page", slug: "remove-me", action: "deleted"},
@@ -1274,10 +1339,77 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
     pages.has("8:seeded:run-owned-state-fixture-runtime-diff-abcdef123456"),
     true,
   );
+  assert.deepEqual(importUserParams, {
+    user_id: 2026083,
+    created_at: "2026-07-26T07:54:55.612162+00:00",
+    fetched_at: "2026-07-26T07:54:55.612162+00:00",
+    user_type: "extant",
+    name: "Dr_Grom",
+    slug: "dr-grom",
+    avatar_uploaded_blob_id: null,
+    real_name: null,
+    gender: null,
+    birthday: null,
+    location: null,
+    biography: null,
+    website: null,
+    karma: 0,
+    is_pro: false,
+    importing_user_id: 9,
+    ip_address: "127.0.0.1",
+  });
   assert.equal(receipt.sha256, "b".repeat(64));
   assert.equal(pages.has("8:remove-me"), false);
   assert.equal(pages.get("8:existing").wikitext, "new source");
   assert.equal(methods.filter((method) => method === "page_rerender").length, 2);
+});
+
+test("reference fixture extracts provenance-bound Wikidot printuser identities", () => {
+  const printuser = (id, name, slug) =>
+    `<span class="printuser avatarhover"><a href="http://www.wikidot.com/user:info/${slug}" onclick="WIKIDOT.page.listeners.userInfo(${id}); return false;"><img alt="${name}" class="small" src="http://www.wikidot.com/avatar.php?userid=${id}&amp;amp;size=small&amp;amp;timestamp=1785052494" style="background-image:url(http://www.wikidot.com/userkarma.php?u=${id})"></a><a href="http://www.wikidot.com/user:info/${slug}" onclick="WIKIDOT.page.listeners.userInfo(${id}); return false;">${name}</a></span>`;
+  const provenance = fixtureUser(1, "Unused", "unused").provenance;
+  const users = wikidotUsersFromComparison(
+    {
+      case_id: "record--367e190561d550bf0b16f044",
+      diagnostic: {
+        wikidot_html: `${printuser(334454, "Aelanna", "aelanna")}${printuser(2026083, "Dr_Grom", "dr-grom")}`,
+      },
+    },
+    provenance,
+  );
+  assert.deepEqual(
+    users.map(({user_id, name, slug}) => ({user_id, name, slug})),
+    [
+      {user_id: 334454, name: "Aelanna", slug: "aelanna"},
+      {user_id: 2026083, name: "Dr_Grom", slug: "dr-grom"},
+    ],
+  );
+  assert.deepEqual(users[0].provenance, provenance);
+  assert.throws(
+    () => wikidotUsersFromComparison(
+      {
+        case_id: "changed",
+        diagnostic: {
+          wikidot_html: printuser(334454, "Aelanna", "aelanna").replace(
+            "userInfo(334454); return false;\">Aelanna",
+            "userInfo(2026083); return false;\">Aelanna",
+          ),
+        },
+      },
+      provenance,
+    ),
+    /printuser identity is internally inconsistent/u,
+  );
+});
+
+test("reference fixture CLI preserves repeated users cases", () => {
+  const args = parseReferenceFixtureArgs([
+    "--report", "report.json",
+    "--users-case", "record--one",
+    "--users-case", "record--two",
+    "--output", "fixture.json",
+  ]);
+  assert.deepEqual(args.usersCases, ["record--one", "record--two"]);
 });
 
 test("CLI requires explicit artifacts and preserves repeated capture inputs", () => {

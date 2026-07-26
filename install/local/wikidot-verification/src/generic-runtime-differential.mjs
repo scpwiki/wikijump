@@ -1028,6 +1028,52 @@ export class DeepwellRpcAdapter {
     await this.connect();
     const operations = [];
     const presentPages = [];
+    for (const user of input.fixture.wikidot_users) {
+      let current = await this.rpc('user_get', {user: user.user_id});
+      let action = 'unchanged';
+      if (current == null) {
+        const imported = await this.rpc('import_wikidot_user', {
+          user_id: user.user_id,
+          created_at: user.provenance.captured_at,
+          fetched_at: user.provenance.captured_at,
+          user_type: 'extant',
+          name: user.name,
+          slug: user.slug,
+          avatar_uploaded_blob_id: null,
+          real_name: null,
+          gender: null,
+          birthday: null,
+          location: null,
+          biography: null,
+          website: null,
+          karma: 0,
+          is_pro: false,
+          importing_user_id: this.connection.userId,
+          ip_address: '127.0.0.1',
+        });
+        if (imported?.user_id !== user.user_id) {
+          throw new Error(`runtime state fixture could not import Wikidot user: ${user.user_id}`);
+        }
+        current = await this.rpc('user_get', {user: user.user_id});
+        action = 'imported';
+      }
+      if (
+        current?.user_id !== user.user_id ||
+        current.user_type !== 'wikidot' ||
+        current.name !== user.name ||
+        current.slug !== user.slug
+      ) {
+        throw new Error(`runtime state fixture Wikidot user did not round-trip: ${user.user_id}`);
+      }
+      operations.push({
+        kind: 'wikidot-user',
+        user_id: user.user_id,
+        name: user.name,
+        slug: user.slug,
+        provenance_time: user.provenance.captured_at,
+        action,
+      });
+    }
     for (const page of input.fixture.pages) {
       const siteId = await this.siteId(page.site);
       let current = await this.getPageInSite(siteId, page.slug);
