@@ -28,8 +28,8 @@ use deepwell::constants::{
 use deepwell::error::prelude::*;
 use deepwell::models::audit_log::{self, Entity as AuditLog};
 use deepwell::models::relation::{self, Entity as Relation};
-use deepwell::services::RelationService;
 use deepwell::services::role::{InternalCreateRoleInput, RoleService};
+use deepwell::services::{RelationService, RequestContext};
 use deepwell::types::RelationType;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde_json::json;
@@ -110,7 +110,11 @@ async fn latest_audit_event(
 
 #[tokio::test]
 async fn lifecycle_membership_blocking_and_audit() {
-    let runner = TestRunner::setup().await;
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
     let site_id = test_site_id(&runner).await;
     let user_id = SAMPLE_USER_ID;
 
