@@ -18,113 +18,18 @@ pub fn expand_stream(
         define_struct,
     }: RelationSettings,
 ) -> TokenStream {
-    let error_name = make_ident(format!("{}Relation", struct_name));
-
-    let create_struct = make_ident(format!("Create{}", struct_name));
-    let remove_struct = make_ident(format!("Remove{}", struct_name));
-
-    let remove_method = make_ident(format!("remove_{}", field_name));
-
-    let create_struct = match data_type {
-        Some(data_type) => quote! {
-            #[derive(Deserialize, Debug, Clone)]
-            pub struct #create_struct {
-                pub #dest_name: i64,
-                pub #from_name: i64,
-                pub metadata: #data_type,
-                pub created_by: i64,
-            }
-        },
-        None => quote! {
-            #[derive(Deserialize, Debug, Clone)]
-            pub struct #create_struct {
-                pub #dest_name: i64,
-                pub #from_name: i64,
-                pub created_by: i64,
-            }
-        },
-    };
-
-    let create_method_impl = {
-        let (vis, suffix) = if create_fn {
-            (public(), "")
-        } else {
-            (private(), "_inner")
-        };
-
-        let create_method = make_ident(format!("create_{field_name}{suffix}"));
-
-        quote! {
-            #vis async fn #create_method(
-                ctx: &ServiceContext<'_>,
-                #create_struct {
-                    #dest_name,
-                    #from_name,
-                    metadata,
-                    created_by,
-                }: #create_struct,
-            ) -> Result<()> {
-                let make_error = || Error::new(
-                    concat!("failed to create ", stringify!(#struct_name)),
-                    ErrorType::#error_name,
-                );
-
-                Self::create(
-                    ctx,
-                    RelationType::#struct_name,
-                    RelationObject::#dest_type(#dest_name),
-                    RelationObject::#from_type(#from_name),
-                    created_by,
-                    metadata,
-                )
-                .await
-                .or_raise(make_error)?;
-
-                Ok(())
-            }
-        }
-    };
-
-    let remove_struct = quote! {
-        #[derive(Deserialize, Debug, Copy, Clone)]
-        pub struct #remove_struct {
-            pub #dest_name: i64,
-            pub #from_name: i64,
-            pub removed_by: i64,
-        }
-    };
-
-    let remove_method_impl = quote! {
-        pub async fn #remove_method(
-            ctx: &ServiceContext<'_>,
-            #remove_struct {
-                #dest_name,
-                #from_name,
-                removed_by,
-            }: #remove_struct
-        ) -> Result<RelationModel> {
-            Self::remove(
-                ctx,
-                RelationReference::Relationship {
-                    relation_type: RelationType::#struct_name,
-                    dest: RelationObject::#dest_type(#dest_name),
-                    from: RelationObject::#from_type(#from_name),
-                },
-                removed_by,
-            ).await
-        }
-    };
-
     todo!()
 }
 
 fn generate_get_methods(
-    field_name: &str,
-    struct_name: &str,
-    dest_name: &Ident,
-    dest_type: &Type,
-    from_name: &Ident,
-    from_type: &Type,
+    GenerationContext {
+        field_name,
+        struct_name,
+        dest_name,
+        dest_type,
+        from_name,
+        from_type,
+    }: GenerationContext,
 ) -> TokenStream {
     let get_struct = make_ident(format!("Get{}", struct_name));
 
@@ -221,6 +126,166 @@ fn generate_get_methods(
         }
     }
     .into()
+}
+
+fn generate_create_impl(
+    GenerationContext {
+        field_name,
+        struct_name,
+        dest_name,
+        dest_type,
+        from_name,
+        from_type,
+    }: GenerationContext,
+    data_type: Option<&Type>,
+    create_fn: bool,
+) -> CreateDefinitions {
+    let error_name = make_ident(format!("{}Relation", struct_name));
+
+    let create_struct = make_ident(format!("Create{}", struct_name));
+
+    let create_struct_def = match data_type {
+        Some(data_type) => quote! {
+            #[derive(Deserialize, Debug, Clone)]
+            pub struct #create_struct {
+                pub #dest_name: i64,
+                pub #from_name: i64,
+                pub metadata: #data_type,
+                pub created_by: i64,
+            }
+        },
+        None => quote! {
+            #[derive(Deserialize, Debug, Clone)]
+            pub struct #create_struct {
+                pub #dest_name: i64,
+                pub #from_name: i64,
+                pub created_by: i64,
+            }
+        },
+    }
+    .into();
+
+    let create_method_impl = {
+        let (vis, suffix) = if create_fn {
+            (public(), "")
+        } else {
+            (private(), "_inner")
+        };
+
+        let method_name = make_ident(format!("create_{field_name}{suffix}"));
+
+        quote! {
+            #vis async fn #method_name(
+                ctx: &ServiceContext<'_>,
+                #create_struct {
+                    #dest_name,
+                    #from_name,
+                    metadata,
+                    created_by,
+                }: #create_struct,
+            ) -> Result<()> {
+                let make_error = || Error::new(
+                    concat!("failed to create ", stringify!(#struct_name)),
+                    ErrorType::#error_name,
+                );
+
+                Self::create(
+                    ctx,
+                    RelationType::#struct_name,
+                    RelationObject::#dest_type(#dest_name),
+                    RelationObject::#from_type(#from_name),
+                    created_by,
+                    metadata,
+                )
+                .await
+                .or_raise(make_error)?;
+
+                Ok(())
+            }
+        }
+    }
+    .into();
+
+    CreateDefinitions {
+        create_struct_def,
+        create_method_impl,
+    }
+}
+
+fn generate_remove_impl(
+    GenerationContext {
+        field_name,
+        struct_name,
+        dest_name,
+        dest_type,
+        from_name,
+        from_type,
+    }: GenerationContext,
+    data_type: Option<&Type>,
+    remove_fn: bool,
+) -> RemoveDefinitions {
+    let remove_struct = make_ident(format!("Remove{}", struct_name));
+
+    let remove_method = make_ident(format!("remove_{}", field_name));
+
+    let remove_struct_def = quote! {
+        #[derive(Deserialize, Debug, Copy, Clone)]
+        pub struct #remove_struct {
+            pub #dest_name: i64,
+            pub #from_name: i64,
+            pub removed_by: i64,
+        }
+    }
+    .into();
+
+    let remove_method_impl = quote! {
+        pub async fn #remove_method(
+            ctx: &ServiceContext<'_>,
+            #remove_struct {
+                #dest_name,
+                #from_name,
+                removed_by,
+            }: #remove_struct
+        ) -> Result<RelationModel> {
+            Self::remove(
+                ctx,
+                RelationReference::Relationship {
+                    relation_type: RelationType::#struct_name,
+                    dest: RelationObject::#dest_type(#dest_name),
+                    from: RelationObject::#from_type(#from_name),
+                },
+                removed_by,
+            ).await
+        }
+    }
+    .into();
+
+    RemoveDefinitions {
+        remove_struct_def,
+        remove_method_impl,
+    }
+}
+
+// Helpers
+
+#[derive(Copy, Clone)]
+struct GenerationContext<'a> {
+    field_name: &'a str,
+    struct_name: &'a str,
+    dest_name: &'a Ident,
+    dest_type: &'a Type,
+    from_name: &'a Ident,
+    from_type: &'a Type,
+}
+
+struct CreateDefinitions {
+    create_struct_def: TokenStream,
+    create_method_impl: TokenStream,
+}
+
+struct RemoveDefinitions {
+    remove_struct_def: TokenStream,
+    remove_method_impl: TokenStream,
 }
 
 #[inline]
