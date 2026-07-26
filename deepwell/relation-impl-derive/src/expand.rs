@@ -167,7 +167,6 @@ fn generate_get_methods(
             .await
         }
     }
-    .into()
 }
 
 fn generate_create_defs(
