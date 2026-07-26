@@ -96,7 +96,8 @@ fn parse() {
         assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "blocking_user");
         assert_type(settings.from.1, "User");
-        assert!(matches!(settings.data_type, Some(Type::Path(_))));
+        assert!(settings.data_type.is_some());
+        assert_type(settings.data_type.unwrap(), "UserBlockData");
         assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
         assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
@@ -117,7 +118,8 @@ fn parse() {
         assert_type(settings.dest.1, "Site");
         assert_eq!(settings.from.0.to_string(), "user_id");
         assert_type(settings.from.1, "User");
-        assert!(matches!(settings.data_type, Some(Type::Path(_))));
+        assert!(settings.data_type.is_some());
+        assert_type(settings.data_type.unwrap(), "SiteBanData");
         assert_eq!(settings.create_fn, GenerateMethod::PrivateImpl);
         assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
@@ -129,7 +131,7 @@ fn parse() {
             dest => bot_user: User,
             from => owner_user: User,
             data => UserBotMetadata,
-            create_fn => false,
+            create_fn => extern,
             ",
         );
         assert_eq!(settings.struct_name, "UserBotOwner");
@@ -138,8 +140,9 @@ fn parse() {
         assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "owner_user");
         assert_type(settings.from.1, "User");
-        assert!(matches!(settings.data_type, Some(Type::Path(_))));
-        assert_eq!(settings.create_fn, GenerateMethod::PrivateImpl);
+        assert!(settings.data_type.is_some());
+        assert_type(settings.data_type.unwrap(), "UserBotMetadata");
+        assert_eq!(settings.create_fn, GenerateMethod::NoImpl);
         assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
 }
