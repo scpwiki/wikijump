@@ -10,7 +10,6 @@ export const FTML_RENDER_RESULT_SCHEMA = 'wikijump_syntax_differential.ftml_rend
 export const SYNTAX_COMPARISON_SCHEMA = 'wikijump_syntax_differential.syntax_comparison.v1';
 
 export function sha256(value) {
-  // lgtm[js/insufficient-password-hash] This hashes captured content for identity checks, not passwords.
   return createHash('sha256').update(value).digest('hex');
 }
 

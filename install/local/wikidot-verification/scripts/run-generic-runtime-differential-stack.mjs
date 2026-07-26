@@ -245,6 +245,17 @@ ${volumeLabels}
 `;
 }
 
+export function composeIdentityDocument(options) {
+  return composeDocument({
+    ...options,
+    credentials: {
+      databasePassword: "<runtime-database-password>",
+      filesAccessKey: "<runtime-files-access-key>",
+      filesSecretKey: "<runtime-files-secret-key>",
+    },
+  });
+}
+
 export function runtimeIdentity(manifest, compose, config) {
   const source = manifest.source ?? manifest.before?.inputs;
   const build = manifest.build ?? manifest;
@@ -318,7 +329,7 @@ export async function main(argv) {
     );
     const config = localConfig.replace('pid-file = "/run/deepwell.pid"', 'pid-file = ""');
     await fsp.writeFile(configPath, config, {mode: 0o600});
-    const compose = composeDocument({
+    const composeOptions = {
       project,
       labels,
       images: {
@@ -334,10 +345,10 @@ export async function main(argv) {
       seeder: path.join(args.repository, "deepwell/seeder"),
       rpcPort,
       textBlockPort,
-      credentials,
-    });
+    };
+    const compose = composeDocument({...composeOptions, credentials});
     await fsp.writeFile(composePath, compose, {mode: 0o600});
-    const identity = runtimeIdentity(manifest, compose, config);
+    const identity = runtimeIdentity(manifest, composeIdentityDocument(composeOptions), config);
     await fsp.writeFile(identityPath, `${JSON.stringify(identity, null, 2)}\n`, {mode: 0o600});
     composeStarted = true;
     run("docker", [

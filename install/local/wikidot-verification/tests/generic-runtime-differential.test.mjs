@@ -21,6 +21,7 @@ import {
 import {parseArgs} from "../scripts/run-generic-runtime-differential.mjs";
 import {
   composeDocument,
+  composeIdentityDocument,
   parseArgs as parseStackArgs,
   runtimeIdentity as stackRuntimeIdentity,
 } from "../scripts/run-generic-runtime-differential-stack.mjs";
@@ -1461,6 +1462,21 @@ test("disposable stack controller binds resources and candidate identity", () =>
   assert.match(compose, /127\.0\.0\.1:9000:9000/u);
   assert.doesNotMatch(compose, /runtime-diff-test-files/u);
   assert.equal(compose.match(/example\.owner/u)?.[0], "example.owner");
+  const identityCompose = composeIdentityDocument({
+    project: "runtime-diff-test",
+    labels,
+    images: {database: "sha256:1", cache: "sha256:2", files: "sha256:3", deepwell: "sha256:4"},
+    binary: "/tmp/deepwell",
+    config: "/tmp/config",
+    migrations: "/tmp/migrations",
+    locales: "/tmp/locales",
+    seeder: "/tmp/seeder",
+    rpcPort: 2741,
+    textBlockPort: 9000,
+  });
+  assert.match(identityCompose, /POSTGRES_PASSWORD: "<runtime-database-password>"/u);
+  assert.match(identityCompose, /S3_ACCESS_KEY_ID: "<runtime-files-access-key>"/u);
+  assert.doesNotMatch(identityCompose, /POSTGRES_PASSWORD: "database"/u);
 
   const identity = stackRuntimeIdentity({
     source: {wikijump_sha: "1".repeat(40), ftml_sha: "2".repeat(40)},
@@ -1468,7 +1484,7 @@ test("disposable stack controller binds resources and candidate identity", () =>
       cargo_lock_sha256: "3".repeat(64),
       binary_sha256: "4".repeat(64),
     },
-  }, compose, "config");
+  }, identityCompose, "config");
   assert.equal(identity.wikijump_sha, "1".repeat(40));
   assert.equal(identity.runtime_config_sha256.length, 64);
 });
