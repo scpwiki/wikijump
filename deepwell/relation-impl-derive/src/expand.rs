@@ -35,7 +35,7 @@ pub fn expand_stream(
     let RemoveDefinitions {
         remove_struct_def,
         remove_method_impl,
-    } = generate_remove_defs(context, data_type.as_ref(), remove_fn);
+    } = generate_remove_defs(context, remove_fn);
 
     quote! {
         impl RelationService {
@@ -187,8 +187,7 @@ fn generate_create_defs(
                 pub created_by: i64,
             }
         },
-    }
-    .into();
+    };
 
     let create_method_impl = {
         let (vis, suffix) = if create_fn {
@@ -267,8 +266,7 @@ fn generate_create_defs(
                 Ok(())
             }
         }
-    }
-    .into();
+    };
 
     CreateDefinitions {
         create_struct_def,
@@ -285,12 +283,9 @@ fn generate_remove_defs(
         from_name,
         from_type,
     }: GenerationContext,
-    data_type: Option<&Type>,
     remove_fn: bool,
 ) -> RemoveDefinitions {
     let remove_struct = make_ident(format!("Remove{}", struct_name));
-
-    let remove_method = make_ident(format!("remove_{}", field_name));
 
     let remove_struct_def = quote! {
         #[derive(Deserialize, Debug, Copy, Clone)]
@@ -299,30 +294,38 @@ fn generate_remove_defs(
             pub #from_name: i64,
             pub removed_by: i64,
         }
-    }
-    .into();
+    };
 
-    let remove_method_impl = quote! {
-        pub async fn #remove_method(
-            ctx: &ServiceContext<'_>,
-            #remove_struct {
-                #dest_name,
-                #from_name,
-                removed_by,
-            }: #remove_struct
-        ) -> Result<RelationModel> {
-            Self::remove(
-                ctx,
-                RelationReference::Relationship {
-                    relation_type: RelationType::#struct_name,
-                    dest: RelationObject::#dest_type(#dest_name),
-                    from: RelationObject::#from_type(#from_name),
-                },
-                removed_by,
-            ).await
+    let remove_method_impl = {
+        let (vis, suffix) = if remove_fn {
+            (public(), "")
+        } else {
+            (private(), "_inner")
+        };
+
+        let method_name = make_ident(format!("remove_{field_name}{suffix}"));
+
+        quote! {
+            #vis async fn #method_name(
+                ctx: &ServiceContext<'_>,
+                #remove_struct {
+                    #dest_name,
+                    #from_name,
+                    removed_by,
+                }: #remove_struct
+            ) -> Result<RelationModel> {
+                Self::remove(
+                    ctx,
+                    RelationReference::Relationship {
+                        relation_type: RelationType::#struct_name,
+                        dest: RelationObject::#dest_type(#dest_name),
+                        from: RelationObject::#from_type(#from_name),
+                    },
+                    removed_by,
+                ).await
+            }
         }
-    }
-    .into();
+    };
 
     RemoveDefinitions {
         remove_struct_def,
