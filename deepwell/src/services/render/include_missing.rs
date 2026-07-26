@@ -5,7 +5,7 @@ use regex::Regex;
 use std::sync::LazyLock;
 
 static EMPTY_INCLUDE_TARGET_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?i)\[\[include[ \t]*\]\]").unwrap());
+    LazyLock::new(|| Regex::new(r"(?i)\[\[include[ \t]+\]\]").unwrap());
 static SITE_ONLY_INCLUDE_TARGET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)\[\[include[ \t]+:(?P<site>[^:\]\s]+):[ \t]*\]\]").unwrap()
 });
@@ -73,6 +73,14 @@ mod tests {
             2
         );
         assert_eq!(source.matches("href=\"//edit/true\"").count(), 2);
+    }
+
+    #[test]
+    fn argumentless_include_without_spacing_remains_literal() {
+        let mut source = "[[include]] [[INCLUDE]]".to_owned();
+        let original = source.clone();
+        expand_malformed_include_targets(&mut source);
+        assert_eq!(source, original);
     }
 
     #[test]

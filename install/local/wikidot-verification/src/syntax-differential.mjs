@@ -93,6 +93,15 @@ function canonicalAttributeValue(node, name, value) {
   } catch {
     return value;
   }
+  if (
+    name === 'src' &&
+    url.hostname === 'www.wikidot.com' &&
+    url.pathname === '/avatar.php'
+  ) {
+    url.searchParams.delete('timestamp');
+    url.searchParams.delete('amp;timestamp');
+    return url.href;
+  }
   const match = /^(?<site>.+)\.(?:wdfiles\.com|wjfiles\.(?:com|localhost))$/u.exec(url.hostname);
   if (!match) return value;
   url.protocol = 'https:';

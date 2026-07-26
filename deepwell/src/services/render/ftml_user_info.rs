@@ -73,7 +73,7 @@ impl UserInfoSnapshot {
                         user_name: Cow::Owned(name),
                         user_karma: karma,
                         user_avatar_data: Cow::Owned(format!(
-                            "http://www.wikidot.com/avatar.php?userid={user_id}&size=small"
+                            "http://www.wikidot.com/avatar.php?userid={user_id}&amp;size=small"
                         )),
                         user_profile_url: Cow::Owned(format!(
                             "http://www.wikidot.com/user:info/{slug}"
@@ -106,7 +106,7 @@ mod tests {
             user_name: Cow::Borrowed("system"),
             user_karma: KarmaLevel::Five,
             user_avatar_data: Cow::Borrowed(
-                "http://www.wikidot.com/avatar.php?userid=122357&size=small",
+                "http://www.wikidot.com/avatar.php?userid=122357&amp;size=small",
             ),
             user_profile_url: Cow::Borrowed("http://www.wikidot.com/user:info/system"),
         };

@@ -127,6 +127,14 @@ test('canonical DOM requires hierarchy, attribute values, and preformatted white
     canonicalDom('<a id="bibcite-2-7926a">2</a>'),
     canonicalDom('<a id="bibcite-2-12345a">2</a>'),
   );
+  assert.deepEqual(
+    canonicalDom('<img src="http://www.wikidot.com/avatar.php?userid=9318&amp;amp;size=small&amp;amp;timestamp=1785031629">'),
+    canonicalDom('<img src="http://www.wikidot.com/avatar.php?userid=9318&amp;amp;size=small">'),
+  );
+  assert.notDeepEqual(
+    canonicalDom('<img src="http://www.wikidot.com/avatar.php?userid=9318&amp;amp;size=small">'),
+    canonicalDom('<img src="http://www.wikidot.com/avatar.php?userid=2506&amp;amp;size=small">'),
+  );
 });
 
 test('FTML input carries the immutable preview page context', () => {

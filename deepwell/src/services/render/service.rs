@@ -480,10 +480,6 @@ pub(super) static WIKIDOT_COMPAT_STYLE_BLOCK_REGEX: LazyLock<Regex> =
         Regex::new(r#"(?is)<style\b[^>]*\btype\s*=\s*["']text/css["'][^>]*>.*?</style>"#)
             .unwrap()
     });
-static WIKIDOT_USERKARMA_BACKGROUND_STYLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"\sstyle="background-image:\s*url\(https?://www\.wikidot\.com/userkarma\.php\?u=[0-9]+\)""#)
-        .unwrap()
-});
 pub(super) static WIKIDOT_RENDERED_MAILFORM_REGEX: LazyLock<Regex> = LazyLock::new(
     || {
         Regex::new(
@@ -2518,12 +2514,6 @@ impl RenderService {
         // FTML uses semantic <s> elements for paired Wikidot --text--
         // strikethrough. Those are visible formatting, not plain wrappers.
         html.replace("<u>", "").replace("</u>", "")
-    }
-
-    pub(super) fn remove_wikidot_userkarma_background_styles(html: &str) -> String {
-        WIKIDOT_USERKARMA_BACKGROUND_STYLE_REGEX
-            .replace_all(html, "")
-            .into_owned()
     }
 
     fn normalize_wikidot_ta_badge_multiline_includes(wikitext: &mut String) {

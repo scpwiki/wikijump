@@ -108,9 +108,6 @@ impl RenderService {
         if html.contains("<u>") || html.contains("</u>") {
             html = Self::remove_wikijump_underline_wrappers(&html);
         }
-        if html.contains("userkarma.php") {
-            html = Self::remove_wikidot_userkarma_background_styles(&html);
-        }
         if html.contains("/local--") {
             html = Self::localize_wikidot_local_file_urls(&html, current_site, config);
         }

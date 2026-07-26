@@ -9705,27 +9705,6 @@ fn preserves_compact_ftml_dash_strikethrough_after_compat_cleanup() {
 }
 
 #[test]
-fn removes_wikidot_userkarma_background_styles_after_render() {
-    let html = concat!(
-        r#"<span class="printuser avatarhover">"#,
-        r#"<img class="small" src="http://www.wikidot.com/avatar.php?userid=4598089&amp;size=small" style="background-image: url(https://www.wikidot.com/userkarma.php?u=4598089)">"#,
-        r#"</span>"#,
-    );
-
-    let restored = RenderService::remove_wikidot_userkarma_background_styles(html);
-
-    assert_eq!(
-        restored,
-        concat!(
-            r#"<span class="printuser avatarhover">"#,
-            r#"<img class="small" src="http://www.wikidot.com/avatar.php?userid=4598089&amp;size=small">"#,
-            r#"</span>"#,
-        ),
-    );
-    assert!(!restored.contains("userkarma.php"));
-}
-
-#[test]
 fn matches_live_wikidot_tag_predicate_matrix() {
     let tags = [Cow::Borrowed("alpha")];
 
