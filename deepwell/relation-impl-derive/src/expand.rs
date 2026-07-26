@@ -1,5 +1,5 @@
 use crate::parse::RelationSettings;
-use crate::types::GenerateMethod;
+use crate::types::{GenerateMethod, RelationType};
 use crate::util::make_ident;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -20,9 +20,9 @@ pub fn expand_stream(
         field_name: &field_name,
         struct_name: &struct_name,
         dest_name: &dest_name,
-        dest_type: &dest_type,
+        dest_type,
         from_name: &from_name,
-        from_type: &from_type,
+        from_type,
     };
 
     let GeneratedDefinitions {
@@ -359,9 +359,9 @@ struct GenerationContext<'a> {
     field_name: &'a str,
     struct_name: &'a str,
     dest_name: &'a Ident,
-    dest_type: &'a Type,
+    dest_type: RelationType,
     from_name: &'a Ident,
-    from_type: &'a Type,
+    from_type: RelationType,
 }
 
 struct GeneratedDefinitions {
