@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import UTC, datetime, timedelta
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -16,6 +17,7 @@ import time
 
 SERVICES = ("deepwell", "framerail", "wws")
 DEFAULT_RUNTIME_HOME = Path("/home/roku/wjlab/runtime/wikijump-standing")
+RUNTIME_DIFFERENTIAL_IDENTITY = "runtime-differential-identity.json"
 CANARY_URL = "http://scp-wiki.wikijump.localhost/scp-9506"
 FTML_SOURCE = re.compile(
     r'source = "git\+https://github\.com/Rokurolize/ftml[^\"]*#([0-9a-f]{40})"'
@@ -177,6 +179,33 @@ def image_identity(tag: str, cwd: Path) -> dict[str, object]:
     }
 
 
+def file_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def runtime_differential_identity(
+    source_root: Path,
+    source_identity: dict[str, str],
+    images: dict[str, dict[str, object]],
+    runtime_config: str,
+) -> dict[str, str]:
+    deepwell_image_id = images["deepwell"]["id"]
+    if not isinstance(deepwell_image_id, str) or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", deepwell_image_id
+    ):
+        raise ValueError("Deepwell image identity is not one SHA-256 digest")
+    return {
+        "schema": "wikijump_syntax_differential.wikijump_runtime_identity.v1",
+        "wikijump_sha": source_identity["wikijump_sha"],
+        "ftml_sha": source_identity["ftml_sha"],
+        "dependency_lock_sha256": file_sha256(source_root / "deepwell" / "Cargo.lock"),
+        "executable_sha256": deepwell_image_id.removeprefix("sha256:"),
+        "runtime_config_sha256": hashlib.sha256(
+            runtime_config.encode("utf-8")
+        ).hexdigest(),
+    }
+
+
 def atomic_json(path: Path, value: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
@@ -284,6 +313,19 @@ def main() -> int:
     images = {
         service: image_identity(tag, runtime_home) for service, tag in tags.items()
     }
+    effective_config = command(
+        *compose_command(
+            runtime_home,
+            "config",
+            override_file=override_file,
+        ),
+        cwd=runtime_home,
+    )
+    differential_identity = runtime_differential_identity(
+        source_root, identity, images, effective_config
+    )
+    differential_identity_path = runtime_home / RUNTIME_DIFFERENTIAL_IDENTITY
+    atomic_json(differential_identity_path, differential_identity)
     receipt: dict[str, object] = {
         "schema_version": 1,
         "status": "pass",
@@ -294,6 +336,11 @@ def main() -> int:
         "project_name": "wikijump-standing",
         "network_name": network_name,
         "images": images,
+        "runtime_differential_identity": {
+            "path": str(differential_identity_path),
+            "sha256": file_sha256(differential_identity_path),
+            "identity": differential_identity,
+        },
         "health": health,
         "canary": {
             "url": CANARY_URL,

@@ -4,11 +4,13 @@ import fs from "node:fs";
 import https from "node:https";
 
 import {runCliIfMain} from "../src/cli-entry.mjs";
+import {validateSavedPageRerenderReceipt} from "../src/saved-page-runtime-rerender.mjs";
 import {
   compareSavedPageRuntime,
+  selectSavedPageReferences,
   validateRuntimeIdentity,
-  validateSavedPageReference,
 } from "../src/saved-page-runtime-differential.mjs";
+import {sha256} from "../src/syntax-differential.mjs";
 
 function valueAfter(argv, index, option) {
   const value = argv[index + 1];
@@ -17,11 +19,20 @@ function valueAfter(argv, index, option) {
 }
 
 function parseArgs(argv) {
-  const args = {references: null, runtimeIdentity: null, localBase: null, output: null};
+  const args = {
+    references: null,
+    runtimeIdentity: null,
+    rerenderReceipt: null,
+    caseIds: [],
+    localBase: null,
+    output: null,
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const option = argv[index];
     if (option === "--references") args.references = valueAfter(argv, index++, option);
     else if (option === "--runtime-identity") args.runtimeIdentity = valueAfter(argv, index++, option);
+    else if (option === "--rerender-receipt") args.rerenderReceipt = valueAfter(argv, index++, option);
+    else if (option === "--case-id") args.caseIds.push(valueAfter(argv, index++, option));
     else if (option === "--local-base") args.localBase = valueAfter(argv, index++, option);
     else if (option === "--output") args.output = valueAfter(argv, index++, option);
     else throw new Error(`unknown option: ${option}`);
@@ -60,13 +71,22 @@ async function fetchLocal(reference, localBase) {
 
 export async function main(argv) {
   const args = parseArgs(argv);
-  const references = fs
-    .readFileSync(args.references, "utf8")
-    .split("\n")
-    .filter((line) => line.trim())
-    .map((line) => validateSavedPageReference(JSON.parse(line)));
+  const references = selectSavedPageReferences(
+    fs
+      .readFileSync(args.references, "utf8")
+      .split("\n")
+      .filter((line) => line.trim())
+      .map((line) => JSON.parse(line)),
+    args.caseIds,
+  );
   const runtimeIdentity = validateRuntimeIdentity(
     JSON.parse(fs.readFileSync(args.runtimeIdentity, "utf8")),
+  );
+  const rerenderReceiptContents = fs.readFileSync(args.rerenderReceipt, "utf8");
+  const rerenderReceipt = validateSavedPageRerenderReceipt(
+    JSON.parse(rerenderReceiptContents),
+    references,
+    runtimeIdentity,
   );
   const comparisons = [];
   for (const reference of references) {
@@ -79,6 +99,10 @@ export async function main(argv) {
   const report = {
     schema: "wikijump_syntax_differential.saved_page_runtime_verdict.v1",
     runtime_identity: runtimeIdentity,
+    rerender_receipt: {
+      schema: rerenderReceipt.schema,
+      sha256: sha256(rerenderReceiptContents),
+    },
     summary: {
       total: comparisons.length,
       match: comparisons.filter((comparison) => comparison.status === "match").length,

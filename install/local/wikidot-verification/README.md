@@ -41,7 +41,7 @@ The policy accepts only `intentional-security-boundary`, `wikijump-runtime-bound
 
 Recorded batch-safe cases default to the measured 8,000-character target and 9,000-character hard limit. The 2026-07-26 matrix needed 68 batch requests plus 130 isolated interaction retries at this size. A 20,000-character run needed 33 successful or retry requests plus 173 isolated retries, while a 50,000-character run needed 18 successful or retry requests plus 186 isolated retries; the smaller default therefore minimized total Wikidot requests. Wikidot also returned empty previews for content-dependent 20,000-character and 50,000-character shards, and for every measured 84,528-character and roughly 150,000-character shard. Run `build-failed-preview-retries.mjs` and recapture only failed shards at the default retry size. `compare-wikidot-live-pages.mjs` accepts repeated `--captures` arguments, replaces failed parent shards with successful retries, and fails if any case remains unresolved. Cases whose batched rendering differs from their isolated FTML rendering must then move to the isolated lane; source length alone is not proof that cases are context-independent.
 
-Includes, page-existence checks, permissions, and runtime modules use the saved-page runtime lane because PagePreview does not execute them. `capture_wikidot_existing_pages.py` reads an existing Wikidot page anonymously and freezes its page ID, latest revision ID and number, source hash, selected rendered subtree, actor state, resolved site and domain, capture time, and pinned acquisition dependencies. It accepts only the read-only `scp-wiki`, `scp-jp`, and `sandbox-for-codex` sites and mutates none of them.
+Includes, page-existence checks, permissions, and runtime modules use the saved-page runtime lane because PagePreview does not execute them. `capture_wikidot_existing_pages.py` reads an existing Wikidot page anonymously and freezes its page ID, latest revision ID and number, public source wikitext and hash, selected rendered subtree, actor state, resolved site and domain, capture time, and pinned acquisition dependencies. Keeping the source bytes makes later corpus-drift diagnosis and exact-input replay possible without another Wikidot request. It accepts only the read-only `scp-wiki`, `scp-jp`, and `sandbox-for-codex` sites and mutates none of them.
 
 ```sh
 install/local/wikidot-verification/.venv/bin/python \
@@ -52,11 +52,25 @@ install/local/wikidot-verification/.venv/bin/python \
 node install/local/wikidot-verification/scripts/run-saved-page-runtime-differential.mjs \
   --references /absolute/evidence/path/saved-page-references.jsonl \
   --runtime-identity /absolute/evidence/path/runtime-identity.json \
+  --rerender-receipt /absolute/evidence/path/saved-page-runtime-rerender-receipt.json \
   --local-base https://scp-wiki.wikijump.localhost \
   --output /absolute/evidence/path/saved-page-runtime-verdict.json
 ```
 
 The runtime verdict compares the selected parsed DOM hierarchy, child order, attribute values, and visible text, then checks required class tokens and forbidden unexpanded directives. It binds the Wikidot source and revision identities to the exact Wikijump SHA, FTML SHA, dependency lock hash, executable or image hash, and runtime configuration hash. Output creation is no-replace. The first canary is the existing read-only `scp-9507` page and its stray-open-bracket include shape from Issue 899.
+
+Before comparing an imported standing page after a new FTML pin, explicitly recompile only the frozen saved-page cases. The operator refuses non-`scp-wiki` references, duplicate slugs, source hashes that differ from live Wikidot, non-loopback RPC endpoints, changed local page or revision identities, and a post-rerender compiler that does not match the runtime identity. It changes compiled artifacts only; page source and revision remain unchanged.
+
+```sh
+WIKIDOT_VERIFY_ADMIN_EMAIL=... WIKIDOT_VERIFY_ADMIN_PASS=... \
+node install/local/wikidot-verification/scripts/rerender-saved-page-runtime.mjs \
+  --references /absolute/evidence/path/saved-page-references.jsonl \
+  --runtime-identity /home/roku/wjlab/runtime/wikijump-standing/runtime-differential-identity.json \
+  --rpc-url http://127.0.0.1:12747/jsonrpc \
+  --output /absolute/evidence/path/saved-page-runtime-rerender-receipt.json
+```
+
+Repeat `--case-id <case-id>` on both the rerender and differential commands to run an explicit source-current subset while retaining a larger frozen reference file. Unknown or duplicate filters fail. The subsequent browser-facing differential requires the source- and revision-bound rerender receipt for the exact selected reference set and exactly one serialized `compiled_generator` whose FTML revision matches the runtime identity. A source-drifted page or stale, missing, or duplicated generator fails even when the selected DOM happens to match.
 
 ## Generic marker runtime differential
 

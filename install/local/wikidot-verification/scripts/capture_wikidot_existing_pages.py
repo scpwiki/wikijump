@@ -16,10 +16,31 @@ REFERENCE_SCHEMA = "wikijump_syntax_differential.wikidot_saved_page_reference.v1
 ALLOWED_SITES = {"scp-wiki", "scp-jp", "sandbox-for-codex"}
 SLUG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9:_-]*$")
 REQUIREMENTS_PATH = Path(__file__).parents[1] / "requirements.txt"
+REQUIREMENTS_LOCK_PATH = Path(__file__).parents[1] / "requirements.lock"
+WIKIDOT_PIN = re.compile(r"Rokurolize/wikidot\.py@([0-9a-f]{40})")
 
 
 def sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def pinned_dependency_identity(
+    requirements_path: Path = REQUIREMENTS_PATH,
+    requirements_lock_path: Path = REQUIREMENTS_LOCK_PATH,
+) -> dict[str, str]:
+    requirements = requirements_path.read_text()
+    requirements_lock = requirements_lock_path.read_text()
+    requirement_match = WIKIDOT_PIN.search(requirements)
+    lock_match = WIKIDOT_PIN.search(requirements_lock)
+    if requirement_match is None or lock_match is None:
+        raise RuntimeError("Python dependency files must pin Rokurolize/wikidot.py to a full commit")
+    if requirement_match.group(1) != lock_match.group(1):
+        raise RuntimeError("requirements.txt and requirements.lock pin different wikidot.py commits")
+    return {
+        "wikidot_py_commit": requirement_match.group(1),
+        "requirements_sha256": hashlib.sha256(requirements_path.read_bytes()).hexdigest(),
+        "requirements_lock_sha256": hashlib.sha256(requirements_lock_path.read_bytes()).hexdigest(),
+    }
 
 
 def validate_plan(value: object) -> dict[str, Any]:
@@ -59,11 +80,7 @@ def capture(plans: list[dict[str, Any]]) -> list[dict[str, Any]]:
     import httpx
     import wikidot
 
-    requirements = REQUIREMENTS_PATH.read_text()
-    commit_match = re.search(r"Rokurolize/wikidot\.py@([0-9a-f]{40})", requirements)
-    if commit_match is None:
-        raise RuntimeError("requirements.txt does not pin Rokurolize/wikidot.py to a full commit")
-    requirements_sha256 = hashlib.sha256(REQUIREMENTS_PATH.read_bytes()).hexdigest()
+    dependency_identity = pinned_dependency_identity()
     records = []
     with wikidot.Client() as client, httpx.Client(
         follow_redirects=False, timeout=30.0, trust_env=False
@@ -103,6 +120,7 @@ def capture(plans: list[dict[str, Any]]) -> list[dict[str, Any]]:
                         "title": page.title,
                         "revision_identity": revision.id,
                         "revision_number": revision.rev_no,
+                        "source_wikitext": source,
                         "source_sha256": sha256(source),
                     },
                     "page_content_html": page_content_html,
@@ -113,8 +131,7 @@ def capture(plans: list[dict[str, Any]]) -> list[dict[str, Any]]:
                         "transport": "anonymous-https",
                         "mutated": False,
                         "wikidot_py_version": wikidot.__version__,
-                        "wikidot_py_commit": commit_match.group(1),
-                        "requirements_sha256": requirements_sha256,
+                        **dependency_identity,
                     },
                 }
             )
