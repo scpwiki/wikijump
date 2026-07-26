@@ -25,15 +25,18 @@ pub fn expand_stream(
         from_type: &from_type,
     };
 
-    let get_method_impl = generate_get_methods(context);
+    let GeneratedDefinitions {
+        struct_def: get_struct_def,
+        method_impl: get_method_impl,
+    } = generate_get_methods(context);
 
     let (create_struct_def, create_method_impl) =
         match generate_create_defs(context, data_type.as_ref(), create_fn) {
             // Enabled, set both
-            Some(CreateDefinitions {
-                create_struct_def,
-                create_method_impl,
-            }) => (Some(create_struct_def), Some(create_method_impl)),
+            Some(GeneratedDefinitions {
+                struct_def,
+                method_impl,
+            }) => (Some(struct_def), Some(method_impl)),
 
             // Disabled, don't insert anything
             None => (None, None),
@@ -42,10 +45,10 @@ pub fn expand_stream(
     let (remove_struct_def, remove_method_impl) =
         match generate_remove_defs(context, remove_fn) {
             // Enabled, set both
-            Some(RemoveDefinitions {
-                remove_struct_def,
-                remove_method_impl,
-            }) => (Some(remove_struct_def), Some(remove_method_impl)),
+            Some(GeneratedDefinitions {
+                struct_def,
+                method_impl,
+            }) => (Some(struct_def), Some(method_impl)),
 
             // Disabled, don't insert anything
             None => (None, None),
@@ -58,6 +61,7 @@ pub fn expand_stream(
             #remove_method_impl
         }
 
+        #get_struct_def
         #create_struct_def
         #remove_struct_def
     }
@@ -72,7 +76,7 @@ fn generate_get_methods(
         from_name,
         from_type,
     }: GenerationContext,
-) -> TokenStream {
+) -> GeneratedDefinitions {
     let get_struct = make_ident(format!("Get{}", struct_name));
 
     let get_method = make_ident(format!("get_{}", field_name));
@@ -81,7 +85,15 @@ fn generate_get_methods(
     let get_history_method = make_ident(format!("get_{}_history", field_name));
     let get_entries_method = make_ident(format!("get_{}_entries", field_name));
 
-    quote! {
+    let struct_def = quote! {
+        #[derive(Deserialize, Debug, Copy, Clone)]
+        pub struct #get_struct {
+            pub #dest_name: #dest_type,
+            pub #from_name: #from_type,
+        }
+    };
+
+    let method_impl = quote! {
         pub async fn #get_method(
             ctx: &ServiceContext<'_>,
             #get_struct {
@@ -166,6 +178,11 @@ fn generate_get_methods(
             )
             .await
         }
+    };
+
+    GeneratedDefinitions {
+        struct_def,
+        method_impl,
     }
 }
 
@@ -180,7 +197,7 @@ fn generate_create_defs(
     }: GenerationContext,
     data_type: Option<&Type>,
     create_fn: GenerateMethod,
-) -> Option<CreateDefinitions> {
+) -> Option<GeneratedDefinitions> {
     let (vis, suffix) = create_fn.vis_and_suffix()?;
     let create_struct = make_ident(format!("Create{}", struct_name));
     let create_struct_def = match data_type {
@@ -276,9 +293,9 @@ fn generate_create_defs(
         }
     };
 
-    Some(CreateDefinitions {
-        create_struct_def,
-        create_method_impl,
+    Some(GeneratedDefinitions {
+        struct_def: create_struct_def,
+        method_impl: create_method_impl,
     })
 }
 
@@ -292,7 +309,7 @@ fn generate_remove_defs(
         from_type,
     }: GenerationContext,
     remove_fn: GenerateMethod,
-) -> Option<RemoveDefinitions> {
+) -> Option<GeneratedDefinitions> {
     let (vis, suffix) = remove_fn.vis_and_suffix()?;
     let remove_struct = make_ident(format!("Remove{}", struct_name));
     let remove_struct_def = quote! {
@@ -329,9 +346,9 @@ fn generate_remove_defs(
         }
     };
 
-    Some(RemoveDefinitions {
-        remove_struct_def,
-        remove_method_impl,
+    Some(GeneratedDefinitions {
+        struct_def: remove_struct_def,
+        method_impl: remove_method_impl,
     })
 }
 
@@ -347,12 +364,7 @@ struct GenerationContext<'a> {
     from_type: &'a Type,
 }
 
-struct CreateDefinitions {
-    create_struct_def: TokenStream,
-    create_method_impl: TokenStream,
-}
-
-struct RemoveDefinitions {
-    remove_struct_def: TokenStream,
-    remove_method_impl: TokenStream,
+struct GeneratedDefinitions {
+    struct_def: TokenStream,
+    method_impl: TokenStream,
 }
