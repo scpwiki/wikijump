@@ -118,7 +118,7 @@ function validateExternalReference(value, casesById) {
   const runtimeCase = casesById.get(caseId);
   if (!runtimeCase) throw new Error(`external reference names an unknown runtime case: ${caseId}`);
   if (
-    value.syntax_case.local_execution_tier !== 'ftml' ||
+    !['ftml', 'wikijump-runtime'].includes(value.syntax_case.local_execution_tier) ||
     value.syntax_case.source !== runtimeCase.source ||
     value.source_sha256 !== runtimeCase.source_sha256
   ) {
@@ -562,16 +562,77 @@ export async function runGenericRuntimeDifferential({
 }) {
   const identity = validateRuntimeIdentity(runtimeIdentity);
   const selection = selectLatestSuccessfulCaptures(cases, captureFiles, externalReferences);
-  const comparisons = [
-    ...[...selection.external].map(([caseId, reference]) => ({
-      case_id: caseId,
-      status: 'external-reference',
-      observation_tier: reference.syntax_case.wikidot_observation_tier,
-      raw_html_sha256: reference.raw_html_sha256,
-    })),
-    ...selection.acquisitionFailed,
-  ];
+  const comparisons = [...selection.acquisitionFailed];
   const pageReceipts = [];
+  for (const [caseId, reference] of selection.external) {
+    const runtimeCase = selection.casesById.get(caseId);
+    const slug = `run-owned:ftml-preview-${runtimeCase.source_sha256.slice(0, 24)}`;
+    try {
+      const receipt = await adapter.withCompiledPage(
+        {
+          slug,
+          title: reference.syntax_case.title,
+          source: runtimeCase.source,
+          source_sha256: runtimeCase.source_sha256,
+        },
+        async (compiledBodyHtml, htmlBlockEvidence = {iframe_count: 0, blocks: []}) => {
+          const boundHtmlBlocks = bindLocalHtmlBlockPayloads(
+            compiledBodyHtml,
+            htmlBlockEvidence.blocks,
+          );
+          const localBlockProjection = projectRuntimeHtmlBlocks(
+            canonicalDom(boundHtmlBlocks.html),
+            {side: 'wikijump', pageSlug: slug},
+          );
+          const hasHtmlBlocks =
+            /\[\[\s*html(?:\s|\])/iu.test(runtimeCase.source) ||
+            countLocalHtmlBlockHandles(compiledBodyHtml) > 0 ||
+            reference.raw_html.includes('html-block-iframe');
+          const comparison = compareRuntimeFragment(
+            runtimeCase,
+            reference.raw_html,
+            compiledBodyHtml,
+            {
+              pageSlug: slug,
+              wikijumpIdentityHtml: boundHtmlBlocks.html,
+              htmlBlockBinding: hasHtmlBlocks
+                ? {
+                    status: boundHtmlBlocks.binding.status,
+                    iframe_count: countLocalHtmlBlockHandles(compiledBodyHtml),
+                    stored_block_count: localBlockProjection.blocks.length,
+                    page_iframe_count: boundHtmlBlocks.binding.iframe_count,
+                    page_stored_block_count: boundHtmlBlocks.binding.stored_block_count,
+                    blocks: localBlockProjection.blocks.map((block) =>
+                      htmlBlockEvidence.blocks[block.stored_index - 1]
+                    ).filter(Boolean),
+                  }
+                : null,
+            },
+          );
+          comparisons.push({
+            ...comparison,
+            identities: {
+              wikidot_html_sha256: reference.raw_html_sha256,
+              wikijump_html_sha256: sha256(compiledBodyHtml),
+              observation_tier: reference.syntax_case.wikidot_observation_tier,
+              source_sha256: runtimeCase.source_sha256,
+            },
+          });
+        },
+      );
+      pageReceipts.push(receipt);
+    } catch (error) {
+      if (error instanceof RuntimeCleanupError) throw error;
+      comparisons.push({
+        case_id: caseId,
+        status: 'runtime-error',
+        diagnostic: {
+          slug,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
+  }
   for (const page of selectedPages(selection)) {
     const capture = page.capture;
     const pageComparisons = [];
@@ -703,7 +764,7 @@ export async function runGenericRuntimeDifferential({
       count('true-mismatch'),
     match: count('match'),
     static_match_browser_required: count('static-match-browser-required'),
-    external_reference: count('external-reference'),
+    external_reference: selection.external.size,
     acquisition_failed: count('acquisition-failed'),
     state_precondition_mismatch: count('state-precondition-mismatch'),
     true_mismatch: count('true-mismatch'),

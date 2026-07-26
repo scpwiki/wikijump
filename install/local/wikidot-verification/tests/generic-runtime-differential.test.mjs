@@ -40,6 +40,34 @@ function runtimeCase(caseId, source = "alpha") {
   };
 }
 
+function externalReference(caseValue, rawHtml = "<p>alpha</p>") {
+  return {
+    schema: "wikijump_syntax_differential.wikidot_reference.v1",
+    captured_at: "2026-07-26T00:00:00Z",
+    provenance: {
+      module: "edit/PagePreviewModule",
+      authenticated: false,
+      mutated: false,
+      site: "sandbox-for-codex",
+      site_domain: "sandbox-for-codex.wikidot.com",
+      wikidot_py_version: "4.4.1",
+      wikidot_py_commit: "1".repeat(40),
+      requirements_sha256: "2".repeat(64),
+    },
+    syntax_case: {
+      schema: "wikijump_syntax_differential.syntax_case.v1",
+      case_id: caseValue.case_id,
+      source: caseValue.source,
+      title: caseValue.case_id,
+      wikidot_observation_tier: "page-preview",
+      local_execution_tier: "wikijump-runtime",
+    },
+    source_sha256: caseValue.source_sha256,
+    raw_html: rawHtml,
+    raw_html_sha256: sha256(rawHtml),
+  };
+}
+
 function capture(caseValue, {
   capturedAt = "2026-07-26T00:00:00Z",
   fragment = "<p>alpha</p>",
@@ -372,6 +400,34 @@ test("runner keeps a static tabview match incomplete without browser evidence", 
   assert.equal(report.summary.compared, 1);
   assert.equal(report.summary.static_match_browser_required, 1);
   assert.equal(report.comparisons[0].status, "static-match-browser-required");
+});
+
+test("runner compares a runtime PagePreview fallback through a cleaned local page", async () => {
+  const caseValue = runtimeCase("preview-fallback");
+  let inspectedPage = null;
+  const report = await runGenericRuntimeDifferential({
+    cases: [caseValue],
+    captureFiles: [],
+    externalReferences: [externalReference(caseValue)],
+    runtimeIdentity,
+    adapter: {
+      async withCompiledPage(page, inspect) {
+        inspectedPage = page;
+        await inspect("<p>alpha</p>");
+        return {slug: page.slug, cleanup: {status: "removed"}};
+      },
+    },
+  });
+
+  assert.equal(report.status, "pass");
+  assert.equal(report.summary.match, 1);
+  assert.equal(report.summary.external_reference, 1);
+  assert.equal(report.summary.acquisition_failed, 0);
+  assert.equal(report.comparisons[0].status, "match");
+  assert.equal(report.comparisons[0].identities.observation_tier, "page-preview");
+  assert.equal(inspectedPage.source, caseValue.source);
+  assert.match(inspectedPage.slug, /^run-owned:ftml-preview-[0-9a-f]{24}$/u);
+  assert.deepEqual(report.page_receipts[0].cleanup, {status: "removed"});
 });
 
 test("runtime state diagnostics do not mistake deterministic file and email rendering for state", () => {
