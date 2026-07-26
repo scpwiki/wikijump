@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "capture_wikidot_saved_pages.py"
@@ -71,6 +72,30 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
             values = [json.loads(line) for line in ledger.read_text().splitlines()]
             self.assertEqual([value["event"] for value in values], ["create-intent", "removed"])
 
+    def test_capture_records_survive_a_later_exception_and_count_for_resume(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "captures.jsonl"
+            with self.assertRaisesRegex(RuntimeError, "AMC not_ok"):
+                with output.open("x", encoding="utf-8") as result:
+                    MODULE.append_capture_record(result, {"capture_status": "captured", "page_identity": 1})
+                    MODULE.append_capture_record(result, {"capture_status": "render-failed", "page_identity": 2})
+                    raise RuntimeError("AMC not_ok")
+
+            records = [json.loads(line) for line in output.read_text().splitlines()]
+            self.assertEqual([record["page_identity"] for record in records], [1, 2])
+            self.assertEqual(len(records), 2)
+            with self.assertRaises(FileExistsError):
+                output.open("x", encoding="utf-8")
+
+    def test_capture_record_is_flushed_and_fsynced_immediately(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "captures.jsonl"
+            with output.open("x", encoding="utf-8") as result:
+                with mock.patch.object(MODULE.os, "fsync") as fsync:
+                    MODULE.append_capture_record(result, {"capture_status": "captured"})
+                    fsync.assert_called_once_with(result.fileno())
+                self.assertEqual(json.loads(output.read_text())["capture_status"], "captured")
+
     def test_remove_created_retires_each_page_immediately(self):
         snapshot = {
             "slug": "run-owned:ftml-diff-20260726-001",
@@ -87,6 +112,43 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
             self.assertEqual(created, [])
             self.assertEqual(json.loads(ledger.read_text())["event"], "removed")
 
+    def test_capture_is_appended_only_after_immediate_cleanup_succeeds(self):
+        events = []
+        with mock.patch.object(
+            MODULE,
+            "remove_created",
+            side_effect=lambda *_args: events.append("removed"),
+        ), mock.patch.object(
+            MODULE,
+            "append_capture_record",
+            side_effect=lambda *_args: events.append("appended"),
+        ):
+            MODULE.retire_and_append_capture(
+                object(),
+                {"slug": "run-owned:ftml-diff-20260726-001"},
+                [],
+                Path("ledger.jsonl"),
+                object(),
+                {"capture_status": "captured"},
+            )
+        self.assertEqual(events, ["removed", "appended"])
+
+        with mock.patch.object(
+            MODULE,
+            "remove_created",
+            side_effect=RuntimeError("cleanup failed"),
+        ), mock.patch.object(MODULE, "append_capture_record") as append:
+            with self.assertRaisesRegex(RuntimeError, "cleanup failed"):
+                MODULE.retire_and_append_capture(
+                    object(),
+                    {"slug": "run-owned:ftml-diff-20260726-001"},
+                    [],
+                    Path("ledger.jsonl"),
+                    object(),
+                    {"capture_status": "captured"},
+                )
+            append.assert_not_called()
+
     def test_saved_marker_validation_accepts_server_source_normalization(self):
         plan = page_plan()
         snapshot = {
@@ -97,6 +159,96 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
         snapshot["saved_source"] = "alpha normalized"
         with self.assertRaisesRegex(RuntimeError, "preserve its case markers"):
             MODULE.verify_saved_markers(plan, snapshot)
+
+    def test_create_error_recovery_accepts_only_one_removed_trailing_lf(self):
+        plan = page_plan("alpha\n")
+        page = SimpleNamespace(
+            id=42,
+            title=plan["title"],
+            source=SimpleNamespace(wiki_text="alpha"),
+            refresh_source=mock.Mock(),
+        )
+        site = SimpleNamespace(page=SimpleNamespace(get=mock.Mock(return_value=page)))
+
+        snapshot = MODULE.recover_snapshot_after_create_error(site, plan)
+
+        self.assertEqual(snapshot["identity"], 42)
+        self.assertEqual(snapshot["saved_source"], "alpha")
+        page.refresh_source.assert_called_once_with()
+
+    def test_create_error_recovery_refuses_title_or_source_mismatch(self):
+        plan = page_plan("alpha\n")
+        for title, source in [
+            ("Different title", "alpha"),
+            (plan["title"], "different"),
+            (plan["title"], "alpha\n\n"),
+        ]:
+            with self.subTest(title=title, source=source):
+                page = SimpleNamespace(
+                    id=42,
+                    title=title,
+                    source=SimpleNamespace(wiki_text=source),
+                    refresh_source=mock.Mock(),
+                )
+                site = SimpleNamespace(page=SimpleNamespace(get=mock.Mock(return_value=page)))
+                with self.assertRaisesRegex(RuntimeError, "cleanup refused"):
+                    MODULE.recover_snapshot_after_create_error(site, plan)
+
+    def test_create_error_recovery_returns_none_when_no_page_was_created(self):
+        plan = page_plan()
+        site = SimpleNamespace(page=SimpleNamespace(get=mock.Mock(return_value=None)))
+        self.assertIsNone(MODULE.recover_snapshot_after_create_error(site, plan))
+
+    def test_partial_create_success_continues_with_recovered_snapshot(self):
+        plan = page_plan("alpha\n")
+        page = SimpleNamespace(
+            id=42,
+            title=plan["title"],
+            source=SimpleNamespace(wiki_text="alpha"),
+            refresh_source=mock.Mock(),
+        )
+        pages = SimpleNamespace(
+            create=mock.Mock(side_effect=RuntimeError("AMC not_ok")),
+            get=mock.Mock(return_value=page),
+        )
+
+        snapshot, event = MODULE.create_or_recover_snapshot(
+            SimpleNamespace(page=pages),
+            plan,
+        )
+
+        self.assertEqual(snapshot["identity"], 42)
+        self.assertEqual(event, "created-after-save-error")
+
+    def test_create_error_without_created_page_reraises_original_error(self):
+        plan = page_plan()
+        pages = SimpleNamespace(
+            create=mock.Mock(side_effect=RuntimeError("AMC not_ok")),
+            get=mock.Mock(return_value=None),
+        )
+        with self.assertRaisesRegex(RuntimeError, "AMC not_ok"):
+            MODULE.create_or_recover_snapshot(SimpleNamespace(page=pages), plan)
+
+    def test_cleanup_refuses_recovered_page_identity_change(self):
+        snapshot = {
+            "slug": "run-owned:ftml-diff-20260726-001",
+            "identity": 42,
+            "title": "FTML differential 001",
+            "saved_source": "alpha",
+            "saved_source_sha256": MODULE.sha256("alpha"),
+        }
+        page = SimpleNamespace(
+            id=43,
+            title=snapshot["title"],
+            source=SimpleNamespace(wiki_text="alpha"),
+            refresh_source=mock.Mock(),
+            destroy=mock.Mock(),
+        )
+        site = SimpleNamespace(page=SimpleNamespace(get=mock.Mock(return_value=page)))
+
+        with self.assertRaisesRegex(RuntimeError, "cleanup refused"):
+            MODULE.remove_exact(site, snapshot)
+        page.destroy.assert_not_called()
 
 
 if __name__ == "__main__":

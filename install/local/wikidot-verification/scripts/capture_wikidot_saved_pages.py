@@ -94,6 +94,13 @@ def append_ledger(path: Path, value: dict[str, Any]) -> None:
         os.fsync(output.fileno())
 
 
+def append_capture_record(output: Any, value: dict[str, Any]) -> None:
+    output.write(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+    output.write("\n")
+    output.flush()
+    os.fsync(output.fileno())
+
+
 def fetch_page_content(client: Any, slug: str, attempts: int) -> tuple[str, str]:
     from bs4 import BeautifulSoup
 
@@ -125,6 +132,51 @@ def saved_snapshot(site: Any, plan: dict[str, Any]) -> dict[str, Any]:
         "saved_source": actual_source,
         "saved_source_sha256": sha256(actual_source),
     }
+
+
+def recover_snapshot_after_create_error(
+    site: Any,
+    plan: dict[str, Any],
+) -> dict[str, Any] | None:
+    slug = plan["slug"]
+    page = site.page.get(slug, raise_when_not_found=False)
+    if page is None:
+        return None
+    page.refresh_source()
+    actual_source = page.source.wiki_text
+    requested_source = plan["source"]
+    source_matches = actual_source == requested_source or (
+        requested_source.endswith("\n") and actual_source == requested_source[:-1]
+    )
+    if page.title != plan["title"] or not source_matches:
+        raise RuntimeError(f"cleanup refused an unverified page after create error: {slug}")
+    return {
+        "slug": slug,
+        "identity": page.id,
+        "title": page.title,
+        "requested_source_sha256": plan["source_sha256"],
+        "saved_source": actual_source,
+        "saved_source_sha256": sha256(actual_source),
+    }
+
+
+def create_or_recover_snapshot(
+    site: Any,
+    plan: dict[str, Any],
+) -> tuple[dict[str, Any], str]:
+    try:
+        site.page.create(
+            plan["slug"],
+            title=plan["title"],
+            source=plan["source"],
+            comment="run-owned FTML differential capture",
+        )
+    except Exception:
+        snapshot = recover_snapshot_after_create_error(site, plan)
+        if snapshot is None:
+            raise
+        return snapshot, "created-after-save-error"
+    return saved_snapshot(site, plan), "created"
 
 
 def verify_saved_markers(plan: dict[str, Any], snapshot: dict[str, Any]) -> None:
@@ -177,6 +229,18 @@ def remove_created(
     created.remove(snapshot)
 
 
+def retire_and_append_capture(
+    site: Any,
+    snapshot: dict[str, Any],
+    created: list[dict[str, Any]],
+    ledger: Path,
+    output: Any,
+    record: dict[str, Any],
+) -> None:
+    remove_created(site, snapshot, created, ledger)
+    append_capture_record(output, record)
+
+
 def capture(
     plans: list[dict[str, Any]],
     *,
@@ -199,74 +263,67 @@ def capture(
     created: list[dict[str, Any]] = []
     records: list[dict[str, Any]] = []
     cleanup_error: Exception | None = None
-    with wikidot.Client(username=username, password=password, amc_config=config) as authenticated:
-        site = authenticated.site.get(ALLOWED_SITE)
-        if site.unix_name != ALLOWED_SITE or site.domain != ALLOWED_DOMAIN:
-            raise RuntimeError("resolved Wikidot site is outside the exact allowlist")
-        try:
-            with httpx.Client(
-                follow_redirects=False,
-                timeout=fetch_timeout_seconds,
-                trust_env=False,
-            ) as anonymous:
-                for plan in plans:
-                    if site.page.get(plan["slug"], raise_when_not_found=False) is not None:
-                        raise RuntimeError(f"create-only preflight found an existing page: {plan['slug']}")
-                    append_ledger(
-                        ledger,
-                        {
-                            "event": "create-intent",
-                            "slug": plan["slug"],
-                            "title": plan["title"],
-                            "source_sha256": plan["source_sha256"],
-                        },
-                    )
-                    site.page.create(
-                        plan["slug"],
-                        title=plan["title"],
-                        source=plan["source"],
-                        comment="run-owned FTML differential capture",
-                    )
-                    snapshot = saved_snapshot(site, plan)
-                    created.append(snapshot)
-                    append_ledger(
-                        ledger,
-                        {
-                            "event": "created",
-                            **{key: value for key, value in snapshot.items() if key != "saved_source"},
-                        },
-                    )
-                    verify_saved_markers(plan, snapshot)
-                    record = {
-                        "schema": CAPTURE_SCHEMA,
-                        "captured_at": datetime.now(UTC).isoformat(),
-                        "page_plan": plan,
-                        "site": site.unix_name,
-                        "domain": site.domain,
-                        "authenticated_capture": False,
-                        "mutated": True,
-                        "page_identity": snapshot["identity"],
-                        "saved_source": snapshot["saved_source"],
-                        "saved_source_sha256": snapshot["saved_source_sha256"],
-                        "source_normalized": snapshot["saved_source_sha256"] != plan["source_sha256"],
-                    }
-                    try:
-                        page_content, raw_html = fetch_page_content(
-                            anonymous,
-                            plan["slug"],
-                            fetch_attempts,
-                        )
-                    except (httpx.HTTPError, RuntimeError) as error:
-                        records.append(
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("x", encoding="utf-8") as result:
+        with wikidot.Client(username=username, password=password, amc_config=config) as authenticated:
+            site = authenticated.site.get(ALLOWED_SITE)
+            if site.unix_name != ALLOWED_SITE or site.domain != ALLOWED_DOMAIN:
+                raise RuntimeError("resolved Wikidot site is outside the exact allowlist")
+            try:
+                with httpx.Client(
+                    follow_redirects=False,
+                    timeout=fetch_timeout_seconds,
+                    trust_env=False,
+                ) as anonymous:
+                    for plan in plans:
+                        if site.page.get(plan["slug"], raise_when_not_found=False) is not None:
+                            raise RuntimeError(f"create-only preflight found an existing page: {plan['slug']}")
+                        append_ledger(
+                            ledger,
                             {
+                                "event": "create-intent",
+                                "slug": plan["slug"],
+                                "title": plan["title"],
+                                "source_sha256": plan["source_sha256"],
+                            },
+                        )
+                        snapshot, created_event = create_or_recover_snapshot(site, plan)
+                        created.append(snapshot)
+                        append_ledger(
+                            ledger,
+                            {
+                                "event": created_event,
+                                **{key: value for key, value in snapshot.items() if key != "saved_source"},
+                            },
+                        )
+                        verify_saved_markers(plan, snapshot)
+                        record = {
+                            "schema": CAPTURE_SCHEMA,
+                            "captured_at": datetime.now(UTC).isoformat(),
+                            "page_plan": plan,
+                            "site": site.unix_name,
+                            "domain": site.domain,
+                            "authenticated_capture": False,
+                            "mutated": True,
+                            "page_identity": snapshot["identity"],
+                            "saved_source": snapshot["saved_source"],
+                            "saved_source_sha256": snapshot["saved_source_sha256"],
+                            "source_normalized": snapshot["saved_source_sha256"] != plan["source_sha256"],
+                        }
+                        try:
+                            page_content, raw_html = fetch_page_content(
+                                anonymous,
+                                plan["slug"],
+                                fetch_attempts,
+                            )
+                        except (httpx.HTTPError, RuntimeError) as error:
+                            record = {
                                 **record,
                                 "capture_status": "render-failed",
                                 "render_error": type(error).__name__,
                             }
-                        )
-                    else:
-                        records.append(
-                            {
+                        else:
+                            record = {
                                 **record,
                                 "capture_status": "captured",
                                 "page_content_html": page_content,
@@ -274,21 +331,23 @@ def capture(
                                 "raw_page_html": raw_html,
                                 "raw_page_html_sha256": sha256(raw_html),
                             }
+                        retire_and_append_capture(
+                            site,
+                            snapshot,
+                            created,
+                            ledger,
+                            result,
+                            record,
                         )
-                    remove_created(site, snapshot, created, ledger)
-        finally:
-            for snapshot in reversed(created.copy()):
-                try:
-                    remove_created(site, snapshot, created, ledger)
-                except Exception as error:
-                    cleanup_error = cleanup_error or error
-            if cleanup_error is not None:
-                raise cleanup_error
-    output.parent.mkdir(parents=True, exist_ok=True)
-    with output.open("x", encoding="utf-8") as result:
-        for record in records:
-            result.write(json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
-            result.write("\n")
+                        records.append(record)
+            finally:
+                for snapshot in reversed(created.copy()):
+                    try:
+                        remove_created(site, snapshot, created, ledger)
+                    except Exception as error:
+                        cleanup_error = cleanup_error or error
+                if cleanup_error is not None:
+                    raise cleanup_error
     return records
 
 
