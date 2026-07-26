@@ -102,8 +102,7 @@ impl Parse for RelationSettings {
                 //           caller must implement "create_{name}".
                 "create_fn" => {
                     error_if_set!(create_fn);
-                    let token = input.lookahead1();
-                    let setting = GenerateMethod::parse(input, token)?;
+                    let setting = GenerateMethod::parse(input)?;
                     create_fn = Some(setting);
                 }
 
@@ -114,8 +113,7 @@ impl Parse for RelationSettings {
                 //  remove_fn => true
                 "remove_fn" => {
                     error_if_set!(remove_fn);
-                    let token = input.lookahead1();
-                    let setting = GenerateMethod::parse(input, token)?;
+                    let setting = GenerateMethod::parse(input)?;
                     remove_fn = Some(setting);
                 }
 
