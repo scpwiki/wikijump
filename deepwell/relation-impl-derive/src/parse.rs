@@ -4,8 +4,8 @@ use syn::parse::{Parse, ParseStream};
 use syn::{Ident, LitBool, Token, Type};
 
 pub struct RelationSettings {
-    pub relation_name: Ident,
-    pub field_name: Ident,
+    pub struct_name: String,
+    pub field_name: String,
     pub dest: (Ident, Type),
     pub from: (Ident, Type),
     pub data_type: Option<Type>,
@@ -49,11 +49,10 @@ impl Parse for RelationSettings {
                 //  name => UserBlock
                 "name" => {
                     error_if_set!(name);
-                    let relation_name: Ident = input.parse()?;
-                    let relation_name_str = relation_name.to_string();
-                    let field_name_str = pascal_to_snake_case(&relation_name_str);
-                    let field_name = make_ident(field_name_str);
-                    name = Some((relation_name, field_name));
+                    let struct_name_ident: Ident = input.parse()?;
+                    let struct_name = struct_name_ident.to_string();
+                    let field_name = pascal_to_snake_case(&struct_name);
+                    name = Some((struct_name, field_name));
                 }
 
                 // Define the "dest" name and type
@@ -132,7 +131,7 @@ impl Parse for RelationSettings {
         // Gather fields and return
 
         // Required fields
-        let (relation_name, field_name) =
+        let (struct_name, field_name) =
             name.ok_or_else(|| make_error("no 'name' argument passed"))?;
         let dest = dest.ok_or_else(|| make_error("no 'dest' argument passed"))?;
         let from = from.ok_or_else(|| make_error("no 'from' argument passed"))?;
@@ -143,7 +142,7 @@ impl Parse for RelationSettings {
         let define_struct = define_struct.unwrap_or(true);
 
         Ok(RelationSettings {
-            relation_name,
+            struct_name,
             field_name,
             dest,
             from,
