@@ -11,6 +11,8 @@ use std::borrow::Cow;
 use std::collections::{HashMap, VecDeque};
 use std::sync::LazyLock;
 
+static EMPTY_INCLUDE_TARGET_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)\[\[include[ \t]+\]\]").unwrap());
 static SITE_ONLY_INCLUDE_TARGET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)\[\[include[ \t]+:(?P<site>[^:\]\s]+):[ \t]*\]\]").unwrap()
 });
@@ -173,13 +175,18 @@ fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
 }
 
 pub(super) fn expand_malformed_include_targets(wikitext: &mut String) {
-    if !SITE_ONLY_INCLUDE_TARGET_REGEX.is_match(wikitext)
+    if !EMPTY_INCLUDE_TARGET_REGEX.is_match(wikitext)
+        && !SITE_ONLY_INCLUDE_TARGET_REGEX.is_match(wikitext)
         && !EMPTY_SITE_INCLUDE_TARGET_REGEX.is_match(wikitext)
     {
         return;
     }
     let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
-    let mut replacements = Vec::new();
+    let mut replacements = EMPTY_INCLUDE_TARGET_REGEX
+        .find_iter(wikitext)
+        .filter(|matched| !literal_regions.contains(matched.start()))
+        .map(|matched| (matched.range(), missing_include_source("", None)))
+        .collect::<Vec<_>>();
     for captures in SITE_ONLY_INCLUDE_TARGET_REGEX.captures_iter(wikitext) {
         let matched = captures.get(0).expect("include capture has a full match");
         if !literal_regions.contains(matched.start()) {
@@ -209,11 +216,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn empty_include_targets_remain_literal() {
+    fn empty_include_targets_become_the_live_missing_page_source() {
         let mut source = "[[include    ]]\n[[include\t]]".to_owned();
-        let original = source.clone();
         expand_malformed_include_targets(&mut source);
-        assert_eq!(source, original);
+        assert_eq!(
+            source.matches("Included page \"\" does not exist").count(),
+            2
+        );
+        assert_eq!(source.matches("href=\"//edit/true\"").count(), 2);
     }
 
     #[test]

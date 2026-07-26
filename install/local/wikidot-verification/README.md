@@ -79,7 +79,7 @@ Repeat `--captures` and `--external-reference` for multiple artifacts. `--text-b
 `scripts/run-generic-runtime-differential-stack.mjs` is the end-to-end controller. It requires a clean Wikijump candidate, builds a manifest-bound Deepwell binary, starts only a labeled disposable database/cache/files/Deepwell stack, exposes Deepwell and anonymous reads for that run's text-block bucket on separate loopback ports, invokes the runner, saves stack logs next to the verdict, and removes every container, named volume, network, target directory, temporary configuration, and loopback listener it created. The files bucket stays private. It reads immutable image IDs from the standing containers but never mounts standing volumes.
 
 ```bash
-pnpm runtime-differential-stack -- \
+pnpm runtime-differential-stack \
   --repository /absolute/clean/wikijump-worktree \
   --cases /absolute/evidence/path/runtime-cases.jsonl \
   --captures /absolute/evidence/path/runtime-captures.jsonl \
