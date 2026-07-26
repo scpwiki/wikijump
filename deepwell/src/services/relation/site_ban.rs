@@ -105,48 +105,53 @@ impl RelationService {
             )
         };
 
-        if Self::site_member_exists(ctx, GetSiteMember { site_id, user_id })
-            .await
-            .or_raise(make_error)?
+        if metadata
+            .banned_until
+            .is_none_or(|banned_until| banned_until >= now().date())
         {
-            Self::remove_site_member(
-                ctx,
-                RemoveSiteMember {
-                    site_id,
-                    user_id,
-                    removed_by: created_by,
-                },
-            )
-            .await
-            .or_raise(make_error)?;
-        }
+            if Self::site_member_exists(ctx, GetSiteMember { site_id, user_id })
+                .await
+                .or_raise(make_error)?
+            {
+                Self::remove_site_member(
+                    ctx,
+                    RemoveSiteMember {
+                        site_id,
+                        user_id,
+                        removed_by: created_by,
+                    },
+                )
+                .await
+                .or_raise(make_error)?;
+            }
 
-        // TODO: remove site member applications
+            // TODO: remove site member applications
 
-        let user_roles = UserRole::find()
-            .filter(
-                Condition::all()
-                    .add(user_role::Column::UserId.eq(user_id))
-                    .add(user_role::Column::SiteId.eq(site_id))
-                    .add(user_role::Column::DeletedAt.is_null()),
-            )
-            .all(ctx.transaction())
-            .await
-            .or_raise(make_error)?;
+            let user_roles = UserRole::find()
+                .filter(
+                    Condition::all()
+                        .add(user_role::Column::UserId.eq(user_id))
+                        .add(user_role::Column::SiteId.eq(site_id))
+                        .add(user_role::Column::DeletedAt.is_null()),
+                )
+                .all(ctx.transaction())
+                .await
+                .or_raise(make_error)?;
 
-        for user_role in user_roles {
-            RoleService::revoke_role_from_user(
-                ctx,
-                RevokeUserRoleInput {
-                    user_id,
-                    role_id: user_role.role_id,
-                    site_id,
-                    revoking_user_id: created_by,
-                    ip_address,
-                },
-            )
-            .await
-            .or_raise(make_error)?;
+            for user_role in user_roles {
+                RoleService::revoke_role_from_user(
+                    ctx,
+                    RevokeUserRoleInput {
+                        user_id,
+                        role_id: user_role.role_id,
+                        site_id,
+                        revoking_user_id: created_by,
+                        ip_address,
+                    },
+                )
+                .await
+                .or_raise(make_error)?;
+            }
         }
 
         let create_result: Result<()> = create_operation!(
