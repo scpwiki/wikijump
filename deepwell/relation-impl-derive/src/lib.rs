@@ -16,5 +16,3 @@ pub fn impl_relation(stream: TokenStream) -> TokenStream {
     let generated = expand_stream(input);
     generated
 }
-
-// TODO
