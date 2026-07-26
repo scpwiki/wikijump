@@ -30,12 +30,14 @@ export const canConsiderAnonymousArticleResponseCache = ({
   method,
   routeId,
   url,
+  requestUrl = url,
   siteId,
   siteSlug,
   route,
   cookieHeader
 }) => {
   if (method !== "GET") return reject("method")
+  if (requestUrl.pathname.endsWith("/__data.json")) return reject("data-request")
   if (!ARTICLE_ROUTES.has(routeId ?? "")) return reject("route")
   if (url.search !== "") return reject("query")
   if (!Number.isInteger(siteId) || siteId <= 0) return reject("site-id")

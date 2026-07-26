@@ -46,6 +46,7 @@ function canUseAnonymousArticleResponseCache(
     method: event.request.method,
     routeId: event.route.id,
     url: event.url,
+    requestUrl: new URL(event.request.url),
     siteId,
     siteSlug,
     route: getArticleRoute(event),

@@ -25,6 +25,7 @@ export const STYLEFRAME_OWNER_RUNTIME_SOURCE = `  const targetWindow = window.pa
     }
     registration?.observer?.disconnect();
     registry.owners.delete(owner);
+    registry.restoreStyleFrameOrder?.();
   };
   registry.owners.forEach((registration, owner) => {
     if (registration.frame && !registration.frame.isConnected) removeOwner(owner);

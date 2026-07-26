@@ -39,6 +39,11 @@ test("anonymous article response cache gate allows only plain anonymous article 
     { method: "POST" },
     { routeId: "/-/admin" },
     { url: new URL("https://scp-wiki.example/scp-173?x=1") },
+    {
+      requestUrl: new URL(
+        "https://scp-wiki.example/scp-173/__data.json?x-sveltekit-invalidated=01"
+      )
+    },
     { route: { slug: "scp-173", extra: "comments/show" } },
     { cookieHeader: "wikijump_token=fixture-session" },
     { siteSlug: "" }

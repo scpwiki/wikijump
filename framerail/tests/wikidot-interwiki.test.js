@@ -124,6 +124,7 @@ const createHead = (...initialNodes) => {
   let moveCount = 0
   const moveBefore = (node, referenceNode = null) => {
     moveCount += 1
+    node.moveCount = (node.moveCount ?? 0) + 1
     const previousIndex = children.indexOf(node)
     if (previousIndex !== -1) children.splice(previousIndex, 1)
     const referenceIndex = referenceNode === null ? -1 : children.indexOf(referenceNode)
@@ -150,6 +151,11 @@ const createHead = (...initialNodes) => {
       }
       if (selector === "[data-wikijump-generated-css]") {
         return children.filter((node) => node.dataset.wikijumpGeneratedCss !== undefined)
+      }
+      if (selector === "[data-wikijump-generated-css-clone]") {
+        return children.filter(
+          (node) => node.dataset.wikijumpGeneratedCssClone !== undefined
+        )
       }
       if (selector === "link[data-wikidot-style-preloaded]") {
         return children.filter(
@@ -211,8 +217,13 @@ test("replaces styles owned by a reused styleFrame across page navigation", () =
 
   assert.notEqual(frameElement.dataset.wikidotStyleOwner, firstOwner)
   assert.deepEqual(
-    head.children.map((node) => node.href ?? node.id),
-    ["base", "https://example.com/page-b.css", "generated-page"]
+    head.children.map(
+      (node) =>
+        node.href ??
+        node.id ??
+        `generated-clone-${node.dataset.wikijumpGeneratedCssClone}`
+    ),
+    ["base", "generated-page", "https://example.com/page-b.css", "generated-clone-0"]
   )
 
   const moveCount = head.moveCount
@@ -221,8 +232,13 @@ test("replaces styles owned by a reused styleFrame across page navigation", () =
 
   first.listeners.get("pagehide")?.()
   assert.deepEqual(
-    head.children.map((node) => node.href ?? node.id),
-    ["base", "https://example.com/page-b.css", "generated-page"]
+    head.children.map(
+      (node) =>
+        node.href ??
+        node.id ??
+        `generated-clone-${node.dataset.wikijumpGeneratedCssClone}`
+    ),
+    ["base", "generated-page", "https://example.com/page-b.css", "generated-clone-0"]
   )
 
   executeStyleFrame(
@@ -235,8 +251,13 @@ test("replaces styles owned by a reused styleFrame across page navigation", () =
     { frameElement, parentWindow }
   )
   assert.deepEqual(
-    head.children.map((node) => node.href ?? node.id),
-    ["base", "https://example.com/page-a.css", "generated-page"]
+    head.children.map(
+      (node) =>
+        node.href ??
+        node.id ??
+        `generated-clone-${node.dataset.wikijumpGeneratedCssClone}`
+    ),
+    ["base", "generated-page", "https://example.com/page-a.css", "generated-clone-0"]
   )
 })
 
@@ -306,8 +327,8 @@ test("builds styleFrame parent injection for theme stylesheets", () => {
   assert.match(html, /restoreStyleFrameOrder/)
   assert.match(html, /link\[data-wikidot-style-preloaded\]/)
   assert.match(html, /generatedCssNodes/)
-  assert.match(html, /desiredTail\.forEach/)
-  assert.match(html, /if \(alreadyOrdered\) return/)
+  assert.match(html, /generatedCssCloneNodes/)
+  assert.match(html, /if \(!alreadyOrdered\)/)
   assert.match(html, /cdn\.scpwiki\.com\/theme\/en\/basalt\/basalt-bedrock-min\.css/)
   assert.match(html, /scp-wiki\.wjfiles\.localhost\/local--code\/theme%3Abasalt\/1/)
   assert.doesNotMatch(html, /<style>\{\$css\}<\/style>/)
@@ -337,7 +358,7 @@ test("adopts an SSR stylesheet instead of loading the styleFrame theme twice", (
   assert.match(preloaded.dataset.wikidotStyleOwner, /^wikidot-style-frame-/u)
 })
 
-test("keeps app styles before priority-ordered styleFrame and generated CSS", () => {
+test("keeps app styles before styleFrame CSS and generated CSS clones", () => {
   const baseStyle = { dataset: {}, id: "base" }
   const generatedPageStyle0 = {
     dataset: { wikijumpGeneratedCss: "0" },
@@ -373,16 +394,18 @@ test("keeps app styles before priority-ordered styleFrame and generated CSS", ()
     head.children.map((node) =>
       node.dataset.wikidotStyleFrame
         ? `${node.dataset.wikidotStylePriority}:${node.dataset.wikidotStyleId}`
-        : node.id
+        : (node.id ?? `generated-clone-${node.dataset.wikijumpGeneratedCssClone}`)
     ),
     [
       "base",
+      "generated-page-0",
+      "generated-page-1",
       "app",
       "1:theme-0",
       "1:inline-css",
       "2:theme-0",
-      "generated-page-0",
-      "generated-page-1"
+      "generated-clone-0",
+      "generated-clone-1"
     ]
   )
 
@@ -391,9 +414,21 @@ test("keeps app styles before priority-ordered styleFrame and generated CSS", ()
   scheduledCallbacks.forEach((callback) => callback())
   assert.equal(head.children.length, nodeCount)
   assert.equal(head.moveCount, moveCount)
+  assert.equal(generatedPageStyle0.moveCount, undefined)
+  assert.equal(generatedPageStyle1.moveCount, undefined)
   assert.deepEqual(
     head.children.map((node) => node.id ?? node.dataset.wikidotStylePriority),
-    ["base", "app", "1", "1", "2", "generated-page-0", "generated-page-1"]
+    [
+      "base",
+      "generated-page-0",
+      "generated-page-1",
+      "app",
+      "1",
+      "1",
+      "2",
+      undefined,
+      undefined
+    ]
   )
 })
 

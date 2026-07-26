@@ -203,6 +203,84 @@ export const pages = {
     rating: 0,
     wikitext: "Page workflow probe",
     compiled_body_html: "<p>Page workflow probe</p>"
+  },
+  "navigation-style-a": {
+    page_id: 3000360,
+    revision_id: 9000360,
+    page_created_at: "2026-07-27T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-27T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Navigation Style A",
+    slug: "navigation-style-a",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: "Navigation style A",
+    compiled_body_html:
+      '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&amp;css=.styleframe-a%7Bcolor%3Ared%7D"></iframe><a id="navigate-style-b" href="/navigation-style-b">Navigate to B</a>',
+    compiled_body_styles: [".generated-style-a { color: red; }"]
+  },
+  "navigation-style-b": {
+    page_id: 3000370,
+    revision_id: 9000370,
+    page_created_at: "2026-07-27T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-27T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Navigation Style B",
+    slug: "navigation-style-b",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: "Navigation style B",
+    compiled_body_html:
+      '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=2&amp;css=.styleframe-b%7Bcolor%3Ablue%7D"></iframe><a id="navigate-style-a" href="/navigation-style-a">Navigate to A</a>',
+    compiled_body_styles: [
+      ".generated-style-b-one { color: blue; }",
+      ".generated-style-b-two { color: green; }"
+    ]
+  },
+  "navigation-style-c": {
+    page_id: 3000380,
+    revision_id: 9000380,
+    page_created_at: "2026-07-27T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-27T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Navigation Style C",
+    slug: "navigation-style-c",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: "Navigation style C",
+    compiled_body_html:
+      '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=3&amp;css=.styleframe-c%7Bcolor%3Apurple%7D"></iframe><a id="navigate-style-d" href="/navigation-style-d">Navigate to D</a>',
+    compiled_body_styles: [
+      ".generated-style-c-one { color: purple; }",
+      ".generated-style-c-two { color: orange; }"
+    ]
+  },
+  "navigation-style-d": {
+    page_id: 3000390,
+    revision_id: 9000390,
+    page_created_at: "2026-07-27T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-27T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Navigation Style D",
+    slug: "navigation-style-d",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: "Navigation style D",
+    compiled_body_html:
+      '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=4&amp;css=.styleframe-d%7Bcolor%3Ablack%7D"></iframe>',
+    compiled_body_styles: [".generated-style-d { color: black; }"]
   }
 }
 
