@@ -153,6 +153,26 @@ test('record collector isolates sources larger than the observed safe batch size
   assert.deepEqual(recordedCase.reasons, ['exceeds-observed-safe-batch-size']);
 });
 
+test('record collector keeps oversized runtime cases in the runtime lane', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ftml-recorded-large-runtime-'));
+  const records = path.join(root, 'records.jsonl');
+  const value = {
+    schema: 'ftml.test_source_record.v1',
+    stage: 'tokenize',
+    test_name: 'large-runtime',
+    caller: {},
+    source: `[[module Rate]]\n${'x'.repeat(7_501)}`,
+  };
+  await fs.writeFile(records, `${JSON.stringify(value)}\n`);
+  const [recordedCase] = collectFtmlRecordedCases([records]);
+  assert.equal(recordedCase.execution_class, 'wikijump-runtime');
+  assert.equal(recordedCase.page_scope, 'isolated');
+  assert.deepEqual(recordedCase.reasons, [
+    'page-or-site-runtime',
+    'exceeds-observed-safe-batch-size',
+  ]);
+});
+
 test('measured batch interactions move to isolated preview execution', () => {
   const cases = [
     {case_id: 'safe', execution_class: 'saved-page-batch', reasons: ['initial']},

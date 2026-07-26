@@ -172,13 +172,24 @@ export function collectFtmlRecordedCases(recordPaths) {
             }
           : classifyFixture(`record/${record.test_name ?? 'unnamed'}/input.ftml`, record.source);
       if (
-        classification.execution_class === 'saved-page-batch' &&
+        classification.execution_class !== 'not-applicable' &&
+        classification.page_scope === 'batch-safe' &&
         sourceCharacters > RECORDED_BATCH_SOURCE_LIMIT
       ) {
         classification = {
-          execution_class: 'page-preview-isolated',
+          ...classification,
+          execution_class:
+            classification.execution_class === 'saved-page-batch'
+              ? 'page-preview-isolated'
+              : classification.execution_class,
           page_scope: 'isolated',
-          reasons: ['exceeds-observed-safe-batch-size'],
+          reasons:
+            classification.execution_class === 'saved-page-batch'
+              ? ['exceeds-observed-safe-batch-size']
+              : [
+                  ...classification.reasons,
+                  'exceeds-observed-safe-batch-size',
+                ],
         };
       }
       bySource.set(sourceSha256, {
