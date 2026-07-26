@@ -6,8 +6,10 @@ use std::collections::BTreeMap;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
 use super::compat::CompatHtmlFragments;
+use super::compat::text_fragments::CompatTextFragments;
 use super::list_pages::{is_tag_cloud_visible_tag, render_tag_cloud_box};
 use super::literal_regions::LiteralRegionIndex;
+use super::native_list_context::collect_unproven_scope_ranges;
 use super::service::{
     RATE_MODULE_REGEX, REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
     escape_list_pages_html_attr, escape_list_pages_html_text, render_clone_module,
@@ -47,13 +49,18 @@ impl RenderService {
         settings: &WikitextSettings,
         rating_type: PageRatingType,
         compat_html: &mut CompatHtmlFragments,
+        compat_text: &mut CompatTextFragments,
     ) -> String {
-        if !settings.enable_page_syntax {
+        if !settings.enable_page_syntax || !RATE_MODULE_REGEX.is_match(&wikitext) {
             return wikitext;
         }
 
         let literal_regions =
             LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
+        let footnote_ranges = collect_unproven_scope_ranges(&wikitext, &literal_regions)
+            .into_iter()
+            .filter(|range| wikidot_scope_head_is(&wikitext, range.start, "footnote"))
+            .collect::<Vec<_>>();
         let mut output = String::with_capacity(wikitext.len());
         let mut cursor = 0;
         for matched in RATE_MODULE_REGEX.find_iter(&wikitext) {
@@ -70,6 +77,14 @@ impl RenderService {
                 continue;
             }
             output.push_str(&wikitext[cursor..matched.start()]);
+            if footnote_ranges
+                .iter()
+                .any(|range| range.start < matched.start() && matched.end() <= range.end)
+            {
+                output.push_str(&compat_text.push_escaped_html_text(matched.as_str()));
+                cursor = matched.end();
+                continue;
+            }
             output.push_str(&compat_html.push_block_html(render_read_only_rate_module(
                 page_info.score,
                 &page_info.language,
@@ -291,4 +306,14 @@ impl RenderService {
 
         Ok(counts.into_iter().collect())
     }
+}
+
+fn wikidot_scope_head_is(source: &str, start: usize, expected: &str) -> bool {
+    let Some(tail) = source.get(start + 2..) else {
+        return false;
+    };
+    let Some(end) = tail.find("]]") else {
+        return false;
+    };
+    tail[..end].trim().eq_ignore_ascii_case(expected)
 }

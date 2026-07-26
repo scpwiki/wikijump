@@ -1226,6 +1226,7 @@ impl RenderService {
                 settings,
                 rating_type,
                 &mut wikidot_compat_html,
+                &mut wikidot_compat_text,
             );
         }
 

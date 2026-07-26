@@ -5441,12 +5441,14 @@ fn wikidot_compatibility_fallback_centers_read_only_rate_module() {
     page_info.score = ftml::data::ScoreValue::Integer(396);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
     let protected = RenderService::expand_rate_modules_with_registry(
         source.to_owned(),
         &page_info,
         &settings,
         PageRatingType::PlusMinus,
         &mut fragments,
+        &mut compat_text,
     );
 
     let mut output =
@@ -5486,12 +5488,14 @@ fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
     page_info.score = ftml::data::ScoreValue::Integer(396);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
     let protected = RenderService::expand_rate_modules_with_registry(
         source.to_owned(),
         &page_info,
         &settings,
         PageRatingType::PlusMinus,
         &mut fragments,
+        &mut compat_text,
     );
 
     let root = fragments.restore(&format!("<p>{protected}</p>"));
@@ -5522,17 +5526,49 @@ fn rate_module_expansion_leaves_wikidot_quote_depths_literal() {
     let page_info = fallback_test_page_info("rate-quotes", "Rate quotes");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
     let protected = RenderService::expand_rate_modules_with_registry(
         source.to_owned(),
         &page_info,
         &settings,
         PageRatingType::Plus,
         &mut fragments,
+        &mut compat_text,
     );
 
     assert!(protected.contains("[[module Rate show=\"DEPTH_ONE\"]]"));
     assert!(protected.contains("[[module Rate show=\"DEPTH_TWO\"]]"));
     assert_eq!(protected.matches("WIKIJUMPWIKIDOTCOMPATHTML").count(), 1);
+}
+
+#[test]
+fn rate_module_expansion_leaves_footnote_body_literal() {
+    let source = "[[footnote]][[module Rate]][[/footnote]]";
+    let page_info = fallback_test_page_info("rate-footnote", "Rate footnote");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
+    let protected = RenderService::expand_rate_modules_with_registry(
+        source.to_owned(),
+        &page_info,
+        &settings,
+        PageRatingType::PlusMinus,
+        &mut fragments,
+        &mut compat_text,
+    );
+
+    assert_ne!(protected, source);
+    let mut protected = protected;
+    ftml::preprocess_for_layout(&mut protected, settings.layout);
+    let tokens = ftml::tokenize(&protected);
+    let result = ftml::parse(&tokens, &page_info, &settings);
+    let (tree, _) = result.into();
+    let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+    let rendered = fragments.restore(&rendered);
+    let rendered = compat_text.restore(&rendered);
+
+    assert!(rendered.contains("1</a>. [[module Rate]]"), "{rendered}",);
+    assert!(!rendered.contains(r#"class="page-rate-widget-box""#));
 }
 
 #[test]
@@ -5551,12 +5587,14 @@ fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
     page_info.score = ftml::data::ScoreValue::Integer(7);
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
     let protected = RenderService::expand_rate_modules_with_registry(
         source.to_owned(),
         &page_info,
         &settings,
         PageRatingType::PlusMinus,
         &mut fragments,
+        &mut compat_text,
     );
 
     assert_eq!(protected.matches("WIKIJUMPWIKIDOTCOMPATHTML").count(), 3);
