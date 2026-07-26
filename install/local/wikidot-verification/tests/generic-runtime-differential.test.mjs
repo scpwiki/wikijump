@@ -767,6 +767,7 @@ test("runner reports acquisition failures and cleans each page before the next",
       assert.equal(activePages, 1);
       try {
         assert.equal(page.source, capturedCase.source);
+        assert.equal(page.title, captured.page_plan.title);
         await inspect("<p>alpha</p>");
       } finally {
         activePages -= 1;

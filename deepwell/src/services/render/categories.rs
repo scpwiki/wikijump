@@ -44,6 +44,10 @@ fn category_is_visible(slug: &str, include_hidden: bool) -> bool {
     slug == "_default" || include_hidden || !slug.starts_with('_')
 }
 
+fn wikidot_category_sort_key(slug: &str) -> (String, String) {
+    (slug.replace('-', ""), slug.to_owned())
+}
+
 fn render_categories_module<'a>(
     categories: impl IntoIterator<Item = (i64, &'a str)>,
     include_hidden: bool,
@@ -93,7 +97,8 @@ impl RenderService {
 
         let mut categories =
             CategoryService::get_all_active(ctx, current_site_id).await?;
-        categories.sort_unstable_by(|left, right| left.slug.cmp(&right.slug));
+        categories
+            .sort_by_cached_key(|category| wikidot_category_sort_key(&category.slug));
         let category_refs = categories
             .iter()
             .map(|category| (category.category_id, category.slug.as_str()))
@@ -133,7 +138,7 @@ impl RenderService {
 mod tests {
     use super::{
         CATEGORIES_MODULE_REGEX, category_is_visible, include_hidden_categories,
-        render_categories_module,
+        render_categories_module, wikidot_category_sort_key,
     };
 
     #[test]
@@ -159,6 +164,29 @@ mod tests {
         assert!(!category_is_visible("_admin", false));
         assert!(category_is_visible("_admin", true));
         assert!(category_is_visible("articles", false));
+    }
+
+    #[test]
+    fn category_order_ignores_hyphens_like_wikidot() {
+        let mut slugs = [
+            "codexdfcoldfcol04",
+            "codex-rating-load-20260715",
+            "codexrole1518",
+            "codexrateb5t153900z",
+            "_default",
+        ];
+        slugs.sort_by_cached_key(|slug| wikidot_category_sort_key(slug));
+
+        assert_eq!(
+            slugs,
+            [
+                "_default",
+                "codexdfcoldfcol04",
+                "codexrateb5t153900z",
+                "codex-rating-load-20260715",
+                "codexrole1518",
+            ],
+        );
     }
 
     #[test]

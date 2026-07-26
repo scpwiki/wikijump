@@ -764,7 +764,7 @@ export async function runGenericRuntimeDifferential({
       const receipt = await adapter.withCompiledPage(
         {
           slug,
-          title: caseId,
+          title: capture.page_plan.title,
           source: runtimeCase.source,
           source_sha256: runtimeCase.source_sha256,
         },
