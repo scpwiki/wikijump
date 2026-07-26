@@ -3918,7 +3918,7 @@ async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
 }
 
 #[tokio::test]
-async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
+async fn listpages_live_evidenced_noop_arguments_render_rows() {
     const TAG: &str = "verification-listpages-presentation-noop";
     const TARGET_SLUG: &str = "fixture-listpages-presentation-noop-target";
     const INDEX_SLUG: &str = "fixture-listpages-presentation-noop-index";
@@ -3946,7 +3946,7 @@ async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
         "Fixture ListPages Presentation No-op Index",
         concat!(
             "[[module ListPages tags=\"+verification-listpages-presentation-noop\" limit=\"10\" ",
-            "class=\"g54-custom\" style=\"margin: 0; width: 100%;\"]]\n",
+            "class=\"g54-custom\" custom=\"@URL\" style=\"margin: 0; width: 100%;\" unknown=\"kept\"]]\n",
             "* %%title%%\n",
             "[[/module]]",
         ),
@@ -3964,13 +3964,15 @@ async fn listpages_class_and_style_arguments_remain_wikidot_noops() {
     );
     for forbidden in [
         "g54-custom",
+        "@URL",
+        "kept",
         "margin: 0",
         "width: 100%",
         "[[module ListPages",
     ] {
         assert!(
             !html.contains(forbidden),
-            "ListPages class/style arguments must remain accepted no-ops, not forwarded output: {forbidden:?}\n{html}"
+            "ListPages no-op arguments must remain accepted without forwarding output: {forbidden:?}\n{html}"
         );
     }
 }

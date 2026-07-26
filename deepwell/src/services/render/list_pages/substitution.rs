@@ -670,10 +670,10 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                 unsupported_count_pages_filter = true;
                 unsupported_list_pages_filter = true;
             }
-            // Wikidot accepts these presentation arguments without applying them
-            // to the ListPages wrapper. Do not forward author-controlled values
-            // into generated markup.
-            "class" | "style" => {}
+            // Wikidot accepts these arguments without applying them to the
+            // ListPages query or wrapper. Do not forward author-controlled
+            // values into generated markup.
+            "class" | "custom" | "style" | "unknown" => {}
             _ if raw_key.starts_with('_') => {
                 let value = static_list_pages_selector(
                     value,

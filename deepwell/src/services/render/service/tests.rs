@@ -836,7 +836,7 @@ fn parses_wikidot_list_pages_append_line_without_aliases() {
 }
 
 #[test]
-fn accepts_wikidot_list_pages_class_and_style_as_noops() {
+fn accepts_live_evidenced_wikidot_list_pages_noops() {
     let baseline = parse_list_pages_arguments(
         r#" category="*" tags="fixture" limit="20" wrapper="no" "#,
     )
@@ -844,14 +844,16 @@ fn accepts_wikidot_list_pages_class_and_style_as_noops() {
 
     for head in [
         r#" category="*" tags="fixture" limit="20" class="g54-custom" wrapper="no" "#,
+        r#" category="*" tags="fixture" limit="20" custom="@URL" wrapper="no" "#,
         r#" category="*" tags="fixture" limit="20" style="margin: 0; width: 100%;" wrapper="no" "#,
+        r#" category="*" tags="fixture" limit="20" unknown="kept" wrapper="no" "#,
         r#" category="*" tags="fixture" limit="20" class="" style="" wrapper="no" "#,
         r#" category="*" tags="fixture" limit="20" class="first" class="second" style="color: red" style="display: block" wrapper="no" "#,
     ] {
         assert_eq!(
             parse_list_pages_arguments(head),
             Some(baseline.clone()),
-            "Wikidot accepts class/style as no-op ListPages grammar: {head}",
+            "Wikidot accepts the live-evidenced no-op ListPages grammar: {head}",
         );
     }
 
@@ -860,7 +862,7 @@ fn accepts_wikidot_list_pages_class_and_style_as_noops() {
             r#" category="*" tags="fixture" limit="20" data-custom="value" wrapper="no" "#,
         )
         .is_none(),
-        "only the live-evidenced class/style keys are accepted as no-ops",
+        "only the live-evidenced keys are accepted as no-ops",
     );
 }
 
@@ -1267,6 +1269,28 @@ fn ignores_blank_wikidot_list_pages_order_argument() {
     assert_eq!(
         arguments.excluded_categories,
         vec![Cow::Borrowed("fragment")]
+    );
+}
+
+#[test]
+fn parses_corpus_list_pages_custom_and_unknown_noops() {
+    let arguments = parse_list_pages_arguments(
+        r#" created_by="=" tag="+scp" order="" category="-fragment" tag="-co-authored" perPage="250" custom="@URL" unknown="kept""#,
+    )
+    .expect("live-evidenced custom and unknown ListPages no-ops should parse");
+
+    assert_eq!(arguments.authors, vec![Cow::Borrowed("=")]);
+    assert_eq!(arguments.order, None);
+    assert_eq!(arguments.count_pages_per_page, Some(250));
+    assert_eq!(arguments.all_tags, vec![Cow::Borrowed("scp")]);
+    assert_eq!(arguments.no_tags, vec![Cow::Borrowed("co-authored")]);
+    assert_eq!(
+        arguments.excluded_categories,
+        vec![Cow::Borrowed("fragment")]
+    );
+    assert!(
+        parse_list_pages_arguments(r#" tag="+scp" selector_typo="kept""#).is_none(),
+        "an unevidenced selector typo must remain literal",
     );
 }
 
