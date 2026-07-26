@@ -1,10 +1,11 @@
 import importlib.util
 import json
 import signal
+import sys
 import tempfile
 import unittest
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 from unittest import mock
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "capture_wikidot_saved_pages.py"
@@ -227,6 +228,115 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
         self.assertEqual([record["page_identity"] for record in records], [1, 2])
         self.assertEqual([record["identity"] for record in removals], [1, 2])
         self.assertEqual(created, [])
+        self.assertEqual(pages, {})
+
+    def test_capture_defers_signal_through_current_page_retirement(self):
+        interrupt = MODULE.InterruptFlag()
+        pages = {}
+        refresh_counts = {}
+
+        def isolated_plan(identity: int) -> dict:
+            plan = page_plan(f"source {identity}")
+            plan["slug"] = f"run-owned:ftml-diff-20260726-{identity:03d}"
+            plan["title"] = f"FTML differential {identity:03d}"
+            plan["cases"] = [{
+                "case_id": f"case-{identity}",
+                "source_sha256": plan["source_sha256"],
+                "page_scope": "isolated",
+            }]
+            return plan
+
+        class FakePage:
+            def __init__(self, identity, slug, title, source):
+                self.id = identity
+                self.slug = slug
+                self.title = title
+                self.source = SimpleNamespace(wiki_text=source)
+
+            def refresh_source(self):
+                refresh_counts[self.slug] = refresh_counts.get(self.slug, 0) + 1
+                if self.id == 2 and refresh_counts[self.slug] == 2:
+                    interrupt.request(signal.SIGINT, None)
+
+            def destroy(self):
+                pages.pop(self.slug)
+
+        class FakePages:
+            def __init__(self):
+                self.next_identity = 1
+
+            def create(self, slug, *, title, source, **_kwargs):
+                pages[slug] = FakePage(self.next_identity, slug, title, source)
+                self.next_identity += 1
+
+            def get(self, slug, **_kwargs):
+                return pages.get(slug)
+
+        site = SimpleNamespace(
+            unix_name=MODULE.ALLOWED_SITE,
+            domain=MODULE.ALLOWED_DOMAIN,
+            page=FakePages(),
+        )
+
+        class Context:
+            def __init__(self, value):
+                self.value = value
+
+            def __enter__(self):
+                return self.value
+
+            def __exit__(self, *_args):
+                return None
+
+        httpx = ModuleType("httpx")
+        httpx.HTTPError = RuntimeError
+        httpx.Client = lambda **_kwargs: Context(object())
+        wikidot = ModuleType("wikidot")
+        wikidot.Client = lambda **_kwargs: Context(
+            SimpleNamespace(site=SimpleNamespace(get=lambda _slug: site))
+        )
+        connector = ModuleType("wikidot.connector")
+        ajax = ModuleType("wikidot.connector.ajax")
+        ajax.AjaxModuleConnectorConfig = lambda **_kwargs: object()
+
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "captures.jsonl"
+            ledger = Path(root) / "ledger.jsonl"
+            with mock.patch.dict(
+                sys.modules,
+                {
+                    "httpx": httpx,
+                    "wikidot": wikidot,
+                    "wikidot.connector": connector,
+                    "wikidot.connector.ajax": ajax,
+                },
+            ), mock.patch.dict(
+                MODULE.os.environ,
+                {"WIKIDOT_USERNAME": "user", "WIKIDOT_PASSWORD": "password"},
+            ), mock.patch.object(
+                MODULE,
+                "fetch_page_content",
+                return_value=("<div id=\"page-content\">ok</div>", "<html>ok</html>"),
+            ):
+                with self.assertRaisesRegex(InterruptedError, "signal 2"):
+                    MODULE.capture(
+                        [isolated_plan(1), isolated_plan(2)],
+                        output=output,
+                        ledger=ledger,
+                        fetch_timeout_seconds=1,
+                        fetch_attempts=1,
+                        interrupt=interrupt,
+                    )
+
+            records = [json.loads(line) for line in output.read_text().splitlines()]
+            removals = [
+                json.loads(line)
+                for line in ledger.read_text().splitlines()
+                if json.loads(line)["event"] == "removed"
+            ]
+
+        self.assertEqual([record["page_identity"] for record in records], [1, 2])
+        self.assertEqual([record["identity"] for record in removals], [1, 2])
         self.assertEqual(pages, {})
 
     def test_saved_marker_validation_accepts_server_source_normalization(self):

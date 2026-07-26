@@ -22,6 +22,7 @@ export function parseArgs(argv) {
     externalReferences: [],
     runtimeIdentity: null,
     rpcUrl: null,
+    textBlockUrl: null,
     site: 'sandbox-for-codex',
     output: null,
   };
@@ -34,11 +35,14 @@ export function parseArgs(argv) {
     } else if (option === '--runtime-identity') {
       args.runtimeIdentity = valueAfter(argv, index++, option);
     } else if (option === '--rpc-url') args.rpcUrl = valueAfter(argv, index++, option);
+    else if (option === '--text-block-url') {
+      args.textBlockUrl = valueAfter(argv, index++, option);
+    }
     else if (option === '--site') args.site = valueAfter(argv, index++, option);
     else if (option === '--output') args.output = valueAfter(argv, index++, option);
     else throw new Error(`unknown option: ${option}`);
   }
-  for (const field of ['cases', 'runtimeIdentity', 'rpcUrl', 'output']) {
+  for (const field of ['cases', 'runtimeIdentity', 'rpcUrl', 'textBlockUrl', 'output']) {
     if (!args[field]) throw new Error(`--${field.replace(/[A-Z]/gu, (value) => `-${value.toLowerCase()}`)} is required`);
   }
   if (args.captures.length === 0) throw new Error('--captures is required');
@@ -64,6 +68,7 @@ export async function main(argv) {
   }
   const adapter = new DeepwellRpcAdapter({
     rpcUrl: args.rpcUrl,
+    textBlockBaseUrl: args.textBlockUrl,
     siteSlug: args.site,
     administratorEmail,
     administratorPassword,

@@ -10,6 +10,10 @@ import {
   selectLatestSuccessfulCaptures,
 } from "../src/generic-runtime-differential.mjs";
 import {sha256} from "../src/syntax-differential.mjs";
+import {
+  bindLocalHtmlBlockPayloads,
+  sha1,
+} from "../src/runtime-html-blocks.mjs";
 import {parseArgs} from "../scripts/run-generic-runtime-differential.mjs";
 import {
   composeDocument,
@@ -395,6 +399,169 @@ test("file host normalization keeps page slug differences visible", () => {
   assert.deepEqual(mismatch.suspected_state_preconditions, []);
 });
 
+function htmlBlockFixture(payloads, {
+  slug = "run-owned:ftml-diff-20260726-001",
+  localWrapper = true,
+  liveWrapper = true,
+} = {}) {
+  const blocks = payloads.map((payload, offset) => {
+    const bytes = Buffer.from(payload);
+    return {
+      index: offset + 1,
+      s3_filename: `42_html_${offset + 1}`,
+      bytes: bytes.length,
+      sha1: sha1(bytes),
+      sha256: sha256(bytes),
+    };
+  });
+  const localFrames = blocks.map(() =>
+    '<iframe src="https://example.com/" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe>'
+  );
+  const liveFrames = blocks.map((block, offset) =>
+    `<iframe allowtransparency="true" class="html-block-iframe" frameborder="0" src="/${slug}/html/${block.sha1}-${offset + 10}"></iframe>`
+  );
+  const wrap = (frames, enabled) => frames.map((frame) => enabled ? `<p>${frame}</p>` : frame).join("");
+  const local = wrap(localFrames, localWrapper);
+  const bound = bindLocalHtmlBlockPayloads(local, blocks);
+  return {
+    slug,
+    blocks,
+    local,
+    localIdentity: bound.html,
+    live: wrap(liveFrames, liveWrapper),
+    binding: bound.binding,
+  };
+}
+
+test("HTML block projection compares strict live URLs with stored local payload identities", () => {
+  const fixture = htmlBlockFixture(["\n<b>first</b>\n", "raw-second"]);
+  const comparison = compareRuntimeFragment(
+    runtimeCase("html", "[[html]]payload[[/html]]"),
+    fixture.live,
+    fixture.local,
+    {
+      pageSlug: fixture.slug,
+      wikijumpIdentityHtml: fixture.localIdentity,
+      htmlBlockBinding: fixture.binding,
+    },
+  );
+  assert.equal(comparison.status, "match", JSON.stringify(comparison, null, 2));
+  assert.equal(comparison.checks.dom_tree.status, "mismatch");
+  assert.equal(comparison.checks.html_block_contract.status, "match");
+  assert.deepEqual(
+    comparison.checks.html_block_contract.wikidot.blocks.map((block) => block.sha1),
+    fixture.blocks.map((block) => block.sha1),
+  );
+  assert.deepEqual(
+    comparison.checks.html_block_contract.wikijump.blocks.map((block) => block.stored_index),
+    [1, 2],
+  );
+});
+
+test("HTML block projection leaves structure, attributes, order, and invalid identities visible", () => {
+  const fixture = htmlBlockFixture(["\n<b>first</b>\n", "raw-second"]);
+  const options = {
+    pageSlug: fixture.slug,
+    wikijumpIdentityHtml: fixture.localIdentity,
+    htmlBlockBinding: fixture.binding,
+  };
+  const changed = [
+    fixture.live.replace(`/${fixture.slug}/html/`, "/wrong-slug/html/"),
+    fixture.live.replace(/-[0-9]+/u, "-nonce"),
+    fixture.live.replace(fixture.blocks[0].sha1, "f".repeat(40)),
+    fixture.live.replace(' class="html-block-iframe"', ' class="html-block-iframe extra"'),
+    fixture.live.replace(' frameborder="0"', ' frameborder="1"'),
+    fixture.live.replace("<p><iframe", '<div><iframe').replace("</iframe></p>", "</iframe></div>"),
+    fixture.live.replace(' frameborder="0"', ' data-extra="live" frameborder="0"'),
+    fixture.live.replace(
+      fixture.blocks[0].sha1,
+      "0".repeat(40),
+    ).replace(
+      fixture.blocks[1].sha1,
+      fixture.blocks[0].sha1,
+    ).replace("0".repeat(40), fixture.blocks[1].sha1),
+  ];
+  for (const live of changed) {
+    const comparison = compareRuntimeFragment(
+      runtimeCase("html", "[[html]]payload[[/html]]"),
+      live,
+      fixture.local,
+      options,
+    );
+    assert.equal(comparison.status, "true-mismatch", live);
+    assert.equal(comparison.checks.html_block_contract.status, "mismatch");
+  }
+  const untracked = compareRuntimeFragment(
+    runtimeCase("html", "[[html]]payload[[/html]]"),
+    fixture.live,
+    fixture.local,
+    {pageSlug: fixture.slug},
+  );
+  assert.equal(untracked.status, "true-mismatch");
+  assert.equal(untracked.checks.html_block_contract.status, "mismatch");
+  const copiedLiveUrl = compareRuntimeFragment(
+    runtimeCase("html", "[[html]]payload[[/html]]"),
+    fixture.live,
+    fixture.live,
+    {pageSlug: fixture.slug},
+  );
+  assert.equal(copiedLiveUrl.status, "true-mismatch");
+  assert.equal(copiedLiveUrl.checks.dom_tree.status, "match");
+  assert.equal(copiedLiveUrl.checks.html_block_contract.status, "mismatch");
+});
+
+test("HTML source with no rendered block remains comparable with an empty tracked binding", () => {
+  const comparison = compareRuntimeFragment(
+    runtimeCase("hidden-html", "[[iftags +missing]][[html]]hidden[[/html]][[/iftags]]"),
+    "<p>visible</p>",
+    "<p>visible</p>",
+    {
+      pageSlug: "run-owned:ftml-diff-20260726-001",
+      wikijumpIdentityHtml: "<p>visible</p>",
+      htmlBlockBinding: {
+        status: "tracked",
+        iframe_count: 0,
+        stored_block_count: 0,
+        page_iframe_count: 0,
+        page_stored_block_count: 0,
+        blocks: [],
+      },
+    },
+  );
+  assert.equal(comparison.status, "match");
+  assert.equal(comparison.checks.html_block_contract.status, "match");
+});
+
+test("runner binds a case fragment to its persisted HTML block payload", async () => {
+  const slug = "run-owned:ftml-diff-20260726-001";
+  const caseValue = {
+    ...runtimeCase("html-runner", "[[html]]\n<b>stored</b>\n[[/html]]"),
+    page_scope: "isolated",
+  };
+  const fixture = htmlBlockFixture(["\n<b>stored</b>\n"], {slug});
+  const saved = capture(caseValue, {slug, fragment: fixture.live});
+  const compiled = `<div id="page-content">${fixture.local}</div>`;
+  const report = await runGenericRuntimeDifferential({
+    cases: [caseValue],
+    captureFiles: [{path: "captures.jsonl", captures: [saved]}],
+    externalReferences: [],
+    runtimeIdentity,
+    adapter: {
+      async withCompiledPage(page, inspect) {
+        await inspect(compiled, {iframe_count: 1, blocks: fixture.blocks});
+        return {
+          slug: page.slug,
+          html_blocks: fixture.blocks,
+          cleanup: {status: "removed", html_block_objects_removed: 1},
+        };
+      },
+    },
+  });
+  assert.equal(report.status, "pass", JSON.stringify(report, null, 2));
+  assert.equal(report.comparisons[0].status, "match");
+  assert.equal(report.comparisons[0].checks.html_block_contract.status, "match");
+});
+
 test("runner reports acquisition failures and cleans each page before the next", async () => {
   const capturedCase = runtimeCase("captured");
   const failedCase = runtimeCase("failed");
@@ -497,6 +664,8 @@ test("Deepwell adapter removes a created page when inspection fails", async () =
     } else if (request.method === "page_create") {
       pageExists = true;
       result = {page_id: 11, revision_id: 12};
+    } else if (request.method === "text_block_get_index") {
+      result = null;
     } else if (request.method === "page_delete") {
       pageExists = false;
       result = null;
@@ -507,6 +676,7 @@ test("Deepwell adapter removes a created page when inspection fails", async () =
   };
   const adapter = new DeepwellRpcAdapter({
     rpcUrl: "http://127.0.0.1:2741/jsonrpc",
+    textBlockBaseUrl: "http://127.0.0.1:9000/deepwell-text-blocks/",
     siteSlug: "sandbox-for-codex",
     administratorEmail: "admin@example.test",
     administratorPassword: "secret",
@@ -526,11 +696,95 @@ test("Deepwell adapter removes a created page when inspection fails", async () =
   assert.throws(
     () => new DeepwellRpcAdapter({
       rpcUrl: "http://example.test/jsonrpc",
+      textBlockBaseUrl: "http://127.0.0.1:9000/deepwell-text-blocks/",
       siteSlug: "sandbox-for-codex",
       administratorEmail: "admin@example.test",
       administratorPassword: "secret",
     }),
     /loopback/u,
+  );
+});
+
+test("Deepwell adapter records stored HTML payload identity before verified cleanup", async () => {
+  const payload = Buffer.from("\n<b>stored</b>\n");
+  let pageExists = false;
+  let objectExists = false;
+  const fetchImpl = async (_url, options) => {
+    const request = JSON.parse(options.body);
+    let result;
+    if (request.method === "ping") result = "pong";
+    else if (request.method === "site_get") result = {site_id: 7};
+    else if (request.method === "login") result = {session_token: "token"};
+    else if (request.method === "user_get") result = {user_id: 9};
+    else if (request.method === "page_get") {
+      result = pageExists
+        ? {
+            page_id: 11,
+            revision_id: 12,
+            wikitext: "fixture",
+            compiled_body_html: '<p><iframe src="https://example.com/" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe></p>',
+          }
+        : null;
+    } else if (request.method === "page_create") {
+      pageExists = true;
+      objectExists = true;
+      result = {page_id: 11, revision_id: 12};
+    } else if (request.method === "text_block_get_index") {
+      result = request.params.index === 1
+        ? {index: 1, s3_filename: "11_html_1"}
+        : null;
+    } else if (request.method === "page_delete") {
+      pageExists = false;
+      objectExists = false;
+      result = null;
+    } else {
+      throw new Error(`unexpected method: ${request.method}`);
+    }
+    return {ok: true, json: async () => ({jsonrpc: "2.0", id: request.id, result})};
+  };
+  const objectRequests = [];
+  const textBlockFetchImpl = async (url) => {
+    objectRequests.push(url);
+    if (!objectExists) return {ok: false, status: 404};
+    return {
+      ok: true,
+      status: 200,
+      arrayBuffer: async () =>
+        payload.buffer.slice(payload.byteOffset, payload.byteOffset + payload.byteLength),
+    };
+  };
+  const adapter = new DeepwellRpcAdapter({
+    rpcUrl: "http://127.0.0.1:2741/jsonrpc",
+    textBlockBaseUrl: "http://127.0.0.1:9000/deepwell-text-blocks/",
+    siteSlug: "sandbox-for-codex",
+    administratorEmail: "admin@example.test",
+    administratorPassword: "secret",
+    fetchImpl,
+    textBlockFetchImpl,
+  });
+  const receipt = await adapter.withCompiledPage(
+    {
+      slug: "runtime-001",
+      title: "runtime-001",
+      source: "fixture",
+      source_sha256: sha256("fixture"),
+    },
+    async (_html, evidence) => {
+      assert.equal(pageExists, true);
+      assert.equal(objectExists, true);
+      assert.equal(evidence.iframe_count, 1);
+      assert.equal(evidence.blocks[0].sha1, sha1(payload));
+      assert.equal(evidence.blocks[0].sha256, sha256(payload));
+    },
+  );
+  assert.equal(pageExists, false);
+  assert.equal(objectExists, false);
+  assert.equal(receipt.html_blocks[0].sha1, sha1(payload));
+  assert.equal(receipt.cleanup.html_block_objects_removed, 1);
+  assert.equal(objectRequests.length, 2);
+  assert.equal(
+    objectRequests[0],
+    "http://127.0.0.1:9000/deepwell-text-blocks/11_html_1",
   );
 });
 
@@ -590,6 +844,7 @@ test("Deepwell adapter cleans a page created before a transport failure", async 
   };
   const adapter = new DeepwellRpcAdapter({
     rpcUrl: "http://127.0.0.1:2741/jsonrpc",
+    textBlockBaseUrl: "http://127.0.0.1:9000/deepwell-text-blocks/",
     siteSlug: "sandbox-for-codex",
     administratorEmail: "admin@example.test",
     administratorPassword: "secret",
@@ -613,6 +868,7 @@ test("CLI requires explicit artifacts and preserves repeated capture inputs", ()
     "--captures", "second.jsonl",
     "--runtime-identity", "identity.json",
     "--rpc-url", "http://127.0.0.1:2741/jsonrpc",
+    "--text-block-url", "http://127.0.0.1:9000/deepwell-text-blocks/",
     "--output", "report.json",
   ]);
   assert.deepEqual(args.captures, ["first.jsonl", "second.jsonl"]);
@@ -639,12 +895,14 @@ test("disposable stack controller binds resources and candidate identity", () =>
     migrations: "/tmp/migrations",
     locales: "/tmp/locales",
     seeder: "/tmp/seeder",
-    port: 2741,
+    rpcPort: 2741,
+    textBlockPort: 9000,
     credentials: {databasePassword: "database", filesAccessKey: "access", filesSecretKey: "secret"},
   });
   assert.match(compose, /runtime-diff-test-database/u);
   assert.match(compose, /runtime-diff-test-network/u);
   assert.match(compose, /\/data:size=256m,mode=0700/u);
+  assert.match(compose, /127\.0\.0\.1:9000:9000/u);
   assert.doesNotMatch(compose, /runtime-diff-test-files/u);
   assert.equal(compose.match(/example\.owner/u)?.[0], "example.owner");
 

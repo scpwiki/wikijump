@@ -61,15 +61,23 @@ function run(command, args, options = {}) {
   return result.stdout.trim();
 }
 
-async function freePort() {
-  return await new Promise((resolve, reject) => {
-    const server = net.createServer();
-    server.once("error", reject);
-    server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
-      server.close((error) => error ? reject(error) : resolve(address.port));
-    });
-  });
+async function freePorts(count) {
+  const servers = [];
+  try {
+    for (let index = 0; index < count; index += 1) {
+      const server = net.createServer();
+      servers.push(server);
+      await new Promise((resolve, reject) => {
+        server.once("error", reject);
+        server.listen(0, "127.0.0.1", resolve);
+      });
+    }
+    return servers.map((server) => server.address().port);
+  } finally {
+    await Promise.all(servers.filter((server) => server.listening).map((server) =>
+      new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()))
+    ));
+  }
 }
 
 function standingImageId(service) {
@@ -101,7 +109,8 @@ export function composeDocument({
   migrations,
   locales,
   seeder,
-  port,
+  rpcPort,
+  textBlockPort,
   credentials,
 }) {
   const labelLines = Object.entries(labels)
@@ -155,6 +164,8 @@ ${labelLines}
       DATA_DIR: /data
     tmpfs:
       - /data:size=256m,mode=0700
+    ports:
+      - "127.0.0.1:${textBlockPort}:9000"
     labels:
 ${labelLines}
     healthcheck:
@@ -177,7 +188,7 @@ ${labelLines}
       S3_ACCESS_KEY_ID: ${JSON.stringify(credentials.filesAccessKey)}
       S3_SECRET_ACCESS_KEY: ${JSON.stringify(credentials.filesSecretKey)}
     ports:
-      - "127.0.0.1:${port}:2747"
+      - "127.0.0.1:${rpcPort}:2747"
     volumes:
       - type: bind
         source: ${JSON.stringify(binary)}
@@ -272,7 +283,7 @@ export async function main(argv) {
   const manifestPath = path.join(runRoot, "candidate-manifest.json");
   const identityPath = path.join(runRoot, "runtime-identity.json");
   const targetPath = path.join(runRoot, "target");
-  const port = await freePort();
+  const [rpcPort, textBlockPort] = await freePorts(2);
   const labels = {
     "com.rokurolize.wikijump.owner": OWNER,
     "com.rokurolize.wikijump.expiry": expiresAt,
@@ -317,7 +328,8 @@ export async function main(argv) {
       migrations: path.join(args.repository, "deepwell/migrations"),
       locales: path.join(args.repository, "locales"),
       seeder: path.join(args.repository, "deepwell/seeder"),
-      port,
+      rpcPort,
+      textBlockPort,
       credentials,
     });
     await fsp.writeFile(composePath, compose, {mode: 0o600});
@@ -327,6 +339,11 @@ export async function main(argv) {
     run("docker", [
       "compose", "-p", project, "-f", composePath,
       "up", "--detach", "--wait", "--wait-timeout", "600", "deepwell",
+    ]);
+    run("docker", [
+      "compose", "-p", project, "-f", composePath,
+      "exec", "--no-TTY", "files", "sh", "-ec",
+      'mc alias -q set local http://127.0.0.1:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null; mc anonymous set download local/deepwell-text-blocks >/dev/null',
     ]);
     const ratingUpdate = run("docker", [
       "compose", "-p", project, "-f", composePath,
@@ -359,7 +376,8 @@ export async function main(argv) {
       ...args.captures.flatMap((file) => ["--captures", file]),
       ...args.externalReferences.flatMap((file) => ["--external-reference", file]),
       "--runtime-identity", identityPath,
-      "--rpc-url", `http://127.0.0.1:${port}/jsonrpc`,
+      "--rpc-url", `http://127.0.0.1:${rpcPort}/jsonrpc`,
+      "--text-block-url", `http://127.0.0.1:${textBlockPort}/deepwell-text-blocks/`,
       "--site", args.site,
       "--output", args.output,
     ];

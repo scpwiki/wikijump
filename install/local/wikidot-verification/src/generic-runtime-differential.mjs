@@ -1,4 +1,10 @@
 import {canonicalDom, sha256, validateWikidotReference, visibleText} from './syntax-differential.mjs';
+import {
+  bindLocalHtmlBlockPayloads,
+  countLocalHtmlBlockHandles,
+  projectRuntimeHtmlBlocks,
+  sha1,
+} from './runtime-html-blocks.mjs';
 import {validateRuntimeIdentity} from './saved-page-runtime-differential.mjs';
 import {extractMarkedFragments} from '../scripts/verify-ftml-live-pages.mjs';
 
@@ -213,6 +219,13 @@ function hasClass(node, className) {
   return attribute(node, 'class')?.split(/\s+/u).includes(className) ?? false;
 }
 
+function containsHtmlBlockIframe(nodes) {
+  return nodes.some((node) =>
+    (node.type === 'element' && node.name === 'iframe' && hasClass(node, 'html-block-iframe')) ||
+    containsHtmlBlockIframe(node.children ?? [])
+  );
+}
+
 function isTabviewRoot(node) {
   return node?.type === 'element' && node.name === 'div' && hasClass(node, 'yui-navset');
 }
@@ -390,16 +403,66 @@ function tabviewTransportStatus(wikidot, wikijump) {
   return 'mismatch';
 }
 
-export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
+export function compareRuntimeFragment(
+  runtimeCase,
+  wikidotHtml,
+  wikijumpHtml,
+  {pageSlug = null, wikijumpIdentityHtml = null, htmlBlockBinding = null} = {},
+) {
   const wikidotDom = canonicalDom(wikidotHtml);
   const wikijumpDom = canonicalDom(wikijumpHtml);
   const wikidotText = visibleText(wikidotHtml);
   const wikijumpText = visibleText(wikijumpHtml);
   const domMatches = JSON.stringify(wikidotDom) === JSON.stringify(wikijumpDom);
   const textMatches = wikidotText === wikijumpText;
+  const hasHtmlBlocks =
+    /\[\[\s*html(?:\s|\])/iu.test(runtimeCase.source) ||
+    htmlBlockBinding != null ||
+    containsHtmlBlockIframe(wikidotDom) ||
+    containsHtmlBlockIframe(wikijumpDom);
+  const wikidotHtmlBlocks = hasHtmlBlocks
+    ? projectRuntimeHtmlBlocks(wikidotDom, {side: 'wikidot', pageSlug})
+    : null;
+  const wikijumpHtmlBlocks = hasHtmlBlocks && wikijumpIdentityHtml != null
+    ? projectRuntimeHtmlBlocks(canonicalDom(wikijumpIdentityHtml), {
+        side: 'wikijump',
+        pageSlug,
+      })
+    : null;
+  const htmlBlockPayloadsMatch =
+    hasHtmlBlocks &&
+    htmlBlockBinding?.status === 'tracked' &&
+    wikidotHtmlBlocks != null &&
+    wikijumpHtmlBlocks != null &&
+    !wikidotHtmlBlocks.invalid &&
+    !wikijumpHtmlBlocks.invalid &&
+    JSON.stringify(wikidotHtmlBlocks.blocks.map(({sha1: digest}) => digest)) ===
+      JSON.stringify(wikijumpHtmlBlocks.blocks.map(({sha1: digest}) => digest));
+  const htmlBlockProjectedDomMatches =
+    htmlBlockPayloadsMatch &&
+    JSON.stringify(wikidotHtmlBlocks.dom) === JSON.stringify(wikijumpHtmlBlocks.dom);
+  const effectiveWikidotDom = htmlBlockPayloadsMatch ? wikidotHtmlBlocks.dom : wikidotDom;
+  const effectiveWikijumpDom = htmlBlockPayloadsMatch ? wikijumpHtmlBlocks.dom : wikijumpDom;
+  const effectiveDomMatches = hasHtmlBlocks
+    ? htmlBlockProjectedDomMatches
+    : domMatches;
+  const htmlBlockChecks = hasHtmlBlocks
+    ? {
+        html_block_contract: {
+          status: htmlBlockProjectedDomMatches ? 'match' : 'mismatch',
+          binding: htmlBlockBinding,
+          wikidot: wikidotHtmlBlocks == null
+            ? null
+            : {invalid: wikidotHtmlBlocks.invalid, blocks: wikidotHtmlBlocks.blocks},
+          wikijump: wikijumpHtmlBlocks == null
+            ? null
+            : {invalid: wikijumpHtmlBlocks.invalid, blocks: wikijumpHtmlBlocks.blocks},
+        },
+      }
+    : {};
   const hasTabview = /\[\[(?:tabs|tabview)(?:\s|\])/iu.test(runtimeCase.source);
-  const wikidotTabview = hasTabview ? tabviewProjection(wikidotDom) : null;
-  const wikijumpTabview = hasTabview ? tabviewProjection(wikijumpDom) : null;
+  const wikidotTabview = hasTabview ? tabviewProjection(effectiveWikidotDom) : null;
+  const wikijumpTabview = hasTabview ? tabviewProjection(effectiveWikijumpDom) : null;
   const tabviewStaticMatches = hasTabview &&
     wikidotTabview.roots.length > 0 &&
     JSON.stringify(wikidotTabview.roots) === JSON.stringify(wikijumpTabview.roots);
@@ -423,6 +486,7 @@ export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
   if (
     hasTabview &&
     tabviewStaticMatches &&
+    (!hasHtmlBlocks || htmlBlockProjectedDomMatches) &&
     textMatches &&
     ['match', 'expected-platform-substitution'].includes(tabviewTransport)
   ) {
@@ -432,18 +496,20 @@ export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
       checks: {
         dom_tree: {status: domMatches ? 'match' : 'mismatch'},
         visible_text: {status: 'match', wikidot: wikidotText, wikijump: wikijumpText},
+        ...htmlBlockChecks,
         ...tabviewChecks,
       },
       diagnostic: {wikidot_html: wikidotHtml, wikijump_html: wikijumpHtml},
     };
   }
-  if (domMatches && textMatches) {
+  if (effectiveDomMatches && textMatches) {
     return {
       case_id: runtimeCase.case_id,
       status: 'match',
       checks: {
-        dom_tree: {status: 'match'},
+        dom_tree: {status: domMatches ? 'match' : 'mismatch'},
         visible_text: {status: 'match', wikidot: wikidotText, wikijump: wikijumpText},
+        ...htmlBlockChecks,
         ...tabviewChecks,
       },
     };
@@ -460,6 +526,7 @@ export function compareRuntimeFragment(runtimeCase, wikidotHtml, wikijumpHtml) {
         wikidot: wikidotText,
         wikijump: wikijumpText,
       },
+      ...htmlBlockChecks,
       ...tabviewChecks,
     },
     diagnostic: {wikidot_html: wikidotHtml, wikijump_html: wikijumpHtml},
@@ -516,10 +583,19 @@ export async function runGenericRuntimeDifferential({
           source: capture.saved_source,
           source_sha256: capture.saved_source_sha256,
         },
-        async (compiledBodyHtml) => {
+        async (compiledBodyHtml, htmlBlockEvidence = {iframe_count: 0, blocks: []}) => {
+          const boundHtmlBlocks = bindLocalHtmlBlockPayloads(
+            compiledBodyHtml,
+            htmlBlockEvidence.blocks,
+          );
           let fragments = null;
+          let identityFragments = null;
           try {
             fragments = extractMarkedFragments(compiledBodyHtml, capture.page_plan);
+            identityFragments = extractMarkedFragments(
+              boundHtmlBlocks.html,
+              capture.page_plan,
+            );
           } catch {
             // A syntax case can consume or suppress its own sentinel without
             // invalidating later, independently extractable cases on the page.
@@ -527,11 +603,21 @@ export async function runGenericRuntimeDifferential({
           for (const caseId of page.case_ids) {
             const marker = capture.page_plan.cases.find((value) => value.case_id === caseId);
             let localHtml = fragments?.get(caseId);
+            let localIdentityHtml = identityFragments?.get(caseId);
             try {
               if (localHtml == null) {
                 localHtml = extractMarkedFragments(compiledBodyHtml, {cases: [marker]}).get(caseId);
               }
+              if (localIdentityHtml == null) {
+                localIdentityHtml = extractMarkedFragments(
+                  boundHtmlBlocks.html,
+                  {cases: [marker]},
+                ).get(caseId);
+              }
               if (localHtml == null) throw new Error(`local marker extraction failed: ${caseId}`);
+              if (localIdentityHtml == null) {
+                throw new Error(`local HTML block identity extraction failed: ${caseId}`);
+              }
             } catch (error) {
               pageComparisons.push({
                 case_id: caseId,
@@ -544,10 +630,37 @@ export async function runGenericRuntimeDifferential({
               continue;
             }
             const reference = selection.selected.get(caseId);
+            const runtimeCase = selection.casesById.get(caseId);
+            const localBlockProjection = projectRuntimeHtmlBlocks(
+              canonicalDom(localIdentityHtml),
+              {side: 'wikijump', pageSlug: capture.page_plan.slug},
+            );
+            const hasCaseHtmlBlocks =
+              /\[\[\s*html(?:\s|\])/iu.test(runtimeCase.source) ||
+              countLocalHtmlBlockHandles(localHtml) > 0 ||
+              reference.wikidot_html.includes('html-block-iframe');
+            const caseBlocks = localBlockProjection.blocks.map((block) =>
+              htmlBlockEvidence.blocks[block.stored_index - 1]
+            ).filter(Boolean);
+            const caseBinding = hasCaseHtmlBlocks
+              ? {
+                  status: boundHtmlBlocks.binding.status,
+                  iframe_count: countLocalHtmlBlockHandles(localHtml),
+                  stored_block_count: caseBlocks.length,
+                  page_iframe_count: boundHtmlBlocks.binding.iframe_count,
+                  page_stored_block_count: boundHtmlBlocks.binding.stored_block_count,
+                  blocks: caseBlocks,
+                }
+              : null;
             const comparison = compareRuntimeFragment(
-              selection.casesById.get(caseId),
+              runtimeCase,
               reference.wikidot_html,
               localHtml,
+              {
+                pageSlug: capture.page_plan.slug,
+                wikijumpIdentityHtml: localIdentityHtml,
+                htmlBlockBinding: caseBinding,
+              },
             );
             pageComparisons.push({
               ...comparison,
@@ -618,7 +731,15 @@ export async function runGenericRuntimeDifferential({
 }
 
 export class DeepwellRpcAdapter {
-  constructor({rpcUrl, siteSlug, administratorEmail, administratorPassword, fetchImpl = fetch}) {
+  constructor({
+    rpcUrl,
+    textBlockBaseUrl,
+    siteSlug,
+    administratorEmail,
+    administratorPassword,
+    fetchImpl = fetch,
+    textBlockFetchImpl = fetch,
+  }) {
     if (siteSlug !== 'sandbox-for-codex') {
       throw new Error('Deepwell RPC adapter accepts only sandbox-for-codex');
     }
@@ -634,11 +755,25 @@ export class DeepwellRpcAdapter {
     ) {
       throw new Error('Deepwell RPC URL must be one loopback HTTP /jsonrpc endpoint');
     }
+    const blockUrl = new URL(textBlockBaseUrl);
+    if (
+      blockUrl.protocol !== 'http:' ||
+      !['127.0.0.1', '[::1]', 'localhost'].includes(blockUrl.hostname) ||
+      blockUrl.pathname !== '/deepwell-text-blocks/' ||
+      blockUrl.username ||
+      blockUrl.password ||
+      blockUrl.search ||
+      blockUrl.hash
+    ) {
+      throw new Error('text block URL must be one loopback HTTP deepwell-text-blocks bucket');
+    }
     this.rpcUrl = url.href;
+    this.textBlockBaseUrl = blockUrl.href;
     this.siteSlug = siteSlug;
     this.administratorEmail = administratorEmail;
     this.administratorPassword = administratorPassword;
     this.fetchImpl = fetchImpl;
+    this.textBlockFetchImpl = textBlockFetchImpl;
     this.nextId = 1;
     this.connection = null;
   }
@@ -695,7 +830,69 @@ export class DeepwellRpcAdapter {
     });
   }
 
-  async removeCreatedPage(page, created, inspected) {
+  async getHtmlBlockIndex(pageId, index) {
+    return await this.rpc('text_block_get_index', {
+      site_id: this.connection.siteId,
+      page_id: pageId,
+      block_type: 'html',
+      index,
+      name: null,
+      session_token: this.connection.sessionToken,
+    });
+  }
+
+  textBlockObjectUrl(filename) {
+    return new URL(encodeURIComponent(filename), this.textBlockBaseUrl).href;
+  }
+
+  async readHtmlBlocks(pageId, compiledBodyHtml) {
+    const iframeCount = countLocalHtmlBlockHandles(compiledBodyHtml);
+    const blocks = [];
+    const scanLimit = Math.min(iframeCount + 1, 32_767);
+    for (let index = 1; index <= scanLimit; index += 1) {
+      const block = await this.getHtmlBlockIndex(pageId, index);
+      if (block == null) break;
+      const expectedFilename = `${pageId}_html_${index}`;
+      if (block.index !== index || block.s3_filename !== expectedFilename) {
+        throw new Error(`local HTML block identity changed at index ${index}`);
+      }
+      const objectUrl = this.textBlockObjectUrl(block.s3_filename);
+      const response = await this.textBlockFetchImpl(objectUrl, {
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (!response.ok) {
+        throw new Error(`local HTML block ${index} returned HTTP ${response.status}`);
+      }
+      const bytes = Buffer.from(await response.arrayBuffer());
+      blocks.push({
+        index,
+        s3_filename: block.s3_filename,
+        bytes: bytes.length,
+        sha1: sha1(bytes),
+        sha256: sha256(bytes),
+      });
+    }
+    return {
+      iframe_count: iframeCount,
+      blocks,
+    };
+  }
+
+  async assertHtmlBlocksRemoved(blocks) {
+    for (const block of blocks) {
+      const response = await this.textBlockFetchImpl(
+        this.textBlockObjectUrl(block.s3_filename),
+        {signal: AbortSignal.timeout(30_000)},
+      );
+      if (response.status !== 404) {
+        throw new Error(
+          `local HTML block remained after cleanup: ${block.s3_filename} returned HTTP ${response.status}`,
+        );
+      }
+    }
+  }
+
+  async removeCreatedPage(page, created, inspected, htmlBlocks = []) {
     let latest = inspected;
     if (!latest) {
       try {
@@ -723,7 +920,13 @@ export class DeepwellRpcAdapter {
     if (await this.getPage(page.slug)) {
       throw new Error(`local runtime page remained after cleanup: ${page.slug}`);
     }
-    return {slug: page.slug, page_id: pageId, status: 'removed'};
+    await this.assertHtmlBlocksRemoved(htmlBlocks);
+    return {
+      slug: page.slug,
+      page_id: pageId,
+      status: 'removed',
+      html_block_objects_removed: htmlBlocks.length,
+    };
   }
 
   async withCompiledPage(page, inspect) {
@@ -735,6 +938,7 @@ export class DeepwellRpcAdapter {
     let created = null;
     let inspected = null;
     let cleanup = null;
+    let htmlBlockEvidence = {iframe_count: 0, blocks: []};
     let operationError = null;
     let cleanupError = null;
     try {
@@ -764,7 +968,11 @@ export class DeepwellRpcAdapter {
       ) {
         throw new Error(`local runtime page did not round-trip: ${page.slug}`);
       }
-      await inspect(inspected.compiled_body_html);
+      htmlBlockEvidence = await this.readHtmlBlocks(
+        inspected.page_id,
+        inspected.compiled_body_html,
+      );
+      await inspect(inspected.compiled_body_html, htmlBlockEvidence);
     } catch (error) {
       operationError = error;
     } finally {
@@ -778,7 +986,12 @@ export class DeepwellRpcAdapter {
       }
       if (created || cleanupTarget) {
         try {
-          cleanup = await this.removeCreatedPage(page, created, cleanupTarget);
+          cleanup = await this.removeCreatedPage(
+            page,
+            created,
+            cleanupTarget,
+            htmlBlockEvidence.blocks,
+          );
         } catch (error) {
           cleanupError = new RuntimeCleanupError(
             `local runtime cleanup failed for ${page.slug}: ${error instanceof Error ? error.message : String(error)}`,
@@ -794,6 +1007,7 @@ export class DeepwellRpcAdapter {
       source_sha256: page.source_sha256,
       page_id: inspected.page_id,
       revision_id: inspected.revision_id,
+      html_blocks: htmlBlockEvidence.blocks,
       cleanup,
     };
   }
