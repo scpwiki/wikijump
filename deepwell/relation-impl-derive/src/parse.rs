@@ -1,7 +1,8 @@
 use crate::case::pascal_to_snake_case;
+use crate::types::GenerateMethod;
 use crate::util::*;
 use syn::parse::{Parse, ParseStream};
-use syn::{Ident, LitBool, Token, Type};
+use syn::{Ident, Token, Type};
 
 pub struct RelationSettings {
     pub struct_name: String,
@@ -9,8 +10,8 @@ pub struct RelationSettings {
     pub dest: (Ident, Type),
     pub from: (Ident, Type),
     pub data_type: Option<Type>,
-    pub create_fn: bool,
-    pub remove_fn: bool,
+    pub create_fn: GenerateMethod,
+    pub remove_fn: GenerateMethod,
 }
 
 impl Parse for RelationSettings {
@@ -88,21 +89,27 @@ impl Parse for RelationSettings {
                 // Designate how the create method should be generated
                 // This key is optional, default is "true".
                 //
-                //  create_fn => false
+                // If set to "extern", then neither the method nor the
+                // corresponding struct are generated.
+                //
+                //  create_fn => extern
                 "create_fn" => {
                     error_if_set!(create_fn);
-                    let t_bool: LitBool = input.parse()?;
-                    create_fn = Some(t_bool.value);
+                    let option = GenerateMethod::parse(input)?;
+                    create_fn = Some(option);
                 }
 
                 // Designate how the remove method should be generated
                 // This key is optional, default is "true".
                 //
+                // If set to "extern", then neither the method nor the
+                // corresponding struct are generated.
+                //
                 //  remove_fn => true
                 "remove_fn" => {
                     error_if_set!(remove_fn);
-                    let t_bool: LitBool = input.parse()?;
-                    remove_fn = Some(t_bool.value);
+                    let option = GenerateMethod::parse(input)?;
+                    remove_fn = Some(option);
                 }
 
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
@@ -125,8 +132,8 @@ impl Parse for RelationSettings {
         let from = from.ok_or_else(|| make_error("no 'from' argument passed"))?;
         // Default fields
         let data_type = data_type.unwrap_or(None);
-        let create_fn = create_fn.unwrap_or(true);
-        let remove_fn = remove_fn.unwrap_or(true);
+        let create_fn = create_fn.unwrap_or(GenerateMethod::default());
+        let remove_fn = remove_fn.unwrap_or(GenerateMethod::default());
 
         Ok(RelationSettings {
             struct_name,
