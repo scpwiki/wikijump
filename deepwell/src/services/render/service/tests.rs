@@ -9247,15 +9247,15 @@ fn direct_root_source_unwraps_unbound_dynamic_iftags() {
 }
 
 #[test]
-fn direct_ordinary_iftags_without_includes_remain_for_ftml() {
-    let original = "[[iftags +missing]]\n[[code]]\n[[/iftags]]\nunclosed code".to_owned();
+fn direct_inactive_iftags_closes_before_unclosed_code() {
+    let mut source =
+        "[[iftags +missing]]\n[[code]]\n[[/iftags]]\nunclosed code".to_owned();
     let page_info = fallback_test_page_info("root", "Root");
-    let mut source = original.clone();
 
     prepare_test_wikidot_conditionals_before_include_expansion(&mut source, &page_info);
     prepare_test_wikidot_conditionals(&mut source, &page_info);
 
-    assert_eq!(source, original);
+    assert_eq!(source, "\nunclosed code");
 
     let rendered = render_wikidot_conditionals_with_tags(&source, &[]);
     assert!(rendered.contains("unclosed code"), "{rendered}");

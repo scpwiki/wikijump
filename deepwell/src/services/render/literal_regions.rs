@@ -102,6 +102,11 @@ impl LiteralRegionIndex {
         }
     }
 
+    pub(super) fn containing_range(&self, offset: usize) -> Option<&Range<usize>> {
+        let index = self.ranges.partition_point(|range| range.end <= offset);
+        self.ranges.get(index).filter(|range| range.start <= offset)
+    }
+
     /// Legacy literal ownership used while expanding CountPages modules.
     ///
     /// This preserves the former fail-closed line-prefix rules while replacing their per-capture prefix rescans with one linear index build.

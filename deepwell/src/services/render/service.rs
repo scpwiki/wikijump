@@ -52,7 +52,7 @@ use super::ftml_page_existence::{
 use super::ftml_user_info::UserInfoSnapshot;
 use super::generator::COMPILED_GENERATOR;
 use super::iftags::{
-    has_unclosed_hidden_body_inside_iftags, resolve_outermost_wikidot_iftags,
+    resolve_outermost_wikidot_iftags,
     resolve_outermost_wikidot_iftags_before_include_expansion,
 };
 use super::include_attachment_owners::{
@@ -2196,11 +2196,7 @@ impl RenderService {
         if wikitext.contains("[[#") {
             *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         }
-        if has_include_opening_candidate(wikitext)
-            || !has_unclosed_hidden_body_inside_iftags(wikitext)
-        {
-            Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
-        }
+        Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
     }
 
     fn normalize_wikidot_cross_closed_div_collapsibles(wikitext: &mut String) {
@@ -2307,15 +2303,11 @@ impl RenderService {
         if wikitext.contains("[[#") {
             *wikitext = ftml::preproc::resolve_wikidot_parser_functions(wikitext);
         }
-        if has_include_opening_candidate(wikitext)
-            || !has_unclosed_hidden_body_inside_iftags(wikitext)
-        {
-            resolve_outermost_wikidot_iftags_before_include_expansion(
-                wikitext,
-                &page_info.tags,
-                preserved,
-            );
-        }
+        resolve_outermost_wikidot_iftags_before_include_expansion(
+            wikitext,
+            &page_info.tags,
+            preserved,
+        );
     }
 
     fn resolve_wikidot_iftags(

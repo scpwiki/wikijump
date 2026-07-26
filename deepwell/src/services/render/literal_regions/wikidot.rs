@@ -111,6 +111,7 @@ struct WikidotLiteralPolicy {
     runtime_extended: bool,
     fail_closed_inline: bool,
     own_generic_tag_heads: bool,
+    own_module_bodies: bool,
 }
 
 #[cfg(test)]
@@ -121,12 +122,14 @@ const LIST_PAGES_LITERAL_POLICY: WikidotLiteralPolicy = WikidotLiteralPolicy {
     // itself. Masking those prefixes here would hide malformed module heads
     // before the scanner can apply its fail-closed policy.
     own_generic_tag_heads: false,
+    own_module_bodies: false,
 };
 
 const CONDITIONAL_LITERAL_POLICY: WikidotLiteralPolicy = WikidotLiteralPolicy {
     runtime_extended: false,
     fail_closed_inline: false,
     own_generic_tag_heads: false,
+    own_module_bodies: true,
 };
 
 pub(super) fn collect_wikidot_conditional_literal_ranges(
@@ -213,6 +216,7 @@ fn collect_wikidot_literal_ranges(
                         cursor,
                         body_end,
                         policy.runtime_extended,
+                        policy.own_module_bodies,
                         &mut text_tokens,
                     ) {
                         let close_start = if opener_end < body_end {
@@ -387,6 +391,7 @@ fn wikidot_literal_block(
     start: usize,
     line_end: usize,
     runtime_extended: bool,
+    own_module_bodies: bool,
     text_tokens: &mut TextTokenCursor,
 ) -> Option<(&'static str, usize)> {
     let mut lookahead_tokens = text_tokens.clone();
@@ -404,8 +409,10 @@ fn wikidot_literal_block(
         *text_tokens = lookahead_tokens;
         return Some(("[[/raw]]", content_start));
     }
+    let is_module = own_module_bodies && name.eq_ignore_ascii_case("module");
     let (opener_end, head_end) = if name.eq_ignore_ascii_case("code")
         || name.eq_ignore_ascii_case("html")
+        || is_module
         || (runtime_extended && name.eq_ignore_ascii_case("math"))
     {
         let end =
@@ -419,6 +426,8 @@ fn wikidot_literal_block(
         "[[/code]]"
     } else if name.eq_ignore_ascii_case("html") {
         "[[/html]]"
+    } else if is_module {
+        "[[/module]]"
     } else if runtime_extended && name.eq_ignore_ascii_case("math") {
         "[[/math]]"
     } else if runtime_extended
