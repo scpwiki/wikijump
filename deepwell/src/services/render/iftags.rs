@@ -210,7 +210,11 @@ fn inactive_gate_closes_inside_literal(
     if head.starts_with("[!--") {
         return true;
     }
-    for (open, close) in [("[[code", "[[/code]]"), ("[[html", "[[/html]]")] {
+    for (open, close) in [
+        ("[[code", "[[/code]]"),
+        ("[[html", "[[/html]]"),
+        ("[[module", "[[/module]]"),
+    ] {
         if head.starts_with(open) {
             return !source[closer_end..literal.end]
                 .to_ascii_lowercase()
@@ -582,6 +586,36 @@ mod tests {
             (
                 "[[iftags +missing]]\n[[raw]]\n[[/iftags]]\nunclosed raw",
                 "\nunclosed raw",
+            ),
+            (
+                concat!(
+                    "[[iftags +missing]]\n",
+                    "[[module Rate]]\n",
+                    "[[html]]\n",
+                    "<b>guarded</b>\n",
+                    "[[/html]]\n",
+                    "[[/iftags]]\n",
+                    "visible",
+                ),
+                "\nvisible",
+            ),
+            (
+                concat!(
+                    "[[iftags +missing]]\n",
+                    "[[module CSS]]\n",
+                    "[[/iftags]]\n",
+                    ".unclosed { color: red; }",
+                ),
+                "\n.unclosed { color: red; }",
+            ),
+            (
+                concat!(
+                    "[[iftags +missing]]\n",
+                    "[[module ListPages]]\n",
+                    "[[/iftags]]\n",
+                    "unclosed module",
+                ),
+                "\nunclosed module",
             ),
         ] {
             assert_eq!(resolve(source, &[], 1), expected);
