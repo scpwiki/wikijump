@@ -1,4 +1,5 @@
 use crate::parse::RelationSettings;
+use crate::types::GenerateMethod;
 use syn::Type;
 
 #[test]
@@ -37,8 +38,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "second");
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
-        assert!(settings.create_fn);
-        assert!(settings.remove_fn);
+        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
 
     {
@@ -57,8 +58,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "user_id");
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
-        assert!(settings.create_fn);
-        assert!(settings.remove_fn);
+        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
 
     {
@@ -76,8 +77,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "user_id");
         assert_type(settings.from.1, "User");
         assert!(settings.data_type.is_none());
-        assert!(settings.create_fn);
-        assert!(settings.remove_fn);
+        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
 
     {
@@ -96,8 +97,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "blocking_user");
         assert_type(settings.from.1, "User");
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
-        assert!(settings.create_fn);
-        assert!(settings.remove_fn);
+        assert_eq!(settings.create_fn, GenerateMethod::PublicImpl);
+        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
 
     {
@@ -117,8 +118,8 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "user_id");
         assert_type(settings.from.1, "User");
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
-        assert!(!settings.create_fn);
-        assert!(settings.remove_fn);
+        assert_eq!(settings.create_fn, GenerateMethod::PrivateImpl);
+        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
 
     {
@@ -138,7 +139,7 @@ fn parse() {
         assert_eq!(settings.from.0.to_string(), "owner_user");
         assert_type(settings.from.1, "User");
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
-        assert!(!settings.create_fn);
-        assert!(settings.remove_fn);
+        assert_eq!(settings.create_fn, GenerateMethod::PrivateImpl);
+        assert_eq!(settings.remove_fn, GenerateMethod::PublicImpl);
     }
 }

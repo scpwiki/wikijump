@@ -1,9 +1,9 @@
 use crate::parse::RelationSettings;
+use crate::types::GenerateMethod;
 use crate::util::make_ident;
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::token::Pub;
-use syn::{Ident, Type, Visibility};
+use syn::{Ident, Type};
 
 pub fn expand_stream(
     RelationSettings {
@@ -27,15 +27,29 @@ pub fn expand_stream(
 
     let get_method_impl = generate_get_methods(context);
 
-    let CreateDefinitions {
-        create_struct_def,
-        create_method_impl,
-    } = generate_create_defs(context, data_type.as_ref(), create_fn);
+    let (create_struct_def, create_method_impl) =
+        match generate_create_defs(context, data_type.as_ref(), create_fn) {
+            // Enabled, set both
+            Some(CreateDefinitions {
+                create_struct_def,
+                create_method_impl,
+            }) => (Some(create_struct_def), Some(create_method_impl)),
 
-    let RemoveDefinitions {
-        remove_struct_def,
-        remove_method_impl,
-    } = generate_remove_defs(context, remove_fn);
+            // Disabled, don't insert anything
+            None => (None, None),
+        };
+
+    let (remove_struct_def, remove_method_impl) =
+        match generate_remove_defs(context, remove_fn) {
+            // Enabled, set both
+            Some(RemoveDefinitions {
+                remove_struct_def,
+                remove_method_impl,
+            }) => (Some(remove_struct_def), Some(remove_method_impl)),
+
+            // Disabled, don't insert anything
+            None => (None, None),
+        };
 
     quote! {
         impl RelationService {
@@ -166,8 +180,12 @@ fn generate_create_defs(
         from_type,
     }: GenerationContext,
     data_type: Option<&Type>,
-    create_fn: bool,
-) -> CreateDefinitions {
+    create_fn: GenerateMethod,
+) -> Option<CreateDefinitions> {
+    let Some((vis, suffix)) = create_fn.into_vis_and_suffix() else {
+        return None;
+    };
+
     let create_struct = make_ident(format!("Create{}", struct_name));
     let create_struct_def = match data_type {
         Some(data_type) => quote! {
@@ -190,12 +208,6 @@ fn generate_create_defs(
     };
 
     let create_method_impl = {
-        let (vis, suffix) = if create_fn {
-            (public(), "")
-        } else {
-            (private(), "_inner")
-        };
-
         let error_name = make_ident(format!("{}Relation", struct_name));
         let method_name = make_ident(format!("create_{field_name}{suffix}"));
 
@@ -268,10 +280,10 @@ fn generate_create_defs(
         }
     };
 
-    CreateDefinitions {
+    Some(CreateDefinitions {
         create_struct_def,
         create_method_impl,
-    }
+    })
 }
 
 fn generate_remove_defs(
@@ -283,10 +295,13 @@ fn generate_remove_defs(
         from_name,
         from_type,
     }: GenerationContext,
-    remove_fn: bool,
-) -> RemoveDefinitions {
-    let remove_struct = make_ident(format!("Remove{}", struct_name));
+    remove_fn: GenerateMethod,
+) -> Option<RemoveDefinitions> {
+    let Some((vis, suffix)) = remove_fn.into_vis_and_suffix() else {
+        return None;
+    };
 
+    let remove_struct = make_ident(format!("Remove{}", struct_name));
     let remove_struct_def = quote! {
         #[derive(Deserialize, Debug, Copy, Clone)]
         pub struct #remove_struct {
@@ -297,12 +312,6 @@ fn generate_remove_defs(
     };
 
     let remove_method_impl = {
-        let (vis, suffix) = if remove_fn {
-            (public(), "")
-        } else {
-            (private(), "_inner")
-        };
-
         let method_name = make_ident(format!("remove_{field_name}{suffix}"));
 
         quote! {
@@ -327,10 +336,10 @@ fn generate_remove_defs(
         }
     };
 
-    RemoveDefinitions {
+    Some(RemoveDefinitions {
         remove_struct_def,
         remove_method_impl,
-    }
+    })
 }
 
 // Helpers
@@ -353,14 +362,4 @@ struct CreateDefinitions {
 struct RemoveDefinitions {
     remove_struct_def: TokenStream,
     remove_method_impl: TokenStream,
-}
-
-#[inline]
-fn public() -> Visibility {
-    Visibility::Public(Pub(Span::call_site()))
-}
-
-#[inline]
-fn private() -> Visibility {
-    Visibility::Inherited
 }
