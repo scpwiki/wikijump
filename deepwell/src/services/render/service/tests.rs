@@ -5571,11 +5571,76 @@ fn wikidot_compatibility_fallback_collects_html_blocks_as_iframes() {
     );
 
     assert_eq!(output.html_block_texts.len(), 1);
-    assert!(output.html_block_texts[0].contains("<script src="));
-    assert!(output.body.contains(r#"<div class="audio_iframe INTRO"><iframe src="/scp-anthology-2024/html/1" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe></div>"#));
+    assert_eq!(
+        output.html_block_texts[0],
+        concat!(
+            "\n",
+            "<html>\n",
+            "<body><script src=\"https://example.test/audio.js\"></script></body>\n",
+            "</html>\n",
+        ),
+    );
+    assert!(output.body.contains(r#"<div class="audio_iframe INTRO"><p><iframe src="/scp-anthology-2024/html/1" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe></p></div>"#));
     assert!(!output.body.contains("&lt;script"));
     assert!(!output.body.contains("[[html]]"));
     assert!(!output.body.contains("[[/html]]"));
+}
+
+#[test]
+fn wikidot_compatibility_fallback_starts_a_paragraph_at_html_blocks() {
+    let source = concat!(
+        "raw-math}\n",
+        "[[/math]]\n",
+        "[[html]]\n",
+        "<b>guarded</b>\n",
+        "[[/html]]\n",
+        "[[/iftags]]\n",
+        "visible",
+    );
+
+    let output = RenderService::render_wikidot_compatibility_fallback_output_for_context(
+        source,
+        Some("runtime-case"),
+        Some("scp-wiki"),
+        None,
+    );
+
+    assert_eq!(
+        output.body,
+        concat!(
+            "<div class=\"wikidot-compat-fallback\">",
+            "<p>raw-math}\n[[/math]]</p>",
+            "<p><iframe src=\"/runtime-case/html/1\" allowtransparency=\"true\" frameborder=\"0\" class=\"html-block-iframe\"></iframe>",
+            "[[/iftags]]\n",
+            "visible</p>",
+            "</div>",
+        ),
+    );
+}
+
+#[test]
+fn wikidot_compatibility_fallback_applies_typography_to_recovered_text() {
+    let output = RenderService::render_wikidot_compatibility_fallback_output_for_context(
+        concat!(
+            "raw-comment --] <a href=\"/local--files/runtime-case/file.txt\">visible -- dash</a>\n",
+            "[[html]]\n",
+            "<b>guarded</b>\n",
+            "[[/html]]\n",
+        ),
+        Some("runtime-case"),
+        Some("scp-wiki"),
+        None,
+    );
+
+    assert!(output.body.contains("raw-comment —]"), "{}", output.body);
+    assert!(output.body.contains("visible — dash"), "{}", output.body);
+    assert!(
+        output
+            .body
+            .contains(r#"href="/local--files/runtime-case/file.txt""#),
+        "{}",
+        output.body,
+    );
 }
 
 #[test]

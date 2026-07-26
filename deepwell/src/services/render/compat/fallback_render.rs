@@ -32,6 +32,7 @@ use super::super::service::{
     escape_list_pages_html_attr, escape_list_pages_html_text, push_escaped_html,
     render_native_list_inline_html_with_titles, render_native_list_inline_wikidot_spans,
 };
+use super::color_and_inline_protection::substitute_wikidot_protected_inline_dashes_in_html;
 use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
@@ -53,6 +54,12 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::time::Duration;
+
+#[derive(Debug, Default)]
+struct FallbackParagraph {
+    text: String,
+    leading_html: String,
+}
 
 impl RenderService {
     pub(in crate::services::render) fn should_use_wikidot_compatibility_fallback(
@@ -641,7 +648,7 @@ impl RenderService {
     ) -> String {
         let text = Self::strip_wikidot_comments_from_text(text);
         let mut output = String::with_capacity(text.len());
-        let mut paragraph = String::new();
+        let mut paragraph = FallbackParagraph::default();
         let mut tabview_open = false;
         let mut tab_open = false;
         let mut size_depth = 0usize;
@@ -682,18 +689,18 @@ impl RenderService {
                         current_page,
                         html_block_texts.len() + 1,
                     ) {
-                        html_block_texts.push(body.trim_matches('\n').to_owned());
+                        html_block_texts.push(body);
                         Self::push_wikidot_compat_fallback_paragraph_for_page(
                             &mut output,
                             &mut paragraph,
                             current_page,
                             link_titles,
                         );
-                        output.push_str(&iframe);
+                        paragraph.leading_html.push_str(&iframe);
                     } else {
-                        paragraph.push_str("[[html]]\n");
-                        paragraph.push_str(&body);
-                        paragraph.push_str("[[/html]]\n");
+                        paragraph.text.push_str("[[html]]\n");
+                        paragraph.text.push_str(&body);
+                        paragraph.text.push_str("[[/html]]\n");
                     }
                 } else if let Some(body) = html_body.as_mut() {
                     body.push_str(line);
@@ -711,9 +718,9 @@ impl RenderService {
                         output.push_str(&iframe);
                         output.push_str("</div>");
                     } else {
-                        paragraph.push_str("[[embed]]\n");
-                        paragraph.push_str(&body);
-                        paragraph.push_str("[[/embed]]\n");
+                        paragraph.text.push_str("[[embed]]\n");
+                        paragraph.text.push_str(&body);
+                        paragraph.text.push_str("[[/embed]]\n");
                     }
                 } else if let Some(body) = embed_body.as_mut() {
                     body.push_str(line);
@@ -740,7 +747,7 @@ impl RenderService {
                     current_page,
                     link_titles,
                 );
-                html_body = Some(String::new());
+                html_body = Some("\n".to_owned());
                 continue;
             }
 
@@ -778,8 +785,8 @@ impl RenderService {
                     output.push_str("</div>");
                     center_depth -= 1;
                 } else {
-                    paragraph.push_str(line);
-                    paragraph.push('\n');
+                    paragraph.text.push_str(line);
+                    paragraph.text.push('\n');
                 }
                 continue;
             }
@@ -970,21 +977,21 @@ impl RenderService {
                 continue;
             }
 
-            paragraph.push_str(line);
-            paragraph.push('\n');
+            paragraph.text.push_str(line);
+            paragraph.text.push('\n');
         }
 
         if let Some(body) = embed_body {
-            paragraph.push_str("[[embed]]\n");
-            paragraph.push_str(&body);
+            paragraph.text.push_str("[[embed]]\n");
+            paragraph.text.push_str(&body);
         }
         if let Some(body) = html_body {
-            paragraph.push_str("[[html]]\n");
-            paragraph.push_str(&body);
+            paragraph.text.push_str("[[html]]\n");
+            paragraph.text.push_str(&body);
         }
         if let Some(body) = tabview_body {
-            paragraph.push_str("[[tabview]]\n");
-            paragraph.push_str(&body);
+            paragraph.text.push_str("[[tabview]]\n");
+            paragraph.text.push_str(&body);
         }
         Self::push_wikidot_compat_fallback_paragraph_for_page(
             &mut output,
@@ -1402,30 +1409,29 @@ impl RenderService {
         (!attributes.is_empty()).then_some(attributes)
     }
 
-    #[allow(dead_code)]
-    fn push_wikidot_compat_fallback_paragraph(body: &mut String, paragraph: &mut String) {
-        Self::push_wikidot_compat_fallback_paragraph_for_page(
-            body, paragraph, None, None,
-        );
-    }
-
     fn push_wikidot_compat_fallback_paragraph_for_page(
         body: &mut String,
-        paragraph: &mut String,
+        paragraph: &mut FallbackParagraph,
         current_page: Option<&str>,
         link_titles: Option<&WikidotCompatLinkTitleMap>,
     ) {
-        let text = paragraph.trim_matches('\n');
-        if !text.trim().is_empty() {
+        let text = paragraph.text.trim_matches('\n');
+        if !text.trim().is_empty() || !paragraph.leading_html.is_empty() {
             body.push_str("<p>");
-            body.push_str(&Self::render_wikidot_compat_fallback_inline_html_for_page(
-                text,
-                current_page,
-                link_titles,
-            ));
+            body.push_str(&paragraph.leading_html);
+            if !text.trim().is_empty() {
+                body.push_str(
+                    &Self::render_wikidot_compat_fallback_inline_html_for_page(
+                        text,
+                        current_page,
+                        link_titles,
+                    ),
+                );
+            }
             body.push_str("</p>");
         }
-        paragraph.clear();
+        paragraph.text.clear();
+        paragraph.leading_html.clear();
     }
 
     #[allow(dead_code)]
@@ -1454,7 +1460,7 @@ impl RenderService {
             }
             strong = !strong;
         }
-        output
+        substitute_wikidot_protected_inline_dashes_in_html(&output)
     }
 
     fn push_wikidot_compat_fallback_inline_segment(
