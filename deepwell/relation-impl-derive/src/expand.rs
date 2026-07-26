@@ -14,7 +14,6 @@ pub fn expand_stream(
         data_type,
         create_fn,
         remove_fn,
-        define_struct,
     }: RelationSettings,
 ) -> TokenStream {
     let context = GenerationContext {
