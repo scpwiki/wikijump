@@ -2,7 +2,6 @@ use crate::parse::RelationSettings;
 use crate::types::GenerateMethod;
 use syn::Type;
 
-/// Validate that `RelationSettings` are being parsed as expected.
 #[test]
 fn parse() {
     fn parse_settings(input: &str) -> RelationSettings {
@@ -138,10 +137,4 @@ fn parse() {
         assert_eq!(settings.remove_fn, GenerateMethod::ImplPublic);
         assert!(!settings.define_struct);
     }
-}
-
-/// Validate that code generation is as expected given some `RelationSettings`.
-#[test]
-fn generate() {
-    // TODO
 }
