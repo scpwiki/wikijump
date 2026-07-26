@@ -7,21 +7,21 @@ use syn::{Ident, LitBool, Token, Visibility};
 
 /// Represents which variant of `RelationObject` is to be used.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum RelationType {
+pub enum RelationObjectType {
     Site,
     User,
     Page,
     File,
 }
 
-impl RelationType {
+impl RelationObjectType {
     pub fn parse(input: ParseStream) -> syn::Result<Self> {
         let token = input.parse::<Ident>()?.to_string();
         match token.as_str() {
-            "Site" => Ok(RelationType::Site),
-            "User" => Ok(RelationType::User),
-            "Page" => Ok(RelationType::Page),
-            "File" => Ok(RelationType::File),
+            "Site" => Ok(RelationObjectType::Site),
+            "User" => Ok(RelationObjectType::User),
+            "Page" => Ok(RelationObjectType::Page),
+            "File" => Ok(RelationObjectType::File),
             _ => Err(make_error(format!(
                 "invalid relation value '{token}', should match RelationObject",
             ))),
@@ -30,15 +30,15 @@ impl RelationType {
 
     pub fn value(self) -> &'static str {
         match self {
-            RelationType::Site => "Site",
-            RelationType::User => "User",
-            RelationType::Page => "Page",
-            RelationType::File => "File",
+            RelationObjectType::Site => "Site",
+            RelationObjectType::User => "User",
+            RelationObjectType::Page => "Page",
+            RelationObjectType::File => "File",
         }
     }
 }
 
-impl ToTokens for RelationType {
+impl ToTokens for RelationObjectType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append(make_ident(self.value()))
     }

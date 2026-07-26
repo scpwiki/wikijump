@@ -1,5 +1,5 @@
 use crate::parse::RelationSettings;
-use crate::types::{GenerateMethod, RelationType};
+use crate::types::{GenerateMethod, RelationObjectType};
 use syn::Type;
 
 #[test]
@@ -34,9 +34,9 @@ fn parse() {
         assert_eq!(settings.struct_name, "Foo");
         assert_eq!(settings.field_name, "foo");
         assert_eq!(settings.dest.0.to_string(), "first");
-        assert_eq!(settings.dest.1, RelationType::User);
+        assert_eq!(settings.dest.1, RelationObjectType::User);
         assert_eq!(settings.from.0.to_string(), "second");
-        assert_eq!(settings.from.1, RelationType::User);
+        assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_none());
         assert_eq!(settings.create_fn, GenerateMethod::Public);
         assert_eq!(settings.remove_fn, GenerateMethod::Public);
@@ -54,9 +54,9 @@ fn parse() {
         assert_eq!(settings.struct_name, "PageStar");
         assert_eq!(settings.field_name, "page_star");
         assert_eq!(settings.dest.0.to_string(), "page_id");
-        assert_eq!(settings.dest.1, RelationType::Page);
+        assert_eq!(settings.dest.1, RelationObjectType::Page);
         assert_eq!(settings.from.0.to_string(), "user_id");
-        assert_eq!(settings.from.1, RelationType::User);
+        assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_none());
         assert_eq!(settings.create_fn, GenerateMethod::Public);
         assert_eq!(settings.remove_fn, GenerateMethod::Public);
@@ -73,9 +73,9 @@ fn parse() {
         assert_eq!(settings.struct_name, "PageWatch");
         assert_eq!(settings.field_name, "page_watch");
         assert_eq!(settings.dest.0.to_string(), "page_id");
-        assert_eq!(settings.dest.1, RelationType::Page);
+        assert_eq!(settings.dest.1, RelationObjectType::Page);
         assert_eq!(settings.from.0.to_string(), "user_id");
-        assert_eq!(settings.from.1, RelationType::User);
+        assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_none());
         assert_eq!(settings.create_fn, GenerateMethod::Public);
         assert_eq!(settings.remove_fn, GenerateMethod::Public);
@@ -93,9 +93,9 @@ fn parse() {
         assert_eq!(settings.struct_name, "UserBlock");
         assert_eq!(settings.field_name, "user_block");
         assert_eq!(settings.dest.0.to_string(), "blocked_user");
-        assert_eq!(settings.dest.1, RelationType::User);
+        assert_eq!(settings.dest.1, RelationObjectType::User);
         assert_eq!(settings.from.0.to_string(), "blocking_user");
-        assert_eq!(settings.from.1, RelationType::User);
+        assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "UserBlockData");
         assert_eq!(settings.create_fn, GenerateMethod::Public);
@@ -115,9 +115,9 @@ fn parse() {
         assert_eq!(settings.struct_name, "SiteBan");
         assert_eq!(settings.field_name, "site_ban");
         assert_eq!(settings.dest.0.to_string(), "site_id");
-        assert_eq!(settings.dest.1, RelationType::Site);
+        assert_eq!(settings.dest.1, RelationObjectType::Site);
         assert_eq!(settings.from.0.to_string(), "user_id");
-        assert_eq!(settings.from.1, RelationType::User);
+        assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "SiteBanData");
         assert_eq!(settings.create_fn, GenerateMethod::Private);
@@ -137,9 +137,9 @@ fn parse() {
         assert_eq!(settings.struct_name, "UserBotOwner");
         assert_eq!(settings.field_name, "user_bot_owner");
         assert_eq!(settings.dest.0.to_string(), "bot_user");
-        assert_eq!(settings.dest.1, RelationType::User);
+        assert_eq!(settings.dest.1, RelationObjectType::User);
         assert_eq!(settings.from.0.to_string(), "owner_user");
-        assert_eq!(settings.from.1, RelationType::User);
+        assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "UserBotMetadata");
         assert_eq!(settings.create_fn, GenerateMethod::Skip);

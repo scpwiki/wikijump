@@ -1,5 +1,5 @@
 use crate::parse::RelationSettings;
-use crate::types::{GenerateMethod, RelationType};
+use crate::types::{GenerateMethod, RelationObjectType};
 use crate::util::make_ident;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -359,9 +359,9 @@ struct GenerationContext<'a> {
     field_name: &'a str,
     struct_name: &'a str,
     dest_name: &'a Ident,
-    dest_type: RelationType,
+    dest_type: RelationObjectType,
     from_name: &'a Ident,
-    from_type: RelationType,
+    from_type: RelationObjectType,
 }
 
 struct GeneratedDefinitions {
