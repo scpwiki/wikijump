@@ -56,13 +56,13 @@ use super::{
     AttachmentOwner, AttachmentProvenanceRegistry, AttachmentVariableOwners,
     COUNTPAGES_MODULE_REGEX, CodeBlock, CollectingIncluder, CompatHtmlFragments,
     CompatTextFragments, CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
-    CountPagesRequiredTagBatchResult, IncludeSourceCache, LiteralRegionIndex,
-    MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
-    MAX_FTML_COMPAT_PARSE_BYTES, MAX_LISTPAGES_RENDER_SCAN_ROWS,
-    MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
-    MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
-    MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, PreparedIncluder, RenderContext,
-    RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
+    CountPagesRequiredTagBatchResult, IncludeExpansionContext, IncludeSourceCache,
+    LiteralRegionIndex, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
+    MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
+    MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
+    MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
+    MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
+    PreparedIncluder, RenderContext, RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
     WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
     WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
     WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
@@ -87,6 +87,7 @@ use crate::services::page_query::{
     static_wikidot_data_form_matches,
 };
 use crate::services::render::UrlArguments;
+use crate::services::render::runtime::IncludeSource;
 use crate::services::settings::PageRatingType;
 use crate::types::{License, PageId};
 use crate::utils::{locale_for_ftml, now};
@@ -7480,6 +7481,38 @@ fn resolves_nested_wikidot_include_variables() {
 
     assert!(source.contains(r#"class="badges badge-action action atrue bfalse""#));
     assert!(!source.contains("{$action}"));
+}
+
+#[test]
+fn nested_cross_site_includes_keep_the_original_lookup_site() {
+    let page_info = fallback_test_page_info("consumer", "Consumer");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let context = IncludeExpansionContext {
+        current_site_id: 11,
+        current_site_slug: "sandbox-for-codex".to_owned(),
+        attachment_owner: None,
+        page_info: &page_info,
+        settings: &settings,
+        expand_wikidot_image_blocks: true,
+        max_total_includes: 100,
+    };
+    let source = IncludeSource {
+        site_slug: "scp-wiki".to_owned(),
+        page_slug: "main".to_owned(),
+        wikitext: "[[include fragment:front-page-features]]".to_owned(),
+    };
+
+    let nested = context.for_nested_source(&source);
+
+    assert_eq!(nested.current_site_id, 11);
+    assert_eq!(nested.current_site_slug, "sandbox-for-codex");
+    assert_eq!(
+        nested.attachment_owner,
+        Some(AttachmentOwner {
+            site_slug: "scp-wiki".to_owned(),
+            page_slug: "main".to_owned(),
+        }),
+    );
 }
 
 #[test]

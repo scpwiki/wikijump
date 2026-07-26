@@ -92,6 +92,12 @@ function canonicalAttributeValue(node, name, value) {
     return value.replace(/^(bibcite-\d+)-[0-9a-z]+$/u, '$1-volatile');
   }
   if (!['href', 'src'].includes(name)) return value;
+  const interwikiFrame = /^(?:(?:https?:)?\/\/interwiki\.(?:scpwiki\.com|scp-jp\.org)|(?:https?:\/\/[^/?#]+)?\/-\/wikidot-interwiki)\/(?<frame>(?:style|interwiki)Frame\.html)(?<suffix>[?#].*)?$/u.exec(
+    value,
+  );
+  if (name === 'src' && interwikiFrame) {
+    return `/-/wikidot-interwiki/${interwikiFrame.groups.frame}${interwikiFrame.groups.suffix ?? ''}`;
+  }
   let url;
   try {
     url = new URL(value);

@@ -197,7 +197,6 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             .await?;
 
         Ok(wikitext.map(|wikitext| IncludeSource {
-            site_id,
             site_slug: site_slug.to_owned(),
             page_slug: trim_default(page_slug).to_owned(),
             wikitext,
@@ -207,7 +206,6 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
 
 #[derive(Debug)]
 pub(super) struct IncludeSource {
-    pub(super) site_id: i64,
     pub(super) site_slug: String,
     pub(super) page_slug: String,
     pub(super) wikitext: String,

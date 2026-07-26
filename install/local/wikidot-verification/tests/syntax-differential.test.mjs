@@ -140,6 +140,22 @@ test('canonical DOM requires hierarchy, attribute values, and preformatted white
     canonicalDom('<img src="http://www.wikidot.com/avatar.php?userid=2506&amp;amp;size=small">'),
   );
   assert.deepEqual(
+    canonicalDom('<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority=1&amp;theme=fixture"></iframe>'),
+    canonicalDom('<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&amp;theme=fixture"></iframe>'),
+  );
+  assert.deepEqual(
+    canonicalDom('<iframe src="https://interwiki.scp-jp.org/interwikiFrame.html?lang=jp&amp;pagename=scp-1-jp"></iframe>'),
+    canonicalDom('<iframe src="https://scp-jp.wikijump.localhost/-/wikidot-interwiki/interwikiFrame.html?lang=jp&amp;pagename=scp-1-jp"></iframe>'),
+  );
+  assert.notDeepEqual(
+    canonicalDom('<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority=1"></iframe>'),
+    canonicalDom('<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=2"></iframe>'),
+  );
+  assert.notDeepEqual(
+    canonicalDom('<iframe src="//example.com/styleFrame.html?priority=1"></iframe>'),
+    canonicalDom('<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1"></iframe>'),
+  );
+  assert.deepEqual(
     canonicalDom('<span class="wiki-email">moc.elpmaxe|cba#moc.elpmaxe|cba</span>'),
     canonicalDom('<span class="wiki-email" style="visibility: visible;"><a href="mailto:abc@example.com">abc@example.com</a></span>'),
   );

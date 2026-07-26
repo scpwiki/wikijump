@@ -94,7 +94,7 @@ use super::percent_encoding::percent_encode_path_segment;
 use super::render_options::{
     RenderContext, RenderExpansionOptions, RenderInnerOptions, RenderPageOptions,
 };
-use super::runtime::{IncludeSourceCache, RenderRuntime};
+use super::runtime::{IncludeSource, IncludeSourceCache, RenderRuntime};
 use super::structs::{RenderOutput, RenderPageOutput};
 use super::url_arguments::UrlArguments;
 use super::wikidot_hosts::{
@@ -3342,23 +3342,11 @@ impl RenderService {
                     MetacomponentSourceContext::Included,
                 );
 
-                let attachment_owner = AttachmentOwner {
-                    site_slug: source.site_slug.clone(),
-                    page_slug: source.page_slug.clone(),
-                };
+                let nested_context = expansion_context.for_nested_source(&source);
                 let expansion = Self::expand_includes_for_site(
                     ctx,
                     source.wikitext,
-                    IncludeExpansionContext {
-                        current_site_id: source.site_id,
-                        current_site_slug: source.site_slug,
-                        attachment_owner: Some(attachment_owner),
-                        page_info: expansion_context.page_info,
-                        settings: expansion_context.settings,
-                        expand_wikidot_image_blocks: expansion_context
-                            .expand_wikidot_image_blocks,
-                        max_total_includes: expansion_context.max_total_includes,
-                    },
+                    nested_context,
                     include_source_cache,
                     compat_text,
                     depth + 1,
@@ -4846,6 +4834,24 @@ struct IncludeExpansionContext<'a> {
     settings: &'a WikitextSettings,
     expand_wikidot_image_blocks: bool,
     max_total_includes: usize,
+}
+
+impl<'a> IncludeExpansionContext<'a> {
+    fn for_nested_source(&self, source: &IncludeSource) -> Self {
+        Self {
+            // Wikidot resolves an unqualified include inside a cross-site include against the original callsite site. The fetched source still owns its relative attachments.
+            current_site_id: self.current_site_id,
+            current_site_slug: self.current_site_slug.clone(),
+            attachment_owner: Some(AttachmentOwner {
+                site_slug: source.site_slug.clone(),
+                page_slug: source.page_slug.clone(),
+            }),
+            page_info: self.page_info,
+            settings: self.settings,
+            expand_wikidot_image_blocks: self.expand_wikidot_image_blocks,
+            max_total_includes: self.max_total_includes,
+        }
+    }
 }
 
 #[derive(Debug)]
