@@ -382,6 +382,8 @@ test("disposable stack controller binds resources and candidate identity", () =>
   });
   assert.match(compose, /runtime-diff-test-database/u);
   assert.match(compose, /runtime-diff-test-network/u);
+  assert.match(compose, /\/data:size=256m,mode=0700/u);
+  assert.doesNotMatch(compose, /runtime-diff-test-files/u);
   assert.equal(compose.match(/example\.owner/u)?.[0], "example.owner");
 
   const identity = stackRuntimeIdentity({

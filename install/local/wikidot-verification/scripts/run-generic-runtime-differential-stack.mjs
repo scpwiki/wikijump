@@ -153,8 +153,8 @@ ${labelLines}
       MINIO_REGION_NAME: local
       INITIAL_BUCKETS: deepwell-files deepwell-text-blocks
       DATA_DIR: /data
-    volumes:
-      - files:/data
+    tmpfs:
+      - /data:size=256m,mode=0700
     labels:
 ${labelLines}
     healthcheck:
@@ -220,10 +220,6 @@ volumes:
 ${volumeLabels}
   cache:
     name: ${project}-cache
-    labels:
-${volumeLabels}
-  files:
-    name: ${project}-files
     labels:
 ${volumeLabels}
 networks:
