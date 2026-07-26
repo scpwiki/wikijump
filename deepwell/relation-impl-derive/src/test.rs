@@ -31,8 +31,8 @@ fn parse() {
             define_struct => false
             ",
         );
-        assert_eq!(settings.relation_name.to_string(), "Foo");
-        assert_eq!(settings.field_name.to_string(), "foo");
+        assert_eq!(settings.struct_name, "Foo");
+        assert_eq!(settings.field_name, "foo");
         assert_eq!(settings.dest.0.to_string(), "first");
         assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "second");
@@ -52,8 +52,8 @@ fn parse() {
             data => (),
             ",
         );
-        assert_eq!(settings.relation_name.to_string(), "PageStar");
-        assert_eq!(settings.field_name.to_string(), "page_star");
+        assert_eq!(settings.struct_name, "PageStar");
+        assert_eq!(settings.field_name, "page_star");
         assert_eq!(settings.dest.0.to_string(), "page_id");
         assert_type(settings.dest.1, "Page");
         assert_eq!(settings.from.0.to_string(), "user_id");
@@ -72,8 +72,8 @@ fn parse() {
             from => user_id: User,
             ",
         );
-        assert_eq!(settings.relation_name.to_string(), "PageWatch");
-        assert_eq!(settings.field_name.to_string(), "page_watch");
+        assert_eq!(settings.struct_name, "PageWatch");
+        assert_eq!(settings.field_name, "page_watch");
         assert_eq!(settings.dest.0.to_string(), "page_id");
         assert_type(settings.dest.1, "Page");
         assert_eq!(settings.from.0.to_string(), "user_id");
@@ -93,8 +93,8 @@ fn parse() {
             data => UserBlockData,
             ",
         );
-        assert_eq!(settings.relation_name.to_string(), "UserBlock");
-        assert_eq!(settings.field_name.to_string(), "user_block");
+        assert_eq!(settings.struct_name, "UserBlock");
+        assert_eq!(settings.field_name, "user_block");
         assert_eq!(settings.dest.0.to_string(), "blocked_user");
         assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "blocking_user");
@@ -115,8 +115,8 @@ fn parse() {
             create_fn => false,
             ",
         );
-        assert_eq!(settings.relation_name.to_string(), "SiteBan");
-        assert_eq!(settings.field_name.to_string(), "site_ban");
+        assert_eq!(settings.struct_name, "SiteBan");
+        assert_eq!(settings.field_name, "site_ban");
         assert_eq!(settings.dest.0.to_string(), "site_id");
         assert_type(settings.dest.1, "Site");
         assert_eq!(settings.from.0.to_string(), "user_id");
@@ -138,8 +138,8 @@ fn parse() {
             define_struct => false,
             ",
         );
-        assert_eq!(settings.relation_name.to_string(), "UserBotOwner");
-        assert_eq!(settings.field_name.to_string(), "user_bot_owner");
+        assert_eq!(settings.struct_name, "UserBotOwner");
+        assert_eq!(settings.field_name, "user_bot_owner");
         assert_eq!(settings.dest.0.to_string(), "bot_user");
         assert_type(settings.dest.1, "User");
         assert_eq!(settings.from.0.to_string(), "owner_user");
