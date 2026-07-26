@@ -24,6 +24,19 @@ MAX_SOURCE_CHARACTERS = 160_000
 MAX_SOURCE_BYTES = 500_000
 
 
+class InterruptFlag:
+    def __init__(self) -> None:
+        self.signum: int | None = None
+
+    def request(self, signum: int, _frame: object) -> None:
+        if self.signum is None:
+            self.signum = signum
+
+    def raise_if_requested(self) -> None:
+        if self.signum is not None:
+            raise InterruptedError(f"capture interrupted by signal {self.signum}")
+
+
 def sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
@@ -236,9 +249,12 @@ def retire_and_append_capture(
     ledger: Path,
     output: Any,
     record: dict[str, Any],
+    interrupt: InterruptFlag | None = None,
 ) -> None:
     remove_created(site, snapshot, created, ledger)
     append_capture_record(output, record)
+    if interrupt is not None:
+        interrupt.raise_if_requested()
 
 
 def capture(
@@ -248,6 +264,7 @@ def capture(
     ledger: Path,
     fetch_timeout_seconds: float,
     fetch_attempts: int,
+    interrupt: InterruptFlag | None = None,
 ) -> list[dict[str, Any]]:
     import httpx
     import wikidot
@@ -260,6 +277,7 @@ def capture(
     if output.exists() or ledger.exists():
         raise FileExistsError("capture output and ledger must not already exist")
     config = AjaxModuleConnectorConfig(allow_insecure_session_transport_for=ALLOWED_SITE)
+    interrupt = interrupt or InterruptFlag()
     created: list[dict[str, Any]] = []
     records: list[dict[str, Any]] = []
     cleanup_error: Exception | None = None
@@ -276,6 +294,7 @@ def capture(
                     trust_env=False,
                 ) as anonymous:
                     for plan in plans:
+                        interrupt.raise_if_requested()
                         if site.page.get(plan["slug"], raise_when_not_found=False) is not None:
                             raise RuntimeError(f"create-only preflight found an existing page: {plan['slug']}")
                         append_ledger(
@@ -338,6 +357,7 @@ def capture(
                             ledger,
                             result,
                             record,
+                            interrupt,
                         )
                         records.append(record)
             finally:
@@ -348,6 +368,7 @@ def capture(
                         cleanup_error = cleanup_error or error
                 if cleanup_error is not None:
                     raise cleanup_error
+    interrupt.raise_if_requested()
     return records
 
 
@@ -362,11 +383,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    def interrupt(signum: int, frame: object) -> None:
-        raise InterruptedError(f"capture interrupted by signal {signum}")
-
-    signal.signal(signal.SIGINT, interrupt)
-    signal.signal(signal.SIGTERM, interrupt)
+    interrupt = InterruptFlag()
+    signal.signal(signal.SIGINT, interrupt.request)
+    signal.signal(signal.SIGTERM, interrupt.request)
     args = parse_args()
     if args.fetch_timeout_seconds <= 0 or args.fetch_attempts <= 0:
         raise ValueError("fetch timeout and attempts must be positive")
@@ -377,7 +396,9 @@ def main() -> int:
         ledger=args.ledger,
         fetch_timeout_seconds=args.fetch_timeout_seconds,
         fetch_attempts=args.fetch_attempts,
+        interrupt=interrupt,
     )
+    interrupt.raise_if_requested()
     captured = sum(record["capture_status"] == "captured" for record in records)
     failed = len(records) - captured
     print(

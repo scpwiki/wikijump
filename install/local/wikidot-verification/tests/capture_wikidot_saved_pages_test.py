@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import signal
 import tempfile
 import unittest
 from pathlib import Path
@@ -148,6 +149,85 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
                     {"capture_status": "captured"},
                 )
             append.assert_not_called()
+
+    def test_interrupt_flag_defers_the_signal_until_an_explicit_boundary(self):
+        interrupt = MODULE.InterruptFlag()
+
+        interrupt.request(signal.SIGINT, None)
+
+        self.assertEqual(interrupt.signum, signal.SIGINT)
+        with self.assertRaisesRegex(InterruptedError, "signal 2"):
+            interrupt.raise_if_requested()
+
+    def test_signal_during_cleanup_keeps_prior_and_current_records_and_no_residual_page(self):
+        interrupt = MODULE.InterruptFlag()
+        pages = {}
+
+        def snapshot(identity: int) -> dict:
+            slug = f"run-owned:ftml-diff-20260726-{identity:03d}"
+            value = {
+                "slug": slug,
+                "identity": identity,
+                "title": f"FTML differential {identity:03d}",
+                "saved_source": f"source {identity}",
+                "saved_source_sha256": MODULE.sha256(f"source {identity}"),
+            }
+            page = SimpleNamespace(
+                id=identity,
+                title=value["title"],
+                source=SimpleNamespace(wiki_text=value["saved_source"]),
+            )
+            page.refresh_source = mock.Mock(
+                side_effect=(
+                    lambda: interrupt.request(signal.SIGINT, None)
+                    if identity == 2
+                    else None
+                )
+            )
+            page.destroy = mock.Mock(side_effect=lambda: pages.pop(slug))
+            pages[slug] = page
+            return value
+
+        prior = snapshot(1)
+        current = snapshot(2)
+        created = [prior, current]
+        site = SimpleNamespace(
+            page=SimpleNamespace(
+                get=mock.Mock(side_effect=lambda slug, **_kwargs: pages.get(slug)),
+            )
+        )
+
+        with tempfile.TemporaryDirectory() as root:
+            ledger = Path(root) / "ledger.jsonl"
+            output = Path(root) / "captures.jsonl"
+            with output.open("x", encoding="utf-8") as result:
+                MODULE.retire_and_append_capture(
+                    site,
+                    prior,
+                    created,
+                    ledger,
+                    result,
+                    {"capture_status": "captured", "page_identity": 1},
+                    interrupt,
+                )
+                with self.assertRaisesRegex(InterruptedError, "signal 2"):
+                    MODULE.retire_and_append_capture(
+                        site,
+                        current,
+                        created,
+                        ledger,
+                        result,
+                        {"capture_status": "captured", "page_identity": 2},
+                        interrupt,
+                    )
+
+            records = [json.loads(line) for line in output.read_text().splitlines()]
+            removals = [json.loads(line) for line in ledger.read_text().splitlines()]
+
+        self.assertEqual([record["page_identity"] for record in records], [1, 2])
+        self.assertEqual([record["identity"] for record in removals], [1, 2])
+        self.assertEqual(created, [])
+        self.assertEqual(pages, {})
 
     def test_saved_marker_validation_accepts_server_source_normalization(self):
         plan = page_plan()
