@@ -2665,6 +2665,39 @@ fn optional_no_visible_wikidot_includes_do_not_render_missing_page_text() {
 }
 
 #[test]
+fn missing_cross_site_include_uses_raw_page_for_display_and_canonical_ref_for_lookup() {
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let source = "[[include :scp-wiki:deleted:protected:component:magic]]";
+    let display_pages = super::collect_include_display_pages(source);
+    let canonical =
+        PageRef::page_and_site("scp-wiki", "deleted:protected:component:magic");
+    let (expanded, included_pages) = ftml::include(
+        source,
+        &settings,
+        PreparedIncluder {
+            pages: vec![None],
+            missing_display_pages: display_pages
+                .get(&canonical)
+                .cloned()
+                .expect("raw include display page should be collected"),
+        },
+        include_error,
+    )
+    .expect("missing include should render a live-compatible error");
+    assert_eq!(included_pages, vec![canonical]);
+    assert_eq!(
+        expanded,
+        concat!(
+            "[[div class=\"error-block\"]]\n",
+            "Included page \"deleted:protected:component:magic\" does not exist ",
+            "([[a href=\"http://scp-wiki.wikidot.com/deleted:protected:component:magic/edit/true\"]]",
+            "create it now[[/a]])\n",
+            "[[/div]]",
+        ),
+    );
+}
+
+#[test]
 fn renders_long_native_list_runs_before_ftml_parsing() {
     let source = [
         "* [[[tokyo-incidents|東京事変]]] -- by [[*user Ryu JP]]\n",
@@ -6958,6 +6991,7 @@ fn expands_included_fragment_wikidot_image_blocks_before_generic_includes() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(fragment_wikitext)],
+            missing_display_pages: Default::default(),
         },
         include_error,
     )
@@ -7122,6 +7156,7 @@ fn strips_included_comment_usage_examples_after_expansion() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(component_source)],
+            missing_display_pages: Default::default(),
         },
         include_error,
     )
@@ -7601,6 +7636,7 @@ fn malformed_include_comment_branch_cannot_claim_sibling_boundary() {
         &settings,
         PreparedIncluder {
             pages: vec![Some(start), Some(malformed), Some(end)],
+            missing_display_pages: Default::default(),
         },
         include_error,
     )

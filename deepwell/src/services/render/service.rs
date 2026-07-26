@@ -63,7 +63,10 @@ use super::include_attachment_owners::{
     split_wikidot_include_argument_segments, wikidot_include_segment_is_space,
 };
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
-use super::include_missing::{expand_malformed_include_targets, missing_include_source};
+use super::include_missing::{
+    PreparedIncluder, collect_include_display_pages, expand_malformed_include_targets,
+    wikidot_no_such_include_replacement,
+};
 use super::include_variable_iftags::resolve_unbound_include_variable_iftags;
 #[cfg(test)]
 use super::include_variables::{
@@ -123,7 +126,7 @@ use ftml::tree::{CodeBlock, VariableMap};
 use ftml::{self};
 use regex::Regex;
 use std::borrow::Cow;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::future::Future;
 use std::ops::Range;
 use std::pin::Pin;
@@ -3223,6 +3226,7 @@ impl RenderService {
                 });
             }
 
+            let mut include_display_pages = collect_include_display_pages(&wikitext);
             let mut includes = Vec::new();
             ftml::include(
                 &wikitext,
@@ -3376,11 +3380,22 @@ impl RenderService {
                 nested_included_pages.push(expansion.included_pages);
             }
 
+            let mut missing_display_pages = VecDeque::new();
+            for (include, fetched_page) in includes.iter().zip(&fetched_pages) {
+                let display_page = include_display_pages
+                    .get_mut(include.page_ref())
+                    .and_then(VecDeque::pop_front)
+                    .unwrap_or_else(|| include.page_ref().page().to_owned());
+                if fetched_page.is_none() {
+                    missing_display_pages.push_back(display_page);
+                }
+            }
             let (mut expanded, direct_included_pages) = ftml::include(
                 &wikitext,
                 expansion_context.settings,
                 PreparedIncluder {
                     pages: fetched_pages,
+                    missing_display_pages,
                 },
                 include_error,
             )?;
@@ -4861,58 +4876,6 @@ impl<'a, 't> Includer<'t> for CollectingIncluder<'a> {
     fn no_such_include(&mut self, page_ref: &PageRef) -> Result<Cow<'t, str>> {
         Ok(wikidot_no_such_include_replacement(page_ref))
     }
-}
-
-#[derive(Debug)]
-struct PreparedIncluder {
-    pages: Vec<Option<String>>,
-}
-
-impl<'t> Includer<'t> for PreparedIncluder {
-    type Error = ExnError;
-
-    fn include_pages(
-        &mut self,
-        includes: &[IncludeRef<'t>],
-    ) -> Result<Vec<FetchedPage<'t>>> {
-        if includes.len() != self.pages.len() {
-            return Err(include_error());
-        }
-
-        let pages = std::mem::take(&mut self.pages);
-
-        Ok(includes
-            .iter()
-            .zip(pages)
-            .map(|(include, content)| {
-                let page_ref = include.page_ref().clone();
-                let content = content.map(Cow::Owned);
-
-                FetchedPage { page_ref, content }
-            })
-            .collect())
-    }
-
-    fn no_such_include(&mut self, page_ref: &PageRef) -> Result<Cow<'t, str>> {
-        Ok(wikidot_no_such_include_replacement(page_ref))
-    }
-}
-
-fn wikidot_no_such_include_replacement(page_ref: &PageRef) -> Cow<'static, str> {
-    if is_optional_no_visible_wikidot_include(page_ref) {
-        Cow::Borrowed("")
-    } else {
-        Cow::Owned(missing_include_source(page_ref.page(), page_ref.site()))
-    }
-}
-
-fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
-    let Some(site) = page_ref.site() else {
-        return false;
-    };
-    let page = page_ref.page();
-    (site.eq_ignore_ascii_case("drizzles") && page.eq_ignore_ascii_case("raven"))
-        || (site.eq_ignore_ascii_case("crom") && page.eq_ignore_ascii_case("pixel"))
 }
 
 fn include_error() -> ExnError {

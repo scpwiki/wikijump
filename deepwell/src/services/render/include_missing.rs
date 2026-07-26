@@ -1,7 +1,13 @@
 //! Live-compatible output for missing Wikidot include targets.
 
 use super::literal_regions::LiteralRegionIndex;
-use regex::Regex;
+use crate::error::prelude::{Error, ErrorType, ExnError, Result};
+use ftml::data::PageRef;
+use ftml::includes::{FetchedPage, IncludeRef};
+use ftml::prelude::Includer;
+use regex::{Regex, RegexBuilder};
+use std::borrow::Cow;
+use std::collections::{HashMap, VecDeque};
 use std::sync::LazyLock;
 
 static EMPTY_INCLUDE_TARGET_REGEX: LazyLock<Regex> =
@@ -12,6 +18,13 @@ static SITE_ONLY_INCLUDE_TARGET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static EMPTY_SITE_INCLUDE_TARGET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)\[\[include[ \t]+::(?P<page>[^:\]\s]+)[ \t]*\]\]").unwrap()
 });
+static INCLUDE_TARGET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    RegexBuilder::new(r"^(?:[ \t]*>)*\[\[\s*include\s+(?P<target>[^\s|\]]+)")
+        .case_insensitive(true)
+        .multi_line(true)
+        .build()
+        .unwrap()
+});
 
 pub(super) fn missing_include_source(page: &str, site: Option<&str>) -> String {
     let edit_url = match site {
@@ -21,6 +34,103 @@ pub(super) fn missing_include_source(page: &str, site: Option<&str>) -> String {
     format!(
         "[[div class=\"error-block\"]]\nIncluded page \"{page}\" does not exist ([[a href=\"{edit_url}\"]]create it now[[/a]])\n[[/div]]"
     )
+}
+
+pub(super) fn collect_include_display_pages(
+    wikitext: &str,
+) -> HashMap<PageRef, VecDeque<String>> {
+    let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
+    let mut pages = HashMap::<PageRef, VecDeque<String>>::new();
+    for captures in INCLUDE_TARGET_REGEX.captures_iter(wikitext) {
+        let matched = captures.get(0).expect("include capture has a full match");
+        if literal_regions.contains(matched.start()) {
+            continue;
+        }
+        let target = &captures["target"];
+        let Ok(page_ref) = PageRef::parse(target) else {
+            continue;
+        };
+        let raw_page = match target
+            .strip_prefix(':')
+            .and_then(|value| value.split_once(':'))
+        {
+            Some((_site, page)) => page,
+            None => target,
+        };
+        let raw_page = raw_page
+            .find(['#', '/'])
+            .map_or(raw_page, |index| &raw_page[..index]);
+        pages
+            .entry(page_ref)
+            .or_default()
+            .push_back(raw_page.to_owned());
+    }
+    pages
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedIncluder {
+    pub(super) pages: Vec<Option<String>>,
+    pub(super) missing_display_pages: VecDeque<String>,
+}
+
+impl<'t> Includer<'t> for PreparedIncluder {
+    type Error = ExnError;
+
+    fn include_pages(
+        &mut self,
+        includes: &[IncludeRef<'t>],
+    ) -> Result<Vec<FetchedPage<'t>>> {
+        if includes.len() != self.pages.len() {
+            return Err(Error::new(
+                "include expansion returned mismatched page references",
+                ErrorType::Render,
+            )
+            .into());
+        }
+
+        Ok(includes
+            .iter()
+            .zip(std::mem::take(&mut self.pages))
+            .map(|(include, content)| FetchedPage {
+                page_ref: include.page_ref().clone(),
+                content: content.map(Cow::Owned),
+            })
+            .collect())
+    }
+
+    fn no_such_include(&mut self, page_ref: &PageRef) -> Result<Cow<'t, str>> {
+        let Some(display_page) = self.missing_display_pages.pop_front() else {
+            return Ok(wikidot_no_such_include_replacement(page_ref));
+        };
+        if is_optional_no_visible_wikidot_include(page_ref) {
+            Ok(Cow::Borrowed(""))
+        } else {
+            Ok(Cow::Owned(missing_include_source(
+                &display_page,
+                page_ref.site(),
+            )))
+        }
+    }
+}
+
+pub(super) fn wikidot_no_such_include_replacement(
+    page_ref: &PageRef,
+) -> Cow<'static, str> {
+    if is_optional_no_visible_wikidot_include(page_ref) {
+        Cow::Borrowed("")
+    } else {
+        Cow::Owned(missing_include_source(page_ref.page(), page_ref.site()))
+    }
+}
+
+fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
+    let Some(site) = page_ref.site() else {
+        return false;
+    };
+    let page = page_ref.page();
+    (site.eq_ignore_ascii_case("drizzles") && page.eq_ignore_ascii_case("raven"))
+        || (site.eq_ignore_ascii_case("crom") && page.eq_ignore_ascii_case("pixel"))
 }
 
 pub(super) fn expand_malformed_include_targets(wikitext: &mut String) {
@@ -99,5 +209,22 @@ mod tests {
         assert!(source.contains("href=\"/scp-wiki/edit/true\""));
         assert!(source.contains("Included page \"page\" does not exist"));
         assert!(source.contains("href=\"/page/edit/true\""));
+    }
+
+    #[test]
+    fn include_display_pages_preserve_raw_colons_separately_from_lookup_keys() {
+        let pages = collect_include_display_pages(
+            "[[include :scp-wiki:deleted:protected:component:magic]]",
+        );
+        let canonical =
+            PageRef::page_and_site("scp-wiki", "deleted:protected:component:magic");
+        assert_eq!(
+            pages
+                .get(&canonical)
+                .and_then(|values| values.front())
+                .map(String::as_str),
+            Some("deleted:protected:component:magic"),
+        );
+        assert_eq!(canonical.page(), "deleted-protected-component:magic");
     }
 }
