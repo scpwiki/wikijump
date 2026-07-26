@@ -2,7 +2,7 @@ use crate::case::pascal_to_snake_case;
 use crate::types::GenerateMethod;
 use crate::util::*;
 use syn::parse::{Parse, ParseStream};
-use syn::{Ident, Token, Type};
+use syn::{Ident, LitBool, Token, Type};
 
 pub struct RelationSettings {
     relation_name: Ident,
@@ -117,6 +117,16 @@ impl Parse for RelationSettings {
                     let token = input.lookahead1();
                     let setting = GenerateMethod::parse(input, token)?;
                     remove_fn = Some(setting);
+                }
+
+                // Permit the caller to disable relation struct definition.
+                // This key is optional, default is "true".
+                //
+                //  define_struct => false
+                "define_struct" => {
+                    error_if_set!(define_struct);
+                    let t_bool: LitBool = input.parse()?;
+                    define_struct = Some(t_bool.value);
                 }
 
                 _ => return Err(make_error(format!("invalid key in macro: {key}"))),
