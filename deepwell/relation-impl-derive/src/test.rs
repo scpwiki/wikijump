@@ -27,8 +27,7 @@ fn parse() {
             "
             name => Foo,
             dest => first: User,
-            from => second: User,
-            define_struct => false
+            from => second: User
             ",
         );
         assert_eq!(settings.struct_name, "Foo");
@@ -40,7 +39,6 @@ fn parse() {
         assert!(settings.data_type.is_none());
         assert!(settings.create_fn);
         assert!(settings.remove_fn);
-        assert!(!settings.define_struct);
     }
 
     {
@@ -61,7 +59,6 @@ fn parse() {
         assert!(settings.data_type.is_none());
         assert!(settings.create_fn);
         assert!(settings.remove_fn);
-        assert!(settings.define_struct);
     }
 
     {
@@ -81,7 +78,6 @@ fn parse() {
         assert!(settings.data_type.is_none());
         assert!(settings.create_fn);
         assert!(settings.remove_fn);
-        assert!(settings.define_struct);
     }
 
     {
@@ -102,7 +98,6 @@ fn parse() {
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
         assert!(settings.create_fn);
         assert!(settings.remove_fn);
-        assert!(settings.define_struct);
     }
 
     {
@@ -124,7 +119,6 @@ fn parse() {
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
         assert!(!settings.create_fn);
         assert!(settings.remove_fn);
-        assert!(settings.define_struct);
     }
 
     {
@@ -135,7 +129,6 @@ fn parse() {
             from => owner_user: User,
             data => UserBotMetadata,
             create_fn => false,
-            define_struct => false,
             ",
         );
         assert_eq!(settings.struct_name, "UserBotOwner");
@@ -147,6 +140,5 @@ fn parse() {
         assert!(matches!(settings.data_type, Some(Type::Path(_))));
         assert!(!settings.create_fn);
         assert!(settings.remove_fn);
-        assert!(!settings.define_struct);
     }
 }
