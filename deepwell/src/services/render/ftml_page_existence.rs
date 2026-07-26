@@ -29,6 +29,7 @@ use super::compat::wikidot_link_protection::{
 use super::diagnostics::{
     CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, StageGuard,
 };
+use super::ftml_user_info::UserInfoSnapshot;
 use super::service::{
     CorpusReplayStageTimings, ProtectedWikidotCompatLink, WIKIDOT_LABELED_LINK_REGEX,
     WIKIDOT_QUADRUPLE_LINK_REGEX, WIKIDOT_UNLABELED_LINK_REGEX,
@@ -36,7 +37,7 @@ use super::service::{
 };
 use crate::services::PageExistenceSnapshot;
 use ftml::data::PageRef;
-use ftml::prelude::{PageInfo, ParseError, Render, WikitextSettings};
+use ftml::prelude::{PageInfo, ParseError, WikitextSettings};
 use ftml::render::html::{HtmlOutput, HtmlRender};
 use ftml::tree::{CodeBlock, SyntaxTree};
 use std::collections::{BTreeMap, HashSet};
@@ -205,17 +206,20 @@ impl ParsedFtmlRender {
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
         page_existence: Option<&crate::services::PageExistenceSnapshot>,
+        user_info: &UserInfoSnapshot,
         trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
     ) -> HtmlOutput {
         let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlRender);
         match page_existence {
-            Some(page_existence) => HtmlRender.render_with_page_existence(
+            Some(page_existence) => HtmlRender.render_with_resolvers(
                 &self.tree,
                 page_info,
                 settings,
                 page_existence,
+                user_info,
             ),
-            None => HtmlRender.render(&self.tree, page_info, settings),
+            None => HtmlRender
+                .render_with_user_info(&self.tree, page_info, settings, user_info),
         }
     }
 }

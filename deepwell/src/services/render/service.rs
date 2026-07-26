@@ -49,6 +49,7 @@ use super::ftml_page_existence::{
     FtmlRenderOutput, InnerPreparedRenderWikitext, ParsedFtmlRender,
     WikidotCompatLinkTitleMap, native_list_page_link_ref,
 };
+use super::ftml_user_info::UserInfoSnapshot;
 use super::generator::COMPILED_GENERATOR;
 use super::iftags::{
     has_unclosed_hidden_body_inside_iftags, resolve_outermost_wikidot_iftags,
@@ -1178,11 +1179,11 @@ impl RenderService {
             .await
             .or_raise(make_error)?
         };
-        wikitext = Self::expand_categories_modules(
+        wikitext = Self::expand_categories_and_page_tree_modules(
             ctx,
             wikitext,
             settings,
-            current_site_id,
+            (current_site_id, current_page_id),
             &mut wikidot_compat_html,
         )
         .await
@@ -1660,6 +1661,7 @@ impl RenderService {
             .or_raise(|| Error::new("failed to join parse task", ErrorType::Render))?;
         let parse_elapsed = parse_started.elapsed();
         let page_references = parsed.tree.page_references();
+        let user_references = parsed.tree.user_references();
         let page_existence = match current_site_id {
             Some(site_id) => Some(
                 LinkService::resolve_page_existence(
@@ -1673,6 +1675,7 @@ impl RenderService {
             ),
             None => None,
         };
+        let user_info = UserInfoSnapshot::load(ctx, &user_references).await?;
         let render_queued_at = worker_trace.as_ref().map(|_| Instant::now());
         let render_task = task::spawn_blocking(move || {
             let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
@@ -1683,6 +1686,7 @@ impl RenderService {
                 &render_page_info,
                 &render_settings,
                 page_existence.as_ref(),
+                &user_info,
                 trace,
             );
             let ParsedFtmlRender {

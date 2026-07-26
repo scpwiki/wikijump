@@ -3627,6 +3627,123 @@ async fn categories_module_lists_active_categories_and_honors_include_hidden() {
 }
 
 #[tokio::test]
+async fn page_tree_module_renders_current_page_hierarchy_with_live_depth_dom() {
+    const ROOT: &str = "fixture-pagetree-root";
+    const ALPHA: &str = "fixture-pagetree-alpha";
+    const BETA: &str = "fixture-pagetree-beta";
+    const GRANDCHILD: &str = "fixture-pagetree-grandchild";
+    const GREAT_GRANDCHILD: &str = "fixture-pagetree-great-grandchild";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        ROOT,
+        "PageTree Root",
+        concat!(
+            "PT_DEFAULT_START\n[[module PageTree depth=\"2\"]]\nPT_DEFAULT_END\n",
+            "PT_SHOW_START\n[[module PageTree showRoot=\"true\" depth=\"1\"]]\nPT_SHOW_END\n",
+            "PT_CASE_START\n[[module PageTree Showroot=\"true\" Depth=\"1\"]]\nPT_CASE_END",
+        ),
+    )
+    .await;
+    for (slug, title) in [
+        (ALPHA, "Alpha Child"),
+        (BETA, "Beta Child"),
+        (GRANDCHILD, "Alpha Grandchild"),
+        (GREAT_GRANDCHILD, "Alpha Great Grandchild"),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, "PageTree fixture")
+            .await;
+    }
+    for (child, parent) in [
+        (ALPHA, ROOT),
+        (BETA, ROOT),
+        (GRANDCHILD, ALPHA),
+        (GREAT_GRANDCHILD, GRANDCHILD),
+    ] {
+        set_listpages_test_parent(&mut runner, site_id, child, parent).await;
+    }
+
+    let root = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": ROOT,
+        }),
+    )
+    .expect("PageTree root should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": root.page_category_id,
+            "page_id": root.page_id,
+        }),
+    );
+    let root = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": ROOT,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("rerendered PageTree root should exist");
+    let html = root
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+    let section = |start: &str, end: &str| {
+        let start = html.find(start).expect("section start should render");
+        let end = html[start..]
+            .find(end)
+            .map(|offset| start + offset)
+            .expect("section end should render");
+        &html[start..end]
+    };
+
+    let default = section("PT_DEFAULT_START", "PT_DEFAULT_END");
+    assert!(default.contains(&format!(r#"<a href="/{ALPHA}">Alpha Child</a>"#)));
+    assert!(
+        default.contains(&format!(r#"<a href="/{GRANDCHILD}">Alpha Grandchild</a>"#))
+    );
+    assert!(default.contains(&format!(r#"<a href="/{BETA}">Beta Child</a>"#)));
+    assert!(!default.contains("PageTree Root"));
+    assert!(!default.contains("Alpha Great Grandchild"));
+    assert!(
+        default.find("Alpha Child") < default.find("Beta Child"),
+        "siblings should preserve page_parent creation order:\n{default}"
+    );
+
+    let show_root = section("PT_SHOW_START", "PT_SHOW_END");
+    assert!(show_root.contains(&format!(r#"<a href="/{ROOT}">PageTree Root</a>"#)));
+    assert!(show_root.contains("Alpha Child"));
+    assert!(show_root.contains("Beta Child"));
+    assert!(!show_root.contains("Alpha Grandchild"));
+
+    let case_variant = section("PT_CASE_START", "PT_CASE_END");
+    assert!(!case_variant.contains("PageTree Root"));
+    assert!(case_variant.contains("Alpha Great Grandchild"));
+    for unsupported_wrapper in ["class=", " id=", "data-"] {
+        assert!(
+            !case_variant.contains(unsupported_wrapper),
+            "PageTree DOM must remain plain ul, li, and a elements:\n{case_variant}"
+        );
+    }
+    assert!(!html.contains("[[module PageTree"));
+    assert!(!html.contains("TODO: module PageTree"));
+}
+
+#[tokio::test]
 async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
