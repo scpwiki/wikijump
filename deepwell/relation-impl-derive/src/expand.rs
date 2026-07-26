@@ -182,10 +182,7 @@ fn generate_create_defs(
     data_type: Option<&Type>,
     create_fn: GenerateMethod,
 ) -> Option<CreateDefinitions> {
-    let Some((vis, suffix)) = create_fn.into_vis_and_suffix() else {
-        return None;
-    };
-
+    let (vis, suffix) = create_fn.vis_and_suffix()?;
     let create_struct = make_ident(format!("Create{}", struct_name));
     let create_struct_def = match data_type {
         Some(data_type) => quote! {
@@ -297,10 +294,7 @@ fn generate_remove_defs(
     }: GenerationContext,
     remove_fn: GenerateMethod,
 ) -> Option<RemoveDefinitions> {
-    let Some((vis, suffix)) = remove_fn.into_vis_and_suffix() else {
-        return None;
-    };
-
+    let (vis, suffix) = remove_fn.vis_and_suffix()?;
     let remove_struct = make_ident(format!("Remove{}", struct_name));
     let remove_struct_def = quote! {
         #[derive(Deserialize, Debug, Copy, Clone)]
