@@ -10,8 +10,6 @@ use std::borrow::Cow;
 use std::collections::{HashMap, VecDeque};
 use std::sync::LazyLock;
 
-static EMPTY_INCLUDE_TARGET_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?i)\[\[include[ \t]+\]\]").unwrap());
 static SITE_ONLY_INCLUDE_TARGET_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)\[\[include[ \t]+:(?P<site>[^:\]\s]+):[ \t]*\]\]").unwrap()
 });
@@ -63,9 +61,29 @@ pub(super) fn collect_include_display_pages(
         pages
             .entry(page_ref)
             .or_default()
-            .push_back(raw_page.to_owned());
+            .push_back(raw_page.to_ascii_lowercase());
     }
     pages
+}
+
+pub(super) fn collect_missing_include_display_pages(
+    includes: &[IncludeRef<'_>],
+    fetched_pages: &[Option<String>],
+    include_display_pages: &mut HashMap<PageRef, VecDeque<String>>,
+) -> VecDeque<String> {
+    includes
+        .iter()
+        .zip(fetched_pages)
+        .rev()
+        .filter_map(|(include, fetched_page)| {
+            fetched_page.is_none().then(|| {
+                include_display_pages
+                    .get_mut(include.page_ref())
+                    .and_then(VecDeque::pop_back)
+                    .unwrap_or_else(|| include.page_ref().page().to_owned())
+            })
+        })
+        .collect()
 }
 
 #[derive(Debug)]
@@ -134,18 +152,13 @@ fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
 }
 
 pub(super) fn expand_malformed_include_targets(wikitext: &mut String) {
-    if !EMPTY_INCLUDE_TARGET_REGEX.is_match(wikitext)
-        && !SITE_ONLY_INCLUDE_TARGET_REGEX.is_match(wikitext)
+    if !SITE_ONLY_INCLUDE_TARGET_REGEX.is_match(wikitext)
         && !EMPTY_SITE_INCLUDE_TARGET_REGEX.is_match(wikitext)
     {
         return;
     }
     let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
-    let mut replacements = EMPTY_INCLUDE_TARGET_REGEX
-        .find_iter(wikitext)
-        .filter(|matched| !literal_regions.contains(matched.start()))
-        .map(|matched| (matched.range(), missing_include_source("", None)))
-        .collect::<Vec<_>>();
+    let mut replacements = Vec::new();
     for captures in SITE_ONLY_INCLUDE_TARGET_REGEX.captures_iter(wikitext) {
         let matched = captures.get(0).expect("include capture has a full match");
         if !literal_regions.contains(matched.start()) {
@@ -175,14 +188,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn empty_include_targets_become_the_live_missing_page_source() {
+    fn empty_include_targets_remain_literal() {
         let mut source = "[[include    ]]\n[[include\t]]".to_owned();
+        let original = source.clone();
         expand_malformed_include_targets(&mut source);
-        assert_eq!(
-            source.matches("Included page \"\" does not exist").count(),
-            2
-        );
-        assert_eq!(source.matches("href=\"//edit/true\"").count(), 2);
+        assert_eq!(source, original);
     }
 
     #[test]
@@ -226,5 +236,25 @@ mod tests {
             Some("deleted:protected:component:magic"),
         );
         assert_eq!(canonical.page(), "deleted-protected-component:magic");
+    }
+
+    #[test]
+    fn include_display_pages_are_lowercase_and_follow_reverse_substitution_order() {
+        let source = "A\n[[include B]]\nC\n[[include D]]\nE\n[[include F]]\nG";
+        let mut display_pages = collect_include_display_pages(source);
+        let includes = ["B", "D", "F"]
+            .into_iter()
+            .map(|page| IncludeRef::page_only(PageRef::page_only(page)))
+            .collect::<Vec<_>>();
+        let fetched_pages = vec![None, None, None];
+
+        assert_eq!(
+            collect_missing_include_display_pages(
+                &includes,
+                &fetched_pages,
+                &mut display_pages,
+            ),
+            VecDeque::from(["f".to_owned(), "d".to_owned(), "b".to_owned()]),
+        );
     }
 }

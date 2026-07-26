@@ -64,7 +64,8 @@ use super::include_attachment_owners::{
 };
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
 use super::include_missing::{
-    PreparedIncluder, collect_include_display_pages, expand_malformed_include_targets,
+    PreparedIncluder, collect_include_display_pages,
+    collect_missing_include_display_pages, expand_malformed_include_targets,
     wikidot_no_such_include_replacement,
 };
 use super::include_variable_iftags::resolve_unbound_include_variable_iftags;
@@ -126,7 +127,7 @@ use ftml::tree::{CodeBlock, VariableMap};
 use ftml::{self};
 use regex::Regex;
 use std::borrow::Cow;
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet};
 use std::future::Future;
 use std::ops::Range;
 use std::pin::Pin;
@@ -3380,16 +3381,11 @@ impl RenderService {
                 nested_included_pages.push(expansion.included_pages);
             }
 
-            let mut missing_display_pages = VecDeque::new();
-            for (include, fetched_page) in includes.iter().zip(&fetched_pages) {
-                let display_page = include_display_pages
-                    .get_mut(include.page_ref())
-                    .and_then(VecDeque::pop_front)
-                    .unwrap_or_else(|| include.page_ref().page().to_owned());
-                if fetched_page.is_none() {
-                    missing_display_pages.push_back(display_page);
-                }
-            }
+            let missing_display_pages = collect_missing_include_display_pages(
+                &includes,
+                &fetched_pages,
+                &mut include_display_pages,
+            );
             let (mut expanded, direct_included_pages) = ftml::include(
                 &wikitext,
                 expansion_context.settings,
