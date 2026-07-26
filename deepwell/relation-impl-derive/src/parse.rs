@@ -1,5 +1,5 @@
 use crate::case::pascal_to_snake_case;
-use crate::types::{GenerateMethod, RelationType};
+use crate::types::{GenerateMethod, RelationObjectType};
 use crate::util::*;
 use syn::parse::{Parse, ParseStream};
 use syn::{Ident, Token, Type};
@@ -7,8 +7,8 @@ use syn::{Ident, Token, Type};
 pub struct RelationSettings {
     pub struct_name: String,
     pub field_name: String,
-    pub dest: (Ident, RelationType),
-    pub from: (Ident, RelationType),
+    pub dest: (Ident, RelationObjectType),
+    pub from: (Ident, RelationObjectType),
     pub data_type: Option<Type>,
     pub create_fn: GenerateMethod,
     pub remove_fn: GenerateMethod,
@@ -61,7 +61,7 @@ impl Parse for RelationSettings {
                     error_if_set!(dest);
                     let field_name: Ident = input.parse()?;
                     let _: Token![:] = input.parse()?;
-                    let field_type = RelationType::parse(input)?;
+                    let field_type = RelationObjectType::parse(input)?;
                     dest = Some((field_name, field_type));
                 }
 
@@ -72,7 +72,7 @@ impl Parse for RelationSettings {
                     error_if_set!(from);
                     let field_name: Ident = input.parse()?;
                     let _: Token![:] = input.parse()?;
-                    let field_type = RelationType::parse(input)?;
+                    let field_type = RelationObjectType::parse(input)?;
                     from = Some((field_name, field_type));
                 }
 
