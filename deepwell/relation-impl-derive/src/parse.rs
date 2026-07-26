@@ -5,14 +5,14 @@ use syn::parse::{Parse, ParseStream};
 use syn::{Ident, LitBool, Token, Type};
 
 pub struct RelationSettings {
-    relation_name: Ident,
-    field_name: Ident,
-    dest: (Ident, Type),
-    from: (Ident, Type),
-    data_type: Option<Type>,
-    create_fn: GenerateMethod,
-    remove_fn: GenerateMethod,
-    define_struct: bool,
+    pub relation_name: Ident,
+    pub field_name: Ident,
+    pub dest: (Ident, Type),
+    pub from: (Ident, Type),
+    pub data_type: Option<Type>,
+    pub create_fn: GenerateMethod,
+    pub remove_fn: GenerateMethod,
+    pub define_struct: bool,
 }
 
 impl Parse for RelationSettings {
