@@ -160,6 +160,23 @@ def remove_exact(site: Any, snapshot: dict[str, Any]) -> None:
     raise RuntimeError(f"cleanup did not remove page: {snapshot['slug']}")
 
 
+def remove_created(
+    site: Any,
+    snapshot: dict[str, Any],
+    created: list[dict[str, Any]],
+    ledger: Path,
+) -> None:
+    remove_exact(site, snapshot)
+    append_ledger(
+        ledger,
+        {
+            "event": "removed",
+            **{key: value for key, value in snapshot.items() if key != "saved_source"},
+        },
+    )
+    created.remove(snapshot)
+
+
 def capture(
     plans: list[dict[str, Any]],
     *,
@@ -258,17 +275,11 @@ def capture(
                                 "raw_page_html_sha256": sha256(raw_html),
                             }
                         )
+                    remove_created(site, snapshot, created, ledger)
         finally:
-            for snapshot in reversed(created):
+            for snapshot in reversed(created.copy()):
                 try:
-                    remove_exact(site, snapshot)
-                    append_ledger(
-                        ledger,
-                        {
-                            "event": "removed",
-                            **{key: value for key, value in snapshot.items() if key != "saved_source"},
-                        },
-                    )
+                    remove_created(site, snapshot, created, ledger)
                 except Exception as error:
                     cleanup_error = cleanup_error or error
             if cleanup_error is not None:

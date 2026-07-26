@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "capture_wikidot_saved_pages.py"
 SPEC = importlib.util.spec_from_file_location("capture_wikidot_saved_pages", SCRIPT)
@@ -69,6 +70,22 @@ class CaptureWikidotSavedPagesTest(unittest.TestCase):
             MODULE.append_ledger(ledger, {"event": "removed", "slug": "run-owned:ftml-diff-20260726-001"})
             values = [json.loads(line) for line in ledger.read_text().splitlines()]
             self.assertEqual([value["event"] for value in values], ["create-intent", "removed"])
+
+    def test_remove_created_retires_each_page_immediately(self):
+        snapshot = {
+            "slug": "run-owned:ftml-diff-20260726-001",
+            "identity": 42,
+            "saved_source": "alpha",
+            "saved_source_sha256": MODULE.sha256("alpha"),
+        }
+        created = [snapshot]
+        with tempfile.TemporaryDirectory() as root:
+            ledger = Path(root) / "ledger.jsonl"
+            with mock.patch.object(MODULE, "remove_exact") as remove_exact:
+                MODULE.remove_created(object(), snapshot, created, ledger)
+            remove_exact.assert_called_once()
+            self.assertEqual(created, [])
+            self.assertEqual(json.loads(ledger.read_text())["event"], "removed")
 
     def test_saved_marker_validation_accepts_server_source_normalization(self):
         plan = page_plan()
