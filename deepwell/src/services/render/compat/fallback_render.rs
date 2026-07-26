@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::super::ftml_page_existence::{
+    WikidotCompatLinkTitleMap, collect_fallback_page_references,
+};
 use super::super::service::{
     MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
     MAX_FTML_COMPAT_PARSE_BYTES, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
@@ -25,9 +28,8 @@ use super::super::service::{
     MIN_FTML_COMPAT_TABBED_MARKERS, MIN_FTML_COMPAT_TABBED_RENDER_BYTES, RenderService,
     WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_RATE_ANCHOR_REGEX,
     WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX, WIKIDOT_TABVIEW_INIT_SCRIPT,
-    WIKIDOT_TABVIEW_SCRIPT, WikidotCompatLinkTitleMap,
-    collect_wikidot_compat_empty_label_link_slugs, escape_list_pages_html_attr,
-    escape_list_pages_html_text, push_escaped_html,
+    WIKIDOT_TABVIEW_SCRIPT, collect_wikidot_compat_empty_label_link_slugs,
+    escape_list_pages_html_attr, escape_list_pages_html_text, push_escaped_html,
     render_native_list_inline_html_with_titles, render_native_list_inline_wikidot_spans,
 };
 use super::wikidot_inline_markers::{
@@ -41,9 +43,9 @@ use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page_revision;
 use crate::models::site::Model as SiteModel;
-use crate::services::PageService;
 use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::{LinkService, PageService};
 use crate::types::Reference;
 use crate::types::{Action, Permission, Resource};
 use ftml::data::PageInfo;
@@ -156,11 +158,19 @@ impl RenderService {
     pub(in crate::services::render) async fn load_wikidot_compat_fallback_link_titles(
         ctx: &ServiceContext<'_>,
         site_id: i64,
+        site_slug: &str,
         wikitext: &str,
     ) -> Result<WikidotCompatLinkTitleMap> {
+        let page_refs = collect_fallback_page_references(wikitext);
+        let page_existence =
+            LinkService::resolve_page_existence(ctx, site_id, site_slug, &page_refs)
+                .await?;
+        let mut titles = WikidotCompatLinkTitleMap::new();
+        titles.set_page_existence(site_slug.to_owned(), page_existence);
+
         let slugs = collect_wikidot_compat_empty_label_link_slugs(wikitext);
         if slugs.is_empty() {
-            return Ok(WikidotCompatLinkTitleMap::new());
+            return Ok(titles);
         }
 
         let references = slugs
@@ -238,7 +248,6 @@ impl RenderService {
             .map(|revision| (revision.revision_id, revision.title))
             .collect::<BTreeMap<_, _>>();
 
-        let mut titles = WikidotCompatLinkTitleMap::new();
         for page in viewable_pages {
             let Some(title) = page
                 .latest_revision_id

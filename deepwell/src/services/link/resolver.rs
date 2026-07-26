@@ -26,6 +26,7 @@ use crate::services::ServiceContext;
 use crate::types::{AliasType, ConnectionType};
 use crate::utils::trim_default;
 use ftml::data::PageRef;
+use ftml::render::PageExistenceResolver;
 use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
 use std::collections::{HashMap, HashSet};
 
@@ -42,6 +43,43 @@ struct ReferenceLookup {
     page_slug: String,
 }
 
+impl ReferenceLookup {
+    fn from_page_ref(page_ref: &PageRef) -> Self {
+        Self {
+            site_slug: page_ref.site.clone(),
+            page_slug: str!(trim_default(&page_ref.page)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub(crate) struct PageExistenceSnapshot {
+    pages: HashMap<(String, String), bool>,
+}
+
+impl PageExistenceSnapshot {
+    pub(crate) fn known_page_exists(&self, site: &str, page: &str) -> Option<bool> {
+        self.pages
+            .get(&(str!(site), str!(trim_default(page))))
+            .copied()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn from_pages(
+        pages: impl IntoIterator<Item = ((String, String), bool)>,
+    ) -> Self {
+        Self {
+            pages: pages.into_iter().collect(),
+        }
+    }
+}
+
+impl PageExistenceResolver for PageExistenceSnapshot {
+    fn page_exists(&self, site: &str, page: &str) -> bool {
+        self.known_page_exists(site, page).unwrap_or(false)
+    }
+}
+
 #[derive(Debug, Default)]
 struct ReferencePlan {
     counts: HashMap<ReferenceLookup, HashMap<(String, ConnectionType), i32>>,
@@ -55,10 +93,7 @@ impl ReferencePlan {
 
         for (page_refs, connection_type) in batches {
             for page_ref in page_refs {
-                let lookup = ReferenceLookup {
-                    site_slug: page_ref.site.clone(),
-                    page_slug: str!(trim_default(&page_ref.page)),
-                };
+                let lookup = ReferenceLookup::from_page_ref(page_ref);
                 let original_counts = plan.counts.entry(lookup).or_default();
                 let count = original_counts
                     .entry((page_ref.page.clone(), connection_type))
@@ -149,6 +184,73 @@ impl ReferencePlan {
 
         ResolvedConnectionCounts { present, missing }
     }
+}
+
+pub(super) async fn resolve_page_existence(
+    ctx: &ServiceContext<'_>,
+    source_site_id: i64,
+    source_site_slug: &str,
+    page_refs: &[PageRef],
+) -> Result<PageExistenceSnapshot> {
+    let lookups = page_refs
+        .iter()
+        .map(ReferenceLookup::from_page_ref)
+        .collect::<HashSet<_>>();
+    if lookups.is_empty() {
+        return Ok(PageExistenceSnapshot::default());
+    }
+
+    let explicit_site_slugs = lookups
+        .iter()
+        .filter_map(|lookup| lookup.site_slug.clone())
+        .collect();
+    let explicit_sites = resolve_explicit_sites(ctx, explicit_site_slugs).await?;
+    let mut page_slugs_by_site = HashMap::<_, HashSet<_>>::new();
+    for lookup in &lookups {
+        let site_id = match &lookup.site_slug {
+            None => Some(source_site_id),
+            Some(site_slug) => explicit_sites.get(site_slug).copied().flatten(),
+        };
+        if let Some(site_id) = site_id {
+            page_slugs_by_site
+                .entry(site_id)
+                .or_default()
+                .insert(lookup.page_slug.clone());
+        }
+    }
+    let pages = resolve_pages(ctx, page_slugs_by_site).await?;
+
+    Ok(finish_page_existence(
+        source_site_id,
+        source_site_slug,
+        lookups,
+        &explicit_sites,
+        &pages,
+    ))
+}
+
+fn finish_page_existence(
+    source_site_id: i64,
+    source_site_slug: &str,
+    lookups: HashSet<ReferenceLookup>,
+    explicit_sites: &HashMap<String, Option<i64>>,
+    pages: &HashMap<(i64, String), i64>,
+) -> PageExistenceSnapshot {
+    let pages = lookups
+        .into_iter()
+        .map(|lookup| {
+            let rendered_site = lookup.site_slug.as_deref().unwrap_or(source_site_slug);
+            let resolved_site_id = match &lookup.site_slug {
+                None => Some(source_site_id),
+                Some(site_slug) => explicit_sites.get(site_slug).copied().flatten(),
+            };
+            let exists = resolved_site_id.is_some_and(|site_id| {
+                pages.contains_key(&(site_id, lookup.page_slug.clone()))
+            });
+            ((str!(rendered_site), lookup.page_slug), exists)
+        })
+        .collect();
+    PageExistenceSnapshot { pages }
 }
 
 pub(super) async fn resolve_connection_counts<'a>(
@@ -300,5 +402,34 @@ mod tests {
             counts.present,
             HashMap::from([((11, ConnectionType::IncludeMessy), 176)])
         );
+    }
+
+    #[test]
+    fn page_existence_snapshot_preserves_reference_site_and_normalizes_page() {
+        let refs = [
+            PageRef::page_only("local#section"),
+            PageRef::page_only("_default:default"),
+            PageRef::page_only("deleted"),
+            PageRef::page_and_site("alias", "remote/edit"),
+            PageRef::page_and_site("missing-site", "remote"),
+        ];
+        let lookups = refs.iter().map(ReferenceLookup::from_page_ref).collect();
+        let explicit_sites =
+            HashMap::from([(str!("alias"), Some(9)), (str!("missing-site"), None)]);
+        let pages = HashMap::from([
+            ((3, str!("local")), 1),
+            ((3, str!("default")), 2),
+            ((9, str!("remote")), 3),
+        ]);
+
+        let snapshot =
+            finish_page_existence(3, "source", lookups, &explicit_sites, &pages);
+
+        assert!(snapshot.page_exists("source", "local"));
+        assert!(snapshot.page_exists("source", "_default:default"));
+        assert!(!snapshot.page_exists("source", "deleted"));
+        assert!(snapshot.page_exists("alias", "remote"));
+        assert!(!snapshot.page_exists("missing-site", "remote"));
+        assert!(!snapshot.page_exists("source", "unqueried"));
     }
 }

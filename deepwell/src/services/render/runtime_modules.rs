@@ -10,8 +10,9 @@ use super::list_pages::{is_tag_cloud_visible_tag, render_tag_cloud_box};
 use super::literal_regions::LiteralRegionIndex;
 use super::service::{
     RATE_MODULE_REGEX, REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
-    render_clone_module, render_join_module, render_members_module_placeholder,
-    render_new_page_module, render_read_only_rate_module, wikidot_module_argument,
+    escape_list_pages_html_attr, escape_list_pages_html_text, render_clone_module,
+    render_members_module_placeholder, render_new_page_module,
+    render_read_only_rate_module, wikidot_module_argument,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
@@ -20,6 +21,24 @@ use crate::services::ServiceContext;
 use crate::services::settings::PageRatingType;
 use ftml::data::PageInfo;
 use ftml::settings::WikitextSettings;
+
+fn render_join_module(head: &str) -> String {
+    let button = wikidot_module_argument(head, "button")
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("Join");
+    let class = wikidot_module_argument(head, "class")
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("join-box");
+    format!(
+        concat!(
+            r#"<div class="{class}">"#,
+            r#"<a href="javascript:;" onclick="WIKIDOT.page.listeners.join(event, 'unified')">{button}</a>"#,
+            "</div>",
+        ),
+        class = escape_list_pages_html_attr(class),
+        button = escape_list_pages_html_text(button),
+    )
+}
 
 impl RenderService {
     pub(super) fn expand_rate_modules_with_registry(

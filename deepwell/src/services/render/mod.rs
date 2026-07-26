@@ -19,9 +19,11 @@
  */
 
 mod backlinks;
+mod categories;
 mod compat;
 mod corpus;
 mod diagnostics;
+mod ftml_page_existence;
 mod generator;
 mod html_text;
 mod iftags;

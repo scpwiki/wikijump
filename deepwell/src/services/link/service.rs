@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::resolver::resolve_connection_counts;
+use super::resolver::{
+    PageExistenceSnapshot, resolve_connection_counts, resolve_page_existence,
+};
 use super::structs::{
     GetConnectionsFromOutput, GetLinksExternalFromOutput, GetLinksExternalToOutput,
     GetLinksFromOutput, GetLinksToMissingOutput, GetLinksToOutput, ToExternalLink,
@@ -60,6 +62,15 @@ macro_rules! make_contype_condition {
 pub struct LinkService;
 
 impl LinkService {
+    pub(crate) async fn resolve_page_existence(
+        ctx: &ServiceContext<'_>,
+        source_site_id: i64,
+        source_site_slug: &str,
+        page_refs: &[ftml::data::PageRef],
+    ) -> Result<PageExistenceSnapshot> {
+        resolve_page_existence(ctx, source_site_id, source_site_slug, page_refs).await
+    }
+
     pub async fn get_from(
         ctx: &ServiceContext<'_>,
         page_id: i64,

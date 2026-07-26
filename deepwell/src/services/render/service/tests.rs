@@ -79,6 +79,7 @@ use super::{
 use crate::config::Config;
 use crate::constants::ADMIN_USER_ID;
 use crate::models::site::Model as SiteModel;
+use crate::services::PageExistenceSnapshot;
 use crate::services::page_query::{
     ComparisonOperation, DataFormSelector, DateSelector, DateTimeResolution,
     FoundPageFields, FoundPageRow, MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector,
@@ -2764,6 +2765,36 @@ fn defaults_empty_page_link_labels_to_known_target_titles() {
 }
 
 #[test]
+fn fallback_page_links_mark_only_resolved_missing_targets_as_newpage() {
+    let mut titles = WikidotCompatLinkTitleMap::new();
+    titles.set_page_existence(
+        "scp-wiki".to_owned(),
+        PageExistenceSnapshot::from_pages([
+            (("scp-wiki".to_owned(), "present".to_owned()), true),
+            (("scp-wiki".to_owned(), "missing".to_owned()), false),
+            (("remote".to_owned(), "missing".to_owned()), false),
+        ]),
+    );
+
+    assert_eq!(
+        render_native_list_page_link("present", None, Some(&titles)),
+        r#"<a href="/present">Present</a>"#
+    );
+    assert_eq!(
+        render_native_list_page_link("missing", None, Some(&titles)),
+        r#"<a class="newpage" href="/missing">Missing</a>"#
+    );
+    assert_eq!(
+        render_native_list_page_link("unresolved", None, Some(&titles)),
+        r#"<a href="/unresolved">Unresolved</a>"#
+    );
+    assert_eq!(
+        render_native_list_page_link(":remote:missing", None, Some(&titles)),
+        r#"<a class="newpage" href="/:remote:missing">:remote:missing</a>"#
+    );
+}
+
+#[test]
 fn escapes_known_target_titles_used_for_empty_page_link_labels() {
     let mut titles = WikidotCompatLinkTitleMap::new();
     titles.insert(
@@ -2795,7 +2826,9 @@ fn wikidot_compatibility_fallback_uses_known_target_titles_for_empty_links() {
     assert!(
         output
             .body
-            .contains(r#"<a href="/dr-frueh-s-proposal">DarkStuff's Proposal</a>"#)
+            .contains(r#"<a href="/dr-frueh-s-proposal">DarkStuff's Proposal</a>"#),
+        "{}",
+        output.body,
     );
     assert!(output.body.contains(r#"<a href="/scp-8066">SCP-8066</a>"#));
     assert!(
@@ -5362,7 +5395,7 @@ fn wikidot_compatibility_fallback_centers_read_only_rate_module() {
     assert!(output.body.contains(
         r#"<div style="text-align: center;"><div class="page-rate-widget-box">"#
     ));
-    assert!(output.body.contains(r#"<span class="rate-points">rating: <span class="number prw54353">+396</span></span>"#));
+    assert!(output.body.contains("<span class=\"rate-points\">rating:\u{00a0}<span class=\"number prw54353\">+396</span></span>"));
     assert!(output.body.contains(r#"<span class="rateup btn btn-default"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>"#));
     assert!(output.body.contains("</div></div>"));
     assert!(

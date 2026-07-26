@@ -3505,6 +3505,128 @@ async fn backlinks_module_page_argument_targets_the_named_page() {
 }
 
 #[tokio::test]
+async fn categories_module_lists_active_categories_and_honors_include_hidden() {
+    const VISIBLE_CATEGORY: &str = "fixture-categories-visible";
+    const HIDDEN_CATEGORY: &str = "_fixture-categories-hidden";
+    const VISIBLE_PAGE: &str = "fixture-categories-visible-page";
+    const HIDDEN_PAGE: &str = "fixture-categories-hidden-page";
+    const INDEX_PAGE: &str = "fixture-categories-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        VISIBLE_PAGE,
+        "Fixture Categories Visible",
+        "visible category page",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HIDDEN_PAGE,
+        "Fixture Categories Hidden",
+        "hidden category page",
+    )
+    .await;
+
+    let visible_category =
+        CategoryService::get_or_create(runner.context(), site_id, VISIBLE_CATEGORY)
+            .await
+            .expect("visible category should be created");
+    let hidden_category =
+        CategoryService::get_or_create(runner.context(), site_id, HIDDEN_CATEGORY)
+            .await
+            .expect("hidden category should be created");
+    for (page_slug, category_id) in [
+        (VISIBLE_PAGE, visible_category.category_id),
+        (HIDDEN_PAGE, hidden_category.category_id),
+    ] {
+        let page = PageTable::find()
+            .filter(
+                sea_orm::Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::Slug.eq(page_slug)),
+            )
+            .one(runner.context().transaction())
+            .await
+            .expect("category fixture page lookup should not fail")
+            .expect("category fixture page should exist");
+        let mut page = page.into_active_model();
+        page.page_category_id = Set(category_id);
+        page.update(runner.context().transaction())
+            .await
+            .expect("category fixture page should move categories");
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_PAGE,
+        "Fixture Categories Index",
+        concat!(
+            "[[module Categories]]\n",
+            "[[module categories includeHidden=\"true\"]]\n",
+            "[[module CATEGORIES INCLUDEHIDDEN=\"false\"]]",
+        ),
+    )
+    .await;
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_PAGE,
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("Categories index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert_eq!(
+        html.matches(&format!("<h3>{VISIBLE_CATEGORY}</h3>"))
+            .count(),
+        3
+    );
+    assert_eq!(
+        html.matches(&format!("<h3>{HIDDEN_CATEGORY}</h3>")).count(),
+        1
+    );
+    assert_eq!(
+        html.matches("<h3>_default</h3>").count(),
+        3,
+        "_default remains visible without includeHidden:\n{html}"
+    );
+    for (category, category_id) in [
+        (VISIBLE_CATEGORY, visible_category.category_id),
+        (HIDDEN_CATEGORY, hidden_category.category_id),
+    ] {
+        assert!(
+            html.contains(&format!(
+                concat!(
+                    "<h3>{category}</h3>\n",
+                    "<a href=\"javascript:;\" id=\"category-pages-toggler-{category_id}\" ",
+                    "onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, {category_id})\">+ list pages</a>"
+                ),
+                category = category,
+                category_id = category_id,
+            )),
+            "Categories should use the live Wikidot DOM for {category}:\n{html}"
+        );
+    }
+    assert!(!html.contains("TODO: module Categories"));
+    assert!(!html.contains("[[module Categories"));
+}
+
+#[tokio::test]
 async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

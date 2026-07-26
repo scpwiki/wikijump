@@ -39,11 +39,15 @@ use super::compat::preparation::{
 };
 use super::compat::text_fragments::CompatTextFragments;
 use super::compat::wikidot_link_protection::{
-    ProtectedWikidotWikipediaLink, WikidotWikipediaLink, build_wikidot_wikipedia_link,
+    WikidotWikipediaLink, build_wikidot_wikipedia_link,
 };
 use super::diagnostics::{
     CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
     StageGuard,
+};
+use super::ftml_page_existence::{
+    FtmlRenderOutput, InnerPreparedRenderWikitext, ParsedFtmlRender,
+    WikidotCompatLinkTitleMap, native_list_page_link_ref,
 };
 use super::generator::COMPILED_GENERATOR;
 use super::iftags::{
@@ -58,7 +62,7 @@ use super::include_attachment_owners::{
     split_wikidot_include_argument_segments, wikidot_include_segment_is_space,
 };
 use super::include_comment_branches::remove_unresolved_include_comment_branches;
-use super::include_missing::{expand_empty_include_targets, missing_include_source};
+use super::include_missing::{expand_malformed_include_targets, missing_include_source};
 use super::include_variable_iftags::resolve_unbound_include_variable_iftags;
 #[cfg(test)]
 use super::include_variables::{
@@ -103,7 +107,7 @@ use crate::services::settings::{
 use crate::services::text_block::{
     MIME_HTML, TextBlock, TextBlockService, mime_for_language,
 };
-use crate::services::{SiteService, TextService};
+use crate::services::{LinkService, SiteService, TextService};
 use crate::types::Reference;
 use crate::types::{PageId, TextBlockType};
 use crate::utils::locale_for_ftml;
@@ -111,10 +115,9 @@ use crate::utils::now;
 use ftml::data::PageRef;
 use ftml::includes::{FetchedPage, IncludeRef};
 use ftml::prelude::{
-    Includer, Layout, PageInfo, ParseError, Render, ScoreValue, WikitextMode,
-    WikitextSettings,
+    Includer, Layout, PageInfo, ParseError, ScoreValue, WikitextMode, WikitextSettings,
 };
-use ftml::render::html::{HtmlOutput, HtmlRender};
+use ftml::render::html::HtmlOutput;
 use ftml::tree::{CodeBlock, VariableMap};
 use ftml::{self};
 use regex::Regex;
@@ -252,21 +255,6 @@ struct OuterPreparedRenderWikitext {
     timings: CorpusReplayStageTimings,
 }
 
-#[derive(Debug)]
-struct InnerPreparedRenderWikitext {
-    wikitext: String,
-    included_pages: Vec<PageRef>,
-    wikidot_css_modules: Vec<String>,
-    wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
-    wikidot_color_spans: ProtectedWikidotColorSpans,
-    wikidot_compat_links: Vec<ProtectedWikidotCompatLink>,
-    wikidot_wikipedia_links: Vec<ProtectedWikidotWikipediaLink>,
-    wikidot_compat_html: CompatHtmlFragments,
-    wikidot_compat_text: CompatTextFragments,
-    native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
-    wikidot_embed_iframes: Vec<String>,
-    timings: CorpusReplayStageTimings,
-}
 pub(super) const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 // The frozen EN corpus contains a page with 1,266 direct includes. Only the
@@ -313,8 +301,6 @@ pub(super) const WIKIDOT_TABVIEW_SCRIPT: &str = "";
 pub(super) const WIKIDOT_TABVIEW_INIT_SCRIPT: &str =
     r#"<script type="text/javascript"></script>"#;
 const MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS: usize = 128;
-
-pub(super) type WikidotCompatLinkTitleMap = BTreeMap<String, String>;
 
 pub(super) static INCLUDE_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap());
@@ -408,16 +394,16 @@ pub(super) static WIKIDOT_CURRENT_PAGE_LINK_REGEX: LazyLock<Regex> =
 pub(super) static WIKIDOT_STAR_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\*/(?P<target>[^\s\]\n]+)\s+(?P<label>[^\]\n]+)\]").unwrap()
 });
-static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+pub(super) static WIKIDOT_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]\n]*)\]\]\]").unwrap()
 });
 static WIKIDOT_MULTILINE_LABELED_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?s)\[\[\[(?P<target>[^\]|\n]+)\|(?P<label>[^\]]*\n[^\]]*)\]\]\]")
         .unwrap()
 });
-static WIKIDOT_QUADRUPLE_LINK_REGEX: LazyLock<Regex> =
+pub(super) static WIKIDOT_QUADRUPLE_LINK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\[\[(?P<target>[^\]\n]+)\]\]\]\]").unwrap());
-static WIKIDOT_UNLABELED_LINK_REGEX: LazyLock<Regex> =
+pub(super) static WIKIDOT_UNLABELED_LINK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\[(?P<target>[^\]\n]+)\]\]\]").unwrap());
 static WIKIDOT_LOCAL_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[/(?P<target>[^\s\]\n]+)\s+(?P<label>[^\]\n]+)\]").unwrap()
@@ -1192,6 +1178,15 @@ impl RenderService {
             .await
             .or_raise(make_error)?
         };
+        wikitext = Self::expand_categories_modules(
+            ctx,
+            wikitext,
+            settings,
+            current_site_id,
+            &mut wikidot_compat_html,
+        )
+        .await
+        .or_raise(make_error)?;
         wikitext = expand_page_index_modules(
             ctx,
             wikitext,
@@ -1470,9 +1465,11 @@ impl RenderService {
             );
             let fallback_link_titles = {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::FallbackTitles);
-                if let Some(site_id) = current_site_id {
+                if let (Some(site_id), Some(site)) =
+                    (current_site_id, current_site.as_ref())
+                {
                     Self::load_wikidot_compat_fallback_link_titles(
-                        ctx, site_id, &wikitext,
+                        ctx, site_id, &site.slug, &wikitext,
                     )
                     .await
                     .or_raise(make_error)?
@@ -1640,15 +1637,61 @@ impl RenderService {
         let render_timeout =
             Self::ftml_compat_render_timeout(&render_config, &outer.wikitext);
         let worker_trace = trace.map(|(trace, scope)| (trace.clone(), scope));
-        let queued_at = worker_trace.as_ref().map(|_| Instant::now());
-
-        let render_task = task::spawn_blocking(move || {
-            let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
-            if let (Some((trace, scope)), Some(queued_at)) = (trace, queued_at) {
+        let parse_worker_trace = worker_trace.clone();
+        let parse_page_info = render_page_info.clone();
+        let parse_settings = render_settings.clone();
+        let parse_queued_at = parse_worker_trace.as_ref().map(|_| Instant::now());
+        let parse_started = Instant::now();
+        let parse_task = task::spawn_blocking(move || {
+            let trace = parse_worker_trace
+                .as_ref()
+                .map(|(trace, scope)| (trace, *scope));
+            if let (Some((trace, scope)), Some(queued_at)) = (trace, parse_queued_at) {
                 trace.record_elapsed(scope, CorpusRenderStage::WorkerQueue, queued_at);
             }
+            let prepared = Self::prepare_inner_render_wikitext(outer, &parse_settings);
+            ParsedFtmlRender::parse(prepared, &parse_page_info, &parse_settings, trace)
+        });
+        let parsed = timeout(render_timeout, parse_task)
+            .await
+            .or_raise(|| {
+                Error::new("failed to parse due to timeout", ErrorType::RenderTimeout)
+            })?
+            .or_raise(|| Error::new("failed to join parse task", ErrorType::Render))?;
+        let parse_elapsed = parse_started.elapsed();
+        let page_references = parsed.tree.page_references();
+        let page_existence = match current_site_id {
+            Some(site_id) => Some(
+                LinkService::resolve_page_existence(
+                    ctx,
+                    site_id,
+                    &render_page_info.site,
+                    &page_references,
+                )
+                .await
+                .or_raise(make_error)?,
+            ),
+            None => None,
+        };
+        let render_queued_at = worker_trace.as_ref().map(|_| Instant::now());
+        let render_task = task::spawn_blocking(move || {
+            let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
+            if let (Some((trace, scope)), Some(queued_at)) = (trace, render_queued_at) {
+                trace.record_elapsed(scope, CorpusRenderStage::WorkerQueue, queued_at);
+            }
+            let mut html_output = parsed.render(
+                &render_page_info,
+                &render_settings,
+                page_existence.as_ref(),
+                trace,
+            );
+            let ParsedFtmlRender {
+                prepared,
+                tree,
+                errors,
+            } = parsed;
             let InnerPreparedRenderWikitext {
-                wikitext,
+                wikitext: _,
                 included_pages,
                 wikidot_css_modules,
                 wikidot_inline_html,
@@ -1659,29 +1702,8 @@ impl RenderService {
                 wikidot_compat_text,
                 native_list_wikipedia_links,
                 wikidot_embed_iframes,
-                timings,
-            } = Self::prepare_inner_render_wikitext(outer, &render_settings);
-            if let Some((trace, scope)) = trace {
-                trace.add_us(
-                    scope,
-                    CorpusRenderStage::InnerProtect,
-                    timings.inner_protection_us,
-                );
-                trace.add_us(scope, CorpusRenderStage::Preprocess, timings.preprocess_us);
-            }
-            let tokens = {
-                let _stage = StageGuard::new(trace, CorpusRenderStage::Tokenize);
-                ftml::tokenize(&wikitext)
-            };
-            let result = {
-                let _stage = StageGuard::new(trace, CorpusRenderStage::Parse);
-                ftml::parse(&tokens, &render_page_info, &render_settings)
-            };
-            let (tree, errors) = result.into();
-            let mut html_output = {
-                let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlRender);
-                HtmlRender.render(&tree, &render_page_info, &render_settings)
-            };
+                timings: _,
+            } = prepared;
             // Deepwell's Wikidot compatibility scanner identifies actual CSS module
             // syntax before raw HTML fragments are restored. Keeping that typed
             // provenance separate ensures authored <style> HTML stays in the body.
@@ -1793,17 +1815,12 @@ impl RenderService {
             errors,
             html_block_texts,
             code_blocks,
-        } = timeout(render_timeout, render_task)
+        } = timeout(render_timeout.saturating_sub(parse_elapsed), render_task)
             .await
             .or_raise(|| {
-                Error::new(
-                    "failed to parse and render due to timeout",
-                    ErrorType::RenderTimeout,
-                )
+                Error::new("failed to render due to timeout", ErrorType::RenderTimeout)
             })?
-            .or_raise(|| {
-                Error::new("failed to join parse and render task", ErrorType::Render)
-            })?;
+            .or_raise(|| Error::new("failed to join render task", ErrorType::Render))?;
 
         if let Some((trace, CorpusRenderScope::Body)) = trace {
             trace.set_dimension(
@@ -3184,7 +3201,7 @@ impl RenderService {
             let mut wikitext = wikitext;
             Self::normalize_wikidot_ta_badge_multiline_includes(&mut wikitext);
             if expansion_context.settings.layout.legacy() {
-                expand_empty_include_targets(&mut wikitext);
+                expand_malformed_include_targets(&mut wikitext);
             }
             Self::prepare_wikidot_conditionals_before_include_expansion(
                 &mut wikitext,
@@ -4312,8 +4329,15 @@ fn render_native_list_page_link(
                 .unwrap_or_else(|| native_list_page_link_default_label(target))
         });
     let href = native_list_page_link_href(target);
+    let class = native_list_page_link_ref(target)
+        .filter(|page_ref| {
+            link_titles.is_some_and(|titles| titles.page_is_missing(page_ref))
+        })
+        .map(|_| r#" class="newpage""#)
+        .unwrap_or_default();
     format!(
-        r#"<a href="{href}">{label}</a>"#,
+        r#"<a{class} href="{href}">{label}</a>"#,
+        class = class,
         href = escape_list_pages_html_attr(&href),
         label = label,
     )
@@ -4324,9 +4348,7 @@ fn native_list_page_link_title_label(
     link_titles: Option<&WikidotCompatLinkTitleMap>,
 ) -> Option<String> {
     let slug = native_list_page_link_slug(target)?;
-    link_titles?
-        .get(&slug)
-        .map(|title| escape_list_pages_html_text(title))
+    link_titles?.title(&slug).map(escape_list_pages_html_text)
 }
 
 fn native_list_page_link_href(target: &str) -> String {
@@ -4353,7 +4375,7 @@ fn native_list_page_link_href(target: &str) -> String {
     format!("/{}", slug.trim_matches('-'))
 }
 
-fn native_list_page_link_slug(target: &str) -> Option<String> {
+pub(super) fn native_list_page_link_slug(target: &str) -> Option<String> {
     let target = target.trim();
     if target.is_empty()
         || target.starts_with("http://")
@@ -4685,24 +4707,6 @@ pub(super) fn render_clone_module(head: &str) -> String {
     )
 }
 
-pub(super) fn render_join_module(head: &str) -> String {
-    let button = wikidot_module_argument(head, "button")
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or("Join");
-    let class = wikidot_module_argument(head, "class")
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or("join-box");
-    format!(
-        concat!(
-            r#"<div class="{class}">"#,
-            r#"<a href="javascript:;" onclick="WIKIDOT.page.listeners.join(event, 'unified')">{button}</a>"#,
-            "</div>",
-        ),
-        class = escape_list_pages_html_attr(class),
-        button = escape_list_pages_html_text(button),
-    )
-}
-
 fn escape_javascript_single_quoted(value: &str) -> String {
     value
         .replace('\\', r"\\")
@@ -4779,14 +4783,6 @@ struct RenderInnerOutput {
     html_output: HtmlOutput,
     errors: Vec<ParseError>,
     compiled_hash: TextHash,
-}
-
-#[derive(Debug)]
-struct FtmlRenderOutput {
-    html_output: HtmlOutput,
-    errors: Vec<ParseError>,
-    html_block_texts: Vec<String>,
-    code_blocks: Vec<CodeBlock<'static>>,
 }
 
 #[derive(Debug)]
