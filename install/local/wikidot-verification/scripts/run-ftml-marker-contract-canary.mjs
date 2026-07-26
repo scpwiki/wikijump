@@ -338,6 +338,10 @@ export async function readSeedAdministrator(repository) {
   });
 }
 
+export function pageMutationContext(context, slug) {
+  return { ...context, "X-Deepwell-Page": slug };
+}
+
 async function seedFixtures({ rpcUrl, fixtures, expectedFtml, administrator }) {
   const site = await rpc(rpcUrl, "site_get", { site: fixtures.site_slug });
   assert.ok(site?.site_id, `seeded ${fixtures.site_slug} site is missing`);
@@ -375,7 +379,7 @@ async function seedFixtures({ rpcUrl, fixtures, expectedFtml, administrator }) {
           tags: [],
           revision_comments: "FTML marker contract fixture",
         },
-        { ...context, "X-Deepwell-Page": fixture.slug },
+        pageMutationContext(context, fixture.slug),
       );
       page = await rpc(rpcUrl, "page_get", {
         site_id: site.site_id,
@@ -384,11 +388,16 @@ async function seedFixtures({ rpcUrl, fixtures, expectedFtml, administrator }) {
       });
     }
     assert.ok(page, `fixture ${fixture.fixture_id} was not created`);
-    await rpc(rpcUrl, "page_rerender", {
-      site_id: site.site_id,
-      category_id: page.page_category_id,
-      page_id: page.page_id,
-    });
+    await rpc(
+      rpcUrl,
+      "page_rerender",
+      {
+        site_id: site.site_id,
+        category_id: page.page_category_id,
+        page_id: page.page_id,
+      },
+      pageMutationContext(context, fixture.slug),
+    );
     page = await rpc(rpcUrl, "page_get", {
       site_id: site.site_id,
       page: fixture.slug,
