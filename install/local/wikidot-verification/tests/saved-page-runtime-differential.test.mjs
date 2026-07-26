@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import {localHttpsOptions} from "../scripts/run-saved-page-runtime-differential.mjs";
 import {
   compiledGeneratorCheck,
   compareSavedPageRuntime,
@@ -97,7 +98,7 @@ test("compiled generator check rejects stale, missing, and duplicate page artifa
   );
   assert.equal(
     compiledGeneratorCheck(
-      '{"compiled_generator":"ftml v1.42.0 [11111111]; deepwell-render/v1"}',
+      '{compiled_generator:"ftml v1.42.0 [11111111]; deepwell-render/v1"}',
       identity.ftml_sha,
     ).status,
     "mismatch",
@@ -118,5 +119,21 @@ test("saved-page case selection is explicit and rejects unknown filters", () => 
   assert.throws(
     () => selectSavedPageReferences([one], ["missing"]),
     /absent from the references/u,
+  );
+});
+
+test("saved-page local TLS trust cannot widen beyond Wikijump localhost", () => {
+  const localCa = Buffer.from("test local CA");
+  assert.deepEqual(
+    localHttpsOptions(new URL("https://scp-wiki.wikijump.localhost/scp-9507"), localCa),
+    {ca: localCa},
+  );
+  assert.throws(
+    () => localHttpsOptions(new URL("https://scp-wiki.wikidot.com/scp-9507"), localCa),
+    /trust is limited to a Wikijump localhost origin/u,
+  );
+  assert.throws(
+    () => localHttpsOptions(new URL("https://scp-wiki.wikijump.localhost/scp-9507"), Buffer.alloc(0)),
+    /requires a CA certificate/u,
   );
 });

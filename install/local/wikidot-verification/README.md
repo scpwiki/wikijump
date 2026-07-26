@@ -54,6 +54,7 @@ node install/local/wikidot-verification/scripts/run-saved-page-runtime-different
   --runtime-identity /absolute/evidence/path/runtime-identity.json \
   --rerender-receipt /absolute/evidence/path/saved-page-runtime-rerender-receipt.json \
   --local-base https://scp-wiki.wikijump.localhost \
+  --local-ca /absolute/path/to/caddy-local-root.crt \
   --output /absolute/evidence/path/saved-page-runtime-verdict.json
 ```
 
