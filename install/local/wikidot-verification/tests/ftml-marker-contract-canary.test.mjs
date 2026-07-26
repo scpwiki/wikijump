@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   composeDocument,
+  pageMutationContext,
   parseArgs,
   readSeedAdministrator,
 } from "../scripts/run-ftml-marker-contract-canary.mjs";
@@ -19,6 +20,21 @@ const script = path.join(
   "run-ftml-marker-contract-canary.mjs",
 );
 const candidateFtml = "b3e2cca4bbc80693eb4e1085a3acb8619b3b524b";
+
+test("marker canary authenticates page mutations in the exact page context", () => {
+  const context = pageMutationContext(
+    {
+      "X-Deepwell-Session-Token": "session-token",
+      "X-Deepwell-Site-Id": "42",
+    },
+    "marker-heading",
+  );
+  assert.deepEqual(context, {
+    "X-Deepwell-Session-Token": "session-token",
+    "X-Deepwell-Site-Id": "42",
+    "X-Deepwell-Page": "marker-heading",
+  });
+});
 
 test("marker canary module parses sliced argv and injects run-owned credentials", async () => {
   const parsed = parseArgs([
