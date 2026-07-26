@@ -1,7 +1,6 @@
 use crate::parse::RelationSettings;
 use crate::util::make_ident;
-use proc_macro::TokenStream;
-use proc_macro2::Span;
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::token::Pub;
 use syn::{Ident, Type, Visibility};
@@ -39,7 +38,16 @@ pub fn expand_stream(
         remove_method_impl,
     } = generate_remove_defs(context, data_type.as_ref(), remove_fn);
 
-    todo!()
+    quote! {
+        impl RelationService {
+            #get_method_impl
+            #create_method_impl
+            #remove_method_impl
+        }
+
+        #create_struct_def
+        #remove_struct_def
+    }
 }
 
 fn generate_get_methods(
