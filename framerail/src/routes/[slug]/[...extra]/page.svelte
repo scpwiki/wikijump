@@ -15,7 +15,6 @@
     isWikidotFragmentPage
   } from "$lib/wikidot/wikidot-page-actions"
   import { wikidotTabviews } from "$lib/wikidot/wikidot-tabviews"
-  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot/wikidot-styleframe"
 
   import CurrentPageActions from "./CurrentPageActions.svelte"
   import CurrentPageMetadata from "./CurrentPageMetadata.svelte"
@@ -57,9 +56,6 @@
   let compiledBodyStylesHead = $derived(buildGeneratedPageStylesHead(compiledBodyStyles))
   let renderedBodyHtml = $derived(
     showRevision ? revision?.compiled_body_html : data.compiled_body_html
-  )
-  let bodyStyleFrameStylesheets = $derived(
-    extractWikidotStyleFrameStylesheets([renderedBodyHtml], page.url.origin)
   )
   let pageFontPreloadHrefs = $derived(
     pageLayoutContext.current === Layout.WIKIDOT
@@ -149,9 +145,7 @@
   {compiledBodyStylesHead}
   fontPreloadHrefs={pageFontPreloadHrefs}
   siteName={data.site.name}
-  styleFrameStylesheets={bodyStyleFrameStylesheets}
   title={data.page_revision?.title}
-  wikidot={pageLayoutContext.current === Layout.WIKIDOT}
 />
 
 {#if pageLayoutContext.current === Layout.WIKIDOT}

@@ -15,7 +15,10 @@ import { STYLEFRAME_INSERTION_RUNTIME_SOURCE } from "../src/lib/wikidot/wikidot-
 import { STYLEFRAME_ORDERING_RUNTIME_SOURCE } from "../src/lib/wikidot/wikidot-styleframe-runtime-ordering.js"
 import { STYLEFRAME_OWNER_RUNTIME_SOURCE } from "../src/lib/wikidot/wikidot-styleframe-runtime-owner.js"
 import { buildWikidotStyleFrameRuntime } from "../src/lib/wikidot/wikidot-styleframe-runtime.js"
-import { extractWikidotStyleFrameStylesheets } from "../src/lib/wikidot/wikidot-styleframe-stylesheets.js"
+import {
+  extractWikidotStyleFrameDeclarations,
+  extractWikidotStyleFrameStylesheets
+} from "../src/lib/wikidot/wikidot-styleframe-stylesheets.js"
 import { buildWikidotStyleFrameHtml } from "../src/lib/wikidot/wikidot-styleframe.js"
 
 test("serializes styleFrame runtime values without closing the script", () => {
@@ -62,6 +65,41 @@ test("extracts priority-ordered styleFrame stylesheets for initial document CSS"
         priority: "2",
         priorityValue: 2,
         order: 0
+      }
+    ]
+  )
+})
+
+test("extracts external and inline styleFrame CSS in canonical cascade order", () => {
+  assert.deepEqual(
+    extractWikidotStyleFrameDeclarations(
+      [
+        '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=2&amp;theme=https%3A%2F%2Fexample.com%2Flate.css&amp;css=.late%7Bdisplay%3Anone%7D"></iframe>',
+        '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&amp;css=.early%7Bdisplay%3Ablock%7D"></iframe>'
+      ],
+      "https://scp-wiki.wikijump.localhost"
+    ),
+    [
+      {
+        css: ".early{display:block}",
+        kind: "inline",
+        order: 2,
+        priority: "1",
+        priorityValue: 1
+      },
+      {
+        href: "https://example.com/late.css",
+        kind: "theme",
+        order: 0,
+        priority: "2",
+        priorityValue: 2
+      },
+      {
+        css: ".late{display:none}",
+        kind: "inline",
+        order: 1,
+        priority: "2",
+        priorityValue: 2
       }
     ]
   )
@@ -161,6 +199,12 @@ const createHead = (...initialNodes) => {
         return children.filter(
           (node) =>
             node.tagName === "LINK" && node.dataset.wikidotStylePreloaded !== undefined
+        )
+      }
+      if (selector === "style[data-wikidot-style-preloaded]") {
+        return children.filter(
+          (node) =>
+            node.tagName === "STYLE" && node.dataset.wikidotStylePreloaded !== undefined
         )
       }
       const owner = selector.match(/^\[data-wikidot-style-owner="(.+)"\]$/u)?.[1]
@@ -280,7 +324,14 @@ test("removes only the styles owned by the unloaded styleFrame", () => {
     { frameElement: secondFrame, parentWindow }
   )
 
-  first.listeners.get("pagehide")?.()
+  first.listeners.get("pagehide")?.({ persisted: true })
+
+  assert.deepEqual(
+    head.children.map((node) => node.href ?? node.id),
+    ["base", "https://example.com/a.css", "https://example.com/b.css"]
+  )
+
+  first.listeners.get("unload")?.()
 
   assert.deepEqual(
     head.children.map((node) => node.href ?? node.id),
@@ -356,6 +407,37 @@ test("adopts an SSR stylesheet instead of loading the styleFrame theme twice", (
   assert.equal(preloaded.dataset.wikidotStylePreloaded, undefined)
   assert.equal(preloaded.dataset.wikidotStyleFrame, "wikidot-style-frame")
   assert.match(preloaded.dataset.wikidotStyleOwner, /^wikidot-style-frame-/u)
+  assert.equal(head.moveCount, 0)
+})
+
+test("adopts SSR inline styleFrame CSS without moving the parser-created node", () => {
+  const preloaded = {
+    dataset: { wikidotStylePreloaded: "", wikidotStylePriority: "2" },
+    tagName: "STYLE",
+    textContent: ".included { display: none; }"
+  }
+  const generatedPageStyle = {
+    dataset: { wikijumpGeneratedCss: "0" },
+    id: "generated-page"
+  }
+  const head = createHead(preloaded, generatedPageStyle)
+  const scheduledCallbacks = []
+
+  executeStyleFrame(
+    buildWikidotStyleFrameHtml({
+      priority: "2",
+      css: ".included { display: none; }"
+    }),
+    head,
+    scheduledCallbacks
+  )
+
+  assert.equal(head.children.length, 2)
+  assert.equal(head.children[0], preloaded)
+  assert.equal(preloaded.dataset.wikidotStylePreloaded, undefined)
+  assert.equal(preloaded.dataset.wikidotStyleFrame, "wikidot-style-frame")
+  assert.equal(head.moveCount, 0)
+  assert.deepEqual(scheduledCallbacks, [])
 })
 
 test("keeps app styles before styleFrame CSS and generated CSS clones", () => {

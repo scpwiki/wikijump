@@ -10,7 +10,7 @@
   let { header, topBar, loginStatus, sideBar, content, footer, license } = $props()
 </script>
 
-<div id="skrollr-body" use:wikidotCollapsibles>
+<div id="skrollr-body" data-sveltekit-reload use:wikidotCollapsibles>
   <a {...pageTopAnchorAttributes}></a>
   <div id="container-wrap-wrap">
     <div id="container-wrap">

@@ -31,7 +31,10 @@
     resolveWikidotSiteTitle,
     shouldUseSandboxWikidotChrome
   } from "$lib/wikidot/wikidot-chrome"
-  import { extractWikidotStyleFrameStylesheets } from "$lib/wikidot/wikidot-styleframe"
+  import {
+    buildWikidotInlineStyleFrameHead,
+    extractWikidotStyleFrameDeclarations
+  } from "$lib/wikidot/wikidot-styleframe"
   import {
     IOS_ICON_DECLARATIONS,
     IOS_ICON_ROUTE_PREFIX,
@@ -92,9 +95,13 @@
   const siteHasIosIcons = $derived(hasIosIcons(viewData?.site ?? null))
   const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
   const wikidotSessionUserName = $derived(resolveWikidotSessionUserName(viewData))
-  const shellStyleFrameStylesheets = $derived(
-    extractWikidotStyleFrameStylesheets(
-      [viewData?.compiled_top_bar_html, viewData?.compiled_side_bar_html],
+  const styleFrameDeclarations = $derived(
+    extractWikidotStyleFrameDeclarations(
+      [
+        viewData?.compiled_top_bar_html,
+        viewData?.compiled_side_bar_html,
+        viewData?.compiled_body_html
+      ],
       page.url.origin
     )
   )
@@ -149,13 +156,17 @@
     <link href="/wikidot/styles/wikidot-base-165bc434fd1d.css" rel="stylesheet" />
     <link href="/wikidot/styles/pagerate-db0bffe086ed.css" rel="stylesheet" />
     <link href="/wikidot/styles/sigma-fe5388a32e12.css" rel="stylesheet" />
-    {#each shellStyleFrameStylesheets as stylesheet, index (`${stylesheet.priority}:${stylesheet.href}:${index}`)}
-      <link
-        data-wikidot-style-preloaded
-        data-wikidot-style-priority={stylesheet.priority}
-        href={stylesheet.href}
-        rel="stylesheet"
-      />
+    {#each styleFrameDeclarations as declaration, index (`${declaration.priority}:${declaration.kind}:${declaration.order}:${index}`)}
+      {#if declaration.kind === "theme"}
+        <link
+          data-wikidot-style-preloaded
+          data-wikidot-style-priority={declaration.priority}
+          href={declaration.href}
+          rel="stylesheet"
+        />
+      {:else}
+        {@html buildWikidotInlineStyleFrameHead(declaration)}
+      {/if}
     {/each}
   {/if}
 </svelte:head>

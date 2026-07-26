@@ -36,7 +36,10 @@ export const STYLEFRAME_OWNER_RUNTIME_SOURCE = `  const targetWindow = window.pa
   if (frameElement) frameElement.dataset.wikidotStyleOwner = owner;
   registry.owners.set(owner, { frame: frameElement, observer: null });
   const cleanup = () => removeOwner(owner);
-  window.addEventListener?.("pagehide", cleanup, { once: true });
+  const cleanupOnPageHide = (event) => {
+    if (!event?.persisted) cleanup();
+  };
+  window.addEventListener?.("pagehide", cleanupOnPageHide, { once: true });
   window.addEventListener?.("unload", cleanup, { once: true });
   if (frameElement && typeof targetWindow.MutationObserver === "function") {
     const observer = new targetWindow.MutationObserver(() => {

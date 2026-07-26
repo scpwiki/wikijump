@@ -237,7 +237,7 @@ export const pages = {
     rating: 0,
     wikitext: "Navigation style B",
     compiled_body_html:
-      '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=2&amp;css=.styleframe-b%7Bcolor%3Ablue%7D"></iframe><a id="navigate-style-a" href="/navigation-style-a">Navigate to A</a>',
+      '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=2&amp;theme=%2Fnavigation-style-b-theme.css&amp;css=%23page-title%7Bdisplay%3Anone%7D"></iframe><a id="navigate-style-a" href="/navigation-style-a">Navigate to A</a>',
     compiled_body_styles: [
       ".generated-style-b-one { color: blue; }",
       ".generated-style-b-two { color: green; }"
