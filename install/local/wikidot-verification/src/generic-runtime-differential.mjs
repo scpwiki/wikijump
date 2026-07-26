@@ -533,25 +533,6 @@ export function compareRuntimeFragment(
   };
 }
 
-function selectedPages(selection) {
-  const pages = new Map();
-  for (const reference of selection.selected.values()) {
-    const key = `${reference.capture_file_index}:${reference.capture_line}`;
-    const existing = pages.get(key) ?? {
-      capture: reference.capture,
-      capture_file: reference.capture_file,
-      capture_line: reference.capture_line,
-      case_ids: [],
-    };
-    existing.case_ids.push(reference.case_id);
-    pages.set(key, existing);
-  }
-  return [...pages.values()].sort((left, right) => {
-    const time = Date.parse(left.capture.captured_at) - Date.parse(right.capture.captured_at);
-    return time || left.capture_file.localeCompare(right.capture_file) || left.capture_line - right.capture_line;
-  });
-}
-
 export async function runGenericRuntimeDifferential({
   cases,
   captureFiles,
@@ -633,124 +614,80 @@ export async function runGenericRuntimeDifferential({
       });
     }
   }
-  for (const page of selectedPages(selection)) {
-    const capture = page.capture;
-    const pageComparisons = [];
+  for (const [caseId, reference] of selection.selected) {
+    const runtimeCase = selection.casesById.get(caseId);
+    const capture = reference.capture;
+    const slug = `run-owned:ftml-singleton-${runtimeCase.source_sha256.slice(0, 24)}`;
     try {
       const receipt = await adapter.withCompiledPage(
         {
-          slug: capture.page_plan.slug,
-          title: capture.page_plan.title,
-          source: capture.saved_source,
-          source_sha256: capture.saved_source_sha256,
+          slug,
+          title: caseId,
+          source: runtimeCase.source,
+          source_sha256: runtimeCase.source_sha256,
         },
         async (compiledBodyHtml, htmlBlockEvidence = {iframe_count: 0, blocks: []}) => {
           const boundHtmlBlocks = bindLocalHtmlBlockPayloads(
             compiledBodyHtml,
             htmlBlockEvidence.blocks,
           );
-          let fragments = null;
-          let identityFragments = null;
-          try {
-            fragments = extractMarkedFragments(compiledBodyHtml, capture.page_plan);
-            identityFragments = extractMarkedFragments(
-              boundHtmlBlocks.html,
-              capture.page_plan,
-            );
-          } catch {
-            // A syntax case can consume or suppress its own sentinel without
-            // invalidating later, independently extractable cases on the page.
-          }
-          for (const caseId of page.case_ids) {
-            const marker = capture.page_plan.cases.find((value) => value.case_id === caseId);
-            let localHtml = fragments?.get(caseId);
-            let localIdentityHtml = identityFragments?.get(caseId);
-            try {
-              if (localHtml == null) {
-                localHtml = extractMarkedFragments(compiledBodyHtml, {cases: [marker]}).get(caseId);
-              }
-              if (localIdentityHtml == null) {
-                localIdentityHtml = extractMarkedFragments(
-                  boundHtmlBlocks.html,
-                  {cases: [marker]},
-                ).get(caseId);
-              }
-              if (localHtml == null) throw new Error(`local marker extraction failed: ${caseId}`);
-              if (localIdentityHtml == null) {
-                throw new Error(`local HTML block identity extraction failed: ${caseId}`);
-              }
-            } catch (error) {
-              pageComparisons.push({
-                case_id: caseId,
-                status: 'runtime-error',
-                diagnostic: {
-                  slug: capture.page_plan.slug,
-                  error: error instanceof Error ? error.message : String(error),
-                },
-              });
-              continue;
-            }
-            const reference = selection.selected.get(caseId);
-            const runtimeCase = selection.casesById.get(caseId);
-            const localBlockProjection = projectRuntimeHtmlBlocks(
-              canonicalDom(localIdentityHtml),
-              {side: 'wikijump', pageSlug: capture.page_plan.slug},
-            );
-            const hasCaseHtmlBlocks =
-              /\[\[\s*html(?:\s|\])/iu.test(runtimeCase.source) ||
-              countLocalHtmlBlockHandles(localHtml) > 0 ||
-              reference.wikidot_html.includes('html-block-iframe');
-            const caseBlocks = localBlockProjection.blocks.map((block) =>
-              htmlBlockEvidence.blocks[block.stored_index - 1]
-            ).filter(Boolean);
-            const caseBinding = hasCaseHtmlBlocks
-              ? {
-                  status: boundHtmlBlocks.binding.status,
-                  iframe_count: countLocalHtmlBlockHandles(localHtml),
-                  stored_block_count: caseBlocks.length,
-                  page_iframe_count: boundHtmlBlocks.binding.iframe_count,
-                  page_stored_block_count: boundHtmlBlocks.binding.stored_block_count,
-                  blocks: caseBlocks,
-                }
-              : null;
-            const comparison = compareRuntimeFragment(
-              runtimeCase,
-              reference.wikidot_html,
-              localHtml,
-              {
-                pageSlug: capture.page_plan.slug,
-                wikijumpIdentityHtml: localIdentityHtml,
-                htmlBlockBinding: caseBinding,
-              },
-            );
-            pageComparisons.push({
-              ...comparison,
-              identities: {
-                wikidot_html_sha256: sha256(reference.wikidot_html),
-                wikijump_html_sha256: sha256(localHtml),
-                capture_file: reference.capture_file,
-                capture_line: reference.capture_line,
-                page_identity: reference.capture.page_identity,
-                saved_source_sha256: reference.capture.saved_source_sha256,
-              },
-            });
-          }
-        }
+          const localBlockProjection = projectRuntimeHtmlBlocks(
+            canonicalDom(boundHtmlBlocks.html),
+            {side: 'wikijump', pageSlug: capture.page_plan.slug},
+          );
+          const hasHtmlBlocks =
+            /\[\[\s*html(?:\s|\])/iu.test(runtimeCase.source) ||
+            countLocalHtmlBlockHandles(compiledBodyHtml) > 0 ||
+            reference.wikidot_html.includes('html-block-iframe');
+          const comparison = compareRuntimeFragment(
+            runtimeCase,
+            reference.wikidot_html,
+            compiledBodyHtml,
+            {
+              pageSlug: capture.page_plan.slug,
+              wikijumpIdentityHtml: boundHtmlBlocks.html,
+              htmlBlockBinding: hasHtmlBlocks
+                ? {
+                    status: boundHtmlBlocks.binding.status,
+                    iframe_count: countLocalHtmlBlockHandles(compiledBodyHtml),
+                    stored_block_count: localBlockProjection.blocks.length,
+                    page_iframe_count: boundHtmlBlocks.binding.iframe_count,
+                    page_stored_block_count: boundHtmlBlocks.binding.stored_block_count,
+                    blocks: localBlockProjection.blocks.map((block) =>
+                      htmlBlockEvidence.blocks[block.stored_index - 1]
+                    ).filter(Boolean),
+                  }
+                : null,
+            },
+          );
+          comparisons.push({
+            ...comparison,
+            identities: {
+              wikidot_html_sha256: sha256(reference.wikidot_html),
+              wikijump_html_sha256: sha256(compiledBodyHtml),
+              capture_file: reference.capture_file,
+              capture_line: reference.capture_line,
+              page_identity: reference.capture.page_identity,
+              saved_source_sha256: reference.capture.saved_source_sha256,
+              local_execution: 'sentinel-free-singleton',
+              wikidot_batch_slug: capture.page_plan.slug,
+              wikijump_singleton_slug: slug,
+            },
+          });
+        },
       );
       pageReceipts.push(receipt);
-      comparisons.push(...pageComparisons);
     } catch (error) {
       if (error instanceof RuntimeCleanupError) throw error;
-      for (const caseId of page.case_ids) {
-        comparisons.push({
-          case_id: caseId,
-          status: 'runtime-error',
-          diagnostic: {
-            slug: capture.page_plan.slug,
-            error: error instanceof Error ? error.message : String(error),
-          },
-        });
-      }
+      comparisons.push({
+        case_id: caseId,
+        status: 'runtime-error',
+        diagnostic: {
+          slug,
+          wikidot_batch_slug: capture.page_plan.slug,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
     }
   }
   comparisons.sort((left, right) => left.case_id.localeCompare(right.case_id));

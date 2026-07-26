@@ -379,10 +379,7 @@ test("runner keeps a static tabview match incomplete without browser evidence", 
   const wikidotId = `wiki-tabview-${"a".repeat(32)}`;
   const wikijumpId = `wiki-tabview-${"b".repeat(32)}`;
   const saved = capture(caseValue, {fragment: liveTabview(wikidotId)});
-  const marker = saved.page_plan.cases[0];
-  const compiled =
-    `<div id="page-content"><p>${marker.marker_begin}</p>${localTabview(wikijumpId)}` +
-    `<p>${marker.marker_end}</p></div>`;
+  const compiled = localTabview(wikijumpId);
   const report = await runGenericRuntimeDifferential({
     cases: [caseValue],
     captureFiles: [{path: "captures.jsonl", captures: [saved]}],
@@ -596,7 +593,7 @@ test("runner binds a case fragment to its persisted HTML block payload", async (
   };
   const fixture = htmlBlockFixture(["\n<b>stored</b>\n"], {slug});
   const saved = capture(caseValue, {slug, fragment: fixture.live});
-  const compiled = `<div id="page-content">${fixture.local}</div>`;
+  const compiled = fixture.local;
   const report = await runGenericRuntimeDifferential({
     cases: [caseValue],
     captureFiles: [{path: "captures.jsonl", captures: [saved]}],
@@ -632,7 +629,8 @@ test("runner reports acquisition failures and cleans each page before the next",
       activePages += 1;
       assert.equal(activePages, 1);
       try {
-        await inspect(captured.page_content_html);
+        assert.equal(page.source, capturedCase.source);
+        await inspect("<p>alpha</p>");
       } finally {
         activePages -= 1;
       }
@@ -671,14 +669,12 @@ test("runner turns adapter failures into a fail-closed runtime error", async () 
   assert.match(report.comparisons[0].diagnostic.error, /cleanup failed/u);
 });
 
-test("runner isolates a marker failure to the case that lost its sentinel", async () => {
-  const brokenCase = runtimeCase("broken-marker");
-  const intactCase = runtimeCase("intact-marker");
+test("runner compiles every saved-page case from its exact source in a cleaned singleton", async () => {
+  const brokenCase = runtimeCase("broken-marker", "broken");
+  const intactCase = runtimeCase("intact-marker", "intact");
   const captured = combinedCapture([brokenCase, intactCase]);
-  const intactMarker = captured.page_plan.cases[1];
-  const localHtml =
-    `<div id="page-content"><p>broken without sentinels</p><p>${intactMarker.marker_begin}</p>` +
-    `<p>${intactCase.source}</p><p>${intactMarker.marker_end}</p></div>`;
+  const calls = [];
+  let activePages = 0;
   const report = await runGenericRuntimeDifferential({
     cases: [brokenCase, intactCase],
     captureFiles: [{path: "captures.jsonl", captures: [captured]}],
@@ -686,15 +682,33 @@ test("runner isolates a marker failure to the case that lost its sentinel", asyn
     runtimeIdentity,
     adapter: {
       async withCompiledPage(page, inspect) {
-        await inspect(localHtml);
+        activePages += 1;
+        assert.equal(activePages, 1);
+        calls.push(page);
+        await inspect(`<p>${page.source}</p>`);
+        activePages -= 1;
         return {slug: page.slug, cleanup: {status: "removed"}};
       },
     },
   });
-  assert.equal(report.summary.runtime_error, 1);
-  assert.equal(report.summary.match, 1);
-  assert.equal(report.comparisons.find((value) => value.case_id === brokenCase.case_id).status, "runtime-error");
+  assert.equal(activePages, 0);
+  assert.equal(report.summary.runtime_error, 0);
+  assert.equal(report.summary.match, 2);
+  assert.deepEqual(calls.map((page) => page.source), [brokenCase.source, intactCase.source]);
+  assert.deepEqual(calls.map((page) => page.source_sha256), [
+    brokenCase.source_sha256,
+    intactCase.source_sha256,
+  ]);
+  assert.ok(calls.every((page) =>
+    page.slug === `run-owned:ftml-singleton-${page.source_sha256.slice(0, 24)}`
+  ));
+  assert.equal(report.page_receipts.length, 2);
+  assert.ok(report.page_receipts.every((receipt) => receipt.cleanup.status === "removed"));
+  assert.equal(report.comparisons.find((value) => value.case_id === brokenCase.case_id).status, "match");
   assert.equal(report.comparisons.find((value) => value.case_id === intactCase.case_id).status, "match");
+  assert.ok(report.comparisons.every((value) =>
+    value.identities.local_execution === "sentinel-free-singleton"
+  ));
 });
 
 test("Deepwell adapter removes a created page when inspection fails", async () => {
