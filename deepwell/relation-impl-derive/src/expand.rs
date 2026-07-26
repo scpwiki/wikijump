@@ -193,31 +193,69 @@ fn generate_create_defs(
         let error_name = make_ident(format!("{}Relation", struct_name));
         let method_name = make_ident(format!("create_{field_name}{suffix}"));
 
+        let struct_decompose;
+        let create_call;
+        match data_type {
+            // Include metadata field
+            Some(_) => {
+                struct_decompose = quote! {
+                    #create_struct {
+                        #dest_name,
+                        #from_name,
+                        metadata,
+                        created_by,
+                    }: #create_struct
+                };
+
+                create_call = quote! {
+                    Self::create(
+                        ctx,
+                        RelationType::#struct_name,
+                        RelationObject::#dest_type(#dest_name),
+                        RelationObject::#from_type(#from_name),
+                        created_by,
+                        metadata,
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                };
+            }
+
+            // No metadata field
+            None => {
+                struct_decompose = quote! {
+                    #create_struct {
+                        #dest_name,
+                        #from_name,
+                        created_by,
+                    }: #create_struct
+                };
+
+                create_call = quote! {
+                    Self::create(
+                        ctx,
+                        RelationType::#struct_name,
+                        RelationObject::#dest_type(#dest_name),
+                        RelationObject::#from_type(#from_name),
+                        created_by,
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                };
+            }
+        };
+
         quote! {
             #vis async fn #method_name(
                 ctx: &ServiceContext<'_>,
-                #create_struct {
-                    #dest_name,
-                    #from_name,
-                    metadata,
-                    created_by,
-                }: #create_struct,
+                #struct_decompose,
             ) -> Result<()> {
                 let make_error = || Error::new(
                     concat!("failed to create ", stringify!(#struct_name)),
                     ErrorType::#error_name,
                 );
 
-                Self::create(
-                    ctx,
-                    RelationType::#struct_name,
-                    RelationObject::#dest_type(#dest_name),
-                    RelationObject::#from_type(#from_name),
-                    created_by,
-                    metadata,
-                )
-                .await
-                .or_raise(make_error)?;
+                #create_call
 
                 Ok(())
             }
