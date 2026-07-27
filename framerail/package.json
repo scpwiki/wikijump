@@ -29,7 +29,7 @@
     "eslint-plugin-svelte": "^3.19.0",
     "globals": "^17.6.0",
     "jiti": "^2.7.0",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.18",
     "postcss-html": "^1.8.1",
     "postcss-scss": "^4.0.9",
     "prettier": "^3.9.6",
