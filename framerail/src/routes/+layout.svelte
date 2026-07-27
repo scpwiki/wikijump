@@ -2,6 +2,7 @@
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
   import Wikidot from "$lib/sigma-esque/wikidot.svelte"
   import wjBanner from "$assets/logo-outline.min.svg?raw"
+  import ui from "$assets/ui.svg?raw"
   import ErrorPopup from "$lib/popup/error.svelte"
 
   import { page } from "$app/state"
@@ -32,6 +33,10 @@
     setLayout()
   })
 </script>
+
+<div class="svg-defs hidden">
+  {@html ui}
+</div>
 
 {#if errorPopupState.current.state}
   <ErrorPopup exitPrompt={closeErrorPopup} />
