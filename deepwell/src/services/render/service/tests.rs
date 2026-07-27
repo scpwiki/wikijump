@@ -29,14 +29,15 @@ use super::super::list_pages::template::ListPagesTemplatePlan;
 use super::super::list_pages::{
     ListPagesBatchDisplayRequirements, ListPagesExpansionBudget, ListPagesOffsetOrigin,
     ListPagesSnapshotDisplay, ListPagesSubstitutionContext, WikidotUserDisplay,
-    count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
-    count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
-    count_pages_scan_requires_preservation, count_pages_should_remain_literal,
-    count_pages_unbounded_total, current_page_info_list_pages_row,
-    exact_name_list_pages_batch_key, format_list_pages_created_at,
-    list_pages_author_cache_key, list_pages_body_is_no_visible_tracking_markup,
-    list_pages_body_uses_content_variable, list_pages_body_variables_supported,
-    list_pages_content_query_target, list_pages_has_unsupported_page_type_selector,
+    build_wikidot_list_pages_module_source, count_pages_capture_is_literal,
+    count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,
+    count_pages_required_tag_batch_selector, count_pages_scan_requires_preservation,
+    count_pages_should_remain_literal, count_pages_unbounded_total,
+    current_page_info_list_pages_row, exact_name_list_pages_batch_key,
+    format_list_pages_created_at, list_pages_author_cache_key,
+    list_pages_body_is_no_visible_tracking_markup, list_pages_body_uses_content_variable,
+    list_pages_body_variables_supported, list_pages_content_query_target,
+    list_pages_has_unsupported_page_type_selector,
     list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
     list_pages_revision_count, list_pages_row_scan_target, list_pages_tag_link_href,
     page_query_cap_requires_original_module, parse_list_pages_arguments,
@@ -576,6 +577,41 @@ fn only_url_offset_content_counts_toward_the_extended_deadline() {
         ),
         0,
     );
+}
+
+#[test]
+fn ajax_listpages_source_accepts_only_balanced_nested_modules() {
+    let parameters = BTreeMap::from([
+        ("limit".to_owned(), "1".to_owned()),
+        ("name".to_owned(), "outer-row".to_owned()),
+    ]);
+    let nested_body = concat!(
+        "OUTER_BEFORE %%fullname%%\n",
+        "[[module ListPages name=\"inner-row\" limit=\"1\"]]\n",
+        "INNER_ROW %%fullname%%\n",
+        "[[/module]]\n",
+        "OUTER_AFTER %%fullname%%",
+    );
+
+    let source =
+        build_wikidot_list_pages_module_source(nested_body.to_owned(), &parameters)
+            .expect("live Wikidot accepts a balanced nested ListPages body");
+    let matches = find_list_pages_module_matches(&source);
+    assert_eq!(matches.len(), 1);
+    assert_eq!(matches[0].start, 0);
+    assert_eq!(matches[0].end, source.len());
+    assert_eq!(matches[0].body.trim(), nested_body);
+
+    for malformed in [
+        "BEFORE [[/module]] AFTER",
+        "[[module ListPages name=\"inner-row\"]] UNCLOSED",
+    ] {
+        assert!(
+            build_wikidot_list_pages_module_source(malformed.to_owned(), &parameters,)
+                .is_none(),
+            "an AMC body must not escape or consume its generated outer module: {malformed}",
+        );
+    }
 }
 
 #[test]

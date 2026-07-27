@@ -62,6 +62,7 @@ use super::{
     unsupported_list_pages_replacement,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::hash::{TextHash, k12_hash};
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::services::ServiceContext;
 use crate::services::page_query::{
@@ -85,6 +86,9 @@ use sea_orm::{
 };
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
+
+const MAX_NESTED_LISTPAGES_DEPTH: usize = 8;
+const MAX_NESTED_LISTPAGES_MODULES_PER_PASS: usize = 64;
 
 #[derive(Debug)]
 pub(in crate::services::render) enum ListPagesBlockRenderResult {
@@ -207,6 +211,38 @@ impl RenderService {
         compat_text: &mut CompatTextFragments,
         options: ListPagesExpansionOptions<'_>,
     ) -> Result<ListPagesExpansion> {
+        let mut expansion_budget = ListPagesExpansionBudget::new();
+        let mut seen = BTreeSet::new();
+        Box::pin(Self::expand_list_pages_nested(
+            ctx,
+            wikitext,
+            page_info,
+            settings,
+            compat_html,
+            include_source_cache,
+            compat_text,
+            options,
+            &mut expansion_budget,
+            &mut seen,
+            0,
+        ))
+        .await
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    async fn expand_list_pages_nested(
+        ctx: &ServiceContext<'_>,
+        wikitext: String,
+        page_info: &PageInfo<'_>,
+        settings: &WikitextSettings,
+        compat_html: &mut CompatHtmlFragments,
+        include_source_cache: &mut IncludeSourceCache,
+        compat_text: &mut CompatTextFragments,
+        options: ListPagesExpansionOptions<'_>,
+        expansion_budget: &mut ListPagesExpansionBudget,
+        seen: &mut BTreeSet<TextHash>,
+        depth: usize,
+    ) -> Result<ListPagesExpansion> {
         let ListPagesExpansionOptions {
             current_site_id,
             current_page_id,
@@ -221,6 +257,7 @@ impl RenderService {
                 url_offset_content_bytes: 0,
             });
         };
+        let requested_current_page_id = current_page_id;
         let current_page_id = current_page_id.unwrap_or(0);
 
         if !settings.enable_page_syntax {
@@ -233,6 +270,15 @@ impl RenderService {
         }
 
         if !has_list_pages_module_opening_candidate(&wikitext) {
+            return Ok(ListPagesExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+                expanded_include_count: 0,
+                url_offset_content_bytes: 0,
+            });
+        }
+
+        if !seen.insert(k12_hash(wikitext.as_bytes())) {
             return Ok(ListPagesExpansion {
                 wikitext,
                 included_pages: Vec::new(),
@@ -266,7 +312,16 @@ impl RenderService {
                 ListPagesBlockPlan::Static(replacement)
             }
         };
-        let blocks = find_list_pages_module_matches(&wikitext)
+        let module_matches = find_list_pages_module_matches(&wikitext);
+        if depth > 0 && module_matches.len() > MAX_NESTED_LISTPAGES_MODULES_PER_PASS {
+            return Ok(ListPagesExpansion {
+                wikitext,
+                included_pages: Vec::new(),
+                expanded_include_count: 0,
+                url_offset_content_bytes: 0,
+            });
+        }
+        let blocks = module_matches
             .into_iter()
             .map(|module| {
                 let head = module.head;
@@ -314,7 +369,6 @@ impl RenderService {
         let mut included_pages = Vec::new();
         let mut url_offset_content_bytes = 0usize;
         let mut content_cache = ListPagesContentCache::default();
-        let mut expansion_budget = ListPagesExpansionBudget::new();
         let mut permission_cache = BTreeMap::new();
         let mut score_filter_cache = PageQueryScoreFilterCache::default();
         let mut author_resolution_cache = BTreeMap::new();
@@ -424,7 +478,7 @@ impl RenderService {
                         prefetched_displays.as_ref(),
                         include_source_cache,
                         &mut content_cache,
-                        &mut expansion_budget,
+                        expansion_budget,
                         &mut permission_cache,
                         &mut score_filter_cache,
                         &mut author_resolution_cache,
@@ -500,7 +554,7 @@ impl RenderService {
                         None,
                         include_source_cache,
                         &mut content_cache,
-                        &mut expansion_budget,
+                        expansion_budget,
                         &mut permission_cache,
                         &mut score_filter_cache,
                         &mut author_resolution_cache,
@@ -543,13 +597,45 @@ impl RenderService {
         }
 
         expanded.push_str(&wikitext[cursor..]);
-        Ok(ListPagesExpansion {
+        let mut expansion = ListPagesExpansion {
             wikitext: expanded,
             included_pages,
             expanded_include_count: initial_remaining_include_expansions
                 .saturating_sub(include_budget.remaining),
             url_offset_content_bytes,
-        })
+        };
+        if depth < MAX_NESTED_LISTPAGES_DEPTH
+            && has_list_pages_module_opening_candidate(&expansion.wikitext)
+        {
+            let nested = Box::pin(Self::expand_list_pages_nested(
+                ctx,
+                std::mem::take(&mut expansion.wikitext),
+                page_info,
+                settings,
+                compat_html,
+                include_source_cache,
+                compat_text,
+                ListPagesExpansionOptions {
+                    current_site_id: Some(current_site_id),
+                    current_page_id: requested_current_page_id,
+                    include_budget,
+                    url,
+                },
+                expansion_budget,
+                seen,
+                depth + 1,
+            ))
+            .await?;
+            expansion.wikitext = nested.wikitext;
+            expansion.included_pages.extend(nested.included_pages);
+            expansion.expanded_include_count = expansion
+                .expanded_include_count
+                .saturating_add(nested.expanded_include_count);
+            expansion.url_offset_content_bytes = expansion
+                .url_offset_content_bytes
+                .saturating_add(nested.url_offset_content_bytes);
+        }
+        Ok(expansion)
     }
 
     pub(in crate::services::render) async fn load_exact_name_list_pages_batch(
