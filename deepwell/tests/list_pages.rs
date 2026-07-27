@@ -24,7 +24,7 @@ mod common;
 use self::common::TestRunner;
 use deepwell::constants::{ADMIN_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID};
 use deepwell::hash::k12_hash;
-use deepwell::services::{RequestContext, TextService};
+use deepwell::services::{RenderService, RequestContext, TextService};
 use deepwell::types::Reference;
 use sea_orm::{ConnectionTrait, Statement, Value};
 use serde_json::json;
@@ -1340,4 +1340,77 @@ async fn created_by_exclusion_omits_the_containing_pages_author() {
         !html.contains(&format!("ROW {OWN_SLUG}")),
         "the excluded author's page must not be returned:\n{html}",
     );
+}
+
+#[tokio::test]
+async fn unsaved_preview_runs_site_queries_without_inventing_a_current_page() {
+    const TARGET_SLUG: &str = "listpages-preview-context-target";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(TARGET_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "Preview context target",
+            "title": "ListPages Preview Context Target",
+            "alt_title": null,
+            "slug": TARGET_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "ListPages preview context fixture",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let static_preview = RenderService::render_wikidot_page_preview(
+        runner.context(),
+        site_id,
+        "Unsaved preview",
+        format!(
+            "[[module ListPages name=\"{TARGET_SLUG}\"]]\nROW %%fullname%%\n[[/module]]",
+        ),
+    )
+    .await
+    .expect("site-scoped ListPages should render in an unsaved preview")
+    .html_output
+    .body;
+    assert!(
+        static_preview.contains(&format!("ROW {TARGET_SLUG}")),
+        "an unsaved preview should still query its site:\n{static_preview}",
+    );
+
+    for source in [
+        "[[module ListPages range=\".\"]]\nROW %%fullname%%\n[[/module]]",
+        "[[module ListPages name=\"=\"]]\nROW %%fullname%%\n[[/module]]",
+        "[[module ListPages parent=\".\"]]\nROW %%fullname%%\n[[/module]]",
+        "[[module ListPages created_by=\"=\"]]\nROW %%fullname%%\n[[/module]]",
+        "[[module ListPages category=\"*\" created_by=\"-=\"]]\nROW %%fullname%%\n[[/module]]",
+    ] {
+        let preview = RenderService::render_wikidot_page_preview(
+            runner.context(),
+            site_id,
+            "Unsaved preview",
+            source.to_owned(),
+        )
+        .await
+        .expect("a current-page selector should render an empty unsaved preview")
+        .html_output
+        .body;
+        assert!(
+            preview.contains("class=\"list-pages-box\"") && !preview.contains("ROW "),
+            "a preview without saved page identity should produce an empty ListPages wrapper:\n{preview}",
+        );
+    }
 }
