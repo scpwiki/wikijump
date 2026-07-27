@@ -60,10 +60,11 @@ use super::{
     CountPagesRequiredTagBatchResult, IncludeExpansionContext, IncludeSourceCache,
     LiteralRegionIndex, MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS,
     MAX_FTML_COMPAT_DENSE_PARSE_SCORE, MAX_FTML_COMPAT_PARSE_BYTES,
-    MAX_LISTPAGES_RENDER_SCAN_ROWS, MAX_NATIVE_LIST_COMPAT_DEPTH,
-    MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
-    MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
-    PreparedIncluder, RenderContext, RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
+    MAX_LISTPAGES_RENDER_OFFSET, MAX_LISTPAGES_RENDER_SCAN_ROWS,
+    MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
+    MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
+    MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, PreparedIncluder, RenderContext,
+    RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
     WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
     WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
     WIKIDOT_LISTPAGES_LITERAL_ELLIPSIS_SENTINEL_PREFIX,
@@ -415,6 +416,14 @@ fn url_category(category: Option<&str>) -> UrlArguments<'_> {
     }
 }
 
+/// A request that carried only an `offset` path argument.
+fn url_offset(offset: Option<u32>) -> UrlArguments<'static> {
+    UrlArguments {
+        offset,
+        ..UrlArguments::default()
+    }
+}
+
 #[test]
 fn a_url_tag_selector_resolves_to_the_requests_tag() {
     let arguments = parse_list_pages_arguments_with_url(
@@ -486,6 +495,46 @@ fn a_static_tags_selector_ignores_the_url_tag() {
             .expect("static tags selector should parse");
 
     assert_eq!(arguments.default_tags, vec!["alpha"]);
+}
+
+#[test]
+fn a_url_offset_selector_resolves_to_the_requests_offset() {
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" offset="@URL|0""#, url_offset(Some(7)))
+            .expect("url offset selector should parse");
+
+    assert_eq!(arguments.offset, 7);
+}
+
+#[test]
+fn a_url_offset_selector_falls_back_without_a_valid_request_offset() {
+    for offset in [None, Some(MAX_LISTPAGES_RENDER_OFFSET + 1)] {
+        let arguments = parse_list_pages_arguments_with_url(
+            r#" offset="@URL|3""#,
+            url_offset(offset),
+        )
+        .expect("url offset fallback should parse");
+
+        assert_eq!(arguments.offset, 3);
+    }
+}
+
+#[test]
+fn a_url_offset_selector_without_an_authored_fallback_defaults_to_zero() {
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" offset="@URL""#, url_offset(None))
+            .expect("bare url offset selector should parse");
+
+    assert_eq!(arguments.offset, 0);
+}
+
+#[test]
+fn a_static_offset_ignores_the_request_offset() {
+    let arguments =
+        parse_list_pages_arguments_with_url(r#" offset="2""#, url_offset(Some(7)))
+            .expect("static offset should parse");
+
+    assert_eq!(arguments.offset, 2);
 }
 
 #[test]

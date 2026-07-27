@@ -53,6 +53,12 @@ pub struct PageModuleArguments {
     /// As with [`tag`](Self::tag), `Some("")` is kept distinct from `None` so
     /// the renderer decides what an empty segment means.
     pub category: Option<String>,
+
+    /// `/offset/<n>`, read by a ListPages `offset="@URL|fallback"` selector.
+    ///
+    /// Invalid and negative values are absent, so the selector uses its
+    /// authored fallback.
+    pub offset: Option<u32>,
 }
 
 impl PageModuleArguments {
@@ -75,16 +81,24 @@ impl PageModuleArguments {
             .get(&UniCase::unicode("category"))
             .map(|(_, raw)| (*raw).to_owned());
 
+        let offset = arguments
+            .get(&UniCase::unicode("offset"))
+            .and_then(|(_, raw)| raw.parse::<u32>().ok());
+
         PageModuleArguments {
             tag,
             page,
             category,
+            offset,
         }
     }
 
     /// Whether the path addressed any module at all.
     pub fn is_empty(&self) -> bool {
-        self.tag.is_none() && self.page.is_none() && self.category.is_none()
+        self.tag.is_none()
+            && self.page.is_none()
+            && self.category.is_none()
+            && self.offset.is_none()
     }
 }
 
@@ -122,6 +136,28 @@ mod tests {
             Some(""),
         );
         assert_eq!(PageModuleArguments::parse("/tag/x").category, None);
+    }
+
+    #[test]
+    fn an_offset_is_read_as_a_nonnegative_integer() {
+        assert_eq!(PageModuleArguments::parse("/offset/0").offset, Some(0));
+        assert_eq!(PageModuleArguments::parse("/offset/25").offset, Some(25));
+    }
+
+    #[test]
+    fn an_invalid_offset_is_absent() {
+        for extra in [
+            "/offset/not-an-integer",
+            "/offset/-1",
+            "/offset/",
+            "/offset/2.5",
+        ] {
+            assert_eq!(
+                PageModuleArguments::parse(extra).offset,
+                None,
+                "{extra} should not yield an offset",
+            );
+        }
     }
 
     #[test]

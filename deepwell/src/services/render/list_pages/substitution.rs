@@ -509,7 +509,19 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                 count_pages_per_page = Some(parsed);
             }
             "offset" => {
-                let parsed = parse_list_pages_numeric_argument(value)?;
+                let parsed = if is_dynamic_list_pages_value(value) {
+                    match url
+                        .offset
+                        .filter(|offset| *offset <= MAX_LISTPAGES_RENDER_OFFSET)
+                    {
+                        Some(offset) => u64::from(offset),
+                        None => {
+                            list_pages_url_fallback(value).unwrap_or("0").parse().ok()?
+                        }
+                    }
+                } else {
+                    value.parse().ok()?
+                };
                 if parsed > u64::from(MAX_LISTPAGES_RENDER_OFFSET) {
                     return None;
                 }

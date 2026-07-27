@@ -106,6 +106,7 @@ pub(super) async fn render_body_for_module_arguments(
             tag: module_arguments.tag.as_deref(),
             page: module_arguments.page,
             category: module_arguments.category.as_deref(),
+            offset: module_arguments.offset,
         },
     )
     .await?;
