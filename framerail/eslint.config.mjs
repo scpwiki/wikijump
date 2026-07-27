@@ -81,6 +81,8 @@ export default defineConfig(
         { fixMixedExportsWithInlineTypeSpecifier: true }
       ],
 
+      "@typescript-eslint/ban-ts-comment": "off",
+
       // TODO: warn no-explicit-any and no-unused-vars
       // should remove them later
       "@typescript-eslint/no-explicit-any": "warn",
@@ -150,6 +152,7 @@ export default defineConfig(
       "./build/**/*",
       "./svelte-kit/**/*",
       "./package/**/*",
+      "**/vendor/**/*",
       "**/.DS_Store",
       "**/node_modules",
       "build",
