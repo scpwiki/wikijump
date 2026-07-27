@@ -40,8 +40,8 @@ impl RelationObjectType {
 
 impl ToTokens for RelationObjectType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        // RelationObjectType
-        tokens.append(make_ident("RelationObjectType"));
+        // RelationObject
+        tokens.append(make_ident("RelationObject"));
 
         // Double colon `::`
         tokens.append(Punct::new(':', Spacing::Joint));

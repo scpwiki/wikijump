@@ -115,8 +115,8 @@ fn generate_get_methods(
             Self::get(
                 RelationReference::Relationship {
                     relation_type: #relation_type,
-                    dest: RelationObject::#dest_type(#dest_name),
-                    from: RelationObject::#from_type(#from_name),
+                    dest: #dest_type(#dest_name),
+                    from: #from_type(#from_name),
                 },
             )
             .await
@@ -133,8 +133,8 @@ fn generate_get_methods(
                 ctx,
                 RelationReference::Relationship {
                     relation_type: #relation_type,
-                    dest: RelationObject::#dest_type(#dest_name),
-                    from: RelationObject::#from_type(#from_name),
+                    dest: #dest_type(#dest_name),
+                    from: #from_type(#from_name),
                 },
             )
             .await
@@ -151,8 +151,8 @@ fn generate_get_methods(
                 ctx,
                 RelationReference::Relationship {
                     relation_type: #relation_type,
-                    dest: RelationObject::#dest_type(#dest_name),
-                    from: RelationObject::#from_type(#from_name),
+                    dest: #dest_type(#dest_name),
+                    from: #from_type(#from_name),
                 },
             )
             .await
@@ -169,8 +169,8 @@ fn generate_get_methods(
             Self::get_history(
                 ctx,
                 #relation_type,
-                RelationObject::#dest_type(#dest_name),
-                RelationObject::#from_type(#from_name),
+                #dest_type(#dest_name),
+                #from_type(#from_name),
             )
             .await
         }
@@ -254,8 +254,8 @@ fn generate_create_defs(
                     Self::create(
                         ctx,
                         #relation_type,
-                        RelationObject::#dest_type(#dest_name),
-                        RelationObject::#from_type(#from_name),
+                        #dest_type(#dest_name),
+                        #from_type(#from_name),
                         created_by,
                         metadata,
                     )
@@ -278,8 +278,8 @@ fn generate_create_defs(
                     Self::create(
                         ctx,
                         #relation_type,
-                        RelationObject::#dest_type(#dest_name),
-                        RelationObject::#from_type(#from_name),
+                        #dest_type(#dest_name),
+                        #from_type(#from_name),
                         created_by,
                     )
                     .await
@@ -350,8 +350,8 @@ fn generate_remove_defs(
                     ctx,
                     RelationReference::Relationship {
                         relation_type: #relation_type,
-                        dest: RelationObject::#dest_type(#dest_name),
-                        from: RelationObject::#from_type(#from_name),
+                        dest: #dest_type(#dest_name),
+                        from: #from_type(#from_name),
                     },
                     removed_by,
                 ).await
