@@ -1,5 +1,5 @@
 use crate::util::{make_error, make_ident};
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Punct, Spacing, Span, TokenStream};
 use quote::{ToTokens, TokenStreamExt};
 use syn::parse::ParseStream;
 use syn::token::Pub;
@@ -40,7 +40,15 @@ impl RelationObjectType {
 
 impl ToTokens for RelationObjectType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.append(make_ident(self.value()))
+        // RelationObjectType
+        tokens.append(make_ident("RelationObjectType"));
+
+        // Double colon `::`
+        tokens.append(Punct::new(':', Spacing::Joint));
+        tokens.append(Punct::new(':', Spacing::Alone));
+
+        // which type variant
+        tokens.append(make_ident(self.value()));
     }
 }
 
