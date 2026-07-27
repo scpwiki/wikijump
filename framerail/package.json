@@ -32,7 +32,7 @@
     "postcss": "^8.5.15",
     "postcss-html": "^1.8.1",
     "postcss-scss": "^4.0.9",
-    "prettier": "^3.9.5",
+    "prettier": "^3.9.6",
     "prettier-plugin-jsdoc": "^1.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
     "prettier-plugin-svelte": "^4.1.1",
