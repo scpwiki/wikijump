@@ -52,6 +52,9 @@ pub struct UrlArguments<'a> {
 
     /// `/category/<value>`, read by a `category="@URL"` selector.
     pub category: Option<&'a str>,
+
+    /// `/offset/<n>`, read by a ListPages `offset="@URL|fallback"` selector.
+    pub offset: Option<u32>,
 }
 
 /// A ListPages module opening that paginates, and so answers `/p/<n>`.

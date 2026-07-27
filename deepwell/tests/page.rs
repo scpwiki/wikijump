@@ -3228,6 +3228,81 @@ async fn list_pages_url_page_number_composes_with_the_module_offset() {
 }
 
 #[tokio::test]
+async fn list_pages_url_offset_selector_reads_the_request_route() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let holder_slug = "fixture-lp-offset-holder";
+    let tag = "fixture-lp-offset-tag";
+
+    for title in ["Alpha", "Bravo", "Charlie"] {
+        let slug = format!("fixture-lp-offset-{}", title.to_lowercase());
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, &slug, title, "Row body.")
+                .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision_id, &[tag]).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture LP Offset Holder",
+        &format!(
+            concat!(
+                "[[module ListPages tags=\"{tag}\" name=\"fixture-lp-offset-*\" ",
+                "order=\"title\" separate=\"no\" limit=\"2\" offset=\"@URL|0\"]]\n",
+                "ROW %%title%%\n[[/module]]",
+            ),
+            tag = tag,
+        ),
+    )
+    .await;
+
+    let view = async |extra: &str| {
+        let output = run_endpoint!(
+            runner,
+            page_view,
+            json!({
+                "site_id": site_id,
+                "session_token": null,
+                "route": {"slug": holder_slug, "extra": extra},
+                "locales": ["en-US", "en"],
+            }),
+        );
+        match output {
+            GetPageViewOutput::Found {
+                compiled_body_html, ..
+            } => compiled_body_html,
+            other => panic!("expected found ListPages offset view, got {other:?}"),
+        }
+    };
+
+    let rows = |html: &str| {
+        ["Alpha", "Bravo", "Charlie"]
+            .into_iter()
+            .filter(|title| html.contains(&format!("ROW {title}")))
+            .collect::<Vec<_>>()
+    };
+
+    let base = view("").await;
+    assert_eq!(rows(&base), vec!["Alpha", "Bravo"], "{base}");
+
+    let offset = view("/offset/1").await;
+    assert_eq!(rows(&offset), vec!["Bravo", "Charlie"], "{offset}");
+
+    for invalid in ["/offset/not-an-integer", "/offset/1001"] {
+        let fallback = view(invalid).await;
+        assert_eq!(
+            rows(&fallback),
+            vec!["Alpha", "Bravo"],
+            "{invalid} must use the authored fallback: {fallback}",
+        );
+    }
+}
+
+#[tokio::test]
 async fn list_pages_url_category_selector_reads_the_url_category_argument() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
