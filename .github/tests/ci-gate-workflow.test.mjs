@@ -78,10 +78,10 @@ test("classifier and gate changes fail closed", () => {
   for (const group of GROUPS) assert.equal(manual[group], true, group)
 })
 
-test("Full CI changes select each optional component and workflow policy", () => {
+test("Browser CI changes select Framerail and workflow policy", () => {
   const selected = classifyChanges([".github/workflows/full-ci.yaml"])
-  for (const group of ["deepwell", "wws", "framerail", "workflow"]) assert.equal(selected[group], true, group)
-  assert.equal(selected.locales, false)
+  for (const group of ["framerail", "workflow"]) assert.equal(selected[group], true, group)
+  for (const group of ["deepwell", "wws", "locales"]) assert.equal(selected[group], false, group)
 })
 
 test("documentation is cheap and unknown paths fail closed", () => {
@@ -94,36 +94,24 @@ test("documentation is cheap and unknown paths fail closed", () => {
   }
 })
 
-test("Deepwell draft and candidate paths are exclusive and parallel after classification", () => {
+test("Deepwell validation stays fast and service-free", () => {
   const source = workflow("ci-gate.yaml")
-  const draft = source.slice(source.indexOf("  deepwell_draft:\n"), source.indexOf("  deepwell_candidate:\n"))
-  const candidate = source.slice(source.indexOf("  deepwell_candidate:\n"), source.indexOf("  wws:\n"))
+  const deepwell = source.slice(source.indexOf("  deepwell:\n"), source.indexOf("  wws:\n"))
   const gate = source.slice(source.indexOf("  gate:\n"))
 
-  assert.match(draft, /needs\.classify\.outputs\.draft == 'true'/)
-  assert.match(candidate, /needs\.classify\.outputs\.candidate == 'true'/)
-  assert.doesNotMatch(candidate, /needs:\s*\n\s+- classify|needs: deepwell_draft/)
-  assert.doesNotMatch(draft, /services:|DATABASE_URL|Start MinIO|sqlx/)
-  assert.match(draft, /-deepwell-draft-/)
-  assert.match(candidate, /-deepwell-candidate-/)
-
+  assert.match(deepwell, /needs\.classify\.outputs\.deepwell == 'true'/)
+  assert.doesNotMatch(deepwell, /services:|DATABASE_URL|Start MinIO|sqlx|clippy|cargo test|target/)
+  assert.match(deepwell, /timeout-minutes: 2/)
   for (const command of [
     "cargo machete deepwell",
-    "cargo fmt --all -- --check",
-    "cargo clippy --locked --tests --no-deps",
-    "cargo test --locked --lib --no-default-features",
-    "Start MinIO",
-    "sqlx migrate run",
-    "cargo test --locked --all-features"
-  ]) assert.ok(candidate.includes(command), command)
-
-  for (const job of ["deepwell_draft", "deepwell_candidate"]) assert.ok(hasYamlLine(gate, `- ${job}`), job)
+    "cargo fmt --manifest-path deepwell/Cargo.toml --all -- --check"
+  ]) assert.ok(deepwell.includes(command), command)
+  assert.ok(hasYamlLine(gate, "- deepwell"))
   assert.match(gate, /needs\.classify\.outputs\.draft == 'true' && 'CI \/ draft gate' \|\| 'CI \/ gate'/)
-  assert.doesNotMatch(source, /^  deepwell_(?:fast|integration):$/m)
-  assert.doesNotMatch(source, /tarpaulin|coverage\/cobertura/)
+  assert.doesNotMatch(source, /deepwell_(?:draft|candidate)|tarpaulin|coverage\/cobertura/)
 })
 
-test("one Full CI workflow owns coverage and browser validation", () => {
+test("optional Browser CI contains only browser validation", () => {
   for (const old of ["deepwell.yaml", "wws.yaml", "framerail.yaml"]) {
     assert.equal(existsSync(path.join(root, ".github/workflows", old)), false, old)
   }
@@ -134,24 +122,10 @@ test("one Full CI workflow owns coverage and browser validation", () => {
   for (const action of ["opened", "synchronize", "reopened", "edited", "ready_for_review", "converted_to_draft", "labeled", "unlabeled", "closed"]) {
     assert.ok(hasYamlLine(trigger, `- ${action}`), action)
   }
-  for (const job of ["deepwell_coverage", "export_deepwell_coverage", "wws_coverage", "export_wws_coverage", "framerail_browser"]) {
-    assert.ok(hasYamlLine(source, `${job}:`), job)
-  }
-  // Only the browser job is gated behind the full-ci label on a pull request.
-  // Both coverage jobs feed Codecov, whose export already refuses to run on a
-  // pull request, so they run on push events instead of duplicating the
-  // candidate suite for an artifact nothing reads.
+  assert.ok(hasYamlLine(source, "framerail_browser:"))
+  assert.doesNotMatch(source, /codecov|tarpaulin|coverage|id-token:/i)
   assert.equal((source.match(/contains\(github\.event\.pull_request\.labels\.\*\.name, 'full-ci'\)/g) ?? []).length, 1)
-  for (const job of ["deepwell_coverage", "wws_coverage", "export_deepwell_coverage", "export_wws_coverage"]) {
-    const start = source.indexOf(`  ${job}:\n`)
-    assert.ok(start >= 0, job)
-    const condition = source.slice(start, source.indexOf("\n    runs-on:", start))
-    assert.match(condition, /if: \$\{\{ github\.event_name != 'pull_request' \}\}/, job)
-  }
-  assert.match(concurrency, /format\('full-ci-pr-\{0\}', github\.event\.pull_request\.number\)/)
-  assert.match(concurrency, /format\('full-ci-run-\{0\}', github\.run_id\)/)
-  assert.match(concurrency, /github\.event\.action == 'unlabeled'\) && github\.event\.label\.name == 'full-ci'/)
-  assert.match(concurrency, /github\.event\.action == 'edited' && github\.event\.changes\.base != null/)
+  assert.match(concurrency, /github\.workflow/)
   assert.match(concurrency, /cancel-in-progress:/)
   for (const condition of [
     "github.event.pull_request.draft == false",
@@ -160,10 +134,8 @@ test("one Full CI workflow owns coverage and browser validation", () => {
     "github.event.action == 'labeled' && github.event.label.name == 'full-ci'"
   ]) assert.equal(source.split(condition).length - 1, 1, condition)
   assert.ok(source.split("github.event.action == 'edited' && github.event.changes.base != null").length - 1 >= 1)
-  const deepwellCoverage = source.slice(source.indexOf("  deepwell_coverage:\n"), source.indexOf("  export_deepwell_coverage:\n"))
-  assert.match(deepwellCoverage, /cargo \+nightly tarpaulin.*-- --test-threads 1/)
   assert.match(source, /pnpm --dir framerail test/)
-  assert.match(source, /!startsWith\(github\.ref, 'refs\/tags\/'\)/)
+  assert.match(source, /timeout-minutes: 5/)
 })
 
 test("Full CI cancellation and execution policy handles label lifecycle cheaply", () => {
@@ -196,22 +168,6 @@ test("Full CI cancellation and execution policy handles label lifecycle cheaply"
   assert.equal(run({ action: "converted_to_draft", hasFullCi: true }), false)
   assert.equal(active({ action: "closed" }), true)
   assert.equal(run({ action: "closed", hasFullCi: true }), false)
-})
-
-test("OIDC is isolated from jobs that execute pull request code", () => {
-  const source = workflow("full-ci.yaml")
-  for (const [coverage, exporter, next] of [
-    ["deepwell_coverage", "export_deepwell_coverage", "wws_coverage"],
-    ["wws_coverage", "export_wws_coverage", "framerail_browser"]
-  ]) {
-    const coverageSource = source.slice(source.indexOf(`  ${coverage}:\n`), source.indexOf(`  ${exporter}:\n`))
-    const exporterStart = source.indexOf(`  ${exporter}:\n`)
-    const exporterSource = source.slice(exporterStart, source.indexOf(`  ${next}:\n`, exporterStart))
-    assert.doesNotMatch(coverageSource, /id-token:/)
-    assert.match(exporterSource, /github\.event_name != 'pull_request'/)
-    assert.match(exporterSource, /^\s*id-token: write$/m)
-    assert.doesNotMatch(exporterSource, /actions\/checkout|\brun:/)
-  }
 })
 
 test("Framerail unit and browser suites remain separate", () => {

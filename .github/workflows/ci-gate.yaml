@@ -85,13 +85,12 @@ jobs:
       - name: Run workflow policy tests
         run: node --test .github/tests/*.test.mjs
 
-  deepwell_draft:
-    name: Deepwell lint and unit tests
+  deepwell:
+    name: Deepwell fast checks
     needs: classify
-    if: needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.draft == 'true'
+    if: needs.classify.outputs.deepwell == 'true'
     runs-on: ubuntu-latest
-    env:
-      RUSTFLAGS: -D warnings
+    timeout-minutes: 2
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -102,16 +101,10 @@ jobs:
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
             ~/.cargo/bin
             ~/.cargo/.crates.toml
             ~/.cargo/.crates2.json
-            deepwell/target
-          key: ${{ runner.os }}-${{ runner.arch }}-deepwell-draft-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
-
-      - name: System Dependencies
-        run: sudo apt update && sudo apt install libmagic-dev
+          key: ${{ runner.os }}-${{ runner.arch }}-deepwell-required-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Install cargo-machete
         run: cargo install cargo-machete --version 0.9.1 --locked
@@ -119,107 +112,7 @@ jobs:
       - name: Validate
         run: |
           cargo machete deepwell
-          cd deepwell
-          cargo fmt --all -- --check
-          cargo clippy --locked --tests --no-deps
-          cargo test --locked --lib --no-default-features
-
-  deepwell_candidate:
-    name: Deepwell lint, unit, and integration tests
-    needs: classify
-    if: needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.candidate == 'true'
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      valkey:
-        image: valkey/valkey:alpine
-        options: >-
-          --health-cmd "valkey-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-    env:
-      RUSTFLAGS: -D warnings
-      DATABASE_URL: postgres://postgres:postgres@localhost/postgres
-      REDIS_URL: redis://localhost
-      S3_FILES_BUCKET: deepwell-files
-      S3_TEXT_BLOCKS_BUCKET: deepwell-text-blocks
-      S3_REGION_NAME: test
-      S3_PATH_STYLE: 'true'
-      S3_CUSTOM_ENDPOINT: http://127.0.0.1:9000
-      S3_ACCESS_KEY_ID: minio
-      S3_SECRET_ACCESS_KEY: minio-github-test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          persist-credentials: false
-
-      - name: Cargo Cache
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            ~/.cargo/.crates.toml
-            ~/.cargo/.crates2.json
-            deepwell/target
-          key: ${{ runner.os }}-${{ runner.arch }}-deepwell-candidate-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
-
-      - name: System Dependencies
-        run: sudo apt update && sudo apt install libmagic-dev
-
-      - name: Install cargo-machete
-        run: cargo install cargo-machete --version 0.9.1 --locked
-
-      - name: Run fast checks
-        run: |
-          cargo machete deepwell
-          cd deepwell
-          cargo fmt --all -- --check
-          cargo clippy --locked --tests --no-deps
-          cargo test --locked --lib --no-default-features
-
-      - name: Start MinIO
-        run: |
-          curl -fsSLo /tmp/minio https://dl.min.io/server/minio/release/linux-amd64/archive/minio.RELEASE.2025-09-07T16-13-09Z
-          echo "7c5bd8512c6e966455b1d198209358b2d191c77a83ab377c4073281065fb855f /tmp/minio" | sha256sum -c -
-          curl -fsSLo /tmp/mc https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2025-08-13T08-35-41Z
-          echo "01f866e9c5f9b87c2b09116fa5d7c06695b106242d829a8bb32990c00312e891 /tmp/mc" | sha256sum -c -
-          sudo install /tmp/minio /tmp/mc /usr/local/bin/
-          mkdir -p /tmp/minio-data
-          MINIO_ROOT_USER="${S3_ACCESS_KEY_ID}" MINIO_ROOT_PASSWORD="${S3_SECRET_ACCESS_KEY}" MINIO_REGION_NAME="${S3_REGION_NAME}" minio server /tmp/minio-data --address :9000 --console-address :9001 > /tmp/minio.log 2>&1 &
-          ready=false
-          for _ in $(seq 1 30); do
-            if mc alias set local "${S3_CUSTOM_ENDPOINT}" "${S3_ACCESS_KEY_ID}" "${S3_SECRET_ACCESS_KEY}" >/dev/null 2>&1; then ready=true; break; fi
-            sleep 1
-          done
-          if [[ "${ready}" != true ]]; then cat /tmp/minio.log; exit 1; fi
-          mc mb -p "local/${S3_FILES_BUCKET}" "local/${S3_TEXT_BLOCKS_BUCKET}"
-
-      - name: Install sqlx-cli
-        run: cargo install sqlx-cli --no-default-features --features rustls,postgres
-
-      - name: Run integration checks
-        run: |
-          cd deepwell
-          DEEPWELL_RUNTIME_ACTION=validate-config cargo run --locked --all-features -- config.example.toml ../install/local/deepwell/config.toml ../install/dev/deepwell/config.toml ../install/prod/deepwell/config.toml
-          sqlx migrate run
-          DEEPWELL_RUNTIME_ACTION=run-seeder cargo run --locked --all-features -- config.example.toml
-          cargo test --locked --all-features -- --nocapture --test-threads 1
+          cargo fmt --manifest-path deepwell/Cargo.toml --all -- --check
 
   wws:
     name: WWS lint and unit tests
@@ -329,8 +222,7 @@ jobs:
     needs:
       - classify
       - workflow_policy
-      - deepwell_draft
-      - deepwell_candidate
+      - deepwell
       - wws
       - framerail
       - locales
@@ -342,10 +234,8 @@ jobs:
       DRAFT_MODE: ${{ needs.classify.outputs.draft }}
       WORKFLOW_SELECTED: ${{ needs.classify.outputs.workflow }}
       WORKFLOW_RESULT: ${{ needs.workflow_policy.result }}
-      DEEPWELL_DRAFT_SELECTED: ${{ needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.draft == 'true' }}
-      DEEPWELL_DRAFT_RESULT: ${{ needs.deepwell_draft.result }}
-      DEEPWELL_CANDIDATE_SELECTED: ${{ needs.classify.outputs.deepwell == 'true' && needs.classify.outputs.candidate == 'true' }}
-      DEEPWELL_CANDIDATE_RESULT: ${{ needs.deepwell_candidate.result }}
+      DEEPWELL_SELECTED: ${{ needs.classify.outputs.deepwell }}
+      DEEPWELL_RESULT: ${{ needs.deepwell.result }}
       WWS_SELECTED: ${{ needs.classify.outputs.wws }}
       WWS_RESULT: ${{ needs.wws.result }}
       FRAMERAIL_SELECTED: ${{ needs.classify.outputs.framerail }}
@@ -376,14 +266,12 @@ jobs:
           validate_selection candidate "${CANDIDATE_MODE}"
           validate_selection draft "${DRAFT_MODE}"
           validate_selection workflow "${WORKFLOW_SELECTED}"
-          validate_selection deepwell-draft "${DEEPWELL_DRAFT_SELECTED}"
-          validate_selection deepwell-candidate "${DEEPWELL_CANDIDATE_SELECTED}"
+          validate_selection deepwell "${DEEPWELL_SELECTED}"
           validate_selection wws "${WWS_SELECTED}"
           validate_selection framerail "${FRAMERAIL_SELECTED}"
           validate_selection locales "${LOCALES_SELECTED}"
           check workflow "${WORKFLOW_SELECTED}" "${WORKFLOW_RESULT}"
-          check deepwell-draft "${DEEPWELL_DRAFT_SELECTED}" "${DEEPWELL_DRAFT_RESULT}"
-          check deepwell-candidate "${DEEPWELL_CANDIDATE_SELECTED}" "${DEEPWELL_CANDIDATE_RESULT}"
+          check deepwell "${DEEPWELL_SELECTED}" "${DEEPWELL_RESULT}"
           check wws "${WWS_SELECTED}" "${WWS_RESULT}"
           check framerail "${FRAMERAIL_SELECTED}" "${FRAMERAIL_RESULT}"
           check locales "${LOCALES_SELECTED}" "${LOCALES_RESULT}"

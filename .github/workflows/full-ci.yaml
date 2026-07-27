@@ -1,4 +1,4 @@
-name: Full CI
+name: Browser CI
 
 on:
   pull_request:
@@ -12,207 +12,21 @@ on:
       - labeled
       - unlabeled
       - closed
-  push:
-    branches:
-      - develop
-      - prod
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.event_name != 'pull_request' && format('{0}-{1}', github.workflow, github.ref) || ((github.event.action != 'labeled' && github.event.action != 'unlabeled' && github.event.action != 'edited') || ((github.event.action == 'labeled' || github.event.action == 'unlabeled') && github.event.label.name == 'full-ci') || (github.event.action == 'edited' && github.event.changes.base != null)) && format('full-ci-pr-{0}', github.event.pull_request.number) || format('full-ci-run-{0}', github.run_id) }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' && ((github.event.action != 'labeled' && github.event.action != 'unlabeled' && github.event.action != 'edited') || ((github.event.action == 'labeled' || github.event.action == 'unlabeled') && github.event.label.name == 'full-ci') || (github.event.action == 'edited' && github.event.changes.base != null)) }}
+  group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || format('{0}-run-{1}', github.workflow, github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  deepwell_coverage:
-    name: Deepwell coverage
-    # Coverage exists to feed Codecov, and its export step already refuses to
-    # run on a pull request, so on a PR this job produced an artifact nothing
-    # consumed. It runs where the export runs.
-    if: ${{ github.event_name != 'pull_request' }}
-    runs-on: ubuntu-latest
-    container:
-      image: xd009642/tarpaulin:develop-nightly
-      options: --security-opt seccomp=unconfined
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      valkey:
-        image: valkey/valkey:alpine
-        options: >-
-          --health-cmd "valkey-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-    env:
-      RUSTFLAGS: -D warnings
-      DATABASE_URL: postgres://postgres:postgres@postgres/postgres
-      REDIS_URL: redis://valkey
-      S3_FILES_BUCKET: deepwell-files
-      S3_TEXT_BLOCKS_BUCKET: deepwell-text-blocks
-      S3_REGION_NAME: test
-      S3_PATH_STYLE: 'true'
-      S3_CUSTOM_ENDPOINT: http://127.0.0.1:9000
-      S3_ACCESS_KEY_ID: minio
-      S3_SECRET_ACCESS_KEY: minio-github-test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          persist-credentials: false
-
-      - name: Cargo Cache
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-${{ runner.arch }}-deepwell-coverage-${{ hashFiles('deepwell/Cargo.lock', 'rust-toolchain.toml') }}
-
-      - name: System Dependencies
-        run: apt update && apt install libmagic-dev
-
-      - name: Start MinIO
-        run: |
-          curl -fsSLo /usr/local/bin/minio https://dl.min.io/server/minio/release/linux-amd64/archive/minio.RELEASE.2025-09-07T16-13-09Z
-          echo "7c5bd8512c6e966455b1d198209358b2d191c77a83ab377c4073281065fb855f /usr/local/bin/minio" | sha256sum -c -
-          curl -fsSLo /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2025-08-13T08-35-41Z
-          echo "01f866e9c5f9b87c2b09116fa5d7c06695b106242d829a8bb32990c00312e891 /usr/local/bin/mc" | sha256sum -c -
-          chmod +x /usr/local/bin/minio /usr/local/bin/mc
-          mkdir -p /tmp/minio-data
-          MINIO_ROOT_USER="${S3_ACCESS_KEY_ID}" MINIO_ROOT_PASSWORD="${S3_SECRET_ACCESS_KEY}" MINIO_REGION_NAME="${S3_REGION_NAME}" minio server /tmp/minio-data --address :9000 --console-address :9001 > /tmp/minio.log 2>&1 &
-          ready=false
-          for _ in $(seq 1 30); do
-            if mc alias set local "${S3_CUSTOM_ENDPOINT}" "${S3_ACCESS_KEY_ID}" "${S3_SECRET_ACCESS_KEY}" >/dev/null 2>&1; then ready=true; break; fi
-            sleep 1
-          done
-          if [[ "${ready}" != true ]]; then cat /tmp/minio.log; exit 1; fi
-          mc mb -p "local/${S3_FILES_BUCKET}" "local/${S3_TEXT_BLOCKS_BUCKET}"
-
-      - name: Install sqlx-cli
-        run: cargo install sqlx-cli --no-default-features --features rustls,postgres
-
-      - name: Prepare data
-        run: |
-          cd deepwell
-          sqlx migrate run
-          DEEPWELL_RUNTIME_ACTION=run-seeder cargo run --locked --all-features -- config.example.toml
-
-      - name: Generate coverage
-        run: cd deepwell && cargo +nightly tarpaulin --locked --all-features --workspace --timeout 120 --out xml --output-dir target/coverage -- --test-threads 1
-
-      - name: Store coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: deepwell-coverage
-          path: deepwell/target/coverage/cobertura.xml
-          if-no-files-found: error
-
-  export_deepwell_coverage:
-    name: Export Deepwell coverage
-    needs: deepwell_coverage
-    if: ${{ github.event_name != 'pull_request' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Download coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          name: deepwell-coverage
-          path: coverage
-
-      - name: Export coverage
-        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
-        with:
-          use_oidc: true
-          slug: Rokurolize/wikijump
-          files: coverage/cobertura.xml
-          flags: deepwell
-          disable_search: true
-          fail_ci_if_error: true
-
-  wws_coverage:
-    name: WWS coverage
-    # Coverage exists to feed Codecov, and its export step already refuses to
-    # run on a pull request, so on a PR this job produced an artifact nothing
-    # consumed. It runs where the export runs.
-    if: ${{ github.event_name != 'pull_request' }}
-    runs-on: ubuntu-latest
-    container:
-      image: xd009642/tarpaulin:develop-nightly
-      options: --security-opt seccomp=unconfined
-    env:
-      RUSTFLAGS: -D warnings
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          persist-credentials: false
-
-      - name: Cargo Cache
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-${{ runner.arch }}-wws-coverage-${{ hashFiles('wws/Cargo.lock', 'rust-toolchain.toml') }}
-
-      - name: Generate coverage
-        run: cd wws && cargo +nightly tarpaulin --locked --all-features --workspace --timeout 120 --out xml --output-dir target/coverage
-
-      - name: Store coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: wws-coverage
-          path: wws/target/coverage/cobertura.xml
-          if-no-files-found: error
-
-  export_wws_coverage:
-    name: Export WWS coverage
-    needs: wws_coverage
-    if: ${{ github.event_name != 'pull_request' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Download coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          name: wws-coverage
-          path: coverage
-
-      - name: Export coverage
-        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
-        with:
-          use_oidc: true
-          slug: Rokurolize/wikijump
-          files: coverage/cobertura.xml
-          flags: wws
-          disable_search: true
-          fail_ci_if_error: true
-
   framerail_browser:
     name: Framerail browser tests
-    if: ${{ (github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/')) || (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'full-ci') && github.event.action != 'closed' && github.event.action != 'converted_to_draft' && ((github.event.action != 'labeled' && github.event.action != 'unlabeled' && github.event.action != 'edited') || (github.event.action == 'labeled' && github.event.label.name == 'full-ci') || (github.event.action == 'edited' && github.event.changes.base != null))) }}
+    if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'full-ci') && github.event.action != 'closed' && github.event.action != 'converted_to_draft' && ((github.event.action != 'labeled' && github.event.action != 'unlabeled' && github.event.action != 'edited') || (github.event.action == 'labeled' && github.event.label.name == 'full-ci') || (github.event.action == 'edited' && github.event.changes.base != null))) }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6

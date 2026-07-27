@@ -53,13 +53,7 @@ export function classifyChanges(paths, all = false) {
     if (WORKFLOW_POLICY_SUBJECTS.has(file)) {
       selected.workflow = true
     }
-    if (file === ".github/codecov.yml") {
-      selected.deepwell = true
-      selected.wws = true
-    }
     if (file === ".github/workflows/full-ci.yaml") {
-      selected.deepwell = true
-      selected.wws = true
       selected.framerail = true
     }
 

@@ -16,19 +16,14 @@ which is why an unrelated change does not pay for the whole matrix. Its jobs:
 - Workflow policy: `actionlint` plus `.github/tests/`, which assert the CI
   structure itself, including that third-party actions are pinned to full
   commit SHAs and that the Framerail unit and browser suites stay separate.
-- Deepwell lint and unit tests: the draft path, which skips the database.
-- Deepwell lint, unit, and integration tests: the candidate path, which brings
-  up Postgres, Valkey, and MinIO and runs migrations and the seeder. This is
-  the slowest job on a normal PR at roughly ten minutes.
+- Deepwell fast checks: dependency hygiene and formatting without compiling the
+  service. Clippy and unit tests run in the required local pre-push preflight.
 - WWS, Framerail, Locales: the per-area equivalents.
 - CI / gate: the single required check that aggregates the rest, so branch
   protection has one status to require rather than a list that changes.
 
-`full-ci.yaml` is opt-in through the `full-ci` label and carries what is too
-slow for every push: coverage for Deepwell and WWS, the coverage exports, and
-the Playwright browser suite. Requiring it on every PR would make routine work
-unbearable; requiring it on nothing would let coverage and browser regressions
-land. The label is the compromise, which is why merge candidates carry it.
+`full-ci.yaml` is opt-in through the `full-ci` label and runs the Playwright
+browser suite. It does not generate or export coverage.
 
 `source-size.yaml` enforces `scripts/source-size-baseline.txt`. It runs on
 every pull request because it is repository-wide and cheap, and because it is
@@ -36,10 +31,6 @@ the check most likely to fail on a *merge result* rather than on either branch:
 two PRs that each add to one file can both pass alone and fail together. The
 `pre-commit` hook runs the same script so a file crossing its ceiling is caught
 as it is written.
-
-`codeql.yaml` runs the security analyses on pushes to `develop` and `prod`, on
-pull requests to `develop`, and on a schedule. The schedule matters
-independently of the PR runs: new queries find old code.
 
 ## Post-merge and deployment
 

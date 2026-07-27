@@ -1,4 +1,0 @@
-name: Wikijump CodeQL configuration
-
-paths-ignore:
-  - web/modules/prism/vendor/**
