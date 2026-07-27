@@ -342,6 +342,13 @@ export function pageMutationContext(context, slug) {
   return { ...context, "X-Deepwell-Page": slug };
 }
 
+export function replaceFtmlPin(manifest, baselineFtml, candidateFtml) {
+  const current = `rev = "${baselineFtml}"`;
+  const matches = manifest.split(current).length - 1;
+  assert.equal(matches, 1, "Deepwell manifest must contain the baseline FTML pin exactly once");
+  return manifest.replace(current, `rev = "${candidateFtml}"`);
+}
+
 async function seedFixtures({ rpcUrl, fixtures, expectedFtml, administrator }) {
   const site = await rpc(rpcUrl, "site_get", { site: fixtures.site_slug });
   assert.ok(site?.site_id, `seeded ${fixtures.site_slug} site is missing`);
@@ -534,8 +541,7 @@ export async function runCanary(args, { stdout = process.stdout } = {}) {
     [...REQUIRED_SURFACES].sort(),
     "fixture surfaces must be exactly the marker contract",
   );
-  const baselineFtml =
-    args.baselineFtml ?? (args.dryRun ? null : currentFtmlSha(REPOSITORY_ROOT));
+  let baselineFtml = args.baselineFtml ?? null;
   const runId = `ftml-marker-${args.candidateFtml.slice(0, 8)}-${crypto.randomUUID().slice(0, 8)}`;
   const expiresAt = new Date(
     Date.now() + EXPIRY_HOURS * 60 * 60 * 1000,
@@ -586,6 +592,17 @@ export async function runCanary(args, { stdout = process.stdout } = {}) {
       `owner=${OWNER}; expiry=${expiresAt}`,
       candidateWorktree,
     ]);
+    baselineFtml ??= currentFtmlSha(baselineWorktree);
+    layout.baseline_ftml = baselineFtml;
+    const candidateCargoToml = path.join(candidateWorktree, "deepwell", "Cargo.toml");
+    await fs.writeFile(
+      candidateCargoToml,
+      replaceFtmlPin(
+        await fs.readFile(candidateCargoToml, "utf8"),
+        baselineFtml,
+        args.candidateFtml,
+      ),
+    );
     run("cargo", ["update", "-p", "ftml", "--precise", args.candidateFtml], {
       cwd: path.join(candidateWorktree, "deepwell"),
     });

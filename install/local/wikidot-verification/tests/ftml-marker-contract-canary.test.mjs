@@ -9,6 +9,7 @@ import {
   pageMutationContext,
   parseArgs,
   readSeedAdministrator,
+  replaceFtmlPin,
 } from "../scripts/run-ftml-marker-contract-canary.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -34,6 +35,21 @@ test("marker canary authenticates page mutations in the exact page context", () 
     "X-Deepwell-Site-Id": "42",
     "X-Deepwell-Page": "marker-heading",
   });
+});
+
+test("marker canary changes the manifest and lock to the same FTML revision", () => {
+  const baselineFtml = "1".repeat(40);
+  const candidateFtml = "2".repeat(40);
+  const manifest = `ftml = { git = "https://github.com/Rokurolize/ftml", rev = "${baselineFtml}" }\n`;
+
+  assert.equal(
+    replaceFtmlPin(manifest, baselineFtml, candidateFtml),
+    `ftml = { git = "https://github.com/Rokurolize/ftml", rev = "${candidateFtml}" }\n`,
+  );
+  assert.throws(
+    () => replaceFtmlPin(manifest, "3".repeat(40), candidateFtml),
+    /baseline FTML pin exactly once/u,
+  );
 });
 
 test("marker canary module parses sliced argv and injects run-owned credentials", async () => {
