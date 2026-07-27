@@ -127,7 +127,7 @@ pub(in crate::services::render) struct CountPagesRequiredTagSource<'a> {
 #[derive(Clone, Copy, Debug)]
 pub(in crate::services::render) struct ListPagesPageContext {
     pub(in crate::services::render) site_id: i64,
-    pub(in crate::services::render) page_id: i64,
+    pub(in crate::services::render) page_id: Option<i64>,
 
     /// `/p/<n>` from the request's URL path, when a page view supplied one.
     pub(in crate::services::render) url_page: Option<u32>,
@@ -466,7 +466,7 @@ impl RenderService {
                         ctx,
                         ListPagesPageContext {
                             site_id: current_site_id,
-                            page_id: current_page_id,
+                            page_id: requested_current_page_id,
                             url_page: url.page,
                         },
                         page_info,
@@ -542,7 +542,7 @@ impl RenderService {
                         ctx,
                         ListPagesPageContext {
                             site_id: current_site_id,
-                            page_id: current_page_id,
+                            page_id: requested_current_page_id,
                             url_page: url.page,
                         },
                         page_info,
@@ -775,8 +775,6 @@ impl RenderService {
         let Some(current_site_id) = current_site_id else {
             return Ok(wikitext);
         };
-        let current_page_id = current_page_id.unwrap_or(0);
-
         if !settings.enable_page_syntax {
             return Ok(wikitext);
         }
@@ -945,7 +943,7 @@ impl RenderService {
     ) -> Result<BTreeMap<(Vec<String>, String), CountPagesRequiredTagBatchResult>> {
         let ListPagesPageContext {
             site_id: current_site_id,
-            page_id: current_page_id,
+            page_id: current_page_identity,
             // CountPages renders a total, so the requested page does not apply.
             url_page: _,
         } = page_context;
@@ -1019,7 +1017,7 @@ impl RenderService {
                 &CheckPermissionContext {
                     user_id: None,
                     site_id: current_site_id,
-                    page_reference: Some(Reference::Id(current_page_id)),
+                    page_reference: current_page_identity.map(Reference::Id),
                 },
                 Permission {
                     resource_type: Resource::Page,
@@ -1194,9 +1192,10 @@ impl RenderService {
     ) -> Result<ListPagesBlockRenderResult> {
         let ListPagesPageContext {
             site_id: current_site_id,
-            page_id: current_page_id,
+            page_id: current_page_identity,
             url_page,
         } = page_context;
+        let current_page_id = current_page_identity.unwrap_or(0);
         let ajax_module_response = page_info.page.as_ref() == "_ajax-module-connector";
         let initial_remaining_include_expansions = include_budget.remaining;
         let ListPagesArguments {
@@ -1356,7 +1355,11 @@ impl RenderService {
         };
 
         let mut list_pages_metadata = None;
-        let pages = if current_page_only
+        let pages = if current_page_identity.is_none()
+            && (current_page_only || exclude_current_page_author)
+        {
+            FoundPages { pages: Vec::new() }
+        } else if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
             let pages = Self::current_page_list_pages_row(
@@ -1580,6 +1583,7 @@ impl RenderService {
         } = &resolved_authors
             && user_ids.is_empty()
             && wikidot_snapshot_names.is_empty()
+            && current_page_identity.is_some()
         {
             // The excluded author did not resolve, and rendering without the
             // exclusion would return exactly the pages the author excluded.
@@ -1916,10 +1920,11 @@ impl RenderService {
     ) -> Result<CountPagesBlockRenderResult> {
         let ListPagesPageContext {
             site_id: current_site_id,
-            page_id: current_page_id,
+            page_id: current_page_identity,
             // CountPages renders a total, so the requested page does not apply.
             url_page: _,
         } = page_context;
+        let current_page_id = current_page_identity.unwrap_or(0);
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -2052,7 +2057,9 @@ impl RenderService {
 
         let mut count_pages_metadata = None;
         let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
-        let pages = if current_page_only
+        let pages = if current_page_only && current_page_identity.is_none() {
+            FoundPages { pages: Vec::new() }
+        } else if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
             Self::current_page_list_pages_row(
