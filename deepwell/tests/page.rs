@@ -3510,6 +3510,62 @@ async fn ajax_listpages_recursively_renders_balanced_nested_modules() {
 }
 
 #[tokio::test]
+async fn ajax_listpages_renders_unbalanced_module_markers_literally() {
+    const OUTER_SLUG: &str = "fixture-ajax-listpages-malformed-body";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        OUTER_SLUG,
+        "Fixture Malformed ListPages Body",
+        "Outer row source.",
+    )
+    .await;
+
+    for (module_body, expected_html) in [
+        (
+            "BEFORE [[/module]] AFTER",
+            "<p>BEFORE [[/module]] AFTER</p>",
+        ),
+        (
+            "BEFORE [[module ListPages limit=\"1\"]] UNCLOSED",
+            "<p>BEFORE [[module ListPages limit=&quot;1&quot;]] UNCLOSED</p>",
+        ),
+    ] {
+        let output = run_endpoint!(
+            runner,
+            wikidot_list_pages_module,
+            json!({
+                "site_id": site_id,
+                "module_body": module_body,
+                "parameters": {
+                    "name": OUTER_SLUG,
+                    "limit": "1",
+                },
+            }),
+        );
+        assert_eq!(
+            output
+                .body
+                .matches(r#"<div class="list-pages-box">"#)
+                .count(),
+            1,
+            "the selected outer row should still render: {}",
+            output.body,
+        );
+        assert!(
+            output.body.contains(expected_html) && !output.body.contains("@@"),
+            "the unbalanced marker should be visible literal text: {}",
+            output.body,
+        );
+    }
+}
+
+#[tokio::test]
 async fn list_pages_url_category_selector_reads_the_url_category_argument() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

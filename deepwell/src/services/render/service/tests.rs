@@ -27,8 +27,9 @@ use super::super::list_pages::scanner::{
 };
 use super::super::list_pages::template::ListPagesTemplatePlan;
 use super::super::list_pages::{
-    ListPagesBatchDisplayRequirements, ListPagesExpansionBudget, ListPagesOffsetOrigin,
-    ListPagesSnapshotDisplay, ListPagesSubstitutionContext, WikidotUserDisplay,
+    AJAX_MODULE_LITERAL_MARKER_PREFIX, ListPagesBatchDisplayRequirements,
+    ListPagesExpansionBudget, ListPagesOffsetOrigin, ListPagesSnapshotDisplay,
+    ListPagesSubstitutionContext, WikidotUserDisplay,
     build_wikidot_list_pages_module_source, count_pages_capture_is_literal,
     count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,
     count_pages_required_tag_batch_selector, count_pages_scan_requires_preservation,
@@ -606,10 +607,21 @@ fn ajax_listpages_source_accepts_only_balanced_nested_modules() {
         "BEFORE [[/module]] AFTER",
         "[[module ListPages name=\"inner-row\"]] UNCLOSED",
     ] {
+        let source =
+            build_wikidot_list_pages_module_source(malformed.to_owned(), &parameters)
+                .expect("live Wikidot renders an unbalanced body marker literally");
+        let matches = find_list_pages_module_matches(&source);
+        assert_eq!(matches.len(), 1);
+        assert_eq!(matches[0].start, 0);
+        assert_eq!(matches[0].end, source.len());
         assert!(
-            build_wikidot_list_pages_module_source(malformed.to_owned(), &parameters,)
-                .is_none(),
-            "an AMC body must not escape or consume its generated outer module: {malformed}",
+            matches[0].body.contains(AJAX_MODULE_LITERAL_MARKER_PREFIX),
+            "the unbalanced marker should be replaced with an inert generated token",
+        );
+        assert!(
+            !matches[0].body.contains("[[module")
+                && !matches[0].body.contains("[[/module]]"),
+            "the unbalanced marker must not participate in outer module scanning",
         );
     }
 }

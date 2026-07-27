@@ -1,0 +1,51 @@
+{
+  "oracle": "live-wikidot-anonymous-amc",
+  "observed_at": "2026-07-27T13:48:33+09:00",
+  "site": "sandbox-for-codex",
+  "route": "ajax-module-connector.php",
+  "common_request": {
+    "moduleName": "list/ListPagesModule",
+    "name": "c-bl-f2605270016-001-tgt",
+    "limit": "1"
+  },
+  "cases": [
+    {
+      "name": "stray-close",
+      "module_body": "BEFORE [[/module]] AFTER",
+      "http_status": 200,
+      "status": "ok",
+      "body": "<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>BEFORE [[/module]] AFTER</p>\n</div>\n    \n    \n    \n    </div>"
+    },
+    {
+      "name": "unclosed-nested-open",
+      "module_body": "BEFORE [[module ListPages limit=\"1\"]] UNCLOSED",
+      "http_status": 200,
+      "status": "ok",
+      "body": "<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>BEFORE [[module ListPages limit=&quot;1&quot;]] UNCLOSED</p>\n</div>\n    \n    \n    \n    </div>"
+    },
+    {
+      "name": "authored-raw-close",
+      "module_body": "BEFORE @@[[/module]]@@ AFTER",
+      "http_status": 200,
+      "status": "ok",
+      "body": "<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>BEFORE <span style=\"white-space: pre-wrap;\">[[/module]]</span> AFTER</p>\n</div>\n    \n    \n    \n    </div>"
+    },
+    {
+      "name": "authored-raw-open",
+      "module_body": "BEFORE @@[[module ListPages limit=\"1\"]]@@ AFTER",
+      "http_status": 200,
+      "status": "ok",
+      "body": "<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>BEFORE <span style=\"white-space: pre-wrap;\">[[module&#32;ListPages&#32;limit=&quot;1&quot;]]</span> AFTER</p>\n</div>\n    \n    \n    \n    </div>"
+    }
+  ],
+  "common_response": {
+    "jsInclude_count": 1,
+    "cssInclude": [],
+    "callbackIndex": null
+  },
+  "assertions": {
+    "unbalanced_markers_are_plain_text": true,
+    "authored_raw_markers_keep_pre_wrap_span": true,
+    "credentialed_request": false
+  }
+}

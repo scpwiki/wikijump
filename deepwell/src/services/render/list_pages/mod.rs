@@ -34,6 +34,14 @@ pub(super) use self::rendering::{
     ListPagesExpansionBudget, preserve_list_pages_following_paragraph_boundary,
     register_generated_list_pages_html, url_offset_list_pages_content_bytes,
 };
+#[cfg(test)]
+pub(super) use self::substitution::{
+    AJAX_MODULE_LITERAL_MARKER_PREFIX, format_list_pages_created_at,
+    list_pages_body_is_no_visible_tracking_markup, list_pages_body_uses_content_variable,
+    list_pages_body_variables_supported, list_pages_tag_link_href,
+    parse_list_pages_date_selector, render_list_pages_tags,
+    substitute_list_pages_variables,
+};
 pub(super) use self::substitution::{
     CurrentPageAuthorSource, ExactNameListPagesBatchKey, ListPagesArguments,
     ListPagesAuthorCacheKey, ListPagesBatchDisplayRequirements, ListPagesBatchDisplays,
@@ -49,18 +57,12 @@ pub(super) use self::substitution::{
     list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
     list_pages_revision_count, list_pages_row_scan_target,
     page_query_cap_requires_original_module, parse_list_pages_arguments,
-    parse_list_pages_arguments_with_url, push_list_pages_pager, render_tag_cloud_box,
-    requested_page_info_score, restore_list_pages_literal_ellipsis_markers,
+    parse_list_pages_arguments_with_url, protect_ajax_module_literal_markers,
+    push_list_pages_pager, render_tag_cloud_box, requested_page_info_score,
+    restore_list_pages_literal_ellipsis_markers,
     should_render_current_page_list_pages_row, substitute_count_pages_variables,
     substitute_list_pages_rating_only, substitute_list_pages_variables_with_fragments,
     union_found_page_fields, unsupported_list_pages_replacement,
-};
-#[cfg(test)]
-pub(super) use self::substitution::{
-    format_list_pages_created_at, list_pages_body_is_no_visible_tracking_markup,
-    list_pages_body_uses_content_variable, list_pages_body_variables_supported,
-    list_pages_tag_link_href, parse_list_pages_date_selector, render_list_pages_tags,
-    substitute_list_pages_variables,
 };
 
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};

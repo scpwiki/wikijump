@@ -672,17 +672,6 @@ impl RenderService {
         .await
         .or_raise(make_error)?;
 
-        let normalized_body = html_output.body.to_ascii_lowercase();
-        if normalized_body.contains("[[module listpages")
-            || normalized_body.contains("[[/module]]")
-        {
-            return Err(Error::new(
-                "unsupported Wikidot ListPages module query",
-                ErrorType::Render,
-            )
-            .into());
-        }
-
         Ok(RenderOutput {
             html_output,
             errors,
