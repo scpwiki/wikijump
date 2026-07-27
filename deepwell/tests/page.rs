@@ -3303,6 +3303,213 @@ async fn list_pages_url_offset_selector_reads_the_request_route() {
 }
 
 #[tokio::test]
+async fn ajax_listpages_recursively_renders_balanced_nested_modules() {
+    const OUTER_SLUG: &str = "fixture-ajax-listpages-nested-outer";
+    const INNER_SLUG: &str = "fixture-ajax-listpages-nested-inner";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        OUTER_SLUG,
+        "Fixture Nested ListPages Outer",
+        "Outer row source.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INNER_SLUG,
+        "Fixture Nested ListPages Inner",
+        "Inner row source.",
+    )
+    .await;
+
+    let output = run_endpoint!(
+        runner,
+        wikidot_list_pages_module,
+        json!({
+            "site_id": site_id,
+            "module_body": format!(
+                "OUTER_BEFORE %%fullname%%\n\
+                 [[module ListPages name=\"{}\" limit=\"1\"]]\n\
+                 INNER_ROW %%fullname%%\n\
+                 [[/module]]\n\
+                 OUTER_AFTER %%fullname%%",
+                INNER_SLUG,
+            ),
+            "parameters": {
+                "name": OUTER_SLUG,
+                "limit": "1",
+            },
+        }),
+    );
+
+    assert_eq!(
+        output
+            .body
+            .matches(r#"<div class="list-pages-box">"#)
+            .count(),
+        2,
+        "live Wikidot recursively renders both ListPages wrappers: {}",
+        output.body,
+    );
+    for marker in ["OUTER_BEFORE", "INNER_ROW", "OUTER_AFTER"] {
+        assert!(
+            output.body.contains(marker),
+            "nested ListPages output should contain {marker}: {}",
+            output.body,
+        );
+    }
+    assert_eq!(
+        output.body.matches(OUTER_SLUG).count(),
+        3,
+        "the outer row substitutes variables before the revealed inner module executes: {}",
+        output.body,
+    );
+    assert!(
+        !output.body.contains(INNER_SLUG)
+            && !output.body.contains("[[module ListPages")
+            && !output.body.contains("[[/module]]"),
+        "the inner query should execute without leaking its source or row identity: {}",
+        output.body,
+    );
+
+    let mut deeply_nested_body = "DEPTH_LIMIT".to_owned();
+    for _ in 0..8 {
+        deeply_nested_body = format!(
+            "[[module ListPages name=\"{INNER_SLUG}\" limit=\"1\"]]\n\
+             {deeply_nested_body}\n\
+             [[/module]]",
+        );
+    }
+    let depth_limited = run_endpoint!(
+        runner,
+        wikidot_list_pages_module,
+        json!({
+            "site_id": site_id,
+            "module_body": deeply_nested_body,
+            "parameters": {
+                "name": OUTER_SLUG,
+                "limit": "1",
+            },
+        }),
+    );
+    assert_eq!(
+        depth_limited
+            .body
+            .matches(r#"<div class="list-pages-box">"#)
+            .count(),
+        9,
+        "the root pass plus eight nested passes should execute: {}",
+        depth_limited.body,
+    );
+
+    let too_deep_body = format!(
+        "[[module ListPages name=\"{INNER_SLUG}\" limit=\"1\"]]\n\
+         {deeply_nested_body}\n\
+         [[/module]]",
+    );
+    let too_deep = run_endpoint!(
+        runner,
+        wikidot_list_pages_module,
+        json!({
+            "site_id": site_id,
+            "module_body": too_deep_body,
+            "parameters": {
+                "name": OUTER_SLUG,
+                "limit": "1",
+            },
+        }),
+    );
+    assert_eq!(
+        too_deep
+            .body
+            .matches(r#"<div class="list-pages-box">"#)
+            .count(),
+        9,
+        "a ninth nested pass should not execute: {}",
+        too_deep.body,
+    );
+    assert_eq!(
+        too_deep.body.matches("TODO: module ListPages").count(),
+        1,
+        "the first module beyond the depth limit should use the unsupported-module diagnostic: {}",
+        too_deep.body,
+    );
+
+    let many_nested_modules = (0..64)
+        .map(|index| {
+            format!(
+                "[[module ListPages name=\"{INNER_SLUG}\" limit=\"1\"]]\n\
+                 CAPPED_{index}\n\
+                 [[/module]]",
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let module_limited = run_endpoint!(
+        runner,
+        wikidot_list_pages_module,
+        json!({
+            "site_id": site_id,
+            "module_body": many_nested_modules,
+            "parameters": {
+                "name": OUTER_SLUG,
+                "limit": "1",
+            },
+        }),
+    );
+    assert_eq!(
+        module_limited
+            .body
+            .matches(r#"<div class="list-pages-box">"#)
+            .count(),
+        65,
+        "the root plus 64 revealed sibling modules should execute: {}",
+        module_limited.body,
+    );
+
+    let too_many_modules = format!(
+        "{many_nested_modules}\n\
+         [[module ListPages name=\"{INNER_SLUG}\" limit=\"1\"]]\n\
+         CAPPED_64\n\
+         [[/module]]",
+    );
+    let too_many = run_endpoint!(
+        runner,
+        wikidot_list_pages_module,
+        json!({
+            "site_id": site_id,
+            "module_body": too_many_modules,
+            "parameters": {
+                "name": OUTER_SLUG,
+                "limit": "1",
+            },
+        }),
+    );
+    assert_eq!(
+        too_many
+            .body
+            .matches(r#"<div class="list-pages-box">"#)
+            .count(),
+        1,
+        "a revealed pass above the module cap should not execute any sibling: {}",
+        too_many.body,
+    );
+    assert_eq!(
+        too_many.body.matches("TODO: module ListPages").count(),
+        65,
+        "all modules above the cap should use the unsupported-module diagnostic: {}",
+        too_many.body,
+    );
+}
+
+#[tokio::test]
 async fn list_pages_url_category_selector_reads_the_url_category_argument() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

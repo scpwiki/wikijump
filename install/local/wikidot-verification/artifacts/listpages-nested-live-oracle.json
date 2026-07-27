@@ -1,0 +1,32 @@
+{
+  "oracle": "live-wikidot-anonymous-amc",
+  "observed_at": "2026-07-27T13:25:40+09:00",
+  "site": "sandbox-for-codex",
+  "route": "ajax-module-connector.php",
+  "request": {
+    "moduleName": "list/ListPagesModule",
+    "name": "c-bl-f2605270016-001-tgt",
+    "limit": "1",
+    "module_body": "OUTER_BEFORE %%fullname%%\n[[module ListPages limit=\"1\" order=\"name desc\"]]\nINNER_ROW %%fullname%%\n[[/module]]\nOUTER_AFTER %%fullname%%"
+  },
+  "response": {
+    "http_status": 200,
+    "status": "ok",
+    "CURRENT_TIMESTAMP": 1785126335,
+    "body": "<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>OUTER_BEFORE c-bl-f2605270016-001-tgt</p>\n<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>INNER_ROW c-bl-f2605270016-001-tgt</p>\n</div>\n    \n    \n    \n    </div>\n<p>OUTER_AFTER c-bl-f2605270016-001-tgt</p>\n</div>\n    \n    \n    \n    </div>",
+    "jsInclude": [
+      "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/list/ListPagesModule.js",
+      "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/list/ListPagesModule.js"
+    ],
+    "cssInclude": [],
+    "callbackIndex": null
+  },
+  "assertions": {
+    "list_pages_box_count": 2,
+    "outer_before_count": 1,
+    "inner_row_count": 1,
+    "outer_after_count": 1,
+    "outer_fullname_substituted_inside_inner_row": true,
+    "credentialed_request": false
+  }
+}

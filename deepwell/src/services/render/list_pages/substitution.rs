@@ -50,7 +50,7 @@ use super::super::service::{
     format_wikidot_list_pages_date, native_numbered_list_content,
 };
 use super::content_sections::wikidot_content_section;
-use super::scanner::list_pages_runtime_head_is_safe;
+use super::scanner::{find_list_pages_module_matches, list_pages_runtime_head_is_safe};
 use ftml::data::PageInfo;
 use ftml::{self};
 
@@ -1075,10 +1075,8 @@ pub(in crate::services::render) fn build_wikidot_list_pages_module_source(
     module_body: String,
     parameters: &BTreeMap<String, String>,
 ) -> Option<String> {
-    let normalized_module_body = module_body.to_ascii_lowercase();
     if module_body.len() > MAX_WIKIDOT_AJAX_MODULE_BODY_BYTES
         || parameters.len() > MAX_WIKIDOT_AJAX_MODULE_PARAMETERS
-        || normalized_module_body.contains("[[/module]]")
     {
         return None;
     }
@@ -1152,7 +1150,12 @@ pub(in crate::services::render) fn build_wikidot_list_pages_module_source(
     source.push_str("]]\n");
     source.push_str(&module_body);
     source.push_str("\n[[/module]]");
-    Some(source)
+    let modules = find_list_pages_module_matches(&source);
+    (modules.len() == 1
+        && modules[0].start == 0
+        && modules[0].end == source.len()
+        && modules[0].runtime_safe)
+        .then_some(source)
 }
 
 pub(in crate::services::render) fn parse_list_pages_score_selector(
