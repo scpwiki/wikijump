@@ -55,11 +55,11 @@ use super::{
     list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
     list_pages_revision_count, list_pages_row_scan_target,
     page_query_cap_requires_original_module, parse_list_pages_arguments,
-    parse_list_pages_arguments_with_url, push_list_pages_pager,
-    requested_page_info_score, should_render_current_page_list_pages_row,
-    substitute_count_pages_variables, substitute_list_pages_rating_only,
-    substitute_list_pages_variables_with_fragments, union_found_page_fields,
-    unsupported_list_pages_replacement,
+    parse_list_pages_arguments_with_url, protect_ajax_module_literal_markers,
+    push_list_pages_pager, requested_page_info_score,
+    should_render_current_page_list_pages_row, substitute_count_pages_variables,
+    substitute_list_pages_rating_only, substitute_list_pages_variables_with_fragments,
+    union_found_page_fields, unsupported_list_pages_replacement,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::hash::{TextHash, k12_hash};
@@ -597,6 +597,11 @@ impl RenderService {
         }
 
         expanded.push_str(&wikitext[cursor..]);
+        let expanded = if page_info.page.as_ref() == "_ajax-module-connector" {
+            protect_ajax_module_literal_markers(expanded, compat_text)
+        } else {
+            expanded
+        };
         let mut expansion = ListPagesExpansion {
             wikitext: expanded,
             included_pages,
