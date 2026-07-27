@@ -1,5 +1,5 @@
 gap_id	scope	status	reason	followup_goal
-LP-001	@URL offset runtime parsing	fixed	Request /offset/<n> values now reach ListPages offset="@URL|fallback", with invalid and out-of-range values using the authored fallback	Covered by render-unit and page-view endpoint tests
+LP-001	@URL offset runtime parsing	fixed	Request /offset/<n> values now reach ListPages offset="@URL|fallback"; valid URL offsets that select at least 100,000 bytes of ListPages content receive a bounded 10-second FTML deadline, while invalid, out-of-range, fallback, and static offsets keep the ordinary deadline	Covered by render-unit and page-view endpoint tests; standing SCP-8980 offset route is the deployment acceptance probe
 LP-002	Generic ListPages selectors	known-gap	Only parent=".", category="fragment", order="created_at", limit="1", and offset="@URL|0" are accepted	Introduce typed parsing and incremental fixtures for additional selectors
 LP-003	Multiple result rows and generic limits	known-gap	The SCP-8980 proof needs exactly one selected child	Render the body template once per ordered result and define separator behavior
 LP-004	Template variables beyond %%content%%	known-gap	The proof body contains only %%content%%	Implement variables incrementally with render-level fixtures

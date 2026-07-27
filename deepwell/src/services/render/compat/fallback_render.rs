@@ -25,8 +25,9 @@ use super::super::service::{
     MAX_FTML_COMPAT_COLLAPSIBLE_BLOCKS, MAX_FTML_COMPAT_DENSE_PARSE_SCORE,
     MAX_FTML_COMPAT_PARSE_BYTES, MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS,
     MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES, MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS,
-    MIN_FTML_COMPAT_TABBED_MARKERS, MIN_FTML_COMPAT_TABBED_RENDER_BYTES, RenderService,
-    WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_RATE_ANCHOR_REGEX,
+    MIN_FTML_COMPAT_TABBED_MARKERS, MIN_FTML_COMPAT_TABBED_RENDER_BYTES,
+    MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES, MIN_URL_OFFSET_LISTPAGES_RENDER_TIMEOUT_SECS,
+    RenderService, WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_RATE_ANCHOR_REGEX,
     WIKIDOT_RATE_ANCHOR_SENTINEL_PREFIX, WIKIDOT_TABVIEW_INIT_SCRIPT,
     WIKIDOT_TABVIEW_SCRIPT, collect_wikidot_compat_empty_label_link_slugs,
     escape_list_pages_html_attr, escape_list_pages_html_text, push_escaped_html,
@@ -103,6 +104,7 @@ impl RenderService {
     pub(in crate::services::render) fn ftml_compat_render_timeout(
         config: &Config,
         wikitext: &str,
+        url_offset_list_pages_content_bytes: usize,
     ) -> Duration {
         let configured_timeout = config
             .preprocess_timeout
@@ -111,11 +113,16 @@ impl RenderService {
         let dense_compat_timeout =
             Duration::from_secs(MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS);
 
+        let mut timeout = configured_timeout;
         if Self::wikidot_compat_needs_extended_render_deadline(wikitext) {
-            configured_timeout.max(dense_compat_timeout)
-        } else {
-            configured_timeout
+            timeout = timeout.max(dense_compat_timeout);
         }
+        if url_offset_list_pages_content_bytes >= MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES {
+            timeout = timeout.max(Duration::from_secs(
+                MIN_URL_OFFSET_LISTPAGES_RENDER_TIMEOUT_SECS,
+            ));
+        }
+        timeout
     }
 
     fn wikidot_compat_needs_extended_render_deadline(wikitext: &str) -> bool {
