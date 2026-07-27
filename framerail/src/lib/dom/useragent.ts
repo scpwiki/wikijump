@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+
 /**
  * Browser / User-Agent info. Contains contextual information like
  * normalized mouse position values.
