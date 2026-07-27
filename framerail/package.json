@@ -18,7 +18,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.1",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
