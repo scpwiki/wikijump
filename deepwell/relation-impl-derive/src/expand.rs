@@ -16,14 +16,24 @@ pub fn expand_stream(
         remove_fn,
     }: RelationSettings,
 ) -> TokenStream {
+    // Build context for each helper
+
+    let relation_type = {
+        let struct_ident = make_ident(&struct_name);
+        quote! { RelationType::#struct_ident }
+    };
+
     let context = GenerationContext {
         field_name: &field_name,
         struct_name: &struct_name,
+        relation_type: &relation_type,
         dest_name: &dest_name,
         dest_type,
         from_name: &from_name,
         from_type,
     };
+
+    // Generate each code section
 
     let GeneratedDefinitions {
         struct_def: get_struct_def,
@@ -71,6 +81,7 @@ fn generate_get_methods(
     GenerationContext {
         field_name,
         struct_name,
+        relation_type,
         dest_name,
         dest_type,
         from_name,
@@ -103,7 +114,7 @@ fn generate_get_methods(
         ) -> Result<RelationModel> {
             Self::get(
                 RelationReference::Relationship {
-                    relation_type: RelationType::#struct_name,
+                    relation_type: #relation_type,
                     dest: RelationObject::#dest_type(#dest_name),
                     from: RelationObject::#from_type(#from_name),
                 },
@@ -121,7 +132,7 @@ fn generate_get_methods(
             Self::get_optional(
                 ctx,
                 RelationReference::Relationship {
-                    relation_type: RelationType::#struct_name,
+                    relation_type: #relation_type,
                     dest: RelationObject::#dest_type(#dest_name),
                     from: RelationObject::#from_type(#from_name),
                 },
@@ -139,7 +150,7 @@ fn generate_get_methods(
             Self::exists(
                 ctx,
                 RelationReference::Relationship {
-                    relation_type: RelationType::#struct_name,
+                    relation_type: #relation_type,
                     dest: RelationObject::#dest_type(#dest_name),
                     from: RelationObject::#from_type(#from_name),
                 },
@@ -157,7 +168,7 @@ fn generate_get_methods(
         ) -> Result<Vec<RelationModel>> {
             Self::get_history(
                 ctx,
-                RelationType::#field_name,
+                #relation_type,
                 RelationObject::#dest_type(#dest_name),
                 RelationObject::#from_type(#from_name),
             )
@@ -172,7 +183,7 @@ fn generate_get_methods(
         ) -> Result<Vec<RelationModel>> {
             Self::get_entries(
                 ctx,
-                RelationType::#field_name,
+                #relation_type,
                 object,
                 direction,
             )
@@ -190,6 +201,7 @@ fn generate_create_defs(
     GenerationContext {
         field_name,
         struct_name,
+        relation_type,
         dest_name,
         dest_type,
         from_name,
@@ -241,7 +253,7 @@ fn generate_create_defs(
                 create_call = quote! {
                     Self::create(
                         ctx,
-                        RelationType::#struct_name,
+                        #relation_type,
                         RelationObject::#dest_type(#dest_name),
                         RelationObject::#from_type(#from_name),
                         created_by,
@@ -265,7 +277,7 @@ fn generate_create_defs(
                 create_call = quote! {
                     Self::create(
                         ctx,
-                        RelationType::#struct_name,
+                        #relation_type,
                         RelationObject::#dest_type(#dest_name),
                         RelationObject::#from_type(#from_name),
                         created_by,
@@ -303,6 +315,7 @@ fn generate_remove_defs(
     GenerationContext {
         field_name,
         struct_name,
+        relation_type,
         dest_name,
         dest_type,
         from_name,
@@ -336,7 +349,7 @@ fn generate_remove_defs(
                 Self::remove(
                     ctx,
                     RelationReference::Relationship {
-                        relation_type: RelationType::#struct_name,
+                        relation_type: #relation_type,
                         dest: RelationObject::#dest_type(#dest_name),
                         from: RelationObject::#from_type(#from_name),
                     },
@@ -358,6 +371,7 @@ fn generate_remove_defs(
 struct GenerationContext<'a> {
     field_name: &'a str,
     struct_name: &'a str,
+    relation_type: &'a TokenStream,
     dest_name: &'a Ident,
     dest_type: RelationObjectType,
     from_name: &'a Ident,
