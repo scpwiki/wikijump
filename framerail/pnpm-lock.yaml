@@ -38,6 +38,9 @@ importers:
       svelte-preprocess:
         specifier: ^6.0.5
         version: 6.0.5(postcss-load-config@3.1.4(postcss@8.5.25))(postcss@8.5.25)(sass@1.102.0)(svelte@5.56.3(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
+      tippy.js:
+        specifier: ^6.3.7
+        version: 6.3.7
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -2240,6 +2243,9 @@ packages:
   tinyglobby@0.2.17:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
+
+  tippy.js@6.3.7:
+    resolution: {integrity: sha512-E1d3oP2emgJ9dRQZdf3Kkn0qJgI6ZLpyS5z6ZkY1DF3kaQaBsGZsndEpHwx+eC+tYM41HaSNvNtLx8tU57FzTQ==}
 
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
@@ -4444,6 +4450,10 @@ snapshots:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
+
+  tippy.js@6.3.7:
+    dependencies:
+      '@popperjs/core': 2.11.8
 
   to-regex-range@5.0.1:
     dependencies:
