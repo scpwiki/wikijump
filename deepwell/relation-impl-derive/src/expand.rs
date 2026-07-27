@@ -99,8 +99,8 @@ fn generate_get_methods(
     let struct_def = quote! {
         #[derive(Deserialize, Debug, Copy, Clone)]
         pub struct #get_struct {
-            pub #dest_name: #dest_type,
-            pub #from_name: #from_type,
+            pub #dest_name: i64,
+            pub #from_name: i64,
         }
     };
 
