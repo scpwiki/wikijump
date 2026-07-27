@@ -27,7 +27,7 @@ use super::super::list_pages::scanner::{
 };
 use super::super::list_pages::template::ListPagesTemplatePlan;
 use super::super::list_pages::{
-    ListPagesBatchDisplayRequirements, ListPagesExpansionBudget,
+    ListPagesBatchDisplayRequirements, ListPagesExpansionBudget, ListPagesOffsetOrigin,
     ListPagesSnapshotDisplay, ListPagesSubstitutionContext, WikidotUserDisplay,
     count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
     count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
@@ -45,7 +45,7 @@ use super::super::list_pages::{
     register_generated_list_pages_html, render_list_pages_tags, render_tag_cloud_box,
     requested_page_info_score, should_render_current_page_list_pages_row,
     substitute_count_pages_variables, substitute_list_pages_variables,
-    unsupported_list_pages_replacement,
+    unsupported_list_pages_replacement, url_offset_list_pages_content_bytes,
 };
 use super::super::literal_regions::ListPagesSourceProjection;
 use super::super::runtime_page_queries::{
@@ -63,7 +63,8 @@ use super::{
     MAX_LISTPAGES_RENDER_OFFSET, MAX_LISTPAGES_RENDER_SCAN_ROWS,
     MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_NATIVE_LIST_WIKIDOT_SPAN_NESTING,
     MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS, MIN_FTML_COMPAT_TABBED_FALLBACK_BYTES,
-    MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, PreparedIncluder, RenderContext,
+    MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS, MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES,
+    MIN_URL_OFFSET_LISTPAGES_RENDER_TIMEOUT_SECS, PreparedIncluder, RenderContext,
     RenderService, WIKIDOT_COLOR_SPAN_SENTINEL_PREFIX,
     WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX, WIKIDOT_COMPAT_LINK_SENTINEL_PREFIX,
     WIKIDOT_INLINE_HTML_SENTINEL_PREFIX,
@@ -311,6 +312,7 @@ fn render_wikidot_conditionals_with_tags(wikitext: &str, tags: &[&str]) -> Strin
             wikidot_compat_text: CompatTextFragments::new(wikitext),
             wikitext: wikitext.to_owned(),
             included_pages: Vec::new(),
+            url_offset_list_pages_content_bytes: 0,
         },
         &page_info,
         &settings,
@@ -499,11 +501,16 @@ fn a_static_tags_selector_ignores_the_url_tag() {
 
 #[test]
 fn a_url_offset_selector_resolves_to_the_requests_offset() {
-    let arguments =
-        parse_list_pages_arguments_with_url(r#" offset="@URL|0""#, url_offset(Some(7)))
-            .expect("url offset selector should parse");
+    for offset in [0, 1, MAX_LISTPAGES_RENDER_OFFSET] {
+        let arguments = parse_list_pages_arguments_with_url(
+            r#" offset="@URL|0""#,
+            url_offset(Some(offset)),
+        )
+        .expect("url offset selector should parse");
 
-    assert_eq!(arguments.offset, 7);
+        assert_eq!(arguments.offset, offset);
+        assert_eq!(arguments.offset_origin, ListPagesOffsetOrigin::Url);
+    }
 }
 
 #[test]
@@ -516,6 +523,7 @@ fn a_url_offset_selector_falls_back_without_a_valid_request_offset() {
         .expect("url offset fallback should parse");
 
         assert_eq!(arguments.offset, 3);
+        assert_eq!(arguments.offset_origin, ListPagesOffsetOrigin::Fallback);
     }
 }
 
@@ -526,6 +534,7 @@ fn a_url_offset_selector_without_an_authored_fallback_defaults_to_zero() {
             .expect("bare url offset selector should parse");
 
     assert_eq!(arguments.offset, 0);
+    assert_eq!(arguments.offset_origin, ListPagesOffsetOrigin::Fallback);
 }
 
 #[test]
@@ -535,6 +544,38 @@ fn a_static_offset_ignores_the_request_offset() {
             .expect("static offset should parse");
 
     assert_eq!(arguments.offset, 2);
+    assert_eq!(arguments.offset_origin, ListPagesOffsetOrigin::Static);
+}
+
+#[test]
+fn only_url_offset_content_counts_toward_the_extended_deadline() {
+    let replacement = "expanded child content";
+
+    assert_eq!(
+        url_offset_list_pages_content_bytes(
+            ListPagesOffsetOrigin::Url,
+            true,
+            replacement,
+        ),
+        replacement.len(),
+    );
+    for offset_origin in [
+        ListPagesOffsetOrigin::Static,
+        ListPagesOffsetOrigin::Fallback,
+    ] {
+        assert_eq!(
+            url_offset_list_pages_content_bytes(offset_origin, true, replacement),
+            0,
+        );
+    }
+    assert_eq!(
+        url_offset_list_pages_content_bytes(
+            ListPagesOffsetOrigin::Url,
+            false,
+            replacement,
+        ),
+        0,
+    );
 }
 
 #[test]
@@ -3229,6 +3270,7 @@ fn protects_css_before_list_pages_and_rejoins_the_outer_pipeline() {
             wikidot_compat_text: CompatTextFragments::new(&source),
             wikitext: source,
             included_pages: Vec::new(),
+            url_offset_list_pages_content_bytes: 0,
         },
         &page_info,
         &settings,
@@ -6281,7 +6323,7 @@ fn dense_parse_eligible_wikidot_pages_get_extended_render_deadline() {
 
     assert!(source.len() < MAX_FTML_COMPAT_PARSE_BYTES);
     assert_eq!(
-        RenderService::ftml_compat_render_timeout(&config, &source),
+        RenderService::ftml_compat_render_timeout(&config, &source, 0),
         Duration::from_secs(MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS)
     );
 }
@@ -6309,7 +6351,7 @@ fn large_tabbed_wikidot_pages_get_extended_render_deadline() {
             < MAX_FTML_COMPAT_DENSE_PARSE_SCORE
     );
     assert_eq!(
-        RenderService::ftml_compat_render_timeout(&config, &source),
+        RenderService::ftml_compat_render_timeout(&config, &source, 0),
         Duration::from_secs(MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS)
     );
 }
@@ -6322,8 +6364,49 @@ fn ordinary_wikidot_pages_keep_configured_render_deadline() {
     let source = "ordinary component prose line\n".repeat(20_000);
 
     assert_eq!(
-        RenderService::ftml_compat_render_timeout(&config, &source),
+        RenderService::ftml_compat_render_timeout(&config, &source, 0),
         Duration::from_millis(2_500)
+    );
+}
+
+#[test]
+fn substantial_url_offset_listpages_content_gets_a_bounded_deadline_floor() {
+    let mut config = Config::integration_testing();
+    config.preprocess_timeout = Duration::from_millis(500);
+    config.render_timeout = Duration::from_millis(2_000);
+    let source = "ordinary prose";
+
+    assert_eq!(
+        RenderService::ftml_compat_render_timeout(
+            &config,
+            source,
+            MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES - 1,
+        ),
+        Duration::from_millis(2_500),
+    );
+    assert_eq!(
+        RenderService::ftml_compat_render_timeout(
+            &config,
+            source,
+            MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES,
+        ),
+        Duration::from_secs(MIN_URL_OFFSET_LISTPAGES_RENDER_TIMEOUT_SECS),
+    );
+}
+
+#[test]
+fn url_offset_listpages_deadline_does_not_shorten_configured_timeout() {
+    let mut config = Config::integration_testing();
+    config.preprocess_timeout = Duration::from_secs(3);
+    config.render_timeout = Duration::from_secs(9);
+
+    assert_eq!(
+        RenderService::ftml_compat_render_timeout(
+            &config,
+            "ordinary prose",
+            MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES,
+        ),
+        Duration::from_secs(12),
     );
 }
 
@@ -8567,6 +8650,7 @@ fn render_native_list_page_for_regression(
             wikidot_compat_text: CompatTextFragments::new(source),
             wikitext: source.to_owned(),
             included_pages: Vec::new(),
+            url_offset_list_pages_content_bytes: 0,
         },
         &page_info,
         &settings,
@@ -9751,6 +9835,7 @@ fn render_preparation_resolves_generated_simple_if_with_link_branch() {
             )
             .to_owned(),
             included_pages: Vec::new(),
+            url_offset_list_pages_content_bytes: 0,
             wikidot_compat_html: CompatHtmlFragments::new(""),
             wikidot_compat_text: CompatTextFragments::new(""),
         },
@@ -10379,6 +10464,7 @@ fn prepares_wikidot_unicode_iftags_component_with_cross_closed_collapsible() {
             wikidot_compat_text: CompatTextFragments::new(&source),
             wikitext: source,
             included_pages: Vec::new(),
+            url_offset_list_pages_content_bytes: 0,
         },
         &page_info,
         &settings,
@@ -10572,6 +10658,7 @@ fn repeated_render_preparation_preserves_nested_iftags_for_ftml() {
         super::ExpandedRenderWikitext {
             wikitext,
             included_pages: Vec::new(),
+            url_offset_list_pages_content_bytes: 0,
             wikidot_compat_html: CompatHtmlFragments::new(""),
             wikidot_compat_text,
         },
@@ -10619,6 +10706,7 @@ fn malformed_iftags_remain_literal_after_ftml_recovery() {
         super::ExpandedRenderWikitext {
             wikitext,
             included_pages: Vec::new(),
+            url_offset_list_pages_content_bytes: 0,
             wikidot_compat_html: CompatHtmlFragments::new(""),
             wikidot_compat_text,
         },

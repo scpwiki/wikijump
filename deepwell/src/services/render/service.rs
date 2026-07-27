@@ -81,7 +81,7 @@ use super::include_variables::{
 #[cfg(test)]
 use super::list_pages::ResolvedListPagesAuthors;
 use super::list_pages::{
-    CountPagesExpansionOptions, ListPagesExpansionOptions,
+    CountPagesExpansionOptions, ListPagesExpansion, ListPagesExpansionOptions,
     build_wikidot_list_pages_module_source, restore_list_pages_literal_ellipsis_markers,
 };
 use super::literal_regions::LiteralRegionIndex;
@@ -242,6 +242,7 @@ pub(super) struct ProtectedWikidotCompatLink {
 struct ExpandedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
+    url_offset_list_pages_content_bytes: usize,
     wikidot_compat_html: CompatHtmlFragments,
     wikidot_compat_text: CompatTextFragments,
 }
@@ -250,6 +251,7 @@ struct ExpandedRenderWikitext {
 struct OuterPreparedRenderWikitext {
     wikitext: String,
     included_pages: Vec<PageRef>,
+    url_offset_list_pages_content_bytes: usize,
     wikidot_css_modules: Vec<String>,
     wikidot_inline_html: Vec<ProtectedWikidotInlineHtml>,
     wikidot_color_spans: ProtectedWikidotColorSpans,
@@ -288,6 +290,11 @@ pub(super) const MIN_FTML_COMPAT_TABBED_FALLBACK_MARKERS: usize = 12;
 pub(super) const MIN_FTML_COMPAT_TABBED_RENDER_BYTES: usize = 100_000;
 pub(super) const MIN_FTML_COMPAT_TABBED_MARKERS: usize = 10;
 pub(super) const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
+// Large ListPages content selected by a valid `/offset/<n>` is rendered for
+// the page view rather than stored ahead of time. SCP-8980's observed fragment
+// is large enough to exceed the ordinary standing timeout.
+pub(super) const MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES: usize = 100_000;
+pub(super) const MIN_URL_OFFSET_LISTPAGES_RENDER_TIMEOUT_SECS: u64 = 10;
 pub(super) const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
 pub(super) const INCLUDE_VARIABLE_CLOSE_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_CLOSE__";
 const WIKIDOT_COMMENT_INCLUDE_SENTINEL: &str = "__WIKIJUMP_COMMENT_INCLUDE__";
@@ -979,6 +986,7 @@ impl RenderService {
         let expanded = ExpandedRenderWikitext {
             wikitext,
             included_pages,
+            url_offset_list_pages_content_bytes: 0,
             wikidot_compat_html,
             wikidot_compat_text,
         };
@@ -1105,9 +1113,10 @@ impl RenderService {
             neutralize_authored_markers(&mut wikitext);
         }
         let mut wikidot_compat_html = CompatHtmlFragments::new(&wikitext);
-        let IncludeExpansion {
+        let ListPagesExpansion {
             wikitext: expanded_wikitext,
             included_pages: list_pages_included_pages,
+            url_offset_content_bytes,
             ..
         } = {
             let _stage = StageGuard::new(trace, CorpusRenderStage::ListPages);
@@ -1241,6 +1250,7 @@ impl RenderService {
         Ok(ExpandedRenderWikitext {
             wikitext,
             included_pages,
+            url_offset_list_pages_content_bytes: url_offset_content_bytes,
             wikidot_compat_html,
             wikidot_compat_text,
         })
@@ -1317,6 +1327,8 @@ impl RenderService {
         OuterPreparedRenderWikitext {
             wikitext: expanded.wikitext,
             included_pages: expanded.included_pages,
+            url_offset_list_pages_content_bytes: expanded
+                .url_offset_list_pages_content_bytes,
             wikidot_css_modules,
             wikidot_inline_html,
             wikidot_color_spans,
@@ -1450,6 +1462,7 @@ impl RenderService {
             let OuterPreparedRenderWikitext {
                 wikitext,
                 included_pages,
+                url_offset_list_pages_content_bytes: _,
                 wikidot_css_modules,
                 wikidot_inline_html,
                 wikidot_color_spans,
@@ -1636,8 +1649,11 @@ impl RenderService {
         let render_settings = settings.clone();
         let render_config = config.clone();
         let render_current_site = current_site.clone();
-        let render_timeout =
-            Self::ftml_compat_render_timeout(&render_config, &outer.wikitext);
+        let render_timeout = Self::ftml_compat_render_timeout(
+            &render_config,
+            &outer.wikitext,
+            outer.url_offset_list_pages_content_bytes,
+        );
         let worker_trace = trace.map(|(trace, scope)| (trace.clone(), scope));
         let parse_worker_trace = worker_trace.clone();
         let parse_page_info = render_page_info.clone();

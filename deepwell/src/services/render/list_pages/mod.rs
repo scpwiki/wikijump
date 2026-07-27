@@ -26,17 +26,19 @@ pub(super) mod scanner;
 pub(super) mod substitution;
 pub(super) mod template;
 
-pub(super) use self::rendering::{CountPagesExpansionOptions, ListPagesExpansionOptions};
+pub(super) use self::rendering::{
+    CountPagesExpansionOptions, ListPagesExpansion, ListPagesExpansionOptions,
+};
 #[cfg(test)]
 pub(super) use self::rendering::{
     ListPagesExpansionBudget, preserve_list_pages_following_paragraph_boundary,
-    register_generated_list_pages_html,
+    register_generated_list_pages_html, url_offset_list_pages_content_bytes,
 };
 pub(super) use self::substitution::{
     CurrentPageAuthorSource, ExactNameListPagesBatchKey, ListPagesArguments,
     ListPagesAuthorCacheKey, ListPagesBatchDisplayRequirements, ListPagesBatchDisplays,
-    ListPagesSnapshotDisplay, ListPagesSubstitutionContext, ResolvedListPagesAuthors,
-    WikidotUserDisplay, build_wikidot_list_pages_module_source,
+    ListPagesOffsetOrigin, ListPagesSnapshotDisplay, ListPagesSubstitutionContext,
+    ResolvedListPagesAuthors, WikidotUserDisplay, build_wikidot_list_pages_module_source,
     count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
     count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
     count_pages_scan_requires_preservation, count_pages_should_remain_literal,

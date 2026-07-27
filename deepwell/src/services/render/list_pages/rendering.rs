@@ -44,7 +44,7 @@ use super::scanner::{
 use super::template::{ListPagesOutputShape, ListPagesTemplatePlan};
 use super::{
     ExactNameListPagesBatchKey, ListPagesArguments, ListPagesAuthorCacheKey,
-    ListPagesBatchDisplayRequirements, ListPagesBatchDisplays,
+    ListPagesBatchDisplayRequirements, ListPagesBatchDisplays, ListPagesOffsetOrigin,
     ListPagesSubstitutionContext, ResolvedListPagesAuthors,
     count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
     count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
@@ -90,6 +90,14 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(in crate::services::render) enum ListPagesBlockRenderResult {
     Expanded(IncludeExpansion),
     PreserveOriginal,
+}
+
+#[derive(Debug)]
+pub(in crate::services::render) struct ListPagesExpansion {
+    pub(in crate::services::render) wikitext: String,
+    pub(in crate::services::render) included_pages: Vec<ftml::data::PageRef>,
+    pub(in crate::services::render) expanded_include_count: usize,
+    pub(in crate::services::render) url_offset_content_bytes: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -198,7 +206,7 @@ impl RenderService {
         include_source_cache: &mut IncludeSourceCache,
         compat_text: &mut CompatTextFragments,
         options: ListPagesExpansionOptions<'_>,
-    ) -> Result<IncludeExpansion> {
+    ) -> Result<ListPagesExpansion> {
         let ListPagesExpansionOptions {
             current_site_id,
             current_page_id,
@@ -206,27 +214,30 @@ impl RenderService {
             url,
         } = options;
         let Some(current_site_id) = current_site_id else {
-            return Ok(IncludeExpansion {
+            return Ok(ListPagesExpansion {
                 wikitext,
                 included_pages: Vec::new(),
                 expanded_include_count: 0,
+                url_offset_content_bytes: 0,
             });
         };
         let current_page_id = current_page_id.unwrap_or(0);
 
         if !settings.enable_page_syntax {
-            return Ok(IncludeExpansion {
+            return Ok(ListPagesExpansion {
                 wikitext,
                 included_pages: Vec::new(),
                 expanded_include_count: 0,
+                url_offset_content_bytes: 0,
             });
         }
 
         if !has_list_pages_module_opening_candidate(&wikitext) {
-            return Ok(IncludeExpansion {
+            return Ok(ListPagesExpansion {
                 wikitext,
                 included_pages: Vec::new(),
                 expanded_include_count: 0,
+                url_offset_content_bytes: 0,
             });
         }
 
@@ -301,6 +312,7 @@ impl RenderService {
 
         let mut expanded = String::with_capacity(wikitext.len());
         let mut included_pages = Vec::new();
+        let mut url_offset_content_bytes = 0usize;
         let mut content_cache = ListPagesContentCache::default();
         let mut expansion_budget = ListPagesExpansionBudget::new();
         let mut permission_cache = BTreeMap::new();
@@ -389,6 +401,8 @@ impl RenderService {
                     else {
                         unreachable!();
                     };
+                    let offset_origin = arguments.offset_origin;
+                    let uses_content = template.uses_content();
                     let slug = arguments.slug.as_ref().unwrap().to_string();
                     let prefetched_pages =
                         prefetched.as_ref().map(|prefetched| FoundPages {
@@ -428,10 +442,17 @@ impl RenderService {
                                 &mut replacement,
                                 &wikitext[block.end..],
                             );
-                            expanded.push_str(&register_generated_list_pages_html(
+                            let replacement = register_generated_list_pages_html(
                                 replacement,
                                 compat_html,
-                            ));
+                            );
+                            url_offset_content_bytes = url_offset_content_bytes
+                                .saturating_add(url_offset_list_pages_content_bytes(
+                                    offset_origin,
+                                    uses_content,
+                                    &replacement,
+                                ));
+                            expanded.push_str(&replacement);
                             included_pages.extend(replacement_included_pages);
                         }
                         ListPagesBlockRenderResult::PreserveOriginal => {
@@ -461,6 +482,8 @@ impl RenderService {
                     template,
                     ..
                 } => {
+                    let offset_origin = arguments.offset_origin;
+                    let uses_content = template.uses_content();
                     let rendered = Self::render_list_pages_block(
                         ctx,
                         ListPagesPageContext {
@@ -495,10 +518,17 @@ impl RenderService {
                                 &mut replacement,
                                 &wikitext[block.end..],
                             );
-                            expanded.push_str(&register_generated_list_pages_html(
+                            let replacement = register_generated_list_pages_html(
                                 replacement,
                                 compat_html,
-                            ));
+                            );
+                            url_offset_content_bytes = url_offset_content_bytes
+                                .saturating_add(url_offset_list_pages_content_bytes(
+                                    offset_origin,
+                                    uses_content,
+                                    &replacement,
+                                ));
+                            expanded.push_str(&replacement);
                             included_pages.extend(replacement_included_pages);
                         }
                         ListPagesBlockRenderResult::PreserveOriginal => {
@@ -513,11 +543,12 @@ impl RenderService {
         }
 
         expanded.push_str(&wikitext[cursor..]);
-        Ok(IncludeExpansion {
+        Ok(ListPagesExpansion {
             wikitext: expanded,
             included_pages,
             expanded_include_count: initial_remaining_include_expansions
                 .saturating_sub(include_budget.remaining),
+            url_offset_content_bytes,
         })
     }
 
@@ -1097,6 +1128,7 @@ impl RenderService {
             count_pages_explicit_limit: _,
             count_pages_per_page,
             offset,
+            offset_origin: _,
             exclude_current_page,
             page_type,
             page_parent,
@@ -1817,6 +1849,7 @@ impl RenderService {
             count_pages_explicit_limit,
             count_pages_per_page: _,
             offset,
+            offset_origin: _,
             exclude_current_page,
             page_type,
             page_parent,
@@ -2199,6 +2232,18 @@ pub(in crate::services::render) fn register_generated_list_pages_html(
             compat_html.push_html(html)
         })
         .into_owned()
+}
+
+pub(in crate::services::render) fn url_offset_list_pages_content_bytes(
+    offset_origin: ListPagesOffsetOrigin,
+    uses_content: bool,
+    replacement: &str,
+) -> usize {
+    if offset_origin == ListPagesOffsetOrigin::Url && uses_content {
+        replacement.len()
+    } else {
+        0
+    }
 }
 
 pub(in crate::services::render) fn preserve_list_pages_following_paragraph_boundary(

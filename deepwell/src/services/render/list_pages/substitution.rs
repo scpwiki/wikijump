@@ -172,6 +172,7 @@ pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) count_pages_explicit_limit: Option<u64>,
     pub(in crate::services::render) count_pages_per_page: Option<u64>,
     pub(in crate::services::render) offset: u32,
+    pub(in crate::services::render) offset_origin: ListPagesOffsetOrigin,
     pub(in crate::services::render) exclude_current_page: bool,
     pub(in crate::services::render) page_type: PageTypeSelector,
     pub(in crate::services::render) page_parent: PageParentSelector<'static>,
@@ -191,6 +192,13 @@ pub(in crate::services::render) struct ListPagesArguments {
     pub(in crate::services::render) link_to: Vec<Cow<'static, str>>,
     pub(in crate::services::render) unsupported_score_filter: bool,
     pub(in crate::services::render) unsupported_count_pages_filter: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(in crate::services::render) enum ListPagesOffsetOrigin {
+    Static,
+    Url,
+    Fallback,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -345,6 +353,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
     let mut count_pages_explicit_limit = None;
     let mut count_pages_per_page = None;
     let mut offset = 0;
+    let mut offset_origin = ListPagesOffsetOrigin::Static;
     let mut exclude_current_page = false;
     let mut page_type = PageTypeSelector::Normal;
     let mut page_parent = PageParentSelector::All;
@@ -514,12 +523,17 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                         .offset
                         .filter(|offset| *offset <= MAX_LISTPAGES_RENDER_OFFSET)
                     {
-                        Some(offset) => u64::from(offset),
+                        Some(offset) => {
+                            offset_origin = ListPagesOffsetOrigin::Url;
+                            u64::from(offset)
+                        }
                         None => {
+                            offset_origin = ListPagesOffsetOrigin::Fallback;
                             list_pages_url_fallback(value).unwrap_or("0").parse().ok()?
                         }
                     }
                 } else {
+                    offset_origin = ListPagesOffsetOrigin::Static;
                     value.parse().ok()?
                 };
                 if parsed > u64::from(MAX_LISTPAGES_RENDER_OFFSET) {
@@ -727,6 +741,7 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
         count_pages_explicit_limit,
         count_pages_per_page,
         offset,
+        offset_origin,
         exclude_current_page,
         page_type,
         page_parent,
