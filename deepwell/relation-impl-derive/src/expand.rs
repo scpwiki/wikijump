@@ -265,6 +265,10 @@ fn generate_create_defs(
             }
 
             // No metadata field
+            //
+            // Because the create() method always takes the same
+            // number of arguments, that means we have to pass
+            // in the empty data ourselves.
             None => {
                 struct_decompose = quote! {
                     #create_struct {
@@ -281,6 +285,7 @@ fn generate_create_defs(
                         #dest_type(#dest_name),
                         #from_type(#from_name),
                         created_by,
+                        &(),
                     )
                     .await
                     .or_raise(make_error)?;
