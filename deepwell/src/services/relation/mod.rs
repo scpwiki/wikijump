@@ -36,6 +36,7 @@ mod prelude {
     pub use super::super::prelude::*;
     pub use super::*;
     pub use crate::models::relation::Model as RelationModel;
+    pub use deepwell_relation_impl_derive::impl_relation as impl_relation_new;
     pub use paste::paste;
 }
 
