@@ -113,6 +113,7 @@ fn generate_get_methods(
             }: #get_struct,
         ) -> Result<RelationModel> {
             Self::get(
+                ctx,
                 RelationReference::Relationship {
                     relation_type: #relation_type,
                     dest: #dest_type(#dest_name),
