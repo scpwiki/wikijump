@@ -11,7 +11,14 @@ const defaults = {
     "privacy": {},
     "docs": {},
     "security": {},
-    "footer-license-unless": {}
+    "footer-license-unless": {},
+
+    // Spinny
+    "spinny-label.active": {},
+    "spinny-label.error": {},
+    "spinny-label.success": {},
+    "spinny-label.warning": {},
+    "message-loading": {}
   },
   translateStripKeys: ["footer-license-unless"],
   page: {
