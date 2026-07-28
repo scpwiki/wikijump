@@ -20,23 +20,20 @@
 
 use super::prelude::*;
 use crate::models::relation::Model as RelationModel;
-use crate::services::relation::{CreateSiteBan, GetSiteBan, RemoveSiteBan, SiteBanData};
+use crate::services::relation::{CreateSiteBan, GetSiteBan, RemoveSiteBan};
 use std::net::IpAddr;
 
 #[derive(Deserialize, Debug, Clone)]
 struct CreateSiteBanInput {
-    site_id: i64,
-    user_id: i64,
-    metadata: SiteBanData,
-    created_by: i64,
+    #[serde(flatten)]
+    input: CreateSiteBan,
     ip_address: IpAddr,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 struct RemoveSiteBanInput {
-    site_id: i64,
-    user_id: i64,
-    removed_by: i64,
+    #[serde(flatten)]
+    input: RemoveSiteBan,
     reason: String,
     ip_address: IpAddr,
 }
@@ -66,31 +63,18 @@ pub async fn site_ban_set(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let CreateSiteBanInput {
-        site_id,
-        user_id,
-        metadata,
-        created_by,
-        ip_address,
-    } = parse!(params, SiteBanRelation);
+    let CreateSiteBanInput { input, ip_address } = parse!(params, SiteBanRelation);
+    let user_id = input.user_id;
+    let site_id = input.site_id;
 
-    RelationService::create_site_ban(
-        ctx,
-        CreateSiteBan {
-            site_id,
-            user_id,
-            metadata,
-            created_by,
-        },
-        ip_address,
-    )
-    .await
-    .or_raise(|| {
-        Error::new(
-            format!("failed to ban user ID {} from site ID {}", user_id, site_id),
-            ErrorType::SiteBanRelation,
-        )
-    })
+    RelationService::create_site_ban(ctx, input, ip_address)
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!("failed to ban user ID {} from site ID {}", user_id, site_id),
+                ErrorType::SiteBanRelation,
+            )
+        })
 }
 
 pub async fn site_ban_remove(
@@ -98,31 +82,23 @@ pub async fn site_ban_remove(
     params: Params<'static>,
 ) -> Result<RelationModel> {
     let RemoveSiteBanInput {
-        site_id,
-        user_id,
-        removed_by,
+        input,
         reason,
         ip_address,
     } = parse!(params, SiteBanRelation);
 
-    RelationService::remove_site_ban_with_audit(
-        ctx,
-        RemoveSiteBan {
-            site_id,
-            user_id,
-            removed_by,
-        },
-        ip_address,
-        &reason,
-    )
-    .await
-    .or_raise(|| {
-        Error::new(
-            format!(
-                "failed to remove site ban for user ID {} from site ID {}",
-                user_id, site_id,
-            ),
-            ErrorType::SiteBanRelation,
-        )
-    })
+    let user_id = input.user_id;
+    let site_id = input.site_id;
+
+    RelationService::remove_site_ban_with_audit(ctx, input, ip_address, &reason)
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!(
+                    "failed to remove site ban for user ID {} from site ID {}",
+                    user_id, site_id,
+                ),
+                ErrorType::SiteBanRelation,
+            )
+        })
 }
