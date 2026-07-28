@@ -188,6 +188,7 @@ async fn lifecycle_membership_blocking_and_audit() {
                 },
             },
             "created_by": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
         }),
     );
 
@@ -273,6 +274,7 @@ async fn lifecycle_membership_blocking_and_audit() {
                 },
             },
             "created_by": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
         }),
     );
 
