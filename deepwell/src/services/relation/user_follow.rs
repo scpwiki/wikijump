@@ -20,15 +20,12 @@
 
 use super::prelude::*;
 
-impl_relation!(
-    UserFollow,
-    User,
-    followed_user,
-    User,
-    following_user,
-    (),
-    NO_CREATE_IMPL,
-);
+impl_relation_new! {
+    name => UserFollow,
+    dest => followed_user: User,
+    from => following_user: User,
+    create_fn => false,
+}
 
 impl RelationService {
     #[allow(dead_code)] // TEMP
@@ -38,7 +35,6 @@ impl RelationService {
             followed_user,
             following_user,
             created_by,
-            metadata: (),
         }: CreateUserFollow,
     ) -> Result<()> {
         let make_error = || {
@@ -56,15 +52,17 @@ impl RelationService {
             .await
             .or_raise(make_error)?;
 
-        create_operation!(
+        Self::create_user_follow_inner(
             ctx,
-            UserFollow,
-            User,
-            followed_user,
-            User,
-            following_user,
-            created_by,
-            make_error,
+            CreateUserFollow {
+                followed_user,
+                following_user,
+                created_by,
+            },
         )
+        .await
+        .or_raise(make_error)?;
+
+        Ok(())
     }
 }
