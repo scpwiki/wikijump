@@ -40,7 +40,8 @@ use super::parents::{load_list_pages_child_counts, load_list_pages_parent_displa
 use super::scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
     has_count_pages_module_opening_candidate, has_list_pages_module_opening_candidate,
-    list_pages_runtime_head_can_execute,
+    list_pages_body_has_standalone_count_pages_opening,
+    list_pages_body_inline_count_pages_legacy_tail, list_pages_runtime_head_can_execute,
 };
 use super::template::{ListPagesOutputShape, ListPagesTemplatePlan};
 use super::{
@@ -310,6 +311,7 @@ impl RenderService {
                 arguments: ListPagesArguments,
                 template: ListPagesTemplatePlan,
                 batch_key: Option<ExactNameListPagesBatchKey>,
+                legacy_tail: Option<String>,
             },
         }
         struct ListPagesBlock {
@@ -389,6 +391,7 @@ impl RenderService {
                                 arguments,
                                 template,
                                 batch_key: None,
+                                legacy_tail: None,
                             }
                         })
                     });
@@ -420,6 +423,36 @@ impl RenderService {
                         || arguments.unsupported_score_filter
                     {
                         ListPagesBlockPlan::PreserveOriginal
+                    } else if let Some(legacy_tail) =
+                        list_pages_body_inline_count_pages_legacy_tail(body)
+                    {
+                        ListPagesTemplatePlan::compile("").map_or_else(
+                            || unsupported_plan(module_original, body),
+                            |template| ListPagesBlockPlan::Render {
+                                arguments,
+                                template,
+                                batch_key: None,
+                                legacy_tail: Some(legacy_tail),
+                            },
+                        )
+                    } else if list_pages_body_has_standalone_count_pages_opening(body) {
+                        ListPagesTemplatePlan::compile("").map_or_else(
+                            || unsupported_plan(module_original, body),
+                            |template| {
+                                let batch_key = exact_name_list_pages_batch_key(
+                                    head,
+                                    &template,
+                                    &arguments,
+                                    current_category.as_ref(),
+                                );
+                                ListPagesBlockPlan::Render {
+                                    arguments,
+                                    template,
+                                    batch_key,
+                                    legacy_tail: None,
+                                }
+                            },
+                        )
                     } else if let Some(template) = ListPagesTemplatePlan::compile(body) {
                         let batch_key = exact_name_list_pages_batch_key(
                             head,
@@ -431,6 +464,7 @@ impl RenderService {
                             arguments,
                             template,
                             batch_key,
+                            legacy_tail: None,
                         }
                     } else {
                         unsupported_plan(module_original, body)
@@ -488,6 +522,7 @@ impl RenderService {
                     let ListPagesBlockPlan::Render {
                         arguments,
                         template,
+                        legacy_tail: _,
                         ..
                     } = &block.plan
                     else {
@@ -531,6 +566,7 @@ impl RenderService {
                     let ListPagesBlockPlan::Render {
                         arguments,
                         template,
+                        legacy_tail,
                         ..
                     } = block.plan
                     else {
@@ -573,9 +609,11 @@ impl RenderService {
                             expanded_include_count: replacement_expanded_include_count,
                         }) => {
                             include_budget.consume(replacement_expanded_include_count);
+                            let following_source =
+                                legacy_tail.as_deref().unwrap_or(&wikitext[block.end..]);
                             preserve_list_pages_following_paragraph_boundary(
                                 &mut replacement,
-                                &wikitext[block.end..],
+                                following_source,
                             );
                             let replacement = register_generated_list_pages_html(
                                 replacement,
@@ -588,6 +626,9 @@ impl RenderService {
                                     &replacement,
                                 ));
                             expanded.push_str(&replacement);
+                            if let Some(legacy_tail) = legacy_tail {
+                                expanded.push_str(&legacy_tail);
+                            }
                             included_pages.extend(replacement_included_pages);
                         }
                         ListPagesBlockRenderResult::PreserveOriginal => {
@@ -615,6 +656,7 @@ impl RenderService {
                 ListPagesBlockPlan::Render {
                     arguments,
                     template,
+                    legacy_tail,
                     ..
                 } => {
                     let offset_origin = arguments.offset_origin;
@@ -649,9 +691,11 @@ impl RenderService {
                             expanded_include_count: replacement_expanded_include_count,
                         }) => {
                             include_budget.consume(replacement_expanded_include_count);
+                            let following_source =
+                                legacy_tail.as_deref().unwrap_or(&wikitext[block.end..]);
                             preserve_list_pages_following_paragraph_boundary(
                                 &mut replacement,
-                                &wikitext[block.end..],
+                                following_source,
                             );
                             let replacement = register_generated_list_pages_html(
                                 replacement,
@@ -664,6 +708,9 @@ impl RenderService {
                                     &replacement,
                                 ));
                             expanded.push_str(&replacement);
+                            if let Some(legacy_tail) = legacy_tail {
+                                expanded.push_str(&legacy_tail);
+                            }
                             included_pages.extend(replacement_included_pages);
                         }
                         ListPagesBlockRenderResult::PreserveOriginal => {

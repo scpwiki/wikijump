@@ -54,6 +54,92 @@ pub(in crate::services::render) fn has_count_pages_module_opening_candidate(
     first_module_opening_candidate(source, b"countpages", false).is_some()
 }
 
+pub(in crate::services::render) fn list_pages_body_has_standalone_count_pages_opening(
+    body: &str,
+) -> bool {
+    let literal_regions = LiteralRegionIndex::new_count_pages_syntax(body);
+    let mut line_start = 0usize;
+    for line_with_ending in body.split_inclusive('\n') {
+        let line_without_ending = line_with_ending.trim_end_matches(['\r', '\n']);
+        let leading_whitespace = line_without_ending
+            .len()
+            .saturating_sub(line_without_ending.trim_start().len());
+        let line = line_without_ending.trim();
+        let candidate_offset = line_start.saturating_add(leading_whitespace);
+        if first_module_opening_candidate(line, b"countpages", false) == Some(0)
+            && module_opening_occupies_entire_line(line)
+            && literal_regions.containing_range(candidate_offset).is_none()
+        {
+            return true;
+        }
+        line_start += line_with_ending.len();
+    }
+    false
+}
+
+pub(in crate::services::render) fn list_pages_body_inline_count_pages_legacy_tail(
+    body: &str,
+) -> Option<String> {
+    let literal_regions = LiteralRegionIndex::new_count_pages_syntax(body);
+    let mut line_start = 0usize;
+    for line_with_ending in body.split_inclusive('\n') {
+        let line_without_ending = line_with_ending.trim_end_matches(['\r', '\n']);
+        let leading_whitespace = line_without_ending
+            .len()
+            .saturating_sub(line_without_ending.trim_start().len());
+        let line = line_without_ending.trim_start();
+        let candidate_offset = line_start.saturating_add(leading_whitespace);
+        if first_module_opening_candidate(line, b"countpages", false) == Some(0)
+            && literal_regions.containing_range(candidate_offset).is_none()
+            && let Some(opening_end) = module_opening_end(line)
+            && let Some(close_start) =
+                find_module_close_ascii_case_insensitive(&line[opening_end..])
+        {
+            let close_end =
+                candidate_offset + opening_end + close_start + "[[/module]]".len();
+            let mut tail = String::with_capacity(body.len() + 32);
+            tail.push_str(&body[..candidate_offset]);
+            tail.push_str("[[div class=\"list-pages-box\"]]");
+            tail.push_str(&body[close_end..]);
+            tail.push_str("[[/div]]");
+            return Some(tail);
+        }
+        line_start += line_with_ending.len();
+    }
+    None
+}
+
+fn module_opening_occupies_entire_line(line: &str) -> bool {
+    module_opening_end(line).is_some_and(|end| line[end..].trim().is_empty())
+}
+
+fn module_opening_end(line: &str) -> Option<usize> {
+    let mut in_single_quote = false;
+    let mut in_double_quote = false;
+    let mut bytes = line.bytes().enumerate();
+    while let Some((index, byte)) = bytes.next() {
+        match byte {
+            b'\'' if !in_double_quote => in_single_quote = !in_single_quote,
+            b'"' if !in_single_quote => in_double_quote = !in_double_quote,
+            b']' if !in_single_quote
+                && !in_double_quote
+                && bytes.next().is_some_and(|(_, next_byte)| next_byte == b']') =>
+            {
+                return Some(index + 2);
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+fn find_module_close_ascii_case_insensitive(source: &str) -> Option<usize> {
+    source
+        .as_bytes()
+        .windows(b"[[/module]]".len())
+        .position(|window| window.eq_ignore_ascii_case(b"[[/module]]"))
+}
+
 fn first_module_opening_candidate(
     source: &str,
     subname: &[u8],

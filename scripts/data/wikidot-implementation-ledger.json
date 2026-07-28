@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-28",
-  "catalog_sha256": "cb97399a1264b724d59ff7f023193ae43554fb1dbaa67e617debde1f93f13749",
+  "catalog_sha256": "ac2bde9e5ed9b8c489a7b05ecd708c6e66594687524a0a32bba3a7e190eede28",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -649,14 +649,28 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-countpages": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
-      "documentation_evidence": [
-        "specifications/module/module-countpages.md"
+      "status": "in_progress",
+      "confirmed_public_seams": [
+        "Run-owned saved-page live Wikidot oracle on sandbox-for-codex",
+        "Deepwell public saved-page page_get render interface"
       ],
-      "live_oracle_evidence": [],
+      "tests": [
+        {
+          "path": "deepwell/tests/page.rs",
+          "scope": "countpages_inside_listpages_body_matches_live_empty_item_behavior and inline_countpages_inside_listpages_body_matches_live_legacy_split_behavior cover the documented CountPages-inside-ListPages limitation through the public saved-page render seam"
+        }
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/list_pages/rendering.rs",
+        "deepwell/src/services/render/list_pages/scanner.rs"
+      ],
+      "documentation_evidence": [
+        "specifications/module/module-countpages.md",
+        "docs/wikidot-specifications/live-observations.json"
+      ],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-createaccount": {
@@ -873,7 +887,7 @@
         },
         {
           "path": "deepwell/tests/page.rs",
-          "scope": "public saved-page, preview, URL, pagination, query, permission, and rendering integration tests"
+          "scope": "public saved-page, preview, URL, pagination, query, permission, CountPages-in-body limitation, and rendering integration tests"
         },
       {
         "path": "framerail/tests/list-pages-feed.test.ts",
@@ -914,7 +928,8 @@
         "install/local/wikidot-verification/artifacts/listpages-campaign-rss-selector-live-preview.jsonl",
         "install/local/wikidot-verification/artifacts/listpages-campaign-hash-magic-reconciliation.json",
         "install/local/wikidot-verification/artifacts/listpages-campaign-navigation-coverage.json",
-        "install/local/wikidot-verification/artifacts/listpages-campaign-rating-comment-data-form-live.json"
+        "install/local/wikidot-verification/artifacts/listpages-campaign-rating-comment-data-form-live.json",
+        "install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json"
       ],
       "unresolved_ambiguities_or_blockers": [
         "Imported Wikidot snapshots retain the last commenter's display name and timestamp but not the Wikidot user ID. Identity-bearing last-comment variables on imported rows remain provenance-blocked until the corpus or importer supplies a stable user identity; local relational comments are not blocked."

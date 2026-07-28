@@ -1,0 +1,43 @@
+{
+  "schema": "wikidot.countpages_inside_listpages_live.v1",
+  "captured_at": "2026-07-28T11:43:21Z",
+  "site": "sandbox-for-codex",
+  "mutation_scope": "run-owned pages created for this probe and deleted after capture",
+  "captures": [
+    {
+      "case_id": "standalone-countpages-opening-inside-listpages-body"
+    },
+    {
+      "case_id": "inline-countpages-inside-listpages-body"
+    },
+    {
+      "case_id": "ordinary-listpages-body-control"
+    }
+  ],
+  "cases": [
+    {
+      "id": "standalone-countpages-opening-inside-listpages-body",
+      "source": "[[module ListPages category=\"run-owned\" tags=\"+codexcountpagesdom1785239001\" limit=\"1\" order=\"name\"]]\nOUTER=%%title%%\n[[module CountPages category=\"run-owned\" tags=\"+codexcountpagesdom1785239001\" limit=\"10\"]]\nINNER_TOTAL=%%total%%; INNER_COUNT=%%count%%; [[[start|start link]]]\n[[/module]]\n[[/module]]",
+      "page_content_text": "",
+      "page_content_html": "<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n</div>\n</div>",
+      "normative_observation": "A standalone CountPages module opening inside a ListPages body does not execute CountPages and does not leave the whole ListPages source literal. Live Wikidot emits the outer ListPages wrapper and one empty list-pages-item for the matching row."
+    },
+    {
+      "id": "inline-countpages-inside-listpages-body",
+      "source": "[[module ListPages category=\"run-owned\" tags=\"+codexcountpagesdom1785239001\" limit=\"1\" order=\"name\"]]\nBEFORE\n[[module CountPages category=\"run-owned\" tags=\"+codexcountpagesdom1785239001\" limit=\"10\"]]COUNT=%%total%%[[/module]]\nAFTER\n[[/module]]",
+      "page_content_text": "Codex CountPages DOM Target by scpaiueouiuiuiui 28 Jul 2026 11:43 target marker BEFORE AFTER",
+      "page_content_html_excerpt": "<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<h1><span><a href=\"/run-owned:codex-countpages-dom-1785239001-target\">Codex CountPages DOM Target</a></span></h1>\n<p>by <span class=\"printuser avatarhover\"><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\"><img alt=\"scpaiueouiuiuiui\" class=\"small\" src=\"http://www.wikidot.com/avatar.php?userid=8955132&amp;amp;size=small&amp;amp;timestamp=1785239018\" style=\"background-image:url(http://www.wikidot.com/userkarma.php?u=8955132)\"/></a><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\">scpaiueouiuiuiui</a></span> <span class=\"odate time_1785239006 format_%25O%20ago%20%28%25e%20%25b%20%25Y%2C%20%25H%3A%25M%29\">28 Jul 2026 11:43</span></p>\n<p>target marker</p>\n</div>\n</div>\n<p>BEFORE</p>\n<div class=\"list-pages-box\">\n<p>AFTER</p>\n</div>",
+      "normative_observation": "A same-line CountPages open/body/close inside a ListPages body follows a separate legacy parse shape: live Wikidot renders the outer ListPages with its default template, emits the preceding text, and wraps following text in an additional list-pages-box. This capture records the broader discrepancy but is not the minimized regression fixed by this slice."
+    },
+    {
+      "id": "ordinary-listpages-body-control",
+      "source": "[[module ListPages category=\"run-owned\" tags=\"+codexcountpagesdom1785239001\" limit=\"1\" order=\"name\"]]\nBEFORE %%title%% AFTER\n[[/module]]",
+      "page_content_text": "BEFORE Codex CountPages DOM Target AFTER",
+      "page_content_html": "<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<p>BEFORE Codex CountPages DOM Target AFTER</p>\n</div>\n</div>",
+      "normative_observation": "The same target and selector render an ordinary ListPages body normally; the empty-item behavior is caused by the nested standalone CountPages opening, not by the selector."
+    }
+  ],
+  "cleanup": {
+    "run_owned_pages_deleted": true
+  }
+}
