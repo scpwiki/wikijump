@@ -131,7 +131,6 @@ impl SiteService {
             CreateSiteUser {
                 site_id: site.site_id,
                 user_id: user.user_id,
-                metadata: (),
                 created_by: SYSTEM_USER_ID,
             },
         )
