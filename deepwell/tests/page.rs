@@ -2515,9 +2515,23 @@ async fn pages_module_renders_the_site_index_and_clamps_pagination() {
         !html.contains("fixture-pages-private"),
         "an anonymously hidden category must not contribute a row: {html}",
     );
+    let limited_section = html
+        .split_once("LITERAL_START")
+        .expect("limited Pages section should start")
+        .1
+        .split_once("LITERAL_END")
+        .expect("limited Pages section should end")
+        .0;
+    assert_eq!(
+        limited_section
+            .matches(r#"class="list-pages-item""#)
+            .count(),
+        5,
+        "limit=5 is documented and live-evidenced, so it should render five rows: {html}",
+    );
     assert!(
-        html.contains("[[module Pages limit=&quot;5&quot;]]"),
-        "unevidenced arguments must stay literal: {html}",
+        !html.contains("[[module Pages"),
+        "all Pages invocations in this fixture should execute: {html}",
     );
 
     let template_category = "fixture-pages-template";
@@ -2608,10 +2622,17 @@ async fn pages_module_renders_the_site_index_and_clamps_pagination() {
         } => compiled_body_html,
         other => panic!("expected found Pages view, got {other:?}"),
     };
+    let second_page_index = second_page
+        .split_once("PAGES_START")
+        .expect("second page index should start")
+        .1
+        .split_once("PAGES_END")
+        .expect("second page index should end")
+        .0;
     assert!(
-        second_page.contains("page 2 of ")
-            && !second_page.contains("fixture-pages-aardvark"),
-        "the real /p/2 view must rerender the second slice: {second_page}",
+        second_page_index.contains("page 2 of ")
+            && !second_page_index.contains("fixture-pages-aardvark"),
+        "the real /p/2 index view must rerender the second slice: {second_page}",
     );
 
     let last_view = run_endpoint!(
@@ -2635,9 +2656,208 @@ async fn pages_module_renders_the_site_index_and_clamps_pagination() {
         last_page.contains("« previous") && !last_page.contains("next »"),
         "an out-of-range request must clamp to the final page: {last_page}",
     );
+    let last_page_index = last_page
+        .split_once("PAGES_START")
+        .expect("last page index should start")
+        .1
+        .split_once("PAGES_END")
+        .expect("last page index should end")
+        .0;
     assert!(
-        !last_page.contains("fixture-pages-aardvark"),
+        !last_page_index.contains("fixture-pages-aardvark"),
         "the final page must not repeat the first page: {last_page}",
+    );
+}
+
+/// Live capture (sandbox-for-codex, 2026-07-28):
+/// `[[module Pages category="..."]]` filters to that category, `details="true"`
+/// switches rows to a details table, `preview="true"` is ignored, `limit="0"`
+/// yields an empty list, and unknown arguments are ignored.
+#[tokio::test]
+async fn pages_module_renders_documented_arguments_and_live_fallbacks() {
+    fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
+        html.split_once(start)
+            .unwrap_or_else(|| panic!("missing section start {start:?}"))
+            .1
+            .split_once(end)
+            .unwrap_or_else(|| panic!("missing section end {end:?}"))
+            .0
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category = "fixture-pages-arguments";
+    let other_category = "fixture-pages-arguments-other";
+    let empty_category = "fixture-pages-arguments-empty";
+
+    CategoryService::get_or_create(runner.context(), site_id, category)
+        .await
+        .expect("Pages argument category should be created");
+    CategoryService::get_or_create(runner.context(), site_id, other_category)
+        .await
+        .expect("Pages argument other category should be created");
+    CategoryService::get_or_create(runner.context(), site_id, empty_category)
+        .await
+        .expect("Pages argument empty category should be created");
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-pages-arguments:alpha",
+        "AAA Fixture Pages Arguments Alpha",
+        "Alpha source preview must not render.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-pages-arguments:zulu",
+        "ZZZ Fixture Pages Arguments Zulu",
+        "Zulu source preview must not render.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-pages-arguments-other:bravo",
+        "MMM Fixture Pages Arguments Bravo",
+        "Other category marker must not render.",
+    )
+    .await;
+
+    let holder_slug = "fixture-pages-arguments-holder";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture Pages Arguments Holder",
+        &format!(
+            concat!(
+                "CATEGORY_START\n\n",
+                "[[module Pages category=\"{category}\"]]\n\n",
+                "CATEGORY_END\n\n",
+                "DETAILS_START\n\n",
+                "[[module Pages category=\"{category}\" details=\"true\"]]\n\n",
+                "DETAILS_END\n\n",
+                "PREVIEW_START\n\n",
+                "[[module Pages category=\"{category}\" preview=\"true\"]]\n\n",
+                "PREVIEW_END\n\n",
+                "TITLE_DESC_LIMIT_START\n\n",
+                "[[module Pages category=\"{category}\" order=\"titleDesc\" limit=\"1\"]]\n\n",
+                "TITLE_DESC_LIMIT_END\n\n",
+                "DATE_CREATED_DESC_START\n\n",
+                "[[module Pages category=\"{category}\" order=\"dateCreatedDesc\" limit=\"2\"]]\n\n",
+                "DATE_CREATED_DESC_END\n\n",
+                "EMPTY_CATEGORY_START\n\n",
+                "[[module Pages category=\"{empty_category}\"]]\n\n",
+                "EMPTY_CATEGORY_END\n\n",
+                "LIMIT_ZERO_START\n\n",
+                "[[module Pages category=\"{category}\" limit=\"0\"]]\n\n",
+                "LIMIT_ZERO_END\n\n",
+                "UNKNOWN_ARGUMENT_START\n\n",
+                "[[module Pages category=\"{category}\" frob=\"x\"]]\n\n",
+                "UNKNOWN_ARGUMENT_END",
+            ),
+            category = category,
+            empty_category = empty_category,
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": holder_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("Pages argument holder should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let category_section = section(&html, "CATEGORY_START", "CATEGORY_END");
+    assert!(
+        category_section.contains("/fixture-pages-arguments:alpha")
+            && category_section.contains("/fixture-pages-arguments:zulu"),
+        "category-filtered Pages output should include same-category rows:\n{html}",
+    );
+    assert!(
+        !category_section.contains("fixture-pages-arguments-other:bravo"),
+        "category-filtered Pages output must exclude other categories:\n{html}",
+    );
+
+    let details_section = section(&html, "DETAILS_START", "DETAILS_END");
+    for expected in [
+        r#"<td class="title"><a href="/fixture-pages-arguments:alpha">AAA Fixture Pages Arguments Alpha</a></td>"#,
+        r#"<td class="last-mod-by">"#,
+        r#"<td class="revision-no">rev. "#,
+        r#"<td class="last-mod-date">"#,
+    ] {
+        assert!(
+            details_section.contains(expected),
+            "details=true should render Wikidot's details table cell {expected:?}:\n{html}",
+        );
+    }
+
+    let preview_section = section(&html, "PREVIEW_START", "PREVIEW_END");
+    assert!(
+        preview_section.contains("/fixture-pages-arguments:alpha")
+            && !preview_section.contains("Alpha source preview must not render"),
+        "preview=true is ignored by live Wikidot and should not render source previews:\n{html}",
+    );
+
+    let title_desc_limit =
+        section(&html, "TITLE_DESC_LIMIT_START", "TITLE_DESC_LIMIT_END");
+    assert!(
+        title_desc_limit.contains("/fixture-pages-arguments:zulu")
+            && !title_desc_limit.contains("/fixture-pages-arguments:alpha"),
+        "titleDesc with limit=1 should keep only the descending-title first row:\n{html}",
+    );
+
+    let created_desc = section(&html, "DATE_CREATED_DESC_START", "DATE_CREATED_DESC_END");
+    let zulu = created_desc
+        .find("/fixture-pages-arguments:zulu")
+        .expect("dateCreatedDesc should include zulu");
+    let alpha = created_desc
+        .find("/fixture-pages-arguments:alpha")
+        .expect("dateCreatedDesc should include alpha");
+    assert!(
+        zulu < alpha,
+        "dateCreatedDesc should place the later-created zulu row before alpha:\n{html}",
+    );
+
+    for (start, end, label) in [
+        (
+            "EMPTY_CATEGORY_START",
+            "EMPTY_CATEGORY_END",
+            "empty category",
+        ),
+        ("LIMIT_ZERO_START", "LIMIT_ZERO_END", "limit=0"),
+    ] {
+        let section = section(&html, start, end);
+        assert!(
+            section.contains(r#"<div class="list-pages-box">"#)
+                && !section.contains(r#"class="list-pages-item""#),
+            "{label} should render an empty list-pages-box:\n{html}",
+        );
+    }
+
+    let unknown_argument =
+        section(&html, "UNKNOWN_ARGUMENT_START", "UNKNOWN_ARGUMENT_END");
+    assert!(
+        unknown_argument.contains("/fixture-pages-arguments:alpha")
+            && unknown_argument.contains("/fixture-pages-arguments:zulu"),
+        "live Wikidot ignores unknown Pages arguments while applying recognized ones:\n{html}",
+    );
+
+    assert!(
+        !html.contains("[[module Pages"),
+        "all captured Pages argument shapes should execute, not remain literal:\n{html}",
     );
 }
 

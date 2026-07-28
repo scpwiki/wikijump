@@ -20,6 +20,34 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+### Pages module documented arguments execute and unknown arguments are ignored
+
+- Observation ID: `pages-module-arguments-and-live-fallbacks`
+- Classification: `documentation-correction`
+- Observed at: `2026-07-28`
+- Analysis: The Pages documentation lists category, details, preview, order, and limit, but does not describe malformed or extra arguments and states that limit accepts positive integers. Controlled run-owned sandbox pages show that live Wikidot executes Pages modules with documented arguments rather than preserving them literally. category restricts rows to the named category; details="true" switches each row to a table with title, last modifier, revision number, and last modification date cells; preview="true" is accepted but ignored; order selects title, creation, or edit ordering; limit truncates the result before pagination. Live Wikidot also renders limit="0" as an empty list-pages-box and ignores unknown arguments while still applying recognized arguments from the same invocation.
+
+Normative behavior:
+
+- Pages accepts the documented category argument and restricts listed rows to pages in that category.
+- Pages details="true" renders each row as a table with td.title, td.last-mod-by, td.revision-no, and td.last-mod-date cells.
+- Pages preview="true" is accepted but ignored; it does not render source previews.
+- Pages supports the documented order values titleAsc, titleDesc, dateCreatedAsc, dateCreatedDesc, dateEditedAsc, and dateEditedDesc; omitted order defaults to titleAsc.
+- Pages applies limit before pagination. A positive limit truncates rows to that many entries.
+- Pages limit="0" renders an empty list-pages-box rather than remaining literal or falling back to an unlimited listing.
+- Pages ignores unknown arguments while still applying recognized arguments from the same module invocation.
+- A category selector with no matching pages renders an empty list-pages-box.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/pages-module-arguments-live.json` (SHA-256 `f02dd1ec1c0e670de329205d8716ddb228c01db52e270544e391405a404b3f85`), cases: `category-default-title-asc`, `category-details-title-asc`, `category-preview-title-asc`, `category-details-preview-title-asc`, `title-desc-limit-one`, `date-created-desc-limit-two`, `date-edited-desc-limit-two`, `empty-category`, `invalid-limit-zero`, `unknown-argument`
+
+
 
 ## Suggested public TDD seams
 

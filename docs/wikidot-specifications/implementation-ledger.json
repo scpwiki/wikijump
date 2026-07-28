@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-28",
-  "catalog_sha256": "32ada6865b7c497de104e8cd0762e0f890f910a603b6be8dbe2593f4f8151426",
+  "catalog_sha256": "712971a5167b76883683fa3a3606bebbe526e7903e67e69951ea3c1b97e55849",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -1140,14 +1140,33 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-pages": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
-      "documentation_evidence": [
-        "specifications/module/module-pages.md"
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Run-owned saved-page live Wikidot oracle on sandbox-for-codex",
+        "Deepwell public saved-page page_get render interface",
+        "Deepwell public page_view route for /p/<page> pagination"
       ],
-      "live_oracle_evidence": [],
+      "tests": [
+        {
+          "path": "deepwell/tests/page.rs",
+          "scope": "pages_module_renders_the_site_index_and_clamps_pagination covers bare Pages index rendering, runtime refresh, pagination, permission filtering, and limit rendering; pages_module_renders_documented_arguments_and_live_fallbacks covers category, details, preview ignored behavior, order, limit including limit=0, empty categories, and ignored unknown arguments"
+        },
+        {
+          "path": "deepwell/src/services/render/pages.rs",
+          "scope": "render_pages_module unit coverage preserves captured list-pages-box row and pager markup, escaping, clamping, and large-pager target order"
+        }
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/pages.rs",
+        "deepwell/src/services/render/list_pages/mod.rs"
+      ],
+      "documentation_evidence": [
+        "specifications/module/module-pages.md",
+        "docs/wikidot-specifications/live-observations.json"
+      ],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/pages-module-arguments-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-pagesbytag": {

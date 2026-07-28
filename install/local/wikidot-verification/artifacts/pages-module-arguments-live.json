@@ -1,0 +1,158 @@
+{
+  "schema": "wikidot.pages_module_arguments_live.v1",
+  "captured_at": "2026-07-28T13:28:50Z",
+  "site": "sandbox-for-codex",
+  "mutation_scope": "run-owned Pages module argument pages created for this probe and deleted after capture",
+  "run_id": "run-owned-pages-module-1785245235",
+  "categories": {
+    "a": "run-owned-pages-module-1785245235-a",
+    "b": "run-owned-pages-module-1785245235-b"
+  },
+  "created_pages": [
+    "run-owned-pages-module-1785245235-a:alpha",
+    "run-owned-pages-module-1785245235-a:zulu",
+    "run-owned-pages-module-1785245235-b:bravo",
+    "run-owned-pages-module-1785245235:category-default",
+    "run-owned-pages-module-1785245235:category-details",
+    "run-owned-pages-module-1785245235:category-preview",
+    "run-owned-pages-module-1785245235:category-details-preview",
+    "run-owned-pages-module-1785245235:title-desc-limit",
+    "run-owned-pages-module-1785245235:date-created-desc",
+    "run-owned-pages-module-1785245235:date-edited-desc",
+    "run-owned-pages-module-1785245235:empty-category",
+    "run-owned-pages-module-1785245235:invalid-limit-zero",
+    "run-owned-pages-module-1785245235:unknown-argument"
+  ],
+  "captures": [
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:category-default",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>CATEGORY_DEFAULT_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:alpha\">AAA Pages Module Alpha</a></p>\n</div>\n</div>\n<div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></p>\n</div>\n</div>\n</div>\n<p>CATEGORY_DEFAULT_END</p>\n</div>",
+      "page_content_text": "CATEGORY_DEFAULT_START AAA Pages Module Alpha ZZZ Pages Module Zulu CATEGORY_DEFAULT_END",
+      "page_content_html_sha256": "cc0d10a8d68a0dc22428b5381aa6db42439c3a78eafed8dda0d4eb48aaa86651",
+      "case_id": "category-default-title-asc",
+      "page": "run-owned-pages-module-1785245235:category-default",
+      "source": "CATEGORY_DEFAULT_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\"]]\n\nCATEGORY_DEFAULT_END",
+      "source_sha256": "bfafd672dd49e8a4689784f900232e29617a4f1584c4d03b63005a62c44a8c23"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:category-details",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>DETAILS_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<table>\n<tr>\n<td class=\"title\"><a href=\"/run-owned-pages-module-1785245235-a:alpha\">AAA Pages Module Alpha</a></td>\n<td class=\"last-mod-by\"><span class=\"printuser avatarhover\"><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\"><img alt=\"scpaiueouiuiuiui\" class=\"small\" src=\"http://www.wikidot.com/avatar.php?userid=8955132&amp;amp;size=small&amp;amp;timestamp=1785245269\" style=\"background-image:url(http://www.wikidot.com/userkarma.php?u=8955132)\"/></a><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\">scpaiueouiuiuiui</a></span></td>\n<td class=\"revision-no\">rev. 1</td>\n<td class=\"last-mod-date\"><span class=\"odate time_1785245257 format_%25e%20%25b%20%25Y%20-%20%25H%3A%25M%7Cagohover\">28 Jul 2026 13:27</span></td>\n</tr>\n</table>\n</div>\n<div class=\"list-pages-item\">\n<table>\n<tr>\n<td class=\"title\"><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></td>\n<td class=\"last-mod-by\"><span class=\"printuser avatarhover\"><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\"><img alt=\"scpaiueouiuiuiui\" class=\"small\" src=\"http://www.wikidot.com/avatar.php?userid=8955132&amp;amp;size=small&amp;amp;timestamp=1785245269\" style=\"background-image:url(http://www.wikidot.com/userkarma.php?u=8955132)\"/></a><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\">scpaiueouiuiuiui</a></span></td>\n<td class=\"revision-no\">rev. 0</td>\n<td class=\"last-mod-date\"><span class=\"odate time_1785245247 format_%25e%20%25b%20%25Y%20-%20%25H%3A%25M%7Cagohover\">28 Jul 2026 13:27</span></td>\n</tr>\n</table>\n</div>\n</div>\n<p>DETAILS_END</p>\n</div>",
+      "page_content_text": "DETAILS_START AAA Pages Module Alpha scpaiueouiuiuiui rev. 1 28 Jul 2026 13:27 ZZZ Pages Module Zulu scpaiueouiuiuiui rev. 0 28 Jul 2026 13:27 DETAILS_END",
+      "page_content_html_sha256": "64ad419959f7876dc21acd7f1ef9137b048f784700192219ca162946fdf7227f",
+      "case_id": "category-details-title-asc",
+      "page": "run-owned-pages-module-1785245235:category-details",
+      "source": "DETAILS_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" details=\"true\"]]\n\nDETAILS_END",
+      "source_sha256": "fd61a9c6c0df8fda0cdeafcc11e486404210c9281c8804c0c47e42999e1d35bb"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:category-preview",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>PREVIEW_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:alpha\">AAA Pages Module Alpha</a></p>\n</div>\n</div>\n<div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></p>\n</div>\n</div>\n</div>\n<p>PREVIEW_END</p>\n</div>",
+      "page_content_text": "PREVIEW_START AAA Pages Module Alpha ZZZ Pages Module Zulu PREVIEW_END",
+      "page_content_html_sha256": "fc4f4955df6171867b1a191003bab8995657f73645ee4056499fe9f5bde63ce7",
+      "case_id": "category-preview-title-asc",
+      "page": "run-owned-pages-module-1785245235:category-preview",
+      "source": "PREVIEW_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" preview=\"true\"]]\n\nPREVIEW_END",
+      "source_sha256": "4d962d414ceb78bae06670488fc1169a0dd13f1b6b551646a8864598f8f43048"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:category-details-preview",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>DETAILS_PREVIEW_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<table>\n<tr>\n<td class=\"title\"><a href=\"/run-owned-pages-module-1785245235-a:alpha\">AAA Pages Module Alpha</a></td>\n<td class=\"last-mod-by\"><span class=\"printuser avatarhover\"><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\"><img alt=\"scpaiueouiuiuiui\" class=\"small\" src=\"http://www.wikidot.com/avatar.php?userid=8955132&amp;amp;size=small&amp;amp;timestamp=1785245280\" style=\"background-image:url(http://www.wikidot.com/userkarma.php?u=8955132)\"/></a><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\">scpaiueouiuiuiui</a></span></td>\n<td class=\"revision-no\">rev. 1</td>\n<td class=\"last-mod-date\"><span class=\"odate time_1785245257 format_%25e%20%25b%20%25Y%20-%20%25H%3A%25M%7Cagohover\">28 Jul 2026 13:27</span></td>\n</tr>\n</table>\n</div>\n<div class=\"list-pages-item\">\n<table>\n<tr>\n<td class=\"title\"><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></td>\n<td class=\"last-mod-by\"><span class=\"printuser avatarhover\"><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\"><img alt=\"scpaiueouiuiuiui\" class=\"small\" src=\"http://www.wikidot.com/avatar.php?userid=8955132&amp;amp;size=small&amp;amp;timestamp=1785245280\" style=\"background-image:url(http://www.wikidot.com/userkarma.php?u=8955132)\"/></a><a href=\"http://www.wikidot.com/user:info/scpaiueouiuiuiui\" onclick=\"WIKIDOT.page.listeners.userInfo(8955132); return false;\">scpaiueouiuiuiui</a></span></td>\n<td class=\"revision-no\">rev. 0</td>\n<td class=\"last-mod-date\"><span class=\"odate time_1785245247 format_%25e%20%25b%20%25Y%20-%20%25H%3A%25M%7Cagohover\">28 Jul 2026 13:27</span></td>\n</tr>\n</table>\n</div>\n</div>\n<p>DETAILS_PREVIEW_END</p>\n</div>",
+      "page_content_text": "DETAILS_PREVIEW_START AAA Pages Module Alpha scpaiueouiuiuiui rev. 1 28 Jul 2026 13:27 ZZZ Pages Module Zulu scpaiueouiuiuiui rev. 0 28 Jul 2026 13:27 DETAILS_PREVIEW_END",
+      "page_content_html_sha256": "367254e7f36bd7a2fa06b297d8cbe1507a5710a0b55d31a792fb3b35f1ec231c",
+      "case_id": "category-details-preview-title-asc",
+      "page": "run-owned-pages-module-1785245235:category-details-preview",
+      "source": "DETAILS_PREVIEW_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" details=\"true\" preview=\"true\"]]\n\nDETAILS_PREVIEW_END",
+      "source_sha256": "f8c32f24c85227e9bbcd3e2ed1ab767ff69e7a4f4f6cc427b105105460aed707"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:title-desc-limit",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>TITLE_DESC_LIMIT_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></p>\n</div>\n</div>\n</div>\n<p>TITLE_DESC_LIMIT_END</p>\n</div>",
+      "page_content_text": "TITLE_DESC_LIMIT_START ZZZ Pages Module Zulu TITLE_DESC_LIMIT_END",
+      "page_content_html_sha256": "bebe1a869a405cf0a7dd9813c2676f527d0864e9eb40a547867fddf0934218fe",
+      "case_id": "title-desc-limit-one",
+      "page": "run-owned-pages-module-1785245235:title-desc-limit",
+      "source": "TITLE_DESC_LIMIT_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" order=\"titleDesc\" limit=\"1\"]]\n\nTITLE_DESC_LIMIT_END",
+      "source_sha256": "c57e7b55de508848374852643f540620d7452f7ddcdf4f1fa5cf29328f295602"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:date-created-desc",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>DATE_CREATED_DESC_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></p>\n</div>\n</div>\n<div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:alpha\">AAA Pages Module Alpha</a></p>\n</div>\n</div>\n</div>\n<p>DATE_CREATED_DESC_END</p>\n</div>",
+      "page_content_text": "DATE_CREATED_DESC_START ZZZ Pages Module Zulu AAA Pages Module Alpha DATE_CREATED_DESC_END",
+      "page_content_html_sha256": "d64f9001a681c97fcb61936238918764aa58fbaad558c1871426259b61b5aa1a",
+      "case_id": "date-created-desc-limit-two",
+      "page": "run-owned-pages-module-1785245235:date-created-desc",
+      "source": "DATE_CREATED_DESC_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" order=\"dateCreatedDesc\" limit=\"2\"]]\n\nDATE_CREATED_DESC_END",
+      "source_sha256": "35a8d72c070d0147ff78b073fdfeacd20810d423f42f3a6d506bba5ede2c1fb5"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:date-edited-desc",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>DATE_EDITED_DESC_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:alpha\">AAA Pages Module Alpha</a></p>\n</div>\n</div>\n<div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></p>\n</div>\n</div>\n</div>\n<p>DATE_EDITED_DESC_END</p>\n</div>",
+      "page_content_text": "DATE_EDITED_DESC_START AAA Pages Module Alpha ZZZ Pages Module Zulu DATE_EDITED_DESC_END",
+      "page_content_html_sha256": "b1dd6580477870f55ea55cd338fa1659ae501954d7f99194bb410483169a1c56",
+      "case_id": "date-edited-desc-limit-two",
+      "page": "run-owned-pages-module-1785245235:date-edited-desc",
+      "source": "DATE_EDITED_DESC_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" order=\"dateEditedDesc\" limit=\"2\"]]\n\nDATE_EDITED_DESC_END",
+      "source_sha256": "372b4a2a4d0b204847ba4bbf18bd4f87322cd08c7bd64a257c64dfc6b5ccb331"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:empty-category",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>EMPTY_CATEGORY_START</p>\n<div class=\"list-pages-box\">\n</div>\n<p>EMPTY_CATEGORY_END</p>\n</div>",
+      "page_content_text": "EMPTY_CATEGORY_START EMPTY_CATEGORY_END",
+      "page_content_html_sha256": "f484bc2f760363832c6619f70489a04860a84aeda6dbb1b22db23649d6f4be44",
+      "case_id": "empty-category",
+      "page": "run-owned-pages-module-1785245235:empty-category",
+      "source": "EMPTY_CATEGORY_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-empty\"]]\n\nEMPTY_CATEGORY_END",
+      "source_sha256": "2eb610c88ddb75a4d26430c24891f665fbdf02dcee529437ec87ef01274c254e"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:invalid-limit-zero",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>INVALID_LIMIT_ZERO_START</p>\n<div class=\"list-pages-box\">\n</div>\n<p>INVALID_LIMIT_ZERO_END</p>\n</div>",
+      "page_content_text": "INVALID_LIMIT_ZERO_START INVALID_LIMIT_ZERO_END",
+      "page_content_html_sha256": "8a9f63c1b0ba9e248ffd5b2eb950c964b4e1e999d2c8048ae0584e8ef29e80b7",
+      "case_id": "invalid-limit-zero",
+      "page": "run-owned-pages-module-1785245235:invalid-limit-zero",
+      "source": "INVALID_LIMIT_ZERO_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" limit=\"0\"]]\n\nINVALID_LIMIT_ZERO_END",
+      "source_sha256": "5d12c3a3310d7f5f083299888dda8abf8f6adf0ef757ef673b0670e8e2b06222"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pages-module-1785245235:unknown-argument",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>UNKNOWN_ARGUMENT_START</p>\n<div class=\"list-pages-box\"> <div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:alpha\">AAA Pages Module Alpha</a></p>\n</div>\n</div>\n<div class=\"list-pages-item\">\n<div class=\"title\">\n<p><a href=\"/run-owned-pages-module-1785245235-a:zulu\">ZZZ Pages Module Zulu</a></p>\n</div>\n</div>\n</div>\n<p>UNKNOWN_ARGUMENT_END</p>\n</div>",
+      "page_content_text": "UNKNOWN_ARGUMENT_START AAA Pages Module Alpha ZZZ Pages Module Zulu UNKNOWN_ARGUMENT_END",
+      "page_content_html_sha256": "8d6e2aa02d4a75cccb9e16cc17d0b68ff371015faf85d0becc2e33d0649ebfed",
+      "case_id": "unknown-argument",
+      "page": "run-owned-pages-module-1785245235:unknown-argument",
+      "source": "UNKNOWN_ARGUMENT_START\n\n[[module Pages category=\"run-owned-pages-module-1785245235-a\" frob=\"x\"]]\n\nUNKNOWN_ARGUMENT_END",
+      "source_sha256": "7b019fa5ed96666a106d622d1e92aa3d4580815c6ea9736ff3cc5598f226824b"
+    }
+  ],
+  "errors": [],
+  "cleanup": {
+    "run_owned_pages_deleted": true,
+    "deleted": [
+      "run-owned-pages-module-1785245235:unknown-argument",
+      "run-owned-pages-module-1785245235:invalid-limit-zero",
+      "run-owned-pages-module-1785245235:empty-category",
+      "run-owned-pages-module-1785245235:date-edited-desc",
+      "run-owned-pages-module-1785245235:date-created-desc",
+      "run-owned-pages-module-1785245235:title-desc-limit",
+      "run-owned-pages-module-1785245235:category-details-preview",
+      "run-owned-pages-module-1785245235:category-preview",
+      "run-owned-pages-module-1785245235:category-details",
+      "run-owned-pages-module-1785245235:category-default",
+      "run-owned-pages-module-1785245235-b:bravo",
+      "run-owned-pages-module-1785245235-a:zulu",
+      "run-owned-pages-module-1785245235-a:alpha"
+    ],
+    "errors": []
+  }
+}
