@@ -40,9 +40,10 @@ use crate::services::score::ScoreValue;
 use crate::services::{PageService, ParentService, ScoreService};
 use crate::types::Reference;
 use sea_orm::DatabaseTransaction;
+use sea_orm::FromQueryResult;
 use sea_orm::{
     ColumnTrait, Condition, ConnectionTrait, EntityTrait, ExprTrait, JoinType,
-    QueryFilter, QueryOrder, QuerySelect, RelationTrait,
+    QueryFilter, QueryOrder, QuerySelect, RelationTrait, Statement,
 };
 use sea_query::extension::postgres::PgBinOper;
 use sea_query::{Expr, Query, SimpleExpr, Value};
@@ -315,9 +316,17 @@ impl PageQueryService {
             .into());
         }
         let score = score.to_vec();
+        if votes.len() > MAX_PAGE_QUERY_SCORE_SELECTORS {
+            return Err(Error::new(
+                "ListPages vote-count selector limit exceeded",
+                ErrorType::PageQuery,
+            )
+            .into());
+        }
+        let votes = votes.to_vec();
 
         let txn = ctx.transaction();
-        if !score.is_empty() {
+        if !score.is_empty() || !votes.is_empty() {
             // These queries deliberately switch between candidate-correlated and
             // site-wide score plans. PostgreSQL's generic prepared plan loses the
             // selector and candidate cardinalities after repeated executions and
@@ -416,21 +425,35 @@ impl PageQueryService {
                 ),
             ),
 
-            PageParentSelector::DifferentParents => Some(
-                page::Column::PageId.not_in_subquery(
-                    Query::select()
-                        .column(page_parent::Column::ChildPageId)
-                        .from(PageParent)
-                        .and_where(
-                            page_parent::Column::ParentPageId.is_in(
-                                current_parent_ids(ctx, current_site_id, current_page_id)
+            PageParentSelector::DifferentParents => {
+                condition = condition.add(
+                    page::Column::PageId.in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .to_owned(),
+                    ),
+                );
+                Some(
+                    page::Column::PageId.not_in_subquery(
+                        Query::select()
+                            .column(page_parent::Column::ChildPageId)
+                            .from(PageParent)
+                            .and_where(
+                                page_parent::Column::ParentPageId.is_in(
+                                    current_parent_ids(
+                                        ctx,
+                                        current_site_id,
+                                        current_page_id,
+                                    )
                                     .await
                                     .or_raise(make_error)?,
-                            ),
-                        )
-                        .to_owned(),
-                ),
-            ),
+                                ),
+                            )
+                            .to_owned(),
+                    ),
+                )
+            }
 
             PageParentSelector::ChildOf => Some(
                 page::Column::PageId.in_subquery(
@@ -607,11 +630,7 @@ impl PageQueryService {
             update_date,
         ));
         if !votes.is_empty() {
-            return Err(Error::new(
-                "ListPages vote-count filtering is not implemented",
-                ErrorType::PageQuery,
-            )
-            .into());
+            condition = condition.add(vote_selectors_condition(&votes));
         }
 
         // Build the final query
@@ -624,7 +643,7 @@ impl PageQueryService {
             || untagged;
         let needs_revision_join = needs_tag_filter
             || matches!(
-                order.property,
+                &order.property,
                 OrderProperty::Title | OrderProperty::AltTitle | OrderProperty::Size
             );
         if needs_tag_filter {
@@ -681,17 +700,19 @@ impl PageQueryService {
         .await?;
 
         // Add on at the query-level (ORDER BY, LIMIT)
-        let score_order = matches!(order.property, OrderProperty::Score);
+        let score_order = matches!(&order.property, OrderProperty::Score);
+        let data_form_order =
+            matches!(&order.property, OrderProperty::DataFormFieldName { .. });
         {
             use sea_orm::query::Order;
             use sea_query::func::Func;
 
-            let OrderBySelector {
-                property,
-                ascending,
-            } = order;
-
-            let order = if ascending { Order::Asc } else { Order::Desc };
+            let property = &order.property;
+            let sql_order = if order.ascending {
+                Order::Asc
+            } else {
+                Order::Desc
+            };
 
             match property {
                 OrderProperty::PageSlug => {
@@ -700,29 +721,29 @@ impl PageQueryService {
                         Expr::col((Page, page::Column::Slug)),
                     );
                     query = query
-                        .order_by(expr, order.clone())
-                        .order_by(Expr::col((Page, page::Column::Slug)), order);
+                        .order_by(expr, sql_order.clone())
+                        .order_by(Expr::col((Page, page::Column::Slug)), sql_order);
                 }
                 OrderProperty::FullSlug => {
-                    query = query.order_by(page::Column::Slug, order);
+                    query = query.order_by(page::Column::Slug, sql_order);
                 }
                 OrderProperty::Title => {
-                    query = query.order_by(page_revision::Column::Title, order);
+                    query = query.order_by(page_revision::Column::Title, sql_order);
                 }
                 OrderProperty::AltTitle => {
-                    query = query.order_by(page_revision::Column::AltTitle, order);
+                    query = query.order_by(page_revision::Column::AltTitle, sql_order);
                 }
                 OrderProperty::CreatedBy => {
                     let expr = SimpleExpr::Custom(
                         "(SELECT pr.user_id FROM page_revision pr WHERE pr.page_id = page.page_id ORDER BY pr.revision_number ASC, pr.revision_id ASC LIMIT 1)".into(),
                     );
-                    query = query.order_by(expr, order);
+                    query = query.order_by(expr, sql_order);
                 }
                 OrderProperty::CreatedAt => {
-                    query = query.order_by(page::Column::CreatedAt, order);
+                    query = query.order_by(page::Column::CreatedAt, sql_order);
                 }
                 OrderProperty::UpdatedAt => {
-                    query = query.order_by(page::Column::UpdatedAt, order);
+                    query = query.order_by(page::Column::UpdatedAt, sql_order);
                 }
                 OrderProperty::Size => {
                     query = query.join(
@@ -734,40 +755,39 @@ impl PageQueryService {
                         page_revision::Relation::Text1.def(),
                     );
                     let expr = SimpleExpr::Custom("text.character_count".into());
-                    query = query.order_by(expr, order);
+                    query = query.order_by(expr, sql_order);
                 }
                 OrderProperty::Score => {}
                 OrderProperty::Votes => {
                     let expr = SimpleExpr::Custom(
-                        "COALESCE((SELECT COUNT(*) FROM page_vote pv WHERE pv.page_id = page.page_id AND pv.deleted_at IS NULL AND pv.disabled_at IS NULL), 0)".into(),
+                        effective_vote_count_sql("page.page_id").into(),
                     );
-                    query = query.order_by(expr, order);
+                    query = query.order_by(expr, sql_order);
                 }
                 OrderProperty::Revisions => {
                     let expr = SimpleExpr::Custom(
                         "COALESCE((SELECT COUNT(*) FROM page_revision pr WHERE pr.page_id = page.page_id), 0)".into(),
                     );
-                    query = query.order_by(expr, order);
+                    query = query.order_by(expr, sql_order);
                 }
                 OrderProperty::Comments => {
                     let expr = SimpleExpr::Custom(
                         "COALESCE((SELECT COUNT(*) FROM forum_post fp JOIN forum_thread ft ON fp.forum_thread_id = ft.forum_thread_id WHERE ft.page_id = page.page_id AND fp.deleted_at IS NULL AND ft.deleted_at IS NULL), 0)".into(),
                     );
-                    query = query.order_by(expr, order);
+                    query = query.order_by(expr, sql_order);
                 }
                 OrderProperty::Random => {
                     let expr = SimpleExpr::FunctionCall(Func::random());
-                    query = query.order_by(expr, order);
+                    query = query.order_by(expr, sql_order);
                 }
-                OrderProperty::DataFormFieldName => {
-                    return Err(Error::new(
-                        "ListPages data form field ordering is not implemented",
-                        ErrorType::PageQuery,
-                    )
-                    .into());
-                }
+                OrderProperty::DataFormFieldName { .. } => {}
             };
-            if !matches!(property, OrderProperty::Random | OrderProperty::Score) {
+            if !matches!(
+                property,
+                OrderProperty::Random
+                    | OrderProperty::Score
+                    | OrderProperty::DataFormFieldName { .. }
+            ) {
                 if !matches!(property, OrderProperty::PageSlug | OrderProperty::FullSlug)
                 {
                     query = query.order_by(page::Column::Slug, Order::Asc);
@@ -777,7 +797,7 @@ impl PageQueryService {
         }
 
         let filtering_deferred_to_rust = !data_form_fields.is_empty();
-        let ordering_deferred_to_rust = score_order;
+        let ordering_deferred_to_rust = score_order || data_form_order;
         let defer_offset_limit = ordering_deferred_to_rust || filtering_deferred_to_rust;
         let sql_limit_offset_applied =
             !defer_offset_limit && (offset > 0 || pagination.limit.is_some());
@@ -838,6 +858,34 @@ impl PageQueryService {
         )
         .await
         .or_raise(make_error)
+    }
+
+    pub async fn effective_vote_count(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<i64> {
+        #[derive(FromQueryResult, Debug)]
+        struct VoteCountRow {
+            votes: i64,
+        }
+
+        let txn = ctx.transaction();
+        let statement = Statement::from_sql_and_values(
+            txn.get_database_backend(),
+            format!("SELECT {} AS votes", effective_vote_count_sql("$1")),
+            [Value::from(page_id)],
+        );
+        Ok(VoteCountRow::find_by_statement(statement)
+            .one(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to load effective ListPages vote count",
+                    ErrorType::PageQuery,
+                )
+            })?
+            .map(|row| row.votes)
+            .unwrap_or(0))
     }
 }
 
@@ -962,8 +1010,9 @@ async fn project_page_query_results(
         || Error::new("failed to project ListPages query", ErrorType::PageQuery);
 
     let mut page_ids = pages.iter().map(|page| page.page_id).collect::<Vec<_>>();
+    let score_ordering = matches!(order.property, OrderProperty::Score);
     let score_by_page_id: BTreeMap<i64, f32> =
-        if (fields.score || ordering_deferred_to_rust) && !page_ids.is_empty() {
+        if (fields.score || score_ordering) && !page_ids.is_empty() {
             ScoreService::scores_bulk(ctx, &page_ids)
                 .await
                 .or_raise(make_error)?
@@ -977,23 +1026,53 @@ async fn project_page_query_results(
     let defer_offset_limit = ordering_deferred_to_rust || filtering_deferred_to_rust;
     if defer_offset_limit {
         if ordering_deferred_to_rust {
-            pages.sort_by(|left, right| {
-                let left_score =
-                    score_by_page_id.get(&left.page_id).copied().unwrap_or(0.0);
-                let right_score =
-                    score_by_page_id.get(&right.page_id).copied().unwrap_or(0.0);
-                let ordering = left_score
-                    .partial_cmp(&right_score)
-                    .unwrap_or(Ordering::Equal);
-                let ordering = if order.ascending {
-                    ordering
-                } else {
-                    ordering.reverse()
-                };
-                ordering
-                    .then_with(|| left.slug.cmp(&right.slug))
-                    .then_with(|| left.page_id.cmp(&right.page_id))
-            });
+            match &order.property {
+                OrderProperty::Score => {
+                    pages.sort_by(|left, right| {
+                        let left_score =
+                            score_by_page_id.get(&left.page_id).copied().unwrap_or(0.0);
+                        let right_score =
+                            score_by_page_id.get(&right.page_id).copied().unwrap_or(0.0);
+                        let ordering = left_score
+                            .partial_cmp(&right_score)
+                            .unwrap_or(Ordering::Equal);
+                        list_pages_deferred_ordering(
+                            ordering,
+                            order.ascending,
+                            left,
+                            right,
+                        )
+                    });
+                }
+                OrderProperty::DataFormFieldName { field, numeric } => {
+                    let values_by_page_id =
+                        load_pages_static_data_form_values(ctx, &pages)
+                            .await
+                            .or_raise(make_error)?;
+                    pages.sort_by(|left, right| {
+                        let left_value = values_by_page_id
+                            .get(&left.page_id)
+                            .and_then(|values| values.get(field.as_ref()))
+                            .map(String::as_str);
+                        let right_value = values_by_page_id
+                            .get(&right.page_id)
+                            .and_then(|values| values.get(field.as_ref()))
+                            .map(String::as_str);
+                        let ordering = data_form_field_value_ordering(
+                            left_value,
+                            right_value,
+                            *numeric,
+                        );
+                        list_pages_deferred_ordering(
+                            ordering,
+                            order.ascending,
+                            left,
+                            right,
+                        )
+                    });
+                }
+                _ => {}
+            }
         }
         if offset > 0 {
             let skip = (offset as usize).min(pages.len());
@@ -1293,6 +1372,59 @@ fn score_selector_value(selector: &ScoreSelector) -> Value {
     }
 }
 
+fn vote_selector_value(selector: &ScoreSelector) -> Value {
+    Value::Double(Some(selector.score.to_f64()))
+}
+
+fn effective_vote_count_sql(page_id_sql: &str) -> String {
+    format!(
+        "COALESCE((\
+            SELECT \
+                COALESCE(\
+                    CASE \
+                        WHEN snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
+                             AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
+                                  OR snapshot.meta_json ->> 'votes_count' <= '9223372036854775807') \
+                        THEN (snapshot.meta_json ->> 'votes_count')::bigint \
+                    END, \
+                    0\
+                ) \
+                + COUNT(vote.page_vote_id) FILTER (WHERE snapshot.page_id IS NULL OR vote.from_wikidot = FALSE) \
+            FROM (SELECT 1) vote_seed \
+            LEFT JOIN wikidot_page_snapshot snapshot ON snapshot.page_id = {page_id_sql} \
+            LEFT JOIN page_vote vote ON vote.page_id = {page_id_sql} \
+                AND vote.deleted_at IS NULL \
+                AND vote.disabled_at IS NULL \
+                AND (snapshot.page_id IS NULL OR vote.from_wikidot = FALSE) \
+            GROUP BY snapshot.page_id, snapshot.meta_json\
+        ), 0)"
+    )
+}
+
+fn vote_selectors_condition(selectors: &[ScoreSelector]) -> SimpleExpr {
+    debug_assert!(!selectors.is_empty());
+    let vote_count = effective_vote_count_sql("page.page_id");
+    let conditions = selectors
+        .iter()
+        .enumerate()
+        .map(|(index, selector)| {
+            format!(
+                "({vote_count})::double precision {} ${}",
+                score_comparison_operator(selector.comparison),
+                index + 1,
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" AND ");
+    Expr::cust_with_values(
+        conditions,
+        selectors
+            .iter()
+            .map(vote_selector_value)
+            .collect::<Vec<_>>(),
+    )
+}
+
 fn score_selectors_condition(
     selectors: &[ScoreSelector],
     plan: ScoreFilterPlan,
@@ -1521,14 +1653,47 @@ fn score_to_f32(score: ScoreValue) -> f32 {
     }
 }
 
-async fn filter_pages_by_data_form_fields(
+fn list_pages_deferred_ordering(
+    ordering: Ordering,
+    ascending: bool,
+    left: &page::Model,
+    right: &page::Model,
+) -> Ordering {
+    let ordering = if ascending {
+        ordering
+    } else {
+        ordering.reverse()
+    };
+    ordering
+        .then_with(|| left.slug.cmp(&right.slug))
+        .then_with(|| left.page_id.cmp(&right.page_id))
+}
+
+fn data_form_field_value_ordering(
+    left: Option<&str>,
+    right: Option<&str>,
+    numeric: bool,
+) -> Ordering {
+    if numeric {
+        let left = left
+            .and_then(|value| value.trim().parse::<i64>().ok())
+            .unwrap_or(0);
+        let right = right
+            .and_then(|value| value.trim().parse::<i64>().ok())
+            .unwrap_or(0);
+        left.cmp(&right)
+    } else {
+        left.unwrap_or("").cmp(right.unwrap_or(""))
+    }
+}
+
+async fn load_pages_static_data_form_values(
     ctx: &ServiceContext<'_>,
-    pages: Vec<page::Model>,
-    selectors: &[DataFormSelector<'_>],
-) -> Result<Vec<page::Model>> {
+    pages: &[page::Model],
+) -> Result<BTreeMap<i64, BTreeMap<String, String>>> {
     let make_error = || {
         Error::new(
-            "failed to filter ListPages data form selectors",
+            "failed to load ListPages data form values",
             ErrorType::PageQuery,
         )
     };
@@ -1537,7 +1702,7 @@ async fn filter_pages_by_data_form_fields(
         .filter_map(|page| page.latest_revision_id)
         .collect::<Vec<_>>();
     if revision_ids.is_empty() {
-        return Ok(Vec::new());
+        return Ok(BTreeMap::new());
     }
 
     let revisions_by_id = page_revision::Entity::find()
@@ -1560,13 +1725,31 @@ async fn filter_pages_by_data_form_fields(
         .collect::<BTreeMap<_, _>>();
 
     Ok(pages
-        .into_iter()
-        .filter(|page| {
+        .iter()
+        .filter_map(|page| {
             let values = page
                 .latest_revision_id
                 .and_then(|revision_id| revisions_by_id.get(&revision_id))
                 .and_then(|hash| text_by_hash.get(hash))
-                .map(|wikitext| parse_static_wikidot_data_form_values(wikitext))
+                .map(|wikitext| parse_static_wikidot_data_form_values(wikitext))?;
+            Some((page.page_id, values))
+        })
+        .collect())
+}
+
+async fn filter_pages_by_data_form_fields(
+    ctx: &ServiceContext<'_>,
+    pages: Vec<page::Model>,
+    selectors: &[DataFormSelector<'_>],
+) -> Result<Vec<page::Model>> {
+    let values_by_page_id = load_pages_static_data_form_values(ctx, &pages).await?;
+
+    Ok(pages
+        .into_iter()
+        .filter(|page| {
+            let values = values_by_page_id
+                .get(&page.page_id)
+                .cloned()
                 .unwrap_or_default();
 
             static_wikidot_data_form_matches(&values, selectors)

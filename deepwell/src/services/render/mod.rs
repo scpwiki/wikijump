@@ -37,6 +37,7 @@ mod include_variables;
 mod list_pages;
 mod literal_regions;
 mod metacomponent;
+mod module_arguments;
 mod native_list_context;
 mod page_preview;
 mod page_tree;
@@ -74,7 +75,11 @@ pub use self::service::RenderService;
 pub(crate) use self::service::{
     CorpusReplayExpandedWikitext, CorpusReplayPreparationStage,
 };
-pub use self::structs::{RenderOutput, RenderPageOutput};
+pub use self::structs::{
+    RenderOutput, RenderPageOutput, WikidotListPagesFeedInput, WikidotListPagesFeedItem,
+    WikidotListPagesFeedOutput,
+};
 pub use self::url_arguments::{
-    UrlArguments, wikitext_reads_url_arguments, wikitext_requires_runtime_render,
+    UrlArgumentPair, UrlArguments, wikitext_reads_url_arguments,
+    wikitext_requires_runtime_render,
 };

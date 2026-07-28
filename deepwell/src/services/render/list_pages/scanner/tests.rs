@@ -1,5 +1,5 @@
 use super::*;
-use crate::services::render::service::list_pages_runtime_regex_recognizes_entire_head;
+use crate::services::render::module_arguments::module_arguments_are_complete;
 
 #[path = "tests/stress.rs"]
 mod stress;
@@ -21,6 +21,8 @@ fn runtime_head_recognizer_matches_the_execution_regex() {
         ("name=\"secret@site.example\" wrapper=no\"", true),
         ("name = \"secret\"wrapper=\"no\"", true),
         ("name = \"secret\\\" wrapper=no\"", true),
+        (r#"order="name"" limit="1""#, true),
+        (r#"tags="+scp rating="<0" separate="no""#, true),
         ("name=\u{00a0}bare", true),
         ("name=\"x\" \u{000b}", true),
         ("name=\"x\" @", false),
@@ -33,7 +35,7 @@ fn runtime_head_recognizer_matches_the_execution_regex() {
             "{head:?}",
         );
         assert_eq!(
-            list_pages_runtime_regex_recognizes_entire_head(head),
+            module_arguments_are_complete(head),
             expected,
             "execution regex: {head:?}",
         );
@@ -84,13 +86,14 @@ fn list_pages_scanner_requires_module_and_subname_delimiters() {
         "[[module ListPagesExtra name=\"suffix\"]]ignored[[/module]]\n",
         "[[module ListPages.other name=\"suffix\"]]ignored[[/module]]\n",
         "[[module654 ListPages name=\"legacy\"]]ignored[[/module654]]\n",
-        "[[module\tLISTPAGES name=\"live\"]]kept[[/module]]",
+        "[[module\tLISTPAGES\tname=\"live\"]]kept[[/module]]",
     );
     let modules = find_list_pages_module_matches(source);
 
     assert_eq!(modules.len(), 1);
     assert_eq!(modules[0].head, "name=\"live\"");
     assert_eq!(modules[0].body, "kept");
+    assert!(modules[0].runtime_safe);
 
     let missing_subname = concat!(
         "[[module ListPages name=\"outer\"]]A",
@@ -1356,14 +1359,23 @@ fn list_pages_scanner_keeps_completed_matches_before_an_unclosed_body() {
         "[[module ListPages name=\"unclosed\"]]B",
     );
     let modules = find_list_pages_module_matches(source);
-    assert_eq!(modules.len(), 1);
+    assert_eq!(modules.len(), 2);
     assert_eq!(modules[0].head, "name=\"complete\"");
+    assert_eq!(modules[1].head, "name=\"unclosed\"");
+    assert_eq!(modules[1].body, "");
+    assert_eq!(
+        modules[1].original,
+        "[[module ListPages name=\"unclosed\"]]"
+    );
 
     let unclosed_outer = concat!(
         "[[module ListPages name=\"unclosed\"]]A",
         "[[module ListPages name=\"nested\"]]B[[/module]]",
     );
-    assert!(find_list_pages_module_matches(unclosed_outer).is_empty());
+    let modules = find_list_pages_module_matches(unclosed_outer);
+    assert_eq!(modules.len(), 1);
+    assert_eq!(modules[0].head, "name=\"unclosed\"");
+    assert_eq!(modules[0].body, "");
 }
 
 #[test]

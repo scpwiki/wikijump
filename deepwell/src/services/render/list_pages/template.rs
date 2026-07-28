@@ -8,10 +8,13 @@ use std::sync::LazyLock;
 pub(in crate::services::render) static LISTPAGES_VARIABLE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| {
         Regex::new(
-        r"%%(?P<name>[A-Za-z0-9_]+)(?:\{(?P<argument>[A-Za-z0-9_-]+)\})?(?:\|(?P<format>.*?))?%%",
+        r"%%(?P<name>[A-Za-z0-9_]+)(?:\{(?P<argument>[A-Za-z0-9_-]+)\})?(?:\((?P<length>[0-9]+)\))?(?:\|(?P<format>.*?))?%%",
     )
     .unwrap()
     });
+
+const DEFAULT_LISTPAGES_TEMPLATE: &str =
+    "+ %%title_linked%%\n\nby %%created_by_linked%% %%created_at%%\n\n%%summary%%";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(in crate::services::render) enum ListPagesOutputShape {
@@ -31,13 +34,17 @@ enum ListPagesVariable {
     CreatedBy,
     CreatedByLinked,
     CreatedByUnix,
+    CreatedById,
     CreatedAt,
     UpdatedBy,
+    UpdatedByUnix,
+    UpdatedById,
     UpdatedAt,
     CommentedBy,
     CommentedAt,
     Rating,
     RatingVotes,
+    RatingPercent,
     Comments,
     Tags,
     TagsLinked,
@@ -46,15 +53,23 @@ enum ListPagesVariable {
     Category,
     Size,
     SiteDomain,
+    SiteTitle,
+    SiteName,
     ParentFullname,
+    ParentName,
+    ParentCategory,
+    ParentTitle,
+    ParentTitleLinked,
     Revisions,
     Children,
-    EmptyCompatField,
     FormData,
     Content,
+    Preview,
+    Summary,
     Index,
     Total,
     Limit,
+    TotalOrLimit,
 }
 
 impl ListPagesVariable {
@@ -62,8 +77,10 @@ impl ListPagesVariable {
         match name.to_ascii_lowercase().as_str() {
             "title_linked" | "linked_title" => Some(Self::TitleLinked),
             "title" => Some(Self::Title),
-            "name" | "slug" | "page_unix_name" => Some(Self::Slug),
-            "fullname" | "full_slug" => Some(Self::FullSlug),
+            "name" | "slug" | "page_name" => Some(Self::Slug),
+            "fullname" | "full_slug" | "page_unix_name" | "full_page_name" => {
+                Some(Self::FullSlug)
+            }
             "link" => Some(Self::Link),
             "created_by" | "createdby" => Some(Self::CreatedBy),
             "created_by_linked" | "createdbylinked" | "author" => {
@@ -73,18 +90,23 @@ impl ListPagesVariable {
             // this table were each observed live; an unobserved variant stays
             // literal rather than being guessed from a naming pattern.
             "created_by_unix" => Some(Self::CreatedByUnix),
+            "created_by_id" => Some(Self::CreatedById),
             "created_at" | "createdat" | "date" => Some(Self::CreatedAt),
-            "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked" => {
-                Some(Self::UpdatedBy)
-            }
+            "updated_by" | "updatedby" | "updated_by_linked" | "updatedbylinked"
+            | "author_edited" | "user_edited" => Some(Self::UpdatedBy),
+            "updated_by_unix" => Some(Self::UpdatedByUnix),
+            "updated_by_id" => Some(Self::UpdatedById),
             "updated_at" | "updatedat" | "date_edited" => Some(Self::UpdatedAt),
             "commented_by"
             | "commentedby"
             | "commented_by_linked"
-            | "commentedbylinked" => Some(Self::CommentedBy),
+            | "commentedbylinked"
+            | "commented_by_unix"
+            | "commented_by_id" => Some(Self::CommentedBy),
             "commented_at" | "commentedat" => Some(Self::CommentedAt),
             "rating" => Some(Self::Rating),
             "rating_votes" | "ratingvotes" => Some(Self::RatingVotes),
+            "rating_percent" => Some(Self::RatingPercent),
             "comments" => Some(Self::Comments),
             "tags" => Some(Self::Tags),
             "tags_linked" | "tagslinked" => Some(Self::TagsLinked),
@@ -93,30 +115,42 @@ impl ListPagesVariable {
             "category" => Some(Self::Category),
             "size" => Some(Self::Size),
             "site_domain" => Some(Self::SiteDomain),
+            "site_title" => Some(Self::SiteTitle),
+            "site_name" => Some(Self::SiteName),
             "parent_fullname" => Some(Self::ParentFullname),
+            "parent_name" => Some(Self::ParentName),
+            "parent_category" => Some(Self::ParentCategory),
+            "parent_title" => Some(Self::ParentTitle),
+            "parent_title_linked" => Some(Self::ParentTitleLinked),
             "revisions" => Some(Self::Revisions),
             "children" => Some(Self::Children),
-            "rating_percent" => Some(Self::EmptyCompatField),
-            "form_data" | "form_raw" if has_argument => Some(Self::FormData),
-            "content" => Some(Self::Content),
+            "form_data" | "form_raw" | "form_label" | "form_hint" if has_argument => {
+                Some(Self::FormData)
+            }
+            "content" | "text" | "long" | "body" => Some(Self::Content),
+            "preview" => Some(Self::Preview),
+            "summary" | "first_paragraph" | "description" | "short" => {
+                Some(Self::Summary)
+            }
             "index" => Some(Self::Index),
             "total" => Some(Self::Total),
             "limit" => Some(Self::Limit),
+            "total_or_limit" => Some(Self::TotalOrLimit),
             _ => None,
         }
     }
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-struct ListPagesVariables(u32);
+struct ListPagesVariables(u64);
 
 impl ListPagesVariables {
     fn insert(&mut self, variable: ListPagesVariable) {
-        self.0 |= 1 << variable as u8;
+        self.0 |= 1_u64 << variable as u8;
     }
 
     fn contains(self, variable: ListPagesVariable) -> bool {
-        self.0 & (1 << variable as u8) != 0
+        self.0 & (1_u64 << variable as u8) != 0
     }
 
     fn intersects(self, variables: &[ListPagesVariable]) -> bool {
@@ -175,7 +209,7 @@ fn split_list_pages_sections(body: &str) -> Option<(ListPagesSections, String)> 
         }
         let content_start = open_start + open.len();
         let close_start = body[content_start..].find(&close)? + content_start;
-        let content = body[content_start..close_start].to_owned();
+        let content = body[content_start..close_start].trim().to_owned();
         match slot {
             0 => sections.head = Some(content),
             1 => row_body = Some(content),
@@ -197,7 +231,10 @@ fn split_list_pages_sections(body: &str) -> Option<(ListPagesSections, String)> 
 impl ListPagesTemplatePlan {
     pub(in crate::services::render) fn compile(body: &str) -> Option<Self> {
         let (sections, body) = split_list_pages_sections(body)?;
-        let body = body.as_str();
+        let body = match body.trim() {
+            "" if sections == ListPagesSections::default() => DEFAULT_LISTPAGES_TEMPLATE,
+            body => body,
+        };
         let mut variables = ListPagesVariables::default();
         let mut content_sections = BTreeSet::new();
         let mut variable_count = 0;
@@ -275,6 +312,7 @@ impl ListPagesTemplatePlan {
             ListPagesVariable::CreatedBy,
             ListPagesVariable::CreatedByLinked,
             ListPagesVariable::CreatedByUnix,
+            ListPagesVariable::CreatedById,
         ])
     }
 
@@ -287,7 +325,11 @@ impl ListPagesTemplatePlan {
     }
 
     pub(in crate::services::render) fn uses_updated_by(&self) -> bool {
-        self.variables.contains(ListPagesVariable::UpdatedBy)
+        self.variables.intersects(&[
+            ListPagesVariable::UpdatedBy,
+            ListPagesVariable::UpdatedByUnix,
+            ListPagesVariable::UpdatedById,
+        ])
     }
 
     pub(in crate::services::render) fn uses_updated_at(&self) -> bool {
@@ -310,8 +352,20 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::RatingVotes)
     }
 
+    pub(in crate::services::render) fn uses_rating(&self) -> bool {
+        self.variables.contains(ListPagesVariable::Rating)
+    }
+
+    pub(in crate::services::render) fn uses_rating_percent(&self) -> bool {
+        self.variables.contains(ListPagesVariable::RatingPercent)
+    }
+
     pub(in crate::services::render) fn uses_content(&self) -> bool {
-        self.variables.contains(ListPagesVariable::Content)
+        self.variables.intersects(&[
+            ListPagesVariable::Content,
+            ListPagesVariable::Preview,
+            ListPagesVariable::Summary,
+        ])
     }
 
     pub(in crate::services::render) fn uses_size(&self) -> bool {
@@ -322,8 +376,18 @@ impl ListPagesTemplatePlan {
         self.variables.contains(ListPagesVariable::SiteDomain)
     }
 
-    pub(in crate::services::render) fn uses_parent_fullname(&self) -> bool {
-        self.variables.contains(ListPagesVariable::ParentFullname)
+    pub(in crate::services::render) fn uses_site_title(&self) -> bool {
+        self.variables.contains(ListPagesVariable::SiteTitle)
+    }
+
+    pub(in crate::services::render) fn uses_parent_metadata(&self) -> bool {
+        self.variables.intersects(&[
+            ListPagesVariable::ParentFullname,
+            ListPagesVariable::ParentName,
+            ListPagesVariable::ParentCategory,
+            ListPagesVariable::ParentTitle,
+            ListPagesVariable::ParentTitleLinked,
+        ])
     }
 
     pub(in crate::services::render) fn uses_total(&self) -> bool {
@@ -363,6 +427,7 @@ fn found_page_fields(variables: ListPagesVariables) -> FoundPageFields {
         ListPagesVariable::CreatedBy,
         ListPagesVariable::CreatedByLinked,
         ListPagesVariable::CreatedByUnix,
+        ListPagesVariable::CreatedById,
     ]);
     let rating_votes = variables.contains(ListPagesVariable::RatingVotes);
     FoundPageFields {
@@ -377,9 +442,15 @@ fn found_page_fields(variables: ListPagesVariables) -> FoundPageFields {
             ListPagesVariable::HiddenTagsLinked,
             ListPagesVariable::RawTags,
         ]),
-        updated_by: variables.contains(ListPagesVariable::UpdatedBy),
+        updated_by: variables.intersects(&[
+            ListPagesVariable::UpdatedBy,
+            ListPagesVariable::UpdatedByUnix,
+            ListPagesVariable::UpdatedById,
+        ]),
         updated_at: variables.contains(ListPagesVariable::UpdatedAt),
-        score: variables.contains(ListPagesVariable::Rating) || rating_votes,
+        score: variables.contains(ListPagesVariable::Rating)
+            || variables.contains(ListPagesVariable::RatingPercent)
+            || rating_votes,
         ..Default::default()
     }
 }
@@ -431,7 +502,7 @@ mod tests {
         assert!(plan.uses_content());
         assert!(plan.uses_size());
         assert!(plan.uses_site_domain());
-        assert!(plan.uses_parent_fullname());
+        assert!(plan.uses_parent_metadata());
         assert!(plan.uses_revisions());
         assert!(plan.uses_children());
         assert_eq!(plan.content_sections(), &BTreeSet::from([None]));
@@ -483,7 +554,9 @@ mod tests {
             "title",
             "name",
             "slug",
+            "page_name",
             "page_unix_name",
+            "full_page_name",
             "fullname",
             "full_slug",
             "link",
@@ -492,6 +565,7 @@ mod tests {
             "created_by_linked",
             "createdbylinked",
             "created_by_unix",
+            "created_by_id",
             "author",
             "created_at",
             "createdat",
@@ -500,6 +574,10 @@ mod tests {
             "updatedby",
             "updated_by_linked",
             "updatedbylinked",
+            "author_edited",
+            "user_edited",
+            "updated_by_unix",
+            "updated_by_id",
             "updated_at",
             "updatedat",
             "date_edited",
@@ -507,6 +585,8 @@ mod tests {
             "commentedby",
             "commented_by_linked",
             "commentedbylinked",
+            "commented_by_unix",
+            "commented_by_id",
             "commented_at",
             "commentedat",
             "rating",
@@ -520,15 +600,30 @@ mod tests {
             "tagslinked",
             "_tags",
             "site_domain",
+            "site_title",
+            "site_name",
             "parent_fullname",
+            "parent_name",
+            "parent_category",
+            "parent_title",
+            "parent_title_linked",
             "size",
             "children",
             "rating_percent",
             "revisions",
             "content",
+            "text",
+            "long",
+            "body",
+            "preview",
+            "summary",
+            "first_paragraph",
+            "description",
+            "short",
             "index",
             "total",
             "limit",
+            "total_or_limit",
         ] {
             let body = format!("%%{name}|format suffix%%");
             assert!(
@@ -536,7 +631,7 @@ mod tests {
                 "unsupported alias: {name}",
             );
         }
-        for name in ["form_data", "form_raw"] {
+        for name in ["form_data", "form_raw", "form_label", "form_hint"] {
             assert!(
                 ListPagesTemplatePlan::compile(&format!("%%{name}{{field-name}}%%"))
                     .is_some(),
@@ -615,6 +710,18 @@ mod section_tests {
         assert_eq!(plan.foot_section(), None);
         assert_eq!(plan.body(), "%%title_linked%%");
         assert!(!plan.has_sections());
+    }
+
+    #[test]
+    fn trims_module_and_section_boundary_whitespace_before_rows_are_combined() {
+        let plan = ListPagesTemplatePlan::compile(
+            "\n  [[head]]\n  H\n  [[/head]]\n  [[body]]\n  B=%%name%%\n  [[/body]]\n  [[foot]]\n  F\n  [[/foot]]\n",
+        )
+        .expect("boundary whitespace should not split combined ListPages output");
+
+        assert_eq!(plan.head_section(), Some("H"));
+        assert_eq!(plan.body(), "B=%%name%%");
+        assert_eq!(plan.foot_section(), Some("F"));
     }
 
     #[test]

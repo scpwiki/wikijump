@@ -47,3 +47,32 @@ pub struct RenderPageOutput {
     pub compiled_at: OffsetDateTime,
     pub compiled_generator: String,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct WikidotListPagesFeedInput {
+    pub site_id: i64,
+    pub pagetype: Option<String>,
+    pub category: Option<String>,
+    pub tags: Option<String>,
+    pub parent: Option<String>,
+    pub created_by: Option<String>,
+    pub rating: Option<String>,
+    pub range: Option<String>,
+}
+
+#[derive(Clone, Serialize, Debug)]
+pub struct WikidotListPagesFeedOutput {
+    pub items: Vec<WikidotListPagesFeedItem>,
+}
+
+#[derive(Clone, Serialize, Debug)]
+pub struct WikidotListPagesFeedItem {
+    pub slug: String,
+    pub title: String,
+
+    #[serde(with = "time::serde::rfc3339")]
+    pub created_at: OffsetDateTime,
+
+    pub body_html: String,
+    pub created_by_html: String,
+}

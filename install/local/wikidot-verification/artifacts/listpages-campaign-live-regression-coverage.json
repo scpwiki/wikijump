@@ -1,0 +1,2553 @@
+{
+  "schema": "wikijump_listpages_compat.live_regression_coverage.v1",
+  "summary": {
+    "block_classes": 118,
+    "covered": 118,
+    "missing_local_regression": 0,
+    "blocker_referenced": 11
+  },
+  "missing_local_regression_block_classes": [],
+  "live_environment_blockers": [
+    {
+      "capability": "nonzero rating and vote mutation",
+      "observed_at": "2026-07-27",
+      "site": "sandbox-for-codex",
+      "evidence": "RateAction returned status not_ok for both run-owned: and _default run-owned pages when account B attempted to vote.",
+      "impact": "Saved-page fixtures still cover zero/current rating and votes selectors, but cannot derive controlled nonzero rating or rating_votes oracle data from this sandbox run."
+    }
+  ],
+  "coverage": [
+    {
+      "block_class": "lp-created-current",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_metric_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "metric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-metric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-metric-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-limit-float",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-limit-huge",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-limit-negative",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-multiple-a",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "multiple-holder",
+          "fullname": "run-owned:lp-campaign-20260727-multiple-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-multiple-page-1",
+        "lp-live-multiple-page-2",
+        "lp-live-prefixed-a-page-2",
+        "lp-live-prefixed-b-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-multiple-b",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "multiple-holder",
+          "fullname": "run-owned:lp-campaign-20260727-multiple-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-multiple-page-1",
+        "lp-live-multiple-page-2",
+        "lp-live-prefixed-a-page-2",
+        "lp-live-prefixed-b-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-offset-float",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-offset-huge",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-offset-negative",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-order-created-ascending",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_created_at_order_renders_results"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-created-by",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-created-desc",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_created_at_order_renders_results"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-created-invalid-asc",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_created_at_order_renders_results"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-legacy-created",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_created_at_order_renders_results"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-rating",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero rating and vote mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "rating_order_listpages_sorts_by_descending_score"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-revisions",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-size",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-title",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-unknown",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-order-votes",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero rating and vote mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "page_query_vote_filter_and_order_use_imported_snapshot_vote_counts"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "parses_wikidot_camel_case_list_pages_order_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "order-holder",
+          "fullname": "run-owned:lp-campaign-20260727-order-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-ordering"
+      ]
+    },
+    {
+      "block_class": "lp-pagination-default",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "pagination-holder",
+          "fullname": "run-owned:lp-campaign-20260727-pagination-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-category-before-p",
+        "lp-live-navigation-p-before-tag",
+        "lp-live-pagination-beyond",
+        "lp-live-pagination-final",
+        "lp-live-pagination-missing",
+        "lp-live-pagination-negative",
+        "lp-live-pagination-page-1",
+        "lp-live-pagination-page-2",
+        "lp-live-pagination-page-3",
+        "lp-live-pagination-query",
+        "lp-live-pagination-repeated",
+        "lp-live-pagination-text",
+        "lp-live-pagination-zero"
+      ]
+    },
+    {
+      "block_class": "lp-pagination-five",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_perpage_renders_wikidot_pager_controls"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "pagination-holder",
+          "fullname": "run-owned:lp-campaign-20260727-pagination-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-category-before-p",
+        "lp-live-navigation-p-before-tag",
+        "lp-live-pagination-beyond",
+        "lp-live-pagination-final",
+        "lp-live-pagination-missing",
+        "lp-live-pagination-negative",
+        "lp-live-pagination-page-1",
+        "lp-live-pagination-page-2",
+        "lp-live-pagination-page-3",
+        "lp-live-pagination-query",
+        "lp-live-pagination-repeated",
+        "lp-live-pagination-text",
+        "lp-live-pagination-zero"
+      ]
+    },
+    {
+      "block_class": "lp-pagination-limited",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_perpage_renders_wikidot_pager_controls"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "pagination-holder",
+          "fullname": "run-owned:lp-campaign-20260727-pagination-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-category-before-p",
+        "lp-live-navigation-p-before-tag",
+        "lp-live-pagination-beyond",
+        "lp-live-pagination-final",
+        "lp-live-pagination-missing",
+        "lp-live-pagination-negative",
+        "lp-live-pagination-page-1",
+        "lp-live-pagination-page-2",
+        "lp-live-pagination-page-3",
+        "lp-live-pagination-query",
+        "lp-live-pagination-repeated",
+        "lp-live-pagination-text",
+        "lp-live-pagination-zero"
+      ]
+    },
+    {
+      "block_class": "lp-parent-child",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_parent_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "parent-holder",
+          "fullname": "run-owned:lp-campaign-20260727-parent-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-parent-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-parent-different",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_parent_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "parent-holder",
+          "fullname": "run-owned:lp-campaign-20260727-parent-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-parent-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-parent-none",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_parent_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "parent-holder",
+          "fullname": "run-owned:lp-campaign-20260727-parent-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-parent-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-parent-same",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_parent_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "parent-holder",
+          "fullname": "run-owned:lp-campaign-20260727-parent-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-parent-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-parent-static",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_parent_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "parent-holder",
+          "fullname": "run-owned:lp-campaign-20260727-parent-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-parent-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-perpage-clamped",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-perpage-float",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-perpage-negative",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-perpage-zero",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "listpages_uses_limit_as_total_and_defaults_pagination_to_twenty"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "numeric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-numeric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-numeric-page-1",
+        "lp-live-numeric-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-prefixed-a",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "multiple-holder",
+          "fullname": "run-owned:lp-campaign-20260727-multiple-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-multiple-page-1",
+        "lp-live-multiple-page-2",
+        "lp-live-prefixed-a-page-2",
+        "lp-live-prefixed-b-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-prefixed-b",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "multiple-holder",
+          "fullname": "run-owned:lp-campaign-20260727-multiple-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-multiple-page-1",
+        "lp-live-multiple-page-2",
+        "lp-live-prefixed-a-page-2",
+        "lp-live-prefixed-b-page-2"
+      ]
+    },
+    {
+      "block_class": "lp-prefixed-url-page2",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "prefixed-url-holder",
+          "fullname": "run-owned:lp-campaign-20260727-prefixed-url-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-prefixed-limits"
+      ]
+    },
+    {
+      "block_class": "lp-prefixed-url-page3",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "prefixed-url-holder",
+          "fullname": "run-owned:lp-campaign-20260727-prefixed-url-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-prefixed-limits"
+      ]
+    },
+    {
+      "block_class": "lp-range-after",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_range_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "range-m",
+          "fullname": "run-owned:lp-campaign-20260727-range-m"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-range-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-range-before",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_range_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "range-m",
+          "fullname": "run-owned:lp-campaign-20260727-range-m"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-range-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-range-current",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_range_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "range-m",
+          "fullname": "run-owned:lp-campaign-20260727-range-m"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-range-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-range-others",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_range_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "range-m",
+          "fullname": "run-owned:lp-campaign-20260727-range-m"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-range-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-rating-current",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_metric_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "metric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-metric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-metric-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-rating-not-zero",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero rating and vote mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_metric_selectors_match_the_saved_page_live_fixture"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/list_pages.rs",
+          "test": "rating_order_listpages_sorts_by_descending_score"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "metric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-metric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-metric-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-tags-exact",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_tag_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "tag-holder",
+          "fullname": "run-owned:lp-campaign-20260727-tag-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-tag-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-tags-same",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_tag_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "tag-holder",
+          "fullname": "run-owned:lp-campaign-20260727-tag-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-tag-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-updated-current",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_metric_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "metric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-metric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-metric-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-url-offset",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_url_offset_selector_reads_the_request_route"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "url-holder",
+          "fullname": "run-owned:lp-campaign-20260727-url-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-url-composed",
+        "lp-live-url-default",
+        "lp-live-url-offset-two",
+        "lp-live-url-tag-order"
+      ]
+    },
+    {
+      "block_class": "lp-url-tags",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_url_tag_selector_reads_the_url_tag_argument"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "url-holder",
+          "fullname": "run-owned:lp-campaign-20260727-url-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-url-composed",
+        "lp-live-url-default",
+        "lp-live-url-offset-two",
+        "lp-live-url-tag-order"
+      ]
+    },
+    {
+      "block_class": "lp-var-category",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-children",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_child_count_and_leaves_rating_percent_literal"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-commented-at",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_no_comment_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-commented-by",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_no_comment_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-commented-by-id",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero comment identity fixture"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_no_comment_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-commented-by-linked",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero comment identity fixture"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_no_comment_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-commented-by-unix",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero comment identity fixture"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_no_comment_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-comments",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_no_comment_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-content",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-content-section",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-created-at",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-created-at-format",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-created-by",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-created-by-id",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-created-by-linked",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-created-by-unix",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-first-paragraph",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-form-data",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_missing_data_form_variables_stay_literal_without_blocking_rows"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-form-hint",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "data-form schema mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_missing_data_form_variables_stay_literal_without_blocking_rows"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-form-label",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "data-form schema mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_missing_data_form_variables_stay_literal_without_blocking_rows"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-form-raw",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_missing_data_form_variables_stay_literal_without_blocking_rows"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-fullname",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-hidden-tags",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-hidden-tags-linked",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-index",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-author",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-author-edited",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_legacy_updated_author_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-body",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-date",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-date-edited",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-description",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-full-page-name",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-linked-title",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-long",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-page-name",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-page-unix-name",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-short",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-text",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-legacy-user-edited",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_legacy_updated_author_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-limit",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_limit_variable"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-link",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_link_and_fullname_keep_distinct_wikidot_identities"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-name",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-parent-category",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-parent-fullname",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-parent-name",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-parent-title",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-parent-title-linked",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-preview",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-preview-length",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-rating",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-rating-percent",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero rating and vote mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_child_count_and_leaves_rating_percent_literal"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-rating-votes",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero rating and vote mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-revisions",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_revision_count"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-site-domain",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-site-name",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-site-title",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-size",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-summary",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_preview_summary_and_content_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-tags",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-tags-linked",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-title",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-title-linked",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-total",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-total-or-limit",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-updated-at",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "substitutes_wikidot_list_pages_author_tool_variables"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-updated-by",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_legacy_updated_author_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-updated-by-id",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-updated-by-linked",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_legacy_updated_author_aliases_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-var-updated-by-unix",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_structural_identity_and_site_variables_match_live_wikidot"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "variables-holder",
+          "fullname": "run-owned:lp-campaign-20260727-variables-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-template-variables"
+      ]
+    },
+    {
+      "block_class": "lp-votes-current",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_metric_selectors_match_the_saved_page_live_fixture"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "metric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-metric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-metric-selectors"
+      ]
+    },
+    {
+      "block_class": "lp-votes-positive",
+      "status": "covered",
+      "live_environment_blocker_refs": [
+        "nonzero rating and vote mutation"
+      ],
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "listpages_current_metric_selectors_match_the_saved_page_live_fixture"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "page_query_vote_filter_and_order_use_imported_snapshot_vote_counts"
+        }
+      ],
+      "fixture_pages": [
+        {
+          "key": "metric-holder",
+          "fullname": "run-owned:lp-campaign-20260727-metric-holder"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-metric-selectors"
+      ]
+    }
+  ]
+}

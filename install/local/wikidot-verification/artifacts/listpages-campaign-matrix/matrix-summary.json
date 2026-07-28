@@ -1,0 +1,25 @@
+{
+  "schema": "wikijump_listpages_compat.differential_matrix.v1",
+  "generated_at": "2026-07-27T13:35:09.189Z",
+  "inputs": {
+    "inventory_dir": "/home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/artifacts/listpages-campaign-inventory",
+    "documentation_claim_count": 5323,
+    "corpus_invocation_count": 23893,
+    "corpus_cluster_count": 17644
+  },
+  "summary": {
+    "corpus_cluster_case_count": 17644,
+    "corpus_invocation_case_count": 23893,
+    "generated_case_count": 141,
+    "navigation_case_count": 19,
+    "hash_magic_case_count": 13,
+    "pending_live_count": 41710
+  },
+  "files": {
+    "corpus_cluster_cases": "corpus-cluster-cases.jsonl",
+    "corpus_invocation_cases": "corpus-invocation-cases.jsonl",
+    "generated_cases": "generated-listpages-cases.jsonl",
+    "navigation_cases": "navigation-cases.jsonl",
+    "hash_magic_cases": "hash-magic-audit-cases.jsonl"
+  }
+}

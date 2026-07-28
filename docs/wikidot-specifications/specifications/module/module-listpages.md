@@ -20,6 +20,186 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+### Invalid and extreme numeric arguments use compatibility fallbacks
+
+- Observation ID: `listpages-invalid-numeric-fallbacks`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-27`
+- Analysis: The documentation calls limit, perPage, and offset numeric but does not define rejected forms. Controlled saved-page captures show that Wikidot does not partially parse signed or fractional values. It falls back to the argument default, while retaining a separate legacy behavior for offsets beyond the local query window.
+
+Normative behavior:
+
+- A negative or fractional limit is rejected and behaves as an omitted limit.
+- A zero, negative, or fractional perPage is rejected and falls back to 20.
+- A negative or fractional offset is rejected and falls back to zero.
+- An oversized positive offset renders no rows on the initial pagination page. On a later pagination page, live Wikidot applies the oversized offset modulo perPage before applying the pagination-page displacement; for offset 999999999 and the default perPage 20, page 2 begins at absolute index 20.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-live-fixture-classification.json` (SHA-256 `8864c8c37d8e9cb12eca1c1a76fe413b9e14a328368e6087a9a71a478ca20499`), cases: `lp-live-numeric-page-1`, `lp-live-numeric-page-2`
+
+### Pagination is driven by ordered path pairs
+
+- Observation ID: `listpages-pagination-path-semantics`
+- Classification: `documentation-omission`
+- Observed at: `2026-07-27`
+- Analysis: The documentation explains argument/value path pairs but does not specify the generated p argument, invalid values, duplicate pairs, clamping, or preservation rules. Controlled direct navigation captures expose the route algorithm and pager DOM.
+
+Normative behavior:
+
+- Unprefixed pagination uses the path pair /p/<page>; a module with urlAttrPrefix="x" uses /x_p/<page>.
+- A positive page number selects that page and is clamped to the final available page when it is too large.
+- Page zero selects page 1 and its numeric pair is replaced by generated pager links.
+- A negative, fractional, textual, or missing page value selects page 1; the malformed path is preserved and generated pager links append a new valid /p/<page> pair.
+- When repeated valid page pairs occur, the last positive value selects the page, while generated pager links replace the first numeric pair in place and preserve later pairs.
+- Non-page path pairs retain their original order around the replaced or appended page pair.
+- Generated pager links do not retain the incoming query string.
+- The pager is a div.pager containing span.pager-no, span.current, span.target anchors, optional span.dots, and previous/next anchors with Wikidot's visible labels.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-live-fixture-classification.json` (SHA-256 `8864c8c37d8e9cb12eca1c1a76fe413b9e14a328368e6087a9a71a478ca20499`), cases: `lp-live-pagination-page-1`, `lp-live-pagination-page-2`, `lp-live-pagination-page-3`, `lp-live-pagination-final`, `lp-live-pagination-beyond`, `lp-live-pagination-zero`, `lp-live-pagination-negative`, `lp-live-pagination-text`, `lp-live-pagination-missing`, `lp-live-pagination-query`, `lp-live-pagination-repeated`, `lp-live-prefixed-a-page-2`, `lp-live-prefixed-b-page-2`
+- `install/local/wikidot-verification/artifacts/listpages-campaign-live-fixtures-navigation-rerun.jsonl` (SHA-256 `87367ac2919a2c9cc2f93ef09933124a528d20653025e29b5a6090c22b0911c0`), cases: `lp-live-navigation-p-before-tag`, `lp-live-navigation-category-before-p`, `lp-live-navigation-prefixed-limits`
+
+### Duplicate attributes and aliases have legacy precedence
+
+- Observation ID: `listpages-duplicate-and-alias-precedence`
+- Classification: `documentation-omission`
+- Observed at: `2026-07-27`
+- Analysis: The documentation identifies aliases but does not define duplicate-key or alias-conflict precedence. Anonymous PagePreviewModule captures show stable, non-uniform legacy precedence that cannot be replaced by a generic attribute-map rule.
+
+Normative behavior:
+
+- For repeated occurrences of the same attribute name, the last occurrence wins.
+- The modern category attribute wins over the categories alias regardless of source order.
+- The deprecated tag attribute wins over the tags attribute regardless of source order.
+- The modern rss attribute wins over rssTitle regardless of source order.
+- Duplicate rssOnly, limit, rssLimit, tags, category, and order attributes use the last value when the spelling is identical.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-rss-alias-conflict-live-preview.jsonl` (SHA-256 `843ed317e7ece3ebc69d5e943932a571c5c15d0f7216addbd9e8507b4b7379de`), cases: `lprss3-0001-category-then-categories`, `lprss3-0002-categories-then-category`, `lprss3-0003-tags-then-tag`, `lprss3-0004-tag-then-tags`
+- `install/local/wikidot-verification/artifacts/listpages-campaign-rss-path-combination-live-preview.jsonl` (SHA-256 `c85ac5b3b1562ce8216b06f3b5fd2dac9618d65c423ead7adcf5cf42d1c02c55`), cases: `lprss4-0004-rss-then-rss-title`, `lprss4-0005-rss-title-then-rss`
+- `install/local/wikidot-verification/artifacts/listpages-campaign-rss-selector-live-preview.jsonl` (SHA-256 `de9e21199394c060d64edfb1c6c3581ba7506d947799aeaa31fddf58eb603498`), cases: `lprss2-0060-duplicate-limit`, `lprss2-0061-duplicate-rss-limit`, `lprss2-0067-duplicate-category`, `lprss2-0068-duplicate-tags`, `lprss2-0069-duplicate-order`
+
+### RSS link generation and rssOnly truth handling
+
+- Observation ID: `listpages-rss-link-and-rssonly`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-27`
+- Analysis: The documentation describes RSS arguments but omits empty and invalid values, exact markup, and path encoding. Anonymous preview captures provide the public renderer contract.
+
+Normative behavior:
+
+- A non-empty rss or rssTitle produces a div.feedinfo containing the Wikidot 14x14 RSS icon and an RSS feed anchor; an empty title produces no feed link.
+- rssOnly suppresses ListPages rows only for the case-insensitive true values yes and true. Values no, false, empty, or unrecognized do not suppress rows.
+- rssOnly without a non-empty feed title neither suppresses rows nor creates a feed link.
+- Feed path components use form-style encoding: spaces become plus signs and reserved bytes are percent encoded.
+- rssLimit takes precedence over the lower-of-limit-and-perPage default used to construct the feed path.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-rss-live-preview.jsonl` (SHA-256 `4674b00c5c9e587baf6b5b97bcf20c58b7b474da95f416ca62948a5ee3067ec1`), cases: `lprss-0001-title`, `lprss-0002-title-alias`, `lprss-0003-empty-title`, `lprss-0006-only-yes`, `lprss-0007-only-true`, `lprss-0008-only-no`, `lprss-0009-only-false`, `lprss-0010-only-empty`, `lprss-0011-only-invalid`, `lprss-0012-only-without-title`, `lprss-0016-limit-one`
+
+### The live feed endpoint has a narrower contract than ListPages
+
+- Observation ID: `listpages-live-feed-endpoint`
+- Classification: `documentation-discrepancy`
+- Observed at: `2026-07-27`
+- Analysis: The documentation says the exported RSS feed uses the ListPages selection and limit. Direct anonymous requests to the exact feed links generated by live ListPages show a narrower and partly defective production endpoint. The endpoint's observed output, not the broader documentation claim, is canonical for compatibility.
+
+Normative behavior:
+
+- The direct /feed/pages/... endpoint returns at most 20 newest visible items by default.
+- The endpoint accepts title t, description d, and home h metadata; repeated metadata path pairs use the last value.
+- In controlled live captures, limit, offset, and order path pairs do not affect the selected items, even though ListPages generates those pairs.
+- Unknown path arguments are ignored.
+- An invalid range, rating, or pagetype value produces an HTTP 200 generic feed error document rather than an HTTP error status.
+- A request ending at /feed/pages without a trailing argument path returns 404; malformed percent encoding returns 400.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-feed-endpoint-live.jsonl` (SHA-256 `37e6a52c88f48bc7eadfeacb7218ce270e615f0916e4a8810bfed2f01bb0afa9`), cases: `lpfeed-0001-baseline`, `lpfeed-0002-metadata`, `lpfeed-0003-limit-ignored`, `lpfeed-0004-offset-ignored`, `lpfeed-0005-order-ignored`, `lpfeed-0006-duplicate-metadata-last-wins`, `lpfeed-0008-invalid-range`, `lpfeed-0009-invalid-rating`, `lpfeed-0010-invalid-pagetype-alias`, `lpfeed-0013-unknown-argument-ignored`, `lpfeed-0014-missing-trailing-path`, `lpfeed-0015-malformed-percent-escape`
+
+### Template variables preserve legacy identity and missing-data behavior
+
+- Observation ID: `listpages-template-variable-rendering`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-28`
+- Analysis: The documentation lists current and deprecated template variables but does not define several empty, missing-data, alias, and server-versus-client rendering details. A controlled saved target with a parent, two authored revisions, visible and hidden tags, and multi-paragraph content establishes the public output of every documented variable family on an ordinary non-data-form page.
+
+Normative behavior:
+
+- name and the deprecated page_name render the page name without its category; fullname, page_unix_name, and full_page_name render the category-qualified page name.
+- created_by_id, updated_by_id, created_by_unix, and updated_by_unix render the corresponding Wikidot user identity values when present. Linked lifecycle user variables render Wikidot user-profile markup, while the plain variables render text.
+- parent_name, parent_category, parent_fullname, parent_title, and parent_title_linked render the selected page's single parent metadata; parent_title_linked links to the parent fullname.
+- site_title, site_name, and site_domain render the current site display title, Wikidot unix name, and active Wikidot domain respectively.
+- summary and first_paragraph render the first paragraph. preview renders a plain-text preview, and preview(n) truncates the preview with an ellipsis.
+- text, long, and body are deprecated aliases of content; description and short are deprecated aliases of summary; author_edited and user_edited are deprecated linked-user aliases of updated_by.
+- For an ordinary selected page with no comments, comments renders 0, while commented_by, commented_by_linked, commented_by_unix, commented_by_id, and commented_at render empty strings.
+- total_or_limit renders the lower of the unbounded matching total and the authored limit, or the unbounded total when no limit was authored.
+- A form_data, form_raw, form_label, or form_hint variable for a missing field on an ordinary non-data-form page remains literal. rating_percent likewise remains literal on the controlled plus/minus rating site.
+- Date variables render a span.odate whose class carries the encoded requested format. The saved server HTML contains fallback date text; Wikidot's client runtime applies the requested display format.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-template-variables-live-classification.json` (SHA-256 `7994dfcf7e8f3cae568e44c53fda16ff9acb8d4b47f59494a110633cd4d8f67d`), cases: `lp-live-template-variables`
+
+### Ratings, last comments, and data-form variables depend on runtime metadata
+
+- Observation ID: `listpages-rating-comment-and-data-form-variables`
+- Classification: `documentation-discrepancy`
+- Observed at: `2026-07-28`
+- Analysis: The documentation lists rating, comment, and data-form variables but omits their exact rating-mode markup, treats form values too uniformly, and does not define missing fields on an actual data-form page. Controlled run-owned pages, two independent voters, a last comment, a temporarily enabled five-star category, and a data-form template establish the runtime contract. The five-star category was restored to its prior disabled configuration and every run-owned page was removed after capture.
+
+Normative behavior:
+
+- rating_votes renders the number of votes for both plus/minus and five-star rating categories; it is not limited to five-star ratings.
+- On a plus/minus category, rating renders the numeric net score and rating_percent remains literal.
+- On a five-star category, rating renders a span.page-rate-list-pages-start whose data-rating attribute and text are the arithmetic mean, including a fractional mean and the zero-vote value 0.
+- On a five-star category, rating_percent renders the arithmetic mean divided by five and multiplied by 100, without a percent-sign suffix; the observed values include 0, 80, and 90.
+- For a page with comments, comments renders the count; commented_by renders the last commenter's display name; commented_by_unix renders the account unix name; commented_by_id renders the numeric Wikidot user ID; commented_by_linked renders printuser avatar/profile markup; and commented_at renders the standard odate span.
+- On a data-form page, form_raw renders the stored scalar. form_data renders the display label for a select value and the stored scalar for an ordinary text value.
+- form_label renders the field label. form_hint renders a supported field hint, an empty string when the field type does not expose its authored hint, and an empty string when no hint is authored.
+- An empty field on a data-form page still resolves form_data, form_raw, form_label, and form_hint: the value variables are empty while label and supported hint metadata remain available.
+- A missing field on an actual data-form page resolves every form variable to an empty string. This differs from an ordinary non-data-form page, where a missing form variable remains literal.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-rating-comment-data-form-live.json` (SHA-256 `df42b383b81eeac1c00c25fe54a59dcf2015ed622baea0752e9481d8bfe7708c`), cases: `lp-live-plus-minus-rating-and-last-comment`, `lp-live-five-star-rating`, `lp-live-five-star-fractional-rating`, `lp-live-five-star-zero-rating`, `lp-live-data-form-values-labels-and-hints`
+
+### Legacy selectors and pre-parsed module bodies retain production quirks
+
+- Observation ID: `listpages-legacy-and-body-edge-behavior`
+- Classification: `documentation-discrepancy`
+- Observed at: `2026-07-28`
+- Analysis: The legacy documentation describes skipCurrent, reverse, link_to, tagTarget, the default template, and the prohibition on code/html body tags, but it does not define invalid booleans, the accepted true alias for reverse, the current-page link sentinel, or the actual pre-parser failure shape. Controlled saved-page graphs show both clarifications and direct contradictions. Live production behavior is canonical.
+
+Normative behavior:
+
+- skipCurrent excludes the current holder page only for the case-insensitive true values yes and true. Values no, false, or unrecognized do not exclude it.
+- reverse reverses the already ordered rows for the case-insensitive true values yes and true. Values no, false, empty, or unrecognized preserve the ordered rows and do not make the module fail closed.
+- link_to="." selects pages whose outgoing links target the current holder page.
+- When tags="=" is the only tag selector, Wikidot implicitly excludes the current holder page after selecting pages that share any visible tag.
+- The deprecated tagTarget argument does not make %%tags%% clickable in the controlled live renderer; the argument is an observed no-op despite the legacy documentation claim.
+- summary and its deprecated description alias render content section 1 when the selected page contains a ==== section separator.
+- prependLine and appendLine are ignored when separate is true.
+- A ListPages opening with no closing module uses Wikidot's default template: a linked-title heading, a linked author and created date line, and the summary, inside list-pages-box and list-pages-item containers.
+- When a purported ListPages body contains a code or html block, Wikidot's earlier syntax pass removes or owns that block before ListPages evaluates. The ListPages opening consequently uses the default template, and residual authored body or closing-module text may render after the generated list. It does not simply leave the whole module literal or produce no output.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/listpages-campaign-edge-live-classification.json` (SHA-256 `722c4ef3862e517d64098f508ace5831522db06805686c3d4eb82be228869f28`), cases: `lp-live-edge-behaviors`, `lp-live-default-template`
+- `install/local/wikidot-verification/artifacts/listpages-campaign-edge-reverse-live-classification.json` (SHA-256 `f84fe9ae8c59cd109dacdfc9f48721db4f84b7b1d7a15ffe53e9a4f51396db74`), cases: `lp-live-edge-behaviors`
+- `install/local/wikidot-verification/artifacts/listpages-campaign-edge-link-to-live-classification.json` (SHA-256 `71be02bc784bfe7af7ed68828df6c6991b745bf076b5e528a7431f748e219536`), cases: `lp-live-edge-behaviors`
+
+
+
 ## Suggested public TDD seams
 
 These seams are recommendations. The implementation agent must present and confirm the actual seam map before writing tests.

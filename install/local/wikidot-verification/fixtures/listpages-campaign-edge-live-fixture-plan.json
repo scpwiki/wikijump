@@ -1,0 +1,123 @@
+{
+  "schema": "wikijump_listpages_compat.live_fixture_plan.v1",
+  "run_id": "listpages-edge-20260728",
+  "site": "sandbox-for-codex",
+  "pages": [
+    {
+      "key": "target",
+      "fullname": "run-owned:lp-campaign-20260728-edge-target",
+      "account": "A",
+      "title": "ListPages edge target",
+      "sources": [
+        "Summary first section.\n====\nSecond content section."
+      ],
+      "tags": [
+        "lp-edge-same-20260728",
+        "lp-edge-visible"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "other",
+      "fullname": "run-owned:lp-campaign-20260728-edge-other",
+      "account": "A",
+      "title": "ListPages edge fixture other",
+      "sources": [
+        "other"
+      ],
+      "tags": [
+        "lp-edge-same-20260728"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "third",
+      "fullname": "run-owned:lp-campaign-20260728-edge-third",
+      "account": "A",
+      "title": "ListPages edge fixture third",
+      "sources": [
+        "third"
+      ],
+      "tags": [
+        "lp-edge-same-20260728"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "linker",
+      "fullname": "run-owned:lp-campaign-20260728-edge-linker",
+      "account": "A",
+      "title": "ListPages edge fixture linker",
+      "sources": [
+        "[[[run-owned:lp-campaign-20260728-edge-edge-holder]]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "edge-holder",
+      "fullname": "run-owned:lp-campaign-20260728-edge-edge-holder",
+      "account": "A",
+      "title": "ListPages edge holder",
+      "sources": [
+        "[[div class=\"lp-case lp-edge-code-body\"]]\nEDGE CODE BODY\n[[module ListPages category=\"*\" fullname=\"run-owned:lp-campaign-20260728-edge-target\"]]\n[[code]]\n%%title%%\n[[/code]]\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-html-body\"]]\nEDGE HTML BODY\n[[module ListPages category=\"*\" fullname=\"run-owned:lp-campaign-20260728-edge-target\"]]\n[[html]]<b>%%title%%</b>[[/html]]\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-summary-section\"]]\nEDGE SUMMARY SECTION\n[[module ListPages category=\"*\" fullname=\"run-owned:lp-campaign-20260728-edge-target\"]]\nsummary=%%summary%%|description=%%description%%|content1=%%content{1}%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-skip-yes\"]]\nEDGE SKIP YES\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"yes\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-skip-true\"]]\nEDGE SKIP TRUE\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"true\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-skip-no\"]]\nEDGE SKIP NO\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"no\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-skip-false\"]]\nEDGE SKIP FALSE\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"false\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-skip-invalid\"]]\nEDGE SKIP INVALID\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"invalid\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-reverse-yes\"]]\nEDGE REVERSE YES\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" reverse=\"yes\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-reverse-true\"]]\nEDGE REVERSE TRUE\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" reverse=\"true\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-reverse-no\"]]\nEDGE REVERSE NO\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" reverse=\"no\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-reverse-false\"]]\nEDGE REVERSE FALSE\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" reverse=\"false\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-reverse-invalid\"]]\nEDGE REVERSE INVALID\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" reverse=\"invalid\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-reverse-empty\"]]\nEDGE REVERSE EMPTY\n[[module ListPages category=\"run-owned\" tags=\"+lp-edge-same-20260728\" order=\"name\" separate=\"no\" perPage=\"250\" reverse=\"\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-tags-same-implicit-skip\"]]\nEDGE TAGS SAME IMPLICIT SKIP\n[[module ListPages category=\"run-owned\" tags=\"=\" order=\"name\" separate=\"no\" perPage=\"250\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-tag-target\"]]\nEDGE TAG TARGET\n[[module ListPages category=\"*\" fullname=\"run-owned:lp-campaign-20260728-edge-target\" tagTarget=\"edge-tags\"]]\n%%tags%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-link-to-current\"]]\nEDGE LINK TO CURRENT\n[[module ListPages category=\"*\" link_to=\".\" order=\"name\" separate=\"no\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-edge-prepend-separate-yes\"]]\nEDGE PREPEND SEPARATE YES\n[[module ListPages category=\"*\" fullname=\"run-owned:lp-campaign-20260728-edge-target\" separate=\"yes\" prependLine=\"PREPEND\" appendLine=\"APPEND\"]]\n%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [
+        "lp-edge-same-20260728"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "edge-default-holder",
+      "fullname": "run-owned:lp-campaign-20260728-edge-edge-default-holder",
+      "account": "A",
+      "title": "ListPages edge default holder",
+      "sources": [
+        "[[module ListPages category=\"*\" fullname=\"run-owned:lp-campaign-20260728-edge-target\"]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    }
+  ],
+  "captures": [
+    {
+      "case_id": "lp-live-edge-behaviors",
+      "page": "edge-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "legacy-arguments",
+        "body-preparse",
+        "reverse",
+        "summary",
+        "tags",
+        "link_to"
+      ]
+    },
+    {
+      "case_id": "lp-live-default-template",
+      "page": "edge-default-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "default-template",
+        "unclosed-module"
+      ]
+    }
+  ],
+  "documentation_provenance": [
+    {
+      "path": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/www/pages/doc-include:note-template-in-modules/source.wikidot.txt",
+      "lines": "1-5"
+    },
+    {
+      "path": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/www/pages/doc-include:listpages-module-prev/source.wikidot.txt",
+      "lines": "9-41,101-163"
+    }
+  ],
+  "live_environment_blockers": []
+}

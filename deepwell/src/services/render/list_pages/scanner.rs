@@ -145,6 +145,7 @@ fn take_projection_offset_advances() -> usize {
 #[derive(Debug)]
 pub(in crate::services::render) struct ListPagesModuleMatch<'a> {
     pub(in crate::services::render) start: usize,
+    pub(in crate::services::render) body_start: usize,
     pub(in crate::services::render) end: usize,
     pub(in crate::services::render) head: &'a str,
     pub(in crate::services::render) body: &'a str,
@@ -836,10 +837,13 @@ impl<'a> ModuleEventScanner<'a> {
                     );
                     if right_block {
                         let raw_head = &source[subname_end..cursor];
-                        let mut validation =
-                            validate_module_head(raw_head, list_pages_compatibility);
+                        let validation_head = raw_head.trim_start_matches([' ', '\t']);
+                        let mut validation = validate_module_head(
+                            validation_head,
+                            list_pages_compatibility,
+                        );
                         let runtime_recognized = list_pages_compatibility
-                            && runtime_regex_recognizes_entire_head(raw_head);
+                            && runtime_regex_recognizes_entire_head(validation_head);
                         if !self.charge_speculative(raw_head.len().saturating_mul(3)) {
                             record_module_head_scan_bytes(
                                 cursor.saturating_sub(module_name_end),
@@ -1407,7 +1411,7 @@ fn runtime_list_pages_key_is_supported(key: &str) -> bool {
 pub(in crate::services::render) fn runtime_regex_recognizes_entire_head(
     source: &str,
 ) -> bool {
-    super::super::service::list_pages_runtime_regex_recognizes_entire_head(source)
+    super::super::module_arguments::module_arguments_are_complete(source)
 }
 
 fn unresolved_conditional_parser_function_prefix(source: &str) -> bool {
@@ -1424,6 +1428,15 @@ fn unresolved_conditional_parser_function_prefix(source: &str) -> bool {
 
 pub(in crate::services::render) fn list_pages_runtime_head_is_safe(head: &str) -> bool {
     validate_module_head(head, true) == ModuleHeadValidation::RuntimeSafe
+}
+
+pub(in crate::services::render) fn list_pages_runtime_head_can_execute(
+    head: &str,
+) -> bool {
+    matches!(
+        validate_module_head(head, true),
+        ModuleHeadValidation::RuntimeSafe | ModuleHeadValidation::ValidRuntimeUnsafe
+    ) && runtime_regex_recognizes_entire_head(head)
 }
 
 fn normalize_module_head(source: &str) -> String {
@@ -1851,6 +1864,7 @@ fn find_list_pages_module_matches_with_cursor_work(
                     let module = active.take().unwrap();
                     matches.push(ListPagesModuleMatch {
                         start: module.start,
+                        body_start: module.body_start,
                         end,
                         head: module.head,
                         body: &source[module.body_start..start],
@@ -1860,6 +1874,21 @@ fn find_list_pages_module_matches_with_cursor_work(
                 }
             }
         }
+    }
+
+    if let Some(module) = active
+        && module.depth == 1
+        && module.runtime_safe
+    {
+        matches.push(ListPagesModuleMatch {
+            start: module.start,
+            body_start: module.body_start,
+            end: module.body_start,
+            head: module.head,
+            body: "",
+            original: &source[module.start..module.body_start],
+            runtime_safe: true,
+        });
     }
 
     let literal_range_advances = direct_literal_advances + projected_literal_advances;
@@ -2053,9 +2082,15 @@ fn mark_projection_changed_direct_heads(
         let direct = direct
             .as_mut()
             .expect("direct module remains attached after its projection guard");
-        if !head_ranges
-            .range_is_unchanged(original, direct.subname_end..direct.opening_end)
+        let mut head_start = direct.subname_end;
+        while original
+            .as_bytes()
+            .get(head_start)
+            .is_some_and(|byte| is_wikidot_head_spacing(*byte))
         {
+            head_start += 1;
+        }
+        if !head_ranges.range_is_unchanged(original, head_start..direct.opening_end) {
             direct.runtime_safe = false;
         }
     }

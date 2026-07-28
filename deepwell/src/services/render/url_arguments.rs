@@ -27,6 +27,7 @@
 use super::pages::PAGES_MODULE_REGEX;
 use super::pages_by_tag::PAGES_BY_TAG_MODULE_REGEX;
 use regex::Regex;
+use std::borrow::Cow;
 use std::sync::LazyLock;
 
 /// A ListPages module opening whose head names `@URL` somewhere.
@@ -37,6 +38,13 @@ use std::sync::LazyLock;
 /// narrowly would serve the stored HTML and drop the argument entirely.
 static LIST_PAGES_URL_SELECTOR_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[\s*module\s+listpages\b[^\]]*@url").unwrap());
+
+/// One raw URL path argument addressed to a page module.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct UrlArgumentPair {
+    pub name: String,
+    pub value: Option<String>,
+}
 
 /// The Wikidot URL path arguments a render is answering.
 ///
@@ -55,15 +63,77 @@ pub struct UrlArguments<'a> {
 
     /// `/offset/<n>`, read by a ListPages `offset="@URL|fallback"` selector.
     pub offset: Option<u32>,
+
+    /// Ordered raw path arguments, kept for ListPages pager links.
+    pub path_arguments: &'a [UrlArgumentPair],
 }
 
-/// A ListPages module opening that paginates, and so answers `/p/<n>`.
+impl<'a> UrlArguments<'a> {
+    pub(in crate::services::render) fn value_for_list_pages_argument(
+        self,
+        prefix: Option<&str>,
+        argument_name: &str,
+    ) -> Option<&'a str> {
+        let key = list_pages_argument_key(prefix, argument_name);
+        let path_value = self
+            .path_arguments
+            .iter()
+            .rfind(|argument| argument.name.eq_ignore_ascii_case(key.as_ref()))
+            .and_then(|argument| argument.value.as_deref())
+            .filter(|value| !value.is_empty());
+        if path_value.is_some()
+            || prefix
+                .map(str::trim)
+                .is_some_and(|prefix| !prefix.is_empty())
+        {
+            return path_value;
+        }
+
+        match argument_name.to_ascii_lowercase().as_str() {
+            "tag" | "tags" => self.tag.filter(|value| !value.is_empty()),
+            "category" | "categories" => self.category.filter(|value| !value.is_empty()),
+            _ => None,
+        }
+    }
+
+    pub(in crate::services::render) fn page_for_prefix(
+        self,
+        prefix: Option<&str>,
+    ) -> Option<u32> {
+        let key = list_pages_page_argument_key(prefix);
+        let page = self
+            .path_arguments
+            .iter()
+            .filter(|argument| argument.name.eq_ignore_ascii_case(key.as_ref()))
+            .filter_map(|argument| argument.value.as_deref())
+            .filter_map(|value| value.parse::<u32>().ok())
+            .rfind(|page| *page > 0);
+        page.or_else(|| (key == "p").then_some(self.page).flatten())
+    }
+}
+
+pub(in crate::services::render) fn list_pages_page_argument_key(
+    prefix: Option<&str>,
+) -> Cow<'_, str> {
+    list_pages_argument_key(prefix, "p")
+}
+
+fn list_pages_argument_key<'a>(
+    prefix: Option<&str>,
+    argument_name: &'a str,
+) -> Cow<'a, str> {
+    match prefix.map(str::trim).filter(|prefix| !prefix.is_empty()) {
+        Some(prefix) => Cow::Owned(format!("{prefix}_{argument_name}")),
+        None => Cow::Borrowed(argument_name),
+    }
+}
+
+/// A ListPages module opening that may answer `/p/<n>`.
 ///
-/// A module without `perPage` renders one fixed list no matter what page the
-/// URL asks for, so it is left out rather than re-rendered for nothing.
-static LIST_PAGES_PAGINATED_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[\s*module\s+listpages\b[^\]]*per_?page").unwrap()
-});
+/// ListPages defaults to 20 rows per page, so an explicit `perPage` argument is
+/// not required for a request path to affect the rendered result.
+static LIST_PAGES_MODULE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?is)\[\[\s*module\s+listpages\b").unwrap());
 
 /// Whether this wikitext holds a module whose output depends on the request's
 /// URL path arguments.
@@ -77,7 +147,7 @@ pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
         || PAGES_BY_TAG_MODULE_REGEX.is_match(wikitext)
         || LIST_PAGES_URL_SELECTOR_REGEX.is_match(wikitext)
-        || LIST_PAGES_PAGINATED_REGEX.is_match(wikitext)
+        || LIST_PAGES_MODULE_REGEX.is_match(wikitext)
 }
 
 /// Whether a page view must render from source even without URL arguments.
@@ -99,7 +169,10 @@ fn wikitext_has_bare_pages_module(wikitext: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{wikitext_reads_url_arguments, wikitext_requires_runtime_render};
+    use super::{
+        UrlArgumentPair, UrlArguments, wikitext_reads_url_arguments,
+        wikitext_requires_runtime_render,
+    };
 
     #[test]
     fn a_pages_by_tag_module_reads_url_arguments() {
@@ -143,8 +216,8 @@ mod tests {
     }
 
     #[test]
-    fn a_static_list_pages_module_does_not() {
-        assert!(!wikitext_reads_url_arguments(
+    fn a_default_list_pages_module_reads_url_arguments() {
+        assert!(wikitext_reads_url_arguments(
             r#"[[module ListPages tags="alpha"]]%%title%%[[/module]]"#
         ));
     }
@@ -154,5 +227,67 @@ mod tests {
         assert!(!wikitext_reads_url_arguments(
             "Ordinary text mentioning @URL and ListPages separately."
         ));
+    }
+
+    #[test]
+    fn page_selection_uses_last_positive_matching_prefix() {
+        let path_arguments = vec![
+            UrlArgumentPair {
+                name: "p".to_owned(),
+                value: Some("2".to_owned()),
+            },
+            UrlArgumentPair {
+                name: "p".to_owned(),
+                value: Some("3".to_owned()),
+            },
+            UrlArgumentPair {
+                name: "a_p".to_owned(),
+                value: Some("4".to_owned()),
+            },
+            UrlArgumentPair {
+                name: "b_p".to_owned(),
+                value: Some("0".to_owned()),
+            },
+        ];
+        let url = UrlArguments {
+            path_arguments: &path_arguments,
+            ..UrlArguments::default()
+        };
+
+        assert_eq!(url.page_for_prefix(None), Some(3));
+        assert_eq!(url.page_for_prefix(Some("a")), Some(4));
+        assert_eq!(url.page_for_prefix(Some("b")), None);
+    }
+
+    #[test]
+    fn list_pages_arguments_use_the_last_matching_prefixed_value() {
+        let path_arguments = vec![
+            UrlArgumentPair {
+                name: "limit".to_owned(),
+                value: Some("9".to_owned()),
+            },
+            UrlArgumentPair {
+                name: "page2_limit".to_owned(),
+                value: Some("1".to_owned()),
+            },
+            UrlArgumentPair {
+                name: "PAGE2_LIMIT".to_owned(),
+                value: Some("2".to_owned()),
+            },
+        ];
+        let url = UrlArguments {
+            path_arguments: &path_arguments,
+            ..UrlArguments::default()
+        };
+
+        assert_eq!(url.value_for_list_pages_argument(None, "limit"), Some("9"),);
+        assert_eq!(
+            url.value_for_list_pages_argument(Some("page2"), "limit"),
+            Some("2"),
+        );
+        assert_eq!(
+            url.value_for_list_pages_argument(Some("page3"), "limit"),
+            None,
+        );
     }
 }

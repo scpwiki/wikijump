@@ -3228,6 +3228,329 @@ async fn list_pages_url_page_number_composes_with_the_module_offset() {
 }
 
 #[tokio::test]
+async fn list_pages_saved_view_preserves_live_pagination_path_shapes() {
+    const HOLDER: &str = "fixture-lp-path-holder";
+    const A_PREFIX: &str = "fixture-lp-path-a";
+    const B_PREFIX: &str = "fixture-lp-path-b";
+    const OFFSET_HUGE_PREFIX: &str = "fixture-lp-path-offset-huge";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 1..=5 {
+        let slug = format!("{A_PREFIX}-{index}");
+        create_listpages_test_page(&mut runner, site_id, &slug, &slug, "A row").await;
+    }
+    for index in 1..=4 {
+        let slug = format!("{B_PREFIX}-{index}");
+        create_listpages_test_page(&mut runner, site_id, &slug, &slug, "B row").await;
+    }
+    for index in 1..=23 {
+        let slug = format!("{OFFSET_HUGE_PREFIX}-{index:02}");
+        create_listpages_test_page(&mut runner, site_id, &slug, &slug, "Offset row")
+            .await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER,
+        "ListPages path holder",
+        &format!(
+            concat!(
+                "A_START\n",
+                "[[module ListPages name=\"{A_PREFIX}-*\" order=\"name\" separate=\"no\" perPage=\"2\"]]\n",
+                "A%%index%%:%%name%%|\n",
+                "[[/module]]\n",
+                "A_END\n",
+                "B_START\n",
+                "[[module ListPages name=\"{B_PREFIX}-*\" order=\"name\" separate=\"no\" perPage=\"2\"]]\n",
+                "B%%index%%:%%name%%|\n",
+                "[[/module]]\n",
+                "B_END\n",
+                "PA_START\n",
+                "[[module ListPages name=\"{A_PREFIX}-*\" order=\"name\" separate=\"no\" perPage=\"2\" urlAttrPrefix=\"a\"]]\n",
+                "PA%%index%%:%%name%%|\n",
+                "[[/module]]\n",
+                "PA_END\n",
+                "PB_START\n",
+                "[[module ListPages name=\"{B_PREFIX}-*\" order=\"name\" separate=\"no\" perPage=\"2\" urlAttrPrefix=\"b\"]]\n",
+                "PB%%index%%:%%name%%|\n",
+                "[[/module]]\n",
+                "PB_END\n",
+                "OH_START\n",
+                "[[module ListPages name=\"{OFFSET_HUGE_PREFIX}-*\" order=\"name\" separate=\"no\" offset=\"999999999\"]]\n",
+                "OH%%index%%:%%name%%|\n",
+                "[[/module]]\n",
+                "OH_END",
+            ),
+            A_PREFIX = A_PREFIX,
+            B_PREFIX = B_PREFIX,
+            OFFSET_HUGE_PREFIX = OFFSET_HUGE_PREFIX,
+        ),
+    )
+    .await;
+
+    let view = async |extra: &str| match run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": HOLDER, "extra": extra},
+            "locales": ["en-US", "en"],
+        }),
+    ) {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected a found ListPages path view, got {other:?}"),
+    };
+    fn section<'a>(html: &'a str, marker: &str) -> &'a str {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("pagination fixture section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("pagination fixture section should end");
+        &html[start..end]
+    }
+    let assert_row = |html: &str, marker: &str, row: &str| {
+        let section = section(html, marker);
+        assert!(
+            section.contains(row),
+            "{marker} should contain {row}:\n{section}",
+        );
+    };
+
+    let first = view("").await;
+    assert_row(&first, "A", &format!("A1:{A_PREFIX}-1|"));
+    assert_row(&first, "B", &format!("B1:{B_PREFIX}-1|"));
+
+    let explicit_first = view("/p/1").await;
+    assert_row(&explicit_first, "A", &format!("A1:{A_PREFIX}-1|"));
+    assert_row(&explicit_first, "B", &format!("B1:{B_PREFIX}-1|"));
+
+    let second = view("/p/2").await;
+    assert_row(&second, "A", &format!("A3:{A_PREFIX}-3|"));
+    assert_row(&second, "B", &format!("B3:{B_PREFIX}-3|"));
+    assert_row(&second, "PA", &format!("PA1:{A_PREFIX}-1|"));
+    assert!(
+        section(&second, "PA").contains(&format!("href=\"/{HOLDER}/p/2/a_p/2\"",)),
+        "{second}",
+    );
+
+    let prefixed = view("/a_p/2").await;
+    assert_row(&prefixed, "A", &format!("A1:{A_PREFIX}-1|"));
+    assert_row(&prefixed, "PA", &format!("PA3:{A_PREFIX}-3|"));
+    assert_row(&prefixed, "PB", &format!("PB1:{B_PREFIX}-1|"));
+    assert!(
+        section(&prefixed, "A").contains(&format!("href=\"/{HOLDER}/a_p/2/p/2\"",)),
+        "{prefixed}",
+    );
+
+    let zero = view("/p/0").await;
+    assert_row(&zero, "A", &format!("A1:{A_PREFIX}-1|"));
+    assert!(
+        section(&zero, "A").contains(&format!("href=\"/{HOLDER}/p/2\""))
+            && !section(&zero, "A").contains("/p/0/p/2"),
+        "{zero}",
+    );
+
+    for malformed in ["/p/-1", "/p/nope", "/p/abc", "/p/2.5", "/p"] {
+        let html = view(malformed).await;
+        assert_row(&html, "A", &format!("A1:{A_PREFIX}-1|"));
+        assert!(
+            section(&html, "A").contains(&format!("href=\"/{HOLDER}{malformed}/p/2\"",)),
+            "{malformed} should be preserved before the appended pager argument:\n{html}",
+        );
+    }
+
+    let repeated = view("/p/2/p/3").await;
+    assert_row(&repeated, "A", &format!("A5:{A_PREFIX}-5|"));
+    assert!(
+        section(&repeated, "A").contains(&format!("href=\"/{HOLDER}/p/1/p/3\"",)),
+        "live replaces the first numeric pager argument while selecting the last:\n{repeated}",
+    );
+
+    let beyond = view("/p/999").await;
+    assert_row(&beyond, "A", &format!("A5:{A_PREFIX}-5|"));
+    assert_row(&beyond, "B", &format!("B3:{B_PREFIX}-3|"));
+
+    let huge = view("/p/999999999").await;
+    assert_row(&huge, "A", &format!("A5:{A_PREFIX}-5|"));
+    assert_row(&huge, "B", &format!("B3:{B_PREFIX}-3|"));
+
+    let prefixed_b = view("/b_p/2").await;
+    assert_row(&prefixed_b, "A", &format!("A1:{A_PREFIX}-1|"));
+    assert_row(&prefixed_b, "PA", &format!("PA1:{A_PREFIX}-1|"));
+    assert_row(&prefixed_b, "PB", &format!("PB3:{B_PREFIX}-3|"));
+
+    let offset_huge_first = view("").await;
+    assert!(
+        !section(&offset_huge_first, "OH").contains(OFFSET_HUGE_PREFIX),
+        "live renders no huge-offset rows on the initial page:\n{offset_huge_first}",
+    );
+
+    let offset_huge_second = view("/p/2").await;
+    for index in 20..=23 {
+        assert_row(
+            &offset_huge_second,
+            "OH",
+            &format!("OH{index}:{OFFSET_HUGE_PREFIX}-{index:02}|"),
+        );
+    }
+}
+
+#[tokio::test]
+async fn list_pages_saved_view_preserves_argument_order_around_the_pager() {
+    const HOLDER: &str = "fixture-lp-argument-order-holder";
+    const ITEM_PREFIX: &str = "fixture-lp-argument-order-item";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 1..=5 {
+        let slug = format!("{ITEM_PREFIX}-{index}");
+        create_listpages_test_page(&mut runner, site_id, &slug, &slug, "Path row").await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER,
+        "ListPages argument order holder",
+        &format!(
+            concat!(
+                "[[module ListPages name=\"{ITEM_PREFIX}-*\" order=\"name\" separate=\"no\" perPage=\"2\"]]\n",
+                "ROW%%index%%:%%name%%|\n",
+                "[[/module]]",
+            ),
+            ITEM_PREFIX = ITEM_PREFIX,
+        ),
+    )
+    .await;
+
+    let view = async |extra: &str| match run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": HOLDER, "extra": extra},
+            "locales": ["en-US", "en"],
+        }),
+    ) {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected a found argument-order view, got {other:?}"),
+    };
+
+    let reverse_order = view("/p/2/tag/alpha").await;
+    assert!(
+        reverse_order.contains(&format!("ROW3:{ITEM_PREFIX}-3|"))
+            && reverse_order.contains(&format!("href=\"/{HOLDER}/p/1/tag/alpha\"")),
+        "the pager replaces a numeric page argument in place without reordering later arguments:\n{reverse_order}",
+    );
+
+    let category_path = view("/category/fragment/p/2").await;
+    assert!(
+        category_path.contains(&format!("ROW3:{ITEM_PREFIX}-3|"))
+            && category_path
+                .contains(&format!("href=\"/{HOLDER}/category/fragment/p/1\"",)),
+        "non-page arguments remain before the replaced page argument:\n{category_path}",
+    );
+}
+
+#[tokio::test]
+async fn list_pages_prefixed_url_arguments_address_only_the_matching_module() {
+    const HOLDER: &str = "fixture-lp-prefixed-url-holder";
+    const ITEM_PREFIX: &str = "fixture-lp-prefixed-url-item";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 1..=3 {
+        let slug = format!("{ITEM_PREFIX}-{index}");
+        create_listpages_test_page(&mut runner, site_id, &slug, &slug, "URL row").await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER,
+        "ListPages prefixed URL holder",
+        &format!(
+            concat!(
+                "P2_START\n",
+                "[[module ListPages name=\"{ITEM_PREFIX}-*\" order=\"name\" separate=\"no\" limit=\"@URL|0\" urlAttrPrefix=\"page2\"]]\n",
+                "P2%%index%%:%%name%%|\n",
+                "[[/module]]\n",
+                "P2_END\n",
+                "P3_START\n",
+                "[[module ListPages name=\"{ITEM_PREFIX}-*\" order=\"name\" separate=\"no\" limit=\"@URL|0\" urlAttrPrefix=\"page3\"]]\n",
+                "P3%%index%%:%%name%%|\n",
+                "[[/module]]\n",
+                "P3_END",
+            ),
+            ITEM_PREFIX = ITEM_PREFIX,
+        ),
+    )
+    .await;
+
+    let output = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {
+                "slug": HOLDER,
+                "extra": "/page2_limit/1/page3_limit/2",
+            },
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let html = match output {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected a found prefixed URL view, got {other:?}"),
+    };
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("prefixed URL fixture section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("prefixed URL fixture section should end");
+        &html[start..end]
+    };
+
+    assert!(
+        section("P2").contains(&format!("P21:{ITEM_PREFIX}-1|"))
+            && !section("P2").contains(&format!("{ITEM_PREFIX}-2|")),
+        "page2_limit applies only to the page2-prefixed module:\n{html}",
+    );
+    assert!(
+        section("P3").contains(&format!("P31:{ITEM_PREFIX}-1|"))
+            && section("P3").contains(&format!("P32:{ITEM_PREFIX}-2|"))
+            && !section("P3").contains(&format!("{ITEM_PREFIX}-3|")),
+        "page3_limit applies only to the page3-prefixed module:\n{html}",
+    );
+}
+
+#[tokio::test]
 async fn list_pages_url_offset_selector_reads_the_request_route() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -3292,7 +3615,7 @@ async fn list_pages_url_offset_selector_reads_the_request_route() {
     let offset = view("/offset/1").await;
     assert_eq!(rows(&offset), vec!["Bravo", "Charlie"], "{offset}");
 
-    for invalid in ["/offset/not-an-integer", "/offset/1001"] {
+    for invalid in ["/offset/not-an-integer"] {
         let fallback = view(invalid).await;
         assert_eq!(
             rows(&fallback),
@@ -3300,6 +3623,50 @@ async fn list_pages_url_offset_selector_reads_the_request_route() {
             "{invalid} must use the authored fallback: {fallback}",
         );
     }
+
+    let paginated_holder_slug = "fixture-lp-offset-paginated-holder";
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        paginated_holder_slug,
+        "Fixture LP Offset Paginated Holder",
+        &format!(
+            concat!(
+                "[[module ListPages tags=\"{tag}\" name=\"fixture-lp-offset-*\" ",
+                "order=\"title\" separate=\"no\" perPage=\"1\" offset=\"@URL|0\"]]\n",
+                "ROW %%title%%\n[[/module]]",
+            ),
+            tag = tag,
+        ),
+    )
+    .await;
+
+    let paginated_view = async |extra: &str| {
+        let output = run_endpoint!(
+            runner,
+            page_view,
+            json!({
+                "site_id": site_id,
+                "session_token": null,
+                "route": {"slug": paginated_holder_slug, "extra": extra},
+                "locales": ["en-US", "en"],
+            }),
+        );
+        match output {
+            GetPageViewOutput::Found {
+                compiled_body_html, ..
+            } => compiled_body_html,
+            other => {
+                panic!("expected found paginated ListPages offset view, got {other:?}")
+            }
+        }
+    };
+    let offset_with_page = paginated_view("/offset/1/p/2").await;
+    assert_eq!(
+        rows(&offset_with_page),
+        vec!["Charlie"],
+        "offset and pagination compose through the request route: {offset_with_page}",
+    );
 }
 
 #[tokio::test]
@@ -4093,6 +4460,734 @@ async fn page_tree_module_renders_current_page_hierarchy_with_live_depth_dom() {
 }
 
 #[tokio::test]
+async fn listpages_parent_selectors_match_the_saved_page_live_fixture() {
+    const PREFIX: &str = "fixture-listpages-parent";
+    const ROOT: &str = "fixture-listpages-parent-root";
+    const HOLDER: &str = "fixture-listpages-parent-holder";
+    const SIBLING: &str = "fixture-listpages-parent-sibling";
+    const CHILD: &str = "fixture-listpages-parent-child";
+    const UNRELATED: &str = "fixture-listpages-parent-unrelated";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let module = |marker: &str, parent: &str| {
+        format!(
+            concat!(
+                "{marker}_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" parent=\"{parent}\" ",
+                "order=\"name\" separate=\"no\" perPage=\"250\"]]\n",
+                "ROW %%name%%|\n",
+                "[[/module]]\n",
+                "{marker}_END",
+            ),
+            marker = marker,
+            parent = parent,
+            PREFIX = PREFIX,
+        )
+    };
+    let holder_source = [
+        module("STATIC", ROOT),
+        module("SAME", "="),
+        module("DIFFERENT", "-="),
+        module("CHILD", "."),
+        module("NONE", "-"),
+    ]
+    .join("\n");
+
+    for (slug, source) in [
+        (ROOT, "root"),
+        (HOLDER, holder_source.as_str()),
+        (SIBLING, "sibling"),
+        (CHILD, "child"),
+        (UNRELATED, "unrelated"),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, slug, source).await;
+    }
+    for (child, parent) in [(HOLDER, ROOT), (SIBLING, ROOT), (CHILD, HOLDER)] {
+        set_listpages_test_parent(&mut runner, site_id, child, parent).await;
+    }
+
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": HOLDER}),
+    )
+    .expect("ListPages parent holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("rerendered ListPages parent holder should exist");
+    let html = holder
+        .compiled_body_html
+        .expect("compiled parent fixture should be available");
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("parent fixture section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("parent fixture section should end");
+        &html[start..end]
+    };
+    let assert_rows = |marker: &str, included: &[&str], excluded: &[&str]| {
+        let section = section(marker);
+        for slug in included {
+            assert!(
+                section.contains(&format!("ROW {slug}|")),
+                "{marker} should include {slug}:\n{section}",
+            );
+        }
+        for slug in excluded {
+            assert!(
+                !section.contains(&format!("ROW {slug}|")),
+                "{marker} should exclude {slug}:\n{section}",
+            );
+        }
+    };
+
+    assert_rows("STATIC", &[HOLDER, SIBLING], &[ROOT, CHILD, UNRELATED]);
+    assert_rows("SAME", &[HOLDER, SIBLING], &[ROOT, CHILD, UNRELATED]);
+    assert_rows("DIFFERENT", &[CHILD], &[ROOT, HOLDER, SIBLING, UNRELATED]);
+    assert_rows("CHILD", &[CHILD], &[ROOT, HOLDER, SIBLING, UNRELATED]);
+    assert_rows("NONE", &[ROOT, UNRELATED], &[HOLDER, SIBLING, CHILD]);
+    assert!(!html.contains("[[module ListPages"), "{html}");
+}
+
+#[tokio::test]
+async fn listpages_current_tag_selectors_match_the_saved_page_live_fixture() {
+    const PREFIX: &str = "fixture-listpages-current-tags";
+    const HOLDER: &str = "fixture-listpages-current-tags-holder";
+    const EXACT: &str = "fixture-listpages-current-tags-exact";
+    const TAG_A: &str = "fixture-listpages-current-tags-a";
+    const TAG_B: &str = "fixture-listpages-current-tags-b";
+    const SUPERSET: &str = "fixture-listpages-current-tags-superset";
+    const NONE: &str = "fixture-listpages-current-tags-none";
+    const SAME_A: &str = "verification-listpages-current-tags-a";
+    const SAME_B: &str = "verification-listpages-current-tags-b";
+    const SAME_C: &str = "verification-listpages-current-tags-c";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, tags) in [
+        (EXACT, &[SAME_A, SAME_B, "_fixture-target-hidden"][..]),
+        (TAG_A, &[SAME_A][..]),
+        (TAG_B, &[SAME_B][..]),
+        (SUPERSET, &[SAME_A, SAME_B, SAME_C][..]),
+        (NONE, &[][..]),
+    ] {
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, slug, slug, slug).await;
+        if !tags.is_empty() {
+            set_listpages_test_tags(&mut runner, site_id, slug, revision_id, tags).await;
+        }
+    }
+
+    let holder_source = format!(
+        concat!(
+            "SAME_START\n",
+            "[[module ListPages name=\"{PREFIX}-*\" tags=\"=\" order=\"name\" range=\"others\" separate=\"no\" perPage=\"250\"]]\n",
+            "ROW %%name%%|\n",
+            "[[/module]]\n",
+            "SAME_END\n",
+            "EXACT_START\n",
+            "[[module ListPages name=\"{PREFIX}-*\" tags=\"==\" order=\"name\" range=\"others\" separate=\"no\" perPage=\"250\"]]\n",
+            "ROW %%name%%|\n",
+            "[[/module]]\n",
+            "EXACT_END",
+        ),
+        PREFIX = PREFIX,
+    );
+    let holder_revision =
+        create_listpages_test_page(&mut runner, site_id, HOLDER, HOLDER, &holder_source)
+            .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        HOLDER,
+        holder_revision,
+        &[SAME_A, SAME_B, "_fixture-holder-hidden"],
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER).await;
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("tag fixture section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("tag fixture section should end");
+        &html[start..end]
+    };
+    let assert_rows = |marker: &str, included: &[&str], excluded: &[&str]| {
+        let section = section(marker);
+        for slug in included {
+            assert!(
+                section.contains(&format!("ROW {slug}|")),
+                "{marker} should include {slug}:\n{section}",
+            );
+        }
+        for slug in excluded {
+            assert!(
+                !section.contains(&format!("ROW {slug}|")),
+                "{marker} should exclude {slug}:\n{section}",
+            );
+        }
+    };
+
+    assert_rows("SAME", &[EXACT, TAG_A, TAG_B, SUPERSET], &[HOLDER, NONE]);
+    assert_rows("EXACT", &[EXACT], &[HOLDER, TAG_A, TAG_B, SUPERSET, NONE]);
+    assert!(!html.contains("[[module ListPages"), "{html}");
+}
+
+#[tokio::test]
+async fn listpages_range_selectors_match_the_saved_page_live_fixture() {
+    const PREFIX: &str = "fixture-listpages-range";
+    const RANGE_A: &str = "fixture-listpages-range-a";
+    const RANGE_B: &str = "fixture-listpages-range-b";
+    const HOLDER: &str = "fixture-listpages-range-m";
+    const RANGE_Y: &str = "fixture-listpages-range-y";
+    const RANGE_Z: &str = "fixture-listpages-range-z";
+    const TAG: &str = "verification-listpages-range";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for slug in [RANGE_A, RANGE_B, RANGE_Y, RANGE_Z] {
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, slug, slug, slug).await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision_id, &[TAG]).await;
+    }
+
+    let holder_source = [
+        ("BEFORE", "before"),
+        ("AFTER", "after"),
+        ("OTHERS", "others"),
+        ("CURRENT", "."),
+    ]
+    .into_iter()
+    .map(|(marker, range)| {
+        format!(
+            concat!(
+                "{marker}_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" range=\"{range}\" separate=\"no\" perPage=\"250\"]]\n",
+                "ROW %%name%%|\n",
+                "[[/module]]\n",
+                "{marker}_END",
+            ),
+            marker = marker,
+            range = range,
+            PREFIX = PREFIX,
+            TAG = TAG,
+        )
+    })
+    .collect::<Vec<_>>()
+    .join("\n");
+    let holder_revision =
+        create_listpages_test_page(&mut runner, site_id, HOLDER, HOLDER, &holder_source)
+            .await;
+    set_listpages_test_tags(&mut runner, site_id, HOLDER, holder_revision, &[TAG]).await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": HOLDER}),
+    )
+    .expect("ListPages range holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER).await;
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("range fixture section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("range fixture section should end");
+        &html[start..end]
+    };
+    let assert_rows = |marker: &str, included: &[&str], excluded: &[&str]| {
+        let section = section(marker);
+        for slug in included {
+            assert!(
+                section.contains(&format!("ROW {slug}|")),
+                "{marker} should include {slug}:\n{section}",
+            );
+        }
+        for slug in excluded {
+            assert!(
+                !section.contains(&format!("ROW {slug}|")),
+                "{marker} should exclude {slug}:\n{section}",
+            );
+        }
+    };
+
+    assert_rows("BEFORE", &[RANGE_A, RANGE_B], &[HOLDER, RANGE_Y, RANGE_Z]);
+    assert_rows("AFTER", &[RANGE_Y, RANGE_Z], &[RANGE_A, RANGE_B, HOLDER]);
+    assert_rows("OTHERS", &[RANGE_A, RANGE_B, RANGE_Y, RANGE_Z], &[HOLDER]);
+    assert_rows("CURRENT", &[HOLDER], &[RANGE_A, RANGE_B, RANGE_Y, RANGE_Z]);
+    assert!(!html.contains("[[module ListPages"), "{html}");
+}
+
+#[tokio::test]
+async fn listpages_current_metric_selectors_match_the_saved_page_live_fixture() {
+    const PREFIX: &str = "fixture-listpages-current-metric";
+    const HOLDER: &str = "fixture-listpages-current-metric-holder";
+    const TARGET_DOWN: &str = "fixture-listpages-current-metric-down";
+    const TARGET_TWO: &str = "fixture-listpages-current-metric-two";
+    const TARGET_UP: &str = "fixture-listpages-current-metric-up";
+    const TARGET_ZERO: &str = "fixture-listpages-current-metric-zero";
+    const TAG: &str = "verification-listpages-current-metric";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for slug in [TARGET_DOWN, TARGET_TWO, TARGET_UP, TARGET_ZERO] {
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, slug, slug, slug).await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision_id, &[TAG]).await;
+    }
+
+    let holder_source = [
+        ("RATING_CURRENT", r#"rating="=""#),
+        ("RATING_NOT_ZERO", r#"rating="<>0""#),
+        ("VOTES_CURRENT", r#"votes="=""#),
+        ("VOTES_POSITIVE", r#"votes=">0""#),
+        ("CREATED_CURRENT", r#"created_at="=""#),
+        ("UPDATED_CURRENT", r#"updated_at="=""#),
+    ]
+    .into_iter()
+    .map(|(marker, selector)| {
+        format!(
+            concat!(
+                "{marker}_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" separate=\"no\" perPage=\"250\" {selector}]]\n",
+                "ROW %%name%%:%%rating%%:%%rating_votes%%|\n",
+                "[[/module]]\n",
+                "{marker}_END",
+            ),
+            marker = marker,
+            selector = selector,
+            PREFIX = PREFIX,
+            TAG = TAG,
+        )
+    })
+    .collect::<Vec<_>>()
+    .join("\n");
+    create_listpages_test_page(&mut runner, site_id, HOLDER, HOLDER, &holder_source)
+        .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": HOLDER}),
+    )
+    .expect("ListPages metric holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER).await;
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("metric fixture section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("metric fixture section should end");
+        &html[start..end]
+    };
+    let assert_rows = |marker: &str, included: &[&str], excluded: &[&str]| {
+        let section = section(marker);
+        for slug in included {
+            assert!(
+                section.contains(&format!("ROW {slug}:0:0|")),
+                "{marker} should include {slug}:\n{section}",
+            );
+        }
+        for slug in excluded {
+            assert!(
+                !section.contains(&format!("ROW {slug}:0:0|")),
+                "{marker} should exclude {slug}:\n{section}",
+            );
+        }
+    };
+    let all_targets = [TARGET_DOWN, TARGET_TWO, TARGET_UP, TARGET_ZERO];
+
+    assert_rows("RATING_CURRENT", &all_targets, &[]);
+    assert_rows("RATING_NOT_ZERO", &[], &all_targets);
+    assert_rows("VOTES_CURRENT", &[], &all_targets);
+    assert_rows("VOTES_POSITIVE", &[], &all_targets);
+    assert_rows("CREATED_CURRENT", &all_targets, &[]);
+    assert_rows("UPDATED_CURRENT", &all_targets, &[]);
+    assert!(!html.contains("[[module ListPages"), "{html}");
+}
+
+#[tokio::test]
+async fn listpages_rss_link_and_rss_only_match_live_wikidot_markup() {
+    const PREFIX: &str = "fixture-listpages-rss-target";
+    const HOLDER: &str = "fixture-listpages-rss-holder";
+    const TAG: &str = "verification-listpages-rss";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 1..=2 {
+        let slug = format!("{PREFIX}-{index}");
+        let revision =
+            create_listpages_test_page(&mut runner, site_id, &slug, &slug, "RSS row")
+                .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &[TAG]).await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER,
+        "ListPages RSS holder",
+        &format!(
+            concat!(
+                "NORMAL_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" ",
+                "limit=\"1\" rss=\"Feed Title\" rssDescription=\"Description & details\" ",
+                "rssHome=\"blog:_start\"]]\nROW %%name%%[[/module]]\n",
+                "NORMAL_END\n",
+                "ONLY_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" limit=\"1\" ",
+                "rssTitle=\"Feed Title\" rssOnly=\"yes\"]]\nSHOULD_NOT_RENDER %%name%%[[/module]]\n",
+                "ONLY_END\n",
+                "EMPTY_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" limit=\"1\" rss=\"\"]]\n",
+                "EMPTY_ROW %%name%%[[/module]]\n",
+                "EMPTY_END\n",
+                "PATH_START\n",
+                "[[module ListPages pagetype=\"*\" category=\"* -deleted\" ",
+                "tags=\"+alpha -beta\" parent=\"-\" created_by=\"Some_User\" ",
+                "rating=\">=1\" offset=\"7\" range=\"others\" order=\"dateCreatedDesc\" ",
+                "limit=\"5\" perPage=\"3\" rss=\"RSS4\" rssDescription=\"D\" ",
+                "rssHome=\"home\" rssOnly=\"yes\"]]\nIGNORED[[/module]]\n",
+                "PATH_END\n",
+                "BYPASS_START\n",
+                "[[module ListPages range=\"before\" votes=\">=1\" ",
+                "order=\"_rank::integer desc\" rss=\"Bypass\" rssOnly=\"yes\"]]\n",
+                "IGNORED[[/module]]\n",
+                "BYPASS_END",
+            ),
+            PREFIX = PREFIX,
+            TAG = TAG,
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER).await;
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html.find(&start_marker).expect("RSS section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("RSS section should end");
+        &html[start..end]
+    };
+
+    let normal = section("NORMAL");
+    assert!(normal.contains(&format!("ROW {PREFIX}-1")), "{normal}");
+    assert!(
+        normal.contains(concat!(
+            r#"<div class="feedinfo"><span class="rss-icon"><img "#,
+            r#"src="/common--theme/base/images/feed/feed-icon-14x14.png" "#,
+            r#"alt="rss icon"/></span><a href="http://scp-wiki.wikidot.com/feed/pages/"#,
+            r#"category/_default/tags/%2Bverification-listpages-rss/order/name/"#,
+            r#"limit/1/t/Feed+Title/d/Description+%26+details/h/blog%3A_start">"#,
+            "RSS feed</a></div>",
+        ),),
+        "normal RSS output should use Wikidot's direct feed-info DOM and canonical URL:\n{normal}\nFULL:\n{html}",
+    );
+
+    let only = section("ONLY");
+    assert!(only.contains(r#"<div class="feedinfo">"#), "{only}");
+    assert!(!only.contains("SHOULD_NOT_RENDER"), "{only}");
+    assert!(!only.contains("list-pages-box"), "{only}");
+    assert!(!only.contains("list-pages-item"), "{only}");
+
+    let empty = section("EMPTY");
+    assert!(empty.contains(&format!("EMPTY_ROW {PREFIX}-1")), "{empty}");
+    assert!(!empty.contains("feedinfo"), "{empty}");
+
+    let path = section("PATH");
+    assert!(
+        path.contains(concat!(
+            r#"href="http://scp-wiki.wikidot.com/feed/pages/pagetype/%2A/"#,
+            "category/%2A%2C-deleted/tags/%2Balpha%2C-beta/parent/-/",
+            "created_by/some_user/offset/7/rating/%3E%3D1/range/others/",
+            "order/dateCreatedDesc/limit/3/t/RSS4/d/D/h/home",
+            r#"">RSS feed</a>"#,
+        )),
+        "the complete live RSS selector path should be serialized in Wikidot's order:\n{path}",
+    );
+    assert!(!path.contains("IGNORED"), "{path}");
+
+    let bypass = section("BYPASS");
+    assert!(
+        bypass.contains(concat!(
+            r#"href="http://scp-wiki.wikidot.com/feed/pages/category/_default/"#,
+            "range/before/order/_rank%3A%3Ainteger+desc/t/Bypass",
+            r#"">RSS feed</a>"#,
+        )),
+        "RSS-only rendering should not query or reject selectors the feed URL carries or ignores:\n{bypass}",
+    );
+    assert!(!bypass.contains("IGNORED"), "{bypass}");
+    assert!(!bypass.contains("error-block"), "{bypass}");
+}
+
+#[tokio::test]
+async fn wikidot_listpages_feed_queries_newest_viewable_pages() {
+    const PREFIX: &str = "fixture-listpages-feed-target";
+    const TAG: &str = "verification-listpages-feed-endpoint";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (index, timestamp) in [(1, 1_700_000_001), (2, 1_700_000_002), (3, 1_700_000_003)]
+    {
+        let slug = format!("{PREFIX}-{index}");
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            &slug,
+            &format!("Feed target {index}"),
+            &format!("Feed body {index}"),
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &[TAG]).await;
+        set_listpages_test_created_at(
+            &runner,
+            site_id,
+            &slug,
+            OffsetDateTime::from_unix_timestamp(timestamp)
+                .expect("fixture timestamp should be valid"),
+        )
+        .await;
+    }
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let output = run_endpoint!(
+        runner,
+        wikidot_list_pages_feed,
+        json!({
+            "site_id": site_id,
+            "pagetype": "normal",
+            "category": "*",
+            "tags": format!("+{TAG}"),
+            "parent": null,
+            "created_by": null,
+            "rating": null,
+            "range": null,
+        }),
+    );
+
+    assert_eq!(output.items.len(), 3);
+    assert_eq!(
+        output
+            .items
+            .iter()
+            .map(|item| item.slug.as_str())
+            .collect::<Vec<_>>(),
+        [
+            format!("{PREFIX}-3"),
+            format!("{PREFIX}-2"),
+            format!("{PREFIX}-1"),
+        ],
+    );
+    assert_eq!(output.items[0].title, "Feed target 3");
+    assert!(
+        output.items[0].body_html.contains("Feed body 3"),
+        "{:?}",
+        output.items[0],
+    );
+
+    let empty = run_endpoint!(
+        runner,
+        wikidot_list_pages_feed,
+        json!({
+            "site_id": site_id,
+            "pagetype": null,
+            "category": null,
+            "tags": TAG,
+            "parent": null,
+            "created_by": null,
+            "rating": null,
+            "range": ".",
+        }),
+    );
+    assert!(empty.items.is_empty());
+}
+
+#[tokio::test]
+async fn listpages_combined_and_separate_templates_match_live_container_dom() {
+    const PREFIX: &str = "fixture-listpages-container-target";
+    const HOLDER: &str = "fixture-listpages-container-holder";
+    const TAG: &str = "verification-listpages-container";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 1..=2 {
+        let slug = format!("{PREFIX}-{index}");
+        let revision =
+            create_listpages_test_page(&mut runner, site_id, &slug, &slug, "row").await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &[TAG]).await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER,
+        "ListPages container holder",
+        &format!(
+            concat!(
+                "COMBINED_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" ",
+                "separate=\"no\" wrapper=\"no\"]]\n",
+                "%%index%%. %%name%%\n",
+                "[[/module]]\n",
+                "COMBINED_END\n",
+                "SEPARATE_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" ",
+                "separate=\"true\" wrapper=\"false\"]]\n",
+                "%%index%%. %%name%%\n",
+                "[[/module]]\n",
+                "SEPARATE_END\n",
+                "TABLE_START\n",
+                "[[module ListPages name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" ",
+                "separate=\"no\" wrapper=\"no\"]]\n",
+                "[[head]]||~ Title ||[[/head]]\n",
+                "[[body]]|| %%name%% ||[[/body]]\n",
+                "[[foot]]|| footer ||[[/foot]]\n",
+                "[[/module]]\n",
+                "TABLE_END",
+            ),
+            PREFIX = PREFIX,
+            TAG = TAG,
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER).await;
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("container section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("container section should end");
+        &html[start..end]
+    };
+
+    let combined = section("COMBINED");
+    assert!(
+        combined.contains(&format!("1. {PREFIX}-1<br>\n2. {PREFIX}-2")),
+        "separate=no should compile one source with a single line break between rows:\n{combined}",
+    );
+    assert!(!combined.contains("list-pages-box"), "{combined}");
+    assert!(!combined.contains("list-pages-item"), "{combined}");
+    assert_eq!(combined.matches("<p>").count(), 1, "{combined}");
+
+    let separate = section("SEPARATE");
+    assert_eq!(
+        separate.matches(r#"<div class="list-pages-item">"#).count(),
+        2,
+        "{separate}",
+    );
+    assert!(!separate.contains("list-pages-box"), "{separate}");
+    assert_eq!(
+        separate
+            .matches(r#"<div class="list-pages-item"><p>"#)
+            .count(),
+        2,
+        "{separate}",
+    );
+
+    let table = section("TABLE");
+    assert_eq!(
+        table
+            .matches(r#"<table class="wiki-content-table">"#)
+            .count(),
+        1,
+        "{table}",
+    );
+    for expected in [
+        "<th>Title</th>".to_owned(),
+        format!("<td>{PREFIX}-1</td>"),
+        format!("<td>{PREFIX}-2</td>"),
+        "<td>footer</td>".to_owned(),
+    ] {
+        assert!(table.contains(&expected), "missing {expected}: {table}");
+    }
+}
+
+#[tokio::test]
 async fn listpages_fixture_subset_renders_titles_slugs_order_and_tag_filter() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -4539,6 +5634,165 @@ async fn listpages_reverse_yes_reverses_the_selected_ordered_rows() {
 }
 
 #[tokio::test]
+async fn listpages_reverse_boolean_coercion_matches_live_wikidot() {
+    const TAG: &str = "verification-listpages-reverse-booleans";
+    const INDEX_SLUG: &str = "fixture-listpages-reverse-booleans-index";
+    const ALPHA_SLUG: &str = "fixture-listpages-reverse-booleans-alpha";
+    const BETA_SLUG: &str = "fixture-listpages-reverse-booleans-beta";
+    const GAMMA_SLUG: &str = "fixture-listpages-reverse-booleans-gamma";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (ALPHA_SLUG, "Fixture ListPages Reverse Boolean Alpha"),
+        (BETA_SLUG, "Fixture ListPages Reverse Boolean Beta"),
+        (GAMMA_SLUG, "Fixture ListPages Reverse Boolean Gamma"),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "ListPages reverse boolean target.",
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[TAG]).await;
+    }
+
+    let source = ["yes", "true", "no", "false", "invalid", ""]
+        .into_iter()
+        .map(|value| {
+            let marker = if value.is_empty() { "EMPTY" } else { value };
+            format!(
+                "BEGIN_{marker}\n[[module ListPages tags=\"+{TAG}\" order=\"name asc\" reverse=\"{value}\" separate=\"no\" limit=\"3\"]]\n{marker}:%%slug%%|\n[[/module]]\nEND_{marker}"
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Reverse Boolean Index",
+        &source,
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    for (value, expected) in [
+        ("yes", [GAMMA_SLUG, BETA_SLUG, ALPHA_SLUG]),
+        ("true", [GAMMA_SLUG, BETA_SLUG, ALPHA_SLUG]),
+        ("no", [ALPHA_SLUG, BETA_SLUG, GAMMA_SLUG]),
+        ("false", [ALPHA_SLUG, BETA_SLUG, GAMMA_SLUG]),
+        ("invalid", [ALPHA_SLUG, BETA_SLUG, GAMMA_SLUG]),
+        ("EMPTY", [ALPHA_SLUG, BETA_SLUG, GAMMA_SLUG]),
+    ] {
+        let begin = html.find(&format!("BEGIN_{value}")).unwrap_or_else(|| {
+            panic!("missing begin marker for reverse={value}:\n{html}")
+        });
+        let end = html
+            .find(&format!("END_{value}"))
+            .unwrap_or_else(|| panic!("missing end marker for reverse={value}:\n{html}"));
+        let segment = &html[begin..end];
+        let first = segment.find(expected[0]).unwrap_or_else(|| {
+            panic!("missing first row for reverse={value}:\n{segment}")
+        });
+        let second = segment.find(expected[1]).unwrap_or_else(|| {
+            panic!("missing second row for reverse={value}:\n{segment}")
+        });
+        let third = segment.find(expected[2]).unwrap_or_else(|| {
+            panic!("missing third row for reverse={value}:\n{segment}")
+        });
+        assert!(
+            first < second && second < third,
+            "reverse={value} rendered the wrong row order:\n{segment}"
+        );
+        assert!(
+            !segment.contains("[[module ListPages"),
+            "reverse={value} must execute instead of failing closed:\n{segment}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_link_to_dot_selects_links_to_the_current_page() {
+    const INDEX_SLUG: &str = "fixture-listpages-link-to-current-index";
+    const LINKER_SLUG: &str = "fixture-listpages-link-to-current-linker";
+    const UNRELATED_SLUG: &str = "fixture-listpages-link-to-current-unrelated";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let index_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Link To Current Index",
+        "ListPages holder before its incoming link is compiled.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        LINKER_SLUG,
+        "Fixture ListPages Link To Current Linker",
+        &format!("[[[{INDEX_SLUG}|current holder link]]]"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        UNRELATED_SLUG,
+        "Fixture ListPages Link To Current Unrelated",
+        "This page does not link to the holder.",
+    )
+    .await;
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(INDEX_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": INDEX_SLUG,
+            "last_revision_id": index_revision,
+            "revision_comments": "activate ListPages link_to current fixture",
+            "user_id": ADMIN_USER_ID,
+            "wikitext": concat!(
+            "[[module ListPages category=\"*\" link_to=\".\" order=\"name\" separate=\"no\" wrapper=\"no\"]]\n",
+            "%%fullname%%|\n",
+            "[[/module]]",
+            ),
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("holder edit should create a revision");
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(LINKER_SLUG),
+        "link_to=\".\" must select a page that links to the current holder:\n{html}"
+    );
+    assert!(
+        !html.contains(UNRELATED_SLUG),
+        "link_to=\".\" must not select a page without that outgoing link:\n{html}"
+    );
+    assert!(
+        !html.contains("[[module ListPages"),
+        "link_to=\".\" must execute through the saved-page public seam:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_index_remains_absolute_after_offset() {
     const TAG: &str = "verification-listpages-offset-index";
     const INDEX_SLUG: &str = "fixture-listpages-offset-index";
@@ -4663,6 +5917,1078 @@ async fn listpages_link_and_fullname_keep_distinct_wikidot_identities() {
 }
 
 #[tokio::test]
+async fn listpages_structural_identity_and_site_variables_match_live_wikidot() {
+    const PARENT_SLUG: &str = "fixture-listpages-variables-parent";
+    const TARGET_SLUG: &str = "fixture-listpages-variables:target";
+    const INDEX_SLUG: &str = "fixture-listpages-variables-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist")
+        .site;
+    let site_id = site.site_id;
+    let admin = UserTable::find_by_id(ADMIN_USER_ID)
+        .one(runner.context().transaction())
+        .await
+        .expect("test administrator lookup should succeed")
+        .expect("test administrator should exist");
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        PARENT_SLUG,
+        "Fixture ListPages Variables Parent",
+        "Parent fixture.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Variables Target",
+        "Target fixture.",
+    )
+    .await;
+    set_listpages_test_parent(&mut runner, site_id, TARGET_SLUG, PARENT_SLUG).await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Variables Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-variables:target\" separate=\"no\" wrapper=\"no\"]]\n",
+            "created_by_id=%%created_by_id%%\n",
+            "updated_by_unix=%%updated_by_unix%%\n",
+            "updated_by_id=%%updated_by_id%%\n",
+            "name=%%name%%\n",
+            "page_name=%%page_name%%\n",
+            "fullname=%%fullname%%\n",
+            "full_page_name=%%full_page_name%%\n",
+            "parent_name=%%parent_name%%\n",
+            "parent_category=%%parent_category%%\n",
+            "parent_fullname=%%parent_fullname%%\n",
+            "parent_title=%%parent_title%%\n",
+            "parent_title_linked=%%parent_title_linked%%\n",
+            "total_or_limit=%%total_or_limit%%\n",
+            "site_title=%%site_title%%\n",
+            "site_name=%%site_name%%\n",
+            "site_domain=%%site_domain%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    for expected in [
+        format!("created_by_id={ADMIN_USER_ID}"),
+        format!("updated_by_unix={}", admin.slug),
+        format!("updated_by_id={ADMIN_USER_ID}"),
+        "name=target".to_owned(),
+        "page_name=target".to_owned(),
+        format!("fullname={TARGET_SLUG}"),
+        format!("full_page_name={TARGET_SLUG}"),
+        format!("parent_name={PARENT_SLUG}"),
+        "parent_category=".to_owned(),
+        format!("parent_fullname={PARENT_SLUG}"),
+        "parent_title=Fixture ListPages Variables Parent".to_owned(),
+        format!("href=\"/{PARENT_SLUG}\""),
+        "total_or_limit=1".to_owned(),
+        format!("site_title={}", site.name),
+        format!("site_name={}", site.slug),
+        format!("site_domain={}.wikidot.com", site.slug),
+    ] {
+        assert!(
+            html.contains(&expected),
+            "ListPages live-evidenced variable output should contain {expected:?}:\n{html}"
+        );
+    }
+    for unresolved in [
+        "%%created_by_id%%",
+        "%%updated_by_unix%%",
+        "%%updated_by_id%%",
+        "%%page_name%%",
+        "%%full_page_name%%",
+        "%%parent_name%%",
+        "%%parent_category%%",
+        "%%parent_title%%",
+        "%%parent_title_linked%%",
+        "%%total_or_limit%%",
+        "%%site_title%%",
+        "%%site_name%%",
+    ] {
+        assert!(
+            !html.contains(unresolved),
+            "ListPages must not leave the live-evidenced variable literal: {unresolved}\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_preview_summary_and_content_aliases_match_live_wikidot() {
+    const TARGET_SLUG: &str = "fixture-listpages-content-variables-target";
+    const INDEX_SLUG: &str = "fixture-listpages-content-variables-index";
+    const TARGET_SOURCE: &str =
+        "First paragraph alpha beta.\n\nSecond paragraph final.\n\nThird paragraph.";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Content Variables Target",
+        TARGET_SOURCE,
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Content Variables Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-content-variables-target\" separate=\"no\" wrapper=\"no\"]]\n",
+            "preview=%%preview%%\n",
+            "preview_17=%%preview(17)%%\n",
+            "summary=%%summary%%\n",
+            "first_paragraph=%%first_paragraph%%\n",
+            "description=%%description%%\n",
+            "short=%%short%%\n",
+            "text=%%text%%\n",
+            "long=%%long%%\n",
+            "body=%%body%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    for expected in [
+        "<span style=\"white-space: pre-wrap;\">First paragraph alpha beta. Second paragraph final. Third paragraph.</span>",
+        "<span style=\"white-space: pre-wrap;\">First paragraph...</span>",
+        "summary=First paragraph alpha beta.",
+        "first_paragraph=First paragraph alpha beta.",
+        "description=First paragraph alpha beta.",
+        "short=First paragraph alpha beta.",
+        "text=First paragraph alpha beta.",
+        "long=First paragraph alpha beta.",
+        "body=First paragraph alpha beta.",
+        "Second paragraph final.",
+        "Third paragraph.",
+    ] {
+        assert!(
+            html.contains(expected),
+            "ListPages live-evidenced content variable output should contain {expected:?}:\n{html}"
+        );
+    }
+    for unresolved in [
+        "%%preview%%",
+        "%%preview(17)%%",
+        "%%summary%%",
+        "%%first_paragraph%%",
+        "%%description%%",
+        "%%short%%",
+        "%%text%%",
+        "%%long%%",
+        "%%body%%",
+    ] {
+        assert!(
+            !html.contains(unresolved),
+            "ListPages must not leave the live-evidenced content variable literal: {unresolved}\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_missing_data_form_variables_stay_literal_without_blocking_rows() {
+    const TARGET_SLUG: &str = "fixture-listpages-missing-form-target";
+    const INDEX_SLUG: &str = "fixture-listpages-missing-form-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Missing Form Target",
+        "Ordinary non-data-form page.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Missing Form Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-missing-form-target\" separate=\"no\" wrapper=\"no\"]]\n",
+            "title=%%title%%\n",
+            "data=%%form_data{missing}%%\n",
+            "raw=%%form_raw{missing}%%\n",
+            "label=%%form_label{missing}%%\n",
+            "hint=%%form_hint{missing}%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(html.contains("title=Fixture ListPages Missing Form Target"));
+    for literal in [
+        "%%form_data{missing}%%",
+        "%%form_raw{missing}%%",
+        "%%form_label{missing}%%",
+        "%%form_hint{missing}%%",
+    ] {
+        assert!(
+            html.contains(literal),
+            "Wikidot leaves a missing data-form field variable literal: {literal}\n{html}"
+        );
+    }
+    assert!(
+        !html.contains("[[module ListPages"),
+        "the row must still execute when a data-form field is missing:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_data_form_variables_match_live_wikidot() {
+    const CATEGORY: &str = "fixture-listpages-form";
+    const TEMPLATE_SLUG: &str = "fixture-listpages-form-template";
+    const TARGET_SLUG: &str = "fixture-listpages-form-target";
+    const INDEX_SLUG: &str = "fixture-listpages-form-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TEMPLATE_SLUG,
+        "Fixture ListPages Form Template",
+        concat!(
+            "[[form]]\n",
+            "fields:\n",
+            "  probe:\n",
+            "    label: Probe Label\n",
+            "    hint: 'Probe hint #1'\n",
+            "  choice:\n",
+            "    label: Choice Label\n",
+            "    hint: Choice hint\n",
+            "    type: select\n",
+            "    values:\n",
+            "      alpha: Alpha Display\n",
+            "      beta: Beta Display\n",
+            "  empty:\n",
+            "    label: Empty Label\n",
+            "    hint: Empty hint\n",
+            "[[/form]]\n",
+            "====\n",
+            "PROBE=%%form_data{probe}%%",
+        ),
+    )
+    .await;
+    let template_page_id = listpages_test_page_id(&runner, site_id, TEMPLATE_SLUG).await;
+    set_listpages_test_category_template_page(
+        &runner,
+        site_id,
+        CATEGORY,
+        template_page_id,
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, TEMPLATE_SLUG, CATEGORY).await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Form Target",
+        "probe: 'raw probe value'\nchoice: alpha\nempty: ''",
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, TARGET_SLUG, CATEGORY).await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Form Index",
+        concat!(
+            "[[module ListPages category=\"fixture-listpages-form\" name=\"fixture-listpages-form-target\" limit=\"1\" separate=\"no\" wrapper=\"no\"]]\n",
+            "D=%%form_data{probe}%%|R=%%form_raw{probe}%%|L=%%form_label{probe}%%|H=%%form_hint{probe}%%|",
+            "DC=%%form_data{choice}%%|RC=%%form_raw{choice}%%|LC=%%form_label{choice}%%|HC=%%form_hint{choice}%%|",
+            "DE=%%form_data{empty}%%|RE=%%form_raw{empty}%%|LE=%%form_label{empty}%%|HE=%%form_hint{empty}%%|",
+            "DM=%%form_data{missing}%%|RM=%%form_raw{missing}%%|LM=%%form_label{missing}%%|HM=%%form_hint{missing}%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(concat!(
+            "D=raw probe value|R=raw probe value|L=Probe Label|H=Probe hint #1|",
+            "DC=Alpha Display|RC=alpha|LC=Choice Label|HC=|",
+            "DE=|RE=|LE=Empty Label|HE=Empty hint|",
+            "DM=|RM=|LM=|HM=",
+        )),
+        "ListPages data-form variables must match live Wikidot value, label, hint, select, empty, and missing-field behavior:\n{html}",
+    );
+    for unresolved in [
+        "%%form_data{probe}%%",
+        "%%form_raw{probe}%%",
+        "%%form_label{probe}%%",
+        "%%form_hint{probe}%%",
+        "%%form_data{missing}%%",
+        "%%form_raw{missing}%%",
+        "%%form_label{missing}%%",
+        "%%form_hint{missing}%%",
+    ] {
+        assert!(
+            !html.contains(unresolved),
+            "data-form page variables should resolve rather than remain literal: {unresolved}\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_no_comment_variables_match_live_wikidot() {
+    const TARGET_SLUG: &str = "fixture-listpages-no-comments-target";
+    const INDEX_SLUG: &str = "fixture-listpages-no-comments-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages No Comments Target",
+        "Ordinary page with no comments.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages No Comments Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-no-comments-target\" separate=\"no\" wrapper=\"no\"]]\n",
+            "comments=[%%comments%%]\n",
+            "commented_by=[%%commented_by%%]\n",
+            "commented_by_linked=[%%commented_by_linked%%]\n",
+            "commented_by_unix=[%%commented_by_unix%%]\n",
+            "commented_by_id=[%%commented_by_id%%]\n",
+            "commented_at=[%%commented_at%%]\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains("comments=[0]"),
+        "an ordinary no-comment page must expose a zero comment count:\n{html}"
+    );
+    for expected in [
+        "commented_by=[]",
+        "commented_by_linked=[]",
+        "commented_by_unix=[]",
+        "commented_by_id=[]",
+        "commented_at=[]",
+    ] {
+        assert!(
+            html.contains(expected),
+            "a missing last-comment field must render empty ({expected}):\n{html}"
+        );
+    }
+    for unresolved in [
+        "%%comments%%",
+        "%%commented_by%%",
+        "%%commented_by_linked%%",
+        "%%commented_by_unix%%",
+        "%%commented_by_id%%",
+        "%%commented_at%%",
+        "[[module ListPages",
+    ] {
+        assert!(
+            !html.contains(unresolved),
+            "the live-evidenced no-comment row must execute fully: {unresolved}\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_last_comment_variables_match_live_wikidot() {
+    const TARGET_SLUG: &str = "fixture-listpages-last-comment-target";
+    const INDEX_SLUG: &str = "fixture-listpages-last-comment-index";
+    const COMMENTER_ID: i64 = 10_382_659;
+    const COMMENTER_NAME: &str = "voted-fated-smuggler";
+    const COMMENTER_SLUG: &str = "voted-fated-smuggler";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let transaction = runner.context().transaction();
+    transaction
+        .execute_raw(Statement::from_string(
+            transaction.get_database_backend(),
+            format!(
+                r#"
+                INSERT INTO known_user (user_id)
+                VALUES ({COMMENTER_ID})
+                ON CONFLICT (user_id) DO NOTHING
+                "#,
+            ),
+        ))
+        .await
+        .expect("commenter known_user fixture should be inserted");
+    transaction
+        .execute_raw(Statement::from_string(
+            transaction.get_database_backend(),
+            format!(
+                r#"
+                INSERT INTO wikidot_user (
+                    user_id,
+                    created_at,
+                    fetched_at,
+                    is_deleted,
+                    name,
+                    slug,
+                    karma,
+                    is_pro
+                ) VALUES (
+                    {COMMENTER_ID},
+                    TIMESTAMPTZ '2020-01-01T00:00:00Z',
+                    TIMESTAMPTZ '2026-07-28T00:00:00Z',
+                    FALSE,
+                    '{COMMENTER_NAME}',
+                    '{COMMENTER_SLUG}',
+                    0,
+                    FALSE
+                )
+                "#,
+            ),
+        ))
+        .await
+        .expect("commenter wikidot_user fixture should be inserted");
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Last Comment Target",
+        "Page with one controlled discussion comment.",
+    )
+    .await;
+    let target_page_id = listpages_test_page_id(&runner, site_id, TARGET_SLUG).await;
+
+    let group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "ListPages comment fixture group".to_owned(),
+            description: "ListPages comment fixture group".to_owned(),
+            visible: true,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("ListPages comment forum group should be created");
+    let category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "ListPages comment fixture category".to_owned(),
+            description: "ListPages comment fixture category".to_owned(),
+            sort_index: None,
+            max_nest_level: Some(3),
+            per_page_discussion: Some(true),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("ListPages comment forum category should be created");
+    let thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: category.forum_category_id,
+            user_id: ADMIN_USER_ID,
+            associated_page_id: Some(target_page_id),
+            title: "ListPages last comment fixture".to_owned(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("ListPages comment thread should be created");
+    let post = ForumPostService::create(
+        runner.context(),
+        CreateForumPost {
+            forum_thread_id: thread.forum_thread_id,
+            parent_post_id: None,
+            user_id: COMMENTER_ID,
+            title: "ListPages last comment".to_owned(),
+            wikitext: "Controlled last comment".to_owned(),
+            comments: "create ListPages comment fixture".to_owned(),
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("ListPages comment should be created");
+    assert!(post.parser_errors.is_empty());
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Last Comment Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-last-comment-target\" separate=\"no\" wrapper=\"no\"]]\n",
+            "comments=[%%comments%%]\n",
+            "commented_by=[%%commented_by%%]\n",
+            "commented_by_linked=[%%commented_by_linked%%]\n",
+            "commented_by_unix=[%%commented_by_unix%%]\n",
+            "commented_by_id=[%%commented_by_id%%]\n",
+            "commented_at=[%%commented_at%%]\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(html.contains("comments=[1]"), "{html}");
+    assert!(
+        html.contains(&format!("commented_by=[{COMMENTER_NAME}]")),
+        "{html}"
+    );
+    assert!(
+        html.contains(&format!("commented_by_unix=[{COMMENTER_SLUG}]")),
+        "{html}"
+    );
+    assert!(
+        html.contains(&format!("commented_by_id=[{COMMENTER_ID}]")),
+        "{html}"
+    );
+    assert!(
+        html.contains(&format!(
+            "http://www.wikidot.com/user:info/{COMMENTER_SLUG}"
+        )) && html.contains(&format!("WIKIDOT.page.listeners.userInfo({COMMENTER_ID})")),
+        "{html}"
+    );
+    assert!(
+        html.contains("commented_at=[<span class=\"odate time_"),
+        "{html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_star_rating_variables_match_live_wikidot() {
+    const CATEGORY: &str = "fixture-listpages-stars";
+    const FOUR_SLUG: &str = "fixture-listpages-star-four";
+    const HALF_SLUG: &str = "fixture-listpages-star-half";
+    const ZERO_SLUG: &str = "fixture-listpages-star-zero";
+    const INDEX_SLUG: &str = "fixture-listpages-star-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    set_listpages_test_category_rating_type(&runner, site_id, CATEGORY, "stars").await;
+
+    for (slug, title) in [
+        (FOUR_SLUG, "Fixture ListPages Star Four"),
+        (HALF_SLUG, "Fixture ListPages Star Half"),
+        (ZERO_SLUG, "Fixture ListPages Star Zero"),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "Star rating target.",
+        )
+        .await;
+        set_listpages_test_category_slug(&runner, site_id, slug, CATEGORY).await;
+    }
+
+    let four_id = listpages_test_page_id(&runner, site_id, FOUR_SLUG).await;
+    let half_id = listpages_test_page_id(&runner, site_id, HALF_SLUG).await;
+    let transaction = runner.context().transaction();
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, rating_system, value) VALUES \
+             (false, $1, $2, 'stars', 4), \
+             (false, $1, $3, 'stars', 4), \
+             (false, $4, $2, 'stars', 5), \
+             (false, $4, $3, 'stars', 4)",
+            [
+                Value::from(four_id),
+                Value::from(ADMIN_USER_ID),
+                Value::from(SAMPLE_USER_ID),
+                Value::from(half_id),
+            ],
+        ))
+        .await
+        .expect("star rating fixtures should be inserted");
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Star Index",
+        concat!(
+            "[[module ListPages category=\"fixture-listpages-stars\" order=\"name\"]]\n",
+            "%%name%% rating=[%%rating%%] votes=[%%rating_votes%%] percent=[%%rating_percent%%]\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(concat!(
+            "fixture-listpages-star-four rating=[",
+            "<span class=\"page-rate-list-pages-start\" data-rating=\"4\">4</span>",
+            "] votes=[2] percent=[80]",
+        )),
+        "Wikidot renders a star ListPages score as a protected span and rating_percent as rating*20:\n{html}"
+    );
+    assert!(
+        html.contains(concat!(
+            "fixture-listpages-star-half rating=[",
+            "<span class=\"page-rate-list-pages-start\" data-rating=\"4.5\">4.5</span>",
+            "] votes=[2] percent=[90]",
+        )),
+        "Wikidot preserves fractional star averages without forcing an integer:\n{html}"
+    );
+    assert!(
+        html.contains(concat!(
+            "fixture-listpages-star-zero rating=[",
+            "<span class=\"page-rate-list-pages-start\" data-rating=\"0\">0</span>",
+            "] votes=[0] percent=[0]",
+        )),
+        "Wikidot emits an explicit zero state for unrated star rows:\n{html}"
+    );
+    assert!(
+        !html.contains("%%rating_percent%%"),
+        "star rating_percent variables must not remain literal:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_legacy_updated_author_aliases_match_live_wikidot() {
+    const TARGET_SLUG: &str = "fixture-listpages-updated-author-target";
+    const INDEX_SLUG: &str = "fixture-listpages-updated-author-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let admin = UserTable::find_by_id(ADMIN_USER_ID)
+        .one(runner.context().transaction())
+        .await
+        .expect("test administrator lookup should succeed")
+        .expect("test administrator should exist");
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Updated Author Target",
+        "Updated author target.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Updated Author Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-updated-author-target\" separate=\"no\" wrapper=\"no\"]]\n",
+            "updated_by=%%updated_by%%\n",
+            "updated_by_linked=%%updated_by_linked%%\n",
+            "author_edited=%%author_edited%%\n",
+            "user_edited=%%user_edited%%\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(html.contains(&format!("updated_by={}", admin.name)));
+    assert!(html.matches(&admin.name).count() >= 4, "{html}");
+    for unresolved in ["%%author_edited%%", "%%user_edited%%"] {
+        assert!(
+            !html.contains(unresolved),
+            "legacy updated-author aliases must resolve: {unresolved}\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn listpages_legacy_skip_current_and_tag_target_match_live_wikidot() {
+    const PREFIX: &str = "fixture-listpages-legacy-edge";
+    const TAG: &str = "verification-listpages-legacy-edge";
+    const TARGET_SLUG: &str = "fixture-listpages-legacy-edge-target";
+    const HOLDER_SLUG: &str = "fixture-listpages-legacy-edge-holder";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Legacy Edge Target",
+        "Target.",
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, TARGET_SLUG, target_revision, &[TAG])
+        .await;
+    let holder_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "Fixture ListPages Legacy Edge Holder",
+        &format!(
+            concat!(
+                "SKIP_YES_START\n",
+                "[[module ListPages category=\"*\" name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"yes\"]]\n",
+                "%%name%%|\n",
+                "[[/module]]\n",
+                "SKIP_YES_END\n",
+                "SKIP_TRUE_START\n",
+                "[[module ListPages category=\"*\" name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"TrUe\"]]\n",
+                "%%name%%|\n",
+                "[[/module]]\n",
+                "SKIP_TRUE_END\n",
+                "SKIP_NO_START\n",
+                "[[module ListPages category=\"*\" name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"no\"]]\n",
+                "%%name%%|\n",
+                "[[/module]]\n",
+                "SKIP_NO_END\n",
+                "SKIP_FALSE_START\n",
+                "[[module ListPages category=\"*\" name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"false\"]]\n",
+                "%%name%%|\n",
+                "[[/module]]\n",
+                "SKIP_FALSE_END\n",
+                "SKIP_INVALID_START\n",
+                "[[module ListPages category=\"*\" name=\"{PREFIX}-*\" tags=\"+{TAG}\" order=\"name\" separate=\"no\" perPage=\"250\" skipCurrent=\"invalid\"]]\n",
+                "%%name%%|\n",
+                "[[/module]]\n",
+                "SKIP_INVALID_END\n",
+                "SAME_TAGS_START\n",
+                "[[module ListPages category=\"*\" tags=\"=\" order=\"name\" separate=\"no\" perPage=\"250\"]]\n",
+                "%%name%%|\n",
+                "[[/module]]\n",
+                "SAME_TAGS_END\n",
+                "TAG_TARGET_START\n",
+                "[[module ListPages category=\"*\" fullname=\"{TARGET_SLUG}\" tagTarget=\"edge-tags\"]]\n",
+                "%%tags%%\n",
+                "[[/module]]\n",
+                "TAG_TARGET_END",
+            ),
+            PREFIX = PREFIX,
+            TAG = TAG,
+            TARGET_SLUG = TARGET_SLUG,
+        ),
+    )
+    .await;
+    set_listpages_test_tags(&mut runner, site_id, HOLDER_SLUG, holder_revision, &[TAG])
+        .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": HOLDER_SLUG}),
+    )
+    .expect("legacy edge holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER_SLUG).await;
+    let section = |marker: &str| {
+        let start_marker = format!("{marker}_START");
+        let end_marker = format!("{marker}_END");
+        let start = html
+            .find(&start_marker)
+            .expect("legacy edge section should start");
+        let end = html[start..]
+            .find(&end_marker)
+            .map(|offset| start + offset)
+            .expect("legacy edge section should end");
+        &html[start..end]
+    };
+
+    for marker in ["SKIP_YES", "SKIP_TRUE", "SAME_TAGS"] {
+        let section = section(marker);
+        assert!(section.contains(TARGET_SLUG), "{marker}:\n{section}");
+        assert!(!section.contains(HOLDER_SLUG), "{marker}:\n{section}");
+        assert!(
+            !section.contains("[[module ListPages"),
+            "{marker}:\n{section}"
+        );
+    }
+    for marker in ["SKIP_NO", "SKIP_FALSE", "SKIP_INVALID"] {
+        let section = section(marker);
+        assert!(section.contains(TARGET_SLUG), "{marker}:\n{section}");
+        assert!(section.contains(HOLDER_SLUG), "{marker}:\n{section}");
+        assert!(
+            !section.contains("[[module ListPages"),
+            "{marker}:\n{section}"
+        );
+    }
+    let tag_target = section("TAG_TARGET");
+    assert!(tag_target.contains(TAG), "{tag_target}");
+    assert!(
+        !tag_target.contains("/system:page-tags/tag/"),
+        "live tagTarget is a no-op and must not make %%tags%% clickable:\n{tag_target}"
+    );
+    assert!(!tag_target.contains("[[module ListPages"), "{tag_target}");
+}
+
+#[tokio::test]
+async fn listpages_section_summary_and_separate_lines_match_live_wikidot() {
+    const TARGET_SLUG: &str = "fixture-listpages-section-summary-target";
+    const INDEX_SLUG: &str = "fixture-listpages-section-summary-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Section Summary Target",
+        "Summary first section.\n====\nSecond content section.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Section Summary Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-section-summary-target\" separate=\"yes\" prependLine=\"PREPEND_SHOULD_NOT_RENDER\" appendLine=\"APPEND_SHOULD_NOT_RENDER\"]]\n",
+            "summary=%%summary%%|description=%%description%%|content1=%%content{1}%%|\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(
+        html.contains(
+            "summary=Summary first section.|description=Summary first section.|content1=Summary first section.|"
+        ),
+        "summary aliases must use content section one:\n{html}"
+    );
+    assert!(
+        !html.contains("Second content section."),
+        "section-two content must not leak into summary or content{{1}}:\n{html}"
+    );
+    assert!(
+        !html.contains("PREPEND_SHOULD_NOT_RENDER")
+            && !html.contains("APPEND_SHOULD_NOT_RENDER"),
+        "live Wikidot ignores prependLine and appendLine when separate is true:\n{html}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_unclosed_empty_body_uses_the_live_default_template() {
+    const TARGET_SLUG: &str = "fixture-listpages-default-template-target";
+    const INDEX_SLUG: &str = "fixture-listpages-default-template-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Default Template Target",
+        "Default template summary.\n\nSecond paragraph.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Default Template Index",
+        "[[module ListPages category=\"*\" fullname=\"fixture-listpages-default-template-target\"]]",
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    for expected in [
+        r#"<div class="list-pages-box">"#,
+        r#"<div class="list-pages-item">"#,
+        "<h1 ",
+        r#"href="/fixture-listpages-default-template-target""#,
+        "Fixture ListPages Default Template Target",
+        "by Administrator",
+        "Default template summary.",
+        r#"<span class="odate "#,
+    ] {
+        assert!(
+            html.contains(expected),
+            "default ListPages output should contain {expected:?}:\n{html}"
+        );
+    }
+    assert!(
+        !html.contains("Second paragraph."),
+        "the default template renders the summary, not the full content:\n{html}"
+    );
+    assert!(!html.contains("[[module ListPages"), "{html}");
+}
+
+#[tokio::test]
+async fn listpages_code_and_html_bodies_follow_the_live_preparse_failure_shape() {
+    const TARGET_SLUG: &str = "fixture-listpages-preparse-target";
+    const INDEX_SLUG: &str = "fixture-listpages-preparse-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Preparse Target",
+        "Preparse target summary.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Preparse Index",
+        concat!(
+            "[[div class=\"listpages-preparse-code\"]]\n",
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-preparse-target\"]]\n",
+            "[[code]]\n",
+            "%%title%%\n",
+            "[[/code]]\n",
+            "[[/module]]\n",
+            "[[/div]]\n",
+            "[[div class=\"listpages-preparse-html\"]]\n",
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-preparse-target\"]]\n",
+            "[[html]]<b>%%title%%</b>[[/html]]\n",
+            "[[/module]]\n",
+            "[[/div]]",
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    let code_start = html
+        .find(r#"<div class="listpages-preparse-code">"#)
+        .expect("code preparse section should start");
+    let html_start = html
+        .find(r#"<div class="listpages-preparse-html">"#)
+        .expect("HTML preparse section should start");
+    let code = &html[code_start..html_start];
+    let html_block = &html[html_start..];
+
+    for (kind, section) in [("code", code), ("html", html_block)] {
+        assert!(
+            section.contains("Fixture ListPages Preparse Target")
+                && section.contains("Preparse target summary."),
+            "a pre-parsed {kind} body makes the opening use the default template:\n{section}"
+        );
+        assert!(
+            section.contains("[[/module]]"),
+            "the residual {kind} closing module remains visible on live Wikidot:\n{section}"
+        );
+        assert!(
+            !section.contains("[[module ListPages"),
+            "the ListPages opening itself must execute in the {kind} case:\n{section}"
+        );
+    }
+    assert!(
+        code.contains("%%title%%"),
+        "the code block remains authored literal content after the generated list:\n{code}"
+    );
+}
+
+#[tokio::test]
+async fn listpages_authored_preview_compat_marker_cannot_forge_trusted_html() {
+    const TARGET_SLUG: &str = "fixture-listpages-preview-marker-target";
+    const INDEX_SLUG: &str = "fixture-listpages-preview-marker-index";
+    const FORGED: &str = r#"<span data-wikijump-compat-listpages-preview="1" style="white-space: pre-wrap;">FORGED_PREVIEW_MARKER</span>"#;
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture ListPages Preview Marker Target",
+        "Preview marker target.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INDEX_SLUG,
+        "Fixture ListPages Preview Marker Index",
+        &format!(
+            "[[module ListPages category=\"*\" fullname=\"{TARGET_SLUG}\"]]\n{FORGED}\n%%title%%\n[[/module]]"
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, INDEX_SLUG).await;
+    assert!(html.contains("FORGED_PREVIEW_MARKER"), "{html}");
+    assert!(
+        !html.contains(
+            r#"<span style="white-space: pre-wrap;">FORGED_PREVIEW_MARKER</span>"#
+        ),
+        "an authored compatibility marker must not enter the generated trusted-HTML registry:\n{html}"
+    );
+    assert!(
+        !html.contains("data-wikijump-compat-listpages-preview"),
+        "internal compatibility provenance must not survive authored output:\n{html}"
+    );
+    assert!(
+        html.contains("Fixture ListPages Preview Marker Target"),
+        "neutralizing the forged marker must not block the valid ListPages row:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -4734,8 +7060,8 @@ async fn listpages_default_category_and_bare_tags_follow_wikidot_semantics() {
         "Default category ListPages start.",
         "Fixture ListPages Bare Tag Target A",
         "Fixture ListPages Bare Tag Target B",
-        &target_a_slug,
-        &target_b_slug,
+        "Fixture ListPages Bare Tag Target A :: target-a",
+        "Fixture ListPages Bare Tag Target B :: target-b",
         "Default category ListPages end.",
     ] {
         assert!(
@@ -5813,8 +8139,8 @@ async fn exact_name_listpages_batch_preserves_order_duplicates_and_permissions()
     );
     assert_eq!(
         html.matches("A1=fixture-exact-batch-a@").count(),
-        100,
-        "batched duplicate rows should preserve the normal default ListPages limit instead of collapsing to one row:\n{html}",
+        20,
+        "batched duplicate rows should preserve the live default ListPages page size instead of collapsing to one row:\n{html}",
     );
     let newest_duplicate = html.find("2030 Jan 02 01:40").unwrap();
     let next_duplicate = html.find("2030 Jan 02 01:39").unwrap();
@@ -9553,6 +11879,42 @@ async fn set_listpages_test_category_slug(
         .expect("category test page update should not fail");
 }
 
+async fn set_listpages_test_category_rating_type(
+    runner: &TestRunner,
+    site_id: i64,
+    category_slug: &str,
+    rating_type: &str,
+) {
+    let category =
+        CategoryService::get_or_create(runner.context(), site_id, category_slug)
+            .await
+            .expect("rating category test category should exist");
+    let mut model = category.into_active_model();
+    model.rating_type = Set(Some(rating_type.to_owned()));
+    model
+        .update(runner.context().transaction())
+        .await
+        .expect("rating category test update should not fail");
+}
+
+async fn set_listpages_test_category_template_page(
+    runner: &TestRunner,
+    site_id: i64,
+    category_slug: &str,
+    template_page_id: i64,
+) {
+    let category =
+        CategoryService::get_or_create(runner.context(), site_id, category_slug)
+            .await
+            .expect("template category test category should exist");
+    let mut model = category.into_active_model();
+    model.template_page_id = Set(Some(template_page_id));
+    model
+        .update(runner.context().transaction())
+        .await
+        .expect("template category test update should not fail");
+}
+
 async fn set_listpages_test_tags(
     runner: &mut TestRunner,
     site_id: i64,
@@ -11736,6 +14098,319 @@ async fn page_query_score_order_returns_results() {
         offset_ordered,
         [("fixture-score-order-zero".to_owned(), 0.0)],
         "score order should apply offset after computed-score sorting",
+    );
+}
+
+#[tokio::test]
+async fn page_query_vote_filter_and_order_use_imported_snapshot_vote_counts() {
+    const IMPORT_RUN_ID: i64 = 7_130_559;
+    const ZERO: &str = "fixture-vote-filter-zero";
+    const LOCAL_TWO: &str = "fixture-vote-filter-local-two";
+    const IMPORTED: &str = "fixture-vote-filter-imported";
+    const LEGACY_IMPORTED: &str = "fixture-vote-filter-legacy-imported";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (ZERO, "Vote Filter Zero"),
+        (LOCAL_TWO, "Vote Filter Local Two"),
+        (IMPORTED, "Vote Filter Imported"),
+        (LEGACY_IMPORTED, "Vote Filter Legacy Imported"),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "Vote filter fixture.",
+        )
+        .await;
+    }
+
+    let zero_id = listpages_test_page_id(&runner, site_id, ZERO).await;
+    let local_two_id = listpages_test_page_id(&runner, site_id, LOCAL_TWO).await;
+    let imported_id = listpages_test_page_id(&runner, site_id, IMPORTED).await;
+    let legacy_imported_id =
+        listpages_test_page_id(&runner, site_id, LEGACY_IMPORTED).await;
+
+    let transaction = runner.context().transaction();
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES \
+             (false, $1, $2, 1), \
+             (false, $1, $3, -1), \
+             (false, $4, $2, 1), \
+             (true, $4, $3, 1), \
+             (true, $5, $2, 1)",
+            [
+                Value::from(local_two_id),
+                Value::from(ADMIN_USER_ID),
+                Value::from(SAMPLE_USER_ID),
+                Value::from(imported_id),
+                Value::from(legacy_imported_id),
+            ],
+        ))
+        .await
+        .expect("vote-count fixtures should be inserted");
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value, deleted_at, disabled_at, disabled_by) VALUES \
+             (false, $1, $2, 1, NOW(), NULL, NULL), \
+             (false, $1, $3, 1, NULL, NOW(), $4)",
+            [
+                Value::from(imported_id),
+                Value::from(UNKNOWN_USER_ID),
+                Value::from(SYSTEM_USER_ID),
+                Value::from(ADMIN_USER_ID),
+            ],
+        ))
+        .await
+        .expect("inactive vote-count fixtures should be inserted");
+
+    create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 1).await;
+    set_imported_author(
+        &runner,
+        site_id,
+        IMPORT_RUN_ID,
+        (imported_id, IMPORTED, 560, "Imported Vote Author"),
+    )
+    .await;
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE wikidot_page_snapshot SET meta_json = jsonb_build_object('votes_count', '7') WHERE page_id = $1",
+            [Value::from(imported_id)],
+        ))
+        .await
+        .expect("imported vote-count fixture should receive snapshot votes");
+
+    assert_eq!(
+        PageQueryService::effective_vote_count(runner.context(), zero_id)
+            .await
+            .expect("zero vote count should load"),
+        0,
+    );
+    assert_eq!(
+        PageQueryService::effective_vote_count(runner.context(), imported_id)
+            .await
+            .expect("imported vote count should load"),
+        8,
+        "snapshot votes_count should combine with active local non-Wikidot votes only",
+    );
+
+    let fixture_slugs = [
+        Cow::Borrowed(ZERO),
+        Cow::Borrowed(LOCAL_TWO),
+        Cow::Borrowed(IMPORTED),
+        Cow::Borrowed(LEGACY_IMPORTED),
+    ];
+    let base_query = PageQuery {
+        current_page_id: 0,
+        current_site_id: site_id,
+        queried_site_id: Some(site_id),
+        page_type: PageTypeSelector::All,
+        categories: CategoriesSelector {
+            included_categories: IncludedCategories::All,
+            excluded_categories: &[],
+        },
+        tags: TagCondition {
+            any_present: &[],
+            all_present: &[],
+            none_present: &[],
+            untagged: false,
+        },
+        page_parent: PageParentSelector::All,
+        contains_outgoing_links: &[],
+        creation_date: DateSelector::FromPresent {
+            start: OffsetDateTime::UNIX_EPOCH,
+        },
+        update_date: DateSelector::FromPresent {
+            start: OffsetDateTime::UNIX_EPOCH,
+        },
+        author: AuthorSelector::All,
+        score: &[],
+        votes: &[],
+        offset: 0,
+        range: RangeSelector::Current,
+        name: None,
+        slug: None,
+        slugs: &fixture_slugs,
+        data_form_fields: &[],
+        order: Some(OrderBySelector {
+            property: OrderProperty::PageSlug,
+            ascending: true,
+        }),
+        candidate_limit: None,
+        pagination: PaginationSelector {
+            limit: Some(20),
+            ..Default::default()
+        },
+        variables: &[],
+        fields: FoundPageFields {
+            slug: true,
+            ..Default::default()
+        },
+    };
+
+    let selector = [ScoreSelector {
+        score: QueryScoreValue::Integer(1),
+        comparison: ComparisonOperation::GreaterThan,
+    }];
+    let mut filtered_query = base_query.clone();
+    filtered_query.votes = &selector;
+    let filtered = PageQueryService::find(runner.context(), filtered_query)
+        .await
+        .expect("vote-count filter should not fail")
+        .pages
+        .into_iter()
+        .map(|row| row.slug.expect("slug field should be requested"))
+        .collect::<Vec<_>>();
+    assert_eq!(filtered, [IMPORTED.to_owned(), LOCAL_TWO.to_owned()]);
+
+    let mut ordered_query = base_query;
+    ordered_query.order = Some(OrderBySelector {
+        property: OrderProperty::Votes,
+        ascending: false,
+    });
+    let ordered = PageQueryService::find(runner.context(), ordered_query)
+        .await
+        .expect("vote-count order should not fail")
+        .pages
+        .into_iter()
+        .map(|row| row.slug.expect("slug field should be requested"))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        ordered,
+        [
+            IMPORTED.to_owned(),
+            LOCAL_TWO.to_owned(),
+            LEGACY_IMPORTED.to_owned(),
+            ZERO.to_owned(),
+        ],
+    );
+}
+
+#[tokio::test]
+async fn page_query_data_form_field_ordering_uses_static_form_values() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-page-query-data-form-order";
+
+    for (slug, mainword, albums) in [
+        ("fixture-data-form-order-beta", "beta", "2"),
+        ("fixture-data-form-order-alpha", "alpha", "10"),
+        ("fixture-data-form-order-gamma", "gamma", "1"),
+    ] {
+        let revision = create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            slug,
+            &format!(
+                "mainword: {mainword}\nalbums: {albums}\n\nData form order fixture.",
+            ),
+        )
+        .await;
+        set_listpages_test_tags(&mut runner, site_id, slug, revision, &[tag]).await;
+    }
+
+    let all_tags = [Cow::Borrowed(tag)];
+    let base_query = PageQuery {
+        current_page_id: 0,
+        current_site_id: site_id,
+        queried_site_id: Some(site_id),
+        page_type: PageTypeSelector::All,
+        categories: CategoriesSelector {
+            included_categories: IncludedCategories::All,
+            excluded_categories: &[],
+        },
+        tags: TagCondition {
+            any_present: &[],
+            all_present: &all_tags,
+            none_present: &[],
+            untagged: false,
+        },
+        page_parent: PageParentSelector::All,
+        contains_outgoing_links: &[],
+        creation_date: DateSelector::FromPresent {
+            start: OffsetDateTime::UNIX_EPOCH,
+        },
+        update_date: DateSelector::FromPresent {
+            start: OffsetDateTime::UNIX_EPOCH,
+        },
+        author: AuthorSelector::All,
+        score: &[],
+        votes: &[],
+        offset: 0,
+        range: RangeSelector::Current,
+        name: None,
+        slug: None,
+        slugs: &[],
+        data_form_fields: &[],
+        order: Some(OrderBySelector {
+            property: OrderProperty::DataFormFieldName {
+                field: Cow::Borrowed("mainword"),
+                numeric: false,
+            },
+            ascending: true,
+        }),
+        candidate_limit: None,
+        pagination: PaginationSelector {
+            limit: Some(20),
+            ..Default::default()
+        },
+        variables: &[],
+        fields: FoundPageFields {
+            slug: true,
+            ..Default::default()
+        },
+    };
+
+    let ordered = PageQueryService::find(runner.context(), base_query.clone())
+        .await
+        .expect("data-form string ordering should not fail")
+        .pages
+        .into_iter()
+        .map(|row| row.slug.expect("slug field should be requested"))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        ordered,
+        [
+            "fixture-data-form-order-alpha",
+            "fixture-data-form-order-beta",
+            "fixture-data-form-order-gamma",
+        ],
+    );
+
+    let mut integer_order_query = base_query;
+    integer_order_query.order = Some(OrderBySelector {
+        property: OrderProperty::DataFormFieldName {
+            field: Cow::Borrowed("albums"),
+            numeric: true,
+        },
+        ascending: false,
+    });
+    let ordered = PageQueryService::find(runner.context(), integer_order_query)
+        .await
+        .expect("data-form integer ordering should not fail")
+        .pages
+        .into_iter()
+        .map(|row| row.slug.expect("slug field should be requested"))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        ordered,
+        [
+            "fixture-data-form-order-alpha",
+            "fixture-data-form-order-beta",
+            "fixture-data-form-order-gamma",
+        ],
     );
 }
 

@@ -281,6 +281,22 @@ export const pages = {
     compiled_body_html:
       '<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=4&amp;css=.styleframe-d%7Bcolor%3Ablack%7D"></iframe>',
     compiled_body_styles: [".generated-style-d { color: black; }"]
+  },
+  "listpages-navigation": {
+    page_id: 3000400,
+    revision_id: 9000400,
+    page_created_at: "2026-07-28T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-28T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "ListPages Navigation",
+    slug: "listpages-navigation",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: '[[module ListPages perPage="1"]]%%title%%[[/module]]',
+    compiled_body_html: "<p>ListPages navigation fixture.</p>"
   }
 }
 

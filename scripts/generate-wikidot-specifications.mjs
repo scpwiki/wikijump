@@ -16,6 +16,16 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, "..");
 const outputRoot = join(repositoryRoot, "docs", "wikidot-specifications");
 const specificationsRoot = join(outputRoot, "specifications");
+const liveObservationsSourcePath = join(
+  scriptDirectory,
+  "data",
+  "wikidot-live-observations.json",
+);
+const implementationLedgerSourcePath = join(
+  scriptDirectory,
+  "data",
+  "wikidot-implementation-ledger.json",
+);
 const corpusRoot = resolve(
   process.env.WIKIDOT_DOCUMENTATION_CORPUS ??
     "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/www/pages",
@@ -94,6 +104,81 @@ invariant(
   pages.size === 1806,
   `Expected 1806 corpus pages, found ${pages.size}`,
 );
+
+const liveObservations = JSON.parse(
+  readFileSync(liveObservationsSourcePath, "utf8"),
+);
+invariant(
+  liveObservations.schema === "wikijump.wikidot_live_observations.v1",
+  "Unexpected live observation schema",
+);
+invariant(
+  Array.isArray(liveObservations.observations),
+  "Live observations must be an array",
+);
+const liveObservationIds = new Set();
+for (const observation of liveObservations.observations) {
+  invariant(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(observation.id),
+    `Invalid live observation id: ${observation.id}`,
+  );
+  invariant(
+    !liveObservationIds.has(observation.id),
+    `Duplicate live observation id: ${observation.id}`,
+  );
+  liveObservationIds.add(observation.id);
+  invariant(
+    Array.isArray(observation.feature_ids) &&
+      observation.feature_ids.length > 0,
+    `Live observation has no feature IDs: ${observation.id}`,
+  );
+  invariant(
+    Array.isArray(observation.normative_behavior) &&
+      observation.normative_behavior.length > 0,
+    `Live observation has no normative behavior: ${observation.id}`,
+  );
+  invariant(
+    Array.isArray(observation.evidence) && observation.evidence.length > 0,
+    `Live observation has no evidence: ${observation.id}`,
+  );
+  for (const evidence of observation.evidence) {
+    const evidencePath = resolve(repositoryRoot, evidence.path);
+    const rawEvidence = readFileSync(evidencePath, "utf8");
+    invariant(
+      sha256(rawEvidence) === evidence.sha256,
+      `Live evidence hash drifted for ${observation.id}: ${evidence.path}`,
+    );
+    const evidenceRows = evidence.path.endsWith(".jsonl")
+      ? rawEvidence
+          .split(/\r?\n/)
+          .filter(Boolean)
+          .map((line) => JSON.parse(line))
+      : [JSON.parse(rawEvidence)];
+    const capturedCaseIds = new Set();
+    for (const row of evidenceRows) {
+      if (row.case_id) {
+        capturedCaseIds.add(row.case_id);
+      }
+      if (row.syntax_case?.case_id) {
+        capturedCaseIds.add(row.syntax_case.case_id);
+      }
+      if (row.case?.case_id) {
+        capturedCaseIds.add(row.case.case_id);
+      }
+      for (const capture of row.captures ?? []) {
+        if (capture.case_id) {
+          capturedCaseIds.add(capture.case_id);
+        }
+      }
+    }
+    for (const caseId of evidence.case_ids) {
+      invariant(
+        capturedCaseIds.has(caseId),
+        `Live evidence case ${caseId} is missing from ${evidence.path}`,
+      );
+    }
+  }
+}
 
 function page(fullname) {
   const value = pages.get(fullname);
@@ -1138,6 +1223,45 @@ ${sourceRangeText(source)}
 \`\`\``,
     )
     .join("\n\n");
+  const featureLiveObservations = liveObservations.observations.filter(
+    (observation) => observation.feature_ids.includes(feature.id),
+  );
+  const liveEvidence =
+    featureLiveObservations.length === 0
+      ? ""
+      : `
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+${featureLiveObservations
+  .map(
+    (observation) => `### ${observation.title}
+
+- Observation ID: \`${observation.id}\`
+- Classification: \`${observation.classification}\`
+- Observed at: \`${observation.observed_at}\`
+- Analysis: ${observation.analysis}
+
+Normative behavior:
+
+${observation.normative_behavior.map((claim) => `- ${claim}`).join("\n")}
+
+Evidence:
+
+${observation.evidence
+  .map(
+    (item) =>
+      `- \`${item.path}\` (SHA-256 \`${item.sha256}\`), cases: ${item.case_ids
+        .map((caseId) => `\`${caseId}\``)
+        .join(", ")}`,
+  )
+  .join("\n")}
+`,
+  )
+  .join("\n")}
+`;
 
   return `# ${feature.title}
 
@@ -1158,6 +1282,7 @@ ${requirements}
 Every explicit default, accepted value, rejected value, alias, limit, interaction, output form, URL form, permission rule, and stated limitation in the evidence below is part of this specification. Examples are conformance fixtures. Text that merely describes the documentation site or presents a live demo is informative rather than normative.
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
+${liveEvidence}
 
 ## Suggested public TDD seams
 
@@ -1257,6 +1382,10 @@ const catalog = {
     partial_documentation:
       "invocation-only, high-level-documentation, and partially-documented items require live-oracle evidence before unspecified behavior is invented.",
   },
+  live_observations: {
+    observation_count: liveObservations.observations.length,
+    source_file: "live-observations.json",
+  },
   feature_count: features.length,
   categories: Object.fromEntries(
     [...new Set(features.map((feature) => feature.category))]
@@ -1283,8 +1412,28 @@ const catalog = {
     })),
     suggested_tdd_seams: feature.suggested_tdd_seams,
     related_features: feature.related_features,
+    live_observation_ids: liveObservations.observations
+      .filter((observation) => observation.feature_ids.includes(feature.id))
+      .map((observation) => observation.id),
   })),
 };
+const serializedCatalog = `${JSON.stringify(catalog, null, 2)}\n`;
+const implementationLedger = JSON.parse(
+  readFileSync(implementationLedgerSourcePath, "utf8"),
+);
+invariant(
+  implementationLedger.schema === "wikijump.wikidot_implementation_ledger.v1",
+  "Unexpected implementation ledger schema",
+);
+invariant(
+  implementationLedger.catalog_sha256 === sha256(serializedCatalog),
+  `Implementation ledger catalog hash is stale; expected ${sha256(serializedCatalog)}`,
+);
+invariant(
+  JSON.stringify(Object.keys(implementationLedger.features).sort()) ===
+    JSON.stringify(catalog.features.map((feature) => feature.id).sort()),
+  "Implementation ledger must contain exactly one entry per catalog feature",
+);
 
 const coverage = {
   schema_version: schemaVersion,
@@ -1348,6 +1497,8 @@ This directory is an exhaustive, documentation-derived implementation inventory 
 - \`catalog.json\` is the authoritative machine-readable feature index.
 - \`CATALOG.md\` is the human-readable index.
 - \`source-coverage.json\` proves that all ${pages.size.toLocaleString("en-US")} corpus pages were enumerated and classified.
+- \`live-observations.json\` records reproducible live-Wikidot corrections that override conflicting or incomplete corpus claims.
+- \`implementation-ledger.json\` tracks status, seams, tests, implementation files, evidence, and blockers for every catalog feature.
 - \`specifications/\` contains exactly one English Markdown specification for every catalog item.
 - \`IMPLEMENTATION_PROMPT.md\` instructs a coding agent to implement the complete catalog using vertical-slice TDD.
 
@@ -1458,8 +1609,13 @@ A merge is not a deployment. After browser-visible changes, refresh the standing
 const expectedFiles = new Map([
   ["README.md", readme],
   ["CATALOG.md", catalogMarkdown],
-  ["catalog.json", `${JSON.stringify(catalog, null, 2)}\n`],
+  ["catalog.json", serializedCatalog],
   ["source-coverage.json", `${JSON.stringify(coverage, null, 2)}\n`],
+  ["live-observations.json", `${JSON.stringify(liveObservations, null, 2)}\n`],
+  [
+    "implementation-ledger.json",
+    `${JSON.stringify(implementationLedger, null, 2)}\n`,
+  ],
   ["IMPLEMENTATION_PROMPT.md", implementationPrompt],
   ...specificationFiles,
 ]);

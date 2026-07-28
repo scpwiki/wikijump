@@ -28,6 +28,10 @@
     "authority": "The files are exhaustive extractions of the frozen documentation corpus. They are not claims that the snapshot is complete or correct. Reproducible live Wikidot behavior overrides a conflicting documentation claim.",
     "partial_documentation": "invocation-only, high-level-documentation, and partially-documented items require live-oracle evidence before unspecified behavior is invented."
   },
+  "live_observations": {
+    "observation_count": 8,
+    "source_file": "live-observations.json"
+  },
   "feature_count": 210,
   "categories": {
     "api": 15,
@@ -60,7 +64,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-deleted-methods",
@@ -83,7 +88,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-files-get-meta",
@@ -106,7 +112,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-files-get-one",
@@ -129,7 +136,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-files-save-one",
@@ -152,7 +160,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-files-select",
@@ -175,7 +184,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-overview",
@@ -198,7 +208,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-pages-get-meta",
@@ -221,7 +232,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-pages-get-one",
@@ -244,7 +256,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-pages-save-one",
@@ -267,7 +280,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-pages-select",
@@ -290,7 +304,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-posts-get",
@@ -313,7 +328,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-posts-select",
@@ -336,7 +352,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-tags-select",
@@ -359,7 +376,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "api-users-get-me",
@@ -382,7 +400,8 @@
         "Published Wikidot API method boundary",
         "Public persistence/query behavior reached through that method"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-checkbox-field",
@@ -405,7 +424,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-creating-new-page",
@@ -428,7 +448,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-css-styling",
@@ -451,7 +472,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-dataforms-and-listpages",
@@ -474,7 +496,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-date-field",
@@ -497,7 +520,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-deleting-form",
@@ -520,7 +544,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-displaying",
@@ -543,7 +568,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-field-properties",
@@ -566,7 +592,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-file-field",
@@ -589,7 +616,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-hidden-field",
@@ -612,7 +640,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-hints",
@@ -635,7 +664,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-howto",
@@ -658,7 +688,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-images",
@@ -681,7 +712,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-links",
@@ -704,7 +736,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-output-style",
@@ -727,7 +760,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-overview",
@@ -764,7 +798,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-pagepath",
@@ -787,7 +822,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-pagepath-field",
@@ -810,7 +846,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-password-field",
@@ -833,7 +870,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-select-field",
@@ -856,7 +894,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-selecting-and-sorting",
@@ -879,7 +918,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-static-field",
@@ -902,7 +942,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-tags",
@@ -925,7 +966,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-text-field",
@@ -948,7 +990,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-url-field",
@@ -971,7 +1014,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-wiki-field",
@@ -994,7 +1038,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "data-forms-youtube",
@@ -1017,7 +1062,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "layout-custom",
@@ -1042,7 +1088,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "layout-forum",
@@ -1067,7 +1114,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "layout-page",
@@ -1092,7 +1140,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-ad",
@@ -1115,7 +1164,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-admoduleabovecontent",
@@ -1138,7 +1188,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-admoduleabovesidebar",
@@ -1161,7 +1212,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-admodulebelowcontent",
@@ -1184,7 +1236,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-admodulebelowfooter",
@@ -1207,7 +1260,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-admodulebelowsidebar",
@@ -1230,7 +1284,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-adsenseunit",
@@ -1253,7 +1308,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-anonymousnotificationsunsubscribe",
@@ -1276,7 +1332,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-backlinks",
@@ -1299,7 +1356,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-categories",
@@ -1322,7 +1380,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-childpages",
@@ -1345,7 +1404,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-clone",
@@ -1368,7 +1428,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-comments",
@@ -1391,7 +1452,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-countpages",
@@ -1421,7 +1483,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-createaccount",
@@ -1451,7 +1514,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-css",
@@ -1474,7 +1538,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-currencyconvert",
@@ -1504,7 +1569,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-dashboard",
@@ -1527,7 +1593,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-deleteaccount",
@@ -1550,7 +1617,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-featuredsite",
@@ -1573,7 +1641,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-feed",
@@ -1596,7 +1665,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-files",
@@ -1619,7 +1689,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-flickrgallery",
@@ -1642,7 +1713,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-footerbar",
@@ -1665,7 +1737,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-forumcategory",
@@ -1688,7 +1761,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-forumnewthread",
@@ -1711,7 +1785,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-forumstart",
@@ -1734,7 +1809,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-forumthread",
@@ -1757,7 +1833,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-frontforum",
@@ -1780,7 +1857,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-frontspecialmini",
@@ -1803,7 +1881,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-join",
@@ -1826,7 +1905,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-listdrafts",
@@ -1849,7 +1929,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-listpages",
@@ -1893,7 +1974,17 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": [
+        "listpages-invalid-numeric-fallbacks",
+        "listpages-pagination-path-semantics",
+        "listpages-duplicate-and-alias-precedence",
+        "listpages-rss-link-and-rssonly",
+        "listpages-live-feed-endpoint",
+        "listpages-template-variable-rendering",
+        "listpages-rating-comment-and-data-form-variables",
+        "listpages-legacy-and-body-edge-behavior"
+      ]
     },
     {
       "id": "module-listusers",
@@ -1916,7 +2007,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-loginstatus",
@@ -1939,7 +2031,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-mailform",
@@ -1962,7 +2055,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-managesite",
@@ -1985,7 +2079,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-members",
@@ -2008,7 +2103,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-membershipapply",
@@ -2031,7 +2127,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-membershipbypassword",
@@ -2054,7 +2151,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-membershipemailinvitation",
@@ -2077,7 +2175,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-miniactivethreads",
@@ -2100,7 +2199,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-minirecentposts",
@@ -2123,7 +2223,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-minirecentthreads",
@@ -2146,7 +2247,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-navibar",
@@ -2169,7 +2271,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-newpage",
@@ -2192,7 +2295,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-newsite",
@@ -2222,7 +2326,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-nextpreviouspage",
@@ -2245,7 +2350,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-orphanedpages",
@@ -2268,7 +2374,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-pagecalendar",
@@ -2291,7 +2398,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-pageoptionsbottom",
@@ -2314,7 +2422,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-pages",
@@ -2337,7 +2446,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-pagesbytag",
@@ -2360,7 +2470,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-pagetree",
@@ -2383,7 +2494,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-petitionadmin",
@@ -2406,7 +2518,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-rate",
@@ -2429,7 +2542,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-ratedpages",
@@ -2452,7 +2566,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-recentposts",
@@ -2475,7 +2590,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-recentthreads",
@@ -2498,7 +2614,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-redirect",
@@ -2521,7 +2638,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-search",
@@ -2544,7 +2662,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-searchall",
@@ -2567,7 +2686,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-searchusers",
@@ -2590,7 +2710,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-sendinvitations",
@@ -2613,7 +2734,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-simpletodo",
@@ -2636,7 +2758,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-sitechanges",
@@ -2659,7 +2782,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-sitegrid",
@@ -2682,7 +2806,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-sitestagcloud",
@@ -2705,7 +2830,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-tagcloud",
@@ -2728,7 +2854,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-themepreviewer",
@@ -2751,7 +2878,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-userinfo",
@@ -2774,7 +2902,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-wantedpages",
@@ -2797,7 +2926,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-watchers",
@@ -2820,7 +2950,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "module-whoinvited",
@@ -2843,7 +2974,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "account-lifecycle",
@@ -2866,7 +2998,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "advertising",
@@ -2896,7 +3029,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "avatars",
@@ -2919,7 +3053,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "browser-support",
@@ -2942,7 +3077,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "collaborative-editing",
@@ -2979,7 +3115,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "community-site-directory",
@@ -3025,7 +3162,8 @@
         "Data-form template parsing and saved page rendering",
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "content-licensing",
@@ -3048,7 +3186,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "custom-domains",
@@ -3071,7 +3210,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "educational-site-status",
@@ -3094,7 +3234,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "expressions",
@@ -3117,7 +3258,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "favicons",
@@ -3140,7 +3282,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "forum-signatures",
@@ -3163,7 +3306,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "gravatar",
@@ -3186,7 +3330,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "hosted-wiki-platform",
@@ -3209,7 +3354,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "karma",
@@ -3239,7 +3385,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "managed-hosting",
@@ -3262,7 +3409,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "meta-tags",
@@ -3285,7 +3433,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "outgoing-pingbacks",
@@ -3308,7 +3457,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-editing-history",
@@ -3331,7 +3481,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-templates",
@@ -3363,7 +3514,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "private-messages",
@@ -3386,7 +3538,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "private-sites",
@@ -3409,7 +3562,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "roles-and-permissions",
@@ -3432,7 +3586,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "search-language",
@@ -3455,7 +3610,8 @@
         "Saved-page or preview rendering through Deepwell's public page-view interface",
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "secure-login",
@@ -3478,7 +3634,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "service-resilience",
@@ -3501,7 +3658,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-backups",
@@ -3524,7 +3682,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-cloning",
@@ -3547,7 +3706,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-https",
@@ -3570,7 +3730,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-lifecycle-limits",
@@ -3593,7 +3754,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-membership",
@@ -3616,7 +3778,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-navigation",
@@ -3653,7 +3816,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-storage",
@@ -3676,7 +3840,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-themes",
@@ -3699,7 +3864,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "subscription-plan-matrix",
@@ -3722,7 +3888,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "subscriptions-plans",
@@ -3745,7 +3912,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-engine",
@@ -3775,7 +3943,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "thumbnails",
@@ -3798,7 +3967,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "unlimited-pages",
@@ -3821,7 +3991,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "user-roles",
@@ -3844,7 +4015,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "watching-notifications",
@@ -3867,7 +4039,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "web-statistics",
@@ -3890,7 +4063,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "content-pages",
@@ -3913,7 +4087,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "forum-categories",
@@ -3936,7 +4111,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "forum-category-groups",
@@ -3959,7 +4135,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "forum-posts",
@@ -3982,7 +4159,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "forum-threads",
@@ -4005,7 +4183,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "forums-overview",
@@ -4035,7 +4214,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-categories",
@@ -4065,7 +4245,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-forum-integration",
@@ -4088,7 +4269,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-inclusions",
@@ -4111,7 +4293,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-links",
@@ -4134,7 +4317,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-parent-relations",
@@ -4157,7 +4341,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "page-tags",
@@ -4187,7 +4372,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "site-identity",
@@ -4210,7 +4396,8 @@
         "Public HTTP route and browser-visible UI",
         "Public service/API boundary for persistent state and permissions"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-attachment",
@@ -4233,7 +4420,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-bibliography",
@@ -4256,7 +4444,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-block-formatting-elements",
@@ -4279,7 +4468,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-block-quotes",
@@ -4302,7 +4492,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-buttons",
@@ -4325,7 +4516,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-code-blocks",
@@ -4348,7 +4540,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-collapsible-blocks",
@@ -4371,7 +4564,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-comments",
@@ -4394,7 +4588,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-date",
@@ -4417,7 +4612,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-definition-lists",
@@ -4440,7 +4636,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-embedding",
@@ -4470,7 +4667,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-embedding-code",
@@ -4500,7 +4698,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-foldable-list",
@@ -4523,7 +4722,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-footnotes",
@@ -4546,7 +4746,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-headings",
@@ -4569,7 +4770,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-horizontal-rules",
@@ -4599,7 +4801,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-html-blocks",
@@ -4622,7 +4825,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-iftags",
@@ -4645,7 +4849,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-images",
@@ -4668,7 +4873,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-include",
@@ -4691,7 +4897,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-inline-formatting",
@@ -4714,7 +4921,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-layout",
@@ -4737,7 +4945,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-links",
@@ -4760,7 +4969,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-lists",
@@ -4783,7 +4993,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-literal-text",
@@ -4806,7 +5017,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-math",
@@ -4829,7 +5041,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-notes",
@@ -4852,7 +5065,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-paragraphs-and-newline",
@@ -4875,7 +5089,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-social-bookmarking",
@@ -4898,7 +5113,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-table-of-contents",
@@ -4921,7 +5137,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-tables",
@@ -4944,7 +5161,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-tag-buttons",
@@ -4967,7 +5185,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-text-size",
@@ -4990,7 +5209,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-typography",
@@ -5013,7 +5233,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-universal-escaping",
@@ -5036,7 +5257,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     },
     {
       "id": "syntax-users",
@@ -5059,7 +5281,8 @@
         "FTML public parse/render interface using Wikidot layout",
         "Rendered HTML/DOM at the saved-page boundary for context-dependent forms"
       ],
-      "related_features": []
+      "related_features": [],
+      "live_observation_ids": []
     }
   ]
 }

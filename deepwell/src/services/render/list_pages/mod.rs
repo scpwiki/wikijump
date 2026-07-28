@@ -18,51 +18,77 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod ajax;
 pub(super) mod authors;
 pub(super) mod content_sections;
+mod current_page;
+mod data_forms;
+mod feed;
+mod generated_html;
+mod pagination;
 mod parents;
+mod presentation;
 mod rendering;
 pub(super) mod scanner;
 pub(super) mod substitution;
 pub(super) mod template;
 
+#[cfg(test)]
+pub(super) use self::ajax::AJAX_MODULE_LITERAL_MARKER_PREFIX;
+pub(super) use self::ajax::{
+    build_wikidot_list_pages_module_source, protect_ajax_module_literal_markers,
+};
+pub(super) use self::current_page::{
+    count_pages_scan_requires_preservation, count_pages_unbounded_total,
+    list_pages_content_query_target, list_pages_row_scan_target,
+    page_query_cap_requires_original_module, should_render_current_page_list_pages_row,
+};
+#[cfg(test)]
+pub(super) use self::current_page::{
+    current_page_info_list_pages_row, requested_page_info_score,
+};
+pub(super) use self::data_forms::load_list_pages_data_form_definitions;
+pub(super) use self::generated_html::{
+    preserve_list_pages_following_paragraph_boundary, register_generated_list_pages_html,
+    url_offset_list_pages_content_bytes,
+};
+pub(super) use self::pagination::{list_pages_feed_info_html, push_list_pages_pager};
+#[cfg(test)]
+pub(super) use self::parents::ListPagesParentDisplay;
+#[cfg(test)]
+pub(super) use self::presentation::{
+    format_list_pages_created_at, list_pages_tag_link_href, render_list_pages_tags,
+    substitute_list_pages_variables,
+};
+pub(super) use self::presentation::{
+    is_list_pages_visible_tag, is_tag_cloud_visible_tag, list_pages_created_by_unix,
+    list_pages_parent_fullname, list_pages_revision_count, render_tag_cloud_box,
+    restore_list_pages_literal_ellipsis_markers, substitute_count_pages_variables,
+};
+#[cfg(test)]
+pub(super) use self::rendering::ListPagesExpansionBudget;
 pub(super) use self::rendering::{
     CountPagesExpansionOptions, ListPagesExpansion, ListPagesExpansionOptions,
-};
-#[cfg(test)]
-pub(super) use self::rendering::{
-    ListPagesExpansionBudget, preserve_list_pages_following_paragraph_boundary,
-    register_generated_list_pages_html, url_offset_list_pages_content_bytes,
-};
-#[cfg(test)]
-pub(super) use self::substitution::{
-    AJAX_MODULE_LITERAL_MARKER_PREFIX, format_list_pages_created_at,
-    list_pages_body_is_no_visible_tracking_markup, list_pages_body_uses_content_variable,
-    list_pages_body_variables_supported, list_pages_tag_link_href,
-    parse_list_pages_date_selector, render_list_pages_tags,
-    substitute_list_pages_variables,
 };
 pub(super) use self::substitution::{
     CurrentPageAuthorSource, ExactNameListPagesBatchKey, ListPagesArguments,
     ListPagesAuthorCacheKey, ListPagesBatchDisplayRequirements, ListPagesBatchDisplays,
-    ListPagesOffsetOrigin, ListPagesSnapshotDisplay, ListPagesSubstitutionContext,
-    ResolvedListPagesAuthors, WikidotUserDisplay, build_wikidot_list_pages_module_source,
-    count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
-    count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
-    count_pages_scan_requires_preservation, count_pages_should_remain_literal,
-    count_pages_unbounded_total, current_page_info_list_pages_row,
-    exact_name_list_pages_batch_key, is_tag_cloud_visible_tag,
-    list_pages_author_cache_key, list_pages_content_query_target,
-    list_pages_created_by_unix, list_pages_has_unsupported_page_type_selector,
-    list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
-    list_pages_revision_count, list_pages_row_scan_target,
-    page_query_cap_requires_original_module, parse_list_pages_arguments,
-    parse_list_pages_arguments_with_url, protect_ajax_module_literal_markers,
-    push_list_pages_pager, render_tag_cloud_box, requested_page_info_score,
-    restore_list_pages_literal_ellipsis_markers,
-    should_render_current_page_list_pages_row, substitute_count_pages_variables,
+    ListPagesRuntimeDisplay, ListPagesSnapshotDisplay, ListPagesSubstitutionContext,
+    ResolvedListPagesAuthors, WikidotUserDisplay, count_pages_capture_is_literal,
+    count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,
+    count_pages_required_tag_batch_selector, count_pages_should_remain_literal,
+    exact_name_list_pages_batch_key, list_pages_argument_error,
+    list_pages_author_cache_key, list_pages_has_unsupported_page_type_selector,
+    list_pages_has_unsupported_parent_selector, list_pages_static_parent_fullname,
+    parse_list_pages_arguments, parse_list_pages_arguments_with_url,
     substitute_list_pages_rating_only, substitute_list_pages_variables_with_fragments,
     union_found_page_fields, unsupported_list_pages_replacement,
+};
+#[cfg(test)]
+pub(super) use self::substitution::{
+    ListPagesOffsetOrigin, list_pages_body_is_no_visible_tracking_markup,
+    list_pages_body_uses_content_variable, list_pages_body_variables_supported,
+    parse_list_pages_date_selector,
 };
 
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
@@ -922,5 +948,111 @@ mod tests {
             specification,
             SupportedListPages::NamedPageMetadata { .. }
         ));
+    }
+
+    #[test]
+    fn recognizes_live_list_pages_argument_errors() {
+        for (head, has_current_page, expected) in [
+            (r#"range="others""#, false, Some("Invalid range argument.")),
+            (r#"range="others""#, true, None),
+            (r#"range="bogus""#, true, Some("Invalid range argument.")),
+            (
+                r#"pagetype="bogus""#,
+                false,
+                Some("Invalid pagetype attribute."),
+            ),
+            (r#"rating="bad""#, false, Some("Invalid rating argument.")),
+            (r#"votes="bad""#, false, Some("Invalid votes argument.")),
+        ] {
+            assert_eq!(
+                list_pages_argument_error(head, has_current_page),
+                expected,
+                "{head:?}",
+            );
+        }
+        assert!(parse_list_pages_arguments(r#"rating="<>5""#).is_some());
+        assert_eq!(
+            list_pages_static_parent_fullname(r#"parent="system:start""#),
+            Some("system:start"),
+        );
+        assert_eq!(list_pages_static_parent_fullname(r#"parent=".""#), None,);
+        let arguments = parse_list_pages_arguments(r#"parent="system:start""#)
+            .expect("a named parent should become a query selector");
+        assert_eq!(
+            arguments.static_parent_fullname.as_deref(),
+            Some("system:start"),
+        );
+        assert!(!list_pages_has_unsupported_parent_selector(
+            r#"parent="system:start""#,
+        ));
+
+        let arguments =
+            parse_list_pages_arguments(r#"limit="" perPage="" separate="" wrapper="""#)
+                .expect("empty live defaults should parse");
+        assert_eq!(arguments.limit, None);
+        assert_eq!(arguments.count_pages_per_page, None);
+        assert!(arguments.separate);
+        assert!(arguments.wrapper);
+
+        let arguments =
+            parse_list_pages_arguments(r#"limit="999999999" perPage="999999999""#)
+                .expect("large live limits should parse");
+        assert_eq!(arguments.limit, Some(999_999_999));
+        assert_eq!(arguments.count_pages_per_page, Some(250));
+
+        let arguments = parse_list_pages_arguments(r#"tags="=" parent="-=""#)
+            .expect("documented current-tag and parent selectors should parse");
+        assert!(arguments.same_visible_tags);
+        assert_eq!(arguments.page_parent, PageParentSelector::DifferentParents,);
+        assert!(!arguments.unsupported_list_pages_filter);
+        assert!(!list_pages_has_unsupported_parent_selector(
+            r#"parent="-=""#,
+        ));
+        let arguments = parse_list_pages_arguments(r#"tag="==""#)
+            .expect("documented exact current-tag selector should parse");
+        assert!(arguments.exact_visible_tags);
+
+        let arguments = parse_list_pages_arguments(
+            r#"created_at="=" updated_at="=" rating="=" votes="=""#,
+        )
+        .expect("current-page date and rating selectors should parse");
+        assert!(arguments.creation_date_current_page);
+        assert!(arguments.update_date_current_page);
+        assert!(arguments.score_equals_current_page);
+        assert!(arguments.votes_equals_current_page);
+        assert!(!arguments.unsupported_list_pages_filter);
+
+        for head in [
+            r#"created_at="last hour""#,
+            r#"created_at="older than month""#,
+            r#"created_at="older than 2""#,
+            r#"updated_at="newer than week""#,
+        ] {
+            assert!(
+                parse_list_pages_arguments(head).is_some(),
+                "{head:?} should parse",
+            );
+        }
+        assert!(
+            parse_list_pages_arguments(r#"created_at="not-a-date""#).is_some(),
+            "live ignores an invalid date selector",
+        );
+
+        let arguments = parse_list_pages_arguments(
+            r#"category="fragment" parent="." order="name"" limit="1" offset="@URL|0""#,
+        )
+        .expect("live-tokenized interior quote in order value should parse");
+        assert_eq!(arguments.categories, vec![Cow::Borrowed("fragment")]);
+        assert_eq!(arguments.page_parent, PageParentSelector::ChildOf);
+        assert_eq!(arguments.order, Some(OrderBySelector::default()));
+        assert_eq!(arguments.limit, Some(1));
+
+        let arguments =
+            parse_list_pages_arguments(r#"tags="+scp rating="<0" separate="no""#)
+                .expect("live-tokenized interior quote in tags value should parse");
+        assert_eq!(arguments.all_tags, vec![Cow::Borrowed("scp")]);
+        assert_eq!(arguments.default_tags, vec![Cow::Borrowed(r#"rating="<0"#)]);
+        assert!(!arguments.separate);
+        assert!(!arguments.unsupported_list_pages_filter);
     }
 }

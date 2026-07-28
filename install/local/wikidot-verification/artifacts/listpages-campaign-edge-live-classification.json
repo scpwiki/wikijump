@@ -1,0 +1,315 @@
+{
+  "schema": "wikijump_listpages_compat.live_fixture_classification.v1",
+  "summary": {
+    "captures": 2,
+    "capture_statuses": {
+      "captured": 2
+    },
+    "blocks": 11,
+    "block_classes": [
+      "lp-edge-code-body",
+      "lp-edge-html-body",
+      "lp-edge-prepend-separate-yes",
+      "lp-edge-skip-false",
+      "lp-edge-skip-invalid",
+      "lp-edge-skip-no",
+      "lp-edge-skip-true",
+      "lp-edge-skip-yes",
+      "lp-edge-summary-section",
+      "lp-edge-tag-target",
+      "lp-edge-tags-same-implicit-skip"
+    ],
+    "block_class_counts": {
+      "lp-edge-code-body": 1,
+      "lp-edge-html-body": 1,
+      "lp-edge-prepend-separate-yes": 1,
+      "lp-edge-skip-false": 1,
+      "lp-edge-skip-invalid": 1,
+      "lp-edge-skip-no": 1,
+      "lp-edge-skip-true": 1,
+      "lp-edge-skip-yes": 1,
+      "lp-edge-summary-section": 1,
+      "lp-edge-tag-target": 1,
+      "lp-edge-tags-same-implicit-skip": 1
+    },
+    "missing_case_blocks": [
+      "lp-live-default-template"
+    ]
+  },
+  "live_environment_blockers": [],
+  "captures": [
+    {
+      "case_id": "lp-live-edge-behaviors",
+      "dimensions": [
+        "legacy-arguments",
+        "body-preparse",
+        "summary",
+        "tags"
+      ],
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned:lp-campaign-20260728-edge-edge-holder",
+      "status": "captured",
+      "page_content_html_sha256": "ec86297790907d333903d71e937503ab56db0d5719cc763454bb4e1fcf17c9eb",
+      "blocks": [
+        {
+          "block_class": "lp-edge-code-body",
+          "classes": [
+            "lp-case",
+            "lp-edge-code-body"
+          ],
+          "visible_text": "EDGE CODE BODY\nListPages edge target\nby scpaiueouiuiuiui 28 Jul 2026 07:02\nSummary first section.\n%%title%%\n[[/module]]",
+          "list_text": "ListPages edge target\nby scpaiueouiuiuiui 28 Jul 2026 07:02\nSummary first section.",
+          "rows": [],
+          "page_names": [],
+          "pager": null,
+          "links": [
+            {
+              "href": "/run-owned:lp-campaign-20260728-edge-target",
+              "text": "ListPages edge target",
+              "classes": []
+            },
+            {
+              "href": "http://www.wikidot.com/user:info/scpaiueouiuiuiui",
+              "text": "",
+              "classes": []
+            },
+            {
+              "href": "http://www.wikidot.com/user:info/scpaiueouiuiuiui",
+              "text": "scpaiueouiuiuiui",
+              "classes": []
+            }
+          ],
+          "html_sha256": "1e9a3eeccfc3b6f93d6a2b37c5722726d766d16c1174dd0020ab26dd37c1934e"
+        },
+        {
+          "block_class": "lp-edge-html-body",
+          "classes": [
+            "lp-case",
+            "lp-edge-html-body"
+          ],
+          "visible_text": "EDGE HTML BODY\nListPages edge target\nby scpaiueouiuiuiui 28 Jul 2026 07:02\nSummary first section.\n[[/module]]",
+          "list_text": "ListPages edge target\nby scpaiueouiuiuiui 28 Jul 2026 07:02\nSummary first section.",
+          "rows": [],
+          "page_names": [],
+          "pager": null,
+          "links": [
+            {
+              "href": "/run-owned:lp-campaign-20260728-edge-target",
+              "text": "ListPages edge target",
+              "classes": []
+            },
+            {
+              "href": "http://www.wikidot.com/user:info/scpaiueouiuiuiui",
+              "text": "",
+              "classes": []
+            },
+            {
+              "href": "http://www.wikidot.com/user:info/scpaiueouiuiuiui",
+              "text": "scpaiueouiuiuiui",
+              "classes": []
+            }
+          ],
+          "html_sha256": "860c9de173991dff78f0db4c9f1040d64ff69c18306a6201d7aa5b867567c1b9"
+        },
+        {
+          "block_class": "lp-edge-summary-section",
+          "classes": [
+            "lp-case",
+            "lp-edge-summary-section"
+          ],
+          "visible_text": "EDGE SUMMARY SECTION\nsummary=Summary first section.|description=Summary first section.|content1=Summary first section.|",
+          "list_text": "summary=Summary first section.|description=Summary first section.|content1=Summary first section.|",
+          "rows": [
+            "summary=Summary first section.",
+            "description=Summary first section.",
+            "content1=Summary first section."
+          ],
+          "page_names": [],
+          "pager": null,
+          "links": [],
+          "html_sha256": "0a04befe3c20b4d253305c581d4615ef8ddd122a1cf2349cd57931191ac58da7"
+        },
+        {
+          "block_class": "lp-edge-skip-yes",
+          "classes": [
+            "lp-case",
+            "lp-edge-skip-yes"
+          ],
+          "visible_text": "EDGE SKIP YES\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "list_text": "lp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "rows": [
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "page_names": [
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "pager": null,
+          "links": [],
+          "html_sha256": "5c4e789232caf08bab390bbe8f3dd2f55921b0d0a8824e1bfa34a6885ae9549b"
+        },
+        {
+          "block_class": "lp-edge-skip-true",
+          "classes": [
+            "lp-case",
+            "lp-edge-skip-true"
+          ],
+          "visible_text": "EDGE SKIP TRUE\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "list_text": "lp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "rows": [
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "page_names": [
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "pager": null,
+          "links": [],
+          "html_sha256": "3165aad82f50e4e7c519d99f66f2efa22a2f14e7b2899171dad4de40fd365039"
+        },
+        {
+          "block_class": "lp-edge-skip-no",
+          "classes": [
+            "lp-case",
+            "lp-edge-skip-no"
+          ],
+          "visible_text": "EDGE SKIP NO\nlp-campaign-20260728-edge-edge-holder|\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "list_text": "lp-campaign-20260728-edge-edge-holder|\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "rows": [
+            "lp-campaign-20260728-edge-edge-holder",
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "page_names": [
+            "lp-campaign-20260728-edge-edge-holder",
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "pager": null,
+          "links": [],
+          "html_sha256": "5d1840695feffbbc6df63427a4fe9340db77fd395e85211dc89341bc4f3174d1"
+        },
+        {
+          "block_class": "lp-edge-skip-false",
+          "classes": [
+            "lp-case",
+            "lp-edge-skip-false"
+          ],
+          "visible_text": "EDGE SKIP FALSE\nlp-campaign-20260728-edge-edge-holder|\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "list_text": "lp-campaign-20260728-edge-edge-holder|\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "rows": [
+            "lp-campaign-20260728-edge-edge-holder",
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "page_names": [
+            "lp-campaign-20260728-edge-edge-holder",
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "pager": null,
+          "links": [],
+          "html_sha256": "82316309665c597e582abd4f6f05567ae0abfef214c57293fe79785421097613"
+        },
+        {
+          "block_class": "lp-edge-skip-invalid",
+          "classes": [
+            "lp-case",
+            "lp-edge-skip-invalid"
+          ],
+          "visible_text": "EDGE SKIP INVALID\nlp-campaign-20260728-edge-edge-holder|\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "list_text": "lp-campaign-20260728-edge-edge-holder|\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "rows": [
+            "lp-campaign-20260728-edge-edge-holder",
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "page_names": [
+            "lp-campaign-20260728-edge-edge-holder",
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "pager": null,
+          "links": [],
+          "html_sha256": "ed91884c4b07d4bb6e40943a5128e40ff7c09c7ccaaecb6d893f8588dfea5e4f"
+        },
+        {
+          "block_class": "lp-edge-tags-same-implicit-skip",
+          "classes": [
+            "lp-case",
+            "lp-edge-tags-same-implicit-skip"
+          ],
+          "visible_text": "EDGE TAGS SAME IMPLICIT SKIP\nlp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "list_text": "lp-campaign-20260728-edge-other|\nlp-campaign-20260728-edge-target|\nlp-campaign-20260728-edge-third|",
+          "rows": [
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "page_names": [
+            "lp-campaign-20260728-edge-other",
+            "lp-campaign-20260728-edge-target",
+            "lp-campaign-20260728-edge-third"
+          ],
+          "pager": null,
+          "links": [],
+          "html_sha256": "b3264bae693d810e3d53f8ced844be4854b5847e7e6167c4522891ac25343a38"
+        },
+        {
+          "block_class": "lp-edge-tag-target",
+          "classes": [
+            "lp-case",
+            "lp-edge-tag-target"
+          ],
+          "visible_text": "EDGE TAG TARGET\nlp-edge-same-20260728 lp-edge-visible",
+          "list_text": "lp-edge-same-20260728 lp-edge-visible",
+          "rows": [],
+          "page_names": [],
+          "pager": null,
+          "links": [],
+          "html_sha256": "82c7858255ddf3debad3674a1a17c354225a7abc162e9e7df0f1db431fb2e888"
+        },
+        {
+          "block_class": "lp-edge-prepend-separate-yes",
+          "classes": [
+            "lp-case",
+            "lp-edge-prepend-separate-yes"
+          ],
+          "visible_text": "EDGE PREPEND SEPARATE YES\nlp-campaign-20260728-edge-target|",
+          "list_text": "lp-campaign-20260728-edge-target|",
+          "rows": [
+            "lp-campaign-20260728-edge-target"
+          ],
+          "page_names": [
+            "lp-campaign-20260728-edge-target"
+          ],
+          "pager": null,
+          "links": [],
+          "html_sha256": "946a9ab75e9953507367f1ae5cea31b0903dae6ecf63979c9b24545a03fcc202"
+        }
+      ]
+    },
+    {
+      "case_id": "lp-live-default-template",
+      "dimensions": [
+        "default-template",
+        "unclosed-module"
+      ],
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned:lp-campaign-20260728-edge-edge-default-holder",
+      "status": "captured",
+      "page_content_html_sha256": "d622badde2c7a1815c895e5b0231e4f8c007a87694d549a8ca28713da48c24ee",
+      "blocks": []
+    }
+  ]
+}

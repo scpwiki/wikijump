@@ -1,0 +1,191 @@
+{
+  "schema": "wikijump_listpages_compat.rating_comment_data_form_live.v1",
+  "captured_at": "2026-07-28T17:05:00+09:00",
+  "site": {
+    "unix_name": "sandbox-for-codex",
+    "domain": "sandbox-for-codex.wikidot.com",
+    "origin": "http://sandbox-for-codex.wikidot.com"
+  },
+  "authority": "Observed output from live Wikidot. All mutations targeted run-owned pages, and all pages were removed after capture.",
+  "captures": [
+    {
+      "case_id": "lp-live-plus-minus-rating-and-last-comment",
+      "category": {
+        "name": "codex-rating-load-20260715",
+        "category_id": 46152868,
+        "rating_configuration": "emvM",
+        "decoded_rating_configuration": {
+          "enabled": true,
+          "who": "site-members",
+          "identity": "visible",
+          "type": "plus-minus"
+        }
+      },
+      "target": {
+        "fullname": "codex-rating-load-20260715:lp-probe-20260728080351",
+        "page_id": 1469064837,
+        "title": "ListPages rating and comment probe",
+        "source": "CONTROLLED LISTPAGES TARGET",
+        "removed_after_capture": true
+      },
+      "mutations": {
+        "votes": [
+          {
+            "account_role": "B",
+            "value": 1,
+            "resulting_rating": 1
+          },
+          {
+            "account_role": "C",
+            "value": -1,
+            "resulting_rating": 0
+          }
+        ],
+        "comment": {
+          "account_role": "B",
+          "source": "CONTROLLED LISTPAGES COMMENT",
+          "post_id": 18223133,
+          "thread_id": 18223133
+        }
+      },
+      "module_source": "[[module ListPages category=\"codex-rating-load-20260715\" name=\"lp-probe-*\" order=\"created_at desc\" limit=\"1\"]]\nR=%%rating%%|V=%%rating_votes%%|RP=%%rating_percent%%|C=%%comments%%|CB=%%commented_by%%|CBU=%%commented_by_unix%%|CBI=%%commented_by_id%%|CBL=%%commented_by_linked%%|CA=%%commented_at%%\n[[/module]]",
+      "module_route": "edit/PagePreviewModule",
+      "page_content_html": "\n\n<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>R=0|V=2|RP=%%rating_percent%%|C=1|CB=voted-fated-smuggler|CBU=voted-fated-smuggler|CBI=10382659|CBL=<span class=\"printuser avatarhover\"><a href=\"http://www.wikidot.com/user:info/voted-fated-smuggler\" onclick=\"WIKIDOT.page.listeners.userInfo(10382659); return false;\"><img class=\"small\" src=\"http://www.wikidot.com/avatar.php?userid=10382659&amp;amp;size=small&amp;amp;timestamp=1785225849\" alt=\"voted-fated-smuggler\" style=\"background-image:url(http://www.wikidot.com/userkarma.php?u=10382659)\" /></a><a href=\"http://www.wikidot.com/user:info/voted-fated-smuggler\" onclick=\"WIKIDOT.page.listeners.userInfo(10382659); return false;\">voted-fated-smuggler</a></span>|CA=<span class=\"odate time_1785225845 format_%25e%20%25b%20%25Y%2C%20%25H%3A%25M%7Cagohover\">28 Jul 2026 08:04</span></p>\n</div>\n    \n    \n    \n    </div>"
+    },
+    {
+      "case_id": "lp-live-five-star-rating",
+      "category": {
+        "name": "codex-listpages-star-20260728",
+        "category_id": 46167077,
+        "configuration_before": "draP",
+        "configuration_during_capture": "ervS",
+        "configuration_after": "draP",
+        "restored_after_capture": true,
+        "decoded_capture_configuration": {
+          "enabled": true,
+          "who": "all-registered-users",
+          "identity": "visible",
+          "type": "five-star"
+        }
+      },
+      "target": {
+        "fullname": "codex-listpages-star-20260728:target",
+        "page_id": 1469064839,
+        "title": "ListPages five-star oracle",
+        "source": "CONTROLLED LISTPAGES FIVE STAR TARGET",
+        "removed_after_capture": true
+      },
+      "mutations": {
+        "votes": [
+          {
+            "account_role": "B",
+            "value": 5,
+            "action_status": "ok",
+            "action_type": "S"
+          },
+          {
+            "account_role": "C",
+            "value": 3,
+            "action_status": "ok",
+            "action_type": "S"
+          }
+        ],
+        "resulting_rating": 4,
+        "resulting_vote_count": 2
+      },
+      "module_source": "[[module ListPages category=\"codex-listpages-star-20260728\" name=\"target\" limit=\"1\"]]\nR=%%rating%%|V=%%rating_votes%%|RP=%%rating_percent%%\n[[/module]]",
+      "module_route": "edit/PagePreviewModule",
+      "page_content_html": "\n\n<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>R=<span class=\"page-rate-list-pages-start\" data-rating=\"4\">4</span>|V=2|RP=80</p>\n</div>\n    \n    \n    \n    </div>"
+    },
+    {
+      "case_id": "lp-live-five-star-fractional-rating",
+      "category": {
+        "name": "codex-listpages-star-20260728",
+        "category_id": 46167079,
+        "configuration_before": "draP",
+        "configuration_during_capture": "ervS",
+        "configuration_after": "draP",
+        "restored_after_capture": true
+      },
+      "target": {
+        "fullname": "codex-listpages-star-20260728:voted-half",
+        "page_id": 1469064852,
+        "title": "ListPages five-star voted-half",
+        "source": "CONTROLLED FIVE STAR voted-half",
+        "removed_after_capture": true
+      },
+      "mutations": {
+        "votes": [
+          {
+            "account_role": "B",
+            "value": 5,
+            "action_status": "ok",
+            "action_type": "S"
+          },
+          {
+            "account_role": "C",
+            "value": 4,
+            "action_status": "ok",
+            "action_type": "S"
+          }
+        ],
+        "resulting_rating": 4.5,
+        "resulting_vote_count": 2
+      },
+      "module_source": "[[module ListPages category=\"codex-listpages-star-20260728\" name=\"voted-half\" limit=\"1\"]]\nR=%%rating%%|V=%%rating_votes%%|RP=%%rating_percent%%\n[[/module]]",
+      "module_route": "edit/PagePreviewModule",
+      "page_content_html": "\n\n<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>R=<span class=\"page-rate-list-pages-start\" data-rating=\"4.5\">4.5</span>|V=2|RP=90</p>\n</div>\n    \n    \n    \n    </div>"
+    },
+    {
+      "case_id": "lp-live-five-star-zero-rating",
+      "category": {
+        "name": "codex-listpages-star-20260728",
+        "category_id": 46167079,
+        "configuration_during_capture": "ervS",
+        "configuration_after": "draP",
+        "restored_after_capture": true
+      },
+      "target": {
+        "fullname": "codex-listpages-star-20260728:zero",
+        "page_id": 1469064853,
+        "title": "ListPages five-star zero",
+        "source": "CONTROLLED FIVE STAR zero",
+        "removed_after_capture": true
+      },
+      "mutations": {
+        "votes": [],
+        "resulting_rating": 0,
+        "resulting_vote_count": 0
+      },
+      "module_source": "[[module ListPages category=\"codex-listpages-star-20260728\" name=\"zero\" limit=\"1\"]]\nR=%%rating%%|V=%%rating_votes%%|RP=%%rating_percent%%\n[[/module]]",
+      "module_route": "edit/PagePreviewModule",
+      "page_content_html": "\n\n<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>R=<span class=\"page-rate-list-pages-start\" data-rating=\"0\">0</span>|V=0|RP=0</p>\n</div>\n    \n    \n    \n    </div>"
+    },
+    {
+      "case_id": "lp-live-data-form-values-labels-and-hints",
+      "control_case": {
+        "category": "codexdfcoldfcol04",
+        "target": "codexdfcoldfcol04:unique",
+        "module_source": "[[module ListPages category=\"codexdfcoldfcol04\" name=\"unique\" limit=\"1\"]]\nD=%%form_data{codexkey}%%|R=%%form_raw{codexkey}%%|L=%%form_label{codexkey}%%|H=%%form_hint{codexkey}%%|DK=%%form_data{codexkind}%%|RK=%%form_raw{codexkind}%%|LK=%%form_label{codexkind}%%|HK=%%form_hint{codexkind}%%\n[[/module]]",
+        "page_content_html": "\n\n<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>D=unique|R=unique|L=Codex key|H=|DK=Unique|RK=unique|LK=Codex kind|HK=</p>\n</div>\n    \n    \n    \n    </div>"
+      },
+      "run_owned_fixture": {
+        "category": "codex-listpages-form-20260728",
+        "template": {
+          "fullname": "codex-listpages-form-20260728:_template",
+          "page_id": 1469064843,
+          "source": "[[form]]\nfields:\n  probe:\n    label: Probe Label\n    hint: 'Probe hint #1'\n  choice:\n    label: Choice Label\n    hint: Choice hint\n    type: select\n    values:\n      alpha: Alpha Display\n      beta: Beta Display\n  empty:\n    label: Empty Label\n    hint: Empty hint\n[[/form]]\n====\nPROBE=%%form_data{probe}%%"
+        },
+        "target": {
+          "fullname": "codex-listpages-form-20260728:target",
+          "page_id": 1469064844,
+          "source": "probe: 'raw probe value'\nchoice: alpha\nempty: ''"
+        },
+        "removed_after_capture": true
+      },
+      "module_source": "[[module ListPages category=\"codex-listpages-form-20260728\" name=\"target\" limit=\"1\"]]\nD=%%form_data{probe}%%|R=%%form_raw{probe}%%|L=%%form_label{probe}%%|H=%%form_hint{probe}%%|DC=%%form_data{choice}%%|RC=%%form_raw{choice}%%|LC=%%form_label{choice}%%|HC=%%form_hint{choice}%%|DE=%%form_data{empty}%%|RE=%%form_raw{empty}%%|LE=%%form_label{empty}%%|HE=%%form_hint{empty}%%|DM=%%form_data{missing}%%|RM=%%form_raw{missing}%%|LM=%%form_label{missing}%%|HM=%%form_hint{missing}%%\n[[/module]]",
+      "module_route": "edit/PagePreviewModule",
+      "page_content_html": "\n\n<div class=\"list-pages-box\">    <div class=\"list-pages-item\">\n\n\n<p>D=raw probe value|R=raw probe value|L=Probe Label|H=Probe hint #1|DC=Alpha Display|RC=alpha|LC=Choice Label|HC=|DE=|RE=|LE=Empty Label|HE=Empty hint|DM=|RM=|LM=|HM=</p>\n</div>\n    \n    \n    \n    </div>"
+    }
+  ]
+}

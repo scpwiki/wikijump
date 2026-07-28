@@ -20,6 +20,7 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+
 ## Suggested public TDD seams
 
 These seams are recommendations. The implementation agent must present and confirm the actual seam map before writing tests.

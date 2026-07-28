@@ -1,0 +1,120 @@
+{
+  "schema": "wikijump_listpages_compat.feed_endpoint_cases.v1",
+  "site": "sandbox-for-codex",
+  "cases": [
+    {
+      "case_id": "lpfeed-0001-baseline",
+      "path": "/feed/pages/t/Baseline",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20,
+      "expected_title": "Baseline"
+    },
+    {
+      "case_id": "lpfeed-0002-metadata",
+      "path": "/feed/pages/t/Test+Title/d/Test+%26+Description/h/blog%3A_start",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20,
+      "expected_title": "Test Title",
+      "expected_description": "Test & Description",
+      "expected_link": "blog:_start"
+    },
+    {
+      "case_id": "lpfeed-0003-limit-ignored",
+      "path": "/feed/pages/limit/1/t/Limit",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20,
+      "same_item_guids_as": "lpfeed-0001-baseline"
+    },
+    {
+      "case_id": "lpfeed-0004-offset-ignored",
+      "path": "/feed/pages/offset/7/t/Offset",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20,
+      "same_item_guids_as": "lpfeed-0001-baseline"
+    },
+    {
+      "case_id": "lpfeed-0005-order-ignored",
+      "path": "/feed/pages/order/title/t/Order",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20,
+      "same_item_guids_as": "lpfeed-0001-baseline"
+    },
+    {
+      "case_id": "lpfeed-0006-duplicate-metadata-last-wins",
+      "path": "/feed/pages/t/first/t/second/d/first/d/second/h/first/h/second",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20,
+      "expected_title": "second",
+      "expected_description": "second",
+      "expected_link": "second"
+    },
+    {
+      "case_id": "lpfeed-0007-encoded-dot-range",
+      "path": "/feed/pages/range/%2E",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 0
+    },
+    {
+      "case_id": "lpfeed-0008-invalid-range",
+      "path": "/feed/pages/range/before",
+      "expected_status": 200,
+      "expected_kind": "error",
+      "expected_error": "Invalid range argument."
+    },
+    {
+      "case_id": "lpfeed-0009-invalid-rating",
+      "path": "/feed/pages/rating/bad",
+      "expected_status": 200,
+      "expected_kind": "error",
+      "expected_error": "Invalid rating argument."
+    },
+    {
+      "case_id": "lpfeed-0010-invalid-pagetype-alias",
+      "path": "/feed/pages/pagetype/all",
+      "expected_status": 200,
+      "expected_kind": "error",
+      "expected_error": "Invalid pagetype attribute."
+    },
+    {
+      "case_id": "lpfeed-0011-only-negative-category",
+      "path": "/feed/pages/category/-deleted",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 0
+    },
+    {
+      "case_id": "lpfeed-0012-star-with-negative-category",
+      "path": "/feed/pages/category/%2A%2C-deleted",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20
+    },
+    {
+      "case_id": "lpfeed-0013-unknown-argument-ignored",
+      "path": "/feed/pages/unknown/value/t/Unknown",
+      "expected_status": 200,
+      "expected_kind": "rss",
+      "expected_item_count": 20,
+      "same_item_guids_as": "lpfeed-0001-baseline"
+    },
+    {
+      "case_id": "lpfeed-0014-missing-trailing-path",
+      "path": "/feed/pages",
+      "expected_status": 404,
+      "expected_kind": "html"
+    },
+    {
+      "case_id": "lpfeed-0015-malformed-percent-escape",
+      "path": "/feed/pages/t/%ZZ",
+      "expected_status": 400,
+      "expected_kind": "html"
+    }
+  ]
+}

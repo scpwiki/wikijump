@@ -27,9 +27,9 @@
 
 use super::super::service::RenderService;
 use super::{
-    Cow, CurrentPageAuthorSource, ListPagesAuthorCacheKey, ListPagesSnapshotDisplay,
-    PageRevisionService, ResolvedListPagesAuthors, WikidotUserDisplay,
-    list_pages_author_cache_key,
+    Cow, CurrentPageAuthorSource, ListPagesAuthorCacheKey, ListPagesRuntimeDisplay,
+    ListPagesSnapshotDisplay, PageRevisionService, ResolvedListPagesAuthors,
+    WikidotUserDisplay, list_pages_author_cache_key,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::user::{self, Entity as UserTable};
@@ -221,6 +221,184 @@ impl RenderService {
                             )
                         },
                     )
+                    .collect()
+            })
+    }
+
+    pub(in crate::services::render) async fn load_list_pages_runtime_displays(
+        ctx: &ServiceContext<'_>,
+        pages: &[FoundPageRow],
+    ) -> Result<BTreeMap<i64, ListPagesRuntimeDisplay>> {
+        #[derive(FromQueryResult, Debug)]
+        struct RuntimeDisplayRow {
+            page_id: i64,
+            comments: i64,
+            commented_at: Option<time::OffsetDateTime>,
+            commented_by_user_id: Option<i64>,
+            commented_by_name: Option<String>,
+            commented_by_slug: Option<String>,
+            commented_by_wikidot_profile: bool,
+            rating_votes: i64,
+            rating_type: String,
+        }
+
+        let page_ids = pages
+            .iter()
+            .map(|page| page.page_id)
+            .collect::<BTreeSet<_>>();
+        if page_ids.is_empty() {
+            return Ok(BTreeMap::new());
+        }
+
+        let make_error = || {
+            Error::new(
+                "failed to load ListPages comment and rating metadata",
+                ErrorType::Render,
+            )
+        };
+        let values = page_ids
+            .iter()
+            .map(|page_id| format!("({page_id})"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let statement = Statement::from_string(
+            ctx.transaction().get_database_backend(),
+            format!(
+                "WITH input(page_id) AS (VALUES {values}) \
+                 SELECT input.page_id, \
+                        COALESCE(snapshot.comments, 0)::bigint + \
+                            COALESCE(local_comment.comments, 0)::bigint AS comments, \
+                        CASE \
+                            WHEN local_comment.commented_at IS NOT NULL \
+                                 AND (snapshot.commented_at IS NULL \
+                                      OR local_comment.commented_at >= snapshot.commented_at) \
+                            THEN local_comment.commented_at \
+                            ELSE snapshot.commented_at \
+                        END AS commented_at, \
+                        CASE \
+                            WHEN local_comment.commented_at IS NOT NULL \
+                                 AND (snapshot.commented_at IS NULL \
+                                      OR local_comment.commented_at >= snapshot.commented_at) \
+                            THEN local_comment.commented_by_user_id \
+                            ELSE NULL \
+                        END AS commented_by_user_id, \
+                        CASE \
+                            WHEN local_comment.commented_at IS NOT NULL \
+                                 AND (snapshot.commented_at IS NULL \
+                                      OR local_comment.commented_at >= snapshot.commented_at) \
+                            THEN COALESCE(wikidot_commenter.name, local_commenter.name, \
+                                          local_comment.commented_by_user_id::text) \
+                            ELSE snapshot.commented_by_name \
+                        END AS commented_by_name, \
+                        CASE \
+                            WHEN local_comment.commented_at IS NOT NULL \
+                                 AND (snapshot.commented_at IS NULL \
+                                      OR local_comment.commented_at >= snapshot.commented_at) \
+                            THEN COALESCE(wikidot_commenter.slug, local_commenter.slug) \
+                            ELSE NULL \
+                        END AS commented_by_slug, \
+                        CASE \
+                            WHEN local_comment.commented_at IS NOT NULL \
+                                 AND (snapshot.commented_at IS NULL \
+                                      OR local_comment.commented_at >= snapshot.commented_at) \
+                            THEN wikidot_commenter.user_id IS NOT NULL \
+                            ELSE FALSE \
+                        END AS commented_by_wikidot_profile, \
+                        COALESCE( \
+                            CASE \
+                                WHEN snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
+                                     AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
+                                          OR snapshot.meta_json ->> 'votes_count' <= '9223372036854775807') \
+                                THEN (snapshot.meta_json ->> 'votes_count')::bigint \
+                                ELSE 0 \
+                            END, \
+                            0 \
+                        ) + COALESCE(local_vote.rating_votes, 0)::bigint AS rating_votes, \
+                        COALESCE(category.rating_type, default_category.rating_type, \
+                                 'plus_minus') AS rating_type \
+                 FROM input \
+                 JOIN page ON page.page_id = input.page_id \
+                 JOIN page_category category \
+                   ON category.category_id = page.page_category_id \
+                 LEFT JOIN page_category default_category \
+                   ON default_category.site_id = page.site_id \
+                  AND default_category.slug = '_default' \
+                 LEFT JOIN wikidot_page_snapshot snapshot \
+                   ON snapshot.page_id = input.page_id \
+                 LEFT JOIN LATERAL ( \
+                     SELECT ( \
+                                SELECT COUNT(*)::bigint \
+                                FROM forum_thread thread \
+                                JOIN forum_post post \
+                                  ON post.forum_thread_id = thread.forum_thread_id \
+                                 AND post.site_id = thread.site_id \
+                                 AND post.deleted_at IS NULL \
+                                WHERE thread.page_id = input.page_id \
+                                  AND thread.site_id = page.site_id \
+                                  AND thread.deleted_at IS NULL \
+                            ) AS comments, \
+                            latest.created_at AS commented_at, \
+                            latest.user_id AS commented_by_user_id \
+                     FROM (SELECT 1) seed \
+                     LEFT JOIN LATERAL ( \
+                         SELECT latest_post.created_at, latest_post.user_id \
+                         FROM forum_thread thread \
+                         JOIN forum_post latest_post \
+                           ON latest_post.forum_thread_id = thread.forum_thread_id \
+                          AND latest_post.site_id = thread.site_id \
+                          AND latest_post.deleted_at IS NULL \
+                         WHERE thread.page_id = input.page_id \
+                           AND thread.site_id = page.site_id \
+                           AND thread.deleted_at IS NULL \
+                         ORDER BY latest_post.created_at DESC, \
+                                  latest_post.forum_post_id DESC \
+                         LIMIT 1 \
+                     ) latest ON TRUE \
+                 ) local_comment ON TRUE \
+                 LEFT JOIN wikidot_user wikidot_commenter \
+                   ON wikidot_commenter.user_id = local_comment.commented_by_user_id \
+                 LEFT JOIN \"user\" local_commenter \
+                   ON local_commenter.user_id = local_comment.commented_by_user_id \
+                 LEFT JOIN LATERAL ( \
+                     SELECT COUNT(*)::bigint AS rating_votes \
+                     FROM page_vote vote \
+                     WHERE vote.page_id = input.page_id \
+                       AND vote.deleted_at IS NULL \
+                       AND vote.disabled_at IS NULL \
+                       AND (snapshot.page_id IS NULL OR vote.from_wikidot = FALSE) \
+                       AND vote.rating_system = CASE \
+                           WHEN COALESCE(category.rating_type, \
+                                         default_category.rating_type, \
+                                         'plus_minus') = 'stars' \
+                           THEN 'stars' \
+                           ELSE 'points' \
+                       END \
+                 ) local_vote ON TRUE",
+            ),
+        );
+
+        RuntimeDisplayRow::find_by_statement(statement)
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)
+            .map(|rows| {
+                rows.into_iter()
+                    .map(|row| {
+                        (
+                            row.page_id,
+                            ListPagesRuntimeDisplay {
+                                comments: row.comments,
+                                commented_at: row.commented_at,
+                                commented_by_user_id: row.commented_by_user_id,
+                                commented_by_name: row.commented_by_name,
+                                commented_by_slug: row.commented_by_slug,
+                                commented_by_wikidot_profile: row
+                                    .commented_by_wikidot_profile,
+                                rating_votes: row.rating_votes,
+                                rating_type: row.rating_type,
+                            },
+                        )
+                    })
                     .collect()
             })
     }

@@ -1,0 +1,1160 @@
+{
+  "schema": "wikijump_listpages_compat.preview_reconciliation.v1",
+  "generated_at": "2026-07-27T14:16:23.679Z",
+  "inputs": {
+    "classification_path": "/home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/artifacts/listpages-campaign-generated-preview-classification.json",
+    "classification_sha256": "13e3d83ddb25375d72a4baa77606b75499b105231680a49c377416e7b21a9d78",
+    "differential_path": "/home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/artifacts/listpages-campaign-generated-preview-verdict.json",
+    "references_path": "/home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/artifacts/listpages-campaign-generated-live-preview.jsonl"
+  },
+  "cases": [
+    {
+      "case_id": "lpgen-0001-category-selector-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0002-category-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0003-category-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0004-category-selector-fragment",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0005-category-selector-component-theme",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0006-category-selector-fragment",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0007-category-selector-scp-fragment",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0008-tags-selector-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0009-tags-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0010-tags-selector",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0011-tags-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0012-tags-selector-scp-hidden",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0013-tags-selector-scp-tale-featured",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0014-tags-selector-apple-banana",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0015-parent-selector-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0016-parent-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0017-parent-selector",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0018-parent-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0019-parent-selector",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0020-parent-selector-system-start",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0021-range-selector-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0022-range-selector",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0023-range-selector-before",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0024-range-selector-after",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0025-range-selector-others",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0026-range-selector-bogus",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0027-pagetype-selector-normal",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0028-pagetype-selector-hidden",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0029-pagetype-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0030-pagetype-selector-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0031-pagetype-selector-bogus",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0032-name-selector-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0033-name-selector",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0034-name-selector-scp",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0035-name-selector-scp",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0036-name-selector-literal-page",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0037-fullname-selector-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0038-fullname-selector-component-wikimodule",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0039-fullname-selector",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0040-created-at-selector",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0041-created-at-selector-2024",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0042-created-at-selector-2024-05",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0043-created-at-selector-2024-05",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0044-created-at-selector-2024-05-10",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0045-created-at-selector-2024",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0046-created-at-selector-last-hour",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0047-created-at-selector-older-than-2-weeks",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0048-created-at-selector-not-a-date",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0049-updated-at-selector-2024",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0050-updated-at-selector-last-3-day",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0051-updated-at-selector-older-than-month",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0052-updated-at-selector-bad",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0053-rating-selector-0",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0054-rating-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0055-rating-selector-0",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0056-rating-selector-1",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0057-rating-selector-5",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0058-rating-selector-bad",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0059-votes-selector-0",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0060-votes-selector",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0061-votes-selector-10",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0062-votes-selector-2",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0063-votes-selector-bad",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0064-order-name",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0065-order-fullname",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0066-order-title",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0067-order-created-by",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0068-order-created-at-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0069-order-created-at-desc-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0070-order-created-at-asc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0071-order-updated-at-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0072-order-size-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0073-order-rating-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0074-order-votes-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0075-order-revisions-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0076-order-comments-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0077-order-random",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0078-order-mainword",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0079-order-albums-integer-desc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0080-order-datecreatedasc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0081-order-datecreateddesc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0082-order-pagelengthdesc",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0083-order-unknown",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0084-order-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0085-limit-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0086-limit-0",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0087-limit-1",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0088-limit-20",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0089-limit-250",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0090-limit-251",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0091-limit-1",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0092-limit-2-5",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0093-limit-999999999",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0094-limit-url",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0095-limit-url-0",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0096-perpage-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0097-perpage-0",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0098-perpage-1",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0099-perpage-20",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0100-perpage-250",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0101-perpage-251",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0102-perpage-1",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0103-perpage-2-5",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0104-perpage-999999999",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0105-perpage-url",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0106-perpage-url-20",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0107-offset-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0108-offset-0",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0109-offset-1",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0110-offset-1",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0111-offset-2-5",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0112-offset-999999999",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0113-offset-url",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0114-offset-url-0",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0115-body-containers-yes-yes",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0116-body-containers-no-yes",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0117-body-containers-no-no",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0118-body-containers-true-false",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0119-body-containers-empty-empty",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0120-prepend-append-with-separate-no",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0121-head-body-foot-sections",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0122-code-tag-in-module-body-limitation",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0123-html-tag-in-module-body-limitation",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0124-rss-rss",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0125-rss-rss-rssdescription-rsshome-rsslimit",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0126-rss-rss-rssonly",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0127-rss-rsstitle",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0128-duplicate-conflicting-attributes",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0129-duplicate-conflicting-attributes",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0130-duplicate-conflicting-attributes",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0131-duplicate-conflicting-attributes",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0132-duplicate-conflicting-attributes",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0133-syntax-whitespace-malformed",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0134-syntax-whitespace-malformed",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0135-syntax-whitespace-malformed",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0136-syntax-whitespace-malformed",
+      "differential_status": "mismatch",
+      "classification": "inconclusive-fixture-data-state",
+      "disposition": "replay-synchronized-fixture",
+      "status": "non-actionable",
+      "rationale": "Both runtimes execute ListPages, but the live and local sites contain different pages."
+    },
+    {
+      "case_id": "lpgen-0137-syntax-whitespace-malformed",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0138-syntax-whitespace-malformed",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0139-syntax-whitespace-malformed",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0140-syntax-whitespace-malformed",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    },
+    {
+      "case_id": "lpgen-0141-syntax-whitespace-malformed",
+      "differential_status": "match",
+      "classification": "matched",
+      "disposition": "none",
+      "status": "non-actionable",
+      "rationale": "Canonical DOM and visible text match."
+    }
+  ],
+  "actionable_case_ids": [],
+  "summary": {
+    "total": 141,
+    "actionable": 0,
+    "non_actionable": 141,
+    "fixture_data_state": 97,
+    "matched": 44,
+    "statuses": {
+      "non-actionable": 141
+    },
+    "classifications": {
+      "inconclusive-fixture-data-state": 97,
+      "matched": 44
+    },
+    "dispositions": {
+      "replay-synchronized-fixture": 97,
+      "none": 44
+    },
+    "exit_code": 0
+  }
+}

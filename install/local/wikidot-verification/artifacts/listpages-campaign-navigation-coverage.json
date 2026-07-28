@@ -1,0 +1,343 @@
+{
+  "schema": "wikijump_listpages_compat.navigation_coverage.v1",
+  "generated_at": "2026-07-28T06:25:04.908Z",
+  "inputs": {
+    "matrix_cases_path": "/home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/artifacts/listpages-campaign-matrix/navigation-cases.jsonl",
+    "matrix_cases_sha256": "b6f2330e02bdbb542ce19fd36ed2a19132d75beaff651166819b443423eab19a"
+  },
+  "coverage": [
+    {
+      "case_id": "lpnav-0001-root",
+      "url_suffix": "",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-page-1"
+      ]
+    },
+    {
+      "case_id": "lpnav-0002-p-1",
+      "url_suffix": "/p/1",
+      "status": "covered-local-live-inferred",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-page-1"
+      ],
+      "note": "Live root capture and local /p/1 assertion cover first-page equivalence."
+    },
+    {
+      "case_id": "lpnav-0003-p-2",
+      "url_suffix": "/p/2",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-page-2"
+      ]
+    },
+    {
+      "case_id": "lpnav-0004-p-3",
+      "url_suffix": "/p/3",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-page-3"
+      ]
+    },
+    {
+      "case_id": "lpnav-0005-p-0",
+      "url_suffix": "/p/0",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-zero"
+      ]
+    },
+    {
+      "case_id": "lpnav-0006-p-1",
+      "url_suffix": "/p/-1",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-negative"
+      ]
+    },
+    {
+      "case_id": "lpnav-0007-p-abc",
+      "url_suffix": "/p/abc",
+      "status": "covered-local-live-semantic",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-text"
+      ]
+    },
+    {
+      "case_id": "lpnav-0008-p-2-5",
+      "url_suffix": "/p/2.5",
+      "status": "covered-local-live-semantic",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-text"
+      ]
+    },
+    {
+      "case_id": "lpnav-0009-p-999999999",
+      "url_suffix": "/p/999999999",
+      "status": "covered-local-live-semantic",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-beyond"
+      ]
+    },
+    {
+      "case_id": "lpnav-0010-tag-alpha-p-2",
+      "url_suffix": "/tag/alpha/p/2",
+      "status": "covered-semantic",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_url_offset_selector_reads_the_request_route"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_url_tag_selector_reads_the_url_tag_argument"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "generated_list_pages_pager_preserves_live_url_argument_shape"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-url-composed"
+      ],
+      "note": "Exact tag value differs; live fixture covers tag + offset + pagination ordering."
+    },
+    {
+      "case_id": "lpnav-0011-p-2-tag-alpha",
+      "url_suffix": "/p/2/tag/alpha",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_argument_order_around_the_pager"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_url_tag_selector_reads_the_url_tag_argument"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-p-before-tag"
+      ]
+    },
+    {
+      "case_id": "lpnav-0012-p-2-p-3",
+      "url_suffix": "/p/2/p/3",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "generated_list_pages_pager_preserves_live_url_argument_shape"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-repeated"
+      ]
+    },
+    {
+      "case_id": "lpnav-0013-category-fragment-p-2",
+      "url_suffix": "/category/fragment/p/2",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_argument_order_around_the_pager"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-category-before-p"
+      ]
+    },
+    {
+      "case_id": "lpnav-0014-offset-1-p-2",
+      "url_suffix": "/offset/1/p/2",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_url_offset_selector_reads_the_request_route"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-url-composed"
+      ]
+    },
+    {
+      "case_id": "lpnav-0015-prefix-p-2",
+      "url_suffix": "/prefix_p/2",
+      "status": "covered-semantic",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_saved_view_preserves_live_pagination_path_shapes"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "test": "generated_list_pages_pager_uses_url_attr_prefix"
+        },
+        {
+          "kind": "rust-test",
+          "path": "deepwell/src/services/render/url_arguments.rs",
+          "test": "page_selection_uses_last_positive_matching_prefix"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-prefixed-a-page-2",
+        "lp-live-prefixed-b-page-2"
+      ],
+      "note": "Exact prefix differs; live and local cover urlAttrPrefix page selection semantics."
+    },
+    {
+      "case_id": "lpnav-0016-page2-limit-1-page3-limit-2",
+      "url_suffix": "/page2_limit/1/page3_limit/2",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "rust-test",
+          "path": "deepwell/tests/page.rs",
+          "test": "list_pages_prefixed_url_arguments_address_only_the_matching_module"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-navigation-prefixed-limits"
+      ]
+    },
+    {
+      "case_id": "lpnav-0017-q-1",
+      "url_suffix": "?q=1",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "playwright-test",
+          "path": "framerail/tests/list-pages-navigation.spec.ts",
+          "test": "ListPages pagination survives direct loads, reload, and browser history"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-query"
+      ]
+    },
+    {
+      "case_id": "lpnav-0018-p-2-q-1",
+      "url_suffix": "/p/2?q=1",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "playwright-test",
+          "path": "framerail/tests/list-pages-navigation.spec.ts",
+          "test": "ListPages pagination survives direct loads, reload, and browser history"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-query"
+      ]
+    },
+    {
+      "case_id": "lpnav-0019-p-2-fragment",
+      "url_suffix": "/p/2#fragment",
+      "status": "covered",
+      "local_regressions": [
+        {
+          "kind": "playwright-test",
+          "path": "framerail/tests/list-pages-navigation.spec.ts",
+          "test": "ListPages pagination survives direct loads, reload, and browser history"
+        }
+      ],
+      "live_capture_case_ids": [
+        "lp-live-pagination-page-2"
+      ],
+      "note": "The path behavior is live-captured; the fragment is browser-only, never enters Deepwell route.extra, and is covered through the served-page browser seam."
+    }
+  ],
+  "gap_case_ids": [],
+  "summary": {
+    "navigation_cases": 19,
+    "exact_or_semantic_covered": 19,
+    "gaps": 0,
+    "statuses": {
+      "covered": 13,
+      "covered-local-live-inferred": 1,
+      "covered-local-live-semantic": 3,
+      "covered-semantic": 2
+    },
+    "exit_code": 0
+  }
+}

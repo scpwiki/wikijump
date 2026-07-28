@@ -1,0 +1,205 @@
+{
+  "schema": "wikijump_listpages_compat.hash_magic_reconciliation.v1",
+  "generated_at": "2026-07-27T14:32:13.713Z",
+  "inputs": {
+    "audit_path": "/home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/artifacts/listpages-campaign-hash-magic-live-audit.json",
+    "audit_sha256": "87ba69a7ac0427be0f1bd07329062f9c3061305654be9a315be84e52a6fe1d92",
+    "matrix_cases_path": "/home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/artifacts/listpages-campaign-matrix/hash-magic-audit-cases.jsonl",
+    "matrix_cases_sha256": "7b79b1864a9d08e20607e5dc4414666650fb9ce96dfa1d9146ba93769bd58ffa"
+  },
+  "cases": [
+    {
+      "case_id": "lphash-0001-wantedpages",
+      "hash": "#_wantedpages",
+      "documented": true,
+      "documented_behavior": "lists Wanted Pages",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L87"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "wanted-pages-panel-opened",
+      "observed_behavior_classification": "wanted-pages-panel-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0002-orphanedpages",
+      "hash": "#_orphanedpages",
+      "documented": true,
+      "documented_behavior": "lists Orphaned Pages",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L88"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "orphaned-pages-panel-opened",
+      "observed_behavior_classification": "orphaned-pages-panel-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0003-draftpages",
+      "hash": "#_draftpages",
+      "documented": true,
+      "documented_behavior": "lists Draft Pages on site",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L89"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "draft-pages-panel-opened",
+      "observed_behavior_classification": "draft-pages-panel-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0004-editpage",
+      "hash": "#_editpage",
+      "documented": true,
+      "documented_behavior": "opens Editor",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L75",
+        "doc-wiki-syntax:links:L90"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "permission-error-dialog-opened",
+      "observed_behavior_classification": "permission-error-dialog-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0005-edittags",
+      "hash": "#_edittags",
+      "documented": true,
+      "documented_behavior": "opens Tag Editor",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L91"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "permission-error-dialog-opened",
+      "observed_behavior_classification": "permission-error-dialog-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0006-history",
+      "hash": "#_history",
+      "documented": true,
+      "documented_behavior": "displays History",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L92"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "history-panel-opened",
+      "observed_behavior_classification": "history-panel-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0007-files",
+      "hash": "#_files",
+      "documented": true,
+      "documented_behavior": "lists Files attached to the page",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L93"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "files-panel-opened",
+      "observed_behavior_classification": "files-panel-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0008-sitetools",
+      "hash": "#_sitetools",
+      "documented": true,
+      "documented_behavior": "opens Site Tools",
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L94"
+      ],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "site-tools-panel-opened",
+      "observed_behavior_classification": "site-tools-panel-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0009-tags",
+      "hash": "#_tags",
+      "documented": false,
+      "documented_behavior": null,
+      "documentation_claim_ids": [],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "no-observed-effect",
+      "observed_behavior_classification": "no-observed-effect",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0010-discuss",
+      "hash": "#_discuss",
+      "documented": false,
+      "documented_behavior": null,
+      "documentation_claim_ids": [],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "no-observed-effect",
+      "observed_behavior_classification": "no-observed-effect",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0011-edit",
+      "hash": "#_edit",
+      "documented": false,
+      "documented_behavior": null,
+      "documentation_claim_ids": [],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "no-observed-effect",
+      "observed_behavior_classification": "no-observed-effect",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0012-page-options",
+      "hash": "#_page-options",
+      "documented": false,
+      "documented_behavior": null,
+      "documentation_claim_ids": [],
+      "listpages_scope": "hash-magic-global-not-listpages",
+      "expected_observed_behavior": "no-observed-effect",
+      "observed_behavior_classification": "no-observed-effect",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    },
+    {
+      "case_id": "lphash-0013-history-p-2",
+      "hash": "#_history/p/2",
+      "documented": false,
+      "documented_behavior": null,
+      "documentation_claim_ids": [
+        "doc-wiki-syntax:links:L92"
+      ],
+      "listpages_scope": "hash-magic-composition-not-listpages-pagination",
+      "expected_observed_behavior": "history-panel-opened",
+      "observed_behavior_classification": "history-panel-opened",
+      "missing": false,
+      "disposition": "recorded-out-of-scope"
+    }
+  ],
+  "duplicate_capture_ids": [],
+  "unresolved_case_ids": [],
+  "summary": {
+    "matrix_cases": 13,
+    "captures": 13,
+    "missing_captures": 0,
+    "duplicate_capture_ids": 0,
+    "unresolved": 0,
+    "listpages_implementation_required": 0,
+    "dispositions": {
+      "recorded-out-of-scope": 13
+    },
+    "scopes": {
+      "hash-magic-global-not-listpages": 12,
+      "hash-magic-composition-not-listpages-pagination": 1
+    },
+    "exit_code": 0
+  }
+}

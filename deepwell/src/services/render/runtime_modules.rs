@@ -9,12 +9,13 @@ use super::compat::CompatHtmlFragments;
 use super::compat::text_fragments::CompatTextFragments;
 use super::list_pages::{is_tag_cloud_visible_tag, render_tag_cloud_box};
 use super::literal_regions::LiteralRegionIndex;
+use super::module_arguments::wikidot_module_argument;
 use super::native_list_context::collect_unproven_scope_ranges;
 use super::service::{
     RATE_MODULE_REGEX, REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
     escape_list_pages_html_attr, escape_list_pages_html_text, render_clone_module,
     render_members_module_placeholder, render_new_page_module,
-    render_read_only_rate_module, wikidot_module_argument,
+    render_read_only_rate_module,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};

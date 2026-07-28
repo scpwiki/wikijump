@@ -237,7 +237,7 @@ fn unquote_static_wikidot_data_form_value(value: &str) -> &str {
     value
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum OrderProperty {
     PageSlug,
     FullSlug,
@@ -252,10 +252,13 @@ pub enum OrderProperty {
     Revisions,
     Comments,
     Random,
-    DataFormFieldName,
+    DataFormFieldName {
+        field: Cow<'static, str>,
+        numeric: bool,
+    },
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OrderBySelector {
     pub property: OrderProperty,
     pub ascending: bool,

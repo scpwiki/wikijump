@@ -74,7 +74,7 @@ impl CompatTextFragments {
     }
 }
 
-fn escape_html_text(value: &str) -> String {
+pub(in crate::services::render) fn escape_html_text(value: &str) -> String {
     let mut escaped = String::with_capacity(value.len());
     for character in value.chars() {
         match character {

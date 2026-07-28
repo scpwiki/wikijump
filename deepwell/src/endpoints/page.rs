@@ -32,6 +32,7 @@ use crate::services::page::{
 use crate::services::page_query::PageQueryService;
 use crate::services::page_revision::RerenderType;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::render::{WikidotListPagesFeedInput, WikidotListPagesFeedOutput};
 use crate::services::{MutationAuthorization, TextService};
 use crate::types::{
     Action, Bytes, FileOrder, PageDetails, PageId, Permission, Reference, RerenderDepth,
@@ -131,6 +132,18 @@ pub async fn wikidot_list_pages_module(
             &normalize_wikidot_list_pages_set_pairs(&output.html_output.body),
         ),
     })
+}
+
+pub async fn wikidot_list_pages_feed(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<WikidotListPagesFeedOutput> {
+    let input: WikidotListPagesFeedInput = parse!(params, Page);
+    RenderService::render_wikidot_list_pages_feed(ctx, input)
+        .await
+        .or_raise(|| {
+            Error::new("failed to render Wikidot ListPages feed", ErrorType::Page)
+        })
 }
 
 fn normalize_wikidot_list_pages_set_spacing(body: &str) -> String {

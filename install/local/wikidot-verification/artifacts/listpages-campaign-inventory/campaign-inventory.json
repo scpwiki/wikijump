@@ -1,0 +1,30 @@
+{
+  "schema": "wikijump_listpages_compat.campaign_inventory.v1",
+  "generated_at": "2026-07-27T06:41:24.648Z",
+  "docs_root": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/www/pages",
+  "corpus_root": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus",
+  "files": {
+    "documentation_inventory": "documentation-inventory.json",
+    "documentation_claims": "documentation-claims.jsonl",
+    "documentation_missing_references": "documentation-missing-references.jsonl",
+    "corpus_invocations": "corpus-listpages-invocations.jsonl",
+    "corpus_clusters": "corpus-listpages-clusters.json",
+    "summary": "summary.json"
+  },
+  "summary": {
+    "docs": {
+      "all_doc_page_count": 1806,
+      "inspected_document_count": 173,
+      "claim_count": 5323,
+      "reference_count": 1128,
+      "missing_reference_count": 4
+    },
+    "corpus": {
+      "branch_count": 26,
+      "invocation_count": 23893,
+      "page_count_with_invocations": 7148,
+      "cluster_count": 17644,
+      "malformed_count": 69
+    }
+  }
+}

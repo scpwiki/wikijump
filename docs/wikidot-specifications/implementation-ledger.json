@@ -1,0 +1,2376 @@
+{
+  "schema": "wikijump.wikidot_implementation_ledger.v1",
+  "updated_at": "2026-07-28",
+  "catalog_sha256": "cb97399a1264b724d59ff7f023193ae43554fb1dbaa67e617debde1f93f13749",
+  "campaign": {
+    "name": "ListPages compatibility campaign",
+    "requested_scope": [
+      "module-listpages"
+    ],
+    "note": "All catalog entries remain represented as required by IMPLEMENTATION_PROMPT.md. This worktree is completing the user-requested ListPages item; unrelated catalog entries remain pending rather than being falsely marked complete."
+  },
+  "features": {
+    "api-categories-select": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-categories-select.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-deleted-methods": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-deleted-methods.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-files-get-meta": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-files-get-meta.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-files-get-one": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-files-get-one.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-files-save-one": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-files-save-one.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-files-select": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-files-select.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-overview": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-overview.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-pages-get-meta": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-pages-get-meta.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-pages-get-one": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-pages-get-one.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-pages-save-one": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-pages-save-one.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-pages-select": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-pages-select.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-posts-get": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-posts-get.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-posts-select": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-posts-select.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-tags-select": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-tags-select.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "api-users-get-me": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/api/api-users-get-me.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-checkbox-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-checkbox-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-creating-new-page": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-creating-new-page.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-css-styling": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-css-styling.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-dataforms-and-listpages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-dataforms-and-listpages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-date-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-date-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-deleting-form": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-deleting-form.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-displaying": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-displaying.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-field-properties": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-field-properties.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-file-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-file-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-hidden-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-hidden-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-hints": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-hints.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-howto": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-howto.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-images": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-images.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-links": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-links.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-output-style": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-output-style.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-overview": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-overview.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-pagepath": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-pagepath.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-pagepath-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-pagepath-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-password-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-password-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-select-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-select-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-selecting-and-sorting": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-selecting-and-sorting.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-static-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-static-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-tags": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-tags.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-text-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-text-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-url-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-url-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-wiki-field": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-wiki-field.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "data-forms-youtube": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-youtube.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "layout-custom": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/layout/layout-custom.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "layout-forum": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/layout/layout-forum.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "layout-page": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/layout/layout-page.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-ad": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-ad.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-admoduleabovecontent": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-admoduleabovecontent.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-admoduleabovesidebar": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-admoduleabovesidebar.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-admodulebelowcontent": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-admodulebelowcontent.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-admodulebelowfooter": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-admodulebelowfooter.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-admodulebelowsidebar": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-admodulebelowsidebar.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-adsenseunit": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-adsenseunit.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-anonymousnotificationsunsubscribe": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-anonymousnotificationsunsubscribe.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-backlinks": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-backlinks.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-categories": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-categories.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-childpages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-childpages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-clone": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-clone.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-comments": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-comments.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-countpages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-countpages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-createaccount": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-createaccount.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-css": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-css.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-currencyconvert": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-currencyconvert.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-dashboard": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-dashboard.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-deleteaccount": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-deleteaccount.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-featuredsite": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-featuredsite.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-feed": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-feed.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-files": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-files.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-flickrgallery": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-flickrgallery.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-footerbar": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-footerbar.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-forumcategory": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-forumcategory.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-forumnewthread": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-forumnewthread.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-forumstart": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-forumstart.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-forumthread": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-forumthread.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-frontforum": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-frontforum.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-frontspecialmini": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-frontspecialmini.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-join": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-join.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-listdrafts": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-listdrafts.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-listpages": {
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Anonymous PagePreviewModule and run-owned saved-page live Wikidot oracle",
+        "Deepwell public saved-page, preview, and AJAX ListPages render/query interfaces",
+        "Framerail public HTTP ListPages feed and page routes",
+        "Served-page Playwright browser navigation boundary",
+        "FTML public parser/layout interface for syntax-owned discrepancies only"
+      ],
+      "tests": [
+        {
+          "path": "deepwell/tests/list_pages.rs",
+          "scope": "public ListPages and CountPages endpoint/render integration tests"
+        },
+        {
+          "path": "deepwell/tests/page.rs",
+          "scope": "public saved-page, preview, URL, pagination, query, permission, and rendering integration tests"
+        },
+        {
+          "path": "framerail/tests/list-pages-feed.test.ts",
+          "scope": "public feed-route parsing and RSS response behavior"
+        },
+        {
+          "path": "framerail/tests/list-pages-navigation.spec.ts",
+          "scope": "public served-page direct load, reload, pager, and browser history behavior"
+        },
+        {
+          "path": "install/local/wikidot-verification/tests",
+          "scope": "corpus inventory, generated matrix, live differential, regression accounting, RSS, and navigation verifier tests"
+        }
+      ],
+      "implementation_files": [
+        "deepwell/src/services/page_query",
+        "deepwell/src/services/render/list_pages",
+        "deepwell/src/services/render/url_arguments.rs",
+        "deepwell/src/services/view/module_arguments.rs",
+        "deepwell/src/services/view/module_render.rs",
+        "framerail/src/lib/server/list-pages-feed.ts",
+        "framerail/src/routes/feed",
+        "install/local/wikidot-verification"
+      ],
+      "documentation_evidence": [
+        "docs/wikidot-specifications/specifications/module/module-listpages.md",
+        "docs/wikidot-specifications/live-observations.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-inventory/documentation-inventory.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-inventory/corpus-listpages-invocations.jsonl",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-inventory/corpus-listpages-clusters.json"
+      ],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/listpages-campaign-live-fixture-classification.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-live-fixtures-navigation-rerun.jsonl",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-generated-preview-reconciliation.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-feed-endpoint-live.jsonl",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-rss-live-preview.jsonl",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-rss-selector-live-preview.jsonl",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-hash-magic-reconciliation.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-navigation-coverage.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-rating-comment-data-form-live.json"
+      ],
+      "unresolved_ambiguities_or_blockers": [
+        "Imported Wikidot snapshots retain the last commenter's display name and timestamp but not the Wikidot user ID. Identity-bearing last-comment variables on imported rows remain provenance-blocked until the corpus or importer supplies a stable user identity; local relational comments are not blocked."
+      ]
+    },
+    "module-listusers": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-listusers.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-loginstatus": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-loginstatus.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-mailform": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-mailform.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-managesite": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-managesite.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-members": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-members.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-membershipapply": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-membershipapply.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-membershipbypassword": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-membershipbypassword.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-membershipemailinvitation": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-membershipemailinvitation.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-miniactivethreads": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-miniactivethreads.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-minirecentposts": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-minirecentposts.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-minirecentthreads": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-minirecentthreads.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-navibar": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-navibar.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-newpage": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-newpage.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-newsite": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-newsite.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-nextpreviouspage": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-nextpreviouspage.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-orphanedpages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-orphanedpages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-pagecalendar": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-pagecalendar.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-pageoptionsbottom": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-pageoptionsbottom.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-pages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-pages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-pagesbytag": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-pagesbytag.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-pagetree": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-pagetree.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-petitionadmin": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-petitionadmin.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-rate": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-rate.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-ratedpages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-ratedpages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-recentposts": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-recentposts.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-recentthreads": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-recentthreads.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-redirect": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-redirect.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-search": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-search.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-searchall": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-searchall.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-searchusers": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-searchusers.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-sendinvitations": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-sendinvitations.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-simpletodo": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-simpletodo.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-sitechanges": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-sitechanges.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-sitegrid": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-sitegrid.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-sitestagcloud": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-sitestagcloud.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-tagcloud": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-tagcloud.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-themepreviewer": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-themepreviewer.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-userinfo": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-userinfo.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-wantedpages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-wantedpages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-watchers": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-watchers.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "module-whoinvited": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/module/module-whoinvited.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "account-lifecycle": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/account-lifecycle.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "advertising": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/advertising.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "avatars": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/avatars.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "browser-support": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/browser-support.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "collaborative-editing": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/collaborative-editing.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "community-site-directory": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/community-site-directory.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "content-licensing": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/content-licensing.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "custom-domains": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/custom-domains.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "educational-site-status": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/educational-site-status.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "expressions": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/expressions.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "favicons": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/favicons.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "forum-signatures": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/forum-signatures.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "gravatar": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/gravatar.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "hosted-wiki-platform": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/hosted-wiki-platform.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "karma": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/karma.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "managed-hosting": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/managed-hosting.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "meta-tags": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/meta-tags.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "outgoing-pingbacks": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/outgoing-pingbacks.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-editing-history": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/page-editing-history.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-templates": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/page-templates.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "private-messages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/private-messages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "private-sites": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/private-sites.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "roles-and-permissions": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/roles-and-permissions.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "search-language": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/search-language.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "secure-login": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/secure-login.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "service-resilience": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/service-resilience.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-backups": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-backups.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-cloning": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-cloning.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-https": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-https.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-lifecycle-limits": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-lifecycle-limits.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-membership": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-membership.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-navigation": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-navigation.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-storage": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-storage.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-themes": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/site-themes.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "subscription-plan-matrix": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/subscription-plan-matrix.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "subscriptions-plans": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/subscriptions-plans.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-engine": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/syntax-engine.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "thumbnails": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/thumbnails.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "unlimited-pages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/unlimited-pages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "user-roles": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/user-roles.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "watching-notifications": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/watching-notifications.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "web-statistics": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/platform/web-statistics.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "content-pages": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/content-pages.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "forum-categories": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/forum-categories.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "forum-category-groups": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/forum-category-groups.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "forum-posts": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/forum-posts.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "forum-threads": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/forum-threads.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "forums-overview": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/forums-overview.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-categories": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/page-categories.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-forum-integration": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/page-forum-integration.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-inclusions": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/page-inclusions.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-links": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/page-links.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-parent-relations": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/page-parent-relations.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "page-tags": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/page-tags.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "site-identity": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/site-structure/site-identity.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-attachment": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-attachment.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-bibliography": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-bibliography.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-block-formatting-elements": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-block-formatting-elements.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-block-quotes": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-block-quotes.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-buttons": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-buttons.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-code-blocks": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-code-blocks.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-collapsible-blocks": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-collapsible-blocks.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-comments": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-comments.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-date": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-date.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-definition-lists": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-definition-lists.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-embedding": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-embedding.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-embedding-code": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-embedding-code.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-foldable-list": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-foldable-list.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-footnotes": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-footnotes.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-headings": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-headings.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-horizontal-rules": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-horizontal-rules.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-html-blocks": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-html-blocks.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-iftags": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-iftags.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-images": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-images.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-include": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-include.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-inline-formatting": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-inline-formatting.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-layout": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-layout.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-links": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-links.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-lists": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-lists.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-literal-text": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-literal-text.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-math": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-math.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-notes": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-notes.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-paragraphs-and-newline": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-paragraphs-and-newline.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-social-bookmarking": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-social-bookmarking.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-table-of-contents": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-table-of-contents.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-tables": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-tables.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-tag-buttons": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-tag-buttons.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-text-size": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-text-size.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-typography": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-typography.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-universal-escaping": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-universal-escaping.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    },
+    "syntax-users": {
+      "status": "pending",
+      "confirmed_public_seams": [],
+      "tests": [],
+      "implementation_files": [],
+      "documentation_evidence": [
+        "specifications/wiki-syntax/syntax-users.md"
+      ],
+      "live_oracle_evidence": [],
+      "unresolved_ambiguities_or_blockers": []
+    }
+  }
+}

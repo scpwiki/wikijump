@@ -25,9 +25,9 @@
 //! argument and ignores unrelated arguments.
 
 use super::compat::CompatHtmlFragments;
+use super::module_arguments::wikidot_module_argument;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
-    wikidot_module_argument,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::permission::{CheckPermissionContext, PermissionService};

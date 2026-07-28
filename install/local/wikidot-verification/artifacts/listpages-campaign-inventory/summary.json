@@ -1,0 +1,16 @@
+{
+  "docs": {
+    "all_doc_page_count": 1806,
+    "inspected_document_count": 173,
+    "claim_count": 5323,
+    "reference_count": 1128,
+    "missing_reference_count": 4
+  },
+  "corpus": {
+    "branch_count": 26,
+    "invocation_count": 23893,
+    "page_count_with_invocations": 7148,
+    "cluster_count": 17644,
+    "malformed_count": 69
+  }
+}

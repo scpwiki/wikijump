@@ -29,9 +29,9 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
 use super::compat::CompatHtmlFragments;
 use super::literal_regions::LiteralRegionIndex;
+use super::module_arguments::{module_arguments_are_complete, wikidot_module_arguments};
 use super::service::{
-    LISTPAGES_ARGUMENT_REGEX, RenderService, escape_list_pages_html_attr,
-    escape_list_pages_html_text, list_pages_runtime_regex_recognizes_entire_head,
+    RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
@@ -65,22 +65,15 @@ struct PageTreeArguments<'a> {
 }
 
 fn page_tree_argument<'a>(head: &'a str, name: &str) -> Option<&'a str> {
-    let mut value = None;
-    for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
-        if captures.name("key").map(|mtch| mtch.as_str()) != Some(name) {
-            continue;
-        }
-        value = captures
-            .name("double")
-            .or_else(|| captures.name("single"))
-            .or_else(|| captures.name("bare"))
-            .map(|mtch| mtch.as_str());
-    }
-    value
+    wikidot_module_arguments(head)?
+        .into_iter()
+        .rev()
+        .find(|argument| argument.key == name)
+        .map(|argument| argument.value)
 }
 
 fn parse_page_tree_arguments(head: &str) -> Option<PageTreeArguments<'_>> {
-    if !list_pages_runtime_regex_recognizes_entire_head(head) {
+    if !module_arguments_are_complete(head) {
         return None;
     }
 

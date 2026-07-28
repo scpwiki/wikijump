@@ -88,6 +88,7 @@ use super::literal_regions::LiteralRegionIndex;
 use super::metacomponent::{
     MetacomponentSourceContext, select_metacomponent_documentation,
 };
+use super::module_arguments::wikidot_module_argument;
 use super::native_list_context::NativeListSourceContext;
 use super::pages::expand_page_index_modules;
 use super::percent_encoding::percent_encode_path_segment;
@@ -269,6 +270,7 @@ pub(super) const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
 // render paths retain the ordinary limit above.
 const MAX_CORPUS_INCLUDE_EXPANSION_TOTAL: usize = 4096;
 pub(super) const DEFAULT_LISTPAGES_RENDER_LIMIT: u64 = 100;
+pub(super) const DEFAULT_LISTPAGES_PER_PAGE: u64 = 20;
 pub(super) const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
 // Keep runtime-owned content expansion within the ordinary ListPages page size. Explicitly larger content modules remain literal before revision loading and nested include expansion.
 pub(super) const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
@@ -348,14 +350,14 @@ pub(super) static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 pub(super) static GENERATED_LISTPAGES_HTML_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">.*?</table>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">[^<>]*</span>|<span class="printuser avatarhover" data-wikijump-compat-listpages-user="1">.*?</span>"#,
+        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">.*?</table>|<div class="feedinfo" data-wikijump-compat-listpages-feed="1">.*?</div>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">[^<>]*</span>|<span class="printuser avatarhover" data-wikijump-compat-listpages-user="1">.*?</span>|<span class="page-rate-list-pages-start" data-rating="[^"]*" data-wikijump-compat-listpages-rating="1">[^<>]*</span>|<span data-wikijump-compat-listpages-preview="1" style="white-space: pre-wrap;">[^<>]*</span>"#,
     )
     .unwrap()
 });
 #[cfg(test)]
 static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">.*?</table>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>|<a class="button" data-wikijump-compat-clone="1"[^>]*>.*?</a>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">[^<>]*</span>"#,
+        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">.*?</table>|<div class="feedinfo" data-wikijump-compat-listpages-feed="1">.*?</div>|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>.*?</div>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>.*?</div>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>.*?</form>|<a class="button" data-wikijump-compat-clone="1"[^>]*>.*?</a>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">[^<>]*</span>|<span class="page-rate-list-pages-start" data-rating="[^"]*" data-wikijump-compat-listpages-rating="1">[^<>]*</span>|<span data-wikijump-compat-listpages-preview="1" style="white-space: pre-wrap;">[^<>]*</span>"#,
     )
     .unwrap()
 });
@@ -386,17 +388,6 @@ pub(super) static WIKIJUMP_FOOTNOTE_REF_LEADING_SPACE_REGEX: LazyLock<Regex> =
     });
 pub(super) static WIKIJUMP_FOOTNOTE_DATA_ID_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"data-id="(?P<id>[0-9]+)""#).unwrap());
-pub(super) static LISTPAGES_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"(?s)(?P<key>[A-Za-z_][A-Za-z0-9_\-]*)\s*(?P<op>!?=)\s*(?:"(?P<double>[^"]*)"|'(?P<single>[^']*)'|(?P<bare>[^\s\]]+))"#)
-        .unwrap()
-});
-
-pub(super) fn list_pages_runtime_regex_recognizes_entire_head(head: &str) -> bool {
-    LISTPAGES_ARGUMENT_REGEX
-        .replace_all(head, "")
-        .trim()
-        .is_empty()
-}
 static WIKIDOT_USER_INLINE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[\[\*user\s+(?P<name>[^\]]+)\]\]").unwrap());
 pub(super) static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> =
@@ -1756,8 +1747,6 @@ impl RenderService {
                     html_output.body,
                     &wikidot_compat_links,
                 );
-                html_output.body =
-                    restore_list_pages_literal_ellipsis_markers(&html_output.body);
                 Self::record_protected_wikidot_wikipedia_backlinks(
                     &mut html_output.backlinks,
                     &wikidot_wikipedia_links,
@@ -1771,6 +1760,8 @@ impl RenderService {
                     render_current_site.as_ref(),
                     &render_config,
                 );
+                html_output.body =
+                    restore_list_pages_literal_ellipsis_markers(&html_output.body);
                 html_output.body = wikidot_compat_text.restore(&html_output.body);
                 html_output.backlinks.included_pages.extend(included_pages);
                 let html_block_texts = tree
@@ -4641,23 +4632,6 @@ fn wikidot_rate_module_labels(language: &str) -> WikidotRateModuleLabels {
 fn is_japanese_wikidot_locale(language: &str) -> bool {
     let language = language.replace('_', "-").to_ascii_lowercase();
     matches!(language.as_str(), "ja" | "jp") || language.starts_with("ja-")
-}
-
-pub(super) fn wikidot_module_argument<'a>(head: &'a str, name: &str) -> Option<&'a str> {
-    for captures in LISTPAGES_ARGUMENT_REGEX.captures_iter(head) {
-        let key = captures.name("key")?.as_str();
-        if !key.eq_ignore_ascii_case(name) {
-            continue;
-        }
-
-        return captures
-            .name("double")
-            .or_else(|| captures.name("single"))
-            .or_else(|| captures.name("bare"))
-            .map(|mtch| mtch.as_str());
-    }
-
-    None
 }
 
 pub(super) fn render_members_module_placeholder(group: &str) -> String {

@@ -22,9 +22,8 @@
 
 use super::compat::CompatHtmlFragments;
 use super::literal_regions::LiteralRegionIndex;
-use super::service::{
-    RenderService, escape_list_pages_html_text, wikidot_module_argument,
-};
+use super::module_arguments::wikidot_module_argument;
+use super::service::{RenderService, escape_list_pages_html_text};
 use crate::error::prelude::Result;
 use crate::services::{CategoryService, ServiceContext};
 use ftml::settings::WikitextSettings;

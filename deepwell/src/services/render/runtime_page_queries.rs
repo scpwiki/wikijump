@@ -99,7 +99,7 @@ async fn find_viewable_render_page_rows(
     retain_score_filter_session: bool,
 ) -> Result<ViewableCountPagesRows> {
     let mut score_filter_session = PageQueryScoreFilterSession::default();
-    if target_count > 0 && render_page_query_uses_single_scan(query.order) {
+    if target_count > 0 && render_page_query_uses_single_scan(query.order.clone()) {
         let mut query = query;
         query.offset = 0;
         query.pagination.limit = Some(random_page_query_scan_limit(target_count));

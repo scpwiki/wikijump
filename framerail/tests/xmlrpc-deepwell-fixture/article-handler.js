@@ -1,6 +1,29 @@
 import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.js"
 import { pages, toArticleViewResult } from "./data.js"
 
+const LISTPAGES_NAVIGATION_EXTRA = /^p\/[1-9][0-9]*$/u
+
+const pageForArticleRoute = (route) => {
+  const page = pages[route.slug]
+  if (!page) return null
+  if (route.slug === "listpages-navigation") {
+    if (route.extra !== "" && !LISTPAGES_NAVIGATION_EXTRA.test(route.extra)) {
+      return null
+    }
+    return {
+      ...page,
+      compiled_body_html: [
+        `<span id="listpages-route">${route.extra || "root"}</span>`,
+        '<div class="pager">',
+        '<span class="target"><a id="listpages-page-one" href="/listpages-navigation/p/1">1</a></span>',
+        '<span class="target"><a id="listpages-page-two" href="/listpages-navigation/p/2">2</a></span>',
+        "</div>"
+      ].join("")
+    }
+  }
+  return route.extra === "" ? page : null
+}
+
 /**
  * @param {{
  *   rpcRequest: any
@@ -26,11 +49,10 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
     Array.isArray(rpcRequest.params.locales) &&
     hasExactKeys(rpcRequest.params.route, ["extra", "slug"]) &&
     typeof rpcRequest.params.route.slug === "string" &&
-    rpcRequest.params.route.extra === "" &&
-    pages[rpcRequest.params.route.slug]
+    pageForArticleRoute(rpcRequest.params.route)
   ) {
     articleReadRequests.articleView.push(rpcRequest.params)
-    result = toArticleViewResult(pages[rpcRequest.params.route.slug])
+    result = toArticleViewResult(pageForArticleRoute(rpcRequest.params.route))
   } else if (
     rpcRequest.method === "article_view_cache_metadata" &&
     hasExactKeys(rpcRequest.params, ["locales", "route", "session_token", "site_id"]) &&
@@ -39,11 +61,10 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
     Array.isArray(rpcRequest.params.locales) &&
     hasExactKeys(rpcRequest.params.route, ["extra", "slug"]) &&
     typeof rpcRequest.params.route.slug === "string" &&
-    rpcRequest.params.route.extra === "" &&
-    pages[rpcRequest.params.route.slug]
+    pageForArticleRoute(rpcRequest.params.route)
   ) {
     articleReadRequests.articleViewCacheMetadata.push(rpcRequest.params)
-    const page = pages[rpcRequest.params.route.slug]
+    const page = pageForArticleRoute(rpcRequest.params.route)
     result = {
       article_page_cache_key: `deepwell:article-view:page:v1:site=6000005:page=${page.page_id}:rev=${page.revision_id}:updated=0:permission=site=0,user=0:body=fixture`,
       public_content_cache_fence: "0",

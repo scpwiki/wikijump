@@ -1,0 +1,1060 @@
+{
+  "schema": "wikijump_listpages_compat.live_fixture_plan.v1",
+  "run_id": "listpages-20260727",
+  "site": "sandbox-for-codex",
+  "pages": [
+    {
+      "key": "parent-root",
+      "fullname": "run-owned:lp-campaign-20260727-parent-root",
+      "account": "A",
+      "title": "ListPages fixture parent-root",
+      "sources": [
+        "parent-root"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "parent-holder",
+      "fullname": "run-owned:lp-campaign-20260727-parent-holder",
+      "account": "A",
+      "title": "ListPages parent holder",
+      "sources": [
+        "[[div class=\"lp-case lp-parent-static\"]]\nPARENT STATIC\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"250\" parent=\"run-owned:lp-campaign-20260727-parent-root\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-parent-same\"]]\nPARENT SAME\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"250\" parent=\"=\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-parent-different\"]]\nPARENT DIFFERENT\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"250\" parent=\"-=\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-parent-child\"]]\nPARENT CHILD\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"250\" parent=\".\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-parent-none\"]]\nPARENT NONE\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"250\" parent=\"-\" name=\"run-owned:lp-campaign-20260727-parent-*\"]]\n%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": "parent-root",
+      "votes": []
+    },
+    {
+      "key": "parent-sibling",
+      "fullname": "run-owned:lp-campaign-20260727-parent-sibling",
+      "account": "A",
+      "title": "ListPages fixture parent-sibling",
+      "sources": [
+        "parent-sibling"
+      ],
+      "tags": [],
+      "parent": "parent-root",
+      "votes": []
+    },
+    {
+      "key": "parent-child",
+      "fullname": "run-owned:lp-campaign-20260727-parent-child",
+      "account": "A",
+      "title": "ListPages fixture parent-child",
+      "sources": [
+        "parent-child"
+      ],
+      "tags": [],
+      "parent": "parent-holder",
+      "votes": []
+    },
+    {
+      "key": "parent-unrelated",
+      "fullname": "run-owned:lp-campaign-20260727-parent-unrelated",
+      "account": "A",
+      "title": "ListPages fixture parent-unrelated",
+      "sources": [
+        "parent-unrelated"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "tag-holder",
+      "fullname": "run-owned:lp-campaign-20260727-tag-holder",
+      "account": "A",
+      "title": "ListPages tag holder",
+      "sources": [
+        "[[div class=\"lp-case lp-tags-same\"]]\nTAGS SAME\n[[module ListPages category=\"run-owned\" order=\"name\" range=\"others\" separate=\"no\" perPage=\"250\" tags=\"=\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-tags-exact\"]]\nTAGS EXACT\n[[module ListPages category=\"run-owned\" order=\"name\" range=\"others\" separate=\"no\" perPage=\"250\" tags=\"==\"]]\n%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [
+        "lp-same-a-20260727",
+        "lp-same-b-20260727",
+        "_lp-holder-hidden"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "tag-exact",
+      "fullname": "run-owned:lp-campaign-20260727-tag-exact",
+      "account": "A",
+      "title": "ListPages fixture tag-exact",
+      "sources": [
+        "tag-exact"
+      ],
+      "tags": [
+        "lp-same-a-20260727",
+        "lp-same-b-20260727",
+        "_lp-target-hidden"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "tag-a",
+      "fullname": "run-owned:lp-campaign-20260727-tag-a",
+      "account": "A",
+      "title": "ListPages fixture tag-a",
+      "sources": [
+        "tag-a"
+      ],
+      "tags": [
+        "lp-same-a-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "tag-b",
+      "fullname": "run-owned:lp-campaign-20260727-tag-b",
+      "account": "A",
+      "title": "ListPages fixture tag-b",
+      "sources": [
+        "tag-b"
+      ],
+      "tags": [
+        "lp-same-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "tag-superset",
+      "fullname": "run-owned:lp-campaign-20260727-tag-superset",
+      "account": "A",
+      "title": "ListPages fixture tag-superset",
+      "sources": [
+        "tag-superset"
+      ],
+      "tags": [
+        "lp-same-a-20260727",
+        "lp-same-b-20260727",
+        "lp-same-c-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "tag-none",
+      "fullname": "run-owned:lp-campaign-20260727-tag-none",
+      "account": "A",
+      "title": "ListPages fixture tag-none",
+      "sources": [
+        "tag-none"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "range-a",
+      "fullname": "run-owned:lp-campaign-20260727-range-a",
+      "account": "A",
+      "title": "ListPages fixture range-a",
+      "sources": [
+        "range-a"
+      ],
+      "tags": [
+        "lp-range-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "range-b",
+      "fullname": "run-owned:lp-campaign-20260727-range-b",
+      "account": "A",
+      "title": "ListPages fixture range-b",
+      "sources": [
+        "range-b"
+      ],
+      "tags": [
+        "lp-range-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "range-m",
+      "fullname": "run-owned:lp-campaign-20260727-range-m",
+      "account": "A",
+      "title": "ListPages range holder",
+      "sources": [
+        "[[div class=\"lp-case lp-range-before\"]]\nRANGE BEFORE\n[[module ListPages category=\"run-owned\" tags=\"+lp-range-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" range=\"before\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-range-after\"]]\nRANGE AFTER\n[[module ListPages category=\"run-owned\" tags=\"+lp-range-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" range=\"after\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-range-others\"]]\nRANGE OTHERS\n[[module ListPages category=\"run-owned\" tags=\"+lp-range-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" range=\"others\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-range-current\"]]\nRANGE CURRENT\n[[module ListPages category=\"run-owned\" tags=\"+lp-range-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" range=\".\"]]\n%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [
+        "lp-range-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "range-y",
+      "fullname": "run-owned:lp-campaign-20260727-range-y",
+      "account": "A",
+      "title": "ListPages fixture range-y",
+      "sources": [
+        "range-y"
+      ],
+      "tags": [
+        "lp-range-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "range-z",
+      "fullname": "run-owned:lp-campaign-20260727-range-z",
+      "account": "A",
+      "title": "ListPages fixture range-z",
+      "sources": [
+        "range-z"
+      ],
+      "tags": [
+        "lp-range-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "metric-holder",
+      "fullname": "run-owned:lp-campaign-20260727-metric-holder",
+      "account": "A",
+      "title": "ListPages metric holder",
+      "sources": [
+        "[[div class=\"lp-case lp-rating-current\"]]\nRATING CURRENT\n[[module ListPages category=\"run-owned\" tags=\"+lp-metric-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" rating=\"=\"]]\n%%name%%:%%rating%%:%%rating_votes%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-rating-not-zero\"]]\nRATING NOT ZERO\n[[module ListPages category=\"run-owned\" tags=\"+lp-metric-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" rating=\"<>0\"]]\n%%name%%:%%rating%%:%%rating_votes%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-votes-current\"]]\nVOTES CURRENT\n[[module ListPages category=\"run-owned\" tags=\"+lp-metric-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" votes=\"=\"]]\n%%name%%:%%rating%%:%%rating_votes%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-votes-positive\"]]\nVOTES POSITIVE\n[[module ListPages category=\"run-owned\" tags=\"+lp-metric-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" votes=\">0\"]]\n%%name%%:%%rating%%:%%rating_votes%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-created-current\"]]\nCREATED CURRENT\n[[module ListPages category=\"run-owned\" tags=\"+lp-metric-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" created_at=\"=\"]]\n%%name%%:%%rating%%:%%rating_votes%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-updated-current\"]]\nUPDATED CURRENT\n[[module ListPages category=\"run-owned\" tags=\"+lp-metric-20260727\" order=\"name\" separate=\"no\" perPage=\"250\" updated_at=\"=\"]]\n%%name%%:%%rating%%:%%rating_votes%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "metric-zero",
+      "fullname": "run-owned:lp-campaign-20260727-metric-zero",
+      "account": "A",
+      "title": "ListPages fixture metric-zero",
+      "sources": [
+        "metric-zero"
+      ],
+      "tags": [
+        "lp-metric-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "metric-up",
+      "fullname": "run-owned:lp-campaign-20260727-metric-up",
+      "account": "A",
+      "title": "ListPages fixture metric-up",
+      "sources": [
+        "metric-up"
+      ],
+      "tags": [
+        "lp-metric-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "metric-two",
+      "fullname": "run-owned:lp-campaign-20260727-metric-two",
+      "account": "A",
+      "title": "ListPages fixture metric-two",
+      "sources": [
+        "metric-two"
+      ],
+      "tags": [
+        "lp-metric-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "metric-down",
+      "fullname": "run-owned:lp-campaign-20260727-metric-down",
+      "account": "A",
+      "title": "ListPages fixture metric-down",
+      "sources": [
+        "metric-down"
+      ],
+      "tags": [
+        "lp-metric-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "variables-parent",
+      "fullname": "run-owned:lp-campaign-20260727-variables-parent",
+      "account": "A",
+      "title": "ListPages variables parent",
+      "sources": [
+        "variables-parent"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "variables-target",
+      "fullname": "run-owned:lp-campaign-20260727-variables-target",
+      "account": "B",
+      "title": "ListPages variables target <&>",
+      "sources": [
+        "First paragraph alpha & beta.\n\nSecond paragraph initial.",
+        "First paragraph alpha & beta.\n\nSecond paragraph final.\n\nThird paragraph."
+      ],
+      "tags": [
+        "lp-visible-20260727",
+        "_lp-variable-hidden"
+      ],
+      "parent": "variables-parent",
+      "votes": []
+    },
+    {
+      "key": "variables-holder",
+      "fullname": "run-owned:lp-campaign-20260727-variables-holder",
+      "account": "A",
+      "title": "ListPages variables holder",
+      "sources": [
+        "[[div class=\"lp-case lp-var-created-at\"]]\ncreated_at\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncreated_at=%%created_at%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-created-at-format\"]]\ncreated_at_format\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncreated_at_format=%%created_at|%Y-%m-%d%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-created-by\"]]\ncreated_by\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncreated_by=%%created_by%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-created-by-unix\"]]\ncreated_by_unix\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncreated_by_unix=%%created_by_unix%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-created-by-id\"]]\ncreated_by_id\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncreated_by_id=%%created_by_id%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-created-by-linked\"]]\ncreated_by_linked\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncreated_by_linked=%%created_by_linked%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-updated-at\"]]\nupdated_at\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nupdated_at=%%updated_at%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-updated-by\"]]\nupdated_by\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nupdated_by=%%updated_by%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-updated-by-unix\"]]\nupdated_by_unix\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nupdated_by_unix=%%updated_by_unix%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-updated-by-id\"]]\nupdated_by_id\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nupdated_by_id=%%updated_by_id%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-updated-by-linked\"]]\nupdated_by_linked\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nupdated_by_linked=%%updated_by_linked%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-commented-at\"]]\ncommented_at\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncommented_at=%%commented_at%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-commented-by\"]]\ncommented_by\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncommented_by=%%commented_by%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-commented-by-unix\"]]\ncommented_by_unix\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncommented_by_unix=%%commented_by_unix%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-commented-by-id\"]]\ncommented_by_id\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncommented_by_id=%%commented_by_id%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-commented-by-linked\"]]\ncommented_by_linked\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncommented_by_linked=%%commented_by_linked%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-name\"]]\nname\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nname=%%name%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-category\"]]\ncategory\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncategory=%%category%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-fullname\"]]\nfullname\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nfullname=%%fullname%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-title\"]]\ntitle\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ntitle=%%title%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-title-linked\"]]\ntitle_linked\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ntitle_linked=%%title_linked%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-parent-name\"]]\nparent_name\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nparent_name=%%parent_name%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-parent-category\"]]\nparent_category\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nparent_category=%%parent_category%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-parent-fullname\"]]\nparent_fullname\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nparent_fullname=%%parent_fullname%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-parent-title\"]]\nparent_title\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nparent_title=%%parent_title%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-parent-title-linked\"]]\nparent_title_linked\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nparent_title_linked=%%parent_title_linked%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-link\"]]\nlink\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nlink=%%link%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-content\"]]\ncontent\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncontent=%%content%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-content-section\"]]\ncontent_1\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncontent_1=%%content{1}%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-preview\"]]\npreview\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\npreview=%%preview%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-preview-length\"]]\npreview_17\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\npreview_17=%%preview(17)%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-summary\"]]\nsummary\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nsummary=%%summary%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-first-paragraph\"]]\nfirst_paragraph\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nfirst_paragraph=%%first_paragraph%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-tags\"]]\ntags\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ntags=%%tags%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-tags-linked\"]]\ntags_linked\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ntags_linked=%%tags_linked%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-hidden-tags\"]]\n_tags\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\n_tags=%%_tags%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-hidden-tags-linked\"]]\n_tags_linked\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\n_tags_linked=%%_tags_linked%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-form-data\"]]\nform_data\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nform_data=%%form_data{missing}%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-form-raw\"]]\nform_raw\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nform_raw=%%form_raw{missing}%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-form-label\"]]\nform_label\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nform_label=%%form_label{missing}%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-form-hint\"]]\nform_hint\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nform_hint=%%form_hint{missing}%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-children\"]]\nchildren\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nchildren=%%children%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-comments\"]]\ncomments\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ncomments=%%comments%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-size\"]]\nsize\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nsize=%%size%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-rating\"]]\nrating\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nrating=%%rating%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-rating-votes\"]]\nrating_votes\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nrating_votes=%%rating_votes%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-rating-percent\"]]\nrating_percent\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nrating_percent=%%rating_percent%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-revisions\"]]\nrevisions\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nrevisions=%%revisions%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-index\"]]\nindex\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nindex=%%index%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-total\"]]\ntotal\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ntotal=%%total%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-limit\"]]\nlimit\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nlimit=%%limit%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-total-or-limit\"]]\ntotal_or_limit\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ntotal_or_limit=%%total_or_limit%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-site-title\"]]\nsite_title\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nsite_title=%%site_title%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-site-name\"]]\nsite_name\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nsite_name=%%site_name%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-site-domain\"]]\nsite_domain\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nsite_domain=%%site_domain%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-linked-title\"]]\nlinked_title\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nlinked_title=%%linked_title%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-page-unix-name\"]]\npage_unix_name\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\npage_unix_name=%%page_unix_name%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-full-page-name\"]]\nfull_page_name\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nfull_page_name=%%full_page_name%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-page-name\"]]\npage_name\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\npage_name=%%page_name%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-author\"]]\nauthor\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nauthor=%%author%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-author-edited\"]]\nauthor_edited\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nauthor_edited=%%author_edited%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-user-edited\"]]\nuser_edited\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nuser_edited=%%user_edited%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-date\"]]\ndate\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ndate=%%date%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-date-edited\"]]\ndate_edited\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ndate_edited=%%date_edited%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-description\"]]\ndescription\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ndescription=%%description%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-short\"]]\nshort\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nshort=%%short%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-text\"]]\ntext\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\ntext=%%text%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-long\"]]\nlong\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nlong=%%long%%\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-var-legacy-body\"]]\nbody\n[[module ListPages fullname=\"run-owned:lp-campaign-20260727-variables-target\" separate=\"no\" wrapper=\"no\"]]\nbody=%%body%%\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-01",
+      "fullname": "run-owned:lp-campaign-20260727-page-01",
+      "account": "A",
+      "title": "Zulu order target",
+      "sources": [
+        "x"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-order-20260727",
+        "lp-multi-a-20260727"
+      ],
+      "parent": null,
+      "votes": [],
+      "delay_after_seconds": 1.1
+    },
+    {
+      "key": "page-02",
+      "fullname": "run-owned:lp-campaign-20260727-page-02",
+      "account": "A",
+      "title": "Alpha order target",
+      "sources": [
+        "This source is deliberately longer than target one."
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-order-20260727",
+        "lp-multi-a-20260727"
+      ],
+      "parent": null,
+      "votes": [],
+      "delay_after_seconds": 1.1
+    },
+    {
+      "key": "page-03",
+      "fullname": "run-owned:lp-campaign-20260727-page-03",
+      "account": "A",
+      "title": "Mu order target",
+      "sources": [
+        "revision one",
+        "revision two is longer",
+        "revision three is the final source"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-order-20260727",
+        "lp-multi-a-20260727"
+      ],
+      "parent": null,
+      "votes": [],
+      "delay_after_seconds": 1.1
+    },
+    {
+      "key": "page-04",
+      "fullname": "run-owned:lp-campaign-20260727-page-04",
+      "account": "B",
+      "title": "Beta order target",
+      "sources": [
+        "A source created by account B."
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-order-20260727",
+        "lp-multi-a-20260727"
+      ],
+      "parent": null,
+      "votes": [],
+      "delay_after_seconds": 1.1
+    },
+    {
+      "key": "page-05",
+      "fullname": "run-owned:lp-campaign-20260727-page-05",
+      "account": "A",
+      "title": "Eta order target",
+      "sources": [
+        "Medium source text."
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-order-20260727",
+        "lp-multi-a-20260727"
+      ],
+      "parent": null,
+      "votes": [],
+      "delay_after_seconds": 1.1
+    },
+    {
+      "key": "page-06",
+      "fullname": "run-owned:lp-campaign-20260727-page-06",
+      "account": "A",
+      "title": "ListPages fixture page-06",
+      "sources": [
+        "page-06"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-multi-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-07",
+      "fullname": "run-owned:lp-campaign-20260727-page-07",
+      "account": "A",
+      "title": "ListPages fixture page-07",
+      "sources": [
+        "page-07"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-multi-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-08",
+      "fullname": "run-owned:lp-campaign-20260727-page-08",
+      "account": "A",
+      "title": "ListPages fixture page-08",
+      "sources": [
+        "page-08"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-multi-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-09",
+      "fullname": "run-owned:lp-campaign-20260727-page-09",
+      "account": "A",
+      "title": "ListPages fixture page-09",
+      "sources": [
+        "page-09"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-multi-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-10",
+      "fullname": "run-owned:lp-campaign-20260727-page-10",
+      "account": "A",
+      "title": "ListPages fixture page-10",
+      "sources": [
+        "page-10"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-multi-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-11",
+      "fullname": "run-owned:lp-campaign-20260727-page-11",
+      "account": "A",
+      "title": "ListPages fixture page-11",
+      "sources": [
+        "page-11"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-multi-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-12",
+      "fullname": "run-owned:lp-campaign-20260727-page-12",
+      "account": "A",
+      "title": "ListPages fixture page-12",
+      "sources": [
+        "page-12"
+      ],
+      "tags": [
+        "lp-pagination-20260727",
+        "lp-multi-b-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-13",
+      "fullname": "run-owned:lp-campaign-20260727-page-13",
+      "account": "A",
+      "title": "ListPages fixture page-13",
+      "sources": [
+        "page-13"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-14",
+      "fullname": "run-owned:lp-campaign-20260727-page-14",
+      "account": "A",
+      "title": "ListPages fixture page-14",
+      "sources": [
+        "page-14"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-15",
+      "fullname": "run-owned:lp-campaign-20260727-page-15",
+      "account": "A",
+      "title": "ListPages fixture page-15",
+      "sources": [
+        "page-15"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-16",
+      "fullname": "run-owned:lp-campaign-20260727-page-16",
+      "account": "A",
+      "title": "ListPages fixture page-16",
+      "sources": [
+        "page-16"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-17",
+      "fullname": "run-owned:lp-campaign-20260727-page-17",
+      "account": "A",
+      "title": "ListPages fixture page-17",
+      "sources": [
+        "page-17"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-18",
+      "fullname": "run-owned:lp-campaign-20260727-page-18",
+      "account": "A",
+      "title": "ListPages fixture page-18",
+      "sources": [
+        "page-18"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-19",
+      "fullname": "run-owned:lp-campaign-20260727-page-19",
+      "account": "A",
+      "title": "ListPages fixture page-19",
+      "sources": [
+        "page-19"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-20",
+      "fullname": "run-owned:lp-campaign-20260727-page-20",
+      "account": "A",
+      "title": "ListPages fixture page-20",
+      "sources": [
+        "page-20"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-21",
+      "fullname": "run-owned:lp-campaign-20260727-page-21",
+      "account": "A",
+      "title": "ListPages fixture page-21",
+      "sources": [
+        "page-21"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-22",
+      "fullname": "run-owned:lp-campaign-20260727-page-22",
+      "account": "A",
+      "title": "ListPages fixture page-22",
+      "sources": [
+        "page-22"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "page-23",
+      "fullname": "run-owned:lp-campaign-20260727-page-23",
+      "account": "A",
+      "title": "ListPages fixture page-23",
+      "sources": [
+        "page-23"
+      ],
+      "tags": [
+        "lp-pagination-20260727"
+      ],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "order-holder",
+      "fullname": "run-owned:lp-campaign-20260727-order-holder",
+      "account": "A",
+      "title": "ListPages order holder",
+      "sources": [
+        "[[div class=\"lp-case lp-order-created-desc\"]]\nORDER CREATED DESC\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"created_at desc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-created-ascending\"]]\nORDER CREATED ASCENDING\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"created_at desc desc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-created-invalid-asc\"]]\nORDER CREATED INVALID ASC\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"created_at asc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-unknown\"]]\nORDER UNKNOWN\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"unknown\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-legacy-created\"]]\nORDER LEGACY CREATED\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"dateCreatedAsc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-title\"]]\nORDER TITLE\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"title\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-size\"]]\nORDER SIZE\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"size desc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-rating\"]]\nORDER RATING\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"rating desc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-votes\"]]\nORDER VOTES\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"votes desc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-revisions\"]]\nORDER REVISIONS\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"revisions desc\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-order-created-by\"]]\nORDER CREATED BY\n[[module ListPages category=\"run-owned\" tags=\"+lp-order-20260727\" separate=\"no\" perPage=\"250\" order=\"created_by\"]]\n%%name%%:%%title%%:%%created_by%%:%%size%%:%%rating%%:%%rating_votes%%:%%revisions%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "pagination-holder",
+      "fullname": "run-owned:lp-campaign-20260727-pagination-holder",
+      "account": "A",
+      "title": "ListPages pagination holder",
+      "sources": [
+        "[[div class=\"lp-case lp-pagination-default\"]]\nPAGINATION DEFAULT\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\"]]\nD%%index%%:%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-pagination-five\"]]\nPAGINATION FIVE\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" perPage=\"5\"]]\nF%%index%%:%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-pagination-limited\"]]\nPAGINATION LIMITED\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" limit=\"7\" perPage=\"3\"]]\nL%%index%%:%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "numeric-holder",
+      "fullname": "run-owned:lp-campaign-20260727-numeric-holder",
+      "account": "A",
+      "title": "ListPages numeric holder",
+      "sources": [
+        "[[div class=\"lp-case lp-limit-negative\"]]\nLIMIT NEGATIVE\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" limit=\"-1\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-limit-float\"]]\nLIMIT FLOAT\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" limit=\"2.5\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-limit-huge\"]]\nLIMIT HUGE\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" limit=\"999999999\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-perpage-zero\"]]\nPERPAGE ZERO\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" perPage=\"0\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-perpage-negative\"]]\nPERPAGE NEGATIVE\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" perPage=\"-1\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-perpage-float\"]]\nPERPAGE FLOAT\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" perPage=\"2.5\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-perpage-clamped\"]]\nPERPAGE CLAMPED\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" perPage=\"251\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-offset-negative\"]]\nOFFSET NEGATIVE\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" offset=\"-1\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-offset-float\"]]\nOFFSET FLOAT\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" offset=\"2.5\"]]\n%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-offset-huge\"]]\nOFFSET HUGE\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" offset=\"999999999\"]]\n%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "multiple-holder",
+      "fullname": "run-owned:lp-campaign-20260727-multiple-holder",
+      "account": "A",
+      "title": "ListPages multiple holder",
+      "sources": [
+        "[[div class=\"lp-case lp-multiple-a\"]]\nMULTIPLE A\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"2\" tags=\"+lp-multi-a-20260727\"]]\nA%%index%%:%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-multiple-b\"]]\nMULTIPLE B\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"2\" tags=\"+lp-multi-b-20260727\"]]\nB%%index%%:%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-prefixed-a\"]]\nPREFIXED A\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"2\" tags=\"+lp-multi-a-20260727\" urlAttrPrefix=\"a\"]]\nPA%%index%%:%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-prefixed-b\"]]\nPREFIXED B\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"2\" tags=\"+lp-multi-b-20260727\" urlAttrPrefix=\"b\"]]\nPB%%index%%:%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "url-holder",
+      "fullname": "run-owned:lp-campaign-20260727-url-holder",
+      "account": "A",
+      "title": "ListPages URL holder",
+      "sources": [
+        "[[div class=\"lp-case lp-url-tags\"]]\nURL TAGS\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"5\" tags=\"@URL|lp-pagination-20260727\"]]\nT%%index%%:%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-url-offset\"]]\nURL OFFSET\n[[module ListPages category=\"run-owned\" order=\"name\" separate=\"no\" perPage=\"5\" tags=\"+lp-pagination-20260727\" offset=\"@URL|0\"]]\nO%%index%%:%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    },
+    {
+      "key": "prefixed-url-holder",
+      "fullname": "run-owned:lp-campaign-20260727-prefixed-url-holder",
+      "account": "A",
+      "title": "ListPages prefixed URL holder",
+      "sources": [
+        "[[div class=\"lp-case lp-prefixed-url-page2\"]]\nPREFIXED URL PAGE2\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" limit=\"@URL|0\" urlAttrPrefix=\"page2\"]]\nP2%%index%%:%%name%%|\n[[/module]]\n[[/div]]\n[[div class=\"lp-case lp-prefixed-url-page3\"]]\nPREFIXED URL PAGE3\n[[module ListPages category=\"run-owned\" tags=\"+lp-pagination-20260727\" order=\"name\" separate=\"no\" limit=\"@URL|0\" urlAttrPrefix=\"page3\"]]\nP3%%index%%:%%name%%|\n[[/module]]\n[[/div]]"
+      ],
+      "tags": [],
+      "parent": null,
+      "votes": []
+    }
+  ],
+  "captures": [
+    {
+      "case_id": "lp-live-parent-selectors",
+      "page": "parent-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "parent",
+        "current-page"
+      ]
+    },
+    {
+      "case_id": "lp-live-tag-selectors",
+      "page": "tag-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "tags",
+        "hidden-tags",
+        "current-page"
+      ]
+    },
+    {
+      "case_id": "lp-live-range-selectors",
+      "page": "range-m",
+      "url_suffix": "",
+      "dimensions": [
+        "range",
+        "ordering",
+        "current-page"
+      ]
+    },
+    {
+      "case_id": "lp-live-metric-selectors",
+      "page": "metric-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "rating",
+        "votes",
+        "dates"
+      ]
+    },
+    {
+      "case_id": "lp-live-ordering",
+      "page": "order-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "ordering",
+        "legacy-aliases",
+        "malformed-values"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-page-1",
+      "page": "pagination-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "pagination",
+        "direct-load"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-page-2",
+      "page": "pagination-holder",
+      "url_suffix": "/p/2",
+      "dimensions": [
+        "pagination",
+        "direct-load"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-page-3",
+      "page": "pagination-holder",
+      "url_suffix": "/p/3",
+      "dimensions": [
+        "pagination",
+        "direct-load"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-final",
+      "page": "pagination-holder",
+      "url_suffix": "/p/5",
+      "dimensions": [
+        "pagination",
+        "boundary"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-beyond",
+      "page": "pagination-holder",
+      "url_suffix": "/p/999",
+      "dimensions": [
+        "pagination",
+        "boundary"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-zero",
+      "page": "pagination-holder",
+      "url_suffix": "/p/0",
+      "dimensions": [
+        "pagination",
+        "malformed"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-negative",
+      "page": "pagination-holder",
+      "url_suffix": "/p/-1",
+      "dimensions": [
+        "pagination",
+        "malformed"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-text",
+      "page": "pagination-holder",
+      "url_suffix": "/p/nope",
+      "dimensions": [
+        "pagination",
+        "malformed"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-missing",
+      "page": "pagination-holder",
+      "url_suffix": "/p",
+      "dimensions": [
+        "pagination",
+        "malformed"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-query",
+      "page": "pagination-holder",
+      "url_suffix": "/p/2?probe=1",
+      "dimensions": [
+        "pagination",
+        "query-string"
+      ]
+    },
+    {
+      "case_id": "lp-live-pagination-repeated",
+      "page": "pagination-holder",
+      "url_suffix": "/p/2/p/3",
+      "dimensions": [
+        "pagination",
+        "repeated-parameter"
+      ]
+    },
+    {
+      "case_id": "lp-live-navigation-p-before-tag",
+      "page": "pagination-holder",
+      "url_suffix": "/p/2/tag/lp-pagination-20260727",
+      "dimensions": [
+        "pagination",
+        "path-ordering"
+      ]
+    },
+    {
+      "case_id": "lp-live-navigation-category-before-p",
+      "page": "pagination-holder",
+      "url_suffix": "/category/fragment/p/2",
+      "dimensions": [
+        "pagination",
+        "path-ordering"
+      ]
+    },
+    {
+      "case_id": "lp-live-numeric-page-1",
+      "page": "numeric-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "limit",
+        "perPage",
+        "offset",
+        "coercion"
+      ]
+    },
+    {
+      "case_id": "lp-live-numeric-page-2",
+      "page": "numeric-holder",
+      "url_suffix": "/p/2",
+      "dimensions": [
+        "limit",
+        "perPage",
+        "offset",
+        "pagination"
+      ]
+    },
+    {
+      "case_id": "lp-live-multiple-page-1",
+      "page": "multiple-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "multiple-modules",
+        "pagination"
+      ]
+    },
+    {
+      "case_id": "lp-live-multiple-page-2",
+      "page": "multiple-holder",
+      "url_suffix": "/p/2",
+      "dimensions": [
+        "multiple-modules",
+        "pagination"
+      ]
+    },
+    {
+      "case_id": "lp-live-prefixed-a-page-2",
+      "page": "multiple-holder",
+      "url_suffix": "/a_p/2",
+      "dimensions": [
+        "multiple-modules",
+        "urlAttrPrefix",
+        "pagination"
+      ]
+    },
+    {
+      "case_id": "lp-live-prefixed-b-page-2",
+      "page": "multiple-holder",
+      "url_suffix": "/b_p/2",
+      "dimensions": [
+        "multiple-modules",
+        "urlAttrPrefix",
+        "pagination"
+      ]
+    },
+    {
+      "case_id": "lp-live-url-default",
+      "page": "url-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "@URL",
+        "fallback"
+      ]
+    },
+    {
+      "case_id": "lp-live-url-tag-order",
+      "page": "url-holder",
+      "url_suffix": "/tag/lp-order-20260727",
+      "dimensions": [
+        "@URL",
+        "tags"
+      ]
+    },
+    {
+      "case_id": "lp-live-url-offset-two",
+      "page": "url-holder",
+      "url_suffix": "/offset/2",
+      "dimensions": [
+        "@URL",
+        "offset"
+      ]
+    },
+    {
+      "case_id": "lp-live-url-composed",
+      "page": "url-holder",
+      "url_suffix": "/tag/lp-pagination-20260727/offset/2/p/2?probe=1",
+      "dimensions": [
+        "@URL",
+        "tags",
+        "offset",
+        "pagination",
+        "query-string"
+      ]
+    },
+    {
+      "case_id": "lp-live-navigation-prefixed-limits",
+      "page": "prefixed-url-holder",
+      "url_suffix": "/page2_limit/1/page3_limit/2",
+      "dimensions": [
+        "@URL",
+        "urlAttrPrefix",
+        "multiple-modules",
+        "path-ordering"
+      ]
+    },
+    {
+      "case_id": "lp-live-template-variables",
+      "page": "variables-holder",
+      "url_suffix": "",
+      "dimensions": [
+        "template-variables",
+        "aliases",
+        "parent",
+        "site",
+        "content"
+      ]
+    }
+  ],
+  "documentation_provenance": [
+    {
+      "path": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/www/pages/doc-include:page-selection/source.wikidot.txt",
+      "lines": "20-121"
+    },
+    {
+      "path": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/www/pages/doc-modules:listpages-module/source.wikidot.txt",
+      "lines": "55-155,326-365,367-386"
+    }
+  ],
+  "live_environment_blockers": [
+    {
+      "capability": "nonzero rating and vote mutation",
+      "observed_at": "2026-07-27",
+      "site": "sandbox-for-codex",
+      "evidence": "RateAction returned status not_ok for both run-owned: and _default run-owned pages when account B attempted to vote.",
+      "impact": "Saved-page fixtures still cover zero/current rating and votes selectors, but cannot derive controlled nonzero rating or rating_votes oracle data from this sandbox run."
+    }
+  ]
+}

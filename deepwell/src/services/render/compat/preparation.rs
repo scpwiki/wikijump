@@ -38,7 +38,7 @@ static AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| 
 });
 static AUTHORED_WIKIDOT_COMPAT_OPEN_TAG_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">|<ul data-wikijump-compat-list="1">|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>|<a class="button" data-wikijump-compat-clone="1"[^>]*>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">|<style data-wikijump-compat-css-module="1">"#,
+        r#"(?is)<table class="wiki-content-table" data-wikijump-compat-listpages="1">|<ul data-wikijump-compat-list="1">|<div id="ml-[0-9]+" data-wikijump-compat-members="1"[^>]*>|<div class="backlinks-module-box" data-wikijump-compat-backlinks="1"[^>]*>|<form class="new-page-box" data-wikijump-compat-new-page="1"[^>]*>|<a class="button" data-wikijump-compat-clone="1"[^>]*>|<span class="odate time_-?[0-9]+ format_[A-Za-z0-9%_.-]+" data-wikijump-compat-date="1" style="cursor: help; display: inline;">|<span data-wikijump-compat-listpages-preview="1" style="white-space: pre-wrap;">|<style data-wikijump-compat-css-module="1">"#,
     )
     .unwrap()
 });

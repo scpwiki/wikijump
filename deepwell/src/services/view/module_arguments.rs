@@ -22,12 +22,14 @@
 //!
 //! These are the same `/name/value` pairs [`PageOptions`] parses, split out
 //! because they address the page's modules rather than the view itself. Only
-//! names with a live capture appear here; an unrecognized name is discarded,
-//! which is what live Wikidot does with `/bogusarg/xyz`.
+//! Raw names are retained because a ListPages module may opt into any
+//! documented argument with `@URL` and may prefix that name with
+//! `urlAttrPrefix`.
 //!
 //! [`PageOptions`]: super::options::PageOptions
 
 use super::options::PAGE_ARGUMENTS_SCHEMA;
+use crate::services::render::UrlArgumentPair;
 use unicase::UniCase;
 use wikidot_path::PageArguments;
 
@@ -59,11 +61,16 @@ pub struct PageModuleArguments {
     /// Invalid and negative values are absent, so the selector uses its
     /// authored fallback.
     pub offset: Option<u32>,
+
+    /// Ordered raw path arguments, including arbitrary ListPages
+    /// `urlAttrPrefix` names such as `/a_p/2`.
+    pub path_arguments: Vec<UrlArgumentPair>,
 }
 
 impl PageModuleArguments {
     pub fn parse(extra: &str) -> Self {
         let arguments = PageArguments::parse(extra, PAGE_ARGUMENTS_SCHEMA).0;
+        let path_arguments = raw_path_arguments(extra);
 
         // The raw segment is used rather than the parsed `ArgumentValue`
         // because a tag can legitimately be `true`, `t`, `f`, or a number,
@@ -90,6 +97,7 @@ impl PageModuleArguments {
             page,
             category,
             offset,
+            path_arguments,
         }
     }
 
@@ -99,7 +107,44 @@ impl PageModuleArguments {
             && self.page.is_none()
             && self.category.is_none()
             && self.offset.is_none()
+            && self.path_arguments.is_empty()
     }
+}
+
+fn raw_path_arguments(extra: &str) -> Vec<UrlArgumentPair> {
+    let extra = extra.strip_prefix('/').unwrap_or(extra);
+    if extra.is_empty() {
+        return Vec::new();
+    }
+
+    let segments = extra.split('/').collect::<Vec<_>>();
+    let mut output = Vec::new();
+    let mut cursor = 0;
+    while cursor < segments.len() {
+        let name = segments[cursor];
+        cursor += 1;
+        if name.is_empty() {
+            continue;
+        }
+        let value = if PAGE_ARGUMENTS_SCHEMA
+            .solo_keys
+            .iter()
+            .any(|key| name.eq_ignore_ascii_case(key))
+        {
+            None
+        } else if cursor < segments.len() {
+            let value = segments[cursor];
+            cursor += 1;
+            Some(value.to_owned())
+        } else {
+            None
+        };
+        output.push(UrlArgumentPair {
+            name: name.to_owned(),
+            value,
+        });
+    }
+    output
 }
 
 #[cfg(test)]
@@ -210,8 +255,55 @@ mod tests {
         let tag_first = PageModuleArguments::parse("/tag/alpha/p/2");
         let page_first = PageModuleArguments::parse("/p/2/tag/alpha");
 
-        assert_eq!(tag_first, page_first);
+        assert_eq!(tag_first.tag, page_first.tag);
+        assert_eq!(tag_first.page, page_first.page);
+        assert_eq!(tag_first.category, page_first.category);
+        assert_eq!(tag_first.offset, page_first.offset);
         assert_eq!(tag_first.tag.as_deref(), Some("alpha"));
+    }
+
+    #[test]
+    fn raw_path_arguments_keep_repeated_and_prefixed_pagers() {
+        let arguments = PageModuleArguments::parse("/p/2/p/3/a_p/4/p");
+        assert_eq!(
+            arguments.path_arguments,
+            vec![
+                UrlArgumentPair {
+                    name: "p".to_owned(),
+                    value: Some("2".to_owned()),
+                },
+                UrlArgumentPair {
+                    name: "p".to_owned(),
+                    value: Some("3".to_owned()),
+                },
+                UrlArgumentPair {
+                    name: "a_p".to_owned(),
+                    value: Some("4".to_owned()),
+                },
+                UrlArgumentPair {
+                    name: "p".to_owned(),
+                    value: None,
+                },
+            ],
+        );
+    }
+
+    #[test]
+    fn malformed_pager_arguments_still_address_a_module() {
+        for extra in ["/p/nope", "/p/-1", "/p"] {
+            assert!(
+                !PageModuleArguments::parse(extra).is_empty(),
+                "{extra} should force a request-time render",
+            );
+        }
+    }
+
+    #[test]
+    fn a_prefixed_pager_argument_addresses_a_module() {
+        let arguments = PageModuleArguments::parse("/a_p/2");
+
+        assert!(!arguments.is_empty());
+        assert_eq!(arguments.page, None);
     }
 
     #[test]
@@ -225,8 +317,17 @@ mod tests {
     }
 
     #[test]
-    fn an_unrecognized_name_is_discarded() {
-        assert!(PageModuleArguments::parse("/bogusarg/xyz").is_empty());
+    fn an_arbitrary_name_can_address_a_list_pages_url_selector() {
+        let arguments = PageModuleArguments::parse("/page2_limit/1");
+
+        assert!(!arguments.is_empty());
+        assert_eq!(
+            arguments.path_arguments,
+            vec![UrlArgumentPair {
+                name: "page2_limit".to_owned(),
+                value: Some("1".to_owned()),
+            }],
+        );
     }
 
     #[test]

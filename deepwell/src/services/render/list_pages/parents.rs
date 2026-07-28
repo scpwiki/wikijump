@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Parent full names for the ListPages `%%parent_fullname%%` variable.
+//! Parent metadata for the ListPages parent template variables.
 //!
 //! Wikidot gives a page at most one parent, while the Wikijump schema models
 //! `page_parent` as a many-to-many relation. A row therefore resolves to a
@@ -30,6 +30,14 @@ use crate::services::ServiceContext;
 use crate::services::page_query::FoundPageRow;
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement};
 use std::collections::{BTreeMap, BTreeSet};
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(in crate::services::render) struct ListPagesParentDisplay {
+    pub(in crate::services::render) fullname: String,
+    pub(in crate::services::render) name: String,
+    pub(in crate::services::render) category: String,
+    pub(in crate::services::render) title: String,
+}
 
 /// The number of direct children each given row has, keyed by page ID.
 ///
@@ -94,14 +102,15 @@ pub(in crate::services::render) async fn load_list_pages_child_counts(
 ///
 /// Rows without exactly one live parent are absent from the map rather than
 /// present with an empty value.
-pub(in crate::services::render) async fn load_list_pages_parent_fullnames(
+pub(in crate::services::render) async fn load_list_pages_parent_displays(
     ctx: &ServiceContext<'_>,
     pages: &[FoundPageRow],
-) -> Result<BTreeMap<i64, String>> {
+) -> Result<BTreeMap<i64, ListPagesParentDisplay>> {
     #[derive(FromQueryResult, Debug)]
     struct ParentRow {
         child_page_id: i64,
         parent_slug: String,
+        parent_title: String,
     }
 
     let page_ids = pages
@@ -128,10 +137,12 @@ pub(in crate::services::render) async fn load_list_pages_parent_fullnames(
         txn.get_database_backend(),
         format!(
             "WITH input(page_id) AS (VALUES {values}) \
-             SELECT page_parent.child_page_id, page.slug AS parent_slug \
+             SELECT page_parent.child_page_id, page.slug AS parent_slug, \
+                    page_revision.title AS parent_title \
              FROM input \
              JOIN page_parent ON page_parent.child_page_id = input.page_id \
              JOIN page ON page.page_id = page_parent.parent_page_id \
+             JOIN page_revision ON page_revision.revision_id = page.latest_revision_id \
              WHERE page.deleted_at IS NULL",
         ),
     );
@@ -145,24 +156,40 @@ pub(in crate::services::render) async fn load_list_pages_parent_fullnames(
         |ParentRow {
              child_page_id,
              parent_slug,
-         }| (child_page_id, parent_slug),
+             parent_title,
+         }| {
+            let (category, name) = parent_slug
+                .split_once(':')
+                .map_or(("", parent_slug.as_str()), |(category, name)| {
+                    (category, name)
+                });
+            (
+                child_page_id,
+                ListPagesParentDisplay {
+                    fullname: parent_slug.clone(),
+                    name: name.to_owned(),
+                    category: category.to_owned(),
+                    title: parent_title,
+                },
+            )
+        },
     )))
 }
 
 fn collapse_parent_rows(
-    rows: impl Iterator<Item = (i64, String)>,
-) -> BTreeMap<i64, String> {
-    let mut parents = BTreeMap::<i64, Option<String>>::new();
-    for (child_page_id, parent_slug) in rows {
+    rows: impl Iterator<Item = (i64, ListPagesParentDisplay)>,
+) -> BTreeMap<i64, ListPagesParentDisplay> {
+    let mut parents = BTreeMap::<i64, Option<ListPagesParentDisplay>>::new();
+    for (child_page_id, parent) in rows {
         parents
             .entry(child_page_id)
             .and_modify(|slot| *slot = None)
-            .or_insert(Some(parent_slug));
+            .or_insert(Some(parent));
     }
 
     parents
         .into_iter()
-        .filter_map(|(child_page_id, parent_slug)| Some((child_page_id, parent_slug?)))
+        .filter_map(|(child_page_id, parent)| Some((child_page_id, parent?)))
         .collect()
 }
 
@@ -170,10 +197,22 @@ fn collapse_parent_rows(
 mod tests {
     use super::*;
 
-    fn collapse(rows: Vec<(i64, &str)>) -> BTreeMap<i64, String> {
+    fn display(fullname: &str) -> ListPagesParentDisplay {
+        let (category, name) = fullname
+            .split_once(':')
+            .map_or(("", fullname), |(category, name)| (category, name));
+        ListPagesParentDisplay {
+            fullname: fullname.to_owned(),
+            name: name.to_owned(),
+            category: category.to_owned(),
+            title: format!("Title {fullname}"),
+        }
+    }
+
+    fn collapse(rows: Vec<(i64, &str)>) -> BTreeMap<i64, ListPagesParentDisplay> {
         collapse_parent_rows(
             rows.into_iter().map(|(child_page_id, parent_slug)| {
-                (child_page_id, parent_slug.to_owned())
+                (child_page_id, display(parent_slug))
             }),
         )
     }
@@ -190,8 +229,8 @@ mod tests {
         assert_eq!(
             resolved,
             BTreeMap::from([
-                (1, "component:offset-timeline".to_owned()),
-                (2, "component:offset-timeline".to_owned()),
+                (1, display("component:offset-timeline")),
+                (2, display("component:offset-timeline")),
             ]),
         );
         assert!(!resolved.contains_key(&3));
