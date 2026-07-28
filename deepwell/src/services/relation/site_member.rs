@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::services::audit::{AuditEvent, AuditService};
+use std::net::IpAddr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case", tag = "cause", content = "user_id")]
@@ -53,6 +55,7 @@ impl RelationService {
             metadata,
             created_by,
         }: CreateSiteMember,
+        ip_address: IpAddr,
     ) -> Result<()> {
         let make_error = || {
             Error::new(
@@ -81,7 +84,17 @@ impl RelationService {
         .await
         .or_raise(make_error)?;
 
-        // TODO audit log
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::JoinSiteMember {
+                user_id,
+                site_id,
+                joining_user_id: created_by,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
 
         Ok(())
     }
@@ -93,6 +106,7 @@ impl RelationService {
             user_id,
             removed_by,
         }: RemoveSiteMember,
+        ip_address: IpAddr,
     ) -> Result<RelationModel> {
         let make_error = || {
             Error::new(
@@ -115,7 +129,17 @@ impl RelationService {
         .await
         .or_raise(make_error)?;
 
-        // TODO audit log
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::RemoveSiteMember {
+                user_id,
+                site_id,
+                removing_user_id: removed_by,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
 
         Ok(model)
     }
