@@ -35,15 +35,13 @@ pub struct SiteMemberData {
     pub accepted: SiteMemberAccepted,
 }
 
-impl_relation!(
-    SiteMember,
-    Site,
-    site_id,
-    User,
-    user_id,
-    SiteMemberData,
-    NO_CREATE_IMPL,
-);
+impl_relation_new! {
+    name => SiteMember,
+    dest => site_id: Site,
+    from => user_id: User,
+    data => SiteMemberData,
+    create_fn => false,
+}
 
 impl RelationService {
     pub async fn create_site_member(
@@ -70,9 +68,20 @@ impl RelationService {
             .await
             .or_raise(make_error)?;
 
-        create_operation!(
-            ctx, SiteMember, Site, site_id, User, user_id, created_by, &metadata,
-            make_error,
+        Self::create_site_member_inner(
+            ctx,
+            CreateSiteMemberInner {
+                site_id,
+                user_id,
+                created_by,
+                metadata: &metadata,
+            },
         )
+        .await
+        .or_raise(make_error)?;
+
+        // TODO audit log
+
+        Ok(())
     }
 }
