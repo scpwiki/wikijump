@@ -22,6 +22,13 @@ use std::sync::LazyLock;
 
 const MAX_REDIRECT_DESTINATION_BYTES: usize = 8 * 1024;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct WikidotRedirectModule {
+    destination: String,
+    module_source: String,
+    location: String,
+}
+
 static REDIRECT_MODULE_PREFIX_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)^\[\[module[ \t]+redirect(?:[ \t]|\]\])")
         .expect("Redirect module prefix regular expression should compile")
@@ -48,8 +55,28 @@ pub(super) fn wikidot_redirect_location(
         return None;
     }
 
+    wikidot_redirect_module(source, current_slug).map(|module| module.location)
+}
+
+pub(super) fn wikidot_redirect_noredirect_body_html(
+    source: &str,
+    current_slug: &str,
+    compiled_body_html: String,
+) -> String {
+    let Some(module) = wikidot_redirect_module(source, current_slug) else {
+        return compiled_body_html;
+    };
+
+    replace_preserved_redirect_module_html(&compiled_body_html, &module)
+        .unwrap_or(compiled_body_html)
+}
+
+fn wikidot_redirect_module(
+    source: &str,
+    current_slug: &str,
+) -> Option<WikidotRedirectModule> {
     let literal_regions = LiteralRegionIndex::new_wikidot_module_recognition(source);
-    let mut destination = None;
+    let mut parsed_module = None;
     let mut line_offset = 0;
 
     for line_with_ending in source.split_inclusive('\n') {
@@ -72,14 +99,19 @@ pub(super) fn wikidot_redirect_location(
 
         let captures = REDIRECT_MODULE_REGEX.captures(trimmed)?;
         let head = captures.name("head")?.as_str();
-        let parsed = parse_destination_argument(head)?;
-        if destination.replace(parsed).is_some() {
+        let destination = parse_destination_argument(head)?;
+        let location = redirect_location(&destination, current_slug)?;
+        let module = WikidotRedirectModule {
+            destination,
+            module_source: trimmed.to_owned(),
+            location,
+        };
+        if parsed_module.replace(module).is_some() {
             return None;
         }
     }
 
-    let destination = destination?;
-    redirect_location(&destination, current_slug)
+    parsed_module
 }
 
 fn parse_destination_argument(head: &str) -> Option<String> {
@@ -175,9 +207,60 @@ fn redirect_location(destination: &str, current_slug: &str) -> Option<String> {
     })
 }
 
+fn replace_preserved_redirect_module_html(
+    compiled_body_html: &str,
+    module: &WikidotRedirectModule,
+) -> Option<String> {
+    let escaped_module_source = escape_wikidot_html_text(&module.module_source);
+    let paragraph = format!("<p>{escaped_module_source}</p>");
+    let notice = wikidot_redirect_notice_html(&module.destination);
+
+    if compiled_body_html.matches(&paragraph).count() == 1 {
+        return Some(compiled_body_html.replacen(&paragraph, &notice, 1));
+    }
+
+    if compiled_body_html.matches(&escaped_module_source).count() == 1 {
+        return Some(compiled_body_html.replacen(&escaped_module_source, &notice, 1));
+    }
+
+    None
+}
+
+fn wikidot_redirect_notice_html(destination: &str) -> String {
+    format!(
+        concat!(
+            "<div class=\"error-block\">\n",
+            "\tThis is the Redirect module that redirects the browser directly to the ",
+            "&quot;{}&quot; page.\n",
+            "</div>"
+        ),
+        escape_wikidot_html_text(destination),
+    )
+}
+
+fn escape_wikidot_html_text(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+
+    for character in value.chars() {
+        match character {
+            '&' => escaped.push_str("&amp;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '"' => escaped.push_str("&quot;"),
+            '\'' => escaped.push_str("&#39;"),
+            _ => escaped.push(character),
+        }
+    }
+
+    escaped
+}
+
 #[cfg(test)]
 mod tests {
-    use super::wikidot_redirect_location;
+    use super::{
+        WikidotRedirectModule, replace_preserved_redirect_module_html,
+        wikidot_redirect_location, wikidot_redirect_noredirect_body_html,
+    };
     use serde::Deserialize;
 
     #[derive(Debug, Deserialize)]
@@ -310,5 +393,38 @@ mod tests {
             ),
             None,
         );
+    }
+
+    #[test]
+    fn noredirect_view_replaces_preserved_module_with_wikidot_notice() {
+        assert_eq!(
+            wikidot_redirect_noredirect_body_html(
+                "[[module Redirect destination=\"target\"]]",
+                "source",
+                r#"<p>[[module Redirect destination=&quot;target&quot;]]</p>"#.to_owned(),
+            ),
+            concat!(
+                "<div class=\"error-block\">\n",
+                "\tThis is the Redirect module that redirects the browser directly to the ",
+                "&quot;target&quot; page.\n",
+                "</div>",
+            ),
+        );
+    }
+
+    #[test]
+    fn noredirect_notice_escapes_destination_text() {
+        let module = WikidotRedirectModule {
+            destination: "unsafe<&'>".to_owned(),
+            module_source: "[[module Redirect destination=\"unsafe<&'>\"]]".to_owned(),
+            location: "/unsafe<&'>".to_owned(),
+        };
+
+        let notice = replace_preserved_redirect_module_html(
+            r#"<p>[[module Redirect destination=&quot;unsafe&lt;&amp;&#39;&gt;&quot;]]</p>"#,
+            &module,
+        )
+        .expect("preserved redirect module should be replaced");
+        assert!(notice.contains("unsafe&lt;&amp;&#39;&gt;"));
     }
 }

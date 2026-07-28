@@ -172,6 +172,146 @@ async fn imported_breadcrumb_article_view(
 }
 
 #[tokio::test]
+async fn imported_redirect_noredirect_renders_live_error_block() {
+    const SITE_SLUG: &str = "test";
+    const SOURCE_SLUG: &str = "redirect-noredirect-live";
+    const TARGET_SLUG: &str = "redirect-target-live";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded test site should exist")
+        .site;
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site_id,
+        Reference::Slug(Cow::Borrowed(TARGET_SLUG)),
+    );
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site_id,
+            "wikitext": "Redirect target",
+            "title": "Redirect target",
+            "alt_title": null,
+            "slug": TARGET_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create redirect target",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site.site_id,
+        Reference::Slug(Cow::Borrowed(SOURCE_SLUG)),
+    );
+    let created = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site.site_id,
+            "wikitext": format!("[[module Redirect destination=\"{TARGET_SLUG}\"]]"),
+            "title": "Redirect source",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "create imported redirect source",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("redirect source page lookup should not fail")
+        .expect("redirect source page should exist");
+    let mut page = page.into_active_model();
+    page.from_wikidot = Set(true);
+    page.update(runner.context().transaction())
+        .await
+        .expect("redirect source page should be marked imported");
+
+    let revision = PageRevisionTable::find_by_id(created.revision_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("redirect source revision lookup should not fail")
+        .expect("redirect source revision should exist");
+    let mut revision = revision.into_active_model();
+    revision.from_wikidot = Set(true);
+    revision
+        .update(runner.context().transaction())
+        .await
+        .expect("redirect source revision should be marked imported");
+
+    let redirected = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": SOURCE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let GetArticleViewOutput {
+        page:
+            GetPageViewOutput::Found {
+                redirect_page: Some(redirect_page),
+                redirect_kind: Some(_),
+                ..
+            },
+        ..
+    } = redirected
+    else {
+        panic!("bare imported Redirect page should return Wikidot-module redirect");
+    };
+    assert_eq!(redirect_page, format!("/{TARGET_SLUG}"));
+
+    let suppressed = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": SOURCE_SLUG, "extra": "noredirect/true"},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let GetArticleViewOutput {
+        page:
+            GetPageViewOutput::Found {
+                redirect_page: None,
+                redirect_kind: None,
+                compiled_body_html,
+                ..
+            },
+        ..
+    } = suppressed
+    else {
+        panic!("noredirect page view should render the imported redirect source");
+    };
+    assert!(
+        compiled_body_html.contains(r#"<div class="error-block">"#),
+        "noredirect view should render Wikidot's error-block notice: {compiled_body_html}",
+    );
+    assert!(
+        compiled_body_html.contains(&format!(
+            "This is the Redirect module that redirects the browser directly to the &quot;{TARGET_SLUG}&quot; page."
+        )),
+        "noredirect view should identify the redirect destination like live Wikidot: {compiled_body_html}",
+    );
+    assert!(
+        !compiled_body_html.contains("[[module Redirect"),
+        "noredirect view must not expose the raw Redirect module source: {compiled_body_html}",
+    );
+}
+
+#[tokio::test]
 async fn imported_page_layout_provenance_preserves_explicit_page_override() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

@@ -20,6 +20,31 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+### Redirect noredirect renders a Wikidot error-block notice
+
+- Observation ID: `redirect-module-noredirect-notice`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-29`
+- Analysis: The Redirect module documentation says /noredirect/true prevents the redirect and shows an information box where the module is placed, but it omits the exact markup and text. Direct anonymous requests to SCP Wiki's imported /about redirect show the bare page returns HTTP 301, while /about/noredirect/true returns HTTP 200 and replaces the module source with a div.error-block notice.
+
+Normative behavior:
+
+- A bare imported page containing a supported Wikidot Redirect module returns an HTTP 301 redirect to the resolved destination.
+- The /noredirect/true path option suppresses the HTTP redirect and returns HTTP 200.
+- When /noredirect/true suppresses a supported Redirect module, the page content replaces the module at its source position with div.error-block.
+- The error block text is: This is the Redirect module that redirects the browser directly to the &quot;<destination>&quot; page.
+- The no-redirect notice uses the authored destination value, not the normalized Location header path.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/redirect-module-noredirect-live.json` (SHA-256 `6a715589a2d503e83a10fa12651d4842a357a5e22591c0b6538b1d28d8222f86`), cases: `scp-wiki-about-bare`, `scp-wiki-about-noredirect`
+
+
 
 ## Suggested public TDD seams
 

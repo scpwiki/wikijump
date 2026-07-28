@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-29",
-  "catalog_sha256": "9930ca6b316ed250be1ab20988d12d93529ac324ddd802e9972d383b228ef266",
+  "catalog_sha256": "895ef06fc7afe218c0546b4d13b3c97e6fc3f82b07d3a13d6b21b54c1cb99885",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -1492,14 +1492,40 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-redirect": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell imported page-view route for saved Wikidot pages with and without noredirect",
+        "Framerail HTTP redirect handling for Wikidot Redirect module responses",
+        "Deepwell Redirect module scanner and fail-closed destination resolver"
+      ],
+      "tests": [
+        "deepwell/tests/page.rs::imported_redirect_noredirect_renders_live_error_block",
+        "deepwell/src/services/view/redirect.rs::tests::resolves_all_forty_provenance_backed_redirect_destinations",
+        "deepwell/src/services/view/redirect.rs::tests::preserves_destination_query_and_fragment",
+        "deepwell/src/services/view/redirect.rs::tests::invalid_or_unsupported_destinations_remain_literal",
+        "deepwell/src/services/view/redirect.rs::tests::ordinary_and_ambiguous_pages_do_not_redirect",
+        "deepwell/src/services/view/redirect.rs::tests::literal_regions_do_not_create_redirects",
+        "deepwell/src/services/view/redirect.rs::tests::self_redirects_fail_closed",
+        "deepwell/src/services/view/redirect.rs::tests::noredirect_option_preserves_the_page_instead_of_redirecting",
+        "deepwell/src/services/view/redirect.rs::tests::noredirect_view_replaces_preserved_module_with_wikidot_notice",
+        "deepwell/src/services/view/redirect.rs::tests::noredirect_notice_escapes_destination_text",
+        "deepwell/src/services/view/service.rs::wikidot_redirect_module_allowed_tests::allows_only_imported_page_and_imported_revision",
+        "framerail/tests/page-redirect.test.ts"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/view/redirect.rs",
+        "deepwell/src/services/view/service.rs",
+        "deepwell/src/services/view/options.rs",
+        "framerail/src/lib/server/page-redirect.ts"
+      ],
       "documentation_evidence": [
         "specifications/module/module-redirect.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/redirect-module-noredirect-live.json",
+        "deepwell/tests/fixtures/wikidot_redirects.json",
+        "docs/ftml-boundary-deviations/wikidot-redirect-location.md"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-search": {

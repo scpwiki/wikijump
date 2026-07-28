@@ -1,0 +1,65 @@
+{
+  "schema": "wikijump.wikidot_verification.redirect_module_noredirect.v1",
+  "observed_at": "2026-07-29T06:27:55+09:00",
+  "feature_id": "module-redirect",
+  "authority": "live Wikidot observed behavior is canonical when it conflicts with generated documentation",
+  "documentation_source": {
+    "path": "~/src/Rokurolize/scp-wiki-translation/corpus/www/pages/doc-modules:redirect-module/source.wikidot.txt",
+    "lines": "26-32",
+    "claim": "Appending /noredirect/true prevents the redirect and shows an information box where the Redirect module is placed."
+  },
+  "live_requests": [
+    {
+      "id": "scp-wiki-about-bare",
+      "url": "https://scp-wiki.wikidot.com/about",
+      "method": "GET",
+      "status": "HTTP/1.1 301 Moved Permanently",
+      "location": "/about-the-scp-foundation",
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "body_bytes": 0
+    },
+    {
+      "id": "scp-wiki-about-noredirect",
+      "url": "https://scp-wiki.wikidot.com/about/noredirect/true",
+      "method": "GET",
+      "status": "HTTP/1.1 200 OK",
+      "body_sha256": "8ae66a126189fdcd27071f669ef041337f2d0fdbdc9a64d360046b4eb120696f",
+      "body_bytes": 28321,
+      "page_content_excerpt": "<div id=\"page-content\">\\n                        \\n\\n<div class=\"error-block\">\\n\\tThis is the Redirect module that redirects the browser directly to the &quot;about-the-scp-foundation&quot; page.\\n</div>\\n                    </div>"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "scp-wiki-about-bare",
+      "url": "https://scp-wiki.wikidot.com/about",
+      "expected_status": "HTTP/1.1 301 Moved Permanently",
+      "expected_location": "/about-the-scp-foundation"
+    },
+    {
+      "case_id": "scp-wiki-about-noredirect",
+      "url": "https://scp-wiki.wikidot.com/about/noredirect/true",
+      "expected_status": "HTTP/1.1 200 OK",
+      "expected_page_content_contains": [
+        "<div class=\"error-block\">",
+        "This is the Redirect module that redirects the browser directly to the &quot;about-the-scp-foundation&quot; page."
+      ]
+    }
+  ],
+  "pre_fix_local_discrepancy": {
+    "url": "http://scp-wiki.wikijump.localhost/about/noredirect/true",
+    "method": "GET",
+    "status_chain_first": "HTTP/1.1 308 Permanent Redirect",
+    "final_status": "HTTP/2 200",
+    "body_sha256": "5baf262571d8746ffa82b2ee9b43731f3c54dd780b08867ba7f61b268c9e32af",
+    "body_bytes": 43973,
+    "page_content_excerpt": "<div id=\"page-content\"><!--[-1--><!----><p>[[module Redirect destination=&quot;about-the-scp-foundation&quot;]]</p><!----><!--]--></div>",
+    "classification": "Wikijump suppressed the HTTP redirect but rendered the preserved Redirect module source literally instead of Wikidot's error-block notice."
+  },
+  "normative_behavior": [
+    "A bare imported page containing a supported Wikidot Redirect module returns an HTTP 301 redirect to the resolved destination.",
+    "The /noredirect/true path option suppresses the HTTP redirect and returns HTTP 200.",
+    "When /noredirect/true suppresses a supported Redirect module, the page content replaces the module at its source position with div.error-block.",
+    "The error block text is: This is the Redirect module that redirects the browser directly to the &quot;<destination>&quot; page.",
+    "The no-redirect notice uses the authored destination value, not the normalized Location header path."
+  ]
+}

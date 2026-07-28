@@ -33,7 +33,7 @@ use super::article_cache::ArticlePageCache;
 use super::module_arguments::PageModuleArguments;
 use super::module_render::render_body_for_module_arguments;
 use super::options::PageOptions;
-use super::redirect::wikidot_redirect_location;
+use super::redirect::{wikidot_redirect_location, wikidot_redirect_noredirect_body_html};
 use super::structs::{
     GetAdminView, GetAdminViewOutput, GetArticleViewCacheMetadataOutput,
     GetArticleViewOutput, GetPageView, GetPageViewOutput, GetPreloadView,
@@ -435,7 +435,7 @@ impl ViewService {
             new_page_wikitext,
             page_templates,
             selected_template_page_id,
-            compiled_body_html,
+            mut compiled_body_html,
             compiled_body_styles,
             compiled_top_bar_html,
             compiled_side_bar_html,
@@ -788,6 +788,21 @@ impl ViewService {
         };
 
         // TODO Check if user-agent and IP match?
+
+        if options.no_redirect
+            && let PageStatus::Found {
+                page,
+                page_revision,
+                ..
+            } = &page_status
+            && wikidot_redirect_module_allowed(page, page_revision)
+        {
+            compiled_body_html = wikidot_redirect_noredirect_body_html(
+                &wikitext,
+                page_full_slug,
+                compiled_body_html,
+            );
+        }
 
         let (redirect_page, redirect_kind) = if let Some(redirect_page) = redirect_page {
             (Some(redirect_page), None)
