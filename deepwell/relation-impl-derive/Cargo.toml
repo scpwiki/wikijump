@@ -3,7 +3,7 @@ name = "deepwell-relation-impl-derive"
 description = "Procedural macro to generate boilerplate for relation methods"
 repository = "https://github.com/scpwiki/wikijump/tree/develop/deepwell/relation-impl-derive"
 
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
 edition = "2024"
 
