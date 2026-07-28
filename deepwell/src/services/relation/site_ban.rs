@@ -76,6 +76,7 @@ impl RelationService {
                     removed_by: created_by,
                 },
                 ip_address,
+                &metadata.reason,
             )
             .await
             .or_raise(make_error)?;
