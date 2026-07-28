@@ -23,6 +23,20 @@ use crate::models::relation::Model as RelationModel;
 use crate::services::relation::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
 use std::net::IpAddr;
 
+#[derive(Deserialize, Debug)]
+struct CreateSiteMemberInput {
+    #[serde(flatten)]
+    input: CreateSiteMember,
+    ip_address: IpAddr,
+}
+
+#[derive(Deserialize, Debug)]
+struct RemoveSiteMemberInput {
+    #[serde(flatten)]
+    input: RemoveSiteMember,
+    ip_address: IpAddr,
+}
+
 pub async fn membership_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -48,16 +62,7 @@ pub async fn membership_set(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    #[derive(Deserialize, Debug)]
-    struct CreateSiteMemberWithIpAddress {
-        #[serde(flatten)]
-        input: CreateSiteMember,
-        ip_address: IpAddr,
-    }
-
-    let CreateSiteMemberWithIpAddress { input, ip_address } =
-        parse!(params, SiteMembership);
-
+    let CreateSiteMemberInput { input, ip_address } = parse!(params, SiteMembership);
     let user_id = input.user_id;
     let site_id = input.site_id;
 
@@ -78,16 +83,7 @@ pub async fn membership_remove(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<RelationModel> {
-    #[derive(Deserialize, Debug)]
-    struct RemoveSiteMemberWithIpAddress {
-        #[serde(flatten)]
-        input: RemoveSiteMember,
-        ip_address: IpAddr,
-    }
-
-    let RemoveSiteMemberWithIpAddress { input, ip_address } =
-        parse!(params, SiteMembership);
-
+    let RemoveSiteMemberInput { input, ip_address } = parse!(params, SiteMembership);
     let user_id = input.user_id;
     let site_id = input.site_id;
 
