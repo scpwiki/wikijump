@@ -20,12 +20,12 @@
 
 use super::prelude::*;
 use super::site_member::{GetSiteMember, RemoveSiteMember};
-use crate::constants::SYSTEM_USER_ID;
+use crate::constants::{SYSTEM_IP_ADDRESS, SYSTEM_USER_ID};
 use crate::models::relation::{self, Entity as Relation};
 use crate::models::user_role::{self, Entity as UserRole};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::role::{RevokeUserRoleInput, RoleService};
-use std::net::{IpAddr, Ipv6Addr};
+use std::net::IpAddr;
 use time::Date;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -275,7 +275,7 @@ impl RelationService {
                     user_id: site_ban.from_id,
                     removed_by: SYSTEM_USER_ID,
                 },
-                IpAddr::V6(Ipv6Addr::LOCALHOST),
+                SYSTEM_IP_ADDRESS,
                 "Site ban expired",
             )
             .await
