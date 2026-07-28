@@ -20,6 +20,32 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+### PagesByTag category arguments and category URL path restrict tagged pages
+
+- Observation ID: `pagesbytag-category-argument-and-url-category`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-28`
+- Analysis: The PagesByTag documentation says category can be supplied either as a module attribute or by a trailing /category/<category> URL segment when the module omits category. Controlled run-owned sandbox pages confirm that live Wikidot applies both forms as category restrictions rather than treating extra arguments literally. A module category composes with a URL tag when the module omits tag, and a tagless/categoryless module composes URL tag and category arguments in either /tag/<tag>/category/<category> or /category/<category>/tag/<tag> order. Category-filtered output changes the heading and adds a right-floated link back to the same page's /tag/<tag> all-categories view.
+
+Normative behavior:
+
+- PagesByTag accepts category as a documented module argument and restricts listed tagged pages to that category.
+- When a PagesByTag module omits category, a /category/<category> URL path argument restricts the listed tagged pages to that category.
+- When a PagesByTag module has category but omits tag, a /tag/<tag> URL path argument supplies the tag and composes with the module category.
+- When a PagesByTag module omits both tag and category, /tag/<tag>/category/<category> and /category/<category>/tag/<tag> both supply the two selectors.
+- Category-filtered PagesByTag headings include 'from category <em>category</em>:' after the tag.
+- Category-filtered PagesByTag output includes a right-floated '(show from all categories)' link targeting the same page with only /tag/<tag>.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/pages-by-tag-category-live.json` (SHA-256 `8349f1dcbb8c7504071d336d6e735ed3b27a9c42af630ca9490868fce86306a6`), cases: `explicit-category-module-arg`, `url-category-after-tag-arg`, `url-tag-with-module-category`, `url-tag-then-url-category`, `url-category-then-url-tag`
+
+
 
 ## Suggested public TDD seams
 

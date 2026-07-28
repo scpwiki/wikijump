@@ -2972,6 +2972,156 @@ async fn pages_by_tag_module_reads_the_url_tag_argument() {
 }
 
 #[tokio::test]
+async fn pages_by_tag_module_filters_module_and_url_categories() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "fixture-pbt-category-tag";
+    let category_a = "fixture-pbt-category-a";
+    let category_b = "fixture-pbt-category-b";
+    let holder_slug = "fixture-pbt-category-holder";
+
+    for (slug, title, tags) in [
+        (
+            format!("{category_a}:alpha"),
+            "Alpha PBT Category Probe",
+            vec![tag],
+        ),
+        (
+            format!("{category_b}:bravo"),
+            "Bravo PBT Category Probe",
+            vec![tag],
+        ),
+        (
+            format!("{category_a}:untagged"),
+            "Untagged PBT Category Probe",
+            Vec::new(),
+        ),
+    ] {
+        let revision_id =
+            create_listpages_test_page(&mut runner, site_id, &slug, title, "Probe body.")
+                .await;
+        if !tags.is_empty() {
+            set_listpages_test_tags(&mut runner, site_id, &slug, revision_id, &tags)
+                .await;
+        }
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Fixture PBT Category Holder",
+        "placeholder",
+    )
+    .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": holder_slug}),
+    )
+    .expect("PagesByTag category holder should exist");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(holder_slug))),
+    });
+    let page_info = PageInfo {
+        page: Cow::Borrowed(holder_slug),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Fixture PBT Category Holder"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: holder.page_category_id,
+        page_id: holder.page_id,
+    };
+
+    let render = async |wikitext: &str, url: UrlArguments<'_>| {
+        RenderService::render_page(
+            runner.context(),
+            wikitext.to_owned(),
+            &page_info,
+            Layout::Wikidot,
+            page_id,
+            url,
+        )
+        .await
+        .expect("PagesByTag category render should succeed")
+        .html_output
+        .body
+    };
+
+    let module_category =
+        format!(r#"[[module PagesByTag tag="{tag}" category="{category_a}"]]"#,);
+    let html = render(&module_category, UrlArguments::default()).await;
+    assert!(
+        html.contains(&format!(
+            "List of pages tagged with <em>{tag}</em> from category <em>{category_a}</em>:"
+        )),
+        "a module category should appear in the live heading: {html}",
+    );
+    assert!(
+        html.contains(
+            r#"<a href="/fixture-pbt-category-a:alpha">Alpha PBT Category Probe</a>"#
+        ) && !html.contains("fixture-pbt-category-b:bravo")
+            && !html.contains("fixture-pbt-category-a:untagged"),
+        "a module category should restrict the tag listing to that category only: {html}",
+    );
+    assert!(
+        html.contains(&format!(
+            r#"<span style="float: right">(<a href="/{holder_slug}/tag/{tag}">show from all categories</a>)</span>"#
+        )),
+        "a category-filtered PagesByTag render should include Wikidot's all-categories link: {html}",
+    );
+
+    let tag_with_url_category = format!(r#"[[module PagesByTag tag="{tag}"]]"#);
+    let html = render(
+        &tag_with_url_category,
+        UrlArguments {
+            category: Some(category_b),
+            ..UrlArguments::default()
+        },
+    )
+    .await;
+    assert!(
+        html.contains(&format!("from category <em>{category_b}</em>:"))
+            && html.contains(
+                r#"<a href="/fixture-pbt-category-b:bravo">Bravo PBT Category Probe</a>"#
+            )
+            && !html.contains("fixture-pbt-category-a:alpha"),
+        "a URL category should restrict a PagesByTag module that omits category: {html}",
+    );
+
+    let category_with_url_tag =
+        format!(r#"[[module PagesByTag category="{category_a}"]]"#);
+    let html = render(
+        &category_with_url_tag,
+        UrlArguments {
+            tag: Some(tag),
+            ..UrlArguments::default()
+        },
+    )
+    .await;
+    assert!(
+        html.contains(&format!(
+            "List of pages tagged with <em>{tag}</em> from category <em>{category_a}</em>:"
+        ))
+            && html.contains(r#"<a href="/fixture-pbt-category-a:alpha">Alpha PBT Category Probe</a>"#)
+            && !html.contains("fixture-pbt-category-b:bravo"),
+        "a URL tag should compose with a module category: {html}",
+    );
+}
+
+#[tokio::test]
 async fn list_pages_url_tag_selector_reads_the_url_tag_argument() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

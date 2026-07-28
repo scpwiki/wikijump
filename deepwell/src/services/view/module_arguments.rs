@@ -252,14 +252,15 @@ mod tests {
 
     #[test]
     fn pair_order_does_not_matter() {
-        let tag_first = PageModuleArguments::parse("/tag/alpha/p/2");
-        let page_first = PageModuleArguments::parse("/p/2/tag/alpha");
+        let tag_first = PageModuleArguments::parse("/tag/alpha/p/2/category/news");
+        let page_first = PageModuleArguments::parse("/category/news/p/2/tag/alpha");
 
         assert_eq!(tag_first.tag, page_first.tag);
         assert_eq!(tag_first.page, page_first.page);
         assert_eq!(tag_first.category, page_first.category);
         assert_eq!(tag_first.offset, page_first.offset);
         assert_eq!(tag_first.tag.as_deref(), Some("alpha"));
+        assert_eq!(tag_first.category.as_deref(), Some("news"));
     }
 
     #[test]

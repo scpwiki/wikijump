@@ -1,0 +1,98 @@
+{
+  "schema": "wikidot.pages_by_tag_category_live.v1",
+  "captured_at": "2026-07-28T12:57:46.196298Z",
+  "site": "sandbox-for-codex",
+  "mutation_scope": "run-owned PagesByTag category pages created for this probe and deleted after capture",
+  "run_id": "run-owned-pbt-category-1785243410",
+  "tag": "run-owned-pbt-category-1785243410-tag",
+  "categories": {
+    "a": "run-owned-pbt-category-1785243410-a",
+    "b": "run-owned-pbt-category-1785243410-b"
+  },
+  "created_pages": [
+    "run-owned-pbt-category-1785243410-a:alpha",
+    "run-owned-pbt-category-1785243410-b:bravo",
+    "run-owned-pbt-category-1785243410-a:untagged",
+    "run-owned-pbt-category-1785243410:explicit-category",
+    "run-owned-pbt-category-1785243410:url-category",
+    "run-owned-pbt-category-1785243410:url-tag-module-category",
+    "run-owned-pbt-category-1785243410:url-tag-url-category"
+  ],
+  "captures": [
+    {
+      "case_id": "explicit-category-module-arg"
+    },
+    {
+      "case_id": "url-category-after-tag-arg"
+    },
+    {
+      "case_id": "url-tag-with-module-category"
+    },
+    {
+      "case_id": "url-tag-then-url-category"
+    },
+    {
+      "case_id": "url-category-then-url-tag"
+    }
+  ],
+  "cases": [
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pbt-category-1785243410:explicit-category",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>EXPLICIT_START</p>\n<a name=\"pages\"></a>\n<h2>List of pages tagged with <em>run-owned-pbt-category-1785243410-tag</em> from category <em>run-owned-pbt-category-1785243410-a</em>:</h2>\n<span style=\"float: right\">(<a href=\"/run-owned-pbt-category-1785243410:explicit-category/tag/run-owned-pbt-category-1785243410-tag\">show from all categories</a>)</span>\n<div class=\"pages-list\" id=\"tagged-pages-list\">\n<div class=\"pages-list-item\">\n<div class=\"title\">\n<a href=\"/run-owned-pbt-category-1785243410-a:alpha\">Aardvark PBT Category Alpha</a>\n</div>\n</div>\n</div>\n<p>EXPLICIT_END</p>\n</div>",
+      "page_content_text": "EXPLICIT_START List of pages tagged with run-owned-pbt-category-1785243410-tag from category run-owned-pbt-category-1785243410-a : ( show from all categories ) Aardvark PBT Category Alpha EXPLICIT_END",
+      "case_id": "explicit-category-module-arg",
+      "page": "run-owned-pbt-category-1785243410:explicit-category",
+      "url_suffix": ""
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pbt-category-1785243410:url-category/category/run-owned-pbt-category-1785243410-b",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>URL_CATEGORY_START</p>\n<a name=\"pages\"></a>\n<h2>List of pages tagged with <em>run-owned-pbt-category-1785243410-tag</em> from category <em>run-owned-pbt-category-1785243410-b</em>:</h2>\n<span style=\"float: right\">(<a href=\"/run-owned-pbt-category-1785243410:url-category/tag/run-owned-pbt-category-1785243410-tag\">show from all categories</a>)</span>\n<div class=\"pages-list\" id=\"tagged-pages-list\">\n<div class=\"pages-list-item\">\n<div class=\"title\">\n<a href=\"/run-owned-pbt-category-1785243410-b:bravo\">Bravo PBT Category Bravo</a>\n</div>\n</div>\n</div>\n<p>URL_CATEGORY_END</p>\n</div>",
+      "page_content_text": "URL_CATEGORY_START List of pages tagged with run-owned-pbt-category-1785243410-tag from category run-owned-pbt-category-1785243410-b : ( show from all categories ) Bravo PBT Category Bravo URL_CATEGORY_END",
+      "case_id": "url-category-after-tag-arg",
+      "page": "run-owned-pbt-category-1785243410:url-category",
+      "url_suffix": "/category/run-owned-pbt-category-1785243410-b"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pbt-category-1785243410:url-tag-module-category/tag/run-owned-pbt-category-1785243410-tag",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>URL_TAG_MODULE_CATEGORY_START</p>\n<a name=\"pages\"></a>\n<h2>List of pages tagged with <em>run-owned-pbt-category-1785243410-tag</em> from category <em>run-owned-pbt-category-1785243410-a</em>:</h2>\n<span style=\"float: right\">(<a href=\"/run-owned-pbt-category-1785243410:url-tag-module-category/tag/run-owned-pbt-category-1785243410-tag\">show from all categories</a>)</span>\n<div class=\"pages-list\" id=\"tagged-pages-list\">\n<div class=\"pages-list-item\">\n<div class=\"title\">\n<a href=\"/run-owned-pbt-category-1785243410-a:alpha\">Aardvark PBT Category Alpha</a>\n</div>\n</div>\n</div>\n<p>URL_TAG_MODULE_CATEGORY_END</p>\n</div>",
+      "page_content_text": "URL_TAG_MODULE_CATEGORY_START List of pages tagged with run-owned-pbt-category-1785243410-tag from category run-owned-pbt-category-1785243410-a : ( show from all categories ) Aardvark PBT Category Alpha URL_TAG_MODULE_CATEGORY_END",
+      "case_id": "url-tag-with-module-category",
+      "page": "run-owned-pbt-category-1785243410:url-tag-module-category",
+      "url_suffix": "/tag/run-owned-pbt-category-1785243410-tag"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pbt-category-1785243410:url-tag-url-category/tag/run-owned-pbt-category-1785243410-tag/category/run-owned-pbt-category-1785243410-b",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>URL_TAG_URL_CATEGORY_START</p>\n<a name=\"pages\"></a>\n<h2>List of pages tagged with <em>run-owned-pbt-category-1785243410-tag</em> from category <em>run-owned-pbt-category-1785243410-b</em>:</h2>\n<span style=\"float: right\">(<a href=\"/run-owned-pbt-category-1785243410:url-tag-url-category/tag/run-owned-pbt-category-1785243410-tag\">show from all categories</a>)</span>\n<div class=\"pages-list\" id=\"tagged-pages-list\">\n<div class=\"pages-list-item\">\n<div class=\"title\">\n<a href=\"/run-owned-pbt-category-1785243410-b:bravo\">Bravo PBT Category Bravo</a>\n</div>\n</div>\n</div>\n<p>URL_TAG_URL_CATEGORY_END</p>\n</div>",
+      "page_content_text": "URL_TAG_URL_CATEGORY_START List of pages tagged with run-owned-pbt-category-1785243410-tag from category run-owned-pbt-category-1785243410-b : ( show from all categories ) Bravo PBT Category Bravo URL_TAG_URL_CATEGORY_END",
+      "case_id": "url-tag-then-url-category",
+      "page": "run-owned-pbt-category-1785243410:url-tag-url-category",
+      "url_suffix": "/tag/run-owned-pbt-category-1785243410-tag/category/run-owned-pbt-category-1785243410-b"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-pbt-category-1785243410:url-tag-url-category/category/run-owned-pbt-category-1785243410-a/tag/run-owned-pbt-category-1785243410-tag",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>URL_TAG_URL_CATEGORY_START</p>\n<a name=\"pages\"></a>\n<h2>List of pages tagged with <em>run-owned-pbt-category-1785243410-tag</em> from category <em>run-owned-pbt-category-1785243410-a</em>:</h2>\n<span style=\"float: right\">(<a href=\"/run-owned-pbt-category-1785243410:url-tag-url-category/tag/run-owned-pbt-category-1785243410-tag\">show from all categories</a>)</span>\n<div class=\"pages-list\" id=\"tagged-pages-list\">\n<div class=\"pages-list-item\">\n<div class=\"title\">\n<a href=\"/run-owned-pbt-category-1785243410-a:alpha\">Aardvark PBT Category Alpha</a>\n</div>\n</div>\n</div>\n<p>URL_TAG_URL_CATEGORY_END</p>\n</div>",
+      "page_content_text": "URL_TAG_URL_CATEGORY_START List of pages tagged with run-owned-pbt-category-1785243410-tag from category run-owned-pbt-category-1785243410-a : ( show from all categories ) Aardvark PBT Category Alpha URL_TAG_URL_CATEGORY_END",
+      "case_id": "url-category-then-url-tag",
+      "page": "run-owned-pbt-category-1785243410:url-tag-url-category",
+      "url_suffix": "/category/run-owned-pbt-category-1785243410-a/tag/run-owned-pbt-category-1785243410-tag"
+    }
+  ],
+  "cleanup": {
+    "run_owned_pages_deleted": true,
+    "deleted": [
+      "run-owned-pbt-category-1785243410:url-tag-url-category",
+      "run-owned-pbt-category-1785243410:url-tag-module-category",
+      "run-owned-pbt-category-1785243410:url-category",
+      "run-owned-pbt-category-1785243410:explicit-category",
+      "run-owned-pbt-category-1785243410-a:untagged",
+      "run-owned-pbt-category-1785243410-b:bravo",
+      "run-owned-pbt-category-1785243410-a:alpha"
+    ],
+    "errors": []
+  }
+}

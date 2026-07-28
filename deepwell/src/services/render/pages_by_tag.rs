@@ -23,17 +23,21 @@
 //! The emitted markup reproduces a live Wikidot capture byte for byte, tab
 //! indentation included, so imported author CSS that targets
 //! `#tagged-pages-list .pages-list-item .title` keeps working. Only the
-//! `tag` argument is evidenced; every other form stays literal.
+//! `tag` and `category` arguments are evidenced; every other form stays
+//! literal.
 
 use super::compat::CompatHtmlFragments;
+use super::percent_encoding::percent_encode_path_segment;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
 };
+use super::url_arguments::UrlArguments;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::types::Reference;
 use crate::types::{Action, Permission, Resource};
+use ftml::data::PageInfo;
 use ftml::settings::WikitextSettings;
 use ftml::{self};
 use regex::Regex;
@@ -58,45 +62,99 @@ pub(super) struct PagesByTagPage {
     pub title: String,
 }
 
-/// Extracts the `tag` argument from a `[[module PagesByTag ...]]` head.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub(super) struct PagesByTagArguments {
+    pub tag: Option<String>,
+    pub category: Option<String>,
+}
+
+/// Extracts the evidenced `tag` and `category` arguments from a
+/// `[[module PagesByTag ...]]` head.
 ///
-/// Returns `None` for any head this has no live evidence for, which keeps the
-/// module literal instead of guessing a query.
-pub(super) fn parse_pages_by_tag_tag(head: &str) -> Option<String> {
-    let head = head.trim();
-    let rest = head.strip_prefix("tag")?.trim_start();
-    let rest = rest.strip_prefix('=')?.trim_start();
-
-    let tag = if let Some(rest) = rest.strip_prefix('"') {
-        let (tag, rest) = rest.split_once('"')?;
-        if !rest.trim().is_empty() {
+/// Returns `None` for any head this has no live evidence for, which keeps an
+/// argument-bearing module literal instead of guessing a query.
+pub(super) fn parse_pages_by_tag_arguments(head: &str) -> Option<PagesByTagArguments> {
+    let mut rest = head.trim();
+    let mut arguments = PagesByTagArguments::default();
+    while !rest.is_empty() {
+        let (name, after_name) = split_pages_by_tag_token(rest)?;
+        let name = name.trim();
+        if !matches!(name, "tag" | "category") {
             return None;
         }
-        tag
-    } else {
-        // A bare value cannot contain whitespace, and nothing may follow it.
-        if rest.is_empty() || rest.split_whitespace().count() != 1 {
+        if (name == "tag" && arguments.tag.is_some())
+            || (name == "category" && arguments.category.is_some())
+        {
             return None;
         }
-        rest
-    };
 
-    let tag = tag.trim();
-    if tag.is_empty() {
-        return None;
+        let after_equals = after_name.trim_start().strip_prefix('=')?.trim_start();
+        let (value, after_value) = parse_pages_by_tag_value(after_equals)?;
+        let value = value.trim();
+        if value.is_empty() {
+            return None;
+        }
+
+        match name {
+            "tag" => arguments.tag = Some(value.to_owned()),
+            "category" => arguments.category = Some(value.to_owned()),
+            _ => unreachable!("name is checked above"),
+        }
+        rest = after_value.trim_start();
     }
 
-    Some(tag.to_owned())
+    Some(arguments)
+}
+
+fn split_pages_by_tag_token(input: &str) -> Option<(&str, &str)> {
+    let boundary = input
+        .find(|character: char| character == '=' || character.is_whitespace())
+        .unwrap_or(input.len());
+    (boundary > 0).then_some((&input[..boundary], &input[boundary..]))
+}
+
+fn parse_pages_by_tag_value(input: &str) -> Option<(&str, &str)> {
+    if let Some(rest) = input.strip_prefix('"') {
+        let (value, rest) = rest.split_once('"')?;
+        Some((value, rest))
+    } else {
+        let boundary = input
+            .find(|character: char| character.is_whitespace())
+            .unwrap_or(input.len());
+        (boundary > 0).then_some((&input[..boundary], &input[boundary..]))
+    }
 }
 
 /// Renders the live PagesByTag DOM for `tag` over already-filtered `pages`.
-pub(super) fn render_pages_by_tag_module(tag: &str, pages: &[PagesByTagPage]) -> String {
+pub(super) fn render_pages_by_tag_module(
+    page_info: &PageInfo<'_>,
+    tag: &str,
+    category: Option<&str>,
+    pages: &[PagesByTagPage],
+) -> String {
     let mut output =
         String::from("<a name=\"pages\"></a>\n<h2>List of pages tagged with <em>");
     output.push_str(&escape_list_pages_html_text(tag));
-    output.push_str(
-        "</em>:</h2> \n\n\n<div class=\"pages-list\" id=\"tagged-pages-list\">",
-    );
+    match category {
+        Some(category) => {
+            output.push_str("</em> from category <em>");
+            output.push_str(&escape_list_pages_html_text(category));
+            output.push_str("</em>:</h2>\n<span style=\"float: right\">(<a href=\"/");
+            output.push_str(&escape_list_pages_html_attr(
+                &RenderService::page_info_full_slug(page_info),
+            ));
+            output.push_str("/tag/");
+            output.push_str(&escape_list_pages_html_attr(&percent_encode_path_segment(
+                tag,
+            )));
+            output.push_str(
+                "\">show from all categories</a>)</span>\n<div class=\"pages-list\" id=\"tagged-pages-list\">",
+            );
+        }
+        None => output.push_str(
+            "</em>:</h2> \n\n\n<div class=\"pages-list\" id=\"tagged-pages-list\">",
+        ),
+    }
 
     for page in pages {
         output.push_str("\n\t\t\t<div class=\"pages-list-item\">\n\t\t\t<div class=\"title\">\n\t\t\t\t<a href=\"/");
@@ -125,9 +183,10 @@ pub(super) fn render_pages_by_tag_module(tag: &str, pages: &[PagesByTagPage]) ->
 pub(super) async fn expand_pages_by_tag_modules(
     ctx: &ServiceContext<'_>,
     wikitext: String,
+    page_info: &PageInfo<'_>,
     settings: &WikitextSettings,
     current_site_id: Option<i64>,
-    url_tag: Option<&str>,
+    url: UrlArguments<'_>,
     compat_html: &mut CompatHtmlFragments,
 ) -> Result<String> {
     if !settings.enable_page_syntax || !PAGES_BY_TAG_MODULE_REGEX.is_match(&wikitext) {
@@ -152,27 +211,44 @@ pub(super) async fn expand_pages_by_tag_modules(
         }
 
         let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-        let tag = if head.trim().is_empty() {
-            match url_tag {
-                Some(url_tag) => url_tag.to_owned(),
+        let (tag, category) = if head.trim().is_empty() {
+            let Some(url_tag) = url.tag else {
                 // Neither the module nor the URL names a tag, so live emits
                 // nothing at all rather than an empty list.
-                None => continue,
-            }
+                continue;
+            };
+            (url_tag.to_owned(), url.category.map(str::to_owned))
         } else {
-            let Some(tag) = parse_pages_by_tag_tag(head) else {
+            let Some(arguments) = parse_pages_by_tag_arguments(head) else {
                 // Unevidenced argument forms stay literal rather than resolve
                 // to a guessed query.
                 expanded.push_str(mtch.as_str());
                 continue;
             };
-            tag
+            let tag = match arguments.tag {
+                Some(tag) => tag,
+                None => match url.tag {
+                    Some(url_tag) => url_tag.to_owned(),
+                    None => continue,
+                },
+            };
+            (
+                tag,
+                arguments
+                    .category
+                    .or_else(|| url.category.map(str::to_owned)),
+            )
         };
 
-        let pages = load_pages_by_tag_pages(ctx, current_site_id, &tag).await?;
-        expanded.push_str(
-            &compat_html.push_block_html(render_pages_by_tag_module(&tag, &pages)),
-        );
+        let pages =
+            load_pages_by_tag_pages(ctx, current_site_id, &tag, category.as_deref())
+                .await?;
+        expanded.push_str(&compat_html.push_block_html(render_pages_by_tag_module(
+            page_info,
+            &tag,
+            category.as_deref(),
+            &pages,
+        )));
     }
 
     expanded.push_str(&wikitext[cursor..]);
@@ -183,6 +259,7 @@ pub(super) async fn load_pages_by_tag_pages(
     ctx: &ServiceContext<'_>,
     current_site_id: i64,
     tag: &str,
+    category: Option<&str>,
 ) -> Result<Vec<PagesByTagPage>> {
     let make_error = || {
         Error::new(
@@ -193,22 +270,43 @@ pub(super) async fn load_pages_by_tag_pages(
         )
     };
     let txn = ctx.transaction();
-    let statement = Statement::from_sql_and_values(
-        txn.get_database_backend(),
-        "SELECT p.page_id, p.page_category_id, p.slug, pr.title \
-         FROM page p \
-         JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
-         WHERE p.site_id = $1 \
-           AND p.deleted_at IS NULL \
-           AND $2 = ANY(pr.tags) \
-         ORDER BY lower(pr.title), p.slug \
-         LIMIT $3",
-        [
-            current_site_id.into(),
-            tag.into(),
-            (MAX_PAGES_BY_TAG_ROWS as i64).into(),
-        ],
-    );
+    let statement = match category {
+        Some(category) => Statement::from_sql_and_values(
+            txn.get_database_backend(),
+            "SELECT p.page_id, p.page_category_id, p.slug, pr.title \
+             FROM page p \
+             JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
+             JOIN page_category pc ON pc.category_id = p.page_category_id \
+             WHERE p.site_id = $1 \
+               AND p.deleted_at IS NULL \
+               AND $2 = ANY(pr.tags) \
+               AND pc.slug = $3 \
+             ORDER BY lower(pr.title), p.slug \
+             LIMIT $4",
+            [
+                current_site_id.into(),
+                tag.into(),
+                category.into(),
+                (MAX_PAGES_BY_TAG_ROWS as i64).into(),
+            ],
+        ),
+        None => Statement::from_sql_and_values(
+            txn.get_database_backend(),
+            "SELECT p.page_id, p.page_category_id, p.slug, pr.title \
+             FROM page p \
+             JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
+             WHERE p.site_id = $1 \
+               AND p.deleted_at IS NULL \
+               AND $2 = ANY(pr.tags) \
+             ORDER BY lower(pr.title), p.slug \
+             LIMIT $3",
+            [
+                current_site_id.into(),
+                tag.into(),
+                (MAX_PAGES_BY_TAG_ROWS as i64).into(),
+            ],
+        ),
+    };
 
     let rows = PagesByTagPage::find_by_statement(statement)
         .all(txn)
@@ -244,6 +342,7 @@ pub(super) async fn load_pages_by_tag_pages(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::borrow::Cow;
 
     fn page(slug: &str, title: &str) -> PagesByTagPage {
         PagesByTagPage {
@@ -254,37 +353,57 @@ mod tests {
         }
     }
 
+    fn page_info() -> PageInfo<'static> {
+        PageInfo {
+            page: Cow::Borrowed("system:page-tags"),
+            category: None,
+            site: Cow::Borrowed("sandbox-for-codex"),
+            title: Cow::Borrowed("Page Tags"),
+            alt_title: None,
+            score: ftml::data::ScoreValue::Integer(0),
+            tags: Vec::new(),
+            language: Cow::Borrowed("en"),
+        }
+    }
+
     #[test]
     fn parses_the_evidenced_quoted_tag_argument() {
         assert_eq!(
-            parse_pages_by_tag_tag(r#" tag="cgmodcat""#).as_deref(),
-            Some("cgmodcat"),
+            parse_pages_by_tag_arguments(r#" tag="cgmodcat""#)
+                .and_then(|arguments| arguments.tag),
+            Some("cgmodcat".to_owned()),
         );
         assert_eq!(
-            parse_pages_by_tag_tag(r#"tag="cg-pbt-order-20260725""#).as_deref(),
-            Some("cg-pbt-order-20260725"),
+            parse_pages_by_tag_arguments(r#"tag="cg-pbt-order-20260725""#)
+                .and_then(|arguments| arguments.tag),
+            Some("cg-pbt-order-20260725".to_owned()),
         );
         assert_eq!(
-            parse_pages_by_tag_tag(" tag=cgmodcat").as_deref(),
-            Some("cgmodcat")
+            parse_pages_by_tag_arguments(" tag=cgmodcat")
+                .and_then(|arguments| arguments.tag),
+            Some("cgmodcat".to_owned()),
+        );
+        assert_eq!(
+            parse_pages_by_tag_arguments(r#" category="_default" tag="news""#),
+            Some(PagesByTagArguments {
+                tag: Some("news".to_owned()),
+                category: Some("_default".to_owned()),
+            }),
         );
     }
 
     #[test]
     fn leaves_unevidenced_argument_forms_unparsed() {
-        // No live capture covers a missing tag, extra arguments, an empty
-        // value, or a second tag, so each must stay literal.
+        // No live capture covers extra arguments, an empty value, or a
+        // duplicate selector, so each must stay literal.
         for head in [
-            "",
-            "   ",
             r#" tag="""#,
             r#" tag="a" tag="b""#,
             r#" tag="a" limit="5""#,
             r#" limit="5""#,
             " tag=a b",
-            " category=\"scp\"",
         ] {
-            assert_eq!(parse_pages_by_tag_tag(head), None, "head: {head:?}");
+            assert_eq!(parse_pages_by_tag_arguments(head), None, "head: {head:?}");
         }
     }
 
@@ -295,7 +414,12 @@ mod tests {
             page("cg-pbt-order-bravo", "Bravo Probe"),
             page("cg-pbt-order-charlie", "Charlie Probe"),
         ];
-        let rendered = render_pages_by_tag_module("cg-pbt-order-20260725", &pages);
+        let rendered = render_pages_by_tag_module(
+            &page_info(),
+            "cg-pbt-order-20260725",
+            None,
+            &pages,
+        );
 
         assert_eq!(
             rendered,
@@ -317,7 +441,7 @@ mod tests {
     #[test]
     fn escapes_tag_titles_and_slugs() {
         let pages = [page("a<b>", "T<script>alert(1)</script>")];
-        let rendered = render_pages_by_tag_module("x\"y<z", &pages);
+        let rendered = render_pages_by_tag_module(&page_info(), "x\"y<z", None, &pages);
 
         assert!(!rendered.contains("<script>"));
         assert!(rendered.contains("&lt;script&gt;alert(1)&lt;/script&gt;"));
@@ -326,5 +450,23 @@ mod tests {
         assert!(rendered.contains("<em>x\"y&lt;z</em>"));
         assert!(rendered.contains("href=\"/a&lt;b&gt;\""));
         assert!(!rendered.contains("href=\"/a<b>\""));
+    }
+
+    #[test]
+    fn renders_category_heading_and_all_categories_link() {
+        let rendered = render_pages_by_tag_module(
+            &page_info(),
+            "news",
+            Some("_default"),
+            &[page("news-page", "News Page")],
+        );
+
+        assert!(rendered.contains(
+            "<h2>List of pages tagged with <em>news</em> from category <em>_default</em>:</h2>",
+        ));
+        assert!(rendered.contains(
+            r#"<span style="float: right">(<a href="/system:page-tags/tag/news">show from all categories</a>)</span>"#,
+        ));
+        assert!(rendered.contains(r#"<a href="/news-page">News Page</a>"#));
     }
 }

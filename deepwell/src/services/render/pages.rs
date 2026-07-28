@@ -83,9 +83,10 @@ pub(super) async fn expand_page_index_modules(
     expand_pages_by_tag_modules(
         ctx,
         wikitext,
+        page_info,
         settings,
         current_site_id,
-        url.tag,
+        url,
         compat_html,
     )
     .await
