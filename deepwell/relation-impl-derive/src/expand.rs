@@ -212,25 +212,48 @@ fn generate_create_defs(
     create_fn: GenerateMethod,
 ) -> Option<GeneratedDefinitions> {
     let (vis, suffix) = create_fn.vis_and_suffix()?;
-    let create_struct = make_ident(format!("Create{}", struct_name));
-    let create_struct_def = match data_type {
-        Some(data_type) => quote! {
-            #[derive(Deserialize, Debug, Clone)]
-            pub struct #create_struct {
-                pub #dest_name: i64,
-                pub #from_name: i64,
-                pub metadata: #data_type,
-                pub created_by: i64,
+    let mut create_struct = make_ident(format!("Create{}", struct_name));
+    let create_struct_def;
+    let mut create_struct_lifetime = None;
+    let mut create_struct_inner_def = None;
+
+    match data_type {
+        Some(data_type) => {
+            create_struct_def = quote! {
+                #[derive(Deserialize, Debug, Clone)]
+                pub struct #create_struct {
+                    pub #dest_name: i64,
+                    pub #from_name: i64,
+                    pub metadata: #data_type,
+                    pub created_by: i64,
+                }
+            };
+
+            if matches!(create_fn, GenerateMethod::Private) {
+                // overwrite since this is the name to use later for the actual fn impl
+                create_struct = make_ident(format!("Create{}Inner", struct_name));
+                create_struct_lifetime = Some(quote! { <'_> });
+                create_struct_inner_def = Some(quote! {
+                    #[derive(Debug, Clone)]
+                    struct #create_struct<'a> {
+                        pub #dest_name: i64,
+                        pub #from_name: i64,
+                        pub metadata: &'a #data_type,
+                        pub created_by: i64,
+                    }
+                });
             }
-        },
-        None => quote! {
-            #[derive(Deserialize, Debug, Clone)]
-            pub struct #create_struct {
-                pub #dest_name: i64,
-                pub #from_name: i64,
-                pub created_by: i64,
-            }
-        },
+        }
+        None => {
+            create_struct_def = quote! {
+                #[derive(Deserialize, Debug, Clone)]
+                pub struct #create_struct {
+                    pub #dest_name: i64,
+                    pub #from_name: i64,
+                    pub created_by: i64,
+                }
+            };
+        }
     };
 
     let create_method_impl = {
@@ -248,7 +271,7 @@ fn generate_create_defs(
                         #from_name,
                         metadata,
                         created_by,
-                    }: #create_struct
+                    }: #create_struct #create_struct_lifetime
                 };
 
                 create_call = quote! {
@@ -312,7 +335,10 @@ fn generate_create_defs(
     };
 
     Some(GeneratedDefinitions {
-        struct_def: create_struct_def,
+        struct_def: quote! {
+            #create_struct_def
+            #create_struct_inner_def
+        },
         method_impl: create_method_impl,
     })
 }
