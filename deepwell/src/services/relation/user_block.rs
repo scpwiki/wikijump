@@ -25,7 +25,7 @@ pub struct UserBlockData {
     pub reason: String,
 }
 
-impl_relation_new! {
+impl_relation! {
     name => UserBlock,
     dest => blocked_user: User,
     from => blocking_user: User,

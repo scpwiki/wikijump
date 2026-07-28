@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 
-impl_relation_new! {
+impl_relation! {
     name => PageWatch,
     dest => page_id: Page,
     from => user_id: User,
