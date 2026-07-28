@@ -40,6 +40,7 @@ impl_relation_new! {
     from => user_id: User,
     data => SiteBanData,
     create_fn => false,
+    remove_fn => false,
 }
 
 impl RelationService {
@@ -137,7 +138,7 @@ impl RelationService {
         Ok(())
     }
 
-    pub async fn remove_site_ban_with_audit(
+    pub async fn remove_site_ban(
         ctx: &ServiceContext<'_>,
         RemoveSiteBan {
             site_id,
@@ -157,7 +158,7 @@ impl RelationService {
             )
         };
 
-        let relation = Self::remove_site_ban(
+        let relation = Self::remove_site_ban_inner(
             ctx,
             RemoveSiteBan {
                 site_id,
@@ -266,7 +267,7 @@ impl RelationService {
                 continue;
             }
 
-            Self::remove_site_ban_with_audit(
+            Self::remove_site_ban(
                 ctx,
                 RemoveSiteBan {
                     site_id: site_ban.dest_id,
