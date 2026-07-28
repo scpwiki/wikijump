@@ -14,3 +14,6 @@ proc-macro = true
 syn = "3"
 quote = "1"
 proc-macro2 = "1"
+
+[lints.rust]
+unsafe_code = "forbid"
