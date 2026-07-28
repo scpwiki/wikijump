@@ -1331,7 +1331,11 @@ impl RenderService {
                 &mut expanded.wikidot_compat_html,
             );
         expanded.wikitext = rendered;
-        let wikidot_css_modules = extract_css_modules(&mut expanded.wikitext, settings);
+        let wikidot_css_modules = extract_css_modules(
+            &mut expanded.wikitext,
+            settings,
+            &mut expanded.wikidot_compat_html,
+        );
         timings.outer_protection_us = elapsed_micros(started);
 
         observer(CorpusReplayPreparationStage::FallbackCheck);
@@ -3469,7 +3473,8 @@ impl RenderService {
         wikitext: &mut String,
         settings: &WikitextSettings,
     ) -> Vec<String> {
-        extract_css_modules(wikitext, settings)
+        let mut compat_html = CompatHtmlFragments::new(wikitext);
+        extract_css_modules(wikitext, settings, &mut compat_html)
     }
 
     #[cfg(test)]

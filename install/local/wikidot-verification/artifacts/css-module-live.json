@@ -1,0 +1,239 @@
+{
+  "schema": "wikidot.css_module_live_probe.v1",
+  "observed_at": "2026-07-28T18:52:35Z",
+  "site": "sandbox-for-codex",
+  "cleanup": {
+    "run_owned_pages_removed": true,
+    "anonymous_status_after_cleanup": 404
+  },
+  "cases": [
+    {
+      "case_id": "plain"
+    },
+    {
+      "case_id": "show-true"
+    },
+    {
+      "case_id": "show-yes"
+    },
+    {
+      "case_id": "show-uppercase-value"
+    },
+    {
+      "case_id": "show-false"
+    },
+    {
+      "case_id": "show-empty"
+    },
+    {
+      "case_id": "show-bare"
+    },
+    {
+      "case_id": "disable-true"
+    },
+    {
+      "case_id": "disable-yes"
+    },
+    {
+      "case_id": "disable-uppercase-value"
+    },
+    {
+      "case_id": "disable-false"
+    },
+    {
+      "case_id": "disable-empty"
+    },
+    {
+      "case_id": "disable-bare"
+    },
+    {
+      "case_id": "show-disable"
+    },
+    {
+      "case_id": "uppercase-show-key"
+    },
+    {
+      "case_id": "uppercase-disable-key"
+    },
+    {
+      "case_id": "show-true-then-false"
+    },
+    {
+      "case_id": "show-false-then-true"
+    },
+    {
+      "case_id": "disable-true-then-false"
+    },
+    {
+      "case_id": "disable-false-then-true"
+    },
+    {
+      "case_id": "show-spaced-equals"
+    },
+    {
+      "case_id": "disable-spaced-equals"
+    },
+    {
+      "case_id": "show-single-quoted"
+    },
+    {
+      "case_id": "disable-single-quoted"
+    }
+  ],
+  "page_view_probe": {
+    "source_sha256": "5f3bd9926351ffa4fadefeb023df6c862309a5d15569b7d003526d4a1c59d214",
+    "html_sha256": "3386cb50ee95bff34d4698e79be1d3dc5b1073931fcc71f96c22b1e3aacb4dfd",
+    "cases": [
+      {
+        "id": "plain",
+        "opener": "[[module CSS]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-true",
+        "opener": "[[module CSS show=\"true\"]]",
+        "head_css": true,
+        "body_code": true
+      },
+      {
+        "id": "show-yes",
+        "opener": "[[module CSS show=\"yes\"]]",
+        "head_css": true,
+        "body_code": true
+      },
+      {
+        "id": "show-uppercase-value",
+        "opener": "[[module CSS show=\"TRUE\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-false",
+        "opener": "[[module CSS show=\"false\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-empty",
+        "opener": "[[module CSS show=\"\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-bare",
+        "opener": "[[module CSS show]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "disable-true",
+        "opener": "[[module CSS disable=\"true\"]]",
+        "head_css": false,
+        "body_code": false
+      },
+      {
+        "id": "disable-yes",
+        "opener": "[[module CSS disable=\"yes\"]]",
+        "head_css": false,
+        "body_code": false
+      },
+      {
+        "id": "disable-uppercase-value",
+        "opener": "[[module CSS disable=\"TRUE\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "disable-false",
+        "opener": "[[module CSS disable=\"false\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "disable-empty",
+        "opener": "[[module CSS disable=\"\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "disable-bare",
+        "opener": "[[module CSS disable]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-disable",
+        "opener": "[[module CSS show=\"true\" disable=\"true\"]]",
+        "head_css": false,
+        "body_code": true
+      }
+    ]
+  },
+  "argument_key_and_duplicate_probe": {
+    "source_sha256": "bf5fdbf7b5adf399036bacab6b4b79c93bcb250c62364fea9216a282189a8866",
+    "html_sha256": "ceac6b9c2adc43be39090683c8684cfd4060efdc34d0365fb41165e0a77bb619",
+    "cases": [
+      {
+        "id": "uppercase-show-key",
+        "opener": "[[module CSS Show=\"true\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "uppercase-disable-key",
+        "opener": "[[module CSS Disable=\"true\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-true-then-false",
+        "opener": "[[module CSS show=\"true\" show=\"false\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-false-then-true",
+        "opener": "[[module CSS show=\"false\" show=\"true\"]]",
+        "head_css": true,
+        "body_code": true
+      },
+      {
+        "id": "disable-true-then-false",
+        "opener": "[[module CSS disable=\"true\" disable=\"false\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "disable-false-then-true",
+        "opener": "[[module CSS disable=\"false\" disable=\"true\"]]",
+        "head_css": false,
+        "body_code": false
+      },
+      {
+        "id": "show-spaced-equals",
+        "opener": "[[module CSS show = \"true\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "disable-spaced-equals",
+        "opener": "[[module CSS disable = \"true\"]]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "show-single-quoted",
+        "opener": "[[module CSS show='true']]",
+        "head_css": true,
+        "body_code": false
+      },
+      {
+        "id": "disable-single-quoted",
+        "opener": "[[module CSS disable='true']]",
+        "head_css": true,
+        "body_code": false
+      }
+    ]
+  }
+}

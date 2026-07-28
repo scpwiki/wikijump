@@ -20,6 +20,7 @@
 
 use super::super::list_pages::scanner::first_list_pages_module_opening_candidate;
 use super::super::literal_regions::{LiteralRegionIndex, WikidotNativeQuoteIndex};
+use super::CompatHtmlFragments;
 use super::text_fragments::CompatTextFragments;
 use ftml::settings::WikitextSettings;
 use regex::Regex;
@@ -28,6 +29,8 @@ use std::sync::LazyLock;
 
 static CSS_MODULE_OPEN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[module\s+css[^\]]*\]\]").unwrap());
+static CSS_MODULE_OPEN_HEAD_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?is)^\[\[module\s+css(?P<head>[^\]]*)\]\]$").unwrap());
 static MODULE_CLOSE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[/module\]\]").unwrap());
 static AUTHORED_WIKIDOT_COMPAT_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -100,6 +103,7 @@ pub(in crate::services::render) fn protect_css_modules_before_first_list_pages(
 pub(in crate::services::render) fn extract_css_modules(
     wikitext: &mut String,
     settings: &WikitextSettings,
+    compat_html: &mut CompatHtmlFragments,
 ) -> Vec<String> {
     if !settings.enable_page_syntax {
         return Vec::new();
@@ -134,13 +138,121 @@ pub(in crate::services::render) fn extract_css_modules(
             close_cursor = candidate.end();
         };
         let body = source[open.end()..close.start()].trim_matches('\n');
+        let flags = css_module_flags(open.as_str());
         output.push_str(&source[cursor..open.start()]);
-        styles.push(escape_css_module_body(body));
+        if flags.show {
+            output.push_str(
+                &compat_html.push_block_html(render_css_module_code_block(body)),
+            );
+        }
+        if !flags.disable {
+            styles.push(escape_css_module_body(body));
+        }
         cursor = close.end();
     }
     output.push_str(&source[cursor..]);
     *wikitext = output;
     styles
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct CssModuleFlags {
+    show: bool,
+    disable: bool,
+}
+
+fn css_module_flags(open: &str) -> CssModuleFlags {
+    let Some(captures) = CSS_MODULE_OPEN_HEAD_REGEX.captures(open) else {
+        return CssModuleFlags::default();
+    };
+    let head = captures.name("head").map_or("", |head| head.as_str());
+    let mut flags = CssModuleFlags::default();
+    let mut cursor = 0;
+    while cursor < head.len() {
+        skip_css_module_whitespace(head, &mut cursor);
+        if cursor >= head.len() {
+            break;
+        }
+
+        if let Some((key, value, next)) = css_module_exact_argument_at(head, cursor) {
+            let enabled = matches!(value, "true" | "yes");
+            match key {
+                "show" => flags.show = enabled,
+                "disable" => flags.disable = enabled,
+                _ => {}
+            }
+            cursor = next;
+        } else {
+            skip_css_module_non_whitespace(head, &mut cursor);
+        }
+    }
+    flags
+}
+
+fn css_module_exact_argument_at(
+    head: &str,
+    cursor: usize,
+) -> Option<(&str, &str, usize)> {
+    for (key, prefix) in [("show", r#"show=""#), ("disable", r#"disable=""#)] {
+        let value_start = cursor.checked_add(prefix.len())?;
+        if !head[cursor..].starts_with(prefix) {
+            continue;
+        }
+        let relative_end = head[value_start..].find('"')?;
+        let value_end = value_start + relative_end;
+        let next = value_end + '"'.len_utf8();
+        if next < head.len()
+            && !head[next..].chars().next().is_some_and(char::is_whitespace)
+        {
+            continue;
+        }
+        return Some((key, &head[value_start..value_end], next));
+    }
+    None
+}
+
+fn skip_css_module_whitespace(head: &str, cursor: &mut usize) {
+    while *cursor < head.len()
+        && head[*cursor..]
+            .chars()
+            .next()
+            .is_some_and(char::is_whitespace)
+    {
+        *cursor += head[*cursor..]
+            .chars()
+            .next()
+            .expect("cursor should point at a character")
+            .len_utf8();
+    }
+}
+
+fn skip_css_module_non_whitespace(head: &str, cursor: &mut usize) {
+    while *cursor < head.len()
+        && head[*cursor..]
+            .chars()
+            .next()
+            .is_some_and(|character| !character.is_whitespace())
+    {
+        *cursor += head[*cursor..]
+            .chars()
+            .next()
+            .expect("cursor should point at a character")
+            .len_utf8();
+    }
+}
+
+fn render_css_module_code_block(body: &str) -> String {
+    let mut output =
+        String::from(r#"<div class="code" data-wj-language="css"><pre><code>"#);
+    output.push_str(&escape_css_module_code_html(body));
+    output.push_str("</code></pre></div>");
+    output
+}
+
+fn escape_css_module_code_html(body: &str) -> String {
+    body.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
 }
 
 fn escape_css_module_body(body: &str) -> String {

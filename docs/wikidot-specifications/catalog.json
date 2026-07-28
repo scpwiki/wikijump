@@ -29,7 +29,7 @@
     "partial_documentation": "invocation-only, high-level-documentation, and partially-documented items require live-oracle evidence before unspecified behavior is invented."
   },
   "live_observations": {
-    "observation_count": 18,
+    "observation_count": 19,
     "source_file": "live-observations.json"
   },
   "feature_count": 210,
@@ -1548,7 +1548,9 @@
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
       "related_features": [],
-      "live_observation_ids": []
+      "live_observation_ids": [
+        "css-module-live-argument-and-output-semantics"
+      ]
     },
     {
       "id": "module-currencyconvert",

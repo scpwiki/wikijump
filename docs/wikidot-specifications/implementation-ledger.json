@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-29",
-  "catalog_sha256": "7266039c0ca75f7cd094337bdbc33f4894cd4314ea1d89b2478fb6924692f5a1",
+  "catalog_sha256": "fa7db6ea9d7d75259a567fb880804ed66059d86be8f1d2aaa1f67b672a595ca9",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -755,14 +755,28 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-css": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Run-owned saved-page live Wikidot oracle with anonymous page fetch",
+        "Deepwell public saved-page page_view and page_get compiled-style interfaces"
+      ],
+      "tests": [
+        {
+          "path": "deepwell/tests/page.rs",
+          "name": "page_view_separates_generated_css_modules_from_compiled_body_html",
+          "scope": "public saved-page rendering verifies CSS module head extraction, visible show code blocks, disable suppression, exact argument syntax, duplicate precedence, and compiled style persistence"
+        }
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/compat/preparation.rs",
+        "deepwell/src/services/render/service.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-css.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/css-module-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-currencyconvert": {

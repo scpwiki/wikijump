@@ -657,6 +657,59 @@
       ]
     },
     {
+      "id": "css-module-live-argument-and-output-semantics",
+      "title": "CSS module show and disable arguments use exact legacy boolean syntax",
+      "feature_ids": [
+        "module-css"
+      ],
+      "classification": "documentation-clarification",
+      "observed_at": "2026-07-28",
+      "analysis": "The CSS module documentation lists show=\"true\" and disable=\"true\" but does not define alternate true values, case sensitivity, duplicate arguments, or exact output placement. Controlled run-owned sandbox pages show that live Wikidot removes every CSS module from the page source stream, emits active CSS modules into the HTML head in source order, and renders a visible code block only for exact lowercase show=\"true\" or show=\"yes\". disable uses the same exact lowercase true/yes values and suppresses the head CSS while still allowing a visible show code block. Uppercase keys, uppercase values, single quotes, bare flags, and whitespace around '=' are ignored for these flags. Duplicate exact arguments use the last exact occurrence.",
+      "normative_behavior": [
+        "CSS recognizes complete [[module CSS ...]]...[[/module]] blocks and removes the module delimiters and CSS body from the normal page-content stream.",
+        "By default, a CSS module contributes its body to the page's compiled body styles / HTML head and renders no visible page-content code.",
+        "Multiple active CSS modules contribute head styles in source order.",
+        "show enables a visible CSS code block only when the final exact lowercase show argument has value \"true\" or \"yes\" with double quotes and no whitespace around '='.",
+        "show values \"false\", \"\", uppercase \"TRUE\", a bare show token, a single-quoted value, whitespace around '=', or uppercase argument keys do not render a visible code block.",
+        "disable suppresses the head CSS only when the final exact lowercase disable argument has value \"true\" or \"yes\" with double quotes and no whitespace around '='.",
+        "disable values \"false\", \"\", uppercase \"TRUE\", a bare disable token, a single-quoted value, whitespace around '=', or uppercase argument keys leave the CSS active.",
+        "When both show and disable are active, the CSS body is rendered as a visible code block but is not contributed to the page's head styles.",
+        "For repeated exact show or disable arguments, the last exact occurrence controls that flag."
+      ],
+      "evidence": [
+        {
+          "path": "install/local/wikidot-verification/artifacts/css-module-live.json",
+          "sha256": "f3db293f0fb0912aa3c0c2f55fbbb4b8bd6e596f349569f257f62555e97a4438",
+          "case_ids": [
+            "plain",
+            "show-true",
+            "show-yes",
+            "show-uppercase-value",
+            "show-false",
+            "show-empty",
+            "show-bare",
+            "disable-true",
+            "disable-yes",
+            "disable-uppercase-value",
+            "disable-false",
+            "disable-empty",
+            "disable-bare",
+            "show-disable",
+            "uppercase-show-key",
+            "uppercase-disable-key",
+            "show-true-then-false",
+            "show-false-then-true",
+            "disable-true-then-false",
+            "disable-false-then-true",
+            "show-spaced-equals",
+            "disable-spaced-equals",
+            "show-single-quoted",
+            "disable-single-quoted"
+          ]
+        }
+      ]
+    },
+    {
       "id": "navigation-list-modules-live-dom-and-argument-quirks",
       "title": "Backlinks, Categories, and PageTree render live navigation-list DOM and legacy argument quirks",
       "feature_ids": [

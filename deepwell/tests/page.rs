@@ -1884,6 +1884,34 @@ async fn page_view_separates_generated_css_modules_from_compiled_body_html() {
             "wikitext": concat!(
                 "[[module CSS]]\n.first { color: red; }\n[[/module]]\n",
                 "Generated CSS body marker.\n",
+                "[[module CSS show=\"true\"]]\n",
+                ".shown { color: blue; }\n",
+                ".shown::after { content: \"<unsafe>\"; }\n",
+                "[[/module]]\n",
+                "[[module CSS show=\"yes\" disable=\"true\"]]\n",
+                ".shown-disabled { color: purple; }\n",
+                "[[/module]]\n",
+                "[[module CSS show=\"TRUE\"]]\n",
+                ".show-uppercase { color: orange; }\n",
+                "[[/module]]\n",
+                "[[module CSS show = \"true\"]]\n",
+                ".show-spaced { color: cyan; }\n",
+                "[[/module]]\n",
+                "[[module CSS disable=\"true\"]]\n",
+                ".disabled { color: gray; }\n",
+                "[[/module]]\n",
+                "[[module CSS disable=\"yes\"]]\n",
+                ".disabled-yes { color: gray; }\n",
+                "[[/module]]\n",
+                "[[module CSS disable=\"TRUE\"]]\n",
+                ".disable-uppercase { color: black; }\n",
+                "[[/module]]\n",
+                "[[module CSS disable=\"true\" disable=\"false\"]]\n",
+                ".duplicate-active { color: green; }\n",
+                "[[/module]]\n",
+                "[[module CSS disable=\"false\" disable=\"true\"]]\n",
+                ".duplicate-disabled { color: green; }\n",
+                "[[/module]]\n",
                 "[[module CSS]]\n",
                 ".second::after { content: \"</style><meta name=forged>\"; }\n",
                 "[[/module]]\n",
@@ -1921,9 +1949,61 @@ async fn page_view_separates_generated_css_modules_from_compiled_body_html() {
 
     assert!(compiled_body_html.contains("Generated CSS body marker."));
     assert!(!compiled_body_html.contains("<style"));
-    assert_eq!(compiled_body_styles.len(), 2);
+    assert!(
+        compiled_body_html.contains(r#"<div class="code""#),
+        "show=true CSS module should render a visible code block: {compiled_body_html}",
+    );
+    assert!(compiled_body_html.contains(".shown { color: blue; }"));
+    assert!(compiled_body_html.contains("&lt;unsafe&gt;"));
+    assert!(compiled_body_html.contains(".shown-disabled { color: purple; }"));
+    assert!(!compiled_body_html.contains(".show-uppercase { color: orange; }"));
+    assert!(!compiled_body_html.contains(".show-spaced { color: cyan; }"));
+
+    assert_eq!(compiled_body_styles.len(), 7);
     assert!(compiled_body_styles[0].contains(".first { color: red; }"));
-    assert!(compiled_body_styles[1].contains(r"\3C /style>\3C meta"));
+    assert!(compiled_body_styles[1].contains(".shown { color: blue; }"));
+    assert!(compiled_body_styles[1].contains(r#"\3C unsafe>"#));
+    assert!(
+        !compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".shown-disabled"))
+    );
+    assert!(
+        !compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".disabled { color: gray; }"))
+    );
+    assert!(
+        !compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".disabled-yes"))
+    );
+    assert!(
+        compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".show-uppercase"))
+    );
+    assert!(
+        compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".show-spaced"))
+    );
+    assert!(
+        compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".disable-uppercase"))
+    );
+    assert!(
+        compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".duplicate-active"))
+    );
+    assert!(
+        !compiled_body_styles
+            .iter()
+            .any(|css| css.contains(".duplicate-disabled"))
+    );
+    assert!(compiled_body_styles[6].contains(r"\3C /style>\3C meta"));
     assert!(
         !compiled_body_styles
             .iter()
