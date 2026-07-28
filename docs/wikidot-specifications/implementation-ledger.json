@@ -671,7 +671,7 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-countpages": {
-      "status": "in_progress",
+      "status": "implemented",
       "confirmed_public_seams": [
         "Run-owned saved-page live Wikidot oracle on sandbox-for-codex",
         "Deepwell public saved-page page_get render interface"
@@ -679,7 +679,15 @@
       "tests": [
         {
           "path": "deepwell/tests/page.rs",
-          "scope": "countpages_inside_listpages_body_matches_live_empty_item_behavior and inline_countpages_inside_listpages_body_matches_live_legacy_split_behavior cover the documented CountPages-inside-ListPages limitation through the public saved-page render seam; countpages_without_selectors_uses_current_category_and_normal_page_defaults covers omitted selectors, %%count%%, body wiki syntax, and hidden-page exclusion"
+          "scope": "countpages_substitutes_total_for_tagged_pages, countpages_category_filter_counts_matching_pages, countpages_with_limit_defaults_to_current_category, countpages_without_selectors_uses_current_category_and_normal_page_defaults, countpages_static_tag_filter_without_limit_substitutes_total, countpages_unprefixed_tags_use_or_semantics, countpages_artwork_hub_url_fallback_ignores_display_options, and countpages_rating_filters_apply_scores cover ordinary CountPages selection, category/tag defaults, limits, %%total%%, %%count%%, body wiki syntax, @URL fallback behavior, and rating filters through the public saved-page render seam"
+        },
+        {
+          "path": "deepwell/tests/page.rs",
+          "scope": "countpages_inside_listpages_body_matches_live_empty_item_behavior and inline_countpages_inside_listpages_body_matches_live_legacy_split_behavior cover the documented CountPages-inside-ListPages limitation through the public saved-page render seam"
+        },
+        {
+          "path": "deepwell/tests/page.rs",
+          "scope": "countpages_inside_code_block_remains_literal, countpages_dynamic_selectors_remain_literal, countpages_current_page_filters_remain_literal, countpages_current_page_category_filters_remain_literal, and related fail-closed tests cover malformed, unsupported, current-page-dependent, and pre-parser-owned CountPages shapes without widening queries"
         },
         {
           "path": "deepwell/src/services/render/service/tests.rs",
