@@ -1,3 +1,5 @@
+//! Helper utilities in processing different naming cases.
+
 /// Convert `PascalCase` to `snake_case`.
 pub fn pascal_to_snake_case(value: &str) -> String {
     let mut output = String::new();

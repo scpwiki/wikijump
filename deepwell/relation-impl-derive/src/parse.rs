@@ -1,3 +1,11 @@
+//! Parsing macro generation settings.
+//!
+//! This defines `RelationSettings`, which drives code
+//! generation in `expand.rs`.
+//!
+//! See code comments to for further details on each
+//! accepted argument.
+
 use crate::case::pascal_to_snake_case;
 use crate::types::{GenerateMethod, RelationObjectType};
 use crate::util::*;

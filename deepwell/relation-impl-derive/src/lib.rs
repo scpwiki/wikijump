@@ -1,3 +1,10 @@
+//! Generate relation boilerplate code via macro invocation.
+//!
+//! See `src/service/relation/*.rs` files for examples of this macro in use.
+//!
+//! Consult `parse.rs` for to understand the arguments passed to this macro
+//! and `expand.rs` to see its code generation.
+
 mod case;
 mod expand;
 mod parse;
