@@ -90,7 +90,7 @@ pub async fn site_ban_remove(
     let user_id = input.user_id;
     let site_id = input.site_id;
 
-    RelationService::remove_site_ban_with_audit(ctx, input, ip_address, &reason)
+    RelationService::remove_site_ban(ctx, input, ip_address, &reason)
         .await
         .or_raise(|| {
             Error::new(
