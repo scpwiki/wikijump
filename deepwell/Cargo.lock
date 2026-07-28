@@ -1196,7 +1196,7 @@ dependencies = [
 
 [[package]]
 name = "deepwell-relation-impl-derive"
-version = "0.1.5"
+version = "1.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
