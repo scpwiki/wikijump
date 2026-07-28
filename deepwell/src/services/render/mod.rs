@@ -34,6 +34,7 @@ mod include_comment_branches;
 mod include_missing;
 mod include_variable_iftags;
 mod include_variables;
+mod link_modules;
 #[allow(dead_code)]
 mod list_pages;
 mod literal_regions;

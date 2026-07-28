@@ -1150,12 +1150,21 @@ impl RenderService {
         .or_raise(make_error)?;
         wikitext = {
             let _stage = StageGuard::new(trace, CorpusRenderStage::Backlinks);
-            Self::expand_backlinks_modules(
+            let wikitext = Self::expand_backlinks_modules(
                 ctx,
                 wikitext,
                 settings,
                 current_site_id,
                 current_page_id,
+                &mut wikidot_compat_html,
+            )
+            .await
+            .or_raise(make_error)?;
+            Self::expand_link_listing_modules(
+                ctx,
+                wikitext,
+                settings,
+                current_site_id,
                 &mut wikidot_compat_html,
             )
             .await

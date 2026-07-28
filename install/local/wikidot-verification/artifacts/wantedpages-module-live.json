@@ -1,0 +1,58 @@
+{
+  "schema": "wikijump.wikidot_live_wantedpages_module.v1",
+  "site": "sandbox-for-codex",
+  "base_url": "http://sandbox-for-codex.wikidot.com",
+  "run_id": "linkmods-5003a6fd",
+  "captured_at": "2026-07-28T17:39:42.547605Z",
+  "fixture": {
+    "missing": "0000-run-owned-linkmods-5003a6fd-missing",
+    "existing": "run-owned-linkmods-5003a6fd-linked-target",
+    "linkers": [
+      "run-owned-linkmods-5003a6fd-linker-a",
+      "run-owned-linkmods-5003a6fd-linker-b"
+    ],
+    "holder": "run-owned-linkmods-5003a6fd-holder",
+    "holder_source": "WANTED_START\n[[module WantedPages]]\nWANTED_END"
+  },
+  "request": {
+    "authenticated": false,
+    "method": "GET",
+    "status": 200,
+    "url": "http://sandbox-for-codex.wikidot.com/run-owned-linkmods-5003a6fd-holder"
+  },
+  "cases": [
+    {
+      "case_id": "wantedpages-grouped-first-page",
+      "html_sha256": "19fe15f0b64173841ee9214c5372af53ec4ec85be795ee2dcadc4c81ef5400d8",
+      "observed": {
+        "module_present": true,
+        "contains_missing": true,
+        "contains_linker_a": true,
+        "contains_linker_b": true,
+        "contains_existing_target_as_wanted": false,
+        "per_page": 50,
+        "first_page_pager": "page 1 of 3",
+        "top_and_bottom_pagers": true
+      },
+      "html_snippet": "<div class=\"wanted-pages-module\">\n\n\n            <div class=\"pager\"><span class=\"pager-no\">page 1 of 3</span><span class=\"current\">1</span><span class=\"target\"><a href=\"javascript:;\" onclick=\"WIKIDOT.modules.WantedPagesModule.updateList(2, this)\">2</a></span><span class=\"target\"><a href=\"javascript:;\" onclick=\"WIKIDOT.modules.WantedPagesModule.updateList(3, this)\">3</a></span><span class=\"target\"><a href=\"javascript:;\" onclick=\"WIKIDOT.modules.WantedPagesModule.updateList(2, this)\">next &raquo;</a></span></div>\n    \n\n    <table class=\"form grid\" style=\"margin: 1em auto;\">\n        <tr>\n            <th>\n                Linked from            </th>\n            <th>\n                Linked to (wanted page name)            </th>\n        </tr>\n                    <tr>\n                <td>\n                                            <a href=\"/run-owned-linkmods-5003a6fd-linker-a\">AAA Run Owned Linker A</a><br/>\n                                            <a href=\"/run-owned-linkmods-5003a6fd-linker-b\">AAB Run Owned Linker B</a><br/>\n                                    </td>\n                <td>\n                    <a href=\"/0000-run-owned-linkmods-5003a6fd-missing\" class=\"newpage\">0000-run-owned-linkmods-5003a6fd-missing</a>\n                </td>\n            </tr>"
+    }
+  ],
+  "cleanup": [
+    {
+      "fullname": "run-owned-linkmods-5003a6fd-holder",
+      "deleted": true
+    },
+    {
+      "fullname": "run-owned-linkmods-5003a6fd-linker-b",
+      "deleted": true
+    },
+    {
+      "fullname": "run-owned-linkmods-5003a6fd-linker-a",
+      "deleted": true
+    },
+    {
+      "fullname": "run-owned-linkmods-5003a6fd-linked-target",
+      "deleted": true
+    }
+  ]
+}

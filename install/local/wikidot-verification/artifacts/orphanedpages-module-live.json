@@ -1,0 +1,56 @@
+{
+  "schema": "wikijump.wikidot_live_orphanedpages_module.v1",
+  "site": "sandbox-for-codex",
+  "base_url": "http://sandbox-for-codex.wikidot.com",
+  "run_id": "linkmods-6a68e741",
+  "captured_at": "2026-07-28T17:31:00Z",
+  "fixture": {
+    "category": "run-owned-linkmods-6a68e741",
+    "pages": [
+      "run-owned-linkmods-6a68e741:orphan",
+      "run-owned-linkmods-6a68e741:linked-target",
+      "run-owned-linkmods-6a68e741:linker",
+      "run-owned-linkmods-6a68e741:holder"
+    ],
+    "holder_source": "ORPHANED_START\n[[module OrphanedPages]]\nORPHANED_END\n\nWANTED_START\n[[module WantedPages]]\nWANTED_END"
+  },
+  "request": {
+    "authenticated": false,
+    "method": "GET",
+    "status": 200,
+    "url": "http://sandbox-for-codex.wikidot.com/run-owned-linkmods-6a68e741:holder"
+  },
+  "cases": [
+    {
+      "case_id": "orphanedpages-default",
+      "html_sha256": "8aad2f811fc605219f64a95343e65b3a4452c529d167bd761024be93e3e7f0b1",
+      "observed": {
+        "contains_orphan": true,
+        "contains_linked_target": false,
+        "contains_missing_target": false,
+        "contains_linker": true,
+        "contains_holder": true,
+        "heading": "List of orphaned pages"
+      },
+      "html_snippet": "</p>\n<h1>List of orphaned pages</h1>\n\n\t\t\t<a href=\"/run-owned-linkmods-6a68e741:linker\">Run-owned Linker</a> <span style=\"color: #999\">(run-owned-linkmods-6a68e741:linker)</span>\n\t\t<br/>\n\t\t\t<a href=\"/run-owned-linkmods-6a68e741:holder\">Run-owned Link Modules Holder</a> <span style=\"color: #999\">(run-owned-linkmods-6a68e741:holder)</span>\n\t\t<br/>\n\t\t\t<a href=\"/run-owned-linkmods-6a68e741:orphan\">Run-owned Orphan</a> <span style=\"color: #999\">(run-owned-linkmods-6a68e741:orphan)</span>\n\t\t<br/>"
+    }
+  ],
+  "cleanup": [
+    {
+      "fullname": "run-owned-linkmods-6a68e741:holder",
+      "deleted": true
+    },
+    {
+      "fullname": "run-owned-linkmods-6a68e741:linker",
+      "deleted": true
+    },
+    {
+      "fullname": "run-owned-linkmods-6a68e741:linked-target",
+      "deleted": true
+    },
+    {
+      "fullname": "run-owned-linkmods-6a68e741:orphan",
+      "deleted": true
+    }
+  ]
+}

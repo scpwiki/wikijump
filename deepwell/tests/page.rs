@@ -5076,6 +5076,211 @@ async fn backlinks_module_page_argument_targets_the_named_page() {
 }
 
 #[tokio::test]
+async fn orphanedpages_module_lists_pages_without_incoming_internal_links() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    const HOLDER_SLUG: &str = "fixture-orphanedpages-holder";
+    const ORPHAN_SLUG: &str = "fixture-orphanedpages-orphan";
+    const LINKED_TARGET_SLUG: &str = "fixture-orphanedpages-linked-target";
+    const LINKER_SLUG: &str = "fixture-orphanedpages-linker";
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        ORPHAN_SLUG,
+        "Fixture OrphanedPages Orphan",
+        "This page has no incoming internal links.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        LINKED_TARGET_SLUG,
+        "Fixture OrphanedPages Linked Target",
+        "This page has an incoming internal link.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        LINKER_SLUG,
+        "Fixture OrphanedPages Linker",
+        &format!("[[[{LINKED_TARGET_SLUG}|linked target]]]"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "Fixture OrphanedPages Holder",
+        "ORPHANED_START\n[[module OrphanedPages]]\nORPHANED_END",
+    )
+    .await;
+
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER_SLUG,
+        }),
+    )
+    .expect("OrphanedPages holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER_SLUG).await;
+
+    for expected in [
+        "ORPHANED_START",
+        "<h1>List of orphaned pages</h1>",
+        concat!(
+            r#"<a href="/fixture-orphanedpages-orphan">Fixture OrphanedPages Orphan</a> "#,
+            r#"<span style="color: #999">(fixture-orphanedpages-orphan)</span>"#,
+            "\n\t\t<br/>",
+        ),
+        "ORPHANED_END",
+    ] {
+        assert!(
+            html.contains(expected),
+            "OrphanedPages output should contain {expected:?}:\n{html}"
+        );
+    }
+
+    for forbidden in [
+        "TODO: module OrphanedPages",
+        "[[module OrphanedPages",
+        "Fixture OrphanedPages Linked Target",
+        "fixture-orphanedpages-linked-target",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "OrphanedPages output should not contain {forbidden:?}:\n{html}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn wantedpages_module_groups_missing_internal_links_by_target() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    const HOLDER_SLUG: &str = "fixture-wantedpages-holder";
+    const EXISTING_TARGET_SLUG: &str = "fixture-wantedpages-existing-target";
+    const MISSING_TARGET_SLUG: &str = "0000-fixture-wantedpages-missing-target";
+    const LINKER_A_SLUG: &str = "fixture-wantedpages-linker-a";
+    const LINKER_B_SLUG: &str = "fixture-wantedpages-linker-b";
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        EXISTING_TARGET_SLUG,
+        "Fixture WantedPages Existing Target",
+        "Existing target.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        LINKER_A_SLUG,
+        "AAA Fixture WantedPages Linker A",
+        &format!(
+            "[[[{EXISTING_TARGET_SLUG}|existing]]]\n[[[{MISSING_TARGET_SLUG}|missing]]]"
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        LINKER_B_SLUG,
+        "AAB Fixture WantedPages Linker B",
+        &format!("[[[{MISSING_TARGET_SLUG}|missing again]]]"),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "AAC Fixture WantedPages Holder",
+        "WANTED_START\n[[module WantedPages]]\nWANTED_END",
+    )
+    .await;
+
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER_SLUG,
+        }),
+    )
+    .expect("WantedPages holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER_SLUG).await;
+
+    for expected in [
+        "WANTED_START",
+        r#"<div class="wanted-pages-module">"#,
+        r#"<table class="form grid" style="margin: 1em auto;">"#,
+        "Linked from",
+        "Linked to (wanted page name)",
+        r#"<a href="/fixture-wantedpages-linker-a">AAA Fixture WantedPages Linker A</a><br/>"#,
+        r#"<a href="/fixture-wantedpages-linker-b">AAB Fixture WantedPages Linker B</a><br/>"#,
+        r#"<a href="/0000-fixture-wantedpages-missing-target" class="newpage">0000-fixture-wantedpages-missing-target</a>"#,
+        "WANTED_END",
+    ] {
+        assert!(
+            html.contains(expected),
+            "WantedPages output should contain {expected:?}:\n{html}"
+        );
+    }
+
+    for forbidden in [
+        "TODO: module WantedPages",
+        "[[module WantedPages",
+        "fixture-wantedpages-existing-target\" class=\"newpage\"",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "WantedPages output should not contain {forbidden:?}:\n{html}"
+        );
+    }
+
+    let linker_a = html
+        .find("AAA Fixture WantedPages Linker A")
+        .expect("first wanted source should render");
+    let linker_b = html
+        .find("AAB Fixture WantedPages Linker B")
+        .expect("second wanted source should render");
+    let missing = html
+        .find("0000-fixture-wantedpages-missing-target")
+        .expect("wanted target should render");
+    assert!(
+        linker_a < linker_b && linker_b < missing,
+        "WantedPages should group source pages before the wanted target:\n{html}"
+    );
+}
+
+#[tokio::test]
 async fn categories_module_lists_active_categories_and_honors_include_hidden() {
     const VISIBLE_CATEGORY: &str = "fixture-categories-visible";
     const HIDDEN_CATEGORY: &str = "_fixture-categories-hidden";

@@ -25,6 +25,7 @@
 //! module decides when that is necessary.
 
 use super::child_pages::CHILD_PAGES_MODULE_REGEX;
+use super::link_modules::{ORPHANED_PAGES_MODULE_REGEX, WANTED_PAGES_MODULE_REGEX};
 use super::next_previous_page::NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX;
 use super::pages::PAGES_MODULE_REGEX;
 use super::pages_by_tag::PAGES_BY_TAG_MODULE_REGEX;
@@ -166,6 +167,8 @@ pub fn wikitext_requires_runtime_render(wikitext: &str) -> bool {
         || CHILD_PAGES_MODULE_REGEX.is_match(wikitext)
         || NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX.is_match(wikitext)
         || PAGE_CALENDAR_MODULE_REGEX.is_match(wikitext)
+        || ORPHANED_PAGES_MODULE_REGEX.is_match(wikitext)
+        || WANTED_PAGES_MODULE_REGEX.is_match(wikitext)
 }
 
 fn wikitext_has_bare_pages_module(wikitext: &str) -> bool {
@@ -219,6 +222,14 @@ mod tests {
         assert!(wikitext_requires_runtime_render(
             r#"[[module PageCalendar category="news"]]"#
         ));
+    }
+
+    #[test]
+    fn link_listing_modules_require_runtime_rendering() {
+        for source in ["[[module OrphanedPages]]", "[[module WantedPages]]"] {
+            assert!(wikitext_requires_runtime_render(source));
+            assert!(!wikitext_reads_url_arguments(source));
+        }
     }
 
     #[test]
