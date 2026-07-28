@@ -111,7 +111,10 @@ jobs:
         env:
           DEEPWELL_RUNTIME_ACTION: run-seeder
 
-      - name: Test
+      - name: Unit Tests (deepwell-relation-impl-derive)
+        run: cd deepwell/relation-impl-derive && cargo test
+
+      - name: Integration Tests
         run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
 
       - name: Generate Coverage
