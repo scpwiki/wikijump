@@ -107,6 +107,7 @@ impl RelationService {
             removed_by,
         }: RemoveSiteMember,
         ip_address: IpAddr,
+        reason: &str,
     ) -> Result<RelationModel> {
         let make_error = || {
             Error::new(
@@ -136,6 +137,7 @@ impl RelationService {
                 user_id,
                 site_id,
                 removing_user_id: removed_by,
+                reason,
             },
         )
         .await

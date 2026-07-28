@@ -169,6 +169,7 @@ pub enum AuditEvent<'a> {
         user_id: i64,
         site_id: i64,
         removing_user_id: i64,
+        reason: &'a str,
     },
     UpdatePermissions {
         role_id: i64,
@@ -645,6 +646,7 @@ impl<'a> AuditEvent<'a> {
                 user_id,
                 site_id,
                 removing_user_id,
+                reason,
             } => RawAuditEvent {
                 event_type: "site_member.remove",
                 ip_address,
@@ -653,7 +655,7 @@ impl<'a> AuditEvent<'a> {
                 page_id: None,
                 extra_id_1: Some(removing_user_id),
                 extra_id_2: None,
-                extra_string_1: None,
+                extra_string_1: Some(Cow::Borrowed(reason)),
                 extra_string_2: None,
                 extra_number: None,
             },

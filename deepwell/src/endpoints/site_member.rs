@@ -35,6 +35,7 @@ struct RemoveSiteMemberInput {
     #[serde(flatten)]
     input: RemoveSiteMember,
     ip_address: IpAddr,
+    reason: String,
 }
 
 pub async fn membership_get(
@@ -83,11 +84,16 @@ pub async fn membership_remove(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<RelationModel> {
-    let RemoveSiteMemberInput { input, ip_address } = parse!(params, SiteMembership);
+    let RemoveSiteMemberInput {
+        input,
+        ip_address,
+        reason,
+    } = parse!(params, SiteMembership);
+
     let user_id = input.user_id;
     let site_id = input.site_id;
 
-    RelationService::remove_site_member(ctx, input, ip_address)
+    RelationService::remove_site_member(ctx, input, ip_address, &reason)
         .await
         .or_raise(|| {
             Error::new(
