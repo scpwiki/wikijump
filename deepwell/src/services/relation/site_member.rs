@@ -41,6 +41,7 @@ impl_relation_new! {
     from => user_id: User,
     data => SiteMemberData,
     create_fn => false,
+    remove_fn => false,
 }
 
 impl RelationService {
@@ -83,5 +84,39 @@ impl RelationService {
         // TODO audit log
 
         Ok(())
+    }
+
+    pub async fn remove_site_member(
+        ctx: &ServiceContext<'_>,
+        RemoveSiteMember {
+            site_id,
+            user_id,
+            removed_by,
+        }: RemoveSiteMember,
+    ) -> Result<RelationModel> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to remove user ID {} as member of site ID {}, removed by user ID {}",
+                    user_id, site_id, removed_by,
+                ),
+                ErrorType::SiteMemberRelation,
+            )
+        };
+
+        let model = Self::remove_site_member_inner(
+            ctx,
+            RemoveSiteMember {
+                site_id,
+                user_id,
+                removed_by,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        // TODO audit log
+
+        Ok(model)
     }
 }
