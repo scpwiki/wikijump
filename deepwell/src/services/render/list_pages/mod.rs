@@ -66,10 +66,10 @@ pub(super) use self::presentation::{
     render_list_pages_wikidot_user, render_tag_cloud_box,
     restore_list_pages_literal_ellipsis_markers, substitute_count_pages_variables,
 };
-#[cfg(test)]
-pub(super) use self::rendering::ListPagesExpansionBudget;
 pub(super) use self::rendering::{
-    CountPagesExpansionOptions, ListPagesExpansion, ListPagesExpansionOptions,
+    CountPagesExpansionOptions, ListPagesBlockRenderResult, ListPagesContentCache,
+    ListPagesExpansion, ListPagesExpansionBudget, ListPagesExpansionOptions,
+    ListPagesPageContext,
 };
 pub(super) use self::substitution::{
     CurrentPageAuthorSource, ExactNameListPagesBatchKey, ListPagesArguments,

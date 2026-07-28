@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-28",
-  "catalog_sha256": "8f60d1fd52cebbdeede875d665eb17058090d2b28714192dc60ed4d67bb8519a",
+  "catalog_sha256": "825892bb5cc578020c58db2df36871a2cd3f692edb324baa89b47524fac2fe63",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -1118,14 +1118,32 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-nextpreviouspage": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell saved-page rendering through page_get compiled body",
+        "Deepwell page-view runtime rendering through page_view",
+        "Render dependency and article-cache source classification"
+      ],
+      "tests": [
+        "cargo test --manifest-path deepwell/Cargo.toml --lib next_previous_page -- --nocapture",
+        "DATABASE_URL=... cargo test --manifest-path deepwell/Cargo.toml --test page nextpreviouspage_module_renders_live_selection_templates_and_runtime_updates -- --nocapture"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/next_previous_page.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/src/services/render/mod.rs",
+        "deepwell/src/services/render/diagnostics.rs",
+        "deepwell/src/services/render/render_dependency.rs",
+        "deepwell/src/services/render/url_arguments.rs",
+        "deepwell/tests/page.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-nextpreviouspage.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "docs/wikidot-specifications/live-observations.json",
+        "install/local/wikidot-verification/artifacts/nextpreviouspage-module-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-orphanedpages": {

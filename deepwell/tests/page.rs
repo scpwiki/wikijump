@@ -3067,6 +3067,288 @@ async fn childpages_module_renders_live_child_list_and_empty_state() {
     );
 }
 
+/// Live capture (sandbox-for-codex, 2026-07-28): `NextPage` and
+/// `PreviousPage` use the ListPages wrapper and template variables, default
+/// to creation-date adjacency, and have a legacy title-mode quirk where
+/// `PreviousPage by="title"` returns the current page itself.
+#[tokio::test]
+async fn nextpreviouspage_module_renders_live_selection_templates_and_runtime_updates() {
+    fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
+        html.split_once(start)
+            .unwrap_or_else(|| panic!("missing section start {start:?}"))
+            .1
+            .split_once(end)
+            .unwrap_or_else(|| panic!("missing section end {end:?}"))
+            .0
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category = "fixture-nextpreviouspage";
+    let required_tag = "fixture-nextpreviouspage-required";
+    let shared_tag = "fixture-nextpreviouspage-shared";
+
+    CategoryService::get_or_create(runner.context(), site_id, category)
+        .await
+        .expect("NextPreviousPage fixture category should be created");
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-nextpreviouspage:alpha",
+        "Alpha NextPreviousPage",
+        "Alpha body.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-nextpreviouspage:bravo",
+        "Bravo NextPreviousPage",
+        "Bravo body.",
+    )
+    .await;
+    let holder_slug = "fixture-nextpreviouspage:charlie";
+    let holder_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder_slug,
+        "Charlie NextPreviousPage",
+        "placeholder",
+    )
+    .await;
+    let delta_slug = "fixture-nextpreviouspage:delta";
+    let delta_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        delta_slug,
+        "Delta NextPreviousPage",
+        "Delta body.",
+    )
+    .await;
+    let delta_revision = set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        delta_slug,
+        delta_revision,
+        &[required_tag, shared_tag],
+    )
+    .await;
+
+    let holder_source = format!(
+        concat!(
+            "NEXTPREV_START\n\n",
+            "TITLE_PREV_START\n",
+            "[[module PreviousPage category=\"{category}\" by=\"title\"]]\n",
+            "PREV_TITLE=%%linked_title%%|%%title%%|%%name%%|%%fullname%%\n",
+            "[[/module]]\n",
+            "TITLE_PREV_END\n\n",
+            "TITLE_NEXT_START\n",
+            "[[module NextPage category=\"{category}\" by=\"title\"]]\n",
+            "NEXT_TITLE=%%linked_title%%|%%title%%|%%name%%|%%fullname%%\n",
+            "[[/module]]\n",
+            "TITLE_NEXT_END\n\n",
+            "DATE_PREV_START\n",
+            "[[module PreviousPage category=\"{category}\"]]\n",
+            "PREV_DATE=%%linked_title%%|%%title%%|%%name%%|%%fullname%%\n",
+            "[[/module]]\n",
+            "DATE_PREV_END\n\n",
+            "DATE_NEXT_START\n",
+            "[[module NextPage category=\"{category}\"]]\n",
+            "NEXT_DATE=%%linked_title%%|%%title%%|%%name%%|%%fullname%%\n",
+            "[[/module]]\n",
+            "DATE_NEXT_END\n\n",
+            "UNKNOWN_START\n",
+            "[[module NextPage category=\"{category}\" by=\"title\" foo=\"bar\"]]\n",
+            "UNKNOWN=%%linked_title%%\n",
+            "[[/module]]\n",
+            "UNKNOWN_END\n\n",
+            "TAG_REQUIRED_START\n",
+            "[[module NextPage category=\"{category}\" by=\"title\" tags=\"+{required_tag}\"]]\n",
+            "TAG_REQUIRED=%%linked_title%%|%%fullname%%\n",
+            "[[/module]]\n",
+            "TAG_REQUIRED_END\n\n",
+            "TAG_EQUALS_START\n",
+            "[[module NextPage category=\"{category}\" by=\"title\" tags=\"=\"]]\n",
+            "TAG_EQUALS=%%linked_title%%|%%fullname%%\n",
+            "[[/module]]\n",
+            "TAG_EQUALS_END\n\n",
+            "NEXTPREV_END",
+        ),
+        category = category,
+        required_tag = required_tag,
+    );
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(holder_slug)),
+    );
+    let edited_holder = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": holder_slug,
+            "last_revision_id": holder_revision,
+            "wikitext": holder_source,
+            "revision_comments": "set NextPreviousPage fixture source",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("NextPreviousPage holder edit should succeed");
+    let holder_revision = edited_holder.revision_id;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        holder_slug,
+        holder_revision,
+        &[shared_tag],
+    )
+    .await;
+
+    let last_source = format!(
+        concat!(
+            "LAST_NEXT_START\n",
+            "[[module NextPage category=\"{category}\" by=\"title\"]]\n",
+            "LAST_NEXT=%%linked_title%%\n",
+            "[[/module]]\n",
+            "LAST_NEXT_END",
+        ),
+        category = category,
+    );
+    set_mutation_request_context(
+        &mut runner,
+        ADMIN_USER_ID,
+        site_id,
+        Reference::Slug(Cow::Borrowed(delta_slug)),
+    );
+    run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": delta_slug,
+            "last_revision_id": delta_revision,
+            "wikitext": last_source,
+            "revision_comments": "set NextPreviousPage last-page fixture source",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    )
+    .expect("NextPreviousPage last page edit should succeed");
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": holder_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("NextPreviousPage holder should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let title_prev = section(&html, "TITLE_PREV_START", "TITLE_PREV_END");
+    assert!(
+        title_prev.contains(r#"<div class="list-pages-box">"#)
+            && title_prev.contains(r#"<div class="list-pages-item">"#)
+            && title_prev.contains(
+                r#"PREV_TITLE=<a href="/fixture-nextpreviouspage:charlie">Charlie NextPreviousPage</a>|Charlie NextPreviousPage|charlie|fixture-nextpreviouspage:charlie"#,
+            ),
+        "PreviousPage by=title must preserve live's inclusive current-page quirk and ListPages wrapper:\n{html}",
+    );
+
+    let title_next = section(&html, "TITLE_NEXT_START", "TITLE_NEXT_END");
+    assert!(
+        title_next.contains(
+            r#"NEXT_TITLE=<a href="/fixture-nextpreviouspage:delta">Delta NextPreviousPage</a>|Delta NextPreviousPage|delta|fixture-nextpreviouspage:delta"#,
+        ),
+        "NextPage by=title should select the next title row:\n{html}",
+    );
+
+    let date_prev = section(&html, "DATE_PREV_START", "DATE_PREV_END");
+    let date_next = section(&html, "DATE_NEXT_START", "DATE_NEXT_END");
+    assert!(
+        date_prev.contains("/fixture-nextpreviouspage:bravo")
+            && date_next.contains("/fixture-nextpreviouspage:delta"),
+        "date-mode NextPreviousPage should select creation-date neighbors:\n{html}",
+    );
+
+    let unknown = section(&html, "UNKNOWN_START", "UNKNOWN_END");
+    assert!(
+        unknown.contains(r#"UNKNOWN=<a href="/fixture-nextpreviouspage:delta">Delta NextPreviousPage</a>"#)
+            && !unknown.contains("[[module NextPage"),
+        "live Wikidot ignores unknown NextPage arguments while applying recognized ones:\n{html}",
+    );
+
+    let tag_required = section(&html, "TAG_REQUIRED_START", "TAG_REQUIRED_END");
+    let tag_equals = section(&html, "TAG_EQUALS_START", "TAG_EQUALS_END");
+    assert!(
+        tag_required.contains("/fixture-nextpreviouspage:delta")
+            && tag_equals.contains("/fixture-nextpreviouspage:delta"),
+        "NextPreviousPage tag selectors should filter candidates while using the current page as the position anchor:\n{html}",
+    );
+
+    let last = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": delta_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("NextPreviousPage last page should exist");
+    let last_html = last
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+    let last_next = section(&last_html, "LAST_NEXT_START", "LAST_NEXT_END");
+    assert!(
+        last_next.contains(r#"<div class="list-pages-box">"#)
+            && !last_next.contains(r#"class="list-pages-item""#)
+            && !last_next.contains("[[module NextPage"),
+        "an empty NextPage result should render an empty list-pages-box:\n{last_html}",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-nextpreviouspage:cyan",
+        "Cyan Runtime NextPreviousPage",
+        "Cyan body.",
+    )
+    .await;
+    let runtime_view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": holder_slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let runtime_html = match runtime_view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found NextPreviousPage page view, got {other:?}"),
+    };
+    let runtime_title_next = section(&runtime_html, "TITLE_NEXT_START", "TITLE_NEXT_END");
+    assert!(
+        runtime_title_next.contains("/fixture-nextpreviouspage:cyan")
+            && !runtime_title_next.contains("/fixture-nextpreviouspage:delta"),
+        "NextPreviousPage page views must evaluate against current title state without a saved-page rerender:\n{runtime_html}",
+    );
+}
+
 /// Live capture (sandbox-for-codex, 2026-07-25): `[[module PagesByTag tag="x"]]`
 /// emits an anchor, an `h2`, and `div#tagged-pages-list.pages-list` holding one
 /// `pages-list-item` per tagged page, ordered case-insensitively by title. A tag

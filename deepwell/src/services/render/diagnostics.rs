@@ -22,7 +22,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 const SCOPE_COUNT: usize = 5;
-const STAGE_COUNT: usize = 37;
+const STAGE_COUNT: usize = 38;
 pub(crate) const CORPUS_RENDER_BUDGET_US: i64 = 800_000;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -76,6 +76,7 @@ pub(crate) enum CorpusRenderStage {
     TagCloud,
     Backlinks,
     ChildPages,
+    NextPreviousPage,
     Pages,
     PagesByTag,
     RegistryModules,
@@ -117,6 +118,7 @@ impl CorpusRenderStage {
         Self::TagCloud,
         Self::Backlinks,
         Self::ChildPages,
+        Self::NextPreviousPage,
         Self::Pages,
         Self::PagesByTag,
         Self::RegistryModules,
@@ -158,6 +160,7 @@ impl CorpusRenderStage {
             Self::TagCloud => "tagcloud",
             Self::Backlinks => "backlinks",
             Self::ChildPages => "childpages",
+            Self::NextPreviousPage => "nextpreviouspage",
             Self::Pages => "pages",
             Self::PagesByTag => "pages-by-tag",
             Self::RegistryModules => "registry_modules",

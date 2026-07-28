@@ -25,6 +25,7 @@
 //! module decides when that is necessary.
 
 use super::child_pages::CHILD_PAGES_MODULE_REGEX;
+use super::next_previous_page::NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX;
 use super::pages::PAGES_MODULE_REGEX;
 use super::pages_by_tag::PAGES_BY_TAG_MODULE_REGEX;
 use regex::Regex;
@@ -148,6 +149,7 @@ pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
         || PAGES_BY_TAG_MODULE_REGEX.is_match(wikitext)
         || LIST_PAGES_URL_SELECTOR_REGEX.is_match(wikitext)
+        || NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX.is_match(wikitext)
         || LIST_PAGES_MODULE_REGEX.is_match(wikitext)
 }
 
@@ -159,6 +161,7 @@ pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
 pub fn wikitext_requires_runtime_render(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
         || CHILD_PAGES_MODULE_REGEX.is_match(wikitext)
+        || NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX.is_match(wikitext)
 }
 
 fn wikitext_has_bare_pages_module(wikitext: &str) -> bool {
@@ -190,6 +193,12 @@ mod tests {
     fn a_pages_module_always_requires_runtime_rendering() {
         assert!(wikitext_requires_runtime_render("[[module Pages]]"));
         assert!(wikitext_requires_runtime_render("[[module ChildPages]]"));
+        assert!(wikitext_requires_runtime_render(
+            r#"[[module NextPage by="title"]]%%linked_title%%[[/module]]"#
+        ));
+        assert!(wikitext_reads_url_arguments(
+            r#"[[module PreviousPage tags="@URL"]]%%linked_title%%[[/module]]"#
+        ));
         assert!(!wikitext_requires_runtime_render(
             "[[module ListPages category=\"news\"]]%%title%%[[/module]]"
         ));

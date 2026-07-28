@@ -61,6 +61,8 @@ const MODULE_QUERY_NAMES: &[&str] = &[
     "backlinks",
     "tagcloud",
     "childpages",
+    "nextpage",
+    "previouspage",
 ];
 const MODULE_VIEWER_NAMES: &[&str] = &["rate", "members", "newpage", "clone"];
 const MODULE_STATIC_NAMES: &[&str] = &["css"];
@@ -212,6 +214,8 @@ mod tests {
             "[[module CountPages category=\"news\"]][[/module]]",
             "[[module Pages]]",
             "[[module ChildPages]]",
+            "[[module NextPage by=\"title\"]]%%linked_title%%[[/module]]",
+            "[[module PreviousPage]]%%linked_title%%[[/module]]",
         ] {
             let classes = classify_render_dependencies(source);
 

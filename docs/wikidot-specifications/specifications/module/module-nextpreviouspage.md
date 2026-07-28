@@ -20,6 +20,39 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+### NextPage and PreviousPage use ListPages output with live selection and a title-mode PreviousPage quirk
+
+- Observation ID: `nextpreviouspage-live-selection-template-and-title-quirk`
+- Classification: `documentation-correction`
+- Observed at: `2026-07-28`
+- Analysis: The NextPreviousPage documentation says the modules create links to adjacent pages in a category and use the same item format as ListPages, but it does not define the exact wrapper, empty output, malformed-argument behavior, or the production title-mode edge cases. Controlled run-owned sandbox pages show that both modules render through the ListPages wrapper and item template. The omitted by argument and by="date" use creation-date adjacency. NextPage by="title" selects the next greater title. PreviousPage by="title" has a live legacy quirk: in a five-page title matrix it returned the current page itself for every page, including the first and last rows, rather than the preceding title. Unknown attributes are ignored, an empty or malformed by attribute falls back to date mode, tags filter candidate pages while the current page remains the position anchor, and an empty result renders an empty list-pages-box.
+
+Normative behavior:
+
+- NextPage and PreviousPage render the selected row using ListPages' div.list-pages-box and div.list-pages-item containers.
+- The module body is compiled as a ListPages item template; an empty body uses the default ListPages row template.
+- When no row matches the requested neighbor, live Wikidot emits an empty div.list-pages-box rather than preserving the module literally.
+- The category argument restricts candidate pages to comma- or whitespace-separated categories; category="*" searches all categories.
+- With category omitted, candidates come from the current page category.
+- The omitted by argument, by="date", by="", and a malformed by token use creation-date ordering.
+- Date-mode PreviousPage selects the nearest visible candidate created before the current page; date-mode NextPage selects the nearest visible candidate created after it.
+- Title-mode NextPage selects the first visible candidate whose title sorts after the current page title.
+- Title-mode PreviousPage uses live Wikidot's inclusive title-mode behavior and returns the first visible candidate whose title sorts at or after the current page title; when the current page matches the selector this is the current page itself.
+- The tags argument uses ListPages-style tag filtering: +tag requires a tag, -tag excludes a tag, unmodified tags match any listed tag, @URL reads the URL tag value, and = adds the current page's visible tags as any-tag candidates.
+- Tag and category filters apply to candidate pages, but the current page's own title or creation date remains the position anchor even if the current page is not itself a candidate.
+- Unknown attributes are ignored while recognized attributes from the same module invocation still apply.
+- Pages hidden from the anonymous viewer are excluded from candidates.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/nextpreviouspage-module-live.json` (SHA-256 `1b2f88a11ef6b7af1b30fee98b72a1b3d87cd0a541c2fb86041ecf4e3563fe1d`), cases: `middle-documented-body-category-title-date-tags`, `first-title-boundary-and-empty-body`, `last-title-boundary-and-malformed-by`
+
+
 
 ## Suggested public TDD seams
 

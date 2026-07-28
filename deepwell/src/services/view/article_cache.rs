@@ -494,6 +494,7 @@ mod tests {
             "[[module UnknownWidget]]",
             "[[module]]",
             "[[module ChildPages]]",
+            "[[module NextPage by=\"title\"]]%%linked_title%%[[/module]]",
         ] {
             assert!(!anonymous_article_cache_source_eligible(source));
         }

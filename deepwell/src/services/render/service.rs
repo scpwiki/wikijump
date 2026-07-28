@@ -90,6 +90,7 @@ use super::metacomponent::{
 };
 use super::module_arguments::wikidot_module_argument;
 use super::native_list_context::NativeListSourceContext;
+use super::next_previous_page::NextPreviousPageExpansion;
 use super::pages::expand_page_index_modules;
 use super::percent_encoding::percent_encode_path_segment;
 use super::render_options::{
@@ -1190,6 +1191,29 @@ impl RenderService {
             .await
             .or_raise(make_error)?
         };
+        let NextPreviousPageExpansion {
+            wikitext: expanded_wikitext,
+            included_pages: next_previous_included_pages,
+        } = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::NextPreviousPage);
+            Self::expand_next_previous_page_modules(
+                ctx,
+                wikitext,
+                page_info,
+                settings,
+                current_site_id,
+                current_page_id,
+                &mut include_budget,
+                url,
+                &mut wikidot_compat_html,
+                &mut include_source_cache,
+                &mut wikidot_compat_text,
+            )
+            .await
+            .or_raise(make_error)?
+        };
+        wikitext = expanded_wikitext;
+        included_pages.extend(next_previous_included_pages);
         wikitext = expand_page_index_modules(
             ctx,
             wikitext,
