@@ -20,9 +20,14 @@
 
 #![allow(dead_code)]
 
+use std::net::{IpAddr, Ipv6Addr};
+
 // See seeder data for these values
 pub const ADMIN_USER_ID: i64 = -1;
 pub const SYSTEM_USER_ID: i64 = -2;
 pub const ANONYMOUS_USER_ID: i64 = -3;
 pub const UNKNOWN_USER_ID: i64 = -4;
 pub const SAMPLE_USER_ID: i64 = -5;
+
+/// The IP address to use in audit log entries for actions performed by the system.
+pub const SYSTEM_IP_ADDRESS: IpAddr = IpAddr::V6(Ipv6Addr::LOCALHOST);
