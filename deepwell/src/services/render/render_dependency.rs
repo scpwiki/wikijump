@@ -60,6 +60,7 @@ const MODULE_QUERY_NAMES: &[&str] = &[
     "countpages",
     "backlinks",
     "tagcloud",
+    "ratedpages",
     "childpages",
     "nextpage",
     "previouspage",
@@ -214,6 +215,7 @@ mod tests {
         for source in [
             "[[module ListPages category=\"fragment\"]]%%content%%[[/module]]",
             "[[module CountPages category=\"news\"]][[/module]]",
+            "[[module RatedPages category=\"news\" limit=\"10\"]]",
             "[[module Pages]]",
             "[[module ChildPages]]",
             "[[module NextPage by=\"title\"]]%%linked_title%%[[/module]]",

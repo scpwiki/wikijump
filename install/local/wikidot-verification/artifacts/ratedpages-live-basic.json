@@ -1,0 +1,95 @@
+{
+  "category": "codex-rating-load-20260715",
+  "content_html": "\n\n<div class=\"ratedpages-case default\">\n<p>DEFAULT</p>\n<div class=\"top-rated-pages-box\">\n\n\t<div class=\"top-rated-pages-list\">\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-hig\">Run RatedPages High</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 2)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:item-049\">Rating load item 049</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 1)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:oracle-v1\">Page rating oracle v1</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 0)</span>\n\t\t\t</div>\n\t\t\t</div>\n\n</div></div>\n<div class=\"ratedpages-case rating-asc\">\n<p>RATING ASC</p>\n<div class=\"top-rated-pages-box\">\n\n\t<div class=\"top-rated-pages-list\">\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:item-048\">Rating load item 048</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: -1)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-low\">Run RatedPages Low</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: -1)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:oracle-v1\">Page rating oracle v1</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 0)</span>\n\t\t\t</div>\n\t\t\t</div>\n\n</div></div>\n<div class=\"ratedpages-case rate-asc\">\n<p>RATE ASC</p>\n<div class=\"top-rated-pages-box\">\n\n\t<div class=\"top-rated-pages-list\">\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:item-048\">Rating load item 048</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: -1)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-low\">Run RatedPages Low</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: -1)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:oracle-v1\">Page rating oracle v1</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 0)</span>\n\t\t\t</div>\n\t\t\t</div>\n\n</div></div>\n<div class=\"ratedpages-case created-desc\">\n<p>CREATED DESC</p>\n<div class=\"top-rated-pages-box\">\n\n\t<div class=\"top-rated-pages-list\">\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-low\">Run RatedPages Low</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: -1)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-zer\">Run RatedPages Zero</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 0)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-hig\">Run RatedPages High</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 2)</span>\n\t\t\t</div>\n\t\t\t</div>\n\n</div></div>\n<div class=\"ratedpages-case min-rating\">\n<p>MIN RATING</p>\n<div class=\"top-rated-pages-box\">\n\n\t<div class=\"top-rated-pages-list\">\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-hig\">Run RatedPages High</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 2)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:item-049\">Rating load item 049</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: 1)</span>\n\t\t\t</div>\n\t\t\t</div>\n\n</div></div>\n<div class=\"ratedpages-case max-rating\">\n<p>MAX RATING</p>\n<div class=\"top-rated-pages-box\">\n\n\t<div class=\"top-rated-pages-list\">\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:item-048\">Rating load item 048</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: -1)</span>\n\t\t\t</div>\n\t\t\t\t\t<div class=\"list-item\">\n\t\t\t\t<a href=\"/codex-rating-load-20260715:ratedpages-1785267037-2419251-low\">Run RatedPages Low</a>\n\t\t\t\t<span style=\"color: #777\">(Rating: -1)</span>\n\t\t\t</div>\n\t\t\t</div>\n\n</div></div>\n</div>\n        \n    \n            <!-- mobile bottom 320x50 -->\n<script>\n\n$j( function(){\n\n    if(isUAMobile && screen.width < 400 && screen.height > 600) {\n        var $o = $j('<div id=\"wad-tier3-mobile-anchor\" class=\"wd-adunit wd-ad-np wd-adunit-mobile_anchor\"></div>');\n        $j('body').append($o);\n        $j('body').css('margin-bottom', '200px');\n\n        var res = function(){\n            $o = $j('#wad-tier3-mobile-anchor');\n            if($o.length > 0){\n                $o.show();\n                var $w = $j(window);\n                var scale = $w.width() / 320;\n                $o.css('transform', 'scale('+scale+')');\n            } else {\n                $o.hide();\n            }\n        }\n\n        res();\n        setInterval(res, 1000);\n\n        window['nitroAds'].createAd('wad-tier3-mobile-anchor', {\n          \"refreshLimit\": 1,\n          \"refreshTime\": 30,\n          \"renderVisibleOnly\": false,\n          \"refreshVisibleOnly\": true,\n          \"format\": \"display\",\n          \"sizes\": [ [ 320, 50 ] ],\n          \"report\": {\n            \"enabled\": true,\n            \"wording\": \"Report Ad\",\n            \"position\": \"bottom-right\"\n          }\n                  });\n    }\n});\n</script>\n        \n    \n\n\n\n\n\n\n        \n    \n                        <!-- wikidot_bottom_300x250 -->\n<div id=\"wad-tier3-below-content\" class=\"wd-adunit wd-ad-np wd-adunit-below_content\"></div>\n<script>\nwindow['nitroAds'].createAd('wad-tier3-below-content', {\n  \"refreshTime\": 30,\n  \"renderVisibleOnly\": false,\n  \"refreshVisibleOnly\": true,\n  \"sizes\": [ [ 300, 250 ] ],\n  \"report\": {\n    \"enabled\": true,\n    \"wording\": \"Report Ad\",\n    \"position\": \"bottom-right\"\n  }\n  });\n</script>\n                    \n    \n\n\n          \n          ",
+  "content_html_sha256": "b5cb8f638aa3eaab2be2bc82a0b7e21b2c8bc6f361b2724383194b3fbc7ee076",
+  "content_text": "DEFAULT Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) Page rating oracle v1 (Rating: 0) RATING ASC Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1) Page rating oracle v1 (Rating: 0) RATE ASC Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1) Page rating oracle v1 (Rating: 0) CREATED DESC Run RatedPages Low (Rating: -1) Run RatedPages Zero (Rating: 0) Run RatedPages High (Rating: 2) MIN RATING Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) MAX RATING Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1)",
+  "holder": "run-owned:ratedpages-1785267037-2419251-holder",
+  "html_sha256": "5317342d20e2072e53bcd6194ab978bb08fdbe9ceca72ce98bb2298835044649",
+  "http_status": 200,
+  "observed_at_unix": 1785267055,
+  "run_prefix": "ratedpages-1785267037-2419251",
+  "schema": "wikidot.live.ratedpages.basic.v1",
+  "site": "sandbox-for-codex",
+  "snippets": [
+    {
+      "label": "DEFAULT",
+      "text_window": "DEFAULT Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) Page rating oracle v1 (Rating: 0) RATING ASC Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1) Page rating oracle v1 (Rating: 0) RATE ASC Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1) Page rating oracle v1 (Rating: 0) CREATED DESC Run RatedPages Low (Rating: -1) Run RatedPages Zero (Rating: 0) Run RatedPages High (Rating: 2) MIN RATING Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) MAX RATING Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1)"
+    },
+    {
+      "label": "RATING ASC",
+      "text_window": "RATING ASC Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1) Page rating oracle v1 (Rating: 0) RATE ASC Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1) Page rating oracle v1 (Rating: 0) CREATED DESC Run RatedPages Low (Rating: -1) Run RatedPages Zero (Rating: 0) Run RatedPages High (Rating: 2) MIN RATING Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) MAX RATING Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1)"
+    },
+    {
+      "label": "RATE ASC",
+      "text_window": "RATE ASC Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1) Page rating oracle v1 (Rating: 0) CREATED DESC Run RatedPages Low (Rating: -1) Run RatedPages Zero (Rating: 0) Run RatedPages High (Rating: 2) MIN RATING Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) MAX RATING Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1)"
+    },
+    {
+      "label": "CREATED DESC",
+      "text_window": "CREATED DESC Run RatedPages Low (Rating: -1) Run RatedPages Zero (Rating: 0) Run RatedPages High (Rating: 2) MIN RATING Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) MAX RATING Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1)"
+    },
+    {
+      "label": "MIN RATING",
+      "text_window": "MIN RATING Run RatedPages High (Rating: 2) Rating load item 049 (Rating: 1) MAX RATING Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1)"
+    },
+    {
+      "label": "MAX RATING",
+      "text_window": "MAX RATING Rating load item 048 (Rating: -1) Run RatedPages Low (Rating: -1)"
+    }
+  ],
+  "source": "[[div class=\"ratedpages-case default\"]]\nDEFAULT\n[[module RatedPages category=\"codex-rating-load-20260715\" limit=\"3\"]]\n[[/div]]\n[[div class=\"ratedpages-case rating-asc\"]]\nRATING ASC\n[[module RatedPages category=\"codex-rating-load-20260715\" order=\"rating-asc\" limit=\"3\"]]\n[[/div]]\n[[div class=\"ratedpages-case rate-asc\"]]\nRATE ASC\n[[module RatedPages category=\"codex-rating-load-20260715\" order=\"rate-asc\" limit=\"3\"]]\n[[/div]]\n[[div class=\"ratedpages-case created-desc\"]]\nCREATED DESC\n[[module RatedPages category=\"codex-rating-load-20260715\" order=\"date-created-desc\" limit=\"3\"]]\n[[/div]]\n[[div class=\"ratedpages-case min-rating\"]]\nMIN RATING\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"1\" limit=\"5\"]]\n[[/div]]\n[[div class=\"ratedpages-case max-rating\"]]\nMAX RATING\n[[module RatedPages category=\"codex-rating-load-20260715\" maxRating=\"-1\" limit=\"5\"]]\n[[/div]]",
+  "targets": [
+    {
+      "fullname": "codex-rating-load-20260715:ratedpages-1785267037-2419251-high",
+      "key": "high",
+      "title": "Run RatedPages High"
+    },
+    {
+      "fullname": "codex-rating-load-20260715:ratedpages-1785267037-2419251-zero",
+      "key": "zero",
+      "title": "Run RatedPages Zero"
+    },
+    {
+      "fullname": "codex-rating-load-20260715:ratedpages-1785267037-2419251-low",
+      "key": "low",
+      "title": "Run RatedPages Low"
+    }
+  ],
+  "url": "http://sandbox-for-codex.wikidot.com/run-owned:ratedpages-1785267037-2419251-holder",
+  "votes": [
+    {
+      "account": "B",
+      "page": "codex-rating-load-20260715:ratedpages-1785267037-2419251-high",
+      "vote": 1
+    },
+    {
+      "account": "C",
+      "page": "codex-rating-load-20260715:ratedpages-1785267037-2419251-high",
+      "vote": 1
+    },
+    {
+      "account": "B",
+      "page": "codex-rating-load-20260715:ratedpages-1785267037-2419251-low",
+      "vote": -1
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "default"
+    },
+    {
+      "case_id": "rating-asc"
+    },
+    {
+      "case_id": "rate-asc"
+    },
+    {
+      "case_id": "date-created-desc"
+    },
+    {
+      "case_id": "min-rating"
+    },
+    {
+      "case_id": "max-rating"
+    }
+  ]
+}

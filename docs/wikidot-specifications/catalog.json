@@ -29,7 +29,7 @@
     "partial_documentation": "invocation-only, high-level-documentation, and partially-documented items require live-oracle evidence before unspecified behavior is invented."
   },
   "live_observations": {
-    "observation_count": 19,
+    "observation_count": 21,
     "source_file": "live-observations.json"
   },
   "feature_count": 210,
@@ -2591,7 +2591,10 @@
         "Framerail HTTP/browser boundary when the module is interactive or URL-driven"
       ],
       "related_features": [],
-      "live_observation_ids": []
+      "live_observation_ids": [
+        "ratedpages-basic-live-order-filter-and-dom",
+        "ratedpages-comments-live-truthiness-and-output"
+      ]
     },
     {
       "id": "module-recentposts",

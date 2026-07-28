@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-29",
-  "catalog_sha256": "fa7db6ea9d7d75259a567fb880804ed66059d86be8f1d2aaa1f67b672a595ca9",
+  "catalog_sha256": "c860f69fce4a1c58085fe8b2a8005a296ddba3f65a1c7cb683a98d0d8c7ab2e6",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -1245,6 +1245,7 @@
       ],
       "implementation_files": [
         "deepwell/src/services/render/runtime_modules.rs",
+        "deepwell/src/services/render/module_arguments.rs",
         "deepwell/src/services/render/service.rs",
         "deepwell/src/services/render/url_arguments.rs",
         "deepwell/src/services/render/diagnostics.rs"
@@ -1380,14 +1381,31 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-ratedpages": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Run-owned saved-page live Wikidot oracle with anonymous page fetch and wikidot.py-controlled page votes/comments",
+        "Deepwell public saved-page page_get compiled HTML interface"
+      ],
+      "tests": [
+        {
+          "path": "deepwell/tests/rated_pages.rs",
+          "name": "ratedpages_renders_live_top_rated_box_and_rating_filters",
+          "scope": "public saved-page rendering verifies RatedPages DOM, title links, rating-desc default, rating-asc/rate-asc ordering, date-created-desc/date-created-asc ordering, inclusive minRating/maxRating filters, limit, comment-count label, comments truthiness, and raw-module removal"
+        }
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/runtime_modules.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/src/services/render/render_dependency.rs",
+        "deepwell/src/services/render/diagnostics.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-ratedpages.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/ratedpages-live-basic.json",
+        "install/local/wikidot-verification/artifacts/ratedpages-live-comments.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-recentposts": {

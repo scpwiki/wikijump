@@ -657,6 +657,84 @@
       ]
     },
     {
+      "id": "ratedpages-basic-live-order-filter-and-dom",
+      "title": "RatedPages renders live top-rated DOM and accepts rating/order filter forms",
+      "feature_ids": [
+        "module-ratedpages"
+      ],
+      "classification": "documentation-clarification",
+      "observed_at": "2026-07-29",
+      "analysis": "The RatedPages documentation lists ordering, rating filters, limit, comments, and examples, but omits the generated DOM and contains an example order spelling, rate-asc, that is not present in the allowed-values table. Controlled run-owned sandbox pages in a plus/minus rating category show that live Wikidot renders a top-rated pages box with list-item rows, displays page titles linked by full slug, prints an inline gray rating label, defaults to rating-desc, accepts rating-asc and the undocumented example spelling rate-asc, and applies minRating and maxRating inclusively.",
+      "normative_behavior": [
+        "RatedPages expands as a self-contained [[module RatedPages ...]] marker; the rendered page must not leak the raw module syntax.",
+        "The outer output is div.top-rated-pages-box containing div.top-rated-pages-list and one div.list-item per row.",
+        "Each row links to /<page-fullname>, displays the page title as the anchor text, and appends span style=\"color: #777\" containing (Rating: N).",
+        "Omitting order behaves as order=\"rating-desc\".",
+        "order=\"rating-asc\" sorts lower ratings before higher ratings.",
+        "order=\"rate-asc\" is accepted as a compatibility spelling for rating ascending, despite not appearing in the allowed-values table.",
+        "order=\"date-created-desc\" sorts newer pages before older pages.",
+        "minRating is inclusive and limits rows to pages whose rating is equal to or above the supplied integer.",
+        "maxRating is inclusive and limits rows to pages whose rating is equal to or below the supplied integer.",
+        "limit bounds the number of rendered rows."
+      ],
+      "evidence": [
+        {
+          "path": "install/local/wikidot-verification/artifacts/ratedpages-live-basic.json",
+          "sha256": "f332646cec4e0ba108f1a8fe961e594adf92fb1808a5875db70d2712a2a31602",
+          "case_ids": [
+            "default",
+            "rating-asc",
+            "rate-asc",
+            "date-created-desc",
+            "min-rating",
+            "max-rating"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ratedpages-comments-live-truthiness-and-output",
+      "title": "RatedPages comments attribute uses final exact non-empty value",
+      "feature_ids": [
+        "module-ratedpages"
+      ],
+      "classification": "documentation-correction",
+      "observed_at": "2026-07-29",
+      "analysis": "The RatedPages documentation says comments accepts true/yes, but controlled live pages show a broader legacy rule. Live Wikidot ignores an omitted comments attribute, comments=\"\", a bare comments token, and an uppercase Comments key. For exact lowercase comments with a quoted value, the final duplicate value controls display, and any non-empty value enables the comments label, including false, no, and uppercase TRUE.",
+      "normative_behavior": [
+        "Omitting comments renders only the rating label.",
+        "The exact lowercase comments attribute appends , Comments: N inside the same gray rating span when its final quoted value is non-empty.",
+        "comments=\"true\", comments=\"yes\", comments=\"false\", comments=\"no\", and comments=\"TRUE\" all enable the comments label.",
+        "comments=\"\" disables the comments label.",
+        "A bare comments token does not enable the comments label.",
+        "An uppercase Comments key is ignored.",
+        "When comments appears more than once with the exact lowercase spelling, the final exact value wins; a final empty value disables the label and a final non-empty value enables it."
+      ],
+      "evidence": [
+        {
+          "path": "install/local/wikidot-verification/artifacts/ratedpages-live-comments.json",
+          "sha256": "770c4f5300f7d8a9277bff3fe3d0c989d96b37aab293cee7dc540bd038c12a17",
+          "case_ids": [
+            "omitted",
+            "comments-true",
+            "comments-yes",
+            "comments-false",
+            "comments-no",
+            "comments-empty",
+            "comments-uppercase-value",
+            "comments-uppercase-key",
+            "comments-bare",
+            "comments-true-then-no",
+            "comments-no-then-true",
+            "comments-true-then-empty",
+            "comments-empty-then-true",
+            "comments-false-then-empty",
+            "comments-empty-then-false"
+          ]
+        }
+      ]
+    },
+    {
       "id": "css-module-live-argument-and-output-semantics",
       "title": "CSS module show and disable arguments use exact legacy boolean syntax",
       "feature_ids": [

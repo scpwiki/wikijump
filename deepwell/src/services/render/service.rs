@@ -333,8 +333,9 @@ pub(super) static COUNTPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
-pub(super) static RATE_MODULE_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?is)\[\[module\s+Rate(?P<head>[^\]]*)\]\]").unwrap());
+pub(super) static RATE_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?is)\[\[module\s+Rate(?P<head>(?:\s[^\]]*)?)\]\]").unwrap()
+});
 pub(super) static WIKIDOT_RATE_ANCHOR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"\[\[a href="javascript:;" onclick="(?P<onclick>WIKIDOT\.modules\.PageRateWidgetModule\.listeners\.(?:rate\(event, -?1\)|cancelVote\(event\)))" title="(?P<title>[^"]*)"\]\](?P<label>[^\[]*)\[\[/a\]\]"#,
@@ -343,6 +344,9 @@ pub(super) static WIKIDOT_RATE_ANCHOR_REGEX: LazyLock<Regex> = LazyLock::new(|| 
 });
 pub(super) static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
+});
+pub(super) static RATEDPAGES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?is)\[\[module\s+RatedPages(?P<head>(?:\s[^\]]*)?)\]\]").unwrap()
 });
 pub(super) static PAGECALENDAR_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+PageCalendar(?P<head>[^\]]*)\]\]").unwrap()

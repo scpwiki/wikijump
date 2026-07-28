@@ -119,6 +119,89 @@ pub(in crate::services::render) fn wikidot_module_arguments(
     Some(arguments)
 }
 
+pub(in crate::services::render) fn wikidot_module_arguments_ignoring_bare_flags(
+    head: &str,
+) -> Option<Vec<WikidotModuleArgument<'_>>> {
+    let mut arguments = Vec::new();
+    let mut cursor = 0usize;
+    skip_wikidot_argument_whitespace(head, &mut cursor);
+
+    while cursor < head.len() {
+        let key_start = cursor;
+        while head.as_bytes().get(cursor).is_some_and(|byte| {
+            byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-')
+        }) {
+            cursor += 1;
+        }
+        if cursor == key_start {
+            return None;
+        }
+        let key = &head[key_start..cursor];
+        let first_key_byte = key.as_bytes()[0];
+        if !(first_key_byte.is_ascii_alphabetic() || first_key_byte == b'_') {
+            return None;
+        }
+
+        let cursor_after_key = cursor;
+        skip_wikidot_argument_whitespace(head, &mut cursor);
+        let op_start = cursor;
+        if head.as_bytes().get(cursor) == Some(&b'!') {
+            cursor += 1;
+        }
+        if head.as_bytes().get(cursor) != Some(&b'=') {
+            if cursor > cursor_after_key || cursor >= head.len() {
+                continue;
+            }
+            cursor = wikidot_bare_argument_end(head, cursor);
+            skip_wikidot_argument_whitespace(head, &mut cursor);
+            continue;
+        }
+        cursor += 1;
+        let op = &head[op_start..cursor];
+        skip_wikidot_argument_whitespace(head, &mut cursor);
+        if cursor >= head.len() {
+            return None;
+        }
+
+        let value_start = cursor;
+        let first = head[value_start..].chars().next()?;
+        let value = if first == '"' {
+            match wikidot_double_quoted_argument_value(head, value_start) {
+                Some((value, next)) => {
+                    cursor = next;
+                    value
+                }
+                None => {
+                    cursor = wikidot_bare_argument_end(head, value_start);
+                    &head[value_start..cursor]
+                }
+            }
+        } else if first == '\'' {
+            match wikidot_single_quoted_argument_value(head, value_start) {
+                Some((value, next)) => {
+                    cursor = next;
+                    value
+                }
+                None => {
+                    cursor = wikidot_bare_argument_end(head, value_start);
+                    &head[value_start..cursor]
+                }
+            }
+        } else {
+            cursor = wikidot_bare_argument_end(head, value_start);
+            if cursor == value_start {
+                return None;
+            }
+            &head[value_start..cursor]
+        };
+
+        arguments.push(WikidotModuleArgument { key, op, value });
+        skip_wikidot_argument_whitespace(head, &mut cursor);
+    }
+
+    Some(arguments)
+}
+
 fn wikidot_double_quoted_argument_value(
     head: &str,
     quote_start: usize,

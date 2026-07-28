@@ -1,0 +1,161 @@
+{
+  "schema": "wikidot.live.ratedpages.comments.truthiness.v2",
+  "site": "sandbox-for-codex",
+  "category": "codex-rating-load-20260715",
+  "run_prefix": "rpc268448",
+  "holder": "run-owned:rpc268448h",
+  "url": "http://sandbox-for-codex.wikidot.com/run-owned:rpc268448h",
+  "source": "[[div class=\"ratedpages-case omitted\"]]\nOMITTED\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-true\"]]\nCOMMENTS-TRUE\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"true\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-yes\"]]\nCOMMENTS-YES\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"yes\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-false\"]]\nCOMMENTS-FALSE\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"false\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-no\"]]\nCOMMENTS-NO\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"no\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-empty\"]]\nCOMMENTS-EMPTY\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-uppercase-value\"]]\nCOMMENTS-UPPERCASE-VALUE\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"TRUE\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-uppercase-key\"]]\nCOMMENTS-UPPERCASE-KEY\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" Comments=\"true\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-bare\"]]\nCOMMENTS-BARE\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments]]\n[[/div]]\n[[div class=\"ratedpages-case comments-true-then-no\"]]\nCOMMENTS-TRUE-THEN-NO\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"true\" comments=\"no\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-no-then-true\"]]\nCOMMENTS-NO-THEN-TRUE\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"no\" comments=\"true\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-true-then-empty\"]]\nCOMMENTS-TRUE-THEN-EMPTY\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"true\" comments=\"\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-empty-then-true\"]]\nCOMMENTS-EMPTY-THEN-TRUE\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"\" comments=\"true\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-false-then-empty\"]]\nCOMMENTS-FALSE-THEN-EMPTY\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"false\" comments=\"\"]]\n[[/div]]\n[[div class=\"ratedpages-case comments-empty-then-false\"]]\nCOMMENTS-EMPTY-THEN-FALSE\n[[module RatedPages category=\"codex-rating-load-20260715\" minRating=\"2\" limit=\"1\" comments=\"\" comments=\"false\"]]\n[[/div]]",
+  "thread_id": 18227611,
+  "target": {
+    "fullname": "codex-rating-load-20260715:rpc268448a",
+    "title": "Run RP Comments Truth",
+    "comments_created": 1,
+    "rating": 2
+  },
+  "http_status": 200,
+  "case_results": [
+    {
+      "case_id": "omitted",
+      "attributes": "",
+      "text": "OMITTED Run RP Comments Truth (Rating: 2)",
+      "shows_comments": false
+    },
+    {
+      "case_id": "comments-true",
+      "attributes": "comments=\"true\"",
+      "text": "COMMENTS-TRUE Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-yes",
+      "attributes": "comments=\"yes\"",
+      "text": "COMMENTS-YES Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-false",
+      "attributes": "comments=\"false\"",
+      "text": "COMMENTS-FALSE Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-no",
+      "attributes": "comments=\"no\"",
+      "text": "COMMENTS-NO Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-empty",
+      "attributes": "comments=\"\"",
+      "text": "COMMENTS-EMPTY Run RP Comments Truth (Rating: 2)",
+      "shows_comments": false
+    },
+    {
+      "case_id": "comments-uppercase-value",
+      "attributes": "comments=\"TRUE\"",
+      "text": "COMMENTS-UPPERCASE-VALUE Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-uppercase-key",
+      "attributes": "Comments=\"true\"",
+      "text": "COMMENTS-UPPERCASE-KEY Run RP Comments Truth (Rating: 2)",
+      "shows_comments": false
+    },
+    {
+      "case_id": "comments-bare",
+      "attributes": "comments",
+      "text": "COMMENTS-BARE Run RP Comments Truth (Rating: 2)",
+      "shows_comments": false
+    },
+    {
+      "case_id": "comments-true-then-no",
+      "attributes": "comments=\"true\" comments=\"no\"",
+      "text": "COMMENTS-TRUE-THEN-NO Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-no-then-true",
+      "attributes": "comments=\"no\" comments=\"true\"",
+      "text": "COMMENTS-NO-THEN-TRUE Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-true-then-empty",
+      "attributes": "comments=\"true\" comments=\"\"",
+      "text": "COMMENTS-TRUE-THEN-EMPTY Run RP Comments Truth (Rating: 2)",
+      "shows_comments": false
+    },
+    {
+      "case_id": "comments-empty-then-true",
+      "attributes": "comments=\"\" comments=\"true\"",
+      "text": "COMMENTS-EMPTY-THEN-TRUE Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    },
+    {
+      "case_id": "comments-false-then-empty",
+      "attributes": "comments=\"false\" comments=\"\"",
+      "text": "COMMENTS-FALSE-THEN-EMPTY Run RP Comments Truth (Rating: 2)",
+      "shows_comments": false
+    },
+    {
+      "case_id": "comments-empty-then-false",
+      "attributes": "comments=\"\" comments=\"false\"",
+      "text": "COMMENTS-EMPTY-THEN-FALSE Run RP Comments Truth (Rating: 2, Comments: 1)",
+      "shows_comments": true
+    }
+  ],
+  "content_text": "OMITTED Run RP Comments Truth (Rating: 2) COMMENTS-TRUE Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-YES Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-FALSE Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-NO Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-EMPTY Run RP Comments Truth (Rating: 2) COMMENTS-UPPERCASE-VALUE Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-UPPERCASE-KEY Run RP Comments Truth (Rating: 2) COMMENTS-BARE Run RP Comments Truth (Rating: 2) COMMENTS-TRUE-THEN-NO Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-NO-THEN-TRUE Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-TRUE-THEN-EMPTY Run RP Comments Truth (Rating: 2) COMMENTS-EMPTY-THEN-TRUE Run RP Comments Truth (Rating: 2, Comments: 1) COMMENTS-FALSE-THEN-EMPTY Run RP Comments Truth (Rating: 2) COMMENTS-EMPTY-THEN-FALSE Run RP Comments Truth (Rating: 2, Comments: 1)",
+  "content_html": "\n<div class=\"ratedpages-case omitted\">\n<p>OMITTED</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-true\">\n<p>COMMENTS-TRUE</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-yes\">\n<p>COMMENTS-YES</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-false\">\n<p>COMMENTS-FALSE</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-no\">\n<p>COMMENTS-NO</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-empty\">\n<p>COMMENTS-EMPTY</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-uppercase-value\">\n<p>COMMENTS-UPPERCASE-VALUE</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-uppercase-key\">\n<p>COMMENTS-UPPERCASE-KEY</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-bare\">\n<p>COMMENTS-BARE</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-true-then-no\">\n<p>COMMENTS-TRUE-THEN-NO</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-no-then-true\">\n<p>COMMENTS-NO-THEN-TRUE</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-true-then-empty\">\n<p>COMMENTS-TRUE-THEN-EMPTY</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-empty-then-true\">\n<p>COMMENTS-EMPTY-THEN-TRUE</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-false-then-empty\">\n<p>COMMENTS-FALSE-THEN-EMPTY</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2)</span>\n</div>\n</div>\n</div></div>\n<div class=\"ratedpages-case comments-empty-then-false\">\n<p>COMMENTS-EMPTY-THEN-FALSE</p>\n<div class=\"top-rated-pages-box\">\n<div class=\"top-rated-pages-list\">\n<div class=\"list-item\">\n<a href=\"/codex-rating-load-20260715:rpc268448a\">Run RP Comments Truth</a>\n<span style=\"color: #777\">(Rating: 2, Comments: 1)</span>\n</div>\n</div>\n</div></div>\n",
+  "content_html_sha256": "6716e7eceb3f3c8f0a9c0f90badafbf1d4b7d97c192b5ec60b20274d7aaa9d47",
+  "html_sha256": "d0b31614ca0f2bcd9ff233facf76f9103e134eb0f31cf69c4f29cedbed672ac6",
+  "observed_at_unix": 1785268466,
+  "cases": [
+    {
+      "case_id": "omitted"
+    },
+    {
+      "case_id": "comments-true"
+    },
+    {
+      "case_id": "comments-yes"
+    },
+    {
+      "case_id": "comments-false"
+    },
+    {
+      "case_id": "comments-no"
+    },
+    {
+      "case_id": "comments-empty"
+    },
+    {
+      "case_id": "comments-uppercase-value"
+    },
+    {
+      "case_id": "comments-uppercase-key"
+    },
+    {
+      "case_id": "comments-bare"
+    },
+    {
+      "case_id": "comments-true-then-no"
+    },
+    {
+      "case_id": "comments-no-then-true"
+    },
+    {
+      "case_id": "comments-true-then-empty"
+    },
+    {
+      "case_id": "comments-empty-then-true"
+    },
+    {
+      "case_id": "comments-false-then-empty"
+    },
+    {
+      "case_id": "comments-empty-then-false"
+    }
+  ]
+}
