@@ -173,6 +173,25 @@ Evidence:
 
 - `install/local/wikidot-verification/artifacts/listpages-campaign-rating-comment-data-form-live.json` (SHA-256 `df42b383b81eeac1c00c25fe54a59dcf2015ed622baea0752e9481d8bfe7708c`), cases: `lp-live-plus-minus-rating-and-last-comment`, `lp-live-five-star-rating`, `lp-live-five-star-fractional-rating`, `lp-live-five-star-zero-rating`, `lp-live-data-form-values-labels-and-hints`
 
+### Data-form ListPages selection and ordering use stored field properties
+
+- Observation ID: `dataforms-listpages-selection-sorting-live`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-29`
+- Analysis: The data-form documentation states that ListPages can select and order by data-form fields, but the public examples also exercise an undocumented template composition path: a data-form category template can place current-page %%form_raw{field}%% variables inside a ListPages module head, and live Wikidot resolves those variables before evaluating _field selectors. A read-only capture of the live Vineyard demo confirms the ordinary data-form behavior. A run-owned sandbox probe also showed that raw source writes through the normal page-create path do not populate live Wikidot's data-form query/index state, so that route is recorded as an API/source-write limitation rather than the ordinary data-form UI oracle.
+
+Normative behavior:
+
+- ListPages arguments inside a data-form category template can use current-page %%form_raw{field}%% variables.
+- Live Wikidot resolves current-page data-form variables in the ListPages module head before applying _field selectors.
+- Multiple _field selectors combine with AND semantics.
+- order="_field desc" sorts by the stored data-form field property while %%form_data{field}%% in the row template displays the field label/display value.
+- Source-created sandbox pages with raw data-form-looking source did not participate in live Wikidot data-form selector or ordering indexes; this is an observed source-write limitation, not the ordinary data-form page behavior.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/dataforms-listpages-selection-sorting-live.json` (SHA-256 `70ffe68197540fe292f8343e98d64fe76fbadf73533a3537b12b4a7ea185fd6f`), cases: `vineyard-current-page-form-variables-drive-data-form-selectors`, `vineyard-data-form-order-desc-uses-stored-field-properties`
+
 ### Legacy selectors and pre-parsed module bodies retain production quirks
 
 - Observation ID: `listpages-legacy-and-body-edge-behavior`

@@ -236,6 +236,7 @@
       "id": "listpages-rating-comment-and-data-form-variables",
       "title": "Ratings, last comments, and data-form variables depend on runtime metadata",
       "feature_ids": [
+        "data-forms-dataforms-and-listpages",
         "module-listpages"
       ],
       "classification": "documentation-discrepancy",
@@ -262,6 +263,35 @@
             "lp-live-five-star-fractional-rating",
             "lp-live-five-star-zero-rating",
             "lp-live-data-form-values-labels-and-hints"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dataforms-listpages-selection-sorting-live",
+      "title": "Data-form ListPages selection and ordering use stored field properties",
+      "feature_ids": [
+        "data-forms-dataforms-and-listpages",
+        "data-forms-selecting-and-sorting",
+        "module-listpages"
+      ],
+      "classification": "documentation-clarification",
+      "observed_at": "2026-07-29",
+      "analysis": "The data-form documentation states that ListPages can select and order by data-form fields, but the public examples also exercise an undocumented template composition path: a data-form category template can place current-page %%form_raw{field}%% variables inside a ListPages module head, and live Wikidot resolves those variables before evaluating _field selectors. A read-only capture of the live Vineyard demo confirms the ordinary data-form behavior. A run-owned sandbox probe also showed that raw source writes through the normal page-create path do not populate live Wikidot's data-form query/index state, so that route is recorded as an API/source-write limitation rather than the ordinary data-form UI oracle.",
+      "normative_behavior": [
+        "ListPages arguments inside a data-form category template can use current-page %%form_raw{field}%% variables.",
+        "Live Wikidot resolves current-page data-form variables in the ListPages module head before applying _field selectors.",
+        "Multiple _field selectors combine with AND semantics.",
+        "order=\"_field desc\" sorts by the stored data-form field property while %%form_data{field}%% in the row template displays the field label/display value.",
+        "Source-created sandbox pages with raw data-form-looking source did not participate in live Wikidot data-form selector or ordering indexes; this is an observed source-write limitation, not the ordinary data-form page behavior."
+      ],
+      "evidence": [
+        {
+          "path": "install/local/wikidot-verification/artifacts/dataforms-listpages-selection-sorting-live.json",
+          "sha256": "70ffe68197540fe292f8343e98d64fe76fbadf73533a3537b12b4a7ea185fd6f",
+          "case_ids": [
+            "vineyard-current-page-form-variables-drive-data-form-selectors",
+            "vineyard-data-form-order-desc-uses-stored-field-properties"
           ]
         }
       ]

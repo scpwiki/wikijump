@@ -20,7 +20,9 @@
 
 mod ajax;
 pub(super) mod authors;
+mod budget;
 pub(super) mod content_sections;
+mod current_data_form;
 mod current_page;
 mod data_forms;
 mod feed;
@@ -38,6 +40,7 @@ pub(super) use self::ajax::AJAX_MODULE_LITERAL_MARKER_PREFIX;
 pub(super) use self::ajax::{
     build_wikidot_list_pages_module_source, protect_ajax_module_literal_markers,
 };
+pub(super) use self::budget::ListPagesExpansionBudget;
 pub(super) use self::current_page::{
     count_pages_scan_requires_preservation, count_pages_unbounded_total,
     list_pages_content_query_target, list_pages_row_scan_target,
@@ -67,8 +70,7 @@ pub(super) use self::presentation::{
 };
 pub(super) use self::rendering::{
     CountPagesExpansionOptions, ListPagesBlockRenderResult, ListPagesContentCache,
-    ListPagesExpansion, ListPagesExpansionBudget, ListPagesExpansionOptions,
-    ListPagesPageContext,
+    ListPagesExpansion, ListPagesExpansionOptions, ListPagesPageContext,
 };
 pub(super) use self::substitution::{
     CurrentPageAuthorSource, ExactNameListPagesBatchKey, ListPagesArguments,

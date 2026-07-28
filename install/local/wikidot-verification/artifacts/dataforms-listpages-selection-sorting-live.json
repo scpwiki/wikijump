@@ -1,0 +1,189 @@
+{
+  "captured_at": "2026-07-28T20:44:50.439803+00:00",
+  "cases": [
+    {
+      "case_id": "vineyard-current-page-form-variables-drive-data-form-selectors",
+      "expected_text_fragment": "Folk bands/artists who will not tour Scotland Band Type Magna Carta Folk",
+      "normative_behavior": "ListPages arguments in a data-form template can use current-page %%form_raw{field}%% variables; live Wikidot resolves those values before applying _field selectors.",
+      "passed": true,
+      "source_current_page_fields": "type: '2'\nscotland: novisit"
+    },
+    {
+      "case_id": "vineyard-data-form-order-desc-uses-stored-field-properties",
+      "expected_sequence": [
+        "virtual genius 0",
+        "Susan Smith 55",
+        "Fairport Convention 54",
+        "Music Band 48",
+        "Rolling Stones 46"
+      ],
+      "normative_behavior": "order=\"_field desc\" sorts by stored data-form field properties and the row template displays %%form_data{field}%% labels.",
+      "passed": true,
+      "positions": [
+        3265,
+        3522,
+        3537,
+        3560,
+        3574
+      ]
+    }
+  ],
+  "features": [
+    "module-listpages",
+    "data-forms-dataforms-and-listpages",
+    "data-forms-selecting-and-sorting"
+  ],
+  "observation_id": "dataforms-listpages-selection-sorting-live",
+  "observed_cases": [
+    {
+      "case_id": "vineyard-current-page-form-variables-drive-data-form-selectors",
+      "expected_text_fragment": "Folk bands/artists who will not tour Scotland Band Type Magna Carta Folk",
+      "normative_behavior": "ListPages arguments in a data-form template can use current-page %%form_raw{field}%% variables; live Wikidot resolves those values before applying _field selectors.",
+      "passed": true,
+      "source_current_page_fields": "type: '2'\nscotland: novisit"
+    },
+    {
+      "case_id": "vineyard-data-form-order-desc-uses-stored-field-properties",
+      "expected_sequence": [
+        "virtual genius 0",
+        "Susan Smith 55",
+        "Fairport Convention 54",
+        "Music Band 48",
+        "Rolling Stones 46"
+      ],
+      "normative_behavior": "order=\"_field desc\" sorts by stored data-form field properties and the row template displays %%form_data{field}%% labels.",
+      "passed": true,
+      "positions": [
+        3265,
+        3522,
+        3537,
+        3560,
+        3574
+      ]
+    }
+  ],
+  "passed": true,
+  "public_demo": {
+    "band_queen_source_prefix": "banddescription: 'Queen is an English rock band formed in 1970 with members Freddie Mercury (vocals, occasional keyboards and very occasional guitar), Brian May (lead guitar and vocls), John Deacon (bass and very occasional backing vocals) and Roger Taylor (drums and vocals).. '\ntype: '6'\nactive-from: '0'\nactive-to: '725760000'\ncontinent: 'band-origin:europe'\ncountry: 'band-origin:uk'\ncity: 'band-origin:london'\ncommunity: 'band-origin:central'\nbandimage: 'file:queen/Queen.jpg'\nbandwebsite: www.queenonline.com\ncurrent: '0'\nscotland: novisit\ncities: gl\ncollection: yes\nalbums: '14'\nflag: '01'",
+    "bands_main_source": "type: '2'\nscotland: novisit",
+    "http_status": 200,
+    "page_content_sha256": "2d7d4352fb7e53bd49ad067234fd2e2f8aa5d317eaaf855dc326c4f188fda748",
+    "page_text_excerpt": "Vineguard - The Vineyard var URL_HOST = 'www.wikidot.com'; var URL_DOMAIN = 'wikidot.com'; var USE_SSL = true ; var URL_STATIC = 'http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc'; // global request information var WIKIREQUEST = {}; WIKIREQUEST.info = {}; WIKIREQUEST.info.domain = \"vineyard.wikidot.com\"; WIKIREQUEST.info.siteId = 125568; WIKIREQUEST.info.siteUnixName = \"vineyard\"; WIKIREQUEST.info.categoryId = 2593188; WIKIREQUEST.info.themeId = 1; WIKIREQUEST.info.requestPageName = \"bands:main\"; OZONE.request.timestamp = 1785271492; OZONE.request.date = new Date(); WIKIREQUEST.info.lang = 'en'; WIKIREQUEST.info.pageUnixName = \"bands:main\"; WIKIREQUEST.info.pageId = 1402322856; WIKIREQUEST.info.lang = \"en\"; OZONE.lang = \"en\"; var isUAMobile = !!/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); require.config({ baseUrl: URL_STATIC + '/common--javascript', paths: { 'jquery.ui': 'jquery-ui.min', 'jquery.form': 'jquery.form' } }); /* modules */ /* theme */ @import url(http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/css/style.css); @import url(/vineyard:css/code/1); var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-18234656-1']); _gaq.push(['_setDomainName', 'none']); _gaq.push(['_setAllowLinker', true]); _gaq.push(['_trackPageview']); _gaq.push(['old._setAccount', 'UA-68540-5']); _gaq.push(['old._setDomainName', 'none']); _gaq.push(['old._setAllowLinker', true]); _gaq.push(['old._trackPageview']); window.google_analytics_uacct = 'UA-18234656-1'; window.google_analytics_domain_name = 'none'; var OneSignal = window.OneSignal || []; OneSignal.push(function() { OneSignal.init({ appId: null, }); }); .newpage-button, .newpage-button a { color: blue !important; font-weight: bold; } table.wiki-content-table { width: 670px; } #container { min-heigt:500px; opacity:1; } .edit-button { background: url(http://themes.wdfiles.com/local--files/hello/hello-button-bg.gif) repeat-x scroll 0 0 transparent; border: 1px solid #D4D4D4; border-radius: 3px 3px 3px 3px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); color: #616161; font-size:13px; font-family: \"Open Sans\", arial, sans-serif; height: auto; margin: 10px; padding: 6px 10px; text-align:center; width:400px; } .form-row.row-0 { visibility: hidden; } .year{ display: none; } .noyear { display: block !important; } The Vineyard wikidot css and coding solutions since 2008 Home Contact & Partners Strathview Website Caspio Ecwid Wikidot Wikidot Website Community Forum Snippets Recent Posts How To List Create account or Sign in Vineguard This page is designed to show some things that can be done with the selecting and sorting on dataform fields. The permissions in this area of the site have been relaxed so you can try out the features. To see the source of this page go to bands:_template To enter a new band or artist, enter the name and press the button: Dynamic ListPages by Selecting on Dataform Fields The list below contains the most recent listing by a user. To list bands by the type of music press the \"Change type of band\" button below. Folk bands/artists who will not tour Scotland Band Type Magna Carta Folk Change type of band and Scotland tour info Sorting by number of albums/CDs released (descending): Band Albums virtual genius 0 Manganian 0 scutoid 0 hi 0 The Browning 0 Elinventor aranas 0 Keith-Bieszczat@foundation.Scipnet 0 Keith Bieszczat 0 bottle2 0 Edyeg 0 Aaaa 0 cqb 0 255 0 Test band 0 54 0 Toto 0 beyonce 0 Neutral Milk Hotel 0 help 0 test4 0 Asdf 0 zoobab 0 Susan Smith 55 Fairport Convention 54 Music Band 48 Rolling Stones 46 Magna Carta 35 Status Quo 32 Fleetwood Mac 29 Mike Oldfield 25 Jools Holland's Big Band 24 Barclay James Harvest 24 Temple 23 Clannad 20 The Hardened Rockers 19 Doors 19 AC/DC 16 Ramones 16 The Beautiful South 15 Alan Parsons Project 14 Queen 14 Dire Straits 13 \"Weird Al\" Yankovic 12 Beatles 12 Test 11 ELO 11 Whitesnake 11 MLTR 10 Dare 9 Gerry Rafferty 9 page 1 of 2 1 2 next \u00bb Grouping of Album Releases Artists releasing 0 albums: Band Albums Psy 0 Kylie Minogue 0 Roxaroo 0 Artists releasing 1 to 10 albums: Band Albums MLTR 10 Gerry Rafferty 9 CCR 8 The Eagles 7 Fred Tackett and Paul Barrere 7 Pilot 5 Coldplay 5 Zac Brown Band 4 The Smiths 4 Celtic Rumours 3 1927 2 Lady Antebellum 2 Coast 2 Artists releasing 11 to 20 albums: Band Albums Clannad 20 Doors 19 AC/DC 16 Ramones 16 The Beautiful South 15 Alan Parsons Project 14 Queen 14 Dire Straits 13 Beatles 12 ELO 11 Whitesnake 11 Artists releasing 21 to 30 albums: Band Albums Fleetwood Mac 29 Mike Oldfield 25 Jools Holland's Big Band 24 Barclay James Harvest 24 Artists releasing 31 to 40 albums: Band Albums Magna Carta 35 Status Quo 32 Artists releasing 41 to 50 albums: Band Albums Rolling Stones 46 Artists releasing over 50 albums: Band Albums Fairport Convention 54 Bands and Band Members Show\u00a0Bands Hide\u00a0Bands Vineguard Elinventor aranas hi Hiatus Kaiyote Keith Bieszczat GOD GOD Sirius Black Keith-Bieszczat@foundation.Scipnet Army of ph",
+    "relevant_template_modules": [
+      "[[module ListPages category=\"band\"  _type=\"%%form_raw{type}%%\"  _scotland=\"%%form_raw{scotland}%%\" perPage=\"10\" order=\"name\"  separate=\"false\" prependLine=\"||~ Band||~ Type ||\" appendLine=\"||||||~ ||\"]]\n|| %%title_linked%% || %%form_data{type}%% || \n[[/module]]",
+      "[[module ListPages category=\"band\"  perPage=\"50\"  order=\"_albums desc\" tags=\"-none\" separate=\"false\" prependLine=\"||~ Band||~ Albums ||\" appendLine=\"||||||~ ||\"]]\n|| %%title_linked%% || %%form_data{albums}%% ||\n[[/module]]",
+      "[[module ListPages category=\"band\"  perPage=\"25\" order=\"_albums desc\" tags=\"none\" separate=\"false\" prependLine=\"||~ Band||~ Albums ||\" appendLine=\"||||||~ ||\"]]\n|| %%title_linked%% || %%form_data{albums}%% ||\n[[/module]]"
+    ],
+    "site": "vineyard",
+    "url": "http://vineyard.wikidot.com/bands:main"
+  },
+  "raw_source_create_probe": {
+    "cases": [
+      {
+        "case_id": "select_contains",
+        "expected": [
+          "alpha|Folk|2|Yes|visit",
+          "beta|Rock|6|Yes|visit",
+          "delta|Folk|2|Yes|visit"
+        ],
+        "passed": false
+      },
+      {
+        "case_id": "select_excludes",
+        "expected_absent": [
+          "gamma|Folk|2|No|novisit"
+        ],
+        "passed": true
+      },
+      {
+        "case_id": "and_contains",
+        "expected": [
+          "alpha|Folk|2|Yes|visit",
+          "delta|Folk|2|Yes|visit"
+        ],
+        "passed": false
+      },
+      {
+        "case_id": "and_excludes",
+        "expected_absent": [
+          "beta|Rock|6|Yes|visit",
+          "gamma|Folk|2|No|novisit"
+        ],
+        "passed": true
+      },
+      {
+        "case_id": "empty_contains",
+        "expected": [
+          "alpha|",
+          "beta|",
+          "gamma|"
+        ],
+        "passed": true
+      },
+      {
+        "case_id": "empty_excludes",
+        "expected_absent": [
+          "delta|filled"
+        ],
+        "passed": false
+      },
+      {
+        "case_id": "order_sequence",
+        "expected_sequence": [
+          "beta|10|10",
+          "delta|9|09",
+          "alpha|2|02",
+          "gamma|1|01"
+        ],
+        "passed": false,
+        "positions": [
+          3540,
+          3529,
+          3551,
+          3518
+        ]
+      }
+    ],
+    "category": "codexdflp0728203332",
+    "classification": "raw source creation does not populate live Wikidot data-form query/index state; this probe is not the canonical ordinary data-form UI path but records an observed API/source-write limitation",
+    "cleanup": [
+      {
+        "fullname": "run-owned-dflp-0728203332",
+        "status": "destroyed"
+      },
+      {
+        "fullname": "codexdflp0728203332:gamma",
+        "status": "destroyed"
+      },
+      {
+        "fullname": "codexdflp0728203332:delta",
+        "status": "destroyed"
+      },
+      {
+        "fullname": "codexdflp0728203332:beta",
+        "status": "destroyed"
+      },
+      {
+        "fullname": "codexdflp0728203332:alpha",
+        "status": "destroyed"
+      },
+      {
+        "fullname": "codexdflp0728203332:_template",
+        "status": "destroyed"
+      }
+    ],
+    "holder": "run-owned-dflp-0728203332",
+    "page_content_sha256": "ea28d1adfa39a17aa9091e82e30ecf6896d3cee2481bb35ccd498412b85cebca",
+    "page_text": "Run-owned data-form ListPages holder - Sandbox For Codex var URL_HOST = 'www.wikidot.com'; var URL_DOMAIN = 'wikidot.com'; var USE_SSL = true ; var URL_STATIC = 'http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc'; // global request information var WIKIREQUEST = {}; WIKIREQUEST.info = {}; WIKIREQUEST.info.domain = \"sandbox-for-codex.wikidot.com\"; WIKIREQUEST.info.siteId = 5301522; WIKIREQUEST.info.siteUnixName = \"sandbox-for-codex\"; WIKIREQUEST.info.categoryId = 46101607; WIKIREQUEST.info.themeId = 8248881; WIKIREQUEST.info.requestPageName = \"run-owned-dflp-0728203332\"; OZONE.request.timestamp = 1785270838; OZONE.request.date = new Date(); WIKIREQUEST.info.lang = 'en'; WIKIREQUEST.info.pageUnixName = \"run-owned-dflp-0728203332\"; WIKIREQUEST.info.pageId = 1469067207; WIKIREQUEST.info.lang = \"en\"; OZONE.lang = \"en\"; var isUAMobile = !!/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); require.config({ baseUrl: URL_STATIC + '/common--javascript', paths: { 'jquery.ui': 'jquery-ui.min', 'jquery.form': 'jquery.form' } }); body { background-position: center 24px; } /* modules */ /* bootstrap */ @import url(http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--bootstrap/3.2.0/bootstrap.min.css); /* theme */ @import url(http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/bootstrap-base/css/style.css); @import url(http://sandbox-for-codex.wdfiles.com/local--theme/standard-blue/style.css); var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-18234656-1']); _gaq.push(['_setDomainName', 'none']); _gaq.push(['_setAllowLinker', true]); _gaq.push(['_trackPageview']); _gaq.push(['old._setAccount', 'UA-68540-5']); _gaq.push(['old._setDomainName', 'none']); _gaq.push(['old._setAllowLinker', true]); _gaq.push(['old._trackPageview']); window.google_analytics_uacct = 'UA-18234656-1'; window.google_analytics_domain_name = 'none'; var OneSignal = window.OneSignal || []; OneSignal.push(function() { OneSignal.init({ appId: null, }); }); .admins-only, li.admins-only{ display: none; } window.nitroAds=window.nitroAds||{createAd:function(){return new Promise(e=>{window.nitroAds.queue.push([\"createAd\",arguments,e])})},addUserToken:function(){window.nitroAds.queue.push([\"addUserToken\",arguments])},queue:[]}; Wikidot.com .wikidot.com Share on Join this site Explore \u00bb // Sandbox For Codex Create account or Sign in Toggle navigation Home About Layout Membership User Guide Help Docs User Guide First Time User Quick Reference Creating Pages Editing Pages Navigation Bars Using Modules Templates CSS Themes Contact Site Manager Edit Top Bar Edit Side Bar CSS Manager Recent Changes List All Pages Menu You should be logged in to clone a site. Site Navigation User Guide First Time User About Contact Legal Discussion Forums Members Create a Page Run-owned data-form ListPages holder window['nitroAds'].createAd('wad-tier3-above-content', { \"refreshTime\": 30, \"renderVisibleOnly\": false, \"refreshVisibleOnly\": true, \"sizes\": [ [ 728, 90 ] ], \"report\": { \"enabled\": true, \"wording\": \"Report Ad\", \"position\": \"bottom-right\" }, \"mediaQuery\": \"(min-width: 768px)\" }); window['nitroAds'].createAd('wad-tier3-above-content-mobile', { \"refreshTime\": 30, \"renderVisibleOnly\": false, \"refreshVisibleOnly\": true, \"sizes\": [ [ 320, 50 ], [320, 100] ], \"report\": { \"enabled\": true, \"icon\": true, \"wording\": \"Report Ad\", \"position\": \"top-right\" }, \"mediaQuery\": \"(min-width: 320px) and (max-width: 767px)\" }); SELECT AND EMPTY alpha| beta| delta|filled gamma| ORDER gamma|1|01 delta|9|09 beta|10|10 alpha|2|02 $j( function(){ if(isUAMobile && screen.width 600) { var $o = $j(''); $j('body').append($o); $j('body').css('margin-bottom', '200px'); var res = function(){ $o = $j('#wad-tier3-mobile-anchor'); if($o.length > 0){ $o.show(); var $w = $j(window); var scale = $w.width() / 320; $o.css('transform', 'scale('+scale+')'); } else { $o.hide(); } } res(); setInterval(res, 1000); window['nitroAds'].createAd('wad-tier3-mobile-anchor', { \"refreshLimit\": 1, \"refreshTime\": 30, \"renderVisibleOnly\": false, \"refreshVisibleOnly\": true, \"format\": \"display\", \"sizes\": [ [ 320, 50 ] ], \"report\": { \"enabled\": true, \"wording\": \"Report Ad\", \"position\": \"bottom-right\" } }); } }); window['nitroAds'].createAd('wad-tier3-below-content', { \"refreshTime\": 30, \"renderVisibleOnly\": false, \"refreshVisibleOnly\": true, \"sizes\": [ [ 300, 250 ] ], \"report\": { \"enabled\": true, \"wording\": \"Report Ad\", \"position\": \"bottom-right\" } }); Help | Terms of Service | Privacy | Report a bug | Flag as objectionable | Update cookie settings if (window[\"nitroAds\"] && window[\"nitroAds\"].loaded) { document.getElementById(\"consent-box\").style.display = window[\"__tcfapi\"] ? \"\" : \"none\"; } else { document.addEventListener( \"nitroAds.loaded\", () => (document.getElementById(\"consent-box\").style.display = window[\"__tcfapi\"] ? \"\" : \"none\") ); } Powered by Wikidot.com Unless otherwise stated, the content of this page is licensed under Creative Commons Attribution-ShareAlike 3.0 License (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); Click here to edit contents of this page. Click here to toggle editing of individual sections of the page (if possible). Watch headings for an \"edit\" link when available. Append content without editing the whole page source. Check out how this page has evolved in the past. If you want to discuss contents of this page - this is the easiest way to do it. View and manage file attachments for this page. A few useful tools to manage this Site. See pages that link to and include this page. Change the name (also URL address, possibly the category) of the page. View wiki source for this page without editing. View/set parent page (used for creating breadcrumbs and structured layout). Notify administrators if there is objectionable content in this page. Something does not work as expected? Find out what you can do. General Wikidot.com documentation and help section. Wikidot.com Terms of Service - what you can, what you should not etc. Wikidot.com Privacy Policy.",
+    "site": "sandbox-for-codex",
+    "source_by_fullname": {
+      "codexdflp0728203332:_template": "[[form]]\nfields:\n  scotland:\n    label: Next tour will visit Scotland\n    type: select\n    values:\n      info: No Info\n      visit: \"Yes\"\n      novisit: \"No\"\n  type:\n    label: Music type\n    type: select\n    values:\n      2: Folk\n      6: Rock\n  albums:\n    label: Albums/CDs released\n    type: select\n    values:\n      \"01\": 1\n      \"02\": 2\n      \"09\": 9\n      \"10\": 10\n  empty:\n    label: Empty field\n[[/form]]",
+      "codexdflp0728203332:alpha": "scotland: visit\ntype: 2\nalbums: '02'\nempty: ''\n\nAlpha body.",
+      "codexdflp0728203332:beta": "scotland: visit\ntype: 6\nalbums: '10'\nempty: ''\n\nBeta body.",
+      "codexdflp0728203332:delta": "scotland: visit\ntype: 2\nalbums: '09'\nempty: filled\n\nDelta body.",
+      "codexdflp0728203332:gamma": "scotland: novisit\ntype: 2\nalbums: '01'\nempty:\n\nGamma body.",
+      "run-owned-dflp-0728203332": "[[div class=\"df-select\"]]\nSELECT\n[[module ListPages category=\"codexdflp0728203332\" _scotland=\"visit\" order=\"name\" separate=\"false\" wrapper=\"no\"]]\n%%page_name%%|%%form_data{type}%%|%%form_raw{type}%%|%%form_data{scotland}%%|%%form_raw{scotland}%%\n[[/module]]\n[[/div]]\n[[div class=\"df-and\"]]\nAND\n[[module ListPages category=\"codexdflp0728203332\" _scotland=\"visit\" _type=\"2\" order=\"name\" separate=\"false\" wrapper=\"no\"]]\n%%page_name%%|%%form_data{type}%%|%%form_raw{type}%%|%%form_data{scotland}%%|%%form_raw{scotland}%%\n[[/module]]\n[[/div]]\n[[div class=\"df-empty\"]]\nEMPTY\n[[module ListPages category=\"codexdflp0728203332\" _empty=\"\" order=\"name\" separate=\"false\" wrapper=\"no\"]]\n%%page_name%%|%%form_raw{empty}%%\n[[/module]]\n[[/div]]\n[[div class=\"df-order\"]]\nORDER\n[[module ListPages category=\"codexdflp0728203332\" order=\"_albums desc\" separate=\"false\" wrapper=\"no\"]]\n%%page_name%%|%%form_data{albums}%%|%%form_raw{albums}%%\n[[/module]]\n[[/div]]"
+    }
+  },
+  "schema": "wikijump.wikidot_live_observation.v1"
+}

@@ -29,7 +29,7 @@
     "partial_documentation": "invocation-only, high-level-documentation, and partially-documented items require live-oracle evidence before unspecified behavior is invented."
   },
   "live_observations": {
-    "observation_count": 21,
+    "observation_count": 22,
     "source_file": "live-observations.json"
   },
   "feature_count": 210,
@@ -497,7 +497,10 @@
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
       "related_features": [],
-      "live_observation_ids": []
+      "live_observation_ids": [
+        "listpages-rating-comment-and-data-form-variables",
+        "dataforms-listpages-selection-sorting-live"
+      ]
     },
     {
       "id": "data-forms-date-field",
@@ -919,7 +922,9 @@
         "Public create/edit/view flow and ListPages query behavior where documented"
       ],
       "related_features": [],
-      "live_observation_ids": []
+      "live_observation_ids": [
+        "dataforms-listpages-selection-sorting-live"
+      ]
     },
     {
       "id": "data-forms-static-field",
@@ -1994,6 +1999,7 @@
         "listpages-live-feed-endpoint",
         "listpages-template-variable-rendering",
         "listpages-rating-comment-and-data-form-variables",
+        "dataforms-listpages-selection-sorting-live",
         "listpages-legacy-and-body-edge-behavior",
         "countpages-inside-listpages-body"
       ]

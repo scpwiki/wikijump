@@ -30,12 +30,13 @@ use super::super::runtime_page_queries::{
 use super::super::service::{
     COUNTPAGES_MODULE_REGEX, CountPagesRequiredTagBatchResult,
     DEFAULT_LISTPAGES_PER_PAGE, IncludeExpansion, IncludeExpansionBudget,
-    IncludeExpansionOptions, MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER,
-    MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER, MAX_LISTPAGES_RENDER_LIMIT,
-    MAX_LISTPAGES_RENDER_SCAN_ROWS, RenderService, render_list_pages_numbered_rows,
-    render_list_pages_table_rows,
+    IncludeExpansionOptions, MAX_LISTPAGES_RENDER_LIMIT, MAX_LISTPAGES_RENDER_SCAN_ROWS,
+    RenderService, render_list_pages_numbered_rows, render_list_pages_table_rows,
 };
 use super::content_sections::{isolate_wikidot_content_section, wikidot_content_section};
+use super::current_data_form::{
+    current_data_form_list_pages_head, load_current_page_data_form_context,
+};
 use super::parents::{load_list_pages_child_counts, load_list_pages_parent_displays};
 use super::scanner::{
     CountPagesCloseReachabilityIndex, find_list_pages_module_matches,
@@ -46,7 +47,7 @@ use super::scanner::{
 use super::template::{ListPagesOutputShape, ListPagesTemplatePlan};
 use super::{
     ExactNameListPagesBatchKey, ListPagesArguments, ListPagesAuthorCacheKey,
-    ListPagesBatchDisplayRequirements, ListPagesBatchDisplays,
+    ListPagesBatchDisplayRequirements, ListPagesBatchDisplays, ListPagesExpansionBudget,
     ListPagesSubstitutionContext, ResolvedListPagesAuthors,
     count_pages_capture_is_literal, count_pages_exact_count_render_diagnostics,
     count_pages_required_tag_batch_result, count_pages_required_tag_batch_selector,
@@ -154,45 +155,6 @@ pub(in crate::services::render) struct ListPagesContentCache {
     pub(in crate::services::render) wikitext: BTreeMap<(i64, i64), Option<String>>,
     pub(in crate::services::render) wikitext_scalar_count:
         BTreeMap<(i64, i64), Option<usize>>,
-}
-
-#[derive(Debug)]
-pub(in crate::services::render) struct ListPagesExpansionBudget {
-    pub(in crate::services::render) remaining_content_modules: usize,
-    pub(in crate::services::render) remaining_content_rows: usize,
-}
-
-impl ListPagesExpansionBudget {
-    pub(in crate::services::render) fn new() -> Self {
-        Self {
-            remaining_content_modules: MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER,
-            remaining_content_rows: MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER,
-        }
-    }
-
-    pub(in crate::services::render) fn try_start_content_module(&mut self) -> bool {
-        if self.remaining_content_modules == 0 {
-            return false;
-        }
-        self.remaining_content_modules -= 1;
-        true
-    }
-
-    pub(in crate::services::render) fn remaining_content_rows(&self) -> usize {
-        self.remaining_content_rows
-    }
-
-    pub(in crate::services::render) fn can_expand_content_rows(
-        &self,
-        rows: usize,
-    ) -> bool {
-        rows <= self.remaining_content_rows
-    }
-
-    pub(in crate::services::render) fn consume_content_rows(&mut self, rows: usize) {
-        debug_assert!(self.can_expand_content_rows(rows));
-        self.remaining_content_rows = self.remaining_content_rows.saturating_sub(rows);
-    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -303,6 +265,14 @@ impl RenderService {
             });
         }
 
+        let current_data_form_context = load_current_page_data_form_context(
+            ctx,
+            current_site_id,
+            requested_current_page_id,
+            page_info,
+        )
+        .await?;
+
         let initial_remaining_include_expansions = include_budget.remaining;
         enum ListPagesBlockPlan {
             Static(String),
@@ -340,11 +310,19 @@ impl RenderService {
         }
         let static_parent_references = module_matches
             .iter()
-            .filter(|module| list_pages_runtime_head_can_execute(module.head))
-            .filter_map(|module| list_pages_static_parent_fullname(module.head))
+            .filter_map(|module| {
+                let head = current_data_form_list_pages_head(
+                    module.head,
+                    current_data_form_context.as_ref(),
+                );
+                list_pages_runtime_head_can_execute(head.as_ref())
+                    .then(|| list_pages_static_parent_fullname(head.as_ref()))
+                    .flatten()
+                    .map(ToOwned::to_owned)
+            })
             .collect::<BTreeSet<_>>()
             .into_iter()
-            .map(|parent| Reference::Slug(Cow::Borrowed(parent)))
+            .map(|parent| Reference::Slug(Cow::Owned(parent)))
             .collect::<Vec<_>>();
         let existing_static_parents =
             PageService::get_pages(ctx, current_site_id, &static_parent_references)
@@ -355,7 +333,11 @@ impl RenderService {
         let blocks = module_matches
             .into_iter()
             .map(|module| {
-                let head = module.head;
+                let resolved_head = current_data_form_list_pages_head(
+                    module.head,
+                    current_data_form_context.as_ref(),
+                );
+                let head = resolved_head.as_ref();
                 // Wikidot's code/html pass owns a leading body block before
                 // ListPages evaluates. The remaining ListPages opening is
                 // therefore an empty, unclosed module using the default

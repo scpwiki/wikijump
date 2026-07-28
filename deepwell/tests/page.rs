@@ -7433,6 +7433,133 @@ async fn listpages_data_form_variables_match_live_wikidot() {
 }
 
 #[tokio::test]
+async fn listpages_template_selectors_can_use_current_page_data_form_values() {
+    const CATEGORY: &str = "fixture-listpages-current-form";
+    const TEMPLATE_SLUG: &str = "fixture-listpages-current-form:_template";
+    const HOLDER_SLUG: &str = "fixture-listpages-current-form:holder";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TEMPLATE_SLUG,
+        "Fixture ListPages Current Form Template",
+        concat!(
+            "[[form]]\n",
+            "fields:\n",
+            "  scotland:\n",
+            "    label: Scotland tour\n",
+            "    type: select\n",
+            "    values:\n",
+            "      visit: \"Yes\"\n",
+            "      novisit: \"No\"\n",
+            "  kind:\n",
+            "    label: Music type\n",
+            "    type: select\n",
+            "    values:\n",
+            "      folk: Folk\n",
+            "      rock: Rock\n",
+            "  albums:\n",
+            "    label: Albums/CDs released\n",
+            "    type: select\n",
+            "    values:\n",
+            "      \"01\": 1\n",
+            "      \"02\": 2\n",
+            "      \"09\": 9\n",
+            "      \"10\": 10\n",
+            "[[/form]]\n",
+            "\n",
+            "MATCHING\n",
+            "[[module ListPages category=\"fixture-listpages-current-form\" ",
+            "_scotland=\"%%form_raw{scotland}%%\" _kind=\"%%form_raw{kind}%%\" ",
+            "skipCurrent=\"true\" order=\"name\" separate=\"false\" wrapper=\"no\"]]\n",
+            "%%page_name%%|%%form_data{kind}%%|%%form_data{scotland}%%\n",
+            "[[/module]]\n",
+            "ORDER\n",
+            "[[module ListPages category=\"fixture-listpages-current-form\" ",
+            "skipCurrent=\"true\" order=\"_albums desc\" separate=\"false\" wrapper=\"no\"]]\n",
+            "%%page_name%%|%%form_data{albums}%%|%%form_raw{albums}%%\n",
+            "[[/module]]\n",
+            "CONTENT=%%content%%",
+        ),
+    )
+    .await;
+    let template_page_id = listpages_test_page_id(&runner, site_id, TEMPLATE_SLUG).await;
+    set_listpages_test_category_template_page(
+        &runner,
+        site_id,
+        CATEGORY,
+        template_page_id,
+    )
+    .await;
+
+    for (slug, title, source) in [
+        (
+            "fixture-listpages-current-form:folk-visit",
+            "Fixture Folk Visit",
+            "scotland: visit\nkind: folk\nalbums: '02'\n\nFolk visit body.",
+        ),
+        (
+            "fixture-listpages-current-form:folk-no",
+            "Fixture Folk No",
+            "scotland: novisit\nkind: folk\nalbums: '09'\n\nFolk no body.",
+        ),
+        (
+            "fixture-listpages-current-form:rock-visit",
+            "Fixture Rock Visit",
+            "scotland: visit\nkind: rock\nalbums: '10'\n\nRock visit body.",
+        ),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, source).await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "Fixture Current Form Holder",
+        "scotland: visit\nkind: folk\nalbums: '01'\n\nHolder body.",
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER_SLUG).await;
+    assert!(
+        html.contains("folk-visit|Folk|Yes"),
+        "ListPages selectors inside a data-form category template must resolve current-page form_raw variables before querying:\n{html}",
+    );
+    for unexpected in ["folk-no|Folk|No", "rock-visit|Rock|Yes"] {
+        assert!(
+            !html.contains(unexpected),
+            "current-page data-form selector should filter out {unexpected:?}:\n{html}",
+        );
+    }
+    let rock = html
+        .find("rock-visit|10|10")
+        .expect("data-form order should include rock visit row");
+    let folk_no = html
+        .find("folk-no|9|09")
+        .expect("data-form order should include folk-no row");
+    let folk_visit = html
+        .find("folk-visit|2|02")
+        .expect("data-form order should include folk visit row");
+    assert!(
+        rock < folk_no && folk_no < folk_visit,
+        "ListPages order=\"_field desc\" should sort by stored data-form field property while displaying form_data labels:\n{html}",
+    );
+    assert!(
+        html.contains("Holder body."),
+        "the data-form page content should still be composed through the template:\n{html}",
+    );
+    assert!(
+        !html.contains("%%form_raw{scotland}%%") && !html.contains("[[module ListPages"),
+        "resolved current-page data-form selector variables must not remain literal:\n{html}",
+    );
+}
+
+#[tokio::test]
 async fn listpages_no_comment_variables_match_live_wikidot() {
     const TARGET_SLUG: &str = "fixture-listpages-no-comments-target";
     const INDEX_SLUG: &str = "fixture-listpages-no-comments-index";

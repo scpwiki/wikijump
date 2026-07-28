@@ -1608,6 +1608,58 @@ pub(in crate::services::render) fn static_list_pages_selector<'a>(
     }
 }
 
+pub(in crate::services::render) fn substitute_list_pages_current_data_form_variables(
+    source: &str,
+    values: &BTreeMap<String, String>,
+    definition: &ListPagesDataFormDefinition,
+) -> Option<String> {
+    if !source.contains("%%form_") {
+        return None;
+    }
+
+    let mut changed = false;
+    let mut unsafe_replacement = false;
+    let substituted = LISTPAGES_VARIABLE_REGEX
+        .replace_all(source, |captures: &regex::Captures<'_>| {
+            let Some(name) = captures.name("name").map(|matched| matched.as_str()) else {
+                return captures[0].to_owned();
+            };
+            let Some(field) = captures.name("argument").map(|matched| matched.as_str())
+            else {
+                return captures[0].to_owned();
+            };
+
+            let value = match name.to_ascii_lowercase().as_str() {
+                "form_data" => {
+                    substitute_list_pages_form_data(field, values, Some(definition))
+                }
+                "form_raw" => {
+                    substitute_list_pages_form_raw(field, values, Some(definition))
+                }
+                "form_label" => substitute_list_pages_form_label(field, Some(definition)),
+                "form_hint" => substitute_list_pages_form_hint(field, Some(definition)),
+                _ => None,
+            };
+            if let Some(value) = value {
+                if value.contains(['"', '[', ']', '\r', '\n']) {
+                    unsafe_replacement = true;
+                    return captures[0].to_owned();
+                }
+                changed = true;
+                value
+            } else {
+                captures[0].to_owned()
+            }
+        })
+        .into_owned();
+
+    if unsafe_replacement {
+        None
+    } else {
+        changed.then_some(substituted)
+    }
+}
+
 pub(in crate::services::render) fn list_pages_has_unsupported_parent_selector(
     head: &str,
 ) -> bool {

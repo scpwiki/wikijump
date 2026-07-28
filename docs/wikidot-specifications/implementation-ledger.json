@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-29",
-  "catalog_sha256": "c860f69fce4a1c58085fe8b2a8005a296ddba3f65a1c7cb683a98d0d8c7ab2e6",
+  "catalog_sha256": "9930ca6b316ed250be1ab20988d12d93529ac324ddd802e9972d383b228ef266",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -209,14 +209,44 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "data-forms-dataforms-and-listpages": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
-      "documentation_evidence": [
-        "specifications/data-forms/data-forms-dataforms-and-listpages.md"
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Read-only live Vineyard data-form page/template oracle plus run-owned sandbox raw-source limitation probe",
+        "Deepwell public saved-page page_get compiled HTML interface",
+        "Deepwell public PageQuery/ListPages render interface for data-form field selection, ordering, and variables"
       ],
-      "live_oracle_evidence": [],
+      "tests": [
+        {
+          "path": "deepwell/tests/page.rs",
+          "name": "listpages_data_form_variables_match_live_wikidot",
+          "scope": "public saved-page rendering verifies form_data, form_raw, form_label, form_hint, select display labels, empty fields, and missing fields on data-form pages"
+        },
+        {
+          "path": "deepwell/tests/page.rs",
+          "name": "listpages_missing_data_form_variables_stay_literal_without_blocking_rows",
+          "scope": "public saved-page rendering verifies ordinary non-data-form pages keep missing form variables literal while ListPages rows still execute"
+        },
+        {
+          "path": "deepwell/tests/page.rs",
+          "name": "listpages_template_selectors_can_use_current_page_data_form_values",
+          "scope": "public saved-page rendering verifies current-page form_raw variables inside a data-form template ListPages head resolve before _field selectors and data-form field ordering renders display labels"
+        }
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/list_pages/data_forms.rs",
+        "deepwell/src/services/render/list_pages/rendering.rs",
+        "deepwell/src/services/render/list_pages/substitution.rs",
+        "deepwell/src/services/page_query"
+      ],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-dataforms-and-listpages.md",
+        "specifications/module/module-listpages.md",
+        "docs/wikidot-specifications/live-observations.json"
+      ],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/listpages-campaign-rating-comment-data-form-live.json",
+        "install/local/wikidot-verification/artifacts/dataforms-listpages-selection-sorting-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "data-forms-date-field": {
@@ -396,14 +426,43 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "data-forms-selecting-and-sorting": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
-      "documentation_evidence": [
-        "specifications/data-forms/data-forms-selecting-and-sorting.md"
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Read-only live Vineyard data-form page/template oracle plus run-owned sandbox raw-source limitation probe",
+        "Deepwell public saved-page page_get compiled HTML interface",
+        "Deepwell public PageQuery/ListPages render interface for data-form field selection, ordering, and variables"
       ],
-      "live_oracle_evidence": [],
+      "tests": [
+        {
+          "path": "deepwell/tests/page.rs",
+          "name": "listpages_template_selectors_can_use_current_page_data_form_values",
+          "scope": "public saved-page rendering verifies current-page form_raw variables inside a data-form template ListPages head resolve before AND-combined _field selectors and order=\"_field desc\" sorts by stored field values while rendering form_data labels"
+        },
+        {
+          "path": "deepwell/tests/page.rs",
+          "name": "page_query_data_form_field_ordering_uses_static_form_values",
+          "scope": "public PageQuery service verifies string and integer data-form field ordering over source-backed form values"
+        },
+        {
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "name": "parses_static_data_form_selectors",
+          "scope": "ListPages argument parser coverage for _field selectors, negated selectors, case-preserved field names, and fail-closed dynamic @URL selectors"
+        }
+      ],
+      "implementation_files": [
+        "deepwell/src/services/page_query/service.rs",
+        "deepwell/src/services/page_query/structs.rs",
+        "deepwell/src/services/render/list_pages/rendering.rs",
+        "deepwell/src/services/render/list_pages/substitution.rs"
+      ],
+      "documentation_evidence": [
+        "specifications/data-forms/data-forms-selecting-and-sorting.md",
+        "specifications/module/module-listpages.md",
+        "docs/wikidot-specifications/live-observations.json"
+      ],
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/dataforms-listpages-selection-sorting-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "data-forms-static-field": {
@@ -994,7 +1053,8 @@
         "deepwell/src/services/view/module_render.rs",
         "framerail/src/lib/server/list-pages-feed.ts",
         "framerail/src/routes/feed",
-        "install/local/wikidot-verification"
+        "install/local/wikidot-verification",
+        "deepwell/src/services/render/list_pages/data_forms.rs"
       ],
       "documentation_evidence": [
         "docs/wikidot-specifications/specifications/module/module-listpages.md",
@@ -1013,7 +1073,8 @@
         "install/local/wikidot-verification/artifacts/listpages-campaign-hash-magic-reconciliation.json",
         "install/local/wikidot-verification/artifacts/listpages-campaign-navigation-coverage.json",
         "install/local/wikidot-verification/artifacts/listpages-campaign-rating-comment-data-form-live.json",
-        "install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json"
+        "install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json",
+        "install/local/wikidot-verification/artifacts/dataforms-listpages-selection-sorting-live.json"
       ],
       "unresolved_ambiguities_or_blockers": [
         "Imported Wikidot snapshots retain the last commenter's display name and timestamp but not the Wikidot user ID. Identity-bearing last-comment variables on imported rows remain provenance-blocked until the corpus or importer supplies a stable user identity; local relational comments are not blocked."
