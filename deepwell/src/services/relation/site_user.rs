@@ -31,7 +31,7 @@ use super::prelude::*;
 use crate::services::UserService;
 use crate::types::{RelationObjectType, RelationType, UserType};
 
-impl_relation_new! {
+impl_relation! {
     name => SiteUser,
     dest => site_id: Site,
     from => user_id: User,

@@ -37,7 +37,7 @@ pub struct SiteMemberData {
     pub accepted: SiteMemberAccepted,
 }
 
-impl_relation_new! {
+impl_relation! {
     name => SiteMember,
     dest => site_id: Site,
     from => user_id: User,

@@ -59,7 +59,7 @@ pub struct UserBotMetadata {
     pub approval_url: Option<String>,
 }
 
-impl_relation_new! {
+impl_relation! {
     name => UserBotOwner,
     dest => bot_user: User,
     from => owner_user: User,

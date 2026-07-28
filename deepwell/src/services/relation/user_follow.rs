@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 
-impl_relation_new! {
+impl_relation! {
     name => UserFollow,
     dest => followed_user: User,
     from => following_user: User,

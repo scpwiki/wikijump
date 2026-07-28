@@ -34,7 +34,7 @@ pub struct SiteBanData {
     pub reason: String,
 }
 
-impl_relation_new! {
+impl_relation! {
     name => SiteBan,
     dest => site_id: Site,
     from => user_id: User,
