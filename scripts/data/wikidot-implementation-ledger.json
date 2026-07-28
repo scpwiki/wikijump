@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-28",
-  "catalog_sha256": "712971a5167b76883683fa3a3606bebbe526e7903e67e69951ea3c1b97e55849",
+  "catalog_sha256": "8f60d1fd52cebbdeede875d665eb17058090d2b28714192dc60ed4d67bb8519a",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -616,14 +616,36 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-childpages": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell saved-page rendering through page_get compiled body",
+        "Deepwell page-view runtime rendering through page_view",
+        "Render dependency and article-cache source classification"
+      ],
+      "tests": [
+        "cargo test --manifest-path deepwell/Cargo.toml --lib child_pages -- --nocapture",
+        "cargo test --manifest-path deepwell/Cargo.toml --lib url_arguments -- --nocapture",
+        "cargo test --manifest-path deepwell/Cargo.toml --lib render_dependency -- --nocapture",
+        "cargo test --manifest-path deepwell/Cargo.toml --lib article_page_cache -- --nocapture",
+        "DATABASE_URL=... cargo test --manifest-path deepwell/Cargo.toml --test page childpages_module_renders_live_child_list_and_empty_state -- --nocapture"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/child_pages.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/src/services/render/mod.rs",
+        "deepwell/src/services/render/diagnostics.rs",
+        "deepwell/src/services/render/render_dependency.rs",
+        "deepwell/src/services/render/url_arguments.rs",
+        "deepwell/src/services/view/article_cache.rs",
+        "deepwell/tests/page.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-childpages.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "docs/wikidot-specifications/live-observations.json",
+        "install/local/wikidot-verification/artifacts/childpages-module-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-clone": {

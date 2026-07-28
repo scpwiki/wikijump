@@ -55,7 +55,13 @@ impl RenderDependencyClasses {
     }
 }
 
-const MODULE_QUERY_NAMES: &[&str] = &["listpages", "countpages", "backlinks", "tagcloud"];
+const MODULE_QUERY_NAMES: &[&str] = &[
+    "listpages",
+    "countpages",
+    "backlinks",
+    "tagcloud",
+    "childpages",
+];
 const MODULE_VIEWER_NAMES: &[&str] = &["rate", "members", "newpage", "clone"];
 const MODULE_STATIC_NAMES: &[&str] = &["css"];
 
@@ -205,6 +211,7 @@ mod tests {
             "[[module ListPages category=\"fragment\"]]%%content%%[[/module]]",
             "[[module CountPages category=\"news\"]][[/module]]",
             "[[module Pages]]",
+            "[[module ChildPages]]",
         ] {
             let classes = classify_render_dependencies(source);
 

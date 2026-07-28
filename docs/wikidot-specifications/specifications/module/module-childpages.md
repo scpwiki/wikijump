@@ -20,6 +20,33 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+### ChildPages lists current children with live DOM, empty-state, and unknown-argument behavior
+
+- Observation ID: `childpages-live-list-empty-and-unknown-arguments`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-28`
+- Analysis: The ChildPages documentation states only that the deprecated module lists children of the containing page in alphabetical order and has no required attributes. Controlled run-owned sandbox pages show the exact output shape and several undocumented boundaries: live Wikidot wraps non-empty output in div.child-pages-block containing a ul of linked li rows, includes child pages from categories other than the parent page's category, includes underscore-prefixed hidden pages when they are viewable, emits no wrapper at all for an empty child set, and ignores unknown attributes while still rendering the module.
+
+Normative behavior:
+
+- ChildPages selects pages whose parent relation points to the page containing the module.
+- ChildPages is not restricted to the containing page's category; child pages from other categories are included when viewable.
+- ChildPages includes underscore-prefixed hidden child pages when the anonymous viewer may view them.
+- ChildPages rows are ordered alphabetically by title using live Wikidot's case-insensitive title order.
+- A non-empty ChildPages render emits div.child-pages-block containing ul and one li anchor per child page.
+- An empty ChildPages render emits no wrapper, list, row, or literal module text.
+- ChildPages ignores unknown attributes while rendering children.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/childpages-module-live.json` (SHA-256 `3362d5122487becb7a48cea1291dc4745c1c48919de48235f3f687d73669a588`), cases: `bare-childpages-with-cross-category-and-hidden-children`, `empty-childpages`, `unknown-argument-with-children`
+
+
 
 ## Suggested public TDD seams
 

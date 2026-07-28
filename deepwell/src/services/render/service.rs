@@ -1177,6 +1177,19 @@ impl RenderService {
         )
         .await
         .or_raise(make_error)?;
+        wikitext = {
+            let _stage = StageGuard::new(trace, CorpusRenderStage::ChildPages);
+            Self::expand_child_pages_modules(
+                ctx,
+                wikitext,
+                settings,
+                current_site_id,
+                current_page_id,
+                &mut wikidot_compat_html,
+            )
+            .await
+            .or_raise(make_error)?
+        };
         wikitext = expand_page_index_modules(
             ctx,
             wikitext,

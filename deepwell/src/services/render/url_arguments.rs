@@ -24,6 +24,7 @@
 //! path arguments is only answered correctly if the view re-renders. This
 //! module decides when that is necessary.
 
+use super::child_pages::CHILD_PAGES_MODULE_REGEX;
 use super::pages::PAGES_MODULE_REGEX;
 use super::pages_by_tag::PAGES_BY_TAG_MODULE_REGEX;
 use regex::Regex;
@@ -157,6 +158,7 @@ pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
 /// even the bare request.
 pub fn wikitext_requires_runtime_render(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
+        || CHILD_PAGES_MODULE_REGEX.is_match(wikitext)
 }
 
 fn wikitext_has_bare_pages_module(wikitext: &str) -> bool {
@@ -187,6 +189,7 @@ mod tests {
     #[test]
     fn a_pages_module_always_requires_runtime_rendering() {
         assert!(wikitext_requires_runtime_render("[[module Pages]]"));
+        assert!(wikitext_requires_runtime_render("[[module ChildPages]]"));
         assert!(!wikitext_requires_runtime_render(
             "[[module ListPages category=\"news\"]]%%title%%[[/module]]"
         ));

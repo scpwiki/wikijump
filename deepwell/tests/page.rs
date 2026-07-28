@@ -2861,6 +2861,212 @@ async fn pages_module_renders_documented_arguments_and_live_fallbacks() {
     );
 }
 
+/// Live capture (sandbox-for-codex, 2026-07-28): `[[module ChildPages]]`
+/// emits `div.child-pages-block > ul` for the current page's children, sorted
+/// alphabetically by title. The live module includes child pages from any
+/// category, includes underscore-prefixed hidden pages, ignores unknown
+/// arguments, and emits no wrapper at all for an empty child set.
+#[tokio::test]
+async fn childpages_module_renders_live_child_list_and_empty_state() {
+    fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
+        html.split_once(start)
+            .unwrap_or_else(|| panic!("missing section start {start:?}"))
+            .1
+            .split_once(end)
+            .unwrap_or_else(|| panic!("missing section end {end:?}"))
+            .0
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let parent_slug = "fixture-childpages:parent";
+    let empty_slug = "fixture-childpages:empty";
+    let private_category = "fixture-childpages-private";
+
+    CategoryService::get_or_create(runner.context(), site_id, "fixture-childpages")
+        .await
+        .expect("ChildPages fixture category should be created");
+    CategoryService::get_or_create(runner.context(), site_id, "fixture-childpages-other")
+        .await
+        .expect("ChildPages fixture other category should be created");
+    make_listpages_test_category_admin_only(&runner, site_id, private_category).await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        parent_slug,
+        "Fixture ChildPages Parent",
+        concat!(
+            "CHILDPAGES_START\n\n",
+            "[[module ChildPages]]\n\n",
+            "CHILDPAGES_END\n\n",
+            "UNKNOWN_START\n\n",
+            "[[module ChildPages foo=\"bar\"]]\n\n",
+            "UNKNOWN_END",
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        empty_slug,
+        "Fixture ChildPages Empty",
+        "EMPTY_START\n\n[[module ChildPages]]\n\nEMPTY_END",
+    )
+    .await;
+
+    for (slug, title) in [
+        ("fixture-childpages:zulu", "Zulu ChildPages Child"),
+        ("fixture-childpages:alpha", "alpha ChildPages Child"),
+        (
+            "fixture-childpages-other:bravo",
+            "Bravo Other Category Child",
+        ),
+        ("fixture-childpages:_hidden", "Hidden ChildPages Child"),
+        (
+            "fixture-childpages-private:secret",
+            "Secret ChildPages Child",
+        ),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, slug, title, "Child body.")
+            .await;
+        set_listpages_test_parent(&mut runner, site_id, slug, parent_slug).await;
+    }
+
+    let parent = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": parent_slug}),
+    )
+    .expect("ChildPages parent holder should exist before rerender");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": parent.page_category_id,
+            "page_id": parent.page_id,
+        }),
+    );
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": parent_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("ChildPages parent holder should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let childpages_section = section(&html, "CHILDPAGES_START", "CHILDPAGES_END");
+    for expected in [
+        r#"<div class="child-pages-block">"#,
+        "<ul>",
+        r#"<li><a href="/fixture-childpages:alpha">alpha ChildPages Child</a></li>"#,
+        r#"<li><a href="/fixture-childpages-other:bravo">Bravo Other Category Child</a></li>"#,
+        r#"<li><a href="/fixture-childpages:_hidden">Hidden ChildPages Child</a></li>"#,
+        r#"<li><a href="/fixture-childpages:zulu">Zulu ChildPages Child</a></li>"#,
+    ] {
+        assert!(
+            childpages_section.contains(expected),
+            "ChildPages output missing {expected:?}:\n{html}",
+        );
+    }
+    assert!(
+        !childpages_section.contains("fixture-childpages-private:secret"),
+        "ChildPages must honor anonymous view permissions:\n{html}",
+    );
+    let alpha = childpages_section
+        .find("fixture-childpages:alpha")
+        .expect("alpha child row");
+    let bravo = childpages_section
+        .find("fixture-childpages-other:bravo")
+        .expect("bravo child row");
+    let hidden = childpages_section
+        .find("fixture-childpages:_hidden")
+        .expect("hidden child row");
+    let zulu = childpages_section
+        .find("fixture-childpages:zulu")
+        .expect("zulu child row");
+    assert!(
+        alpha < bravo && bravo < hidden && hidden < zulu,
+        "ChildPages rows must follow live title order:\n{html}",
+    );
+
+    let unknown_section = section(&html, "UNKNOWN_START", "UNKNOWN_END");
+    assert!(
+        unknown_section.contains(r#"<div class="child-pages-block">"#)
+            && unknown_section.contains("fixture-childpages:alpha")
+            && !unknown_section.contains("[[module ChildPages"),
+        "live Wikidot ignores unknown ChildPages arguments while rendering children:\n{html}",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-childpages:late",
+        "Late ChildPages Child",
+        "Late child body.",
+    )
+    .await;
+    set_listpages_test_parent(
+        &mut runner,
+        site_id,
+        "fixture-childpages:late",
+        parent_slug,
+    )
+    .await;
+    let runtime_view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": parent_slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let runtime_html = match runtime_view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found ChildPages page view, got {other:?}"),
+    };
+    assert!(
+        runtime_html.contains(
+            r#"<li><a href="/fixture-childpages:late">Late ChildPages Child</a></li>"#,
+        ),
+        "ChildPages page views must evaluate against current parent state without a saved-page rerender:\n{runtime_html}",
+    );
+
+    let empty = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": empty_slug,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("ChildPages empty holder should exist");
+    let empty_html = empty
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+    let empty_section = section(&empty_html, "EMPTY_START", "EMPTY_END");
+    assert!(
+        !empty_section.contains("child-pages-block")
+            && !empty_section.contains("[[module ChildPages"),
+        "empty ChildPages renders no wrapper or literal module:\n{empty_html}",
+    );
+}
+
 /// Live capture (sandbox-for-codex, 2026-07-25): `[[module PagesByTag tag="x"]]`
 /// emits an anchor, an `h2`, and `div#tagged-pages-list.pages-list` holding one
 /// `pages-list-item` per tagged page, ordered case-insensitively by title. A tag

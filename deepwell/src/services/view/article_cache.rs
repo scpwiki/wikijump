@@ -26,7 +26,9 @@ use crate::services::ServiceContext;
 use crate::services::blueprint::compose_template;
 use crate::services::permission::PermissionCache;
 use crate::services::public_cache::PublicContentCache;
-use crate::services::render::{RenderDependencyClass, classify_render_dependencies};
+use crate::services::render::{
+    RenderDependencyClass, classify_render_dependencies, wikitext_requires_runtime_render,
+};
 use crate::utils::split_category;
 use redis::AsyncCommands;
 use sea_orm::{DatabaseBackend, FromQueryResult, Statement, Value};
@@ -274,6 +276,9 @@ fn format_article_page_cache_key_if_source_eligible(
 }
 
 pub(super) fn anonymous_article_cache_source_eligible(source: &str) -> bool {
+    if wikitext_requires_runtime_render(source) {
+        return false;
+    }
     let classes = classify_render_dependencies(source);
     !classes.contains(RenderDependencyClass::ViewerDependent)
         && !classes.contains(RenderDependencyClass::RequestDependent)
@@ -380,6 +385,7 @@ mod tests {
             "[[module Rate]]",
             "[[module UnknownWidget]]",
             "[[module]]",
+            "[[module ChildPages]]",
         ] {
             let parts = ArticlePageCacheKeyParts {
                 site_id: 7,
@@ -487,6 +493,7 @@ mod tests {
             "[[module Clone]]",
             "[[module UnknownWidget]]",
             "[[module]]",
+            "[[module ChildPages]]",
         ] {
             assert!(!anonymous_article_cache_source_eligible(source));
         }

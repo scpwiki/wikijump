@@ -1,0 +1,69 @@
+{
+  "schema": "wikidot.childpages_module_live.v1",
+  "captured_at": "2026-07-28T13:59:28Z",
+  "site": "sandbox-for-codex",
+  "mutation_scope": "run-owned ChildPages module pages created for this probe and deleted after capture",
+  "run_id": "run-owned-childpages-1785247102",
+  "created_pages": [
+    "run-owned-childpages-1785247102:parent",
+    "run-owned-childpages-1785247102:empty",
+    "run-owned-childpages-1785247102:unknown",
+    "run-owned-childpages-1785247102:zulu",
+    "run-owned-childpages-1785247102:alpha",
+    "run-owned-childpages-1785247102-other:bravo",
+    "run-owned-childpages-1785247102:_hidden",
+    "run-owned-childpages-1785247102:unknown-zulu",
+    "run-owned-childpages-1785247102:unknown-alpha"
+  ],
+  "captures": [
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-childpages-1785247102:parent",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>CHILDPAGES_START</p>\n<div class=\"child-pages-block\">\n<ul>\n<li><a href=\"/run-owned-childpages-1785247102:alpha\">alpha ChildPages Child</a></li>\n<li><a href=\"/run-owned-childpages-1785247102-other:bravo\">Bravo Other Category Child</a></li>\n<li><a href=\"/run-owned-childpages-1785247102:_hidden\">Hidden ChildPages Child</a></li>\n<li><a href=\"/run-owned-childpages-1785247102:zulu\">Zulu ChildPages Child</a></li>\n</ul>\n</div>\n<p>CHILDPAGES_END</p>\n</div>",
+      "page_content_text": "CHILDPAGES_START alpha ChildPages Child Bravo Other Category Child Hidden ChildPages Child Zulu ChildPages Child CHILDPAGES_END",
+      "page_content_html_sha256": "673c86d6e6723a4e0104f0fcf4a6d82bc9aa09d818c5c3a28da2f30661331522",
+      "case_id": "bare-childpages-with-cross-category-and-hidden-children",
+      "page": "run-owned-childpages-1785247102:parent",
+      "source": "CHILDPAGES_START\n\n[[module ChildPages]]\n\nCHILDPAGES_END",
+      "source_sha256": "a6ae4bc98f24e200c1283be8dd2994f3feafbf621a8e5b0f0f406ce8e762991d"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-childpages-1785247102:empty",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>EMPTY_START</p>\n<p>EMPTY_END</p>\n</div>",
+      "page_content_text": "EMPTY_START EMPTY_END",
+      "page_content_html_sha256": "08422551406b5421ed514ac7525d83f295b12cf7f12aae3d4cfeab4300592b10",
+      "case_id": "empty-childpages",
+      "page": "run-owned-childpages-1785247102:empty",
+      "source": "EMPTY_START\n\n[[module ChildPages]]\n\nEMPTY_END",
+      "source_sha256": "2dab707e9d1a4a807d09eead291c4f1699225dcee91fdf1c0eb3502e4d706ca4"
+    },
+    {
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-childpages-1785247102:unknown",
+      "status": 200,
+      "page_content_html": "<div id=\"page-content\">\n<p>UNKNOWN_START</p>\n<div class=\"child-pages-block\">\n<ul>\n<li><a href=\"/run-owned-childpages-1785247102:unknown-alpha\">Alpha Unknown Child</a></li>\n<li><a href=\"/run-owned-childpages-1785247102:unknown-zulu\">Zulu Unknown Child</a></li>\n</ul>\n</div>\n<p>UNKNOWN_END</p>\n</div>",
+      "page_content_text": "UNKNOWN_START Alpha Unknown Child Zulu Unknown Child UNKNOWN_END",
+      "page_content_html_sha256": "d8eeddab1b45543e8bfcd4acb5e2d61cec75f824c1babade3b8006edae47b616",
+      "case_id": "unknown-argument-with-children",
+      "page": "run-owned-childpages-1785247102:unknown",
+      "source": "UNKNOWN_START\n\n[[module ChildPages foo=\"bar\"]]\n\nUNKNOWN_END",
+      "source_sha256": "54f36c46bc2e2c59dcd8956c0be4367e13eba9b920f68da4566080c17834b9e0"
+    }
+  ],
+  "errors": [],
+  "cleanup": {
+    "run_owned_pages_deleted": true,
+    "deleted": [
+      "run-owned-childpages-1785247102:unknown-alpha",
+      "run-owned-childpages-1785247102:unknown-zulu",
+      "run-owned-childpages-1785247102:_hidden",
+      "run-owned-childpages-1785247102-other:bravo",
+      "run-owned-childpages-1785247102:alpha",
+      "run-owned-childpages-1785247102:zulu",
+      "run-owned-childpages-1785247102:unknown",
+      "run-owned-childpages-1785247102:empty",
+      "run-owned-childpages-1785247102:parent"
+    ],
+    "errors": []
+  }
+}

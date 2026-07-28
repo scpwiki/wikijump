@@ -20,6 +20,7 @@
 
 mod backlinks;
 mod categories;
+mod child_pages;
 mod compat;
 mod corpus;
 mod diagnostics;
