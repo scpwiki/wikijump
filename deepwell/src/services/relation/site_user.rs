@@ -31,7 +31,12 @@ use super::prelude::*;
 use crate::services::UserService;
 use crate::types::{RelationObjectType, RelationType, UserType};
 
-impl_relation!(SiteUser, Site, site_id, User, user_id, (), NO_CREATE_IMPL);
+impl_relation_new! {
+    name => SiteUser,
+    dest => site_id: Site,
+    from => user_id: User,
+    create_fn => false,
+}
 
 impl RelationService {
     pub async fn create_site_user(
@@ -39,7 +44,6 @@ impl RelationService {
         CreateSiteUser {
             site_id,
             user_id,
-            metadata: (),
             created_by,
         }: CreateSiteUser,
     ) -> Result<()> {
@@ -123,18 +127,18 @@ impl RelationService {
             ));
         }
 
-        // Checks done, create
-        create_operation!(
+        Self::create_site_user_inner(
             ctx,
-            SiteUser,
-            Site,
-            site_id,
-            User,
-            user_id,
-            created_by,
-            &(),
-            make_error,
+            CreateSiteUser {
+                site_id,
+                user_id,
+                created_by,
+            },
         )
+        .await
+        .or_raise(make_error)?;
+
+        Ok(())
     }
 
     pub async fn get_site_user_id_for_site(
