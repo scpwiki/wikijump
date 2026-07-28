@@ -34,15 +34,13 @@ pub struct SiteBanData {
     pub reason: String,
 }
 
-impl_relation!(
-    SiteBan,
-    Site,
-    site_id,
-    User,
-    user_id,
-    SiteBanData,
-    NO_CREATE_IMPL,
-);
+impl_relation_new! {
+    name => SiteBan,
+    dest => site_id: Site,
+    from => user_id: User,
+    data => SiteBanData,
+    create_fn => false,
+}
 
 impl RelationService {
     pub async fn create_site_ban(
@@ -109,12 +107,17 @@ impl RelationService {
             .or_raise(make_error)?;
         }
 
-        let create_result: Result<()> = create_operation!(
-            ctx, SiteBan, Site, site_id, User, user_id, created_by, &metadata,
-            make_error,
-        );
-
-        create_result?;
+        Self::create_site_ban_inner(
+            ctx,
+            CreateSiteBanInner {
+                site_id,
+                user_id,
+                created_by,
+                metadata: &metadata,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
 
         AuditService::log(
             ctx,
