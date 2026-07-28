@@ -1662,10 +1662,10 @@ fn parses_wikidot_camel_case_list_pages_order_argument() {
 }
 
 #[test]
-fn keeps_broad_unbounded_count_pages_literal() {
+fn count_pages_default_selector_executes_but_all_categories_remains_literal() {
     let no_filter = parse_list_pages_arguments(r#""#)
         .expect("broad CountPages selector should parse");
-    assert!(count_pages_should_remain_literal(&no_filter));
+    assert!(!count_pages_should_remain_literal(&no_filter));
 
     let all_categories = parse_list_pages_arguments(r#" category="*" "#)
         .expect("all-category CountPages selector should parse");

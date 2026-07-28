@@ -1,0 +1,36 @@
+{
+  "schema": "wikidot.countpages_default_selector_live.v1",
+  "captured_at": "2026-07-28T12:34:37Z",
+  "site": "sandbox-for-codex",
+  "mutation_scope": "run-owned pages created for this probe and deleted after capture",
+  "category": "run-owned-countpages-default-1785242068",
+  "captures": [
+    {
+      "case_id": "countpages-omitted-selectors-current-category-normal-pages"
+    }
+  ],
+  "cases": [
+    {
+      "id": "countpages-omitted-selectors-current-category-normal-pages",
+      "source": "[[module CountPages]]\nTOTAL=%%total%%; COUNT=%%count%%; [[[target|Target Link]]]\n[[/module]]",
+      "page_content_text": "TOTAL=2; COUNT=2; Target Link",
+      "page_content_html": "<div class=\"list-pages-box\">    \n\n<p>TOTAL=2; COUNT=2; <a class=\"newpage\" href=\"/target\">Target Link</a></p>\n\n    \n    \n    \n    </div>",
+      "normative_observation": "With all selectors omitted, CountPages uses the shared page-selection defaults: current category and normal pages. It counts the ordinary target page and the ordinary index page, excludes the underscore hidden page in the same category, substitutes both %%total%% and %%count%%, and renders ordinary wiki syntax in the module body.",
+      "expected_count": 2,
+      "created_pages": [
+        "run-owned-countpages-default-1785242068:target",
+        "run-owned-countpages-default-1785242068:_hidden",
+        "run-owned-countpages-default-1785242068:index"
+      ]
+    }
+  ],
+  "cleanup": {
+    "run_owned_pages_deleted": true,
+    "deleted": [
+      "run-owned-countpages-default-1785242068:index",
+      "run-owned-countpages-default-1785242068:_hidden",
+      "run-owned-countpages-default-1785242068:target"
+    ],
+    "errors": []
+  }
+}

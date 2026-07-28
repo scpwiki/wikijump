@@ -12843,20 +12843,40 @@ async fn countpages_with_limit_defaults_to_current_category() {
 }
 
 #[tokio::test]
-async fn countpages_without_limit_or_static_filter_remains_literal() {
+async fn countpages_without_selectors_uses_current_category_and_normal_page_defaults() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
-    let category_slug = "countpages-no-limit-literal";
+    let category_slug = "countpages-default-selector";
+
+    for (slug, title) in [
+        (
+            format!("{category_slug}:target"),
+            "Fixture CountPages Default Selector Target",
+        ),
+        (
+            format!("{category_slug}:_hidden"),
+            "Fixture CountPages Default Selector Hidden",
+        ),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            &slug,
+            title,
+            "Fixture CountPages default selector marker.",
+        )
+        .await;
+    }
 
     let index_slug = format!("{category_slug}:index");
     create_listpages_test_page(
         &mut runner,
         site_id,
         &index_slug,
-        "Fixture CountPages No Limit Literal Index",
-        "CountPages no-limit marker.\n\n[[module CountPages]]\nNO_LIMIT_COUNT=%%total%%\n[[/module]]",
+        "Fixture CountPages Default Selector Index",
+        "CountPages default selector marker.\n\n[[module CountPages]]\nDEFAULT_NO_LIMIT_TOTAL=%%total%%; COUNT_ALIAS=%%count%%; [[[target|Target Link]]]\n[[/module]]",
     )
     .await;
 
@@ -12877,14 +12897,27 @@ async fn countpages_without_limit_or_static_filter_remains_literal() {
         .expect("compiled body should be included in page_get details");
 
     assert!(
-        html.contains("NO_LIMIT_COUNT=%%total%%")
-            || html.contains("[[module CountPages")
-            || html.contains("module CountPages"),
-        "CountPages without an explicit limit or static filter should remain literal/degraded:\n{html}"
+        html.contains("DEFAULT_NO_LIMIT_TOTAL=2; COUNT_ALIAS=2"),
+        "CountPages without explicit selectors should count normal pages in the current category, including the index page and excluding hidden pages:\n{html}"
     );
     assert!(
-        !html.contains("NO_LIMIT_COUNT=1"),
-        "CountPages without an explicit limit or static filter must not run an unbounded partial count:\n{html}"
+        html.contains("Target Link"),
+        "CountPages should render ordinary wiki syntax in the module body:\n{html}"
+    );
+    for forbidden in [
+        "[[module CountPages",
+        "%%total%%",
+        "%%count%%",
+        "Fixture CountPages Default Selector Hidden",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "CountPages default selector fixture should not contain {forbidden:?}:\n{html}"
+        );
+    }
+    assert!(
+        !html.contains("DEFAULT_NO_LIMIT_TOTAL=3"),
+        "CountPages default pagetype should exclude underscore hidden pages:\n{html}"
     );
 }
 

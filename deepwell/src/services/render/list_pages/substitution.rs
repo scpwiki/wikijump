@@ -1197,9 +1197,6 @@ pub(in crate::services::render) fn count_pages_should_remain_literal(
     arguments.unsupported_author_filter
         || arguments.unsupported_score_filter
         || arguments.unsupported_count_pages_filter
-        || (count_pages_bound.is_none()
-            && !arguments.current_page_only
-            && !count_pages_has_static_filter(arguments))
         || count_pages_bound.is_some_and(|limit| {
             limit
                 .saturating_add(u64::from(arguments.offset))

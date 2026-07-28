@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-28",
-  "catalog_sha256": "ac2bde9e5ed9b8c489a7b05ecd708c6e66594687524a0a32bba3a7e190eede28",
+  "catalog_sha256": "c975a7d38c87e052910025f55b77badfbe07c0b6a23ccbe0665eeaa479412089",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -657,19 +657,25 @@
       "tests": [
         {
           "path": "deepwell/tests/page.rs",
-          "scope": "countpages_inside_listpages_body_matches_live_empty_item_behavior and inline_countpages_inside_listpages_body_matches_live_legacy_split_behavior cover the documented CountPages-inside-ListPages limitation through the public saved-page render seam"
+          "scope": "countpages_inside_listpages_body_matches_live_empty_item_behavior and inline_countpages_inside_listpages_body_matches_live_legacy_split_behavior cover the documented CountPages-inside-ListPages limitation through the public saved-page render seam; countpages_without_selectors_uses_current_category_and_normal_page_defaults covers omitted selectors, %%count%%, body wiki syntax, and hidden-page exclusion"
+        },
+        {
+          "path": "deepwell/src/services/render/service/tests.rs",
+          "scope": "count_pages_should_remain_literal unit coverage preserves fail-closed all-category broad behavior while allowing omitted selectors to execute"
         }
       ],
       "implementation_files": [
         "deepwell/src/services/render/list_pages/rendering.rs",
-        "deepwell/src/services/render/list_pages/scanner.rs"
+        "deepwell/src/services/render/list_pages/scanner.rs",
+        "deepwell/src/services/render/list_pages/substitution.rs"
       ],
       "documentation_evidence": [
         "specifications/module/module-countpages.md",
         "docs/wikidot-specifications/live-observations.json"
       ],
       "live_oracle_evidence": [
-        "install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json"
+        "install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json",
+        "install/local/wikidot-verification/artifacts/countpages-default-selector-live.json"
       ],
       "unresolved_ambiguities_or_blockers": []
     },

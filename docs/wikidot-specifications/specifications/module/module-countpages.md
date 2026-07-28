@@ -44,6 +44,26 @@ Evidence:
 
 - `install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json` (SHA-256 `6296353f385fef33e74b3696d9affca8dbfa3816457141ab2f6b283e2f9346b0`), cases: `standalone-countpages-opening-inside-listpages-body`, `inline-countpages-inside-listpages-body`, `ordinary-listpages-body-control`
 
+### CountPages omitted selectors use current category and normal page defaults
+
+- Observation ID: `countpages-default-selector-and-body-substitution`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-28`
+- Analysis: The shared page-selection documentation states that the default page type is normal and the default category is the current category, but the local CountPages implementation previously treated an omitted-selector CountPages module as too broad and preserved it literally. A controlled run-owned sandbox page shows that live Wikidot executes this shape: it counts ordinary pages in the current category, includes the holder page itself, excludes underscore hidden pages by default, substitutes both %%total%% and %%count%%, and renders ordinary wiki syntax in the CountPages body.
+
+Normative behavior:
+
+- A CountPages module with all selectors omitted executes instead of remaining literal.
+- With omitted selectors, CountPages uses page type normal and the current page category as defaults.
+- The omitted-selector count includes the CountPages holder page when that page is a normal page in the current category.
+- The omitted-selector count excludes underscore hidden pages in the same category.
+- CountPages substitutes %%count%% as a synonym for %%total%%.
+- CountPages renders ordinary wiki syntax in the module body after substituting count variables.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/countpages-default-selector-live.json` (SHA-256 `3350e9c13f9f25b8ce2e58a22ae5ab0ea9af8d1823d790a620f863ec7bdc6eaa`), cases: `countpages-omitted-selectors-current-category-normal-pages`
+
 
 
 ## Suggested public TDD seams
