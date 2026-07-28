@@ -1,0 +1,374 @@
+{
+  "base_url": "http://sandbox-for-codex.wikidot.com",
+  "captured_at": "2026-07-28T16:22:45.403911+00:00",
+  "cases": [
+    {
+      "case_id": "explicit-category",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-holder/date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-holder/date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-holder/date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-holder/date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "6d864f50be93f8cf06053ebde3bc0b2e69bd3a84a816100042273ec138bc52dd",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "target-prefix",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "aeabf252b1e1e611142cb4dd32d5110c2761ec26c4979618aca153cf7982d23e",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "startpage-alias",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "ac37bd623dabbd16cf694a529bcda45b50c01c7c35231b6a9bc9ccb071533fb8",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "tags-space",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req -pcal-928773cf-excluded pcal-928773cf-any1 pcal-928773cf-any2/date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req -pcal-928773cf-excluded pcal-928773cf-any1 pcal-928773cf-any2/date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req -pcal-928773cf-excluded pcal-928773cf-any1 pcal-928773cf-any2/date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req -pcal-928773cf-excluded pcal-928773cf-any1 pcal-928773cf-any2/date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "dcf711b9f38bf035a9d860d426ef66774b007031b21d2b2c33fc805cd08493c5",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "tags-comma",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any1,pcal-928773cf-any2/date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any1,pcal-928773cf-any2/date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any1,pcal-928773cf-any2/date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any1,pcal-928773cf-any2/date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "b30bde3addfa7294e3c62254d6ad527b6186c8572bccc0d3010b832d345c1427",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "multi-category-space",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026\">2026 (5)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026.7\">July (5)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026",
+            "label_html": "2026 (5)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026.7",
+            "label_html": "July (5)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "59527f2bbfaa83d2359de2d6a43fff710c7a28837dd13cb092719c2ddacddcd5",
+        "text": "2026 (5) July (5)"
+      }
+    },
+    {
+      "case_id": "multi-category-comma",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026\">2026 (5)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026.7\">July (5)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026",
+            "label_html": "2026 (5)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026.7",
+            "label_html": "July (5)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "59527f2bbfaa83d2359de2d6a43fff710c7a28837dd13cb092719c2ddacddcd5",
+        "text": "2026 (5) July (5)"
+      }
+    },
+    {
+      "case_id": "empty-category",
+      "html": "</p>\n<div class=\"error-block\">The requested categories do not (yet) exist.</div>\n<p>",
+      "summary": {
+        "anchors": [],
+        "contains_error_block": true,
+        "html_sha256": "c81e283fb7c9c84d919d5186d4f2da9be6b011260e1bf25770cfe5228473fc68",
+        "text": "The requested categories do not (yet) exist."
+      }
+    },
+    {
+      "case_id": "duplicate-category",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "ac37bd623dabbd16cf694a529bcda45b50c01c7c35231b6a9bc9ccb071533fb8",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "empty-target",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-holder/lp_date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-holder/lp_date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-holder/lp_date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-holder/lp_date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "0cfc53a8e61627d881ced153d0167aeff9728ff579000edbe836731bac9d4a30",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "url-default-no-args",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "86f7bbc127f5a3e5a654c564c745463e2c4c0fdb1da6c020174eeba90fc37ee7",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "url-category-path",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_category/pagecal-other-928773cf/lp_date/2026\">2026 (1)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_category/pagecal-other-928773cf/lp_date/2026.7\">July (1)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_category/pagecal-other-928773cf/lp_date/2026",
+            "label_html": "2026 (1)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req/lp_category/pagecal-other-928773cf/lp_date/2026.7",
+            "label_html": "July (1)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "e175d741e929533e0bcae83380dd94e4079d5eda76fe75c67ab977452d9a7f5f",
+        "text": "2026 (1) July (1)"
+      }
+    },
+    {
+      "case_id": "url-tags-path",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any2/lp_date/2026\">2026 (4)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any2/lp_date/2026.7\">July (4)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any2/lp_date/2026",
+            "label_html": "2026 (4)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/lp_tag/ pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any2/lp_date/2026.7",
+            "label_html": "July (4)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "bf5c6120409ec0e4b1f80beaf61fc8dfca4f234c0d49bd14fc4d9f991478cb68",
+        "text": "2026 (4) July (4)"
+      }
+    },
+    {
+      "case_id": "default-current-category",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/pagecal-default-928773cf:holder/date/2026\">2026 (3)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/pagecal-default-928773cf:holder/date/2026.7\">July (3)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/pagecal-default-928773cf:holder/date/2026",
+            "label_html": "2026 (3)"
+          },
+          {
+            "href": "/pagecal-default-928773cf:holder/date/2026.7",
+            "label_html": "July (3)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "030e096a786ab434ce35189c42517a579ba77a45c772a18550e1c47021dbcbc1",
+        "text": "2026 (3) July (3)"
+      }
+    },
+    {
+      "case_id": "default-target-prefix",
+      "html": "</p>\n<div class=\"page-calendar-box\">\n\t\t\t<ul>\n\t\t\t\t\t<li >\n\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/d_date/2026\">2026 (3)</a>\n\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li >\n\t\t\t\t\t\t\t<a href=\"/run-owned:pagecal-live-928773cf-target/d_date/2026.7\">July (3)</a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t\t</ul>\n\t</div>\n<p>",
+      "summary": {
+        "anchors": [
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/d_date/2026",
+            "label_html": "2026 (3)"
+          },
+          {
+            "href": "/run-owned:pagecal-live-928773cf-target/d_date/2026.7",
+            "label_html": "July (3)"
+          }
+        ],
+        "contains_error_block": false,
+        "html_sha256": "77199d8e13c25460a8d0610b0b883a5763c5fba452b4fc5f1be0d455e18b1bd6",
+        "text": "2026 (3) July (3)"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "deleted": true,
+      "fullname": "pagecal-default-928773cf:holder"
+    },
+    {
+      "deleted": true,
+      "fullname": "run-owned:pagecal-live-928773cf-holder"
+    },
+    {
+      "deleted": true,
+      "fullname": "run-owned:pagecal-live-928773cf-target"
+    },
+    {
+      "deleted": true,
+      "fullname": "pagecal-default-928773cf:beta"
+    },
+    {
+      "deleted": true,
+      "fullname": "pagecal-default-928773cf:alpha"
+    },
+    {
+      "deleted": true,
+      "fullname": "pagecal-other-928773cf:outside"
+    },
+    {
+      "deleted": true,
+      "fullname": "pagecal-928773cf:delta"
+    },
+    {
+      "deleted": true,
+      "fullname": "pagecal-928773cf:gamma"
+    },
+    {
+      "deleted": true,
+      "fullname": "pagecal-928773cf:beta"
+    },
+    {
+      "deleted": true,
+      "fullname": "pagecal-928773cf:alpha"
+    }
+  ],
+  "default_holder": "pagecal-default-928773cf:holder",
+  "default_source": "PAGECAL_DEFAULT_PROBE pagecal-live-928773cf\n\nDEFAULT_CURRENT_START\n[[module PageCalendar]]\nDEFAULT_CURRENT_END\n\nDEFAULT_TARGET_START\n[[module PageCalendar targetPage=\"run-owned:pagecal-live-928773cf-target\" urlAttrPrefix=\"d\"]]\nDEFAULT_TARGET_END\n",
+  "fixture": {
+    "category": "pagecal-928773cf",
+    "created_pages": [
+      "pagecal-928773cf:alpha",
+      "pagecal-928773cf:beta",
+      "pagecal-928773cf:gamma",
+      "pagecal-928773cf:delta",
+      "pagecal-other-928773cf:outside",
+      "pagecal-default-928773cf:alpha",
+      "pagecal-default-928773cf:beta",
+      "run-owned:pagecal-live-928773cf-target",
+      "run-owned:pagecal-live-928773cf-holder",
+      "pagecal-default-928773cf:holder"
+    ],
+    "default_category": "pagecal-default-928773cf",
+    "missing_category": "pagecal-missing-928773cf",
+    "other_category": "pagecal-other-928773cf",
+    "tags": {
+      "any1": "pcal-928773cf-any1",
+      "any2": "pcal-928773cf-any2",
+      "excluded": "pcal-928773cf-excluded",
+      "other": "pcal-928773cf-other",
+      "required": "pcal-928773cf-req"
+    }
+  },
+  "holder": "run-owned:pagecal-live-928773cf-holder",
+  "requests": [
+    {
+      "case": "main",
+      "path": "/run-owned:pagecal-live-928773cf-holder"
+    },
+    {
+      "case": "url-category-path",
+      "path": "/run-owned:pagecal-live-928773cf-holder/lp_category/pagecal-other-928773cf/lp_tags/%2Bpcal-928773cf-req"
+    },
+    {
+      "case": "url-tags-path",
+      "path": "/run-owned:pagecal-live-928773cf-holder/lp_category/pagecal-928773cf/lp_tags/%2Bpcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any2"
+    },
+    {
+      "case": "default",
+      "path": "/pagecal-default-928773cf:holder"
+    }
+  ],
+  "run_id": "pagecal-live-928773cf",
+  "schema": "wikijump.wikidot_live_pagecalendar_module.v1",
+  "site": "sandbox-for-codex",
+  "source": "PAGECAL_LIVE_PROBE pagecal-live-928773cf\n\nEXPLICIT_START\n[[module PageCalendar category=\"pagecal-928773cf\"]]\nEXPLICIT_END\n\nPREFIX_TARGET_START\n[[module PageCalendar category=\"pagecal-928773cf\" targetPage=\"run-owned:pagecal-live-928773cf-target\" urlAttrPrefix=\"lp\"]]\nPREFIX_TARGET_END\n\nSTART_ALIAS_START\n[[module PageCalendar category=\"pagecal-928773cf\" startPage=\"run-owned:pagecal-live-928773cf-target\"]]\nSTART_ALIAS_END\n\nTAGS_START\n[[module PageCalendar category=\"pagecal-928773cf\" tags=\"+pcal-928773cf-req -pcal-928773cf-excluded pcal-928773cf-any1 pcal-928773cf-any2\" targetPage=\"run-owned:pagecal-live-928773cf-target\"]]\nTAGS_END\n\nTAGS_COMMA_START\n[[module PageCalendar category=\"pagecal-928773cf\" tags=\"+pcal-928773cf-req,-pcal-928773cf-excluded,pcal-928773cf-any1,pcal-928773cf-any2\" targetPage=\"run-owned:pagecal-live-928773cf-target\"]]\nTAGS_COMMA_END\n\nMULTI_SPACE_CAT_START\n[[module PageCalendar category=\"pagecal-928773cf pagecal-other-928773cf\" targetPage=\"run-owned:pagecal-live-928773cf-target\"]]\nMULTI_SPACE_CAT_END\n\nMULTI_COMMA_CAT_START\n[[module PageCalendar category=\"pagecal-928773cf,pagecal-other-928773cf\" targetPage=\"run-owned:pagecal-live-928773cf-target\"]]\nMULTI_COMMA_CAT_END\n\nEMPTY_CAT_START\n[[module PageCalendar category=\"pagecal-missing-928773cf\" targetPage=\"run-owned:pagecal-live-928773cf-target\"]]\nEMPTY_CAT_END\n\nDUPLICATE_CAT_START\n[[module PageCalendar category=\"pagecal-missing-928773cf\" category=\"pagecal-928773cf\" targetPage=\"run-owned:pagecal-live-928773cf-target\"]]\nDUPLICATE_CAT_END\n\nEMPTY_TARGET_START\n[[module PageCalendar category=\"pagecal-928773cf\" targetPage=\"\" urlAttrPrefix=\"lp\"]]\nEMPTY_TARGET_END\n\nURL_DEFAULT_START\n[[module PageCalendar category=\"@URL|pagecal-928773cf\" tags=\"@URL|+pcal-928773cf-req\" targetPage=\"run-owned:pagecal-live-928773cf-target\" urlAttrPrefix=\"lp\"]]\nURL_DEFAULT_END\n"
+}

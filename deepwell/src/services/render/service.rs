@@ -81,7 +81,7 @@ use super::include_variables::{
 #[cfg(test)]
 use super::list_pages::ResolvedListPagesAuthors;
 use super::list_pages::{
-    CountPagesExpansionOptions, ListPagesExpansion, ListPagesExpansionOptions,
+    ListPagesExpansion, ListPagesExpansionOptions,
     build_wikidot_list_pages_module_source, restore_list_pages_literal_ellipsis_markers,
 };
 use super::literal_regions::LiteralRegionIndex;
@@ -97,6 +97,7 @@ use super::render_options::{
     RenderContext, RenderExpansionOptions, RenderInnerOptions, RenderPageOptions,
 };
 use super::runtime::{IncludeSource, IncludeSourceCache, RenderRuntime};
+use super::runtime_modules::SecondaryRuntimeModuleExpansionOptions;
 use super::structs::{RenderOutput, RenderPageOutput};
 use super::url_arguments::UrlArguments;
 use super::wikidot_hosts::{
@@ -343,6 +344,9 @@ pub(super) static WIKIDOT_RATE_ANCHOR_REGEX: LazyLock<Regex> = LazyLock::new(|| 
 pub(super) static TAGCLOUD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+TagCloud(?P<head>[^\]]*)\]\]").unwrap()
 });
+pub(super) static PAGECALENDAR_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?is)\[\[module\s+PageCalendar(?P<head>[^\]]*)\]\]").unwrap()
+});
 pub(super) static REGISTRY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?is)\[\[module\s+(?P<name>Members|NewPage|Clone|Join)(?P<head>[^\]]*)\]\]",
@@ -355,6 +359,7 @@ pub(super) static GENERATED_LISTPAGES_HTML_REGEX: LazyLock<Regex> = LazyLock::ne
     )
     .unwrap()
 });
+
 #[cfg(test)]
 static GENERATED_COMPAT_TABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -1127,37 +1132,22 @@ impl RenderService {
         };
         wikitext = expanded_wikitext;
         included_pages.extend(list_pages_included_pages);
-        wikitext = {
-            let _stage = StageGuard::new(trace, CorpusRenderStage::CountPages);
-            Self::expand_count_pages(
-                ctx,
-                wikitext,
-                page_info,
-                settings,
-                CountPagesExpansionOptions {
-                    current_site_id,
-                    current_page_id,
-                    url,
-                },
-                &mut wikidot_compat_text,
-            )
-            .await
-            .or_raise(make_error)?
-        };
-        wikitext = {
-            let _stage = StageGuard::new(trace, CorpusRenderStage::TagCloud);
-            Self::expand_tag_cloud_modules(
-                ctx,
-                wikitext,
-                page_info,
-                settings,
+        wikitext = Box::pin(Self::expand_secondary_runtime_modules(
+            ctx,
+            wikitext,
+            page_info,
+            settings,
+            SecondaryRuntimeModuleExpansionOptions {
                 current_site_id,
                 current_page_id,
-                &mut wikidot_compat_html,
-            )
-            .await
-            .or_raise(make_error)?
-        };
+                url,
+                trace,
+            },
+            &mut wikidot_compat_text,
+            &mut wikidot_compat_html,
+        ))
+        .await
+        .or_raise(make_error)?;
         wikitext = {
             let _stage = StageGuard::new(trace, CorpusRenderStage::Backlinks);
             Self::expand_backlinks_modules(

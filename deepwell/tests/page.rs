@@ -49,7 +49,7 @@ use deepwell::services::page_query::{
 use deepwell::services::permission::{
     CheckPermissionContext, PermissionCache, PermissionService,
 };
-use deepwell::services::render::UrlArguments;
+use deepwell::services::render::{UrlArgumentPair, UrlArguments};
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
@@ -15067,6 +15067,480 @@ async fn tagcloud_module_renders_live_sitewide_skip_3d_and_color_error() {
             ))
             && !threed.contains("[[module TagCloud"),
         "3D TagCloud should emit Wikidot's SWFObject runtime wrapper and encoded tag anchors:\n{html}",
+    );
+}
+
+/// Live capture (sandbox-for-codex, 2026-07-29): `PageCalendar` emits a
+/// `page-calendar-box`, groups viewable pages by creation year and month,
+/// applies category selectors, and generates date-path links to the current
+/// page or to `targetPage` / `startPage`.
+#[tokio::test]
+async fn pagecalendar_module_renders_live_category_links_and_counts() {
+    fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
+        html.split_once(start)
+            .unwrap_or_else(|| panic!("missing section start {start:?}"))
+            .1
+            .split_once(end)
+            .unwrap_or_else(|| panic!("missing section end {end:?}"))
+            .0
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category = "fixture-pagecalendar-live";
+    let other_category = "fixture-pagecalendar-live-other";
+    let missing_category = "fixture-pagecalendar-live-missing";
+    let target = "fixture-pagecalendar-live-target";
+    let holder = "fixture-pagecalendar-live-holder";
+
+    CategoryService::get_or_create(runner.context(), site_id, category)
+        .await
+        .expect("PageCalendar fixture category should be created");
+    CategoryService::get_or_create(runner.context(), site_id, other_category)
+        .await
+        .expect("PageCalendar fixture other category should be created");
+
+    for (slug, title, timestamp) in [
+        (
+            format!("{category}:alpha"),
+            "Fixture PageCalendar Alpha",
+            1_785_225_600,
+        ),
+        (
+            format!("{category}:beta"),
+            "Fixture PageCalendar Beta",
+            1_785_226_600,
+        ),
+        (
+            format!("{category}:gamma"),
+            "Fixture PageCalendar Gamma",
+            1_785_227_600,
+        ),
+        (
+            format!("{category}:delta"),
+            "Fixture PageCalendar Delta",
+            1_785_228_600,
+        ),
+        (
+            format!("{other_category}:outside"),
+            "Fixture PageCalendar Outside",
+            1_785_229_600,
+        ),
+    ] {
+        create_listpages_test_page(&mut runner, site_id, &slug, title, "body").await;
+        set_listpages_test_created_at(
+            &runner,
+            site_id,
+            &slug,
+            OffsetDateTime::from_unix_timestamp(timestamp)
+                .expect("fixture timestamp should be valid"),
+        )
+        .await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target,
+        "Fixture PageCalendar Target",
+        "target",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder,
+        "Fixture PageCalendar Holder",
+        &format!(
+            concat!(
+                "PAGECALENDAR_START\n\n",
+                "EXPLICIT_START\n",
+                "[[module PageCalendar category=\"{category}\"]]\n",
+                "EXPLICIT_END\n\n",
+                "PREFIX_TARGET_START\n",
+                "[[module PageCalendar category=\"{category}\" targetPage=\"{target}\" urlAttrPrefix=\"lp\"]]\n",
+                "PREFIX_TARGET_END\n\n",
+                "START_ALIAS_START\n",
+                "[[module PageCalendar category=\"{category}\" startPage=\"{target}\"]]\n",
+                "START_ALIAS_END\n\n",
+                "MULTI_SPACE_START\n",
+                "[[module PageCalendar category=\"{category} {other_category}\" targetPage=\"{target}\"]]\n",
+                "MULTI_SPACE_END\n\n",
+                "MULTI_COMMA_START\n",
+                "[[module PageCalendar category=\"{category},{other_category}\" targetPage=\"{target}\"]]\n",
+                "MULTI_COMMA_END\n\n",
+                "MISSING_START\n",
+                "[[module PageCalendar category=\"{missing_category}\" targetPage=\"{target}\"]]\n",
+                "MISSING_END\n\n",
+                "EMPTY_CATEGORY_START\n",
+                "[[module PageCalendar category=\"\" targetPage=\"{target}\"]]\n",
+                "EMPTY_CATEGORY_END\n\n",
+                "EMPTY_TARGET_START\n",
+                "[[module PageCalendar category=\"{category}\" targetPage=\"\" urlAttrPrefix=\"lp\"]]\n",
+                "EMPTY_TARGET_END\n\n",
+                "DUPLICATE_START\n",
+                "[[module PageCalendar category=\"{missing_category}\" category=\"{category}\" targetPage=\"{target}\"]]\n",
+                "DUPLICATE_END\n\n",
+                "PAGECALENDAR_END",
+            ),
+            category = category,
+            other_category = other_category,
+            missing_category = missing_category,
+            target = target,
+        ),
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, holder).await;
+
+    let explicit = section(&html, "EXPLICIT_START", "EXPLICIT_END");
+    assert!(
+        explicit.contains(r#"<div class="page-calendar-box">"#)
+            && explicit.contains(r#"<ul>"#)
+            && explicit.contains(r#">2026 (4)</a>"#)
+            && explicit.contains(r#">July (4)</a>"#)
+            && explicit.contains(&format!(r#"href="/{holder}/date/2026""#))
+            && explicit.contains(&format!(r#"href="/{holder}/date/2026.7""#)),
+        "PageCalendar explicit category output should match live DOM, counts, and current-page date links:\n{html}",
+    );
+
+    let prefix_target = section(&html, "PREFIX_TARGET_START", "PREFIX_TARGET_END");
+    assert!(
+        prefix_target.contains(&format!(r#"href="/{target}/lp_date/2026""#))
+            && prefix_target.contains(&format!(r#"href="/{target}/lp_date/2026.7""#)),
+        "targetPage and urlAttrPrefix should drive generated PageCalendar date links:\n{html}",
+    );
+
+    let start_alias = section(&html, "START_ALIAS_START", "START_ALIAS_END");
+    assert!(
+        start_alias.contains(&format!(r#"href="/{target}/date/2026""#))
+            && start_alias.contains(&format!(r#"href="/{target}/date/2026.7""#)),
+        "startPage should be a PageCalendar targetPage alias:\n{html}",
+    );
+
+    for marker in ["MULTI_SPACE", "MULTI_COMMA"] {
+        let multi = section(&html, &format!("{marker}_START"), &format!("{marker}_END"));
+        assert!(
+            multi.contains(r#">2026 (5)</a>"#) && multi.contains(r#">July (5)</a>"#),
+            "PageCalendar should accept comma- and space-separated category lists:\n{html}",
+        );
+    }
+
+    let missing = section(&html, "MISSING_START", "MISSING_END");
+    assert!(
+        missing.contains(r#"<div class="error-block">"#)
+            && missing.contains("The requested categories do not (yet) exist."),
+        "PageCalendar should render the live error block for a nonexistent explicit category:\n{html}",
+    );
+
+    let empty_category = section(&html, "EMPTY_CATEGORY_START", "EMPTY_CATEGORY_END");
+    assert!(
+        empty_category.contains(r#"<div class="error-block">"#)
+            && empty_category.contains("The requested categories do not (yet) exist."),
+        "PageCalendar should render the live error block for an empty explicit category:\n{html}",
+    );
+
+    let empty_target = section(&html, "EMPTY_TARGET_START", "EMPTY_TARGET_END");
+    assert!(
+        empty_target.contains(&format!(r#"href="/{holder}/lp_date/2026""#))
+            && empty_target.contains(&format!(r#"href="/{holder}/lp_date/2026.7""#)),
+        "empty PageCalendar targetPage should fall back to the current page:\n{html}",
+    );
+
+    let duplicate = section(&html, "DUPLICATE_START", "DUPLICATE_END");
+    assert!(
+        duplicate.contains(r#">2026 (4)</a>"#)
+            && !duplicate.contains("do not (yet) exist"),
+        "duplicate PageCalendar category attributes should use the last category value observed on live Wikidot:\n{html}",
+    );
+
+    assert!(!html.contains("[[module PageCalendar"), "{html}");
+}
+
+/// Live capture (sandbox-for-codex, 2026-07-29): despite the documentation,
+/// `tags` does not filter the calendar counts. It is only propagated into
+/// generated `tag` URL path arguments, with `+` replaced by spaces. When a
+/// `category="@URL|fallback"` selector resolves from the URL, PageCalendar
+/// carries that category forward in generated links.
+#[tokio::test]
+async fn pagecalendar_module_matches_live_tag_url_and_current_category_quirks() {
+    fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
+        html.split_once(start)
+            .unwrap_or_else(|| panic!("missing section start {start:?}"))
+            .1
+            .split_once(end)
+            .unwrap_or_else(|| panic!("missing section end {end:?}"))
+            .0
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category = "fixture-pagecalendar-url";
+    let other_category = "fixture-pagecalendar-url-other";
+    let default_category = "fixture-pagecalendar-default";
+    let target = "fixture-pagecalendar-url-target";
+    let holder = "fixture-pagecalendar-url-holder";
+    let default_holder = format!("{default_category}:holder");
+    let tag_required = "fixture-pagecalendar-required";
+    let tag_any_one = "fixture-pagecalendar-any-one";
+    let tag_any_two = "fixture-pagecalendar-any-two";
+    let tag_excluded = "fixture-pagecalendar-excluded";
+
+    for category_slug in [category, other_category, default_category] {
+        CategoryService::get_or_create(runner.context(), site_id, category_slug)
+            .await
+            .expect("PageCalendar fixture category should be created");
+    }
+
+    for (slug, title, tags) in [
+        (
+            format!("{category}:alpha"),
+            "Fixture PageCalendar URL Alpha",
+            vec![tag_required, tag_any_one],
+        ),
+        (
+            format!("{category}:beta"),
+            "Fixture PageCalendar URL Beta",
+            vec![tag_required, tag_any_two, tag_excluded],
+        ),
+        (
+            format!("{category}:gamma"),
+            "Fixture PageCalendar URL Gamma",
+            vec![tag_required, tag_any_two],
+        ),
+        (
+            format!("{category}:delta"),
+            "Fixture PageCalendar URL Delta",
+            vec![tag_any_one],
+        ),
+        (
+            format!("{other_category}:outside"),
+            "Fixture PageCalendar URL Outside",
+            vec![tag_required, tag_any_one],
+        ),
+        (
+            format!("{default_category}:alpha"),
+            "Fixture PageCalendar Default Alpha",
+            vec![],
+        ),
+        (
+            format!("{default_category}:beta"),
+            "Fixture PageCalendar Default Beta",
+            vec![],
+        ),
+    ] {
+        let revision =
+            create_listpages_test_page(&mut runner, site_id, &slug, title, "body").await;
+        set_listpages_test_created_at(
+            &runner,
+            site_id,
+            &slug,
+            OffsetDateTime::from_unix_timestamp(1_785_225_600)
+                .expect("fixture timestamp should be valid"),
+        )
+        .await;
+        if !tags.is_empty() {
+            set_listpages_test_tags(&mut runner, site_id, &slug, revision, &tags).await;
+        }
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        target,
+        "Fixture PageCalendar URL Target",
+        "target",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        holder,
+        "Fixture PageCalendar URL Holder",
+        &format!(
+            concat!(
+                "PAGECALENDAR_URL_START\n\n",
+                "TAGS_START\n",
+                "[[module PageCalendar category=\"{category}\" tags=\"+{tag_required} -{tag_excluded} {tag_any_one} {tag_any_two}\" targetPage=\"{target}\"]]\n",
+                "TAGS_END\n\n",
+                "TAGS_COMMA_START\n",
+                "[[module PageCalendar category=\"{category}\" tags=\"+{tag_required},-{tag_excluded},{tag_any_one},{tag_any_two}\" targetPage=\"{target}\"]]\n",
+                "TAGS_COMMA_END\n\n",
+                "URL_DEFAULT_START\n",
+                "[[module PageCalendar category=\"@URL|{category}\" tags=\"@URL|+{tag_required}\" targetPage=\"{target}\" urlAttrPrefix=\"lp\"]]\n",
+                "URL_DEFAULT_END\n\n",
+                "PAGECALENDAR_URL_END",
+            ),
+            category = category,
+            target = target,
+            tag_required = tag_required,
+            tag_excluded = tag_excluded,
+            tag_any_one = tag_any_one,
+            tag_any_two = tag_any_two,
+        ),
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &default_holder,
+        "Fixture PageCalendar Default Holder",
+        &format!(
+            concat!(
+                "DEFAULT_START\n",
+                "[[module PageCalendar]]\n",
+                "DEFAULT_END\n\n",
+                "DEFAULT_TARGET_START\n",
+                "[[module PageCalendar targetPage=\"{target}\" urlAttrPrefix=\"d\"]]\n",
+                "DEFAULT_TARGET_END",
+            ),
+            target = target,
+        ),
+    )
+    .await;
+    set_listpages_test_created_at(
+        &runner,
+        site_id,
+        &default_holder,
+        OffsetDateTime::from_unix_timestamp(1_785_225_600)
+            .expect("fixture timestamp should be valid"),
+    )
+    .await;
+    let default_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({"site_id": site_id, "page": default_holder}),
+    )
+    .expect("PageCalendar default holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": default_page.page_category_id,
+            "page_id": default_page.page_id,
+        }),
+    );
+
+    let holder_page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": holder,
+        }),
+    )
+    .expect("PageCalendar URL holder should exist");
+    let page_info = PageInfo {
+        page: Cow::Borrowed(holder),
+        category: None,
+        site: Cow::Borrowed("scp-wiki"),
+        title: Cow::Borrowed("Fixture PageCalendar URL Holder"),
+        alt_title: None,
+        score: ScoreValue::Integer(0),
+        tags: Vec::new(),
+        language: Cow::Borrowed("en"),
+    };
+    let page_id = PageId {
+        site_id,
+        category_id: holder_page.page_category_id,
+        page_id: holder_page.page_id,
+    };
+    let source = format!(
+        concat!(
+            "PAGECALENDAR_URL_START\n\n",
+            "TAGS_START\n",
+            "[[module PageCalendar category=\"{category}\" tags=\"+{tag_required} -{tag_excluded} {tag_any_one} {tag_any_two}\" targetPage=\"{target}\"]]\n",
+            "TAGS_END\n\n",
+            "TAGS_COMMA_START\n",
+            "[[module PageCalendar category=\"{category}\" tags=\"+{tag_required},-{tag_excluded},{tag_any_one},{tag_any_two}\" targetPage=\"{target}\"]]\n",
+            "TAGS_COMMA_END\n\n",
+            "URL_DEFAULT_START\n",
+            "[[module PageCalendar category=\"@URL|{category}\" tags=\"@URL|+{tag_required}\" targetPage=\"{target}\" urlAttrPrefix=\"lp\"]]\n",
+            "URL_DEFAULT_END\n\n",
+            "PAGECALENDAR_URL_END",
+        ),
+        category = category,
+        target = target,
+        tag_required = tag_required,
+        tag_excluded = tag_excluded,
+        tag_any_one = tag_any_one,
+        tag_any_two = tag_any_two,
+    );
+    let url_arguments = vec![
+        UrlArgumentPair {
+            name: "lp_category".to_owned(),
+            value: Some(other_category.to_owned()),
+        },
+        UrlArgumentPair {
+            name: "lp_tags".to_owned(),
+            value: Some(format!("+{tag_required}")),
+        },
+        UrlArgumentPair {
+            name: "lp_date".to_owned(),
+            value: Some("2026.7".to_owned()),
+        },
+    ];
+    let output = RenderService::render_page(
+        runner.context(),
+        source,
+        &page_info,
+        Layout::Wikidot,
+        page_id,
+        UrlArguments {
+            path_arguments: &url_arguments,
+            ..UrlArguments::default()
+        },
+    )
+    .await
+    .expect("PageCalendar URL render should succeed");
+    let html = output.html_output.body;
+
+    let tags = section(&html, "TAGS_START", "TAGS_END");
+    assert!(
+        tags.contains(r#">2026 (4)</a>"#)
+            && tags.contains(&format!(
+                r#"href="/{target}/tag/ {tag_required} -{tag_excluded} {tag_any_one} {tag_any_two}/date/2026""#
+            )),
+        "live PageCalendar ignores tags for counts but carries the tag expression in generated paths with plus signs replaced by spaces:\n{html}",
+    );
+
+    let tags_comma = section(&html, "TAGS_COMMA_START", "TAGS_COMMA_END");
+    assert!(
+        tags_comma.contains(r#">2026 (4)</a>"#)
+            && tags_comma.contains(&format!(
+                r#"href="/{target}/tag/ {tag_required},-{tag_excluded},{tag_any_one},{tag_any_two}/date/2026""#
+            )),
+        "live PageCalendar preserves comma-separated tag expressions in generated paths except for leading plus-to-space conversion:\n{html}",
+    );
+
+    let url_default = section(&html, "URL_DEFAULT_START", "URL_DEFAULT_END");
+    assert!(
+        url_default.contains(r#">2026 (1)</a>"#)
+            && url_default.contains(&format!(
+                r#"href="/{target}/lp_tag/ {tag_required}/lp_category/{other_category}/lp_date/2026""#
+            ))
+            && url_default.contains(r#"<li class="selected">"#)
+            && url_default.contains(r#"lp_date/2026.7">July (1)</a>"#),
+        "PageCalendar @URL category and tags should read prefixed URL args and propagate them to generated links:\n{html}",
+    );
+
+    let default_html =
+        load_listpages_test_compiled_html(&runner, site_id, &default_holder).await;
+    let default = section(&default_html, "DEFAULT_START", "DEFAULT_END");
+    assert!(
+        default.contains(r#">2026 (3)</a>"#)
+            && default.contains(&format!(r#"href="/{default_holder}/date/2026""#)),
+        "omitted category should default to the current page category and include the holder page itself:\n{default_html}",
+    );
+
+    let default_target =
+        section(&default_html, "DEFAULT_TARGET_START", "DEFAULT_TARGET_END");
+    assert!(
+        default_target.contains(&format!(r#"href="/{target}/d_date/2026""#)),
+        "default-category PageCalendar should still honor targetPage and urlAttrPrefix:\n{default_html}",
     );
 }
 

@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-29",
-  "catalog_sha256": "d7991250d5e30b76a1435489da82ddfe21445a210345a96dd9231d7c2df5d1dc",
+  "catalog_sha256": "b291114a3e6d3945ccf6253026bfe5c704c7c9f8cfcd8cad8e92a62246f9511d",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -907,15 +907,15 @@
       "live_oracle_evidence": [],
       "unresolved_ambiguities_or_blockers": []
     },
-  "module-listpages": {
-    "status": "implemented",
-    "confirmed_public_seams": [
-      "Anonymous PagePreviewModule and run-owned saved-page live Wikidot oracle",
-      "Deepwell public saved-page, preview, and AJAX ListPages render/query interfaces",
-      "Framerail public HTTP ListPages feed and page routes",
-      "Served-page Playwright browser navigation boundary",
-      "FTML public parser/layout interface for syntax-owned discrepancies only"
-    ],
+    "module-listpages": {
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Anonymous PagePreviewModule and run-owned saved-page live Wikidot oracle",
+        "Deepwell public saved-page, preview, and AJAX ListPages render/query interfaces",
+        "Framerail public HTTP ListPages feed and page routes",
+        "Served-page Playwright browser navigation boundary",
+        "FTML public parser/layout interface for syntax-owned discrepancies only"
+      ],
       "tests": [
         {
           "path": "deepwell/tests/list_pages.rs",
@@ -925,14 +925,14 @@
           "path": "deepwell/tests/page.rs",
           "scope": "public saved-page, preview, URL, pagination, query, permission, CountPages-in-body limitation, and rendering integration tests"
         },
-      {
-        "path": "framerail/tests/list-pages-feed.test.ts",
-        "scope": "public feed-route parsing and RSS response behavior"
-      },
-      {
-        "path": "framerail/tests/list-pages-navigation.spec.ts",
-        "scope": "public served-page direct load, reload, pager, and browser history behavior"
-      },
+        {
+          "path": "framerail/tests/list-pages-feed.test.ts",
+          "scope": "public feed-route parsing and RSS response behavior"
+        },
+        {
+          "path": "framerail/tests/list-pages-navigation.spec.ts",
+          "scope": "public served-page direct load, reload, pager, and browser history behavior"
+        },
         {
           "path": "install/local/wikidot-verification/tests",
           "scope": "corpus inventory, generated matrix, live differential, regression accounting, RSS, and navigation verifier tests"
@@ -955,12 +955,12 @@
         "install/local/wikidot-verification/artifacts/listpages-campaign-inventory/corpus-listpages-invocations.jsonl",
         "install/local/wikidot-verification/artifacts/listpages-campaign-inventory/corpus-listpages-clusters.json"
       ],
-    "live_oracle_evidence": [
-      "install/local/wikidot-verification/artifacts/listpages-campaign-live-fixture-classification.json",
-      "install/local/wikidot-verification/artifacts/listpages-campaign-live-fixtures-navigation-rerun.jsonl",
-      "install/local/wikidot-verification/artifacts/listpages-campaign-generated-preview-reconciliation.json",
-      "install/local/wikidot-verification/artifacts/listpages-campaign-feed-endpoint-live.jsonl",
-      "install/local/wikidot-verification/artifacts/listpages-campaign-rss-live-preview.jsonl",
+      "live_oracle_evidence": [
+        "install/local/wikidot-verification/artifacts/listpages-campaign-live-fixture-classification.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-live-fixtures-navigation-rerun.jsonl",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-generated-preview-reconciliation.json",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-feed-endpoint-live.jsonl",
+        "install/local/wikidot-verification/artifacts/listpages-campaign-rss-live-preview.jsonl",
         "install/local/wikidot-verification/artifacts/listpages-campaign-rss-selector-live-preview.jsonl",
         "install/local/wikidot-verification/artifacts/listpages-campaign-hash-magic-reconciliation.json",
         "install/local/wikidot-verification/artifacts/listpages-campaign-navigation-coverage.json",
@@ -1166,14 +1166,30 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-pagecalendar": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell page_get with details.compiled=true after saved-page rendering through the real parser, renderer, test database, permissions, and page-view interface",
+        "RenderService::render_page with UrlArguments for direct URL-path argument behavior through the real parser, renderer, test database, and permission checks",
+        "deepwell/src/services/render/url_arguments.rs runtime-render and URL-argument dependency detection for PageCalendar page views"
+      ],
+      "tests": [
+        "deepwell/tests/page.rs::pagecalendar_module_renders_live_category_links_and_counts",
+        "deepwell/tests/page.rs::pagecalendar_module_matches_live_tag_url_and_current_category_quirks",
+        "deepwell/src/services/render/url_arguments.rs::tests::a_page_calendar_module_reads_url_arguments_and_requires_runtime_rendering"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/runtime_modules.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/src/services/render/url_arguments.rs",
+        "deepwell/src/services/render/diagnostics.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-pagecalendar.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "live-observations.json::pagecalendar-live-dom-url-and-tag-filter-quirks",
+        "install/local/wikidot-verification/artifacts/pagecalendar-module-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-pageoptionsbottom": {

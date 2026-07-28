@@ -40,6 +40,8 @@ use std::sync::LazyLock;
 /// narrowly would serve the stored HTML and drop the argument entirely.
 static LIST_PAGES_URL_SELECTOR_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[\s*module\s+listpages\b[^\]]*@url").unwrap());
+static PAGE_CALENDAR_MODULE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?is)\[\[\s*module\s+pagecalendar\b").unwrap());
 
 /// One raw URL path argument addressed to a page module.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -148,6 +150,7 @@ static LIST_PAGES_MODULE_REGEX: LazyLock<Regex> =
 pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
         || PAGES_BY_TAG_MODULE_REGEX.is_match(wikitext)
+        || PAGE_CALENDAR_MODULE_REGEX.is_match(wikitext)
         || LIST_PAGES_URL_SELECTOR_REGEX.is_match(wikitext)
         || NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX.is_match(wikitext)
         || LIST_PAGES_MODULE_REGEX.is_match(wikitext)
@@ -162,6 +165,7 @@ pub fn wikitext_requires_runtime_render(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
         || CHILD_PAGES_MODULE_REGEX.is_match(wikitext)
         || NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX.is_match(wikitext)
+        || PAGE_CALENDAR_MODULE_REGEX.is_match(wikitext)
 }
 
 fn wikitext_has_bare_pages_module(wikitext: &str) -> bool {
@@ -204,6 +208,16 @@ mod tests {
         ));
         assert!(!wikitext_requires_runtime_render(
             "[[module Pages limit=\"5\"]]"
+        ));
+    }
+
+    #[test]
+    fn a_page_calendar_module_reads_url_arguments_and_requires_runtime_rendering() {
+        assert!(wikitext_reads_url_arguments(
+            r#"[[module PageCalendar category="@URL|news"]]"#
+        ));
+        assert!(wikitext_requires_runtime_render(
+            r#"[[module PageCalendar category="news"]]"#
         ));
     }
 

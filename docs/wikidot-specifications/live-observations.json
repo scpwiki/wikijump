@@ -503,6 +503,53 @@
       ]
     },
     {
+      "id": "pagecalendar-live-dom-url-and-tag-filter-quirks",
+      "title": "PageCalendar renders live calendar DOM, target/date URLs, category selection, @URL propagation, and tag-filter quirks",
+      "feature_ids": [
+        "module-pagecalendar"
+      ],
+      "classification": "documentation-correction",
+      "observed_at": "2026-07-29",
+      "analysis": "The PageCalendar documentation describes category and tag selectors but does not define emitted DOM, link ordering, selected-state classes, duplicate-argument precedence, empty or missing category errors, or the observed tag behavior. Controlled run-owned sandbox pages show that PageCalendar emits a div.page-calendar-box with nested ul/li anchors grouped by creation year and month, uses targetPage or startPage for generated date links, prefixes generated argument names with urlAttrPrefix, accepts comma- and whitespace-separated category lists, and treats duplicate category attributes with last-value precedence. An empty or nonexistent explicit category renders Wikidot's error-block text. Contrary to the documentation, the tags attribute does not filter calendar counts in the observed live cases; it is propagated into generated /tag/ or prefixed /PREFIX_tag/ path arguments with plus signs replaced by spaces while preserving other punctuation such as commas. A category=\"@URL|fallback\" selector reads prefixed category URL path arguments and carries the resolved URL category forward in generated links, while the fallback category is not carried as a generated category segment. Live date URL navigation marks the selected year li for /date/YYYY and the selected month li for /date/YYYY.M.",
+      "normative_behavior": [
+        "PageCalendar accepts documented arguments category, tags, startPage, targetPage, and urlAttrPrefix.",
+        "A PageCalendar render emits div.page-calendar-box containing a nested ul tree. Top-level li entries represent years and nested li entries represent months.",
+        "Years and months are ordered descending by creation date. Anchor labels are '<year> (<count>)' and '<English month name> (<count>)'. Month date path values use an unpadded numeric month such as 2026.7.",
+        "Omitted category defaults to the current page category. The current page itself is counted when it belongs to that category and is viewable.",
+        "category accepts comma- and whitespace-separated category names. '*' selects the whole site. An empty or nonexistent explicit category renders div.error-block with text 'The requested categories do not (yet) exist.'.",
+        "targetPage and startPage select the page used as the generated-link target. targetPage='' falls back to the current page. startPage is a compatibility alias for targetPage.",
+        "urlAttrPrefix prefixes generated argument names, producing date segments such as /lp_date/2026 and /lp_date/2026.7.",
+        "Duplicate category attributes use last-value precedence in the observed live fixture.",
+        "In observed live behavior, tags does not filter calendar counts despite the documentation saying it is a selection criterion.",
+        "When tags is present, PageCalendar carries the tag expression into generated links before date segments using the singular argument name tag, or PREFIX_tag with urlAttrPrefix. Plus signs in the tag expression are replaced by spaces in the generated href, while other punctuation such as commas is preserved.",
+        "category='@URL|fallback' and tags='@URL|fallback' read prefixed URL path arguments when urlAttrPrefix is present. A category value resolved from the URL is carried forward in generated links before the date segment; a fallback category is not carried forward.",
+        "When the current URL supplies date YYYY, the matching year li has class='selected'. When the URL supplies date YYYY.M, the matching month li has class='selected' and the year li is not selected."
+      ],
+      "evidence": [
+        {
+          "path": "install/local/wikidot-verification/artifacts/pagecalendar-module-live.json",
+          "sha256": "79f4ff732fb44d6a5cb73f4e51492e36a8830b2cfc3b554a58bb62c40233ba99",
+          "case_ids": [
+            "explicit-category",
+            "target-prefix",
+            "startpage-alias",
+            "tags-space",
+            "tags-comma",
+            "multi-category-space",
+            "multi-category-comma",
+            "empty-category",
+            "duplicate-category",
+            "empty-target",
+            "url-default-no-args",
+            "url-category-path",
+            "url-tags-path",
+            "default-current-category",
+            "default-target-prefix"
+          ]
+        }
+      ]
+    },
+    {
       "id": "tagcloud-live-dom-url-style-and-legacy-3d",
       "title": "TagCloud renders live DOM anchors, URL arguments, style interpolation, error blocks, and legacy 3D SWF wrapper",
       "feature_ids": [
