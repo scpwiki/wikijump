@@ -1,3 +1,11 @@
+//! Code generation for the `RelationService`.
+//!
+//! Overall, generated code can be divided into two groups,
+//! struct definitions and method implementations. The expansion
+//! contains all the generated methods in a `impl RelationService`,
+//! and then has all the defined structs afterwards, per the options.
+//! (Some generation is disabled or modified based on the settings.)
+
 use crate::parse::RelationSettings;
 use crate::types::{GenerateMethod, RelationObjectType};
 use crate::util::make_ident;

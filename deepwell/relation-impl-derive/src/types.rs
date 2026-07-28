@@ -1,3 +1,5 @@
+//! Helper structures in settings parsing and code generation.
+
 use crate::util::{make_error, make_ident};
 use proc_macro2::{Punct, Spacing, Span, TokenStream};
 use quote::{ToTokens, TokenStreamExt};

@@ -1,3 +1,5 @@
+//! Miscellaneous utilities.
+
 use proc_macro2::Span;
 use std::fmt::Display;
 use syn::{Ident, Type};
