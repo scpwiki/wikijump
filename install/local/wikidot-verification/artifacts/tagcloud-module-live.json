@@ -1,0 +1,241 @@
+{
+  "base_url": "http://sandbox-for-codex.wikidot.com",
+  "captured_at": "2026-07-28T15:32:17.073906+00:00",
+  "cases": [
+    {
+      "case_id": "category-default",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tc-6a68cb81-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tc-6a68cb81-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tc-6a68cb81-shared</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "marker_end": "DEFAULT_CAT_END",
+      "marker_start": "DEFAULT_CAT_START",
+      "summary": {
+        "bytes": 600,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_alpha_tag": true,
+        "contains_beta_tag": true,
+        "contains_hidden_tag": false,
+        "contains_shared_tag": true,
+        "hrefs": [
+          "/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "tag_anchor_count": 3,
+        "text": "tc-6a68cb81-alpha tc-6a68cb81-beta tc-6a68cb81-shared"
+      }
+    },
+    {
+      "case_id": "category-show-hidden-true",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tc-6a68cb81-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tc-6a68cb81-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/_tc-6a68cb81-hidden/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>_tc-6a68cb81-hidden</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tc-6a68cb81-shared</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "marker_end": "SHOW_HIDDEN_END",
+      "marker_start": "SHOW_HIDDEN_START",
+      "summary": {
+        "bytes": 785,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_alpha_tag": true,
+        "contains_beta_tag": true,
+        "contains_hidden_tag": true,
+        "contains_shared_tag": true,
+        "hrefs": [
+          "/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/_tc-6a68cb81-hidden/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "tag_anchor_count": 4,
+        "text": "tc-6a68cb81-alpha tc-6a68cb81-beta _tc-6a68cb81-hidden tc-6a68cb81-shared"
+      }
+    },
+    {
+      "case_id": "custom-target-prefix-skip-category",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-6a68cb81:target/lp_tag/tc-6a68cb81-alpha\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tc-6a68cb81-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-6a68cb81:target/lp_tag/tc-6a68cb81-beta\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tc-6a68cb81-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-6a68cb81:target/lp_tag/tc-6a68cb81-shared\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tc-6a68cb81-shared</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "marker_end": "CUSTOM_LINK_END",
+      "marker_start": "CUSTOM_LINK_START",
+      "summary": {
+        "bytes": 552,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_alpha_tag": true,
+        "contains_beta_tag": true,
+        "contains_hidden_tag": false,
+        "contains_shared_tag": true,
+        "hrefs": [
+          "/tagcloud-6a68cb81:target/lp_tag/tc-6a68cb81-alpha",
+          "/tagcloud-6a68cb81:target/lp_tag/tc-6a68cb81-beta",
+          "/tagcloud-6a68cb81:target/lp_tag/tc-6a68cb81-shared"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "tag_anchor_count": 3,
+        "text": "tc-6a68cb81-alpha tc-6a68cb81-beta tc-6a68cb81-shared"
+      }
+    },
+    {
+      "case_id": "custom-style",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 10px; color: rgb(1, 2, 3);\"\n\t\t\t\t\t>tc-6a68cb81-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 15px; color: rgb(101, 106, 112);\"\n\t\t\t\t\t>tc-6a68cb81-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 20px; color: rgb(200, 210, 220);\"\n\t\t\t\t\t>tc-6a68cb81-shared</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "marker_end": "CUSTOM_STYLE_END",
+      "marker_start": "CUSTOM_STYLE_START",
+      "summary": {
+        "bytes": 598,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_alpha_tag": true,
+        "contains_beta_tag": true,
+        "contains_hidden_tag": false,
+        "contains_shared_tag": true,
+        "hrefs": [
+          "/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81"
+        ],
+        "styles": [
+          "font-size: 10px; color: rgb(1, 2, 3);",
+          "font-size: 15px; color: rgb(101, 106, 112);",
+          "font-size: 20px; color: rgb(200, 210, 220);"
+        ],
+        "tag_anchor_count": 3,
+        "text": "tc-6a68cb81-alpha tc-6a68cb81-beta tc-6a68cb81-shared"
+      }
+    },
+    {
+      "case_id": "limit-two",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tc-6a68cb81-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tc-6a68cb81-beta</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "marker_end": "LIMIT_END",
+      "marker_start": "LIMIT_START",
+      "summary": {
+        "bytes": 419,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag"
+        ],
+        "contains_alpha_tag": true,
+        "contains_beta_tag": true,
+        "contains_hidden_tag": false,
+        "contains_shared_tag": false,
+        "hrefs": [
+          "/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "tag_anchor_count": 2,
+        "text": "tc-6a68cb81-alpha tc-6a68cb81-beta"
+      }
+    },
+    {
+      "case_id": "invalid-limit-zero-and-partial-style",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tc-6a68cb81-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tc-6a68cb81-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/_tc-6a68cb81-hidden/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>_tc-6a68cb81-hidden</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tc-6a68cb81-shared</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "marker_end": "INVALID_END",
+      "marker_start": "INVALID_START",
+      "summary": {
+        "bytes": 785,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_alpha_tag": true,
+        "contains_beta_tag": true,
+        "contains_hidden_tag": true,
+        "contains_shared_tag": true,
+        "hrefs": [
+          "/system:page-tags/tag/tc-6a68cb81-alpha/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-beta/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/_tc-6a68cb81-hidden/category/tagcloud-6a68cb81",
+          "/system:page-tags/tag/tc-6a68cb81-shared/category/tagcloud-6a68cb81"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "tag_anchor_count": 4,
+        "text": "tc-6a68cb81-alpha tc-6a68cb81-beta _tc-6a68cb81-hidden tc-6a68cb81-shared"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "fullname": "tagcloud-6a68cb81:holder",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-6a68cb81:target",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-other-6a68cb81:outside",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-6a68cb81:gamma",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-6a68cb81:beta",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-6a68cb81:alpha",
+      "status": "deleted"
+    }
+  ],
+  "fixture": {
+    "category": "tagcloud-6a68cb81",
+    "other_category": "tagcloud-other-6a68cb81",
+    "tags": {
+      "alpha": "tc-6a68cb81-alpha",
+      "beta": "tc-6a68cb81-beta",
+      "hidden": "_tc-6a68cb81-hidden",
+      "shared": "tc-6a68cb81-shared"
+    }
+  },
+  "holder": {
+    "document_bytes": 27840,
+    "document_sha256": "d40f82d103abf289441709bc730243d16b17962b6ad0a19260405cfac6b8b49d",
+    "fullname": "tagcloud-6a68cb81:holder",
+    "url": "http://sandbox-for-codex.wikidot.com/tagcloud-6a68cb81:holder"
+  },
+  "run_id": "tagcloud-live-6a68cb81",
+  "schema": "wikijump.wikidot_live_tagcloud_module.v1",
+  "site": "sandbox-for-codex",
+  "source": "TAGCLOUD_LIVE_PROBE tagcloud-live-6a68cb81\n\nDEFAULT_CAT_START\n[[module TagCloud category=\"tagcloud-6a68cb81\"]]\nDEFAULT_CAT_END\n\nSHOW_HIDDEN_START\n[[module TagCloud category=\"tagcloud-6a68cb81\" showHidden=\"true\"]]\nSHOW_HIDDEN_END\n\nCUSTOM_LINK_START\n[[module TagCloud category=\"tagcloud-6a68cb81\" target=\"tagcloud-6a68cb81:target\" urlAttrPrefix=\"lp\" skipCategoryFromUrl=\"true\"]]\nCUSTOM_LINK_END\n\nCUSTOM_STYLE_START\n[[module TagCloud category=\"tagcloud-6a68cb81\" minFontSize=\"10px\" maxFontSize=\"20px\" minColor=\"1,2,3\" maxColor=\"200,210,220\"]]\nCUSTOM_STYLE_END\n\nLIMIT_START\n[[module TagCloud category=\"tagcloud-6a68cb81\" limit=\"2\"]]\nLIMIT_END\n\nINVALID_START\n[[module TagCloud category=\"tagcloud-6a68cb81\" limit=\"0\" showHidden=\"false\" maxFontSize=\"2em\"]]\nINVALID_END\n"
+}

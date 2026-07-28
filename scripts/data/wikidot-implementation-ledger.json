@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
-  "updated_at": "2026-07-28",
-  "catalog_sha256": "825892bb5cc578020c58db2df36871a2cd3f692edb324baa89b47524fac2fe63",
+  "updated_at": "2026-07-29",
+  "catalog_sha256": "d7991250d5e30b76a1435489da82ddfe21445a210345a96dd9231d7c2df5d1dc",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -1415,14 +1415,29 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-tagcloud": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell page_get with details.compiled=true after saved-page rendering through the real parser, renderer, test database, permissions, and page-view interface"
+      ],
+      "tests": [
+        "deepwell/tests/page.rs::tagcloud_module_renders_live_category_links_styles_and_boolean_quirks",
+        "deepwell/tests/page.rs::tagcloud_module_renders_live_sitewide_skip_3d_and_color_error"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/runtime_modules.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/src/services/render/list_pages/mod.rs",
+        "deepwell/src/services/render/list_pages/presentation.rs",
+        "deepwell/src/services/render/service/tests.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-tagcloud.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "live-observations.json::tagcloud-live-dom-url-style-and-legacy-3d",
+        "install/local/wikidot-verification/artifacts/tagcloud-module-live.json",
+        "install/local/wikidot-verification/artifacts/tagcloud-module-edge-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-themepreviewer": {

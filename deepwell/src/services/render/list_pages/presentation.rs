@@ -160,49 +160,6 @@ pub(in crate::services::render) fn percent_encode_list_pages_href_bytes(
     encoded
 }
 
-pub(in crate::services::render) fn render_tag_cloud_box(
-    tags: &[(String, usize)],
-) -> String {
-    let max_count = tags.iter().map(|(_, count)| *count).max().unwrap_or(1);
-    let mut output = String::from("[[div class=\"pages-tag-cloud-box\"]]\n");
-
-    for (tag, count) in tags {
-        let weight = if max_count <= 1 {
-            1.0
-        } else {
-            0.5 + ((*count as f32 / max_count as f32) * 2.5)
-        };
-        let tag_path =
-            format!("/system:page-tags/tag/{}", escape_list_pages_html_attr(tag));
-        output.push_str(&format!(
-            r#"[[span class="tag" style="font-size: {weight:.2}em;"]][{tag_path} {tag_text}][[/span]] "#,
-            tag_text = escape_list_pages_html_text(tag),
-        ));
-    }
-
-    output.push_str("\n[[/div]]");
-    output
-}
-
-pub(in crate::services::render) fn is_tag_cloud_visible_tag(tag: &str) -> bool {
-    let tag = tag.trim();
-    !tag.is_empty()
-        && !tag.starts_with('_')
-        && !tag.starts_with("codex-")
-        && !tag.starts_with("branch-")
-        && !tag.starts_with("feature-")
-        && !matches!(
-            tag,
-            "declared-universe"
-                | "declared-universe-include-support"
-                | "verification"
-                | "preview"
-                | "ui-authoring"
-                | "edited"
-                | "fragment"
-        )
-}
-
 pub(in crate::services::render) fn is_list_pages_visible_tag(tag: &str) -> bool {
     let tag = tag.trim();
     !tag.is_empty() && !tag.starts_with('_')

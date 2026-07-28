@@ -45,7 +45,7 @@ use super::super::list_pages::{
     page_query_cap_requires_original_module, parse_list_pages_arguments,
     parse_list_pages_arguments_with_url, parse_list_pages_date_selector,
     preserve_list_pages_following_paragraph_boundary, push_list_pages_pager,
-    register_generated_list_pages_html, render_list_pages_tags, render_tag_cloud_box,
+    register_generated_list_pages_html, render_list_pages_tags,
     requested_page_info_score, should_render_current_page_list_pages_row,
     substitute_count_pages_variables, substitute_list_pages_variables,
     unsupported_list_pages_replacement, url_offset_list_pages_content_bytes,
@@ -1974,19 +1974,6 @@ fn repeated_score_selectors_are_bounded_and_preserved_when_over_limit() {
     assert_eq!(arguments.score.len(), MAX_PAGE_QUERY_SCORE_SELECTORS);
     assert!(arguments.unsupported_score_filter);
     assert!(count_pages_should_remain_literal(&arguments));
-}
-
-#[test]
-fn renders_wikidot_tag_cloud_box_links() {
-    let html =
-        render_tag_cloud_box(&[("scp".to_owned(), 10), ("needs<escape".to_owned(), 1)]);
-
-    assert!(html.contains(r#"[[div class="pages-tag-cloud-box"]]"#));
-    assert!(html.contains(r#"class="tag""#));
-    assert!(html.contains(r#"[/system:page-tags/tag/scp scp]"#));
-    assert!(html.contains("needs&lt;escape"));
-    assert!(!html.contains("[[module TagCloud"));
-    assert!(!html.contains("<a class="));
 }
 
 #[test]

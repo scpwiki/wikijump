@@ -61,9 +61,8 @@ pub(super) use self::presentation::{
     substitute_list_pages_variables,
 };
 pub(super) use self::presentation::{
-    is_list_pages_visible_tag, is_tag_cloud_visible_tag, list_pages_created_by_unix,
-    list_pages_parent_fullname, list_pages_revision_count,
-    render_list_pages_wikidot_user, render_tag_cloud_box,
+    is_list_pages_visible_tag, list_pages_created_by_unix, list_pages_parent_fullname,
+    list_pages_revision_count, render_list_pages_wikidot_user,
     restore_list_pages_literal_ellipsis_markers, substitute_count_pages_variables,
 };
 pub(super) use self::rendering::{

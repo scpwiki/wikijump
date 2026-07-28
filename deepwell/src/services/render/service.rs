@@ -1150,8 +1150,10 @@ impl RenderService {
                 ctx,
                 wikitext,
                 page_info,
+                settings,
                 current_site_id,
                 current_page_id,
+                &mut wikidot_compat_html,
             )
             .await
             .or_raise(make_error)?

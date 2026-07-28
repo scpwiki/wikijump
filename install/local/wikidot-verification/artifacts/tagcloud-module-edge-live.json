@@ -1,0 +1,696 @@
+{
+  "base_url": "http://sandbox-for-codex.wikidot.com",
+  "captured_at": "2026-07-28T15:34:00.602697+00:00",
+  "cases": [
+    {
+      "case_id": "omitted-category",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/cgmodcat\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>cgmodcat</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-alpha\"\n\t\t\t\t\tstyle=\"font-size: 283%; color: rgb(69, 69, 133);\"\n\t\t\t\t\t>codex-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-beta\"\n\t\t\t\t\tstyle=\"font-size: 233%; color: rgb(85, 85, 149);\"\n\t\t\t\t\t>codex-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-bf-260527-0016-linker\"\n\t\t\t\t\tstyle=\"font-size: 150%; color: rgb(112, 112, 176);\"\n\t\t\t\t\t>codex-bf-260527-0016-linker</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-bf-260527-0016-measure\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-bf-260527-0016-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-bf-260527-0016-run\"\n\t\t\t\t\tstyle=\"font-size: 217%; color: rgb(91, 91, 155);\"\n\t\t\t\t\t>codex-bf-260527-0016-run</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-bf-260527-0016-target\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-bf-260527-0016-target</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-child\"\n\t\t\t\t\tstyle=\"font-size: 183%; color: rgb(101, 101, 165);\"\n\t\t\t\t\t>codex-child</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-child-only\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-child-only</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-cl-20260526-alpha\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-cl-20260526-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-cl-20260526-beta\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-cl-20260526-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-cl-20260526-exclude\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-cl-20260526-exclude</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-cl-20260526-gamma\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-cl-20260526-gamma</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-cl-20260526-run\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-cl-20260526-run</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-cl-20260526-shared\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-cl-20260526-shared</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-clf-260526-2340-alpha\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-clf-260526-2340-alpha</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-clf-260526-2340-beta\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-clf-260526-2340-beta</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-clf-260526-2340-exclude\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-clf-260526-2340-exclude</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-clf-260526-2340-gamma\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-clf-260526-2340-gamma</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-clf-260526-2340-run\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-clf-260526-2340-run</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-clf-260526-2340-shared\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-clf-260526-2340-shared</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codexcountpagesnested1785238741\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codexcountpagesnested1785238741</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfcol-measure\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfcol-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfcol-run-dfcol04\"\n\t\t\t\t\tstyle=\"font-size: 167%; color: rgb(107, 107, 171);\"\n\t\t\t\t\t>codex-dfcol-run-dfcol04</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdf-measure\"\n\t\t\t\t\tstyle=\"font-size: 117%; color: rgb(123, 123, 187);\"\n\t\t\t\t\t>codex-dfdf-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdf-run-dfdf01\"\n\t\t\t\t\tstyle=\"font-size: 283%; color: rgb(69, 69, 133);\"\n\t\t\t\t\t>codex-dfdf-run-dfdf01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdf-run-dfdf02\"\n\t\t\t\t\tstyle=\"font-size: 283%; color: rgb(69, 69, 133);\"\n\t\t\t\t\t>codex-dfdf-run-dfdf02</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdpi-run-dfdpi01\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfdpi-run-dfdpi01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdp-public-include\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfdp-public-include</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdp-public-measure\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfdp-public-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdp-run-dfdp01\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>codex-dfdp-run-dfdp01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdt-measure\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfdt-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdt-run-dfdt01\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>codex-dfdt-run-dfdt01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdui-measure\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfdui-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfdui-run-dfdui01\"\n\t\t\t\t\tstyle=\"font-size: 233%; color: rgb(85, 85, 149);\"\n\t\t\t\t\t>codex-dfdui-run-dfdui01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfext-measure\"\n\t\t\t\t\tstyle=\"font-size: 117%; color: rgb(123, 123, 187);\"\n\t\t\t\t\t>codex-dfext-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfext-run-dfext01\"\n\t\t\t\t\tstyle=\"font-size: 183%; color: rgb(101, 101, 165);\"\n\t\t\t\t\t>codex-dfext-run-dfext01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfext-run-dfext03\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>codex-dfext-run-dfext03</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfof-measure\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfof-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfof-run-dfof01\"\n\t\t\t\t\tstyle=\"font-size: 217%; color: rgb(91, 91, 155);\"\n\t\t\t\t\t>codex-dfof-run-dfof01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfor-measure\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfor-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfor-run-dfor01\"\n\t\t\t\t\tstyle=\"font-size: 167%; color: rgb(107, 107, 171);\"\n\t\t\t\t\t>codex-dfor-run-dfor01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfot-measure\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>codex-dfot-measure</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfot-run-dfot01\"\n\t\t\t\t\tstyle=\"font-size: 250%; color: rgb(80, 80, 144);\"\n\t\t\t\t\t>codex-dfot-run-dfot01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfpic-run-dfpic01\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-dfpic-run-dfpic01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfpird-run-dfpird01\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-dfpird-run-dfpird01</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfpird-run-dfpird02\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-dfpird-run-dfpird02</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfpird-run-dfpird03\"\n\t\t\t\t\tstyle=\"font-size: 133%; color: rgb(117, 117, 181);\"\n\t\t\t\t\t>codex-dfpird-run-dfpird03</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/codex-dfpp-alpha\"\n\t\t\t\t\tstyle=\"font-size: 117%; color: rgb(123, 123, 187);\"\n\t\t\t\t\t>codex-dfpp-alpha</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 50,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": false,
+        "contains_b": false,
+        "contains_c": false,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/cgmodcat",
+          "/system:page-tags/tag/codex",
+          "/system:page-tags/tag/codex-alpha",
+          "/system:page-tags/tag/codex-beta",
+          "/system:page-tags/tag/codex-bf-260527-0016-linker",
+          "/system:page-tags/tag/codex-bf-260527-0016-measure",
+          "/system:page-tags/tag/codex-bf-260527-0016-run",
+          "/system:page-tags/tag/codex-bf-260527-0016-target",
+          "/system:page-tags/tag/codex-child",
+          "/system:page-tags/tag/codex-child-only",
+          "/system:page-tags/tag/codex-cl-20260526-alpha",
+          "/system:page-tags/tag/codex-cl-20260526-beta",
+          "/system:page-tags/tag/codex-cl-20260526-exclude",
+          "/system:page-tags/tag/codex-cl-20260526-gamma",
+          "/system:page-tags/tag/codex-cl-20260526-run",
+          "/system:page-tags/tag/codex-cl-20260526-shared",
+          "/system:page-tags/tag/codex-clf-260526-2340-alpha",
+          "/system:page-tags/tag/codex-clf-260526-2340-beta",
+          "/system:page-tags/tag/codex-clf-260526-2340-exclude",
+          "/system:page-tags/tag/codex-clf-260526-2340-gamma",
+          "/system:page-tags/tag/codex-clf-260526-2340-run",
+          "/system:page-tags/tag/codex-clf-260526-2340-shared",
+          "/system:page-tags/tag/codexcountpagesnested1785238741",
+          "/system:page-tags/tag/codex-dfcol-measure",
+          "/system:page-tags/tag/codex-dfcol-run-dfcol04",
+          "/system:page-tags/tag/codex-dfdf-measure",
+          "/system:page-tags/tag/codex-dfdf-run-dfdf01",
+          "/system:page-tags/tag/codex-dfdf-run-dfdf02",
+          "/system:page-tags/tag/codex-dfdpi-run-dfdpi01",
+          "/system:page-tags/tag/codex-dfdp-public-include",
+          "/system:page-tags/tag/codex-dfdp-public-measure",
+          "/system:page-tags/tag/codex-dfdp-run-dfdp01",
+          "/system:page-tags/tag/codex-dfdt-measure",
+          "/system:page-tags/tag/codex-dfdt-run-dfdt01",
+          "/system:page-tags/tag/codex-dfdui-measure",
+          "/system:page-tags/tag/codex-dfdui-run-dfdui01",
+          "/system:page-tags/tag/codex-dfext-measure",
+          "/system:page-tags/tag/codex-dfext-run-dfext01",
+          "/system:page-tags/tag/codex-dfext-run-dfext03",
+          "/system:page-tags/tag/codex-dfof-measure",
+          "/system:page-tags/tag/codex-dfof-run-dfof01",
+          "/system:page-tags/tag/codex-dfor-measure",
+          "/system:page-tags/tag/codex-dfor-run-dfor01",
+          "/system:page-tags/tag/codex-dfot-measure",
+          "/system:page-tags/tag/codex-dfot-run-dfot01",
+          "/system:page-tags/tag/codex-dfpic-run-dfpic01",
+          "/system:page-tags/tag/codex-dfpird-run-dfpird01",
+          "/system:page-tags/tag/codex-dfpird-run-dfpird02",
+          "/system:page-tags/tag/codex-dfpird-run-dfpird03",
+          "/system:page-tags/tag/codex-dfpp-alpha"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 283%; color: rgb(69, 69, 133);",
+          "font-size: 233%; color: rgb(85, 85, 149);",
+          "font-size: 150%; color: rgb(112, 112, 176);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 217%; color: rgb(91, 91, 155);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 183%; color: rgb(101, 101, 165);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 167%; color: rgb(107, 107, 171);",
+          "font-size: 117%; color: rgb(123, 123, 187);",
+          "font-size: 283%; color: rgb(69, 69, 133);",
+          "font-size: 283%; color: rgb(69, 69, 133);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 300%; color: rgb(64, 64, 128);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 233%; color: rgb(85, 85, 149);",
+          "font-size: 117%; color: rgb(123, 123, 187);",
+          "font-size: 183%; color: rgb(101, 101, 165);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 217%; color: rgb(91, 91, 155);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 167%; color: rgb(107, 107, 171);",
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 250%; color: rgb(80, 80, 144);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 133%; color: rgb(117, 117, 181);",
+          "font-size: 117%; color: rgb(123, 123, 187);"
+        ],
+        "text": "cgmodcat codex codex-alpha codex-beta codex-bf-260527-0016-linker codex-bf-260527-0016-measure codex-bf-260527-0016-run codex-bf-260527-0016-target codex-child codex-child-only codex-cl-20260526-alpha codex-cl-20260526-beta codex-cl-20260526-exclude codex-cl-20260526-gamma codex-cl-20260526-run codex-cl-20260526-shared codex-clf-260526-2340-alpha codex-clf-260526-2340-beta codex-clf-260526-2340-exclude codex-clf-260526-2340-gamma codex-clf-260526-2340-run codex-clf-260526-2340-shared codexcountpagesnested1785238741 codex-dfcol-measure codex-dfcol-run-dfcol04 codex-dfdf-measure codex-dfdf-run-dfdf01 codex-dfdf-run-dfdf02 codex-dfdpi-run-dfdpi01 codex-dfdp-public-include codex-dfdp-public-measure codex-dfdp-run-dfdp01 codex-dfdt-measure codex-dfdt-run-dfdt01 codex-dfdui-measure codex-dfdui-run-dfdui01 codex-dfext-measure codex-dfext-run-dfext01 codex-dfext-run-dfext03 codex-dfof-measure codex-dfof-run-dfof01 codex-dfor-measure codex-dfor-run-dfor01 codex-dfot-measure codex-dfot-run-dfot01 codex-dfpic-run-dfpic01 codex-dfpird-run-dfpird01 codex-dfpird-run-dfpird02 codex-dfpird-run-dfpird03 codex-dfpp-alpha"
+      }
+    },
+    {
+      "case_id": "show-true",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>_tce-6a68cbe8-hidden</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 4,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": true,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);",
+          "font-size: 100%; color: rgb(128, 128, 192);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c _tce-6a68cbe8-hidden"
+      }
+    },
+    {
+      "case_id": "show-yes",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>_tce-6a68cbe8-hidden</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 4,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": true,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);",
+          "font-size: 100%; color: rgb(128, 128, 192);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c _tce-6a68cbe8-hidden"
+      }
+    },
+    {
+      "case_id": "show-false",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>_tce-6a68cbe8-hidden</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 4,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": true,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);",
+          "font-size: 100%; color: rgb(128, 128, 192);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c _tce-6a68cbe8-hidden"
+      }
+    },
+    {
+      "case_id": "show-no",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>_tce-6a68cbe8-hidden</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 4,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": true,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/_tce-6a68cbe8-hidden/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);",
+          "font-size: 100%; color: rgb(128, 128, 192);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c _tce-6a68cbe8-hidden"
+      }
+    },
+    {
+      "case_id": "show-empty",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "limit-zero",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "limit-neg",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "limit-text",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "limit-one",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 1,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": false,
+        "contains_c": false,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);"
+        ],
+        "text": "tce-6a68cbe8-a"
+      }
+    },
+    {
+      "case_id": "target-with-category",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "prefix-with-category",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/lp_tag/tce-6a68cbe8-a/lp_category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/lp_tag/tce-6a68cbe8-b/lp_category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/lp_tag/tce-6a68cbe8-c/lp_category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/tagcloud-edge-6a68cbe8:target/lp_tag/tce-6a68cbe8-a/lp_category/tagcloud-edge-6a68cbe8",
+          "/tagcloud-edge-6a68cbe8:target/lp_tag/tce-6a68cbe8-b/lp_category/tagcloud-edge-6a68cbe8",
+          "/tagcloud-edge-6a68cbe8:target/lp_tag/tce-6a68cbe8-c/lp_category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "skip-true-no-prefix",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-a\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-b\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-c\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-a",
+          "/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-b",
+          "/tagcloud-edge-6a68cbe8:target/tag/tce-6a68cbe8-c"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "only-max-font",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "mismatch-font-units",
+      "html": "</p>\n<div class=\"error-block\">Format for minFontSize and maxFontSize must be the same (px, em, pt or %).</div>\n<p>",
+      "summary": {
+        "anchor_count": 0,
+        "classes": [
+          "error-block"
+        ],
+        "contains_a": false,
+        "contains_b": false,
+        "contains_c": false,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [],
+        "styles": [],
+        "text": "Format for minFontSize and maxFontSize must be the same (px, em, pt or %)."
+      }
+    },
+    {
+      "case_id": "only-min-color",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 100%; color: rgb(128, 128, 192);\"\n\t\t\t\t\t>tce-6a68cbe8-a</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 200%; color: rgb(96, 96, 160);\"\n\t\t\t\t\t>tce-6a68cbe8-b</a>\n\t\t\t\t\t\t\t<a class=\"tag\" href=\"/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\"\n\t\t\t\t\tstyle=\"font-size: 300%; color: rgb(64, 64, 128);\"\n\t\t\t\t\t>tce-6a68cbe8-c</a>\n\t\t\t\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 3,
+        "classes": [
+          "pages-tag-cloud-box",
+          "tag",
+          "tag",
+          "tag"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [
+          "/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "font-size: 100%; color: rgb(128, 128, 192);",
+          "font-size: 200%; color: rgb(96, 96, 160);",
+          "font-size: 300%; color: rgb(64, 64, 128);"
+        ],
+        "text": "tce-6a68cbe8-a tce-6a68cbe8-b tce-6a68cbe8-c"
+      }
+    },
+    {
+      "case_id": "bad-color",
+      "html": "</p>\n<div class=\"error-block\">Unsupported color format. Use \"RRR,GGG,BBB\" for Red,Green,Blue each within 0-255 range.</div>\n<p>",
+      "summary": {
+        "anchor_count": 0,
+        "classes": [
+          "error-block"
+        ],
+        "contains_a": false,
+        "contains_b": false,
+        "contains_c": false,
+        "contains_hidden": false,
+        "has_flash": false,
+        "hrefs": [],
+        "styles": [],
+        "text": "Unsupported color format. Use \"RRR,GGG,BBB\" for Red,Green,Blue each within 0-255 range."
+      }
+    },
+    {
+      "case_id": "mode-3d",
+      "html": "</p>\n\t<div class=\"pages-tag-cloud-box\">\n\t\t\t\t\t<script type=\"text/javascript\" src=\"http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/tagcloud/swfobject.js\"></script>\n\t\t\t<div id=\"flashcontent-273868\"></div>\n\t\t\t<script type=\"text/javascript\">\n//<![CDATA[\nvar so = new SWFObject(\"/common--javascript/tagcloud/tagcloud.swf\", \"tagcloud\", \"123\", \"77\", \"7\", \"#FFFFFF\");\nso.addParam(\"wmode\", \"transparent\");\nso. addVariable(\"mode\", \"tags\");\nso. addVariable(\"distr\", \"true\");\nso.addVariable(\"tcolor\", \"0x404080\");\nso.addVariable(\"tcolor2\", \"0x8080c0\");\nso.addVariable(\"hicolor\", \"0x404080\");\nso.addVariable(\"tagcloud\", \"<tags>\"+\n\t        encodeURIComponent('<a href=\"' + location.protocol + '//' + location.hostname + '/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8\" style=\"12\">tce-6a68cbe8-a</a>') +\n\t        encodeURIComponent('<a href=\"' + location.protocol + '//' + location.hostname + '/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8\" style=\"21\">tce-6a68cbe8-b</a>') +\n\t        encodeURIComponent('<a href=\"' + location.protocol + '//' + location.hostname + '/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8\" style=\"30\">tce-6a68cbe8-c</a>') +\n\t\"</tags>\");\nso.write(\"flashcontent-273868\");\n//]]>\n</script>\n\t\t\t</div>\n\t\n\n<p>",
+      "summary": {
+        "anchor_count": 0,
+        "classes": [
+          "pages-tag-cloud-box"
+        ],
+        "contains_a": true,
+        "contains_b": true,
+        "contains_c": true,
+        "contains_hidden": false,
+        "has_flash": true,
+        "hrefs": [
+          "' + location.protocol + '//' + location.hostname + '/system:page-tags/tag/tce-6a68cbe8-a/category/tagcloud-edge-6a68cbe8",
+          "' + location.protocol + '//' + location.hostname + '/system:page-tags/tag/tce-6a68cbe8-b/category/tagcloud-edge-6a68cbe8",
+          "' + location.protocol + '//' + location.hostname + '/system:page-tags/tag/tce-6a68cbe8-c/category/tagcloud-edge-6a68cbe8"
+        ],
+        "styles": [
+          "12",
+          "21",
+          "30"
+        ],
+        "text": "// \"+ encodeURIComponent(' tce-6a68cbe8-a ') + encodeURIComponent(' tce-6a68cbe8-b ') + encodeURIComponent(' tce-6a68cbe8-c ') + \" \"); so.write(\"flashcontent-273868\"); //]]>"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "fullname": "tagcloud-edge-6a68cbe8:holder",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-edge-6a68cbe8:target",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-edge-other-6a68cbe8:outside",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-edge-6a68cbe8:c",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-edge-6a68cbe8:b",
+      "status": "deleted"
+    },
+    {
+      "fullname": "tagcloud-edge-6a68cbe8:a",
+      "status": "deleted"
+    }
+  ],
+  "fixture": {
+    "category": "tagcloud-edge-6a68cbe8",
+    "other_category": "tagcloud-edge-other-6a68cbe8",
+    "tags": {
+      "a": "tce-6a68cbe8-a",
+      "b": "tce-6a68cbe8-b",
+      "c": "tce-6a68cbe8-c",
+      "hidden": "_tce-6a68cbe8-hidden"
+    }
+  },
+  "holder": {
+    "document_bytes": 43172,
+    "document_sha256": "6eef15f844f4988ae7a9f9e3ce05b627d108cb9bd7f2271dac35ae0a43f7a1ac",
+    "fullname": "tagcloud-edge-6a68cbe8:holder",
+    "url": "http://sandbox-for-codex.wikidot.com/tagcloud-edge-6a68cbe8:holder"
+  },
+  "run_id": "tagcloud-edge-6a68cbe8",
+  "schema": "wikijump.wikidot_live_tagcloud_edge.v1",
+  "site": "sandbox-for-codex",
+  "source": "TAGCLOUD_EDGE_PROBE tagcloud-edge-6a68cbe8\n\nOMITTED_CATEGORY_START\n[[module TagCloud]]\nOMITTED_CATEGORY_END\n\nSHOW_TRUE_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" showHidden=\"true\"]]\nSHOW_TRUE_END\n\nSHOW_YES_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" showHidden=\"yes\"]]\nSHOW_YES_END\n\nSHOW_FALSE_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" showHidden=\"false\"]]\nSHOW_FALSE_END\n\nSHOW_NO_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" showHidden=\"no\"]]\nSHOW_NO_END\n\nSHOW_EMPTY_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" showHidden=\"\"]]\nSHOW_EMPTY_END\n\nLIMIT_ZERO_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" limit=\"0\"]]\nLIMIT_ZERO_END\n\nLIMIT_NEG_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" limit=\"-1\"]]\nLIMIT_NEG_END\n\nLIMIT_TEXT_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" limit=\"abc\"]]\nLIMIT_TEXT_END\n\nLIMIT_ONE_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" limit=\"1\"]]\nLIMIT_ONE_END\n\nTARGET_WITH_CATEGORY_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" target=\"tagcloud-edge-6a68cbe8:target\"]]\nTARGET_WITH_CATEGORY_END\n\nPREFIX_WITH_CATEGORY_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" target=\"tagcloud-edge-6a68cbe8:target\" urlAttrPrefix=\"lp\"]]\nPREFIX_WITH_CATEGORY_END\n\nSKIP_TRUE_NO_PREFIX_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" target=\"tagcloud-edge-6a68cbe8:target\" skipCategoryFromUrl=\"true\"]]\nSKIP_TRUE_NO_PREFIX_END\n\nONLY_MAX_FONT_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" maxFontSize=\"2em\"]]\nONLY_MAX_FONT_END\n\nMISMATCH_FONT_UNITS_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" minFontSize=\"10px\" maxFontSize=\"2em\"]]\nMISMATCH_FONT_UNITS_END\n\nONLY_MIN_COLOR_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" minColor=\"1,2,3\"]]\nONLY_MIN_COLOR_END\n\nBAD_COLOR_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" minColor=\"bad\" maxColor=\"300,2,3\"]]\nBAD_COLOR_END\n\nMODE_3D_START\n[[module TagCloud category=\"tagcloud-edge-6a68cbe8\" mode=\"3d\" width=\"123\" height=\"77\"]]\nMODE_3D_END\n"
+}

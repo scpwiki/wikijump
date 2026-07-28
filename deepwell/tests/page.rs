@@ -14678,9 +14678,395 @@ async fn first_revision_rerenders_tagcloud() {
         .expect("compiled body should be included in page_get details");
 
     assert!(
-        html.contains(&format!(r#"/system:page-tags/tag/{tag}">"#))
-            && html.contains(&format!(">{tag}<")),
+        html.contains(&format!(
+            r#"<a class="tag" href="/system:page-tags/tag/{tag}""#
+        )) && html.contains(&format!(">{tag}<")),
         "TagCloud should be rerendered after the first revision is attached:\n{html}"
+    );
+}
+
+/// Live capture (sandbox-for-codex, 2026-07-29): `TagCloud` emits a
+/// `pages-tag-cloud-box` of tag anchors, filters by category, interpolates
+/// font/color styles over the displayed alphabetical tag slice, treats a
+/// non-empty `showHidden` value as enabling hidden tags, and uses prefixed URL
+/// argument names in generated links.
+#[tokio::test]
+async fn tagcloud_module_renders_live_category_links_styles_and_boolean_quirks() {
+    fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
+        html.split_once(start)
+            .unwrap_or_else(|| panic!("missing section start {start:?}"))
+            .1
+            .split_once(end)
+            .unwrap_or_else(|| panic!("missing section end {end:?}"))
+            .0
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category = "fixture-tagcloud-live";
+    let other_category = "fixture-tagcloud-live-other";
+    let tag_alpha = "fixture-tagcloud-alpha";
+    let tag_beta = "fixture-tagcloud-beta";
+    let tag_shared = "fixture-tagcloud-shared";
+    let tag_hidden = "_fixture-tagcloud-hidden";
+    let tag_outside = "fixture-tagcloud-outside";
+
+    CategoryService::get_or_create(runner.context(), site_id, category)
+        .await
+        .expect("TagCloud fixture category should be created");
+    CategoryService::get_or_create(runner.context(), site_id, other_category)
+        .await
+        .expect("TagCloud fixture other category should be created");
+
+    for (slug, title, tags) in [
+        (
+            format!("{category}:alpha"),
+            "Fixture TagCloud Alpha",
+            vec![tag_shared, tag_alpha],
+        ),
+        (
+            format!("{category}:beta"),
+            "Fixture TagCloud Beta",
+            vec![tag_shared, tag_beta],
+        ),
+        (
+            format!("{category}:gamma"),
+            "Fixture TagCloud Gamma",
+            vec![tag_shared, tag_beta, tag_hidden],
+        ),
+        (
+            format!("{other_category}:outside"),
+            "Fixture TagCloud Outside",
+            vec![tag_shared, tag_outside],
+        ),
+    ] {
+        let revision =
+            create_listpages_test_page(&mut runner, site_id, &slug, title, "body").await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &tags).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &format!("{category}:target"),
+        "Fixture TagCloud Target",
+        "target",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &format!("{category}:holder"),
+        "Fixture TagCloud Holder",
+        &format!(
+            concat!(
+                "TAGCLOUD_START\n\n",
+                "CATEGORY_START\n",
+                "[[module TagCloud category=\"{category}\"]]\n",
+                "CATEGORY_END\n\n",
+                "SHOW_FALSE_START\n",
+                "[[module TagCloud category=\"{category}\" showHidden=\"false\"]]\n",
+                "SHOW_FALSE_END\n\n",
+                "SHOW_EMPTY_START\n",
+                "[[module TagCloud category=\"{category}\" showHidden=\"\"]]\n",
+                "SHOW_EMPTY_END\n\n",
+                "LIMIT_START\n",
+                "[[module TagCloud category=\"{category}\" limit=\"2\"]]\n",
+                "LIMIT_END\n\n",
+                "PREFIX_START\n",
+                "[[module TagCloud category=\"{category}\" target=\"{category}:target\" urlAttrPrefix=\"lp\"]]\n",
+                "PREFIX_END\n\n",
+                "CUSTOM_STYLE_START\n",
+                "[[module TagCloud category=\"{category}\" minFontSize=\"10px\" maxFontSize=\"20px\" minColor=\"1,2,3\" maxColor=\"200,210,220\"]]\n",
+                "CUSTOM_STYLE_END\n\n",
+                "BAD_FONT_START\n",
+                "[[module TagCloud category=\"{category}\" minFontSize=\"10px\" maxFontSize=\"2em\"]]\n",
+                "BAD_FONT_END\n\n",
+                "INVALID_LIMIT_PARTIAL_STYLE_START\n",
+                "[[module TagCloud category=\"{category}\" limit=\"0\" showHidden=\"false\" maxFontSize=\"2em\" minColor=\"1,2,3\"]]\n",
+                "INVALID_LIMIT_PARTIAL_STYLE_END\n\n",
+                "TAGCLOUD_END",
+            ),
+            category = category,
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": format!("{category}:holder"),
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("TagCloud holder should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let category_html = section(&html, "CATEGORY_START", "CATEGORY_END");
+    assert!(
+        category_html.contains(r#"<div class="pages-tag-cloud-box">"#)
+            && category_html.contains(&format!(
+                r#"<a class="tag" href="/system:page-tags/tag/{tag_alpha}/category/{category}""#
+            ))
+            && category_html.contains(&format!(
+                r#"<a class="tag" href="/system:page-tags/tag/{tag_beta}/category/{category}""#
+            ))
+            && category_html.contains(&format!(
+                r#"<a class="tag" href="/system:page-tags/tag/{tag_shared}/category/{category}""#
+            ))
+            && category_html.contains(r#"style="font-size: 100%; color: rgb(128, 128, 192);""#)
+            && category_html.contains(r#"style="font-size: 200%; color: rgb(96, 96, 160);""#)
+            && category_html.contains(r#"style="font-size: 300%; color: rgb(64, 64, 128);""#)
+            && !category_html.contains(tag_hidden)
+            && !category_html.contains(tag_outside)
+            && !category_html.contains("[[module TagCloud"),
+        "TagCloud category render should match live 2D anchor, style, and filtering behavior:\n{html}",
+    );
+
+    let show_false = section(&html, "SHOW_FALSE_START", "SHOW_FALSE_END");
+    let show_false_beta = show_false
+        .find(tag_beta)
+        .expect("showHidden=false should include beta");
+    let show_false_hidden = show_false
+        .find(tag_hidden)
+        .expect("showHidden=false should include hidden tags");
+    let show_false_shared = show_false
+        .find(tag_shared)
+        .expect("showHidden=false should include shared");
+    assert!(
+        show_false_beta < show_false_hidden && show_false_hidden < show_false_shared,
+        "live Wikidot treats non-empty showHidden values, including \"false\", as enabling hidden tags and sorts hidden tags as if the leading underscore were absent:\n{html}",
+    );
+
+    let show_empty = section(&html, "SHOW_EMPTY_START", "SHOW_EMPTY_END");
+    assert!(
+        !show_empty.contains(tag_hidden),
+        "an empty showHidden attribute should not enable hidden tags:\n{html}",
+    );
+
+    let limit = section(&html, "LIMIT_START", "LIMIT_END");
+    assert!(
+        limit.contains(tag_alpha)
+            && limit.contains(tag_beta)
+            && !limit.contains(tag_shared)
+            && limit.contains(r#"style="font-size: 300%; color: rgb(64, 64, 128);""#),
+        "TagCloud limit should truncate the alphabetical tag list before rescaling styles:\n{html}",
+    );
+
+    let prefix = section(&html, "PREFIX_START", "PREFIX_END");
+    assert!(
+        prefix.contains(&format!(
+            r#"href="/{category}:target/lp_tag/{tag_alpha}/lp_category/{category}""#
+        )),
+        "TagCloud urlAttrPrefix should prefix generated tag and category path argument names:\n{html}",
+    );
+
+    let custom_style = section(&html, "CUSTOM_STYLE_START", "CUSTOM_STYLE_END");
+    assert!(
+        custom_style.contains(r#"style="font-size: 10px; color: rgb(1, 2, 3);""#)
+            && custom_style
+                .contains(r#"style="font-size: 15px; color: rgb(101, 106, 112);""#)
+            && custom_style
+                .contains(r#"style="font-size: 20px; color: rgb(200, 210, 220);""#),
+        "TagCloud custom size and color interpolation should match live Wikidot:\n{html}",
+    );
+
+    let bad_font = section(&html, "BAD_FONT_START", "BAD_FONT_END");
+    assert!(
+        bad_font.contains(r#"<div class="error-block">"#)
+            && bad_font.contains(
+                "Format for minFontSize and maxFontSize must be the same (px, em, pt or %).",
+            ),
+        "TagCloud mismatched font units should render the live error block:\n{html}",
+    );
+
+    let invalid_limit_partial_style = section(
+        &html,
+        "INVALID_LIMIT_PARTIAL_STYLE_START",
+        "INVALID_LIMIT_PARTIAL_STYLE_END",
+    );
+    assert!(
+        invalid_limit_partial_style.contains(tag_alpha)
+            && invalid_limit_partial_style.contains(tag_beta)
+            && invalid_limit_partial_style.contains(tag_hidden)
+            && invalid_limit_partial_style.contains(tag_shared)
+            && invalid_limit_partial_style
+                .contains(r#"style="font-size: 100%; color: rgb(128, 128, 192);""#)
+            && invalid_limit_partial_style
+                .contains(r#"style="font-size: 300%; color: rgb(64, 64, 128);""#)
+            && !invalid_limit_partial_style.contains("2em")
+            && !invalid_limit_partial_style.contains("rgb(1, 2, 3)"),
+        "invalid limit should fall back to default, and one-sided font/color overrides should be ignored:\n{html}",
+    );
+}
+
+/// Live capture (sandbox-for-codex, 2026-07-29): omitted `category` counts
+/// visible tags site-wide, `skipCategoryFromUrl="true"` removes the category
+/// URL argument, invalid paired colors render Wikidot's error block, and
+/// `mode="3d"` emits Wikidot's legacy SWFObject runtime wrapper.
+#[tokio::test]
+async fn tagcloud_module_renders_live_sitewide_skip_3d_and_color_error() {
+    fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
+        html.split_once(start)
+            .unwrap_or_else(|| panic!("missing section start {start:?}"))
+            .1
+            .split_once(end)
+            .unwrap_or_else(|| panic!("missing section end {end:?}"))
+            .0
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let category = "fixture-tagcloud-edge";
+    let other_category = "fixture-tagcloud-edge-other";
+    let tag_alpha = "aaa-fixture-tagcloud-alpha";
+    let tag_beta = "aaa-fixture-tagcloud-beta";
+    let tag_outside = "aaa-fixture-tagcloud-outside";
+    let tag_shared = "aaa-fixture-tagcloud-shared";
+    let tag_hidden = "_aaa-fixture-tagcloud-hidden";
+
+    CategoryService::get_or_create(runner.context(), site_id, category)
+        .await
+        .expect("TagCloud fixture category should be created");
+    CategoryService::get_or_create(runner.context(), site_id, other_category)
+        .await
+        .expect("TagCloud fixture other category should be created");
+
+    for (slug, title, tags) in [
+        (
+            format!("{category}:alpha"),
+            "Fixture TagCloud Edge Alpha",
+            vec![tag_shared, tag_alpha],
+        ),
+        (
+            format!("{category}:beta"),
+            "Fixture TagCloud Edge Beta",
+            vec![tag_shared, tag_beta],
+        ),
+        (
+            format!("{category}:gamma"),
+            "Fixture TagCloud Edge Gamma",
+            vec![tag_shared, tag_beta, tag_hidden],
+        ),
+        (
+            format!("{other_category}:outside"),
+            "Fixture TagCloud Edge Outside",
+            vec![tag_shared, tag_outside],
+        ),
+    ] {
+        let revision =
+            create_listpages_test_page(&mut runner, site_id, &slug, title, "body").await;
+        set_listpages_test_tags(&mut runner, site_id, &slug, revision, &tags).await;
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &format!("{category}:target"),
+        "Fixture TagCloud Edge Target",
+        "target",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        &format!("{category}:holder"),
+        "Fixture TagCloud Edge Holder",
+        &format!(
+            concat!(
+                "TAGCLOUD_EDGE_START\n\n",
+                "SITEWIDE_START\n",
+                "[[module TagCloud limit=\"4\"]]\n",
+                "SITEWIDE_END\n\n",
+                "SKIP_START\n",
+                "[[module TagCloud category=\"{category}\" target=\"{category}:target\" skipCategoryFromUrl=\"true\"]]\n",
+                "SKIP_END\n\n",
+                "BAD_COLOR_START\n",
+                "[[module TagCloud category=\"{category}\" minColor=\"1,2,3\" maxColor=\"999,0,0\"]]\n",
+                "BAD_COLOR_END\n\n",
+                "THREED_START\n",
+                "[[module TagCloud category=\"{category}\" mode=\"3d\" width=\"123\" height=\"77\"]]\n",
+                "THREED_END\n\n",
+                "TAGCLOUD_EDGE_END",
+            ),
+            category = category,
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": format!("{category}:holder"),
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("TagCloud edge holder should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let sitewide = section(&html, "SITEWIDE_START", "SITEWIDE_END");
+    assert!(
+        sitewide.contains(&format!(
+            r#"<a class="tag" href="/system:page-tags/tag/{tag_alpha}""#
+        )) && sitewide.contains(&format!(
+            r#"<a class="tag" href="/system:page-tags/tag/{tag_beta}""#
+        )) && sitewide.contains(&format!(
+            r#"<a class="tag" href="/system:page-tags/tag/{tag_outside}""#
+        )) && sitewide.contains(&format!(
+            r#"<a class="tag" href="/system:page-tags/tag/{tag_shared}""#
+        )) && !sitewide.contains("/category/")
+            && !sitewide.contains(tag_hidden),
+        "omitted category should render visible tags site-wide without generated category URL arguments:\n{html}",
+    );
+
+    let skip = section(&html, "SKIP_START", "SKIP_END");
+    assert!(
+        skip.contains(&format!(r#"href="/{category}:target/tag/{tag_alpha}""#))
+            && !skip.contains("/category/"),
+        "skipCategoryFromUrl=true should omit category path arguments from generated tag links:\n{html}",
+    );
+
+    let bad_color = section(&html, "BAD_COLOR_START", "BAD_COLOR_END");
+    assert!(
+        bad_color.contains(r#"<div class="error-block">"#)
+            && bad_color.contains(
+                r#"Unsupported color format. Use "RRR,GGG,BBB" for Red,Green,Blue each within 0-255 range."#,
+            ),
+        "TagCloud invalid paired colors should render the live error block:\n{html}",
+    );
+
+    let threed = section(&html, "THREED_START", "THREED_END");
+    assert!(
+        threed.contains(r#"<div class="pages-tag-cloud-box">"#)
+            && threed.contains(
+                r#"src="http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/tagcloud/swfobject.js""#,
+            )
+            && threed.contains(
+                r##"new SWFObject("/common--javascript/tagcloud/tagcloud.swf", "tagcloud", "123", "77", "7", "#FFFFFF");"##,
+            )
+            && threed.contains(r#"so.addVariable("tcolor", "0x404080");"#)
+            && threed.contains(r#"so.addVariable("tcolor2", "0x8080c0");"#)
+            && threed.contains(r#"so.addVariable("hicolor", "0x404080");"#)
+            && threed.contains(r#"style="12""#)
+            && threed.contains(r#"style="21""#)
+            && threed.contains(r#"style="30""#)
+            && threed.contains(&format!(
+                r#"location.hostname + '/system:page-tags/tag/{tag_alpha}/category/{category}" style="12""#
+            ))
+            && !threed.contains("[[module TagCloud"),
+        "3D TagCloud should emit Wikidot's SWFObject runtime wrapper and encoded tag anchors:\n{html}",
     );
 }
 

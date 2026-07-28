@@ -170,6 +170,11 @@ for (const observation of liveObservations.observations) {
           capturedCaseIds.add(capture.case_id);
         }
       }
+      for (const capture of row.cases ?? []) {
+        if (capture.case_id) {
+          capturedCaseIds.add(capture.case_id);
+        }
+      }
     }
     for (const caseId of evidence.case_ids) {
       invariant(
