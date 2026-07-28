@@ -20,6 +20,31 @@ Every explicit default, accepted value, rejected value, alias, limit, interactio
 
 If the documentation is silent or contradictory, the implementation MUST fail closed or preserve the existing literal behavior until a live Wikidot experiment supplies a stable expectation. The spec and catalog must then be updated with that evidence.
 
+## Live-Wikidot behavioral corrections
+
+The observations in this section are normative and override conflicting or
+incomplete documentation-derived evidence below.
+
+### CountPages inside ListPages follows legacy parser failure shapes
+
+- Observation ID: `countpages-inside-listpages-body`
+- Classification: `documentation-clarification`
+- Observed at: `2026-07-28`
+- Analysis: The CountPages documentation states that CountPages cannot be used inside a ListPages module but does not define the rendered failure shape. Controlled run-owned sandbox pages show that live Wikidot does not execute the nested CountPages module and does not simply preserve the whole outer ListPages source literally. A standalone CountPages opening line inside the ListPages body produces an outer ListPages wrapper with one empty list-pages-item for the matching row. A same-line CountPages open/body/close follows a separate legacy split shape: the outer ListPages renders with its default empty-body template, the text before the inline CountPages line remains downstream page source, the inline CountPages body is suppressed, and the text after the inline CountPages line is wrapped in an additional list-pages-box.
+
+Normative behavior:
+
+- A standalone CountPages module opening inside a ListPages body does not execute CountPages.
+- For the minimized standalone-opening case, live Wikidot emits the outer ListPages wrapper and one empty list-pages-item for each matching row.
+- The rendered output for the minimized case contains none of the authored CountPages body text, %%total%%, %%count%%, or raw CountPages module source.
+- An ordinary ListPages body with the same selector and no nested CountPages renders normally, proving that the empty-item behavior is caused by the nested CountPages opening.
+- For the minimized same-line open/body/close case, live Wikidot renders the outer ListPages with its default template, preserves preceding body text after the generated ListPages output, suppresses the inline CountPages module text and variables, and wraps following body text in a second list-pages-box.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/countpages-inside-listpages-live.json` (SHA-256 `6296353f385fef33e74b3696d9affca8dbfa3816457141ab2f6b283e2f9346b0`), cases: `standalone-countpages-opening-inside-listpages-body`, `inline-countpages-inside-listpages-body`, `ordinary-listpages-body-control`
+
+
 
 ## Suggested public TDD seams
 

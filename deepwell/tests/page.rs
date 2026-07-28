@@ -12547,6 +12547,170 @@ async fn countpages_substitutes_total_for_tagged_pages() {
 }
 
 #[tokio::test]
+async fn countpages_inside_listpages_body_matches_live_empty_item_behavior() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-countpages-nested-listpages";
+
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-countpages-nested-listpages-target",
+        "Fixture CountPages Nested ListPages Target",
+        "Fixture CountPages nested target marker.",
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        "fixture-countpages-nested-listpages-target",
+        target_revision,
+        &[tag],
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-countpages-nested-listpages-index",
+        "Fixture CountPages Nested ListPages Index",
+        &format!(
+            r#"Nested CountPages marker.
+
+[[module ListPages category="*" tags="+{tag}" limit="1" order="name"]]
+OUTER=%%title%%
+[[module CountPages category="*" tags="+{tag}" limit="10"]]
+INNER_TOTAL=%%total%%; INNER_COUNT=%%count%%; [[[start|start link]]]
+[[/module]]
+[[/module]]"#
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "fixture-countpages-nested-listpages-index",
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("CountPages nested-in-ListPages index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains(r#"<div class="list-pages-box">"#)
+            && html.contains(r#"<div class="list-pages-item">"#),
+        "Wikidot still emits the outer ListPages container and an empty result item:\n{html}",
+    );
+    for forbidden in [
+        "OUTER=",
+        "INNER_TOTAL=",
+        "INNER_COUNT=",
+        "[[module CountPages",
+        "%%total%%",
+        "%%count%%",
+        "start link",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "CountPages inside a ListPages body should not expose {forbidden:?}, matching the live empty-item behavior:\n{html}",
+        );
+    }
+}
+
+#[tokio::test]
+async fn inline_countpages_inside_listpages_body_matches_live_legacy_split_behavior() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let tag = "verification-countpages-inline-listpages";
+
+    let target_revision = create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-countpages-inline-listpages-target",
+        "Fixture CountPages Inline ListPages Target",
+        "Fixture CountPages inline target marker.",
+    )
+    .await;
+    set_listpages_test_tags(
+        &mut runner,
+        site_id,
+        "fixture-countpages-inline-listpages-target",
+        target_revision,
+        &[tag],
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-countpages-inline-listpages-index",
+        "Fixture CountPages Inline ListPages Index",
+        &format!(
+            r#"Inline CountPages marker.
+
+[[module ListPages category="*" tags="+{tag}" limit="1" order="name"]]
+BEFORE_INLINE
+[[module CountPages category="*" tags="+{tag}" limit="10"]]INLINE_COUNT=%%total%%[[/module]]
+AFTER_INLINE
+[[/module]]"#
+        ),
+    )
+    .await;
+
+    let page = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "fixture-countpages-inline-listpages-index",
+            "details": {
+                "compiled": true
+            },
+        }),
+    )
+    .expect("inline CountPages nested-in-ListPages index should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    assert!(
+        html.contains("Fixture CountPages Inline ListPages Target"),
+        "live Wikidot renders the outer ListPages with its default template before the split inline CountPages tail:\n{html}",
+    );
+    assert!(
+        html.contains("BEFORE_INLINE") && html.contains("AFTER_INLINE"),
+        "live Wikidot preserves text surrounding the inline CountPages line as downstream page source:\n{html}",
+    );
+    assert_eq!(
+        html.matches(r#"<div class="list-pages-box">"#).count(),
+        2,
+        "live Wikidot emits the default outer ListPages box plus a second legacy list-pages-box around following text:\n{html}",
+    );
+    for forbidden in [
+        "INLINE_COUNT=",
+        "[[module CountPages",
+        "%%total%%",
+        "module CountPages",
+    ] {
+        assert!(
+            !html.contains(forbidden),
+            "inline CountPages inside a ListPages body should not expose {forbidden:?}, matching the live legacy split behavior:\n{html}",
+        );
+    }
+}
+
+#[tokio::test]
 async fn countpages_category_filter_counts_matching_pages() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
