@@ -59,15 +59,13 @@ pub struct UserBotMetadata {
     pub approval_url: Option<String>,
 }
 
-impl_relation!(
-    UserBotOwner,
-    User,
-    bot_user,
-    User,
-    owner_user,
-    UserBotMetadata,
-    NO_CREATE_IMPL_OR_STRUCT,
-);
+impl_relation_new! {
+    name => UserBotOwner,
+    dest => bot_user: User,
+    from => owner_user: User,
+    data => UserBotMetadata,
+    create_fn => false,
+}
 
 impl RelationService {
     pub fn normalize_user_bot_metadata(metadata: &mut UserBotMetadata) {
@@ -139,17 +137,19 @@ impl RelationService {
             ));
         }
 
-        create_operation!(
+        Self::create_user_bot_owner_inner(
             ctx,
-            UserBotOwner,
-            User,
-            bot_user_id,
-            User,
-            owner_user_id,
-            created_by,
-            metadata,
-            make_error,
+            CreateUserBotOwnerInner {
+                bot_user: bot_user_id,
+                owner_user: owner_user_id,
+                metadata,
+                created_by,
+            },
         )
+        .await
+        .or_raise(make_error)?;
+
+        Ok(())
     }
 
     #[inline]
