@@ -1,0 +1,165 @@
+{
+  "schema": "wikijump.wikidot_live_navigation_list_modules.v1",
+  "site": "sandbox-for-codex",
+  "base_url": "http://sandbox-for-codex.wikidot.com",
+  "captured_at": "2026-07-28T18:15:40Z",
+  "fixture": {
+    "primary_run_id": "navmods-6a68f186",
+    "additional_run_ids": [
+      "catcase-6a68f20a",
+      "catquote-6a68f230"
+    ],
+    "primary_prefix": "run-owned-navmods-6a68f186",
+    "primary_pages": [
+      "run-owned-navmods-6a68f186-backlinks-target",
+      "run-owned-navmods-6a68f186-backlinks-other",
+      "run-owned-navmods-6a68f186-backlinks-linker-a",
+      "run-owned-navmods-6a68f186-backlinks-linker-b",
+      "run-owned-navmods-6a68f186-backlinks-linker-other",
+      "run-owned-navmods-6a68f186-pagetree-root",
+      "run-owned-navmods-6a68f186-pagetree-alpha",
+      "run-owned-navmods-6a68f186-pagetree-beta",
+      "run-owned-navmods-6a68f186-pagetree-grandchild",
+      "run-owned-navmods-6a68f186-pagetree-greatgrand",
+      "run-owned-navmods-6a68f186-cat-visible:page",
+      "_run-owned-navmods-6a68f186-cat-hidden:page",
+      "run-owned-navmods-6a68f186-categories-holder"
+    ],
+    "parent_pairs": [
+      [
+        "run-owned-navmods-6a68f186-pagetree-alpha",
+        "run-owned-navmods-6a68f186-pagetree-root"
+      ],
+      [
+        "run-owned-navmods-6a68f186-pagetree-beta",
+        "run-owned-navmods-6a68f186-pagetree-root"
+      ],
+      [
+        "run-owned-navmods-6a68f186-pagetree-grandchild",
+        "run-owned-navmods-6a68f186-pagetree-alpha"
+      ],
+      [
+        "run-owned-navmods-6a68f186-pagetree-greatgrand",
+        "run-owned-navmods-6a68f186-pagetree-grandchild"
+      ]
+    ]
+  },
+  "requests": {
+    "backlinks": {
+      "authenticated": false,
+      "method": "GET",
+      "status": 200,
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-navmods-6a68f186-backlinks-target",
+      "raw_page_html_sha256": "ffa1dc19599c2d137616dfe62875714ff9afc37339b03344fb8116e7a5456555"
+    },
+    "pagetree": {
+      "authenticated": false,
+      "method": "GET",
+      "status": 200,
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-navmods-6a68f186-pagetree-root",
+      "raw_page_html_sha256": "271fb6aff590e6454e4630fe85c219a8c2ebcf95863ee870bc1b781ff24dd3cd"
+    },
+    "categories": {
+      "authenticated": false,
+      "method": "GET",
+      "status": 200,
+      "url": "http://sandbox-for-codex.wikidot.com/run-owned-navmods-6a68f186-categories-holder",
+      "raw_page_html_sha256": "354599c935b3a6d891a49cf21c3255d5e43daccca0dcef59393c0ac4618ab59f"
+    }
+  },
+  "cases": [
+    {
+      "case_id": "backlinks-default-current-page",
+      "observed": {
+        "contains_linker_a": true,
+        "contains_linker_b": true,
+        "excludes_other_target_linker": true,
+        "wrapper": "div.backlinks-module-box with nested ul/li anchors"
+      },
+      "html_snippet": "BACKLINKS_DEFAULT_START</p>\n<div class=\"backlinks-module-box\">\n\t\t\t<ul>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-backlinks-linker-a\">AAC run-owned-navmods-6a68f186 backlinks linker A</a>\n\t\t\t\t</li>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-backlinks-linker-b\">AAD run-owned-navmods-6a68f186 backlinks linker B</a>\n\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t</div>\n<p>BACKLINKS_DEFAULT_END"
+    },
+    {
+      "case_id": "backlinks-page-argument-ignored",
+      "observed": {
+        "contains_other_target_linker": false,
+        "contains_current_linker_a": true,
+        "contains_current_linker_b": true,
+        "conclusion": "The undocumented page argument is ignored; Backlinks still targets the containing page."
+      },
+      "html_snippet": "BACKLINKS_PAGE_START</p>\n<div class=\"backlinks-module-box\">\n\t\t\t<ul>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-backlinks-linker-a\">AAC run-owned-navmods-6a68f186 backlinks linker A</a>\n\t\t\t\t</li>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-backlinks-linker-b\">AAD run-owned-navmods-6a68f186 backlinks linker B</a>\n\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t</div>\n<p>BACKLINKS_PAGE_END"
+    },
+    {
+      "case_id": "backlinks-unknown-argument-ignored",
+      "observed": {
+        "contains_current_linker_a": true,
+        "contains_current_linker_b": true
+      },
+      "html_snippet": "BACKLINKS_UNKNOWN_START</p>\n<div class=\"backlinks-module-box\">\n\t\t\t<ul>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-backlinks-linker-a\">AAC run-owned-navmods-6a68f186 backlinks linker A</a>\n\t\t\t\t</li>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-backlinks-linker-b\">AAD run-owned-navmods-6a68f186 backlinks linker B</a>\n\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t</div>\n<p>BACKLINKS_UNKNOWN_END"
+    },
+    {
+      "case_id": "pagetree-depth-and-showroot",
+      "observed": {
+        "depth_2_without_showroot_contains_children": true,
+        "depth_2_without_showroot_excludes_root": true,
+        "depth_2_without_showroot_excludes_depth_3": true,
+        "showroot_true_depth_1_contains_root_and_children": true,
+        "showroot_true_depth_1_excludes_grandchild": true
+      },
+      "html_snippet": "PT_SHOW_START</p>\n  \n\n\n\t<ul>\n\t\t<li>\n\t\t\t<a href=\"/run-owned-navmods-6a68f186-pagetree-root\">ABA run-owned-navmods-6a68f186 PageTree root</a>\n\t\t\t  \n\t\t\t\t<ul>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-pagetree-alpha\">ABB run-owned-navmods-6a68f186 Alpha child</a>"
+    },
+    {
+      "case_id": "pagetree-case-sensitive-arguments-and-explicit-root",
+      "observed": {
+        "case_variant_arguments_are_ignored": true,
+        "case_variant_traverses_without_depth_limit": true,
+        "explicit_root_argument_contains_named_root": true,
+        "explicit_root_argument_excludes_sibling_outside_subtree": true
+      },
+      "html_snippet": "PT_ROOT_ARG_START</p>\n  \n\n\n\t<ul>\n\t\t<li>\n\t\t\t<a href=\"/run-owned-navmods-6a68f186-pagetree-alpha\">ABB run-owned-navmods-6a68f186 Alpha child</a>\n\t\t\t  \n\t\t\t\t<ul>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t<a href=\"/run-owned-navmods-6a68f186-pagetree-grandchild\">ABD run-owned-navmods-6a68f186 Alpha grandchild</a>"
+    },
+    {
+      "case_id": "categories-default-and-includehidden",
+      "observed": {
+        "default_excludes_hidden_category": true,
+        "includehidden_true_contains_hidden_category": true,
+        "includehidden_true_options_marker": "The category-pages-<id>-options div contains text 1 when includeHidden is active.",
+        "case_variant_module_name_recognized": true,
+        "uppercase_includehidden_argument_ignored": true
+      },
+      "html_snippet": "CAT_HIDDEN_START</p>\n\t<div>\n\t\t<h3>_default</h3>\n\t\t<a id=\"category-pages-toggler-46101607\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, 46101607)\">+ list pages</a>\n\t\t<div style=\"display: none\" id=\"category-pages-46101607\"></div>\n    <div style=\"display: none\" id=\"category-pages-46101607-options\">1</div>\n\t</div>\n\t<div>\n\t\t<h3>_run-owned-navmods-6a68f186-cat-hidden</h3>"
+    },
+    {
+      "case_id": "categories-includehidden-argument-edge-cases",
+      "observed": {
+        "includeHidden=\"true\"": true,
+        "includeHidden=\"TRUE\"": true,
+        "includeHidden=\"True\"": true,
+        "includeHidden=\"false\"": true,
+        "includeHidden=\"yes\"": true,
+        "includeHidden=\"\"": false,
+        "includeHidden=true": false,
+        "INCLUDEHIDDEN=\"true\"": false,
+        "includeHidden = \"false\"": false,
+        "includeHidden='false'": false
+      },
+      "notes": "The live parser treats exact-case includeHidden with no whitespace around '=' and a non-empty double-quoted value as enabled. The actual value string is not interpreted as a boolean."
+    }
+  ],
+  "cleanup": [
+    {
+      "run_id": "navmods-6a68f186",
+      "deleted_pages": 13,
+      "status": "all run-owned primary pages deleted"
+    },
+    {
+      "run_id": "catcase-6a68f20a",
+      "deleted_pages": 2,
+      "status": "all run-owned edge-case pages deleted"
+    },
+    {
+      "run_id": "catquote-6a68f230",
+      "deleted_pages": 2,
+      "status": "all run-owned quote edge-case pages deleted"
+    }
+  ]
+}

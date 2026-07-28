@@ -20,18 +20,17 @@
 
 //! The Wikidot `Backlinks` module: which pages link to this one.
 //!
-//! Recognition, target-page resolution, the row query, the anonymous-view
-//! filter, and the rendered box live together here. Wikidot accepts a `page`
-//! argument and ignores unrelated arguments.
+//! Recognition, current-page resolution, the row query, the anonymous-view
+//! filter, and the rendered box live together here. Live Wikidot ignores
+//! attributes, including the tempting but unsupported `page` argument.
 
 use super::compat::CompatHtmlFragments;
-use super::module_arguments::wikidot_module_argument;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::services::ServiceContext;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
-use crate::services::{PageService, ServiceContext};
 use crate::types::Reference;
 use crate::types::{Action, Permission, Resource};
 use ftml::settings::WikitextSettings;
@@ -43,7 +42,7 @@ use std::sync::LazyLock;
 pub(super) const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
 
 pub(super) static BACKLINKS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?is)\[\[module\s+Backlinks(?P<head>[^\]]*)\]\]").unwrap()
+    Regex::new(r"(?is)\[\[module\s+Backlinks(?P<head>(?:\s+[^\]]*)?)\]\]").unwrap()
 });
 
 #[derive(Debug, FromQueryResult)]
@@ -107,26 +106,9 @@ impl RenderService {
                 continue;
             }
 
-            let head = captures.name("head").map_or("", |mtch| mtch.as_str());
-            let target_page_id = if let Some(slug) = wikidot_module_argument(head, "page")
-            {
-                PageService::get_optional(ctx, current_site_id, Reference::from(slug))
-                    .await?
-                    .map(|page| page.page_id)
-            } else {
-                Some(current_page_id)
-            };
-            let pages = match target_page_id {
-                Some(target_page_id) => {
-                    Self::load_backlinks_module_pages(
-                        ctx,
-                        current_site_id,
-                        target_page_id,
-                    )
-                    .await?
-                }
-                None => Vec::new(),
-            };
+            let pages =
+                Self::load_backlinks_module_pages(ctx, current_site_id, current_page_id)
+                    .await?;
             expanded.push_str(
                 &compat_html.push_block_html(render_backlinks_module_box(&pages)),
             );
@@ -202,7 +184,14 @@ impl RenderService {
 
 #[cfg(test)]
 mod tests {
-    use super::render_backlinks_module_box;
+    use super::{BACKLINKS_MODULE_REGEX, render_backlinks_module_box};
+
+    #[test]
+    fn backlinks_name_must_end_before_arguments() {
+        assert!(BACKLINKS_MODULE_REGEX.is_match("[[module Backlinks]]"));
+        assert!(BACKLINKS_MODULE_REGEX.is_match(r#"[[module backlinks foo="bar"]]"#));
+        assert!(!BACKLINKS_MODULE_REGEX.is_match("[[module BacklinksExtra]]"));
+    }
 
     #[test]
     fn empty_backlinks_box_matches_live_wikidot() {

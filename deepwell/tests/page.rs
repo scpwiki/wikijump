@@ -5007,7 +5007,7 @@ async fn backlinks_module_renders_current_page_incoming_links() {
 }
 
 #[tokio::test]
-async fn backlinks_module_page_argument_targets_the_named_page() {
+async fn backlinks_module_ignores_arguments_like_live_wikidot() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
@@ -5018,16 +5018,23 @@ async fn backlinks_module_page_argument_targets_the_named_page() {
         &mut runner,
         site_id,
         target_slug,
-        "Fixture Backlinks Unsupported Target",
-        "Unsupported backlinks marker.\n[[module Backlinks page=\"start\"]]",
+        "Fixture Backlinks Argument Target",
+        concat!(
+            "BACKLINKS_PAGE_ARG_START\n",
+            "[[module Backlinks page=\"start\"]]\n",
+            "BACKLINKS_PAGE_ARG_END\n",
+            "BACKLINKS_UNKNOWN_ARG_START\n",
+            "[[module Backlinks foo=\"bar\"]]\n",
+            "BACKLINKS_UNKNOWN_ARG_END",
+        ),
     )
     .await;
     create_listpages_test_page(
         &mut runner,
         site_id,
         "fixture-backlinks-unsupported-linker",
-        "Fixture Backlinks Unsupported Linker",
-        &format!("[[[{target_slug}|unsupported target link]]]"),
+        "Fixture Backlinks Argument Linker",
+        &format!("[[[{target_slug}|argument target link]]]"),
     )
     .await;
 
@@ -5066,12 +5073,12 @@ async fn backlinks_module_page_argument_targets_the_named_page() {
         .compiled_body_html
         .expect("compiled body should be included in page_get details");
 
-    assert!(html.contains(r#"<div class="backlinks-module-box">"#));
     assert!(!html.contains("TODO: module Backlinks"));
     assert!(!html.contains("[[module Backlinks"));
-    assert!(
-        !html.contains("Fixture Backlinks Unsupported Linker"),
-        "page=\"start\" must not render backlinks to the containing page:\n{html}"
+    assert_eq!(
+        html.matches("Fixture Backlinks Argument Linker").count(),
+        2,
+        "live Wikidot ignores Backlinks arguments and renders current-page backlinks for both modules:\n{html}"
     );
 }
 
@@ -5345,9 +5352,11 @@ async fn categories_module_lists_active_categories_and_honors_include_hidden() {
         INDEX_PAGE,
         "Fixture Categories Index",
         concat!(
-            "[[module Categories]]\n",
-            "[[module categories includeHidden=\"true\"]]\n",
-            "[[module CATEGORIES INCLUDEHIDDEN=\"false\"]]",
+            "CAT_DEFAULT_START\n[[module Categories]]\nCAT_DEFAULT_END\n",
+            "CAT_TRUE_START\n[[module categories includeHidden=\"true\"]]\nCAT_TRUE_END\n",
+            "CAT_FALSE_START\n[[module Categories includeHidden=\"false\"]]\nCAT_FALSE_END\n",
+            "CAT_UPPER_ATTR_START\n[[module CATEGORIES INCLUDEHIDDEN=\"true\"]]\nCAT_UPPER_ATTR_END\n",
+            "CAT_BARE_START\n[[module Categories includeHidden=true]]\nCAT_BARE_END",
         ),
     )
     .await;
@@ -5367,29 +5376,53 @@ async fn categories_module_lists_active_categories_and_honors_include_hidden() {
         .compiled_body_html
         .expect("compiled body should be included in page_get details");
 
-    assert_eq!(
-        html.matches(&format!("<h3>{VISIBLE_CATEGORY}</h3>"))
-            .count(),
-        3
-    );
-    assert_eq!(
-        html.matches(&format!("<h3>{HIDDEN_CATEGORY}</h3>")).count(),
-        1
-    );
-    assert_eq!(
-        html.matches("<h3>_default</h3>").count(),
-        3,
-        "_default remains visible without includeHidden:\n{html}"
-    );
+    let section = |start: &str, end: &str| {
+        let start = html.find(start).expect("section start should render");
+        let end = html[start..]
+            .find(end)
+            .map(|offset| start + offset)
+            .expect("section end should render");
+        &html[start..end]
+    };
+    let default = section("CAT_DEFAULT_START", "CAT_DEFAULT_END");
+    let true_quoted = section("CAT_TRUE_START", "CAT_TRUE_END");
+    let false_quoted = section("CAT_FALSE_START", "CAT_FALSE_END");
+    let upper_attr = section("CAT_UPPER_ATTR_START", "CAT_UPPER_ATTR_END");
+    let bare = section("CAT_BARE_START", "CAT_BARE_END");
+
+    for snippet in [default, true_quoted, false_quoted, upper_attr, bare] {
+        assert!(
+            snippet.contains(&format!("<h3>{VISIBLE_CATEGORY}</h3>")),
+            "visible categories should render in every Categories module case:\n{snippet}"
+        );
+        assert!(snippet.contains("<h3>_default</h3>"));
+    }
+    for snippet in [true_quoted, false_quoted] {
+        assert!(
+            snippet.contains(&format!("<h3>{HIDDEN_CATEGORY}</h3>")),
+            "live Wikidot treats any non-empty exact includeHidden=\"...\" value as enabling hidden categories:\n{snippet}"
+        );
+        assert!(
+            snippet.contains(r#"style="display: none" id="category-pages-"#)
+                && snippet.contains(r#"-options">1</div>"#),
+            "includeHidden output should carry Wikidot's hidden-options marker:\n{snippet}"
+        );
+    }
+    for snippet in [default, upper_attr, bare] {
+        assert!(
+            !snippet.contains(&format!("<h3>{HIDDEN_CATEGORY}</h3>")),
+            "live Wikidot requires exact-case, double-quoted includeHidden to expose hidden categories:\n{snippet}"
+        );
+    }
     for (category, category_id) in [
         (VISIBLE_CATEGORY, visible_category.category_id),
         (HIDDEN_CATEGORY, hidden_category.category_id),
     ] {
         assert!(
-            html.contains(&format!(
+            true_quoted.contains(&format!(
                 concat!(
                     "<h3>{category}</h3>\n",
-                    "<a href=\"javascript:;\" id=\"category-pages-toggler-{category_id}\" ",
+                    "<a id=\"category-pages-toggler-{category_id}\" href=\"javascript:;\" ",
                     "onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, {category_id})\">+ list pages</a>"
                 ),
                 category = category,

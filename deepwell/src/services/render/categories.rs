@@ -22,7 +22,6 @@
 
 use super::compat::CompatHtmlFragments;
 use super::literal_regions::LiteralRegionIndex;
-use super::module_arguments::wikidot_module_argument;
 use super::service::{RenderService, escape_list_pages_html_text};
 use crate::error::prelude::Result;
 use crate::services::{CategoryService, ServiceContext};
@@ -34,9 +33,11 @@ static CATEGORIES_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[module\s+Categories(?P<head>(?:\s+[^\]]*)?)\]\]").unwrap()
 });
 
+static INCLUDE_HIDDEN_MODULE_ARGUMENT_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"(?s)(?:^|\s)includeHidden="[^"]+"(?:$|\s)"#).unwrap());
+
 fn include_hidden_categories(head: &str) -> bool {
-    wikidot_module_argument(head, "includeHidden")
-        .is_some_and(|value| value.eq_ignore_ascii_case("true"))
+    INCLUDE_HIDDEN_MODULE_ARGUMENT_REGEX.is_match(head)
 }
 
 fn category_is_visible(slug: &str, include_hidden: bool) -> bool {
@@ -64,15 +65,21 @@ fn render_categories_module<'a>(
         let slug = escape_list_pages_html_text(slug);
         output.push_str("<div>\n<h3>");
         output.push_str(&slug);
-        output.push_str("</h3>\n<a href=\"javascript:;\" id=\"category-pages-toggler-");
+        output.push_str("</h3>\n<a id=\"category-pages-toggler-");
         output.push_str(&category_id.to_string());
-        output.push_str("\" onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, ");
+        output.push_str("\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, ");
         output.push_str(&category_id.to_string());
-        output.push_str(")\">+ list pages</a>\n<div id=\"category-pages-");
+        output.push_str(
+            ")\">+ list pages</a>\n<div style=\"display: none\" id=\"category-pages-",
+        );
         output.push_str(&category_id.to_string());
-        output.push_str("\" style=\"display: none\"></div>\n<div id=\"category-pages-");
+        output.push_str("\"></div>\n<div style=\"display: none\" id=\"category-pages-");
         output.push_str(&category_id.to_string());
-        output.push_str("-options\" style=\"display: none\"></div>\n</div>\n");
+        output.push_str("-options\">");
+        if include_hidden {
+            output.push('1');
+        }
+        output.push_str("</div>\n</div>\n");
     }
 
     output
@@ -151,10 +158,16 @@ mod tests {
     }
 
     #[test]
-    fn include_hidden_is_case_insensitive_and_defaults_to_false() {
+    fn include_hidden_matches_live_exact_quoted_argument() {
         assert!(!include_hidden_categories(""));
-        assert!(!include_hidden_categories(r#" includeHidden="false""#));
-        assert!(include_hidden_categories(r#" INCLUDEHIDDEN = "TRUE""#));
+        assert!(include_hidden_categories(r#" includeHidden="true""#));
+        assert!(include_hidden_categories(r#" includeHidden="TRUE""#));
+        assert!(include_hidden_categories(r#" includeHidden="false""#));
+        assert!(!include_hidden_categories(r#" includeHidden="""#));
+        assert!(!include_hidden_categories(r#" includeHidden=true"#));
+        assert!(!include_hidden_categories(r#" includeHidden = "true""#));
+        assert!(!include_hidden_categories(r#" INCLUDEHIDDEN="true""#));
+        assert!(!include_hidden_categories(r#" includeHidden='true'"#));
     }
 
     #[test]
@@ -199,14 +212,24 @@ mod tests {
             html,
             concat!(
                 "\n<div>\n<h3>_default</h3>\n",
-                "<a href=\"javascript:;\" id=\"category-pages-toggler-17\" onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, 17)\">+ list pages</a>\n",
-                "<div id=\"category-pages-17\" style=\"display: none\"></div>\n",
-                "<div id=\"category-pages-17-options\" style=\"display: none\"></div>\n</div>\n",
+                "<a id=\"category-pages-toggler-17\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, 17)\">+ list pages</a>\n",
+                "<div style=\"display: none\" id=\"category-pages-17\"></div>\n",
+                "<div style=\"display: none\" id=\"category-pages-17-options\"></div>\n</div>\n",
                 "<div>\n<h3>a&lt;&amp;</h3>\n",
-                "<a href=\"javascript:;\" id=\"category-pages-toggler-23\" onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, 23)\">+ list pages</a>\n",
-                "<div id=\"category-pages-23\" style=\"display: none\"></div>\n",
-                "<div id=\"category-pages-23-options\" style=\"display: none\"></div>\n</div>\n",
+                "<a id=\"category-pages-toggler-23\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.WikiCategoriesModule.listeners.toggleListPages(event, 23)\">+ list pages</a>\n",
+                "<div style=\"display: none\" id=\"category-pages-23\"></div>\n",
+                "<div style=\"display: none\" id=\"category-pages-23-options\"></div>\n</div>\n",
             )
         );
+    }
+
+    #[test]
+    fn include_hidden_categories_emit_live_options_marker() {
+        let html = render_categories_module([(17, "_default"), (31, "_hidden")], true);
+
+        assert!(html.contains("<h3>_hidden</h3>"));
+        assert!(html.contains(
+            r#"<div style="display: none" id="category-pages-31-options">1</div>"#,
+        ));
     }
 }

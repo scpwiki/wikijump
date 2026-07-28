@@ -1,7 +1,7 @@
 {
   "schema": "wikijump.wikidot_implementation_ledger.v1",
   "updated_at": "2026-07-29",
-  "catalog_sha256": "c8513e8aa67b57a0d056cc826a4a9fa042be07821cfb1a1bef6046406cbb0917",
+  "catalog_sha256": "7266039c0ca75f7cd094337bdbc33f4894cd4314ea1d89b2478fb6924692f5a1",
   "campaign": {
     "name": "ListPages compatibility campaign",
     "requested_scope": [
@@ -594,25 +594,59 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-backlinks": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell page_get with details.compiled=true after saved-page rendering through the real parser, renderer, test database, link graph, permissions, and page-view interface",
+        "RenderService Backlinks module rendering for empty and non-empty link graph output"
+      ],
+      "tests": [
+        "deepwell/tests/page.rs::backlinks_module_renders_current_page_incoming_links",
+        "deepwell/tests/page.rs::backlinks_module_ignores_arguments_like_live_wikidot",
+        "deepwell/src/services/render/backlinks.rs::tests::backlinks_name_must_end_before_arguments",
+        "deepwell/src/services/render/backlinks.rs::tests::empty_backlinks_box_matches_live_wikidot"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/backlinks.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/tests/page.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-backlinks.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "live-observations.json::navigation-list-modules-live-dom-and-argument-quirks",
+        "install/local/wikidot-verification/artifacts/navigation-list-modules-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-categories": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell page_get with details.compiled=true after saved-page rendering through the real parser, renderer, test database, category service, and page-view interface",
+        "RenderService Categories module rendering for hidden-category filtering and generated toggler DOM"
+      ],
+      "tests": [
+        "deepwell/tests/page.rs::categories_module_lists_active_categories_and_honors_include_hidden",
+        "deepwell/src/services/render/categories.rs::tests::categories_name_must_end_before_arguments",
+        "deepwell/src/services/render/categories.rs::tests::include_hidden_matches_live_exact_quoted_argument",
+        "deepwell/src/services/render/categories.rs::tests::default_category_is_visible_even_when_hidden_categories_are_not",
+        "deepwell/src/services/render/categories.rs::tests::category_order_ignores_hyphens_like_wikidot",
+        "deepwell/src/services/render/categories.rs::tests::category_dom_matches_wikidot_and_escapes_the_slug",
+        "deepwell/src/services/render/categories.rs::tests::include_hidden_categories_emit_live_options_marker"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/categories.rs",
+        "deepwell/src/services/render/page_tree.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/tests/page.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-categories.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "live-observations.json::navigation-list-modules-live-dom-and-argument-quirks",
+        "install/local/wikidot-verification/artifacts/navigation-list-modules-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-childpages": {
@@ -1284,14 +1318,29 @@
       "unresolved_ambiguities_or_blockers": []
     },
     "module-pagetree": {
-      "status": "pending",
-      "confirmed_public_seams": [],
-      "tests": [],
-      "implementation_files": [],
+      "status": "implemented",
+      "confirmed_public_seams": [
+        "Deepwell page_get with details.compiled=true after saved-page rendering through the real parser, renderer, test database, page-parent table, and page-view interface",
+        "RenderService PageTree module rendering for parent hierarchy traversal, explicit roots, showRoot, depth, and attribute parsing"
+      ],
+      "tests": [
+        "deepwell/tests/page.rs::page_tree_module_renders_current_page_hierarchy_with_live_depth_dom",
+        "deepwell/src/services/render/page_tree.rs::tests::arguments_match_live_case_sensitive_semantics",
+        "deepwell/src/services/render/page_tree.rs::tests::live_dom_depth_and_cycle_boundaries_are_preserved",
+        "deepwell/src/services/render/page_tree.rs::tests::url_and_cross_site_root_forms_fail_closed"
+      ],
+      "implementation_files": [
+        "deepwell/src/services/render/page_tree.rs",
+        "deepwell/src/services/render/service.rs",
+        "deepwell/tests/page.rs"
+      ],
       "documentation_evidence": [
         "specifications/module/module-pagetree.md"
       ],
-      "live_oracle_evidence": [],
+      "live_oracle_evidence": [
+        "live-observations.json::navigation-list-modules-live-dom-and-argument-quirks",
+        "install/local/wikidot-verification/artifacts/navigation-list-modules-live.json"
+      ],
       "unresolved_ambiguities_or_blockers": []
     },
     "module-petitionadmin": {
