@@ -18,7 +18,10 @@ const defaults = {
     "spinny-label.error": {},
     "spinny-label.success": {},
     "spinny-label.warning": {},
-    "message-loading": {}
+    "message-loading": {},
+
+    // Form fields
+    "field-required": {}
   },
   translateStripKeys: ["footer-license-unless"],
   page: {
