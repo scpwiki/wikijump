@@ -21,7 +21,8 @@ const defaults = {
     "message-loading": {},
 
     // Form fields
-    "field-required": {}
+    "field-required": {},
+    "hold-to-show-password": {}
   },
   translateStripKeys: ["footer-license-unless"],
   page: {
