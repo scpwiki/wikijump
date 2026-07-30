@@ -1,5 +1,5 @@
 /*
- * tests/common/mod.rs
+ * tests/common/audit.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -18,30 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Common utilities for running DEEPWELL integration tests.
+use super::TestRunner;
+use deepwell::models::audit_log::{self, Entity as AuditLog};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
-#[macro_use]
-mod assert;
-
-#[macro_use]
-mod endpoint;
-
-#[macro_use]
-mod error;
-
-mod audit;
-mod params;
-mod runner;
-
-#[allow(unused_imports)]
-pub use self::audit::*;
-
-#[allow(unused_imports)]
-pub use self::error::extract_error;
-
-pub use self::params::*;
-pub use self::runner::TestRunner;
-use std::net::{IpAddr, Ipv4Addr};
-
-#[allow(dead_code)]
-pub const IP_ADDRESS: IpAddr = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 10));
+pub async fn latest_audit_event(
+    runner: &TestRunner,
+    event_type: &str,
+    site_id: i64,
+    target_user_id: i64,
+) -> audit_log::Model {
+    AuditLog::find()
+        .filter(audit_log::Column::EventType.eq(event_type))
+        .filter(audit_log::Column::SiteId.eq(site_id))
+        .filter(audit_log::Column::UserId.eq(target_user_id))
+        .order_by_desc(audit_log::Column::EventId)
+        .one(runner.context().transaction())
+        .await
+        .expect("Unable to query audit log")
+        .expect("Expected audit event was not found")
+}
