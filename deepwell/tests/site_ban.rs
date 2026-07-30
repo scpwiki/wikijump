@@ -184,6 +184,17 @@ async fn lifecycle_membership_blocking_and_audit() {
     );
     assert!(membership.is_some(), "Site membership was not created");
 
+    // Verify the site membership audit log event.
+    let join_event =
+        latest_audit_event(&runner, "site_member.join", site_id, user_id).await;
+
+    assert_eq!(join_event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(join_event.user_id, Some(user_id));
+    assert_eq!(join_event.site_id, Some(site_id));
+    assert_eq!(join_event.extra_id_1, Some(ADMIN_USER_ID));
+    assert_eq!(join_event.extra_string_1, None);
+    assert_eq!(join_event.extra_string_2, None);
+
     // Creating the ban must remove the existing membership.
     run_endpoint!(
         runner,
