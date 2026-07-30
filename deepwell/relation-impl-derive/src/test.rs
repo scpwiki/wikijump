@@ -109,7 +109,7 @@ fn parse() {
             dest => site_id: Site,
             from => user_id: User,
             data => SiteBanData,
-            create_fn => false,
+            create_fn => struct,
             ",
         );
         assert_eq!(settings.struct_name, "SiteBan");
@@ -120,7 +120,7 @@ fn parse() {
         assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "SiteBanData");
-        assert_eq!(settings.create_fn, GenerateMethod::Private);
+        assert_eq!(settings.create_fn, GenerateMethod::PrivateWithStruct);
         assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 
@@ -131,7 +131,7 @@ fn parse() {
             dest => bot_user: User,
             from => owner_user: User,
             data => UserBotMetadata,
-            create_fn => extern,
+            create_fn => false,
             ",
         );
         assert_eq!(settings.struct_name, "UserBotOwner");
@@ -142,7 +142,30 @@ fn parse() {
         assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "UserBotMetadata");
-        assert_eq!(settings.create_fn, GenerateMethod::Skip);
+        assert_eq!(settings.create_fn, GenerateMethod::Private);
         assert_eq!(settings.remove_fn, GenerateMethod::Public);
+    }
+
+    {
+        let settings = parse_settings(
+            "
+            name => WeirdFooBar,
+            dest => first_user: User,
+            from => second_user: User,
+            data => FooData,
+            create_fn => extern,
+            remove_fn => struct,
+            ",
+        );
+        assert_eq!(settings.struct_name, "WeirdFooBar");
+        assert_eq!(settings.field_name, "weird_foo_bar");
+        assert_eq!(settings.dest.0.to_string(), "first_user");
+        assert_eq!(settings.dest.1, RelationObjectType::User);
+        assert_eq!(settings.from.0.to_string(), "second_user");
+        assert_eq!(settings.from.1, RelationObjectType::User);
+        assert!(settings.data_type.is_some());
+        assert_type(settings.data_type.unwrap(), "FooData");
+        assert_eq!(settings.create_fn, GenerateMethod::Skip);
+        assert_eq!(settings.remove_fn, GenerateMethod::PrivateWithStruct);
     }
 }
