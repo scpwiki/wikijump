@@ -103,7 +103,8 @@
         name="comments"
         class="page-move-comments"
         placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-        bind:value={$form.comments}></textarea>
+        bind:value={$form.comments}
+      ></textarea>
     {/if}
     <div class="buttons">
       <input
@@ -132,7 +133,8 @@
       name="comments"
       class="page-move-comments"
       placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-      bind:value={$form.comments}></textarea>
+      bind:value={$form.comments}
+    ></textarea>
     <div class="action-row page-delete-actions">
       <button
         class="action-button page-delete-button button-cancel clickable"

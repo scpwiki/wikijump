@@ -248,6 +248,7 @@ impl ImportService {
                 SYSTEM_USER_ID,
                 Reference::Id(page_id),
                 CreatePageLockInput {
+                    page: Reference::Id(page_id),
                     from_wikidot: true,
                     lock_type: PageLockType::Wikidot,
                     reason: None,

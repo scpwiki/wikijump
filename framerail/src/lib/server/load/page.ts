@@ -1156,8 +1156,9 @@ export async function pageLockCreateAction({
   const ipAddress = getClientAddress()
 
   try {
-    const { lockType, reason, expiresAt, overrideExisting } = form.data
+    const { pageId, lockType, reason, expiresAt, overrideExisting } = form.data
     await pageLockCreate(
+      pageId,
       lockType,
       reason,
       expiresAt,
@@ -1178,6 +1179,7 @@ export async function pageLockCreateAction({
 }
 
 const pageLockSchema = object({
+  pageId: number(),
   lockType: optional(vEnum(PageLockType), PageLockType.PermissionOnly),
   reason: string(),
   expiresAt: optional(string()),
@@ -1185,11 +1187,16 @@ const pageLockSchema = object({
 })
 
 /* ----- Page Lock Remove ----- */
-export async function pageLockRemoveAction({ getClientAddress, locals }: RequestEvent) {
+export async function pageLockRemoveAction({
+  request,
+  getClientAddress,
+  locals
+}: RequestEvent) {
   const ipAddress = getClientAddress()
 
   try {
-    await pageLockRemove(ipAddress, getRequestContext(locals))
+    const { pageId }: { pageId: number } = await request.json()
+    await pageLockRemove(pageId, ipAddress, getRequestContext(locals))
     return {}
   } catch (e) {
     const error = e as DeepwellError
@@ -1202,9 +1209,10 @@ export async function pageLockRemoveAction({ getClientAddress, locals }: Request
 }
 
 /* ----- Page Lock History ----- */
-export async function pageLockHistoryAction({ locals }: RequestEvent) {
+export async function pageLockHistoryAction({ request, locals }: RequestEvent) {
   try {
-    const res = await pageLockHistory(getRequestContext(locals))
+    const { pageId }: { pageId: number } = await request.json()
+    const res = await pageLockHistory(pageId, getRequestContext(locals))
     return { res }
   } catch (e) {
     const error = e as DeepwellError

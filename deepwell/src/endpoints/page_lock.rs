@@ -21,7 +21,9 @@
 use super::prelude::*;
 use crate::models::page_lock::Model as PageLockModel;
 use crate::services::PageLockService;
-use crate::services::page_lock::{CreatePageLockInput, RemovePageLockInput};
+use crate::services::page_lock::{
+    CreatePageLockInput, GetPageLockHistoryInput, RemovePageLockInput,
+};
 
 pub async fn page_lock_create(
     ctx: &ServiceContext<'_>,
@@ -36,9 +38,7 @@ pub async fn page_lock_create(
     let user_id = request
         .user_id()
         .or_raise(|| Error::new("no user ID found", ErrorType::PageLock))?;
-    let page_ref = request
-        .page_reference()
-        .or_raise(|| Error::new("no page reference found", ErrorType::PageLock))?;
+    let page_ref = input.page.clone();
 
     info!(
         "Creating page lock of type {:?} for page {:?} in site {}",
@@ -65,9 +65,7 @@ pub async fn page_lock_remove(
     let user_id = request
         .user_id()
         .or_raise(|| Error::new("no user ID found", ErrorType::PageLock))?;
-    let page_ref = request
-        .page_reference()
-        .or_raise(|| Error::new("no page reference found", ErrorType::PageLock))?;
+    let page_ref = input.page.clone();
 
     info!(
         "Removing active page lock for page {:?} in site {}",
@@ -83,22 +81,21 @@ pub async fn page_lock_remove(
 
 pub async fn page_lock_get_history(
     ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
+    params: Params<'static>,
 ) -> Result<Vec<PageLockModel>> {
+    let input: GetPageLockHistoryInput = parse!(params, PageLock);
+
     let request = ctx.request();
     let site_id = request
         .site_id()
         .or_raise(|| Error::new("no site ID found", ErrorType::PageLock))?;
-    let page_ref = request
-        .page_reference()
-        .or_raise(|| Error::new("no page reference found", ErrorType::PageLock))?;
 
     info!(
         "Fetching lock history for page {:?} in site {}",
-        page_ref, site_id,
+        input.page, site_id,
     );
 
-    PageLockService::get_locks_for_page(ctx, site_id, page_ref.borrow())
+    PageLockService::get_locks_for_page(ctx, site_id, input.page.borrow())
         .await
         .or_raise(|| Error::new("failed to fetch page lock history", ErrorType::PageLock))
 }

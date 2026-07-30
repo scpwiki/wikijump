@@ -355,19 +355,22 @@ export interface PageLockModel {
   reason: string
 }
 export async function pageLockHistory(
+  pageId: number,
   reqContext: RequestContext
 ): Promise<PageLockModel[]> {
-  return client.request("page_lock_get_history", {}, reqContext)
+  return client.request("page_lock_get_history", { page: pageId }, reqContext)
 }
 
 /* ----- Page Lock Remove ----- */
 export async function pageLockRemove(
+  pageId: number,
   userIpAddr: string,
   reqContext: RequestContext
 ): Promise<void> {
   return client.request(
     "page_lock_remove",
     {
+      page: pageId,
       ip_address: userIpAddr
     },
     reqContext
@@ -376,6 +379,7 @@ export async function pageLockRemove(
 
 /* ----- Page Lock Create ----- */
 export async function pageLockCreate(
+  pageId: number,
   lockType: PageLockType,
   reason: string,
   expiresAt: Optional<string>,
@@ -386,6 +390,7 @@ export async function pageLockCreate(
   return client.request(
     "page_lock_create",
     {
+      page: pageId,
       lock_type: lockType,
       reason: reason,
       expires_at: expiresAt ?? null,

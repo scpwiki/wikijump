@@ -1,5 +1,5 @@
-import * as Popper from "@popperjs/core"
 import { clearTimeout, timeout, Timeout } from "$lib/util"
+import * as Popper from "@popperjs/core"
 import { BaseButton } from "./base-button"
 import { HoverObserver } from "./hover"
 

@@ -2,7 +2,12 @@ import type { Locales } from "../types"
 export type Optional<T> = T | undefined
 export type Nullable<T> = T | null
 export type JsonValue =
-  string | number | boolean | null | { [key: string]: JsonValue } | JsonValue[]
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JsonValue }
+  | JsonValue[]
 export type TranslateKeys = {
   [P in keyof Locales]?: Record<string, string | number>
 }

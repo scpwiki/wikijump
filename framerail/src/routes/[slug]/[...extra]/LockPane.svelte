@@ -18,6 +18,7 @@
       onSubmit: async ({ jsonData }) => {
         jsonData({
           ...$form,
+          pageId: data.page!.page_id,
           expiresAt: $form.expiresAt ? new Date($form.expiresAt).toISOString() : undefined
         })
       },
@@ -35,6 +36,7 @@
     }
   )
 
+  $form.pageId = untrack(() => data.page!.page_id)
   $form.lockType = PageLockType.PermissionOnly
   $form.reason = ""
   $form.overrideExisting = false
@@ -44,7 +46,7 @@
   async function removeLock() {
     const res = await fetch("?/lockRemove", {
       method: "POST",
-      body: JSON.stringify({})
+      body: JSON.stringify({ pageId: data.page!.page_id })
     }).then((res) => res.text())
 
     const result = deserialize<
@@ -90,7 +92,7 @@
   async function fetchLockHistory() {
     const res = await fetch("?/lockHistory", {
       method: "POST",
-      body: JSON.stringify({})
+      body: JSON.stringify({ pageId: data.page!.page_id })
     }).then((res) => res.text())
 
     const result = deserialize<
