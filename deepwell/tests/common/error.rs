@@ -25,7 +25,7 @@
 use deepwell::error::prelude::*;
 use exn::{Exn, Frame};
 
-#[allow(dead_code)] // TEMP
+#[allow(dead_code)]
 /// Extract the deepwell error from the `Exn<Error>` which matches a condition.
 ///
 /// This walks the error tree until it finds the first `Error` type which
