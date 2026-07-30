@@ -21,12 +21,11 @@
 #[macro_use]
 mod common;
 
-use self::common::TestRunner;
+use self::common::{TestRunner, latest_audit_event};
 use deepwell::constants::{
     ADMIN_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID, UNKNOWN_USER_ID,
 };
 use deepwell::error::prelude::*;
-use deepwell::models::audit_log::{self, Entity as AuditLog};
 use deepwell::models::relation::{self, Entity as Relation};
 use deepwell::services::RelationService;
 use deepwell::services::role::{InternalCreateRoleInput, RoleService};
@@ -89,23 +88,6 @@ async fn clear_site_membership(runner: &TestRunner, site_id: i64, user_id: i64) 
             }),
         );
     }
-}
-
-async fn latest_audit_event(
-    runner: &TestRunner,
-    event_type: &str,
-    site_id: i64,
-    target_user_id: i64,
-) -> audit_log::Model {
-    AuditLog::find()
-        .filter(audit_log::Column::EventType.eq(event_type))
-        .filter(audit_log::Column::SiteId.eq(site_id))
-        .filter(audit_log::Column::UserId.eq(target_user_id))
-        .order_by_desc(audit_log::Column::EventId)
-        .one(runner.context().transaction())
-        .await
-        .expect("Unable to query audit log")
-        .expect("Expected audit event was not found")
 }
 
 #[tokio::test]
