@@ -150,8 +150,7 @@
     name="reason"
     class="page-lock-reason"
     placeholder={data.internationalization?.["wiki-page-lock.reason"]}
-    bind:value={$form.reason}
-  ></textarea>
+    bind:value={$form.reason}></textarea>
 
   <label class="page-lock-field-label" for="page-lock-expires-at">
     {data.internationalization?.["wiki-page-lock.expires-at"]}

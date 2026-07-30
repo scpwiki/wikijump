@@ -99,8 +99,7 @@
     name="comments"
     class="editor-comments"
     placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-    bind:value={$form.comments}
-  ></textarea>
+    bind:value={$form.comments}></textarea>
   {#if pageLayoutState.current === Layout.WIKIDOT}
     <div class="buttons alignleft">
       <input
