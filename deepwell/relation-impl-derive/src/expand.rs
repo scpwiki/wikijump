@@ -7,7 +7,7 @@
 //! (Some generation is disabled or modified based on the settings.)
 
 use crate::parse::RelationSettings;
-use crate::types::{GenerateMethod, RelationObjectType};
+use crate::types::{GenerateMethod, GenerateMethodSettings, RelationObjectType};
 use crate::util::make_ident;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -219,25 +219,33 @@ fn generate_create_defs(
     data_type: Option<&Type>,
     create_fn: GenerateMethod,
 ) -> Option<GeneratedDefinitions> {
-    let (vis, suffix) = create_fn.vis_and_suffix()?;
+    let GenerateMethodSettings {
+        fn_public,
+        fn_visibility,
+        fn_suffix,
+        generate_pub_struct,
+    } = create_fn.settings()?;
+
     let mut create_struct = make_ident(format!("Create{}", struct_name));
-    let create_struct_def;
+    let mut create_struct_def = None;
     let mut create_struct_lifetime = None;
     let mut create_struct_inner_def = None;
 
     match data_type {
         Some(data_type) => {
-            create_struct_def = quote! {
-                #[derive(Deserialize, Debug, Clone)]
-                pub struct #create_struct {
-                    pub #dest_name: i64,
-                    pub #from_name: i64,
-                    pub metadata: #data_type,
-                    pub created_by: i64,
-                }
-            };
+            if generate_pub_struct {
+                create_struct_def = Some(quote! {
+                    #[derive(Deserialize, Debug, Clone)]
+                    pub struct #create_struct {
+                        pub #dest_name: i64,
+                        pub #from_name: i64,
+                        pub metadata: #data_type,
+                        pub created_by: i64,
+                    }
+                });
+            }
 
-            if matches!(create_fn, GenerateMethod::Private) {
+            if !fn_public {
                 // overwrite since this is the name to use later for the actual fn impl
                 create_struct = make_ident(format!("Create{}Inner", struct_name));
                 create_struct_lifetime = Some(quote! { <'_> });
@@ -253,20 +261,22 @@ fn generate_create_defs(
             }
         }
         None => {
-            create_struct_def = quote! {
-                #[derive(Deserialize, Debug, Clone)]
-                pub struct #create_struct {
-                    pub #dest_name: i64,
-                    pub #from_name: i64,
-                    pub created_by: i64,
-                }
-            };
+            if generate_pub_struct {
+                create_struct_def = Some(quote! {
+                    #[derive(Deserialize, Debug, Clone)]
+                    pub struct #create_struct {
+                        pub #dest_name: i64,
+                        pub #from_name: i64,
+                        pub created_by: i64,
+                    }
+                });
+            }
         }
     };
 
     let create_method_impl = {
         let error_name = make_ident(format!("{}Relation", struct_name));
-        let method_name = make_ident(format!("create_{field_name}{suffix}"));
+        let method_name = make_ident(format!("create_{}{}", field_name, fn_suffix));
 
         let struct_decompose;
         let create_call;
@@ -326,7 +336,7 @@ fn generate_create_defs(
         };
 
         quote! {
-            #vis async fn #method_name(
+            #fn_visibility async fn #method_name(
                 ctx: &ServiceContext<'_>,
                 #struct_decompose,
             ) -> Result<()> {
@@ -363,22 +373,36 @@ fn generate_remove_defs(
     }: GenerationContext,
     remove_fn: GenerateMethod,
 ) -> Option<GeneratedDefinitions> {
-    let (vis, suffix) = remove_fn.vis_and_suffix()?;
+    let GenerateMethodSettings {
+        fn_public,
+        fn_visibility,
+        fn_suffix,
+        generate_pub_struct,
+    } = remove_fn.settings()?;
+
     let remove_struct = make_ident(format!("Remove{}", struct_name));
-    let remove_struct_def = quote! {
-        #[derive(Deserialize, Debug, Copy, Clone)]
-        pub struct #remove_struct {
-            pub #dest_name: i64,
-            pub #from_name: i64,
-            pub removed_by: i64,
+    let remove_struct_def = if generate_pub_struct {
+        // removal doesn't have separate public / inner structs
+        // since no data to borrow, so we ignore the flag
+        let _ = fn_public;
+
+        quote! {
+            #[derive(Deserialize, Debug, Copy, Clone)]
+            pub struct #remove_struct {
+                pub #dest_name: i64,
+                pub #from_name: i64,
+                pub removed_by: i64,
+            }
         }
+    } else {
+        quote! {}
     };
 
     let remove_method_impl = {
-        let method_name = make_ident(format!("remove_{field_name}{suffix}"));
+        let method_name = make_ident(format!("remove_{}{}", field_name, fn_suffix));
 
         quote! {
-            #vis async fn #method_name(
+            #fn_visibility async fn #method_name(
                 ctx: &ServiceContext<'_>,
                 #remove_struct {
                     #dest_name,

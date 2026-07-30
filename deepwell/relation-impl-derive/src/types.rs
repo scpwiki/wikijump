@@ -91,11 +91,26 @@ impl GenerateMethod {
         }
     }
 
-    pub fn vis_and_suffix(self) -> Option<(Visibility, &'static str)> {
+    pub fn settings(self) -> Option<GenerateMethodSettings> {
         match self {
-            GenerateMethod::Public => Some((public(), "")),
-            GenerateMethod::Private => Some((private(), "_inner")),
-            GenerateMethod::PrivateWithStruct => todo!(),
+            GenerateMethod::Public => Some(GenerateMethodSettings {
+                fn_public: true,
+                fn_visibility: public(),
+                fn_suffix: "",
+                generate_pub_struct: true,
+            }),
+            GenerateMethod::Private => Some(GenerateMethodSettings {
+                fn_public: false,
+                fn_visibility: private(),
+                fn_suffix: "_inner",
+                generate_pub_struct: false,
+            }),
+            GenerateMethod::PrivateWithStruct => Some(GenerateMethodSettings {
+                fn_public: false,
+                fn_visibility: private(),
+                fn_suffix: "_inner",
+                generate_pub_struct: true,
+            }),
             GenerateMethod::Skip => None,
         }
     }
@@ -106,6 +121,15 @@ impl Default for GenerateMethod {
     fn default() -> Self {
         GenerateMethod::Public
     }
+}
+
+/// Helper struct used in token expansion.
+/// Contains redundant fields for convenience.
+pub struct GenerateMethodSettings {
+    pub fn_public: bool,
+    pub fn_visibility: Visibility,
+    pub fn_suffix: &'static str,
+    pub generate_pub_struct: bool,
 }
 
 #[inline]
