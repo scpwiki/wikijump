@@ -5,7 +5,7 @@ use proc_macro2::{Punct, Spacing, Span, TokenStream};
 use quote::{ToTokens, TokenStreamExt};
 use syn::parse::ParseStream;
 use syn::token::Pub;
-use syn::{Ident, LitBool, Token, Visibility};
+use syn::{Ident, Visibility};
 
 /// Represents which variant of `RelationObject` is to be used.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -60,11 +60,11 @@ pub enum GenerateMethod {
     /// Implement a public method to be used.
     Public,
 
-    /// Implement a private "inner" method as a helper.
-    Private,
-
-    /// Implement a private "inner" method but a public struct.
+    /// Implement a private "inner" method and private struct, as well as a public struct.
     PrivateWithStruct,
+
+    /// Implement a private "inner" method and private struct only.
+    PrivateWithoutStruct,
 
     /// Don't implement the method, have the caller do it themselves.
     Skip,
@@ -72,22 +72,13 @@ pub enum GenerateMethod {
 
 impl GenerateMethod {
     pub fn parse(input: ParseStream) -> syn::Result<Self> {
-        let token = input.lookahead1();
-        if token.peek(LitBool) {
-            let t_bool: LitBool = input.parse()?;
-            if t_bool.value {
-                Ok(GenerateMethod::Public)
-            } else {
-                Ok(GenerateMethod::Private)
-            }
-        } else if token.peek(Token![struct]) {
-            let _: Token![struct] = input.parse()?;
-            Ok(GenerateMethod::PrivateWithStruct)
-        } else if token.peek(Token![extern]) {
-            let _: Token![extern] = input.parse()?;
-            Ok(GenerateMethod::Skip)
-        } else {
-            Err(token.error())
+        let value = input.parse::<Ident>()?.to_string();
+        match value.as_str() {
+            "public" => Ok(GenerateMethod::Public),
+            "private" => Ok(GenerateMethod::PrivateWithStruct),
+            "private_only" => Ok(GenerateMethod::PrivateWithoutStruct),
+            "skip" => Ok(GenerateMethod::Skip),
+            _ => Err(make_error(format!("invalid generation setting: {value}"))),
         }
     }
 
@@ -99,17 +90,17 @@ impl GenerateMethod {
                 fn_suffix: "",
                 generate_pub_struct: true,
             }),
-            GenerateMethod::Private => Some(GenerateMethodSettings {
-                fn_public: false,
-                fn_visibility: private(),
-                fn_suffix: "_inner",
-                generate_pub_struct: false,
-            }),
             GenerateMethod::PrivateWithStruct => Some(GenerateMethodSettings {
                 fn_public: false,
                 fn_visibility: private(),
                 fn_suffix: "_inner",
                 generate_pub_struct: true,
+            }),
+            GenerateMethod::PrivateWithoutStruct => Some(GenerateMethodSettings {
+                fn_public: false,
+                fn_visibility: private(),
+                fn_suffix: "_inner",
+                generate_pub_struct: false,
             }),
             GenerateMethod::Skip => None,
         }
