@@ -63,7 +63,10 @@ pub enum GenerateMethod {
     /// Implement a private "inner" method as a helper.
     Private,
 
-    /// Don't implement the method or struct, have the caller do it themselves.
+    /// Implement a private "inner" method but a public struct.
+    PrivateWithStruct,
+
+    /// Don't implement the method, have the caller do it themselves.
     Skip,
 }
 
@@ -77,6 +80,9 @@ impl GenerateMethod {
             } else {
                 Ok(GenerateMethod::Private)
             }
+        } else if token.peek(Token![struct]) {
+            let _: Token![struct] = input.parse()?;
+            Ok(GenerateMethod::PrivateWithStruct)
         } else if token.peek(Token![extern]) {
             let _: Token![extern] = input.parse()?;
             Ok(GenerateMethod::Skip)
@@ -89,6 +95,7 @@ impl GenerateMethod {
         match self {
             GenerateMethod::Public => Some((public(), "")),
             GenerateMethod::Private => Some((private(), "_inner")),
+            GenerateMethod::PrivateWithStruct => todo!(),
             GenerateMethod::Skip => None,
         }
     }
