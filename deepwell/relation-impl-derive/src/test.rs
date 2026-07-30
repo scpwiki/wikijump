@@ -109,7 +109,7 @@ fn parse() {
             dest => site_id: Site,
             from => user_id: User,
             data => SiteBanData,
-            create_fn => struct,
+            create_fn => private,
             ",
         );
         assert_eq!(settings.struct_name, "SiteBan");
@@ -131,7 +131,7 @@ fn parse() {
             dest => bot_user: User,
             from => owner_user: User,
             data => UserBotMetadata,
-            create_fn => false,
+            create_fn => private,
             ",
         );
         assert_eq!(settings.struct_name, "UserBotOwner");
@@ -142,7 +142,7 @@ fn parse() {
         assert_eq!(settings.from.1, RelationObjectType::User);
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "UserBotMetadata");
-        assert_eq!(settings.create_fn, GenerateMethod::Private);
+        assert_eq!(settings.create_fn, GenerateMethod::PrivateWithStruct);
         assert_eq!(settings.remove_fn, GenerateMethod::Public);
     }
 
@@ -153,8 +153,8 @@ fn parse() {
             dest => first_user: User,
             from => second_user: User,
             data => FooData,
-            create_fn => extern,
-            remove_fn => struct,
+            create_fn => skip,
+            remove_fn => private_only,
             ",
         );
         assert_eq!(settings.struct_name, "WeirdFooBar");
@@ -166,6 +166,6 @@ fn parse() {
         assert!(settings.data_type.is_some());
         assert_type(settings.data_type.unwrap(), "FooData");
         assert_eq!(settings.create_fn, GenerateMethod::Skip);
-        assert_eq!(settings.remove_fn, GenerateMethod::PrivateWithStruct);
+        assert_eq!(settings.remove_fn, GenerateMethod::PrivateWithoutStruct);
     }
 }

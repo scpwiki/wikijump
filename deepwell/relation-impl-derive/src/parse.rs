@@ -95,15 +95,19 @@ impl Parse for RelationSettings {
                 }
 
                 // Designate how the create method should be generated
-                // This key is optional, default is "true".
+                // This key is optional, default is "public".
                 //
-                // If set to "struct", then the behavior is like "false",
-                // except the public struct is also defined.
+                // This takes one of four values:
+                //  * public
+                //      Generates a public creation struct and method.
+                //  * private
+                //      Generates a public creation struct, private struct and private method.
+                //  * private_only
+                //      Generates a private creation struct and method only.
+                //  * skip
+                //      Generates nothing.
                 //
-                // If set to "extern", then neither the method nor the
-                // corresponding struct are generated.
-                //
-                //  create_fn => extern
+                //  create_fn => public
                 "create_fn" => {
                     error_if_set!(create_fn);
                     let option = GenerateMethod::parse(input)?;
@@ -113,11 +117,7 @@ impl Parse for RelationSettings {
                 // Designate how the remove method should be generated
                 // This key is optional, default is "true".
                 //
-                // If set to "struct", then the behavior is like "false",
-                // except the public struct is also defined.
-                //
-                // If set to "extern", then neither the method nor the
-                // corresponding struct are generated.
+                // Same accepted values as create_fn.
                 //
                 //  remove_fn => true
                 "remove_fn" => {
