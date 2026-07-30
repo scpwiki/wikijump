@@ -30,7 +30,7 @@ impl_relation! {
     dest => blocked_user: User,
     from => blocking_user: User,
     data => UserBlockData,
-    create_fn => false,
+    create_fn => private,
 }
 
 impl RelationService {

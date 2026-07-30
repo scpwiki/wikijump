@@ -64,7 +64,7 @@ impl_relation! {
     dest => bot_user: User,
     from => owner_user: User,
     data => UserBotMetadata,
-    create_fn => false,
+    create_fn => private_only,
 }
 
 impl RelationService {

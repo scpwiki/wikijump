@@ -35,7 +35,7 @@ impl_relation! {
     name => SiteUser,
     dest => site_id: Site,
     from => user_id: User,
-    create_fn => false,
+    create_fn => private,
 }
 
 impl RelationService {

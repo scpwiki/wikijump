@@ -42,8 +42,8 @@ impl_relation! {
     dest => site_id: Site,
     from => user_id: User,
     data => SiteMemberData,
-    create_fn => false,
-    remove_fn => false,
+    create_fn => private,
+    remove_fn => private,
 }
 
 impl RelationService {
