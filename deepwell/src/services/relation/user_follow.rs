@@ -24,7 +24,7 @@ impl_relation! {
     name => UserFollow,
     dest => followed_user: User,
     from => following_user: User,
-    create_fn => false,
+    create_fn => private,
 }
 
 impl RelationService {
