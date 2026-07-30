@@ -97,6 +97,9 @@ impl Parse for RelationSettings {
                 // Designate how the create method should be generated
                 // This key is optional, default is "true".
                 //
+                // If set to "struct", then the behavior is like "false",
+                // except the public struct is also defined.
+                //
                 // If set to "extern", then neither the method nor the
                 // corresponding struct are generated.
                 //
@@ -109,6 +112,9 @@ impl Parse for RelationSettings {
 
                 // Designate how the remove method should be generated
                 // This key is optional, default is "true".
+                //
+                // If set to "struct", then the behavior is like "false",
+                // except the public struct is also defined.
                 //
                 // If set to "extern", then neither the method nor the
                 // corresponding struct are generated.
