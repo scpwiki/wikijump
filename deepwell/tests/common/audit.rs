@@ -22,6 +22,7 @@ use super::TestRunner;
 use deepwell::models::audit_log::{self, Entity as AuditLog};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
+#[allow(dead_code)]
 pub async fn latest_audit_event(
     runner: &TestRunner,
     event_type: &str,
