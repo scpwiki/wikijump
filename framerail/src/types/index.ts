@@ -392,6 +392,27 @@ export interface Locales {
   "wiki-page-file-restore": string
   "wiki-page-file-restore.new-page": string
   "wiki-page-file-restore.new-name": string
+  "wiki-page-lock": string
+  "wiki-page-lock.permission-only": string
+  "wiki-page-lock.author-or-permission-only": string
+  "wiki-page-lock.permission-only-text": string
+  "wiki-page-lock.author-or-permission-only-text": string
+  "wiki-page-lock.reason": string
+  "wiki-page-lock.expires-at": string
+  "wiki-page-lock.override": string
+  "wiki-page-lock.history": string
+  "wiki-page-lock.history-type": string
+  "wiki-page-lock.history-user": string
+  "wiki-page-lock.history-reason": string
+  "wiki-page-lock.history-created": string
+  "wiki-page-lock.history-expires": string
+  "wiki-page-lock.history-status": string
+  "wiki-page-lock.history-active": string
+  "wiki-page-lock.history-expired": string
+  "wiki-page-lock.history-removed": string
+  "wiki-page-lock.history-overridden": string
+  "wiki-page-lock.history-none": string
+  "wiki-page-lock.remove": string
   "wiki-page-parent": string
   "wiki-page-missing": string
   "wiki-page-private": string

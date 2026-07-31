@@ -1,7 +1,7 @@
 import defaults from "$lib/defaults"
 
 import { client } from "$lib/server/deepwell"
-import { Layout } from "$lib/types"
+import { Layout, PageLockType } from "$lib/types"
 
 import type {
   Nullable,
@@ -339,6 +339,67 @@ export async function pageRestore(
     ip_address: userIpAddr,
     revision_comments: revisionComments
   })
+}
+
+/* ----- Page Lock History ----- */
+export interface PageLockModel {
+  page_lock_id: number
+  created_at: string
+  updated_at: Nullable<string>
+  deleted_at: Nullable<string>
+  expires_at: Nullable<string>
+  from_wikidot: boolean
+  lock_type: string
+  page_id: number
+  user_id: number
+  reason: string
+}
+export async function pageLockHistory(
+  pageId: number,
+  reqContext: RequestContext
+): Promise<PageLockModel[]> {
+  return client.request("page_lock_get_history", { page: pageId }, reqContext)
+}
+
+/* ----- Page Lock Remove ----- */
+export async function pageLockRemove(
+  pageId: number,
+  userIpAddr: string,
+  reqContext: RequestContext
+): Promise<void> {
+  return client.request(
+    "page_lock_remove",
+    {
+      page: pageId,
+      ip_address: userIpAddr
+    },
+    reqContext
+  )
+}
+
+/* ----- Page Lock Create ----- */
+export async function pageLockCreate(
+  pageId: number,
+  lockType: PageLockType,
+  reason: string,
+  expiresAt: Optional<string>,
+  overrideExisting: boolean,
+  userIpAddr: string,
+  reqContext: RequestContext
+): Promise<void> {
+  return client.request(
+    "page_lock_create",
+    {
+      page: pageId,
+      lock_type: lockType,
+      reason: reason,
+      expires_at: expiresAt ?? null,
+      from_wikidot: false,
+      override_existing: overrideExisting ?? false,
+      ip_address: userIpAddr
+    },
+    reqContext
+  )
 }
 
 /* ----- Page Score ----- */

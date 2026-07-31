@@ -95,6 +95,30 @@ wiki-page-file-restore = Restore
   .new-page = Destination page
   .new-name = New file name
 
+### Wiki page lock
+
+wiki-page-lock = Lock Page
+  .permission-only = Permission Only
+  .author-or-permission-only = Permission/Author Only
+  .permission-only-text = Only members with lock bypass permission can edit.
+  .author-or-permission-only-text = Members with permission and page authors can edit.
+  .reason = Reason (optional)
+  .expires-at = (Optional) Set a date when this lock will automatically expire:
+  .override = Override existing lock
+  .history = Lock History
+  .history-type = Type
+  .history-user = Locked by
+  .history-reason = Lock reason
+  .history-created = Created at
+  .history-expires = Expires at
+  .history-status = Status
+  .history-active = Active
+  .history-expired = Expired
+  .history-removed = Removed
+  .history-overridden = Overridden
+  .history-none = No lock history for this page.
+  .remove = Remove
+
 ### Wiki page parents
 
 wiki-page-parent = Page parents

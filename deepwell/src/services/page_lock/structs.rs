@@ -26,11 +26,13 @@ use crate::types::{PageLockType, Reference};
 // TODO: Add ip_address to request context
 #[derive(Deserialize, Debug, Clone)]
 pub struct RemovePageLockInput {
+    pub page: Reference<'static>,
     pub ip_address: IpAddr,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreatePageLockInput {
+    pub page: Reference<'static>,
     #[serde(with = "time::serde::rfc3339::option")]
     pub expires_at: Option<OffsetDateTime>,
     #[serde(default)]
@@ -40,6 +42,11 @@ pub struct CreatePageLockInput {
     #[serde(default)]
     pub override_existing: bool,
     pub ip_address: IpAddr,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetPageLockHistoryInput {
+    pub page: Reference<'static>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
