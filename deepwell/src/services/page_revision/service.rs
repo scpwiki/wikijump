@@ -38,6 +38,7 @@ use ref_map::*;
 use sea_query::{Order, Query};
 use std::num::NonZeroI32;
 use std::sync::LazyLock;
+use std::{assert_matches, debug_assert_matches};
 
 /// The changes for the first revision.
 /// The first revision is always considered to have changed everything.
@@ -118,15 +119,12 @@ impl PageRevisionService {
             )
         };
 
-        // Replace with debug_assert_matches! when stablized
-        debug_assert!(
-            matches!(
-                revision_type,
-                PageRevisionType::Regular
-                    | PageRevisionType::Move
-                    | PageRevisionType::Rollback
-                    | PageRevisionType::Undo,
-            ),
+        debug_assert_matches!(
+            revision_type,
+            PageRevisionType::Regular
+                | PageRevisionType::Move
+                | PageRevisionType::Rollback
+                | PageRevisionType::Undo,
             "Invalid revision type for standard revision creation",
         );
 
@@ -331,14 +329,11 @@ impl PageRevisionService {
                     ),
                 )?;
 
-                // TODO replace with assert_matches! when it's stable
-                assert!(
-                    matches!(
-                        revision_type,
-                        PageRevisionType::Regular
-                            | PageRevisionType::Rollback
-                            | PageRevisionType::Undo
-                    ),
+                assert_matches!(
+                    revision_type,
+                    PageRevisionType::Regular
+                        | PageRevisionType::Rollback
+                        | PageRevisionType::Undo,
                     "Revision type is not standard for non-moves",
                 );
             }
