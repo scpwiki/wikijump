@@ -277,7 +277,32 @@ impl ImportService {
         Ok(ImportPageOutput { site_id, page_id })
     }
 
-    // TODO page_revision
+    pub async fn add_page_revision(
+        ctx: &ServiceContext<'_>,
+        ImportPageRevision {
+            revision_id,
+            revision_type,
+            created_at,
+            updated_at,
+            revision_number,
+            page_id,
+            site_id,
+            user_id,
+            wikitext,
+            comments,
+            title,
+            slug,
+            tags,
+        }: ImportPageRevision,
+    ) -> Result<ImportPageOutput> {
+        info!(
+            "Creating page revision ID {} (number {}) on page ID {} on site ID {}",
+            revision_id, revision_number, page_id, site_id,
+        );
+
+        todo!()
+    }
+
     // TODO page_vote
 
     // TODO file
