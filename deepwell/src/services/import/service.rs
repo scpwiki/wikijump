@@ -31,6 +31,9 @@ use crate::constants::SYSTEM_USER_ID;
 use crate::models::known_user::{self, Model as KnownUserModel};
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::Model as PageCategoryModel;
+use crate::models::page_revision::{
+    self, Entity as PageRevision, Model as PageRevisionModel,
+};
 use crate::models::site::{self, Entity as Site};
 use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::audit::{AuditEvent, AuditService};
@@ -294,13 +297,105 @@ impl ImportService {
             slug,
             tags,
         }: ImportPageRevision,
-    ) -> Result<ImportPageOutput> {
+    ) -> Result<ImportPageRevisionOutput> {
         info!(
             "Creating page revision ID {} (number {}) on page ID {} on site ID {}",
             revision_id, revision_number, page_id, site_id,
         );
 
-        todo!()
+        let txn = ctx.transaction();
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to import page revision ID {} (number {}) on page ID {} in site ID {}",
+                    revision_id, revision_number, page_id, site_id,
+                ),
+                ErrorType::DatabaseImport,
+            )
+        };
+
+        // Get prior revision
+        //
+        // Import operations don't require an initial page revision on page import,
+        // so it's possible that this is None.
+        //
+        // Then we check that the revision_number being inserted is one more than the
+        // prior revision (or 0 if None, i.e. this is the first).
+        let prev_revision = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::SiteId.eq(site_id))
+                    .add(page_revision::Column::PageId.eq(page_id)),
+            )
+            .order_by_desc(page_revision::Column::RevisionNumber)
+            .one(txn)
+            .await
+            .or_raise(make_error)?;
+
+        match prev_revision {
+            None if revision_number != 0 => {
+                bail!(Error::new(
+                    format!(
+                        "failed to import page revision ID {} (number {}), because there are no prior revisions (should've been 0)",
+                        revision_id, revision_number,
+                    ),
+                    ErrorType::DatabaseImport,
+                ));
+            }
+            Some(revision) if revision_number != revision.revision_number + 1 => {
+                bail!(Error::new(
+                    format!(
+                        "failed to import page revision ID {} (number {}), because the prior revision was {} (should've been {})",
+                        revision_id,
+                        revision_number,
+                        revision.revision_number,
+                        revision.revision_number + 1,
+                    ),
+                    ErrorType::DatabaseImport
+                ));
+            }
+
+            // revision_number has an appropriate value
+            _ => (),
+        }
+
+        // Insert page row into table
+        let revision = page_revision::ActiveModel {
+            revision_id: Set(revision_id),
+            revision_type: Set(revision_type),
+            created_at: Set(created_at),
+            updated_at: Set(updated_at),
+            revision_number: Set(revision_number),
+            page_id: Set(page_id),
+            site_id: Set(site_id),
+            user_id: Set(user_id),
+            from_wikidot: Set(true),
+            changes: Set(todo!()),
+            wikitext_hash: Set(todo!()),
+            compiled_body_html_hash: Set(todo!()),
+            compiled_top_bar_html_hash: Set(todo!()),
+            compiled_side_bar_html_hash: Set(todo!()),
+            compiled_at: Set(todo!()),
+            compiled_generator: Set(todo!()),
+            comments: Set(comments),
+            hidden: Set(vec![]),
+            title: Set(title),
+            alt_title: Set(None),
+            slug: Set(slug),
+            tags: Set(tags),
+        };
+
+        PageRevision::insert(revision)
+            .exec(txn)
+            .await
+            .or_raise(make_error)?;
+
+        Ok(ImportPageRevisionOutput {
+            site_id,
+            page_id,
+            page_revision_id: revision_id,
+            page_revision_number: revision_number,
+        })
     }
 
     // TODO page_vote
