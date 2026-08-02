@@ -39,7 +39,6 @@ use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::page_lock::{CreatePageLockInput, PageLockService};
-use crate::services::page_revision::ALL_CHANGES;
 use crate::services::{CategoryService, TextService, UserService};
 use crate::types::PageLockType;
 use crate::utils::get_category_name;
@@ -315,11 +314,6 @@ impl ImportService {
             )
         };
 
-        // Install wikitext
-        let wikitext_hash = TextService::create(ctx, wikitext)
-            .await
-            .or_raise(make_error)?;
-
         // Get prior revision
         //
         // Import operations don't require an initial page revision on page import,
@@ -338,89 +332,42 @@ impl ImportService {
             .await
             .or_raise(make_error)?;
 
-        let changes = match prev_revision {
-            // Invalid revision_number
-            None if revision_number != 0 => {
-                bail!(Error::new(
-                    format!(
-                        "failed to import page revision ID {} (number {}), because there are no prior revisions (should've been 0)",
-                        revision_id, revision_number,
-                    ),
-                    ErrorType::DatabaseImport,
-                ));
-            }
-            Some(prev_revision)
-                if revision_number != prev_revision.revision_number + 1 =>
-            {
-                bail!(Error::new(
-                    format!(
-                        "failed to import page revision ID {} (number {}), because the prior revision was {} (should've been {})",
-                        revision_id,
-                        revision_number,
-                        prev_revision.revision_number,
-                        prev_revision.revision_number + 1,
-                    ),
-                    ErrorType::DatabaseImport
-                ));
+        match prev_revision {
+            // No prior revisions
+            // First revision for the page
+            None => {
+                if revision_number != 0 {
+                    bail!(Error::new(
+                        format!(
+                            "failed to import page revision ID {} (number {}), because there are no prior revisions (should've been 0)",
+                            revision_id, revision_number,
+                        ),
+                        ErrorType::DatabaseImport,
+                    ));
+                }
+
+                todo!()
             }
 
-            // Initial revision always has everything
-            None => ALL_CHANGES.clone(),
-
-            // Otherwise, calculate the changes from the prior revision
+            // Prior revisions
+            // Second revision or later
             Some(prev_revision) => {
-                let mut changes = Vec::new();
-
-                if prev_revision.wikitext_hash != wikitext_hash {
-                    changes.push(str!("wikitext"));
+                if revision_number != prev_revision.revision_number + 1 {
+                    bail!(Error::new(
+                        format!(
+                            "failed to import page revision ID {} (number {}), because the prior revision was {} (should've been {})",
+                            revision_id,
+                            revision_number,
+                            prev_revision.revision_number,
+                            prev_revision.revision_number + 1,
+                        ),
+                        ErrorType::DatabaseImport
+                    ));
                 }
 
-                if prev_revision.title != title {
-                    changes.push(str!("title"));
-                }
-
-                if prev_revision.slug != slug {
-                    changes.push(str!("slug"));
-                }
-
-                if prev_revision.tags != tags {
-                    changes.push(str!("tags"));
-                }
-
-                changes
+                todo!()
             }
-        };
-
-        // Insert page row into table
-        let revision = page_revision::ActiveModel {
-            revision_id: Set(revision_id),
-            revision_type: Set(revision_type),
-            created_at: Set(created_at),
-            updated_at: Set(updated_at),
-            revision_number: Set(revision_number),
-            page_id: Set(page_id),
-            site_id: Set(site_id),
-            user_id: Set(user_id),
-            from_wikidot: Set(true),
-            changes: Set(changes),
-            wikitext_hash: Set(todo!()),
-            compiled_body_html_hash: Set(todo!()),
-            compiled_top_bar_html_hash: Set(todo!()),
-            compiled_side_bar_html_hash: Set(todo!()),
-            compiled_at: Set(todo!()),
-            compiled_generator: Set(todo!()),
-            comments: Set(comments),
-            hidden: Set(vec![]),
-            title: Set(title),
-            alt_title: Set(None),
-            slug: Set(slug),
-            tags: Set(tags),
-        };
-
-        PageRevision::insert(revision)
-            .exec(txn)
-            .await
-            .or_raise(make_error)?;
+        }
 
         Ok(ImportPageRevisionOutput {
             site_id,

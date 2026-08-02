@@ -29,6 +29,5 @@ mod service;
 mod structs;
 mod tasks;
 
-pub(crate) use self::service::ALL_CHANGES;
 pub use self::service::PageRevisionService;
 pub use self::structs::*;
