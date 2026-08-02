@@ -44,7 +44,7 @@ use std::{assert_matches, debug_assert_matches};
 /// The first revision is always considered to have changed everything.
 ///
 /// See `services/file_revision/service.rs`.
-static ALL_CHANGES: LazyLock<Vec<String>> = LazyLock::new(|| {
+pub(crate) static ALL_CHANGES: LazyLock<Vec<String>> = LazyLock::new(|| {
     vec![
         str!("wikitext"),
         str!("title"),

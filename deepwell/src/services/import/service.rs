@@ -39,7 +39,8 @@ use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::page_lock::{CreatePageLockInput, PageLockService};
-use crate::services::{CategoryService, UserService};
+use crate::services::page_revision::ALL_CHANGES;
+use crate::services::{CategoryService, TextService, UserService};
 use crate::types::PageLockType;
 use crate::utils::get_category_name;
 
@@ -314,6 +315,11 @@ impl ImportService {
             )
         };
 
+        // Install wikitext
+        let wikitext_hash = TextService::create(ctx, wikitext)
+            .await
+            .or_raise(make_error)?;
+
         // Get prior revision
         //
         // Import operations don't require an initial page revision on page import,
@@ -332,7 +338,8 @@ impl ImportService {
             .await
             .or_raise(make_error)?;
 
-        match prev_revision {
+        let changes = match prev_revision {
+            // Invalid revision_number
             None if revision_number != 0 => {
                 bail!(Error::new(
                     format!(
@@ -342,22 +349,47 @@ impl ImportService {
                     ErrorType::DatabaseImport,
                 ));
             }
-            Some(revision) if revision_number != revision.revision_number + 1 => {
+            Some(prev_revision)
+                if revision_number != prev_revision.revision_number + 1 =>
+            {
                 bail!(Error::new(
                     format!(
                         "failed to import page revision ID {} (number {}), because the prior revision was {} (should've been {})",
                         revision_id,
                         revision_number,
-                        revision.revision_number,
-                        revision.revision_number + 1,
+                        prev_revision.revision_number,
+                        prev_revision.revision_number + 1,
                     ),
                     ErrorType::DatabaseImport
                 ));
             }
 
-            // revision_number has an appropriate value
-            _ => (),
-        }
+            // Initial revision always has everything
+            None => ALL_CHANGES.clone(),
+
+            // Otherwise, calculate the changes from the prior revision
+            Some(prev_revision) => {
+                let mut changes = Vec::new();
+
+                if prev_revision.wikitext_hash != wikitext_hash {
+                    changes.push(str!("wikitext"));
+                }
+
+                if prev_revision.title != title {
+                    changes.push(str!("title"));
+                }
+
+                if prev_revision.slug != slug {
+                    changes.push(str!("slug"));
+                }
+
+                if prev_revision.tags != tags {
+                    changes.push(str!("tags"));
+                }
+
+                changes
+            }
+        };
 
         // Insert page row into table
         let revision = page_revision::ActiveModel {
@@ -370,7 +402,7 @@ impl ImportService {
             site_id: Set(site_id),
             user_id: Set(user_id),
             from_wikidot: Set(true),
-            changes: Set(todo!()),
+            changes: Set(changes),
             wikitext_hash: Set(todo!()),
             compiled_body_html_hash: Set(todo!()),
             compiled_top_bar_html_hash: Set(todo!()),
