@@ -419,7 +419,9 @@ impl ImportService {
                             title: Maybe::Set(title),
                             alt_title: Maybe::Unset,
                             slug: Maybe::Set(slug),
-                            tags: Maybe::Set(tags),
+                            // NOTE: We set tags here so the "changes" value
+                            //       is correct for this revision.
+                            tags: Maybe::Set(tags.clone()),
                         },
                     },
                     prev_revision,
@@ -464,6 +466,8 @@ impl ImportService {
             .col_expr(page_revision::Column::RevisionId, Expr::value(revision_id))
             .col_expr(page_revision::Column::CreatedAt, Expr::value(created_at))
             .col_expr(page_revision::Column::UpdatedAt, Expr::value(updated_at))
+            // not settable on page create
+            .col_expr(page_revision::Column::Tags, Expr::value(tags))
             .filter(page_revision::Column::RevisionId.eq(output_revision_id))
             .exec(txn)
             .await
