@@ -47,6 +47,8 @@ use crate::services::{CategoryService, TextService, UserService};
 use crate::types::{PageId, PageLockType};
 use crate::utils::get_category_name;
 use ftml::layout::Layout;
+use sea_orm::UpdateResult;
+use sea_query::{Expr, Query};
 
 #[derive(Debug)]
 pub struct ImportService;
@@ -343,7 +345,7 @@ impl ImportService {
             .await
             .or_raise(make_error)?;
 
-        match prev_revision {
+        let output_revision_id = match prev_revision {
             // No prior revisions
             // First revision for the page
             None => {
@@ -358,7 +360,7 @@ impl ImportService {
                 }
 
                 let CreateFirstPageRevisionOutput {
-                    revision_id,
+                    revision_id: output_revision_id,
                     parser_errors: _,
                 } = PageRevisionService::create_first(
                     ctx,
@@ -379,6 +381,8 @@ impl ImportService {
                 )
                 .await
                 .or_raise(make_error)?;
+
+                output_revision_id
             }
 
             // Prior revisions
@@ -433,10 +437,10 @@ impl ImportService {
                         ErrorType::DatabaseImport
                     )),
 
-                    // Validate revision number
+                    // Extract revision ID and validate revision number
                     Some(CreatePageRevisionOutput {
                         revision_number: output_revision_number,
-                        revision_id: _,
+                        revision_id: output_revision_id,
                         parser_errors: _,
                     }) => {
                         assert_eq!(
@@ -444,12 +448,33 @@ impl ImportService {
                             "Newly-created revision has a revision number of {}, which is not {} as expected",
                             output_revision_number, revision_number,
                         );
+
+                        output_revision_id
                     }
                 }
             }
-        }
+        };
 
-        // TODO update DB fields that we can't set via PageRevisionService
+        // Update database fields that we can't set via PageRevisionService
+        //
+        // We need to use update_many since this changes the primary key,
+        // but only one row should be modified by this.
+
+        let UpdateResult { rows_affected, .. } = PageRevision::update_many()
+            .col_expr(page_revision::Column::RevisionId, Expr::value(revision_id))
+            .col_expr(page_revision::Column::CreatedAt, Expr::value(created_at))
+            .col_expr(page_revision::Column::UpdatedAt, Expr::value(updated_at))
+            .filter(page_revision::Column::RevisionId.eq(output_revision_id))
+            .exec(txn)
+            .await
+            .or_raise(make_error)?;
+
+        assert_eq!(
+            rows_affected, 1,
+            "More than one row updated in page_revision after revision creation",
+        );
+
+        // Return output
 
         Ok(ImportPageRevisionOutput {
             site_id,
