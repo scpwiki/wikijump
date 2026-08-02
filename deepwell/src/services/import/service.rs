@@ -39,9 +39,14 @@ use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::blob::{BlobService, FinalizeBlobUploadOutput};
 use crate::services::page_lock::{CreatePageLockInput, PageLockService};
+use crate::services::page_revision::{
+    CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
+    CreatePageRevisionBody, CreatePageRevisionOutput, PageRevisionService,
+};
 use crate::services::{CategoryService, TextService, UserService};
-use crate::types::PageLockType;
+use crate::types::{PageId, PageLockType};
 use crate::utils::get_category_name;
+use ftml::layout::Layout;
 
 #[derive(Debug)]
 pub struct ImportService;
@@ -314,6 +319,12 @@ impl ImportService {
             )
         };
 
+        // Get page category
+        let PageCategoryModel { category_id, .. } =
+            CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
+                .await
+                .or_raise(make_error)?;
+
         // Get prior revision
         //
         // Import operations don't require an initial page revision on page import,
@@ -346,7 +357,28 @@ impl ImportService {
                     ));
                 }
 
-                todo!()
+                let CreateFirstPageRevisionOutput {
+                    revision_id,
+                    parser_errors: _,
+                } = PageRevisionService::create_first(
+                    ctx,
+                    PageId {
+                        site_id,
+                        category_id,
+                        page_id,
+                    },
+                    CreateFirstPageRevision {
+                        user_id,
+                        comments,
+                        wikitext,
+                        title,
+                        alt_title: None,
+                        slug,
+                        layout: Some(Layout::Wikidot),
+                    },
+                )
+                .await
+                .or_raise(make_error)?;
             }
 
             // Prior revisions
@@ -365,9 +397,59 @@ impl ImportService {
                     ));
                 }
 
-                todo!()
+                let revision_type = todo!();
+
+                let output = PageRevisionService::create(
+                    ctx,
+                    PageId {
+                        site_id,
+                        category_id,
+                        page_id,
+                    },
+                    CreatePageRevision {
+                        user_id,
+                        comments,
+                        revision_type,
+                        body: CreatePageRevisionBody {
+                            wikitext: Maybe::Set(wikitext),
+                            title: Maybe::Set(title),
+                            alt_title: Maybe::Unset,
+                            slug: Maybe::Set(slug),
+                            tags: Maybe::Set(tags),
+                        },
+                    },
+                    prev_revision,
+                )
+                .await
+                .or_raise(make_error)?;
+
+                match output {
+                    // There should always be an output, if not, raise an error
+                    None => bail!(Error::new(
+                        format!(
+                            "failed to import page revision ID {} (number {}), because no data was changed from the last revision",
+                            revision_id, revision_number,
+                        ),
+                        ErrorType::DatabaseImport
+                    )),
+
+                    // Validate revision number
+                    Some(CreatePageRevisionOutput {
+                        revision_number: output_revision_number,
+                        revision_id: _,
+                        parser_errors: _,
+                    }) => {
+                        assert_eq!(
+                            revision_number, output_revision_number,
+                            "Newly-created revision has a revision number of {}, which is not {} as expected",
+                            output_revision_number, revision_number,
+                        );
+                    }
+                }
             }
         }
+
+        // TODO update DB fields that we can't set via PageRevisionService
 
         Ok(ImportPageRevisionOutput {
             site_id,
