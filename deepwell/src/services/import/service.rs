@@ -401,8 +401,6 @@ impl ImportService {
                     ));
                 }
 
-                let revision_type = todo!();
-
                 let output = PageRevisionService::create(
                     ctx,
                     PageId {
