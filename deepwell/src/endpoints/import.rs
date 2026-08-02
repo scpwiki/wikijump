@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 use crate::services::import::{
-    ImportPage, ImportPageOutput, ImportService, ImportSite, ImportSiteOutput,
-    ImportUser, ImportUserOutput,
+    ImportPage, ImportPageOutput, ImportPageRevision, ImportPageRevisionOutput,
+    ImportService, ImportSite, ImportSiteOutput, ImportUser, ImportUserOutput,
 };
 
 pub async fn import_wikidot_user(
@@ -55,4 +55,19 @@ pub async fn import_wikidot_page(
     ImportService::add_page(ctx, input).await.or_raise(|| {
         Error::new("failed to import wikidot page", ErrorType::DatabaseImport)
     })
+}
+
+pub async fn import_wikidot_page_revision(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<ImportPageRevisionOutput> {
+    let input: ImportPageRevision = parse!(params, DatabaseImport);
+    ImportService::add_page_revision(ctx, input)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to import wikidot page revision",
+                ErrorType::DatabaseImport,
+            )
+        })
 }
