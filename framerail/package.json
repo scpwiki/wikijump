@@ -24,7 +24,7 @@
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@types/accept-language-parser": "^1.5.8",
     "@types/node": "^26.1.1",
-    "eslint": "^10.7.0",
+    "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.19.0",
     "globals": "^17.8.0",
