@@ -462,6 +462,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("import_wikidot_user", import_wikidot_user);
     register!("import_wikidot_site", import_wikidot_site);
     register!("import_wikidot_page", import_wikidot_page);
+    register!("import_wikidot_page_revision", import_wikidot_page_revision);
 
     // Return
     Ok(module)

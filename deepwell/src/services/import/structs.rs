@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::types::PageRevisionType;
 use ftml::data::KarmaLevel;
 use std::net::IpAddr;
 use time::{Date, OffsetDateTime};
@@ -96,4 +97,29 @@ pub struct ImportPage {
 pub struct ImportPageOutput {
     pub site_id: i64,
     pub page_id: i64,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ImportPageRevision {
+    pub revision_id: i64,
+    pub revision_type: PageRevisionType,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>,
+    pub revision_number: i32,
+    pub page_id: i64,
+    pub site_id: i64,
+    pub user_id: i64,
+    pub wikitext: String,
+    pub comments: String,
+    pub title: String,
+    pub slug: String,
+    pub tags: Vec<String>,
+}
+
+#[derive(Serialize, Debug, Copy, Clone)]
+pub struct ImportPageRevisionOutput {
+    pub site_id: i64,
+    pub page_id: i64,
+    pub page_revision_id: i64,
+    pub page_revision_number: i32,
 }
