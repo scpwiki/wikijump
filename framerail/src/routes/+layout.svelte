@@ -2,7 +2,9 @@
   import SigmaEsque from "$lib/sigma-esque/sigma-esque.svelte"
   import Wikidot from "$lib/sigma-esque/wikidot.svelte"
   import wjBanner from "$assets/logo-outline.min.svg?raw"
+  import ui from "$assets/ui.svg?raw"
   import ErrorPopup from "$lib/popup/error.svelte"
+  import Toasts from "$lib/component/Toasts.svelte"
 
   import { page } from "$app/state"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
@@ -33,9 +35,17 @@
   })
 </script>
 
+<div class="svg-defs hidden">
+  {@html ui}
+</div>
+
 {#if errorPopupState.current.state}
   <ErrorPopup exitPrompt={closeErrorPopup} />
 {/if}
+
+<div id="toasts">
+  <Toasts />
+</div>
 
 <svelte:head>
   <title>{page.data.site?.name}</title>
@@ -197,6 +207,15 @@
       color: #fff;
       text-decoration: none;
     }
+  }
+
+  #toasts,
+  #modals {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: $z-dialog;
+    width: 100%;
   }
 
   @media (max-width: $tablet-max-width) {

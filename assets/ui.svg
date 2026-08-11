@@ -1,0 +1,480 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!--
+    #wj-karma
+      wj-karma-5-svg
+      wj-karma-4-svg
+      wj-karma-3-svg
+      wj-karma-2-svg
+      wj-karma-1-svg
+    -->
+    <symbol id="wj-karma" viewbox="0 0 64 114">
+      <g fill="black">
+        <rect width="64" height="114" rx="8" />
+        <rect x="56" width="8" height="114" />
+      </g>
+      <g>
+        <rect x="4" y="4" width="56" height="18" rx="4" fill="var(--wj-karma-5-svg)" />
+        <rect x="4" y="26" width="56" height="18" rx="4" fill="var(--wj-karma-4-svg)" />
+        <rect x="4" y="48" width="56" height="18" rx="4" fill="var(--wj-karma-3-svg)" />
+        <rect x="4" y="70" width="56" height="18" rx="4" fill="var(--wj-karma-2-svg)" />
+        <rect x="4" y="92" width="56" height="18" rx="4" fill="var(--wj-karma-1-svg)" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-clipboard
+      (currentColor)
+    -->
+    <symbol id="wj-clipboard" viewbox="0 0 24 24">
+      <g fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor">
+        <path d="M16 4h2a2 2 0 0 1 2 2v4M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+        <rect x="8" y="2" width="8" height="3" rx="0" ry="1" />
+        <path d="M21 14H12" />
+        <path d="M15 10l-4 4l4 4" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-clipboard-success
+      (currentColor)
+    -->
+    <symbol id="wj-clipboard-success" viewbox="0 0 24 24">
+      <g fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        <rect x="8" y="2" width="8" height="3" rx="0" ry="1" />
+        <path d="M7.5 13 l3 3l6-6" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-downarrow
+      (currentColor)
+    -->
+    <symbol id="wj-downarrow" viewbox="0 0 24 24">
+      <path d="m 3 5 c -1 0 -3 1 -2 3 l 9 10 a 2.625 2.625 90 0 0 4 0 l 9 -10 c 1 -2 -1 -3 -2 -3 z" fill="currentColor" />
+    </symbol>
+
+    <!--
+    #wj-hamburger
+      (currentColor)
+
+    credit to: heroicons-outline:menu (MIT)
+    https://icon-sets.iconify.design/heroicons-outline/menu/
+    -->
+    <symbol id="wj-hamburger" viewbox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-close
+      (currentColor)
+
+    credit to: eva:close-fill (MIT)
+    https://icon-sets.iconify.design/eva/close-fill/
+    -->
+    <symbol id="wj-close" viewbox="0 0 24 24">
+      <path fill="currentColor" d="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29l-4.3 4.29a1 1 0 0 0 0 1.42a1 1 0 0 0 1.42 0l4.29-4.3l4.29 4.3a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42z" />
+    </symbol>
+
+    <!--
+    #wj-caret-up
+      (currentColor)
+    -->
+    <symbol id="wj-caret-up" viewBox="0 0 24 24">
+      <path
+        d="M2 17.9295L11.1502 6.92018C11.5486 6.4408 12.2837 6.43879 12.6848 6.91598L22 18"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="3"
+      />
+    </symbol>
+
+    <!--
+    #wj-caret-down
+      (currentColor)
+    -->
+    <symbol id="wj-caret-down" viewBox="0 0 24 24">
+      <path
+        d="M22 6.07053L12.8498 17.0798C12.4514 17.5592 11.7163 17.5612 11.3152 17.084L2 6"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="3"
+      />
+    </symbol>
+
+    <!--
+    #wj-wave
+      (currentColor)
+    -->
+    <symbol id="wj-wave" viewBox="0 0 24 24">
+      <path
+        d="M23.5 12L20.177 12C19.7681 12 19.4004 11.751 19.2486 11.3714L16.5635 4.6587C16.2119 3.77974 14.9492 3.836 14.6772 4.74274L10.2246 19.5848C9.96435 20.4522 8.77731 20.5546 8.37231 19.7446L4.77639 12.5528C4.607 12.214 4.26074 12 3.88197 12L1.5 12"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="3"
+      />
+    </symbol>
+
+    <!--
+    #wj-login
+      (currentColor)
+    -->
+    <symbol id="wj-login" viewBox="0 0 24 24">
+      <g fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2">
+        <path d="M1 12L14 12" />
+        <path d="M10.9609 16L14.9609 12L10.9609 8" />
+        <path d="M13 2H21C22.1046 2 23 2.89543 23 4V20C23 21.1046 22.1046 22 21 22H13" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-person-add
+      (currentColor)
+    -->
+    <symbol id="wj-person-add" viewBox="0 0 24 24">
+      <g fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2">
+        <path d="M11.6079 12C14.6454 12 17.1079 9.53757 17.1079 6.5C17.1079 3.46243 14.6454 1 11.6079 1C8.57031 1 6.10788 3.46243 6.10788 6.5C6.10788 9.53757 8.57031 12 11.6079 12Z" />
+        <path d="M17.1079 23H4.20048C3.8885 23.0001 3.58007 22.9338 3.29567 22.8056C3.01127 22.6773 2.75739 22.49 2.55089 22.2562C2.34439 22.0223 2.19 21.7472 2.09794 21.4491C2.00589 21.151 1.97829 20.8368 2.01698 20.5272L2.44598 17.0908C2.54575 16.2925 2.89674 15.0324 3.5 14.5C4.10326 13.9676 6.5 12.5 7.5 12H11.5" />
+        <path d="M19 12V20" />
+        <path d="M15 16H23" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-bell
+      (currentColor)
+    -->
+    <symbol id="wj-bell" viewBox="0 0 24 24">
+      <path
+        d="M5.62268 8.99328L5.53846 8.31953C5.2124 5.711 6.48677 3.16226 8.76923 1.85799C10.7712 0.714025 13.2288 0.714025 15.2308 1.85799C17.5132 3.16226 18.7876 5.711 18.4615 8.31953L18.3773 8.99328C18.1353 10.9296 18.6544 12.8843 19.8252 14.4455L20.9272 15.9148C20.9757 15.9794 21.0287 16.0405 21.0858 16.0976C22.1612 17.173 21.3995 19.0118 19.8787 19.0118H4.12132C2.60045 19.0118 1.8388 17.173 2.91421 16.0976C2.97133 16.0405 3.02433 15.9794 3.07279 15.9148L4.17477 14.4455C5.34562 12.8843 5.86472 10.9296 5.62268 8.99328Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      />
+      <path
+        d="M9 21.4404C9 21.2037 9.19188 21.0118 9.42857 21.0118H14.5714C14.8081 21.0118 15 21.2037 15 21.4404C15 22.8606 13.8487 24.0118 12.4286 24.0118H11.5714C10.1513 24.0118 9 22.8606 9 21.4404Z"
+        fill="currentColor"
+      />
+    </symbol>
+
+    <!--
+    #wj-copyright
+      (currentColor)
+    -->
+    <symbol id="wj-copyright" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" />
+      <path
+        d="M16 15L15.8674 15.199C15.3092 16.0361 14.4591 16.6352 13.483 16.8792C13.1622 16.9594 12.8328 17 12.5021 17H12.3883C10.8787 17 9.44759 16.3095 8.50459 15.1307C7.04371 13.3046 7.04371 10.6954 8.50459 8.86926C9.44759 7.69052 10.8787 7 12.3883 7H12.5021C12.8328 7 13.1622 7.04056 13.483 7.12076C14.4591 7.36479 15.3092 7.96387 15.8674 8.80103L16 9"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+      />
+    </symbol>
+
+    <!--
+    #wj-exclamation
+      (currentColor)
+    -->
+    <symbol id="wj-exclamation" viewBox="0 0 24 24">
+      <circle cx="12" cy="21" fill="currentColor" r="3" />
+      <path
+        d="M8.49614 3.96911C8.23269 1.86155 9.87603 0 12 0C14.124 0 15.7673 1.86155 15.5039 3.96911L14.2481 14.0154C14.1064 15.1492 13.1426 16 12 16C10.8574 16 9.89365 15.1492 9.75193 14.0154L8.49614 3.96911Z"
+        fill="currentColor"
+      />
+    </symbol>
+
+    <!--
+    #wj-forum
+      (currentColor)
+    -->
+    <symbol id="wj-forum" viewBox="0 0 24 24">
+      <path
+        d="M16 1H2C1.44772 1 1 1.44772 1 2V15.8008C1 15.9318 1.0305 16.061 1.08907 16.1781C1.42523 16.8505 2.40643 16.7807 2.64412 16.0676L3.77208 12.6838C3.90819 12.2754 4.29033 12 4.72076 12H16C16.5523 12 17 11.5523 17 11V2C17 1.44772 16.5523 1 16 1Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+      />
+      <path
+        d="M23 6V21.9198C23 21.9731 22.9947 22.0263 22.9843 22.0787C22.8308 22.8459 21.7866 22.9714 21.4558 22.2624L19.2693 17.5771C19.105 17.225 18.7517 17 18.3631 17H6"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+      />
+    </symbol>
+
+    <!--
+    #wj-go-back
+      (currentColor)
+    -->
+    <symbol id="wj-go-back" viewBox="0 0 24 24">
+      <path
+        d="M22 20V14C22 11.7909 20.2091 10 18 10H17H3"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="3"
+      />
+      <path
+        d="M8 4L2 10L8 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="3"
+      />
+    </symbol>
+
+    <!--
+    #wj-info
+      (currentColor)
+    -->
+    <symbol id="wj-info" viewBox="0 0 24 24">
+      <rect fill="currentColor" height="2" rx="0.5" width="8" x="8" y="22" />
+      <path
+        d="M8 8.5C8 8.22386 8.22386 8 8.5 8H9V10H8.5C8.22386 10 8 9.77614 8 9.5V8.5Z"
+        fill="currentColor"
+      />
+      <path d="M9 8H14.5C14.7761 8 15 8.22386 15 8.5V22H9V8Z" fill="currentColor" />
+      <circle cx="12" cy="3" fill="currentColor" r="3" />
+      <rect fill="currentColor" height="2" rx="0.5" width="8" x="8" y="22" />
+      <path
+        d="M8 8.5C8 8.22386 8.22386 8 8.5 8H9V10H8.5C8.22386 10 8 9.77614 8 9.5V8.5Z"
+        fill="currentColor"
+      />
+      <path d="M9 8H14.5C14.7761 8 15 8.22386 15 8.5V22H9V8Z" fill="currentColor" />
+      <circle cx="12" cy="3" fill="currentColor" r="3" />
+    </symbol>
+
+    <!--
+    #wj-info-circle
+      (currentColor)
+    -->
+    <symbol id="wj-info-circle" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" />
+      <rect fill="currentColor" height="1" rx="0.5" width="6" x="9" y="19" />
+      <path
+        d="M9 9.5C9 9.22386 9.22386 9 9.5 9H10V11H9.5C9.22386 11 9 10.7761 9 10.5V9.5Z"
+        fill="currentColor"
+      />
+      <path d="M10 9H13.5C13.7761 9 14 9.22386 14 9.5V19H10V9Z" fill="currentColor" />
+      <circle cx="12" cy="6" fill="currentColor" r="2" />
+    </symbol>
+
+    <!--
+    #wj-message
+      (currentColor)
+    -->
+    <symbol id="wj-message" viewBox="0 0 24 24">
+      <mask id="path-1-inside-1_43_253" fill="white">
+        <path
+          d="M0 8C0 3.58172 3.58172 0 8 0H16C20.4183 0 24 3.58172 24 8V16C24 20.4183 20.4183 24 16 24H1C0.447716 24 0 23.5523 0 23V8Z"
+        />
+      </mask>
+      <path
+        d="M0 8C0 3.58172 3.58172 0 8 0H16C20.4183 0 24 3.58172 24 8V16C24 20.4183 20.4183 24 16 24H1C0.447716 24 0 23.5523 0 23V8Z"
+        mask="url(#path-1-inside-1_43_253)"
+        stroke="currentColor"
+        stroke-width="6"
+      />
+      <circle cx="7" cy="12" fill="currentColor" r="2" />
+      <circle cx="12" cy="12" fill="currentColor" r="2" />
+      <circle cx="17" cy="12" fill="currentColor" r="2" />
+      <path d="M3 16C3.29232 18.6309 5.36914 20.7077 8 21H3V16Z" fill="currentColor" />
+    </symbol>
+
+    <!--
+    #wj-message-read
+      (currentColor)
+    -->
+    <symbol id="wj-message-read" viewBox="0 0 24 24">
+      <path
+        d="M1 11.5833L5.02351 15.6699C5.76092 16.4189 6.95223 16.4693 7.75025 15.7853L18 7"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+      />
+      <path
+        d="M9 15.3333L9.78279 15.9658C10.5264 16.5667 11.5912 16.5572 12.3241 15.9433L23 7"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+      />
+    </symbol>
+
+    <!--
+    #wj-message-unread
+      (currentColor)
+    -->
+    <symbol id="wj-message-unread" viewBox="0 0 24 24">
+      <path
+        d="M1 11.5833L5.02351 15.6699C5.76092 16.4189 6.95223 16.4693 7.75025 15.7853L18 7"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+      />
+    </symbol>
+
+    <!--
+    #wj-overflow-horizontal
+      (currentColor)
+    -->
+    <symbol id="wj-overflow-horizontal" viewBox="0 0 24 24">
+      <circle cx="3" cy="12" fill="currentColor" r="3" />
+      <circle cx="12" cy="12" fill="currentColor" r="3" />
+      <circle cx="21" cy="12" fill="currentColor" r="3" />
+    </symbol>
+
+    <!--
+    #wj-overflow-vertical
+      (currentColor)
+    -->
+    <symbol id="wj-overflow-vertical" viewBox="0 0 24 24">
+      <circle cx="12" cy="3" fill="currentColor" r="3" />
+      <circle cx="12" cy="12" fill="currentColor" r="3" />
+      <circle cx="12" cy="21" fill="currentColor" r="3" />
+    </symbol>
+
+    <!--
+    #wj-read-later
+      (currentColor)
+    -->
+    <symbol id="wj-read-later" viewBox="0 0 24 24">
+      <path
+        d="M14 18L22 18"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2.5"
+      />
+      <path d="M18 22V14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" />
+      <path d="M2 2H22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" />
+      <path d="M2 8H22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" />
+      <path d="M2 14H8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" />
+      <path d="M2 20H8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" />
+    </symbol>
+
+    <!--
+    #wj-required
+      (currentColor)
+    -->
+    <symbol id="wj-required" viewBox="0 0 24 24">
+      <path
+        d="M12 22V12M12 12V2M12 12L10 11L3 7M12 12L14 11L21 7M12 12L10 13L3 17M12 12L14 13L21 17"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="4"
+      />
+    </symbol>
+
+    <!--
+    #wj-search
+      (currentColor)
+    -->
+    <symbol id="wj-search" viewBox="0 0 24 24">
+      <circle cx="10" cy="9" r="7.5" stroke="currentColor" stroke-width="3" />
+      <path d="M15 15L22 22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+    </symbol>
+
+    <!--
+    #wj-share
+      (currentColor)
+    -->
+    <symbol id="wj-share" viewBox="0 0 24 24">
+      <circle cx="5" cy="12" fill="currentColor" r="3" />
+      <circle cx="19" cy="3" fill="currentColor" r="3" />
+      <circle cx="19" cy="21" fill="currentColor" r="3" />
+      <path
+        d="M4.45924 11.1588L3.61806 11.6996L4.69958 13.3819L5.54076 12.8412L4.45924 11.1588ZM5.54076 12.8412L19.5408 3.84118L18.4592 2.15882L4.45924 11.1588L5.54076 12.8412Z"
+        fill="currentColor"
+      />
+      <path
+        d="M5.54083 11.1589L4.6997 10.618L3.61804 12.3003L4.45918 12.8411L5.54083 11.1589ZM4.45918 12.8411L18.4584 21.8423L19.5401 20.16L5.54083 11.1589L4.45918 12.8411Z"
+        fill="currentColor"
+      />
+    </symbol>
+
+    <!--
+    #wj-star
+      (currentColor)
+    -->
+    <symbol id="wj-star" viewBox="0 0 24 24">
+      <path
+        d="M11.5257 1.42302C11.6776 0.967175 12.3224 0.967177 12.4743 1.42303L14.886 8.65812C14.9541 8.86229 15.1452 9 15.3604 9H22.6484C23.1126 9 23.3262 9.57753 22.9738 9.87963L17.2553 14.7812C17.1009 14.9135 17.042 15.1261 17.1063 15.3189L19.4938 22.4815C19.6488 22.9465 19.1116 23.3337 18.7195 23.0396L12.3 18.225C12.1222 18.0917 11.8778 18.0917 11.7 18.225L5.28051 23.0396C4.88836 23.3337 4.35115 22.9465 4.50616 22.4815L6.89368 15.3189C6.95797 15.1261 6.89909 14.9135 6.74474 14.7812L1.02623 9.87963C0.673784 9.57753 0.887426 9 1.35163 9H8.63962C8.85484 9 9.04591 8.86228 9.11396 8.65811L11.5257 1.42302Z"
+        fill="currentColor"
+      />
+    </symbol>
+
+    <!--
+    #wj-text
+      (currentColor)
+    -->
+    <symbol id="wj-text" viewBox="0 0 24 24">
+      <rect
+        height="22"
+        rx="5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        width="22"
+        x="1"
+        y="1"
+      />
+      <path d="M6 18L18 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+    </symbol>
+
+    <!--
+    #wj-checkmark
+      (currentColor)
+    -->
+    <symbol id="wj-checkmark" viewBox="0 0 24 24">
+      <path
+        d="M2 11.5L7.12463 16.6796C7.86123 17.4241 9.04743 17.4742 9.84426 16.7946L22.5 6"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="3"
+      />
+    </symbol>
+
+    <!--
+    #wj-warning
+      (currentColor)
+    -->
+    <symbol id="wj-warning" viewBox="0 0 24 24">
+      <path
+        d="M1.61329 19.0423L10.2442 3.21895C11.0022 1.82922 12.9978 1.82922 13.7558 3.21895L22.3867 19.0423C23.1137 20.375 22.149 22 20.6309 22H3.36908C1.85097 22 0.886338 20.375 1.61329 19.0423Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+      />
+      <circle cx="12" cy="18" fill="currentColor" r="1" />
+      <path
+        d="M10.5936 9.49708C10.5429 8.68582 11.1872 8 12 8C12.8128 8 13.4571 8.68582 13.4064 9.49708L13.0624 15.0019C13.0273 15.563 12.5621 16 12 16C11.4379 16 10.9727 15.563 10.9376 15.0019L10.5936 9.49708Z"
+        fill="currentColor"
+      />
+    </symbol>
+  </defs>
+</svg>
