@@ -115,6 +115,7 @@ pub async fn handle_user_avatar(
     };
 
     let result = Response::builder()
+        .header(header::CONTENT_LENGTH, file_info.size)
         .header(header::CONTENT_TYPE, &file_info.mime)
         .header(header::ETAG, format!("\"{}\"", avatar_s3_hash)) // E-Tags have to be surrounded in double quotes
         .body(body);

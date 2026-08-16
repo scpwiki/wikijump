@@ -377,7 +377,6 @@ pub struct BlobData {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UserData {
-    pub user_id: i64,
     pub avatar_s3_hash: Vec<u8>,
 }
 

@@ -261,7 +261,7 @@ impl ServerStateInner {
             Some(avatar_s3_hash) => Ok(Some(avatar_s3_hash)),
             None => match self.deepwell.get_user(user_id).await? {
                 None => Ok(None),
-                Some(UserData { avatar_s3_hash, .. }) => {
+                Some(UserData { avatar_s3_hash }) => {
                     let s3_hash: String = avatar_s3_hash
                         .iter()
                         .map(|b| format!("{:02x}", b).to_string())
