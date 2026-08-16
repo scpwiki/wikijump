@@ -370,6 +370,12 @@ pub struct FileData {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct BlobData {
+    pub mime: String,
+    pub size: i64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct UserData {
     pub user_id: i64,
     pub avatar_s3_hash: Vec<u8>,

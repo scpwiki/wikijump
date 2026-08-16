@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod avatar;
 mod basic_error;
 mod file;
 mod misc;
@@ -26,6 +27,7 @@ mod robots;
 mod text_block;
 mod well_known;
 
+pub use self::avatar::*;
 pub use self::basic_error::*;
 pub use self::file::*;
 pub use self::misc::*;
