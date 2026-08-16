@@ -296,7 +296,7 @@ impl ServerStateInner {
                 Err(response)
             }
             Err(error) => {
-                error!(user_id = user_id, "Cannot get user info: {error}",);
+                error!(user_id = user_id, "Cannot get user info: {error}");
 
                 let response = build_basic_error_response(
                     self,

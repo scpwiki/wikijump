@@ -47,7 +47,7 @@ async fn fetch_blob(
             (result.content_length, result.content_type)
         }
         Err(error) => {
-            error!(s3_hash = s3_hash, "Cannot get blob metadata: {error}",);
+            error!(s3_hash = s3_hash, "Cannot get blob metadata: {error}");
 
             let response = build_basic_error_response(
                 state,
@@ -97,7 +97,7 @@ pub async fn handle_user_avatar(
     Path(user_id): Path<String>,
     headers: HeaderMap,
 ) -> Response {
-    info!(user_id = user_id, "Returning user avatar",);
+    info!(user_id = user_id, "Returning user avatar");
 
     let Ok(user_id_i64) = user_id.parse::<i64>() else {
         error!("Unable to parse user id into i64: {user_id}");
