@@ -48,6 +48,9 @@ macro_rules! redis_key {
     (file_name => $site_id:expr, $page_id:expr, $filename:expr $(,)?) => {
         format!("file_name:{}:{}:{}", $site_id, $page_id, $filename)
     };
+    (user_avatar => $user_id:expr $(,)?) => {
+        format!("user_avatar:{}", $user_id)
+    };
 }
 
 macro_rules! set {
@@ -165,6 +168,21 @@ impl Cache {
         hset!(conn, key, "mime", &data.mime);
         hset!(conn, key, "size", data.size);
         hset!(conn, key, "s3_hash", &data.s3_hash);
+        Ok(())
+    }
+
+    /// Gets the avatar hash for a user ID.
+    pub async fn get_avatar(&self, user_id: i64) -> Result<Option<String>> {
+        let mut conn = get_connection!(self.client);
+        let key = redis_key!(user_avatar => user_id);
+        let value = conn.get(key).await?;
+        Ok(value)
+    }
+
+    pub async fn set_avatar(&self, user_id: i64, avatar_s3_hash: &str) -> Result<()> {
+        let mut conn = get_connection!(self.client);
+        let key = redis_key!(user_avatar => user_id);
+        set!(conn, key, avatar_s3_hash);
         Ok(())
     }
 }

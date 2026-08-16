@@ -32,6 +32,7 @@ use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
 use crate::types::{AliasType, UserType};
 use crate::utils::regex_replace_in_place;
+use redis::AsyncCommands;
 use regex::Regex;
 use sea_orm::ActiveValue;
 use sea_query::OnConflict;
@@ -872,6 +873,12 @@ impl UserService {
                     Some(s3_hash.to_vec())
                 }
             };
+
+            // Clear cached avatar hash
+            let _ = ctx
+                .redis()
+                .del::<_, String>(format!("user_avatar:{}", user.user_id))
+                .await;
 
             model.avatar_s3_hash = Set(s3_hash);
         }
