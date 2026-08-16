@@ -20,7 +20,7 @@
 
 use crate::cache::Cache;
 use crate::config::Secrets;
-use crate::deepwell::{Deepwell, FileData, PageData};
+use crate::deepwell::{Deepwell, FileData, PageData, UserData};
 use crate::error::{
     BasicError, FallbackError, ResponseResult, Result, build_basic_error_response,
 };
@@ -248,6 +248,60 @@ impl ServerStateInner {
                         page_slug,
                         filename,
                     },
+                )
+                .await;
+
+                Err(response)
+            }
+        }
+    }
+
+    pub async fn get_avatar(&self, user_id: i64) -> Result<Option<String>> {
+        match self.cache.get_avatar(user_id).await? {
+            Some(avatar_s3_hash) => Ok(Some(avatar_s3_hash)),
+            None => match self.deepwell.get_user(user_id).await? {
+                None => Ok(None),
+                Some(UserData { avatar_s3_hash, .. }) => {
+                    let s3_hash: String = avatar_s3_hash
+                        .iter()
+                        .map(|b| format!("{:02x}", b).to_string())
+                        .collect();
+                    self.cache.set_avatar(user_id, &s3_hash).await?;
+                    Ok(Some(s3_hash))
+                }
+            },
+        }
+    }
+
+    pub async fn get_avatar_or_response(
+        &self,
+        headers: &HeaderMap,
+        user_id: i64,
+    ) -> ResponseResult<String> {
+        match self.get_avatar(user_id).await {
+            Ok(Some(avatar_s3_hash)) => Ok(avatar_s3_hash),
+            Ok(None) => {
+                error!(
+                    user_id = user_id,
+                    "Cannot complete request, no such user or no avatar set",
+                );
+
+                let response = build_basic_error_response(
+                    self,
+                    headers,
+                    BasicError::UserAvatar { user_id },
+                )
+                .await;
+
+                Err(response)
+            }
+            Err(error) => {
+                error!(user_id = user_id, "Cannot get user info: {error}",);
+
+                let response = build_basic_error_response(
+                    self,
+                    headers,
+                    BasicError::UserFetch { user_id },
                 )
                 .await;
 

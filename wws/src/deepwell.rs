@@ -114,6 +114,15 @@ impl Deepwell {
         Ok(file_data)
     }
 
+    pub async fn get_user(&self, user_id: i64) -> Result<Option<UserData>> {
+        let params = rpc_object! {
+            "user" => user_id,
+        };
+
+        let user_data: Option<UserData> = self.client.request("user_get", params).await?;
+        Ok(user_data)
+    }
+
     pub async fn get_text_block_index(
         &self,
         page_id: i64,
@@ -358,6 +367,12 @@ pub struct FileData {
     pub mime: String,
     pub size: i64,
     pub s3_hash: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct UserData {
+    pub user_id: i64,
+    pub avatar_s3_hash: Vec<u8>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
