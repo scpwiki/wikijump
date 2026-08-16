@@ -291,6 +291,60 @@ impl Deepwell {
 
         Ok(html)
     }
+
+    pub async fn basic_error_blob_fetch(
+        &self,
+        locales: &[String],
+        s3_hash: &str,
+    ) -> Result<BasicErrorHtml> {
+        let params = rpc_object! {
+            "locales" => locales,
+            "s3_hash" => s3_hash,
+        };
+
+        let html: BasicErrorHtml = self
+            .client
+            .request("basic_error_blob_fetch", params)
+            .await?;
+
+        Ok(html)
+    }
+
+    pub async fn basic_error_user_fetch(
+        &self,
+        locales: &[String],
+        user_id: i64,
+    ) -> Result<BasicErrorHtml> {
+        let params = rpc_object! {
+            "locales" => locales,
+            "user_id" => user_id,
+        };
+
+        let html: BasicErrorHtml = self
+            .client
+            .request("basic_error_user_fetch", params)
+            .await?;
+
+        Ok(html)
+    }
+
+    pub async fn basic_error_user_avatar(
+        &self,
+        locales: &[String],
+        user_id: i64,
+    ) -> Result<BasicErrorHtml> {
+        let params = rpc_object! {
+            "locales" => locales,
+            "user_id" => user_id,
+        };
+
+        let html: BasicErrorHtml = self
+            .client
+            .request("basic_error_user_avatar", params)
+            .await?;
+
+        Ok(html)
+    }
 }
 
 #[derive(Deserialize, Debug, Clone)]

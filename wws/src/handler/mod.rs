@@ -40,6 +40,8 @@ pub const HEADER_SITE_ID: HeaderName = HeaderName::from_static("x-wikijump-site-
 pub const HEADER_SITE_SLUG: HeaderName = HeaderName::from_static("x-wikijump-site-slug");
 pub const HEADER_PAGE_SLUG: HeaderName = HeaderName::from_static("x-wikijump-page-slug");
 pub const HEADER_FILENAME: HeaderName = HeaderName::from_static("x-wikijump-filename");
+pub const HEADER_BLOB_HASH: HeaderName = HeaderName::from_static("x-wikijump-s3-hash");
+pub const HEADER_USER_ID: HeaderName = HeaderName::from_static("x-wikijump-user-id");
 pub const HEADER_TARGET_SERVER: HeaderName =
     HeaderName::from_static("x-wikijump-target-server");
 pub const HEADER_BASIC_ERROR: HeaderName =

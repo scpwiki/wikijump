@@ -32,3 +32,24 @@ basic-error-file-root = <h1>无效路径</h1>
     </p>
 
     .title = { -service-name }
+
+basic-error-blob-fetch = <h1>无法载入文件</h1>
+    <p>
+      服务器错误：S3 哈希值为 <code>{ $s3_hash }</code> 的文件无法被载入。
+    </p>
+
+    .title = 服务器错误
+
+basic-error-user-fetch = <h1>无法载入用户</h1>
+    <p>
+      服务器错误：编号为 <code>{ $user_id }</code> 的用户无法被载入。
+    </p>
+
+    .title = 服务器错误
+
+basic-error-user-avatar = <h1>无法载入用户头像</h1>
+    <p>
+      服务器错误：编号为 <code>{ $user_id }</code> 的用户头像无法被载入。
+    </p>
+
+    .title = 服务器错误

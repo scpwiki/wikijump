@@ -19,8 +19,8 @@
  */
 
 use super::{
-    HEADER_BASIC_ERROR, HEADER_FILENAME, HEADER_PAGE_SLUG, get_header, get_site_id,
-    get_site_slug,
+    HEADER_BASIC_ERROR, HEADER_BLOB_HASH, HEADER_FILENAME, HEADER_PAGE_SLUG,
+    HEADER_USER_ID, get_header, get_site_id, get_site_slug,
 };
 use crate::error::{BasicError, FallbackError, build_basic_error_response};
 use crate::state::ServerState;
@@ -46,6 +46,26 @@ fn get_filename(headers: &HeaderMap) -> &str {
         "No filename header in request",
         "Filename header is not UTF-8",
     )
+}
+
+fn get_blob_hash(headers: &HeaderMap) -> &str {
+    get_header(
+        headers,
+        HEADER_BLOB_HASH,
+        "No blob s3 hash header in request",
+        "Blob s3 hash header is not UTF-8",
+    )
+}
+
+fn get_user_id(headers: &HeaderMap) -> i64 {
+    get_header(
+        headers,
+        HEADER_USER_ID,
+        "No user ID header in request",
+        "User ID header is not UTF-8",
+    )
+    .parse()
+    .expect("User ID is not a valid integer")
 }
 
 pub async fn handle_basic_error(
@@ -117,6 +137,21 @@ pub async fn handle_basic_error(
         }
         // No required headers
         "file-root" => BasicError::FileRoot,
+        // Required headers:
+        // - x-wikijump-s3-hash
+        "blob-fetch" => BasicError::BlobFetch {
+            s3_hash: get_blob_hash(&headers),
+        },
+        // Required headers:
+        // - x-wikijump-user-id
+        "user-fetch" => BasicError::UserFetch {
+            user_id: get_user_id(&headers),
+        },
+        // Required headers:
+        // - x-wikijump-user-id
+        "user-avatar" => BasicError::UserAvatar {
+            user_id: get_user_id(&headers),
+        },
         // Invalid
         _ => {
             // XF-1000

@@ -227,3 +227,63 @@ pub async fn basic_error_file_root(
         .await
         .or_raise(make_error)
 }
+
+pub async fn basic_error_blob_fetch(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<BasicErrorOutput> {
+    #[derive(Deserialize, Debug)]
+    struct Input {
+        locales: Vec<String>,
+        s3_hash: String,
+    }
+
+    let Input { locales, s3_hash } = parse!(params, BasicError);
+
+    let make_error = make_make_error!(blob_fetch);
+    let locales = parse_locales(&locales).or_raise(make_error)?;
+
+    BasicErrorService::blob_fetch(ctx, &locales, &s3_hash)
+        .await
+        .or_raise(make_error)
+}
+
+pub async fn basic_error_user_fetch(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<BasicErrorOutput> {
+    #[derive(Deserialize, Debug)]
+    struct Input {
+        locales: Vec<String>,
+        user_id: i64,
+    }
+
+    let Input { locales, user_id } = parse!(params, BasicError);
+
+    let make_error = make_make_error!(user_fetch);
+    let locales = parse_locales(&locales).or_raise(make_error)?;
+
+    BasicErrorService::user_fetch(ctx, &locales, user_id)
+        .await
+        .or_raise(make_error)
+}
+
+pub async fn basic_error_user_avatar(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<BasicErrorOutput> {
+    #[derive(Deserialize, Debug)]
+    struct Input {
+        locales: Vec<String>,
+        user_id: i64,
+    }
+
+    let Input { locales, user_id } = parse!(params, BasicError);
+
+    let make_error = make_make_error!(user_avatar);
+    let locales = parse_locales(&locales).or_raise(make_error)?;
+
+    BasicErrorService::user_avatar(ctx, &locales, user_id)
+        .await
+        .or_raise(make_error)
+}

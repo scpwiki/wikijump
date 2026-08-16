@@ -303,6 +303,9 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("basic_error_file_fetch", basic_error_file_fetch);
     register!("basic_error_text_block", basic_error_text_block);
     register!("basic_error_file_root", basic_error_file_root);
+    register!("basic_error_blob_fetch", basic_error_blob_fetch);
+    register!("basic_error_user_fetch", basic_error_user_fetch);
+    register!("basic_error_user_avatar", basic_error_user_avatar);
 
     // Authentication
     register!("login", auth_login);

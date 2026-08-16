@@ -392,4 +392,116 @@ impl BasicErrorService {
             body: body.to_string(),
         })
     }
+
+    pub async fn blob_fetch(
+        ctx: &ServiceContext<'_>,
+        locales: &[LanguageIdentifier],
+        s3_hash: &str,
+    ) -> Result<BasicErrorOutput> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to generate blob_fetch basic error for hash '{}'",
+                    s3_hash,
+                ),
+                ErrorType::BasicError,
+            )
+        };
+
+        assert!(!locales.is_empty(), "No languages specified");
+        let mut args = FluentArgs::new();
+
+        args.set("s3_hash", fluent_str!(s3_hash));
+
+        let title = ctx
+            .localization()
+            .translate(locales, "basic-error-blob-fetch.title", &args)
+            .or_raise(make_error)?;
+
+        let body = ctx
+            .localization()
+            .translate(locales, "basic-error-blob-fetch", &args)
+            .or_raise(make_error)?;
+
+        Ok(BasicErrorOutput {
+            title: title.to_string(),
+            body: body.to_string(),
+        })
+    }
+
+    pub async fn user_fetch(
+        ctx: &ServiceContext<'_>,
+        locales: &[LanguageIdentifier],
+        user_id: i64,
+    ) -> Result<BasicErrorOutput> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to generate user_fetch basic error for user '{}'",
+                    user_id,
+                ),
+                ErrorType::BasicError,
+            )
+        };
+
+        assert!(!locales.is_empty(), "No languages specified");
+        let mut args = FluentArgs::new();
+
+        let user = user_id.to_string();
+
+        args.set("user_id", fluent_str!(user));
+
+        let title = ctx
+            .localization()
+            .translate(locales, "basic-error-user-fetch.title", &args)
+            .or_raise(make_error)?;
+
+        let body = ctx
+            .localization()
+            .translate(locales, "basic-error-user-fetch", &args)
+            .or_raise(make_error)?;
+
+        Ok(BasicErrorOutput {
+            title: title.to_string(),
+            body: body.to_string(),
+        })
+    }
+
+    pub async fn user_avatar(
+        ctx: &ServiceContext<'_>,
+        locales: &[LanguageIdentifier],
+        user_id: i64,
+    ) -> Result<BasicErrorOutput> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to generate user_avatar basic error for user '{}'",
+                    user_id,
+                ),
+                ErrorType::BasicError,
+            )
+        };
+
+        assert!(!locales.is_empty(), "No languages specified");
+        let mut args = FluentArgs::new();
+
+        let user = user_id.to_string();
+
+        args.set("user_id", fluent_str!(user));
+
+        let title = ctx
+            .localization()
+            .translate(locales, "basic-error-user-avatar.title", &args)
+            .or_raise(make_error)?;
+
+        let body = ctx
+            .localization()
+            .translate(locales, "basic-error-user-avatar", &args)
+            .or_raise(make_error)?;
+
+        Ok(BasicErrorOutput {
+            title: title.to_string(),
+            body: body.to_string(),
+        })
+    }
 }
