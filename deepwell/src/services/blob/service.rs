@@ -272,11 +272,7 @@ impl BlobService {
             .await
             .or_raise(make_error)?;
 
-        if Self::head(ctx, &s3_path)
-            .await
-            .or_raise(make_error)?
-            .is_some()
-        {
+        if Self::exists(ctx, &s3_path).await.or_raise(make_error)? {
             let bucket = ctx.s3_files_bucket();
             bucket.delete_object(&s3_path).await.or_raise(make_error)?;
         }
