@@ -85,8 +85,8 @@ async fn fetch_blob(
 
     Ok((
         BlobData {
-            size: file_size.unwrap_or(0),
-            mime: mime_type.unwrap_or("text/plain".into()),
+            size: file_size.expect("File size should be known"),
+            mime: mime_type.expect("File mime type should be known"),
         },
         body,
     ))
