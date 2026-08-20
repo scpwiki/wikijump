@@ -86,6 +86,7 @@ deploy.wjfiles.test {
 		path /-/files/*
 		path /-/file/*
 		path /-/download/*
+		path /-/avatar/*
 		path /-/code/*
 		path /-/html/*
 	}

@@ -114,6 +114,15 @@ impl Deepwell {
         Ok(file_data)
     }
 
+    pub async fn get_user(&self, user_id: i64) -> Result<Option<UserData>> {
+        let params = rpc_object! {
+            "user" => user_id,
+        };
+
+        let user_data: Option<UserData> = self.client.request("user_get", params).await?;
+        Ok(user_data)
+    }
+
     pub async fn get_text_block_index(
         &self,
         page_id: i64,
@@ -291,6 +300,60 @@ impl Deepwell {
 
         Ok(html)
     }
+
+    pub async fn basic_error_blob_fetch(
+        &self,
+        locales: &[String],
+        s3_hash: &str,
+    ) -> Result<BasicErrorHtml> {
+        let params = rpc_object! {
+            "locales" => locales,
+            "s3_hash" => s3_hash,
+        };
+
+        let html: BasicErrorHtml = self
+            .client
+            .request("basic_error_blob_fetch", params)
+            .await?;
+
+        Ok(html)
+    }
+
+    pub async fn basic_error_user_fetch(
+        &self,
+        locales: &[String],
+        user_id: i64,
+    ) -> Result<BasicErrorHtml> {
+        let params = rpc_object! {
+            "locales" => locales,
+            "user_id" => user_id,
+        };
+
+        let html: BasicErrorHtml = self
+            .client
+            .request("basic_error_user_fetch", params)
+            .await?;
+
+        Ok(html)
+    }
+
+    pub async fn basic_error_user_avatar(
+        &self,
+        locales: &[String],
+        user_id: i64,
+    ) -> Result<BasicErrorHtml> {
+        let params = rpc_object! {
+            "locales" => locales,
+            "user_id" => user_id,
+        };
+
+        let html: BasicErrorHtml = self
+            .client
+            .request("basic_error_user_avatar", params)
+            .await?;
+
+        Ok(html)
+    }
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -304,6 +367,17 @@ pub struct FileData {
     pub mime: String,
     pub size: i64,
     pub s3_hash: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct BlobData {
+    pub mime: String,
+    pub size: i64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct UserData {
+    pub avatar_s3_hash: Vec<u8>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

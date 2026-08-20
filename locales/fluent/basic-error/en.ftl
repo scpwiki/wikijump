@@ -96,3 +96,24 @@ basic-error-file-root = <h1>Invalid route</h1>
     </p>
 
     .title = { -service-name }
+
+basic-error-blob-fetch = <h1>Unable to fetch blob data</h1>
+    <p>
+      Server error: Blob with S3 hash <code>{ $s3_hash }</code> could not be loaded.
+    </p>
+
+    .title = Server Error
+
+basic-error-user-fetch = <h1>Unable to fetch user data</h1>
+    <p>
+      Server error: User with id <code>{ $user_id }</code> could not be loaded.
+    </p>
+
+    .title = Server Error
+
+basic-error-user-avatar = <h1>Unable to fetch user avatar</h1>
+    <p>
+      Server error: User avatar with user id <code>{ $user_id }</code> could not be loaded.
+    </p>
+
+    .title = Server Error

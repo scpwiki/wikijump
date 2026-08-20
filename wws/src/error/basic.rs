@@ -58,6 +58,15 @@ pub enum BasicError<'a> {
         page_slug: &'a str,
         filename: &'a str,
     },
+    BlobFetch {
+        s3_hash: &'a str,
+    },
+    UserFetch {
+        user_id: i64,
+    },
+    UserAvatar {
+        user_id: i64,
+    },
     TextBlock {
         site_id: i64,
         index: &'a str,
@@ -169,6 +178,15 @@ pub async fn build_basic_error_response(
             filename,
         } => {
             deepwell_fetch!(file_fetch, site_id, page_slug, filename => INTERNAL_SERVER_ERROR)
+        }
+        BasicError::BlobFetch { s3_hash } => {
+            deepwell_fetch!(blob_fetch, s3_hash => NOT_FOUND)
+        }
+        BasicError::UserFetch { user_id } => {
+            deepwell_fetch!(user_fetch, user_id => NOT_FOUND)
+        }
+        BasicError::UserAvatar { user_id } => {
+            deepwell_fetch!(user_avatar, user_id => NOT_FOUND)
         }
         BasicError::TextBlock {
             site_id,

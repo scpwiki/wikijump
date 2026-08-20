@@ -1,7 +1,6 @@
 import defaults from "$lib/defaults"
 
 import { authGetSession } from "$lib/server/auth/getSession"
-import { getFileByHash } from "$lib/server/deepwell/file"
 import { translate } from "$lib/server/deepwell/translate"
 import { userEdit, userView } from "$lib/server/deepwell/user"
 import { loadSiteInfo } from "$lib/server/load/site-info"
@@ -75,17 +74,6 @@ export async function loadUser(
       parentData.user_session?.user?.user_id !== response.data.user.user_id
 
     viewData.user = sanitizeUserData(response.data.user, isViewingAnotherUser)
-
-    // Get user avatar image
-    if (response.data.user.avatar_s3_hash !== null) {
-      const avatar = await getFileByHash(
-        new Uint8Array(response.data.user.avatar_s3_hash)
-      )
-      const dataurl = `data:${avatar.type};base64,${Buffer.from(
-        await avatar.arrayBuffer()
-      ).toString("base64")}`
-      viewData.user.avatar = dataurl
-    }
 
     translateKeys = {
       ...translateKeys,

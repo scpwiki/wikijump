@@ -8,7 +8,12 @@
     userData
   }: { data: PageData; userData: InferOutput<typeof userEditSchema> } = $props()
 
-  let avatar = $derived<string | undefined>(data.user?.avatar)
+  // svelte-ignore state_referenced_locally
+  let avatar = $state(
+    data.user?.avatar_s3_hash
+      ? `https://${data.site_file_domain}/-/avatar/${data.user.user_id}`
+      : null
+  )
 
   $effect(() => {
     let url: string | undefined

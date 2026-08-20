@@ -68,6 +68,8 @@ pub fn build_router(state: ServerState) -> Router {
             "/-/download/{page_slug}/{filename}",
             any(handle_invalid_method),
         )
+        .route("/-/avatar/{user_id}", get(handle_user_avatar))
+        .route("/-/avatar/{user_id}", any(handle_invalid_method))
         // Code and HTML
         .route("/-/code/{page_slug}/{index}", get(handle_code_block))
         .route("/-/code/{page_slug}/{index}", any(handle_invalid_method))
