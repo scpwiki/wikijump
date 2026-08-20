@@ -1,5 +1,5 @@
 /*
- * constants.rs
+ * tests/common/audit.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -18,16 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
+use super::TestRunner;
+use deepwell::models::audit_log::{self, Entity as AuditLog};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
-use std::net::{IpAddr, Ipv6Addr};
-
-// See seeder data for these values
-pub const ADMIN_USER_ID: i64 = -1;
-pub const SYSTEM_USER_ID: i64 = -2;
-pub const ANONYMOUS_USER_ID: i64 = -3;
-pub const UNKNOWN_USER_ID: i64 = -4;
-pub const SAMPLE_USER_ID: i64 = -5;
-
-/// The IP address to use in audit log entries for actions performed by the system.
-pub const SYSTEM_IP_ADDRESS: IpAddr = IpAddr::V6(Ipv6Addr::LOCALHOST);
+#[allow(dead_code)]
+pub async fn latest_audit_event(
+    runner: &TestRunner,
+    event_type: &str,
+    site_id: i64,
+    target_user_id: i64,
+) -> audit_log::Model {
+    AuditLog::find()
+        .filter(audit_log::Column::EventType.eq(event_type))
+        .filter(audit_log::Column::SiteId.eq(site_id))
+        .filter(audit_log::Column::UserId.eq(target_user_id))
+        .order_by_desc(audit_log::Column::EventId)
+        .one(runner.context().transaction())
+        .await
+        .expect("Unable to query audit log")
+        .expect("Expected audit event was not found")
+}

@@ -21,12 +21,11 @@
 #[macro_use]
 mod common;
 
-use self::common::TestRunner;
+use self::common::{TestRunner, latest_audit_event};
 use deepwell::constants::{
     ADMIN_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID, UNKNOWN_USER_ID,
 };
 use deepwell::error::prelude::*;
-use deepwell::models::audit_log::{self, Entity as AuditLog};
 use deepwell::models::relation::{self, Entity as Relation};
 use deepwell::services::RelationService;
 use deepwell::services::role::{InternalCreateRoleInput, RoleService};
@@ -89,23 +88,6 @@ async fn clear_site_membership(runner: &TestRunner, site_id: i64, user_id: i64) 
             }),
         );
     }
-}
-
-async fn latest_audit_event(
-    runner: &TestRunner,
-    event_type: &str,
-    site_id: i64,
-    target_user_id: i64,
-) -> audit_log::Model {
-    AuditLog::find()
-        .filter(audit_log::Column::EventType.eq(event_type))
-        .filter(audit_log::Column::SiteId.eq(site_id))
-        .filter(audit_log::Column::UserId.eq(target_user_id))
-        .order_by_desc(audit_log::Column::EventId)
-        .one(runner.context().transaction())
-        .await
-        .expect("Unable to query audit log")
-        .expect("Expected audit event was not found")
 }
 
 #[tokio::test]
@@ -188,6 +170,7 @@ async fn lifecycle_membership_blocking_and_audit() {
                 },
             },
             "created_by": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
         }),
     );
 
@@ -200,6 +183,17 @@ async fn lifecycle_membership_blocking_and_audit() {
         }),
     );
     assert!(membership.is_some(), "Site membership was not created");
+
+    // Verify the site membership audit log event.
+    let join_event =
+        latest_audit_event(&runner, "site_member.join", site_id, user_id).await;
+
+    assert_eq!(join_event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(join_event.user_id, Some(user_id));
+    assert_eq!(join_event.site_id, Some(site_id));
+    assert_eq!(join_event.extra_id_1, Some(ADMIN_USER_ID));
+    assert_eq!(join_event.extra_string_1, None);
+    assert_eq!(join_event.extra_string_2, None);
 
     // Creating the ban must remove the existing membership.
     run_endpoint!(
@@ -273,6 +267,7 @@ async fn lifecycle_membership_blocking_and_audit() {
                 },
             },
             "created_by": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
         }),
     );
 
@@ -331,6 +326,17 @@ async fn lifecycle_membership_blocking_and_audit() {
     assert_eq!(create_event.extra_id_1, Some(ADMIN_USER_ID));
     assert_eq!(create_event.extra_string_1.as_deref(), Some(REASON));
     assert_eq!(create_event.extra_string_2, None);
+
+    // Verify the site membership removal audit event.
+    let remove_event =
+        latest_audit_event(&runner, "site_member.remove", site_id, user_id).await;
+
+    assert_eq!(remove_event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(remove_event.user_id, Some(user_id));
+    assert_eq!(remove_event.site_id, Some(site_id));
+    assert_eq!(remove_event.extra_id_1, Some(ADMIN_USER_ID));
+    assert_eq!(remove_event.extra_string_1.as_deref(), Some(REASON));
+    assert_eq!(remove_event.extra_string_2, None);
 
     // Removing the ban must soft-delete it and add another audit event.
     let removed = run_endpoint!(
