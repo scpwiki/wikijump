@@ -1,17 +1,5 @@
 import { client } from "$lib/server/deepwell"
 
-export async function getFileByHash(
-  /** Either a Uint8Array or a hex string */
-  fileHash: Uint8Array | string
-): Promise<Blob> {
-  const res = await client.request(
-    "blob_get",
-    typeof fileHash === "string" ? fileHash : Buffer.from(fileHash).toString("hex")
-  )
-
-  return new Blob([new Uint8Array(res.data)], { type: res.mime })
-}
-
 export async function startBlobUpload(userId: number, blobSize: number) {
   return await client.request("blob_upload", {
     user_id: userId,
