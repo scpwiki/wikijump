@@ -34,7 +34,7 @@
 
 use super::prelude::*;
 use crate::services::{DomainService, SiteService};
-use crate::utils::parse_locales;
+use crate::utils::{parse_locales, strip_fluent_control_chars};
 use fluent::{FluentArgs, FluentValue};
 use serde::Deserialize;
 use unic_langid::LanguageIdentifier;
@@ -77,14 +77,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-site-slug.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-site-slug", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -116,14 +119,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-site-custom.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-site-custom", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -166,14 +172,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-page-slug.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-page-slug", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -211,14 +220,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-page-fetch.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-page-fetch", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -256,14 +268,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-file-name.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-file-name", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -301,14 +316,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-file-fetch.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-file-fetch", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -348,14 +366,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-text-block.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-text-block", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -382,14 +403,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-file-root.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-file-root", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -418,14 +442,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-blob-fetch.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-blob-fetch", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -456,14 +483,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-user-fetch.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-user-fetch", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 
@@ -494,14 +524,17 @@ impl BasicErrorService {
             .translate(locales, "basic-error-user-avatar.title", &args)
             .or_raise(make_error)?;
 
-        let body = ctx
+        let mut body = ctx
             .localization()
             .translate(locales, "basic-error-user-avatar", &args)
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .to_string();
+
+        strip_fluent_control_chars(&mut body);
 
         Ok(BasicErrorOutput {
             title: title.to_string(),
-            body: body.to_string(),
+            body,
         })
     }
 }
