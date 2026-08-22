@@ -66,6 +66,7 @@ wiki-page-delete = Delete page
 
 wiki-page-restore = Restore page
   .select = Select page to restore
+  .toast = Page restored.
 
 wiki-page-deleted = Deleted at { $datetime }
 

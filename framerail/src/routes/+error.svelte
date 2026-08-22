@@ -94,6 +94,10 @@
       },
       onResult: async ({ result }) => {
         if (result.type === "success" && result.data) {
+          toast(
+            ToastType.Success,
+            errorData.internationalization!["wiki-page-restore.toast"]!
+          )
           showRestoreAction = false
           invalidateAll()
         }

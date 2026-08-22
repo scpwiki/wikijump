@@ -66,6 +66,7 @@ wiki-page-delete = 删除页面
 
 wiki-page-restore = 恢复页面
   .select = 选择需恢复的页面
+  .toast = 页面恢复成功。
 
 wiki-page-deleted = 于{ $datetime }删除
 

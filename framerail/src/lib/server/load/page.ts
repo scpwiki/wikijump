@@ -241,6 +241,7 @@ export async function loadPage(
       "restore": {},
       "wiki-page-restore": {},
       "wiki-page-restore.select": {},
+      "wiki-page-restore.toast": {},
       "wiki-page-create": {},
       "wiki-page-deleted": {
         // To be determined lazily
