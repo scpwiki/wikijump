@@ -129,6 +129,7 @@ wiki-page-lock = Lock Page
 ### Wiki page parents
 
 wiki-page-parent = Page parents
+  .toast = Page parents saved.
 
 ### Blueprint page fallback strings
 

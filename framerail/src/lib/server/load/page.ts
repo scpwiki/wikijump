@@ -204,6 +204,7 @@ export async function loadPage(
       // Misc
       "wiki-page-edit": {},
       "wiki-page-parent": {},
+      "wiki-page-parent.toast": {},
       "wiki-page-delete": {},
       "wiki-page-delete.toast": {},
       "wiki-page-lock": {},

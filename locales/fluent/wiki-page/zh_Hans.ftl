@@ -105,6 +105,7 @@ wiki-page-file-restore = 恢复
 ### 维基页面父页面
 
 wiki-page-parent = 父页面
+  .toast = 父页面保存成功。
 
 ### 蓝图页面
 
