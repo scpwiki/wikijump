@@ -4,6 +4,7 @@
   import { toast } from "$lib/component/scripts/toasts"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
+  import { invalidateAll } from "$app/navigation"
 
   import type { PageProps } from "./$types"
 
@@ -28,7 +29,7 @@
           pagePaneState = PagePane.None
           pageLayoutState.current = result.data.layout
           cancel()
-          window.location.reload()
+          invalidateAll()
         }
         if (result.type === "failure" && result.data) {
           errorPopupState.current = {
