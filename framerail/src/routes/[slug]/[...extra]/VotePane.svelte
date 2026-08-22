@@ -1,7 +1,8 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
-  import { Layout } from "$lib/types"
+  import { toast } from "$lib/component/scripts/toasts"
+  import { Layout, ToastType } from "$lib/types"
   import { SvelteMap } from "svelte/reactivity"
 
   import type { PageProps } from "./$types"
@@ -64,6 +65,8 @@
         message: result.data.message,
         data: result.data.data
       }
+    } else if (result.type === "success") {
+      toast(ToastType.Success, data.internationalization!["wiki-page-vote.toast-set"]!)
     }
   }
 
@@ -87,6 +90,8 @@
         message: result.data.message,
         data: result.data.data
       }
+    } else if (result.type === "success") {
+      toast(ToastType.Success, data.internationalization!["wiki-page-vote.toast-remove"]!)
     }
   }
 

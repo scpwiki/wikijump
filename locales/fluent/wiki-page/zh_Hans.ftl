@@ -42,6 +42,8 @@ wiki-page-vote = 页面评分
   .remove = 取消评分
   .list = 查看评分列表
   .score = 现时评分
+  .toast-set = 评分成功。
+  .toast-remove = 取消评分成功。
 
 ### 维基页面编辑
 

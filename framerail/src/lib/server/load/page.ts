@@ -170,6 +170,8 @@ export async function loadPage(
       "wiki-page-vote.set": {},
       "wiki-page-vote.remove": {},
       "wiki-page-vote.score": {},
+      "wiki-page-vote.toast-set": {},
+      "wiki-page-vote.toast-remove": {},
 
       // Page files
       "files": {},

@@ -42,6 +42,8 @@ wiki-page-vote = Page rating
   .remove = Cancel vote
   .list = List votes
   .score = Rating
+  .toast-set = Successfully voted.
+  .toast-remove = Successfully removed vote.
 
 ### Wiki Page Edit
 
