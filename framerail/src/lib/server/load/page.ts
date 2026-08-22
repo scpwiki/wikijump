@@ -202,6 +202,7 @@ export async function loadPage(
       "wiki-page-file-delete.toast": {},
       "wiki-page-file-restore.new-page": {},
       "wiki-page-file-restore.new-name": {},
+      "wiki-page-file-restore.toast": {},
 
       // Misc
       "wiki-page-edit": {},

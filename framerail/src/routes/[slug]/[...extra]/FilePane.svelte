@@ -205,6 +205,10 @@
       },
       onResult: async ({ result }) => {
         if (result.type === "success" && result.data) {
+          toast(
+            ToastType.Success,
+            data.internationalization!["wiki-page-file-restore.toast"]!
+          )
           activeFileAction = null
           await getFileList()
           await invalidateAll()

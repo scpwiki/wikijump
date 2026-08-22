@@ -105,6 +105,7 @@ wiki-page-file-revision-type = Type
 wiki-page-file-restore = Restore
   .new-page = Destination page
   .new-name = New file name
+  .toast = File restored.
 
 ### Wiki page lock
 

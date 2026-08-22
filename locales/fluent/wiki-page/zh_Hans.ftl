@@ -105,6 +105,7 @@ wiki-page-file-revision-type = 类型
 wiki-page-file-restore = 恢复
   .new-page = 新页面网址
   .new-name = 新档案名
+  .toast = 档案恢复成功。
 
 ### 维基页面锁定
 
