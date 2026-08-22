@@ -80,6 +80,9 @@ wiki-page-file-upload =
   .name = 档案名：
   .toast = 档案上传成功。
 
+wiki-page-file-delete =
+  .toast = 档案删除成功。
+
 wiki-page-file-move-destination-page = 新页面网址
 
 wiki-page-file = 页面附件

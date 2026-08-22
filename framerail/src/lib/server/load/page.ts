@@ -199,6 +199,7 @@ export async function loadPage(
       "wiki-page-file-revision-type.rollback": {},
       "wiki-page-file-revision-type.undelete": {},
       "wiki-page-file-revision-type.undo": {},
+      "wiki-page-file-delete.toast": {},
       "wiki-page-file-restore.new-page": {},
       "wiki-page-file-restore.new-name": {},
 

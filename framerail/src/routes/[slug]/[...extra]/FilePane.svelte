@@ -111,6 +111,7 @@
         data: result.data
       }
     } else if (result.type === "success" && result.data?.res) {
+      toast(ToastType.Success, data.internationalization!["wiki-page-file-delete.toast"]!)
       activeFileAction = null
       await getFileList()
     }

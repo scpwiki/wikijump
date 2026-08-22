@@ -80,6 +80,9 @@ wiki-page-file-upload =
   .name = File name:
   .toast = File uploaded.
 
+wiki-page-file-delete =
+  .toast = File deleted.
+
 wiki-page-file-move-destination-page = Destination page
 
 wiki-page-file = Page files
