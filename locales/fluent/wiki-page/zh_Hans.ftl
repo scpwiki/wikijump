@@ -54,6 +54,7 @@ wiki-page-create = 建立新页面
 
 wiki-page-move = 移动页面
   .new-slug = 新页面网址
+  .toast = 页面移动成功。
 
 wiki-page-layout = 页面布局
   .default = 预设布局

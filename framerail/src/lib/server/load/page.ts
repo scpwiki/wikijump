@@ -227,6 +227,7 @@ export async function loadPage(
       "wiki-page-lock.remove": {},
       "wiki-page-move": {},
       "wiki-page-move.new-slug": {},
+      "wiki-page-move.toast": {},
       "wiki-page-no-render": {},
       "wiki-page-source": {},
       "wiki-page-view-source": {}

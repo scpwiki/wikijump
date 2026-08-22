@@ -54,6 +54,7 @@ wiki-page-create = Create new page
 
 wiki-page-move = Move page
   .new-slug = New slug
+  .toast = Page moved.
 
 wiki-page-layout = Page layout
   .default = Default layout
