@@ -11,6 +11,7 @@ user-profile-info =
   .gender = 性别：
   .user-page = 用户页：
   .locales = 语言：
+  .toast = 个人资料储存成功。
 
 user-not-exist = 此用户并不存在。
 

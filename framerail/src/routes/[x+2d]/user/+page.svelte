@@ -2,6 +2,7 @@
   import Page from "./[slug]/page.svelte"
 
   import { errorPopupState } from "$lib/stores.svelte"
+  import { toast } from "$lib/component/scripts/toasts"
   import { invalidateAll } from "$app/navigation"
   import { fileProxy, superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
@@ -9,6 +10,7 @@
   import type { PageProps } from "./$types"
   import type { userEditSchema } from "$lib/server/load/user"
   import type { InferOutput } from "valibot"
+  import { ToastType } from "$lib/types"
 
   let { data }: PageProps = $props()
 
@@ -57,6 +59,7 @@
           isEdit = false
           await invalidateAll()
           cancel()
+          toast(ToastType.Success, data.internationalization!["user-profile-info.toast"]!)
           $form = untrack(() => ({ ...lastSubmitted, avatar: $form.avatar }))
         }
         if (result.type === "failure" && result.data) {
