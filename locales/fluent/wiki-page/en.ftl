@@ -60,6 +60,7 @@ wiki-page-layout = Page layout
   .default = Default layout
   .wikidot = Wikidot (Legacy)
   .wikijump = Wikijump
+  .toast = Page layout saved.
 
 wiki-page-delete = Delete page
   .toast = Page deleted.

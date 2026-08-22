@@ -113,6 +113,7 @@ export async function loadPage(
     "wiki-page-layout.default": {},
     "wiki-page-layout.wikidot": {},
     "wiki-page-layout.wikijump": {},
+    "wiki-page-layout.toast": {},
     "wiki-page-edit.toast": {},
 
     "footer-license-unless": {

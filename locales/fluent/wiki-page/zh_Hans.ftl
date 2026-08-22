@@ -60,6 +60,7 @@ wiki-page-layout = 页面布局
   .default = 预设布局
   .wikidot = Wikidot（旧）
   .wikijump = Wikijump
+  .toast = 页面布局保存成功。
 
 wiki-page-delete = 删除页面
   .toast = 页面删除成功。
