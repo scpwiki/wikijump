@@ -508,7 +508,11 @@ export async function pageFileListAction({ request }: RequestEvent) {
 }
 
 /* ----- Page File Upload ----- */
-export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
+export async function pageFileUploadAction({
+  request,
+  cookies,
+  getClientAddress
+}: RequestEvent) {
   const form = await superValidate(request, valibot(pageFileUploadSchema))
   if (!form.valid) {
     return fail(400, { form })
@@ -516,6 +520,7 @@ export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
 
   const sessionToken = cookies.get("wikijump_token")
   const session = await authGetSession(sessionToken)
+  const ipAddress = getClientAddress()
 
   try {
     const { siteId, pageId, file, name, comments } = form.data
@@ -523,6 +528,7 @@ export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
       siteId,
       pageId,
       session?.user_id,
+      ipAddress,
       name === "" ? undefined : name,
       file,
       comments
