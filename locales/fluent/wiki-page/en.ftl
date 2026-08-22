@@ -48,6 +48,7 @@ wiki-page-vote = Page rating
 ### Wiki Page Edit
 
 wiki-page-edit = Edit the page
+  .toast = Page saved.
 
 wiki-page-create = Create new page
 

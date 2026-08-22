@@ -3,8 +3,9 @@
   import { deserialize } from "$app/forms"
   import { resolve } from "$app/paths"
   import { goto, invalidateAll } from "$app/navigation"
-  import { Layout } from "$lib/types"
+  import { Layout, ToastType } from "$lib/types"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
+  import { toast } from "$lib/component/scripts/toasts"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 
@@ -37,6 +38,10 @@
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
           cancel()
+          toast(
+            ToastType.Success,
+            errorData.internationalization!["wiki-page-edit.toast"]!
+          )
           goto(resolve(`/${page.params.slug ?? page.data.site.default_page}`, {}), {
             noScroll: true
           })

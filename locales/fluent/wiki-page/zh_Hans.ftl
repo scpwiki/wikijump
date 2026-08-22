@@ -48,6 +48,7 @@ wiki-page-vote = 页面评分
 ### 维基页面编辑
 
 wiki-page-edit = 编辑页面
+  .toast = 页面保存成功。
 
 wiki-page-create = 建立新页面
 
