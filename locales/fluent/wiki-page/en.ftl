@@ -78,6 +78,7 @@ wiki-page-file-no-files = No files for this page.
 wiki-page-file-upload =
   .select = Select file:
   .name = File name:
+  .toast = File uploaded.
 
 wiki-page-file-move-destination-page = Destination page
 

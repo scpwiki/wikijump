@@ -183,6 +183,7 @@ export async function loadPage(
       "wiki-page-file-no-files": {},
       "wiki-page-file-upload.select": {},
       "wiki-page-file-upload.name": {},
+      "wiki-page-file-upload.toast": {},
       "wiki-page-file.name": {},
       "wiki-page-file.created-at": {},
       "wiki-page-file.updated-at": {},

@@ -78,6 +78,7 @@ wiki-page-file-no-files = 本页没有上传任何档案。
 wiki-page-file-upload =
   .select = 选择档案：
   .name = 档案名：
+  .toast = 档案上传成功。
 
 wiki-page-file-move-destination-page = 新页面网址
 
