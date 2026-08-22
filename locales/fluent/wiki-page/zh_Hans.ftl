@@ -62,6 +62,7 @@ wiki-page-layout = 页面布局
   .wikijump = Wikijump
 
 wiki-page-delete = 删除页面
+  .toast = 页面删除成功。
 
 wiki-page-restore = 恢复页面
   .select = 选择需恢复的页面

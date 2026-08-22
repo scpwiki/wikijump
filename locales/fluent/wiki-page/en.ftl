@@ -62,6 +62,7 @@ wiki-page-layout = Page layout
   .wikijump = Wikijump
 
 wiki-page-delete = Delete page
+  .toast = Page deleted.
 
 wiki-page-restore = Restore page
   .select = Select page to restore

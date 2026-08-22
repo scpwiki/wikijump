@@ -1,7 +1,8 @@
 <script lang="ts">
   import { goto, invalidateAll } from "$app/navigation"
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
-  import { DeleteOptions, Layout, PagePane } from "$lib/types"
+  import { DeleteOptions, Layout, PagePane, ToastType } from "$lib/types"
+  import { toast } from "$lib/component/scripts/toasts"
   import { resolve } from "$app/paths"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
@@ -28,11 +29,16 @@
         if (result.type === "success" && result.data) {
           if (result.data.option === DeleteOptions.Move) {
             cancel()
+            toast(ToastType.Success, data.internationalization!["wiki-page-move.toast"]!)
             goto(resolve(`/${result.data.res.new_slug}`, {}), {
               noScroll: true
             })
             pagePaneState = PagePane.None
           } else if (result.data.option === DeleteOptions.Delete) {
+            toast(
+              ToastType.Success,
+              data.internationalization!["wiki-page-delete.toast"]!
+            )
             pagePaneState = PagePane.None
             invalidateAll()
           }
