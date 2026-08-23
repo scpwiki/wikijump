@@ -115,11 +115,11 @@ impl Parse for RelationSettings {
                 }
 
                 // Designate how the remove method should be generated
-                // This key is optional, default is "true".
+                // This key is optional, default is "public".
                 //
                 // Same accepted values as create_fn.
                 //
-                //  remove_fn => true
+                //  remove_fn => public
                 "remove_fn" => {
                     error_if_set!(remove_fn);
                     let option = GenerateMethod::parse(input)?;
