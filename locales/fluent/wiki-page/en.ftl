@@ -125,6 +125,9 @@ wiki-page-lock = Lock Page
   .history-overridden = Overridden
   .history-none = No lock history for this page.
   .remove = Remove
+  .toast = Page locked.
+  .toast-remove = Page lock removed.
+  .toast-override = Page lock overridden.
 
 ### Wiki page parents
 
