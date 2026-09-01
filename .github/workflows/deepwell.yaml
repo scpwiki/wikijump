@@ -18,11 +18,104 @@ on:
       - prod
 
 jobs:
-  test_and_coverage:
-    name: Build, Test and Coverage
+  build_and_test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      valkey:
+        image: valkey/valkey:alpine
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      minio:
+        image: ghcr.io/scpwiki/wikijump:minio
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio-github-test
+          MINIO_REGION_NAME: test
+          INITIAL_BUCKETS: 'deepwell-files deepwell-text-blocks'
+        options: >-
+          --health-cmd "/healthcheck.sh"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 9000:9000
+
+    env:
+      RUSTFLAGS: -D warnings
+      DATABASE_URL: postgres://postgres:postgres@localhost/postgres
+      REDIS_URL: redis://localhost
+      S3_FILES_BUCKET: deepwell-files
+      S3_TEXT_BLOCKS_BUCKET: deepwell-text-blocks
+      S3_REGION_NAME: test
+      S3_PATH_STYLE: 'true'
+      S3_CUSTOM_ENDPOINT: http://localhost:9000
+      S3_ACCESS_KEY_ID: minio
+      S3_SECRET_ACCESS_KEY: minio-github-test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Cargo Cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            deepwell/target
+          key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
+
+      - name: System Dependencies
+        run: sudo apt update && sudo apt install libmagic-dev
+
+      - name: Install Tools
+        run: cargo install sqlx-cli --no-default-features --features rustls,postgres
+
+      - name: Build (no features)
+        run: cd deepwell && cargo build --no-default-features
+
+      - name: Build (all features)
+        run: cd deepwell && cargo build --all-features
+
+      - name: Check Configuration
+        run: cd deepwell && cargo run --all-features -- config.example.toml ../install/local/deepwell/config.toml ../install/dev/deepwell/config.toml ../install/prod/deepwell/config.toml
+        env:
+          DEEPWELL_RUNTIME_ACTION: validate-config
+
+      - name: Run Migrations
+        run: cd deepwell && sqlx migrate run
+
+      - name: Run Seeder
+        run: cd deepwell && cargo run --all-features -- config.example.toml
+        env:
+          DEEPWELL_RUNTIME_ACTION: run-seeder
+
+      - name: Test
+        run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
+
+  coverage:
+    name: Coverage
     runs-on: ubuntu-latest
     container:
-      image: xd009642/tarpaulin:develop-nightly
+      image: xd009642/tarpaulin:develop
       options: --security-opt seccomp=unconfined
 
     services:
@@ -77,31 +170,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Cargo Cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            deepwell/target
-          key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
-
       - name: System Dependencies
         run: apt update && apt install libmagic-dev
 
       - name: Install Tools
         run: cargo install sqlx-cli --no-default-features --features rustls,postgres
-
-      - name: Build (no features)
-        run: cd deepwell && cargo build --no-default-features
-
-      - name: Build (all features)
-        run: cd deepwell && cargo build --all-features
-
-      - name: Check Configuration
-        run: cd deepwell && cargo run --all-features -- config.example.toml ../install/local/deepwell/config.toml ../install/dev/deepwell/config.toml ../install/prod/deepwell/config.toml
-        env:
-          DEEPWELL_RUNTIME_ACTION: validate-config
 
       - name: Run Migrations
         run: cd deepwell && sqlx migrate run
@@ -111,12 +184,9 @@ jobs:
         env:
           DEEPWELL_RUNTIME_ACTION: run-seeder
 
-      - name: Test
-        run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
-
       - name: Generate Coverage
         run: |
-          cd deepwell && cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out xml
+          cd deepwell && cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out xml
 
       - name: Export Coverage
         uses: codecov/codecov-action@v5
