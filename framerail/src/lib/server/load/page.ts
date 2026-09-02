@@ -113,6 +113,8 @@ export async function loadPage(
     "wiki-page-layout.default": {},
     "wiki-page-layout.wikidot": {},
     "wiki-page-layout.wikijump": {},
+    "wiki-page-layout.toast": {},
+    "wiki-page-edit.toast": {},
 
     "footer-license-unless": {
       license: parentData.license_name,
@@ -170,6 +172,8 @@ export async function loadPage(
       "wiki-page-vote.set": {},
       "wiki-page-vote.remove": {},
       "wiki-page-vote.score": {},
+      "wiki-page-vote.toast-set": {},
+      "wiki-page-vote.toast-remove": {},
 
       // Page files
       "files": {},
@@ -179,6 +183,7 @@ export async function loadPage(
       "wiki-page-file-no-files": {},
       "wiki-page-file-upload.select": {},
       "wiki-page-file-upload.name": {},
+      "wiki-page-file-upload.toast": {},
       "wiki-page-file.name": {},
       "wiki-page-file.created-at": {},
       "wiki-page-file.updated-at": {},
@@ -194,13 +199,17 @@ export async function loadPage(
       "wiki-page-file-revision-type.rollback": {},
       "wiki-page-file-revision-type.undelete": {},
       "wiki-page-file-revision-type.undo": {},
+      "wiki-page-file-delete.toast": {},
       "wiki-page-file-restore.new-page": {},
       "wiki-page-file-restore.new-name": {},
+      "wiki-page-file-restore.toast": {},
 
       // Misc
       "wiki-page-edit": {},
       "wiki-page-parent": {},
+      "wiki-page-parent.toast": {},
       "wiki-page-delete": {},
+      "wiki-page-delete.toast": {},
       "wiki-page-lock": {},
       "wiki-page-lock.permission-only": {},
       "wiki-page-lock.permission-only-text": {},
@@ -222,8 +231,12 @@ export async function loadPage(
       "wiki-page-lock.history-overridden": {},
       "wiki-page-lock.history-none": {},
       "wiki-page-lock.remove": {},
+      "wiki-page-lock.toast": {},
+      "wiki-page-lock.toast-remove": {},
+      "wiki-page-lock.toast-override": {},
       "wiki-page-move": {},
       "wiki-page-move.new-slug": {},
+      "wiki-page-move.toast": {},
       "wiki-page-no-render": {},
       "wiki-page-source": {},
       "wiki-page-view-source": {}
@@ -236,6 +249,7 @@ export async function loadPage(
       "restore": {},
       "wiki-page-restore": {},
       "wiki-page-restore.select": {},
+      "wiki-page-restore.toast": {},
       "wiki-page-create": {},
       "wiki-page-deleted": {
         // To be determined lazily
@@ -496,7 +510,11 @@ export async function pageFileListAction({ request }: RequestEvent) {
 }
 
 /* ----- Page File Upload ----- */
-export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
+export async function pageFileUploadAction({
+  request,
+  cookies,
+  getClientAddress
+}: RequestEvent) {
   const form = await superValidate(request, valibot(pageFileUploadSchema))
   if (!form.valid) {
     return fail(400, { form })
@@ -504,6 +522,7 @@ export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
 
   const sessionToken = cookies.get("wikijump_token")
   const session = await authGetSession(sessionToken)
+  const ipAddress = getClientAddress()
 
   try {
     const { siteId, pageId, file, name, comments } = form.data
@@ -511,6 +530,7 @@ export async function pageFileUploadAction({ request, cookies }: RequestEvent) {
       siteId,
       pageId,
       session?.user_id,
+      ipAddress,
       name === "" ? undefined : name,
       file,
       comments

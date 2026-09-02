@@ -12,6 +12,7 @@ user-profile-info =
   .website = Website:
   .user-page = User page:
   .locales = Locales:
+  .toast = Saved profile.
 
 user-not-exist = This user does not exist.
 

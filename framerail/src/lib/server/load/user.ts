@@ -95,7 +95,8 @@ export async function loadUser(
       "user-profile-info.biography": {},
       "user-profile-info.website": {},
       "user-profile-info.user-page": {},
-      "user-profile-info.locales": {}
+      "user-profile-info.locales": {},
+      "user-profile-info.toast": {}
     }
   }
 

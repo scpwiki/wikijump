@@ -42,25 +42,32 @@ wiki-page-vote = 页面评分
   .remove = 取消评分
   .list = 查看评分列表
   .score = 现时评分
+  .toast-set = 评分成功。
+  .toast-remove = 取消评分成功。
 
 ### 维基页面编辑
 
 wiki-page-edit = 编辑页面
+  .toast = 页面保存成功。
 
 wiki-page-create = 建立新页面
 
 wiki-page-move = 移动页面
   .new-slug = 新页面网址
+  .toast = 页面移动成功。
 
 wiki-page-layout = 页面布局
   .default = 预设布局
   .wikidot = Wikidot（旧）
   .wikijump = Wikijump
+  .toast = 页面布局保存成功。
 
 wiki-page-delete = 删除页面
+  .toast = 页面删除成功。
 
 wiki-page-restore = 恢复页面
   .select = 选择需恢复的页面
+  .toast = 页面恢复成功。
 
 wiki-page-deleted = 于{ $datetime }删除
 
@@ -71,6 +78,10 @@ wiki-page-file-no-files = 本页没有上传任何档案。
 wiki-page-file-upload =
   .select = 选择档案：
   .name = 档案名：
+  .toast = 档案上传成功。
+
+wiki-page-file-delete =
+  .toast = 档案删除成功。
 
 wiki-page-file-move-destination-page = 新页面网址
 
@@ -94,10 +105,39 @@ wiki-page-file-revision-type = 类型
 wiki-page-file-restore = 恢复
   .new-page = 新页面网址
   .new-name = 新档案名
+  .toast = 档案恢复成功。
+
+### 维基页面锁定
+
+wiki-page-lock = 锁定页面
+  .permission-only = 仅权限用户
+  .author-or-permission-only = 仅权限用户或发布者
+  .permission-only-text = 仅具有越过锁定权限的用户可以编辑。
+  .author-or-permission-only-text = 仅具有越过锁定权限的用户以及页面发布者可以编辑。
+  .reason = 锁定原因（可选）
+  .expires-at = （可选）设定自动取消锁定的期限：
+  .override = 覆盖现有锁定
+  .history = 页面锁定历史
+  .history-type = 类型
+  .history-user = 锁定创建者
+  .history-reason = 锁定原因
+  .history-created = 创建时间
+  .history-expires = 到期时间
+  .history-status = 状态
+  .history-active = 有效
+  .history-expired = 已过期
+  .history-removed = 已移除
+  .history-overridden = 已覆盖
+  .history-none = 本页没有锁定历史。
+  .remove = 移除
+  .toast = 页面锁定成功。
+  .toast-remove = 页面锁定移除成功。
+  .toast-override = 页面锁定覆盖成功。
 
 ### 维基页面父页面
 
 wiki-page-parent = 父页面
+  .toast = 父页面保存成功。
 
 ### 蓝图页面
 

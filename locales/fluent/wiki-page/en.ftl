@@ -42,25 +42,32 @@ wiki-page-vote = Page rating
   .remove = Cancel vote
   .list = List votes
   .score = Rating
+  .toast-set = Successfully voted.
+  .toast-remove = Successfully removed vote.
 
 ### Wiki Page Edit
 
 wiki-page-edit = Edit the page
+  .toast = Page saved.
 
 wiki-page-create = Create new page
 
 wiki-page-move = Move page
   .new-slug = New slug
+  .toast = Page moved.
 
 wiki-page-layout = Page layout
   .default = Default layout
   .wikidot = Wikidot (Legacy)
   .wikijump = Wikijump
+  .toast = Page layout saved.
 
 wiki-page-delete = Delete page
+  .toast = Page deleted.
 
 wiki-page-restore = Restore page
   .select = Select page to restore
+  .toast = Page restored.
 
 wiki-page-deleted = Deleted at { $datetime }
 
@@ -71,6 +78,10 @@ wiki-page-file-no-files = No files for this page.
 wiki-page-file-upload =
   .select = Select file:
   .name = File name:
+  .toast = File uploaded.
+
+wiki-page-file-delete =
+  .toast = File deleted.
 
 wiki-page-file-move-destination-page = Destination page
 
@@ -94,6 +105,7 @@ wiki-page-file-revision-type = Type
 wiki-page-file-restore = Restore
   .new-page = Destination page
   .new-name = New file name
+  .toast = File restored.
 
 ### Wiki page lock
 
@@ -118,10 +130,14 @@ wiki-page-lock = Lock Page
   .history-overridden = Overridden
   .history-none = No lock history for this page.
   .remove = Remove
+  .toast = Page locked.
+  .toast-remove = Page lock removed.
+  .toast-override = Page lock overridden.
 
 ### Wiki page parents
 
 wiki-page-parent = Page parents
+  .toast = Page parents saved.
 
 ### Blueprint page fallback strings
 

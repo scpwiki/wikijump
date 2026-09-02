@@ -1,8 +1,10 @@
 <script lang="ts">
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
-  import { Layout, PagePane } from "$lib/types"
+  import { Layout, PagePane, ToastType } from "$lib/types"
+  import { toast } from "$lib/component/scripts/toasts"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
+  import { invalidateAll } from "$app/navigation"
 
   import type { PageProps } from "./$types"
 
@@ -23,10 +25,11 @@
       },
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
+          toast(ToastType.Success, data.internationalization!["wiki-page-layout.toast"]!)
           pagePaneState = PagePane.None
           pageLayoutState.current = result.data.layout
           cancel()
-          window.location.reload()
+          invalidateAll()
         }
         if (result.type === "failure" && result.data) {
           errorPopupState.current = {

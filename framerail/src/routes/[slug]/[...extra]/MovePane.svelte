@@ -1,7 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
-  import { Layout, PagePane } from "$lib/types"
+  import { Layout, PagePane, ToastType } from "$lib/types"
+  import { toast } from "$lib/component/scripts/toasts"
   import { resolve } from "$app/paths"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
@@ -27,6 +28,7 @@
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
           cancel()
+          toast(ToastType.Success, data.internationalization!["wiki-page-move.toast"]!)
           goto(resolve(`/${result.data.res.new_slug}`, {}), {
             noScroll: true
           })

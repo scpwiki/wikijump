@@ -2,6 +2,8 @@
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
   import { errorPopupState } from "$lib/stores.svelte"
+  import { toast } from "$lib/component/scripts/toasts"
+  import { ToastType } from "$lib/types"
 
   import type { PageProps } from "./$types"
 
@@ -21,6 +23,7 @@
     >(res)
 
     if (result.type === "success" && result.data?.success) {
+      toast(ToastType.Success, data.internationalization!["logout.toast"]!)
       isLoggedIn = false
       await invalidateAll()
     } else if (result.type === "failure") {

@@ -3,6 +3,8 @@
   import { errorPopupState } from "$lib/stores.svelte"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
+  import { toast } from "$lib/component/scripts/toasts"
+  import { ToastType } from "$lib/types"
 
   import type { PageProps } from "./$types"
 
@@ -15,6 +17,7 @@
     {
       onResult: async ({ result }) => {
         if (result.type === "success" && result.data) {
+          toast(ToastType.Success, data.internationalization!["login.toast"]!)
           isLoggedIn = true
           await invalidateAll()
           return

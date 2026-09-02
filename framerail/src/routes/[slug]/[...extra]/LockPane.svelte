@@ -1,7 +1,8 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
-  import { Layout, PageLockType, PagePane } from "$lib/types"
+  import { Layout, PageLockType, PagePane, ToastType } from "$lib/types"
+  import { toast } from "$lib/component/scripts/toasts"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 
@@ -24,6 +25,14 @@
       },
       onResult: async ({ result }) => {
         if (result.type === "success") {
+          if ($form.overrideExisting) {
+            toast(
+              ToastType.Success,
+              data.internationalization!["wiki-page-lock.toast-override"]!
+            )
+          } else {
+            toast(ToastType.Success, data.internationalization!["wiki-page-lock.toast"]!)
+          }
           await fetchLockHistory()
         } else if (result.type === "failure" && result.data) {
           errorPopupState.current = {
@@ -61,6 +70,7 @@
         data: result.data
       }
     } else {
+      toast(ToastType.Success, data.internationalization!["wiki-page-lock.toast-remove"]!)
       await fetchLockHistory()
     }
   }

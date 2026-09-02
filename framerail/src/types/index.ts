@@ -143,6 +143,12 @@ export interface Locales {
   "basic-error-text-block.title": string
   "basic-error-file-root": string
   "basic-error-file-root.title": string
+  "basic-error-blob-fetch": string
+  "basic-error-blob-fetch.title": string
+  "basic-error-user-fetch": string
+  "basic-error-user-fetch.title": string
+  "basic-error-user-avatar": string
+  "basic-error-user-avatar.title": string
   "cmftml-undocumented-block": string
   "cmftml-lint": string
   "cmftml-lint.warning-source": string
@@ -320,6 +326,7 @@ export interface Locales {
   "user-profile-info.website": string
   "user-profile-info.user-page": string
   "user-profile-info.locales": string
+  "user-profile-info.toast": string
   "user-not-exist": string
   "user-not-logged-in": string
   "wiki-auth-verify-email": string
@@ -357,22 +364,32 @@ export interface Locales {
   "wiki-page-vote.remove": string
   "wiki-page-vote.list": string
   "wiki-page-vote.score": string
+  "wiki-page-vote.toast-set": string
+  "wiki-page-vote.toast-remove": string
   "wiki-page-edit": string
+  "wiki-page-edit.toast": string
   "wiki-page-create": string
   "wiki-page-move": string
   "wiki-page-move.new-slug": string
+  "wiki-page-move.toast": string
   "wiki-page-layout": string
   "wiki-page-layout.default": string
   "wiki-page-layout.wikidot": string
   "wiki-page-layout.wikijump": string
+  "wiki-page-layout.toast": string
   "wiki-page-delete": string
+  "wiki-page-delete.toast": string
   "wiki-page-restore": string
   "wiki-page-restore.select": string
+  "wiki-page-restore.toast": string
   "wiki-page-deleted": string
   "wiki-page-file-no-files": string
   "wiki-page-file-upload": string
   "wiki-page-file-upload.select": string
   "wiki-page-file-upload.name": string
+  "wiki-page-file-upload.toast": string
+  "wiki-page-file-delete": string
+  "wiki-page-file-delete.toast": string
   "wiki-page-file-move-destination-page": string
   "wiki-page-file": string
   "wiki-page-file.name": string
@@ -392,6 +409,7 @@ export interface Locales {
   "wiki-page-file-restore": string
   "wiki-page-file-restore.new-page": string
   "wiki-page-file-restore.new-name": string
+  "wiki-page-file-restore.toast": string
   "wiki-page-lock": string
   "wiki-page-lock.permission-only": string
   "wiki-page-lock.author-or-permission-only": string
@@ -413,7 +431,11 @@ export interface Locales {
   "wiki-page-lock.history-overridden": string
   "wiki-page-lock.history-none": string
   "wiki-page-lock.remove": string
+  "wiki-page-lock.toast": string
+  "wiki-page-lock.toast-remove": string
+  "wiki-page-lock.toast-override": string
   "wiki-page-parent": string
+  "wiki-page-parent.toast": string
   "wiki-page-missing": string
   "wiki-page-private": string
   "wiki-page-banned": string

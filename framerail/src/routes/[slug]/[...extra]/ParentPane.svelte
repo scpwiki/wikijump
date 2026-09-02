@@ -2,7 +2,8 @@
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
-  import { Layout, PagePane } from "$lib/types"
+  import { Layout, PagePane, ToastType } from "$lib/types"
+  import { toast } from "$lib/component/scripts/toasts"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 
@@ -35,6 +36,7 @@
       },
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
+          toast(ToastType.Success, data.internationalization!["wiki-page-parent.toast"]!)
           cancel()
           pagePaneState = PagePane.None
           invalidateAll()

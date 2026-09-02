@@ -2,7 +2,8 @@
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
-  import { Layout } from "$lib/types"
+  import { Layout, ToastType } from "$lib/types"
+  import { toast } from "$lib/component/scripts/toasts"
   import { SvelteMap } from "svelte/reactivity"
   import { fileProxy, superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
@@ -67,6 +68,10 @@
       },
       onResult: async ({ result }) => {
         if (result.type === "success" && result.data) {
+          toast(
+            ToastType.Success,
+            data.internationalization!["wiki-page-file-upload.toast"]!
+          )
           uploadReset()
           activeFileAction = null
           await getFileList()
@@ -106,6 +111,7 @@
         data: result.data
       }
     } else if (result.type === "success" && result.data?.res) {
+      toast(ToastType.Success, data.internationalization!["wiki-page-file-delete.toast"]!)
       activeFileAction = null
       await getFileList()
     }
@@ -199,6 +205,10 @@
       },
       onResult: async ({ result }) => {
         if (result.type === "success" && result.data) {
+          toast(
+            ToastType.Success,
+            data.internationalization!["wiki-page-file-restore.toast"]!
+          )
           activeFileAction = null
           await getFileList()
           await invalidateAll()
