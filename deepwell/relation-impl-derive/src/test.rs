@@ -169,3 +169,9 @@ fn parse() {
         assert_eq!(settings.remove_fn, GenerateMethod::PrivateWithoutStruct);
     }
 }
+
+#[test]
+fn compile() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/macro/basic.rs");
+}
