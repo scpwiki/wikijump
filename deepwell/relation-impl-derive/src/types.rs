@@ -1,10 +1,9 @@
 //! Helper structures in settings parsing and code generation.
 
-use crate::util::{make_error, make_ident};
-use proc_macro2::{Punct, Spacing, Span, TokenStream};
+use crate::util::{make_error, make_ident, private, public};
+use proc_macro2::{Punct, Spacing, TokenStream};
 use quote::{ToTokens, TokenStreamExt};
 use syn::parse::ParseStream;
-use syn::token::Pub;
 use syn::{Ident, Visibility};
 
 /// Represents which variant of `RelationObject` is to be used.
@@ -121,14 +120,4 @@ pub struct GenerateMethodSettings {
     pub fn_visibility: Visibility,
     pub fn_suffix: &'static str,
     pub generate_pub_struct: bool,
-}
-
-#[inline]
-fn public() -> Visibility {
-    Visibility::Public(Pub(Span::call_site()))
-}
-
-#[inline]
-fn private() -> Visibility {
-    Visibility::Inherited
 }

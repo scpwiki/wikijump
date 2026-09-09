@@ -2,7 +2,8 @@
 
 use proc_macro2::Span;
 use std::fmt::Display;
-use syn::{Ident, Type};
+use syn::token::Pub;
+use syn::{Ident, Type, Visibility};
 
 /// Convert `Type` to `Option<Type>` (`None` is if the type is `()`)).
 pub fn process_type(t_type: Type) -> Option<Type> {
@@ -22,4 +23,14 @@ pub fn make_ident(value: impl AsRef<str>) -> Ident {
 #[inline]
 pub fn make_error(message: impl Display) -> syn::Error {
     syn::Error::new(Span::call_site(), message)
+}
+
+#[inline]
+pub fn public() -> Visibility {
+    Visibility::Public(Pub(Span::call_site()))
+}
+
+#[inline]
+pub fn private() -> Visibility {
+    Visibility::Inherited
 }
