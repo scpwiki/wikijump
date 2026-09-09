@@ -29,11 +29,16 @@ mod endpoint;
 #[macro_use]
 mod error;
 
+mod audit;
 mod params;
 mod runner;
 
 #[allow(unused_imports)]
+pub use self::audit::*;
+
+#[allow(unused_imports)]
 pub use self::error::extract_error;
+
 pub use self::params::*;
 pub use self::runner::TestRunner;
 use std::net::{IpAddr, Ipv4Addr};

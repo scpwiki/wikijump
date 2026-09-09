@@ -20,12 +20,12 @@
 
 use super::prelude::*;
 use super::site_member::{GetSiteMember, RemoveSiteMember};
-use crate::constants::SYSTEM_USER_ID;
+use crate::constants::{SYSTEM_IP_ADDRESS, SYSTEM_USER_ID};
 use crate::models::relation::{self, Entity as Relation};
 use crate::models::user_role::{self, Entity as UserRole};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::role::{RevokeUserRoleInput, RoleService};
-use std::net::{IpAddr, Ipv6Addr};
+use std::net::IpAddr;
 use time::Date;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -34,15 +34,14 @@ pub struct SiteBanData {
     pub reason: String,
 }
 
-impl_relation!(
-    SiteBan,
-    Site,
-    site_id,
-    User,
-    user_id,
-    SiteBanData,
-    NO_CREATE_IMPL,
-);
+impl_relation! {
+    name => SiteBan,
+    dest => site_id: Site,
+    from => user_id: User,
+    data => SiteBanData,
+    create_fn => private,
+    remove_fn => private,
+}
 
 impl RelationService {
     pub async fn create_site_ban(
@@ -76,6 +75,8 @@ impl RelationService {
                     user_id,
                     removed_by: created_by,
                 },
+                ip_address,
+                &metadata.reason,
             )
             .await
             .or_raise(make_error)?;
@@ -109,12 +110,17 @@ impl RelationService {
             .or_raise(make_error)?;
         }
 
-        let create_result: Result<()> = create_operation!(
-            ctx, SiteBan, Site, site_id, User, user_id, created_by, &metadata,
-            make_error,
-        );
-
-        create_result?;
+        Self::create_site_ban_inner(
+            ctx,
+            CreateSiteBanInner {
+                site_id,
+                user_id,
+                created_by,
+                metadata: &metadata,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
 
         AuditService::log(
             ctx,
@@ -133,7 +139,7 @@ impl RelationService {
         Ok(())
     }
 
-    pub async fn remove_site_ban_with_audit(
+    pub async fn remove_site_ban(
         ctx: &ServiceContext<'_>,
         RemoveSiteBan {
             site_id,
@@ -153,7 +159,7 @@ impl RelationService {
             )
         };
 
-        let relation = Self::remove_site_ban(
+        let relation = Self::remove_site_ban_inner(
             ctx,
             RemoveSiteBan {
                 site_id,
@@ -262,14 +268,14 @@ impl RelationService {
                 continue;
             }
 
-            Self::remove_site_ban_with_audit(
+            Self::remove_site_ban(
                 ctx,
                 RemoveSiteBan {
                     site_id: site_ban.dest_id,
                     user_id: site_ban.from_id,
                     removed_by: SYSTEM_USER_ID,
                 },
-                IpAddr::V6(Ipv6Addr::LOCALHOST),
+                SYSTEM_IP_ADDRESS,
                 "Site ban expired",
             )
             .await

@@ -36,11 +36,9 @@ mod prelude {
     pub use super::super::prelude::*;
     pub use super::*;
     pub use crate::models::relation::Model as RelationModel;
+    pub use deepwell_relation_impl_derive::impl_relation;
     pub use paste::paste;
 }
-
-#[macro_use]
-mod macros;
 
 mod page_attribution;
 mod page_star;

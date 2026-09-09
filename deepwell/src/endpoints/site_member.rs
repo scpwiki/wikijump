@@ -21,6 +21,22 @@
 use super::prelude::*;
 use crate::models::relation::Model as RelationModel;
 use crate::services::relation::{CreateSiteMember, GetSiteMember, RemoveSiteMember};
+use std::net::IpAddr;
+
+#[derive(Deserialize, Debug)]
+struct CreateSiteMemberInput {
+    #[serde(flatten)]
+    input: CreateSiteMember,
+    ip_address: IpAddr,
+}
+
+#[derive(Deserialize, Debug)]
+struct RemoveSiteMemberInput {
+    #[serde(flatten)]
+    input: RemoveSiteMember,
+    ip_address: IpAddr,
+    reason: String,
+}
 
 pub async fn membership_get(
     ctx: &ServiceContext<'_>,
@@ -47,11 +63,11 @@ pub async fn membership_set(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let input: CreateSiteMember = parse!(params, SiteMembership);
+    let CreateSiteMemberInput { input, ip_address } = parse!(params, SiteMembership);
     let user_id = input.user_id;
     let site_id = input.site_id;
 
-    RelationService::create_site_member(ctx, input)
+    RelationService::create_site_member(ctx, input, ip_address)
         .await
         .or_raise(|| {
             Error::new(
@@ -68,11 +84,16 @@ pub async fn membership_remove(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<RelationModel> {
-    let input: RemoveSiteMember = parse!(params, SiteMembership);
+    let RemoveSiteMemberInput {
+        input,
+        ip_address,
+        reason,
+    } = parse!(params, SiteMembership);
+
     let user_id = input.user_id;
     let site_id = input.site_id;
 
-    RelationService::remove_site_member(ctx, input)
+    RelationService::remove_site_member(ctx, input, ip_address, &reason)
         .await
         .or_raise(|| {
             Error::new(

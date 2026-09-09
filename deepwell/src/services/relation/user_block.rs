@@ -25,15 +25,13 @@ pub struct UserBlockData {
     pub reason: String,
 }
 
-impl_relation!(
-    UserBlock,
-    User,
-    blocked_user,
-    User,
-    blocking_user,
-    UserBlockData,
-    NO_CREATE_IMPL,
-);
+impl_relation! {
+    name => UserBlock,
+    dest => blocked_user: User,
+    from => blocking_user: User,
+    data => UserBlockData,
+    create_fn => private,
+}
 
 impl RelationService {
     #[allow(dead_code)] // TEMP
@@ -81,17 +79,19 @@ impl RelationService {
         );
         raise_multiple!(result1, result2; make_error);
 
-        create_operation!(
+        Self::create_user_block_inner(
             ctx,
-            UserBlock,
-            User,
-            blocked_user,
-            User,
-            blocking_user,
-            created_by,
-            &metadata,
-            make_error,
+            CreateUserBlockInner {
+                blocked_user,
+                blocking_user,
+                created_by,
+                metadata: &metadata,
+            },
         )
+        .await
+        .or_raise(make_error)?;
+
+        Ok(())
     }
 
     /// Helper method for rejecting an relation if either user in a pair has blocked the other.
