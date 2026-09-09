@@ -8,7 +8,7 @@
 
 use crate::parse::RelationSettings;
 use crate::types::{GenerateMethod, GenerateMethodSettings, RelationObjectType};
-use crate::util::make_ident;
+use crate::util::{make_ident, private, public};
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Ident, Type};
@@ -381,21 +381,27 @@ fn generate_remove_defs(
     } = remove_fn.settings()?;
 
     let remove_struct = make_ident(format!("Remove{}", struct_name));
-    let remove_struct_def = if generate_pub_struct {
+    let remove_struct_def = {
         // removal doesn't have separate public / inner structs
         // since no data to borrow, so we ignore the flag
         let _ = fn_public;
 
+        // it's the same struct, so this setting is just the visibility
+        // not whether to generate the struct
+        let vis = if generate_pub_struct {
+            public()
+        } else {
+            private()
+        };
+
         quote! {
             #[derive(Deserialize, Debug, Copy, Clone)]
-            pub struct #remove_struct {
+            #vis struct #remove_struct {
                 pub #dest_name: i64,
                 pub #from_name: i64,
                 pub removed_by: i64,
             }
         }
-    } else {
-        quote! {}
     };
 
     let remove_method_impl = {
