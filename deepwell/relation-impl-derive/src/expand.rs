@@ -261,16 +261,20 @@ fn generate_create_defs(
             }
         }
         None => {
-            if generate_pub_struct {
-                create_struct_def = Some(quote! {
-                    #[derive(Deserialize, Debug, Clone)]
-                    pub struct #create_struct {
-                        pub #dest_name: i64,
-                        pub #from_name: i64,
-                        pub created_by: i64,
-                    }
-                });
-            }
+            let vis = if generate_pub_struct {
+                public()
+            } else {
+                private()
+            };
+
+            create_struct_def = Some(quote! {
+                #[derive(Deserialize, Debug, Clone)]
+                #vis struct #create_struct {
+                    pub #dest_name: i64,
+                    pub #from_name: i64,
+                    pub created_by: i64,
+                }
+            });
         }
     };
 
