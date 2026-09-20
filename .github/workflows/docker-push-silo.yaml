@@ -1,15 +1,15 @@
-name: '[backend] Docker build Minio'
+name: '[backend] Docker build Silo'
 
 on:
   push:
     paths:
-      - 'install/local/minio/*'
-      - '.github/workflows/docker-push-minio.yaml'
+      - 'install/local/silo/*'
+      - '.github/workflows/docker-push-silo.yaml'
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: scpwiki/wikijump
-  DESCRIPTION: Modified version of Minio for integration testing
+  DESCRIPTION: Modified version of Silo for integration testing
   TAG: minio
 
 jobs:
@@ -48,8 +48,8 @@ jobs:
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          file: install/local/minio/Dockerfile
-          context: install/local/minio
+          file: install/local/silo/Dockerfile
+          context: install/local/silo
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           push: ${{ github.ref == 'refs/heads/develop' }}
