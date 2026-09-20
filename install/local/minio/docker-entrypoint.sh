@@ -41,7 +41,7 @@ function create_initial_buckets() {
 	IFS=' ' read -r -a buckets <<< "${INITIAL_BUCKETS:-}"
 
 	# Start server in background
-	minio server "$data_dir" \
+	silo server "$data_dir" \
 		--quiet \
 		--address ":$api_port" \
 		--console-address ":$console_port" \
@@ -65,6 +65,6 @@ function create_initial_buckets() {
 create_initial_buckets
 
 echo "Starting minio server..."
-exec minio server "$data_dir" \
+exec silo server "$data_dir" \
 	--address ":$api_port" \
 	--console-address ":$console_port"
