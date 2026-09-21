@@ -2,7 +2,7 @@
 # Framerail build
 #
 
-FROM node:20-alpine
+FROM node:22-alpine
 
 RUN apk add --no-cache curl
 RUN npm install -g pnpm
