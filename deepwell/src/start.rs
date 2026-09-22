@@ -26,7 +26,6 @@ use crate::watch::setup_autorestart;
 use crate::config::SetupConfig;
 use crate::error::prelude::*;
 use crate::{api, database};
-use cfg_if::cfg_if;
 use std::fs::File;
 use std::io::Write;
 use std::process;
@@ -71,10 +70,11 @@ pub async fn start() -> Result<()> {
     let _watcher;
 
     if config.watch_files {
-        cfg_if! {
-            if #[cfg(feature = "watch")] {
+        cfg_select! {
+            feature = "watch" => {
                 _watcher = setup_autorestart(&config).or_raise(make_error)?;
-            } else {
+            }
+            _ => {
                 error!("The --watch-files option requires the 'watch' feature");
                 process::exit(1);
             }
