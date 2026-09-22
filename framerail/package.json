@@ -55,7 +55,7 @@
     "iconify-icon": "^3.0.2",
     "include-media": "^2.0.0",
     "json-rpc-2.0": "^1.8.0",
-    "svelte": "^5.56.10",
+    "svelte": "^5.57.0",
     "svelte-check": "^4.7.6",
     "svelte-preprocess": "^6.0.5",
     "tippy.js": "^6.3.7",
