@@ -1139,7 +1139,6 @@ dependencies = [
  "askama",
  "built",
  "bytes",
- "cfg-if",
  "clap",
  "color-backtrace",
  "cuid2",
