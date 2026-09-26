@@ -7,7 +7,7 @@ Import script to read in a wikidot_users.csv file and associated avatars.
 import argparse
 import lzma
 
-from .deepwell_common import Deepwell
+from deepwell_common import Deepwell
 
 
 class Importer:
