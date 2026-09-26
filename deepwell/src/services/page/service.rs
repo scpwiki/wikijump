@@ -58,12 +58,14 @@ impl PageService {
             mut slug,
             layout,
             revision_comments: comments,
-            user_id,
             bypass_filter,
             ip_address,
         }: CreatePage,
     ) -> Result<CreatePageOutput> {
         let txn = ctx.transaction();
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
 
         // Ensure slug is normalized
         normalize(&mut slug);
@@ -179,7 +181,6 @@ impl PageService {
             page: reference,
             last_revision_id,
             revision_comments: comments,
-            user_id,
             body:
                 EditPageBody {
                     wikitext,
@@ -191,6 +192,9 @@ impl PageService {
         }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
 
         let PageModel {
             page_id,
@@ -312,11 +316,13 @@ impl PageService {
             mut new_slug,
             last_revision_id,
             revision_comments: comments,
-            user_id,
             ip_address,
         }: MovePage<'_>,
     ) -> Result<MovePageOutput> {
         let txn = ctx.transaction();
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
         normalize(&mut new_slug);
 
         let PageModel {
@@ -462,12 +468,14 @@ impl PageService {
             site_id,
             page: reference,
             last_revision_id,
-            user_id,
             revision_comments: comments,
             ip_address,
         }: DeletePage<'_>,
     ) -> Result<DeletePageOutput> {
         let txn = ctx.transaction();
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
 
         let PageModel {
             page_id,
@@ -557,13 +565,15 @@ impl PageService {
         RestorePage {
             site_id,
             page_id,
-            user_id,
             slug,
             revision_comments: comments,
             ip_address,
         }: RestorePage,
     ) -> Result<RestorePageOutput> {
         let txn = ctx.transaction();
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
 
         let page = Self::get_direct(ctx, page_id, true)
             .await
@@ -687,11 +697,13 @@ impl PageService {
             last_revision_id,
             revision_number,
             revision_comments: comments,
-            user_id,
             ip_address,
         }: RollbackPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
 
         let PageModel {
             page_id,
@@ -853,11 +865,23 @@ impl PageService {
             site_id,
             page_id,
             layout,
-            user_id,
             ip_address,
         }: SetPageLayout,
     ) -> Result<()> {
-        debug!("Setting page layout for site ID {site_id} page ID {page_id}");
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
+
+        info!(
+            "Setting layout override for page ID {} in site ID {} to layout {} (set by user ID {})",
+            page_id,
+            site_id,
+            match layout {
+                Some(layout) => layout.value(),
+                None => "none (default)",
+            },
+            user_id,
+        );
 
         let make_error = || {
             Error::new(
@@ -1259,14 +1283,13 @@ impl PageService {
 
     pub async fn check_user_permission(
         ctx: &ServiceContext<'_>,
-        _permission_context: &CheckPermissionContext<'_>,
+        site_id: i64,
+        page_ref: Reference<'_>,
         action: Action,
     ) -> Result<bool> {
         let make_error =
             || Error::new("failed to check user permissions for page", ErrorType::Page);
-
-        let page_ref = ctx.request().page_reference().or_raise(make_error)?;
-        let site_id = ctx.request().site_id().or_raise(make_error)?;
+        let user_id = ctx.request().user_id;
 
         info!(
             "Checking edit permission for page {:?} in site ID {:?}",
@@ -1277,11 +1300,19 @@ impl PageService {
             .await
             .or_raise(make_error)?;
 
-        ctx.user_has_permission(Permission {
-            resource_type: Resource::Page,
-            resource_category: Some(Reference::Id(page_model.page_category_id)),
-            action,
-        })
+        PermissionService::check_user_can(
+            ctx,
+            &CheckPermissionContext {
+                user_id,
+                site_id,
+                page_reference: Some(page_ref),
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(page_model.page_category_id)),
+                action,
+            },
+        )
         .await
         .or_raise(make_error)
     }

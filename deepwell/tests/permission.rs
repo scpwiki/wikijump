@@ -465,6 +465,10 @@ async fn check_category_resolution() {
 async fn check_permission_endpoint() {
     let mut runner = TestRunner::setup().await;
     let f = PermissionFixture::setup(&runner).await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(SYSTEM_USER_ID),
+        ..Default::default()
+    });
 
     let page = run_endpoint!(
         runner,
@@ -477,7 +481,6 @@ async fn check_permission_endpoint() {
             "slug": "test-category:test-page",
             "layout": null,
             "revision_comments": "",
-            "user_id": SYSTEM_USER_ID,
             "ip_address": common::IP_ADDRESS,
         }),
     );
