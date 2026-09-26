@@ -32,6 +32,11 @@ class DeepwellError(RuntimeError):
 # NOTE: Any timestamps need to be timezone-aware
 
 
+class UploadBlobData(NamedTuple):
+    uploading_user_id: int
+    buffer: bytes
+
+
 class ImportExistingUser(NamedTuple):
     name: str
     slug: str
@@ -86,6 +91,23 @@ class Deepwell:
                 raise DeepwellError(data)
             case data:
                 raise ValueError(f"Unexpected JSONRPC response: {data}")
+
+    def upload_blob(self, request: UploadBlobData) -> str:
+        # Start the upload
+        output = self.request(
+            "blob_upload",
+            {
+                "user_id": request.uploading_user_id,
+                "blob_size": len(request.buffer),
+            },
+        )
+
+        # Upload to the presign URL
+        blob_id = output["pending_blob_id"]
+        requests.put(output["presign_url"])
+
+        # Return the blob ID to the user to finish the upload
+        return blob_id
 
     def import_user(self, request: ImportUserData) -> int:
         match request.wikidot_user_type:
