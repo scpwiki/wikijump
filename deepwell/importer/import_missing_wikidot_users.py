@@ -11,10 +11,11 @@ import argparse
 import json
 import os
 from collections.abc import Iterator
+from datetime import datetime, timezone
 from glob import iglob
 from typing import NotRequired, TypedDict
 
-from deepwell_common import Deepwell
+from deepwell_common import Deepwell, ImportExistingUser, ImportUserData
 
 # can't use declarative syntax because 'from' is a keyword
 WikicommaUserRecord = TypedDict(
@@ -27,10 +28,10 @@ WikicommaUserRecord = TypedDict(
         "birthday": NotRequired[int],  # JS timestamp, so millis
         "from": NotRequired[str],
         "website": NotRequired[str],
-        "wikidot_user_since": int,
+        "wikidot_user_since": int,  # regular, seconds
         "account_type": str,
         "activity": int,
-        "fetched_at": int,
+        "fetched_at": int,  # also millis
         "user_id": int,
     },
 )
@@ -53,8 +54,40 @@ def import_user_if_missing(
     importer_user_id: int,
     importer_ip_address: str,
 ) -> None:
-    # TODO
-    ...
+    if deepwell.user_exists(user["user_id"]):
+        # nothing to do
+        return
+
+    user_type = ImportExistingUser(
+        name=user["full_name"],
+        slug=user["username"],
+    )
+    created_at = datetime.fromtimestamp(user["wikidot_user_since"], tz=timezone.utc)
+    fetched_at = datetime.fromtimestamp(user["fetched_at"] // 1000, tz=timezone.utc)
+    birthday = (
+        datetime.fromtimestamp(user["birthday"] // 1000, tz=timezone.utc)
+        if "birthday" in user
+        else None
+    )
+
+    request = ImportUserData(
+        user_id=user["user_id"],
+        created_at=created_at,
+        fetched_at=fetched_at,
+        wikidot_user_type=user_type,
+        avatar_uploaded_blob_id=None,
+        real_name=user.get("real_name"),
+        gender=user.get("gender"),
+        birthday=birthday,
+        location=user.get("from"),
+        biography="",  # not available
+        website=user.get("website"),
+        karma=user["activity"],
+        is_pro=False,  # not available
+        importing_user_id=importer_user_id,
+        ip_address=importer_ip_address,
+    )
+    deepwell.import_user(request)
 
 
 if __name__ == "__main__":
