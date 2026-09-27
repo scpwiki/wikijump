@@ -134,87 +134,89 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     deepwell = Deepwell(args.host, args.port)
-    with AvatarReader(args.avatars_directory) as avatars:
-        with open_csv_file(args.csv_file) as file:
-            reader = csv.reader(file)
+    with (
+        AvatarReader(args.avatars_directory) as avatars,
+        open_csv_file(args.csv_file) as file,
+    ):
+        reader = csv.reader(file)
 
-            # Skip the header
-            _ = next(reader)
+        # Skip the header
+        _ = next(reader)
 
-            # Each subsequent row is a user
-            for row in reader:
-                (
-                    user_id_raw,
-                    created_at_raw,
-                    deleted_raw,
-                    user_name,
-                    user_slug,
-                    real_name,
-                    gender,
-                    birthday_raw,
-                    location,
-                    about,
-                    website,
-                    account_type,
-                    karma_level_raw,
-                ) = row
+        # Each subsequent row is a user
+        for row in reader:
+            (
+                user_id_raw,
+                created_at_raw,
+                deleted_raw,
+                user_name,
+                user_slug,
+                real_name,
+                gender,
+                birthday_raw,
+                location,
+                about,
+                website,
+                account_type,
+                karma_level_raw,
+            ) = row
 
-                # Transform fields
-                user_id = int(user_id_raw)
-                created_at_naive = datetime.fromisoformat(created_at_raw)
-                created_at = created_at_naive.replace(tzinfo=timezone.utc)
-                deleted = boolean_from_str(deleted_raw)
-                user_name = empty_str_as_none(user_name)
-                user_slug = empty_str_as_none(user_slug)
-                gender = empty_str_as_none(gender)
-                birthday = date.fromisoformat(birthday_raw) if birthday_raw else None
-                location = empty_str_as_none(location)
-                about = empty_str_as_none(about)
-                website = empty_str_as_none(website)
-                karma_level = int(karma_level_raw)
-                is_pro = account_type == "Pro"
+            # Transform fields
+            user_id = int(user_id_raw)
+            created_at_naive = datetime.fromisoformat(created_at_raw)
+            created_at = created_at_naive.replace(tzinfo=timezone.utc)
+            deleted = boolean_from_str(deleted_raw)
+            user_name = empty_str_as_none(user_name)
+            user_slug = empty_str_as_none(user_slug)
+            gender = empty_str_as_none(gender)
+            birthday = date.fromisoformat(birthday_raw) if birthday_raw else None
+            location = empty_str_as_none(location)
+            about = empty_str_as_none(about)
+            website = empty_str_as_none(website)
+            karma_level = int(karma_level_raw)
+            is_pro = account_type == "Pro"
 
-                # Check if there's an avatar for this user
-                avatar = avatars.get(user_id)
-                if avatar is None:
-                    # nothing to upload, default avatar
-                    blob_id = None
-                else:
-                    # upload avatar
-                    blob, content_type = avatar
-                    request = UploadBlobData(
-                        uploading_user_id=args.importer_user_id,
-                        blob=blob,
-                        mime_type=content_type,
-                    )
-                    deepwell.upload_blob(request)
-
-                # Build import request
-                if deleted:
-                    user_type = ImportDeletedUser()
-                else:
-                    assert user_name is not None
-                    assert user_slug is not None
-                    user_type = ImportExistingUser(
-                        name=user_name,
-                        slug=user_slug,
-                    )
-
-                request = ImportUserData(
-                    user_id=user_id,
-                    created_at=created_at,
-                    fetched_at=args.users_fetched_at,  # not in wikidot_users.csv :(
-                    wikidot_user_type=user_type,
-                    avatar_uploaded_blob_id=blob_id,
-                    real_name=real_name,
-                    gender=gender,
-                    birthday=birthday,
-                    location=location,
-                    biography=about,
-                    website=website,
-                    karma=karma_level,
-                    is_pro=is_pro,
-                    importing_user_id=args.importer_user_id,
-                    ip_address=args.importer_ip_address,
+            # Check if there's an avatar for this user
+            avatar = avatars.get(user_id)
+            if avatar is None:
+                # nothing to upload, default avatar
+                blob_id = None
+            else:
+                # upload avatar
+                blob, content_type = avatar
+                request = UploadBlobData(
+                    uploading_user_id=args.importer_user_id,
+                    blob=blob,
+                    mime_type=content_type,
                 )
-                deepwell.import_user(request)
+                deepwell.upload_blob(request)
+
+            # Build import request
+            if deleted:
+                user_type = ImportDeletedUser()
+            else:
+                assert user_name is not None
+                assert user_slug is not None
+                user_type = ImportExistingUser(
+                    name=user_name,
+                    slug=user_slug,
+                )
+
+            request = ImportUserData(
+                user_id=user_id,
+                created_at=created_at,
+                fetched_at=args.users_fetched_at,  # not in wikidot_users.csv :(
+                wikidot_user_type=user_type,
+                avatar_uploaded_blob_id=blob_id,
+                real_name=real_name,
+                gender=gender,
+                birthday=birthday,
+                location=location,
+                biography=about,
+                website=website,
+                karma=karma_level,
+                is_pro=is_pro,
+                importing_user_id=args.importer_user_id,
+                ip_address=args.importer_ip_address,
+            )
+            deepwell.import_user(request)
