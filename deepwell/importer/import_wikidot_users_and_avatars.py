@@ -107,7 +107,7 @@ if __name__ == "__main__":
     argparser.add_argument(
         # :'(
         "--users-fetched-date",
-        default=datetime(2026, 1, 21, 0, 0, 0, tz=timezone.utc),
+        default=datetime(2026, 1, 21, 0, 0, 0, tzinfo=timezone.utc),
         type=datetime.fromisoformat,
         help="The date to record the users as having been fetched at",
     )
