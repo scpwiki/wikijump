@@ -189,6 +189,7 @@ if __name__ == "__main__":
             deleted = parse_boolean(deleted_raw)
             user_name = empty_str_as_none(user_name_raw)
             user_slug = empty_str_as_none(user_slug_raw)
+            real_name = empty_str_as_none(real_name_raw)
             gender = empty_str_as_none(gender_raw)
             birthday = date.fromisoformat(birthday_raw) if birthday_raw else None
             location = empty_str_as_none(location_raw)
