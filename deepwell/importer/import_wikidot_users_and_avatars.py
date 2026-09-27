@@ -18,6 +18,7 @@ from deepwell_common import (
     ImportUserData,
     ImportExistingUser,
     ImportDeletedUser,
+    UploadBlobData,
 )
 
 
