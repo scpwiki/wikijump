@@ -68,9 +68,9 @@ def open_csv_file(path: str) -> TextIO:
 class AvatarReader:
     def __init__(self, directory: str) -> None:
         self.main_directory = directory
-        self.avatar_db_path = os.path.join(directory, "avatars.db")
-        self.avatar_db_conn = None
         self.files_directory = os.path.join(directory, "files")
+        self.avatar_db_path = os.path.join(directory, "avatars.db")
+        self.avatar_db_conn: sqlite3.Connection | None = None
 
     def __enter__(self) -> Self:
         self.avatar_db_conn = sqlite3.connect(self.avatar_db_path)
@@ -82,10 +82,13 @@ class AvatarReader:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> bool | None:
+        assert self.avatar_db_conn, "no active connection"
         self.avatar_db_conn.close()
+        return None
 
     def get(self, user_id: int) -> tuple[bytes, str] | None:
         # Get avatar hash
+        assert self.avatar_db_conn, "no active connection"
         results = self.avatar_db_conn.execute(
             "SELECT avatar_md5_hash FROM avatars WHERE user_id = ?",
             [user_id],
@@ -167,14 +170,14 @@ if __name__ == "__main__":
                 user_id_raw,
                 created_at_raw,
                 deleted_raw,
-                user_name,
-                user_slug,
-                real_name,
-                gender,
+                user_name_raw,
+                user_slug_raw,
+                real_name_raw,
+                gender_raw,
                 birthday_raw,
-                location,
-                about,
-                website,
+                location_raw,
+                about_raw,
+                website_raw,
                 account_type,
                 karma_level_raw,
             ) = row
@@ -184,13 +187,13 @@ if __name__ == "__main__":
             created_at_naive = datetime.fromisoformat(created_at_raw)
             created_at = created_at_naive.replace(tzinfo=timezone.utc)
             deleted = parse_boolean(deleted_raw)
-            user_name = empty_str_as_none(user_name)
-            user_slug = empty_str_as_none(user_slug)
-            gender = empty_str_as_none(gender)
+            user_name = empty_str_as_none(user_name_raw)
+            user_slug = empty_str_as_none(user_slug_raw)
+            gender = empty_str_as_none(gender_raw)
             birthday = date.fromisoformat(birthday_raw) if birthday_raw else None
-            location = empty_str_as_none(location)
-            about = empty_str_as_none(about)
-            website = empty_str_as_none(website)
+            location = empty_str_as_none(location_raw)
+            about = empty_str_as_none(about_raw)
+            website = empty_str_as_none(website_raw)
             karma_level = parse_karma(karma_level_raw)
             is_pro = account_type == "Pro"
 
@@ -210,6 +213,7 @@ if __name__ == "__main__":
                 deepwell.upload_blob(request)
 
             # Build import request
+            user_type: ImportExistingUser | ImportDeletedUser
             if deleted:
                 user_type = ImportDeletedUser()
             else:
