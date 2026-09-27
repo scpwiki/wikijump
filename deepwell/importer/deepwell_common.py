@@ -2,7 +2,7 @@
 Helper module to make sending DEEPWELL requests easier.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, NamedTuple, TypedDict
 
 import requests
@@ -54,7 +54,7 @@ class ImportUserData(NamedTuple):
     avatar_uploaded_blob_id: str | None
     real_name: str | None
     gender: str | None
-    birthday: str | None
+    birthday: date | None
     location: str | None
     biography: str | None
     website: str | None
