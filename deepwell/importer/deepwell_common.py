@@ -118,6 +118,9 @@ class Deepwell:
     def get_user(self, id_or_slug: int | str) -> dict[str, Any] | None:
         return self.request("user_get", {"user": id_or_slug})
 
+    def user_exists(self, id_or_slug: int | str) -> bool:
+        return self.get_user(id_or_slug) is not None
+
     def import_user(self, request: ImportUserData) -> int:
         match request.wikidot_user_type:
             case ImportExistingUser(name, slug):
