@@ -114,6 +114,10 @@ class Deepwell:
         # Return the blob ID to the user to finish the upload
         return blob_id
 
+    # TODO: type the user output
+    def get_user(self, id_or_slug: int | str) -> dict[str, Any] | None:
+        return self.request("user_get", {"user": id_or_slug})
+
     def import_user(self, request: ImportUserData) -> int:
         match request.wikidot_user_type:
             case ImportExistingUser(name, slug):
