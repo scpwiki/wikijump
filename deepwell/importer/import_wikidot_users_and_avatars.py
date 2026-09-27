@@ -165,6 +165,7 @@ if __name__ == "__main__":
                 about = empty_str_as_none(about)
                 website = empty_str_as_none(website)
                 karma_level = int(karma_level_raw)
+                is_pro = account_type == "Pro"
 
                 # Check if there's an avatar for this user
                 avatar = avatars.get(user_id)
@@ -204,7 +205,7 @@ if __name__ == "__main__":
                     biography=biography,
                     website=website,
                     karma=karma_level,
-                    is_pro=account_type == "Pro",
+                    is_pro=is_pro,
                     importing_user_id=args.importer_user_id,
                     ip_address=args.importer_ip_address,
                 )
