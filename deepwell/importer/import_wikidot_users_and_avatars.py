@@ -106,7 +106,7 @@ class AvatarReader:
             blob = file.read()
 
         with open(content_type_path, "r") as file:
-            content_type = file.read()
+            content_type = file.read().rstrip()
 
         return blob, content_type
 
