@@ -10,7 +10,6 @@ import type {
   PageVoteModel,
   ParseError
 } from "$lib/types"
-import type { RequestContext } from "../load/request-ctx"
 
 /* ----- Page Delete ----- */
 interface PageDelete {
@@ -76,10 +75,8 @@ export async function pageEdit(
   })
 }
 
-export async function pageEditPermission(
-  requestContext: RequestContext = {}
-): Promise<{ can_edit: boolean }> {
-  return client.request("page_edit_permission", {}, requestContext)
+export async function pageEditPermission(): Promise<{ can_edit: boolean }> {
+  return client.request("page_edit_permission", {})
 }
 
 /* ----- Page History ----- */
@@ -354,27 +351,16 @@ export interface PageLockModel {
   user_id: number
   reason: string
 }
-export async function pageLockHistory(
-  pageId: number,
-  reqContext: RequestContext
-): Promise<PageLockModel[]> {
-  return client.request("page_lock_get_history", { page: pageId }, reqContext)
+export async function pageLockHistory(pageId: number): Promise<PageLockModel[]> {
+  return client.request("page_lock_get_history", { page: pageId })
 }
 
 /* ----- Page Lock Remove ----- */
-export async function pageLockRemove(
-  pageId: number,
-  userIpAddr: string,
-  reqContext: RequestContext
-): Promise<void> {
-  return client.request(
-    "page_lock_remove",
-    {
-      page: pageId,
-      ip_address: userIpAddr
-    },
-    reqContext
-  )
+export async function pageLockRemove(pageId: number, userIpAddr: string): Promise<void> {
+  return client.request("page_lock_remove", {
+    page: pageId,
+    ip_address: userIpAddr
+  })
 }
 
 /* ----- Page Lock Create ----- */
@@ -384,22 +370,17 @@ export async function pageLockCreate(
   reason: string,
   expiresAt: Optional<string>,
   overrideExisting: boolean,
-  userIpAddr: string,
-  reqContext: RequestContext
+  userIpAddr: string
 ): Promise<void> {
-  return client.request(
-    "page_lock_create",
-    {
-      page: pageId,
-      lock_type: lockType,
-      reason: reason,
-      expires_at: expiresAt ?? null,
-      from_wikidot: false,
-      override_existing: overrideExisting ?? false,
-      ip_address: userIpAddr
-    },
-    reqContext
-  )
+  return client.request("page_lock_create", {
+    page: pageId,
+    lock_type: lockType,
+    reason: reason,
+    expires_at: expiresAt ?? null,
+    from_wikidot: false,
+    override_existing: overrideExisting ?? false,
+    ip_address: userIpAddr
+  })
 }
 
 /* ----- Page Score ----- */

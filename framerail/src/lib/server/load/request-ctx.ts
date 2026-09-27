@@ -1,26 +1,23 @@
 // Helper functions and types for request context, a set of common metadata for each request to Deepwell.
+import { AsyncLocalStorage } from "node:async_hooks"
 
-interface RequestContextOptional {
+export type RequestContext = {
   sessionToken?: string
   siteId?: number
   page?: string | number
 }
 
-export type RequestContext = RequestContextOptional | void
+export type RequestContextOptional = RequestContext | void
 
-export function storeRequestContext(
-  locals: App.Locals,
-  sessionToken?: string,
-  siteId?: number,
-  page?: string | number
-) {
-  locals.requestContext = {
-    sessionToken,
-    siteId,
-    page
-  }
+const requestContextStore = new AsyncLocalStorage<RequestContext>()
+
+export function runWithRequestContext<T>(
+  requestContext: RequestContext,
+  callback: () => T
+): T {
+  return requestContextStore.run(requestContext, callback)
 }
 
-export function getRequestContext(locals: App.Locals): RequestContext {
-  return locals.requestContext
+export function getRequestContextFromStore(): RequestContext | undefined {
+  return requestContextStore.getStore()
 }
