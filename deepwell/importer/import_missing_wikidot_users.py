@@ -37,6 +37,19 @@ WikicommaUserRecord = TypedDict(
 )
 
 
+def convert_gender(value: str | bool | None) -> str | None:
+    # in some cases gender is stored as bool
+    match value:
+        case "male" | True:
+            return "male"
+        case "female" | False:
+            return "female"
+        case None:
+            return None
+        case _:
+            raise ValueError(value)
+
+
 def read_wikicomma_users(json_path: str) -> Iterator[WikicommaUserRecord]:
     if os.path.basename(json_path) == "pending.json":
         # not a user list
@@ -77,7 +90,7 @@ def import_user_if_missing(
         wikidot_user_type=user_type,
         avatar_uploaded_blob_id=None,
         real_name=user.get("real_name"),
-        gender=user.get("gender"),
+        gender=convert_gender(user.get("gender")),
         birthday=birthday,
         location=user.get("from"),
         biography="",  # not available
