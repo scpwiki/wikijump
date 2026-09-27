@@ -210,7 +210,7 @@ if __name__ == "__main__":
                     gender=gender,
                     birthday=birthday,
                     location=location,
-                    biography=biography,
+                    biography=about,
                     website=website,
                     karma=karma_level,
                     is_pro=is_pro,
