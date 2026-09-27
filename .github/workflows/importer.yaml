@@ -32,7 +32,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: python -m pip install mypy ruff
+        run: cd deepwell/importer && python -m pip install -r requirements-dev.txt
 
       - name: ruff format
         run: cd deepwell && ruff format importer
