@@ -168,7 +168,7 @@ if __name__ == "__main__":
                     # upload avatar
                     blob, content_type = avatar
                     deepwell.upload_blob(UploadBlobData(
-                        uploading_user_id=_, # TODO
+                        uploading_user_id=args.importer_user_id,
                         blob=blob,
                         mime_type=content_type,
                     ))
@@ -198,8 +198,8 @@ if __name__ == "__main__":
                     website=website,
                     karma=karma_level,
                     is_pro=account_type == "Pro",
-                    importing_user_id=_, # TODO
-                    ip_address=_, # TODO
+                    importing_user_id=args.importer_user_id,
+                    ip_address=args.importer_ip_address,
                 )
 
                 # TODO
