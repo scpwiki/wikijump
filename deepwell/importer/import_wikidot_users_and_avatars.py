@@ -155,7 +155,8 @@ if __name__ == "__main__":
 
                 # Transform fields
                 user_id = int(user_id_raw)
-                created_at = datetime.fromisoformat(created_at_raw).replace(tzinfo=timezone.utc)
+                created_at_naive = datetime.fromisoformat(created_at_raw)
+                created_at = created_at_naive.replace(tzinfo=timezone.utc)
                 deleted = boolean_from_str(deleted_raw)
                 user_name = empty_str_as_none(user_name)
                 user_slug = empty_str_as_none(user_slug)
