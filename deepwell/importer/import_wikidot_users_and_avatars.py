@@ -13,7 +13,12 @@ from datetime import date, datetime, timezone
 from types import TracebackType
 from typing import Self, TextIO
 
-from deepwell_common import Deepwell, ImportUserData, ImportExistingUser, ImportDeletedUser
+from deepwell_common import (
+    Deepwell,
+    ImportUserData,
+    ImportExistingUser,
+    ImportDeletedUser,
+)
 
 
 def boolean_from_str(value: str) -> bool:
