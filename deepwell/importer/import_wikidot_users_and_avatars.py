@@ -10,7 +10,8 @@ import lzma
 import os
 import sqlite3
 from datetime import date, datetime, timezone
-from typing import TextIO
+from types import TracebackType
+from typing import Self, TextIO
 
 from deepwell_common import Deepwell, ImportUserData, ImportExistingUser, ImportDeletedUser
 
@@ -47,11 +48,16 @@ class AvatarReader:
         self.avatar_db_conn = None
         self.files_directory = os.path.join(directory, "files")
 
-    def __enter__(self) -> "AvatarReader":
+    def __enter__(self) -> Self:
         self.avatar_db_conn = sqlite3.connect(self.avatar_db_path)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> bool | None:
         self.avatar_db_conn.close()
 
     def get(self, user_id: int) -> tuple[bytes, str] | None:
