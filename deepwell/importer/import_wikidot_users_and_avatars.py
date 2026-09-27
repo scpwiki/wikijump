@@ -7,6 +7,8 @@ Import script to read in a wikidot_users.csv file and associated avatars.
 import argparse
 import csv
 import lzma
+import os
+import sqlite3
 from datetime import date, datetime, timezone
 from typing import TextIO
 
@@ -38,6 +40,41 @@ def open_csv_file(path: str) -> TextIO:
         return open(path)
 
 
+class AvatarReader:
+    def __init__(self, directory: str) -> None:
+        self.main_directory = directory
+        self.avatar_db_path = os.path.join(directory, "avatars.db")
+        self.avatar_db_conn = None
+        self.files_directory = os.path.join(directory, "files")
+
+    def __enter__(self) -> "AvatarReader":
+        self.avatar_db_conn = sqlite3.connect(self.avatar_db_path)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.avatar_db_conn.close()
+
+    def get_avatar(self, user_id: int) -> tuple[bytes, str] | None:
+        # Get avatar hash
+        results = self.avatar_db_conn.execute("SELECT avatar_md5_hash FROM avatars WHERE user_id = ?", [user_id])
+        (avatar_md5_hash,) = results.fetchone()
+
+        if avatar_md5_hash is None:
+            return None
+
+        # Fetch its data from the filesystem
+        avatar_path = os.path.join(self.files_directory, avatar_md5_hash)
+        content_type_path = f"{avatar_path}.content-type"
+
+        with open(avatar_path, "rb") as file:
+            blob = file.read()
+
+        with open(content_type_path, "r") as file:
+            content_type = file.read()
+
+        return blob, content_type
+
+
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser("import_wikidot_users_and_avatars")
     argparser.add_argument(
@@ -56,6 +93,10 @@ if __name__ == "__main__":
     argparser.add_argument(
         "csv_file",
         help="wikidot_users.csv input file",
+    )
+    argparser.add_argument(
+        "avatars_directory",
+        help="Fetched avatars directory, assumes avatars.db and files/ exist inside",
     )
     args = argparser.parse_args()
 
