@@ -100,6 +100,17 @@ if __name__ == "__main__":
         help="DEEPWELL port on the host",
     )
     argparser.add_argument(
+        "--importer-user-id",
+        default=-2,
+        type=int,
+        help="The user ID to associate the import operations with",
+    )
+    argparser.add_argument(
+        "--importer-ip-address",
+        default="127.0.0.255",  # localhost, but distinct for logging purposes
+        help="The IP address to associate the import operations with",
+    )
+    argparser.add_argument(
         "csv_file",
         help="wikidot_users.csv input file",
     )
