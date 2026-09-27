@@ -62,7 +62,10 @@ class AvatarReader:
 
     def get(self, user_id: int) -> tuple[bytes, str] | None:
         # Get avatar hash
-        results = self.avatar_db_conn.execute("SELECT avatar_md5_hash FROM avatars WHERE user_id = ?", [user_id])
+        results = self.avatar_db_conn.execute(
+            "SELECT avatar_md5_hash FROM avatars WHERE user_id = ?",
+            [user_id],
+        )
         (avatar_md5_hash,) = results.fetchone()
 
         if avatar_md5_hash is None:
