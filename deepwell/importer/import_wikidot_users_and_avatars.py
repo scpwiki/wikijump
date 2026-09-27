@@ -15,9 +15,9 @@ from typing import Self, TextIO
 
 from deepwell_common import (
     Deepwell,
-    ImportUserData,
-    ImportExistingUser,
     ImportDeletedUser,
+    ImportExistingUser,
+    ImportUserData,
     UploadBlobData,
 )
 
