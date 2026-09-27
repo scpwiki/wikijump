@@ -32,10 +32,7 @@ use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::{
     CheckPermissionContext, PermissionService, resolve_category_reference,
 };
-use crate::services::relation::{
-    GetPageAttributions, GetSiteBan, GetSiteMember, SiteMemberAccepted,
-};
-use crate::services::role::SystemRole;
+use crate::services::role::{SystemRole, resolve_virtual_roles_for_resource};
 use crate::services::{PageService, RelationService, ServiceContext};
 use crate::types::{Action, Permission, Reference, Resource};
 use crate::utils::{now, trim_default};
@@ -443,7 +440,7 @@ impl RoleService {
 
     pub async fn get_all_roles_for_user_and_site(
         ctx: &ServiceContext<'_>,
-        input: GetUserRolesInput<'_>,
+        input: GetUserRolesInput,
     ) -> Result<Vec<RoleModel>> {
         let txn = ctx.transaction();
 
@@ -457,7 +454,7 @@ impl RoleService {
             )
         };
 
-        let mut roles = match input.user_id {
+        let roles = match input.user_id {
             Some(id) => Role::find()
                 .join(JoinType::InnerJoin, role::Relation::UserRole.def())
                 .filter(
@@ -477,12 +474,6 @@ impl RoleService {
                 .or_raise(make_error)?,
             None => Vec::new(),
         };
-
-        let virtual_roles = Self::get_virtual_roles_for_user(ctx, &input)
-            .await
-            .or_raise(make_error)?;
-
-        roles.extend(virtual_roles);
 
         info!(
             "User ID {:?} has these roles in site ID {}: {:?}",
@@ -715,9 +706,9 @@ impl RoleService {
         Ok(roles)
     }
 
-    pub async fn get_virtual_roles_for_user(
+    pub async fn get_virtual_roles_for_user_and_resource(
         ctx: &ServiceContext<'_>,
-        input: &GetUserRolesInput<'_>,
+        input: &GetUserVirtualRolesInput<'_>,
     ) -> Result<Vec<RoleModel>> {
         let txn = ctx.transaction();
 
@@ -738,87 +729,48 @@ impl RoleService {
             .map(|role| (role.name.clone(), role))
             .collect::<std::collections::HashMap<_, _>>();
 
-        // Compute user state flags
-        let is_logged_in = input.user_id.is_some();
-        let is_member = if is_logged_in {
-            let membership = RelationService::get_optional_site_member(
-                ctx,
-                GetSiteMember {
-                    site_id: input.site_id,
-                    user_id: input.user_id.unwrap(),
-                },
-            )
-            .await
-            .or_raise(make_error)?;
+        // Compute virtual roles for current site
+        let site_resource_reference = Reference::Id(input.site_id);
+        let site_roles_future = resolve_virtual_roles_for_resource(
+            ctx,
+            input.user_id,
+            input.site_id,
+            Resource::Site,
+            &site_resource_reference,
+        );
 
-            membership.is_some()
-        } else {
-            false
-        };
-        let is_page_author = if is_member && let Some(page_ref) = &input.page_reference {
-            let attributions = RelationService::get_page_attributions(
-                ctx,
-                GetPageAttributions {
-                    site_id: input.site_id,
-                    page: page_ref.clone(),
-                },
-            )
-            .await
-            .or_raise(make_error)?;
-            attributions
-                .iter()
-                .any(|attr| attr.user_id == input.user_id.unwrap())
-        } else {
-            false
-        };
-        let is_banned = if is_logged_in {
-            RelationService::site_ban_exists(
-                ctx,
-                GetSiteBan {
-                    site_id: input.site_id,
-                    user_id: input.user_id.unwrap(),
-                },
-            )
-            .await
-            .or_raise(make_error)?
-        } else {
-            false
-        };
-
-        // Collect virtual roles to apply based on flags
-        let mut applied_virtual_roles = Vec::with_capacity(4); // At most 4 virtual roles at a time
-        if is_logged_in {
-            applied_virtual_roles.push(SystemRole::Registered);
-            if is_banned {
-                // If user is banned, skip any other site roles
-                applied_virtual_roles.push(SystemRole::Banned);
+        // Check virtual roles for requested resource.
+        let resource_roles_future = async {
+            if let Some(resource_ref) = &input.resource_reference {
+                resolve_virtual_roles_for_resource(
+                    ctx,
+                    input.user_id,
+                    input.site_id,
+                    input.resource_type,
+                    resource_ref,
+                )
+                .await
             } else {
-                if is_member {
-                    applied_virtual_roles.push(SystemRole::Member);
-                } else {
-                    applied_virtual_roles.push(SystemRole::Guest);
-                }
-                if is_page_author {
-                    applied_virtual_roles.push(SystemRole::PageAuthor);
-                }
+                Ok(vec![])
             }
-        } else {
-            applied_virtual_roles.push(SystemRole::Anonymous);
-            applied_virtual_roles.push(SystemRole::Guest);
-        }
-        applied_virtual_roles.push(SystemRole::Everyone);
+        };
+
+        let (mut applied_virtual_roles, virtual_roles_for_resource) =
+            try_join!(site_roles_future, resource_roles_future).or_raise(make_error)?;
+        applied_virtual_roles.extend(virtual_roles_for_resource);
+
+        // Build the final list of deduped applicable roles
+        let applicable_virtual_roles =
+            applied_virtual_roles.into_iter().collect::<HashSet<_>>();
 
         info!(
             "Applying these virtual roles for user ID {:?} in site ID {}: {:?}",
-            input.user_id, input.site_id, applied_virtual_roles
+            input.user_id, input.site_id, applicable_virtual_roles
         );
 
-        // Build the final list of applicable roles
-        let applicable_virtual_roles = applied_virtual_roles
+        Ok(applicable_virtual_roles
             .into_iter()
             .filter_map(|role| virtual_role_name_map.get(role.into()).cloned())
-            .collect();
-
-        Ok(applicable_virtual_roles)
+            .collect())
     }
 }

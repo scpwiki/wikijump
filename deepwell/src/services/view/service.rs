@@ -214,7 +214,8 @@ impl ViewService {
                         &CheckPermissionContext {
                             user_id: user_session.as_ref().map(|s| s.user.user_id),
                             site_id,
-                            page_reference: None,
+                            resource_type: Resource::Page,
+                            resource_reference: Some(Reference::Id(page.page_id)),
                         },
                         [
                             Permission {
@@ -593,7 +594,8 @@ impl ViewService {
             &CheckPermissionContext {
                 user_id,
                 site_id,
-                page_reference: None,
+                resource_type: Resource::Site,
+                resource_reference: None,
             },
             Permission {
                 resource_type: Resource::Site,

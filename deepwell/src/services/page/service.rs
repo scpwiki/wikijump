@@ -1305,7 +1305,8 @@ impl PageService {
             &CheckPermissionContext {
                 user_id,
                 site_id,
-                page_reference: Some(page_ref),
+                resource_type: Resource::Page,
+                resource_reference: Some(page_ref),
             },
             Permission {
                 resource_type: Resource::Page,

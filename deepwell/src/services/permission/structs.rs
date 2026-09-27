@@ -36,5 +36,6 @@ pub struct DecoratedPermission<'a> {
 pub struct CheckPermissionContext<'a> {
     pub user_id: Option<i64>,
     pub site_id: i64,
-    pub page_reference: Option<Reference<'a>>,
+    pub resource_type: Resource,
+    pub resource_reference: Option<Reference<'a>>,
 }

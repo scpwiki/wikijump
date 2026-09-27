@@ -25,7 +25,7 @@ use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::permission::PermissionService;
-use crate::types::{Permission, Reference};
+use crate::types::{Permission, Reference, Resource};
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::Rsmq;
 use s3::bucket::Bucket;
@@ -175,13 +175,19 @@ impl<'txn> ServiceContext<'txn> {
             .get_or_try_init(|| async {
                 let user_id = self.request_ctx.user_id;
                 let site_id = self.request_ctx.site_id()?;
-                let page_reference = self.request_ctx.page_reference.clone();
+                let resource_reference = self.request_ctx.page_reference.clone();
+                let resource_type = if resource_reference.is_some() {
+                    Resource::Page
+                } else {
+                    Resource::Site
+                };
 
                 PermissionService::get_permissions_for_user(
                     self,
                     user_id,
                     site_id,
-                    page_reference,
+                    resource_type,
+                    resource_reference,
                 )
                 .await
                 .or_raise(|| {
@@ -194,12 +200,24 @@ impl<'txn> ServiceContext<'txn> {
     pub async fn user_has_permission(&self, permission: Permission<'_>) -> Result<bool> {
         let user_id = self.request_ctx.user_id;
         let site_id = self.request_ctx.site_id()?;
+        let resource_reference = match permission.resource_type {
+            Resource::Page => self.request_ctx.page_reference.clone(),
+            _ => None,
+        };
         let make_error =
             || Error::new("failed to check user permissions", ErrorType::Permission);
 
-        let perms = self.user_permissions().await.or_raise(make_error)?;
+        let perms = PermissionService::get_permissions_for_user(
+            self,
+            user_id,
+            site_id,
+            permission.resource_type,
+            resource_reference,
+        )
+        .await
+        .or_raise(make_error)?;
         PermissionService::permission_in_set_helper(
-            self, user_id, perms, site_id, permission,
+            self, user_id, &perms, site_id, permission,
         )
         .await
         .or_raise(make_error)

@@ -40,8 +40,14 @@ pub enum SystemRole {
     Banned,
 }
 
+mod resolvers;
 mod service;
 mod structs;
 
 pub use self::service::RoleService;
 pub use self::structs::*;
+
+pub use self::resolvers::{
+    PageVirtualRoleResolver, SiteVirtualRoleResolver, VirtualRoleResolver,
+    resolve_virtual_roles_for_resource,
+};

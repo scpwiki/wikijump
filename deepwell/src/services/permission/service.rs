@@ -31,7 +31,8 @@ use crate::services::permission::{
     CheckPermissionContext, PermissionCache, resolve_category_reference,
 };
 use crate::services::role::{
-    GetRolePermissionsInput, GetUserRolesInput, RoleService, UpdateRolePermissionsInput,
+    GetRolePermissionsInput, GetUserRolesInput, GetUserVirtualRolesInput, RoleService,
+    UpdateRolePermissionsInput,
 };
 use crate::types::{Action, Permission, Reference, Resource};
 use futures::future::try_join_all;
@@ -405,15 +406,21 @@ impl PermissionService {
     ) -> Result<[bool; N]> {
         let user_id = perm_ctx.user_id;
         let site_id = perm_ctx.site_id;
-        let page_reference = perm_ctx.page_reference.clone();
+        let resource_type = perm_ctx.resource_type;
+        let resource_reference = perm_ctx.resource_reference.clone();
 
         let make_error =
             || Error::new("failed to check permissions", ErrorType::Permission);
 
-        let user_permissions =
-            Self::get_permissions_for_user(ctx, user_id, site_id, page_reference)
-                .await
-                .or_raise(make_error)?;
+        let user_permissions = Self::get_permissions_for_user(
+            ctx,
+            user_id,
+            site_id,
+            resource_type,
+            resource_reference,
+        )
+        .await
+        .or_raise(make_error)?;
 
         // Short-circuit: no permissions.
         if user_permissions.is_empty() {
@@ -586,7 +593,8 @@ impl PermissionService {
         ctx: &ServiceContext<'_>,
         user_id: Option<i64>,
         site_id: i64,
-        page_reference: Option<Reference<'_>>,
+        resource_type: Resource,
+        resource_reference: Option<Reference<'_>>,
     ) -> Result<HashSet<Permission<'static>>> {
         let txn = ctx.transaction();
         let make_error = || {
@@ -599,19 +607,34 @@ impl PermissionService {
             )
         };
 
-        let role_ids: Vec<i64> = RoleService::get_all_roles_for_user_and_site(
+        let virtual_roles_input = GetUserVirtualRolesInput {
+            user_id,
+            site_id,
+            resource_type,
+            resource_reference,
+        };
+
+        let direct_roles_future = RoleService::get_all_roles_for_user_and_site(
             ctx,
-            GetUserRolesInput {
-                user_id,
-                site_id,
-                page_reference,
-            },
-        )
-        .await
-        .or_raise(make_error)?
-        .into_iter()
-        .map(|r| r.role_id)
-        .collect();
+            GetUserRolesInput { user_id, site_id },
+        );
+        let virtual_roles_future = RoleService::get_virtual_roles_for_user_and_resource(
+            ctx,
+            &virtual_roles_input,
+        );
+
+        let (direct_roles, virtual_roles) =
+            try_join!(direct_roles_future, virtual_roles_future).or_raise(make_error)?;
+
+        let role_ids: HashSet<i64> = direct_roles
+            .into_iter()
+            .chain(virtual_roles)
+            .map(|role| role.role_id)
+            .collect();
+
+        if role_ids.is_empty() {
+            return Ok(HashSet::new());
+        }
 
         Ok(RolePermission::find()
             .filter(role_permission::Column::RoleId.is_in(role_ids))

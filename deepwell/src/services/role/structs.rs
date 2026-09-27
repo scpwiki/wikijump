@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-use crate::types::{Maybe, Permission, Reference};
+use crate::types::{Maybe, Permission, Reference, Resource};
 use std::net::IpAddr;
 use time::OffsetDateTime;
 
@@ -123,10 +123,17 @@ pub struct RevokeUserRoleInput {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct GetUserRolesInput<'a> {
+pub struct GetUserRolesInput {
     pub site_id: i64,
     pub user_id: Option<i64>,
-    pub page_reference: Option<Reference<'a>>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetUserVirtualRolesInput<'a> {
+    pub site_id: i64,
+    pub user_id: Option<i64>,
+    pub resource_type: Resource,
+    pub resource_reference: Option<Reference<'a>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

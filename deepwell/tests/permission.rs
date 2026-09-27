@@ -243,7 +243,8 @@ async fn check(
         &CheckPermissionContext {
             user_id,
             site_id,
-            page_reference: None,
+            resource_type: resource,
+            resource_reference: None,
         },
         Permission {
             resource_type: resource,
@@ -272,7 +273,8 @@ async fn batch_check<const N: usize>(
         &CheckPermissionContext {
             user_id,
             site_id,
-            page_reference: None,
+            resource_type: perms[0].0,
+            resource_reference: None,
         },
         inputs,
     )
@@ -447,7 +449,8 @@ async fn check_category_resolution() {
             &CheckPermissionContext {
                 user_id: Some(f.user_b),
                 site_id: f.site_id,
-                page_reference: None
+                resource_type: Resource::Page,
+                resource_reference: None
             },
             Permission {
                 resource_type: Resource::Page,
