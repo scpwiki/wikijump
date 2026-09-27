@@ -192,7 +192,7 @@ if __name__ == "__main__":
                         slug=user_slug,
                     )
 
-                request = ImportUserData(
+                deepwell.import_user(ImportUserData(
                     user_id=user_id,
                     created_at=created_at,
                     fetched_at=args.users_fetched_at,  # not in wikidot_users.csv :(
@@ -208,7 +208,5 @@ if __name__ == "__main__":
                     is_pro=is_pro,
                     importing_user_id=args.importer_user_id,
                     ip_address=args.importer_ip_address,
-                )
+                ))
 
-                # TODO
-                ...
