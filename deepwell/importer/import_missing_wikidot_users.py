@@ -28,6 +28,10 @@ class WikicommaUserRecord(TypedDict):
 
 
 def read_wikicomma_users(json_path: str) -> Iterator[WikicommaUserRecord]:
+    if os.path.basename(json_path) == "pending.json":
+        # not a user list
+        return
+
     with open(json_path) as file:
         users_data = json.load(file)
         yield from users_data.values()
