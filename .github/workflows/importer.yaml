@@ -35,7 +35,7 @@ jobs:
         run: cd deepwell/importer && python -m pip install -r requirements-dev.txt
 
       - name: ruff format
-        run: cd deepwell && ruff format importer
+        run: cd deepwell && ruff format --check importer
 
       - name: ruff check
         run: cd deepwell && ruff check importer
