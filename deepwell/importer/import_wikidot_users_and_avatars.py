@@ -22,12 +22,30 @@ from deepwell_common import (
 )
 
 
-def boolean_from_str(value: str) -> bool:
+def parse_boolean(value: str) -> bool:
     match value:
         case "true":
             return True
         case "false":
             return False
+        case _:
+            raise ValueError(value)
+
+
+def parse_karma(value: str) -> int:
+    match value:
+        case "none":
+            return 0
+        case "low":
+            return 1
+        case "medium":
+            return 2
+        case "high":
+            return 3
+        case "very high":
+            return 4
+        case "guru":
+            return 5
         case _:
             raise ValueError(value)
 
@@ -165,7 +183,7 @@ if __name__ == "__main__":
             user_id = int(user_id_raw)
             created_at_naive = datetime.fromisoformat(created_at_raw)
             created_at = created_at_naive.replace(tzinfo=timezone.utc)
-            deleted = boolean_from_str(deleted_raw)
+            deleted = parse_boolean(deleted_raw)
             user_name = empty_str_as_none(user_name)
             user_slug = empty_str_as_none(user_slug)
             gender = empty_str_as_none(gender)
@@ -173,7 +191,7 @@ if __name__ == "__main__":
             location = empty_str_as_none(location)
             about = empty_str_as_none(about)
             website = empty_str_as_none(website)
-            karma_level = int(karma_level_raw)
+            karma_level = parse_karma(karma_level_raw)
             is_pro = account_type == "Pro"
 
             # Check if there's an avatar for this user
