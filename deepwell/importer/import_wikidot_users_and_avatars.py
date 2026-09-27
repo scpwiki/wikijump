@@ -100,6 +100,13 @@ if __name__ == "__main__":
         help="DEEPWELL port on the host",
     )
     argparser.add_argument(
+        # :'(
+        "--users-fetched-date",
+        default=datetime(2026, 1, 21, 0, 0, 0, tz=timezone.utc),
+        type=datetime.fromisoformat,
+        help="The date to record the users as having been fetched at",
+    )
+    argparser.add_argument(
         "--importer-user-id",
         default=-2,
         type=int,
@@ -187,7 +194,7 @@ if __name__ == "__main__":
                 request = ImportUserData(
                     user_id=user_id,
                     created_at=created_at,
-                    fetched_at=_, # TODO
+                    fetched_at=args.users_fetched_at,  # not in wikidot_users.csv :(
                     wikidot_user_type=user_type,
                     avatar_uploaded_blob_id=blob_id,
                     real_name=real_name,
