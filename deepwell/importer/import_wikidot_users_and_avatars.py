@@ -54,7 +54,7 @@ class AvatarReader:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.avatar_db_conn.close()
 
-    def get_avatar(self, user_id: int) -> tuple[bytes, str] | None:
+    def get(self, user_id: int) -> tuple[bytes, str] | None:
         # Get avatar hash
         results = self.avatar_db_conn.execute("SELECT avatar_md5_hash FROM avatars WHERE user_id = ?", [user_id])
         (avatar_md5_hash,) = results.fetchone()
@@ -101,70 +101,86 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     deepwell = Deepwell(args.host, args.port)
-    with open_csv_file(args.csv_file) as file:
-        reader = csv.reader(file)
+    with AvatarReader(args.avatars_directory) as avatars:
+        with open_csv_file(args.csv_file) as file:
+            reader = csv.reader(file)
 
-        # Skip the header
-        _ = next(reader)
+            # Skip the header
+            _ = next(reader)
 
-        # Each subsequent row is a user
-        for row in reader:
-            (
-                user_id_raw,
-                created_at_raw,
-                deleted_raw,
-                user_name,
-                user_slug,
-                real_name,
-                gender,
-                birthday_raw,
-                location,
-                about,
-                website,
-                account_type,
-                karma_level_raw,
-            ) = row
+            # Each subsequent row is a user
+            for row in reader:
+                (
+                    user_id_raw,
+                    created_at_raw,
+                    deleted_raw,
+                    user_name,
+                    user_slug,
+                    real_name,
+                    gender,
+                    birthday_raw,
+                    location,
+                    about,
+                    website,
+                    account_type,
+                    karma_level_raw,
+                ) = row
 
-            # Transform fields
-            user_id = int(user_id_raw)
-            created_at = datetime.fromisoformat(created_at_raw).replace(tzinfo=timezone.utc)
-            deleted = boolean_from_str(deleted_raw)
-            user_name = empty_str_as_none(user_name)
-            user_slug = empty_str_as_none(user_slug)
-            gender = empty_str_as_none(gender)
-            birthday = date.fromisoformat(birthday_raw) if birthday_raw else None
-            location = empty_str_as_none(location)
-            about = empty_str_as_none(about)
-            website = empty_str_as_none(website)
-            karma_level = int(karma_level_raw)
+                # Transform fields
+                user_id = int(user_id_raw)
+                created_at = datetime.fromisoformat(created_at_raw).replace(tzinfo=timezone.utc)
+                deleted = boolean_from_str(deleted_raw)
+                user_name = empty_str_as_none(user_name)
+                user_slug = empty_str_as_none(user_slug)
+                gender = empty_str_as_none(gender)
+                birthday = date.fromisoformat(birthday_raw) if birthday_raw else None
+                location = empty_str_as_none(location)
+                about = empty_str_as_none(about)
+                website = empty_str_as_none(website)
+                karma_level = int(karma_level_raw)
 
-            # Check if there's an avatar for this user
-            # TODO
+                # Check if there's an avatar for this user
+                avatar = avatars.get(user_id)
+                if avatar is None:
+                    # nothing to upload, default avatar
+                    blob_id = None
+                else:
+                    # upload avatar
+                    blob, content_type = avatar
+                    deepwell.upload_blob(UploadBlobData(
+                        uploading_user_id=_, # TODO
+                        blob=blob,
+                        mime_type=content_type,
+                    ))
 
-            # Build import request
-            if deleted:
-                user_type = ImportDeletedUser()
-            else:
-                assert user_name is not None
-                assert user_slug is not None
-                user_type = ImportExistingUser(
-                    name=user_name,
-                    slug=user_slug,
+                # Build import request
+                if deleted:
+                    user_type = ImportDeletedUser()
+                else:
+                    assert user_name is not None
+                    assert user_slug is not None
+                    user_type = ImportExistingUser(
+                        name=user_name,
+                        slug=user_slug,
+                    )
+
+                request = ImportUserData(
+                    user_id=user_id,
+                    created_at=created_at,
+                    fetched_at=_, # TODO
+                    wikidot_user_type=user_type,
+                    avatar_uploaded_blob_id=blob_id,
+                    real_name=real_name,
+                    gender=gender,
+                    birthday=birthday,
+                    location=location,
+                    biography=biography,
+                    website=website,
+                    karma=karma_level,
+                    is_pro=account_type == "Pro",
+                    importing_user_id=_, # TODO
+                    ip_address=_, # TODO
                 )
 
-            request = ImportUserData(
-                user_id=user_id,
-                created_at=created_at,
-                fetched_at=_, # TODO
-                wikidot_user_type=user_type,
-                real_name=real_name,
-                gender=gender,
-                birthday=birthday,
-                location=location,
-                biography=biography,
-                website=website,
-                karma=karma_level,
-                is_pro=account_type == "Pro",
-                importing_user_id=_, # TODO
-                ip_address=_, # TODO
-            )
+                # TODO
+                ...
