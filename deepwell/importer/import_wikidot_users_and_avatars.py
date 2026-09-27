@@ -205,12 +205,12 @@ if __name__ == "__main__":
             else:
                 # upload avatar
                 blob, content_type = avatar
-                request = UploadBlobData(
+                blob_request = UploadBlobData(
                     uploading_user_id=args.importer_user_id,
                     blob=blob,
                     mime_type=content_type,
                 )
-                deepwell.upload_blob(request)
+                deepwell.upload_blob(blob_request)
 
             # Build import request
             user_type: ImportExistingUser | ImportDeletedUser
@@ -224,7 +224,7 @@ if __name__ == "__main__":
                     slug=user_slug,
                 )
 
-            request = ImportUserData(
+            import_request = ImportUserData(
                 user_id=user_id,
                 created_at=created_at,
                 fetched_at=args.users_fetched_at,  # not in wikidot_users.csv :(
@@ -241,4 +241,4 @@ if __name__ == "__main__":
                 importing_user_id=args.importer_user_id,
                 ip_address=args.importer_ip_address,
             )
-            deepwell.import_user(request)
+            deepwell.import_user(import_request)
