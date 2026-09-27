@@ -16,15 +16,24 @@ from typing import NotRequired, TypedDict
 
 from deepwell_common import Deepwell
 
-
-class WikicommaUserRecord(TypedDict):
-    full_name: str
-    username: str
-    wikidot_user_since: int
-    account_type: str
-    activity: int
-    fetched_at: int
-    user_id: int
+# can't use declarative syntax because 'from' is a keyword
+WikicommaUserRecord = TypedDict(
+    "WikicommaUserRecord",
+    {
+        "full_name": str,
+        "username": str,
+        "real_name": NotRequired[str],
+        "gender": NotRequired[bool | str],
+        "birthday": NotRequired[int],  # JS timestamp, so millis
+        "from": NotRequired[str],
+        "website": NotRequired[str],
+        "wikidot_user_since": int,
+        "account_type": str,
+        "activity": int,
+        "fetched_at": int,
+        "user_id": int,
+    },
+)
 
 
 def read_wikicomma_users(json_path: str) -> Iterator[WikicommaUserRecord]:
