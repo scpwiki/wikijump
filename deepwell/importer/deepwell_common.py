@@ -34,7 +34,8 @@ class DeepwellError(RuntimeError):
 
 class UploadBlobData(NamedTuple):
     uploading_user_id: int
-    buffer: bytes
+    blob: bytes
+    mime_type: str
 
 
 class ImportExistingUser(NamedTuple):
@@ -98,13 +99,17 @@ class Deepwell:
             "blob_upload",
             {
                 "user_id": request.uploading_user_id,
-                "blob_size": len(request.buffer),
+                "blob_size": len(request.blob),
             },
         )
 
         # Upload to the presign URL
         blob_id = output["pending_blob_id"]
-        requests.put(output["presign_url"])
+        requests.put(
+            output["presign_url"],
+            data=request.blob,
+            headers={"Content-Type": request.mime_type},
+        )
 
         # Return the blob ID to the user to finish the upload
         return blob_id
