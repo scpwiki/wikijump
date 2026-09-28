@@ -112,9 +112,14 @@ class Deepwell:
         )
 
         # Upload to the presign URL
+        # Modify hostname to point to local S3 (same as --connect-to in curl)
         blob_id = output["pending_blob_id"]
-        requests.put(
+        presign_url = replace_host(
             output["presign_url"],
+            lambda host: host.replace("files", "localhost"),
+        )
+        requests.put(
+            presign_url,
             data=request.blob,
             headers={"Content-Type": request.mime_type},
         )
