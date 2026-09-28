@@ -35,7 +35,9 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
 use crate::services::blueprint::{BlueprintPageType, GetBlueprintPageOutput};
 use crate::services::page_revision::RerenderType;
-use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::permission::{
+    CheckPermissionContext, CheckPermissionInput, PermissionService, PermissionTarget,
+};
 use crate::services::relation::{
     GetPageAttributions, GetSiteBan, PageAttribution, RelationService,
 };
@@ -591,16 +593,11 @@ impl ViewService {
 
         let user_can_access_admin = PermissionService::check_user_can(
             ctx,
-            &CheckPermissionContext {
+            CheckPermissionInput {
                 user_id,
-                site_id,
-                resource_type: Resource::Site,
-                resource_reference: None,
-            },
-            Permission {
-                resource_type: Resource::Site,
-                resource_category: None,
+                site_id: Some(site_id),
                 action: Action::Edit,
+                target: PermissionTarget::Site,
             },
         )
         .await

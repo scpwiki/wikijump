@@ -208,7 +208,7 @@ pub async fn get_user_roles(
         input.user_id, input.site_id
     );
 
-    RoleService::get_all_roles_for_user_and_site(ctx, input)
+    RoleService::get_all_roles_for_user_and_site(ctx, input.user_id, input.site_id)
         .await
         .or_raise(|| Error::new("failed to get user roles", ErrorType::Role))
 }

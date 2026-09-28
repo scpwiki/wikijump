@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use exn::OptionExt;
+
 use crate::error::Result;
-use crate::services::ServiceContext;
+use crate::services::{PageService, ServiceContext};
 use crate::types::{Reference, Resource};
 use std::borrow::Cow;
 

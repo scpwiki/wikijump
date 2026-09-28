@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::endpoints::user;
+use crate::endpoints::{site, user};
 use crate::error::{Error, ErrorType};
 use crate::models::prelude::Page;
 use crate::models::role::{self, Entity as Role, Model as RoleModel};
@@ -30,9 +30,10 @@ use crate::models::user_role::{Entity as UserRole, Model as UserRoleModel};
 use crate::models::{page, user_role};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::{
-    CheckPermissionContext, PermissionService, resolve_category_reference,
+    CheckPermissionContext, PermissionService, PermissionTarget,
+    resolve_category_reference,
 };
-use crate::services::role::{SystemRole, resolve_virtual_roles_for_resource};
+use crate::services::role::{SystemRole, resolve_virtual_roles_for_user_and_resource};
 use crate::services::{PageService, RelationService, ServiceContext};
 use crate::types::{Action, Permission, Reference, Resource};
 use crate::utils::{now, trim_default};
@@ -440,7 +441,8 @@ impl RoleService {
 
     pub async fn get_all_roles_for_user_and_site(
         ctx: &ServiceContext<'_>,
-        input: GetUserRolesInput,
+        user_id: Option<i64>,
+        site_id: i64,
     ) -> Result<Vec<RoleModel>> {
         let txn = ctx.transaction();
 
@@ -448,19 +450,19 @@ impl RoleService {
             Error::new(
                 format!(
                     "failed to get roles for user ID {:?} in site ID {}",
-                    input.user_id, input.site_id
+                    user_id, site_id
                 ),
                 ErrorType::Role,
             )
         };
 
-        let roles = match input.user_id {
+        let roles = match user_id {
             Some(id) => Role::find()
                 .join(JoinType::InnerJoin, role::Relation::UserRole.def())
                 .filter(
                     Condition::all()
                         .add(user_role::Column::UserId.eq(id))
-                        .add(role::Column::SiteId.eq(input.site_id))
+                        .add(role::Column::SiteId.eq(site_id))
                         .add(role::Column::DeletedAt.is_null())
                         .add(user_role::Column::DeletedAt.is_null())
                         .add(
@@ -477,8 +479,8 @@ impl RoleService {
 
         info!(
             "User ID {:?} has these roles in site ID {}: {:?}",
-            input.user_id,
-            input.site_id,
+            user_id,
+            site_id,
             roles.iter().map(|r| &r.name).collect::<Vec<_>>()
         );
 
@@ -706,6 +708,37 @@ impl RoleService {
         Ok(roles)
     }
 
+    pub async fn get_applicable_roles_for_target(
+        ctx: &ServiceContext<'_>,
+        user_id: Option<i64>,
+        site_id: Option<i64>,
+        target: PermissionTarget<'_>,
+    ) -> Result<Vec<RoleModel>> {
+        if let Some(site_id) = site_id {
+            // Direct assigned roles are site-scoped base roles and apply to any
+            // target within that site, not just site-level targets.
+            let base_roles =
+                Self::get_all_roles_for_user_and_site(ctx, user_id, site_id).await?;
+
+            // Get virtual roles applicable to the target resource
+            let virtual_roles = Self::get_virtual_roles_for_user_and_resource(
+                ctx,
+                &GetUserVirtualRolesInput {
+                    user_id,
+                    site_id,
+                    target,
+                },
+            )
+            .await?;
+            Ok(base_roles
+                .into_iter()
+                .chain(virtual_roles)
+                .collect::<Vec<_>>())
+        } else {
+            Ok(vec![])
+        }
+    }
+
     pub async fn get_virtual_roles_for_user_and_resource(
         ctx: &ServiceContext<'_>,
         input: &GetUserVirtualRolesInput<'_>,
@@ -730,30 +763,20 @@ impl RoleService {
             .collect::<std::collections::HashMap<_, _>>();
 
         // Compute virtual roles for current site
-        let site_resource_reference = Reference::Id(input.site_id);
-        let site_roles_future = resolve_virtual_roles_for_resource(
+        let site_roles_future = resolve_virtual_roles_for_user_and_resource(
             ctx,
             input.user_id,
             input.site_id,
-            Resource::Site,
-            &site_resource_reference,
+            &PermissionTarget::Site,
         );
 
         // Check virtual roles for requested resource.
-        let resource_roles_future = async {
-            if let Some(resource_ref) = &input.resource_reference {
-                resolve_virtual_roles_for_resource(
-                    ctx,
-                    input.user_id,
-                    input.site_id,
-                    input.resource_type,
-                    resource_ref,
-                )
-                .await
-            } else {
-                Ok(vec![])
-            }
-        };
+        let resource_roles_future = resolve_virtual_roles_for_user_and_resource(
+            ctx,
+            input.user_id,
+            input.site_id,
+            &input.target,
+        );
 
         let (mut applied_virtual_roles, virtual_roles_for_resource) =
             try_join!(site_roles_future, resource_roles_future).or_raise(make_error)?;

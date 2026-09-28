@@ -26,7 +26,8 @@ use deepwell::constants::SYSTEM_USER_ID;
 use deepwell::license::License;
 use deepwell::services::category::CategoryService;
 use deepwell::services::permission::{
-    CheckPermissionContext, DecoratedPermission, PermissionService,
+    CheckPermissionContext, CheckPermissionInput, DecoratedPermission, PermissionService,
+    PermissionTarget,
 };
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
@@ -240,16 +241,18 @@ async fn check(
 ) -> bool {
     PermissionService::check_user_can(
         runner.context(),
-        &CheckPermissionContext {
+        CheckPermissionInput {
             user_id,
-            site_id,
-            resource_type: resource,
-            resource_reference: None,
-        },
-        Permission {
-            resource_type: resource,
-            resource_category: category_id.map(Reference::Id),
+            site_id: Some(site_id),
             action,
+            target: match resource {
+                Resource::Page => PermissionTarget::Page {
+                    page_ref: Reference::Id(0),
+                    category_id: category_id.unwrap_or_default(),
+                },
+                Resource::Site => PermissionTarget::Site,
+                _ => unimplemented!("test helper does not support {:?}", resource),
+            },
         },
     )
     .await
@@ -446,16 +449,14 @@ async fn check_category_resolution() {
     assert!(
         PermissionService::check_user_can(
             runner.context(),
-            &CheckPermissionContext {
+            CheckPermissionInput {
                 user_id: Some(f.user_b),
-                site_id: f.site_id,
-                resource_type: Resource::Page,
-                resource_reference: None
-            },
-            Permission {
-                resource_type: Resource::Page,
-                resource_category: Some(Reference::from(TEST_CATEGORY_NAME)),
+                site_id: Some(f.site_id),
                 action: Action::Edit,
+                target: PermissionTarget::Page {
+                    page_ref: Reference::Id(0),
+                    category_id: f.category_id,
+                },
             },
         )
         .await

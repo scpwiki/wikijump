@@ -39,3 +39,36 @@ pub struct CheckPermissionContext<'a> {
     pub resource_type: Resource,
     pub resource_reference: Option<Reference<'a>>,
 }
+
+#[derive(Deserialize, Debug, Clone)]
+pub enum PermissionTarget<'a> {
+    Site,
+    Page {
+        page_ref: Reference<'a>,
+        category_id: i64,
+    },
+}
+
+impl<'a> PermissionTarget<'a> {
+    pub fn resource_type(&self) -> Resource {
+        match self {
+            PermissionTarget::Site { .. } => Resource::Site,
+            PermissionTarget::Page { .. } => Resource::Page,
+        }
+    }
+
+    pub fn category_id(&self) -> Option<i64> {
+        match self {
+            PermissionTarget::Page { category_id, .. } => Some(*category_id),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CheckPermissionInput<'a> {
+    pub user_id: Option<i64>,
+    pub site_id: Option<i64>,
+    pub action: Action,
+    pub target: PermissionTarget<'a>,
+}

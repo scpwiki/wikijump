@@ -29,7 +29,9 @@ use crate::services::page_revision::{
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
     CreateTombstonePageRevision,
 };
-use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::permission::{
+    CheckPermissionContext, CheckPermissionInput, PermissionService, PermissionTarget,
+};
 use crate::services::{
     CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,
     TextService,
@@ -1302,16 +1304,14 @@ impl PageService {
 
         PermissionService::check_user_can(
             ctx,
-            &CheckPermissionContext {
+            CheckPermissionInput {
                 user_id,
-                site_id,
-                resource_type: Resource::Page,
-                resource_reference: Some(page_ref),
-            },
-            Permission {
-                resource_type: Resource::Page,
-                resource_category: Some(Reference::Id(page_model.page_category_id)),
+                site_id: Some(site_id),
                 action,
+                target: PermissionTarget::Page {
+                    page_ref,
+                    category_id: page_model.page_category_id,
+                },
             },
         )
         .await

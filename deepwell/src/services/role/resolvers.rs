@@ -19,111 +19,92 @@
  */
 
 use crate::error::Result;
+use crate::services::permission::PermissionTarget;
 use crate::services::relation::GetPageAttributions;
 use crate::services::role::SystemRole;
 use crate::services::{RelationService, ServiceContext};
 use crate::types::{Reference, Resource};
 
-#[derive(Debug)]
-pub struct SiteVirtualRoleResolver;
-
-impl SiteVirtualRoleResolver {
-    pub async fn resolve(
-        ctx: &ServiceContext<'_>,
-        user_id: Option<i64>,
-        site_id: i64,
-    ) -> Result<Vec<SystemRole>> {
-        let is_logged_in = user_id.is_some();
-        let is_member = if let Some(user_id) = user_id {
-            let membership = RelationService::get_optional_site_member(
-                ctx,
-                crate::services::relation::GetSiteMember { site_id, user_id },
-            )
-            .await?;
-
-            membership.is_some()
-        } else {
-            false
-        };
-        let is_banned = if let Some(user_id) = user_id {
-            RelationService::site_ban_exists(
-                ctx,
-                crate::services::relation::GetSiteBan { site_id, user_id },
-            )
-            .await?
-        } else {
-            false
-        };
-
-        let mut roles = Vec::with_capacity(5);
-        if is_logged_in {
-            roles.push(SystemRole::Registered);
-            if is_banned {
-                roles.push(SystemRole::Banned);
-            } else if is_member {
-                roles.push(SystemRole::Member);
-            } else {
-                roles.push(SystemRole::Guest);
-            }
-        } else {
-            roles.push(SystemRole::Anonymous);
-            roles.push(SystemRole::Guest);
-        }
-        roles.push(SystemRole::Everyone);
-
-        Ok(roles)
-    }
-}
-
-pub trait VirtualRoleResolver: Send + Sync {
-    fn resolve(
-        ctx: &ServiceContext<'_>,
-        user_id: Option<i64>,
-        site_id: i64,
-        reference: &Reference<'_>,
-    ) -> impl Future<Output = Result<Vec<SystemRole>>> + Send;
-}
-
-#[derive(Debug)]
-pub struct PageVirtualRoleResolver;
-
-impl VirtualRoleResolver for PageVirtualRoleResolver {
-    async fn resolve(
-        ctx: &ServiceContext<'_>,
-        user_id: Option<i64>,
-        site_id: i64,
-        reference: &Reference<'_>,
-    ) -> Result<Vec<SystemRole>> {
-        if let Some(user) = user_id {
-            let attributions = RelationService::get_page_attributions(
-                ctx,
-                GetPageAttributions {
-                    site_id,
-                    page: reference.clone(),
-                },
-            )
-            .await?;
-            if attributions.iter().any(|attr| attr.user_id == user) {
-                return Ok(vec![SystemRole::PageAuthor]);
-            }
-        }
-        Ok(vec![])
-    }
-}
-
-pub async fn resolve_virtual_roles_for_resource(
+pub async fn resolve_virtual_roles_for_user_and_resource(
     ctx: &ServiceContext<'_>,
     user_id: Option<i64>,
     site_id: i64,
-    resource_type: Resource,
+    target: &PermissionTarget<'_>,
+) -> Result<Vec<SystemRole>> {
+    match target {
+        PermissionTarget::Site => {
+            resolve_virtual_roles_for_user_and_site(ctx, user_id, site_id).await
+        }
+        PermissionTarget::Page { page_ref, .. } => {
+            resolve_virtual_roles_for_user_and_page(ctx, user_id, site_id, page_ref).await
+        }
+    }
+}
+
+async fn resolve_virtual_roles_for_user_and_site(
+    ctx: &ServiceContext<'_>,
+    user_id: Option<i64>,
+    site_id: i64,
+) -> Result<Vec<SystemRole>> {
+    let is_logged_in = user_id.is_some();
+    let is_member = if let Some(user_id) = user_id {
+        let membership = RelationService::get_optional_site_member(
+            ctx,
+            crate::services::relation::GetSiteMember { site_id, user_id },
+        )
+        .await?;
+
+        membership.is_some()
+    } else {
+        false
+    };
+    let is_banned = if let Some(user_id) = user_id {
+        RelationService::site_ban_exists(
+            ctx,
+            crate::services::relation::GetSiteBan { site_id, user_id },
+        )
+        .await?
+    } else {
+        false
+    };
+
+    let mut roles = Vec::with_capacity(5);
+    if is_logged_in {
+        roles.push(SystemRole::Registered);
+        if is_banned {
+            roles.push(SystemRole::Banned);
+        } else if is_member {
+            roles.push(SystemRole::Member);
+        } else {
+            roles.push(SystemRole::Guest);
+        }
+    } else {
+        roles.push(SystemRole::Anonymous);
+        roles.push(SystemRole::Guest);
+    }
+    roles.push(SystemRole::Everyone);
+
+    Ok(roles)
+}
+
+async fn resolve_virtual_roles_for_user_and_page(
+    ctx: &ServiceContext<'_>,
+    user_id: Option<i64>,
+    site_id: i64,
     reference: &Reference<'_>,
 ) -> Result<Vec<SystemRole>> {
-    match resource_type {
-        Resource::Page => {
-            PageVirtualRoleResolver::resolve(ctx, user_id, site_id, reference).await
+    if let Some(user) = user_id {
+        let attributions = RelationService::get_page_attributions(
+            ctx,
+            GetPageAttributions {
+                site_id,
+                page: reference.clone(),
+            },
+        )
+        .await?;
+        if attributions.iter().any(|attr| attr.user_id == user) {
+            return Ok(vec![SystemRole::PageAuthor]);
         }
-        Resource::Site => SiteVirtualRoleResolver::resolve(ctx, user_id, site_id).await,
-        // TODO: Add other resource types and their resolvers here
-        _ => Ok(vec![]),
     }
+    Ok(vec![])
 }
