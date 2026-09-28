@@ -29,14 +29,20 @@ pub async fn resolve_virtual_roles_for_user_and_resource(
     ctx: &ServiceContext<'_>,
     user_id: Option<i64>,
     site_id: i64,
-    target: &PermissionTarget<'_>,
+    target: &PermissionTarget,
 ) -> Result<Vec<SystemRole>> {
     match target {
         PermissionTarget::Site => {
             resolve_virtual_roles_for_user_and_site(ctx, user_id, site_id).await
         }
-        PermissionTarget::Page { page_ref, .. } => {
-            resolve_virtual_roles_for_user_and_page(ctx, user_id, site_id, page_ref).await
+        PermissionTarget::Page { page_id, .. } => {
+            resolve_virtual_roles_for_user_and_page(
+                ctx,
+                user_id,
+                site_id,
+                &Reference::Id(*page_id),
+            )
+            .await
         }
     }
 }

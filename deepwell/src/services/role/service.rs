@@ -712,7 +712,7 @@ impl RoleService {
         ctx: &ServiceContext<'_>,
         user_id: Option<i64>,
         site_id: Option<i64>,
-        target: PermissionTarget<'_>,
+        target: &PermissionTarget,
     ) -> Result<Vec<RoleModel>> {
         if let Some(site_id) = site_id {
             // Direct assigned roles are site-scoped base roles and apply to any
@@ -726,7 +726,7 @@ impl RoleService {
                 &GetUserVirtualRolesInput {
                     user_id,
                     site_id,
-                    target,
+                    target: &target,
                 },
             )
             .await?;

@@ -247,7 +247,7 @@ async fn check(
             action,
             target: match resource {
                 Resource::Page => PermissionTarget::Page {
-                    page_ref: Reference::Id(0),
+                    page_id: 0,
                     category_id: category_id.unwrap_or_default(),
                 },
                 Resource::Site => PermissionTarget::Site,
@@ -454,7 +454,7 @@ async fn check_category_resolution() {
                 site_id: Some(f.site_id),
                 action: Action::Edit,
                 target: PermissionTarget::Page {
-                    page_ref: Reference::Id(0),
+                    page_id: 0,
                     category_id: f.category_id,
                 },
             },

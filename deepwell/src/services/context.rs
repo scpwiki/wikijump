@@ -24,7 +24,7 @@ use crate::error::prelude::*;
 use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
 use crate::services::blob::MimeAnalyzer;
-use crate::services::permission::PermissionService;
+use crate::services::permission::{PermissionCache, PermissionService};
 use crate::types::{Permission, Reference, Resource};
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::Rsmq;
@@ -85,6 +85,7 @@ pub struct ServiceContext<'txn> {
     transaction: &'txn DatabaseTransaction,
     request_ctx: RequestContext,
     user_permissions: OnceCell<HashSet<Permission<'static>>>,
+    permission_cache: PermissionCache,
 }
 
 impl<'txn> ServiceContext<'txn> {
@@ -98,6 +99,7 @@ impl<'txn> ServiceContext<'txn> {
             transaction,
             request_ctx: RequestContext::default(),
             user_permissions: OnceCell::new(),
+            permission_cache: PermissionCache::new(),
         }
     }
 
@@ -116,6 +118,7 @@ impl<'txn> ServiceContext<'txn> {
 
         // Clear cached permissions since the user context has changed.
         self.user_permissions = OnceCell::new();
+        self.permission_cache.clear();
     }
 
     // Getters
@@ -167,6 +170,11 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn request(&self) -> &RequestContext {
         &self.request_ctx
+    }
+
+    #[inline]
+    pub fn permission_cache(&self) -> &PermissionCache {
+        &self.permission_cache
     }
 
     pub async fn user_permissions(&self) -> Result<&HashSet<Permission<'static>>> {

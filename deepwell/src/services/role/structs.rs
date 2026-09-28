@@ -131,11 +131,11 @@ pub struct GetUserRolesInput {
     pub user_id: Option<i64>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct GetUserVirtualRolesInput<'a> {
     pub user_id: Option<i64>,
     pub site_id: i64,
-    pub target: PermissionTarget<'a>,
+    pub target: &'a PermissionTarget,
 }
 
 #[derive(Deserialize, Debug, Clone)]

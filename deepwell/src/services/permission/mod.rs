@@ -29,7 +29,7 @@ mod resolvers;
 mod service;
 mod structs;
 
-pub use self::cache::PermissionCache;
+pub use self::cache::{PermissionCache, PermissionCacheKey};
 pub use self::resolvers::{
     CategoryResolver, PageCategoryResolver, resolve_category_reference,
 };

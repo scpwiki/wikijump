@@ -1309,7 +1309,7 @@ impl PageService {
                 site_id: Some(site_id),
                 action,
                 target: PermissionTarget::Page {
-                    page_ref,
+                    page_id: page_model.page_id,
                     category_id: page_model.page_category_id,
                 },
             },

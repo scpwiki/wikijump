@@ -40,16 +40,13 @@ pub struct CheckPermissionContext<'a> {
     pub resource_reference: Option<Reference<'a>>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub enum PermissionTarget<'a> {
+#[derive(Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PermissionTarget {
     Site,
-    Page {
-        page_ref: Reference<'a>,
-        category_id: i64,
-    },
+    Page { page_id: i64, category_id: i64 },
 }
 
-impl<'a> PermissionTarget<'a> {
+impl PermissionTarget {
     pub fn resource_type(&self) -> Resource {
         match self {
             PermissionTarget::Site { .. } => Resource::Site,
@@ -66,9 +63,9 @@ impl<'a> PermissionTarget<'a> {
 }
 
 #[derive(Debug, Clone)]
-pub struct CheckPermissionInput<'a> {
+pub struct CheckPermissionInput {
     pub user_id: Option<i64>,
     pub site_id: Option<i64>,
     pub action: Action,
-    pub target: PermissionTarget<'a>,
+    pub target: PermissionTarget,
 }
