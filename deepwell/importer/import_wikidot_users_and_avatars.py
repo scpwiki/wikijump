@@ -211,7 +211,7 @@ if __name__ == "__main__":
                     blob=blob,
                     mime_type=content_type,
                 )
-                deepwell.upload_blob(blob_request)
+                blob_id = deepwell.upload_blob(blob_request)
 
             # Build import request
             user_type: ImportExistingUser | ImportDeletedUser
