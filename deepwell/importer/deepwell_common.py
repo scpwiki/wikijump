@@ -3,7 +3,8 @@ Helper module to make sending DEEPWELL requests easier.
 """
 
 from datetime import date, datetime
-from typing import Any, NamedTuple, TypedDict
+from typing import Any, Callable, NamedTuple, TypedDict
+from urllib.parse import urlsplit
 
 import requests
 
@@ -63,6 +64,13 @@ class ImportUserData(NamedTuple):
     is_pro: bool
     importing_user_id: int
     ip_address: str
+
+
+# Utilities
+
+def replace_host(url: str, host_replace: Callable[[str], str]) -> str:
+    url_parts = urlsplit(url)
+    return url_parts._replace(netloc=host_replace(url_parts.netloc)).geturl()
 
 
 # Main service class
