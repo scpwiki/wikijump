@@ -25,9 +25,12 @@ use time::OffsetDateTime;
 use super::prelude::*;
 use crate::models::page_lock::{self, Entity as PageLock, Model as PageLockModel};
 use crate::services::audit::{AuditEvent, AuditService};
+use crate::services::permission::{
+    CheckPermissionInput, PermissionService, PermissionTarget,
+};
 use crate::services::relation::GetPageAttributions;
 use crate::services::{PageService, RelationService};
-use crate::types::{Action, PageLockType, Permission, Reference, Resource};
+use crate::types::{Action, PageLockType, Reference, Resource};
 
 #[derive(Debug, Clone)]
 pub struct PageLockService;
@@ -247,7 +250,6 @@ impl PageLockService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        page_category_id: Option<i64>,
         user_id: i64,
     ) -> Result<CheckLockBypassOutput> {
         let make_error = || {
@@ -266,16 +268,23 @@ impl PageLockService {
             .or_raise(make_error)?;
 
         if let Some(lock) = active_lock {
+            let check_bypass_permission = || {
+                PermissionService::check_user_can(
+                    ctx,
+                    CheckPermissionInput {
+                        user_id: Some(user_id),
+                        site_id: Some(site_id),
+                        action: Action::BypassLock,
+                        target: PermissionTarget::Lock,
+                    },
+                )
+            };
+
             let can_bypass = match lock.lock_type {
                 // Mod is not a native Wikijump role; treat it as a permission check instead
-                PageLockType::PermissionOnly | PageLockType::Wikidot => ctx
-                    .user_has_permission(Permission {
-                        resource_type: Resource::Page,
-                        resource_category: page_category_id.map(Reference::Id),
-                        action: Action::BypassLock,
-                    })
-                    .await
-                    .or_raise(make_error)?,
+                PageLockType::PermissionOnly | PageLockType::Wikidot => {
+                    check_bypass_permission().await.or_raise(make_error)?
+                }
                 PageLockType::AuthorOrPermissionOnly => {
                     // Check if the user is the author of the page
                     let attributions = RelationService::get_page_attributions(
@@ -291,15 +300,7 @@ impl PageLockService {
                     // User can bypass if they are an author of this page or have bypass permission
                     let is_author =
                         attributions.iter().any(|attr| attr.user_id == user_id);
-                    is_author
-                        || ctx
-                            .user_has_permission(Permission {
-                                resource_type: Resource::Page,
-                                resource_category: page_category_id.map(Reference::Id),
-                                action: Action::BypassLock,
-                            })
-                            .await
-                            .or_raise(make_error)?
+                    is_author || check_bypass_permission().await.or_raise(make_error)?
                 }
             };
             Ok(CheckLockBypassOutput {

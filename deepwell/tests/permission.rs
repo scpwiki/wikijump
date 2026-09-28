@@ -26,8 +26,7 @@ use deepwell::constants::SYSTEM_USER_ID;
 use deepwell::license::License;
 use deepwell::services::category::CategoryService;
 use deepwell::services::permission::{
-    CheckPermissionContext, CheckPermissionInput, DecoratedPermission, PermissionService,
-    PermissionTarget,
+    CheckPermissionInput, DecoratedPermission, PermissionService, PermissionTarget,
 };
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
@@ -259,32 +258,6 @@ async fn check(
     .expect("Permission check returned an error")
 }
 
-#[must_use]
-async fn batch_check<const N: usize>(
-    runner: &TestRunner,
-    user_id: Option<i64>,
-    site_id: i64,
-    perms: [(Resource, Option<i64>, Action); N],
-) -> [bool; N] {
-    let inputs = perms.map(|(resource, category_id, action)| Permission {
-        resource_type: resource,
-        resource_category: category_id.map(Reference::Id),
-        action,
-    });
-    PermissionService::batch_check_user_can(
-        runner.context(),
-        &CheckPermissionContext {
-            user_id,
-            site_id,
-            resource_type: perms[0].0,
-            resource_reference: None,
-        },
-        inputs,
-    )
-    .await
-    .expect("Batch permission check returned an error")
-}
-
 #[tokio::test]
 async fn check_user_can() {
     let runner = TestRunner::setup().await;
@@ -356,87 +329,6 @@ async fn check_user_can() {
     assert!(
         !check(&runner, a, f.site_id, Resource::Page, cat, Action::Edit).await,
         "user_a: should fail page:edit check in test-category"
-    );
-}
-
-#[tokio::test]
-async fn batch_check_user_can() {
-    let runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&runner).await;
-
-    let a = Some(f.user_a);
-    let b = Some(f.user_b);
-    let c = Some(f.user_c);
-    let cat = Some(f.category_id);
-
-    // Case: user_a has both view and edit unscoped
-    let [can_view, can_edit] = batch_check(
-        &runner,
-        a,
-        f.site_id,
-        [
-            (Resource::Page, None, Action::View),
-            (Resource::Page, None, Action::Edit),
-        ],
-    )
-    .await;
-    assert!(can_view, "user_a: batch should pass page:view");
-    assert!(can_edit, "user_a: batch should pass page:edit");
-
-    // Case: user_b has scoped edit but no view
-    let [can_view, can_edit] = batch_check(
-        &runner,
-        b,
-        f.site_id,
-        [
-            (Resource::Page, cat, Action::View),
-            (Resource::Page, cat, Action::Edit),
-        ],
-    )
-    .await;
-    assert!(
-        !can_view,
-        "user_b: batch should fail page:view in test-category"
-    );
-    assert!(
-        can_edit,
-        "user_b: batch should pass page:edit in test-category"
-    );
-
-    // Case: User with no roles — all denied
-    let [can_view, can_edit] = batch_check(
-        &runner,
-        c,
-        f.site_id,
-        [
-            (Resource::Page, None, Action::View),
-            (Resource::Page, None, Action::Edit),
-        ],
-    )
-    .await;
-    assert!(!can_view, "user_c: batch should fail page:view");
-    assert!(!can_edit, "user_c: batch should fail page:edit");
-
-    // Case: Batch and single check should return the same results
-    let [batch_view, batch_edit] = batch_check(
-        &runner,
-        a,
-        f.site_id,
-        [
-            (Resource::Page, None, Action::View),
-            (Resource::Page, None, Action::Edit),
-        ],
-    )
-    .await;
-    assert_eq!(
-        batch_view,
-        check(&runner, a, f.site_id, Resource::Page, None, Action::View).await,
-        "batch and single check differ on page:view"
-    );
-    assert_eq!(
-        batch_edit,
-        check(&runner, a, f.site_id, Resource::Page, None, Action::Edit).await,
-        "batch and single check differ on page:edit"
     );
 }
 

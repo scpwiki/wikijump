@@ -30,8 +30,7 @@ use crate::models::user_role::{Entity as UserRole, Model as UserRoleModel};
 use crate::models::{page, user_role};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::{
-    CheckPermissionContext, PermissionService, PermissionTarget,
-    resolve_category_reference,
+    PermissionService, PermissionTarget, resolve_category_reference,
 };
 use crate::services::role::{SystemRole, resolve_virtual_roles_for_user_and_resource};
 use crate::services::{PageService, RelationService, ServiceContext};

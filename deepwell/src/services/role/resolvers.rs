@@ -44,6 +44,7 @@ pub async fn resolve_virtual_roles_for_user_and_resource(
             )
             .await
         }
+        PermissionTarget::Lock => Ok(vec![]),
     }
 }
 

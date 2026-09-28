@@ -30,7 +30,7 @@ use crate::services::page_revision::{
     CreateTombstonePageRevision,
 };
 use crate::services::permission::{
-    CheckPermissionContext, CheckPermissionInput, PermissionService, PermissionTarget,
+    CheckPermissionInput, PermissionService, PermissionTarget,
 };
 use crate::services::{
     CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,

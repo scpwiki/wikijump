@@ -42,6 +42,7 @@ pub enum Resource {
     Page,
     Role,
     Site,
+    PageLock,
 }
 
 #[derive(

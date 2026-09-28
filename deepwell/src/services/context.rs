@@ -84,7 +84,6 @@ pub struct ServiceContext<'txn> {
     state: ServerState,
     transaction: &'txn DatabaseTransaction,
     request_ctx: RequestContext,
-    user_permissions: OnceCell<HashSet<Permission<'static>>>,
     permission_cache: PermissionCache,
 }
 
@@ -98,7 +97,6 @@ impl<'txn> ServiceContext<'txn> {
             state: Arc::clone(state),
             transaction,
             request_ctx: RequestContext::default(),
-            user_permissions: OnceCell::new(),
             permission_cache: PermissionCache::new(),
         }
     }
@@ -117,7 +115,6 @@ impl<'txn> ServiceContext<'txn> {
         self.request_ctx = request_ctx;
 
         // Clear cached permissions since the user context has changed.
-        self.user_permissions = OnceCell::new();
         self.permission_cache.clear();
     }
 
@@ -175,59 +172,5 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn permission_cache(&self) -> &PermissionCache {
         &self.permission_cache
-    }
-
-    pub async fn user_permissions(&self) -> Result<&HashSet<Permission<'static>>> {
-        // Lazily fetch and cache user permissions for the duration of the request.
-        self.user_permissions
-            .get_or_try_init(|| async {
-                let user_id = self.request_ctx.user_id;
-                let site_id = self.request_ctx.site_id()?;
-                let resource_reference = self.request_ctx.page_reference.clone();
-                let resource_type = if resource_reference.is_some() {
-                    Resource::Page
-                } else {
-                    Resource::Site
-                };
-
-                PermissionService::get_permissions_for_user(
-                    self,
-                    user_id,
-                    site_id,
-                    resource_type,
-                    resource_reference,
-                )
-                .await
-                .or_raise(|| {
-                    Error::new("failed to fetch user permissions", ErrorType::Permission)
-                })
-            })
-            .await
-    }
-
-    pub async fn user_has_permission(&self, permission: Permission<'_>) -> Result<bool> {
-        let user_id = self.request_ctx.user_id;
-        let site_id = self.request_ctx.site_id()?;
-        let resource_reference = match permission.resource_type {
-            Resource::Page => self.request_ctx.page_reference.clone(),
-            _ => None,
-        };
-        let make_error =
-            || Error::new("failed to check user permissions", ErrorType::Permission);
-
-        let perms = PermissionService::get_permissions_for_user(
-            self,
-            user_id,
-            site_id,
-            permission.resource_type,
-            resource_reference,
-        )
-        .await
-        .or_raise(make_error)?;
-        PermissionService::permission_in_set_helper(
-            self, user_id, &perms, site_id, permission,
-        )
-        .await
-        .or_raise(make_error)
     }
 }

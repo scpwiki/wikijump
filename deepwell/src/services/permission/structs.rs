@@ -28,28 +28,18 @@ pub struct DecoratedPermission<'a> {
     pub removable: bool,
 }
 
-/// Context for permission checks.
-///
-/// Contains all information needed to evaluate whether a user can perform
-/// an action on a resource.
-#[derive(Debug, Clone)]
-pub struct CheckPermissionContext<'a> {
-    pub user_id: Option<i64>,
-    pub site_id: i64,
-    pub resource_type: Resource,
-    pub resource_reference: Option<Reference<'a>>,
-}
-
 #[derive(Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PermissionTarget {
     Site,
     Page { page_id: i64, category_id: i64 },
+    Lock,
 }
 
 impl PermissionTarget {
     pub fn resource_type(&self) -> Resource {
         match self {
-            PermissionTarget::Site { .. } => Resource::Site,
+            PermissionTarget::Site => Resource::Site,
+            PermissionTarget::Lock => Resource::PageLock,
             PermissionTarget::Page { .. } => Resource::Page,
         }
     }

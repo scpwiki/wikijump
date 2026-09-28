@@ -36,7 +36,7 @@ use crate::models::site::Model as SiteModel;
 use crate::services::blueprint::{BlueprintPageType, GetBlueprintPageOutput};
 use crate::services::page_revision::RerenderType;
 use crate::services::permission::{
-    CheckPermissionContext, CheckPermissionInput, PermissionService, PermissionTarget,
+    CheckPermissionInput, PermissionService, PermissionTarget,
 };
 use crate::services::relation::{
     GetPageAttributions, GetSiteBan, PageAttribution, RelationService,
@@ -210,30 +210,36 @@ impl ViewService {
                         .or_raise(make_error)?;
 
                 // Check user access to page
-                let [user_can_access_page, user_can_edit_page] =
-                    PermissionService::batch_check_user_can(
-                        ctx,
-                        &CheckPermissionContext {
-                            user_id: user_session.as_ref().map(|s| s.user.user_id),
-                            site_id,
-                            resource_type: Resource::Page,
-                            resource_reference: Some(Reference::Id(page.page_id)),
+                let user_id = user_session.as_ref().map(|s| s.user.user_id);
+                let user_can_access_page = PermissionService::check_user_can(
+                    ctx,
+                    CheckPermissionInput {
+                        user_id,
+                        site_id: Some(site_id),
+                        action: Action::View,
+                        target: PermissionTarget::Page {
+                            page_id: page.page_id,
+                            category_id: page.page_category_id,
                         },
-                        [
-                            Permission {
-                                resource_type: Resource::Page,
-                                resource_category: category_id.map(Reference::Id),
-                                action: Action::View,
-                            },
-                            Permission {
-                                resource_type: Resource::Page,
-                                resource_category: category_id.map(Reference::Id),
-                                action: Action::Edit,
-                            },
-                        ],
-                    )
-                    .await
-                    .or_raise(make_error)?;
+                    },
+                )
+                .await
+                .or_raise(make_error)?;
+
+                let user_can_edit_page = PermissionService::check_user_can(
+                    ctx,
+                    CheckPermissionInput {
+                        user_id,
+                        site_id: Some(site_id),
+                        action: Action::Edit,
+                        target: PermissionTarget::Page {
+                            page_id: page.page_id,
+                            category_id: page.page_category_id,
+                        },
+                    },
+                )
+                .await
+                .or_raise(make_error)?;
 
                 // Determine whether to return the actual page contents,
                 // or the "private page" data (_public).

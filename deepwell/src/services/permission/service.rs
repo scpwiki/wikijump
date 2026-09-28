@@ -28,9 +28,7 @@ use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::cache::PermissionCacheKey;
 use crate::services::permission::resolvers::resolve_category_slug;
-use crate::services::permission::{
-    CheckPermissionContext, PermissionCache, resolve_category_reference,
-};
+use crate::services::permission::{PermissionCache, resolve_category_reference};
 use crate::services::role::{
     GetRolePermissionsInput, GetUserRolesInput, GetUserVirtualRolesInput, RoleService,
     UpdateRolePermissionsInput,
@@ -45,7 +43,6 @@ use std::net::IpAddr;
 #[derive(Debug)]
 pub struct PermissionService;
 
-#[allow(dead_code)] // TEMP
 impl PermissionService {
     /// Updates the permissions for a role, replacing the existing set with the provided set.
     pub async fn update_permissions_for_role(
@@ -250,7 +247,7 @@ impl PermissionService {
                 ErrorType::Permission,
             )
         };
-        let mut permissions = Self::fetch_permissions(ctx, role_id)
+        let mut permissions = Self::get_permissions_for_role_helper(ctx, role_id)
             .await
             .or_raise(make_error)?;
 
@@ -445,114 +442,9 @@ impl PermissionService {
         Ok(has_permission)
     }
 
-    /// Batch check if a user has the specified permissions.
-    ///
-    /// Returns an array of booleans corresponding to each permission input.
-    /// Results are returned in the same order as the input array, best used with destructuring.
-    pub async fn batch_check_user_can<'a, const N: usize>(
-        ctx: &ServiceContext<'_>,
-        perm_ctx: &CheckPermissionContext<'_>,
-        permissions: [Permission<'a>; N],
-    ) -> Result<[bool; N]> {
-        let user_id = perm_ctx.user_id;
-        let site_id = perm_ctx.site_id;
-        let resource_type = perm_ctx.resource_type;
-        let resource_reference = perm_ctx.resource_reference.clone();
-
-        let make_error =
-            || Error::new("failed to check permissions", ErrorType::Permission);
-
-        let user_permissions = Self::get_permissions_for_user(
-            ctx,
-            user_id,
-            site_id,
-            resource_type,
-            resource_reference,
-        )
-        .await
-        .or_raise(make_error)?;
-
-        // Short-circuit: no permissions.
-        if user_permissions.is_empty() {
-            return Ok([false; N]);
-        }
-
-        let mut results = [false; N];
-
-        for (i, permission) in permissions.into_iter().enumerate() {
-            results[i] = Self::permission_in_set_helper(
-                ctx,
-                user_id,
-                &user_permissions,
-                site_id,
-                permission,
-            )
-            .await
-            .or_raise(make_error)?;
-        }
-
-        Ok(results)
-    }
-
-    /// Helper function to check if a permission is present in (the user's) permission set.
-    pub(crate) async fn permission_in_set_helper(
-        ctx: &ServiceContext<'_>,
-        user_id: Option<i64>,
-        user_permissions: &HashSet<Permission<'static>>,
-        site_id: i64,
-        Permission {
-            resource_type: resource,
-            resource_category,
-            action,
-        }: Permission<'_>,
-    ) -> Result<bool> {
-        let make_error =
-            || Error::new("failed to check permission", ErrorType::Permission);
-
-        info!(
-            "Checking permission for user ID {:?} on site ID {} for resource {} of category {:?} with action {}",
-            user_id, site_id, resource, resource_category, action,
-        );
-
-        // Resolve category reference to ID for permission checking
-        let resource_category_id = match &resource_category {
-            Some(reference) => {
-                resolve_category_reference(ctx, site_id, resource, reference).await?
-            }
-            None => None,
-        };
-
-        // Does this category have permissions scoped to it?
-        let has_scoped_permissions = match resource_category_id {
-            Some(category_id) => {
-                Self::check_category_scoped(ctx, site_id, resource, category_id, action)
-                    .await
-                    .or_raise(make_error)?
-            }
-            None => false,
-        };
-
-        let has_permission = if has_scoped_permissions {
-            user_permissions.contains(&Permission {
-                resource_type: resource,
-                resource_category: resource_category_id.map(Reference::Id),
-                action,
-            })
-        } else {
-            // If category does not have scoped permissions, fallback to _default
-            user_permissions.contains(&Permission {
-                resource_type: resource,
-                resource_category: None,
-                action,
-            })
-        };
-
-        Ok(has_permission)
-    }
-
     /// Fetches permissions for `role_id`.
     /// This is a separate function that returns Vec to preserve ordering.
-    async fn fetch_permissions(
+    async fn get_permissions_for_role_helper(
         ctx: &ServiceContext<'_>,
         role_id: i64,
     ) -> Result<Vec<Permission<'static>>> {
@@ -585,20 +477,10 @@ impl PermissionService {
         ctx: &ServiceContext<'_>,
         role_id: i64,
     ) -> Result<HashSet<Permission<'static>>> {
-        Ok(Self::fetch_permissions(ctx, role_id)
+        Ok(Self::get_permissions_for_role_helper(ctx, role_id)
             .await?
             .into_iter()
             .collect())
-    }
-
-    pub async fn get_permissions_for_user(
-        ctx: &ServiceContext<'_>,
-        user_id: Option<i64>,
-        site_id: i64,
-        resource_type: Resource,
-        resource_reference: Option<Reference<'_>>,
-    ) -> Result<HashSet<Permission<'static>>> {
-        Ok(HashSet::new())
     }
 
     async fn check_category_scoped(
