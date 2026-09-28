@@ -25,6 +25,7 @@ use self::common::TestRunner;
 use deepwell::constants::SYSTEM_USER_ID;
 use deepwell::license::License;
 use deepwell::services::category::CategoryService;
+use deepwell::services::page::{CreatePage, PageService};
 use deepwell::services::permission::{
     CheckPermissionInput, DecoratedPermission, PermissionService, PermissionTarget,
 };
@@ -51,13 +52,15 @@ struct PermissionFixture {
     // A page category to use for testing category-scoped permissions
     category_id: i64,
     other_category_id: i64,
+    test_page_id: i64,
+    other_page_id: i64,
     user_a: i64,
     user_b: i64,
     user_c: i64,
 }
 
 impl PermissionFixture {
-    async fn setup(runner: &TestRunner) -> Self {
+    async fn setup(runner: &mut TestRunner) -> Self {
         let ctx = runner.context();
         let n = next_n();
 
@@ -136,10 +139,51 @@ impl PermissionFixture {
         grant_role(ctx, site_id, user_b, role_b).await;
         // user_c doesn't have any roles
 
+        runner.set_request_context(RequestContext {
+            user_id: Some(SYSTEM_USER_ID),
+            ..Default::default()
+        });
+
+        let test_page = PageService::create(
+            runner.context(),
+            CreatePage {
+                site_id,
+                wikitext: String::new(),
+                title: String::from("Test Category Permission Page"),
+                alt_title: None,
+                slug: format!("{TEST_CATEGORY_NAME}:permission-test-{n}"),
+                layout: None,
+                revision_comments: String::new(),
+                bypass_filter: true,
+                ip_address: common::IP_ADDRESS,
+            },
+        )
+        .await
+        .expect("Failed to create test-category page");
+
+        let other_page = PageService::create(
+            runner.context(),
+            CreatePage {
+                site_id,
+                wikitext: String::new(),
+                title: String::from("Other Category Permission Page"),
+                alt_title: None,
+                slug: format!("{OTHER_CATEGORY_NAME}:permission-test-{n}"),
+                layout: None,
+                revision_comments: String::new(),
+                bypass_filter: true,
+                ip_address: common::IP_ADDRESS,
+            },
+        )
+        .await
+        .expect("Failed to create other-category page");
+
         PermissionFixture {
             site_id,
             category_id,
             other_category_id,
+            test_page_id: test_page.page_id,
+            other_page_id: other_page.page_id,
             user_a,
             user_b,
             user_c,
@@ -234,8 +278,7 @@ async fn check(
     runner: &TestRunner,
     user_id: Option<i64>,
     site_id: i64,
-    resource: Resource,
-    category_id: Option<i64>,
+    target: PermissionTarget,
     action: Action,
 ) -> bool {
     PermissionService::check_user_can(
@@ -244,14 +287,7 @@ async fn check(
             user_id,
             site_id: Some(site_id),
             action,
-            target: match resource {
-                Resource::Page => PermissionTarget::Page {
-                    page_id: 0,
-                    category_id: category_id.unwrap_or_default(),
-                },
-                Resource::Site => PermissionTarget::Site,
-                _ => unimplemented!("test helper does not support {:?}", resource),
-            },
+            target,
         },
     )
     .await
@@ -260,23 +296,30 @@ async fn check(
 
 #[tokio::test]
 async fn check_user_can() {
-    let runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&mut runner).await;
 
     let a = Some(f.user_a);
     let b = Some(f.user_b);
     let c = Some(f.user_c);
-    let cat = Some(f.category_id);
+    let test_page = PermissionTarget::Page {
+        page_id: f.test_page_id,
+        category_id: f.category_id,
+    };
+    let other_page = PermissionTarget::Page {
+        page_id: f.other_page_id,
+        category_id: f.other_category_id,
+    };
 
     // Case: User with a role that grants the permission can exercise it
 
     // RoleA grants page:view and page:edit unscoped
     assert!(
-        check(&runner, a, f.site_id, Resource::Page, None, Action::View).await,
+        check(&runner, a, f.site_id, test_page, Action::View).await,
         "user_a should pass page:view check"
     );
     assert!(
-        check(&runner, a, f.site_id, Resource::Page, None, Action::Edit).await,
+        check(&runner, a, f.site_id, other_page, Action::Edit).await,
         "user_a should pass page:edit check"
     );
 
@@ -284,17 +327,17 @@ async fn check_user_can() {
 
     // user_c has no roles at all
     assert!(
-        !check(&runner, c, f.site_id, Resource::Page, None, Action::View).await,
+        !check(&runner, c, f.site_id, test_page, Action::View).await,
         "user_c should fail page:view check"
     );
     assert!(
-        !check(&runner, c, f.site_id, Resource::Page, None, Action::Edit).await,
+        !check(&runner, c, f.site_id, test_page, Action::Edit).await,
         "user_c should fail page:edit check"
     );
 
     // user_b no view permission
     assert!(
-        !check(&runner, b, f.site_id, Resource::Page, None, Action::View).await,
+        !check(&runner, b, f.site_id, test_page, Action::View).await,
         "user_b should fail page:view check"
     );
 
@@ -302,40 +345,25 @@ async fn check_user_can() {
 
     // user_b has page:edit permission scoped to the test category
     assert!(
-        check(&runner, b, f.site_id, Resource::Page, cat, Action::Edit).await,
+        check(&runner, b, f.site_id, test_page, Action::Edit).await,
         "user_b: should pass page:edit check in test-category"
     );
-    // unscoped edit should fail
     assert!(
-        !check(&runner, b, f.site_id, Resource::Page, None, Action::Edit).await,
-        "user_b: should fail page:edit without category"
-    );
-    // edit in other category should fail
-    let other_cat = Some(f.other_category_id);
-    assert!(
-        !check(
-            &runner,
-            b,
-            f.site_id,
-            Resource::Page,
-            other_cat,
-            Action::Edit
-        )
-        .await,
+        !check(&runner, b, f.site_id, other_page, Action::Edit).await,
         "user_b: should fail page:edit in other category"
     );
 
     // Since test category has scoped edit permission, user_a cannot edit it with _default edit permission
     assert!(
-        !check(&runner, a, f.site_id, Resource::Page, cat, Action::Edit).await,
+        !check(&runner, a, f.site_id, test_page, Action::Edit).await,
         "user_a: should fail page:edit check in test-category"
     );
 }
 
 #[tokio::test]
-async fn check_category_resolution() {
-    let runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&runner).await;
+async fn check_category_scoping() {
+    let mut runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&mut runner).await;
 
     // Permission check should be able to resolve category name to ID
     assert!(
@@ -346,21 +374,21 @@ async fn check_category_resolution() {
                 site_id: Some(f.site_id),
                 action: Action::Edit,
                 target: PermissionTarget::Page {
-                    page_id: 0,
+                    page_id: f.test_page_id,
                     category_id: f.category_id,
                 },
             },
         )
         .await
         .expect("Permission check returned an error"),
-        "user_b should have page:edit permission for test-category"
+        "user_b should have page:edit permission for the page in test-category"
     )
 }
 
 #[tokio::test]
 async fn check_permission_endpoint() {
     let mut runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&runner).await;
+    let f = PermissionFixture::setup(&mut runner).await;
     runner.set_request_context(RequestContext {
         user_id: Some(SYSTEM_USER_ID),
         ..Default::default()
@@ -432,8 +460,8 @@ async fn check_permission_endpoint() {
 
 #[tokio::test]
 async fn role_update_permissions_and_get() {
-    let runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&mut runner).await;
 
     const CATEGORY_NAME: &str = "TestCategory";
     const OTHER_CATEGORY_NAME: &str = "OtherCategory";
@@ -558,8 +586,8 @@ async fn role_update_permissions_and_get() {
 
 #[tokio::test]
 async fn get_decorated_permissions_for_role() {
-    let runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&runner).await;
+    let mut runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&mut runner).await;
     let ctx = runner.context();
 
     // Parent role: page:view + page:edit
