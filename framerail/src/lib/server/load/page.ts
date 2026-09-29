@@ -56,7 +56,6 @@ import {
 import type { PageView, PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { Optional, TranslateKeys } from "$lib/types"
 import type { Cookies, RequestEvent } from "@sveltejs/kit"
-import { getRequestContext } from "./request-ctx"
 
 export async function loadPage(
   slug: Optional<string>,
@@ -407,9 +406,9 @@ const pageDeleteSchema = variant("option", [
 ])
 
 /* ----- Page Edit Check Permission ----- */
-export async function pageEditPermissionAction({ locals }: RequestEvent) {
+export async function pageEditPermissionAction() {
   try {
-    const res = await pageEditPermission(getRequestContext(locals))
+    const res = await pageEditPermission()
     return { res }
   } catch (e) {
     const error = e as DeepwellError
@@ -1163,11 +1162,7 @@ const pageRestoreSchema = object({
 })
 
 /* ----- Page Lock Create ----- */
-export async function pageLockCreateAction({
-  request,
-  getClientAddress,
-  locals
-}: RequestEvent) {
+export async function pageLockCreateAction({ request, getClientAddress }: RequestEvent) {
   const form = await superValidate(request, valibot(pageLockSchema))
   if (!form.valid) {
     return fail(400, { form })
@@ -1177,15 +1172,7 @@ export async function pageLockCreateAction({
 
   try {
     const { pageId, lockType, reason, expiresAt, overrideExisting } = form.data
-    await pageLockCreate(
-      pageId,
-      lockType,
-      reason,
-      expiresAt,
-      overrideExisting,
-      ipAddress,
-      getRequestContext(locals)
-    )
+    await pageLockCreate(pageId, lockType, reason, expiresAt, overrideExisting, ipAddress)
     return { form }
   } catch (e) {
     const error = e as DeepwellError
@@ -1207,16 +1194,12 @@ const pageLockSchema = object({
 })
 
 /* ----- Page Lock Remove ----- */
-export async function pageLockRemoveAction({
-  request,
-  getClientAddress,
-  locals
-}: RequestEvent) {
+export async function pageLockRemoveAction({ request, getClientAddress }: RequestEvent) {
   const ipAddress = getClientAddress()
 
   try {
     const { pageId }: { pageId: number } = await request.json()
-    await pageLockRemove(pageId, ipAddress, getRequestContext(locals))
+    await pageLockRemove(pageId, ipAddress)
     return {}
   } catch (e) {
     const error = e as DeepwellError
@@ -1229,10 +1212,10 @@ export async function pageLockRemoveAction({
 }
 
 /* ----- Page Lock History ----- */
-export async function pageLockHistoryAction({ request, locals }: RequestEvent) {
+export async function pageLockHistoryAction({ request }: RequestEvent) {
   try {
     const { pageId }: { pageId: number } = await request.json()
-    const res = await pageLockHistory(pageId, getRequestContext(locals))
+    const res = await pageLockHistory(pageId)
     return { res }
   } catch (e) {
     const error = e as DeepwellError

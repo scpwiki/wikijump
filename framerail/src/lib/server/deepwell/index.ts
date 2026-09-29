@@ -4,19 +4,18 @@ import { JSONRPCClient } from "json-rpc-2.0"
 
 import type { Nullable } from "$lib/types"
 import type { JSONRPCRequest } from "json-rpc-2.0"
-import type { RequestContext } from "../load/request-ctx"
+import { getRequestContextFromStore } from "../load/request-ctx"
+import type { RequestContextOptional } from "../load/request-ctx"
 
 export const DEEPWELL_HOST = process.env.DEEPWELL_HOST || "localhost"
 export const DEEPWELL_PORT = process.env.DEEPWELL_PORT || 2747
 export const DEEPWELL_URL = `http://${DEEPWELL_HOST}:${DEEPWELL_PORT}/jsonrpc`
 
-export const client = new JSONRPCClient<RequestContext>(processRawRequest)
+export const client = new JSONRPCClient<RequestContextOptional>(processRawRequest)
 
-async function processRawRequest(
-  request: JSONRPCRequest,
-  reqContext: RequestContext = {}
-): Promise<void> {
+async function processRawRequest(request: JSONRPCRequest): Promise<void> {
   const headers: Record<string, string> = { "content-type": "application/json" }
+  const reqContext = getRequestContextFromStore()
 
   // Populate request context in the headers
   if (reqContext?.sessionToken) {
