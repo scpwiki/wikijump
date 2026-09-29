@@ -6,7 +6,6 @@ import logging
 from collections.abc import Callable
 from datetime import date, datetime
 from typing import Any, NamedTuple, TypedDict, TypeVar
-from urllib.parse import urlsplit
 
 import requests
 
@@ -83,11 +82,6 @@ def map_null(value: T | None, callback: Callable[[T], U]) -> U | None:
     return callback(value)
 
 
-def replace_host(url: str, host_replace: Callable[[str], str]) -> str:
-    url_parts = urlsplit(url)
-    return url_parts._replace(netloc=host_replace(url_parts.netloc)).geturl()
-
-
 # Main service class
 
 
@@ -131,10 +125,7 @@ class Deepwell:
         # Upload to the presign URL
         # Modify hostname to point to local S3 (same as --connect-to in curl)
         blob_id = output["pending_blob_id"]
-        presign_url = replace_host(
-            output["presign_url"],
-            lambda host: host.replace("files", "localhost"),
-        )
+        presign_url = output["presign_url"]
         logger.info("Uploading blob ID %s", blob_id)
         logger.debug("Presign URL: %s", presign_url)
         r = requests.put(
