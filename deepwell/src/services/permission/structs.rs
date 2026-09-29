@@ -28,7 +28,7 @@ pub struct DecoratedPermission<'a> {
     pub removable: bool,
 }
 
-#[derive(Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PermissionTarget {
     Site,
     Page { page_id: i64, category_id: i64 },
@@ -50,12 +50,4 @@ impl PermissionTarget {
             _ => None,
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct CheckPermissionInput {
-    pub user_id: Option<i64>,
-    pub site_id: Option<i64>,
-    pub action: Action,
-    pub target: PermissionTarget,
 }

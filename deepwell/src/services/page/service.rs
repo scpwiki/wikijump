@@ -29,9 +29,7 @@ use crate::services::page_revision::{
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
     CreateTombstonePageRevision,
 };
-use crate::services::permission::{
-    CheckPermissionInput, PermissionService, PermissionTarget,
-};
+use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::{
     CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,
     TextService,
@@ -1291,7 +1289,6 @@ impl PageService {
     ) -> Result<bool> {
         let make_error =
             || Error::new("failed to check user permissions for page", ErrorType::Page);
-        let user_id = ctx.request().user_id;
 
         info!(
             "Checking edit permission for page {:?} in site ID {:?}",
@@ -1302,16 +1299,13 @@ impl PageService {
             .await
             .or_raise(make_error)?;
 
-        PermissionService::check_user_can(
+        PermissionService::can_user(
             ctx,
-            CheckPermissionInput {
-                user_id,
-                site_id: Some(site_id),
-                action,
-                target: PermissionTarget::Page {
-                    page_id: page_model.page_id,
-                    category_id: page_model.page_category_id,
-                },
+            Some(site_id),
+            action,
+            PermissionTarget::Page {
+                page_id: page_model.page_id,
+                category_id: page_model.page_category_id,
             },
         )
         .await

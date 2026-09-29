@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::endpoints::{parent, site};
 use crate::error::{Error, ErrorType};
 use crate::models::prelude::{Role, RolePermission};
 use crate::models::role_permission::Model as RolePermissionModel;
@@ -384,26 +383,43 @@ impl PermissionService {
         Ok(decorated)
     }
 
-    pub async fn check_user_can(
+    /// Checks whether the user of the current request can perform the action.
+    ///
+    /// Should use this API for most use cases involving authorizing actions from the user.
+    pub async fn can_user(
         ctx: &ServiceContext<'_>,
-        input: CheckPermissionInput,
+        site_id: Option<i64>,
+        action: Action,
+        target: PermissionTarget,
+    ) -> Result<bool> {
+        Self::can_user_as(ctx, ctx.request().user_id, site_id, action, target).await
+    }
+
+    /// Checks an explicit user's permissions for the given action.
+    /// This API should only be used to check permissions for an arbitrary user, not for authorizing the current request's user. For that, use `can_user()`.
+    pub async fn can_user_as(
+        ctx: &ServiceContext<'_>,
+        user_id: Option<i64>,
+        site_id: Option<i64>,
+        action: Action,
+        target: PermissionTarget,
     ) -> Result<bool> {
         // Capture the target-derived values before passing the target by value.
-        let resource_type = input.target.resource_type();
-        let resource_category_id = input.target.category_id();
+        let resource_type = target.resource_type();
+        let resource_category_id = target.category_id();
 
         let make_error = || {
             Error::new(
-                format!("failed to get permissions for user {:?}", input.user_id),
+                format!("failed to get permissions for user {:?}", user_id),
                 ErrorType::Permission,
             )
         };
 
         // Get cached or fetch effective permission set for this target resource
         let permission_cache_key = PermissionCacheKey {
-            user_id: input.user_id,
-            site_id: input.site_id,
-            target: input.target,
+            user_id,
+            site_id,
+            target,
         };
         let permissions = ctx
             .permission_cache()
@@ -411,13 +427,13 @@ impl PermissionService {
             .await?;
 
         // Does this category have permissions scoped to it?
-        let has_scoped_permissions = match (input.site_id, resource_category_id) {
+        let has_scoped_permissions = match (site_id, resource_category_id) {
             (Some(site_id), Some(category_id)) => Self::check_category_scoped(
                 ctx,
                 site_id,
                 resource_type,
                 category_id,
-                input.action,
+                action,
             )
             .await
             .or_raise(make_error)?,
@@ -428,14 +444,14 @@ impl PermissionService {
             permissions.contains(&Permission {
                 resource_type,
                 resource_category: Some(Reference::Id(resource_category_id.unwrap())),
-                action: input.action,
+                action,
             })
         } else {
             // If category does not have scoped permissions, fallback to _default
             permissions.contains(&Permission {
                 resource_type,
                 resource_category: None,
-                action: input.action,
+                action,
             })
         };
 

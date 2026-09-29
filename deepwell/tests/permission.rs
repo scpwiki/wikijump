@@ -27,7 +27,7 @@ use deepwell::license::License;
 use deepwell::services::category::CategoryService;
 use deepwell::services::page::{CreatePage, PageService};
 use deepwell::services::permission::{
-    CheckPermissionInput, DecoratedPermission, PermissionService, PermissionTarget,
+    DecoratedPermission, PermissionService, PermissionTarget,
 };
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
@@ -281,21 +281,19 @@ async fn check(
     target: PermissionTarget,
     action: Action,
 ) -> bool {
-    PermissionService::check_user_can(
+    PermissionService::can_user_as(
         runner.context(),
-        CheckPermissionInput {
-            user_id,
-            site_id: Some(site_id),
-            action,
-            target,
-        },
+        user_id,
+        Some(site_id),
+        action,
+        target,
     )
     .await
     .expect("Permission check returned an error")
 }
 
 #[tokio::test]
-async fn check_user_can() {
+async fn can_user() {
     let mut runner = TestRunner::setup().await;
     let f = PermissionFixture::setup(&mut runner).await;
 
@@ -367,17 +365,15 @@ async fn check_category_scoping() {
 
     // Permission check should be able to resolve category name to ID
     assert!(
-        PermissionService::check_user_can(
+        PermissionService::can_user_as(
             runner.context(),
-            CheckPermissionInput {
-                user_id: Some(f.user_b),
-                site_id: Some(f.site_id),
-                action: Action::Edit,
-                target: PermissionTarget::Page {
-                    page_id: f.test_page_id,
-                    category_id: f.category_id,
-                },
-            },
+            Some(f.user_b),
+            Some(f.site_id),
+            Action::Edit,
+            PermissionTarget::Page {
+                page_id: f.test_page_id,
+                category_id: f.category_id,
+            }
         )
         .await
         .expect("Permission check returned an error"),

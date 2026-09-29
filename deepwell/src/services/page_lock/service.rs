@@ -25,9 +25,7 @@ use time::OffsetDateTime;
 use super::prelude::*;
 use crate::models::page_lock::{self, Entity as PageLock, Model as PageLockModel};
 use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::permission::{
-    CheckPermissionInput, PermissionService, PermissionTarget,
-};
+use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::relation::GetPageAttributions;
 use crate::services::{PageService, RelationService};
 use crate::types::{Action, PageLockType, Reference, Resource};
@@ -250,12 +248,12 @@ impl PageLockService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        user_id: i64,
     ) -> Result<CheckLockBypassOutput> {
+        let user_id = ctx.request().user_id;
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to check lock bypass for page ID {} and user ID {}",
+                    "failed to check lock bypass for page ID {} and user ID {:?}",
                     page_id, user_id
                 ),
                 ErrorType::PageLock,
@@ -269,14 +267,11 @@ impl PageLockService {
 
         if let Some(lock) = active_lock {
             let check_bypass_permission = || {
-                PermissionService::check_user_can(
+                PermissionService::can_user(
                     ctx,
-                    CheckPermissionInput {
-                        user_id: Some(user_id),
-                        site_id: Some(site_id),
-                        action: Action::BypassLock,
-                        target: PermissionTarget::Lock,
-                    },
+                    Some(site_id),
+                    Action::BypassLock,
+                    PermissionTarget::Lock,
                 )
             };
 
@@ -298,8 +293,9 @@ impl PageLockService {
                     .or_raise(make_error)?;
 
                     // User can bypass if they are an author of this page or have bypass permission
-                    let is_author =
-                        attributions.iter().any(|attr| attr.user_id == user_id);
+                    let is_author = attributions
+                        .iter()
+                        .any(|attr| Some(attr.user_id) == user_id);
                     is_author || check_bypass_permission().await.or_raise(make_error)?
                 }
             };

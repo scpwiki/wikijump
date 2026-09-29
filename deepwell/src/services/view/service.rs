@@ -35,9 +35,7 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
 use crate::services::blueprint::{BlueprintPageType, GetBlueprintPageOutput};
 use crate::services::page_revision::RerenderType;
-use crate::services::permission::{
-    CheckPermissionInput, PermissionService, PermissionTarget,
-};
+use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::relation::{
     GetPageAttributions, GetSiteBan, PageAttribution, RelationService,
 };
@@ -210,32 +208,25 @@ impl ViewService {
                         .or_raise(make_error)?;
 
                 // Check user access to page
-                let user_id = user_session.as_ref().map(|s| s.user.user_id);
-                let user_can_access_page = PermissionService::check_user_can(
+                let user_can_access_page = PermissionService::can_user(
                     ctx,
-                    CheckPermissionInput {
-                        user_id,
-                        site_id: Some(site_id),
-                        action: Action::View,
-                        target: PermissionTarget::Page {
-                            page_id: page.page_id,
-                            category_id: page.page_category_id,
-                        },
+                    Some(site_id),
+                    Action::View,
+                    PermissionTarget::Page {
+                        page_id: page.page_id,
+                        category_id: page.page_category_id,
                     },
                 )
                 .await
                 .or_raise(make_error)?;
 
-                let user_can_edit_page = PermissionService::check_user_can(
+                let user_can_edit_page = PermissionService::can_user(
                     ctx,
-                    CheckPermissionInput {
-                        user_id,
-                        site_id: Some(site_id),
-                        action: Action::Edit,
-                        target: PermissionTarget::Page {
-                            page_id: page.page_id,
-                            category_id: page.page_category_id,
-                        },
+                    Some(site_id),
+                    Action::Edit,
+                    PermissionTarget::Page {
+                        page_id: page.page_id,
+                        category_id: page.page_category_id,
                     },
                 )
                 .await
@@ -587,24 +578,18 @@ impl ViewService {
         } = render_output;
 
         // Check user access to site settings
-        let user_id = match user_session {
-            Some(ref session) => Some(session.user.user_id),
-            None => {
-                debug!("No user for session, disallow admin access");
-                return Ok(GetAdminViewOutput::AdminPermissions {
-                    html: compiled_html,
-                });
-            }
-        };
+        if user_session.is_none() {
+            debug!("No user for session, disallow admin access");
+            return Ok(GetAdminViewOutput::AdminPermissions {
+                html: compiled_html,
+            });
+        }
 
-        let user_can_access_admin = PermissionService::check_user_can(
+        let user_can_access_admin = PermissionService::can_user(
             ctx,
-            CheckPermissionInput {
-                user_id,
-                site_id: Some(site_id),
-                action: Action::Edit,
-                target: PermissionTarget::Site,
-            },
+            Some(site_id),
+            Action::Edit,
+            PermissionTarget::Site,
         )
         .await
         .or_raise(make_error)?;
