@@ -2,8 +2,9 @@
 Helper module to make sending DEEPWELL requests easier.
 """
 
+from collections.abc import Callable
 from datetime import date, datetime
-from typing import Any, Callable, NamedTuple, TypedDict, TypeVar
+from typing import Any, NamedTuple, TypedDict, TypeVar
 from urllib.parse import urlsplit
 
 import requests
