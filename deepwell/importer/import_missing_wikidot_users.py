@@ -110,6 +110,12 @@ def import_user_if_missing(
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser("import_missing_wikidot_users")
     argparser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Enable debug logging",
+    )
+    argparser.add_argument(
         "-H",
         "--host",
         default="localhost",
@@ -139,7 +145,7 @@ if __name__ == "__main__":
     )
     args = argparser.parse_args()
 
-    setup_logging(logger)
+    setup_logging(logger, args.debug)
     logger.info("Running import_missing_wikidot_users with configuration:")
     logger.info("* DEEPWELL server:        %s %d", args.host, args.port)
     logger.info("* Wikicomma directory:    %s", args.wikicomma_directory)

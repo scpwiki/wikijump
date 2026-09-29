@@ -118,6 +118,12 @@ class AvatarReader:
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser("import_wikidot_users_and_avatars")
     argparser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Enable debug logging",
+    )
+    argparser.add_argument(
         "-H",
         "--host",
         default="localhost",
@@ -158,7 +164,7 @@ if __name__ == "__main__":
     )
     args = argparser.parse_args()
 
-    setup_logging(logger)
+    setup_logging(logger, args.debug)
     logger.info("Running import_wikidot_users_and_avatars with configuration:")
     logger.info("* DEEPWELL server:        %s %d", args.host, args.port)
     logger.info("* Avatar directory:       %s", args.avatars_directory)
