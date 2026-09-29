@@ -132,7 +132,7 @@ pub struct GetUserRolesInput {
 }
 
 #[derive(Debug, Clone)]
-pub struct GetUserVirtualRolesInput<'a> {
+pub(crate) struct GetUserVirtualRolesInput<'a> {
     pub user_id: Option<i64>,
     pub site_id: i64,
     pub target: &'a PermissionTarget,

@@ -46,5 +46,3 @@ mod structs;
 
 pub use self::service::RoleService;
 pub use self::structs::*;
-
-pub use self::resolvers::resolve_virtual_roles_for_user_and_resource;

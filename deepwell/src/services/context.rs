@@ -170,7 +170,7 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     #[inline]
-    pub fn permission_cache(&self) -> &PermissionCache {
+    pub(crate) fn permission_cache(&self) -> &PermissionCache {
         &self.permission_cache
     }
 }

@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use super::resolvers::resolve_virtual_roles_for_user_and_resource;
 use crate::endpoints::{site, user};
 use crate::error::{Error, ErrorType};
 use crate::models::prelude::Page;
@@ -32,7 +33,7 @@ use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::{
     PermissionService, PermissionTarget, resolve_category_reference,
 };
-use crate::services::role::{SystemRole, resolve_virtual_roles_for_user_and_resource};
+use crate::services::role::SystemRole;
 use crate::services::{PageService, RelationService, ServiceContext};
 use crate::types::{Action, Permission, Reference, Resource};
 use crate::utils::{now, trim_default};
@@ -279,7 +280,7 @@ impl RoleService {
         Ok(deleted_role)
     }
 
-    pub async fn get_optional(
+    async fn get_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
@@ -323,7 +324,7 @@ impl RoleService {
     }
 
     #[inline]
-    pub async fn assert_exists(
+    async fn assert_exists(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
@@ -707,7 +708,7 @@ impl RoleService {
         Ok(roles)
     }
 
-    pub async fn get_applicable_roles_for_target(
+    pub(crate) async fn get_applicable_roles_for_target(
         ctx: &ServiceContext<'_>,
         user_id: Option<i64>,
         site_id: Option<i64>,
@@ -738,7 +739,7 @@ impl RoleService {
         }
     }
 
-    pub async fn get_virtual_roles_for_user_and_resource(
+    pub(crate) async fn get_virtual_roles_for_user_and_resource(
         ctx: &ServiceContext<'_>,
         input: &GetUserVirtualRolesInput<'_>,
     ) -> Result<Vec<RoleModel>> {

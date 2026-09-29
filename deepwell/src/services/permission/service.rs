@@ -473,7 +473,7 @@ impl PermissionService {
     }
 
     /// Fetches permissions for `role_id` as a set for easy comparison in hierarchy validation.
-    pub async fn permissions_as_set(
+    pub(crate) async fn permissions_as_set(
         ctx: &ServiceContext<'_>,
         role_id: i64,
     ) -> Result<HashSet<Permission<'static>>> {

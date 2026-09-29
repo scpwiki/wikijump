@@ -25,7 +25,7 @@ use crate::services::role::SystemRole;
 use crate::services::{RelationService, ServiceContext};
 use crate::types::{Reference, Resource};
 
-pub async fn resolve_virtual_roles_for_user_and_resource(
+pub(super) async fn resolve_virtual_roles_for_user_and_resource(
     ctx: &ServiceContext<'_>,
     user_id: Option<i64>,
     site_id: i64,
