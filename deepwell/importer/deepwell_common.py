@@ -146,38 +146,34 @@ class Deepwell:
         return self.get_user(id_or_slug) is not None
 
     def import_user(self, request: ImportUserData) -> int:
+        request_data = {
+            "user_id": request.user_id,
+            "created_at": request.created_at.isoformat(),
+            "fetched_at": request.fetched_at.isoformat(),
+            "avatar_uploaded_blob_id": request.avatar_uploaded_blob_id,
+            "real_name": request.real_name,
+            "gender": request.gender,
+            "birthday": map_null(request.birthday, lambda date: date.isoformat()),
+            "location": request.location,
+            "biography": request.biography,
+            "website": request.website,
+            "karma": request.karma,
+            "is_pro": request.is_pro,
+            "importing_user_id": request.importing_user_id,
+            "ip_address": request.ip_address,
+        }
+
         match request.wikidot_user_type:
             case ImportExistingUser(name, slug):
-                wikidot_user_type = {
-                    "user_type": "extant",
-                    "name": name,
-                    "slug": slug,
-                }
+                request_data.update(
+                    user_type="extant",
+                    name=name,
+                    slug=slug,
+                )
             case ImportDeletedUser():
-                wikidot_user_type = {
-                    "user_type": "deleted",
-                }
+                request_data.update(user_type="deleted")
 
-        output = self.request(
-            "import_wikidot_user",
-            {
-                "user_id": request.user_id,
-                "created_at": request.created_at.isoformat(),
-                "fetched_at": request.fetched_at.isoformat(),
-                "wikidot_user_type": wikidot_user_type,
-                "avatar_uploaded_blob_id": request.avatar_uploaded_blob_id,
-                "real_name": request.real_name,
-                "gender": request.gender,
-                "birthday": request.birthday,
-                "location": request.location,
-                "biography": request.biography,
-                "website": request.website,
-                "karma": request.karma,
-                "is_pro": request.is_pro,
-                "importing_user_id": request.importing_user_id,
-                "ip_address": request.ip_address,
-            },
-        )
+        output = self.request("import_wikidot_user", request_data)
 
         match output:
             case {"user_id": user_id}:
