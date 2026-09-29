@@ -9,6 +9,7 @@ but was not added by import_wikidot_users_and_avatars.py
 
 import argparse
 import json
+import logging
 import os
 from collections.abc import Iterator
 from datetime import datetime, timezone
@@ -16,6 +17,9 @@ from glob import iglob
 from typing import NotRequired, TypedDict
 
 from deepwell_common import Deepwell, ImportExistingUser, ImportUserData
+from log_common import setup_logging
+
+logger = logging.getLogger(__name__)
 
 # can't use declarative syntax because 'from' is a keyword
 WikicommaUserRecord = TypedDict(
@@ -134,6 +138,11 @@ if __name__ == "__main__":
         help="The _users directory produced by wikicomma",
     )
     args = argparser.parse_args()
+
+    setup_logging(logger)
+    logger.info("Running import_missing_wikidot_users with configuration:")
+    logger.info("* DEEPWELL server:        %s %d", args.host, args.port)
+    logger.info("* Wikicomma directory:    %s", args.wikicomma_directory)
 
     deepwell = Deepwell(args.host, args.port)
 
