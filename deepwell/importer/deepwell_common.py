@@ -137,11 +137,13 @@ class Deepwell:
         )
         logger.info("Uploading blob ID %s", blob_id)
         logger.debug("Presign URL: %s", presign_url)
-        requests.put(
+        r = requests.put(
             presign_url,
             data=request.blob,
             headers={"Content-Type": request.mime_type},
         )
+        r.raise_for_status()
+        logger.debug("Upload finished")
 
         # Return the blob ID to the user to finish the upload
         return blob_id
