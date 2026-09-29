@@ -135,7 +135,8 @@ class Deepwell:
             output["presign_url"],
             lambda host: host.replace("files", "localhost"),
         )
-        logger.info("Uploading blob ID %s to %s", blob_id, presign_url)
+        logger.info("Uploading blob ID %s", blob_id)
+        logger.debug("Presign URL: %s", presign_url)
         requests.put(
             presign_url,
             data=request.blob,
