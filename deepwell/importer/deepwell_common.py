@@ -3,10 +3,13 @@ Helper module to make sending DEEPWELL requests easier.
 """
 
 from datetime import date, datetime
-from typing import Any, Callable, NamedTuple, TypedDict
+from typing import Any, Callable, NamedTuple, TypedDict, TypeVar
 from urllib.parse import urlsplit
 
 import requests
+
+T = TypeVar("T")
+U = TypeVar("U")
 
 # General JSONRPC / DEEPWELL types
 
@@ -67,6 +70,14 @@ class ImportUserData(NamedTuple):
 
 
 # Utilities
+
+
+def map_null(value: T | None, callback: Callable[[T], U]) -> U | None:
+    if value is None:
+        return None
+
+    return callback(value)
+
 
 def replace_host(url: str, host_replace: Callable[[str], str]) -> str:
     url_parts = urlsplit(url)
