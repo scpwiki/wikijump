@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 
 import requests
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 T = TypeVar("T")
 U = TypeVar("U")

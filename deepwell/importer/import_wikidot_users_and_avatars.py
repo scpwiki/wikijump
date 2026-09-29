@@ -6,7 +6,6 @@ Import script to read in a wikidot_users.csv file and associated avatars.
 
 import argparse
 import csv
-import logging
 import lzma
 import os
 import sqlite3
@@ -22,8 +21,6 @@ from deepwell_common import (
     UploadBlobData,
 )
 from log_common import setup_logging
-
-logger = logging.getLogger(__name__)
 
 
 def parse_boolean(value: str) -> bool:
@@ -164,7 +161,7 @@ if __name__ == "__main__":
     )
     args = argparser.parse_args()
 
-    setup_logging(logger, args.debug)
+    logger = setup_logging(args.debug)
     logger.info("Running import_wikidot_users_and_avatars with configuration:")
     logger.info("* DEEPWELL server:        %s %d", args.host, args.port)
     logger.info("* Avatar directory:       %s", args.avatars_directory)
