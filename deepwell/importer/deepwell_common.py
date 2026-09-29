@@ -98,6 +98,7 @@ class Deepwell:
         self.endpoint = f"http://{host}:{port}/jsonrpc"
 
     def request(self, method: str, data: Any, id: int = 0) -> Any:
+        logger.debug("Sent request %s (ID %d), data %r", method, id, data)
         r = requests.post(
             self.endpoint,
             json={
@@ -118,6 +119,7 @@ class Deepwell:
 
     def upload_blob(self, request: UploadBlobData) -> str:
         # Start the upload
+        logger.info("Requesting blob upload (%d bytes)", len(request.blob))
         output = self.request(
             "blob_upload",
             {
@@ -133,6 +135,7 @@ class Deepwell:
             output["presign_url"],
             lambda host: host.replace("files", "localhost"),
         )
+        logger.info("Uploading blob ID %s to %s", presign_url, blob_id)
         requests.put(
             presign_url,
             data=request.blob,
@@ -144,12 +147,14 @@ class Deepwell:
 
     # TODO: type the user output
     def get_user(self, id_or_slug: int | str) -> dict[str, Any] | None:
+        logger.info("Fetching user %s", id_or_slug)
         return self.request("user_get", {"user": id_or_slug})
 
     def user_exists(self, id_or_slug: int | str) -> bool:
         return self.get_user(id_or_slug) is not None
 
     def import_user(self, request: ImportUserData) -> int:
+        logger.info("Importing user: %r", request)
         request_data = {
             "user_id": request.user_id,
             "created_at": request.created_at.isoformat(),
