@@ -10,10 +10,9 @@ import logging
 import lzma
 import os
 import sqlite3
-import sys
 from datetime import date, datetime, timezone
 from types import TracebackType
-from typing import Final, Self, TextIO
+from typing import Self, TextIO
 
 from deepwell_common import (
     Deepwell,
@@ -22,21 +21,9 @@ from deepwell_common import (
     ImportUserData,
     UploadBlobData,
 )
-
-LOG_FORMAT: Final[str] = "[%(levelname)s] %(asctime)s %(message)s"
-LOG_DATE_FORMAT: Final[str] = "%Y/%m/%d %H:%M:%S"
+from log_common import setup_logging
 
 logger = logging.getLogger(__name__)
-
-
-def setup_logging() -> None:
-    log_fmt = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
-
-    log_stdout = logging.StreamHandler(sys.stdout)
-    log_stdout.setFormatter(log_fmt)
-
-    logger.setLevel(level=logging.DEBUG)
-    logger.addHandler(log_stdout)
 
 
 def parse_boolean(value: str) -> bool:
@@ -171,7 +158,7 @@ if __name__ == "__main__":
     )
     args = argparser.parse_args()
 
-    setup_logging()
+    setup_logging(logger)
     logger.info("Running import_wikidot_users_and_avatars with configuration:")
     logger.info("* DEEPWELL server:        %s %d", args.host, args.port)
     logger.info("* Avatar directory:       %s", args.avatars_directory)
