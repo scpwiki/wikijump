@@ -2,12 +2,15 @@
 Helper module to make sending DEEPWELL requests easier.
 """
 
+import logging
 from collections.abc import Callable
 from datetime import date, datetime
 from typing import Any, NamedTuple, TypedDict, TypeVar
 from urllib.parse import urlsplit
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 U = TypeVar("U")
