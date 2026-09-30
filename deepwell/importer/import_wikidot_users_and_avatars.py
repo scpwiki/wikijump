@@ -94,9 +94,14 @@ class AvatarReader:
             "SELECT avatar_md5_hash FROM avatars WHERE user_id = ?",
             [user_id],
         )
-        (avatar_md5_hash,) = results.fetchone()
+        row = results.fetchone()
+        if row is None:
+            # user is deleted
+            return None
 
+        (avatar_md5_hash,) = row
         if avatar_md5_hash is None:
+            # default avatar
             return None
 
         # Fetch its data from the filesystem
