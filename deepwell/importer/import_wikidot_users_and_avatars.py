@@ -252,6 +252,7 @@ if __name__ == "__main__":
                 website=website,
                 karma=karma_level,
                 is_pro=is_pro,
+                upsert=True,
                 importing_user_id=args.importer_user_id,
                 ip_address=args.importer_ip_address,
             )
