@@ -183,7 +183,6 @@ class Deepwell:
         return self.get_user(id_or_slug) is not None
 
     def import_user(self, request: ImportUserData) -> int:
-        logger.info("Importing user: %r", request)
         request_data = {
             "user_id": request.user_id,
             "created_at": request.created_at.isoformat(),
@@ -204,13 +203,22 @@ class Deepwell:
 
         match request.wikidot_user_type:
             case ImportExistingUser(name, slug):
+                logger.info(
+                    "Importing user ID %d (%s, %r)",
+                    request.user_id,
+                    name,
+                    slug,
+                )
                 request_data.update(
                     user_type="extant",
                     name=name,
                     slug=slug,
                 )
             case ImportDeletedUser():
+                logger.info("Importing user ID %d (deleted)", request.user_id)
                 request_data.update(user_type="deleted")
+
+        logger.debug("Full request data: %r", request)
 
         output = self.request("import_wikidot_user", request_data)
 
