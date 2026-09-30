@@ -98,6 +98,7 @@ def import_user_if_missing(
         website=user.get("website"),
         karma=user["activity"],
         is_pro=False,  # not available
+        upsert=False,  # TODO
         importing_user_id=importer_user_id,
         ip_address=importer_ip_address,
     )
