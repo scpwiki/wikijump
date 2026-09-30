@@ -34,8 +34,16 @@ class JsonrpcError(TypedDict):
 
 class DeepwellError(RuntimeError):
     def __init__(self, error_data: JsonrpcError):
-        super().__init__(error_data["message"])
         self.error_data = error_data
+        super().__init__(self._message)
+
+    @property
+    def _message(self) -> str:
+        try:
+            trace = self.error_data["data"]["call_trace"]
+            return f"Request failure (with trace):\n{trace}"
+        except (KeyError, TypeError):
+            return self.error_data["message"]
 
 
 # Request-specific types
