@@ -25,6 +25,7 @@ use crate::services::role::SystemRole;
 use crate::services::{RelationService, ServiceContext};
 use crate::types::{Reference, Resource};
 
+/// Virtual roles a target adds on top of the site-wide ones.
 pub(super) async fn resolve_virtual_roles_for_user_and_resource(
     ctx: &ServiceContext<'_>,
     user_id: Option<i64>,
@@ -32,9 +33,8 @@ pub(super) async fn resolve_virtual_roles_for_user_and_resource(
     target: &PermissionTarget,
 ) -> Result<Vec<SystemRole>> {
     match target {
-        PermissionTarget::Site => {
-            resolve_virtual_roles_for_user_and_site(ctx, user_id, site_id).await
-        }
+        // Site-wide roles always apply, see resolve_virtual_roles_for_user_and_site()
+        PermissionTarget::Site => Ok(vec![]),
         PermissionTarget::Page { page_id, .. } => {
             resolve_virtual_roles_for_user_and_page(
                 ctx,
@@ -48,7 +48,8 @@ pub(super) async fn resolve_virtual_roles_for_user_and_resource(
     }
 }
 
-async fn resolve_virtual_roles_for_user_and_site(
+/// Virtual roles that apply to the user anywhere on the site.
+pub(super) async fn resolve_virtual_roles_for_user_and_site(
     ctx: &ServiceContext<'_>,
     user_id: Option<i64>,
     site_id: i64,

@@ -33,6 +33,7 @@ use crate::services::role::{
     UpdateRolePermissionsInput,
 };
 use crate::types::{Action, Permission, Reference, Resource};
+use sea_query::Query;
 use std::borrow::Cow;
 use std::collections::HashSet;
 use std::hash::Hash;
@@ -424,31 +425,59 @@ impl PermissionService {
         let permissions = ctx
             .permission_cache()
             .get_or_fetch(permission_cache_key, async || {
-                // Get all applicable role IDs for the user and target resource
-                let role_ids: HashSet<i64> =
-                    RoleService::get_applicable_roles_for_target(
-                        ctx, user_id, site_id, &target,
-                    )
-                    .await?
-                    .into_iter()
-                    .map(|role| role.role_id)
-                    .collect();
-
-                if role_ids.is_empty() {
-                    return Ok(HashSet::new());
-                }
-
-                // Roles only resolve within a site, so this is always set here
+                // For now, we cannot determine roles without associated site.
                 let Some(site_id) = site_id else {
                     return Ok(HashSet::new());
                 };
 
-                // Load all permissions for the applicable roles
+                // Construct a condition to get concrete assigned roles for user
+                // This will be used as a subquery instead of doing an additional round trip to get the role IDs.
+                let assigned_roles = Query::select()
+                    .column(user_role::Column::RoleId)
+                    .from(user_role::Entity)
+                    .cond_where(
+                        Condition::all()
+                            .add(user_role::Column::UserId.eq(user_id))
+                            .add(user_role::Column::DeletedAt.is_null())
+                            .add(
+                                Condition::any()
+                                    .add(user_role::Column::ExpiresAt.is_null())
+                                    .add(user_role::Column::ExpiresAt.gt(now())),
+                            ),
+                    )
+                    .to_owned();
+
+                // Virtual roles that apply to the user and target, such as member or page author
+                let virtual_role_names: Vec<&'static str> =
+                    RoleService::get_virtual_roles_for_user_and_resource(
+                        ctx,
+                        &GetUserVirtualRolesInput {
+                            user_id,
+                            site_id,
+                            target: &target,
+                        },
+                    )
+                    .await?
+                    .into_iter()
+                    .map(Into::into)
+                    .collect();
+
+                // Load the permissions of the virtual and assigned roles in one query
                 let permissions = RolePermission::find()
+                    .join(JoinType::InnerJoin, role_permission::Relation::Role.def())
                     .filter(
                         Condition::all()
                             .add(role_permission::Column::SiteId.eq(site_id))
-                            .add(role_permission::Column::RoleId.is_in(role_ids)),
+                            .add(role::Column::SiteId.eq(site_id))
+                            .add(
+                                Condition::any()
+                                    .add(role::Column::IsVirtual.eq(true).and(
+                                        role::Column::Name.is_in(virtual_role_names),
+                                    ))
+                                    .add(role::Column::DeletedAt.is_null().and(
+                                        role::Column::RoleId.in_subquery(assigned_roles),
+                                    )),
+                            ),
                     )
                     .all(ctx.transaction())
                     .await

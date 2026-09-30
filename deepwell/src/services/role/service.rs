@@ -19,7 +19,9 @@
  */
 
 use super::prelude::*;
-use super::resolvers::resolve_virtual_roles_for_user_and_resource;
+use super::resolvers::{
+    resolve_virtual_roles_for_user_and_resource, resolve_virtual_roles_for_user_and_site,
+};
 use crate::endpoints::{site, user};
 use crate::error::{Error, ErrorType};
 use crate::models::prelude::Page;
@@ -30,15 +32,13 @@ use crate::models::role_permission::{
 use crate::models::user_role::{Entity as UserRole, Model as UserRoleModel};
 use crate::models::{page, user_role};
 use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::permission::{
-    PermissionService, PermissionTarget, resolve_category_reference,
-};
+use crate::services::permission::{PermissionService, resolve_category_reference};
 use crate::services::role::SystemRole;
 use crate::services::{PageService, RelationService, ServiceContext};
 use crate::types::{Action, Permission, Reference, Resource};
 use crate::utils::{now, trim_default};
 use sea_orm::prelude::Expr;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::hash::Hash;
 use std::net::IpAddr;
 use std::str::FromStr;
@@ -711,93 +711,36 @@ impl RoleService {
         Ok(roles)
     }
 
-    pub(crate) async fn get_applicable_roles_for_target(
-        ctx: &ServiceContext<'_>,
-        user_id: Option<i64>,
-        site_id: Option<i64>,
-        target: &PermissionTarget,
-    ) -> Result<Vec<RoleModel>> {
-        if let Some(site_id) = site_id {
-            // Direct assigned roles are site-scoped base roles and apply to any
-            // target within that site, not just site-level targets.
-            let base_roles =
-                Self::get_all_roles_for_user_and_site(ctx, user_id, site_id).await?;
-
-            // Get virtual roles applicable to the target resource
-            let virtual_roles = Self::get_virtual_roles_for_user_and_resource(
-                ctx,
-                &GetUserVirtualRolesInput {
-                    user_id,
-                    site_id,
-                    target: &target,
-                },
-            )
-            .await?;
-            Ok(base_roles
-                .into_iter()
-                .chain(virtual_roles)
-                .collect::<Vec<_>>())
-        } else {
-            Ok(vec![])
-        }
-    }
-
+    /// Returns the virtual role names that apply to the user for this target.
+    /// Consists of site-wide virtual roles (such as member or guest) and any roles specific to the target resource.
     pub(crate) async fn get_virtual_roles_for_user_and_resource(
         ctx: &ServiceContext<'_>,
         input: &GetUserVirtualRolesInput<'_>,
-    ) -> Result<Vec<RoleModel>> {
-        let txn = ctx.transaction();
-
+    ) -> Result<Vec<SystemRole>> {
         let make_error = || Error::new("failed to apply virtual roles", ErrorType::Role);
 
-        let virtual_roles = Role::find()
-            .filter(
-                Condition::all()
-                    .add(role::Column::SiteId.eq(input.site_id))
-                    .add(role::Column::IsVirtual.eq(true)), // Virtual roles are never deleted, so we don't need to check DeletedAt
-            )
-            .all(txn)
-            .await
-            .or_raise(make_error)?;
-
-        let virtual_role_name_map = virtual_roles
-            .into_iter()
-            .map(|role| (role.name.clone(), role))
-            .collect::<std::collections::HashMap<_, _>>();
-
         // Compute virtual roles for current site
-        let mut applied_virtual_roles = resolve_virtual_roles_for_user_and_resource(
-            ctx,
-            input.user_id,
-            input.site_id,
-            &PermissionTarget::Site,
-        )
-        .await
-        .or_raise(make_error)?;
+        let mut virtual_roles =
+            resolve_virtual_roles_for_user_and_site(ctx, input.user_id, input.site_id)
+                .await
+                .or_raise(make_error)?;
 
         // Check virtual roles for requested resource.
         let virtual_roles_for_resource = resolve_virtual_roles_for_user_and_resource(
             ctx,
             input.user_id,
             input.site_id,
-            &input.target,
+            input.target,
         )
         .await
         .or_raise(make_error)?;
-        applied_virtual_roles.extend(virtual_roles_for_resource);
-
-        // Build the final list of deduped applicable roles
-        let applicable_virtual_roles =
-            applied_virtual_roles.into_iter().collect::<HashSet<_>>();
+        virtual_roles.extend(virtual_roles_for_resource);
 
         info!(
             "Applying these virtual roles for user ID {:?} in site ID {}: {:?}",
-            input.user_id, input.site_id, applicable_virtual_roles
+            input.user_id, input.site_id, virtual_roles
         );
 
-        Ok(applicable_virtual_roles
-            .into_iter()
-            .filter_map(|role| virtual_role_name_map.get(role.into()).cloned())
-            .collect())
+        Ok(virtual_roles)
     }
 }
