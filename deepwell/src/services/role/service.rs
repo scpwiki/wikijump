@@ -527,10 +527,11 @@ impl RoleService {
                 .await
                 .or_raise(make_error)?;
 
-            let is_proper_subset =
-                Self::validate_child_role_subset_of_parent(ctx, role_id, parent_id)
-                    .await
-                    .or_raise(make_error)?;
+            let is_proper_subset = Self::validate_child_role_subset_of_parent(
+                ctx, site_id, role_id, parent_id,
+            )
+            .await
+            .or_raise(make_error)?;
 
             // Hacky solution to avoid running the expensive cycle check.
             // If the new parent has more permissions than the child, it cannot be a descendant of the child, so we can skip the cycle check.
@@ -574,6 +575,7 @@ impl RoleService {
     /// and false if the child role has the same permissions as the parent role.
     async fn validate_child_role_subset_of_parent(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         child_role_id: i64,
         parent_role_id: i64,
     ) -> Result<bool> {
@@ -587,12 +589,13 @@ impl RoleService {
             )
         };
 
-        let child_permissions = PermissionService::permissions_as_set(ctx, child_role_id)
-            .await
-            .or_raise(make_error)?;
+        let child_permissions =
+            PermissionService::permissions_as_set(ctx, site_id, child_role_id)
+                .await
+                .or_raise(make_error)?;
 
         let parent_permissions =
-            PermissionService::permissions_as_set(ctx, parent_role_id)
+            PermissionService::permissions_as_set(ctx, site_id, parent_role_id)
                 .await
                 .or_raise(make_error)?;
 
@@ -763,23 +766,24 @@ impl RoleService {
             .collect::<std::collections::HashMap<_, _>>();
 
         // Compute virtual roles for current site
-        let site_roles_future = resolve_virtual_roles_for_user_and_resource(
+        let mut applied_virtual_roles = resolve_virtual_roles_for_user_and_resource(
             ctx,
             input.user_id,
             input.site_id,
             &PermissionTarget::Site,
-        );
+        )
+        .await
+        .or_raise(make_error)?;
 
         // Check virtual roles for requested resource.
-        let resource_roles_future = resolve_virtual_roles_for_user_and_resource(
+        let virtual_roles_for_resource = resolve_virtual_roles_for_user_and_resource(
             ctx,
             input.user_id,
             input.site_id,
             &input.target,
-        );
-
-        let (mut applied_virtual_roles, virtual_roles_for_resource) =
-            try_join!(site_roles_future, resource_roles_future).or_raise(make_error)?;
+        )
+        .await
+        .or_raise(make_error)?;
         applied_virtual_roles.extend(virtual_roles_for_resource);
 
         // Build the final list of deduped applicable roles

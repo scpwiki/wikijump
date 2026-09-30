@@ -24,12 +24,7 @@ use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use super::structs::PermissionTarget;
 use crate::error::prelude::*;
-use crate::models::prelude::RolePermission;
-use crate::models::role_permission;
-use crate::services::ServiceContext;
-use crate::services::role::RoleService;
-use crate::types::{Permission, Reference};
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use crate::types::Permission;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PermissionCacheKey {
@@ -78,50 +73,14 @@ impl PermissionCache {
 
     pub async fn get_or_fetch(
         &self,
-        ctx: &ServiceContext<'_>,
         key: PermissionCacheKey,
+        fetch: impl AsyncFnOnce() -> Result<HashSet<Permission<'static>>>,
     ) -> Result<HashSet<Permission<'static>>> {
         if let Some(permissions) = self.read().get(&key).cloned() {
             return Ok(permissions);
         }
 
-        let make_error = || {
-            Error::new(
-                "failed to fetch permissions for user and target",
-                ErrorType::Permission,
-            )
-        };
-
-        // Get all applicable role IDs for the user and target resource
-        let role_ids: HashSet<i64> = RoleService::get_applicable_roles_for_target(
-            ctx,
-            key.user_id,
-            key.site_id,
-            &key.target,
-        )
-        .await?
-        .into_iter()
-        .map(|role| role.role_id)
-        .collect();
-
-        if role_ids.is_empty() {
-            return Ok(HashSet::new());
-        }
-
-        // Load all permissions for the applicable roles
-        let permissions = RolePermission::find()
-            .filter(role_permission::Column::RoleId.is_in(role_ids))
-            .all(ctx.transaction())
-            .await
-            .or_raise(make_error)?
-            .into_iter()
-            .map(|p| Permission {
-                resource_type: p.resource_type,
-                resource_category: p.resource_category_id.map(Reference::Id),
-                action: p.action,
-            })
-            .collect::<HashSet<_>>();
-
+        let permissions = fetch().await?;
         self.insert(key, permissions.clone());
         Ok(permissions)
     }
