@@ -4,10 +4,13 @@ Helper module to make sending DEEPWELL requests easier.
 
 import logging
 from collections.abc import Callable
+from contextlib import contextmanager
 from datetime import date, datetime
+from functools import wraps
 from typing import Any, NamedTuple, TypedDict, TypeVar
 
 import requests
+from urllib3.util import connection
 
 logger = logging.getLogger()
 
@@ -80,6 +83,23 @@ def map_null(value: T | None, callback: Callable[[T], U]) -> U | None:
         return None
 
     return callback(value)
+
+
+@contextmanager
+def remap_connection(mapper: Callable[[str, int], tuple[str, int]]):
+    original_create_connection = connection.create_connection
+
+    @wraps(original_create_connection)
+    def wrap_create_connection(address, *args, **kwargs):
+        host, port = address
+        host, port = mapper(host, port)
+        return original_create_connection((host, port), *args, **kwargs)
+
+    try:
+        connection.create_connection = wrap_create_connection
+        yield
+    finally:
+        connection.create_connection = original_create_connection
 
 
 # Main service class
