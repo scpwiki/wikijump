@@ -39,11 +39,13 @@ class DeepwellError(RuntimeError):
 
     @property
     def _message(self) -> str:
-        try:
-            trace = self.error_data["data"]["call_trace"]
+        extra_data = self.error_data["data"]
+        if isinstance(extra_data, dict) and "call_trace" in extra_data:
+            trace = extra_data["call_trace"]
             return f"Request failure (with trace):\n{trace}"
-        except (KeyError, TypeError):
-            return self.error_data["message"]
+
+        # fallback
+        return self.error_data["message"]
 
 
 # Request-specific types
