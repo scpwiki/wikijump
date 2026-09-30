@@ -102,6 +102,10 @@ def remap_connection(mapper: Callable[[str, int], tuple[str, int]]):
         connection.create_connection = original_create_connection
 
 
+def remap_connection_to_localhost():
+    return remap_connection(lambda host, port: ("localhost", port))
+
+
 # Main service class
 
 
@@ -143,17 +147,19 @@ class Deepwell:
         )
 
         # Upload to the presign URL
-        # Modify hostname to point to local S3 (same as --connect-to in curl)
         blob_id = output["pending_blob_id"]
         presign_url = output["presign_url"]
-        logger.info("Uploading blob ID %s", blob_id)
-        logger.debug("Presign URL: %s", presign_url)
-        r = requests.put(
-            presign_url,
-            data=request.blob,
-            headers={"Content-Type": request.mime_type},
-        )
-        r.raise_for_status()
+
+        # Modify hostname to point to local S3 (same as --connect-to in curl)
+        with remap_connection_to_localhost():
+            logger.info("Uploading blob ID %s", blob_id)
+            logger.debug("Presign URL: %s", presign_url)
+            r = requests.put(
+                presign_url,
+                data=request.blob,
+                headers={"Content-Type": request.mime_type},
+            )
+            r.raise_for_status()
         logger.debug("Upload finished")
 
         # Return the blob ID to the user to finish the upload
