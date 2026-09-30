@@ -26,10 +26,10 @@ use crate::models::{role, role_permission, user_role};
 use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::cache::PermissionCacheKey;
+use crate::services::permission::resolve_category_reference;
 use crate::services::permission::resolvers::resolve_category_slug;
-use crate::services::permission::{PermissionCache, resolve_category_reference};
 use crate::services::role::{
-    GetRolePermissionsInput, GetUserRolesInput, GetUserVirtualRolesInput, RoleService,
+    GetRolePermissionsInput, GetUserVirtualRolesInput, RoleService,
     UpdateRolePermissionsInput,
 };
 use crate::types::{Action, Permission, Reference, Resource};

@@ -47,7 +47,7 @@ use crate::services::{
     BlueprintPageService, CategoryService, DomainService, PageRevisionService,
     PageService, SessionService, SiteService, TextService, UserService,
 };
-use crate::types::{Action, PageId, Permission, RerenderDepth, Resource};
+use crate::types::{Action, PageId, RerenderDepth};
 use crate::utils::{parse_locales, split_category};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;

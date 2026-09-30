@@ -22,7 +22,7 @@ use super::prelude::*;
 use super::resolvers::{
     resolve_virtual_roles_for_user_and_resource, resolve_virtual_roles_for_user_and_site,
 };
-use crate::endpoints::{site, user};
+use crate::endpoints::user;
 use crate::error::{Error, ErrorType};
 use crate::models::prelude::Page;
 use crate::models::role::{self, Entity as Role, Model as RoleModel};
@@ -34,7 +34,7 @@ use crate::models::{page, user_role};
 use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::{PermissionService, resolve_category_reference};
 use crate::services::role::SystemRole;
-use crate::services::{PageService, RelationService, ServiceContext};
+use crate::services::{PageService, ServiceContext};
 use crate::types::{Action, Permission, Reference, Resource};
 use crate::utils::{now, trim_default};
 use sea_orm::prelude::Expr;
@@ -731,6 +731,7 @@ impl RoleService {
             input.user_id,
             input.site_id,
             input.target,
+            &virtual_roles,
         )
         .await
         .or_raise(make_error)?;

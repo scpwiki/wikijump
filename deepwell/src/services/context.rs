@@ -24,15 +24,13 @@ use crate::error::prelude::*;
 use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
 use crate::services::blob::MimeAnalyzer;
-use crate::services::permission::{PermissionCache, PermissionService};
-use crate::types::{Permission, Reference, Resource};
+use crate::services::permission::PermissionCache;
+use crate::types::Reference;
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
 use rsmq_async::Rsmq;
 use s3::bucket::Bucket;
 use sea_orm::DatabaseTransaction;
-use std::collections::HashSet;
 use std::sync::Arc;
-use tokio::sync::OnceCell;
 
 /// Per-request context derived from HTTP headers by the middleware layer.
 #[derive(Debug, Clone, Default)]

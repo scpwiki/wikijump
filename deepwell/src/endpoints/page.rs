@@ -330,6 +330,17 @@ pub async fn page_set_layout(
 ) -> Result<()> {
     let input: SetPageLayout = parse!(params, Page);
 
+    info!(
+        "Setting layout override for page ID {} in site ID {} to layout {} (set by user ID {})",
+        input.page_id,
+        input.site_id,
+        match input.layout {
+            Some(layout) => layout.value(),
+            None => "none (default)",
+        },
+        input.user_id,
+    );
+
     PageService::set_layout(ctx, input)
         .await
         .or_raise(|| Error::new("failed to set layout for page", ErrorType::Page))

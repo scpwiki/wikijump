@@ -19,7 +19,7 @@
  */
 use crate::{
     services::permission::PermissionTarget,
-    types::{Maybe, Permission, Reference, Resource},
+    types::{Maybe, Permission, Reference},
 };
 use std::net::IpAddr;
 use time::OffsetDateTime;

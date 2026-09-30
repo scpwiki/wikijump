@@ -24,6 +24,7 @@ use self::data::SeedData;
 use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::error::prelude::*;
+use crate::services::ServiceContext;
 use crate::services::alias::{AliasService, CreateAlias};
 use crate::services::domain::{CreateCustomDomain, DomainService};
 use crate::services::file::{
@@ -41,7 +42,6 @@ use crate::services::role::{
 };
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService, UpdateSiteBody};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
-use crate::services::{RequestContext, ServiceContext};
 use crate::types::{Action, AliasType, Maybe, Permission, Reference, Resource};
 use crate::utils::now;
 use arrayvec::ArrayVec;
@@ -65,11 +65,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
     // Set up context
     let txn = state.database.begin().await.or_raise(make_error)?;
-    let request_ctx = RequestContext {
-        user_id: Some(SYSTEM_USER_ID),
-        ..Default::default()
-    };
-    let ctx = ServiceContext::new(state, &txn).with_request(request_ctx);
+    let ctx = ServiceContext::new(state, &txn);
 
     // Ensure seeding has not already been done
     let user_exists = UserService::exists(&ctx, Reference::from(ADMIN_USER_ID))
@@ -328,6 +324,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                     slug: page.slug,
                     layout: None,
                     revision_comments: str!(),
+                    user_id: SYSTEM_USER_ID,
                     bypass_filter: true,
                     ip_address: SEED_IP_ADDRESS,
                 },

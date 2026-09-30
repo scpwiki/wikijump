@@ -36,6 +36,7 @@ pub struct CreatePage {
     pub slug: String,
     pub layout: Option<Layout>,
     pub revision_comments: String,
+    pub user_id: i64,
 
     #[serde(default)]
     pub bypass_filter: bool,
@@ -181,6 +182,7 @@ pub struct MovePage<'a> {
     pub last_revision_id: i64,
     pub new_slug: String,
     pub revision_comments: String,
+    pub user_id: i64,
     // NOTE: slug field is a parameter, not in the body
     pub ip_address: IpAddr,
 }
@@ -200,6 +202,7 @@ pub struct DeletePage<'a> {
     pub page: Reference<'a>,
     pub last_revision_id: i64,
     pub revision_comments: String,
+    pub user_id: i64,
     pub ip_address: IpAddr,
 }
 
@@ -215,6 +218,7 @@ pub struct RestorePage {
     pub site_id: i64,
     pub page_id: i64,
     pub revision_comments: String,
+    pub user_id: i64,
     pub slug: Option<String>,
     pub ip_address: IpAddr,
 }
@@ -234,6 +238,7 @@ pub struct RollbackPage<'a> {
     pub last_revision_id: i64,
     pub revision_number: i32,
     pub revision_comments: String,
+    pub user_id: i64,
     pub ip_address: IpAddr,
 }
 
@@ -242,6 +247,7 @@ pub struct SetPageLayout {
     pub site_id: i64,
     pub page_id: i64,
     pub layout: Option<Layout>,
+    pub user_id: i64,
     pub ip_address: IpAddr,
 }
 

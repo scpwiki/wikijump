@@ -60,7 +60,7 @@ struct PermissionFixture {
 }
 
 impl PermissionFixture {
-    async fn setup(runner: &mut TestRunner) -> Self {
+    async fn setup(runner: &TestRunner) -> Self {
         let ctx = runner.context();
         let n = next_n();
 
@@ -139,11 +139,6 @@ impl PermissionFixture {
         grant_role(ctx, site_id, user_b, role_b).await;
         // user_c doesn't have any roles
 
-        runner.set_request_context(RequestContext {
-            user_id: Some(SYSTEM_USER_ID),
-            ..Default::default()
-        });
-
         let test_page = PageService::create(
             runner.context(),
             CreatePage {
@@ -154,6 +149,7 @@ impl PermissionFixture {
                 slug: format!("{TEST_CATEGORY_NAME}:permission-test-{n}"),
                 layout: None,
                 revision_comments: String::new(),
+                user_id: SYSTEM_USER_ID,
                 bypass_filter: true,
                 ip_address: common::IP_ADDRESS,
             },
@@ -171,6 +167,7 @@ impl PermissionFixture {
                 slug: format!("{OTHER_CATEGORY_NAME}:permission-test-{n}"),
                 layout: None,
                 revision_comments: String::new(),
+                user_id: SYSTEM_USER_ID,
                 bypass_filter: true,
                 ip_address: common::IP_ADDRESS,
             },
@@ -294,8 +291,8 @@ async fn check(
 
 #[tokio::test]
 async fn can_user() {
-    let mut runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&mut runner).await;
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
 
     let a = Some(f.user_a);
     let b = Some(f.user_b);
@@ -360,8 +357,8 @@ async fn can_user() {
 
 #[tokio::test]
 async fn check_category_scoping() {
-    let mut runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&mut runner).await;
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
 
     // Permission check should be able to resolve category name to ID
     assert!(
@@ -384,11 +381,7 @@ async fn check_category_scoping() {
 #[tokio::test]
 async fn check_permission_endpoint() {
     let mut runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&mut runner).await;
-    runner.set_request_context(RequestContext {
-        user_id: Some(SYSTEM_USER_ID),
-        ..Default::default()
-    });
+    let f = PermissionFixture::setup(&runner).await;
 
     let page = run_endpoint!(
         runner,
@@ -401,6 +394,7 @@ async fn check_permission_endpoint() {
             "slug": "test-category:test-page",
             "layout": null,
             "revision_comments": "",
+            "user_id": SYSTEM_USER_ID,
             "ip_address": common::IP_ADDRESS,
         }),
     );
@@ -456,8 +450,8 @@ async fn check_permission_endpoint() {
 
 #[tokio::test]
 async fn role_update_permissions_and_get() {
-    let mut runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&mut runner).await;
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
 
     const CATEGORY_NAME: &str = "TestCategory";
     const OTHER_CATEGORY_NAME: &str = "OtherCategory";
@@ -582,8 +576,8 @@ async fn role_update_permissions_and_get() {
 
 #[tokio::test]
 async fn get_decorated_permissions_for_role() {
-    let mut runner = TestRunner::setup().await;
-    let f = PermissionFixture::setup(&mut runner).await;
+    let runner = TestRunner::setup().await;
+    let f = PermissionFixture::setup(&runner).await;
     let ctx = runner.context();
 
     // Parent role: page:view + page:edit

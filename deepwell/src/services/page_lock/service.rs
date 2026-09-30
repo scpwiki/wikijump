@@ -28,7 +28,7 @@ use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::relation::GetPageAttributions;
 use crate::services::{PageService, RelationService};
-use crate::types::{Action, PageLockType, Reference, Resource};
+use crate::types::{Action, PageLockType, Reference};
 
 #[derive(Debug, Clone)]
 pub struct PageLockService;

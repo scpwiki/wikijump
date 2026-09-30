@@ -23,19 +23,25 @@ use crate::services::permission::PermissionTarget;
 use crate::services::relation::GetPageAttributions;
 use crate::services::role::SystemRole;
 use crate::services::{RelationService, ServiceContext};
-use crate::types::{Reference, Resource};
+use crate::types::Reference;
 
-/// Virtual roles a target adds on top of the site-wide ones.
+/// Virtual roles a target adds on top of the site-wide ones in `site_roles`.
 pub(super) async fn resolve_virtual_roles_for_user_and_resource(
     ctx: &ServiceContext<'_>,
     user_id: Option<i64>,
     site_id: i64,
     target: &PermissionTarget,
+    site_roles: &[SystemRole],
 ) -> Result<Vec<SystemRole>> {
     match target {
         // Site-wide roles always apply, see resolve_virtual_roles_for_user_and_site()
         PermissionTarget::Site => Ok(vec![]),
         PermissionTarget::Page { page_id, .. } => {
+            // Only site members count as page authors
+            if !site_roles.contains(&SystemRole::Member) {
+                return Ok(vec![]);
+            }
+
             resolve_virtual_roles_for_user_and_page(
                 ctx,
                 user_id,
