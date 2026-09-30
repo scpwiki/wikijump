@@ -89,6 +89,25 @@ impl ImportService {
             )
         };
 
+        // Check if the user already exists
+        {
+            let result: Option<i32> = WikidotUser::find()
+                .select_only()
+                .column(wikidot_user::Column::UserId)
+                .filter(wikidot_user::Column::UserId.eq(user_id))
+                .into_tuple()
+                .one(txn)
+                .await
+                .or_raise(make_error)?;
+
+            if result.is_some() {
+                bail!(Error::new(
+                    "cannot import, user already exists",
+                    ErrorType::UserExists,
+                ));
+            }
+        }
+
         let (is_deleted, name, slug) = match wikidot_user_type {
             ImportedUserType::Extant { name, slug } => (false, Some(name), Some(slug)),
             ImportedUserType::Deleted => (true, None, None),
