@@ -79,6 +79,7 @@ class ImportUserData(NamedTuple):
     website: str | None
     karma: int
     is_pro: bool
+    upsert: bool
     importing_user_id: int
     ip_address: str
 
@@ -196,6 +197,7 @@ class Deepwell:
             "website": request.website,
             "karma": request.karma,
             "is_pro": request.is_pro,
+            "upsert": request.upsert,
             "importing_user_id": request.importing_user_id,
             "ip_address": request.ip_address,
         }
