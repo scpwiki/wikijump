@@ -111,8 +111,15 @@ def remap_connection(mapper: Callable[[str, int], tuple[str, int]]):
         connection.create_connection = original_create_connection
 
 
-def remap_connection_to_localhost():
-    return remap_connection(lambda host, port: ("localhost", port))
+def remap_connection_for_s3():
+    def map_local_s3(host: str, port: int) -> tuple[str, int]:
+        # for local S3
+        if host == "files":
+            host = "localhost"
+
+        return host, port
+
+    return remap_connection(map_local_s3)
 
 
 # Main service class
@@ -160,7 +167,7 @@ class Deepwell:
         presign_url = output["presign_url"]
 
         # Modify hostname to point to local S3 (same as --connect-to in curl)
-        with remap_connection_to_localhost():
+        with remap_connection_for_s3():
             logger.info("Uploading blob ID %s", blob_id)
             logger.debug("Presign URL: %s", presign_url)
             r = requests.put(
