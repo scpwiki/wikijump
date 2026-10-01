@@ -210,15 +210,15 @@ class Deepwell:
             "ip_address": request.ip_address,
         }
 
-        index_prefix = "" if index is None else f"[row {index}] "
+        index_suffix = "" if index is None else f" (row #{index})"
         match request.wikidot_user_type:
             case ImportExistingUser(name, slug):
                 logger.info(
-                    "%sImporting user ID %d (%s, %r)",
-                    index_prefix,
+                    "Importing user ID %d (%s, %r)%s",
                     request.user_id,
                     name,
                     slug,
+                    index_suffix,
                 )
                 request_data.update(
                     user_type="extant",
@@ -226,7 +226,7 @@ class Deepwell:
                     slug=slug,
                 )
             case ImportDeletedUser():
-                logger.info("%sImporting user ID %d (deleted)", index_prefix, request.user_id)
+                logger.info("Importing user ID %d (deleted)%s", request.user_id, index_suffix)
                 request_data.update(user_type="deleted")
 
         logger.debug("Full request data: %r", request)
