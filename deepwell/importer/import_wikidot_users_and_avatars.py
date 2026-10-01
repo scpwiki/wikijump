@@ -35,7 +35,7 @@ def parse_boolean(value: str) -> bool:
 
 def parse_karma(value: str) -> int:
     match value:
-        case "none":
+        case "none" | "":
             return 0
         case "low":
             return 1
@@ -47,13 +47,6 @@ def parse_karma(value: str) -> int:
             return 4
         case "guru":
             return 5
-
-        # for restricted profiles
-        # no way of knowing the karma (what's the point of hiding this lol)
-        case "":
-            return -1
-
-        # unexpected
         case _:
             raise ValueError(value)
 
