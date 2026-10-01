@@ -139,6 +139,13 @@ if __name__ == "__main__":
         help="DEEPWELL port on the host",
     )
     argparser.add_argument(
+        "-o",
+        "--offset",
+        default=0,
+        type=int,
+        help="Skip the first <n> rows in the CSV file",
+    )
+    argparser.add_argument(
         # :'(
         "--users-fetched-date",
         default=datetime(2026, 1, 21, 0, 0, 0, tzinfo=timezone.utc),
@@ -183,7 +190,13 @@ if __name__ == "__main__":
         _ = next(reader)
 
         # Each subsequent row is a user
-        for row in reader:
+        for i, row in enumerate(reader):
+            # Skip rows until (if an offset is specified)
+            if i < args.offset:
+                logger.debug("Skipping row %d (offset %d)", i, args.offset)
+                continue
+
+            # Retrieve values
             (
                 user_id_raw,
                 created_at_raw,
