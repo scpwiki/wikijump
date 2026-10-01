@@ -282,6 +282,16 @@ impl PageLockService {
                 }
                 PageLockType::AuthorOrPermissionOnly => {
                     // Check if the user is the author of the page
+                    let is_member = if let Some(user_id) = user_id {
+                        RelationService::site_member_exists(
+                            ctx,
+                            crate::services::relation::GetSiteMember { site_id, user_id },
+                        )
+                        .await
+                        .or_raise(make_error)?
+                    } else {
+                        false
+                    };
                     let attributions = RelationService::get_page_attributions(
                         ctx,
                         GetPageAttributions {
@@ -293,9 +303,10 @@ impl PageLockService {
                     .or_raise(make_error)?;
 
                     // User can bypass if they are an author of this page or have bypass permission
-                    let is_author = attributions
-                        .iter()
-                        .any(|attr| Some(attr.user_id) == user_id);
+                    let is_author = is_member
+                        && attributions
+                            .iter()
+                            .any(|attr| Some(attr.user_id) == user_id);
                     is_author || check_bypass_permission().await.or_raise(make_error)?
                 }
             };

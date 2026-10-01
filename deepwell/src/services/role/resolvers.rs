@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::error::Result;
+use exn::ResultExt as _;
+
+use crate::error::{Error, ErrorType, Result};
 use crate::services::permission::PermissionTarget;
 use crate::services::relation::GetPageAttributions;
 use crate::services::role::SystemRole;
@@ -31,17 +33,11 @@ pub(super) async fn resolve_virtual_roles_for_user_and_resource(
     user_id: Option<i64>,
     site_id: i64,
     target: &PermissionTarget,
-    site_roles: &[SystemRole],
 ) -> Result<Vec<SystemRole>> {
     match target {
         // Site-wide roles always apply, see resolve_virtual_roles_for_user_and_site()
         PermissionTarget::Site => Ok(vec![]),
         PermissionTarget::Page { page_id, .. } => {
-            // Only site members count as page authors
-            if !site_roles.contains(&SystemRole::Member) {
-                return Ok(vec![]);
-            }
-
             resolve_virtual_roles_for_user_and_page(
                 ctx,
                 user_id,
@@ -49,6 +45,7 @@ pub(super) async fn resolve_virtual_roles_for_user_and_resource(
                 &Reference::Id(*page_id),
             )
             .await
+            .or_raise(make_error)
         }
         PermissionTarget::Lock => Ok(vec![]),
     }
@@ -61,23 +58,14 @@ pub(super) async fn resolve_virtual_roles_for_user_and_site(
     site_id: i64,
 ) -> Result<Vec<SystemRole>> {
     let is_logged_in = user_id.is_some();
-    let is_member = if let Some(user_id) = user_id {
-        let membership = RelationService::get_optional_site_member(
-            ctx,
-            crate::services::relation::GetSiteMember { site_id, user_id },
-        )
-        .await?;
-
-        membership.is_some()
-    } else {
-        false
-    };
+    let is_member = is_member_of_site(ctx, user_id, site_id).await?;
     let is_banned = if let Some(user_id) = user_id {
         RelationService::site_ban_exists(
             ctx,
             crate::services::relation::GetSiteBan { site_id, user_id },
         )
-        .await?
+        .await
+        .or_raise(make_error)?
     } else {
         false
     };
@@ -108,6 +96,15 @@ async fn resolve_virtual_roles_for_user_and_page(
     reference: &Reference<'_>,
 ) -> Result<Vec<SystemRole>> {
     if let Some(user) = user_id {
+        let is_member = is_member_of_site(ctx, Some(user), site_id)
+            .await
+            .or_raise(make_error)?;
+
+        // Right now we only consider authorship for page; non-members should not get author permissions
+        // even if they are credited so.
+        if !is_member {
+            return Ok(vec![]);
+        }
         let attributions = RelationService::get_page_attributions(
             ctx,
             GetPageAttributions {
@@ -115,10 +112,33 @@ async fn resolve_virtual_roles_for_user_and_page(
                 page: reference.clone(),
             },
         )
-        .await?;
+        .await
+        .or_raise(make_error)?;
         if attributions.iter().any(|attr| attr.user_id == user) {
             return Ok(vec![SystemRole::PageAuthor]);
         }
     }
     Ok(vec![])
+}
+
+pub async fn is_member_of_site(
+    ctx: &ServiceContext<'_>,
+    user_id: Option<i64>,
+    site_id: i64,
+) -> Result<bool> {
+    let is_member = if let Some(user_id) = user_id {
+        RelationService::site_member_exists(
+            ctx,
+            crate::services::relation::GetSiteMember { site_id, user_id },
+        )
+        .await
+        .or_raise(make_error)?
+    } else {
+        false
+    };
+    Ok(is_member)
+}
+
+fn make_error() -> Error {
+    Error::new("failed to resolve virtual roles", ErrorType::Role)
 }

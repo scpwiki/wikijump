@@ -731,7 +731,6 @@ impl RoleService {
             input.user_id,
             input.site_id,
             input.target,
-            &virtual_roles,
         )
         .await
         .or_raise(make_error)?;
