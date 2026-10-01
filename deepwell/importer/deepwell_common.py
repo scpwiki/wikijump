@@ -191,7 +191,7 @@ class Deepwell:
     def user_exists(self, id_or_slug: int | str) -> bool:
         return self.get_user(id_or_slug) is not None
 
-    def import_user(self, request: ImportUserData) -> int:
+    def import_user(self, request: ImportUserData, index: int | None = None) -> int:
         request_data = {
             "user_id": request.user_id,
             "created_at": request.created_at.isoformat(),
@@ -210,10 +210,12 @@ class Deepwell:
             "ip_address": request.ip_address,
         }
 
+        index_prefix = "" if index is None else f"[row {index}] "
         match request.wikidot_user_type:
             case ImportExistingUser(name, slug):
                 logger.info(
-                    "Importing user ID %d (%s, %r)",
+                    "%sImporting user ID %d (%s, %r)",
+                    index_prefix,
                     request.user_id,
                     name,
                     slug,
@@ -224,7 +226,7 @@ class Deepwell:
                     slug=slug,
                 )
             case ImportDeletedUser():
-                logger.info("Importing user ID %d (deleted)", request.user_id)
+                logger.info("%sImporting user ID %d (deleted)", index_prefix, request.user_id)
                 request_data.update(user_type="deleted")
 
         logger.debug("Full request data: %r", request)

@@ -281,4 +281,4 @@ if __name__ == "__main__":
                 importing_user_id=args.importer_user_id,
                 ip_address=args.importer_ip_address,
             )
-            deepwell.import_user(import_request)
+            deepwell.import_user(import_request, index=i)
