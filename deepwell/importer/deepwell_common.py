@@ -210,7 +210,7 @@ class Deepwell:
             "ip_address": request.ip_address,
         }
 
-        index_suffix = "" if index is None else f" (row #{index})"
+        index_suffix = "" if index is None else f" (row {index})"
         match request.wikidot_user_type:
             case ImportExistingUser(name, slug):
                 logger.info(
