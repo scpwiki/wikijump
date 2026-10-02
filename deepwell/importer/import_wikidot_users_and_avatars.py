@@ -259,7 +259,8 @@ if __name__ == "__main__":
             import_request = ImportUserData(
                 user_id=user_id,
                 created_at=created_at,
-                fetched_at=args.users_fetched_date,  # not in wikidot_users.csv :(
+                # TODO use users.csv fetched_at
+                fetched_at=args.users_fetched_date,
                 wikidot_user_type=user_type,
                 avatar_uploaded_blob_id=blob_id,
                 real_name=real_name,
