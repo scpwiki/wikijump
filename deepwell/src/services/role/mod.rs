@@ -40,6 +40,7 @@ pub enum SystemRole {
     Banned,
 }
 
+mod resolvers;
 mod service;
 mod structs;
 

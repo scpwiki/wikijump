@@ -31,7 +31,6 @@ use crate::services::page::{
     SetPageLayout,
 };
 use crate::services::page_revision::RerenderType;
-use crate::services::permission::CheckPermissionContext;
 use crate::types::{
     Action, Bytes, FileOrder, PageDetails, PageId, Reference, RerenderDepth,
 };
@@ -209,11 +208,8 @@ pub async fn page_edit(
 
     let can_edit = PageService::check_user_permission(
         ctx,
-        &CheckPermissionContext {
-            user_id: Some(input.user_id),
-            site_id: input.site_id,
-            page_reference: Some(input.page.clone()),
-        },
+        input.site_id,
+        input.page.clone(),
         Action::Edit,
     )
     .await
@@ -235,19 +231,16 @@ pub async fn page_edit_permission(
     ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<PageEditPermissionOutput> {
-    let can_edit = PageService::check_user_permission(
-        ctx,
-        // TODO: Permission context is no longer used, just left here to not break other functions.
-        // Remove this when it's removed from the function signature.
-        &CheckPermissionContext {
-            user_id: None,
-            site_id: -1,
-            page_reference: None,
-        },
-        Action::Edit,
-    )
-    .await
-    .or_raise(|| Error::new("failed to check page edit permission", ErrorType::Page))?;
+    let request = ctx.request();
+    let site_id = request.site_id()?;
+    let page_reference = request.page_reference()?.clone();
+
+    let can_edit =
+        PageService::check_user_permission(ctx, site_id, page_reference, Action::Edit)
+            .await
+            .or_raise(|| {
+                Error::new("failed to check page edit permission", ErrorType::Page)
+            })?;
 
     Ok(PageEditPermissionOutput { can_edit })
 }

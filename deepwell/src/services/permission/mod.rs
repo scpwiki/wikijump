@@ -29,9 +29,8 @@ mod resolvers;
 mod service;
 mod structs;
 
-pub use self::cache::PermissionCache;
-pub use self::resolvers::{
-    CategoryResolver, PageCategoryResolver, resolve_category_reference,
-};
+pub(crate) use self::cache::PermissionCache;
+pub(crate) use self::resolvers::resolve_category_reference;
+
 pub use self::service::PermissionService;
 pub use self::structs::*;

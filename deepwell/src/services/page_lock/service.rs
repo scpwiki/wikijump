@@ -25,9 +25,10 @@ use time::OffsetDateTime;
 use super::prelude::*;
 use crate::models::page_lock::{self, Entity as PageLock, Model as PageLockModel};
 use crate::services::audit::{AuditEvent, AuditService};
+use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::relation::GetPageAttributions;
 use crate::services::{PageService, RelationService};
-use crate::types::{Action, PageLockType, Permission, Reference, Resource};
+use crate::types::{Action, PageLockType, Reference};
 
 #[derive(Debug, Clone)]
 pub struct PageLockService;
@@ -247,13 +248,12 @@ impl PageLockService {
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
-        page_category_id: Option<i64>,
-        user_id: i64,
     ) -> Result<CheckLockBypassOutput> {
+        let user_id = ctx.request().user_id;
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to check lock bypass for page ID {} and user ID {}",
+                    "failed to check lock bypass for page ID {} and user ID {:?}",
                     page_id, user_id
                 ),
                 ErrorType::PageLock,
@@ -266,18 +266,32 @@ impl PageLockService {
             .or_raise(make_error)?;
 
         if let Some(lock) = active_lock {
+            let check_bypass_permission = || {
+                PermissionService::can_user(
+                    ctx,
+                    Some(site_id),
+                    Action::BypassLock,
+                    PermissionTarget::Lock,
+                )
+            };
+
             let can_bypass = match lock.lock_type {
                 // Mod is not a native Wikijump role; treat it as a permission check instead
-                PageLockType::PermissionOnly | PageLockType::Wikidot => ctx
-                    .user_has_permission(Permission {
-                        resource_type: Resource::Page,
-                        resource_category: page_category_id.map(Reference::Id),
-                        action: Action::BypassLock,
-                    })
-                    .await
-                    .or_raise(make_error)?,
+                PageLockType::PermissionOnly | PageLockType::Wikidot => {
+                    check_bypass_permission().await.or_raise(make_error)?
+                }
                 PageLockType::AuthorOrPermissionOnly => {
                     // Check if the user is the author of the page
+                    let is_member = if let Some(user_id) = user_id {
+                        RelationService::site_member_exists(
+                            ctx,
+                            crate::services::relation::GetSiteMember { site_id, user_id },
+                        )
+                        .await
+                        .or_raise(make_error)?
+                    } else {
+                        false
+                    };
                     let attributions = RelationService::get_page_attributions(
                         ctx,
                         GetPageAttributions {
@@ -289,17 +303,11 @@ impl PageLockService {
                     .or_raise(make_error)?;
 
                     // User can bypass if they are an author of this page or have bypass permission
-                    let is_author =
-                        attributions.iter().any(|attr| attr.user_id == user_id);
-                    is_author
-                        || ctx
-                            .user_has_permission(Permission {
-                                resource_type: Resource::Page,
-                                resource_category: page_category_id.map(Reference::Id),
-                                action: Action::BypassLock,
-                            })
-                            .await
-                            .or_raise(make_error)?
+                    let is_author = is_member
+                        && attributions
+                            .iter()
+                            .any(|attr| Some(attr.user_id) == user_id);
+                    is_author || check_bypass_permission().await.or_raise(make_error)?
                 }
             };
             Ok(CheckLockBypassOutput {

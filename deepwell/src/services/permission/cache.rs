@@ -18,140 +18,70 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::borrow::Cow;
 use std::collections::HashMap;
+use std::collections::HashSet;
+use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use super::prelude::*;
-use crate::error::{Error, ErrorType};
-use crate::models::prelude::RolePermission;
-use crate::models::role_permission;
-use crate::services::ServiceContext;
-use crate::types::{Action, Resource};
-use ftml::info;
-use redis::AsyncCommands;
+use super::structs::PermissionTarget;
+use crate::error::prelude::*;
+use crate::types::Permission;
 
-pub const DEFAULT_CATEGORY_KEY: &str = "_default";
-pub const SITE_NOT_SET_KEY: &str = "platform";
-pub const USER_NOT_SET_KEY: &str = "anonymous";
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct PermissionCacheKey {
+    pub user_id: Option<i64>,
+    pub site_id: Option<i64>,
+    pub target: PermissionTarget,
+}
 
-#[derive(Debug, Clone, Copy)]
-pub struct PermissionCache;
+/// Request-local cache of computed permission sets.
+/// Only relevant for the duration of a single request.
+#[derive(Debug, Default)]
+pub struct PermissionCache {
+    cache: RwLock<HashMap<PermissionCacheKey, HashSet<Permission<'static>>>>,
+}
 
-#[allow(dead_code)]
 impl PermissionCache {
-    /// Build Redis cache key to lookup user permissions for a specific site.
-    fn site_user_key(site_id: Option<i64>, user_id: Option<i64>) -> String {
-        format!(
-            "permission:site:{}:user:{}",
-            site_id
-                .map(|id| id.to_string())
-                .unwrap_or(SITE_NOT_SET_KEY.to_owned()),
-            user_id
-                .map(|id| id.to_string())
-                .unwrap_or(USER_NOT_SET_KEY.to_owned())
-        )
+    pub fn new() -> PermissionCache {
+        PermissionCache::default()
     }
 
-    /// Build a hash field key for the permission
-    fn permission_key(
-        resource: Resource,
-        resource_category_id: Option<i64>,
-        action: Action,
-    ) -> Cow<'static, str> {
-        let category_id_str = resource_category_id
-            .map(|id| id.to_string())
-            .unwrap_or(DEFAULT_CATEGORY_KEY.to_owned());
-        Cow::Owned(format!(
-            "permission:{}:{}:{}",
-            resource, category_id_str, action
-        ))
+    fn read(
+        &self,
+    ) -> RwLockReadGuard<'_, HashMap<PermissionCacheKey, HashSet<Permission<'static>>>>
+    {
+        self.cache.read().unwrap_or_else(|err| err.into_inner())
     }
 
-    /// Check if an action should be cached.
-    pub fn is_cacheable(resource_type: Resource, action: Action) -> bool {
-        #[allow(clippy::match_like_matches_macro)]
-        match (resource_type, action) {
-            (_, Action::View) => true,
-            _ => false,
-        }
+    fn write(
+        &self,
+    ) -> RwLockWriteGuard<'_, HashMap<PermissionCacheKey, HashSet<Permission<'static>>>>
+    {
+        self.cache.write().unwrap_or_else(|err| err.into_inner())
     }
 
-    /// Check if this user's permission has been cached, and return it.
-    pub async fn check_user_permission(
-        ctx: &ServiceContext<'_>,
-        site_id: Option<i64>,
-        user_id: Option<i64>,
-        resource_type: Resource,
-        resource_category_id: Option<i64>,
-        action: Action,
-    ) -> Result<Option<bool>> {
-        let key = Self::site_user_key(site_id, user_id);
-        let field = Self::permission_key(resource_type, resource_category_id, action);
-
-        let mut redis = ctx.redis();
-        let has_permission: Option<String> =
-            redis.hget(&key, &field).await.or_raise(|| {
-                warn!(
-                    "Failed to read permission cache key '{}' field '{}'",
-                    key, field
-                );
-                Error::new("permission cache read error", ErrorType::Permission)
-            })?;
-
-        Ok(has_permission.map(|val| val == "1"))
+    pub fn insert(
+        &self,
+        key: PermissionCacheKey,
+        permissions: HashSet<Permission<'static>>,
+    ) {
+        self.write().insert(key, permissions);
     }
 
-    /// Set a user's permission value in the cache.
-    pub async fn set_user_permission(
-        ctx: &ServiceContext<'_>,
-        site_id: Option<i64>,
-        user_id: Option<i64>,
-        resource_type: Resource,
-        resource_category_id: Option<i64>,
-        action: Action,
-        has_permission: bool,
-    ) -> Result<()> {
-        let key = Self::site_user_key(site_id, user_id);
-        let field = Self::permission_key(resource_type, resource_category_id, action);
-
-        let mut redis = ctx.redis();
-        let _: () = redis
-            .hset(&key, &field, if has_permission { "1" } else { "0" })
-            .await
-            .or_raise(|| {
-                warn!(
-                    "Failed to write permission cache key '{}' field '{}'",
-                    key, field
-                );
-                Error::new("permission cache write error", ErrorType::Permission)
-            })?;
-
-        Ok(())
+    pub fn clear(&self) {
+        self.write().clear();
     }
 
-    /// Invalidate the cache for a specific site.
-    pub async fn invalidate_site(ctx: &ServiceContext<'_>, site_id: i64) -> Result<()> {
-        let mut redis = ctx.redis();
-        let pattern = format!("permission:site:{}:*", site_id);
-        let make_error = || {
-            Error::new(
-                format!("Failed to invalidate permission cache for site {}", site_id),
-                ErrorType::Permission,
-            )
-        };
-
-        let keys: Vec<String> = redis.keys(&pattern).await.or_raise(make_error)?;
-
-        if keys.is_empty() {
-            debug!(
-                "No permission cache entries to invalidate for site {}",
-                site_id
-            );
-            return Ok(());
+    pub async fn get_or_fetch(
+        &self,
+        key: PermissionCacheKey,
+        fetch: impl AsyncFnOnce() -> Result<HashSet<Permission<'static>>>,
+    ) -> Result<HashSet<Permission<'static>>> {
+        if let Some(permissions) = self.read().get(&key).cloned() {
+            return Ok(permissions);
         }
 
-        let _: usize = redis.del(keys).await.or_raise(make_error)?;
-
-        Ok(())
+        let permissions = fetch().await?;
+        self.insert(key, permissions.clone());
+        Ok(permissions)
     }
 }
