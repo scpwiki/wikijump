@@ -1,4 +1,4 @@
-# Config documentation: https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# Config documentation: https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#configuration-options-for-dependabotyml
 
 version: 2
 updates:
