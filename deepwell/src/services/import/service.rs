@@ -48,7 +48,7 @@ use crate::types::{PageId, PageLockType};
 use crate::utils::get_category_name;
 use ftml::layout::Layout;
 use sea_orm::UpdateResult;
-use sea_query::{Expr, Query};
+use sea_query::{Expr, OnConflict, Query};
 
 #[derive(Debug)]
 pub struct ImportService;
@@ -70,6 +70,7 @@ impl ImportService {
             website,
             karma,
             is_pro,
+            upsert,
             importing_user_id,
             ip_address,
         }: ImportUser,
@@ -88,6 +89,25 @@ impl ImportService {
                 ErrorType::DatabaseImport,
             )
         };
+
+        // Check if the user already exists
+        if !upsert {
+            let result: Option<i32> = WikidotUser::find()
+                .select_only()
+                .column(wikidot_user::Column::UserId)
+                .filter(wikidot_user::Column::UserId.eq(user_id))
+                .into_tuple()
+                .one(txn)
+                .await
+                .or_raise(make_error)?;
+
+            if result.is_some() {
+                bail!(Error::new(
+                    "cannot import, user already exists",
+                    ErrorType::UserExists,
+                ));
+            }
+        }
 
         let (is_deleted, name, slug) = match wikidot_user_type {
             ImportedUserType::Extant { name, slug } => (false, Some(name), Some(slug)),
@@ -146,10 +166,39 @@ impl ImportService {
             is_pro: Set(is_pro),
         };
 
-        WikidotUser::insert(model)
-            .exec(txn)
-            .await
-            .or_raise(make_error)?;
+        if upsert {
+            // INSERT ... ON CONFLICT DO UPDATE
+            let conflict_clause = OnConflict::column(wikidot_user::Column::UserId)
+                .update_columns([
+                    wikidot_user::Column::CreatedAt,
+                    wikidot_user::Column::FetchedAt,
+                    wikidot_user::Column::IsDeleted,
+                    wikidot_user::Column::Name,
+                    wikidot_user::Column::Slug,
+                    wikidot_user::Column::AvatarS3Hash,
+                    wikidot_user::Column::RealName,
+                    wikidot_user::Column::Gender,
+                    wikidot_user::Column::Birthday,
+                    wikidot_user::Column::Location,
+                    wikidot_user::Column::Biography,
+                    wikidot_user::Column::Website,
+                    wikidot_user::Column::Karma,
+                    wikidot_user::Column::IsPro,
+                ])
+                .to_owned();
+
+            WikidotUser::insert(model)
+                .on_conflict(conflict_clause)
+                .exec(txn)
+                .await
+                .or_raise(make_error)?;
+        } else {
+            // INSERT normally
+            WikidotUser::insert(model)
+                .exec(txn)
+                .await
+                .or_raise(make_error)?;
+        };
 
         Ok(ImportUserOutput { user_id })
     }

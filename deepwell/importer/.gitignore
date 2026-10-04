@@ -1,2 +1,3 @@
-__pycache__/
+# Artifacts
 *.py[cod]
+__pycache__/
