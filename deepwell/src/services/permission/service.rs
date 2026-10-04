@@ -71,6 +71,7 @@ impl PermissionService {
         // Resolve all category references before any DB writes.
         let mut resolved_permissions: HashSet<Permission<'static>> =
             HashSet::with_capacity(new_permissions.len());
+
         for input in new_permissions {
             let resource_category_id = match input.resource_category {
                 Some(cat_ref) => resolve_category_reference(
@@ -411,7 +412,10 @@ impl PermissionService {
 
         let make_error = || {
             Error::new(
-                format!("failed to get permissions for user {:?}", user_id),
+                format!(
+                    "failed to get permissions for user {:?} on resource {:?} in category {:?}",
+                    user_id, resource_type, resource_category_id
+                ),
                 ErrorType::Permission,
             )
         };
@@ -471,12 +475,22 @@ impl PermissionService {
                             .add(role::Column::SiteId.eq(site_id))
                             .add(
                                 Condition::any()
-                                    .add(role::Column::IsVirtual.eq(true).and(
-                                        role::Column::Name.is_in(virtual_role_names),
-                                    ))
-                                    .add(role::Column::DeletedAt.is_null().and(
-                                        role::Column::RoleId.in_subquery(assigned_roles),
-                                    )),
+                                    .add(
+                                        Condition::all()
+                                            .add(role::Column::IsVirtual.eq(true))
+                                            .add(
+                                                role::Column::Name
+                                                    .is_in(virtual_role_names),
+                                            ),
+                                    )
+                                    .add(
+                                        Condition::all()
+                                            .add(role::Column::DeletedAt.is_null())
+                                            .add(
+                                                role::Column::RoleId
+                                                    .in_subquery(assigned_roles),
+                                            ),
+                                    ),
                             ),
                     )
                     .all(ctx.transaction())
@@ -495,32 +509,35 @@ impl PermissionService {
             .await?;
 
         // Does this category have permissions scoped to it?
-        let has_scoped_permissions = match (site_id, resource_category_id) {
-            (Some(site_id), Some(category_id)) => Self::check_category_scoped(
-                ctx,
-                site_id,
-                resource_type,
-                category_id,
-                action,
-            )
-            .await
-            .or_raise(make_error)?,
-            _ => false,
-        };
+        let has_permission = match (site_id, resource_category_id) {
+            (Some(site_id), Some(category_id)) => {
+                let category_has_scoped_permissions = Self::check_category_scoped(
+                    ctx,
+                    site_id,
+                    resource_type,
+                    category_id,
+                    action,
+                )
+                .await
+                .or_raise(make_error)?;
 
-        let has_permission = if has_scoped_permissions {
-            permissions.contains(&Permission {
-                resource_type,
-                resource_category: Some(Reference::Id(resource_category_id.unwrap())),
-                action,
-            })
-        } else {
-            // If category does not have scoped permissions, fallback to _default
-            permissions.contains(&Permission {
-                resource_type,
-                resource_category: None,
-                action,
-            })
+                if category_has_scoped_permissions {
+                    // If category has scoped permissions, check if user explicitly has permission for this category
+                    permissions.contains(&Permission {
+                        resource_type,
+                        resource_category: Some(Reference::Id(category_id)),
+                        action,
+                    })
+                } else {
+                    // If category does not have scoped permissions, fallback to _default
+                    permissions.contains(&Permission {
+                        resource_type,
+                        resource_category: None,
+                        action,
+                    })
+                }
+            }
+            _ => false,
         };
 
         Ok(has_permission)

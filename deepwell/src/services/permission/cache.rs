@@ -18,15 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use super::structs::PermissionTarget;
 use crate::error::prelude::*;
 use crate::types::Permission;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct PermissionCacheKey {
     pub user_id: Option<i64>,
     pub site_id: Option<i64>,
@@ -49,14 +49,14 @@ impl PermissionCache {
         &self,
     ) -> RwLockReadGuard<'_, HashMap<PermissionCacheKey, HashSet<Permission<'static>>>>
     {
-        self.cache.read().unwrap_or_else(|err| err.into_inner())
+        self.cache.read()
     }
 
     fn write(
         &self,
     ) -> RwLockWriteGuard<'_, HashMap<PermissionCacheKey, HashSet<Permission<'static>>>>
     {
-        self.cache.write().unwrap_or_else(|err| err.into_inner())
+        self.cache.write()
     }
 
     pub fn insert(

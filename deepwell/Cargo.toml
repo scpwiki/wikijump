@@ -72,6 +72,7 @@ arrayvec = "0.7.6"
 
 # Local crates
 deepwell-relation-impl-derive = { path = "relation-impl-derive" }
+parking_lot = "0.12.5"
 
 [dev-dependencies]
 maplit = "1"
