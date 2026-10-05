@@ -200,6 +200,7 @@ if __name__ == "__main__":
             (
                 user_id_raw,
                 created_at_raw,
+                fetched_at_raw,
                 deleted_raw,
                 user_name_raw,
                 user_slug_raw,
@@ -217,6 +218,8 @@ if __name__ == "__main__":
             user_id = int(user_id_raw)
             created_at_naive = datetime.fromisoformat(created_at_raw)
             created_at = created_at_naive.replace(tzinfo=timezone.utc)
+            fetched_at_naive = datetime.fromisoformat(fetched_at_raw)
+            fetched_at = fetched_at_naive.replace(tzinfo=timezone.utc)
             deleted = parse_boolean(deleted_raw)
             user_name = empty_str_as_none(user_name_raw)
             user_slug = empty_str_as_none(user_slug_raw)
@@ -259,8 +262,7 @@ if __name__ == "__main__":
             import_request = ImportUserData(
                 user_id=user_id,
                 created_at=created_at,
-                # TODO use users.csv fetched_at
-                fetched_at=args.users_fetched_date,
+                fetched_at=fetched_at,
                 wikidot_user_type=user_type,
                 avatar_uploaded_blob_id=blob_id,
                 real_name=real_name,
