@@ -226,7 +226,11 @@ class Deepwell:
                     slug=slug,
                 )
             case ImportDeletedUser():
-                logger.info("Importing user ID %d (deleted)%s", request.user_id, index_suffix)
+                logger.info(
+                    "Importing user ID %d (deleted)%s",
+                    request.user_id,
+                    index_suffix,
+                )
                 request_data.update(user_type="deleted")
 
         logger.debug("Full request data: %r", request)
