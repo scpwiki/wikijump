@@ -187,7 +187,7 @@ async fn basic_edit() {
             "page": page_id,
             "last_revision_id": revision_id,
             "revision_comments": "authenticated attribution",
-            "user_id": -1,
+            "user_id": ADMIN_USER_ID,
             "title": "authenticated edit",
             "ip_address": common::IP_ADDRESS,
         }),

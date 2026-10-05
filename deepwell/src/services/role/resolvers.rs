@@ -105,6 +105,7 @@ async fn resolve_virtual_roles_for_user_and_page(
         if !is_member {
             return Ok(vec![]);
         }
+
         let attributions = RelationService::get_page_attributions(
             ctx,
             GetPageAttributions {
