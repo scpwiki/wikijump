@@ -35,7 +35,7 @@ use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
 use crate::services::blueprint::{BlueprintPageType, GetBlueprintPageOutput};
 use crate::services::page_revision::RerenderType;
-use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::relation::{
     GetPageAttributions, GetSiteBan, PageAttribution, RelationService,
 };
@@ -47,7 +47,7 @@ use crate::services::{
     BlueprintPageService, CategoryService, DomainService, PageRevisionService,
     PageService, SessionService, SiteService, TextService, UserService,
 };
-use crate::types::{Action, PageId, Permission, RerenderDepth, Resource};
+use crate::types::{Action, PageId, RerenderDepth};
 use crate::utils::{parse_locales, split_category};
 use ftml::prelude::*;
 use ftml::render::html::HtmlOutput;
@@ -208,29 +208,29 @@ impl ViewService {
                         .or_raise(make_error)?;
 
                 // Check user access to page
-                let [user_can_access_page, user_can_edit_page] =
-                    PermissionService::batch_check_user_can(
-                        ctx,
-                        &CheckPermissionContext {
-                            user_id: user_session.as_ref().map(|s| s.user.user_id),
-                            site_id,
-                            page_reference: None,
-                        },
-                        [
-                            Permission {
-                                resource_type: Resource::Page,
-                                resource_category: category_id.map(Reference::Id),
-                                action: Action::View,
-                            },
-                            Permission {
-                                resource_type: Resource::Page,
-                                resource_category: category_id.map(Reference::Id),
-                                action: Action::Edit,
-                            },
-                        ],
-                    )
-                    .await
-                    .or_raise(make_error)?;
+                let user_can_access_page = PermissionService::can_user(
+                    ctx,
+                    Some(site_id),
+                    Action::View,
+                    PermissionTarget::Page {
+                        page_id: page.page_id,
+                        category_id: page.page_category_id,
+                    },
+                )
+                .await
+                .or_raise(make_error)?;
+
+                let user_can_edit_page = PermissionService::can_user(
+                    ctx,
+                    Some(site_id),
+                    Action::Edit,
+                    PermissionTarget::Page {
+                        page_id: page.page_id,
+                        category_id: page.page_category_id,
+                    },
+                )
+                .await
+                .or_raise(make_error)?;
 
                 // Determine whether to return the actual page contents,
                 // or the "private page" data (_public).
@@ -578,28 +578,18 @@ impl ViewService {
         } = render_output;
 
         // Check user access to site settings
-        let user_id = match user_session {
-            Some(ref session) => Some(session.user.user_id),
-            None => {
-                debug!("No user for session, disallow admin access");
-                return Ok(GetAdminViewOutput::AdminPermissions {
-                    html: compiled_html,
-                });
-            }
-        };
+        if user_session.is_none() {
+            debug!("No user for session, disallow admin access");
+            return Ok(GetAdminViewOutput::AdminPermissions {
+                html: compiled_html,
+            });
+        }
 
-        let user_can_access_admin = PermissionService::check_user_can(
+        let user_can_access_admin = PermissionService::can_user(
             ctx,
-            &CheckPermissionContext {
-                user_id,
-                site_id,
-                page_reference: None,
-            },
-            Permission {
-                resource_type: Resource::Site,
-                resource_category: None,
-                action: Action::Edit,
-            },
+            Some(site_id),
+            Action::Edit,
+            PermissionTarget::Site,
         )
         .await
         .or_raise(make_error)?;

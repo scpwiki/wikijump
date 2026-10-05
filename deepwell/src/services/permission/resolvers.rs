@@ -1,5 +1,5 @@
 /*
- * permission/category.rs
+ * permission/resolvers.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team

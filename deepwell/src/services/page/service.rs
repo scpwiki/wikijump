@@ -29,14 +29,12 @@ use crate::services::page_revision::{
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
     CreateTombstonePageRevision,
 };
-use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::{
     CategoryService, FilterService, PageRevisionService, SiteService, TextBlockService,
     TextService,
 };
-use crate::types::{
-    Action, PageId, PageOrder, PageRevisionType, Permission, Reference, Resource,
-};
+use crate::types::{Action, PageId, PageOrder, PageRevisionType, Reference};
 use crate::utils::{get_category_name, trim_default};
 use ftml::layout::Layout;
 use ref_map::*;
@@ -179,7 +177,6 @@ impl PageService {
             page: reference,
             last_revision_id,
             revision_comments: comments,
-            user_id,
             body:
                 EditPageBody {
                     wikitext,
@@ -191,6 +188,9 @@ impl PageService {
         }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let txn = ctx.transaction();
+        let user_id = ctx.request().user_id().or_raise(|| {
+            Error::new("user ID required for write operation", ErrorType::Page)
+        })?;
 
         let PageModel {
             page_id,
@@ -1259,14 +1259,12 @@ impl PageService {
 
     pub async fn check_user_permission(
         ctx: &ServiceContext<'_>,
-        _permission_context: &CheckPermissionContext<'_>,
+        site_id: i64,
+        page_ref: Reference<'_>,
         action: Action,
     ) -> Result<bool> {
         let make_error =
             || Error::new("failed to check user permissions for page", ErrorType::Page);
-
-        let page_ref = ctx.request().page_reference().or_raise(make_error)?;
-        let site_id = ctx.request().site_id().or_raise(make_error)?;
 
         info!(
             "Checking edit permission for page {:?} in site ID {:?}",
@@ -1277,11 +1275,15 @@ impl PageService {
             .await
             .or_raise(make_error)?;
 
-        ctx.user_has_permission(Permission {
-            resource_type: Resource::Page,
-            resource_category: Some(Reference::Id(page_model.page_category_id)),
+        PermissionService::can_user(
+            ctx,
+            Some(site_id),
             action,
-        })
+            PermissionTarget::Page {
+                page_id: page_model.page_id,
+                category_id: page_model.page_category_id,
+            },
+        )
         .await
         .or_raise(make_error)
     }

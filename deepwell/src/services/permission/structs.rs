@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::types::{Action, Permission, Reference, Resource};
+use crate::types::{Action, Permission, Resource};
 
 #[derive(Serialize, Debug, Clone)]
 pub struct DecoratedPermission<'a> {
@@ -28,13 +28,26 @@ pub struct DecoratedPermission<'a> {
     pub removable: bool,
 }
 
-/// Context for permission checks.
-///
-/// Contains all information needed to evaluate whether a user can perform
-/// an action on a resource.
-#[derive(Debug, Clone)]
-pub struct CheckPermissionContext<'a> {
-    pub user_id: Option<i64>,
-    pub site_id: i64,
-    pub page_reference: Option<Reference<'a>>,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PermissionTarget {
+    Site,
+    Page { page_id: i64, category_id: i64 },
+    Lock,
+}
+
+impl PermissionTarget {
+    pub fn resource_type(&self) -> Resource {
+        match self {
+            PermissionTarget::Site => Resource::Site,
+            PermissionTarget::Lock => Resource::PageLock,
+            PermissionTarget::Page { .. } => Resource::Page,
+        }
+    }
+
+    pub fn category_id(&self) -> Option<i64> {
+        match self {
+            PermissionTarget::Page { category_id, .. } => Some(*category_id),
+            _ => None,
+        }
+    }
 }

@@ -160,7 +160,6 @@ pub struct EditPage<'a> {
     pub page: Reference<'a>,
     pub last_revision_id: i64,
     pub revision_comments: String,
-    pub user_id: i64,
 
     #[serde(flatten)]
     pub body: EditPageBody,
@@ -310,7 +309,6 @@ impl From<(CreatePageRevisionOutput, String)> for RestorePageOutput {
 pub struct PageEditPermission<'a> {
     pub site_id: i64,
     pub page: Reference<'a>,
-    pub user_id: Option<i64>,
 }
 
 #[derive(Serialize, Debug, Clone)]

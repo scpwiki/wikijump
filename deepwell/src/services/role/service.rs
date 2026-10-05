@@ -19,6 +19,9 @@
  */
 
 use super::prelude::*;
+use super::resolvers::{
+    resolve_virtual_roles_for_user_and_resource, resolve_virtual_roles_for_user_and_site,
+};
 use crate::endpoints::user;
 use crate::error::{Error, ErrorType};
 use crate::models::prelude::Page;
@@ -29,18 +32,13 @@ use crate::models::role_permission::{
 use crate::models::user_role::{Entity as UserRole, Model as UserRoleModel};
 use crate::models::{page, user_role};
 use crate::services::audit::{AuditEvent, AuditService};
-use crate::services::permission::{
-    CheckPermissionContext, PermissionService, resolve_category_reference,
-};
-use crate::services::relation::{
-    GetPageAttributions, GetSiteBan, GetSiteMember, SiteMemberAccepted,
-};
+use crate::services::permission::{PermissionService, resolve_category_reference};
 use crate::services::role::SystemRole;
-use crate::services::{PageService, RelationService, ServiceContext};
+use crate::services::{PageService, ServiceContext};
 use crate::types::{Action, Permission, Reference, Resource};
 use crate::utils::{now, trim_default};
 use sea_orm::prelude::Expr;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::hash::Hash;
 use std::net::IpAddr;
 use std::str::FromStr;
@@ -282,7 +280,7 @@ impl RoleService {
         Ok(deleted_role)
     }
 
-    pub async fn get_optional(
+    async fn get_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
@@ -326,7 +324,7 @@ impl RoleService {
     }
 
     #[inline]
-    pub async fn assert_exists(
+    async fn assert_exists(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         reference: Reference<'_>,
@@ -443,7 +441,8 @@ impl RoleService {
 
     pub async fn get_all_roles_for_user_and_site(
         ctx: &ServiceContext<'_>,
-        input: GetUserRolesInput<'_>,
+        user_id: Option<i64>,
+        site_id: i64,
     ) -> Result<Vec<RoleModel>> {
         let txn = ctx.transaction();
 
@@ -451,19 +450,19 @@ impl RoleService {
             Error::new(
                 format!(
                     "failed to get roles for user ID {:?} in site ID {}",
-                    input.user_id, input.site_id
+                    user_id, site_id
                 ),
                 ErrorType::Role,
             )
         };
 
-        let mut roles = match input.user_id {
+        let roles = match user_id {
             Some(id) => Role::find()
                 .join(JoinType::InnerJoin, role::Relation::UserRole.def())
                 .filter(
                     Condition::all()
                         .add(user_role::Column::UserId.eq(id))
-                        .add(role::Column::SiteId.eq(input.site_id))
+                        .add(role::Column::SiteId.eq(site_id))
                         .add(role::Column::DeletedAt.is_null())
                         .add(user_role::Column::DeletedAt.is_null())
                         .add(
@@ -478,16 +477,10 @@ impl RoleService {
             None => Vec::new(),
         };
 
-        let virtual_roles = Self::get_virtual_roles_for_user(ctx, &input)
-            .await
-            .or_raise(make_error)?;
-
-        roles.extend(virtual_roles);
-
         info!(
             "User ID {:?} has these roles in site ID {}: {:?}",
-            input.user_id,
-            input.site_id,
+            user_id,
+            site_id,
             roles.iter().map(|r| &r.name).collect::<Vec<_>>()
         );
 
@@ -534,10 +527,11 @@ impl RoleService {
                 .await
                 .or_raise(make_error)?;
 
-            let is_proper_subset =
-                Self::validate_child_role_subset_of_parent(ctx, role_id, parent_id)
-                    .await
-                    .or_raise(make_error)?;
+            let is_proper_subset = Self::validate_child_role_subset_of_parent(
+                ctx, site_id, role_id, parent_id,
+            )
+            .await
+            .or_raise(make_error)?;
 
             // Hacky solution to avoid running the expensive cycle check.
             // If the new parent has more permissions than the child, it cannot be a descendant of the child, so we can skip the cycle check.
@@ -581,6 +575,7 @@ impl RoleService {
     /// and false if the child role has the same permissions as the parent role.
     async fn validate_child_role_subset_of_parent(
         ctx: &ServiceContext<'_>,
+        site_id: i64,
         child_role_id: i64,
         parent_role_id: i64,
     ) -> Result<bool> {
@@ -594,12 +589,13 @@ impl RoleService {
             )
         };
 
-        let child_permissions = PermissionService::permissions_as_set(ctx, child_role_id)
-            .await
-            .or_raise(make_error)?;
+        let child_permissions =
+            PermissionService::permissions_as_set(ctx, site_id, child_role_id)
+                .await
+                .or_raise(make_error)?;
 
         let parent_permissions =
-            PermissionService::permissions_as_set(ctx, parent_role_id)
+            PermissionService::permissions_as_set(ctx, site_id, parent_role_id)
                 .await
                 .or_raise(make_error)?;
 
@@ -715,110 +711,36 @@ impl RoleService {
         Ok(roles)
     }
 
-    pub async fn get_virtual_roles_for_user(
+    /// Returns the virtual role names that apply to the user for this target.
+    /// Consists of site-wide virtual roles (such as member or guest) and any roles specific to the target resource.
+    pub(crate) async fn get_virtual_roles_for_user_and_resource(
         ctx: &ServiceContext<'_>,
-        input: &GetUserRolesInput<'_>,
-    ) -> Result<Vec<RoleModel>> {
-        let txn = ctx.transaction();
-
+        input: &GetUserVirtualRolesInput<'_>,
+    ) -> Result<Vec<SystemRole>> {
         let make_error = || Error::new("failed to apply virtual roles", ErrorType::Role);
 
-        let virtual_roles = Role::find()
-            .filter(
-                Condition::all()
-                    .add(role::Column::SiteId.eq(input.site_id))
-                    .add(role::Column::IsVirtual.eq(true)), // Virtual roles are never deleted, so we don't need to check DeletedAt
-            )
-            .all(txn)
-            .await
-            .or_raise(make_error)?;
+        // Compute virtual roles for current site
+        let mut virtual_roles =
+            resolve_virtual_roles_for_user_and_site(ctx, input.user_id, input.site_id)
+                .await
+                .or_raise(make_error)?;
 
-        let virtual_role_name_map = virtual_roles
-            .into_iter()
-            .map(|role| (role.name.clone(), role))
-            .collect::<std::collections::HashMap<_, _>>();
-
-        // Compute user state flags
-        let is_logged_in = input.user_id.is_some();
-        let is_member = if is_logged_in {
-            let membership = RelationService::get_optional_site_member(
-                ctx,
-                GetSiteMember {
-                    site_id: input.site_id,
-                    user_id: input.user_id.unwrap(),
-                },
-            )
-            .await
-            .or_raise(make_error)?;
-
-            membership.is_some()
-        } else {
-            false
-        };
-        let is_page_author = if is_member && let Some(page_ref) = &input.page_reference {
-            let attributions = RelationService::get_page_attributions(
-                ctx,
-                GetPageAttributions {
-                    site_id: input.site_id,
-                    page: page_ref.clone(),
-                },
-            )
-            .await
-            .or_raise(make_error)?;
-            attributions
-                .iter()
-                .any(|attr| attr.user_id == input.user_id.unwrap())
-        } else {
-            false
-        };
-        let is_banned = if is_logged_in {
-            RelationService::site_ban_exists(
-                ctx,
-                GetSiteBan {
-                    site_id: input.site_id,
-                    user_id: input.user_id.unwrap(),
-                },
-            )
-            .await
-            .or_raise(make_error)?
-        } else {
-            false
-        };
-
-        // Collect virtual roles to apply based on flags
-        let mut applied_virtual_roles = Vec::with_capacity(4); // At most 4 virtual roles at a time
-        if is_logged_in {
-            applied_virtual_roles.push(SystemRole::Registered);
-            if is_banned {
-                // If user is banned, skip any other site roles
-                applied_virtual_roles.push(SystemRole::Banned);
-            } else {
-                if is_member {
-                    applied_virtual_roles.push(SystemRole::Member);
-                } else {
-                    applied_virtual_roles.push(SystemRole::Guest);
-                }
-                if is_page_author {
-                    applied_virtual_roles.push(SystemRole::PageAuthor);
-                }
-            }
-        } else {
-            applied_virtual_roles.push(SystemRole::Anonymous);
-            applied_virtual_roles.push(SystemRole::Guest);
-        }
-        applied_virtual_roles.push(SystemRole::Everyone);
+        // Check virtual roles for requested resource.
+        let virtual_roles_for_resource = resolve_virtual_roles_for_user_and_resource(
+            ctx,
+            input.user_id,
+            input.site_id,
+            input.target,
+        )
+        .await
+        .or_raise(make_error)?;
+        virtual_roles.extend(virtual_roles_for_resource);
 
         info!(
             "Applying these virtual roles for user ID {:?} in site ID {}: {:?}",
-            input.user_id, input.site_id, applied_virtual_roles
+            input.user_id, input.site_id, virtual_roles
         );
 
-        // Build the final list of applicable roles
-        let applicable_virtual_roles = applied_virtual_roles
-            .into_iter()
-            .filter_map(|role| virtual_role_name_map.get(role.into()).cloned())
-            .collect();
-
-        Ok(applicable_virtual_roles)
+        Ok(virtual_roles)
     }
 }

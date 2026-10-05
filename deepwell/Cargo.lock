@@ -1160,6 +1160,7 @@ dependencies = [
  "log",
  "maplit",
  "notify",
+ "parking_lot",
  "paste",
  "pretty_assertions",
  "rand 0.10.2",
