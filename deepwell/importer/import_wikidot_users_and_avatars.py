@@ -51,6 +51,12 @@ def parse_karma(value: str) -> int:
             raise ValueError(value)
 
 
+def parse_timestamp(value: str) -> datetime:
+    datetime_naive = datetime.fromisoformat(value)
+    assert datetime_naive.tzinfo is None
+    return datetime_naive.replace(tzinfo=timezone.utc)
+
+
 def empty_str_as_none(value: str) -> str | None:
     match value:
         case "":
@@ -216,10 +222,8 @@ if __name__ == "__main__":
 
             # Transform fields
             user_id = int(user_id_raw)
-            created_at_naive = datetime.fromisoformat(created_at_raw)
-            created_at = created_at_naive.replace(tzinfo=timezone.utc)
-            fetched_at_naive = datetime.fromisoformat(fetched_at_raw)
-            fetched_at = fetched_at_naive.replace(tzinfo=timezone.utc)
+            created_at = parse_timestamp(created_at_raw)
+            fetched_at = parse_timestamp(fetched_at_raw)
             deleted = parse_boolean(deleted_raw)
             user_name = empty_str_as_none(user_name_raw)
             user_slug = empty_str_as_none(user_slug_raw)
