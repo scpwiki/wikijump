@@ -2670,6 +2670,18 @@ impl RenderService {
             .into());
         }
 
+        // Include, module, gallery, and protected-text restoration can add
+        // Wikidot file URLs after the initial compatibility pass in the
+        // blocking FTML renderer. Localize the completed render output once
+        // more so the browser never receives a source WDFiles URL for a
+        // mirror asset.
+        Self::localize_wikidot_render_output_file_urls(
+            &mut html_output.body,
+            &mut html_output.styles,
+            current_site.as_ref(),
+            config,
+        );
+
         if let Some((trace, CorpusRenderScope::Body)) = trace {
             trace.set_dimension(
                 CorpusRenderDimension::OutputBytes,
@@ -2867,6 +2879,16 @@ impl RenderService {
         for style in styles {
             *style = Self::localize_wikidot_local_file_urls(style, current_site, config);
         }
+    }
+
+    fn localize_wikidot_render_output_file_urls(
+        body: &mut String,
+        styles: &mut [String],
+        current_site: Option<&SiteModel>,
+        config: &Config,
+    ) {
+        *body = Self::localize_wikidot_local_file_urls(body, current_site, config);
+        Self::localize_wikidot_generated_styles(styles, current_site, config);
     }
 
     fn localized_wikidot_local_file_url(
