@@ -110,6 +110,39 @@ test("closure_complete with transitive include and import order", () => {
   );
 });
 
+test("closure consumes parser-owned references and preserves include variables", () => {
+  const source = row("scp-wiki", "scp-002");
+  const dependency = row("scp-wiki", "component:image-block");
+  const registry = buildBundleRegistry([source, dependency]);
+  const report = resolveDependencyClosure({
+    row: source,
+    registry,
+    readSource: makeReadSource({
+      "scp-wiki:scp-002": "parser-owned syntax fixture",
+      "scp-wiki:component:image-block": "no nested references",
+    }),
+    scanIncludes: (sourceText) =>
+      sourceText === "parser-owned syntax fixture"
+        ? [
+            {
+              site: "scp-wiki",
+              page: "component:image-block",
+              variables: { name: "steel.png", caption: "Figure 1" },
+            },
+          ]
+        : [],
+  });
+
+  assert.equal(report.status, "closure_complete");
+  assert.deepEqual(report.dependencies.include_edges, [
+    {
+      source: "scp-wiki:scp-002",
+      target: "scp-wiki:component:image-block",
+      variables: { name: "steel.png", caption: "Figure 1" },
+    },
+  ]);
+});
+
 test("local-code CSS imports resolve through the source bundle as code dependencies", () => {
   const rows = [row("scp-wiki", "info:start"), row("scp-wiki", "info:style")];
   const registry = buildBundleRegistry(rows);

@@ -155,6 +155,7 @@ export function resolveDependencyClosure({
   row,
   registry,
   readSource,
+  scanIncludes = (source) => scanWikitextDependencies(source).includes,
   maxDepth = 8,
 }) {
   const site = row.local_site ?? row.source_site;
@@ -162,6 +163,7 @@ export function resolveDependencyClosure({
   const outOfBundle = [];
   const cycles = [];
   const missingFiles = [];
+  const includeEdges = [];
   const dataModules = new Set();
   const seen = new Set();
   const activePath = [];
@@ -206,14 +208,20 @@ export function resolveDependencyClosure({
       });
       return;
     }
-    const scan = scanWikitextDependencies(source);
-    for (const include of scan.includes) {
+    for (const include of scanIncludes(source)) {
       const includeSite = include.site ?? pageSite;
+      const sourceSlug = pageRow.slug ?? pageRow.fullname;
+      includeEdges.push({
+        source: `${pageSite}:${sourceSlug}`,
+        target: `${includeSite}:${include.page}`,
+        variables: include.variables ?? {},
+      });
       const kind = isThemeOrComponentSlug(include.page)
         ? "theme-component"
         : "include";
       visit(includeSite, include.page, kind, depth);
     }
+    const scan = scanWikitextDependencies(source);
     for (const code of scan.localCode) {
       visit(code.site ?? pageSite, code.page, "local-code", depth);
     }
@@ -257,6 +265,7 @@ export function resolveDependencyClosure({
       in_bundle: inBundle.map((dep) => dep.label),
       out_of_bundle: outOfBundle,
       cycles,
+      include_edges: includeEdges,
       missing_files: missingFiles,
     },
     data_modules: [...dataModules],
