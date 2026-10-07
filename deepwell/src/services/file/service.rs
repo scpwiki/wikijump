@@ -979,6 +979,13 @@ impl FileService {
                 "ORDER BY fr.revision_number DESC, fr.revision_id DESC LIMIT 1",
                 ") latest ON TRUE ",
                 "WHERE f.site_id = $1 AND f.page_id = $2 AND f.deleted_at IS NULL ",
+                "AND (f.from_wikidot OR NOT EXISTS (",
+                "SELECT 1 FROM page imported_page ",
+                "JOIN site imported_site ON imported_site.site_id = imported_page.site_id ",
+                "WHERE imported_page.page_id = f.page_id ",
+                "AND imported_page.from_wikidot = TRUE ",
+                "AND imported_site.from_wikidot = TRUE",
+                ")) ",
                 "ORDER BY f.name ASC, f.file_id ASC LIMIT $3",
             ),
             [
