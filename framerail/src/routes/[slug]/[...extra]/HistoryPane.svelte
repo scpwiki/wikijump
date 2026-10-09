@@ -581,7 +581,7 @@
         bind:value={fromRevisionNumber}
       >
         {#each [...revisionMap.keys()].sort((a, b) => a - b) as revisionNumber (revisionNumber)}
-          <option value={revisionNumber}>{revisionNumber}</option>
+          <option value={revisionNumber}>{revisionNumber + 1}</option>
         {/each}
       </select>
       <label for="revision-diff-to">
@@ -593,7 +593,7 @@
         bind:value={toRevisionNumber}
       >
         {#each [...revisionMap.keys()].sort((a, b) => a - b) as revisionNumber (revisionNumber)}
-          <option value={revisionNumber}>{revisionNumber}</option>
+          <option value={revisionNumber}>{revisionNumber + 1}</option>
         {/each}
       </select>
       <button class="action-button clickable" onclick={swapRevisionDiff} type="button">
