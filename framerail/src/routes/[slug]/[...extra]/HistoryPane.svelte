@@ -3,6 +3,7 @@
   import { invalidateAll } from "$app/navigation"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
+  import { defaultHistoryComparePair } from "$lib/history-compare-defaults"
 
   import { Layout } from "$lib/types"
   import {
@@ -102,14 +103,12 @@
         }
         revisionMap.set(rev.timeline_number, rev)
       })
-      const revisionNumbers = result.data.res
-        .map((rev) => rev.timeline_number)
-        .sort((a, b) => a - b)
+      const defaultPair = defaultHistoryComparePair([...revisionMap.values()])
       if (fromRevisionNumber === undefined) {
-        fromRevisionNumber = revisionNumbers.at(-2)
+        fromRevisionNumber = defaultPair?.[0]
       }
       if (toRevisionNumber === undefined) {
-        toRevisionNumber = revisionNumbers.at(-1)
+        toRevisionNumber = defaultPair?.[1]
       }
     }
   }
