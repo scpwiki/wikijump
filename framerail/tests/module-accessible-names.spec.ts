@@ -5,6 +5,7 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
+const HTTPS_APP_URL = `https://localhost:${process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373"}`
 
 test("NewPage page-name inputs keep accessible names in SSR and hydrated DOM", async ({
   page
@@ -63,9 +64,16 @@ for (const localeCase of [
   test.describe(`page option controls (${localeCase.locale})`, () => {
     test.use({ locale: localeCase.locale })
 
-    test("expose localized accessible names", async ({ page }) => {
+    test("expose localized accessible names", async ({ page }, testInfo) => {
+      test.skip(
+        testInfo.project.name === "webkit",
+        "WebKit runs this acceptance case against the HTTPS fixture"
+      )
+      await page.setViewportSize({ width: 320, height: 640 })
       await page.setExtraHTTPHeaders(SITE_HEADERS)
-      const response = await page.goto(`${APP_URL}/scp-173`)
+      const baseUrl =
+        testInfo.project.name === "webkit-https-edit-meta" ? HTTPS_APP_URL : APP_URL
+      const response = await page.goto(`${baseUrl}/scp-173`)
       expect(response?.status()).toBe(200)
 
       await waitForSvelteDelegatedHandler(page, "#more-options-button")
