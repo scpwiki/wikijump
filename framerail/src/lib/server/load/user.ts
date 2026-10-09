@@ -145,7 +145,7 @@ export async function loadUser(
       "save": {},
       "cancel": {},
       "user-profile-info.remove-avatar": {},
-      "user-profile-info.remove-avatar.pending": {},
+      "user-profile-info.remove-avatar-pending": {},
       "user-profile-info.keep-avatar": {},
 
       // User profile attributes

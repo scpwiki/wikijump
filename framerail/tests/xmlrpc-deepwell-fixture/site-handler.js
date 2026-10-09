@@ -241,7 +241,7 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "confirm-password": "Confirm Password",
           "mfa-code": "MFA code",
           "user-profile-info.remove-avatar": "Remove profile image",
-          "user-profile-info.remove-avatar.pending":
+          "user-profile-info.remove-avatar-pending":
             "The profile image will be removed when you save.",
           "user-profile-info.keep-avatar": "Keep profile image"
         }

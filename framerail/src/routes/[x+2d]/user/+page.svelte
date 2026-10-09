@@ -135,22 +135,19 @@
         onclick={requestAvatarRemoval}
         type="button"
       >
-        {data.internationalization?.["user-profile-info.remove-avatar"] ??
-          "UNTRANSLATED:Remove profile image"}
+        {data.internationalization?.["user-profile-info.remove-avatar"]}
       </button>
     {/if}
     {#if $form.removeAvatar}
       <p class="editor-avatar-removal" role="status">
-        {data.internationalization?.["user-profile-info.remove-avatar.pending"] ??
-          "UNTRANSLATED:The profile image will be removed when you save."}
+        {data.internationalization?.["user-profile-info.remove-avatar-pending"]}
       </p>
       <button
         class="action-button editor-button button-keep-avatar clickable"
         onclick={keepStoredAvatar}
         type="button"
       >
-        {data.internationalization?.["user-profile-info.keep-avatar"] ??
-          "UNTRANSLATED:Keep profile image"}
+        {data.internationalization?.["user-profile-info.keep-avatar"]}
       </button>
     {/if}
     <label for="gender">{data.internationalization?.["user-profile-info.gender"]}</label>

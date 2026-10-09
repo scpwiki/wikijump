@@ -329,7 +329,7 @@ export interface Locales {
   "user-profile-info.user-page": string
   "user-profile-info.locales": string
   "user-profile-info.remove-avatar": string
-  "user-profile-info.remove-avatar.pending": string
+  "user-profile-info.remove-avatar-pending": string
   "user-profile-info.keep-avatar": string
   "user-profile-info.toast": string
   "user-not-exist": string
