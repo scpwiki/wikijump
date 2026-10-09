@@ -6094,7 +6094,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/user.ts",
-      "sha256": "5638024278719a767d8ebb691b402b82ddf17f50d5485126f49e56d1664923d5",
+      "sha256": "0bc131d949f3197d3b7cfcefed78c488dbcde8a01a3052c45b80387b7bb95d75",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7286,7 +7286,7 @@
     },
     {
       "path": "framerail/src/routes/[x+2d]/user/+page.svelte",
-      "sha256": "0a5d044a30bbcc9461b8870e5d5ca83ec1c66a3cc91e40a2f0cc37931b51f23f",
+      "sha256": "a7c0e1f4a9424f8af1af8f4af44fc9b01d12347b6b4af8939ea4a305ad4c5a34",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7526,7 +7526,7 @@
     },
     {
       "path": "framerail/src/types/index.ts",
-      "sha256": "333c0c7b203bab0b43dcf2d24a1ddd4d8fc630049c982079283cb5ef240c92f7",
+      "sha256": "dce9620ea9a6615dd01d01cc696d3f1bb252ca0b4325752f8bb50387d9a8c4f2",
       "status": "pending",
       "anchors": [],
       "findings": [],
