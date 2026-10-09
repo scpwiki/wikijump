@@ -31,3 +31,9 @@ wiki-page-vote = ページの評価
   .cancel = 投票を取り消す
   .who-rated = 誰がこのページに評価したかを閲覧
   .user = ユーザー
+
+wiki-page-file-delete =
+  .confirmation = ファイルを削除しますか？
+  .filename = ファイル
+  .page = ページ
+  .confirm = 削除する

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { tick } from "svelte"
+
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import type { PageFile } from "$lib/server/deepwell/page-file"
   import type { SvelteMap } from "svelte/reactivity"
@@ -31,6 +33,21 @@
     openFileHistory: (fileId: number) => void
   } = $props()
 
+  let pendingDelete = $state<Pick<PageFile, "file_id" | "revision_id" | "name"> | null>(
+    null
+  )
+  let deleteDialog = $state<HTMLDialogElement>()
+  let cancelDeleteButton = $state<HTMLButtonElement>()
+  let deleteTrigger: HTMLElement | null = null
+
+  const localized = (
+    key: keyof NonNullable<PageProps["data"]["internationalization"]>,
+    fallback: string
+  ) => {
+    const value = data.internationalization?.[key]
+    return value && value !== key ? value : fallback
+  }
+
   function openFileAction(fileId: number, action: FileAction) {
     fileEditId = fileId
     activeFileAction = action
@@ -56,6 +73,45 @@
 
     activeFileAction = "upload"
   }
+
+  function requestDelete(event: MouseEvent, file: PageFile) {
+    deleteTrigger = event.currentTarget as HTMLElement
+    pendingDelete = {
+      file_id: file.file_id,
+      revision_id: file.revision_id,
+      name: file.name
+    }
+  }
+
+  async function cancelDelete() {
+    const trigger = deleteTrigger
+    deleteTrigger = null
+    if (deleteDialog?.open) deleteDialog.close()
+    pendingDelete = null
+    await tick()
+    if (trigger?.isConnected) trigger.focus()
+  }
+
+  function handleDialogCancel(event: Event) {
+    event.preventDefault()
+    void cancelDelete()
+  }
+
+  function confirmDelete() {
+    const target = pendingDelete
+    if (!target) return
+    deleteTrigger = null
+    if (deleteDialog?.open) deleteDialog.close()
+    pendingDelete = null
+    void deleteFile(target.file_id, target.revision_id)
+  }
+
+  $effect(() => {
+    if (pendingDelete && deleteDialog && !deleteDialog.open) {
+      deleteDialog.showModal()
+      cancelDeleteButton?.focus()
+    }
+  })
 </script>
 
 {#if wikidot}
@@ -118,6 +174,7 @@
 {/if}
 
 {#if fileMap.size > 0}
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
     class="file-list-scroll"
     role="region"
@@ -212,9 +269,9 @@
               </a>
               <!-- svelte-ignore a11y_invalid_attribute -->
               <a
-                class="btn btn-primary btn-sm btn-small"
+                class="btn btn-primary btn-sm btn-small delete-file"
                 href="javascript:;"
-                onclick={() => void deleteFile(file.file_id, file.revision_id)}
+                onclick={(event) => requestDelete(event, file)}
               >
                 {data.internationalization?.delete}
               </a>
@@ -251,7 +308,7 @@
             </button>
             <button
               class="action-button delete-file clickable"
-              onclick={() => void deleteFile(file.file_id, file.revision_id)}
+              onclick={(event) => requestDelete(event, file)}
               type="button"
             >
               {data.internationalization?.delete}
@@ -262,6 +319,40 @@
     {/each}
   </div>
   </div>
+  {#if pendingDelete}
+    <dialog
+      bind:this={deleteDialog}
+      class="file-delete-confirmation"
+      aria-labelledby="file-delete-confirmation-title"
+      aria-describedby="file-delete-confirmation-details"
+      oncancel={handleDialogCancel}
+    >
+      <h2 id="file-delete-confirmation-title">
+        {localized("wiki-page-file-delete.confirmation", "Delete this file?")}
+      </h2>
+      <p id="file-delete-confirmation-details">
+        {localized("wiki-page-file-delete.filename", "File")}: {pendingDelete.name}<br />
+        {localized("wiki-page-file-delete.page", "Page")}: {data.page?.slug}
+      </p>
+      <div class="file-delete-actions">
+        <button
+          bind:this={cancelDeleteButton}
+          class="file-delete-cancel"
+          onclick={() => void cancelDelete()}
+          type="button"
+        >
+          {localized("cancel", "Cancel")}
+        </button>
+        <button
+          class="file-delete-confirm"
+          onclick={confirmDelete}
+          type="button"
+        >
+          {localized("wiki-page-file-delete.confirm", "Confirm delete")}
+        </button>
+      </div>
+    </dialog>
+  {/if}
 {:else if fileListLoading}
   <div class="file-list-scroll">
     <div class="file-list file-list-message" role="status">Loading files…</div>
@@ -287,6 +378,23 @@
     overscroll-behavior-inline: contain;
   }
 
+  .file-delete-confirmation {
+    max-width: min(32rem, calc(100vw - 2rem));
+    padding: 1.25rem;
+    border: 1px solid currentColor;
+    border-radius: 0.5rem;
+  }
+
+  .file-delete-confirmation::backdrop {
+    background: rgb(0 0 0 / 0.55);
+  }
+
+  .file-delete-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+
   .file-list {
     display: table;
     width: 100%;
@@ -307,8 +415,8 @@
     }
 
     .file-attribute.file-name a {
-      overflow-wrap: anywhere;
       word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     &.wikidot .file-list-header,

@@ -418,6 +418,10 @@ export interface Locales {
   "wiki-page-file-upload.toast": string
   "wiki-page-file-delete": string
   "wiki-page-file-delete.toast": string
+  "wiki-page-file-delete.confirmation": string
+  "wiki-page-file-delete.filename": string
+  "wiki-page-file-delete.page": string
+  "wiki-page-file-delete.confirm": string
   "wiki-page-file-move-destination-page": string
   "wiki-page-file": string
   "wiki-page-file.name": string

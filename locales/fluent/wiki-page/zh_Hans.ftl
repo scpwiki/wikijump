@@ -96,6 +96,10 @@ wiki-page-file-upload =
 
 wiki-page-file-delete =
   .toast = 档案删除成功。
+  .confirmation = 删除文件？
+  .filename = 文件
+  .page = 页面
+  .confirm = 确认删除
 
 wiki-page-file-move-destination-page = 新页面网址
 
