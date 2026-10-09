@@ -32,7 +32,7 @@ test("narrow Wikidot transcript tables wrap without widening the document", asyn
   `)
   await page.addStyleTag({ path: responsiveTableStyles })
 
-  for (const width of [320, 375]) {
+  for (const width of [280, 320, 375, 390]) {
     await page.setViewportSize({ width, height: 900 })
     const geometry = await page.evaluate(() => {
       const content = document.querySelector<HTMLElement>("#page-content")!
