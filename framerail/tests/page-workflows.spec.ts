@@ -493,6 +493,62 @@ test("history keeps the latest selected revision when an older response arrives 
   }
 })
 
+test("history keeps the latest selection when the initially newer request resolves last", async ({
+  page,
+  request
+}) => {
+  await request.get(new URL("/last-page-read-requests", FIXTURE_URL).href)
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  await page.goto("/authoring-history-probe")
+  await waitForSvelteDelegatedHandler(page, "#history-button")
+  await page.getByRole("link", { name: "history", exact: true }).click()
+
+  let releaseFirst: (() => void) | undefined
+  let firstRequestStarted = () => {}
+  const firstStarted = new Promise<void>((resolve) => {
+    firstRequestStarted = resolve
+  })
+  await page.route(
+    (url) => url.pathname === "/authoring-history-probe" && url.search === "?/revision",
+    async (route) => {
+      const body = route.request().postDataJSON() as { revisionNumber: number }
+      if (body.revisionNumber === 2 && !releaseFirst) {
+        await new Promise<void>((resolve) => {
+          releaseFirst = resolve
+          firstRequestStarted()
+        })
+      }
+      await route.continue()
+    }
+  )
+
+  const olderRevision = page.locator(
+    '#action-area table.page-history tr[id="revision-row-9000341"]'
+  )
+  const newerRevision = page.locator(
+    '#action-area table.page-history tr[id="revision-row-9000342"]'
+  )
+  await newerRevision.locator("a[title='View page revision']").click()
+  await firstStarted
+
+  try {
+    await olderRevision.locator("a[title='View page revision']").click()
+    await expect(page.locator("#page-content")).toContainText("Historical version 1")
+
+    const staleResponse = page.waitForResponse((response) => {
+      if (!response.url().includes("?/revision")) return false
+      return response.request().postDataJSON().revisionNumber === 2
+    })
+    releaseFirst?.()
+    expect((await staleResponse).status()).toBe(200)
+
+    await expect(page.locator("#page-content")).toContainText("Historical version 1")
+    await expect(page.locator("#page-content")).not.toContainText("Historical version 2")
+  } finally {
+    releaseFirst?.()
+  }
+})
+
 test("history diff keeps added and removed source readable against its semantic colors", async ({
   page,
   request
