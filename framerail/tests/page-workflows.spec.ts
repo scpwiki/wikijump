@@ -479,14 +479,20 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     await page.getByRole("link", { name: "history", exact: true }).click()
     const table = page.locator("#action-area table.page-history")
     await expect(table).toBeVisible()
-    await expect(table.locator("tbody > tr").first().locator("td")).toHaveCount(7)
+    const headerRow = table.locator("tbody > tr").first()
+    await expect(headerRow.locator("td")).toHaveCount(7)
+    await expect(headerRow.getByRole("columnheader")).toHaveCount(7)
+    await expect(
+      headerRow.getByRole("columnheader", { name: "rev.", exact: true })
+    ).toBeVisible()
+    await expect(
+      headerRow.getByRole("columnheader", { name: /from.*to/iu })
+    ).toBeVisible()
 
     const rows = table.locator('tbody > tr[id^="revision-row-"]')
     await expect(rows.first().locator("td")).toHaveCount(7)
     const currentRow = rows.first()
     const currentCells = currentRow.locator("td")
-    const revisionId =
-      (await currentRow.getAttribute("id"))?.replace("revision-row-", "") ?? ""
     await expect(
       currentCells.nth(1).locator('input[type="radio"][name="from"]')
     ).toBeVisible()
@@ -502,12 +508,25 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     )
     await expect(currentCells.nth(6)).toHaveAttribute("style", "font-size: 90%")
     await expect(currentCells.nth(1).locator('input[type="radio"]')).toHaveCount(2)
-    await expect(
-      currentCells.nth(1).locator('input[type="radio"]').nth(0)
-    ).toHaveAttribute("id", revisionId)
-    await expect(
-      currentCells.nth(1).locator('input[type="radio"]').nth(1)
-    ).toHaveAttribute("id", revisionId)
+    const fromRadio = currentCells.nth(1).locator('input[type="radio"][name="from"]')
+    const toRadio = currentCells.nth(1).locator('input[type="radio"][name="to"]')
+    const fromId = await fromRadio.getAttribute("id")
+    const toId = await toRadio.getAttribute("id")
+    expect(fromId).toContain("-from-")
+    expect(toId).toContain("-to-")
+    expect(fromId).not.toBe(toId)
+    await expect(page.locator(`[id="${fromId}"]`)).toHaveCount(1)
+    await expect(page.locator(`[id="${toId}"]`)).toHaveCount(1)
+    const radioIds = await table
+      .locator('input[type="radio"]')
+      .evaluateAll((inputs) => inputs.map((input) => input.id))
+    expect(new Set(radioIds).size).toBe(radioIds.length)
+    await expect(fromRadio).toHaveAccessibleName(/: \d+$/u)
+    await expect(toRadio).toHaveAccessibleName(/: \d+$/u)
+    await fromRadio.check()
+    await toRadio.check()
+    await expect(fromRadio).toBeChecked()
+    await expect(toRadio).toBeChecked()
     await expect(
       currentCells.nth(3).locator("a").filter({ hasText: /^V$/u })
     ).toBeVisible()
