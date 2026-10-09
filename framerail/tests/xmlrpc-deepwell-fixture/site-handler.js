@@ -241,8 +241,51 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "confirm-password": "Confirm Password",
           "mfa-code": "MFA code"
         }
+    const basePageActionLabels = isJapanese
+      ? {
+          delete: "削除",
+          edit: "編集",
+          files: "ファイル",
+          history: "履歴",
+          layout: "レイアウト",
+          options: "オプション",
+          parents: "親ページ",
+          vote: "評価"
+        }
+      : {
+          delete: "Delete",
+          edit: "Edit",
+          files: "Files",
+          history: "History",
+          layout: "Layout",
+          options: "Options",
+          parents: "Parents",
+          vote: "Vote"
+        }
+    const pageActionLabels = isJapanese
+      ? {
+          "wiki-page-view-source": "ページソース",
+          "wiki-page-action-append": "追加",
+          "wiki-page-action-edit-sections": "セクションを編集",
+          "wiki-page-action-edit-meta": "メタを編集",
+          "wiki-page-action-watchers": "ウォッチャー",
+          "wiki-page-action-backlinks": "バックリンク",
+          "wiki-page-action-lock": "ページロック",
+          "wiki-page-action-rename-move": "リネーム"
+        }
+      : {
+          "wiki-page-view-source": "View Source",
+          "wiki-page-action-append": "Append",
+          "wiki-page-action-edit-sections": "Edit Sections",
+          "wiki-page-action-edit-meta": "Edit Meta",
+          "wiki-page-action-watchers": "Watchers",
+          "wiki-page-action-backlinks": "Backlinks",
+          "wiki-page-action-lock": "Lock Page",
+          "wiki-page-action-rename-move": "Move"
+        }
+    const labels = { ...authLabels, ...basePageActionLabels, ...pageActionLabels }
     result = Object.fromEntries(
-      Object.keys(rpcRequest.params.messages).map((key) => [key, authLabels[key] ?? key])
+      Object.keys(rpcRequest.params.messages).map((key) => [key, labels[key] ?? key])
     )
   } else {
     return undefined
