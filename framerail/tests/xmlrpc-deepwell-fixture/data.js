@@ -444,7 +444,9 @@ x^2 + y^2 = z^2
     tags: ["fixture"],
     rating: 0,
     wikitext: [
-      "[[include component:image-block]]",
+      "[[include component:image-block",
+      "|caption=fixture",
+      "]]",
       "[[include :scp-wiki:component:license-box]]",
       "@@[[include component:literal]]@@",
       '<img src=x onerror="alert(1)">'

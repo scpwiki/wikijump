@@ -26,6 +26,22 @@ const escapePageSourceHtml = (source) =>
 
 const SOURCE_COMPONENT_INCLUDE =
   /^([\t ]*\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)(\]\][\t ]*)$/u
+const SOURCE_COMPONENT_INCLUDE_OPEN =
+  /^([\t ]*\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)([\t ]*)$/u
+
+const sourceLineContent = (line) => line.replace(/\r?\n$/u, "")
+
+const parameterBlockEnd = (lines, start) => {
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = sourceLineContent(lines[index])
+    if (line.includes("[[") || line.includes("[!--") || line.includes("@@")) return -1
+    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_]*=[^\n]*\]\][\t ]*$/u.test(line)) return index
+    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_]*=[^\n]*$/u.test(line)) continue
+    if (/^[\t ]*\]\][\t ]*$/u.test(line)) return index
+    return -1
+  }
+  return -1
+}
 
 /**
  * Render only the narrowly evidenced same-site component include form as a
@@ -37,11 +53,18 @@ const SOURCE_COMPONENT_INCLUDE =
 export const wikidotPageSourceHtml = (source) => {
   let inComment = false
   let inCode = false
+  const lines = source.match(/[^\n]*\n|[^\n]+$/gu) ?? []
 
-  return (source.match(/[^\n]*\n|[^\n]+$/gu) ?? [])
-    .map((line) => {
-      const content = line.replace(/\r?\n$/u, "")
-      const candidate = !inComment && !inCode && SOURCE_COMPONENT_INCLUDE.exec(content)
+  return lines
+    .map((line, index) => {
+      const content = sourceLineContent(line)
+      const simpleInclude =
+        !inComment && !inCode && SOURCE_COMPONENT_INCLUDE.exec(content)
+      const openInclude =
+        !inComment && !inCode && SOURCE_COMPONENT_INCLUDE_OPEN.exec(content)
+      const candidate =
+        simpleInclude ??
+        (openInclude && parameterBlockEnd(lines, index) >= 0 ? openInclude : null)
 
       let rendered = escapePageSourceHtml(content)
       if (candidate) {
