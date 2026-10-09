@@ -3,44 +3,48 @@ import test from "node:test"
 
 import {
   articleRouteWithQueryNoRender,
-  queryNoRenderValue
+  queryNoRenderSelected
 } from "../src/lib/server/page-norender-query.ts"
 
-test("query no-render value is read from the norender key only", () => {
-  assert.equal(queryNoRenderValue("?norender=true"), "true")
-  assert.equal(queryNoRenderValue("?norender=t"), "t")
-  assert.equal(queryNoRenderValue("?norender=1"), "1")
-  assert.equal(queryNoRenderValue("?norender=false"), "false")
-  assert.equal(queryNoRenderValue("?norender=0"), "0")
-  assert.equal(queryNoRenderValue("?NORENDER=true"), "true")
-  assert.equal(queryNoRenderValue("?view=1&norender=true"), "true")
-  assert.equal(queryNoRenderValue("?norender=true&norender=false"), "true")
-  assert.equal(queryNoRenderValue("?other=true"), null)
-  assert.equal(queryNoRenderValue("?"), null)
-  assert.equal(queryNoRenderValue(""), null)
+test("observed query values activate no-render", () => {
+  for (const value of ["true", "t", "1", "false"]) {
+    assert.equal(queryNoRenderSelected(`?norender=${value}`), true, value)
+  }
+  assert.equal(queryNoRenderSelected("?view=1&norender=true"), true)
+  assert.equal(queryNoRenderSelected("?NORENDER=t"), true)
+  assert.equal(queryNoRenderSelected("?norender=true&norender=0"), true)
 })
 
-test("bare, empty, and path-like query values do not select no-render", () => {
-  assert.equal(queryNoRenderValue("?norender"), null)
-  assert.equal(queryNoRenderValue("?norender="), null)
-  assert.equal(queryNoRenderValue("?norender=a%2Fb"), null)
-  assert.equal(queryNoRenderValue("?norender=true/edit"), null)
-  assert.equal(queryNoRenderValue("?norender=%3F"), null)
+test("zero, empty, bare, and unrecognized values leave the page rendered", () => {
+  assert.equal(queryNoRenderSelected("?norender=0"), false)
+  assert.equal(queryNoRenderSelected("?norender"), false)
+  assert.equal(queryNoRenderSelected("?norender="), false)
+  assert.equal(queryNoRenderSelected("?norender=yes"), false)
+  assert.equal(queryNoRenderSelected("?norender=a%2Fb"), false)
+  assert.equal(queryNoRenderSelected("?norender=0&norender=true"), false)
+  assert.equal(queryNoRenderSelected("?other=true"), false)
+  assert.equal(queryNoRenderSelected("?"), false)
+  assert.equal(queryNoRenderSelected(""), false)
 })
 
-test("article route receives the query selector as a path argument", () => {
+test("article route receives the canonical path selector", () => {
   assert.deepEqual(
     articleRouteWithQueryNoRender({ slug: "scp-173", extra: "" }, "?norender=true"),
     { slug: "scp-173", extra: "norender/true" }
   )
   assert.deepEqual(
+    articleRouteWithQueryNoRender({ slug: "scp-173", extra: "" }, "?norender=false"),
+    { slug: "scp-173", extra: "norender/true" }
+  )
+  assert.deepEqual(
     articleRouteWithQueryNoRender({ slug: "scp-173", extra: "edit/true" }, "?norender=t"),
-    { slug: "scp-173", extra: "edit/true/norender/t" }
+    { slug: "scp-173", extra: "edit/true/norender/true" }
   )
 })
 
 test("routes without a selector are returned unchanged", () => {
   const route = { slug: "scp-173", extra: "" }
+  assert.equal(articleRouteWithQueryNoRender(route, "?norender=0"), route)
   assert.equal(articleRouteWithQueryNoRender(route, "?norender"), route)
   assert.equal(articleRouteWithQueryNoRender(route, "?view=history"), route)
   assert.equal(articleRouteWithQueryNoRender(null, "?norender=true"), null)
