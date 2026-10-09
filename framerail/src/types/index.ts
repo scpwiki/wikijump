@@ -397,6 +397,8 @@ export interface Locales {
   "wiki-page-layout.wikidot": string
   "wiki-page-layout.wikijump": string
   "wiki-page-layout.toast": string
+  "wiki-page-meta-tag-name": string
+  "wiki-page-meta-tag-content": string
   "wiki-page-delete": string
   "wiki-page-delete.toast": string
   "wiki-page-restore": string

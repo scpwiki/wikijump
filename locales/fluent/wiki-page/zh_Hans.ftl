@@ -73,6 +73,9 @@ wiki-page-layout = 页面布局
   .wikijump = Wikijump
   .toast = 页面布局保存成功。
 
+wiki-page-meta-tag-name = 元标签名称
+wiki-page-meta-tag-content = 元标签内容
+
 wiki-page-delete = 删除页面
   .toast = 页面删除成功。
 

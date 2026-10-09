@@ -40,6 +40,8 @@ const basePageTranslateKeys = (
   "wiki-page-layout.default": {},
   "wiki-page-layout.wikidot": {},
   "wiki-page-layout.wikijump": {},
+  "wiki-page-meta-tag-name": {},
+  "wiki-page-meta-tag-content": {},
   "footer-license-unless": {
     license: licenseName,
     "license_url": licenseUrl
