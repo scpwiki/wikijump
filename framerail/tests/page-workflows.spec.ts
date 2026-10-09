@@ -410,6 +410,30 @@ test("WIKIDOT History View Version and View Source actions still load selected r
   )
 })
 
+test("WIKIDOT Page Source links only the same-site component include target", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(SITE_HEADERS)
+  await page.goto("/page-source-include-probe")
+  await page.waitForLoadState("networkidle")
+  await page.locator("#more-options-button").click()
+  await page.locator("#view-source-button").click()
+
+  const source = page.locator("div.page-source").first()
+  expect(await source.textContent()).toBe(
+    '[[include component:image-block]]\n[[include :scp-wiki:component:license-box]]\n@@[[include component:literal]]@@\n<img src=x onerror="alert(1)">'
+  )
+  await expect(source.locator("a")).toHaveCount(1)
+  const include = source.getByRole("link", { name: "component:image-block" })
+  await expect(include).toHaveAttribute("href", "/component%3Aimage-block")
+  await expect(source.locator("img")).toHaveCount(0)
+  await expect(source.locator("a").nth(0)).toHaveText("component:image-block")
+
+  await include.click()
+  await expect(page).toHaveURL(/\/component%3Aimage-block$/u)
+  await expect(page.locator("#page-content")).toContainText("Component target.")
+})
+
 test("history diff keeps added and removed source readable against its semantic colors", async ({
   page,
   request

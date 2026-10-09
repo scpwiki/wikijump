@@ -1,5 +1,6 @@
 <script lang="ts">
   import { PagePane } from "$lib/types"
+  import { wikidotPageSourceHtml } from "$lib/wikidot-history-contract.js"
 
   import type { PageRevisionModelFiltered } from "$lib/server/deepwell/page"
   import type { Optional } from "$lib/types"
@@ -184,7 +185,7 @@
     <h1 class="page-source-header">
       {data.internationalization?.["wiki-page-source"]}
     </h1>
-    <div class="page-source">{data.wikitext ?? ""}</div>
+    <div class="page-source">{@html wikidotPageSourceHtml(data.wikitext ?? "")}</div>
   {:else}
     {@render paneContent()}
   {/if}
