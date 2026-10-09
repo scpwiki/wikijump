@@ -22,6 +22,7 @@
     updateWikidotRateWidget,
     wikidotLegacyActions
   } from "$lib/wikidot/wikidot-legacy-actions"
+  import { wikidotSiteChanges } from "$lib/wikidot/wikidot-site-changes.js"
   import {
     requestLegacyRate,
     requestLegacyRateCancel,
@@ -428,6 +429,7 @@
     actions: showRevision ? [] : (data.membership_actions ?? []),
     runtime: membershipActionRuntime
   })
+  let siteChangesActionParameters = $derived({ pageId: data.page.page_id })
 
   onMount(() => {
     // Hash Magic still applies under debug/norender documents (an edit hash on
@@ -509,6 +511,7 @@
       class:hidden={dataFormEditing}
       use:wikidotGalleryLightbox={showRevision ? revision?.wikitext : data.wikitext}
       use:wikidotLegacyActions={legacyActionParameters}
+      use:wikidotSiteChanges={siteChangesActionParameters}
       use:wikidotMembershipActions={membershipActionParameters}
       use:wikidotTabviews
       use:wikidotFoldableLists
