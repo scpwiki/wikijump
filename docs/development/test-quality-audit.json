@@ -6862,7 +6862,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/FileList.svelte",
-      "sha256": "635fd5bf9394c75ea2246245f5849d38b81869e8226a5019196350f07924fd9b",
+      "sha256": "f978f6c0b66bc743a7b345be7348bce57ce263afedc7022a0a52d44aa767b68a",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6870,7 +6870,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/FilePane.svelte",
-      "sha256": "facfa3b4f07381d7d0e95224ae1af5fa67717435a7f364b93f446be0df12627d",
+      "sha256": "5e246f2da92adee4bc981221936e37e674ce04e9c6eb7fd1b6e358f9a74113f8",
       "status": "pending",
       "anchors": [],
       "findings": [],
