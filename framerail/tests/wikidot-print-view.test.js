@@ -75,6 +75,34 @@ test("print options keep the verified font sizes and single native print control
   assert.ok(html.includes('<div id="print-options">'))
 })
 
+test("print options expose only the five evidenced body-font choices and source toggle", () => {
+  const html = buildWikidotPrintOptionsHtml()
+  const families = [
+    ["original font", "original"],
+    ["Georgia", "georgia"],
+    ["Times New Roman", "times-new-roman"],
+    ["Serif (generic)", "serif"],
+    ["Arial/Helvetica", "arial-helvetica"]
+  ]
+
+  for (const [label, value] of families) {
+    assert.ok(
+      html.includes(
+        `role="button" aria-pressed="${value === "original"}" onclick="WIKIDOT.printview.listeners.changeFontFamily(event, '${value}')">${label}</a>`
+      ),
+      `missing printer font choice ${label}: ${html}`
+    )
+  }
+  assert.equal((html.match(/changeFontFamily\(event,/gu) ?? []).length, 5)
+  assert.ok(!html.includes(" | Serif |"), html)
+  assert.ok(
+    html.includes(
+      'role="button" aria-pressed="false" onclick="WIKIDOT.printview.listeners.toggleSourceInfo(event)">toggle visibility</a>'
+    ),
+    html
+  )
+})
+
 test("print source info escapes site and page identity", () => {
   const html = buildWikidotPrintSourceInfoHtml({
     siteName: 'Site <"unsafe">',
@@ -89,7 +117,15 @@ test("print source info escapes site and page identity", () => {
 })
 
 test("print view delegates activation for generated handlers only", () => {
-  const content = { style: {} }
+  const content = {
+    style: {
+      fontSize: "",
+      getPropertyValue: () => "",
+      getPropertyPriority: () => "",
+      setProperty() {},
+      removeProperty() {}
+    }
+  }
   const listeners = new Map()
   const root = {
     querySelector: (selector) => (selector === "#print-content" ? content : null),
