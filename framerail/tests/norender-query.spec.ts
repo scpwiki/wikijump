@@ -47,16 +47,18 @@ test("query no-render selector matches the path form", async ({ page }) => {
   await expect(page.locator("#page-content")).toHaveText(pathText)
 })
 
-test("query selector accepts the documented truthy aliases", async ({ page }) => {
-  for (const value of ["t", "1"]) {
+test("query selector accepts the observed activating values", async ({ page }) => {
+  for (const value of ["t", "1", "false"]) {
     await openPage(page, `/${PAGE}?norender=${value}`)
     await expectNoRenderContent(page)
   }
 })
 
-test("false and zero query values keep the rendered article", async ({ page }) => {
-  for (const value of ["false", "0"]) {
-    await openPage(page, `/${PAGE}?norender=${value}`)
+test("zero, empty, and bare query selectors keep the rendered article", async ({
+  page
+}) => {
+  for (const suffix of ["?norender=0", "?norender=", "?norender", "?norender=yes"]) {
+    await openPage(page, `/${PAGE}${suffix}`)
     await expectRenderedContent(page)
   }
 })
