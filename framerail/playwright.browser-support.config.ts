@@ -10,7 +10,7 @@ const withBaseUse = (device: (typeof devices)[keyof typeof devices]) => ({
 const config: PlaywrightTestConfig = {
   ...baseConfig,
   testMatch:
-    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,browser-support,edit-meta-newtag-mobile,file-history-view-unavailable,forum-start-routes,module-accessible-names,page-action-localization,printer-friendly-print-toolbar,vote-pane-japanese-i18n}.spec.ts",
+    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,backlinks-watchers-failure,browser-support,edit-meta-newtag-mobile,file-history-view-unavailable,forum-start-routes,module-accessible-names,page-action-localization,printer-friendly-print-toolbar,vote-pane-japanese-i18n}.spec.ts",
   webServer: [
     ...(baseConfig.webServer
       ? Array.isArray(baseConfig.webServer)
@@ -53,6 +53,15 @@ const config: PlaywrightTestConfig = {
         "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,edit-meta-newtag-mobile,file-history-view-unavailable,module-accessible-names,page-action-localization,vote-pane-japanese-i18n}.spec.ts",
       use: {
         ...withBaseUse(devices["Desktop Safari"]),
+        ignoreHTTPSErrors: true
+      }
+    },
+    {
+      name: "webkit-https-backlinks-watchers",
+      testMatch: "**/backlinks-watchers-failure.spec.ts",
+      use: {
+        ...withBaseUse(devices["Desktop Safari"]),
+        baseURL: `https://localhost:${process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373"}`,
         ignoreHTTPSErrors: true
       }
     },
