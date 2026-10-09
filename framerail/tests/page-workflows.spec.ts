@@ -421,11 +421,14 @@ test("WIKIDOT Page Source links only the same-site component include target", as
 
   const source = page.locator("div.page-source").first()
   expect(await source.textContent()).toBe(
-    '[[include component:image-block\n|caption=fixture\n]]\n [[include component:spaced-literal]]\n[[include :scp-wiki:component:license-box]]\n@@[[include component:literal]]@@\n<img src=x onerror="alert(1)">'
+    '[[include component:image-block\n|caption=fixture\n]]\n[[include component:image-block]]\n [[include component:spaced-literal]]\n[[include :scp-wiki:component:license-box]]\n@@[[include component:literal]]@@\n<img src=x onerror="alert(1)">'
   )
-  await expect(source.locator("a")).toHaveCount(1)
-  const include = source.getByRole("link", { name: "component:image-block" })
-  await expect(include).toHaveAttribute("href", "/component%3Aimage-block")
+  await expect(source.locator("a")).toHaveCount(2)
+  const includes = source.getByRole("link", { name: "component:image-block" })
+  await expect(includes).toHaveCount(2)
+  await expect(includes.nth(0)).toHaveAttribute("href", "/component%3Aimage-block")
+  await expect(includes.nth(1)).toHaveAttribute("href", "/component%3Aimage-block")
+  const include = includes.nth(0)
   await expect(source.locator("img")).toHaveCount(0)
   await expect(source.locator("a").nth(0)).toHaveText("component:image-block")
 
