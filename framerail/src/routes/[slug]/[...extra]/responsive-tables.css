@@ -1,0 +1,10 @@
+@media (max-width: 767px) {
+  #page-content table {
+    width: 100%;
+  }
+
+  #page-content th,
+  #page-content td {
+    overflow-wrap: anywhere;
+  }
+}
