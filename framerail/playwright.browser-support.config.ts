@@ -26,6 +26,10 @@ const config: PlaywrightTestConfig = {
         FRAMERAIL_VITE_TEST_CACHE: "1",
         PLAYWRIGHT_HTTPS_APP_PORT: process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373",
         PLAYWRIGHT_FIXTURE_PORT: process.env.PLAYWRIGHT_FIXTURE_PORT ?? "42747",
+        WIKIJUMP_PLAYWRIGHT_TLS_DIR:
+          process.env.WIKIJUMP_PLAYWRIGHT_TLS_DIR ?? "/tmp/wikijump-playwright-tls-2242",
+        WIKIJUMP_PLAYWRIGHT_TLS_OWNER_TOKEN:
+          process.env.WIKIJUMP_PLAYWRIGHT_TLS_OWNER_TOKEN ?? "",
         DEEPWELL_RPC_TOKEN: process.env.DEEPWELL_RPC_TOKEN ?? "0".repeat(64)
       }
     }
