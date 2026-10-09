@@ -69,6 +69,7 @@ wiki-page-vote = Page rating
   .dislike = I don't like it
   .cancel = Cancel my vote
   .who-rated = Look who rated this page
+  .user = User
   .toast-set = Successfully voted.
   .toast-remove = Successfully removed vote.
 

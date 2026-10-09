@@ -311,7 +311,8 @@
       <ul class="vote-list">
         {#each [...voteMap].sort((a, b) => b[0] - a[0]) as [userId, vote] (vote.page_vote_id)}
           <li class="vote-item" data-id={vote.page_vote_id} data-user-id={userId}>
-            UNTRANSLATED: User {vote.user_id}: {vote.value}
+            {data.internationalization["wiki-page-vote.user"]}
+            {vote.user_id}: {vote.value}
           </li>
         {/each}
       </ul>

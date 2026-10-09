@@ -30,3 +30,4 @@ wiki-page-vote = ページの評価
   .dislike = 好きじゃない
   .cancel = 投票を取り消す
   .who-rated = 誰がこのページに評価したかを閲覧
+  .user = ユーザー

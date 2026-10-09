@@ -388,6 +388,7 @@ export interface Locales {
   "wiki-page-vote.dislike": string
   "wiki-page-vote.cancel": string
   "wiki-page-vote.who-rated": string
+  "wiki-page-vote.user": string
   "wiki-page-vote.toast-set": string
   "wiki-page-vote.toast-remove": string
   "wiki-page-edit": string

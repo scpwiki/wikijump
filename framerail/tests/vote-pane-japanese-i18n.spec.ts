@@ -14,7 +14,8 @@ const locales = {
     like: "I like it",
     dislike: "I don't like it",
     cancel: "Cancel my vote",
-    whoRated: "Look who rated this page"
+    whoRated: "Look who rated this page",
+    user: "User"
   },
   "ja-JP": {
     heading: "ページの評価",
@@ -22,7 +23,8 @@ const locales = {
     like: "好き",
     dislike: "好きじゃない",
     cancel: "投票を取り消す",
-    whoRated: "誰がこのページに評価したかを閲覧"
+    whoRated: "誰がこのページに評価したかを閲覧",
+    user: "ユーザー"
   }
 } as const
 
@@ -81,6 +83,26 @@ for (const [locale, expected] of Object.entries(locales) as Array<
       expect(Object.values(recorded).every((requests) => requests.length === 0)).toBe(
         true
       )
+    })
+
+    test("localize the native vote-list entry", async ({ page }, testInfo) => {
+      test.skip(
+        testInfo.project.name === "webkit",
+        "WebKit runs this acceptance case against the HTTPS fixture"
+      )
+
+      await page.setExtraHTTPHeaders(SITE_HEADERS)
+      const baseUrl =
+        testInfo.project.name === "webkit-https-edit-meta" ? HTTPS_APP_URL : APP_URL
+      const response = await page.goto(`${baseUrl}/vote-pane-wikijump-probe`)
+      expect(response?.status()).toBe(200)
+
+      await waitForSvelteDelegatedHandler(page, ".button-vote")
+      await page.locator(".button-vote").click()
+      await expect(page.locator(".vote-panel")).toBeVisible()
+      await page.locator(".view-vote-list").click()
+      await expect(page.locator(".vote-item")).toHaveText(`${expected.user} 456: 1`)
+      await expect(page.locator(".vote-item")).not.toContainText("UNTRANSLATED")
     })
   })
 }

@@ -6022,7 +6022,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/page/page-presentation.ts",
-      "sha256": "21b84f15f2172e68eac690b3d649898ed0a155ed11ddafa1fef3054cd63ea090",
+      "sha256": "e36b7489198e18c525d3703d0ee69698c654859003ece2c4afa7433865eb637d",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6982,7 +6982,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/VotePane.svelte",
-      "sha256": "5cd697a2d9441a9f492a742ff6522c931902ea13c090ffb9bb9a2837e36b8702",
+      "sha256": "a00448954a5029842e6a63cfaf75892b4fbfc0b7db34d27594925b0684e1f272",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7526,7 +7526,7 @@
     },
     {
       "path": "framerail/src/types/index.ts",
-      "sha256": "b394f56ded4d5fcbdf14f46f81e9a41de36626c283afba90ad02813dfe95878e",
+      "sha256": "1c0cef78b6ff6ac0ab89ac9b5fcafea3a26812a264ff2f640f0195992daf6635",
       "status": "pending",
       "anchors": [],
       "findings": [],

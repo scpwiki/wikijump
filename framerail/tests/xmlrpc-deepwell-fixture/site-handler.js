@@ -305,7 +305,8 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "wiki-page-vote.like": "好き",
           "wiki-page-vote.dislike": "好きじゃない",
           "wiki-page-vote.cancel": "投票を取り消す",
-          "wiki-page-vote.who-rated": "誰がこのページに評価したかを閲覧"
+          "wiki-page-vote.who-rated": "誰がこのページに評価したかを閲覧",
+          "wiki-page-vote.user": "ユーザー"
         }
       : {
           "wiki-page-vote": "Page rating",
@@ -317,7 +318,8 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "wiki-page-vote.like": "I like it",
           "wiki-page-vote.dislike": "I don't like it",
           "wiki-page-vote.cancel": "Cancel my vote",
-          "wiki-page-vote.who-rated": "Look who rated this page"
+          "wiki-page-vote.who-rated": "Look who rated this page",
+          "wiki-page-vote.user": "User"
         }
     const labels = { ...authLabels, ...basePageActionLabels, ...pageActionLabels }
     result = Object.fromEntries(
