@@ -25,9 +25,9 @@ const escapePageSourceHtml = (source) =>
     .replaceAll("'", "&#039;")
 
 const SOURCE_COMPONENT_INCLUDE =
-  /^([\t ]*\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)(\]\][\t ]*)$/u
+  /^(\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)(\]\][\t ]*)$/u
 const SOURCE_COMPONENT_INCLUDE_OPEN =
-  /^([\t ]*\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)([\t ]*)$/u
+  /^(\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)([\t ]*)$/u
 
 const sourceLineContent = (line) => line.replace(/\r?\n$/u, "")
 

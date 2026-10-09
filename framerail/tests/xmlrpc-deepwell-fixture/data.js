@@ -447,6 +447,7 @@ x^2 + y^2 = z^2
       "[[include component:image-block",
       "|caption=fixture",
       "]]",
+      " [[include component:spaced-literal]]",
       "[[include :scp-wiki:component:license-box]]",
       "@@[[include component:literal]]@@",
       '<img src=x onerror="alert(1)">'
