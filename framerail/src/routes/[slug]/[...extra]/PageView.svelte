@@ -42,6 +42,7 @@
   import { wikidotCollapsibles } from "$lib/wikidot/wikidot-collapsibles"
   import { wikidotToc } from "$lib/wikidot/wikidot-toc"
   import { wikidotFootnotes } from "$lib/wikidot/wikidot-footnotes"
+  import { wikidotEmailObfuscation } from "$lib/wikidot/wikidot-email-obfuscation.js"
   import { resolveWikidotHashMagicPagePane } from "$lib/wikidot/wikidot-hash-magic"
   import { onMount } from "svelte"
 
@@ -435,7 +436,9 @@
     // Hash Magic still applies under debug/norender documents (an edit hash on
     // a debug page is still an edit request); only the non-Wikidot layout and
     // the already-open /edit route skip the initial dispatch.
-    if (pageLayoutContext.current !== Layout.WIKIDOT || data.options?.edit) return
+    if (pageLayoutContext.current !== Layout.WIKIDOT || data.options?.edit) {
+      return
+    }
 
     switch (resolveWikidotHashMagicPagePane(window.location.href)) {
       case "history":
@@ -518,6 +521,7 @@
       use:wikidotCollapsibles
       use:wikidotToc
       use:wikidotFootnotes
+      use:wikidotEmailObfuscation
     >
       {@html renderedBodyHtml}
     </div>
