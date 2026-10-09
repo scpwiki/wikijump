@@ -8,8 +8,13 @@ import { pages, toArticleViewResult } from "./data.js"
 
 const LISTPAGES_NAVIGATION_EXTRA = /^p\/[1-9][0-9]*$/u
 const SEARCH_SITE_EXTRA = /^q\/.+$/u
-const NEW_PAGE_EDIT_EXTRA = /^edit\/true(?:\/.*)?$/u
+const NEW_PAGE_EDIT_EXTRA = /^edit(?:\/true)?(?:\/.*)?$/u
 const DATA_FORM_CREATE_SLUG = "data-form-create-flow:example"
+// Missing-page probes for page-create-permission.spec.ts (no edit route).
+const MISSING_PAGE_PROBE_SLUGS = new Set([
+  "create-permission-denied-probe",
+  "create-permission-authorized-probe"
+])
 const DATA_FORM_CONTROLS_CREATE_SLUG = "data-form-controls-flow:example"
 const DATA_FORM_REGEX_BUDGET_CREATE_SLUG = "data-form-regex-budget-flow:example"
 const DATA_FORM_INVALID_REGEX_CREATE_SLUG = "data-form-invalid-regex-flow:example"
@@ -609,8 +614,22 @@ const siteView = {
   user_session: null
 }
 
-/** @param {{ slug: string; extra: string }} route */
-const missingPageArticleViewResult = (route) => ({
+/**
+ * Fixture create decision: the authenticated fixture sessions may create,
+ * and anonymous viewers (no session token) may not. Mirrors Deepwell's
+ * missing view.
+ *
+ * @param {string | undefined | null} sessionToken
+ */
+const fixtureCanCreatePage = (sessionToken) =>
+  sessionToken === "fixture-session-token" ||
+  sessionToken === "fixture-authenticated-session-token"
+
+/**
+ * @param {{ slug: string; extra: string }} route
+ * @param {string | undefined | null} sessionToken
+ */
+const missingPageArticleViewResult = (route, sessionToken) => ({
   ...siteView,
   article_page_cache_key: null,
   public_content_cache_fence: null,
@@ -642,8 +661,10 @@ const missingPageArticleViewResult = (route) => ({
       new_page_wikitext: null,
       page_templates: [],
       selected_template_page_id: null,
-      data_form:
-        route.slug === DATA_FORM_CREATE_SLUG
+      can_create: fixtureCanCreatePage(sessionToken),
+      data_form: !fixtureCanCreatePage(sessionToken)
+        ? null
+        : route.slug === DATA_FORM_CREATE_SLUG
           ? { definition: DATA_FORM_DEFINITION, values: {}, pagepaths: {} }
           : route.slug === DATA_FORM_DATE_CREATE_SLUG
             ? { definition: DATA_FORM_DATE_DEFINITION, values: {}, pagepaths: {} }
@@ -741,6 +762,7 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
       hasExactKeys(rpcRequest.params.route, ["extra", "slug"])) &&
     typeof articleRoute.slug === "string" &&
     (pageForArticleRoute(articleRoute) ||
+      (MISSING_PAGE_PROBE_SLUGS.has(articleRoute.slug) && articleRoute.extra === "") ||
       ((articleRoute.slug === DATA_FORM_CREATE_SLUG ||
         articleRoute.slug === DATA_FORM_DATE_CREATE_SLUG ||
         articleRoute.slug === DATA_FORM_DATE_OPTIONS_CREATE_SLUG ||
@@ -822,7 +844,7 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
         result.page.data.options.edit = true
       }
     } else {
-      result = missingPageArticleViewResult(articleRoute)
+      result = missingPageArticleViewResult(articleRoute, rpcRequest.params.session_token)
     }
   } else if (
     rpcRequest.method === "article_view_cache_metadata" &&
