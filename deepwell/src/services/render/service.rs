@@ -86,11 +86,11 @@ use super::iftags::{
 };
 use super::include_attachment_owners::{
     AttachmentOwner, AttachmentProvenanceRegistry, AttachmentVariableOwners,
-    find_wikidot_directive_end, owned_url, parse_wikidot_include_argument,
+    find_wikidot_image_block_directive_end, owned_url, parse_wikidot_include_argument,
     preserve_argument_quotes, protect_forwarded_attachment_variables,
     qualify_included_relative_image_attachments,
     qualify_relative_image_variable_attachments, relative, semantic_attachment_value,
-    split_wikidot_include_argument_segments, wikidot_include_directive_ranges,
+    split_wikidot_image_block_argument_segments, wikidot_include_directive_ranges,
     wikidot_include_segment_is_space,
 };
 use super::include_comment_branches::{
