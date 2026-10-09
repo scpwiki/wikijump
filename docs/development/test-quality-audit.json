@@ -4758,7 +4758,7 @@
     },
     {
       "path": "framerail/playwright.browser-support.config.ts",
-      "sha256": "2a422db5e906ca92bd176c3897a90866d53dfe71e7cc93bb9592adcb4ff0de96",
+      "sha256": "dc6959ed82a73b96ed3dc546b004d86838e6e693ceb9e7059c716567aa9a6da0",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6022,7 +6022,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/page/page-presentation.ts",
-      "sha256": "c4e0b2a5638c6220ec63477ae720283af85af7ba7b2d044411d271cf7e29f72d",
+      "sha256": "21b84f15f2172e68eac690b3d649898ed0a155ed11ddafa1fef3054cd63ea090",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6982,7 +6982,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/VotePane.svelte",
-      "sha256": "c7b8dfa4bb17192b4a9fe788e10ecbcb29afd4b23ad34e894fe13ef231141c54",
+      "sha256": "5cd697a2d9441a9f492a742ff6522c931902ea13c090ffb9bb9a2837e36b8702",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7526,7 +7526,7 @@
     },
     {
       "path": "framerail/src/types/index.ts",
-      "sha256": "7858ced9c887594ac0350faa0cec48cdfc5f53fb67b1d74f18d84f9b6bfbb049",
+      "sha256": "b394f56ded4d5fcbdf14f46f81e9a41de36626c283afba90ad02813dfe95878e",
       "status": "pending",
       "anchors": [],
       "findings": [],

@@ -168,7 +168,7 @@
   <h1 class="page-vote-header">
     {data.internationalization["wiki-page-vote"]}
   </h1>
-  <p>Simply rate contents of this page.</p>
+  <p>{data.internationalization["wiki-page-vote.description"]}</p>
   <div class="page-rate-widget-area">
     {#if pageRating.rating_type === "stars"}
       <div class="page-rate-widget">
@@ -201,7 +201,8 @@
           <a
             href="javascript:;"
             onclick={() => castVote(1)}
-            title="I like it"
+            aria-label={data.internationalization["wiki-page-vote.like"]}
+            title={data.internationalization["wiki-page-vote.like"]}
             type="button">+</a
           >
         </span>{#if pageRating.rating_type === "plus_minus"}<span
@@ -211,13 +212,18 @@
             <a
               href="javascript:;"
               onclick={() => castVote(-1)}
-              title="I don't like it"
+              aria-label={data.internationalization["wiki-page-vote.dislike"]}
+              title={data.internationalization["wiki-page-vote.dislike"]}
               type="button">–</a
             >
           </span>{/if}<span class="cancel btn btn-default">
           <!-- svelte-ignore a11y_invalid_attribute -->
-          <a href="javascript:;" onclick={cancelVote} title="Cancel my vote" type="button"
-            >x</a
+          <a
+            href="javascript:;"
+            onclick={cancelVote}
+            aria-label={data.internationalization["wiki-page-vote.cancel"]}
+            title={data.internationalization["wiki-page-vote.cancel"]}
+            type="button">x</a
           >
         </span>
       </div>
@@ -226,7 +232,9 @@
   {#if pageRating.visibility === "visible"}
     <p>
       <!-- svelte-ignore a11y_invalid_attribute -->
-      <a href="javascript:;" onclick={getWikidotWhoRated}> Look who rated this page </a>
+      <a href="javascript:;" onclick={getWikidotWhoRated}>
+        {data.internationalization["wiki-page-vote.who-rated"]}
+      </a>
     </p>
     <div id="who-rated-page-area">
       {#if showVoteList}

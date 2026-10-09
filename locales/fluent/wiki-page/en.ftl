@@ -60,10 +60,15 @@ wiki-page-revision-type = Type
 ### Wiki Page Vote
 
 wiki-page-vote = Page rating
+  .description = Simply rate contents of this page.
   .set = Cast vote
   .remove = Cancel vote
   .list = List votes
   .score = Rating
+  .like = I like it
+  .dislike = I don't like it
+  .cancel = Cancel my vote
+  .who-rated = Look who rated this page
   .toast-set = Successfully voted.
   .toast-remove = Successfully removed vote.
 

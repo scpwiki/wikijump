@@ -379,10 +379,15 @@ export interface Locales {
   "wiki-page-revision-type.undelete": string
   "wiki-page-revision-type.undo": string
   "wiki-page-vote": string
+  "wiki-page-vote.description": string
   "wiki-page-vote.set": string
   "wiki-page-vote.remove": string
   "wiki-page-vote.list": string
   "wiki-page-vote.score": string
+  "wiki-page-vote.like": string
+  "wiki-page-vote.dislike": string
+  "wiki-page-vote.cancel": string
+  "wiki-page-vote.who-rated": string
   "wiki-page-vote.toast-set": string
   "wiki-page-vote.toast-remove": string
   "wiki-page-edit": string
