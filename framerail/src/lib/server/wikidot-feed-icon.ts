@@ -1,0 +1,13 @@
+// Repository-authored 14x14 RSS chrome icon. The source is assets/feed-icon-14x14.svg
+// (sha256 8400559ef9d186d1d50671f63193b2e9343d0e26a03d1cd3232735ccbd786576), rendered with
+// ImageMagick 6.9.12 as `convert -background none -density 1152 feed-icon-14x14.svg -resize 14x14 -strip png32:out.png`
+// to sha256 332f1155f4635f7d79797ac40141990c62a140921feb68bc3d3d7a1bfa7ab8c6. It is not a copy of any Wikidot-hosted file.
+const FEED_ICON_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAACKUlEQVQoz32QzUuUURSHn3PvfWfMPkxtSEMixrF0EZhfUS2CIIqw3FqLWs02IgiaRWC46E+IlkWhhhCtqoVICmkhhaahWeJHZKY2MRXqvO+9t4UWbupZn+f3O+dILp0sBa7j3UWdakjoqiZxy59wM6O4pTmI8qA0G3wDHgLtBsgAl/E+0NVHiLdcBRvhsvPYiUHCvk7s9DA4ByIlQBoo0Jn64nvADhBkewniPT5cRZVWoJO1mNqTYALc7ChEIYgoYL/k0kkHCAAmhugAlKD2HCA4fh5TdxoxMcL+Lta6b+FXf4EIOlNf3AaAswSNzcRbb6AranALU4S99/HfF9CVdehUI95F2MkhwGP+XI0IqqIanWpApxowjc2Ezx+Qf3oHnCV+4SaxE5ew4wPYicFNjSL4xVnsxEtY+YGqqMbUHAOtyffcRRWXo1MNEMSI3vZuEgH/M4v7PEn0rg+fXUBXH0XvO4ibGcW+f4WpP4MqLiMa60f9XVVppCgBsQKwlnDwEeGLbqRgG+ZwC25hCjc3huzcjU4e2hCVJnYqTeG1TuLnrkAQhygkGu4BG6LLq0Ab3PzH9fHEXgzeeykskqCpBVVWiWk6S9jXgVucXf9sfxfu6/R60PgAAPbDEAaRZb+S2xWN9BBsLcKO9OJyy6AUPvuF1Y42sBaUInrzjOj1E4BVyaWTt8GnMXGtihLrUn4FRPgHHug2QDtInGit1S3NbUHkf1IeeAxkfgMHDOHJ2EiNjwAAAABJRU5ErkJggg=="
+
+export const FEED_ICON_SHA256 =
+  "332f1155f4635f7d79797ac40141990c62a140921feb68bc3d3d7a1bfa7ab8c6"
+
+export function wikidotFeedIconPng(): Uint8Array {
+  return new Uint8Array(Buffer.from(FEED_ICON_PNG_BASE64, "base64"))
+}
