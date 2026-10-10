@@ -1,0 +1,11 @@
+Utilities for importing backfill data from Wikidot.
+
+Development:
+
+    ruff format importer
+    ruff check importer
+    mypy importer
+
+Execution:
+
+    importer/import_wikidot_users_and_avatars.py --help
