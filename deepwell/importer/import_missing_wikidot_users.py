@@ -95,7 +95,7 @@ def import_user_if_missing(
         gender=convert_gender(user.get("gender")),
         birthday=birthday,
         location=user.get("from"),
-        biography="",  # not available
+        biography=None,  # not available
         website=user.get("website"),
         karma=user["activity"],
         is_pro=False,  # not available
