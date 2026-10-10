@@ -56,6 +56,13 @@ function create_initial_buckets() {
 		create_bucket "$bucket"
 	done
 
+	echo "Setting up aliases for mc usage."
+	# delete default aliases we don't need
+	mc alias rm gcs
+	mc alias rm s3
+	# add local alias for convenient usage
+	mc alias set local http://localhost:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
+
 	echo "Bucket setup complete, terminating temporary server"
 	kill "$pid" && wait "$pid"
 }
