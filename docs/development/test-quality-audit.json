@@ -6566,7 +6566,7 @@
     },
     {
       "path": "framerail/src/lib/wikidot/wikidot-legacy-actions.js",
-      "sha256": "7dea23bc5677a1d924ec01618285b2e34a333bbcfe4fd15b7a57bcaf67d95476",
+      "sha256": "8e3e513b8ad930a3eb0828dd5fe505158367e3ec0fb246ea9281223e02894b49",
       "status": "pending",
       "anchors": [],
       "findings": [],
