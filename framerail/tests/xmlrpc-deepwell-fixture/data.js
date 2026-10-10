@@ -9,6 +9,7 @@
  *   compiled_body_html: string
  *   compiled_body_styles?: string[]
  *   creator_user_id: number
+ *   from_wikidot?: boolean
  *   page_created_at: string
  *   page_id: number
  *   page_revision_count: number
@@ -202,6 +203,23 @@ export const pages = {
       "body { font-family: verdana, arial, helvetica, sans-serif; font-size: 0.8em; }",
       "#header h2 span { margin-left: 1px; }"
     ]
+  },
+  "wikidot-login-probe": {
+    page_id: 3000395,
+    revision_id: 9000395,
+    page_created_at: "2026-07-13T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-13T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    from_wikidot: true,
+    title: "Login probe",
+    slug: "wikidot-login-probe",
+    tags: [],
+    rating: 0,
+    wikitext: "Imported layout login probe marker.",
+    compiled_body_html: "<p>Imported layout login probe marker.</p>"
   },
   "wikidot-tabview": {
     page_id: 3000320,
@@ -712,7 +730,7 @@ export const toArticleViewResult = (page, siteId = 6000005) => ({
         created_at: page.page_created_at,
         updated_at: page.page_updated_at,
         deleted_at: null,
-        from_wikidot: false,
+        from_wikidot: page.from_wikidot === true,
         site_id: siteId,
         latest_revision_id: page.revision_id,
         page_category_id: 1,
@@ -732,7 +750,7 @@ export const toArticleViewResult = (page, siteId = 6000005) => ({
         page_id: page.page_id,
         site_id: siteId,
         user_id: page.revision_user_id,
-        from_wikidot: false,
+        from_wikidot: page.from_wikidot === true,
         changes: [],
         wikitext_hash: [],
         compiled_body_html_hash: [],
