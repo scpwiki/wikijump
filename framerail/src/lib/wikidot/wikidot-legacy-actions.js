@@ -286,6 +286,7 @@ export const materializeWikidotRateActionHtml = (html, actions) => {
   return html.replace(RATE_ANCHOR_TAG, (tag) => {
     const handler = readHtmlAttribute(tag, "onclick")
     if (
+      actionIndex >= actions.length ||
       readHtmlAttribute(tag, "href") !== "javascript:;" ||
       handler !== rateActionOnclick(actions[actionIndex])
     ) {

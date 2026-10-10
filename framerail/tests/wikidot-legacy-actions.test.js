@@ -357,11 +357,15 @@ test("renderer removes exact Rate inline handlers before the browser parses HTML
     '<span class="rateup"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>',
     '<span class="ratedown"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)" title="I don\'t like it">-</a></span>',
     '<span class="cancel"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)" title="Cancel my vote">x</a></span>',
-    '<a href="#" onclick="keepThisUnrelatedHandler()">unrelated</a>'
+    '<a href="#" onclick="keepThisUnrelatedHandler()">unrelated</a>',
+    '<a href="javascript:;" onclick="keepThisUnrelatedHandler()">unrelated javascript link</a>'
   ].join("")
 
   const servedHtml = materializeWikidotRateActionHtml(html, actions)
-  assert.equal((servedHtml.match(/onclick=/gu) ?? []).length, 1)
+  assert.equal((servedHtml.match(/onclick=/gu) ?? []).length, 2)
+  assert.ok(
+    servedHtml.includes('<a href="javascript:;" onclick="keepThisUnrelatedHandler()">')
+  )
   const servedRateAnchors = [
     ...servedHtml.matchAll(/<a\b(?=[^>]*data-wikijump-rate-action-index)[^>]*>/giu)
   ].map((match) => match[0])
