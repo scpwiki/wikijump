@@ -43,6 +43,7 @@
 /**
  * @typedef {{
  *   parentElement: ActionControl | null
+ *   getAttribute(name: string): string | null
  *   removeAttribute(name: string): void
  *   setAttribute(name: string, value: string): void
  * }} ActionControl
@@ -56,6 +57,8 @@ const busyActions = new WeakSet()
 const busyCounts = new WeakMap()
 /** @type {WeakMap<HTMLElement, ((event: MouseEvent) => false) | null>} */
 const originalUserInfoHandlers = new WeakMap()
+/** @type {WeakMap<ActionControl, string>} */
+const trustedRateHandlers = new WeakMap()
 
 const USER_INFO_ONCLICK =
   /^WIKIDOT\.page\.listeners\.userInfo\((-?[0-9]+)\); return false;$/u
@@ -307,7 +310,10 @@ const wikidotPointRateControls = (root) => [
   ...root.querySelectorAll(
     '.page-rate-widget-box > .rateup > a[href="javascript:;"], ' +
       '.page-rate-widget-box > .ratedown > a[href="javascript:;"], ' +
-      '.page-rate-widget-box > .cancel > a[href="javascript:;"]'
+      '.page-rate-widget-box > .cancel > a[href="javascript:;"], ' +
+      '.page-rate-widget-box > .rateup > a[data-wikijump-rate-bound="1"], ' +
+      '.page-rate-widget-box > .ratedown > a[data-wikijump-rate-bound="1"], ' +
+      '.page-rate-widget-box > .cancel > a[data-wikijump-rate-bound="1"]'
   )
 ]
 
@@ -372,6 +378,21 @@ export const planWikidotRateActionBindings = (
   if (pointControls.length > 0 && starControlGroups.length > 0) return []
   if (pointControls.length > 0) {
     if (pointControls.length !== actions.length) return []
+    if (
+      pointControls.some((control, index) => {
+        const action = actions[index]
+        const expectedOnclick =
+          action.type === "rate"
+            ? `WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, ${action.value})`
+            : "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
+        return (
+          control.getAttribute("onclick") !== expectedOnclick &&
+          trustedRateHandlers.get(control) !== expectedOnclick
+        )
+      })
+    ) {
+      return []
+    }
     return actions.map((action, index) => [pointControls[index], action])
   }
   const starControls = starControlGroups.flat()
@@ -450,6 +471,20 @@ export const wikidotLegacyActions = (root, parameters) => {
       starControlGroups,
       parameters.rateActions ?? []
     )) {
+      // The exact legacy handlers above are only provenance markers. Once a
+      // trusted sidecar is paired with a renderer-owned control, remove the
+      // CSP-blocked inline JavaScript and leave a normal, inert anchor for the
+      // delegated click/keyboard handler below.
+      if (pointControls.includes(element)) {
+        element.removeAttribute("onclick")
+        element.setAttribute("href", "#")
+        element.setAttribute("data-wikijump-rate-bound", "1")
+        const expectedOnclick =
+          action.type === "rate"
+            ? `WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, ${action.value})`
+            : "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
+        trustedRateHandlers.set(element, expectedOnclick)
+      }
       bind(elements, element, action)
     }
     releaseUserInfoHandlers = bindWikidotUserInfoHandlers(root)
