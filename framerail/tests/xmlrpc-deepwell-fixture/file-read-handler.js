@@ -18,7 +18,18 @@ export const handleFileReadRpc = ({ rpcRequest, request, port }) => {
   const { counters, fileRequests, filesByPageId } = fixtureState
   let result
 
-  if (
+  if (rpcRequest.method === "blob_get" && rpcRequest.params === "112233") {
+    // Deterministic avatar bytes for the synthetic profile fixture only.
+    result = {
+      data: Array.from(
+        Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
+          "base64"
+        )
+      ),
+      mime: "image/png"
+    }
+  } else if (
     rpcRequest.method === "page_get_files" &&
     hasExactKeys(rpcRequest.params, ["deleted", "page_id", "site_id"]) &&
     rpcRequest.params.site_id === 6000005 &&

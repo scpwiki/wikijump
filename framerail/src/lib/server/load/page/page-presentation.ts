@@ -35,6 +35,7 @@ const basePageTranslateKeys = (
   "alt-title": {},
   "tags": {},
   "wiki-page-revision-comments": {},
+  "wiki-page-append-content": {},
   "wiki-page-layout": {},
   "wiki-page-layout.default": {},
   "wiki-page-layout.wikidot": {},

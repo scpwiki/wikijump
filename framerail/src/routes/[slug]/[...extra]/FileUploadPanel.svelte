@@ -62,10 +62,11 @@
     use:uploadEnhance
   >
     <div class="file-form-field">
-      <label for="file">
+      <label for="file-upload-file-input">
         {data.internationalization?.["wiki-page-file-upload.select"]}
       </label>
       <input
+        id="file-upload-file-input"
         name="file"
         class="file-attribute file"
         type="file"
@@ -73,10 +74,11 @@
       />
     </div>
     <div class="file-form-field">
-      <label for="name">
+      <label for="file-upload-name-input">
         {data.internationalization?.["wiki-page-file-upload.name"]}
       </label>
       <input
+        id="file-upload-name-input"
         name="name"
         class="file-attribute file-name"
         placeholder={$uploadFile?.[0]?.name}
@@ -137,5 +139,9 @@
     align-items: stretch;
     justify-content: stretch;
     width: 100%;
+  }
+
+  .file-upload .file-attribute {
+    max-width: 100%;
   }
 </style>

@@ -61,6 +61,8 @@ wiki-page-vote = Page rating
 wiki-page-edit = Edit the page
   .toast = Page saved.
 
+wiki-page-append-content = Wikitext to append
+
 wiki-page-create = Create new page
 
 wiki-page-move = Move page

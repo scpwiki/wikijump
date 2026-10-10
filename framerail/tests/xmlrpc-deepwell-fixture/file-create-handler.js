@@ -38,7 +38,7 @@ export const handleFileCreateRpc = ({ rpcRequest, request, response }) => {
     typeof rpcRequest.params.revision_comments !== "string" ||
     rpcRequest.params.user_id !== 123 ||
     typeof rpcRequest.params.ip_address !== "string" ||
-    rpcRequest.params.bypass_filter !== true ||
+    rpcRequest.params.bypass_filter !== false ||
     request.headers["x-deepwell-session-token"] !== "fixture-session-token" ||
     request.headers["x-deepwell-site-id"] !== "6000005" ||
     request.headers["x-deepwell-page"] !== pageById(rpcRequest.params.page_id)?.slug

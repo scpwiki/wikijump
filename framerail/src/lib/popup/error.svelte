@@ -55,7 +55,8 @@
   >
     <div id="owindow-1" class="owindow error">
       <div class="title modal-header">
-        {page.data?.internationalization?.error ??
+        {errorPopupState.current.title ??
+          page.data?.internationalization?.error ??
           page.error?.internationalization?.error}
       </div>
       <div class="content modal-body">
