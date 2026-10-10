@@ -1533,7 +1533,14 @@ pub(super) fn require_authenticated_mutation_actor(
     ctx: &ServiceContext<'_>,
     attribution_user_id: i64,
 ) -> Result<i64> {
-    let request_user_id = ctx.request().user_id().or_raise(|| {
+    require_matching_mutation_actor(ctx.request().user_id, attribution_user_id)
+}
+
+fn require_matching_mutation_actor(
+    request_user_id: Option<i64>,
+    attribution_user_id: i64,
+) -> Result<i64> {
+    let request_user_id = request_user_id.ok_or_raise(|| {
         Error::new(
             "page mutation requires an authenticated request context",
             ErrorType::PermissionDenied,
@@ -1553,8 +1560,20 @@ pub(super) fn require_authenticated_mutation_actor(
 
 #[cfg(test)]
 mod tests {
-    use super::{SiteChangesBrowserPerpage, site_changes_browser_perpage};
+    use super::{
+        SiteChangesBrowserPerpage, require_matching_mutation_actor,
+        site_changes_browser_perpage,
+    };
     use crate::services::render::wikidot_site_changes_empty_response;
+
+    #[test]
+    fn page_mutation_requires_matching_request_and_attribution_actors() {
+        assert!(require_matching_mutation_actor(None, -1).is_err());
+        assert_eq!(require_matching_mutation_actor(Some(-1), -1).unwrap(), -1);
+        assert_eq!(require_matching_mutation_actor(Some(42), 42).unwrap(), 42);
+        assert!(require_matching_mutation_actor(Some(-1), 42).is_err());
+        assert!(require_matching_mutation_actor(Some(42), -1).is_err());
+    }
 
     #[test]
     fn site_changes_browser_perpage_accepts_only_observed_positive_values() {

@@ -16,12 +16,31 @@ async function sendJsonRpcRequest(
   request: JSONRPCRequest,
   reqContext: RequestContext = {}
 ): Promise<void> {
+  const headers = deepwellRequestHeaders(reqContext)
+
+  const response = await fetch(DEEPWELL_URL, {
+    method: "POST",
+    redirect: "error",
+    headers,
+    body: JSON.stringify(request)
+  })
+
+  if (!response.ok) {
+    throw new Error(`DEEPWELL RPC transport returned HTTP ${response.status}`)
+  }
+  const data = stripPrivateDeepwellErrorData(await response.json())
+  client.receive(data)
+}
+
+export function deepwellRequestHeaders(
+  reqContext: RequestContext = {},
+  authorization = deepwellRpcAuthorization()
+): Record<string, string> {
   const headers: Record<string, string> = {
-    authorization: deepwellRpcAuthorization(),
+    authorization,
     "content-type": "application/json"
   }
 
-  // Populate request context in the headers
   if (reqContext?.sessionToken) {
     headers["X-Deepwell-Session-Token"] = reqContext.sessionToken
   }
@@ -31,19 +50,11 @@ async function sendJsonRpcRequest(
   if (reqContext?.page) {
     headers["X-Deepwell-Page"] = reqContext.page.toString()
   }
-
-  const response = await fetch(DEEPWELL_URL, {
-    method: "POST",
-    redirect: "error",
-    headers: headers,
-    body: JSON.stringify(request)
-  })
-
-  if (!response.ok) {
-    throw new Error(`DEEPWELL RPC transport returned HTTP ${response.status}`)
+  if (reqContext?.localPageMutationActor) {
+    headers["X-Deepwell-Local-Page-Mutation-Actor"] = "-1"
   }
-  const data = stripPrivateDeepwellErrorData(await response.json())
-  client.receive(data)
+
+  return headers
 }
 
 export async function ping(): Promise<void> {

@@ -71,6 +71,143 @@ async fn rpc_request(method: &str, params: Value) -> Value {
     response
 }
 
+async fn local_authoring_request(
+    client: &reqwest::Client,
+    address: SocketAddr,
+    site_id: i64,
+    marker: bool,
+    id: u64,
+    params: Value,
+) -> Value {
+    let mut request = client
+        .post(format!("http://{address}"))
+        .bearer_auth(
+            env::var("DEEPWELL_RPC_TOKEN").expect("test RPC token must be configured"),
+        )
+        .header("X-Deepwell-Site-Id", site_id.to_string());
+    if marker {
+        request = request.header("X-Deepwell-Local-Page-Mutation-Actor", "-1");
+    }
+    request
+        .json(&json!({
+            "jsonrpc": "2.0",
+            "id": id,
+            "method": "page_create",
+            "params": params,
+        }))
+        .send()
+        .await
+        .expect("local-authoring RPC request should complete")
+        .json()
+        .await
+        .expect("local-authoring RPC response should be JSON")
+}
+
+#[tokio::test]
+async fn production_rpc_binds_local_page_actor_only_to_the_editable_site() {
+    let mut config = Config::integration_testing();
+    config.main_domain_no_dot = "wikijump.localhost".to_owned();
+    let state = build_server_state_without_workers(config, Secrets::load())
+        .await
+        .expect("local-authoring RPC state should build");
+    let (address, handle) =
+        build_server_at(state, SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0))
+            .await
+            .expect("local-authoring RPC server should start");
+    let client = reqwest::Client::new();
+
+    let local_site = rpc_request("site_get", json!({"site": "scpaiueouiuiuiui"})).await;
+    let local_site_id = local_site["result"]["site_id"]
+        .as_i64()
+        .expect("seeded editable local site should exist");
+    let mirror = rpc_request("site_get", json!({"site": "scp-wiki"})).await;
+    let mirror_site_id = mirror["result"]["site_id"]
+        .as_i64()
+        .expect("seeded SCP-Wiki mirror should exist");
+    let slug = format!(
+        "local-actor-boundary-{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("system clock should be after UNIX epoch")
+            .as_nanos()
+    );
+    let page_params = |site_id| {
+        json!({
+            "site_id": site_id,
+            "wikitext": "Local authoring actor RPC boundary fixture.",
+            "title": "Local authoring actor RPC boundary fixture",
+            "alt_title": null,
+            "tags": [],
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "Exercise the local authoring RPC actor boundary",
+            "user_id": -1,
+            "ip_address": "127.0.0.1",
+        })
+    };
+
+    let accepted = local_authoring_request(
+        &client,
+        address,
+        local_site_id,
+        true,
+        1,
+        page_params(local_site_id),
+    )
+    .await;
+    assert!(
+        accepted.get("result").is_some(),
+        "the trusted local-site marker should bind the local actor: {accepted}"
+    );
+
+    let mirror_denied = local_authoring_request(
+        &client,
+        address,
+        mirror_site_id,
+        true,
+        2,
+        page_params(mirror_site_id),
+    )
+    .await;
+    assert!(
+        mirror_denied.get("error").is_some(),
+        "the local actor must not bind to the mirror request site: {mirror_denied}"
+    );
+
+    let cross_site_denied = local_authoring_request(
+        &client,
+        address,
+        mirror_site_id,
+        true,
+        3,
+        page_params(local_site_id),
+    )
+    .await;
+    assert!(
+        cross_site_denied.get("error").is_some(),
+        "a cross-site target must not bind the local actor: {cross_site_denied}"
+    );
+
+    let missing_marker_denied = local_authoring_request(
+        &client,
+        address,
+        local_site_id,
+        false,
+        4,
+        page_params(local_site_id),
+    )
+    .await;
+    assert!(
+        missing_marker_denied.get("error").is_some(),
+        "ordinary anonymous requests must remain unauthenticated: {missing_marker_denied}"
+    );
+
+    handle
+        .stop()
+        .expect("local-authoring RPC server should stop");
+    handle.stopped().await;
+}
+
 #[tokio::test]
 async fn production_rpc_stack_dispatches_registered_method() {
     let response = rpc_request("echo", json!({"value": 42})).await;

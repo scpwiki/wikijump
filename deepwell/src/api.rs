@@ -35,13 +35,15 @@ use crate::runtime::ServerStateInner;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobWorker;
 use crate::services::{
-    PasswordService, RequestContext, ServiceContext, SessionService, TextBlockService,
+    PasswordService, RequestContext, ServiceContext, SessionService, SiteService,
+    TextBlockService,
 };
 use crate::{database, info, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerConfig, ServerHandle};
 use reqwest::Client as ReqwestClient;
 use s3::bucket::Bucket;
 use sea_orm::{IsolationLevel, TransactionTrait};
+use std::borrow::Cow;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
@@ -291,7 +293,9 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
 
                         // Build request context from headers and store it in the context
                         let req_ctx = match headers {
-                            Some(ref h) => build_request(&ctx, h).await.or_raise(make_error)?,
+                            Some(ref h) => {
+                                build_request(&ctx, h, $name).await.or_raise(make_error)?
+                            }
                             None => RequestContext::default(),
                         };
                         let ctx = ctx.with_request(req_ctx);
@@ -629,11 +633,12 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
 async fn build_request(
     ctx: &ServiceContext<'_>,
     headers: &RequestContextHeaders,
+    method_name: &str,
 ) -> Result<RequestContext> {
     let make_error =
         || Error::new("failed to resolve request context", ErrorType::Request);
 
-    let (session, user_id) = match headers.session_token.as_deref() {
+    let (session, mut user_id) = match headers.session_token.as_deref() {
         Some("") | None => (None, None),
         Some(token) => {
             match SessionService::get_optional(ctx, token)
@@ -649,6 +654,30 @@ async fn build_request(
         }
     };
 
+    if may_bind_local_authoring_actor(
+        ctx.config().main_domain_no_dot.as_str(),
+        headers.session_token.as_deref(),
+        user_id,
+        headers.local_page_mutation_actor,
+        method_name,
+    ) {
+        let local_site = SiteService::get_optional(
+            ctx,
+            crate::types::Reference::Slug(Cow::Borrowed(LOCAL_AUTHORING_SITE_SLUG)),
+        )
+        .await
+        .or_raise(make_error)?;
+        if let Some(site) = local_site
+            && local_authoring_binding_matches(
+                Some(&site.slug),
+                Some(site.site_id),
+                headers.site_id,
+            )
+        {
+            user_id = Some(LOCAL_AUTHORING_USER_ID);
+        }
+    }
+
     Ok(RequestContext {
         session,
         user_id,
@@ -657,9 +686,117 @@ async fn build_request(
     })
 }
 
+const LOCAL_AUTHORING_DOMAIN: &str = "wikijump.localhost";
+const LOCAL_AUTHORING_SITE_SLUG: &str = "scpaiueouiuiuiui";
+const LOCAL_AUTHORING_USER_ID: i64 = -1;
+
+fn is_local_page_mutation_method(method_name: &str) -> bool {
+    matches!(
+        method_name,
+        "page_create"
+            | "page_edit"
+            | "page_delete"
+            | "page_move"
+            | "file_restore"
+            | "file_rollback"
+    )
+}
+
+fn may_bind_local_authoring_actor(
+    configured_domain: &str,
+    session_token: Option<&str>,
+    request_user_id: Option<i64>,
+    actor_marker_present: bool,
+    method_name: &str,
+) -> bool {
+    configured_domain == LOCAL_AUTHORING_DOMAIN
+        && session_token.is_none_or(str::is_empty)
+        && request_user_id.is_none()
+        && actor_marker_present
+        && is_local_page_mutation_method(method_name)
+}
+
+fn local_authoring_binding_matches(
+    site_slug: Option<&str>,
+    editable_site_id: Option<i64>,
+    request_site_id: Option<i64>,
+) -> bool {
+    site_slug == Some(LOCAL_AUTHORING_SITE_SLUG)
+        && editable_site_id.is_some()
+        && editable_site_id == request_site_id
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn local_authoring_actor_is_limited_to_the_existing_mutation_paths() {
+        for method in [
+            "page_create",
+            "page_edit",
+            "page_delete",
+            "page_move",
+            "file_restore",
+            "file_rollback",
+        ] {
+            assert!(is_local_page_mutation_method(method), "{method}");
+        }
+        for method in ["page_set_layout", "page_revision_create", "parent_set"] {
+            assert!(!is_local_page_mutation_method(method), "{method}");
+        }
+    }
+
+    #[test]
+    fn local_authoring_binding_requires_the_exact_database_site_and_request_id() {
+        assert!(local_authoring_binding_matches(
+            Some(LOCAL_AUTHORING_SITE_SLUG),
+            Some(7),
+            Some(7),
+        ));
+        for (slug, database_id, request_id) in [
+            (Some("scp-wiki"), Some(7), Some(7)),
+            (Some("scp-jp"), Some(7), Some(7)),
+            (Some(LOCAL_AUTHORING_SITE_SLUG), Some(7), Some(8)),
+            (Some(LOCAL_AUTHORING_SITE_SLUG), None, Some(7)),
+            (None, Some(7), Some(7)),
+        ] {
+            assert!(
+                !local_authoring_binding_matches(slug, database_id, request_id),
+                "unexpected local authoring binding for {slug:?}, {database_id:?}, {request_id:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn local_authoring_actor_requires_local_domain_anonymous_request_marker_and_allowed_method()
+     {
+        assert!(may_bind_local_authoring_actor(
+            LOCAL_AUTHORING_DOMAIN,
+            None,
+            None,
+            true,
+            "page_create",
+        ));
+        for (domain, session, user, marker, method) in [
+            ("wikijump.com", None, None, true, "page_create"),
+            (
+                LOCAL_AUTHORING_DOMAIN,
+                Some("invalid-token"),
+                None,
+                true,
+                "page_create",
+            ),
+            (LOCAL_AUTHORING_DOMAIN, None, Some(42), true, "page_create"),
+            (LOCAL_AUTHORING_DOMAIN, None, None, false, "page_create"),
+            (LOCAL_AUTHORING_DOMAIN, None, None, true, "page_set_layout"),
+        ] {
+            assert!(
+                !may_bind_local_authoring_actor(domain, session, user, marker, method),
+                "unexpected actor binding for {domain}, {method}",
+            );
+        }
+    }
 
     #[test]
     fn registered_rpc_methods_select_transaction_isolation() {
