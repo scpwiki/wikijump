@@ -146,6 +146,7 @@ export async function loadUser(
       "cancel": {},
 
       // User profile attributes
+      "user-profile-info": {},
       "avatar": {},
       "user-profile-info.name": {},
       "user-profile-info.real-name": {},
