@@ -2942,7 +2942,7 @@
     },
     {
       "path": "deepwell/src/services/render/forum_modules.rs",
-      "sha256": "e8081054f233ee30800be8bad1b13db3136d196bb3088d7f01acbd4246275246",
+      "sha256": "06f56260ea961ef745b23e7a659bf3e535c491851e22f031c9e9e53470e6c3ab",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -2950,7 +2950,7 @@
     },
     {
       "path": "deepwell/src/services/render/forum_read_routes.rs",
-      "sha256": "7aea2db4e0078c91ffa4b54d0f05ffa0bc63baf8da10495f3a4fd8e97e2ffab5",
+      "sha256": "0a10b8758ecb35ff248d4bb8db1461c9a9ca86581900884d340c6022706e5e57",
       "status": "pending",
       "anchors": [],
       "findings": [],

@@ -658,7 +658,7 @@ pub(super) fn render_forum_start(
     } else {
         output.push_str("</div><p style=\"text-align: right\"><a href=\"/forum/start/hidden/show\">Show hidden</a></p>");
     }
-    output.push_str("<p style=\"text-align: right\"><span class=\"rss-icon\"><img src=\"http://www.wikidot.com/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/></span> RSS: <a href=\"/feed/forum/threads.xml\">New threads</a> | <a href=\"/feed/forum/posts.xml\">New posts</a></p>");
+    output.push_str("<p style=\"text-align: right\"><span class=\"rss-icon\"><img src=\"/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/></span> RSS: <a href=\"/feed/forum/threads.xml\">New threads</a> | <a href=\"/feed/forum/posts.xml\">New posts</a></p>");
     output
 }
 
@@ -1259,6 +1259,15 @@ mod tests {
             recent_post_path(&page_post, true),
             "/page-comments/comments/show#post-456",
         );
+    }
+
+    #[test]
+    fn forum_start_rss_chrome_uses_the_same_origin_feed_icon() {
+        let rendered = render_forum_start(&[], &BTreeMap::new(), false);
+        assert!(rendered.contains(
+            "<span class=\"rss-icon\"><img src=\"/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/></span> RSS: <a href=\"/feed/forum/threads.xml\">New threads</a>"
+        ));
+        assert!(!rendered.contains("www.wikidot.com"));
     }
 
     #[test]

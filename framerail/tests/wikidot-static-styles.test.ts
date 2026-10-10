@@ -32,6 +32,12 @@ const baseAssets = [
     sha256: "2b3f53a407d5b25bc91bd9920f164b13e14d944bc95a7bf32a5138b30cef07c6",
     source:
       "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme/base/images/shade2_n.png"
+  },
+  {
+    file: "common--theme/base/images/feed/feed-icon-14x14.png",
+    sha256: "8ee173565b2e771fecf3b471a79bdf072aaa1bd9dc27582cfda2b2a322beeba8",
+    source:
+      "https://d3g0gp89917ko0.cloudfront.net/v--0c0da3649c4f/common--theme/base/images/feed/feed-icon-14x14.png"
   }
 ]
 
