@@ -80,7 +80,7 @@ def import_user_if_missing(
     created_at = datetime.fromtimestamp(user["wikidot_user_since"], tz=timezone.utc)
     fetched_at = datetime.fromtimestamp(user["fetched_at"] // 1000, tz=timezone.utc)
     birthday = (
-        datetime.fromtimestamp(user["birthday"] // 1000, tz=timezone.utc)
+        datetime.fromtimestamp(user["birthday"] // 1000, tz=timezone.utc).date()
         if "birthday" in user
         else None
     )
