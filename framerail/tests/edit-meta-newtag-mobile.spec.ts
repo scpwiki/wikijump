@@ -218,6 +218,18 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   expect(mutations, "checking blank-state focus must not submit").toEqual([])
   expect(writeRequests, "checking blank-state focus must not write").toEqual([])
 
+  // Empty activation stays a local no-op until Wikidot's submission result is
+  // evidenced. Keep the affordance clickable without weakening server checks.
+  await addAllPages.click()
+  await addThisPage.click()
+  await expect(page.locator("#edit-meta-newtag-form")).toBeVisible()
+  expect(mutations, "blank Add actions must not mutate persisted metadata").toEqual(
+    []
+  )
+  expect(writeRequests, "blank Add actions must not issue a write request").toEqual(
+    []
+  )
+
   // Fields remain operable through the keyboard.
   await page.locator('input[name="metaName"]').focus()
   await expect(page.locator('input[name="metaName"]')).toBeFocused()
