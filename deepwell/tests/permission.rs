@@ -132,17 +132,24 @@ impl PermissionFixture {
         )
         .await;
 
-        // RoleD: site:edit, unscoped
+        // RoleD: site:edit + page-lock:bypass-lock, both unscoped
         let role_d = create_role(ctx, site_id, "RoleD", None).await;
         add_perms_to_role(
             ctx,
             site_id,
             role_d,
-            vec![Permission {
-                resource_type: Resource::Site,
-                resource_category: None,
-                action: Action::Edit,
-            }],
+            vec![
+                Permission {
+                    resource_type: Resource::Site,
+                    resource_category: None,
+                    action: Action::Edit,
+                },
+                Permission {
+                    resource_type: Resource::PageLock,
+                    resource_category: None,
+                    action: Action::BypassLock,
+                },
+            ],
         )
         .await;
 
@@ -394,6 +401,30 @@ async fn can_user() {
         )
         .await,
         "anonymous should fail site:edit check"
+    );
+
+    // RoleD grants page-lock:bypass-lock
+    assert!(
+        check(
+            &runner,
+            d,
+            f.site_id,
+            PermissionTarget::Lock,
+            Action::BypassLock
+        )
+        .await,
+        "user_d should pass page-lock:bypass-lock check"
+    );
+    assert!(
+        !check(
+            &runner,
+            a,
+            f.site_id,
+            PermissionTarget::Lock,
+            Action::BypassLock
+        )
+        .await,
+        "user_a should fail page-lock:bypass-lock check"
     );
 
     // user_d has no page permissions
