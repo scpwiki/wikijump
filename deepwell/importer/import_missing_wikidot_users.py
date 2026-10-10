@@ -153,6 +153,7 @@ if __name__ == "__main__":
 
     json_file_glob = os.path.join(args.wikicomma_directory, "*.json")
     for json_path in iglob(json_file_glob):
+        logger.info("Reading JSON file %s", json_path)
         for user in read_wikicomma_users(json_path):
             import_user_if_missing(
                 deepwell,
