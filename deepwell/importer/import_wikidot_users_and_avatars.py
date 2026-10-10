@@ -9,7 +9,7 @@ import csv
 import lzma
 import os
 import sqlite3
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from types import TracebackType
 from typing import Self, TextIO
 
@@ -54,7 +54,7 @@ def parse_karma(value: str) -> int:
 def parse_timestamp(value: str) -> datetime:
     datetime_naive = datetime.fromisoformat(value)
     assert datetime_naive.tzinfo is None
-    return datetime_naive.replace(tzinfo=timezone.utc)
+    return datetime_naive.replace(tzinfo=UTC)
 
 
 def empty_str_as_none(value: str) -> str | None:
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     argparser.add_argument(
         # :'(
         "--users-fetched-date",
-        default=datetime(2026, 1, 21, 0, 0, 0, tzinfo=timezone.utc),
+        default=datetime(2026, 1, 21, 0, 0, 0, tzinfo=UTC),
         type=datetime.fromisoformat,
         help="The date to record the users as having been fetched at",
     )

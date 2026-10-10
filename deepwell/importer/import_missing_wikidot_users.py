@@ -11,7 +11,7 @@ import argparse
 import json
 import os
 from collections.abc import Iterator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from glob import iglob
 from typing import NotRequired, TypedDict
 
@@ -77,10 +77,10 @@ def import_user_if_missing(
         name=user["full_name"],
         slug=user["username"],
     )
-    created_at = datetime.fromtimestamp(user["wikidot_user_since"], tz=timezone.utc)
-    fetched_at = datetime.fromtimestamp(user["fetched_at"] // 1000, tz=timezone.utc)
+    created_at = datetime.fromtimestamp(user["wikidot_user_since"], tz=UTC)
+    fetched_at = datetime.fromtimestamp(user["fetched_at"] // 1000, tz=UTC)
     birthday = (
-        datetime.fromtimestamp(user["birthday"] // 1000, tz=timezone.utc).date()
+        datetime.fromtimestamp(user["birthday"] // 1000, tz=UTC).date()
         if "birthday" in user
         else None
     )
