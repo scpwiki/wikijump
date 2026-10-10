@@ -139,6 +139,8 @@ export const fixtureState = {
   voteValues: {}
 }
 
+export const isFixtureSiteId = (siteId) => siteId === 6000005 || siteId === 6000006
+
 const MIN_I64 = -(1n << 63n)
 const MAX_I64 = (1n << 63n) - 1n
 

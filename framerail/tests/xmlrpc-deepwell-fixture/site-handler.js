@@ -1,4 +1,4 @@
-import { fixtureState, hasExactKeys } from "./context.js"
+import { fixtureState, hasExactKeys, isFixtureSiteId } from "./context.js"
 
 /** @param {{ rpcRequest: any }} input */
 export const handleSiteRpc = ({ rpcRequest }) => {
@@ -8,7 +8,7 @@ export const handleSiteRpc = ({ rpcRequest }) => {
     rpcRequest.method === "preload_view" &&
     (hasExactKeys(rpcRequest.params, ["site_id", "locales"]) ||
       hasExactKeys(rpcRequest.params, ["site_id", "locales", "session_token"])) &&
-    rpcRequest.params?.site_id === 6000005 &&
+    isFixtureSiteId(rpcRequest.params?.site_id) &&
     Array.isArray(rpcRequest.params.locales) &&
     (rpcRequest.params.session_token === null ||
       rpcRequest.params.session_token === undefined ||
@@ -18,21 +18,24 @@ export const handleSiteRpc = ({ rpcRequest }) => {
   ) {
     result = {
       site: {
-        site_id: 6000005,
+        site_id: rpcRequest.params.site_id,
         created_at: "2026-01-01T00:00:00Z",
         updated_at: null,
         deleted_at: null,
         from_wikidot: false,
-        slug: "scp-wiki",
-        name: "SCP Foundation",
-        tagline: "Secure, Contain, Protect",
+        slug: rpcRequest.params.site_id === 6000006 ? "www" : "scp-wiki",
+        name: rpcRequest.params.site_id === 6000006 ? "Wikijump" : "SCP Foundation",
+        tagline:
+          rpcRequest.params.site_id === 6000006
+            ? "Fighting Ozone Pollution"
+            : "Secure, Contain, Protect",
         description: "Fixture site",
         locale: "en",
         default_page: "main",
         top_bar_page: null,
         side_bar_page: null,
         preferred_domain: null,
-        layout: "wikidot",
+        layout: rpcRequest.params.site_id === 6000006 ? "wikijump" : "wikidot",
         license: "cc-by-sa-3.0",
         forum_max_nest_level: 0,
         favicon_source: null,
@@ -129,10 +132,15 @@ export const handleSiteRpc = ({ rpcRequest }) => {
   } else if (
     rpcRequest.method === "site_get" &&
     hasExactKeys(rpcRequest.params, ["site"]) &&
-    (rpcRequest.params.site === "scp-wiki" || rpcRequest.params.site === "missing-site")
+    ["scp-wiki", "www", "missing-site"].includes(rpcRequest.params.site)
   ) {
     fixtureState.pageReadRequests.siteGet.push(rpcRequest.params)
-    result = rpcRequest.params.site === "scp-wiki" ? { site_id: 6000005 } : null
+    result =
+      rpcRequest.params.site === "scp-wiki"
+        ? { site_id: 6000005 }
+        : rpcRequest.params.site === "www"
+          ? { site_id: 6000006 }
+          : null
   } else if (
     rpcRequest.method === "translate" &&
     hasExactKeys(rpcRequest.params, ["locales", "messages", "strip_message_keys"]) &&

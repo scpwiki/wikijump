@@ -1,4 +1,9 @@
-import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.js"
+import {
+  fixtureState,
+  hasExactKeys,
+  isFixtureSiteId,
+  requestContextHeaders
+} from "./context.js"
 import { pages, toArticleViewResult } from "./data.js"
 
 const LISTPAGES_NAVIGATION_EXTRA = /^p\/[1-9][0-9]*$/u
@@ -728,7 +733,7 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
         ["fixture-session-token", "fixture-authenticated-session-token"].includes(
           rpcRequest.params.session_token
         ))) &&
-    rpcRequest.params.site_id === 6000005 &&
+    isFixtureSiteId(rpcRequest.params.site_id) &&
     Array.isArray(rpcRequest.params.locales) &&
     (rpcRequest.params.route === null ||
       hasExactKeys(rpcRequest.params.route, ["extra", "slug"])) &&
@@ -745,7 +750,7 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
     articleReadRequests.articleView.push(rpcRequest.params)
     const page = pageForArticleRoute(articleRoute)
     if (page) {
-      result = toArticleViewResult(page)
+      result = toArticleViewResult(page, rpcRequest.params.site_id)
       if (articleRoute.slug === DATA_FORM_EDIT_SLUG && articleRoute.extra === "edit") {
         result.page.data.options.edit = true
         result.page.data.data_form = {
@@ -808,7 +813,7 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
   } else if (
     rpcRequest.method === "article_view_cache_metadata" &&
     hasExactKeys(rpcRequest.params, ["locales", "route", "session_token", "site_id"]) &&
-    rpcRequest.params.site_id === 6000005 &&
+    isFixtureSiteId(rpcRequest.params.site_id) &&
     rpcRequest.params.session_token === null &&
     Array.isArray(rpcRequest.params.locales) &&
     (rpcRequest.params.route === null ||
@@ -820,18 +825,18 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
     const page = pageForArticleRoute(articleRoute)
     if (!page) return undefined
     result = {
-      article_page_cache_key: `deepwell:article-view:page:v1:site=6000005:page=${page.page_id}:rev=${page.revision_id}:updated=0:permission=site=0,user=0:body=fixture`,
+      article_page_cache_key: `deepwell:article-view:page:v1:site=${rpcRequest.params.site_id}:page=${page.page_id}:rev=${page.revision_id}:updated=0:permission=site=0,user=0:body=fixture`,
       public_content_cache_fence: "0",
       anonymous_permission_cache_fence: "site=0,user=0"
     }
   } else if (
     rpcRequest.method === "page_view" &&
     hasExactKeys(rpcRequest.params, ["locales", "route", "session_token", "site_id"]) &&
-    rpcRequest.params.site_id === 6000005 &&
+    isFixtureSiteId(rpcRequest.params.site_id) &&
     Array.isArray(rpcRequest.params.locales) &&
     rpcRequest.params.session_token === "fixture-session-token" &&
     request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
-    request.headers["x-deepwell-site-id"] === "6000005" &&
+    isFixtureSiteId(Number(request.headers["x-deepwell-site-id"])) &&
     hasExactKeys(rpcRequest.params.route, ["extra", "slug"]) &&
     typeof rpcRequest.params.route.slug === "string" &&
     rpcRequest.params.route.extra === ""
