@@ -132,10 +132,11 @@ class Deepwell:
         self.host = host
         self.port = port
         self.endpoint = f"http://{host}:{port}/jsonrpc"
+        self.session = requests.Session()
 
     def request(self, method: str, data: Any, id: int = 0) -> Any:
         logger.debug("Sent request %s (ID %d), data %r", method, id, data)
-        r = requests.post(
+        r = self.session.post(
             self.endpoint,
             json={
                 "jsonrpc": "2.0",
@@ -172,7 +173,7 @@ class Deepwell:
         with remap_connection_for_s3():
             logger.info("Uploading blob ID %s", blob_id)
             logger.debug("Presign URL: %s", presign_url)
-            r = requests.put(
+            r = self.session.put(
                 presign_url,
                 data=request.blob,
                 headers={"Content-Type": request.mime_type},
