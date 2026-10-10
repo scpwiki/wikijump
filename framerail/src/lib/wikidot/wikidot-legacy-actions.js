@@ -196,6 +196,110 @@ const validRateAction = (action) => {
   )
 }
 
+const rateActionOnclick = (action) =>
+  action.type === "rate"
+    ? `WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, ${action.value})`
+    : "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
+
+const RATE_ANCHOR_TAG = /<a\b(?:[^>"']|"[^"]*"|'[^']*')*>/giu
+
+/**
+ * Read a quoted or unquoted attribute from one renderer-produced start
+ * tag.
+ *
+ * @param {string} tag
+ * @param {string} name
+ */
+const readHtmlAttribute = (tag, name) => {
+  const match = new RegExp(
+    `\\s${name}(?=\\s|=|>)(?:\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+)))?`,
+    "iu"
+  ).exec(tag)
+  return match ? (match[1] ?? match[2] ?? match[3] ?? "") : null
+}
+
+/**
+ * Replace or append one attribute while leaving the rest of the start tag
+ * byte-for-byte intact.
+ *
+ * @param {string} tag
+ * @param {string} name
+ * @param {string} value
+ */
+const setHtmlAttribute = (tag, name, value) => {
+  const attribute = new RegExp(
+    `(\\s${name}(?=\\s|=|>)(?:\\s*=\\s*)(?:"[^"]*"|'[^']*'|[^\\s>]+))`,
+    "iu"
+  )
+  if (attribute.test(tag)) {
+    return tag.replace(attribute, ` ${name}="${value}"`)
+  }
+  return tag.replace(/\s*\/?>$/u, (end) => ` ${name}="${value}"${end}`)
+}
+
+/** @param {string} tag */
+const removeHtmlAttribute = (tag, name) =>
+  tag.replace(
+    new RegExp(`\\s${name}(?=\\s|=|>)(?:\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+))?`, "iu"),
+    ""
+  )
+
+/**
+ * Materialize the trusted Rate descriptor pairing before HTML reaches the
+ * browser parser. This keeps Firefox from reporting parse-time CSP
+ * violations for the renderer's inline handlers. A shape or descriptor
+ * mismatch leaves the original HTML untouched and therefore cannot create
+ * new bindings.
+ *
+ * @param {string | null | undefined} html
+ * @param {RateBrowserAction[]} actions
+ */
+export const materializeWikidotRateActionHtml = (html, actions) => {
+  if (typeof html !== "string" || !Array.isArray(actions) || actions.length === 0) {
+    return html
+  }
+  if (actions.some((action) => !validRateAction(action))) return html
+
+  const matches = [...html.matchAll(RATE_ANCHOR_TAG)]
+  const rateAnchors = matches.filter((match) => {
+    const tag = match[0]
+    const handler = readHtmlAttribute(tag, "onclick")
+    return (
+      readHtmlAttribute(tag, "href") === "javascript:;" &&
+      handler !== null &&
+      /^WIKIDOT\.modules\.PageRateWidgetModule\.listeners\.(?:rate\(event, -?[0-9]+\)|cancelVote\(event\))$/u.test(
+        handler
+      )
+    )
+  })
+  if (
+    rateAnchors.length !== actions.length ||
+    rateAnchors.some(
+      (match, index) =>
+        readHtmlAttribute(match[0], "onclick") !== rateActionOnclick(actions[index])
+    )
+  ) {
+    return html
+  }
+
+  let actionIndex = 0
+  return html.replace(RATE_ANCHOR_TAG, (tag) => {
+    const handler = readHtmlAttribute(tag, "onclick")
+    if (
+      readHtmlAttribute(tag, "href") !== "javascript:;" ||
+      handler !== rateActionOnclick(actions[actionIndex])
+    ) {
+      return tag
+    }
+    const index = actionIndex++
+    return setHtmlAttribute(
+      setHtmlAttribute(removeHtmlAttribute(tag, "onclick"), "href", "#"),
+      "data-wikijump-rate-action-index",
+      `${index}`
+    )
+  })
+}
+
 /**
  * Execute one server-issued Wikidot action descriptor. The closed switch
  * is the browser authority boundary: authored attributes never select a
@@ -311,6 +415,9 @@ const wikidotPointRateControls = (root) => [
     '.page-rate-widget-box > .rateup > a[href="javascript:;"], ' +
       '.page-rate-widget-box > .ratedown > a[href="javascript:;"], ' +
       '.page-rate-widget-box > .cancel > a[href="javascript:;"], ' +
+      ".page-rate-widget-box > .rateup > a[data-wikijump-rate-action-index], " +
+      ".page-rate-widget-box > .ratedown > a[data-wikijump-rate-action-index], " +
+      ".page-rate-widget-box > .cancel > a[data-wikijump-rate-action-index], " +
       '.page-rate-widget-box > .rateup > a[data-wikijump-rate-bound="1"], ' +
       '.page-rate-widget-box > .ratedown > a[data-wikijump-rate-bound="1"], ' +
       '.page-rate-widget-box > .cancel > a[data-wikijump-rate-bound="1"]'
@@ -381,14 +488,14 @@ export const planWikidotRateActionBindings = (
     if (
       pointControls.some((control, index) => {
         const action = actions[index]
-        const expectedOnclick =
-          action.type === "rate"
-            ? `WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, ${action.value})`
-            : "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
-        return (
-          control.getAttribute("onclick") !== expectedOnclick &&
-          trustedRateHandlers.get(control) !== expectedOnclick
+        const expectedOnclick = rateActionOnclick(action)
+        const rendererActionIndex = control.getAttribute(
+          "data-wikijump-rate-action-index"
         )
+        return rendererActionIndex !== null
+          ? rendererActionIndex !== `${index}`
+          : control.getAttribute("onclick") !== expectedOnclick &&
+              trustedRateHandlers.get(control) !== expectedOnclick
       })
     ) {
       return []
@@ -479,11 +586,7 @@ export const wikidotLegacyActions = (root, parameters) => {
         element.removeAttribute("onclick")
         element.setAttribute("href", "#")
         element.setAttribute("data-wikijump-rate-bound", "1")
-        const expectedOnclick =
-          action.type === "rate"
-            ? `WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, ${action.value})`
-            : "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
-        trustedRateHandlers.set(element, expectedOnclick)
+        trustedRateHandlers.set(element, rateActionOnclick(action))
       }
       bind(elements, element, action)
     }

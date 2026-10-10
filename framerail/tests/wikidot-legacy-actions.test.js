@@ -4,6 +4,7 @@ import test from "node:test"
 
 import {
   performWikidotLegacyAction,
+  materializeWikidotRateActionHtml,
   planWikidotRateActionBindings,
   planWikidotStandaloneActionBindings,
   updateWikidotRateWidget,
@@ -343,6 +344,58 @@ test("trusted inline Rate bindings remove CSP-blocked handlers and JavaScript UR
     stopPropagation: () => {}
   })
   assert.equal(votes, 2)
+})
+
+test("renderer removes exact Rate inline handlers before the browser parses HTML", () => {
+  const fingerprint = "0123456789abcdef0123456789abcdef"
+  const actions = [
+    { type: "rate", index: 0, fingerprint, value: 1 },
+    { type: "rate", index: 1, fingerprint, value: -1 },
+    { type: "rate-cancel", index: 2, fingerprint }
+  ]
+  const html = [
+    '<span class="rateup"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>',
+    '<span class="ratedown"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)" title="I don\'t like it">-</a></span>',
+    '<span class="cancel"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)" title="Cancel my vote">x</a></span>',
+    '<a href="#" onclick="keepThisUnrelatedHandler()">unrelated</a>'
+  ].join("")
+
+  const servedHtml = materializeWikidotRateActionHtml(html, actions)
+  assert.equal((servedHtml.match(/onclick=/gu) ?? []).length, 1)
+  const servedRateAnchors = [
+    ...servedHtml.matchAll(/<a\b(?=[^>]*data-wikijump-rate-action-index)[^>]*>/giu)
+  ].map((match) => match[0])
+  assert.equal(servedRateAnchors.length, 3)
+  assert.ok(
+    servedRateAnchors.every((tag) => /href="#"/u.test(tag) && !/onclick=/u.test(tag))
+  )
+  assert.deepEqual(
+    [...servedHtml.matchAll(/data-wikijump-rate-action-index="([0-9]+)"/gu)].map(
+      (match) => match[1]
+    ),
+    ["0", "1", "2"]
+  )
+  assert.equal(
+    materializeWikidotRateActionHtml(html, actions.slice(0, 2)),
+    html,
+    "a descriptor/control mismatch leaves source HTML untouched"
+  )
+
+  const controls = actions.map((_, index) => {
+    const control = actionElement()
+    control.setAttribute("href", "#")
+    control.setAttribute("data-wikijump-rate-action-index", `${index}`)
+    return control
+  })
+  assert.deepEqual(
+    planWikidotRateActionBindings(controls, [], actions),
+    actions.map((action, index) => [controls[index], action])
+  )
+  assert.deepEqual(
+    planWikidotRateActionBindings([controls[1], controls[0], controls[2]], [], actions),
+    [],
+    "the server marker must retain its matching descriptor position"
+  )
 })
 
 test("initialized Rate stars preserve the live hidden score value", () => {

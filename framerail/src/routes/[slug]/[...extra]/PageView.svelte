@@ -18,6 +18,7 @@
     openWikidotPrinterFriendly
   } from "$lib/wikidot/wikidot-page-actions"
   import {
+    materializeWikidotRateActionHtml,
     updateWikidotRateWidget,
     wikidotLegacyActions
   } from "$lib/wikidot/wikidot-legacy-actions"
@@ -94,7 +95,12 @@
       : buildGeneratedPageStylesHead(compiledBodyStyles)
   )
   let renderedBodyHtml = $derived(
-    showRevision ? revision?.compiled_body_html : data.compiled_body_html
+    showRevision
+      ? revision?.compiled_body_html
+      : materializeWikidotRateActionHtml(
+          data.compiled_body_html,
+          currentRateRegistry()?.actions ?? []
+        )
   )
   let pageFontPreloadHrefs = $derived(
     pageLayoutContext.current === Layout.WIKIDOT
@@ -510,7 +516,7 @@
       use:wikidotToc
       use:wikidotFootnotes
     >
-      {@html showRevision ? revision?.compiled_body_html : data.compiled_body_html}
+      {@html renderedBodyHtml}
     </div>
   {/if}
 
