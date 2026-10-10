@@ -354,4 +354,56 @@ async fn page_editor_cannot_mutate_site_wide_meta_tags() {
         }),
     );
     assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    // Anonymous direct API requests must be denied for both page-local and
+    // site-wide scope, and a denied request must leave existing metadata
+    // unchanged. This exercises the Deepwell boundary without relying on the
+    // Framerail control's client-side guard.
+    runner.set_request_context(RequestContext {
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Id(page.page_id)),
+        ..Default::default()
+    });
+    let page_write = run_endpoint_err!(
+        runner,
+        page_meta_tag_set,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "name": "description",
+            "content": "anonymous-page-overwrite",
+            "all_pages": false,
+        }),
+    );
+    assert_contains_error!(page_write, ErrorType::PermissionDenied);
+
+    let site_write = run_endpoint_err!(
+        runner,
+        page_meta_tag_set,
+        json!({
+            "site_id": site_id,
+            "page_id": page.page_id,
+            "name": "robots",
+            "content": "noindex",
+            "all_pages": true,
+        }),
+    );
+    assert_contains_error!(site_write, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Id(page.page_id)),
+        ..Default::default()
+    });
+    assert_eq!(
+        get_tags(&runner, site_id, page.page_id).await,
+        vec![PageMetaTag {
+            name: "description".into(),
+            content: "page".into(),
+            all_pages: false,
+        }],
+        "denied anonymous requests must not change page or site metadata"
+    );
 }
