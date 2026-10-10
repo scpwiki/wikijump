@@ -70,6 +70,7 @@ def import_user_if_missing(
 ) -> None:
     if deepwell.user_exists(user["user_id"]):
         # nothing to do
+        logger.debug("Skipping user ID %d, already in dataset", user["user_id"])
         return
 
     user_type = ImportExistingUser(
