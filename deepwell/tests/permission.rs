@@ -57,6 +57,7 @@ struct PermissionFixture {
     user_a: i64,
     user_b: i64,
     user_c: i64,
+    user_d: i64,
 }
 
 impl PermissionFixture {
@@ -131,13 +132,29 @@ impl PermissionFixture {
         )
         .await;
 
+        // RoleD: site:edit, unscoped
+        let role_d = create_role(ctx, site_id, "RoleD", None).await;
+        add_perms_to_role(
+            ctx,
+            site_id,
+            role_d,
+            vec![Permission {
+                resource_type: Resource::Site,
+                resource_category: None,
+                action: Action::Edit,
+            }],
+        )
+        .await;
+
         let user_a = create_user(ctx, n, "a").await;
         let user_b = create_user(ctx, n, "b").await;
         let user_c = create_user(ctx, n, "c").await;
+        let user_d = create_user(ctx, n, "d").await;
 
         grant_role(ctx, site_id, user_a, role_a).await;
         grant_role(ctx, site_id, user_b, role_b).await;
         // user_c doesn't have any roles
+        grant_role(ctx, site_id, user_d, role_d).await;
 
         let test_page = PageService::create(
             runner.context(),
@@ -184,6 +201,7 @@ impl PermissionFixture {
             user_a,
             user_b,
             user_c,
+            user_d,
         }
     }
 }
@@ -297,6 +315,7 @@ async fn can_user() {
     let a = Some(f.user_a);
     let b = Some(f.user_b);
     let c = Some(f.user_c);
+    let d = Some(f.user_d);
     let test_page = PermissionTarget::Page {
         page_id: f.test_page_id,
         category_id: f.category_id,
@@ -352,6 +371,35 @@ async fn can_user() {
     assert!(
         !check(&runner, a, f.site_id, test_page, Action::Edit).await,
         "user_a: should fail page:edit check in test-category"
+    );
+
+    // Case: Permissions on resources without categories
+
+    // RoleD grants site:edit
+    assert!(
+        check(&runner, d, f.site_id, PermissionTarget::Site, Action::Edit).await,
+        "user_d should pass site:edit check"
+    );
+    assert!(
+        !check(&runner, a, f.site_id, PermissionTarget::Site, Action::Edit).await,
+        "user_a should fail site:edit check"
+    );
+    assert!(
+        !check(
+            &runner,
+            None,
+            f.site_id,
+            PermissionTarget::Site,
+            Action::Edit
+        )
+        .await,
+        "anonymous should fail site:edit check"
+    );
+
+    // user_d has no page permissions
+    assert!(
+        !check(&runner, d, f.site_id, other_page, Action::Edit).await,
+        "user_d: site:edit should not grant page:edit"
     );
 }
 
@@ -446,6 +494,58 @@ async fn check_permission_endpoint() {
         !run_endpoint!(runner, page_edit_permission).can_edit,
         "user_a should NOT have edit permission for page in test-category"
     );
+
+    // Create the site's default page, which we use when the request context has no page
+    let site = SiteService::get(runner.context(), Reference::Id(f.site_id))
+        .await
+        .expect("Failed to get site");
+
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": f.site_id,
+            "wikitext": "Main page",
+            "title": "Main Page",
+            "alt_title": null,
+            "slug": site.default_page,
+            "layout": null,
+            "revision_comments": "",
+            "user_id": SYSTEM_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    // Check permissions for user_a via the endpoint with no page in the request context, should allow
+    runner.set_request_context(RequestContext {
+        user_id: Some(f.user_a),
+        site_id: Some(f.site_id),
+        page_reference: None,
+        ..Default::default()
+    });
+    assert!(
+        run_endpoint!(runner, page_edit_permission).can_edit,
+        "user_a should have edit permission for the default page"
+    );
+
+    // Check permissions for user_c via the endpoint with no page in the request context, should deny
+    runner.set_request_context(RequestContext {
+        user_id: Some(f.user_c),
+        site_id: Some(f.site_id),
+        page_reference: None,
+        ..Default::default()
+    });
+    assert!(
+        !run_endpoint!(runner, page_edit_permission).can_edit,
+        "user_c should NOT have edit permission for the default page"
+    );
+
+    // Same test but with no site ID either, should fail
+    runner.set_request_context(RequestContext {
+        user_id: Some(f.user_a),
+        ..Default::default()
+    });
+    run_endpoint_err!(runner, page_edit_permission);
 }
 
 #[tokio::test]
