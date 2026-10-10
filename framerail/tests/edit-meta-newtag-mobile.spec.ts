@@ -222,6 +222,31 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   expect(writeRequests, "cancel must not issue any app write request").toEqual([])
 })
 
+test("Edit Meta Cancel resets the draft without changing persisted rows", async ({
+  page
+}, testInfo) => {
+  const baseURL = appURL(testInfo.project.name)
+  const { mutations, writeRequests } = await interceptEditMetaModule(page, baseURL)
+  await openEditMetaPane(page, baseURL)
+
+  const actionArea = page.locator("#action-area")
+  await expect(actionArea).toContainText("fixture-existing")
+  await expect(actionArea).toContainText("unchanged-value")
+  await clickAddNewMetaTag(page)
+  await page.locator('input[name="metaName"]').fill("wj-cancel-nonsaved")
+  await page.locator('input[name="metaContent"]').fill("should-clear-unpersisted")
+
+  await page.locator("#edit-meta-newtag-form button.btn-danger").click()
+  await expect(page.locator("#edit-meta-newtag-form")).toHaveCount(0)
+  await clickAddNewMetaTag(page)
+  await expect(page.locator('input[name="metaName"]')).toHaveValue("")
+  await expect(page.locator('input[name="metaContent"]')).toHaveValue("")
+  await expect(actionArea).toContainText("fixture-existing")
+  await expect(actionArea).toContainText("unchanged-value")
+  expect(mutations, "Cancel must not send an Edit Meta action").toEqual([])
+  expect(writeRequests, "Cancel must not send any app write request").toEqual([])
+})
+
 test("Edit Meta cancel discards drafts across pane close, pane switch, and reload", async ({
   page
 }, testInfo) => {
