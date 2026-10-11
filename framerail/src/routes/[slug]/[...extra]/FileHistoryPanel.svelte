@@ -2,6 +2,7 @@
   import { deserialize } from "$app/forms"
   import { invalidateAll } from "$app/navigation"
   import { errorPopupState } from "$lib/layout/stores.svelte"
+  import { onDestroy } from "svelte"
   import { SvelteMap } from "svelte/reactivity"
 
   import type { PageFile } from "$lib/server/deepwell/page-file"
@@ -30,9 +31,18 @@
 
   const fileRevisionMap = new SvelteMap<number, FileRevisionModel>()
   let requestedHistoryRequestId = $state(-1)
+  // Only the most recently requested file history may update the pane. A
+  // slower response for an earlier file must not replace the revisions or
+  // Revert controls of the file the reader selected last.
+  let fileHistoryRequestId = 0
+
+  onDestroy(() => {
+    fileHistoryRequestId += 1
+  })
 
   async function loadFileHistory(fileId: number) {
     requestedHistoryRequestId = historyRequestId
+    const requestId = ++fileHistoryRequestId
     const res = await fetch("?/fileHistory", {
       method: "POST",
       body: JSON.stringify({
@@ -41,6 +51,8 @@
         fileId
       })
     }).then((response) => response.text())
+
+    if (requestId !== fileHistoryRequestId) return
 
     const result = deserialize<
       { res: FileRevisionModel[] },
