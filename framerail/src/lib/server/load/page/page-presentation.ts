@@ -213,18 +213,20 @@ export const buildWikidotPagePresentation = (
     }
   }
 
+  const sourceCommentCount = snapshot?.comments ?? null
   const { showRate, showDiscuss } = wikidotPageActionVisibility({
     sourceSite: snapshot?.source_site,
     ratingEnabled: response.data.page_rating.enabled,
     discussionEnabled: response.data.page_discussion.enabled,
-    discussionThreadId: response.data.page.discussion_thread_id
+    discussionThreadId: response.data.page.discussion_thread_id,
+    sourceCommentCount
   })
 
   return {
     wikidot_page_info: wikidotPageInfo,
     wikidot_page_actions: buildWikidotPageActionLabels({
       rating: snapshot?.imported_rating ?? null,
-      comments: snapshot?.comments ?? null,
+      comments: sourceCommentCount,
       locale: siteLocale,
       showRate,
       showDiscuss

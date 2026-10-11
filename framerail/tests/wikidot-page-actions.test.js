@@ -137,6 +137,30 @@ test("disabled page discussions stay hidden even when an old thread pointer exis
   )
 })
 
+test("an imported source comment count keeps its discussion action visible", () => {
+  assert.deepEqual(
+    wikidotPageActionVisibility({
+      sourceSite: "scp-wiki",
+      ratingEnabled: true,
+      discussionEnabled: false,
+      sourceCommentCount: 95
+    }),
+    { showRate: true, showDiscuss: true }
+  )
+})
+
+test("source sites without standard actions stay hidden despite imported comments", () => {
+  assert.deepEqual(
+    wikidotPageActionVisibility({
+      sourceSite: "sandbox-for-codex",
+      ratingEnabled: true,
+      discussionEnabled: false,
+      sourceCommentCount: 95
+    }),
+    { showRate: false, showDiscuss: false }
+  )
+})
+
 test("detects imported source sites without standard page actions", () => {
   assert.equal(sourceShowsStandardWikidotPageActions("sandbox-for-codex"), false)
   assert.equal(sourceShowsStandardWikidotPageActions("scp-wiki"), true)
