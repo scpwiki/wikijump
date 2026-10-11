@@ -303,7 +303,8 @@ test("the served interwiki frame script installs the style runtime as serialized
     pagename: "scp-9506",
     page: null
   })
-  const script = /<script>([\s\S]*?)<\/script>/u.exec(html)[1]
+  const scriptStart = html.indexOf("<script>") + "<script>".length
+  const script = html.slice(scriptStart, html.indexOf("</script>", scriptStart))
   const frameWindow = fakeFrameWindow({
     siblings: [styleFrame("?priority=1&theme=theme:basalt&css=.panel{}")]
   })
