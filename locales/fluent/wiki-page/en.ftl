@@ -17,6 +17,15 @@ wiki-page-source = Page source
 
 wiki-page-view-source = View Source
 
+## Wiki page actions
+wiki-page-action-append = Append
+wiki-page-action-edit-sections = Edit Sections
+wiki-page-action-edit-meta = Edit Meta
+wiki-page-action-watchers = Watchers
+wiki-page-action-backlinks = Backlinks
+wiki-page-action-lock = Lock Page
+wiki-page-action-rename-move = Move
+
 wiki-page-revision-history = Page revision history
 
 wiki-page-revision-diff = Compare revisions

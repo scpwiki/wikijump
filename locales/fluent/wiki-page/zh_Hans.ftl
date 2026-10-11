@@ -13,6 +13,7 @@ wiki-page-last-edit = 最后编辑于: { $date } ({ $days ->
 wiki-page-source = 页面源代码
 
 wiki-page-view-source = 检视源代码
+wiki-page-action-rename-move = 移动
 
 wiki-page-revision-history = 页面修订历史
 
@@ -120,6 +121,7 @@ wiki-page-file-restore = 恢复
 ### 维基页面锁定
 
 wiki-page-lock = 锁定页面
+wiki-page-action-lock = 锁定页面
   .permission-only = 仅权限用户
   .author-or-permission-only = 仅权限用户或发布者
   .permission-only-text = 仅具有越过锁定权限的用户可以编辑。

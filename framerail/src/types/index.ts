@@ -349,6 +349,13 @@ export interface Locales {
   "wiki-page-last-edit": string
   "wiki-page-source": string
   "wiki-page-view-source": string
+  "wiki-page-action-append": string
+  "wiki-page-action-edit-sections": string
+  "wiki-page-action-edit-meta": string
+  "wiki-page-action-watchers": string
+  "wiki-page-action-backlinks": string
+  "wiki-page-action-lock": string
+  "wiki-page-action-rename-move": string
   "wiki-page-revision-history": string
   "wiki-page-revision-diff": string
   "wiki-page-revision-diff.from": string
