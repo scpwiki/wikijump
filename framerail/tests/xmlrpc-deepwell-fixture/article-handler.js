@@ -730,9 +730,11 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
         "session_token",
         "site_id"
       ]) &&
-        ["fixture-session-token", "fixture-authenticated-session-token"].includes(
-          rpcRequest.params.session_token
-        ))) &&
+        [
+          "fixture-session-token",
+          "fixture-authenticated-session-token",
+          "fixture-owner-session-token"
+        ].includes(rpcRequest.params.session_token))) &&
     isFixtureSiteId(rpcRequest.params.site_id) &&
     Array.isArray(rpcRequest.params.locales) &&
     (rpcRequest.params.route === null ||
@@ -751,6 +753,18 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
     const page = pageForArticleRoute(articleRoute)
     if (page) {
       result = toArticleViewResult(page, rpcRequest.params.site_id)
+      if (rpcRequest.params.session_token === "fixture-owner-session-token") {
+        result.user_session = {
+          session_id: 6000009,
+          user: {
+            user_id: 123,
+            user_type: "regular",
+            name: "Fixture Page Owner",
+            slug: "fixture-page-owner",
+            locales: ["en"]
+          }
+        }
+      }
       if (articleRoute.slug === DATA_FORM_EDIT_SLUG && articleRoute.extra === "edit") {
         result.page.data.options.edit = true
         result.page.data.data_form = {

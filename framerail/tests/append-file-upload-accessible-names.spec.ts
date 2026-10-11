@@ -22,13 +22,26 @@ const waitForPageActionsHydration = (page: import("@playwright/test").Page) =>
 
 test("Append and Files Upload fields expose their associated names", async ({
   page,
+  context,
   request
 }, testInfo) => {
+  test.skip(
+    testInfo.project.name === "webkit",
+    "WebKit page action coverage runs against the HTTPS fixture project"
+  )
+  const baseURL = appURL(testInfo.project.name)
   await page.setViewportSize({ width: 320, height: 812 })
+  await context.addCookies([
+    {
+      name: "wikijump_token",
+      value: "fixture-owner-session-token",
+      url: baseURL
+    }
+  ])
   await page.setExtraHTTPHeaders(SITE_HEADERS)
   await request.get(`${FIXTURE_URL}/last-page-write-requests`)
   await request.get(`${FIXTURE_URL}/last-file-requests`)
-  const response = await page.goto(`${appURL(testInfo.project.name)}/page-workflow-probe`)
+  const response = await page.goto(`${baseURL}/page-workflow-probe`)
   expect(response?.status()).toBe(200)
   await waitForPageActionsHydration(page)
 
@@ -126,11 +139,69 @@ test("Append and Files Upload fields expose their associated names", async ({
   expect(fileWrites.fileCreate).toEqual([])
 })
 
+test("anonymous Wikidot Upload shows the source permission error without a form or POST", async ({
+  page
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name === "webkit",
+    "WebKit page action coverage runs against the HTTPS fixture project"
+  )
+
+  const baseURL = appURL(testInfo.project.name)
+  await page.setExtraHTTPHeaders({
+    ...SITE_HEADERS,
+    "Accept-Language": "en"
+  })
+  const uploadPosts: string[] = []
+  page.on("request", (request) => {
+    const url = new URL(request.url())
+    if (request.method() === "POST" && url.search === "?/fileUpload") {
+      uploadPosts.push(request.url())
+    }
+  })
+
+  const response = await page.goto(`${baseURL}/page-workflow-probe`)
+  expect(response?.status()).toBe(200)
+  await waitForPageActionsHydration(page)
+  await page.locator("#files-button").click()
+
+  const upload = page.getByRole("button", { name: "Upload" })
+  await expect(upload).toBeVisible()
+  await upload.click()
+
+  const dialog = page.locator("#odialog-container .owindow.error")
+  await expect(dialog.locator(".title")).toHaveText("PERMISSION ERROR")
+  await expect(dialog.locator(".content")).toContainText(
+    "Please note: Sorry, you can not attach a new file to this page."
+  )
+  await expect(dialog.locator(".content")).toContainText(
+    "Only owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it."
+  )
+  const signIn = dialog.getByRole("link", { name: "Sign in as Wikidot user" })
+  await expect(signIn).toHaveAttribute("href", "#action:login")
+  await expect(signIn).toBeFocused()
+  await expect(page.locator("form#file-upload")).toHaveCount(0)
+  await expect(page.locator(".file-list")).toBeVisible()
+
+  await page.keyboard.press("Escape")
+  await expect(dialog).toHaveCount(0)
+  await expect(upload).toBeFocused()
+  await upload.click()
+  await page.locator(".button-close-message").press("Enter")
+  await expect(dialog).toHaveCount(0)
+  await expect(upload).toBeFocused()
+  expect(uploadPosts).toEqual([])
+})
+
 test("authorized Append and Upload round-trip only through the isolated fixture actor", async ({
   page,
   context,
   request
 }, testInfo) => {
+  test.skip(
+    testInfo.project.name === "webkit",
+    "WebKit page action coverage runs against the HTTPS fixture project"
+  )
   const baseURL = appURL(testInfo.project.name)
   const uploadName = `issue-2259-fixture-roundtrip-${testInfo.project.name}.txt`
   await context.addCookies([
@@ -161,6 +232,14 @@ test("authorized Append and Upload round-trip only through the isolated fixture 
   expect(pageWrites.pageEdit[0].params.page).toBe(3000340)
   expect(pageWrites.pageEdit[0].params.wikitext).toContain("run-owned issue 2259 append")
 
+  await context.clearCookies()
+  await context.addCookies([
+    {
+      name: "wikijump_token",
+      value: "fixture-owner-session-token",
+      url: baseURL
+    }
+  ])
   await page.goto(`${baseURL}/page-workflow-probe`)
   await waitForPageActionsHydration(page)
   await page.locator("#files-button").click()
@@ -171,6 +250,14 @@ test("authorized Append and Upload round-trip only through the isolated fixture 
     buffer: Buffer.from("run-owned issue 2259 upload")
   })
   await page.locator("#file-upload-name-input").fill(uploadName)
+  await context.clearCookies()
+  await context.addCookies([
+    {
+      name: "wikijump_token",
+      value: "fixture-session-token",
+      url: baseURL
+    }
+  ])
   await page.locator('#file-upload input[type="submit"]').click()
   await expect(page.locator("#file-upload")).toHaveCount(0)
 
